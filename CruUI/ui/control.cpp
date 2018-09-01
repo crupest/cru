@@ -386,35 +386,58 @@ namespace cru {
                 ::OutputDebugStringW(L"LayoutParams is not valid.");
 #endif
 
-            auto&& f = [&](
+            auto&& f = [](
                 const MeasureLength& layout_length,
                 const float available_length,
                 const std::optional<float> max_length,
                 const std::optional<float> min_length
                 ) -> float
             {
-                float length;
                 switch (layout_length.mode)
                 {
                 case MeasureMode::Exactly:
                 {
-                    length = std::maxlayout_length.length;
-                    break;
+                    auto length = layout_length.length;
+                    if (min_length.has_value())
+                        length = std::max(min_length.value(), length);
+                    if (max_length.has_value())
+                        length = std::min(max_length.value(), length);
+                    if (available_length < length)
+                    {
+                        length = available_length;
+                        ::OutputDebugStringW(L"Available length is not enough");
+                    }
+                    return length;
                 }
                 case MeasureMode::Stretch:
                 case MeasureMode::Content:
-                    return available_length;
-                default:
-                    return 0.0f;
+                {
+                    auto length = available_length;
+                    if (min_length.has_value() && min_length.value() > length)
+                        ::OutputDebugStringW(L"Min length is less than available length.");
+                    if (max_length.has_value())
+                        length = std::min(max_length.value(), length);
+                    return length;
                 }
-                if (max_length.has_value())
-                    length = std::min(max_length.value(), length);
-
+                default:
+                    throw std::logic_error("Unreachable code.");
+                }
             };
 
             Size size_for_children;
-            size_for_children.width = f(layout_params->size.width, available_size.width);
-            size_for_children.height = f(layout_params->size.height, available_size.height);
+            size_for_children.width = f(layout_params->size.width, available_size.width, layout_params->max_size.width, layout_params->min_size.width);
+            size_for_children.height = f(layout_params->size.height, available_size.height, layout_params->max_size.height, layout_params->min_size.height);;
+
+            auto max_child_size = Size::zero;
+            ForeachChild([&](Control* control)
+            {
+                control->Measure(size_for_children);
+                const auto&& size = control->GetDesiredSize();
+                if (max_child_size.width < size.width)
+                    max_child_size.width = size.width;
+                if (max_child_size.height < size.height)
+                    max_child_size.height = size.height;
+            });
 
 
             //TODO!

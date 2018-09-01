@@ -85,7 +85,21 @@ namespace cru
 
             bool Validate() const
             {
-                return size.Validate() && max_size.Validate() && min_size.Validate();
+                if (!(size.Validate() && max_size.Validate() && min_size.Validate()))
+                    return false;
+
+                auto&& f = [](const std::optional<float> max_length, const std::optional<float> min_length) -> bool
+                {
+                    return max_length.has_value() && min_length.has_value() && max_length.value() < min_length.value();
+                };
+
+                if (!f(max_size.width, min_size.width))
+                    return false;
+
+                if (!f(max_size.height, min_size.height))
+                    return false;
+
+                return true;
             }
 
             MeasureSize size;
