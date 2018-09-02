@@ -54,6 +54,9 @@
     <ClInclude Include="global_macros.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ui\controls\text_block.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="application.cpp">
@@ -84,6 +87,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ui\events\ui_event.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\controls\text_block.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
