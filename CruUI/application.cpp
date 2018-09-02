@@ -82,9 +82,9 @@ namespace cru {
         return false;
     }
 
-    void InvokeLater(const InvokeLaterAction& action) {
+    void InvokeLater(InvokeLaterAction&& action) {
         //copy the action to a safe place
-        auto p_action_copy = new InvokeLaterAction(action);
+        auto p_action_copy = new InvokeLaterAction(std::move(action));
 
         PostMessage(
             nullptr,

@@ -70,6 +70,6 @@ namespace cru
     };
 
 
-    using InvokeLaterAction = std::function<void()>;
-    void InvokeLater(const InvokeLaterAction& action);
+    using InvokeLaterAction = Action<>;
+    void InvokeLater(InvokeLaterAction&& action);
 }

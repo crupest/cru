@@ -80,7 +80,7 @@ namespace cru
             }
 
             //Traverse the tree rooted the control.
-            void TraverseDescendants(const std::function<void(Control*)>& predicate);
+            void TraverseDescendants(Action<Control*>&& predicate);
 
             //*************** region: position and size ***************
             // Position and size part must be isolated from layout part.
@@ -225,11 +225,16 @@ namespace cru
             virtual void OnLayout(const Rect& rect);
 
         private:
+            // Only for layout manager to use.
+            void CheckAndNotifyPositionChanged();
+
+        private:
             Window * window_;
 
             Control * parent_;
             std::vector<Control*> children_;
 
+            Point old_position_;
             Point position_;
             Size size_;
 

@@ -3,6 +3,7 @@
 #include <algorithm>
 
 #include "window.h"
+#include "timer.h"
 
 namespace cru {
     namespace ui {
@@ -12,6 +13,7 @@ namespace cru {
             window_(nullptr),
             parent_(nullptr),
             children_(),
+            old_position_(Point::zero),
             position_(Point::zero),
             size_(Size::zero),
             position_cache_(),
@@ -116,17 +118,15 @@ namespace cru {
             return ancestor;
         }
 
-        void TraverseDescendantsInternal(Control* control,
-            const std::function<void(Control*)>& predicate)
+        void TraverseDescendantsInternal(Control* control, Action<Control*>& predicate)
         {
             predicate(control);
-            control->ForeachChild([predicate](Control* c) {
+            control->ForeachChild([&predicate](Control* c) {
                 TraverseDescendantsInternal(c, predicate);
             });
         }
 
-        void Control::TraverseDescendants(
-            const std::function<void(Control*)>& predicate)
+        void Control::TraverseDescendants(Action<Control*>&& predicate)
         {
             TraverseDescendantsInternal(this, predicate);
         }
@@ -138,13 +138,14 @@ namespace cru {
 
         void Control::SetPositionRelative(const Point & position)
         {
+            if (old_position_ == position) // if cache has been refreshed and no pending notify
+                old_position_ = position_;
             position_ = position;
             if (auto window = GetWindow())
             {
                 window->GetLayoutManager()->InvalidateControlPositionCache(this);
                 window->Repaint();
             }
-            //TODO: Position change notify.
         }
 
         Size Control::GetSize()
@@ -416,7 +417,7 @@ namespace cru {
 
             auto&& calculate_final_length = [](const MeasureLength& layout_length, const float length_for_children, const float max_child_length) -> float
             {
-                switch(layout_length.mode)
+                switch (layout_length.mode)
                 {
                 case MeasureMode::Exactly:
                 case MeasureMode::Stretch:
@@ -440,6 +441,16 @@ namespace cru {
             {
                 control->Layout(Rect(Point::zero, control->GetDesiredSize()));
             });
+        }
+
+        void Control::CheckAndNotifyPositionChanged()
+        {
+            if (this->old_position_ != this->position_)
+            {
+                PositionChangedEventArgs args(this, this, this->old_position_, this->position_);
+                this->OnPositionChangedCore(args);
+                this->old_position_ = this->position_;
+            }
         }
 
         std::list<Control*> GetAncestorList(Control* control)

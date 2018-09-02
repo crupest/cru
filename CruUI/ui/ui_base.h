@@ -15,6 +15,16 @@ namespace cru
             float y;
         };
 
+        inline bool operator==(const Point& left, const Point& right)
+        {
+            return left.x == right.x && left.y == right.y;
+        }
+
+        inline bool operator!=(const Point& left, const Point& right)
+        {
+            return !(left == right);
+        }
+
         struct Size
         {
             static const Size zero;
@@ -26,7 +36,7 @@ namespace cru
             float height;
         };
 
-        struct Rect 
+        struct Rect
         {
             Rect() = default;
             Rect(const float left, const float top, const float width, const float height)
@@ -54,10 +64,10 @@ namespace cru
                 return Point(left, top);
             }
 
-			Point GetRightBottom() const
+            Point GetRightBottom() const
             {
-				return Point(left + width, top + height);
-			}
+                return Point(left + width, top + height);
+            }
 
             Size GetSize() const
             {
@@ -67,9 +77,9 @@ namespace cru
             bool IsPointInside(const Point& point) const
             {
                 return
-                    point.x >= left         &&
-                    point.x < GetRight()    &&
-                    point.y >= top          &&
+                    point.x >= left &&
+                    point.x < GetRight() &&
+                    point.y >= top &&
                     point.y < GetBottom();
             }
 
