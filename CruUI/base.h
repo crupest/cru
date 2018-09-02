@@ -1,9 +1,14 @@
 #pragma once
 
+// ReSharper disable once CppUnusedIncludeDirective
 #include "global_macros.h"
+
 
 #include <folly/String.h>
 #include <folly/Function.h>
+
+#include <stdexcept>
+
 
 namespace cru
 {
@@ -39,4 +44,9 @@ namespace cru
 	{
 		virtual ~Interface() = default;
 	};
+
+    [[noreturn]] inline void UnreachableCode()
+    {
+        throw std::logic_error("Unreachable code.");
+    }
 }

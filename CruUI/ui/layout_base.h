@@ -1,7 +1,5 @@
 #pragma once
 
-#include <optional>
-
 namespace cru
 {
     namespace ui
@@ -23,55 +21,18 @@ namespace cru
 
             bool Validate() const
             {
-                return !(mode == MeasureMode::Exactly && length < 0.0);
+                if (mode == MeasureMode::Exactly && length < 0.0)
+                {
+#ifdef CRU_DEBUG
+                    ::OutputDebugStringW(L"MeasureLength validation error: mode is Exactly but length is less than 0.\n");
+#endif
+                    return false;
+                }
+                return true;
             }
 
             float length;
             MeasureMode mode;
-        };
-
-        struct MeasureSize final
-        {
-            MeasureLength width;
-            MeasureLength height;
-
-            bool Validate() const
-            {
-                return width.Validate() && height.Validate();
-            }
-        };
-
-        struct OptionalSize final
-        {
-            OptionalSize()
-                : width(std::nullopt), height(std::nullopt)
-            {
-
-            }
-
-            OptionalSize(const std::optional<float> width, const std::optional<float> height)
-                : width(width), height(height)
-            {
-
-            }
-
-            OptionalSize(const OptionalSize& other) = default;
-            OptionalSize(OptionalSize&& other) = default;
-            OptionalSize& operator = (const OptionalSize& other) = default;
-            OptionalSize& operator = (OptionalSize&& other) = default;
-            ~OptionalSize() = default;
-
-            bool Validate() const
-            {
-                if (width.has_value() && width.value() < 0.0)
-                    return false;
-                if (height.has_value() && height.value() < 0.0)
-                    return false;
-                return true;
-            }
-
-            std::optional<float> width;
-            std::optional<float> height;
         };
 
         struct BasicLayoutParams
@@ -85,26 +46,25 @@ namespace cru
 
             bool Validate() const
             {
-                if (!(size.Validate() && max_size.Validate() && min_size.Validate()))
-                    return false;
-
-                auto&& f = [](const std::optional<float> max_length, const std::optional<float> min_length) -> bool
+                if (!width.Validate())
                 {
-                    return max_length.has_value() && min_length.has_value() && max_length.value() < min_length.value();
-                };
-
-                if (!f(max_size.width, min_size.width))
+#ifdef CRU_DEBUG
+                    ::OutputDebugStringW(L"Width(MeasureLength) is not valid.");
+#endif
                     return false;
-
-                if (!f(max_size.height, min_size.height))
+                }
+                if (!height.Validate())
+                {
+#ifdef CRU_DEBUG
+                    ::OutputDebugStringW(L"Height(MeasureLength) is not valid.");
+#endif
                     return false;
-
+                }
                 return true;
             }
 
-            MeasureSize size;
-            OptionalSize min_size;
-            OptionalSize max_size;
+            MeasureLength width;
+            MeasureLength height;
         };
     }
 }

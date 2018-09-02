@@ -74,7 +74,10 @@ namespace cru
             Control* GetAncestor();
 
             //Get the window if attached, otherwise, return nullptr.
-            Window* GetWindow();
+            Window* GetWindow() const
+            {
+                return window_;
+            }
 
             //Traverse the tree rooted the control.
             void TraverseDescendants(const std::function<void(Control*)>& predicate);

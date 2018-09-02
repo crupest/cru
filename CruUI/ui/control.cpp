@@ -11,8 +11,10 @@ namespace cru {
         Control::Control() :
             window_(nullptr),
             parent_(nullptr),
+            children_(),
             position_(Point::zero),
             size_(Size::zero),
+            position_cache_(),
             is_mouse_inside_(false),
             layout_params_(nullptr),
             desired_size_(Size::zero)
@@ -112,11 +114,6 @@ namespace cru {
             while (const auto parent = ancestor->GetParent())
                 ancestor = parent;
             return ancestor;
-        }
-
-        Window * Control::GetWindow()
-        {
-            return window_;
         }
 
         void TraverseDescendantsInternal(Control* control,
@@ -381,52 +378,30 @@ namespace cru {
         {
             const auto layout_params = GetLayoutParams();
 
-#ifdef _DEBUG
             if (!layout_params->Validate())
-                ::OutputDebugStringW(L"LayoutParams is not valid.");
-#endif
+                throw std::runtime_error("LayoutParams is not valid. Please check it.");
 
-            auto&& f = [](
-                const MeasureLength& layout_length,
-                const float available_length,
-                const std::optional<float> max_length,
-                const std::optional<float> min_length
-                ) -> float
+            auto&& get_available_length_for_child = [](const MeasureLength& layout_length, const float available_length) -> float
             {
                 switch (layout_length.mode)
                 {
                 case MeasureMode::Exactly:
                 {
-                    auto length = layout_length.length;
-                    if (min_length.has_value())
-                        length = std::max(min_length.value(), length);
-                    if (max_length.has_value())
-                        length = std::min(max_length.value(), length);
-                    if (available_length < length)
-                    {
-                        length = available_length;
-                        ::OutputDebugStringW(L"Available length is not enough");
-                    }
-                    return length;
+                    return std::min(layout_length.length, available_length);
                 }
                 case MeasureMode::Stretch:
                 case MeasureMode::Content:
                 {
-                    auto length = available_length;
-                    if (min_length.has_value() && min_length.value() > length)
-                        ::OutputDebugStringW(L"Min length is less than available length.");
-                    if (max_length.has_value())
-                        length = std::min(max_length.value(), length);
-                    return length;
+                    return available_length;
                 }
                 default:
-                    throw std::logic_error("Unreachable code.");
+                    UnreachableCode();
                 }
             };
 
-            Size size_for_children;
-            size_for_children.width = f(layout_params->size.width, available_size.width, layout_params->max_size.width, layout_params->min_size.width);
-            size_for_children.height = f(layout_params->size.height, available_size.height, layout_params->max_size.height, layout_params->min_size.height);;
+            Size size_for_children{};
+            size_for_children.width = get_available_length_for_child(layout_params->width, available_size.width);
+            size_for_children.height = get_available_length_for_child(layout_params->height, available_size.height);
 
             auto max_child_size = Size::zero;
             ForeachChild([&](Control* control)
@@ -439,13 +414,32 @@ namespace cru {
                     max_child_size.height = size.height;
             });
 
+            auto&& calculate_final_length = [](const MeasureLength& layout_length, const float length_for_children, const float max_child_length) -> float
+            {
+                switch(layout_length.mode)
+                {
+                case MeasureMode::Exactly:
+                case MeasureMode::Stretch:
+                    return length_for_children;
+                case MeasureMode::Content:
+                    return max_child_length;
+                default:
+                    UnreachableCode();
+                }
+            };
 
-            //TODO!
+            return Size(
+                calculate_final_length(layout_params->width, size_for_children.width, max_child_size.width),
+                calculate_final_length(layout_params->height, size_for_children.height, max_child_size.height)
+            );
         }
 
         void Control::OnLayout(const Rect& rect)
         {
-            //TODO!
+            ForeachChild([](Control* control)
+            {
+                control->Layout(Rect(Point::zero, control->GetDesiredSize()));
+            });
         }
 
         std::list<Control*> GetAncestorList(Control* control)
