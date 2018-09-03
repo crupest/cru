@@ -24,24 +24,19 @@ namespace cru {
 
         }
 
-        void Control::ForeachChild(Action<Control*>&& predicate)
+        void Control::ForeachChild(Action<Control*>&& predicate) const
         {
             for (const auto child : children_)
                 predicate(child);
         }
 
-        void Control::ForeachChild(FlowControlAction<Control*>&& predicate)
+        void Control::ForeachChild(FlowControlAction<Control*>&& predicate) const
         {
             for (const auto child : children_)
             {
                 if (predicate(child) == FlowControl::Break)
                     break;
             }
-        }
-
-        std::vector<Control*> Control::GetChildren()
-        {
-            return this->children_;
         }
 
         void AddChildCheck(Control* control)
@@ -91,7 +86,7 @@ namespace cru {
             this->OnRemoveChild(this);
         }
 
-        void Control::RemoveChild(int position)
+        void Control::RemoveChild(const int position)
         {
             if (position < 0 || static_cast<decltype(this->children_.size())>(position) >= this->children_.size())
                 throw std::invalid_argument("The position is out of range.");
@@ -163,18 +158,18 @@ namespace cru {
                 window->Repaint();
         }
 
-        Point Control::GetPositionAbsolute()
+        Point Control::GetPositionAbsolute() const
         {
             return position_cache_.lefttop_position_absolute;
         }
 
-        Point Control::LocalToAbsolute(const Point& point)
+        Point Control::LocalToAbsolute(const Point& point) const
         {
             return Point(point.x + position_cache_.lefttop_position_absolute.x,
                 point.y + position_cache_.lefttop_position_absolute.y);
         }
 
-        Point Control::AbsoluteToLocal(const Point & point)
+        Point Control::AbsoluteToLocal(const Point & point) const
         {
             return Point(point.x - position_cache_.lefttop_position_absolute.x,
                 point.y - position_cache_.lefttop_position_absolute.y);
@@ -182,7 +177,7 @@ namespace cru {
 
         bool Control::IsPointInside(const Point & point)
         {
-            auto size = GetSize();
+            const auto size = GetSize();
             return point.x >= 0.0f && point.x < size.width && point.y >= 0.0f && point.y < size.height;
         }
 
@@ -191,7 +186,7 @@ namespace cru {
             D2D1::Matrix3x2F old_transform;
             device_context->GetTransform(&old_transform);
 
-            auto position = GetPositionRelative();
+            const auto position = GetPositionRelative();
             device_context->SetTransform(old_transform * D2D1::Matrix3x2F::Translation(position.x, position.y));
 
             OnDraw(device_context);
@@ -234,7 +229,7 @@ namespace cru {
             OnLayout(rect);
         }
 
-        Size Control::GetDesiredSize()
+        Size Control::GetDesiredSize() const
         {
             return desired_size_;
         }

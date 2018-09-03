@@ -6,7 +6,7 @@
 #include <list>
 #include <memory>
 
-#include "Control.h"
+#include "control.h"
 
 namespace cru {
 	namespace graph {
@@ -17,19 +17,26 @@ namespace cru {
 		class WindowClass : public Object
 		{
 		public:
-			WindowClass(const std::wstring& name, WNDPROC window_proc, HINSTANCE h_instance);
+			WindowClass(const String& name, WNDPROC window_proc, HINSTANCE h_instance);
 		    WindowClass(const WindowClass& other) = delete;
 		    WindowClass(WindowClass&& other) = delete;
 		    WindowClass& operator=(const WindowClass& other) = delete;
 		    WindowClass& operator=(WindowClass&& other) = delete;
-		    ~WindowClass() override;
+		    ~WindowClass() override = default;
 
 
-			const wchar_t* GetName();
-			ATOM GetAtom();
+			const wchar_t* GetName() const
+			{
+			    return name_.c_str();
+			}
+
+			ATOM GetAtom() const
+			{
+			    return atom_;
+			}
 
 		private:
-			std::wstring name_;
+			String name_;
 			ATOM atom_;
 		};
 
@@ -72,12 +79,12 @@ namespace cru {
 		class WindowLayoutManager : public Object
 		{
 		public:
-			WindowLayoutManager();
+			WindowLayoutManager() = default;
 		    WindowLayoutManager(const WindowLayoutManager& other) = delete;
 		    WindowLayoutManager(WindowLayoutManager&& other) = delete;
 		    WindowLayoutManager& operator=(const WindowLayoutManager& other) = delete;
 		    WindowLayoutManager& operator=(WindowLayoutManager&& other) = delete;
-			~WindowLayoutManager() override;
+			~WindowLayoutManager() override = default;
 
 			//Mark position cache of the control and its descendants invalid,
 			//(which is saved as an auto-managed list internal)
@@ -111,16 +118,25 @@ namespace cru {
 
 		public:
 			//*************** region: managers ***************
-			WindowLayoutManager* GetLayoutManager();
+			WindowLayoutManager* GetLayoutManager() const
+			{
+			    return layout_manager_.get();
+			}
 
 
 			//*************** region: handle ***************
 
 			//Get the handle of the window. Return null if window is invalid.
-			HWND GetWindowHandle();
+			HWND GetWindowHandle() const
+			{
+			    return hwnd_;
+			}
 
 			//Return if the window is still valid, that is, hasn't been closed or destroyed.
-			bool IsWindowValid();
+			bool IsWindowValid() const
+			{
+			    return hwnd_ != nullptr;
+			}
 
 
 			//*************** region: window operations ***************

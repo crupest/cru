@@ -5,6 +5,7 @@
 
 
 #include <folly/String.h>
+#include <folly/FBVector.h>
 #include <folly/Function.h>
 
 #include <stdexcept>
@@ -28,6 +29,9 @@ namespace cru
 
     template<typename... Args>
     using FlowControlAction = Function<FlowControl(Args...)>;
+
+    template<typename T>
+    using Vector = folly::fbvector<T>;
 
     class Object
 	{

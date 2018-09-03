@@ -8,7 +8,7 @@ namespace cru
 {
     namespace ui
     {
-        WindowClass::WindowClass(const std::wstring& name, WNDPROC window_proc, HINSTANCE hinstance)
+        WindowClass::WindowClass(const String& name, WNDPROC window_proc, HINSTANCE h_instance)
             : name_(name)
         {
             WNDCLASSEX window_class;
@@ -18,7 +18,7 @@ namespace cru
             window_class.lpfnWndProc = window_proc;
             window_class.cbClsExtra = 0;
             window_class.cbWndExtra = 0;
-            window_class.hInstance = hinstance;
+            window_class.hInstance = h_instance;
             window_class.hIcon = LoadIcon(NULL, IDI_APPLICATION);
             window_class.hCursor = LoadCursor(NULL, IDC_ARROW);
             window_class.hbrBackground = GetSysColorBrush(COLOR_BTNFACE);
@@ -29,19 +29,6 @@ namespace cru
             atom_ = RegisterClassEx(&window_class);
             if (atom_ == 0)
                 throw std::runtime_error("Failed to create window class.");
-        }
-
-        WindowClass::~WindowClass()
-        {
-
-        }
-
-        const wchar_t * WindowClass::GetName() {
-            return name_.c_str();
-        }
-
-        ATOM WindowClass::GetAtom() {
-            return atom_;
         }
 
         LRESULT __stdcall GeneralWndProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam) {
@@ -88,14 +75,6 @@ namespace cru
                 return find_result->second;
         }
 
-        WindowLayoutManager::WindowLayoutManager()
-        {
-        }
-
-        WindowLayoutManager::~WindowLayoutManager()
-        {
-        }
-
         void WindowLayoutManager::InvalidateControlPositionCache(Control * control)
         {
             if (cache_invalid_controls_.count(control) == 1)
@@ -115,13 +94,13 @@ namespace cru
             if (cache_invalid_controls_.size() == 1) // when insert just now and not repeat to "InvokeLater".
             {
                 InvokeLater([this] {
-                    RefreshInvalidControlPositionCache();
-                    for (const auto i : cache_invalid_controls_)
+                    RefreshInvalidControlPositionCache(); // first refresh position cache.
+                    for (const auto i : cache_invalid_controls_) // traverse all descendants of position-invalid controls and notify position change event
                         i->TraverseDescendants([](Control* control)
                         {
                             control->CheckAndNotifyPositionChanged();
                         });
-                    cache_invalid_controls_.clear();
+                    cache_invalid_controls_.clear(); // after update and notify, clear the set.
                 });
             }
         }
@@ -134,7 +113,7 @@ namespace cru
 
         void WindowLayoutManager::RefreshControlPositionCache(Control * control)
         {
-            Point point = Point::zero;
+            auto point = Point::zero;
             auto parent = control;
             while ((parent = parent->GetParent())) {
                 const auto p = parent->GetPositionRelative();
@@ -176,20 +155,6 @@ namespace cru
 
         Window::~Window() {
             Close();
-        }
-
-        WindowLayoutManager* Window::GetLayoutManager()
-        {
-            return layout_manager_.get();
-        }
-
-        HWND Window::GetWindowHandle()
-        {
-            return hwnd_;
-        }
-
-        bool Window::IsWindowValid() {
-            return hwnd_ != nullptr;
         }
 
         void Window::Close() {

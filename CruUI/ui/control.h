@@ -1,7 +1,6 @@
 #pragma once
 
 #include "system_headers.h"
-#include <vector>
 #include <optional>
 
 #include "base.h"
@@ -50,13 +49,16 @@ namespace cru
             }
 
             //Traverse the children
-            void ForeachChild(Action<Control*>&& predicate);
-            void ForeachChild(FlowControlAction<Control*>&& predicate);
+            void ForeachChild(Action<Control*>&& predicate) const;
+            void ForeachChild(FlowControlAction<Control*>&& predicate) const;
 
             //Return a vector of all children. This function will create a
             //temporary copy of vector of children. If you just want to
             //traverse all children, just call ForeachChild.
-            std::vector<Control*> GetChildren();
+            Vector<Control*> GetChildren() const
+            {
+                return children_;
+            }
 
             //Add a child at tail.
             void AddChild(Control* control);
@@ -96,19 +98,19 @@ namespace cru
             //Get the actual size.
             virtual Size GetSize();
 
-            //Set the actual size directly without relayout.
+            //Set the actual size directly without re-layout.
             virtual void SetSize(const Size& size);
 
             //Get lefttop relative to ancestor. This is only valid when
             //attached to window. Notice that the value is cached.
             //You can invalidate and recalculate it by calling "InvalidatePositionCache". 
-            Point GetPositionAbsolute();
+            Point GetPositionAbsolute() const;
 
             //Local point to absolute point.
-            Point LocalToAbsolute(const Point& point);
+            Point LocalToAbsolute(const Point& point) const;
 
             //Absolute point to local point.
-            Point AbsoluteToLocal(const Point& point);
+            Point AbsoluteToLocal(const Point& point) const;
 
             bool IsPointInside(const Point& point);
 
@@ -131,7 +133,7 @@ namespace cru
 
             void Layout(const Rect& rect);
 
-            Size GetDesiredSize();
+            Size GetDesiredSize() const;
 
             void SetDesiredSize(const Size& desired_size);
 
@@ -226,15 +228,23 @@ namespace cru
 
         private:
             // Only for layout manager to use.
+            // Check if the old position is updated to current position.
+            // If not, then a notify of position change and update will
+            // be done.
             void CheckAndNotifyPositionChanged();
 
         private:
             Window * window_;
 
             Control * parent_;
-            std::vector<Control*> children_;
+            Vector<Control*> children_;
 
-            Point old_position_;
+            // When position is changed and notification hasn't been
+            // sent, it will be the old position. When position is changed
+            // more than once, it will be the oldest position since last
+            // notification. If notification has been sent, it will be updated
+            // to position_.
+            Point old_position_; 
             Point position_;
             Size size_;
 
