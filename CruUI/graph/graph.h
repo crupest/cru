@@ -9,12 +9,12 @@
 namespace cru
 {
     namespace graph
-	{
+    {
         class GraphManager;
 
         //Represents a window render target.
         class WindowRenderTarget : public Object
-		{
+        {
         public:
             WindowRenderTarget(GraphManager* graph_manager, HWND hwnd);
             WindowRenderTarget(const WindowRenderTarget& other) = delete;
@@ -58,13 +58,16 @@ namespace cru
         };
 
         struct Dpi
-		{
+        {
             float x;
             float y;
         };
 
         class GraphManager : public Object
-		{
+        {
+        public:
+            static GraphManager* GetInstance();
+
         public:
             GraphManager();
             GraphManager(const GraphManager& other) = delete;
@@ -93,6 +96,12 @@ namespace cru
             {
                 return dxgi_factory_;
             }
+
+            Microsoft::WRL::ComPtr<IDWriteFactory> GetDWriteFactory() const
+            {
+                return dwrite_factory_;
+            }
+
 
             //Create a window render target with the HWND.
             std::shared_ptr<WindowRenderTarget> CreateWindowRenderTarget(HWND hwnd);

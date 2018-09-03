@@ -8,7 +8,7 @@ namespace cru {
         using Microsoft::WRL::ComPtr;
 
         WindowRenderTarget::WindowRenderTarget(GraphManager* graph_manager, HWND hwnd)
-		{
+        {
             this->graph_manager_ = graph_manager;
 
             const auto d3d11_device = graph_manager->GetD3D11Device();
@@ -46,18 +46,18 @@ namespace cru {
         }
 
         WindowRenderTarget::~WindowRenderTarget()
-		{
+        {
 
         }
 
         void WindowRenderTarget::ResizeBuffer(const int width, const int height)
-		{
+        {
             const auto graph_manager = graph_manager_;
             const auto d2d1_device_context = graph_manager->GetD2D1DeviceContext();
 
             ComPtr<ID2D1Image> old_target;
             d2d1_device_context->GetTarget(&old_target);
-		    const auto target_this = old_target == this->target_bitmap_;
+            const auto target_this = old_target == this->target_bitmap_;
             if (target_this)
                 d2d1_device_context->SetTarget(nullptr);
 
@@ -75,19 +75,19 @@ namespace cru {
         }
 
         void WindowRenderTarget::SetAsTarget()
-		{
+        {
             GetD2DDeviceContext()->SetTarget(target_bitmap_.Get());
         }
 
         void WindowRenderTarget::Present()
-		{
+        {
             ThrowIfFailed(
                 dxgi_swap_chain_->Present(1, 0)
             );
         }
 
         void WindowRenderTarget::CreateTargetBitmap()
-		{
+        {
             // Direct2D needs the dxgi version of the backbuffer surface pointer.
             ComPtr<IDXGISurface> dxgiBackBuffer;
             ThrowIfFailed(
@@ -114,8 +114,13 @@ namespace cru {
             );
         }
 
+        GraphManager* GraphManager::GetInstance()
+        {
+            return Application::GetInstance()->GetGraphManager();
+        }
+
         GraphManager::GraphManager()
-		{
+        {
             UINT creation_flags = D3D11_CREATE_DEVICE_BGRA_SUPPORT;
 
 #ifdef _DEBUG
@@ -174,59 +179,66 @@ namespace cru {
             ThrowIfFailed(
                 dxgi_adapter->GetParent(IID_PPV_ARGS(&dxgi_factory_))
             );
+
+
+            ThrowIfFailed(DWriteCreateFactory(
+                DWRITE_FACTORY_TYPE_SHARED,
+                __uuidof(IDWriteFactory),
+                reinterpret_cast<IUnknown**>(dwrite_factory_.GetAddressOf())
+            ));
         }
 
         GraphManager::~GraphManager()
-		{
+        {
 
         }
 
         std::shared_ptr<WindowRenderTarget> GraphManager::CreateWindowRenderTarget(HWND hwnd)
-		{
+        {
             return std::make_shared<WindowRenderTarget>(this, hwnd);
         }
 
         Dpi GraphManager::GetDpi()
-		{
+        {
             Dpi dpi;
             d2d1_factory_->GetDesktopDpi(&dpi.x, &dpi.y);
             return dpi;
         }
 
         void GraphManager::ReloadSystemMetrics()
-		{
+        {
             ThrowIfFailed(
                 d2d1_factory_->ReloadSystemMetrics()
             );
         }
 
         inline int DipToPixelInternal(float dip, float dpi)
-		{
+        {
             return static_cast<int>(dip * dpi / 96.0f);
         }
 
         int DipToPixelX(float dipX)
-		{
+        {
             return DipToPixelInternal(dipX, Application::GetInstance()->GetGraphManager()->GetDpi().x);
         }
 
         int DipToPixelY(float dipY)
-		{
+        {
             return DipToPixelInternal(dipY, Application::GetInstance()->GetGraphManager()->GetDpi().y);
         }
 
         inline float DipToPixelInternal(int pixel, float dpi)
-		{
+        {
             return static_cast<float>(pixel) * 96.0f / dpi;
         }
 
         float PixelToDipX(int pixelX)
-		{
+        {
             return DipToPixelInternal(pixelX, Application::GetInstance()->GetGraphManager()->GetDpi().x);
         }
 
         float PixelToDipY(int pixelY)
-		{
+        {
             return DipToPixelInternal(pixelY, Application::GetInstance()->GetGraphManager()->GetDpi().y);
         }
     }
