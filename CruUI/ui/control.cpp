@@ -199,6 +199,12 @@ namespace cru {
             device_context->SetTransform(old_transform);
         }
 
+        void Control::Repaint()
+        {
+            if (window_ != nullptr)
+                window_->Repaint();
+        }
+
         bool Control::RequestFocus()
         {
             auto window = GetWindow();

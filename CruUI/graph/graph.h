@@ -112,6 +112,11 @@ namespace cru
             //Reload system metrics including desktop dpi.
             void ReloadSystemMetrics();
 
+            Microsoft::WRL::ComPtr<IDWriteFontCollection> GetSystemFontCollection() const
+            {
+                return dwrite_system_font_collection_.Get();
+            }
+
         private:
             Microsoft::WRL::ComPtr<ID3D11Device> d3d11_device_;
             Microsoft::WRL::ComPtr<ID3D11DeviceContext> d3d11_device_context_;
@@ -119,7 +124,9 @@ namespace cru
             Microsoft::WRL::ComPtr<ID2D1Device> d2d1_device_;
             Microsoft::WRL::ComPtr<ID2D1DeviceContext> d2d1_device_context_;
             Microsoft::WRL::ComPtr<IDXGIFactory2> dxgi_factory_;
+
             Microsoft::WRL::ComPtr<IDWriteFactory> dwrite_factory_;
+            Microsoft::WRL::ComPtr<IDWriteFontCollection> dwrite_system_font_collection_;
         };
 
         int DipToPixelX(float dip_x);

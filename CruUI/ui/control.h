@@ -120,6 +120,8 @@ namespace cru
             //Draw this control and its child controls.
             void Draw(ID2D1DeviceContext* device_context);
 
+            virtual void Repaint();
+
             //*************** region: focus ***************
 
             bool RequestFocus();

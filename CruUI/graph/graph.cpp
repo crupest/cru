@@ -186,6 +186,8 @@ namespace cru {
                 __uuidof(IDWriteFactory),
                 reinterpret_cast<IUnknown**>(dwrite_factory_.GetAddressOf())
             ));
+
+            dwrite_factory_->GetSystemFontCollection(&dwrite_system_font_collection_);
         }
 
         GraphManager::~GraphManager()

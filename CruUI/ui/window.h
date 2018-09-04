@@ -145,7 +145,7 @@ namespace cru {
 			void Close();
 
 			//Send a repaint message to the window's message queue which may make the window repaint.
-			void Repaint();
+			void Repaint() override;
 
 			//Show the window.
 			void Show();
