@@ -16,7 +16,7 @@ namespace cru
             }
 
             TextBlock::TextBlock(const Microsoft::WRL::ComPtr<IDWriteTextFormat>& init_text_format,
-                const Microsoft::WRL::ComPtr<ID2D1Brush>& init_brush)
+                const Microsoft::WRL::ComPtr<ID2D1Brush>& init_brush) : Control(false)
             {
                 text_format_ = init_text_format;
                 if (init_brush == nullptr)
