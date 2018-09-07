@@ -29,7 +29,7 @@ namespace cru
             friend class Window;
             friend class WindowLayoutManager;
         protected:
-            Control();
+            explicit Control(bool container = false);
 
         public:
             Control(const Control& other) = delete;
@@ -41,6 +41,11 @@ namespace cru
         public:
 
             //*************** region: tree ***************
+
+            bool IsContainer() const
+            {
+                return is_container_;
+            }
 
             //Get parent of control, return nullptr if it has no parent.
             Control* GetParent() const
@@ -235,7 +240,15 @@ namespace cru
             // be done.
             void CheckAndNotifyPositionChanged();
 
+            void ThrowIfNotContainer() const
+            {
+                if (!is_container_)
+                    throw std::runtime_error("You can't perform such operation on a non-container control.");
+            }
+
         private:
+            bool is_container_;
+
             Window * window_;
 
             Control * parent_;

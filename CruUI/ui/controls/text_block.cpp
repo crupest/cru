@@ -10,6 +10,11 @@ namespace cru
     {
         namespace controls
         {
+            inline Microsoft::WRL::ComPtr<IDWriteFactory> GetDWriteFactory()
+            {
+                return graph::GraphManager::GetInstance()->GetDWriteFactory();
+            }
+
             TextBlock::TextBlock(const Microsoft::WRL::ComPtr<IDWriteTextFormat>& init_text_format,
                 const Microsoft::WRL::ComPtr<ID2D1Brush>& init_brush)
             {
@@ -53,8 +58,65 @@ namespace cru
 
             Size TextBlock::OnMeasure(const Size& available_size)
             {
+                if (text_.empty())
+                    return Size::zero;
 
-                //TODO!
+                const auto layout_params = GetLayoutParams();
+
+
+                if (layout_params->width.mode == MeasureMode::Stretch && layout_params->height.mode == MeasureMode::Stretch)
+                    return available_size;
+
+                Size measure_size;
+
+                auto&& get_measure_length = [](const MeasureLength& layout_length, const float available_length) -> float
+                {
+                    switch (layout_length.mode)
+                    {
+                    case MeasureMode::Exactly:
+                    {
+                        return std::min(layout_length.length, available_length);
+                    }
+                    case MeasureMode::Stretch:
+                    case MeasureMode::Content:
+                    {
+                        return available_length;
+                    }
+                    default:
+                        UnreachableCode();
+                    }
+                };
+
+                measure_size.width = get_measure_length(layout_params->width, available_size.width);
+                measure_size.height = get_measure_length(layout_params->height, available_size.height);
+
+
+                Microsoft::WRL::ComPtr<IDWriteTextLayout> measure_text_layout;
+
+                const auto dwrite_factory = GetDWriteFactory();
+
+                dwrite_factory->CreateTextLayout(text_.c_str(), text_.size(),
+                    text_format_.Get(), measure_size.width, measure_size.height, &measure_text_layout);
+
+                DWRITE_TEXT_METRICS metrics{};
+                measure_text_layout->GetMetrics(&metrics);
+
+                const Size measure_result(metrics.width, metrics.height);
+
+                auto&& calculate_final_length = [](const MeasureLength& layout_length, const float measure_length, const float measure_result_length) -> float
+                {
+                    if ((layout_length.mode == MeasureMode::Stretch ||
+                        layout_length.mode == MeasureMode::Exactly)
+                        && measure_result_length < measure_length)
+                        return measure_length;
+                    else
+                        return measure_result_length;
+                };
+
+                return Size(
+                    calculate_final_length(layout_params->width, measure_size.width, measure_result.width),
+                    calculate_final_length(layout_params->height, measure_size.height, measure_result.height)
+                );
             }
 
             void TextBlock::OnTextChangedCore(const String& old_text, const String& new_text)
@@ -73,7 +135,7 @@ namespace cru
 
             void TextBlock::CreateDefaultTextFormat()
             {
-                const auto dwrite_factory = graph::GraphManager::GetInstance()->GetDWriteFactory();
+                const auto dwrite_factory = GetDWriteFactory();
 
                 ThrowIfFailed(dwrite_factory->CreateTextFormat(
                     L"µÈÏß", nullptr,
@@ -93,7 +155,7 @@ namespace cru
                     return;
                 }
 
-                const auto dwrite_factory = graph::GraphManager::GetInstance()->GetDWriteFactory();
+                const auto dwrite_factory = GetDWriteFactory();
 
                 if (text_format_ == nullptr)
                     CreateDefaultTextFormat();
@@ -106,6 +168,11 @@ namespace cru
                     size.width, size.height,
                     &text_layout_
                 );
+
+                std::for_each(text_layout_handlers_.cbegin(), text_layout_handlers_.cend(), [this](const std::shared_ptr<TextLayoutHandler>& handler)
+                {
+                    (*handler)(text_layout_);
+                });
             }
         }
     }

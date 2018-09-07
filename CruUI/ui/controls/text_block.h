@@ -1,5 +1,7 @@
 #pragma once
 
+#include <memory>
+
 #include "ui/control.h"
 
 namespace cru
@@ -11,6 +13,9 @@ namespace cru
             class TextBlock : public Control
             {
             public:
+                using TextLayoutHandler = Action<Microsoft::WRL::ComPtr<IDWriteTextLayout>>;
+
+
                 explicit TextBlock(
                     const Microsoft::WRL::ComPtr<IDWriteTextFormat>& init_text_format = nullptr,
                     const Microsoft::WRL::ComPtr<ID2D1Brush>& init_brush = nullptr
@@ -42,6 +47,18 @@ namespace cru
 
                 void SetTextFormat(const Microsoft::WRL::ComPtr<IDWriteTextFormat>& text_format);
 
+
+                void AddTextLayoutHandler(std::shared_ptr<TextLayoutHandler> handler)
+                {
+                    text_layout_handlers_.push_back(std::move(handler));
+                }
+                void RemoveTextLayoutHandler(const std::shared_ptr<TextLayoutHandler>& handler)
+                {
+                    const auto find_result = std::find(text_layout_handlers_.cbegin(), text_layout_handlers_.cend(), handler);
+                    if (find_result != text_layout_handlers_.cend())
+                        text_layout_handlers_.erase(find_result);
+                }
+
             protected:
                 void OnSizeChangedCore(events::SizeChangedEventArgs& args) override final;
                 void OnDraw(ID2D1DeviceContext* device_context) override;
@@ -61,6 +78,8 @@ namespace cru
                 Microsoft::WRL::ComPtr<ID2D1Brush> brush_;
                 Microsoft::WRL::ComPtr<IDWriteTextFormat> text_format_;
                 Microsoft::WRL::ComPtr<IDWriteTextLayout> text_layout_;
+
+                Vector<std::shared_ptr<TextLayoutHandler>> text_layout_handlers_;
             };
         }
     }

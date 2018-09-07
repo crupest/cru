@@ -9,7 +9,8 @@ namespace cru {
     namespace ui {
         using namespace events;
 
-        Control::Control() :
+        Control::Control(bool container) :
+            is_container_(container),
             window_(nullptr),
             parent_(nullptr),
             children_(),
@@ -26,12 +27,14 @@ namespace cru {
 
         void Control::ForeachChild(Action<Control*>&& predicate) const
         {
+            ThrowIfNotContainer();
             for (const auto child : children_)
                 predicate(child);
         }
 
         void Control::ForeachChild(FlowControlAction<Control*>&& predicate) const
         {
+            ThrowIfNotContainer();
             for (const auto child : children_)
             {
                 if (predicate(child) == FlowControl::Break)
@@ -50,6 +53,7 @@ namespace cru {
 
         void Control::AddChild(Control* control)
         {
+            ThrowIfNotContainer();
             AddChildCheck(control);
 
             this->children_.push_back(control);
@@ -61,6 +65,7 @@ namespace cru {
 
         void Control::AddChild(Control* control, int position)
         {
+            ThrowIfNotContainer();
             AddChildCheck(control);
 
             if (position < 0 || static_cast<decltype(this->children_.size())>(position) > this->children_.size())
@@ -75,6 +80,7 @@ namespace cru {
 
         void Control::RemoveChild(Control* child)
         {
+            ThrowIfNotContainer();
             const auto i = std::find(this->children_.cbegin(), this->children_.cend(), child);
             if (i == this->children_.cend())
                 throw std::invalid_argument("The argument child is not a child of this control.");
@@ -88,6 +94,7 @@ namespace cru {
 
         void Control::RemoveChild(const int position)
         {
+            ThrowIfNotContainer();
             if (position < 0 || static_cast<decltype(this->children_.size())>(position) >= this->children_.size())
                 throw std::invalid_argument("The position is out of range.");
 
@@ -123,6 +130,7 @@ namespace cru {
 
         void Control::TraverseDescendants(Action<Control*>&& predicate)
         {
+            ThrowIfNotContainer();
             TraverseDescendantsInternal(this, predicate);
         }
 
@@ -401,7 +409,7 @@ namespace cru {
                 }
             };
 
-            Size size_for_children{};
+            Size size_for_children;
             size_for_children.width = get_available_length_for_child(layout_params->width, available_size.width);
             size_for_children.height = get_available_length_for_child(layout_params->height, available_size.height);
 
