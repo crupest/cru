@@ -13,7 +13,7 @@ namespace cru
 
         struct MeasureLength final
         {
-            explicit MeasureLength(const float length = 0.0, const MeasureMode mode = MeasureMode::Exactly)
+            explicit MeasureLength(const float length = 0.0, const MeasureMode mode = MeasureMode::Content)
                 : length(length), mode(mode)
             {
 

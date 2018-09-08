@@ -184,7 +184,7 @@ namespace cru {
 			//Get the size of client area for a window.
 			Size GetSize() override final;
 
-			//Set the size of client area for a window.
+			//This method has no effect for a window. Use SetClientSize instead.
 			void SetSize(const Size& size) override final;
 
 

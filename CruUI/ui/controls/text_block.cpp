@@ -53,7 +53,8 @@ namespace cru
 
             void TextBlock::OnDraw(ID2D1DeviceContext* device_context)
             {
-                device_context->DrawTextLayout(D2D1::Point2F(), text_layout_.Get(), brush_.Get());
+                if (text_layout_ != nullptr)
+                    device_context->DrawTextLayout(D2D1::Point2F(), text_layout_.Get(), brush_.Get());
             }
 
             Size TextBlock::OnMeasure(const Size& available_size)
@@ -67,7 +68,7 @@ namespace cru
                 if (layout_params->width.mode == MeasureMode::Stretch && layout_params->height.mode == MeasureMode::Stretch)
                     return available_size;
 
-                Size measure_size;
+                Size measure_size;  // NOLINT(cppcoreguidelines-pro-type-member-init)
 
                 auto&& get_measure_length = [](const MeasureLength& layout_length, const float available_length) -> float
                 {
@@ -95,8 +96,9 @@ namespace cru
 
                 const auto dwrite_factory = GetDWriteFactory();
 
-                dwrite_factory->CreateTextLayout(text_.c_str(), text_.size(),
-                    text_format_.Get(), measure_size.width, measure_size.height, &measure_text_layout);
+                ThrowIfFailed(dwrite_factory->CreateTextLayout(text_.c_str(), text_.size(),
+                    text_format_.Get(), measure_size.width, measure_size.height, &measure_text_layout)
+                );
 
                 DWRITE_TEXT_METRICS metrics{};
                 measure_text_layout->GetMetrics(&metrics);
@@ -113,10 +115,12 @@ namespace cru
                         return measure_result_length;
                 };
 
-                return Size(
+                const Size result_size(
                     calculate_final_length(layout_params->width, measure_size.width, measure_result.width),
                     calculate_final_length(layout_params->height, measure_size.height, measure_result.height)
                 );
+
+                return result_size;
             }
 
             void TextBlock::OnTextChangedCore(const String& old_text, const String& new_text)
@@ -162,12 +166,12 @@ namespace cru
 
                 const auto&& size = GetSize();
 
-                dwrite_factory->CreateTextLayout(
+                ThrowIfFailed(dwrite_factory->CreateTextLayout(
                     text_.c_str(), text_.size(),
                     text_format_.Get(),
                     size.width, size.height,
                     &text_layout_
-                );
+                ));
 
                 std::for_each(text_layout_handlers_.cbegin(), text_layout_handlers_.cend(), [this](const std::shared_ptr<TextLayoutHandler>& handler)
                 {

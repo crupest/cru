@@ -36,6 +36,11 @@ namespace cru
             float height;
         };
 
+        inline Size operator - (const Size& left, const Size& right)
+        {
+            return Size(left.width - right.width, left.height - right.height);
+        }
+
         struct Rect
         {
             Rect() = default;

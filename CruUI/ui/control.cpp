@@ -19,7 +19,7 @@ namespace cru {
             size_(Size::zero),
             position_cache_(),
             is_mouse_inside_(false),
-            layout_params_(nullptr),
+            layout_params_(new BasicLayoutParams()),
             desired_size_(Size::zero)
         {
 
@@ -27,14 +27,12 @@ namespace cru {
 
         void Control::ForeachChild(Action<Control*>&& predicate) const
         {
-            ThrowIfNotContainer();
             for (const auto child : children_)
                 predicate(child);
         }
 
         void Control::ForeachChild(FlowControlAction<Control*>&& predicate) const
         {
-            ThrowIfNotContainer();
             for (const auto child : children_)
             {
                 if (predicate(child) == FlowControl::Break)
@@ -130,7 +128,6 @@ namespace cru {
 
         void Control::TraverseDescendants(Action<Control*>&& predicate)
         {
-            ThrowIfNotContainer();
             TraverseDescendantsInternal(this, predicate);
         }
 
@@ -229,6 +226,12 @@ namespace cru {
                 return false;
 
             return window->GetFocusControl() == this;
+        }
+
+        void Control::Relayout()
+        {
+            OnMeasure(GetSize());
+            OnLayout(Rect(GetPositionRelative(), GetSize()));
         }
 
         void Control::Measure(const Size& available_size)
@@ -409,7 +412,7 @@ namespace cru {
                 }
             };
 
-            Size size_for_children;
+            Size size_for_children;  // NOLINT(cppcoreguidelines-pro-type-member-init)
             size_for_children.width = get_available_length_for_child(layout_params->width, available_size.width);
             size_for_children.height = get_available_length_for_child(layout_params->height, available_size.height);
 

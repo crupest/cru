@@ -136,7 +136,7 @@ namespace cru
             });
         }
 
-        Window::Window() : layout_manager_(new WindowLayoutManager()), control_list_({ this }) {
+        Window::Window() : Control(true), layout_manager_(new WindowLayoutManager()), control_list_({ this }) {
             auto app = Application::GetInstance();
             hwnd_ = CreateWindowEx(0,
                 app->GetWindowManager()->GetGeneralWindowClass()->GetName(),
@@ -342,7 +342,7 @@ namespace cru
 
         void Window::SetSize(const Size & size)
         {
-            SetClientSize(size);
+
         }
 
         void Window::RefreshControlList() {
@@ -429,6 +429,7 @@ namespace cru
 
         void Window::OnResizeInternal(int new_width, int new_height) {
             render_target_->ResizeBuffer(new_width, new_height);
+            Relayout();
         }
 
         void Window::OnSetFocusInternal()

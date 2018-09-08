@@ -136,6 +136,8 @@ namespace cru
 
             //*************** region: layout ***************
 
+            void Relayout();
+
             void Measure(const Size& available_size);
 
             void Layout(const Rect& rect);
