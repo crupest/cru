@@ -13,6 +13,12 @@ namespace cru::ui::controls
             Vertical
         };
 
+        static LinearLayout* Create(const Orientation orientation = Orientation::Vertical)
+        {
+            return new LinearLayout(orientation);
+        }
+
+    private:
         explicit LinearLayout(Orientation orientation = Orientation::Vertical);
 
     protected:

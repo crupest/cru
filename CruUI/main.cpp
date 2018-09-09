@@ -66,19 +66,13 @@ int APIENTRY wWinMain(
 
     //test 2
 
-    LinearLayout layout;
-    TextBlock text_block_1;
-    text_block_1.SetText(L"Hello World!!!");
-    TextBlock text_block_2;
-    text_block_2.SetText(L"This is a very very very very very long sentence!!!");
-    TextBlock text_block_3;
-    text_block_3.SetText(L"By crupest!!!");
+    const auto layout = LinearLayout::Create();
 
-    layout.AddChild(&text_block_1);
-    layout.AddChild(&text_block_2);
-    layout.AddChild(&text_block_3);
+    layout->AddChild(TextBlock::Create(L"Hello World!!!"));
+    layout->AddChild(TextBlock::Create(L"This is a very very very very very long sentence!!!"));
+    layout->AddChild(TextBlock::Create(L"By crupest!!!"));
 
-    window.AddChild(&layout);
+    window.AddChild(layout);
 
     window.Show();
 

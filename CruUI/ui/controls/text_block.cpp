@@ -1,5 +1,7 @@
 #include "text_block.h"
 
+#include <chrono>
+
 #include "ui/window.h"
 #include "graph/graph.h"
 #include "exception.h"
@@ -27,9 +29,12 @@ namespace cru
 
             void TextBlock::SetText(const String& text)
             {
-                const auto old_text = text_;
-                text_ = text;
-                OnTextChangedCore(old_text, text);
+                if (text_ != text)
+                {
+                    const auto old_text = text_;
+                    text_ = text;
+                    OnTextChangedCore(old_text, text);
+                }
             }
 
             void TextBlock::SetBrush(const Microsoft::WRL::ComPtr<ID2D1Brush>& brush)
@@ -47,8 +52,12 @@ namespace cru
 
             void TextBlock::OnSizeChangedCore(events::SizeChangedEventArgs& args)
             {
+                auto before = std::chrono::steady_clock::now();
                 RecreateTextLayout();
                 Repaint();
+                auto after = std::chrono::steady_clock::now();
+                OutputDebugStringW((L"TextBlock OnSizeChangedCore time duration:" + std::to_wstring(std::chrono::duration_cast<std::chrono::milliseconds>(after - before).count()) + L"\n").c_str());
+
             }
 
             void TextBlock::OnDraw(ID2D1DeviceContext* device_context)

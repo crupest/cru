@@ -97,9 +97,9 @@ namespace cru
                     RefreshInvalidControlPositionCache(); // first refresh position cache.
                     for (const auto i : cache_invalid_controls_) // traverse all descendants of position-invalid controls and notify position change event
                         i->TraverseDescendants([](Control* control)
-                        {
-                            control->CheckAndNotifyPositionChanged();
-                        });
+                    {
+                        control->CheckAndNotifyPositionChanged();
+                    });
                     cache_invalid_controls_.clear(); // after update and notify, clear the set.
                 });
             }
@@ -399,6 +399,12 @@ namespace cru
             RECT rect{ };
             GetClientRect(hwnd_, &rect);
             return rect;
+        }
+
+        bool Window::IsMessageInQueue(UINT message)
+        {
+            MSG msg;
+            return ::PeekMessageW(&msg, hwnd_, message, message, PM_NOREMOVE) != 0;
         }
 
         void Window::OnDestroyInternal() {

@@ -36,7 +36,7 @@ namespace cru
             Control(Control&& other) = delete;
             Control& operator=(const Control& other) = delete;
             Control& operator=(Control&& other) = delete;
-            ~Control() override = default;
+            ~Control() override;
 
         public:
 

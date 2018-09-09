@@ -44,9 +44,17 @@ namespace cru::ui::controls
         {
             control->Measure(rest_available_size_for_children);
             if (orientation_ == Orientation::Horizontal)
+            {
                 rest_available_size_for_children.width -= control->GetDesiredSize().width;
+                if (rest_available_size_for_children.width < 0)
+                    rest_available_size_for_children.width = 0;
+            }
             else
+            {
                 rest_available_size_for_children.height -= control->GetDesiredSize().height;
+                if (rest_available_size_for_children.height < 0)
+                    rest_available_size_for_children.height = 0;
+            }
         });
 
         auto actual_size_for_children = total_available_size_for_children - rest_available_size_for_children;

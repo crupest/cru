@@ -1,6 +1,8 @@
 #include "control.h"
 
+#include <string>
 #include <algorithm>
+#include <chrono>
 
 #include "window.h"
 #include "timer.h"
@@ -25,19 +27,29 @@ namespace cru {
 
         }
 
+        Control::~Control()
+        {
+            ForeachChild([](auto control)
+            {
+                delete control;
+            });
+        }
+
         void Control::ForeachChild(Action<Control*>&& predicate) const
         {
-            for (const auto child : children_)
-                predicate(child);
+            if (is_container_)
+                for (const auto child : children_)
+                    predicate(child);
         }
 
         void Control::ForeachChild(FlowControlAction<Control*>&& predicate) const
         {
-            for (const auto child : children_)
-            {
-                if (predicate(child) == FlowControl::Break)
-                    break;
-            }
+            if (is_container_)
+                for (const auto child : children_)
+                {
+                    if (predicate(child) == FlowControl::Break)
+                        break;
+                }
         }
 
         void AddChildCheck(Control* control)
@@ -128,7 +140,8 @@ namespace cru {
 
         void Control::TraverseDescendants(Action<Control*>&& predicate)
         {
-            TraverseDescendantsInternal(this, predicate);
+            if (is_container_)
+                TraverseDescendantsInternal(this, predicate);
         }
 
         Point Control::GetPositionRelative()
@@ -138,13 +151,16 @@ namespace cru {
 
         void Control::SetPositionRelative(const Point & position)
         {
-            if (old_position_ == position) // if cache has been refreshed and no pending notify
-                old_position_ = position_;
-            position_ = position;
-            if (auto window = GetWindow())
+            if (position != position_)
             {
-                window->GetLayoutManager()->InvalidateControlPositionCache(this);
-                window->Repaint();
+                if (old_position_ == position) // if cache has been refreshed and no pending notify
+                    old_position_ = position_;
+                position_ = position;
+                if (auto window = GetWindow())
+                {
+                    window->GetLayoutManager()->InvalidateControlPositionCache(this);
+                    window->Repaint();
+                }
             }
         }
 
@@ -241,9 +257,12 @@ namespace cru {
 
         void Control::Layout(const Rect& rect)
         {
+            auto before = std::chrono::steady_clock::now();
             SetPositionRelative(rect.GetLeftTop());
             SetSize(rect.GetSize());
             OnLayout(rect);
+            auto after = std::chrono::steady_clock::now();
+            OutputDebugStringW((L"Layout time duration:" + std::to_wstring(std::chrono::duration_cast<std::chrono::milliseconds>(after - before).count()) + L"\n").c_str());
         }
 
         Size Control::GetDesiredSize() const
