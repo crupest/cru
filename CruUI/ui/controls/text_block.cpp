@@ -169,7 +169,7 @@ namespace cru
                 const auto&& size = GetSize();
 
                 ThrowIfFailed(dwrite_factory->CreateTextLayout(
-                    text_.c_str(), text_.size(),
+                    text_.c_str(), static_cast<UINT32>(text_.size()),
                     text_format_.Get(),
                     size.width, size.height,
                     &text_layout_

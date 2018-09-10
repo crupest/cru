@@ -4,6 +4,7 @@
 #include <memory>
 
 #include "base.h"
+#include "application.h"
 
 
 namespace cru
