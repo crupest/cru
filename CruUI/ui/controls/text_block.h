@@ -10,6 +10,32 @@ namespace cru
     {
         namespace controls
         {
+            struct TextRange
+            {
+                TextRange() = default;
+                TextRange(const int position, const int count)
+                    : position(position), count(count)
+                {
+                    
+                }
+                TextRange(const TextRange& other) = default;
+                TextRange(TextRange&& other) = default;
+                TextRange& operator=(const TextRange& other) = default;
+                TextRange& operator=(TextRange&& other) = default;
+                ~TextRange() = default;
+
+                unsigned position;
+                unsigned count;
+
+                operator DWRITE_TEXT_RANGE() const
+                {
+                    DWRITE_TEXT_RANGE result;
+                    result.startPosition = position;
+                    result.length = count;
+                    return result;
+                }
+            };
+
             class TextBlock : public Control
             {
             public:
@@ -74,6 +100,9 @@ namespace cru
                 void OnSizeChangedCore(events::SizeChangedEventArgs& args) override final;
                 void OnDraw(ID2D1DeviceContext* device_context) override;
 
+                void OnMouseDownCore(events::MouseButtonEventArgs& args) override;
+                void OnMouseMoveCore(events::MouseEventArgs& args) override;
+
                 Size OnMeasure(const Size& available_size) override;
 
             private:
@@ -91,6 +120,11 @@ namespace cru
                 Microsoft::WRL::ComPtr<IDWriteTextLayout> text_layout_;
 
                 Vector<std::shared_ptr<TextLayoutHandler>> text_layout_handlers_;
+
+                unsigned mouse_down_position_;
+                std::optional<TextRange> selected_range_;
+
+                bool is_mouse_down_ = false; //TODO!!!
             };
         }
     }

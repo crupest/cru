@@ -65,6 +65,22 @@ namespace cru
                     device_context->DrawTextLayout(D2D1::Point2F(), text_layout_.Get(), brush_.Get());
             }
 
+            void TextBlock::OnMouseDownCore(events::MouseButtonEventArgs& args)
+            {
+                if (args.GetMouseButton() == MouseButton::Left)
+                {
+                    BOOL is_trailing, is_inside;
+                    DWRITE_HIT_TEST_METRICS metrics;
+                    text_layout_->HitTestPoint(args.GetPoint(this).x, args.GetPoint(this).y, &is_trailing, &is_inside, &metrics);
+                    if (is_inside)
+                    {
+                        mouse_down_position_ = is_trailing == 0 ? metrics.textPosition : metrics.textPosition + 1;
+                        is_mouse_down_ = true;
+                    }
+                }
+                Control::OnMouseDownCore(args);
+            }
+
             Size TextBlock::OnMeasure(const Size& available_size)
             {
                 if (text_.empty())
@@ -74,8 +90,6 @@ namespace cru
 
                 if (layout_params->width.mode == MeasureMode::Stretch && layout_params->height.mode == MeasureMode::Stretch)
                     return available_size;
-
-                Size measure_size;  // NOLINT(cppcoreguidelines-pro-type-member-init)
 
                 auto&& get_measure_length = [](const MeasureLength& layout_length, const float available_length) -> float
                 {
@@ -95,8 +109,8 @@ namespace cru
                     }
                 };
 
-                measure_size.width = get_measure_length(layout_params->width, available_size.width);
-                measure_size.height = get_measure_length(layout_params->height, available_size.height);
+                const Size measure_size(get_measure_length(layout_params->width, available_size.width),
+                    get_measure_length(layout_params->height, available_size.height));
 
                 ThrowIfFailed(text_layout_->SetMaxWidth(measure_size.width));
                 ThrowIfFailed(text_layout_->SetMaxHeight(measure_size.height));

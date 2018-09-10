@@ -429,9 +429,8 @@ namespace cru {
                 }
             };
 
-            Size size_for_children;  // NOLINT(cppcoreguidelines-pro-type-member-init)
-            size_for_children.width = get_available_length_for_child(layout_params->width, available_size.width);
-            size_for_children.height = get_available_length_for_child(layout_params->height, available_size.height);
+            const Size size_for_children(get_available_length_for_child(layout_params->width, available_size.width),
+                get_available_length_for_child(layout_params->height, available_size.height));
 
             auto max_child_size = Size::zero;
             ForeachChild([&](Control* control)
