@@ -165,7 +165,6 @@ namespace cru
         void Window::Repaint() {
             if (IsWindowValid()) {
                 InvalidateRect(hwnd_, nullptr, false);
-                UpdateWindow(hwnd_);
             }
         }
 

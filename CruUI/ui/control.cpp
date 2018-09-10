@@ -6,6 +6,7 @@
 
 #include "window.h"
 #include "timer.h"
+#include "debug_base.h"
 
 namespace cru {
     namespace ui {
@@ -257,12 +258,9 @@ namespace cru {
 
         void Control::Layout(const Rect& rect)
         {
-            auto before = std::chrono::steady_clock::now();
             SetPositionRelative(rect.GetLeftTop());
             SetSize(rect.GetSize());
             OnLayout(rect);
-            auto after = std::chrono::steady_clock::now();
-            OutputDebugStringW((L"Layout time duration:" + std::to_wstring(std::chrono::duration_cast<std::chrono::milliseconds>(after - before).count()) + L"\n").c_str());
         }
 
         Size Control::GetDesiredSize() const

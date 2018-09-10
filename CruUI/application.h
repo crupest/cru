@@ -1,7 +1,6 @@
 #pragma once
 
 #include "system_headers.h"
-#include <functional>
 #include <memory>
 
 #include "base.h"

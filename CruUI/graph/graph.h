@@ -107,7 +107,7 @@ namespace cru
             std::shared_ptr<WindowRenderTarget> CreateWindowRenderTarget(HWND hwnd);
 
             //Get the desktop dpi.
-            Dpi GetDpi();
+            Dpi GetDpi() const;
 
             //Reload system metrics including desktop dpi.
             void ReloadSystemMetrics();
@@ -129,10 +129,35 @@ namespace cru
             Microsoft::WRL::ComPtr<IDWriteFontCollection> dwrite_system_font_collection_;
         };
 
-        int DipToPixelX(float dip_x);
-        int DipToPixelY(float dip_y);
-        float PixelToDipX(int pixel_x);
-        float PixelToDipY(int pixel_y);
+        inline int DipToPixelInternal(const float dip, const float dpi)
+        {
+            return static_cast<int>(dip * dpi / 96.0f);
+        }
+
+        inline int DipToPixelX(const float dip_x)
+        {
+            return DipToPixelInternal(dip_x, Application::GetInstance()->GetGraphManager()->GetDpi().x);
+        }
+
+        inline int DipToPixelY(const float dip_y)
+        {
+            return DipToPixelInternal(dip_y, Application::GetInstance()->GetGraphManager()->GetDpi().y);
+        }
+
+        inline float DipToPixelInternal(const int pixel, const float dpi)
+        {
+            return static_cast<float>(pixel) * 96.0f / dpi;
+        }
+
+        inline float PixelToDipX(const int pixel_x)
+        {
+            return DipToPixelInternal(pixel_x, Application::GetInstance()->GetGraphManager()->GetDpi().x);
+        }
+
+        inline float PixelToDipY(const int pixel_y)
+        {
+            return DipToPixelInternal(pixel_y, Application::GetInstance()->GetGraphManager()->GetDpi().y);
+        }
 
         Microsoft::WRL::ComPtr<ID2D1DeviceContext> WindowRenderTarget::GetD2DDeviceContext() const
         {

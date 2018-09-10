@@ -5,6 +5,7 @@
 #include "ui/window.h"
 #include "graph/graph.h"
 #include "exception.h"
+#include "debug_base.h"
 
 namespace cru
 {
@@ -52,12 +53,10 @@ namespace cru
 
             void TextBlock::OnSizeChangedCore(events::SizeChangedEventArgs& args)
             {
-                auto before = std::chrono::steady_clock::now();
-                RecreateTextLayout();
+                text_layout_->SetMaxWidth(args.GetNewSize().width);
+                text_layout_->SetMaxHeight(args.GetNewSize().height);
                 Repaint();
-                auto after = std::chrono::steady_clock::now();
-                OutputDebugStringW((L"TextBlock OnSizeChangedCore time duration:" + std::to_wstring(std::chrono::duration_cast<std::chrono::milliseconds>(after - before).count()) + L"\n").c_str());
-
+                Control::OnSizeChangedCore(args);
             }
 
             void TextBlock::OnDraw(ID2D1DeviceContext* device_context)
@@ -72,7 +71,6 @@ namespace cru
                     return Size::zero;
 
                 const auto layout_params = GetLayoutParams();
-
 
                 if (layout_params->width.mode == MeasureMode::Stretch && layout_params->height.mode == MeasureMode::Stretch)
                     return available_size;
@@ -100,17 +98,12 @@ namespace cru
                 measure_size.width = get_measure_length(layout_params->width, available_size.width);
                 measure_size.height = get_measure_length(layout_params->height, available_size.height);
 
-
-                Microsoft::WRL::ComPtr<IDWriteTextLayout> measure_text_layout;
-
-                const auto dwrite_factory = GetDWriteFactory();
-
-                ThrowIfFailed(dwrite_factory->CreateTextLayout(text_.c_str(), text_.size(),
-                    text_format_.Get(), measure_size.width, measure_size.height, &measure_text_layout)
-                );
+                ThrowIfFailed(text_layout_->SetMaxWidth(measure_size.width));
+                ThrowIfFailed(text_layout_->SetMaxHeight(measure_size.height));
 
                 DWRITE_TEXT_METRICS metrics{};
-                measure_text_layout->GetMetrics(&metrics);
+
+                ThrowIfFailed(text_layout_->GetMetrics(&metrics));
 
                 const Size measure_result(metrics.width, metrics.height);
 

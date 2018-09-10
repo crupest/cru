@@ -200,7 +200,7 @@ namespace cru {
             return std::make_shared<WindowRenderTarget>(this, hwnd);
         }
 
-        Dpi GraphManager::GetDpi()
+        Dpi GraphManager::GetDpi() const
         {
             Dpi dpi;
             d2d1_factory_->GetDesktopDpi(&dpi.x, &dpi.y);
@@ -212,36 +212,6 @@ namespace cru {
             ThrowIfFailed(
                 d2d1_factory_->ReloadSystemMetrics()
             );
-        }
-
-        inline int DipToPixelInternal(float dip, float dpi)
-        {
-            return static_cast<int>(dip * dpi / 96.0f);
-        }
-
-        int DipToPixelX(float dipX)
-        {
-            return DipToPixelInternal(dipX, Application::GetInstance()->GetGraphManager()->GetDpi().x);
-        }
-
-        int DipToPixelY(float dipY)
-        {
-            return DipToPixelInternal(dipY, Application::GetInstance()->GetGraphManager()->GetDpi().y);
-        }
-
-        inline float DipToPixelInternal(int pixel, float dpi)
-        {
-            return static_cast<float>(pixel) * 96.0f / dpi;
-        }
-
-        float PixelToDipX(int pixelX)
-        {
-            return DipToPixelInternal(pixelX, Application::GetInstance()->GetGraphManager()->GetDpi().x);
-        }
-
-        float PixelToDipY(int pixelY)
-        {
-            return DipToPixelInternal(pixelY, Application::GetInstance()->GetGraphManager()->GetDpi().y);
         }
     }
 }
