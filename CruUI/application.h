@@ -2,6 +2,7 @@
 
 #include "system_headers.h"
 #include <memory>
+#include <optional>
 
 #include "base.h"
 
@@ -9,6 +10,7 @@ namespace cru
 {
     namespace ui
     {
+        class WindowClass;
         class WindowManager;
     }
 
@@ -58,11 +60,21 @@ namespace cru
             return h_instance_;
         }
 
+        HWND GetGodWindowHandle() const
+        {
+            return god_hwnd_;
+        }
+
     private:
-        bool HandleThreadMessage(const MSG& message);
+        static LRESULT __stdcall GodWndProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam);
+        std::optional<LRESULT> HandleGodWindowMessage(HWND hwnd, int msg, WPARAM w_param, LPARAM l_param);
 
     private:
         HINSTANCE h_instance_;
+        
+        std::unique_ptr<ui::WindowClass> god_window_class_;
+        HWND god_hwnd_;
+
         std::unique_ptr<ui::WindowManager> window_manager_;
         std::unique_ptr<graph::GraphManager> graph_manager_;
         std::unique_ptr<TimerManager> timer_manager_;

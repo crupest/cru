@@ -102,6 +102,7 @@ namespace cru
 
                 void OnMouseDownCore(events::MouseButtonEventArgs& args) override;
                 void OnMouseMoveCore(events::MouseEventArgs& args) override;
+                void OnMouseUpCore(events::MouseButtonEventArgs& args) override;
 
                 Size OnMeasure(const Size& available_size) override;
 
@@ -116,15 +117,16 @@ namespace cru
                 String text_;
 
                 Microsoft::WRL::ComPtr<ID2D1Brush> brush_;
+                Microsoft::WRL::ComPtr<ID2D1Brush> selection_brush_;
                 Microsoft::WRL::ComPtr<IDWriteTextFormat> text_format_;
                 Microsoft::WRL::ComPtr<IDWriteTextLayout> text_layout_;
 
                 Vector<std::shared_ptr<TextLayoutHandler>> text_layout_handlers_;
 
-                unsigned mouse_down_position_;
-                std::optional<TextRange> selected_range_;
+                unsigned mouse_down_position_ = 0;
+                std::optional<TextRange> selected_range_ = std::nullopt;
 
-                bool is_mouse_down_ = false; //TODO!!!
+                bool is_selecting_ = false;
             };
         }
     }

@@ -1,7 +1,5 @@
 #include "text_block.h"
 
-#include <chrono>
-
 #include "ui/window.h"
 #include "graph/graph.h"
 #include "exception.h"
@@ -18,12 +16,22 @@ namespace cru
                 return graph::GraphManager::GetInstance()->GetDWriteFactory();
             }
 
+            Microsoft::WRL::ComPtr<ID2D1SolidColorBrush> CreateSolidBrush(const D2D1_COLOR_F& color)
+            {
+                const auto device_context = graph::GraphManager::GetInstance()->GetD2D1DeviceContext();
+                Microsoft::WRL::ComPtr<ID2D1SolidColorBrush> solid_color_brush;
+                device_context->CreateSolidColorBrush(color, &solid_color_brush);
+                return solid_color_brush;
+            }
+
             TextBlock::TextBlock(const Microsoft::WRL::ComPtr<IDWriteTextFormat>& init_text_format,
                 const Microsoft::WRL::ComPtr<ID2D1Brush>& init_brush) : Control(false)
             {
                 text_format_ = init_text_format;
                 if (init_brush == nullptr)
                     CreateDefaultBrush();
+
+                selection_brush_ = CreateSolidBrush(D2D1::ColorF(D2D1::ColorF::Blue)); //TODO!
             }
 
             TextBlock::~TextBlock() = default;
@@ -62,23 +70,81 @@ namespace cru
             void TextBlock::OnDraw(ID2D1DeviceContext* device_context)
             {
                 if (text_layout_ != nullptr)
+                {
+                    if (selected_range_.has_value())
+                    {
+                        DWRITE_TEXT_METRICS text_metrics{};
+                        ThrowIfFailed(text_layout_->GetMetrics(&text_metrics));
+                        const auto metrics_count = text_metrics.lineCount * text_metrics.maxBidiReorderingDepth;
+
+                        Vector<DWRITE_HIT_TEST_METRICS> hit_test_metrics(metrics_count);
+                        UINT32 actual_count;
+                        text_layout_->HitTestTextRange(
+                            selected_range_.value().position, selected_range_.value().count,
+                            0, 0,
+                            hit_test_metrics.data(), metrics_count, &actual_count
+                        );
+
+                        hit_test_metrics.erase(hit_test_metrics.cbegin() + actual_count, hit_test_metrics.cend());
+
+                        for (const auto& metrics : hit_test_metrics)
+                        {
+                            device_context->FillRoundedRectangle(D2D1::RoundedRect(D2D1::RectF(metrics.left, metrics.top, metrics.left + metrics.width, metrics.top + metrics.height), 3, 3), selection_brush_.Get());
+                        }
+                    }
                     device_context->DrawTextLayout(D2D1::Point2F(), text_layout_.Get(), brush_.Get());
+                }
+            }
+
+            std::optional<unsigned> TextLayoutHitTest(IDWriteTextLayout* text_layout, const Point& point, bool test_inside = true)
+            {
+                BOOL is_trailing, is_inside;
+                DWRITE_HIT_TEST_METRICS metrics{};
+                text_layout->HitTestPoint(point.x, point.y, &is_trailing, &is_inside, &metrics);
+                if (!test_inside || is_inside)
+                    return is_trailing == 0 ? metrics.textPosition : metrics.textPosition + 1;
+                else
+                    return std::nullopt;
             }
 
             void TextBlock::OnMouseDownCore(events::MouseButtonEventArgs& args)
             {
                 if (args.GetMouseButton() == MouseButton::Left)
                 {
-                    BOOL is_trailing, is_inside;
-                    DWRITE_HIT_TEST_METRICS metrics;
-                    text_layout_->HitTestPoint(args.GetPoint(this).x, args.GetPoint(this).y, &is_trailing, &is_inside, &metrics);
-                    if (is_inside)
+                    const auto hit_test_result = TextLayoutHitTest(text_layout_.Get(), args.GetPoint(this), true);
+                    if (hit_test_result.has_value())
                     {
-                        mouse_down_position_ = is_trailing == 0 ? metrics.textPosition : metrics.textPosition + 1;
-                        is_mouse_down_ = true;
+                        mouse_down_position_ = hit_test_result.value();
+                        is_selecting_ = true;
+                        GetWindow()->CaptureMouseFor(this);
                     }
                 }
                 Control::OnMouseDownCore(args);
+            }
+
+            void TextBlock::OnMouseMoveCore(events::MouseEventArgs& args)
+            {
+                if (is_selecting_)
+                {
+                    const auto hit_test_result = TextLayoutHitTest(text_layout_.Get(), args.GetPoint(this), false).value();
+                    if (hit_test_result > mouse_down_position_)
+                        selected_range_ = TextRange(mouse_down_position_, hit_test_result - mouse_down_position_);
+                    else
+                        selected_range_ = TextRange(hit_test_result, mouse_down_position_ - hit_test_result);
+                    Repaint();
+                }
+            }
+
+            void TextBlock::OnMouseUpCore(events::MouseButtonEventArgs& args)
+            {
+                if (args.GetMouseButton() == MouseButton::Left)
+                {
+                    if (is_selecting_)
+                    {
+                        is_selecting_ = false;
+                        GetWindow()->ReleaseCurrentMouseCapture();
+                    }
+                }
             }
 
             Size TextBlock::OnMeasure(const Size& available_size)
@@ -147,10 +213,7 @@ namespace cru
 
             void TextBlock::CreateDefaultBrush()
             {
-                const auto device_context = graph::GraphManager::GetInstance()->GetD2D1DeviceContext();
-                Microsoft::WRL::ComPtr<ID2D1SolidColorBrush> solid_color_brush;
-                device_context->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Black), &solid_color_brush);
-                brush_ = solid_color_brush;
+                brush_ = CreateSolidBrush(D2D1::ColorF(D2D1::ColorF::Black));
             }
 
             void TextBlock::CreateDefaultTextFormat()

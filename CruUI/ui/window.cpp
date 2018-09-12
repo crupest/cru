@@ -1,5 +1,7 @@
 #include "window.h"
 
+#include <fmt/format.h>
+
 #include "application.h"
 #include "graph/graph.h"
 #include "exception.h"
@@ -83,17 +85,19 @@ namespace cru
             // find descendant then erase it; find ancestor then just return.
             for (auto i = cache_invalid_controls_.cbegin(); i != cache_invalid_controls_.cend(); ++i)
             {
-                if (IsAncestorOrDescendant(*i, control) == control)
+                const auto result = IsAncestorOrDescendant(*i, control);
+                if (result == control)
                     cache_invalid_controls_.erase(i);
-                else
+                else if (result != nullptr)
                     return; // find a ancestor of "control", just return
             }
-
+            
             cache_invalid_controls_.insert(control);
 
             if (cache_invalid_controls_.size() == 1) // when insert just now and not repeat to "InvokeLater".
             {
                 InvokeLater([this] {
+
                     RefreshInvalidControlPositionCache(); // first refresh position cache.
                     for (const auto i : cache_invalid_controls_) // traverse all descendants of position-invalid controls and notify position change event
                         i->TraverseDescendants([](Control* control)
@@ -101,6 +105,7 @@ namespace cru
                         control->CheckAndNotifyPositionChanged();
                     });
                     cache_invalid_controls_.clear(); // after update and notify, clear the set.
+                    
                 });
             }
         }
@@ -128,12 +133,20 @@ namespace cru
             const auto position = control->GetPositionRelative();
             Point lefttop(
                 parent_lefttop_absolute.x + position.x,
-                parent_lefttop_absolute.y + position.x
+                parent_lefttop_absolute.y + position.y
             );
             control->position_cache_.lefttop_position_absolute = lefttop;
             control->ForeachChild([lefttop](Control* c) {
                 RefreshControlPositionCacheInternal(c, lefttop);
             });
+        }
+
+        inline Point PiToDip(const POINT& pi_point)
+        {
+            return Point(
+                graph::PixelToDipX(pi_point.x),
+                graph::PixelToDipY(pi_point.y)
+            );
         }
 
         Window::Window() : Control(true), layout_manager_(new WindowLayoutManager()), control_list_({ this }) {
@@ -257,6 +270,15 @@ namespace cru
                 OnKillFocusInternal();
                 result = 0;
                 return true;
+            case WM_MOUSEMOVE:
+            {
+                POINT point;
+                point.x = GET_X_LPARAM(l_param);
+                point.y = GET_Y_LPARAM(l_param);
+                OnMouseMoveInternal(point);
+                result = 0;
+                return true;
+            }
             case WM_LBUTTONDOWN:
             {
                 POINT point;
@@ -271,7 +293,7 @@ namespace cru
                 POINT point;
                 point.x = GET_X_LPARAM(l_param);
                 point.y = GET_Y_LPARAM(l_param);
-                OnMouseDownInternal(MouseButton::Left, point);
+                OnMouseUpInternal(MouseButton::Left, point);
                 result = 0;
                 return true;
             }
@@ -289,7 +311,7 @@ namespace cru
                 POINT point;
                 point.x = GET_X_LPARAM(l_param);
                 point.y = GET_Y_LPARAM(l_param);
-                OnMouseDownInternal(MouseButton::Right, point);
+                OnMouseUpInternal(MouseButton::Right, point);
                 result = 0;
                 return true;
             }
@@ -307,7 +329,7 @@ namespace cru
                 POINT point;
                 point.x = GET_X_LPARAM(l_param);
                 point.y = GET_Y_LPARAM(l_param);
-                OnMouseDownInternal(MouseButton::Middle, point);
+                OnMouseUpInternal(MouseButton::Middle, point);
                 result = 0;
                 return true;
             }
@@ -322,6 +344,14 @@ namespace cru
             default:
                 return false;
             }
+        }
+
+        Point Window::GetMousePosition()
+        {
+            POINT point;
+            ::GetCursorPos(&point);
+            ::ScreenToClient(hwnd_, &point);
+            return PiToDip(point);
         }
 
         Point Window::GetPositionRelative()
@@ -394,6 +424,37 @@ namespace cru
             return focus_control_;
         }
 
+        Control* Window::CaptureMouseFor(Control* control)
+        {
+            if (control != nullptr)
+            {
+                ::SetCapture(hwnd_);
+                std::swap(mouse_capture_control_, control);
+                DispatchMouseHoverControlChangeEvent(control ? control : mouse_hover_control_, mouse_capture_control_, GetMousePosition());
+                return control;
+            }
+            else
+            {
+                return ReleaseCurrentMouseCapture();
+            }
+        }
+
+        Control* Window::ReleaseCurrentMouseCapture()
+        {
+            if (mouse_capture_control_)
+            {
+                const auto previous = mouse_capture_control_;
+                mouse_capture_control_ = nullptr;
+                ::ReleaseCapture();
+                DispatchMouseHoverControlChangeEvent(previous, mouse_hover_control_, GetMousePosition());
+                return previous;
+            }
+            else
+            {
+                return nullptr;
+            }
+        }
+
         RECT Window::GetClientRectPixel() {
             RECT rect{ };
             GetClientRect(hwnd_, &rect);
@@ -451,12 +512,9 @@ namespace cru
                 DispatchEvent(focus_control_, &Control::OnLoseFocusCore, nullptr);
         }
 
-        void Window::OnMouseMoveInternal(POINT point)
+        void Window::OnMouseMoveInternal(const POINT point)
         {
-            Point dip_point(
-                graph::PixelToDipX(point.x),
-                graph::PixelToDipY(point.y)
-            );
+            const auto dip_point = PiToDip(point);
 
             //when mouse was previous outside the window
             if (mouse_hover_control_ == nullptr) {
@@ -471,21 +529,18 @@ namespace cru
 
             //Find the first control that hit test succeed.
             const auto new_control_mouse_hover = HitTest(dip_point);
+            const auto old_control_mouse_hover = mouse_hover_control_;
+            mouse_hover_control_ = new_control_mouse_hover;
 
-            if (new_control_mouse_hover != mouse_hover_control_) //if the mouse-hover-on control changed
+            if (mouse_capture_control_) // if mouse is captured
             {
-                const auto lowest_common_ancestor = FindLowestCommonAncestor(mouse_hover_control_, new_control_mouse_hover);
-                if (mouse_hover_control_ != nullptr) // if last mouse-hover-on control exists
-                {
-                    // dispatch mouse leave event.
-                    DispatchEvent(mouse_hover_control_, &Control::OnMouseLeaveCore, lowest_common_ancestor);
-                }
-                mouse_hover_control_ = new_control_mouse_hover;
-                // dispatch mouse enter event.
-                DispatchEvent(new_control_mouse_hover, &Control::OnMouseEnterCore, lowest_common_ancestor, dip_point);
+                DispatchEvent(mouse_capture_control_, &Control::OnMouseMoveCore, nullptr, dip_point);
             }
-
-            DispatchEvent(new_control_mouse_hover, &Control::OnMouseMoveCore, nullptr, dip_point);
+            else
+            {
+                DispatchMouseHoverControlChangeEvent(old_control_mouse_hover, new_control_mouse_hover, dip_point);
+                DispatchEvent(new_control_mouse_hover, &Control::OnMouseMoveCore, nullptr, dip_point);
+            }
         }
 
         void Window::OnMouseLeaveInternal()
@@ -496,26 +551,42 @@ namespace cru
 
         void Window::OnMouseDownInternal(MouseButton button, POINT point)
         {
-            Point dip_point(
-                graph::PixelToDipX(point.x),
-                graph::PixelToDipY(point.y)
-            );
+            const auto dip_point = PiToDip(point);
 
-            const auto control = HitTest(dip_point);
+            Control* control;
+
+            if (mouse_capture_control_)
+                control = mouse_capture_control_;
+            else
+                control = HitTest(dip_point);
 
             DispatchEvent(control, &Control::OnMouseDownCore, nullptr, dip_point, button);
         }
 
         void Window::OnMouseUpInternal(MouseButton button, POINT point)
         {
-            Point dip_point(
-                graph::PixelToDipX(point.x),
-                graph::PixelToDipY(point.y)
-            );
+            const auto dip_point = PiToDip(point);
 
-            const auto control = HitTest(dip_point);
+            Control* control;
+
+            if (mouse_capture_control_)
+                control = mouse_capture_control_;
+            else
+                control = HitTest(dip_point);
 
             DispatchEvent(control, &Control::OnMouseUpCore, nullptr, dip_point, button);
+        }
+
+        void Window::DispatchMouseHoverControlChangeEvent(Control* old_control, Control* new_control, const Point& point)
+        {
+            if (new_control != old_control) //if the mouse-hover-on control changed
+            {
+                const auto lowest_common_ancestor = FindLowestCommonAncestor(old_control, new_control);
+                if (old_control != nullptr) // if last mouse-hover-on control exists
+                    DispatchEvent(old_control, &Control::OnMouseLeaveCore, lowest_common_ancestor); // dispatch mouse leave event.
+                if (new_control != nullptr)
+                    DispatchEvent(new_control, &Control::OnMouseEnterCore, lowest_common_ancestor, point); // dispatch mouse enter event.
+            }
         }
     }
 }

@@ -172,6 +172,7 @@ namespace cru {
             //Return false if the message is not handled.
             bool HandleWindowMessage(HWND hwnd, int msg, WPARAM w_param, LPARAM l_param, LRESULT& result);
 
+            Point GetMousePosition();
 
             //*************** region: position and size ***************
 
@@ -207,6 +208,11 @@ namespace cru {
             Control* GetFocusControl();
 
 
+            //*************** region: mouse capture ***************
+
+            Control* CaptureMouseFor(Control* control);
+            Control* ReleaseCurrentMouseCapture();
+
         private:
             //*************** region: native operations ***************
 
@@ -229,8 +235,6 @@ namespace cru {
             void OnMouseLeaveInternal();
             void OnMouseDownInternal(MouseButton button, POINT point);
             void OnMouseUpInternal(MouseButton button, POINT point);
-
-
 
             //*************** region: event dispatcher helper ***************
 
@@ -258,6 +262,8 @@ namespace cru {
                 }
             }
 
+            void DispatchMouseHoverControlChangeEvent(Control* old_control, Control * new_control, const Point& point);
+
         private:
             std::unique_ptr<WindowLayoutManager> layout_manager_;
 
@@ -270,6 +276,8 @@ namespace cru {
 
             bool window_focus_ = false;
             Control* focus_control_ = this; // "focus_control_" can't be nullptr
+
+            Control* mouse_capture_control_ = nullptr;
         };
     }
 }
