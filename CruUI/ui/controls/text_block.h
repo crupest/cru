@@ -104,6 +104,8 @@ namespace cru
                 void OnMouseMoveCore(events::MouseEventArgs& args) override;
                 void OnMouseUpCore(events::MouseButtonEventArgs& args) override;
 
+                void OnLoseFocusCore(events::UiEventArgs& args) override;
+
                 Size OnMeasure(const Size& available_size) override;
 
             private:
@@ -124,6 +126,7 @@ namespace cru
                 Vector<std::shared_ptr<TextLayoutHandler>> text_layout_handlers_;
 
                 unsigned mouse_down_position_ = 0;
+                bool is_mouse_moved_ = false;
                 std::optional<TextRange> selected_range_ = std::nullopt;
 
                 bool is_selecting_ = false;

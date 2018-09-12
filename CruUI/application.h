@@ -8,6 +8,8 @@
 
 namespace cru 
 {
+    class Application;
+
     namespace ui
     {
         class WindowClass;
@@ -20,6 +22,30 @@ namespace cru
     }
 
     class TimerManager;
+
+
+    class GodWindow : public Object
+    {
+    public:
+        explicit GodWindow(Application* application);
+        GodWindow(const GodWindow& other) = delete;
+        GodWindow(GodWindow&& other) = delete;
+        GodWindow& operator=(const GodWindow& other) = delete;
+        GodWindow& operator=(GodWindow&& other) = delete;
+        ~GodWindow() override;
+
+        HWND GetHandle() const
+        {
+            return hwnd_;
+        }
+
+        std::optional<LRESULT> HandleGodWindowMessage(HWND hwnd, int msg, WPARAM w_param, LPARAM l_param);
+
+    private:
+        Application* application_;
+        std::unique_ptr<ui::WindowClass> god_window_class_;
+        HWND hwnd_;
+    };
 
     class Application : public Object
     {
@@ -60,24 +86,19 @@ namespace cru
             return h_instance_;
         }
 
-        HWND GetGodWindowHandle() const
+        GodWindow* GetGodWindow() const
         {
-            return god_hwnd_;
+            return god_window_.get();
         }
-
-    private:
-        static LRESULT __stdcall GodWndProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam);
-        std::optional<LRESULT> HandleGodWindowMessage(HWND hwnd, int msg, WPARAM w_param, LPARAM l_param);
 
     private:
         HINSTANCE h_instance_;
         
-        std::unique_ptr<ui::WindowClass> god_window_class_;
-        HWND god_hwnd_;
-
         std::unique_ptr<ui::WindowManager> window_manager_;
         std::unique_ptr<graph::GraphManager> graph_manager_;
         std::unique_ptr<TimerManager> timer_manager_;
+
+        std::unique_ptr<GodWindow> god_window_;
     };
 
 

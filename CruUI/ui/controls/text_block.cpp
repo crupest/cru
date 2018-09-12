@@ -111,12 +111,17 @@ namespace cru
             {
                 if (args.GetMouseButton() == MouseButton::Left)
                 {
+                    RequestFocus();
                     const auto hit_test_result = TextLayoutHitTest(text_layout_.Get(), args.GetPoint(this), true);
                     if (hit_test_result.has_value())
                     {
                         mouse_down_position_ = hit_test_result.value();
                         is_selecting_ = true;
                         GetWindow()->CaptureMouseFor(this);
+                    }
+                    else
+                    {
+                        selected_range_ = std::nullopt;
                     }
                 }
                 Control::OnMouseDownCore(args);
@@ -126,13 +131,17 @@ namespace cru
             {
                 if (is_selecting_)
                 {
+                    is_mouse_moved_ = true;
                     const auto hit_test_result = TextLayoutHitTest(text_layout_.Get(), args.GetPoint(this), false).value();
                     if (hit_test_result > mouse_down_position_)
                         selected_range_ = TextRange(mouse_down_position_, hit_test_result - mouse_down_position_);
-                    else
+                    else if (hit_test_result < mouse_down_position_)
                         selected_range_ = TextRange(hit_test_result, mouse_down_position_ - hit_test_result);
+                    else
+                        selected_range_ = std::nullopt;
                     Repaint();
                 }
+                Control::OnMouseMoveCore(args);
             }
 
             void TextBlock::OnMouseUpCore(events::MouseButtonEventArgs& args)
@@ -141,10 +150,24 @@ namespace cru
                 {
                     if (is_selecting_)
                     {
+                        if (!is_mouse_moved_)
+                        {
+                            selected_range_ = std::nullopt;
+                            Repaint();
+                        }
+                        is_mouse_moved_ = false;
                         is_selecting_ = false;
                         GetWindow()->ReleaseCurrentMouseCapture();
                     }
                 }
+                Control::OnMouseUpCore(args);
+            }
+
+            void TextBlock::OnLoseFocusCore(events::UiEventArgs& args)
+            {
+                selected_range_ = std::nullopt;
+                Repaint();
+                Control::OnLoseFocusCore(args);
             }
 
             Size TextBlock::OnMeasure(const Size& available_size)

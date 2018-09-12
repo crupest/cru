@@ -21,7 +21,7 @@ namespace cru
 
 	UINT_PTR TimerManager::CreateTimer(const UINT microseconds, const bool loop, const TimerAction & action)
 	{
-		auto id = ::SetTimer(Application::GetInstance()->GetGodWindowHandle(), 0, microseconds, nullptr);
+		auto id = ::SetTimer(Application::GetInstance()->GetGodWindow()->GetHandle(), 0, microseconds, nullptr);
 		if (loop)
 			map_[id] = action;
 		else
