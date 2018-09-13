@@ -389,21 +389,21 @@ namespace cru {
             mouse_up_event.Raise(args);
         }
 
-        void Control::OnGetFocus(UiEventArgs & args)
+        void Control::OnGetFocus(FocusChangeEventArgs& args)
         {
         }
 
-        void Control::OnLoseFocus(UiEventArgs & args)
+        void Control::OnLoseFocus(FocusChangeEventArgs& args)
         {
         }
 
-        void Control::OnGetFocusCore(UiEventArgs & args)
+        void Control::OnGetFocusCore(FocusChangeEventArgs& args)
         {
             OnGetFocus(args);
             get_focus_event.Raise(args);
         }
 
-        void Control::OnLoseFocusCore(UiEventArgs & args)
+        void Control::OnLoseFocusCore(FocusChangeEventArgs& args)
         {
             OnLoseFocus(args);
             lose_focus_event.Raise(args);

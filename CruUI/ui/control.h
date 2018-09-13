@@ -176,8 +176,8 @@ namespace cru
             //Raised when a mouse button is released in the control.
             events::MouseButtonEvent mouse_up_event;
 
-            events::UiEvent get_focus_event;
-            events::UiEvent lose_focus_event;
+            events::FocusChangeEvent get_focus_event;
+            events::FocusChangeEvent lose_focus_event;
 
             events::DrawEvent draw_event;
 
@@ -228,11 +228,11 @@ namespace cru
 
 
             //*************** region: focus event ***************
-            virtual void OnGetFocus(events::UiEventArgs& args);
-            virtual void OnLoseFocus(events::UiEventArgs& args);
+            virtual void OnGetFocus(events::FocusChangeEventArgs& args);
+            virtual void OnLoseFocus(events::FocusChangeEventArgs& args);
 
-            virtual void OnGetFocusCore(events::UiEventArgs& args);
-            virtual void OnLoseFocusCore(events::UiEventArgs& args);
+            virtual void OnGetFocusCore(events::FocusChangeEventArgs& args);
+            virtual void OnLoseFocusCore(events::FocusChangeEventArgs& args);
 
             //*************** region: layout ***************
             virtual Size OnMeasure(const Size& available_size);

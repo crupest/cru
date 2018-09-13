@@ -412,19 +412,19 @@ namespace cru
 
             if (!window_focus_)
             {
-                ::SetFocus(hwnd_);
                 focus_control_ = control;
+                ::SetFocus(hwnd_);
                 return true; // event dispatch will be done in window message handling function "OnSetFocusInternal".
             }
 
             if (focus_control_ == control)
                 return true;
 
-            DispatchEvent(focus_control_, &Control::OnLoseFocusCore, nullptr);
+            DispatchEvent(focus_control_, &Control::OnLoseFocusCore, nullptr, false);
 
             focus_control_ = control;
 
-            DispatchEvent(control, &Control::OnGetFocusCore, nullptr);
+            DispatchEvent(control, &Control::OnGetFocusCore, nullptr, false);
 
             return true;
         }
@@ -511,15 +511,13 @@ namespace cru
         void Window::OnSetFocusInternal()
         {
             window_focus_ = true;
-            if (focus_control_ != nullptr)
-                DispatchEvent(focus_control_, &Control::OnGetFocusCore, nullptr);
+            DispatchEvent(focus_control_, &Control::OnGetFocusCore, nullptr, true);
         }
 
         void Window::OnKillFocusInternal()
         {
             window_focus_ = false;
-            if (focus_control_ != nullptr)
-                DispatchEvent(focus_control_, &Control::OnLoseFocusCore, nullptr);
+            DispatchEvent(focus_control_, &Control::OnLoseFocusCore, nullptr, true);
         }
 
         void Window::OnMouseMoveInternal(const POINT point)

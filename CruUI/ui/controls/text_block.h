@@ -97,9 +97,6 @@ namespace cru
                 }
 
             protected:
-                void OnAttachToWindow(Window* window) override;
-                void OnDetachToWindow(Window* window) override;
-
                 void OnSizeChangedCore(events::SizeChangedEventArgs& args) override final;
                 void OnDraw(ID2D1DeviceContext* device_context) override;
 
@@ -107,7 +104,7 @@ namespace cru
                 void OnMouseMoveCore(events::MouseEventArgs& args) override;
                 void OnMouseUpCore(events::MouseButtonEventArgs& args) override;
 
-                void OnLoseFocusCore(events::UiEventArgs& args) override;
+                void OnLoseFocusCore(events::FocusChangeEventArgs& args) override;
 
                 Size OnMeasure(const Size& available_size) override;
 
@@ -131,9 +128,6 @@ namespace cru
                 bool is_selecting_ = false;
                 unsigned mouse_down_position_ = 0;
                 std::optional<TextRange> selected_range_ = std::nullopt;
-
-
-                events::UiEvent::EventHandlerPtr window_deactivated_handler_;
             };
         }
     }

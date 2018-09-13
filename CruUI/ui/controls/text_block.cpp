@@ -25,11 +25,7 @@ namespace cru
             }
 
             TextBlock::TextBlock(const Microsoft::WRL::ComPtr<IDWriteTextFormat>& init_text_format,
-                const Microsoft::WRL::ComPtr<ID2D1Brush>& init_brush) : Control(false),
-                window_deactivated_handler_(new events::UiEvent::EventHandler([this](events::UiEvent::ArgsType& args)
-            {
-                is_selecting_ = false;
-            }))
+                const Microsoft::WRL::ComPtr<ID2D1Brush>& init_brush) : Control(false)
             {
                 text_format_ = init_text_format;
                 if (init_brush == nullptr)
@@ -61,18 +57,6 @@ namespace cru
                 text_format_ = text_format;
                 RecreateTextLayout();
                 Repaint();
-            }
-
-            void TextBlock::OnAttachToWindow(Window* window)
-            {
-                Control::OnAttachToWindow(window);
-                window->deactivated_event.AddHandler(window_deactivated_handler_);
-            }
-
-            void TextBlock::OnDetachToWindow(Window* window)
-            {
-                Control::OnDetachToWindow(window);
-                window->deactivated_event.RemoveHandler(window_deactivated_handler_);
             }
 
             void TextBlock::OnSizeChangedCore(events::SizeChangedEventArgs& args)
@@ -171,10 +155,18 @@ namespace cru
                 Control::OnMouseUpCore(args);
             }
 
-            void TextBlock::OnLoseFocusCore(events::UiEventArgs& args)
+            void TextBlock::OnLoseFocusCore(events::FocusChangeEventArgs& args)
             {
-                selected_range_ = std::nullopt;
-                Repaint();
+                if (is_selecting_)
+                {
+                    is_selecting_ = false;
+                    GetWindow()->ReleaseCurrentMouseCapture();
+                }
+                if (!args.IsWindow())
+                {
+                    selected_range_ = std::nullopt;
+                    Repaint();
+                }
                 Control::OnLoseFocusCore(args);
             }
 
