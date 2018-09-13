@@ -111,7 +111,6 @@ namespace cru
             private:
                 void OnTextChangedCore(const String& old_text, const String& new_text);
 
-                void CreateDefaultBrush();
                 void CreateDefaultTextFormat();
                 void RecreateTextLayout();
 

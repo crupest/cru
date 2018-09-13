@@ -29,9 +29,9 @@ namespace cru
             {
                 text_format_ = init_text_format;
                 if (init_brush == nullptr)
-                    CreateDefaultBrush();
+                    brush_ = CreateSolidBrush(D2D1::ColorF(D2D1::ColorF::Black));
 
-                selection_brush_ = CreateSolidBrush(D2D1::ColorF(D2D1::ColorF::Blue)); //TODO!
+                selection_brush_ = CreateSolidBrush(D2D1::ColorF(D2D1::ColorF::Blue));
             }
 
             TextBlock::~TextBlock() = default;
@@ -231,11 +231,6 @@ namespace cru
             {
                 RecreateTextLayout();
                 Repaint();
-            }
-
-            void TextBlock::CreateDefaultBrush()
-            {
-                brush_ = CreateSolidBrush(D2D1::ColorF(D2D1::ColorF::Black));
             }
 
             void TextBlock::CreateDefaultTextFormat()
