@@ -28,6 +28,11 @@ namespace cru {
 
         }
 
+        Control::Control(WindowConstructorTag, Window* window) : Control(true)
+        {
+            window_ = window;
+        }
+
         Control::~Control()
         {
             ForeachChild([](auto control)
@@ -275,7 +280,7 @@ namespace cru {
 
         void Control::OnAddChild(Control* child)
         {
-            if (auto window = dynamic_cast<Window*>(GetAncestor()))
+            if (auto window = GetWindow())
             {
                 child->TraverseDescendants([window](Control* control) {
                     control->OnAttachToWindow(window);
@@ -287,7 +292,7 @@ namespace cru {
 
         void Control::OnRemoveChild(Control* child)
         {
-            if (auto window = dynamic_cast<Window*>(GetAncestor()))
+            if (auto window = GetWindow())
             {
                 child->TraverseDescendants([window](Control* control) {
                     control->OnDetachToWindow(window);

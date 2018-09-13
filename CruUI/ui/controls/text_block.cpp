@@ -26,12 +26,9 @@ namespace cru
 
             TextBlock::TextBlock(const Microsoft::WRL::ComPtr<IDWriteTextFormat>& init_text_format,
                 const Microsoft::WRL::ComPtr<ID2D1Brush>& init_brush) : Control(false),
-            window_deactivated_handler_(new events::UiEvent::EventHandler([this](events::UiEvent::ArgsType& args)
+                window_deactivated_handler_(new events::UiEvent::EventHandler([this](events::UiEvent::ArgsType& args)
             {
-                if (is_selecting_)
-                {
-                    is_selecting_ = false;
-                }
+                is_selecting_ = false;
             }))
             {
                 text_format_ = init_text_format;
@@ -68,15 +65,14 @@ namespace cru
 
             void TextBlock::OnAttachToWindow(Window* window)
             {
-                window->deactivated_event.AddHandler([](auto args)
-                {
-                    
-                });
+                Control::OnAttachToWindow(window);
+                window->deactivated_event.AddHandler(window_deactivated_handler_);
             }
 
             void TextBlock::OnDetachToWindow(Window* window)
             {
-
+                Control::OnDetachToWindow(window);
+                window->deactivated_event.RemoveHandler(window_deactivated_handler_);
             }
 
             void TextBlock::OnSizeChangedCore(events::SizeChangedEventArgs& args)
@@ -132,6 +128,7 @@ namespace cru
                 if (args.GetMouseButton() == MouseButton::Left)
                 {
                     RequestFocus();
+                    selected_range_ = std::nullopt;
                     const auto hit_test_result = TextLayoutHitTest(text_layout_.Get(), args.GetPoint(this), true);
                     if (hit_test_result.has_value())
                     {
@@ -139,19 +136,16 @@ namespace cru
                         is_selecting_ = true;
                         GetWindow()->CaptureMouseFor(this);
                     }
-                    else
-                    {
-                        selected_range_ = std::nullopt;
-                    }
+                    Repaint();
                 }
                 Control::OnMouseDownCore(args);
             }
 
             void TextBlock::OnMouseMoveCore(events::MouseEventArgs& args)
             {
+                OutputDebugStringW(L"Mouse move!");
                 if (is_selecting_)
                 {
-                    is_mouse_moved_ = true;
                     const auto hit_test_result = TextLayoutHitTest(text_layout_.Get(), args.GetPoint(this), false).value();
                     if (hit_test_result > mouse_down_position_)
                         selected_range_ = TextRange(mouse_down_position_, hit_test_result - mouse_down_position_);
@@ -170,12 +164,6 @@ namespace cru
                 {
                     if (is_selecting_)
                     {
-                        if (!is_mouse_moved_)
-                        {
-                            selected_range_ = std::nullopt;
-                            Repaint();
-                        }
-                        is_mouse_moved_ = false;
                         is_selecting_ = false;
                         GetWindow()->ReleaseCurrentMouseCapture();
                     }

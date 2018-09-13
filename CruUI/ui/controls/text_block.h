@@ -128,11 +128,10 @@ namespace cru
 
                 Vector<std::shared_ptr<TextLayoutHandler>> text_layout_handlers_;
 
+                bool is_selecting_ = false;
                 unsigned mouse_down_position_ = 0;
-                bool is_mouse_moved_ = false;
                 std::optional<TextRange> selected_range_ = std::nullopt;
 
-                bool is_selecting_ = false;
 
                 events::UiEvent::EventHandlerPtr window_deactivated_handler_;
             };

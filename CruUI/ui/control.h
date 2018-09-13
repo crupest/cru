@@ -29,7 +29,10 @@ namespace cru
             friend class Window;
             friend class WindowLayoutManager;
         protected:
+            struct WindowConstructorTag {};
+
             explicit Control(bool container = false);
+            Control(WindowConstructorTag, Window* window);
 
         public:
             Control(const Control& other) = delete;
@@ -251,8 +254,10 @@ namespace cru
         private:
             bool is_container_;
 
-            Window * window_;
+        protected:
+            Window * window_; // protected for Window class to write it as itself in constructor.
 
+        private:
             Control * parent_;
             Vector<Control*> children_;
 

@@ -91,7 +91,7 @@ namespace cru
                 else if (result != nullptr)
                     return; // find a ancestor of "control", just return
             }
-            
+
             cache_invalid_controls_.insert(control);
 
             if (cache_invalid_controls_.size() == 1) // when insert just now and not repeat to "InvokeLater".
@@ -105,7 +105,7 @@ namespace cru
                         control->CheckAndNotifyPositionChanged();
                     });
                     cache_invalid_controls_.clear(); // after update and notify, clear the set.
-                    
+
                 });
             }
         }
@@ -149,8 +149,8 @@ namespace cru
             );
         }
 
-        Window::Window() : Control(true), layout_manager_(new WindowLayoutManager()), control_list_({ this }) {
-            auto app = Application::GetInstance();
+        Window::Window() : Control(WindowConstructorTag{}, this), layout_manager_(new WindowLayoutManager()), control_list_({ this }) {
+            const auto app = Application::GetInstance();
             hwnd_ = CreateWindowEx(0,
                 app->GetWindowManager()->GetGeneralWindowClass()->GetName(),
                 L"", WS_OVERLAPPEDWINDOW,
@@ -168,6 +168,9 @@ namespace cru
 
         Window::~Window() {
             Close();
+            TraverseDescendants([this](Control* control) {
+                control->OnDetachToWindow(this);
+            });
         }
 
         void Window::Close() {
