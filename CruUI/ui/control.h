@@ -29,9 +29,11 @@ namespace cru
             friend class Window;
             friend class WindowLayoutManager;
         protected:
-            struct WindowConstructorTag {};
+            struct WindowConstructorTag {}; //Used for constructor for class Window. 
 
             explicit Control(bool container = false);
+
+            // Used only for creating Window. It will set window_ as window.
             Control(WindowConstructorTag, Window* window);
 
         public:

@@ -127,7 +127,6 @@ namespace cru
 
             void TextBlock::OnMouseMoveCore(events::MouseEventArgs& args)
             {
-                OutputDebugStringW(L"Mouse move!");
                 if (is_selecting_)
                 {
                     const auto hit_test_result = TextLayoutHitTest(text_layout_.Get(), args.GetPoint(this), false).value();
@@ -162,7 +161,7 @@ namespace cru
                     is_selecting_ = false;
                     GetWindow()->ReleaseCurrentMouseCapture();
                 }
-                if (!args.IsWindow())
+                if (!args.IsWindow()) // If the focus lose is triggered window-wide, then save the selection state. Otherwise, clear selection.
                 {
                     selected_range_ = std::nullopt;
                     Repaint();
