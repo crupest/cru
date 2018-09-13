@@ -25,7 +25,14 @@ namespace cru
             }
 
             TextBlock::TextBlock(const Microsoft::WRL::ComPtr<IDWriteTextFormat>& init_text_format,
-                const Microsoft::WRL::ComPtr<ID2D1Brush>& init_brush) : Control(false)
+                const Microsoft::WRL::ComPtr<ID2D1Brush>& init_brush) : Control(false),
+            window_deactivated_handler_(new events::UiEvent::EventHandler([this](events::UiEvent::ArgsType& args)
+            {
+                if (is_selecting_)
+                {
+                    is_selecting_ = false;
+                }
+            }))
             {
                 text_format_ = init_text_format;
                 if (init_brush == nullptr)
@@ -57,6 +64,19 @@ namespace cru
                 text_format_ = text_format;
                 RecreateTextLayout();
                 Repaint();
+            }
+
+            void TextBlock::OnAttachToWindow(Window* window)
+            {
+                window->deactivated_event.AddHandler([](auto args)
+                {
+                    
+                });
+            }
+
+            void TextBlock::OnDetachToWindow(Window* window)
+            {
+
             }
 
             void TextBlock::OnSizeChangedCore(events::SizeChangedEventArgs& args)

@@ -213,6 +213,11 @@ namespace cru {
             Control* CaptureMouseFor(Control* control);
             Control* ReleaseCurrentMouseCapture();
 
+        public:
+            //*************** region: events ***************
+            events::UiEvent activated_event;
+            events::UiEvent deactivated_event;
+
         private:
             //*************** region: native operations ***************
 
@@ -235,6 +240,9 @@ namespace cru {
             void OnMouseLeaveInternal();
             void OnMouseDownInternal(MouseButton button, POINT point);
             void OnMouseUpInternal(MouseButton button, POINT point);
+
+            void OnActivatedInternal();
+            void OnDeactivatedInternal();
 
             //*************** region: event dispatcher helper ***************
 

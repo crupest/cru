@@ -27,9 +27,9 @@ namespace cru
                 unsigned position;
                 unsigned count;
 
-                operator DWRITE_TEXT_RANGE() const
+                explicit operator DWRITE_TEXT_RANGE() const
                 {
-                    DWRITE_TEXT_RANGE result;
+                    DWRITE_TEXT_RANGE result{};
                     result.startPosition = position;
                     result.length = count;
                     return result;
@@ -97,6 +97,9 @@ namespace cru
                 }
 
             protected:
+                void OnAttachToWindow(Window* window) override;
+                void OnDetachToWindow(Window* window) override;
+
                 void OnSizeChangedCore(events::SizeChangedEventArgs& args) override final;
                 void OnDraw(ID2D1DeviceContext* device_context) override;
 
@@ -130,6 +133,8 @@ namespace cru
                 std::optional<TextRange> selected_range_ = std::nullopt;
 
                 bool is_selecting_ = false;
+
+                events::UiEvent::EventHandlerPtr window_deactivated_handler_;
             };
         }
     }

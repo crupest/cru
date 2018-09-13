@@ -337,6 +337,13 @@ namespace cru
                 OnResizeInternal(LOWORD(l_param), HIWORD(l_param));
                 result = 0;
                 return true;
+            case WM_ACTIVATE:
+                if (w_param == WA_ACTIVE || w_param == WA_CLICKACTIVE)
+                    OnActivatedInternal();
+                else if (w_param == WA_INACTIVE)
+                    OnDeactivatedInternal();
+                result = 0;
+                return true;
             case WM_DESTROY:
                 OnDestroyInternal();
                 result = 0;
@@ -575,6 +582,18 @@ namespace cru
                 control = HitTest(dip_point);
 
             DispatchEvent(control, &Control::OnMouseUpCore, nullptr, dip_point, button);
+        }
+
+        void Window::OnActivatedInternal()
+        {
+            events::UiEventArgs args(this, this);
+            activated_event.Raise(args);
+        }
+
+        void Window::OnDeactivatedInternal()
+        {
+            events::UiEventArgs args(this, this);
+            deactivated_event.Raise(args);
         }
 
         void Window::DispatchMouseHoverControlChangeEvent(Control* old_control, Control* new_control, const Point& point)
