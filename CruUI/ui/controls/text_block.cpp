@@ -31,7 +31,7 @@ namespace cru
                 if (init_brush == nullptr)
                     brush_ = CreateSolidBrush(D2D1::ColorF(D2D1::ColorF::Black));
 
-                selection_brush_ = CreateSolidBrush(D2D1::ColorF(D2D1::ColorF::Blue));
+                selection_brush_ = CreateSolidBrush(D2D1::ColorF(D2D1::ColorF::LightSkyBlue));
             }
 
             TextBlock::~TextBlock() = default;
@@ -61,10 +61,10 @@ namespace cru
 
             void TextBlock::OnSizeChangedCore(events::SizeChangedEventArgs& args)
             {
+                Control::OnSizeChangedCore(args);
                 text_layout_->SetMaxWidth(args.GetNewSize().width);
                 text_layout_->SetMaxHeight(args.GetNewSize().height);
                 Repaint();
-                Control::OnSizeChangedCore(args);
             }
 
             void TextBlock::OnDraw(ID2D1DeviceContext* device_context)
@@ -109,6 +109,7 @@ namespace cru
 
             void TextBlock::OnMouseDownCore(events::MouseButtonEventArgs& args)
             {
+                Control::OnMouseDownCore(args);
                 if (args.GetMouseButton() == MouseButton::Left)
                 {
                     RequestFocus();
@@ -122,11 +123,11 @@ namespace cru
                     }
                     Repaint();
                 }
-                Control::OnMouseDownCore(args);
             }
 
             void TextBlock::OnMouseMoveCore(events::MouseEventArgs& args)
             {
+                Control::OnMouseMoveCore(args);
                 if (is_selecting_)
                 {
                     const auto hit_test_result = TextLayoutHitTest(text_layout_.Get(), args.GetPoint(this), false).value();
@@ -138,11 +139,11 @@ namespace cru
                         selected_range_ = std::nullopt;
                     Repaint();
                 }
-                Control::OnMouseMoveCore(args);
             }
 
             void TextBlock::OnMouseUpCore(events::MouseButtonEventArgs& args)
             {
+                Control::OnMouseUpCore(args);
                 if (args.GetMouseButton() == MouseButton::Left)
                 {
                     if (is_selecting_)
@@ -151,11 +152,11 @@ namespace cru
                         GetWindow()->ReleaseCurrentMouseCapture();
                     }
                 }
-                Control::OnMouseUpCore(args);
             }
 
             void TextBlock::OnLoseFocusCore(events::FocusChangeEventArgs& args)
             {
+                Control::OnLoseFocusCore(args);
                 if (is_selecting_)
                 {
                     is_selecting_ = false;
@@ -166,7 +167,6 @@ namespace cru
                     selected_range_ = std::nullopt;
                     Repaint();
                 }
-                Control::OnLoseFocusCore(args);
             }
 
             Size TextBlock::OnMeasure(const Size& available_size)

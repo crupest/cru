@@ -214,6 +214,8 @@ namespace cru
             virtual void OnPositionChangedCore(events::PositionChangedEventArgs& args);
             virtual void OnSizeChangedCore(events::SizeChangedEventArgs& args);
 
+            void OnPositionChangedInternal(events::PositionChangedEventArgs& args);
+            void OnSizeChangedInternal(events::SizeChangedEventArgs& args);
 
             //*************** region: mouse event ***************
             virtual void OnMouseEnter(events::MouseEventArgs& args);
@@ -228,6 +230,12 @@ namespace cru
             virtual void OnMouseDownCore(events::MouseButtonEventArgs& args);
             virtual void OnMouseUpCore(events::MouseButtonEventArgs& args);
 
+            void OnMouseEnterInternal(events::MouseEventArgs& args);
+            void OnMouseLeaveInternal(events::MouseEventArgs& args);
+            void OnMouseMoveInternal(events::MouseEventArgs& args);
+            void OnMouseDownInternal(events::MouseButtonEventArgs& args);
+            void OnMouseUpInternal(events::MouseButtonEventArgs& args);
+
 
             //*************** region: focus event ***************
             virtual void OnGetFocus(events::FocusChangeEventArgs& args);
@@ -235,6 +243,9 @@ namespace cru
 
             virtual void OnGetFocusCore(events::FocusChangeEventArgs& args);
             virtual void OnLoseFocusCore(events::FocusChangeEventArgs& args);
+
+            void OnGetFocusInternal(events::FocusChangeEventArgs& args);
+            void OnLoseFocusInternal(events::FocusChangeEventArgs& args);
 
             //*************** region: layout ***************
             virtual Size OnMeasure(const Size& available_size);
@@ -268,7 +279,7 @@ namespace cru
             // more than once, it will be the oldest position since last
             // notification. If notification has been sent, it will be updated
             // to position_.
-            Point old_position_; 
+            Point old_position_;
             Point position_;
             Size size_;
 

@@ -420,11 +420,11 @@ namespace cru
             if (focus_control_ == control)
                 return true;
 
-            DispatchEvent(focus_control_, &Control::OnLoseFocusCore, nullptr, false);
+            DispatchEvent(focus_control_, &Control::OnLoseFocusInternal, nullptr, false);
 
             focus_control_ = control;
 
-            DispatchEvent(control, &Control::OnGetFocusCore, nullptr, false);
+            DispatchEvent(control, &Control::OnGetFocusInternal, nullptr, false);
 
             return true;
         }
@@ -511,13 +511,13 @@ namespace cru
         void Window::OnSetFocusInternal()
         {
             window_focus_ = true;
-            DispatchEvent(focus_control_, &Control::OnGetFocusCore, nullptr, true);
+            DispatchEvent(focus_control_, &Control::OnGetFocusInternal, nullptr, true);
         }
 
         void Window::OnKillFocusInternal()
         {
             window_focus_ = false;
-            DispatchEvent(focus_control_, &Control::OnLoseFocusCore, nullptr, true);
+            DispatchEvent(focus_control_, &Control::OnLoseFocusInternal, nullptr, true);
         }
 
         void Window::OnMouseMoveInternal(const POINT point)
@@ -542,18 +542,18 @@ namespace cru
 
             if (mouse_capture_control_) // if mouse is captured
             {
-                DispatchEvent(mouse_capture_control_, &Control::OnMouseMoveCore, nullptr, dip_point);
+                DispatchEvent(mouse_capture_control_, &Control::OnMouseMoveInternal, nullptr, dip_point);
             }
             else
             {
                 DispatchMouseHoverControlChangeEvent(old_control_mouse_hover, new_control_mouse_hover, dip_point);
-                DispatchEvent(new_control_mouse_hover, &Control::OnMouseMoveCore, nullptr, dip_point);
+                DispatchEvent(new_control_mouse_hover, &Control::OnMouseMoveInternal, nullptr, dip_point);
             }
         }
 
         void Window::OnMouseLeaveInternal()
         {
-            DispatchEvent(mouse_hover_control_, &Control::OnMouseLeaveCore, nullptr);
+            DispatchEvent(mouse_hover_control_, &Control::OnMouseLeaveInternal, nullptr);
             mouse_hover_control_ = nullptr;
         }
 
@@ -568,7 +568,7 @@ namespace cru
             else
                 control = HitTest(dip_point);
 
-            DispatchEvent(control, &Control::OnMouseDownCore, nullptr, dip_point, button);
+            DispatchEvent(control, &Control::OnMouseDownInternal, nullptr, dip_point, button);
         }
 
         void Window::OnMouseUpInternal(MouseButton button, POINT point)
@@ -582,7 +582,7 @@ namespace cru
             else
                 control = HitTest(dip_point);
 
-            DispatchEvent(control, &Control::OnMouseUpCore, nullptr, dip_point, button);
+            DispatchEvent(control, &Control::OnMouseUpInternal, nullptr, dip_point, button);
         }
 
         void Window::OnActivatedInternal()
@@ -603,9 +603,9 @@ namespace cru
             {
                 const auto lowest_common_ancestor = FindLowestCommonAncestor(old_control, new_control);
                 if (old_control != nullptr) // if last mouse-hover-on control exists
-                    DispatchEvent(old_control, &Control::OnMouseLeaveCore, lowest_common_ancestor); // dispatch mouse leave event.
+                    DispatchEvent(old_control, &Control::OnMouseLeaveInternal, lowest_common_ancestor); // dispatch mouse leave event.
                 if (new_control != nullptr)
-                    DispatchEvent(new_control, &Control::OnMouseEnterCore, lowest_common_ancestor, point); // dispatch mouse enter event.
+                    DispatchEvent(new_control, &Control::OnMouseEnterInternal, lowest_common_ancestor, point); // dispatch mouse enter event.
             }
         }
     }

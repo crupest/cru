@@ -29,7 +29,7 @@ namespace cru
 
                 explicit operator DWRITE_TEXT_RANGE() const
                 {
-                    DWRITE_TEXT_RANGE result{};
+                    DWRITE_TEXT_RANGE result;
                     result.startPosition = position;
                     result.length = count;
                     return result;
@@ -100,13 +100,13 @@ namespace cru
                 void OnSizeChangedCore(events::SizeChangedEventArgs& args) override final;
                 void OnDraw(ID2D1DeviceContext* device_context) override;
 
-                void OnMouseDownCore(events::MouseButtonEventArgs& args) override;
-                void OnMouseMoveCore(events::MouseEventArgs& args) override;
-                void OnMouseUpCore(events::MouseButtonEventArgs& args) override;
+                void OnMouseDownCore(events::MouseButtonEventArgs& args) override final;
+                void OnMouseMoveCore(events::MouseEventArgs& args) override final;
+                void OnMouseUpCore(events::MouseButtonEventArgs& args) override final;
 
-                void OnLoseFocusCore(events::FocusChangeEventArgs& args) override;
+                void OnLoseFocusCore(events::FocusChangeEventArgs& args) override final;
 
-                Size OnMeasure(const Size& available_size) override;
+                Size OnMeasure(const Size& available_size) override final;
 
             private:
                 void OnTextChangedCore(const String& old_text, const String& new_text);

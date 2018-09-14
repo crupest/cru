@@ -180,7 +180,7 @@ namespace cru {
             const auto old_size = size_;
             size_ = size;
             SizeChangedEventArgs args(this, this, old_size, size);
-            OnSizeChangedCore(args);
+            OnSizeChangedInternal(args);
             if (auto window = GetWindow())
                 window->Repaint();
         }
@@ -327,12 +327,24 @@ namespace cru {
 
         void Control::OnPositionChangedCore(PositionChangedEventArgs & args)
         {
-            OnPositionChanged(args);
-            position_changed_event.Raise(args);
+
         }
 
         void Control::OnSizeChangedCore(SizeChangedEventArgs & args)
         {
+
+        }
+
+        void Control::OnPositionChangedInternal(PositionChangedEventArgs& args)
+        {
+            OnPositionChangedCore(args);
+            OnPositionChanged(args);
+            position_changed_event.Raise(args);
+        }
+
+        void Control::OnSizeChangedInternal(SizeChangedEventArgs& args)
+        {
+            OnSizeChangedCore(args);
             OnSizeChanged(args);
             size_changed_event.Raise(args);
         }
@@ -360,51 +372,93 @@ namespace cru {
         void Control::OnMouseEnterCore(MouseEventArgs & args)
         {
             is_mouse_inside_ = true;
-            OnMouseEnter(args);
-            mouse_enter_event.Raise(args);
         }
 
         void Control::OnMouseLeaveCore(MouseEventArgs & args)
         {
             is_mouse_inside_ = false;
-            OnMouseLeave(args);
-            mouse_leave_event.Raise(args);
         }
 
         void Control::OnMouseMoveCore(MouseEventArgs & args)
         {
-            OnMouseMove(args);
-            mouse_move_event.Raise(args);
+
         }
 
         void Control::OnMouseDownCore(MouseButtonEventArgs & args)
         {
-            OnMouseDown(args);
-            mouse_down_event.Raise(args);
+
         }
 
         void Control::OnMouseUpCore(MouseButtonEventArgs & args)
         {
+
+        }
+
+        void Control::OnMouseEnterInternal(MouseEventArgs& args)
+        {
+            OnMouseEnterCore(args);
+            OnMouseEnter(args);
+            mouse_enter_event.Raise(args);
+        }
+
+        void Control::OnMouseLeaveInternal(MouseEventArgs& args)
+        {
+            OnMouseLeaveCore(args);
+            OnMouseLeave(args);
+            mouse_leave_event.Raise(args);
+        }
+
+        void Control::OnMouseMoveInternal(MouseEventArgs& args)
+        {
+            OnMouseMoveCore(args);
+            OnMouseMove(args);
+            mouse_move_event.Raise(args);
+        }
+
+        void Control::OnMouseDownInternal(MouseButtonEventArgs& args)
+        {
+            OnMouseDownCore(args);
+            OnMouseDown(args);
+            mouse_down_event.Raise(args);
+        }
+
+        void Control::OnMouseUpInternal(MouseButtonEventArgs& args)
+        {
+            OnMouseUpCore(args);
             OnMouseUp(args);
             mouse_up_event.Raise(args);
         }
 
         void Control::OnGetFocus(FocusChangeEventArgs& args)
         {
+
         }
 
         void Control::OnLoseFocus(FocusChangeEventArgs& args)
         {
+
         }
 
         void Control::OnGetFocusCore(FocusChangeEventArgs& args)
         {
-            OnGetFocus(args);
-            get_focus_event.Raise(args);
+
         }
 
         void Control::OnLoseFocusCore(FocusChangeEventArgs& args)
         {
+
+        }
+
+        void Control::OnGetFocusInternal(FocusChangeEventArgs& args)
+        {
+            OnGetFocusCore(args);
+            OnGetFocus(args);
+            get_focus_event.Raise(args);
+        }
+
+        void Control::OnLoseFocusInternal(FocusChangeEventArgs& args)
+        {
+            OnLoseFocusCore(args);
             OnLoseFocus(args);
             lose_focus_event.Raise(args);
         }
@@ -481,7 +535,7 @@ namespace cru {
             if (this->old_position_ != this->position_)
             {
                 PositionChangedEventArgs args(this, this, this->old_position_, this->position_);
-                this->OnPositionChangedCore(args);
+                this->OnPositionChangedInternal(args);
                 this->old_position_ = this->position_;
             }
         }
