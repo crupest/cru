@@ -68,10 +68,25 @@ int APIENTRY wWinMain(
 
     const auto layout = LinearLayout::Create();
 
-    layout->AddChild(TextBlock::Create(L"Hello World!!!"));
+    layout->GetLayoutParams()->width.mode = cru::ui::MeasureMode::Stretch;
+
+    layout->mouse_click_event.AddHandler([layout](cru::ui::events::MouseButtonEventArgs& args)
+    {
+        layout->AddChild(TextBlock::Create(L"Layout is clicked!"));
+    });
+
+    const auto text_block = TextBlock::Create(L"Hello World!!!");
+
+    text_block->mouse_click_event.AddHandler([layout](cru::ui::events::MouseButtonEventArgs& args)
+    {
+        layout->AddChild(TextBlock::Create(L"Hello world is clicked!"));
+    });
+
+    layout->AddChild(text_block);
     layout->AddChild(TextBlock::Create(L"This is a very very very very very long sentence!!!"));
     layout->AddChild(TextBlock::Create(L"By crupest!!!"));
 
+    
     window.AddChild(layout);
 
     window.Show();

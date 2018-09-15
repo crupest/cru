@@ -12,7 +12,7 @@ namespace cru {
     namespace ui {
         using namespace events;
 
-        Control::Control(bool container) :
+        Control::Control(const bool container) :
             is_container_(container),
             window_(nullptr),
             parent_(nullptr),
@@ -22,6 +22,11 @@ namespace cru {
             size_(Size::zero),
             position_cache_(),
             is_mouse_inside_(false),
+            is_mouse_leave_{
+                { MouseButton::Left, true },
+                { MouseButton::Middle, true },
+                { MouseButton::Right, true }
+        },
             layout_params_(new BasicLayoutParams()),
             desired_size_(Size::zero)
         {
@@ -148,6 +153,8 @@ namespace cru {
         {
             if (is_container_)
                 TraverseDescendantsInternal(this, predicate);
+            else
+                predicate(this);
         }
 
         Point Control::GetPositionRelative()
@@ -286,8 +293,8 @@ namespace cru {
                     control->OnAttachToWindow(window);
                 });
                 window->RefreshControlList();
-
             }
+            Relayout();
         }
 
         void Control::OnRemoveChild(Control* child)
@@ -299,6 +306,7 @@ namespace cru {
                 });
                 window->RefreshControlList();
             }
+            Relayout();
         }
 
         void Control::OnAttachToWindow(Window* window)
@@ -369,6 +377,11 @@ namespace cru {
         {
         }
 
+        void Control::OnMouseClick(MouseButtonEventArgs& args)
+        {
+
+        }
+
         void Control::OnMouseEnterCore(MouseEventArgs & args)
         {
             is_mouse_inside_ = true;
@@ -377,6 +390,8 @@ namespace cru {
         void Control::OnMouseLeaveCore(MouseEventArgs & args)
         {
             is_mouse_inside_ = false;
+            for (auto& is_mouse_leave : is_mouse_leave_)
+                is_mouse_leave.second = true;
         }
 
         void Control::OnMouseMoveCore(MouseEventArgs & args)
@@ -386,10 +401,16 @@ namespace cru {
 
         void Control::OnMouseDownCore(MouseButtonEventArgs & args)
         {
-
+            is_mouse_leave_[args.GetMouseButton()] = false;
         }
 
         void Control::OnMouseUpCore(MouseButtonEventArgs & args)
+        {
+            if (!is_mouse_leave_[args.GetMouseButton()])
+                OnMouseClickInternal(args);
+        }
+
+        void Control::OnMouseClickCore(MouseButtonEventArgs& args)
         {
 
         }
@@ -427,6 +448,13 @@ namespace cru {
             OnMouseUpCore(args);
             OnMouseUp(args);
             mouse_up_event.Raise(args);
+        }
+
+        void Control::OnMouseClickInternal(MouseButtonEventArgs& args)
+        {
+            OnMouseClickCore(args);
+            OnMouseClick(args);
+            mouse_click_event.Raise(args);
         }
 
         void Control::OnGetFocus(FocusChangeEventArgs& args)

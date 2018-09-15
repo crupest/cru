@@ -4,8 +4,14 @@
 #include "global_macros.h"
 
 
+#ifdef CRU_DEBUG
+#include <string>
+#include <vector>
+#else
 #include <folly/String.h>
 #include <folly/FBVector.h>
+#endif
+
 #include <folly/Function.h>
 
 #include <stdexcept>
@@ -19,7 +25,11 @@ namespace cru
         Break
     };
 
+#ifdef CRU_DEBUG
+    using String = std::wstring;
+#else
 	using String = folly::basic_fbstring<wchar_t>;
+#endif
 
     template<typename FunctionType>
     using Function = folly::Function<FunctionType>;
@@ -30,8 +40,13 @@ namespace cru
     template<typename... Args>
     using FlowControlAction = Function<FlowControl(Args...)>;
 
+#ifdef CRU_DEBUG
+    template<typename T>
+    using Vector = std::vector<T>;
+#else
     template<typename T>
     using Vector = folly::fbvector<T>;
+#endif
 
     class Object
 	{

@@ -57,7 +57,11 @@ namespace cru::ui::controls
             }
         });
 
-        auto actual_size_for_children = total_available_size_for_children - rest_available_size_for_children;
+        auto actual_size_for_children = total_available_size_for_children;
+        if (orientation_ == Orientation::Horizontal)
+            actual_size_for_children.width -= rest_available_size_for_children.width;
+        else
+            actual_size_for_children.height -= rest_available_size_for_children.height;
 
         auto&& calculate_final_length = [](const MeasureLength& layout_length, const float length_for_children, const float max_child_length) -> float
         {

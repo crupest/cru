@@ -2,6 +2,7 @@
 
 #include "system_headers.h"
 #include <optional>
+#include <unordered_map>
 
 #include "base.h"
 #include "ui_base.h"
@@ -91,7 +92,7 @@ namespace cru
                 return window_;
             }
 
-            //Traverse the tree rooted the control.
+            //Traverse the tree rooted the control including itself.
             void TraverseDescendants(Action<Control*>&& predicate);
 
             //*************** region: position and size ***************
@@ -177,6 +178,8 @@ namespace cru
             events::MouseButtonEvent mouse_down_event;
             //Raised when a mouse button is released in the control.
             events::MouseButtonEvent mouse_up_event;
+            //Raised when a mouse button is pressed in the control and released in the control with mouse not leaving it between two operations.
+            events::MouseButtonEvent mouse_click_event;
 
             events::FocusChangeEvent get_focus_event;
             events::FocusChangeEvent lose_focus_event;
@@ -223,19 +226,21 @@ namespace cru
             virtual void OnMouseMove(events::MouseEventArgs& args);
             virtual void OnMouseDown(events::MouseButtonEventArgs& args);
             virtual void OnMouseUp(events::MouseButtonEventArgs& args);
+            virtual void OnMouseClick(events::MouseButtonEventArgs& args);
 
             virtual void OnMouseEnterCore(events::MouseEventArgs& args);
             virtual void OnMouseLeaveCore(events::MouseEventArgs& args);
             virtual void OnMouseMoveCore(events::MouseEventArgs& args);
             virtual void OnMouseDownCore(events::MouseButtonEventArgs& args);
             virtual void OnMouseUpCore(events::MouseButtonEventArgs& args);
+            virtual void OnMouseClickCore(events::MouseButtonEventArgs& args);
 
             void OnMouseEnterInternal(events::MouseEventArgs& args);
             void OnMouseLeaveInternal(events::MouseEventArgs& args);
             void OnMouseMoveInternal(events::MouseEventArgs& args);
             void OnMouseDownInternal(events::MouseButtonEventArgs& args);
             void OnMouseUpInternal(events::MouseButtonEventArgs& args);
-
+            void OnMouseClickInternal(events::MouseButtonEventArgs& args);
 
             //*************** region: focus event ***************
             virtual void OnGetFocus(events::FocusChangeEventArgs& args);
@@ -286,6 +291,8 @@ namespace cru
             ControlPositionCache position_cache_;
 
             bool is_mouse_inside_;
+
+            std::unordered_map<MouseButton, bool> is_mouse_leave_; // used for clicking determination
 
             std::shared_ptr<BasicLayoutParams> layout_params_;
             Size desired_size_;
