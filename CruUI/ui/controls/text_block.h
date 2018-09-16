@@ -51,7 +51,7 @@ namespace cru
                     return text_block;
                 }
 
-            private:
+            protected:
                 explicit TextBlock(
                     const Microsoft::WRL::ComPtr<IDWriteTextFormat>& init_text_format = nullptr,
                     const Microsoft::WRL::ComPtr<ID2D1Brush>& init_brush = nullptr

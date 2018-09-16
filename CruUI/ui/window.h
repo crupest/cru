@@ -76,34 +76,6 @@ namespace cru {
         };
 
 
-        class WindowLayoutManager : public Object
-        {
-        public:
-            WindowLayoutManager() = default;
-            WindowLayoutManager(const WindowLayoutManager& other) = delete;
-            WindowLayoutManager(WindowLayoutManager&& other) = delete;
-            WindowLayoutManager& operator=(const WindowLayoutManager& other) = delete;
-            WindowLayoutManager& operator=(WindowLayoutManager&& other) = delete;
-            ~WindowLayoutManager() override = default;
-
-            //Mark position cache of the control and its descendants invalid,
-            //(which is saved as an auto-managed list internal)
-            //and send a message to refresh them.
-            void InvalidateControlPositionCache(Control* control);
-
-            //Refresh position cache of the control and its descendants whose cache
-            //has been marked as invalid.
-            void RefreshInvalidControlPositionCache();
-
-            //Refresh position cache of the control and its descendants immediately.
-            static void RefreshControlPositionCache(Control* control);
-
-        private:
-            static void RefreshControlPositionCacheInternal(Control* control, const Point& parent_lefttop_absolute);
-
-        private:
-            std::set<Control*> cache_invalid_controls_;
-        };
 
         class Window : public Control
         {
@@ -117,13 +89,6 @@ namespace cru {
             ~Window() override;
 
         public:
-            //*************** region: managers ***************
-            WindowLayoutManager* GetLayoutManager() const
-            {
-                return layout_manager_.get();
-            }
-
-
             //*************** region: handle ***************
 
             //Get the handle of the window. Return null if window is invalid.
@@ -273,8 +238,6 @@ namespace cru {
             void DispatchMouseHoverControlChangeEvent(Control* old_control, Control * new_control, const Point& point);
 
         private:
-            std::unique_ptr<WindowLayoutManager> layout_manager_;
-
             HWND hwnd_ = nullptr;
             std::shared_ptr<graph::WindowRenderTarget> render_target_{};
 

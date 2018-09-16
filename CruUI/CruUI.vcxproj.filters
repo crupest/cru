@@ -63,6 +63,9 @@
     <ClInclude Include="debug_base.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ui\controls\toggle_button.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="application.cpp">
@@ -96,6 +99,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ui\controls\linear_layout.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\controls\toggle_button.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\layout_base.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -1,9 +1,18 @@
 #pragma once
 
+#include "system_headers.h"
+#include <unordered_set>
+
+#include "base.h"
+#include "ui_base.h"
+
 namespace cru
 {
     namespace ui
     {
+        class Control;
+
+
         enum class MeasureMode
         {
             Exactly,
@@ -65,6 +74,39 @@ namespace cru
 
             MeasureLength width;
             MeasureLength height;
+        };
+
+
+        class LayoutManager : public Object
+        {
+        public:
+            static LayoutManager* GetInstance();
+
+        public:
+            LayoutManager() = default;
+            LayoutManager(const LayoutManager& other) = delete;
+            LayoutManager(LayoutManager&& other) = delete;
+            LayoutManager& operator=(const LayoutManager& other) = delete;
+            LayoutManager& operator=(LayoutManager&& other) = delete;
+            ~LayoutManager() override = default;
+
+            //Mark position cache of the control and its descendants invalid,
+            //(which is saved as an auto-managed list internal)
+            //and send a message to refresh them.
+            void InvalidateControlPositionCache(Control* control);
+
+            //Refresh position cache of the control and its descendants whose cache
+            //has been marked as invalid.
+            void RefreshInvalidControlPositionCache();
+
+            //Refresh position cache of the control and its descendants immediately.
+            static void RefreshControlPositionCache(Control* control);
+
+        private:
+            static void RefreshControlPositionCacheInternal(Control* control, const Point& parent_lefttop_absolute);
+
+        private:
+            std::unordered_set<Control*> cache_invalid_controls_;
         };
     }
 }

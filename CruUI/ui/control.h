@@ -28,7 +28,7 @@ namespace cru
         class Control : public Object
         {
             friend class Window;
-            friend class WindowLayoutManager;
+            friend class LayoutManager;
         protected:
             struct WindowConstructorTag {}; //Used for constructor for class Window. 
 
@@ -123,7 +123,7 @@ namespace cru
             //Absolute point to local point.
             Point AbsoluteToLocal(const Point& point) const;
 
-            bool IsPointInside(const Point& point);
+            virtual bool IsPointInside(const Point& point);
 
 
             //*************** region: graphic ***************

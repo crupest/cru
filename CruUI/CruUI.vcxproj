@@ -165,6 +165,7 @@
     <ClInclude Include="global_macros.h" />
     <ClInclude Include="ui\controls\linear_layout.h" />
     <ClInclude Include="ui\controls\text_block.h" />
+    <ClInclude Include="ui\controls\toggle_button.h" />
     <ClInclude Include="ui\events\ui_event.h" />
     <ClInclude Include="ui\layout_base.h" />
     <ClInclude Include="ui\window.h" />
@@ -173,12 +174,14 @@
   <ItemGroup>
     <ClCompile Include="application.cpp" />
     <ClCompile Include="exception.cpp" />
+    <ClCompile Include="ui\layout_base.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="graph\graph.cpp" />
     <ClCompile Include="timer.cpp" />
     <ClCompile Include="ui\control.cpp" />
     <ClCompile Include="ui\controls\linear_layout.cpp" />
     <ClCompile Include="ui\controls\text_block.cpp" />
+    <ClCompile Include="ui\controls\toggle_button.cpp" />
     <ClCompile Include="ui\events\ui_event.cpp" />
     <ClCompile Include="ui\window.cpp" />
     <ClCompile Include="ui\ui_base.cpp" />

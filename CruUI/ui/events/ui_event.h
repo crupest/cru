@@ -46,7 +46,7 @@ namespace cru
                 MouseEventArgs(Object* sender, Object* original_sender, const std::optional<Point>& point = std::nullopt)
                     : UiEventArgs(sender, original_sender), point_(point)
                 {
-                    
+
                 }
                 MouseEventArgs(const MouseEventArgs& other) = default;
                 MouseEventArgs(MouseEventArgs&& other) = default;
@@ -67,7 +67,7 @@ namespace cru
                 MouseButtonEventArgs(Object* sender, Object* original_sender, const Point& point, const MouseButton button)
                     : MouseEventArgs(sender, original_sender, point), button_(button)
                 {
-                    
+
                 }
                 MouseButtonEventArgs(const MouseButtonEventArgs& other) = default;
                 MouseButtonEventArgs(MouseButtonEventArgs&& other) = default;
@@ -91,7 +91,7 @@ namespace cru
                 DrawEventArgs(Object* sender, Object* original_sender, ID2D1DeviceContext* device_context)
                     : UiEventArgs(sender, original_sender), device_context_(device_context)
                 {
-                    
+
                 }
                 DrawEventArgs(const DrawEventArgs& other) = default;
                 DrawEventArgs(DrawEventArgs&& other) = default;
@@ -115,7 +115,7 @@ namespace cru
                 PositionChangedEventArgs(Object* sender, Object* original_sender, const Point& old_position, const Point& new_position)
                     : UiEventArgs(sender, original_sender), old_position_(old_position), new_position_(new_position)
                 {
-                    
+
                 }
                 PositionChangedEventArgs(const PositionChangedEventArgs& other) = default;
                 PositionChangedEventArgs(PositionChangedEventArgs&& other) = default;
@@ -145,7 +145,7 @@ namespace cru
                 SizeChangedEventArgs(Object* sender, Object* original_sender, const Size& old_size, const Size& new_size)
                     : UiEventArgs(sender, original_sender), old_size_(old_size), new_size_(new_size)
                 {
-                    
+
                 }
                 SizeChangedEventArgs(const SizeChangedEventArgs& other) = default;
                 SizeChangedEventArgs(SizeChangedEventArgs&& other) = default;
@@ -171,10 +171,10 @@ namespace cru
             class FocusChangeEventArgs : public UiEventArgs
             {
             public:
-                FocusChangeEventArgs(Object* sender, Object* original_sender, const bool is_window =false)
-                    : UiEventArgs(sender, original_sender), is_window_(is_window) 
+                FocusChangeEventArgs(Object* sender, Object* original_sender, const bool is_window = false)
+                    : UiEventArgs(sender, original_sender), is_window_(is_window)
                 {
-                    
+
                 }
                 FocusChangeEventArgs(const FocusChangeEventArgs& other) = default;
                 FocusChangeEventArgs(FocusChangeEventArgs&& other) = default;
@@ -192,6 +192,30 @@ namespace cru
                 bool is_window_;
             };
 
+            class ToggleEventArgs : public UiEventArgs
+            {
+            public:
+                ToggleEventArgs(Object* sender, Object* original_sender, bool new_state)
+                    : UiEventArgs(sender, original_sender), new_state_(new_state)
+                {
+
+                }
+                ToggleEventArgs(const ToggleEventArgs& other) = default;
+                ToggleEventArgs(ToggleEventArgs&& other) = default;
+                ToggleEventArgs& operator=(const ToggleEventArgs& other) = default;
+                ToggleEventArgs& operator=(ToggleEventArgs&& other) = default;
+                ~ToggleEventArgs() override = default;
+
+                bool GetNewState() const
+                {
+                    return new_state_;
+                }
+
+            private:
+                bool new_state_;
+            };
+
+
             using UiEvent = Event<UiEventArgs>;
             using MouseEvent = Event<MouseEventArgs>;
             using MouseButtonEvent = Event<MouseButtonEventArgs>;
@@ -199,6 +223,7 @@ namespace cru
             using PositionChangedEvent = Event<PositionChangedEventArgs>;
             using SizeChangedEvent = Event<SizeChangedEventArgs>;
             using FocusChangeEvent = Event<FocusChangeEventArgs>;
+            using ToggleEvent = Event<ToggleEventArgs>;
         }
     }
 }

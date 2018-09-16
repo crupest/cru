@@ -18,8 +18,15 @@ namespace cru::ui::controls
             return new LinearLayout(orientation);
         }
 
-    private:
+    protected:
         explicit LinearLayout(Orientation orientation = Orientation::Vertical);
+
+    public:
+        LinearLayout(const LinearLayout& other) = delete;
+        LinearLayout(LinearLayout&& other) = delete;
+        LinearLayout& operator=(const LinearLayout& other) = delete;
+        LinearLayout& operator=(LinearLayout&& other) = delete;
+        ~LinearLayout() override = default;
 
     protected:
         Size OnMeasure(const Size& available_size) override;

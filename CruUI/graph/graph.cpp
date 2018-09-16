@@ -213,5 +213,13 @@ namespace cru {
                 d2d1_factory_->ReloadSystemMetrics()
             );
         }
+
+        ComPtr<ID2D1SolidColorBrush> CreateSolidBrush(const D2D1_COLOR_F& color)
+        {
+            const auto device_context = graph::GraphManager::GetInstance()->GetD2D1DeviceContext();
+            ComPtr<ID2D1SolidColorBrush> solid_color_brush;
+            device_context->CreateSolidColorBrush(color, &solid_color_brush);
+            return solid_color_brush;
+        }
     }
 }

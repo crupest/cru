@@ -2,12 +2,14 @@
 #include "ui/window.h"
 #include "ui/controls/linear_layout.h"
 #include "ui/controls/text_block.h"
+#include "ui/controls/toggle_button.h"
 
 
 using cru::Application;
 using cru::ui::Window;
 using cru::ui::controls::LinearLayout;
 using cru::ui::controls::TextBlock;
+using cru::ui::controls::ToggleButton;
 
 
 int APIENTRY wWinMain(
@@ -74,6 +76,8 @@ int APIENTRY wWinMain(
     {
         layout->AddChild(TextBlock::Create(L"Layout is clicked!"));
     });
+
+    layout->AddChild(ToggleButton::Create());
 
     const auto text_block = TextBlock::Create(L"Hello World!!!");
 

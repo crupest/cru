@@ -169,9 +169,9 @@ namespace cru {
                 if (old_position_ == position) // if cache has been refreshed and no pending notify
                     old_position_ = position_;
                 position_ = position;
+                LayoutManager::GetInstance()->InvalidateControlPositionCache(this);
                 if (auto window = GetWindow())
                 {
-                    window->GetLayoutManager()->InvalidateControlPositionCache(this);
                     window->Repaint();
                 }
             }
