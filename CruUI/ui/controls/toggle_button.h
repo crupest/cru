@@ -52,6 +52,8 @@ namespace cru::ui::controls
     private:
         bool state_ = false;
 
+        float current_circle_position_;
+
         Microsoft::WRL::ComPtr<ID2D1RoundedRectangleGeometry> frame_path_;
         Microsoft::WRL::ComPtr<ID2D1Brush> on_brush_;
         Microsoft::WRL::ComPtr<ID2D1Brush> off_brush_;

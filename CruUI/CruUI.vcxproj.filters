@@ -66,6 +66,12 @@
     <ClInclude Include="ui\controls\toggle_button.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ui\animations\animation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="builder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="application.cpp">
@@ -105,6 +111,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ui\layout_base.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\animations\animation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

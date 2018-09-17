@@ -1,10 +1,14 @@
 ﻿#include "toggle_button.h"
 
+#include <fmt/format.h>
+
 #include "graph/graph.h"
+#include "ui/animations/animation.h"
 
 namespace cru::ui::controls
 {
     using graph::CreateSolidBrush;
+    using animations::Animation;
 
     // ui length parameters of toggle button.
     constexpr float half_height = 15;
@@ -13,11 +17,11 @@ namespace cru::ui::controls
     constexpr float inner_circle_radius = half_height - stroke_width;
     constexpr float inner_circle_x = half_width - half_height;
 
-    ToggleButton::ToggleButton()
+    ToggleButton::ToggleButton() : current_circle_position_(-inner_circle_x)
     {
         graph::GraphManager::GetInstance()->GetD2D1Factory()->CreateRoundedRectangleGeometry(D2D1::RoundedRect(D2D1::RectF(-half_width, -half_height, half_width, half_height), half_height, half_height), &frame_path_);
 
-        on_brush_ = CreateSolidBrush(D2D1::ColorF(D2D1::ColorF::LightBlue));
+        on_brush_ = CreateSolidBrush(D2D1::ColorF(D2D1::ColorF::DeepSkyBlue));
         off_brush_ = CreateSolidBrush(D2D1::ColorF(D2D1::ColorF::LightGray));
     }
 
@@ -42,6 +46,26 @@ namespace cru::ui::controls
         if (state != state_)
         {
             state_ = state;
+            float destination_x;
+
+            if (state)
+                destination_x = inner_circle_x;
+            else
+                destination_x = -inner_circle_x;
+
+            const auto previous_position = current_circle_position_;
+            const auto delta = destination_x - current_circle_position_;
+
+            constexpr double total_time = 0.5;
+
+            const auto time = total_time * std::abs(delta) / (inner_circle_x * 2);
+
+            Animation::Builder(fmt::format(L"ToggleButton {}", reinterpret_cast<size_t>(this)), time).AddStepHandler([=](Animation*, const float percentage)
+            {
+                current_circle_position_ = previous_position + delta * percentage;
+                Repaint();
+            }).Create();
+
             OnToggleInternal(state);
             Repaint();
         }
@@ -65,12 +89,12 @@ namespace cru::ui::controls
             if (state_)
             {
                 device_context->DrawGeometry(frame_path_.Get(), on_brush_.Get(), stroke_width);
-                device_context->FillEllipse(D2D1::Ellipse(D2D1::Point2F(inner_circle_x, 0), inner_circle_radius, inner_circle_radius), on_brush_.Get());
+                device_context->FillEllipse(D2D1::Ellipse(D2D1::Point2F(current_circle_position_, 0), inner_circle_radius, inner_circle_radius), on_brush_.Get());
             }
             else
             {
                 device_context->DrawGeometry(frame_path_.Get(), off_brush_.Get(), stroke_width);
-                device_context->FillEllipse(D2D1::Ellipse(D2D1::Point2F(-inner_circle_x, 0), inner_circle_radius, inner_circle_radius), off_brush_.Get());
+                device_context->FillEllipse(D2D1::Ellipse(D2D1::Point2F(current_circle_position_, 0), inner_circle_radius, inner_circle_radius), off_brush_.Get());
             }
         });
     }

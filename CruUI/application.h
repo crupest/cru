@@ -14,6 +14,11 @@ namespace cru
     {
         class WindowClass;
         class WindowManager;
+
+        namespace animations
+        {
+            class AnimationManager;
+        }
     }
 
     namespace graph
@@ -81,6 +86,11 @@ namespace cru
             return timer_manager_.get();
         }
 
+        ui::animations::AnimationManager* GetAnimationManager() const
+        {
+            return animation_manager_.get();
+        }
+
         HINSTANCE GetInstanceHandle() const
         {
             return h_instance_;
@@ -97,6 +107,7 @@ namespace cru
         std::unique_ptr<ui::WindowManager> window_manager_;
         std::unique_ptr<graph::GraphManager> graph_manager_;
         std::unique_ptr<TimerManager> timer_manager_;
+        std::unique_ptr<ui::animations::AnimationManager> animation_manager_;
 
         std::unique_ptr<GodWindow> god_window_;
     };

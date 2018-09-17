@@ -5,6 +5,7 @@
 #include "timer.h"
 #include "ui/window.h"
 #include "graph/graph.h"
+#include "ui/animations/animation.h"
 
 namespace cru {
     constexpr auto god_window_class_name = L"GodWindowClass";
@@ -63,9 +64,9 @@ namespace cru {
         case WM_TIMER:
         {
             const auto action = application_->GetTimerManager()->GetAction(static_cast<UINT_PTR>(w_param));
-            if (action.has_value())
+            if (action)
             {
-                action.value()();
+                (*action)();
                 return 0;
             }
             break;
@@ -95,6 +96,7 @@ namespace cru {
         window_manager_ = std::make_unique<ui::WindowManager>();
         graph_manager_ = std::make_unique<graph::GraphManager>();
         timer_manager_ = std::make_unique<TimerManager>();
+        animation_manager_ = std::make_unique<ui::animations::AnimationManager>();
 
         god_window_ = std::make_unique<GodWindow>(this);
     }
