@@ -69,9 +69,6 @@
     <ClInclude Include="ui\animations\animation.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="builder.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="application.cpp">

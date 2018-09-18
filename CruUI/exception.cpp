@@ -1,29 +1,34 @@
 #include "exception.h"
 
-#include <sstream>
-#include <iomanip>
+#include <fmt/format.h>
 
 namespace cru
 {
-	HResultError::HResultError(const HRESULT h_result)
-		: runtime_error(MakeMessage(h_result, std::nullopt)), h_result_(h_result)
-	{
+    inline std::string HResultMakeMessage(HRESULT h_result, std::optional<std::string> message)
+    {
+        if (message.has_value())
+            return fmt::format("An HResultError is thrown. HRESULT: {:#08x}.\n", h_result);
+        else
+            return fmt::format("An HResultError is thrown. HRESULT: {:#08x}.\nAdditional message: {}\n", h_result, message.value());
+    }
 
-	}
+    HResultError::HResultError(HRESULT h_result, std::optional<std::string_view> additional_message)
+        : runtime_error(HResultMakeMessage(h_result, std::nullopt)), h_result_(h_result)
+    {
 
-	HResultError::HResultError(const HRESULT h_result, const std::string& message)
-		: runtime_error(MakeMessage(h_result, std::make_optional(message))), h_result_(h_result)
-	{
+    }
 
-	}
+    inline std::string Win32MakeMessage(DWORD error_code, std::optional<std::string> message)
+    {
+        if (message.has_value())
+            return fmt::format("Last error code: {:#04x}.\n", error_code);
+        else
+            return fmt::format("Last error code: {:#04x}.\nAdditional message: {}\n", error_code, message.value());
+    }
 
-	std::string HResultError::MakeMessage(HRESULT h_result, std::optional<std::string> message)
-	{
-		std::stringstream ss;
-		ss << "An HResultError is thrown. HRESULT: 0x" << std::setfill('0')
-			<< std::setw(sizeof h_result * 2) << std::hex << h_result << ".";
-		if (message.has_value())
-			ss << "Additional message: " << message.value();
-		return ss.str();
-	}
+    Win32Error::Win32Error(DWORD error_code, std::optional<std::string_view> additional_message)
+        : runtime_error(Win32MakeMessage(error_code, std::nullopt)), error_code_(error_code)
+    {
+
+    }
 }

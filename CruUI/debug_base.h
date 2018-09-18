@@ -2,8 +2,8 @@
 
 
 #include "system_headers.h"
-#include <type_traits>
 #include <chrono>
+#include <string_view>
 #include <fmt/format.h>
 
 #include "base.h"
@@ -11,7 +11,7 @@
 namespace cru::debug
 {
 #ifdef CRU_DEBUG
-    inline void DebugTime(Function<void()>&& action, const wchar_t* const hint_message)
+    inline void DebugTime(Function<void()>&& action, const StringView& hint_message)
     {
         const auto before = std::chrono::steady_clock::now();
         action();
@@ -21,7 +21,7 @@ namespace cru::debug
     }
 
     template<typename TReturn>
-    TReturn DebugTime(Function<TReturn()>&& action, const wchar_t* const hint_message)
+    TReturn DebugTime(Function<TReturn()>&& action, const StringView& hint_message)
     {
         const auto before = std::chrono::steady_clock::now();
         auto&& result = action();
@@ -31,13 +31,13 @@ namespace cru::debug
         return std::move(result);
     }
 #else
-    inline void DebugTime(Function<void()>&& action, const wchar_t* const hint_message)
+    inline void DebugTime(Function<void()>&& action, const StringView& hint_message)
     {
         action();
     }
 
     template<typename TReturn>
-    TReturn DebugTime(Function<TReturn()>&& action, const wchar_t* const hint_message)
+    TReturn DebugTime(Function<TReturn()>&& action, const StringView& hint_message)
     {
         return action();
     }

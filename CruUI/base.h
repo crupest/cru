@@ -14,11 +14,19 @@
 
 #include <folly/Function.h>
 
+#include <utility>
+#include <type_traits>
 #include <stdexcept>
-
+#include <memory>
+#include <string_view>
+#include <chrono>
 
 namespace cru
 {
+    template<typename T> struct is_shared_ptr : std::false_type {};
+    template<typename T> struct is_shared_ptr<std::shared_ptr<T>> : std::true_type {};
+    template<typename T> constexpr bool is_shared_ptr_v = is_shared_ptr<T>::value;
+
     enum class FlowControl
     {
         Continue,
@@ -28,17 +36,31 @@ namespace cru
 #ifdef CRU_DEBUG
     using String = std::wstring;
 #else
-	using String = folly::basic_fbstring<wchar_t>;
+    using String = folly::basic_fbstring<wchar_t>;
 #endif
+
+    using StringView = std::wstring_view;
 
     template<typename FunctionType>
     using Function = folly::Function<FunctionType>;
 
-    template<typename... Args>
-    using Action = Function<void(Args...)>;
+    template<typename FunctionType>
+    using FunctionPtr = std::shared_ptr<Function<FunctionType>>;
 
-    template<typename... Args>
-    using FlowControlAction = Function<FlowControl(Args...)>;
+    using Action = Function<void()>;
+    using ActionPtr = FunctionPtr<void()>;
+
+    template<typename Type, typename... Args>
+    Type CreatePtr(Args&&... args)
+    {
+        static_assert(is_shared_ptr_v<Type>);
+        return std::make_shared<typename Type::element_type>(std::forward<Args>(args)...);
+    }
+
+    inline ActionPtr CreateActionPtr(Action&& action)
+    {
+        return std::make_shared<Action>(std::move(action));
+    }
 
 #ifdef CRU_DEBUG
     template<typename T>
@@ -48,24 +70,33 @@ namespace cru
     using Vector = folly::fbvector<T>;
 #endif
 
-    class Object
-	{
-	public:
-		Object() = default;
-		Object(const Object&) = default;
-		Object& operator = (const Object&) = default;
-		Object(Object&&) = default;
-		Object& operator = (Object&&) = default;
-		virtual ~Object() = default;
-	};
+    using FloatSecond = std::chrono::duration<double, std::chrono::seconds::period>;
 
-	struct Interface
-	{
-		virtual ~Interface() = default;
-	};
+    class Object
+    {
+    public:
+        Object() = default;
+        Object(const Object&) = default;
+        Object& operator = (const Object&) = default;
+        Object(Object&&) = default;
+        Object& operator = (Object&&) = default;
+        virtual ~Object() = default;
+    };
+
+    struct Interface
+    {
+        virtual ~Interface() = default;
+    };
 
     [[noreturn]] inline void UnreachableCode()
     {
         throw std::logic_error("Unreachable code.");
     }
+
+    struct ICancelable : virtual Interface
+    {
+        virtual void Cancel() = 0;
+    };
+
+    using CancelablePtr = std::shared_ptr<ICancelable>;
 }

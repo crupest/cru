@@ -2,10 +2,9 @@
 
 
 #include "system_headers.h"
-#include <functional>
 #include <memory>
 #include <map>
-#include <optional>
+#include <chrono>
 
 #include "base.h"
 #include "application.h"
@@ -28,20 +27,17 @@ namespace cru
         TimerManager& operator=(TimerManager&& other) = delete;
         ~TimerManager() override = default;
 
-        UINT_PTR CreateTimer(UINT milliseconds, bool loop, std::shared_ptr<Action<>> action);
+        UINT_PTR CreateTimer(UINT milliseconds, bool loop, ActionPtr action);
         void KillTimer(UINT_PTR id);
-        std::shared_ptr<Action<>> GetAction(UINT_PTR id);
+        ActionPtr GetAction(UINT_PTR id);
 
     private:
-        std::map<UINT_PTR, std::shared_ptr<Action<>>> map_{};
+        std::map<UINT_PTR, ActionPtr> map_{};
         UINT_PTR current_count_ = 0;
     };
 
-    struct ITimerTask : virtual Interface
-    {
-        virtual void Cancel() = 0;
-    };
+    using TimerTask = CancelablePtr;
 
-    std::shared_ptr<ITimerTask> SetTimeout(double seconds, std::shared_ptr<Action<>> action);
-    std::shared_ptr<ITimerTask> SetInterval(double seconds, std::shared_ptr<Action<>> action);
+    TimerTask SetTimeout(std::chrono::milliseconds milliseconds, ActionPtr action);
+    TimerTask SetInterval(std::chrono::milliseconds milliseconds, ActionPtr action);
 }

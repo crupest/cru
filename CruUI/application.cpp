@@ -2,6 +2,7 @@
 
 #include <fmt/format.h>
 
+#include "exception.h"
 #include "timer.h"
 #include "ui/window.h"
 #include "graph/graph.h"
@@ -96,13 +97,14 @@ namespace cru {
         window_manager_ = std::make_unique<ui::WindowManager>();
         graph_manager_ = std::make_unique<graph::GraphManager>();
         timer_manager_ = std::make_unique<TimerManager>();
-        animation_manager_ = std::make_unique<ui::animations::AnimationManager>();
+        animation_manager_ = std::make_unique<ui::animations::details::AnimationManager>();
 
         god_window_ = std::make_unique<GodWindow>(this);
     }
 
     Application::~Application()
     {
+        animation_manager_.reset();
         instance_ = nullptr;
     }
 
@@ -128,6 +130,6 @@ namespace cru {
         auto p_action_copy = new InvokeLaterAction(std::move(action));
 
         if (PostMessageW(Application::GetInstance()->GetGodWindow()->GetHandle(), invoke_later_message_id, reinterpret_cast<WPARAM>(p_action_copy), 0) == 0)
-            throw std::runtime_error(fmt::format("Last error: {}.", ::GetLastError()));
+            throw Win32Error(::GetLastError(), "InvokeLater failed to post message.");
     }
 }

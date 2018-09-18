@@ -8,7 +8,7 @@
 namespace cru::ui::controls
 {
     using graph::CreateSolidBrush;
-    using animations::Animation;
+    using animations::AnimationBuilder;
 
     // ui length parameters of toggle button.
     constexpr float half_height = 15;
@@ -56,15 +56,16 @@ namespace cru::ui::controls
             const auto previous_position = current_circle_position_;
             const auto delta = destination_x - current_circle_position_;
 
-            constexpr double total_time = 0.5;
+            constexpr auto total_time = FloatSecond(0.2);
 
-            const auto time = total_time * std::abs(delta) / (inner_circle_x * 2);
+            const auto time = total_time * (std::abs(delta) / (inner_circle_x * 2));
 
-            Animation::Builder(fmt::format(L"ToggleButton {}", reinterpret_cast<size_t>(this)), time).AddStepHandler([=](Animation*, const float percentage)
+            AnimationBuilder(fmt::format(L"ToggleButton {}", reinterpret_cast<size_t>(this)), time)
+            .AddStepHandler(CreatePtr<animations::AnimationStepHandlerPtr>([=](animations::AnimationDelegatePtr, const double percentage)
             {
-                current_circle_position_ = previous_position + delta * percentage;
+                current_circle_position_ = static_cast<float>(previous_position + delta * percentage);
                 Repaint();
-            }).Create();
+            })).Start();
 
             OnToggleInternal(state);
             Repaint();

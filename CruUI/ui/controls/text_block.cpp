@@ -53,6 +53,19 @@ namespace cru
                 Repaint();
             }
 
+            void TextBlock::AddTextLayoutHandler(TextLayoutHandlerPtr handler)
+            {
+                text_layout_handlers_.push_back(std::move(handler));
+            }
+
+            void TextBlock::RemoveTextLayoutHandler(const TextLayoutHandlerPtr& handler)
+            {
+                const auto find_result = std::find(text_layout_handlers_.cbegin(), text_layout_handlers_.cend(),
+                                                   handler);
+                if (find_result != text_layout_handlers_.cend())
+                    text_layout_handlers_.erase(find_result);
+            }
+
             void TextBlock::OnSizeChangedCore(events::SizeChangedEventArgs& args)
             {
                 Control::OnSizeChangedCore(args);
@@ -263,7 +276,7 @@ namespace cru
                     &text_layout_
                 ));
 
-                std::for_each(text_layout_handlers_.cbegin(), text_layout_handlers_.cend(), [this](const std::shared_ptr<TextLayoutHandler>& handler)
+                std::for_each(text_layout_handlers_.cbegin(), text_layout_handlers_.cend(), [this](const TextLayoutHandlerPtr& handler)
                 {
                     (*handler)(text_layout_);
                 });

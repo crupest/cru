@@ -15,7 +15,7 @@ namespace cru
         class WindowClass;
         class WindowManager;
 
-        namespace animations
+        namespace animations::details
         {
             class AnimationManager;
         }
@@ -86,7 +86,7 @@ namespace cru
             return timer_manager_.get();
         }
 
-        ui::animations::AnimationManager* GetAnimationManager() const
+        ui::animations::details::AnimationManager* GetAnimationManager() const
         {
             return animation_manager_.get();
         }
@@ -107,12 +107,12 @@ namespace cru
         std::unique_ptr<ui::WindowManager> window_manager_;
         std::unique_ptr<graph::GraphManager> graph_manager_;
         std::unique_ptr<TimerManager> timer_manager_;
-        std::unique_ptr<ui::animations::AnimationManager> animation_manager_;
+        std::unique_ptr<ui::animations::details::AnimationManager> animation_manager_;
 
         std::unique_ptr<GodWindow> god_window_;
     };
 
 
-    using InvokeLaterAction = Action<>;
+    using InvokeLaterAction = Function<void()>;
     void InvokeLater(InvokeLaterAction&& action);
 }

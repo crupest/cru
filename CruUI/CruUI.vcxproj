@@ -162,7 +162,6 @@
     <ClInclude Include="system_headers.h" />
     <ClInclude Include="timer.h" />
     <ClInclude Include="ui\animations\animation.h" />
-    <ClInclude Include="builder.h" />
     <ClInclude Include="ui\control.h" />
     <ClInclude Include="global_macros.h" />
     <ClInclude Include="ui\controls\linear_layout.h" />

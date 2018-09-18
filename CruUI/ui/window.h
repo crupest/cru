@@ -1,7 +1,6 @@
 #pragma once
 
 #include "system_headers.h"
-#include <set>
 #include <map>
 #include <list>
 #include <memory>

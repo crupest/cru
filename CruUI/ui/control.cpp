@@ -46,14 +46,14 @@ namespace cru {
             });
         }
 
-        void Control::ForeachChild(Action<Control*>&& predicate) const
+        void Control::ForeachChild(Function<void(Control*)>&& predicate) const
         {
             if (is_container_)
                 for (const auto child : children_)
                     predicate(child);
         }
 
-        void Control::ForeachChild(FlowControlAction<Control*>&& predicate) const
+        void Control::ForeachChild(Function<FlowControl(Control*)>&& predicate) const
         {
             if (is_container_)
                 for (const auto child : children_)
@@ -141,7 +141,7 @@ namespace cru {
             return ancestor;
         }
 
-        void TraverseDescendantsInternal(Control* control, Action<Control*>& predicate)
+        void TraverseDescendantsInternal(Control* control, Function<void(Control*)>& predicate)
         {
             predicate(control);
             control->ForeachChild([&predicate](Control* c) {
@@ -149,7 +149,7 @@ namespace cru {
             });
         }
 
-        void Control::TraverseDescendants(Action<Control*>&& predicate)
+        void Control::TraverseDescendants(Function<void(Control*)>&& predicate)
         {
             if (is_container_)
                 TraverseDescendantsInternal(this, predicate);

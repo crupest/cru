@@ -46,7 +46,7 @@ namespace cru {
 
 
         using ArgsType = TArgsType;
-        using EventHandler = Action<ArgsType&>;
+        using EventHandler = Function<void(ArgsType&)>;
         using EventHandlerPtr = std::shared_ptr<EventHandler>;
 
         Event() = default;

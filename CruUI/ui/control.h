@@ -60,8 +60,8 @@ namespace cru
             }
 
             //Traverse the children
-            void ForeachChild(Action<Control*>&& predicate) const;
-            void ForeachChild(FlowControlAction<Control*>&& predicate) const;
+            void ForeachChild(Function<void(Control*)>&& predicate) const;
+            void ForeachChild(Function<FlowControl(Control*)>&& predicate) const;
 
             //Return a vector of all children. This function will create a
             //temporary copy of vector of children. If you just want to
@@ -93,7 +93,7 @@ namespace cru
             }
 
             //Traverse the tree rooted the control including itself.
-            void TraverseDescendants(Action<Control*>&& predicate);
+            void TraverseDescendants(Function<void(Control*)>&& predicate);
 
             //*************** region: position and size ***************
             // Position and size part must be isolated from layout part.
