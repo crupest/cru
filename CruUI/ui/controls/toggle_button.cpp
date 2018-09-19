@@ -60,6 +60,7 @@ namespace cru::ui::controls
 
             const auto time = total_time * (std::abs(delta) / (inner_circle_x * 2));
 
+            // ReSharper disable once CppExpressionWithoutSideEffects
             AnimationBuilder(fmt::format(L"ToggleButton {}", reinterpret_cast<size_t>(this)), time)
             .AddStepHandler(CreatePtr<animations::AnimationStepHandlerPtr>([=](animations::AnimationDelegatePtr, const double percentage)
             {
@@ -67,7 +68,7 @@ namespace cru::ui::controls
                 Repaint();
             })).Start();
 
-            OnToggleInternal(state);
+            RaiseToggleEvent(state);
             Repaint();
         }
     }
@@ -139,7 +140,7 @@ namespace cru::ui::controls
         return result_size;
     }
 
-    void ToggleButton::OnToggleInternal(bool new_state)
+    void ToggleButton::RaiseToggleEvent(bool new_state)
     {
         events::ToggleEventArgs args(this, this, new_state);
         OnToggle(args);

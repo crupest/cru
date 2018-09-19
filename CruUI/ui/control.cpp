@@ -343,7 +343,7 @@ namespace cru {
 
         }
 
-        void Control::OnPositionChangedInternal(PositionChangedEventArgs& args)
+        void Control::RaisePositionChangedEvent(PositionChangedEventArgs& args)
         {
             OnPositionChangedCore(args);
             OnPositionChanged(args);
@@ -563,7 +563,7 @@ namespace cru {
             if (this->old_position_ != this->position_)
             {
                 PositionChangedEventArgs args(this, this, this->old_position_, this->position_);
-                this->OnPositionChangedInternal(args);
+                this->RaisePositionChangedEvent(args);
                 this->old_position_ = this->position_;
             }
         }

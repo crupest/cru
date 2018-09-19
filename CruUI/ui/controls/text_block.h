@@ -29,10 +29,7 @@ namespace cru
 
                 explicit operator DWRITE_TEXT_RANGE() const
                 {
-                    DWRITE_TEXT_RANGE result;
-                    result.startPosition = position;
-                    result.length = count;
-                    return result;
+                    return DWRITE_TEXT_RANGE { position, count };
                 }
             };
 

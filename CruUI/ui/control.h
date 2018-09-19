@@ -217,8 +217,8 @@ namespace cru
             virtual void OnPositionChangedCore(events::PositionChangedEventArgs& args);
             virtual void OnSizeChangedCore(events::SizeChangedEventArgs& args);
 
-            void OnPositionChangedInternal(events::PositionChangedEventArgs& args);
-            void OnSizeChangedInternal(events::SizeChangedEventArgs& args);
+            void RaisePositionChangedEvent(events::PositionChangedEventArgs& args);
+            void RaiseSizeChangedEvent(events::SizeChangedEventArgs& args);
 
             //*************** region: mouse event ***************
             virtual void OnMouseEnter(events::MouseEventArgs& args);
@@ -235,12 +235,12 @@ namespace cru
             virtual void OnMouseUpCore(events::MouseButtonEventArgs& args);
             virtual void OnMouseClickCore(events::MouseButtonEventArgs& args);
 
-            void OnMouseEnterInternal(events::MouseEventArgs& args);
-            void OnMouseLeaveInternal(events::MouseEventArgs& args);
-            void OnMouseMoveInternal(events::MouseEventArgs& args);
-            void OnMouseDownInternal(events::MouseButtonEventArgs& args);
-            void OnMouseUpInternal(events::MouseButtonEventArgs& args);
-            void OnMouseClickInternal(events::MouseButtonEventArgs& args);
+            void RaiseMouseEnterEvent(events::MouseEventArgs& args);
+            void RaiseMouseLeaveEvent(events::MouseEventArgs& args);
+            void RaiseMouseMoveEvent(events::MouseEventArgs& args);
+            void RaiseMouseDownEvent(events::MouseButtonEventArgs& args);
+            void RaiseMouseUpEvent(events::MouseButtonEventArgs& args);
+            void RaiseMouseClickEvent(events::MouseButtonEventArgs& args);
 
             //*************** region: focus event ***************
             virtual void OnGetFocus(events::FocusChangeEventArgs& args);
@@ -249,8 +249,8 @@ namespace cru
             virtual void OnGetFocusCore(events::FocusChangeEventArgs& args);
             virtual void OnLoseFocusCore(events::FocusChangeEventArgs& args);
 
-            void OnGetFocusInternal(events::FocusChangeEventArgs& args);
-            void OnLoseFocusInternal(events::FocusChangeEventArgs& args);
+            void RaiseGetFocusEvent(events::FocusChangeEventArgs& args);
+            void RaiseLoseFocusEvent(events::FocusChangeEventArgs& args);
 
             //*************** region: layout ***************
             virtual Size OnMeasure(const Size& available_size);

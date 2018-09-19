@@ -47,7 +47,7 @@ namespace cru::ui::controls
         Size OnMeasure(const Size& available_size) override;
 
     private:
-        void OnToggleInternal(bool new_state);
+        void RaiseToggleEvent(bool new_state);
 
     private:
         bool state_ = false;
