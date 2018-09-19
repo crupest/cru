@@ -22,7 +22,11 @@ namespace cru
         if (find_result != map_.cend())
         {
             ::KillTimer(Application::GetInstance()->GetGodWindow()->GetHandle(), id);
-            map_.erase(find_result);
+            // When timer is killed in tick action, we need to retain the action itself until the action finishes, so InvokeLater!
+            InvokeLater([=]
+            {
+                map_.erase(find_result);
+            });
         }
     }
 
