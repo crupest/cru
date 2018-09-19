@@ -101,7 +101,7 @@ namespace cru
             return god_window_.get();
         }
 
-#ifdef CRU_DEBUG
+#ifdef CRU_DEBUG_DRAW_CONTROL_BORDER
         Microsoft::WRL::ComPtr<ID2D1Brush> GetDebugBorderBrush() const
         {
             return debug_border_brush_;
@@ -118,7 +118,7 @@ namespace cru
 
         std::unique_ptr<GodWindow> god_window_;
 
-#ifdef CRU_DEBUG
+#ifdef CRU_DEBUG_DRAW_CONTROL_BORDER
         Microsoft::WRL::ComPtr<ID2D1Brush> debug_border_brush_;
 #endif
     };

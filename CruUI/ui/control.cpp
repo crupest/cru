@@ -321,7 +321,7 @@ namespace cru {
 
         void Control::OnDraw(ID2D1DeviceContext * device_context)
         {
-#ifdef CRU_DEBUG
+#ifdef CRU_DEBUG_DRAW_CONTROL_BORDER
             auto brush = Application::GetInstance()->GetDebugBorderBrush();
             const auto size = GetSize();
             device_context->DrawRectangle(D2D1::RectF(0, 0, size.width, size.height), brush.Get());

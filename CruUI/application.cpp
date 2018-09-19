@@ -101,7 +101,7 @@ namespace cru {
 
         god_window_ = std::make_unique<GodWindow>(this);
 
-#ifdef CRU_DEBUG
+#ifdef CRU_DEBUG_DRAW_CONTROL_BORDER
         debug_border_brush_ = graph::CreateSolidBrush(D2D1::ColorF(D2D1::ColorF::Crimson));
 #endif
     }
