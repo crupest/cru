@@ -101,6 +101,13 @@ namespace cru
             return god_window_.get();
         }
 
+#ifdef CRU_DEBUG
+        Microsoft::WRL::ComPtr<ID2D1Brush> GetDebugBorderBrush() const
+        {
+            return debug_border_brush_;
+        }
+#endif
+
     private:
         HINSTANCE h_instance_;
         
@@ -110,6 +117,10 @@ namespace cru
         std::unique_ptr<ui::animations::details::AnimationManager> animation_manager_;
 
         std::unique_ptr<GodWindow> god_window_;
+
+#ifdef CRU_DEBUG
+        Microsoft::WRL::ComPtr<ID2D1Brush> debug_border_brush_;
+#endif
     };
 
 

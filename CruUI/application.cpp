@@ -100,6 +100,10 @@ namespace cru {
         animation_manager_ = std::make_unique<ui::animations::details::AnimationManager>();
 
         god_window_ = std::make_unique<GodWindow>(this);
+
+#ifdef CRU_DEBUG
+        debug_border_brush_ = graph::CreateSolidBrush(D2D1::ColorF(D2D1::ColorF::Crimson));
+#endif
     }
 
     Application::~Application()

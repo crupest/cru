@@ -17,18 +17,18 @@ namespace cru {
             window_(nullptr),
             parent_(nullptr),
             children_(),
-            old_position_(Point::zero),
-            position_(Point::zero),
-            size_(Size::zero),
+            old_position_(),
+            position_(),
+            size_(),
             position_cache_(),
             is_mouse_inside_(false),
             is_mouse_leave_{
                 { MouseButton::Left, true },
                 { MouseButton::Middle, true },
                 { MouseButton::Right, true }
-        },
+            },
             layout_params_(new BasicLayoutParams()),
-            desired_size_(Size::zero)
+            desired_size_()
         {
 
         }
@@ -187,7 +187,7 @@ namespace cru {
             const auto old_size = size_;
             size_ = size;
             SizeChangedEventArgs args(this, this, old_size, size);
-            OnSizeChangedInternal(args);
+            RaiseSizeChangedEvent(args);
             if (auto window = GetWindow())
                 window->Repaint();
         }
@@ -321,7 +321,11 @@ namespace cru {
 
         void Control::OnDraw(ID2D1DeviceContext * device_context)
         {
-
+#ifdef CRU_DEBUG
+            auto brush = Application::GetInstance()->GetDebugBorderBrush();
+            const auto size = GetSize();
+            device_context->DrawRectangle(D2D1::RectF(0, 0, size.width, size.height), brush.Get());
+#endif
         }
 
         void Control::OnPositionChanged(PositionChangedEventArgs & args)
@@ -350,7 +354,7 @@ namespace cru {
             position_changed_event.Raise(args);
         }
 
-        void Control::OnSizeChangedInternal(SizeChangedEventArgs& args)
+        void Control::RaiseSizeChangedEvent(SizeChangedEventArgs& args)
         {
             OnSizeChangedCore(args);
             OnSizeChanged(args);
@@ -407,7 +411,7 @@ namespace cru {
         void Control::OnMouseUpCore(MouseButtonEventArgs & args)
         {
             if (!is_mouse_leave_[args.GetMouseButton()])
-                OnMouseClickInternal(args);
+                RaiseMouseClickEvent(args);
         }
 
         void Control::OnMouseClickCore(MouseButtonEventArgs& args)
@@ -415,42 +419,42 @@ namespace cru {
 
         }
 
-        void Control::OnMouseEnterInternal(MouseEventArgs& args)
+        void Control::RaiseMouseEnterEvent(MouseEventArgs& args)
         {
             OnMouseEnterCore(args);
             OnMouseEnter(args);
             mouse_enter_event.Raise(args);
         }
 
-        void Control::OnMouseLeaveInternal(MouseEventArgs& args)
+        void Control::RaiseMouseLeaveEvent(MouseEventArgs& args)
         {
             OnMouseLeaveCore(args);
             OnMouseLeave(args);
             mouse_leave_event.Raise(args);
         }
 
-        void Control::OnMouseMoveInternal(MouseEventArgs& args)
+        void Control::RaiseMouseMoveEvent(MouseEventArgs& args)
         {
             OnMouseMoveCore(args);
             OnMouseMove(args);
             mouse_move_event.Raise(args);
         }
 
-        void Control::OnMouseDownInternal(MouseButtonEventArgs& args)
+        void Control::RaiseMouseDownEvent(MouseButtonEventArgs& args)
         {
             OnMouseDownCore(args);
             OnMouseDown(args);
             mouse_down_event.Raise(args);
         }
 
-        void Control::OnMouseUpInternal(MouseButtonEventArgs& args)
+        void Control::RaiseMouseUpEvent(MouseButtonEventArgs& args)
         {
             OnMouseUpCore(args);
             OnMouseUp(args);
             mouse_up_event.Raise(args);
         }
 
-        void Control::OnMouseClickInternal(MouseButtonEventArgs& args)
+        void Control::RaiseMouseClickEvent(MouseButtonEventArgs& args)
         {
             OnMouseClickCore(args);
             OnMouseClick(args);
@@ -477,14 +481,14 @@ namespace cru {
 
         }
 
-        void Control::OnGetFocusInternal(FocusChangeEventArgs& args)
+        void Control::RaiseGetFocusEvent(FocusChangeEventArgs& args)
         {
             OnGetFocusCore(args);
             OnGetFocus(args);
             get_focus_event.Raise(args);
         }
 
-        void Control::OnLoseFocusInternal(FocusChangeEventArgs& args)
+        void Control::RaiseLoseFocusEvent(FocusChangeEventArgs& args)
         {
             OnLoseFocusCore(args);
             OnLoseFocus(args);
@@ -519,7 +523,7 @@ namespace cru {
             const Size size_for_children(get_available_length_for_child(layout_params->width, available_size.width),
                 get_available_length_for_child(layout_params->height, available_size.height));
 
-            auto max_child_size = Size::zero;
+            auto max_child_size = Size::Zero();
             ForeachChild([&](Control* control)
             {
                 control->Measure(size_for_children);
@@ -554,7 +558,7 @@ namespace cru {
         {
             ForeachChild([](Control* control)
             {
-                control->Layout(Rect(Point::zero, control->GetDesiredSize()));
+                control->Layout(Rect(Point::Zero(), control->GetDesiredSize()));
             });
         }
 

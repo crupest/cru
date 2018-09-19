@@ -7,13 +7,16 @@ namespace cru
     {
         struct Point
         {
-            static const Point zero;
+            constexpr static Point Zero()
+            {
+                return Point(0, 0);
+            }
 
-            Point() = default;
-            Point(const float x, const float y) : x(x), y(y) { }
+            constexpr Point() = default;
+            constexpr Point(const float x, const float y) : x(x), y(y) { }
 
-            float x;
-            float y;
+            float x = 0;
+            float y = 0;
         };
 
         inline bool operator==(const Point& left, const Point& right)
@@ -28,13 +31,16 @@ namespace cru
 
         struct Size
         {
-            static const Size zero;
+            constexpr static Size Zero()
+            {
+                return Size(0, 0);
+            }
 
-            Size() = default;
-            Size(const float width, const float height) : width(width), height(height) { }
+            constexpr Size() = default;
+            constexpr Size(const float width, const float height) : width(width), height(height) { }
 
-            float width;
-            float height;
+            float width = 0;
+            float height = 0;
         };
 
         inline Size operator - (const Size& left, const Size& right)

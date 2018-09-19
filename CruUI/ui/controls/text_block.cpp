@@ -76,6 +76,7 @@ namespace cru
 
             void TextBlock::OnDraw(ID2D1DeviceContext* device_context)
             {
+                Control::OnDraw(device_context);
                 if (text_layout_ != nullptr)
                 {
                     if (selected_range_.has_value())
@@ -179,7 +180,7 @@ namespace cru
             Size TextBlock::OnMeasure(const Size& available_size)
             {
                 if (text_.empty())
-                    return Size::zero;
+                    return Size::Zero();
 
                 const auto layout_params = GetLayoutParams();
 
@@ -252,6 +253,9 @@ namespace cru
                     24.0, L"zh-cn",
                     &text_format_
                 ));
+
+                ThrowIfFailed(text_format_->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER));
+                ThrowIfFailed(text_format_->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER));
             }
 
             void TextBlock::RecreateTextLayout()

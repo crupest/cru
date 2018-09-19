@@ -5,8 +5,11 @@
 #include "ui/controls/toggle_button.h"
 
 
+using cru::String;
 using cru::Application;
 using cru::ui::Window;
+using cru::ui::MeasureMode;
+using cru::ui::MeasureLength;
 using cru::ui::controls::LinearLayout;
 using cru::ui::controls::TextBlock;
 using cru::ui::controls::ToggleButton;
@@ -70,16 +73,25 @@ int APIENTRY wWinMain(
 
     const auto layout = LinearLayout::Create();
 
-    layout->GetLayoutParams()->width.mode = cru::ui::MeasureMode::Stretch;
+    layout->GetLayoutParams()->width.mode = MeasureMode::Stretch;
 
     layout->mouse_click_event.AddHandler([layout](cru::ui::events::MouseButtonEventArgs& args)
     {
-        layout->AddChild(TextBlock::Create(L"Layout is clicked!"));
+        if (args.GetSender() == args.GetOriginalSender())
+            layout->AddChild(TextBlock::Create(L"Layout is clicked!"));
     });
 
     layout->AddChild(ToggleButton::Create());
 
-    const auto text_block = TextBlock::Create(L"Hello World!!!");
+    auto&& create_text_block = [](const String& text, const MeasureLength& width = MeasureLength::Content(), const MeasureLength& height = MeasureLength::Content())
+    {
+        const auto text_block = TextBlock::Create(text);
+        text_block->GetLayoutParams()->width = width;
+        text_block->GetLayoutParams()->height = height;
+        return text_block;
+    };
+
+    const auto text_block = create_text_block(L"Hello World!!!", MeasureLength::Exactly(200), MeasureLength::Exactly(50));
 
     text_block->mouse_click_event.AddHandler([layout](cru::ui::events::MouseButtonEventArgs& args)
     {
@@ -87,10 +99,11 @@ int APIENTRY wWinMain(
     });
 
     layout->AddChild(text_block);
-    layout->AddChild(TextBlock::Create(L"This is a very very very very very long sentence!!!"));
-    layout->AddChild(TextBlock::Create(L"By crupest!!!"));
+    layout->AddChild(create_text_block(L"This is a very very very very very long sentence!!!", MeasureLength::Stretch(), MeasureLength::Stretch()));
+    layout->AddChild(TextBlock::Create(L"This is a little short sentence!!!"));
+    layout->AddChild(create_text_block(L"By crupest!!!", MeasureLength::Stretch(), MeasureLength::Stretch()));
 
-    
+
     window.AddChild(layout);
 
     window.Show();

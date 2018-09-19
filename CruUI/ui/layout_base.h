@@ -22,13 +22,30 @@ namespace cru
 
         struct MeasureLength final
         {
-            explicit MeasureLength(const float length = 0.0, const MeasureMode mode = MeasureMode::Content)
+            constexpr static MeasureLength Exactly(const float length)
+            {
+                return MeasureLength(MeasureMode::Exactly, length);
+            }
+
+            constexpr static MeasureLength Content()
+            {
+                return MeasureLength(MeasureMode::Content, 0);
+            }
+
+            constexpr static MeasureLength Stretch()
+            {
+                return MeasureLength(MeasureMode::Stretch, 0);
+            }
+
+            constexpr MeasureLength() = default;
+
+            constexpr explicit MeasureLength(const MeasureMode mode, const float length)
                 : length(length), mode(mode)
             {
 
             }
 
-            bool Validate() const
+            constexpr bool Validate() const
             {
                 if (mode == MeasureMode::Exactly && length < 0.0)
                 {
@@ -40,8 +57,8 @@ namespace cru
                 return true;
             }
 
-            float length;
-            MeasureMode mode;
+            float length = 0.0;
+            MeasureMode mode = MeasureMode::Content;
         };
 
         struct BasicLayoutParams

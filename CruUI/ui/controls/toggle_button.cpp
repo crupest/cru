@@ -85,6 +85,7 @@ namespace cru::ui::controls
 
     void ToggleButton::OnDraw(ID2D1DeviceContext* device_context)
     {
+        Control::OnDraw(device_context);
         const auto size = GetSize();
         graph::WithTransform(device_context, D2D1::Matrix3x2F::Translation(size.width / 2, size.height / 2), [this](ID2D1DeviceContext* device_context)
         {

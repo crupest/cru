@@ -40,22 +40,60 @@ namespace cru::ui::controls
 
         auto rest_available_size_for_children = total_available_size_for_children;
 
-        ForeachChild([this, &rest_available_size_for_children](Control* const control)
+        std::list<Control*> stretch_control_list;
+
+        // First measure Content and Exactly and count Stretch.
+        if (orientation_ == Orientation::Horizontal)
+            ForeachChild([&rest_available_size_for_children, &stretch_control_list](Control* const control)
         {
-            control->Measure(rest_available_size_for_children);
-            if (orientation_ == Orientation::Horizontal)
+            const auto mode = control->GetLayoutParams()->width.mode;
+            if (mode == MeasureMode::Content || mode == MeasureMode::Exactly)
             {
+                control->Measure(rest_available_size_for_children);
                 rest_available_size_for_children.width -= control->GetDesiredSize().width;
                 if (rest_available_size_for_children.width < 0)
                     rest_available_size_for_children.width = 0;
             }
             else
+                stretch_control_list.push_back(control);
+        });
+        else
+            ForeachChild([&rest_available_size_for_children, &stretch_control_list](Control* const control)
+        {
+            const auto mode = control->GetLayoutParams()->height.mode;
+            if (mode == MeasureMode::Content || mode == MeasureMode::Exactly)
             {
+                control->Measure(rest_available_size_for_children);
                 rest_available_size_for_children.height -= control->GetDesiredSize().height;
                 if (rest_available_size_for_children.height < 0)
                     rest_available_size_for_children.height = 0;
             }
+            else
+                stretch_control_list.push_back(control);
         });
+
+        if (orientation_ == Orientation::Horizontal)
+        {
+            const auto available_width = rest_available_size_for_children.width / stretch_control_list.size();
+            for (const auto control : stretch_control_list)
+            {
+                control->Measure(Size(available_width, rest_available_size_for_children.height));
+                rest_available_size_for_children.width -= control->GetDesiredSize().width;
+                if (rest_available_size_for_children.width < 0)
+                    rest_available_size_for_children.width = 0;
+            }
+        }
+        else
+        {
+            const auto available_height = rest_available_size_for_children.height / stretch_control_list.size();
+            for (const auto control : stretch_control_list)
+            {
+                control->Measure(Size(rest_available_size_for_children.width, available_height));
+                rest_available_size_for_children.height -= control->GetDesiredSize().height;
+                if (rest_available_size_for_children.height < 0)
+                    rest_available_size_for_children.height = 0;
+            }
+        }
 
         auto actual_size_for_children = total_available_size_for_children;
         if (orientation_ == Orientation::Horizontal)
@@ -85,16 +123,20 @@ namespace cru::ui::controls
 
     void LinearLayout::OnLayout(const Rect& rect)
     {
-        auto current_anchor = Point::zero;
-        ForeachChild([this, &current_anchor](Control* control)
+        float current_anchor_length = 0;
+        ForeachChild([this, &current_anchor_length, rect](Control* control)
         {
             const auto size = control->GetDesiredSize();
-            control->Layout(Rect(current_anchor, size));
-
             if (orientation_ == Orientation::Horizontal)
-                current_anchor.x += size.width;
+            {
+                control->Layout(Rect(Point(current_anchor_length, (rect.height - size.height) / 2), size));
+                current_anchor_length += size.width;
+            }
             else
-                current_anchor.y += size.height;
+            {
+                control->Layout(Rect(Point((rect.width - size.width) / 2, current_anchor_length), size));
+                current_anchor_length += size.height;
+            }
         });
     }
 }

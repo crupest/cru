@@ -52,7 +52,7 @@ namespace cru::ui
 
     void LayoutManager::RefreshControlPositionCache(Control * control)
     {
-        auto point = Point::zero;
+        auto point = Point::Zero();
         auto parent = control;
         while ((parent = parent->GetParent())) {
             const auto p = parent->GetPositionRelative();
