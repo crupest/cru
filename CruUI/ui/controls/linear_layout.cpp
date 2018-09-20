@@ -8,6 +8,16 @@ namespace cru::ui::controls
 
     }
 
+    inline float AtLeast0(const float value)
+    {
+        return value < 0 ? 0 : value;
+    }
+
+    inline Size AtLeast0(const Size& size)
+    {
+        return Size(AtLeast0(size.width), AtLeast0(size.height));
+    }
+
     Size LinearLayout::OnMeasure(const Size& available_size)
     {
         const auto layout_params = GetLayoutParams();
@@ -40,33 +50,35 @@ namespace cru::ui::controls
 
         auto rest_available_size_for_children = total_available_size_for_children;
 
+        float secondary_side_child_max_length = 0;
+
         std::list<Control*> stretch_control_list;
 
         // First measure Content and Exactly and count Stretch.
         if (orientation_ == Orientation::Horizontal)
-            ForeachChild([&rest_available_size_for_children, &stretch_control_list](Control* const control)
+            ForeachChild([&](Control* const control)
         {
             const auto mode = control->GetLayoutParams()->width.mode;
             if (mode == MeasureMode::Content || mode == MeasureMode::Exactly)
             {
-                control->Measure(rest_available_size_for_children);
-                rest_available_size_for_children.width -= control->GetDesiredSize().width;
-                if (rest_available_size_for_children.width < 0)
-                    rest_available_size_for_children.width = 0;
+                control->Measure(AtLeast0(rest_available_size_for_children));
+                const auto size = control->GetDesiredSize();
+                rest_available_size_for_children.width -= size.width;
+                secondary_side_child_max_length = std::max(size.height, secondary_side_child_max_length);
             }
             else
                 stretch_control_list.push_back(control);
         });
         else
-            ForeachChild([&rest_available_size_for_children, &stretch_control_list](Control* const control)
+            ForeachChild([&](Control* const control)
         {
             const auto mode = control->GetLayoutParams()->height.mode;
             if (mode == MeasureMode::Content || mode == MeasureMode::Exactly)
             {
-                control->Measure(rest_available_size_for_children);
-                rest_available_size_for_children.height -= control->GetDesiredSize().height;
-                if (rest_available_size_for_children.height < 0)
-                    rest_available_size_for_children.height = 0;
+                control->Measure(AtLeast0(rest_available_size_for_children));
+                const auto size = control->GetDesiredSize();
+                rest_available_size_for_children.height -= size.height;
+                secondary_side_child_max_length = std::max(size.width, secondary_side_child_max_length);
             }
             else
                 stretch_control_list.push_back(control);
@@ -77,10 +89,10 @@ namespace cru::ui::controls
             const auto available_width = rest_available_size_for_children.width / stretch_control_list.size();
             for (const auto control : stretch_control_list)
             {
-                control->Measure(Size(available_width, rest_available_size_for_children.height));
-                rest_available_size_for_children.width -= control->GetDesiredSize().width;
-                if (rest_available_size_for_children.width < 0)
-                    rest_available_size_for_children.width = 0;
+                control->Measure(Size(available_width, AtLeast0(rest_available_size_for_children.height)));
+                const auto size = control->GetDesiredSize();
+                rest_available_size_for_children.width -= size.width;
+                secondary_side_child_max_length = std::max(size.height, secondary_side_child_max_length);
             }
         }
         else
@@ -88,18 +100,24 @@ namespace cru::ui::controls
             const auto available_height = rest_available_size_for_children.height / stretch_control_list.size();
             for (const auto control : stretch_control_list)
             {
-                control->Measure(Size(rest_available_size_for_children.width, available_height));
-                rest_available_size_for_children.height -= control->GetDesiredSize().height;
-                if (rest_available_size_for_children.height < 0)
-                    rest_available_size_for_children.height = 0;
+                control->Measure(Size(AtLeast0(rest_available_size_for_children.width), available_height));
+                const auto size = control->GetDesiredSize();
+                rest_available_size_for_children.height -= size.height;
+                secondary_side_child_max_length = std::max(size.width, secondary_side_child_max_length);
             }
         }
 
         auto actual_size_for_children = total_available_size_for_children;
         if (orientation_ == Orientation::Horizontal)
+        {
             actual_size_for_children.width -= rest_available_size_for_children.width;
+            actual_size_for_children.height = secondary_side_child_max_length;
+        }
         else
+        {
+            actual_size_for_children.width = secondary_side_child_max_length;
             actual_size_for_children.height -= rest_available_size_for_children.height;
+        }
 
         auto&& calculate_final_length = [](const MeasureLength& layout_length, const float length_for_children, const float max_child_length) -> float
         {
@@ -127,14 +145,31 @@ namespace cru::ui::controls
         ForeachChild([this, &current_anchor_length, rect](Control* control)
         {
             const auto size = control->GetDesiredSize();
+            const auto alignment = GetAlignment(control);
+
+            auto&& calculate_anchor = [alignment](const float layout_length, const float control_length) -> float
+            {
+                switch (alignment)
+                {
+                case Alignment::Center:
+                    return (layout_length - control_length) / 2;
+                case Alignment::Start:
+                    return 0;
+                case Alignment::End:
+                    return layout_length - control_length;
+                default:
+                    UnreachableCode();
+                }
+            };
+
             if (orientation_ == Orientation::Horizontal)
             {
-                control->Layout(Rect(Point(current_anchor_length, (rect.height - size.height) / 2), size));
+                control->Layout(Rect(Point(current_anchor_length, calculate_anchor(rect.height, size.height)), size));
                 current_anchor_length += size.width;
             }
             else
             {
-                control->Layout(Rect(Point((rect.width - size.width) / 2, current_anchor_length), size));
+                control->Layout(Rect(Point(calculate_anchor(rect.width, size.width), current_anchor_length), size));
                 current_anchor_length += size.height;
             }
         });

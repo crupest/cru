@@ -12,6 +12,12 @@ namespace cru
     {
         class Control;
 
+        enum class Alignment
+        {
+            Center,
+            Start,
+            End
+        };
 
         enum class MeasureMode
         {
@@ -61,14 +67,14 @@ namespace cru
             MeasureMode mode = MeasureMode::Content;
         };
 
-        struct BasicLayoutParams
+        struct BasicLayoutParams final
         {
             BasicLayoutParams() = default;
             BasicLayoutParams(const BasicLayoutParams&) = default;
             BasicLayoutParams(BasicLayoutParams&&) = default;
             BasicLayoutParams& operator = (const BasicLayoutParams&) = default;
             BasicLayoutParams& operator = (BasicLayoutParams&&) = default;
-            virtual ~BasicLayoutParams() = default;
+            ~BasicLayoutParams() = default;
 
             bool Validate() const
             {

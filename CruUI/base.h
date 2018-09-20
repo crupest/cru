@@ -35,11 +35,14 @@ namespace cru
 
 #ifdef CRU_DEBUG
     using String = std::wstring;
+    using MultiByteString = std::string;
 #else
     using String = folly::basic_fbstring<wchar_t>;
+    using MultiByteString = folly::fbstring;
 #endif
 
     using StringView = std::wstring_view;
+    using MultiByteStringView = std::string_view;
 
     template<typename FunctionType>
     using Function = folly::Function<FunctionType>;
@@ -99,4 +102,6 @@ namespace cru
     };
 
     using CancelablePtr = std::shared_ptr<ICancelable>;
+
+    MultiByteString ToUtf8String(const StringView& string);
 }

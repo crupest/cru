@@ -69,6 +69,8 @@ namespace cru {
             //Return a pointer to the Window object related to the HWND or nullptr if the hwnd is not in the map.
             Window* FromHandle(HWND hwnd);
 
+            Vector<Window*> GetAllWindows() const;
+
         private:
             std::unique_ptr<WindowClass> general_window_class_;
             std::map<HWND, Window*> window_map_;
@@ -177,6 +179,16 @@ namespace cru {
             Control* CaptureMouseFor(Control* control);
             Control* ReleaseCurrentMouseCapture();
 
+            //*************** region: debug ***************
+#ifdef CRU_DEBUG_DRAW_CONTROL_BORDER
+            bool GetDebugDrawControlBorder() const
+            {
+                return debug_draw_control_border_;
+            }
+
+            void SetDebugDrawControlBorder(bool value);
+#endif
+
         public:
             //*************** region: events ***************
             events::UiEvent activated_event;
@@ -248,6 +260,10 @@ namespace cru {
             Control* focus_control_ = this; // "focus_control_" can't be nullptr
 
             Control* mouse_capture_control_ = nullptr;
+
+#ifdef CRU_DEBUG_DRAW_CONTROL_BORDER
+            bool debug_draw_control_border_ = false;
+#endif
         };
     }
 }

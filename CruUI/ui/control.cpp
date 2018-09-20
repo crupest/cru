@@ -22,12 +22,12 @@ namespace cru {
             size_(),
             position_cache_(),
             is_mouse_inside_(false),
-            is_mouse_leave_{
+            is_mouse_leave_
+            {
                 { MouseButton::Left, true },
                 { MouseButton::Middle, true },
                 { MouseButton::Right, true }
             },
-            layout_params_(new BasicLayoutParams()),
             desired_size_()
         {
 
@@ -322,9 +322,12 @@ namespace cru {
         void Control::OnDraw(ID2D1DeviceContext * device_context)
         {
 #ifdef CRU_DEBUG_DRAW_CONTROL_BORDER
-            auto brush = Application::GetInstance()->GetDebugBorderBrush();
-            const auto size = GetSize();
-            device_context->DrawRectangle(D2D1::RectF(0, 0, size.width, size.height), brush.Get());
+            if (GetWindow()->GetDebugDrawControlBorder())
+            {
+                auto brush = Application::GetInstance()->GetDebugBorderBrush();
+                const auto size = GetSize();
+                device_context->DrawRectangle(D2D1::RectF(0, 0, size.width, size.height), brush.Get());
+            }
 #endif
         }
 

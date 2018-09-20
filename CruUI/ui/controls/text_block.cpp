@@ -3,7 +3,6 @@
 #include "ui/window.h"
 #include "graph/graph.h"
 #include "exception.h"
-#include "debug_base.h"
 
 namespace cru
 {

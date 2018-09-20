@@ -1,8 +1,10 @@
 #pragma once
 
 #include "system_headers.h"
-#include <optional>
 #include <unordered_map>
+#include <any>
+#include <typeinfo>
+#include <fmt/format.h>
 
 #include "base.h"
 #include "ui_base.h"
@@ -152,19 +154,39 @@ namespace cru
 
             void SetDesiredSize(const Size& desired_size);
 
-            template<typename TLayoutParams = BasicLayoutParams>
-            std::shared_ptr<TLayoutParams> GetLayoutParams()
+            BasicLayoutParams* GetLayoutParams()
             {
-                static_assert(std::is_base_of_v<BasicLayoutParams, TLayoutParams>, "TLayoutParams must be subclass of BasicLayoutParams.");
-                return static_cast<std::shared_ptr<BasicLayoutParams>>(layout_params_);
+                return &layout_params_;
             }
 
-            template<typename TLayoutParams = BasicLayoutParams,
-                typename = std::enable_if_t<std::is_base_of_v<BasicLayoutParams, TLayoutParams>>>
-                void SetLayoutParams(std::shared_ptr<TLayoutParams> basic_layout_params)
+            //*************** region: additional properties ***************
+            template <typename T>
+            std::optional<T> GetAdditionalProperty(const String& key)
             {
-                static_assert(std::is_base_of_v<BasicLayoutParams, TLayoutParams>, "TLayoutParams must be subclass of BasicLayoutParams.");
-                layout_params_ = basic_layout_params;
+                try
+                {
+                    const auto find_result = additional_properties_.find(key);
+                    if (find_result != additional_properties_.cend())
+                        return std::any_cast<T>(find_result->second);
+                    else
+                        return std::nullopt;
+                }
+                catch (const std::bad_any_cast&)
+                {
+                    throw std::runtime_error(fmt::format("Key \"{}\" is not of the type {}.", ToUtf8String(key), typeid(T).name()));
+                }
+            }
+
+            template <typename T>
+            void SetAdditionalProperty(const String& key, const T& value)
+            {
+                additional_properties_[key] = std::make_any<T>(value);
+            }
+
+            template <typename T>
+            void SetAdditionalProperty(const String& key, T&& value)
+            {
+                additional_properties_[key] = std::make_any<T>(std::move(value));
             }
 
             //*************** region: events ***************
@@ -294,8 +316,10 @@ namespace cru
 
             std::unordered_map<MouseButton, bool> is_mouse_leave_; // used for clicking determination
 
-            std::shared_ptr<BasicLayoutParams> layout_params_;
+            BasicLayoutParams layout_params_;
             Size desired_size_;
+
+            std::unordered_map<String, std::any> additional_properties_;
         };
 
         // Find the lowest common ancestor.

@@ -17,11 +17,13 @@ namespace cru::ui
             return;
 
         // find descendant then erase it; find ancestor then just return.
-        for (auto i = cache_invalid_controls_.cbegin(); i != cache_invalid_controls_.cend(); ++i)
+        auto i = cache_invalid_controls_.cbegin();
+        while (i != cache_invalid_controls_.cend())
         {
-            const auto result = IsAncestorOrDescendant(*i, control);
+            auto current_i = i++;
+            const auto result = IsAncestorOrDescendant(*current_i, control);
             if (result == control)
-                cache_invalid_controls_.erase(i);
+                cache_invalid_controls_.erase(current_i);
             else if (result != nullptr)
                 return; // find a ancestor of "control", just return
         }

@@ -77,6 +77,14 @@ namespace cru
                 return find_result->second;
         }
 
+        Vector<Window*> WindowManager::GetAllWindows() const
+        {
+            Vector<Window*> windows;
+            for (auto [key, value] : window_map_)
+                windows.push_back(value);
+            return std::move(windows);
+        }
+
         inline Point PiToDip(const POINT& pi_point)
         {
             return Point(
@@ -400,6 +408,17 @@ namespace cru
                 return nullptr;
             }
         }
+
+#ifdef CRU_DEBUG_DRAW_CONTROL_BORDER
+        void Window::SetDebugDrawControlBorder(const bool value)
+        {
+            if (debug_draw_control_border_ != value)
+            {
+                debug_draw_control_border_ = value;
+                Repaint();
+            }
+        }
+#endif
 
         RECT Window::GetClientRectPixel() {
             RECT rect{ };

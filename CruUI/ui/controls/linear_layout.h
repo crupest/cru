@@ -6,7 +6,20 @@ namespace cru::ui::controls
 {
     class LinearLayout : public Control
     {
+    private:
+        constexpr static auto alignment_key = L"linear_layout_alignment";
+
     public:
+        static Alignment GetAlignment(Control* control)
+        {
+            return control->GetAdditionalProperty<Alignment>(alignment_key).value_or(Alignment::Center);
+        }
+
+        static void SetAlignment(Control* control, Alignment alignment)
+        {
+            control->SetAdditionalProperty(alignment_key, alignment);
+        }
+
         enum class Orientation
         {
             Horizontal,

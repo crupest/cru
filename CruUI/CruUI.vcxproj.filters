@@ -113,5 +113,8 @@
     <ClCompile Include="ui\animations\animation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="base.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
