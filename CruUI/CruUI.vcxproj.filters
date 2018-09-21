@@ -69,6 +69,9 @@
     <ClInclude Include="ui\animations\animation.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ui\controls\button.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="application.cpp">
@@ -114,6 +117,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="base.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\controls\button.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

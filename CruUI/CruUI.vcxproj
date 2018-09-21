@@ -164,6 +164,7 @@
     <ClInclude Include="ui\animations\animation.h" />
     <ClInclude Include="ui\control.h" />
     <ClInclude Include="global_macros.h" />
+    <ClInclude Include="ui\controls\button.h" />
     <ClInclude Include="ui\controls\linear_layout.h" />
     <ClInclude Include="ui\controls\text_block.h" />
     <ClInclude Include="ui\controls\toggle_button.h" />
@@ -177,6 +178,7 @@
     <ClCompile Include="base.cpp" />
     <ClCompile Include="exception.cpp" />
     <ClCompile Include="ui\animations\animation.cpp" />
+    <ClCompile Include="ui\controls\button.cpp" />
     <ClCompile Include="ui\layout_base.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="graph\graph.cpp" />

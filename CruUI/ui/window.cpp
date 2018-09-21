@@ -16,7 +16,7 @@ namespace cru
             WNDCLASSEX window_class;
             window_class.cbSize = sizeof(WNDCLASSEX);
 
-            window_class.style = CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS;
+            window_class.style = CS_HREDRAW | CS_VREDRAW;
             window_class.lpfnWndProc = window_proc;
             window_class.cbClsExtra = 0;
             window_class.cbWndExtra = 0;

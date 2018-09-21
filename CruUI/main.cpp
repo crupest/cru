@@ -3,6 +3,7 @@
 #include "ui/controls/linear_layout.h"
 #include "ui/controls/text_block.h"
 #include "ui/controls/toggle_button.h"
+#include "ui/controls/button.h"
 
 
 using cru::String;
@@ -14,6 +15,7 @@ using cru::ui::LayoutLength;
 using cru::ui::controls::LinearLayout;
 using cru::ui::controls::TextBlock;
 using cru::ui::controls::ToggleButton;
+using cru::ui::controls::Button;
 
 
 int APIENTRY wWinMain(
@@ -82,20 +84,28 @@ int APIENTRY wWinMain(
             layout->AddChild(TextBlock::Create(L"Layout is clicked!"));
     });
 
-    const auto inner_layout = LinearLayout::Create(LinearLayout::Orientation::Horizontal);
-    inner_layout->GetLayoutParams()->width.alignment = Alignment::End;
-
-    layout->AddChild(inner_layout);
-
-    inner_layout->AddChild(TextBlock::Create(L"Toggle debug border"));
-
-    const auto toggle_button = ToggleButton::Create();
-    toggle_button->toggle_event.AddHandler([&window](cru::ui::events::ToggleEventArgs& args)
     {
-        window.SetDebugDrawControlBorder(args.GetNewState());
-    });
+        const auto inner_layout = LinearLayout::Create(LinearLayout::Orientation::Horizontal);
+        inner_layout->GetLayoutParams()->width.alignment = Alignment::End;
 
-    inner_layout->AddChild(toggle_button);
+        layout->AddChild(inner_layout);
+
+        inner_layout->AddChild(TextBlock::Create(L"Toggle debug border"));
+
+        const auto toggle_button = ToggleButton::Create();
+        toggle_button->toggle_event.AddHandler([&window](cru::ui::events::ToggleEventArgs& args)
+        {
+            window.SetDebugDrawControlBorder(args.GetNewState());
+        });
+
+        inner_layout->AddChild(toggle_button);
+    }
+
+    {
+        const auto button = Button::Create();
+        button->AddChild(TextBlock::Create(L"button"));
+        layout->AddChild(button);
+    }
 
     auto&& create_text_block = [](const String& text, const LayoutLength& width = LayoutLength::Content(), const LayoutLength& height = LayoutLength::Content())
     {

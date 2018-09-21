@@ -382,8 +382,14 @@ namespace cru {
         void Control::OnMouseLeaveCore(MouseEventArgs & args)
         {
             is_mouse_inside_ = false;
-            for (auto& is_mouse_leave : is_mouse_leave_)
-                is_mouse_leave.second = true;
+            for (auto& is_mouse_click_valid : is_mouse_click_valid_map_)
+            {
+                if (is_mouse_click_valid.second)
+                {
+                    is_mouse_click_valid.second = false;
+                    OnMouseClickEnd(is_mouse_click_valid.first);
+                }
+            }
         }
 
         void Control::OnMouseMoveCore(MouseEventArgs & args)
@@ -393,13 +399,18 @@ namespace cru {
 
         void Control::OnMouseDownCore(MouseButtonEventArgs & args)
         {
-            is_mouse_leave_[args.GetMouseButton()] = false;
+            is_mouse_click_valid_map_[args.GetMouseButton()] = true;
+            OnMouseClickBegin(args.GetMouseButton());
         }
 
         void Control::OnMouseUpCore(MouseButtonEventArgs & args)
         {
-            if (!is_mouse_leave_[args.GetMouseButton()])
+            if (is_mouse_click_valid_map_[args.GetMouseButton()])
+            {
+                is_mouse_click_valid_map_[args.GetMouseButton()] = false;
                 RaiseMouseClickEvent(args);
+                OnMouseClickEnd(args.GetMouseButton());
+            }
         }
 
         void Control::OnMouseClickCore(MouseButtonEventArgs& args)
@@ -447,6 +458,16 @@ namespace cru {
             OnMouseClickCore(args);
             OnMouseClick(args);
             mouse_click_event.Raise(args);
+        }
+
+        void Control::OnMouseClickBegin(MouseButton button)
+        {
+
+        }
+
+        void Control::OnMouseClickEnd(MouseButton button)
+        {
+
         }
 
         void Control::OnGetFocus(FocusChangeEventArgs& args)

@@ -265,6 +265,9 @@ namespace cru
             void RaiseMouseUpEvent(events::MouseButtonEventArgs& args);
             void RaiseMouseClickEvent(events::MouseButtonEventArgs& args);
 
+            virtual void OnMouseClickBegin(MouseButton button);
+            virtual void OnMouseClickEnd(MouseButton button);
+
             //*************** region: focus event ***************
             virtual void OnGetFocus(events::FocusChangeEventArgs& args);
             virtual void OnLoseFocus(events::FocusChangeEventArgs& args);
@@ -315,7 +318,7 @@ namespace cru
 
             bool is_mouse_inside_ = false;
 
-            std::unordered_map<MouseButton, bool> is_mouse_leave_
+            std::unordered_map<MouseButton, bool> is_mouse_click_valid_map_
             {
                 { MouseButton::Left, true },
                 { MouseButton::Middle, true },
