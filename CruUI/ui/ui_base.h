@@ -19,12 +19,12 @@ namespace cru
             float y = 0;
         };
 
-        inline bool operator==(const Point& left, const Point& right)
+        constexpr bool operator==(const Point& left, const Point& right)
         {
             return left.x == right.x && left.y == right.y;
         }
 
-        inline bool operator!=(const Point& left, const Point& right)
+        constexpr bool operator!=(const Point& left, const Point& right)
         {
             return !(left == right);
         }
@@ -43,50 +43,55 @@ namespace cru
             float height = 0;
         };
 
-        inline Size operator - (const Size& left, const Size& right)
+        constexpr Size operator + (const Size& left, const Size& right)
+        {
+            return Size(left.width + right.width, left.height + right.height);
+        }
+
+        constexpr Size operator - (const Size& left, const Size& right)
         {
             return Size(left.width - right.width, left.height - right.height);
         }
 
         struct Rect
         {
-            Rect() = default;
-            Rect(const float left, const float top, const float width, const float height)
+            constexpr Rect() = default;
+            constexpr Rect(const float left, const float top, const float width, const float height)
                 : left(left), top(top), width(width), height(height) { }
-            Rect(const Point& lefttop, const Size& size)
+            constexpr Rect(const Point& lefttop, const Size& size)
                 : left(lefttop.x), top(lefttop.y), width(size.width), height(size.height) { }
 
-            static Rect FromVertices(const float left, const float top, const float right, const float bottom)
+            constexpr static Rect FromVertices(const float left, const float top, const float right, const float bottom)
             {
                 return Rect(left, top, right - left, bottom - top);
             }
 
-            float GetRight() const
+            constexpr float GetRight() const
             {
                 return left + width;
             }
 
-            float GetBottom() const
+            constexpr float GetBottom() const
             {
                 return top + height;
             }
 
-            Point GetLeftTop() const
+            constexpr Point GetLeftTop() const
             {
                 return Point(left, top);
             }
 
-            Point GetRightBottom() const
+            constexpr Point GetRightBottom() const
             {
                 return Point(left + width, top + height);
             }
 
-            Size GetSize() const
+            constexpr Size GetSize() const
             {
                 return Size(width, height);
             }
 
-            bool IsPointInside(const Point& point) const
+            constexpr bool IsPointInside(const Point& point) const
             {
                 return
                     point.x >= left &&
@@ -103,11 +108,12 @@ namespace cru
 
         struct Thickness
         {
-            Thickness() : Thickness(0) { }
-            explicit Thickness(const float width)
+            constexpr Thickness() : Thickness(0) { }
+
+            constexpr explicit Thickness(const float width)
                 : left(width), top(width), right(width), bottom(width) { }
 
-            Thickness(const float left, const float top, const float right, const float bottom)
+            constexpr Thickness(const float left, const float top, const float right, const float bottom)
                 : left(left), top(top), right(right), bottom(bottom) { }
 
 
