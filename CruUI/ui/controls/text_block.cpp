@@ -65,6 +65,26 @@ namespace cru
                     text_layout_handlers_.erase(find_result);
             }
 
+            void TextBlock::SetSelectable(const bool is_selectable)
+            {
+                if (!is_selectable)
+                {
+                    is_selecting_ = false;
+                    selected_range_ = std::nullopt;
+                    Repaint();
+                }
+                is_selectable_ = is_selectable;
+            }
+
+            void TextBlock::SetSelectedRange(std::optional<TextRange> text_range)
+            {
+                if (is_selectable_)
+                {
+                    selected_range_ = text_range;
+                    Repaint();
+                }
+            }
+
             void TextBlock::OnSizeChangedCore(events::SizeChangedEventArgs& args)
             {
                 Control::OnSizeChangedCore(args);
@@ -117,7 +137,7 @@ namespace cru
             void TextBlock::OnMouseDownCore(events::MouseButtonEventArgs& args)
             {
                 Control::OnMouseDownCore(args);
-                if (args.GetMouseButton() == MouseButton::Left)
+                if (is_selectable_ && args.GetMouseButton() == MouseButton::Left)
                 {
                     RequestFocus();
                     selected_range_ = std::nullopt;

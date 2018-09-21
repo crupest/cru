@@ -113,7 +113,12 @@ int APIENTRY wWinMain(
         });
 
         layout->AddChild(text_block);
-        layout->AddChild(create_text_block(L"This is a very very very very very long sentence!!!", MeasureLength::Stretch(), MeasureLength::Stretch()));
+    }
+
+    {
+        const auto text_block = create_text_block(L"This is a very very very very very long sentence!!!", MeasureLength::Stretch(), MeasureLength::Stretch());
+        text_block->SetSelectable(true);
+        layout->AddChild(text_block);
     }
 
     {

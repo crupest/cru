@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <optional>
 
 #include "ui/control.h"
 
@@ -86,6 +87,20 @@ namespace cru
 
                 void RemoveTextLayoutHandler(const TextLayoutHandlerPtr& handler);
 
+                bool IsSelectable() const
+                {
+                    return is_selectable_;
+                }
+
+                void SetSelectable(bool is_selectable);
+
+                std::optional<TextRange> GetSelectedRange() const
+                {
+                    return selected_range_;
+                }
+
+                void SetSelectedRange(std::optional<TextRange> text_range);
+
             protected:
                 void OnSizeChangedCore(events::SizeChangedEventArgs& args) override final;
                 void OnDraw(ID2D1DeviceContext* device_context) override;
@@ -113,6 +128,8 @@ namespace cru
                 Microsoft::WRL::ComPtr<IDWriteTextLayout> text_layout_;
 
                 Vector<TextLayoutHandlerPtr> text_layout_handlers_;
+
+                bool is_selectable_ = false;
 
                 bool is_selecting_ = false;
                 unsigned mouse_down_position_ = 0;
