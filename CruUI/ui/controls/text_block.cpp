@@ -139,7 +139,6 @@ namespace cru
                 Control::OnMouseDownCore(args);
                 if (is_selectable_ && args.GetMouseButton() == MouseButton::Left)
                 {
-                    RequestFocus();
                     selected_range_ = std::nullopt;
                     const auto hit_test_result = TextLayoutHitTest(text_layout_.Get(), args.GetPoint(this), true);
                     if (hit_test_result.has_value())

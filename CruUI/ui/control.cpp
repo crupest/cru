@@ -399,6 +399,8 @@ namespace cru {
 
         void Control::OnMouseDownCore(MouseButtonEventArgs & args)
         {
+            if (is_focus_on_pressed_ && args.GetSender() == args.GetOriginalSender())
+                RequestFocus();
             is_mouse_click_valid_map_[args.GetMouseButton()] = true;
             OnMouseClickBegin(args.GetMouseButton());
         }

@@ -142,6 +142,15 @@ namespace cru
 
             bool HasFocus();
 
+            bool IsFocusOnPressed() const
+            {
+                return is_focus_on_pressed_;
+            }
+
+            void SetFocusOnPressed(const bool value)
+            {
+                is_focus_on_pressed_ = value;
+            }
 
             //*************** region: layout ***************
 
@@ -329,6 +338,8 @@ namespace cru
             Size desired_size_ = Size::Zero();
 
             std::unordered_map<String, std::any> additional_properties_{};
+
+            bool is_focus_on_pressed_ = true;
         };
 
         // Find the lowest common ancestor.
