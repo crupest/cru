@@ -13,22 +13,7 @@ namespace cru {
         using namespace events;
 
         Control::Control(const bool container) :
-            is_container_(container),
-            window_(nullptr),
-            parent_(nullptr),
-            children_(),
-            old_position_(),
-            position_(),
-            size_(),
-            position_cache_(),
-            is_mouse_inside_(false),
-            is_mouse_leave_
-            {
-                { MouseButton::Left, true },
-                { MouseButton::Middle, true },
-                { MouseButton::Right, true }
-            },
-            desired_size_()
+            is_container_(container)
         {
 
         }
@@ -559,9 +544,30 @@ namespace cru {
 
         void Control::OnLayout(const Rect& rect)
         {
-            ForeachChild([](Control* control)
+            ForeachChild([rect](Control* control)
             {
-                control->Layout(Rect(Point::Zero(), control->GetDesiredSize()));
+                const auto layout_params = control->GetLayoutParams();
+                const auto size = control->GetDesiredSize();
+
+                auto&& calculate_anchor = [](const Alignment alignment, const float layout_length, const float control_length) -> float
+                {
+                    switch (alignment)
+                    {
+                    case Alignment::Center:
+                        return (layout_length - control_length) / 2;
+                    case Alignment::Start:
+                        return 0;
+                    case Alignment::End:
+                        return layout_length - control_length;
+                    default:
+                        UnreachableCode();
+                    }
+                };
+
+                control->Layout(Rect(Point(
+                    calculate_anchor(layout_params->width.alignment, rect.width, size.width),
+                    calculate_anchor(layout_params->height.alignment, rect.height, size.height)
+                ), size));
             });
         }
 
@@ -598,7 +604,7 @@ namespace cru {
             if (left_list.front() != right_list.front())
                 return nullptr;
 
-            // find the last same control or the last control (one is the other's ancestor)
+            // find the last same control or the last control (one is ancestor of the other)
             auto left_i = left_list.cbegin();
             auto right_i = right_list.cbegin();
             while (true)

@@ -296,31 +296,36 @@ namespace cru
             bool is_container_;
 
         protected:
-            Window * window_; // protected for Window class to write it as itself in constructor.
+            Window * window_ = nullptr; // protected for Window class to write it as itself in constructor.
 
         private:
-            Control * parent_;
-            Vector<Control*> children_;
+            Control * parent_ = nullptr;
+            Vector<Control*> children_{};
 
             // When position is changed and notification hasn't been
             // sent, it will be the old position. When position is changed
             // more than once, it will be the oldest position since last
             // notification. If notification has been sent, it will be updated
             // to position_.
-            Point old_position_;
-            Point position_;
-            Size size_;
+            Point old_position_ = Point::Zero();
+            Point position_ = Point::Zero();
+            Size size_ = Size::Zero();
 
-            ControlPositionCache position_cache_;
+            ControlPositionCache position_cache_{};
 
-            bool is_mouse_inside_;
+            bool is_mouse_inside_ = false;
 
-            std::unordered_map<MouseButton, bool> is_mouse_leave_; // used for clicking determination
+            std::unordered_map<MouseButton, bool> is_mouse_leave_
+            {
+                { MouseButton::Left, true },
+                { MouseButton::Middle, true },
+                { MouseButton::Right, true }
+            }; // used for clicking determination
 
-            BasicLayoutParams layout_params_;
-            Size desired_size_;
+            BasicLayoutParams layout_params_{};
+            Size desired_size_ = Size::Zero();
 
-            std::unordered_map<String, std::any> additional_properties_;
+            std::unordered_map<String, std::any> additional_properties_{};
         };
 
         // Find the lowest common ancestor.

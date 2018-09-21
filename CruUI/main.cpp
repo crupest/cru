@@ -74,7 +74,7 @@ int APIENTRY wWinMain(
 
     const auto layout = LinearLayout::Create();
 
-    layout->GetLayoutParams()->width.mode = MeasureMode::Stretch;
+    layout->GetLayoutParams()->width = LayoutLength::Exactly(500);
 
     layout->mouse_click_event.AddHandler([layout](cru::ui::events::MouseButtonEventArgs& args)
     {
