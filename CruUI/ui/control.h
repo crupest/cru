@@ -31,6 +31,7 @@ namespace cru
         {
             friend class Window;
             friend class LayoutManager;
+
         protected:
             struct WindowConstructorTag {}; //Used for constructor for class Window. 
 

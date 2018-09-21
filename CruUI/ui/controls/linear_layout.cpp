@@ -25,7 +25,7 @@ namespace cru::ui::controls
         if (!layout_params->Validate())
             throw std::runtime_error("LayoutParams is not valid. Please check it.");
 
-        auto&& get_available_length_for_child = [](const MeasureLength& layout_length, const float available_length) -> float
+        auto&& get_available_length_for_child = [](const LayoutLength& layout_length, const float available_length) -> float
         {
             switch (layout_length.mode)
             {
@@ -119,7 +119,7 @@ namespace cru::ui::controls
             actual_size_for_children.height -= rest_available_size_for_children.height;
         }
 
-        auto&& calculate_final_length = [](const MeasureLength& layout_length, const float length_for_children, const float max_child_length) -> float
+        auto&& calculate_final_length = [](const LayoutLength& layout_length, const float length_for_children, const float max_child_length) -> float
         {
             switch (layout_length.mode)
             {
@@ -144,8 +144,9 @@ namespace cru::ui::controls
         float current_anchor_length = 0;
         ForeachChild([this, &current_anchor_length, rect](Control* control)
         {
+            const auto layout_params = control->GetLayoutParams();
             const auto size = control->GetDesiredSize();
-            const auto alignment = GetAlignment(control);
+            const auto alignment = orientation_ == Orientation::Horizontal ? layout_params->height.alignment : layout_params->width.alignment;
 
             auto&& calculate_anchor = [alignment](const float layout_length, const float control_length) -> float
             {

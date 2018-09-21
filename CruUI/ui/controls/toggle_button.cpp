@@ -112,7 +112,7 @@ namespace cru::ui::controls
     {
         const auto layout_params = GetLayoutParams();
 
-        auto&& get_measure_length = [](const MeasureLength& layout_length, const float available_length, const float fix_length) -> float
+        auto&& get_measure_length = [](const LayoutLength& layout_length, const float available_length, const float fix_length) -> float
         {
             switch (layout_length.mode)
             {

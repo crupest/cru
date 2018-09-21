@@ -26,27 +26,27 @@ namespace cru
             Stretch
         };
 
-        struct MeasureLength final
+        struct LayoutLength final
         {
-            constexpr static MeasureLength Exactly(const float length)
+            constexpr static LayoutLength Exactly(const float length, const Alignment alignment = Alignment::Center)
             {
-                return MeasureLength(MeasureMode::Exactly, length);
+                return LayoutLength(MeasureMode::Exactly, length, alignment);
             }
 
-            constexpr static MeasureLength Content()
+            constexpr static LayoutLength Content(const Alignment alignment = Alignment::Center)
             {
-                return MeasureLength(MeasureMode::Content, 0);
+                return LayoutLength(MeasureMode::Content, 0, alignment);
             }
 
-            constexpr static MeasureLength Stretch()
+            constexpr static LayoutLength Stretch(const Alignment alignment = Alignment::Center)
             {
-                return MeasureLength(MeasureMode::Stretch, 0);
+                return LayoutLength(MeasureMode::Stretch, 0, alignment);
             }
 
-            constexpr MeasureLength() = default;
+            constexpr LayoutLength() = default;
 
-            constexpr explicit MeasureLength(const MeasureMode mode, const float length)
-                : length(length), mode(mode)
+            constexpr explicit LayoutLength(const MeasureMode mode, const float length, const Alignment alignment)
+                : length(length), mode(mode), alignment(alignment)
             {
 
             }
@@ -56,7 +56,7 @@ namespace cru
                 if (mode == MeasureMode::Exactly && length < 0.0)
                 {
 #ifdef CRU_DEBUG
-                    ::OutputDebugStringW(L"MeasureLength validation error: mode is Exactly but length is less than 0.\n");
+                    ::OutputDebugStringW(L"LayoutLength validation error: mode is Exactly but length is less than 0.\n");
 #endif
                     return false;
                 }
@@ -65,6 +65,7 @@ namespace cru
 
             float length = 0.0;
             MeasureMode mode = MeasureMode::Content;
+            Alignment alignment = Alignment::Center;
         };
 
         struct BasicLayoutParams final
@@ -81,22 +82,22 @@ namespace cru
                 if (!width.Validate())
                 {
 #ifdef CRU_DEBUG
-                    ::OutputDebugStringW(L"Width(MeasureLength) is not valid.");
+                    ::OutputDebugStringW(L"Width(LayoutLength) is not valid.");
 #endif
                     return false;
                 }
                 if (!height.Validate())
                 {
 #ifdef CRU_DEBUG
-                    ::OutputDebugStringW(L"Height(MeasureLength) is not valid.");
+                    ::OutputDebugStringW(L"Height(LayoutLength) is not valid.");
 #endif
                     return false;
                 }
                 return true;
             }
 
-            MeasureLength width;
-            MeasureLength height;
+            LayoutLength width;
+            LayoutLength height;
         };
 
 

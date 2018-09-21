@@ -9,7 +9,8 @@ using cru::String;
 using cru::Application;
 using cru::ui::Window;
 using cru::ui::MeasureMode;
-using cru::ui::MeasureLength;
+using cru::ui::Alignment;
+using cru::ui::LayoutLength;
 using cru::ui::controls::LinearLayout;
 using cru::ui::controls::TextBlock;
 using cru::ui::controls::ToggleButton;
@@ -82,7 +83,7 @@ int APIENTRY wWinMain(
     });
 
     const auto inner_layout = LinearLayout::Create(LinearLayout::Orientation::Horizontal);
-    LinearLayout::SetAlignment(inner_layout, cru::ui::Alignment::End);
+    inner_layout->GetLayoutParams()->width.alignment = Alignment::End;
 
     layout->AddChild(inner_layout);
 
@@ -96,7 +97,7 @@ int APIENTRY wWinMain(
 
     inner_layout->AddChild(toggle_button);
 
-    auto&& create_text_block = [](const String& text, const MeasureLength& width = MeasureLength::Content(), const MeasureLength& height = MeasureLength::Content())
+    auto&& create_text_block = [](const String& text, const LayoutLength& width = LayoutLength::Content(), const LayoutLength& height = LayoutLength::Content())
     {
         const auto text_block = TextBlock::Create(text);
         text_block->GetLayoutParams()->width = width;
@@ -105,7 +106,7 @@ int APIENTRY wWinMain(
     };
 
     {
-        const auto text_block = create_text_block(L"Hello World!!!", MeasureLength::Exactly(200), MeasureLength::Exactly(80));
+        const auto text_block = create_text_block(L"Hello World!!!", LayoutLength::Exactly(200), LayoutLength::Exactly(80));
 
         text_block->mouse_click_event.AddHandler([layout](cru::ui::events::MouseButtonEventArgs& args)
         {
@@ -116,18 +117,18 @@ int APIENTRY wWinMain(
     }
 
     {
-        const auto text_block = create_text_block(L"This is a very very very very very long sentence!!!", MeasureLength::Stretch(), MeasureLength::Stretch());
+        const auto text_block = create_text_block(L"This is a very very very very very long sentence!!!", LayoutLength::Stretch(), LayoutLength::Stretch());
         text_block->SetSelectable(true);
         layout->AddChild(text_block);
     }
 
     {
         const auto text_block = TextBlock::Create(L"This is a little short sentence!!!");
-        LinearLayout::SetAlignment(text_block, cru::ui::Alignment::Start);
+        text_block->GetLayoutParams()->width.alignment = Alignment::Start;
         layout->AddChild(text_block);
     }
 
-    layout->AddChild(create_text_block(L"By crupest!!!", MeasureLength::Stretch(), MeasureLength::Stretch()));
+    layout->AddChild(create_text_block(L"By crupest!!!", LayoutLength::Stretch(), LayoutLength::Stretch()));
 
 
     window.AddChild(layout);

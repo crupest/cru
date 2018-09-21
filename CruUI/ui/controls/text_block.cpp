@@ -206,7 +206,7 @@ namespace cru
                 if (layout_params->width.mode == MeasureMode::Stretch && layout_params->height.mode == MeasureMode::Stretch)
                     return available_size;
 
-                auto&& get_measure_length = [](const MeasureLength& layout_length, const float available_length) -> float
+                auto&& get_measure_length = [](const LayoutLength& layout_length, const float available_length) -> float
                 {
                     switch (layout_length.mode)
                     {
@@ -236,7 +236,7 @@ namespace cru
 
                 const Size measure_result(metrics.width, metrics.height);
 
-                auto&& calculate_final_length = [](const MeasureLength& layout_length, const float measure_length, const float measure_result_length) -> float
+                auto&& calculate_final_length = [](const LayoutLength& layout_length, const float measure_length, const float measure_result_length) -> float
                 {
                     if ((layout_length.mode == MeasureMode::Stretch ||
                         layout_length.mode == MeasureMode::Exactly)
