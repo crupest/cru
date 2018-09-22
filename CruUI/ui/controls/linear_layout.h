@@ -13,9 +13,12 @@ namespace cru::ui::controls
             Vertical
         };
 
-        static LinearLayout* Create(const Orientation orientation = Orientation::Vertical)
+        static LinearLayout* Create(const Orientation orientation = Orientation::Vertical, const std::initializer_list<Control*>& children = std::initializer_list<Control*>())
         {
-            return new LinearLayout(orientation);
+            const auto linear_layout = new LinearLayout(orientation);
+                        for (const auto control : children)
+                linear_layout->AddChild(control);
+            return linear_layout;
         }
 
     protected:

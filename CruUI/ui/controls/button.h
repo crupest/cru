@@ -1,5 +1,7 @@
 #pragma once
 
+#include <initializer_list>
+
 #include "ui/control.h"
 
 namespace cru::ui::controls
@@ -7,9 +9,12 @@ namespace cru::ui::controls
     class Button : public Control
     {
     public:
-        static Button* Create()
+        static Button* Create(const std::initializer_list<Control*>& children = std::initializer_list<Control*>())
         {
-            return new Button();
+            const auto button = new Button();
+            for (const auto control : children)
+                button->AddChild(control);
+            return button;
         }
 
     protected:

@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <any>
 #include <typeinfo>
+#include <utility>
 #include <fmt/format.h>
 
 #include "base.h"
@@ -348,5 +349,15 @@ namespace cru
 
         // Return the ancestor if one control is the ancestor of the other one, otherwise nullptr.
         Control* IsAncestorOrDescendant(Control* left, Control* right);
+
+        template <typename TControl, typename... Args>
+        TControl* CreateWithLayout(const LayoutLength& width, const LayoutLength& height, Args&&... args)
+        {
+            static_assert(std::is_base_of_v<Control, TControl>, "TControl is not a control class.");
+            TControl* control = TControl::Create(std::forward<Args>(args)...);
+            control->GetLayoutParams()->width = width;
+            control->GetLayoutParams()->height = height;
+            return control;
+        }
     }
 }

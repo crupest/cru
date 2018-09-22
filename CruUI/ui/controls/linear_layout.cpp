@@ -89,7 +89,7 @@ namespace cru::ui::controls
             const auto available_width = rest_available_size_for_children.width / stretch_control_list.size();
             for (const auto control : stretch_control_list)
             {
-                control->Measure(Size(available_width, AtLeast0(rest_available_size_for_children.height)));
+                control->Measure(Size(AtLeast0(available_width), rest_available_size_for_children.height));
                 const auto size = control->GetDesiredSize();
                 rest_available_size_for_children.width -= size.width;
                 secondary_side_child_max_length = std::max(size.height, secondary_side_child_max_length);
@@ -100,7 +100,7 @@ namespace cru::ui::controls
             const auto available_height = rest_available_size_for_children.height / stretch_control_list.size();
             for (const auto control : stretch_control_list)
             {
-                control->Measure(Size(AtLeast0(rest_available_size_for_children.width), available_height));
+                control->Measure(Size(rest_available_size_for_children.width, AtLeast0(available_height)));
                 const auto size = control->GetDesiredSize();
                 rest_available_size_for_children.height -= size.height;
                 secondary_side_child_max_length = std::max(size.width, secondary_side_child_max_length);
