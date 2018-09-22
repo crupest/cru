@@ -4,6 +4,7 @@
 #include "ui/controls/text_block.h"
 #include "ui/controls/toggle_button.h"
 #include "ui/controls/button.h"
+#include "ui/controls/margin_container.h"
 
 
 using cru::String;
@@ -12,11 +13,12 @@ using cru::ui::Window;
 using cru::ui::MeasureMode;
 using cru::ui::Alignment;
 using cru::ui::LayoutLength;
+using cru::ui::Thickness;
 using cru::ui::controls::LinearLayout;
 using cru::ui::controls::TextBlock;
 using cru::ui::controls::ToggleButton;
 using cru::ui::controls::Button;
-
+using cru::ui::controls::MarginContainer;
 
 int APIENTRY wWinMain(
     HINSTANCE hInstance,
@@ -103,7 +105,7 @@ int APIENTRY wWinMain(
 
     {
         const auto button = Button::Create();
-        button->AddChild(TextBlock::Create(L"button"));
+        button->AddChild(MarginContainer::Create(Thickness(20, 5), {TextBlock::Create(L"button")}));
         layout->AddChild(button);
     }
 

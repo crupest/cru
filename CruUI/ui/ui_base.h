@@ -108,10 +108,18 @@ namespace cru
 
         struct Thickness
         {
+            constexpr static Thickness Zero()
+            {
+                return Thickness(0);
+            }
+
             constexpr Thickness() : Thickness(0) { }
 
             constexpr explicit Thickness(const float width)
                 : left(width), top(width), right(width), bottom(width) { }
+
+            constexpr explicit Thickness(const float horizontal, const float vertical)
+                : left(horizontal), top(vertical), right(horizontal), bottom(vertical) { }
 
             constexpr Thickness(const float left, const float top, const float right, const float bottom)
                 : left(left), top(top), right(right), bottom(bottom) { }

@@ -72,6 +72,9 @@
     <ClInclude Include="ui\controls\button.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ui\controls\margin_container.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="application.cpp">
@@ -120,6 +123,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ui\controls\button.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\controls\margin_container.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
