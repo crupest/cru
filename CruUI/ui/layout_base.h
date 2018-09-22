@@ -26,26 +26,26 @@ namespace cru
             Stretch
         };
 
-        struct LayoutLength final
+        struct LayoutSideParams final
         {
-            constexpr static LayoutLength Exactly(const float length, const Alignment alignment = Alignment::Center)
+            constexpr static LayoutSideParams Exactly(const float length, const Alignment alignment = Alignment::Center)
             {
-                return LayoutLength(MeasureMode::Exactly, length, alignment);
+                return LayoutSideParams(MeasureMode::Exactly, length, alignment);
             }
 
-            constexpr static LayoutLength Content(const Alignment alignment = Alignment::Center)
+            constexpr static LayoutSideParams Content(const Alignment alignment = Alignment::Center)
             {
-                return LayoutLength(MeasureMode::Content, 0, alignment);
+                return LayoutSideParams(MeasureMode::Content, 0, alignment);
             }
 
-            constexpr static LayoutLength Stretch(const Alignment alignment = Alignment::Center)
+            constexpr static LayoutSideParams Stretch(const Alignment alignment = Alignment::Center)
             {
-                return LayoutLength(MeasureMode::Stretch, 0, alignment);
+                return LayoutSideParams(MeasureMode::Stretch, 0, alignment);
             }
 
-            constexpr LayoutLength() = default;
+            constexpr LayoutSideParams() = default;
 
-            constexpr explicit LayoutLength(const MeasureMode mode, const float length, const Alignment alignment)
+            constexpr explicit LayoutSideParams(const MeasureMode mode, const float length, const Alignment alignment)
                 : length(length), mode(mode), alignment(alignment)
             {
 
@@ -56,7 +56,7 @@ namespace cru
                 if (mode == MeasureMode::Exactly && length < 0.0)
                 {
 #ifdef CRU_DEBUG
-                    ::OutputDebugStringW(L"LayoutLength validation error: mode is Exactly but length is less than 0.\n");
+                    ::OutputDebugStringW(L"LayoutSideParams validation error: mode is Exactly but length is less than 0.\n");
 #endif
                     return false;
                 }
@@ -82,22 +82,22 @@ namespace cru
                 if (!width.Validate())
                 {
 #ifdef CRU_DEBUG
-                    ::OutputDebugStringW(L"Width(LayoutLength) is not valid.");
+                    ::OutputDebugStringW(L"Width(LayoutSideParams) is not valid.");
 #endif
                     return false;
                 }
                 if (!height.Validate())
                 {
 #ifdef CRU_DEBUG
-                    ::OutputDebugStringW(L"Height(LayoutLength) is not valid.");
+                    ::OutputDebugStringW(L"Height(LayoutSideParams) is not valid.");
 #endif
                     return false;
                 }
                 return true;
             }
 
-            LayoutLength width;
-            LayoutLength height;
+            LayoutSideParams width;
+            LayoutSideParams height;
         };
 
 

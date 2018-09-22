@@ -351,7 +351,7 @@ namespace cru
         Control* IsAncestorOrDescendant(Control* left, Control* right);
 
         template <typename TControl, typename... Args>
-        TControl* CreateWithLayout(const LayoutLength& width, const LayoutLength& height, Args&&... args)
+        TControl* CreateWithLayout(const LayoutSideParams& width, const LayoutSideParams& height, Args&&... args)
         {
             static_assert(std::is_base_of_v<Control, TControl>, "TControl is not a control class.");
             TControl* control = TControl::Create(std::forward<Args>(args)...);

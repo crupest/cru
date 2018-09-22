@@ -25,7 +25,7 @@ namespace cru::ui::controls
         if (!layout_params->Validate())
             throw std::runtime_error("LayoutParams is not valid. Please check it.");
 
-        auto&& get_available_length_for_child = [](const LayoutLength& layout_length, const float available_length) -> float
+        auto&& get_available_length_for_child = [](const LayoutSideParams& layout_length, const float available_length) -> float
         {
             switch (layout_length.mode)
             {
@@ -119,7 +119,7 @@ namespace cru::ui::controls
             actual_size_for_children.height -= rest_available_size_for_children.height;
         }
 
-        auto&& calculate_final_length = [](const LayoutLength& layout_length, const float length_for_children, const float max_child_length) -> float
+        auto&& calculate_final_length = [](const LayoutSideParams& layout_length, const float length_for_children, const float max_child_length) -> float
         {
             switch (layout_length.mode)
             {

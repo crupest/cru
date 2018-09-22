@@ -11,7 +11,7 @@ using cru::String;
 using cru::Application;
 using cru::ui::Window;
 using cru::ui::Alignment;
-using cru::ui::LayoutLength;
+using cru::ui::LayoutSideParams;
 using cru::ui::Thickness;
 using cru::ui::CreateWithLayout;
 using cru::ui::controls::LinearLayout;
@@ -76,7 +76,7 @@ int APIENTRY wWinMain(
 
     //test 2
 
-    const auto layout = CreateWithLayout<LinearLayout>(LayoutLength::Exactly(500), LayoutLength::Content());
+    const auto layout = CreateWithLayout<LinearLayout>(LayoutSideParams::Exactly(500), LayoutSideParams::Content());
 
     layout->mouse_click_event.AddHandler([layout](cru::ui::events::MouseButtonEventArgs& args)
     {
@@ -85,7 +85,7 @@ int APIENTRY wWinMain(
     });
 
     {
-        const auto inner_layout = CreateWithLayout<LinearLayout>(LayoutLength::Content(Alignment::End), LayoutLength::Content(), LinearLayout::Orientation::Horizontal);
+        const auto inner_layout = CreateWithLayout<LinearLayout>(LayoutSideParams::Content(Alignment::End), LayoutSideParams::Content(), LinearLayout::Orientation::Horizontal);
 
         inner_layout->AddChild(TextBlock::Create(L"Toggle debug border"));
 
@@ -106,7 +106,7 @@ int APIENTRY wWinMain(
     }
 
     {
-        const auto text_block = CreateWithLayout<TextBlock>(LayoutLength::Exactly(200), LayoutLength::Exactly(80), L"Hello World!!!");
+        const auto text_block = CreateWithLayout<TextBlock>(LayoutSideParams::Exactly(200), LayoutSideParams::Exactly(80), L"Hello World!!!");
 
         text_block->mouse_click_event.AddHandler([layout](cru::ui::events::MouseButtonEventArgs& args)
         {
@@ -117,13 +117,13 @@ int APIENTRY wWinMain(
     }
 
     {
-        const auto text_block = CreateWithLayout<TextBlock>(LayoutLength::Stretch(), LayoutLength::Stretch(), L"This is a very very very very very long sentence!!!");
+        const auto text_block = CreateWithLayout<TextBlock>(LayoutSideParams::Stretch(), LayoutSideParams::Stretch(), L"This is a very very very very very long sentence!!!");
         text_block->SetSelectable(true);
         layout->AddChild(text_block);
     }
 
-    layout->AddChild(CreateWithLayout<TextBlock>(LayoutLength::Content(Alignment::Start), LayoutLength::Content(), L"This is a little short sentence!!!"));
-    layout->AddChild(CreateWithLayout<TextBlock>(LayoutLength::Content(Alignment::End), LayoutLength::Stretch(), L"By crupest!!!"));
+    layout->AddChild(CreateWithLayout<TextBlock>(LayoutSideParams::Content(Alignment::Start), LayoutSideParams::Content(), L"This is a little short sentence!!!"));
+    layout->AddChild(CreateWithLayout<TextBlock>(LayoutSideParams::Content(Alignment::End), LayoutSideParams::Stretch(), L"By crupest!!!"));
 
 
     window.AddChild(layout);
