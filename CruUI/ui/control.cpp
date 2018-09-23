@@ -472,6 +472,51 @@ namespace cru {
 
         }
 
+        void Control::OnKeyDown(KeyEventArgs& args)
+        {
+        }
+
+        void Control::OnKeyUp(KeyEventArgs& args)
+        {
+        }
+
+        void Control::OnChar(events::CharEvent& args)
+        {
+        }
+
+        void Control::OnKeyDownCore(KeyEventArgs& args)
+        {
+        }
+
+        void Control::OnKeyUpCore(KeyEventArgs& args)
+        {
+        }
+
+        void Control::OnCharCore(events::CharEvent& args)
+        {
+        }
+
+        void Control::RaiseKeyDownEvent(KeyEventArgs& args)
+        {
+            OnKeyDownCore(args);
+            OnKeyDown(args);
+            key_down_event.Raise(args);
+        }
+
+        void Control::RaiseKeyUpEvent(KeyEventArgs& args)
+        {
+            OnKeyUpCore(args);
+            OnKeyUp(args);
+            key_up_event.Raise(args);
+        }
+
+        void Control::RaiseCharEvent(CharEvent& args)
+        {
+            OnCharCore(args);
+            OnChar(args);
+            char_event.Raise(args);
+        }
+
         void Control::OnGetFocus(FocusChangeEventArgs& args)
         {
 

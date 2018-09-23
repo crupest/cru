@@ -204,8 +204,7 @@ namespace cru
 
             if (!native_message_event.IsNoHandler())
             {
-                const events::WindowNativeMessage message{hwnd, msg, w_param, l_param};
-                events::WindowNativeMessageEventArgs args(this, this, message);
+                events::WindowNativeMessageEventArgs args(this, this, {hwnd, msg, w_param, l_param});
                 native_message_event.Raise(args);
                 if (args.GetResult().has_value())
                 {
@@ -293,6 +292,18 @@ namespace cru
                 result = 0;
                 return true;
             }
+            case WM_KEYDOWN:
+                OnKeyDownInternal(static_cast<int>(w_param));
+                result = 0;
+                return true;
+            case WM_KEYUP:
+                OnKeyUpInternal(static_cast<int>(w_param));
+                result = 0;
+                return true;
+            case WM_CHAR:
+                OnCharInternal(static_cast<wchar_t>(w_param));
+                result = 0;
+                return true;
             case WM_SIZE:
                 OnResizeInternal(LOWORD(l_param), HIWORD(l_param));
                 result = 0;
@@ -551,6 +562,21 @@ namespace cru
                 control = HitTest(dip_point);
 
             DispatchEvent(control, &Control::RaiseMouseUpEvent, nullptr, dip_point, button);
+        }
+
+        void Window::OnKeyDownInternal(int virtual_code)
+        {
+            DispatchEvent(focus_control_, &Control::RaiseKeyDownEvent, nullptr, virtual_code);
+        }
+
+        void Window::OnKeyUpInternal(int virtual_code)
+        {
+            DispatchEvent(focus_control_, &Control::RaiseKeyUpEvent, nullptr, virtual_code);
+        }
+
+        void Window::OnCharInternal(wchar_t c)
+        {
+            DispatchEvent(focus_control_, &Control::RaiseCharEvent, nullptr, c);
         }
 
         void Window::OnActivatedInternal()

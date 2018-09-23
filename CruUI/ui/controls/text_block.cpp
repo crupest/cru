@@ -20,12 +20,11 @@ namespace cru
             TextBlock::TextBlock(const Microsoft::WRL::ComPtr<IDWriteTextFormat>& init_text_format,
                 const Microsoft::WRL::ComPtr<ID2D1Brush>& init_brush) : Control(false)
             {
-                text_format_ = init_text_format;
+                text_format_ = init_text_format == nullptr ? graph::CreateDefaultTextFormat() : init_text_format;
 
-                if (init_brush == nullptr)
-                    brush_ = CreateSolidBrush(D2D1::ColorF(D2D1::ColorF::Black));
-                else
-                    brush_ = init_brush;
+                RecreateTextLayout();
+
+                brush_ = init_brush == nullptr ? CreateSolidBrush(D2D1::ColorF(D2D1::ColorF::Black)) : init_brush;
 
                 selection_brush_ = CreateSolidBrush(D2D1::ColorF(D2D1::ColorF::LightSkyBlue));
             }
@@ -126,15 +125,18 @@ namespace cru
                 }
             }
 
-            std::optional<unsigned> TextLayoutHitTest(IDWriteTextLayout* text_layout, const Point& point, bool test_inside = true)
+            namespace
             {
-                BOOL is_trailing, is_inside;
-                DWRITE_HIT_TEST_METRICS metrics{};
-                text_layout->HitTestPoint(point.x, point.y, &is_trailing, &is_inside, &metrics);
-                if (!test_inside || is_inside)
-                    return is_trailing == 0 ? metrics.textPosition : metrics.textPosition + 1;
-                else
-                    return std::nullopt;
+                std::optional<unsigned> TextLayoutHitTest(IDWriteTextLayout* text_layout, const Point& point, const bool test_inside = true)
+                {
+                    BOOL is_trailing, is_inside;
+                    DWRITE_HIT_TEST_METRICS metrics{};
+                    text_layout->HitTestPoint(point.x, point.y, &is_trailing, &is_inside, &metrics);
+                    if (!test_inside || is_inside)
+                        return is_trailing == 0 ? metrics.textPosition : metrics.textPosition + 1;
+                    else
+                        return std::nullopt;
+                }
             }
 
             void TextBlock::OnMouseDownCore(events::MouseButtonEventArgs& args)
@@ -264,16 +266,9 @@ namespace cru
 
             void TextBlock::RecreateTextLayout()
             {
-                if (text_.empty())
-                {
-                    text_layout_ = nullptr;
-                    return;
-                }
+                assert(text_format_ != nullptr);
 
                 const auto dwrite_factory = GetDWriteFactory();
-
-                if (text_format_ == nullptr)
-                    text_format_ = graph::CreateDefaultTextFormat();
 
                 const auto&& size = GetSize();
 

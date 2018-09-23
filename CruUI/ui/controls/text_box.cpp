@@ -65,40 +65,22 @@ namespace cru::ui::controls
         Control::OnDraw(device_context);
         if (text_layout_ != nullptr)
         {
-            //if (selected_range_.has_value())
-            //{
-            //    DWRITE_TEXT_METRICS text_metrics{};
-            //    ThrowIfFailed(text_layout_->GetMetrics(&text_metrics));
-            //    const auto metrics_count = text_metrics.lineCount * text_metrics.maxBidiReorderingDepth;
-
-            //    Vector<DWRITE_HIT_TEST_METRICS> hit_test_metrics(metrics_count);
-            //    UINT32 actual_count;
-            //    text_layout_->HitTestTextRange(
-            //        selected_range_.value().position, selected_range_.value().count,
-            //        0, 0,
-            //        hit_test_metrics.data(), metrics_count, &actual_count
-            //    );
-
-            //    hit_test_metrics.erase(hit_test_metrics.cbegin() + actual_count, hit_test_metrics.cend());
-
-            //    for (const auto& metrics : hit_test_metrics)
-            //    {
-            //        device_context->FillRoundedRectangle(D2D1::RoundedRect(D2D1::RectF(metrics.left, metrics.top, metrics.left + metrics.width, metrics.top + metrics.height), 3, 3), selection_brush_.Get());
-            //    }
-            //}
             device_context->DrawTextLayout(D2D1::Point2F(), text_layout_.Get(), brush_.Get());
         }
     }
 
-    std::optional<unsigned> TextLayoutHitTest(IDWriteTextLayout* text_layout, const Point& point, bool test_inside = true)
+    namespace
     {
-        BOOL is_trailing, is_inside;
-        DWRITE_HIT_TEST_METRICS metrics{};
-        text_layout->HitTestPoint(point.x, point.y, &is_trailing, &is_inside, &metrics);
-        if (!test_inside || is_inside)
-            return is_trailing == 0 ? metrics.textPosition : metrics.textPosition + 1;
-        else
-            return std::nullopt;
+        std::optional<unsigned> TextLayoutHitTest(IDWriteTextLayout* text_layout, const Point& point, bool test_inside = true)
+        {
+            BOOL is_trailing, is_inside;
+            DWRITE_HIT_TEST_METRICS metrics{};
+            text_layout->HitTestPoint(point.x, point.y, &is_trailing, &is_inside, &metrics);
+            if (!test_inside || is_inside)
+                return is_trailing == 0 ? metrics.textPosition : metrics.textPosition + 1;
+            else
+                return std::nullopt;
+        }
     }
 
     void TextBox::OnMouseDownCore(events::MouseButtonEventArgs& args)
@@ -107,7 +89,7 @@ namespace cru::ui::controls
         if (args.GetMouseButton() == MouseButton::Left)
         {
             position_ = TextLayoutHitTest(text_layout_.Get(), args.GetPoint(this), false).value();
-            
+
             Repaint();
         }
     }
