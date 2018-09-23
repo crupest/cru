@@ -7,6 +7,14 @@ namespace cru::ui::controls
 {
     class TextBox : public Control
     {
+    public:
+        static TextBox* Create(
+            const Microsoft::WRL::ComPtr<IDWriteTextFormat>& init_text_format = nullptr,
+            const Microsoft::WRL::ComPtr<ID2D1Brush>& init_brush = nullptr)
+        {
+            return new TextBox(init_text_format, init_brush);
+        }
+
     protected:
         explicit TextBox(
             const Microsoft::WRL::ComPtr<IDWriteTextFormat>& init_text_format = nullptr,
@@ -46,8 +54,10 @@ namespace cru::ui::controls
 
         void OnMouseDownCore(events::MouseButtonEventArgs& args) override final;
 
-        void OnGetFocusCore(events::FocusChangeEventArgs& args) override;
+        void OnGetFocusCore(events::FocusChangeEventArgs& args) override final;
         void OnLoseFocusCore(events::FocusChangeEventArgs& args) override final;
+
+        void OnCharCore(events::CharEventArgs& args) override final;
 
         Size OnMeasure(const Size& available_size) override final;
 
@@ -69,5 +79,6 @@ namespace cru::ui::controls
 
         TimerTask caret_timer_;
         ActionPtr caret_action_;
+        bool is_caret_show_;
     };
 }

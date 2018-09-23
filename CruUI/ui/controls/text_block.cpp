@@ -98,31 +98,28 @@ namespace cru
             void TextBlock::OnDraw(ID2D1DeviceContext* device_context)
             {
                 Control::OnDraw(device_context);
-                if (text_layout_ != nullptr)
+                if (selected_range_.has_value())
                 {
-                    if (selected_range_.has_value())
+                    DWRITE_TEXT_METRICS text_metrics{};
+                    ThrowIfFailed(text_layout_->GetMetrics(&text_metrics));
+                    const auto metrics_count = text_metrics.lineCount * text_metrics.maxBidiReorderingDepth;
+
+                    Vector<DWRITE_HIT_TEST_METRICS> hit_test_metrics(metrics_count);
+                    UINT32 actual_count;
+                    text_layout_->HitTestTextRange(
+                        selected_range_.value().position, selected_range_.value().count,
+                        0, 0,
+                        hit_test_metrics.data(), metrics_count, &actual_count
+                    );
+
+                    hit_test_metrics.erase(hit_test_metrics.cbegin() + actual_count, hit_test_metrics.cend());
+
+                    for (const auto& metrics : hit_test_metrics)
                     {
-                        DWRITE_TEXT_METRICS text_metrics{};
-                        ThrowIfFailed(text_layout_->GetMetrics(&text_metrics));
-                        const auto metrics_count = text_metrics.lineCount * text_metrics.maxBidiReorderingDepth;
-
-                        Vector<DWRITE_HIT_TEST_METRICS> hit_test_metrics(metrics_count);
-                        UINT32 actual_count;
-                        text_layout_->HitTestTextRange(
-                            selected_range_.value().position, selected_range_.value().count,
-                            0, 0,
-                            hit_test_metrics.data(), metrics_count, &actual_count
-                        );
-
-                        hit_test_metrics.erase(hit_test_metrics.cbegin() + actual_count, hit_test_metrics.cend());
-
-                        for (const auto& metrics : hit_test_metrics)
-                        {
-                            device_context->FillRoundedRectangle(D2D1::RoundedRect(D2D1::RectF(metrics.left, metrics.top, metrics.left + metrics.width, metrics.top + metrics.height), 3, 3), selection_brush_.Get());
-                        }
+                        device_context->FillRoundedRectangle(D2D1::RoundedRect(D2D1::RectF(metrics.left, metrics.top, metrics.left + metrics.width, metrics.top + metrics.height), 3, 3), selection_brush_.Get());
                     }
-                    device_context->DrawTextLayout(D2D1::Point2F(), text_layout_.Get(), brush_.Get());
                 }
+                device_context->DrawTextLayout(D2D1::Point2F(), text_layout_.Get(), brush_.Get());
             }
 
             namespace
@@ -202,9 +199,6 @@ namespace cru
 
             Size TextBlock::OnMeasure(const Size& available_size)
             {
-                if (text_.empty())
-                    return Size::Zero();
-
                 const auto layout_params = GetLayoutParams();
 
                 if (layout_params->width.mode == MeasureMode::Stretch && layout_params->height.mode == MeasureMode::Stretch)

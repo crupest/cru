@@ -285,15 +285,15 @@ namespace cru
             //*************** region: keyboard event ***************
             virtual void OnKeyDown(events::KeyEventArgs& args);
             virtual void OnKeyUp(events::KeyEventArgs& args);
-            virtual void OnChar(events::CharEvent& args);
+            virtual void OnChar(events::CharEventArgs& args);
 
             virtual void OnKeyDownCore(events::KeyEventArgs& args);
             virtual void OnKeyUpCore(events::KeyEventArgs& args);
-            virtual void OnCharCore(events::CharEvent& args);
+            virtual void OnCharCore(events::CharEventArgs& args);
 
             void RaiseKeyDownEvent(events::KeyEventArgs& args);
             void RaiseKeyUpEvent(events::KeyEventArgs& args);
-            void RaiseCharEvent(events::CharEvent& args);
+            void RaiseCharEvent(events::CharEventArgs& args);
 
             //*************** region: focus event ***************
             virtual void OnGetFocus(events::FocusChangeEventArgs& args);

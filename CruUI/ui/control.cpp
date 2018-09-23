@@ -480,7 +480,7 @@ namespace cru {
         {
         }
 
-        void Control::OnChar(events::CharEvent& args)
+        void Control::OnChar(CharEventArgs& args)
         {
         }
 
@@ -492,7 +492,7 @@ namespace cru {
         {
         }
 
-        void Control::OnCharCore(events::CharEvent& args)
+        void Control::OnCharCore(CharEventArgs& args)
         {
         }
 
@@ -510,7 +510,7 @@ namespace cru {
             key_up_event.Raise(args);
         }
 
-        void Control::RaiseCharEvent(CharEvent& args)
+        void Control::RaiseCharEvent(CharEventArgs& args)
         {
             OnCharCore(args);
             OnChar(args);

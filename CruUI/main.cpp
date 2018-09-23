@@ -6,6 +6,7 @@
 #include "ui/controls/button.h"
 #include "ui/controls/margin_container.h"
 #include "ui/events/ui_event.h"
+#include "ui/controls/text_box.h"
 
 
 using cru::String;
@@ -20,6 +21,7 @@ using cru::ui::controls::TextBlock;
 using cru::ui::controls::ToggleButton;
 using cru::ui::controls::Button;
 using cru::ui::controls::MarginContainer;
+using cru::ui::controls::TextBox;
 
 int APIENTRY wWinMain(
     HINSTANCE hInstance,
@@ -84,8 +86,9 @@ int APIENTRY wWinMain(
     });
     */
 
+    /*
     //test 2
-
+    
     const auto layout = CreateWithLayout<LinearLayout>(LayoutSideParams::Exactly(500), LayoutSideParams::Content());
 
     layout->mouse_click_event.AddHandler([layout](cru::ui::events::MouseButtonEventArgs& args)
@@ -137,6 +140,9 @@ int APIENTRY wWinMain(
 
 
     window.AddChild(layout);
+    */
+
+    window.AddChild(CreateWithLayout<TextBox>(LayoutSideParams::Stretch(), LayoutSideParams::Stretch()));
 
     window.Show();
 

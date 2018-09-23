@@ -1,5 +1,7 @@
 #include "text_box.h"
 
+#include <cwctype>
+
 #include "graph/graph.h"
 #include "exception.h"
 
@@ -15,14 +17,19 @@ namespace cru::ui::controls
     TextBox::TextBox(const Microsoft::WRL::ComPtr<IDWriteTextFormat>& init_text_format,
         const Microsoft::WRL::ComPtr<ID2D1Brush>& init_brush) : Control(false)
     {
-        text_format_ = init_text_format;
+        text_format_ = init_text_format == nullptr ? graph::CreateDefaultTextFormat() : init_text_format;
 
-        if (init_brush == nullptr)
-            brush_ = CreateSolidBrush(D2D1::ColorF(D2D1::ColorF::Black));
-        else
-            brush_ = init_brush;
+        RecreateTextLayout();
+
+        brush_ = init_brush == nullptr ? CreateSolidBrush(D2D1::ColorF(D2D1::ColorF::Black)) : init_brush;
 
         caret_brush_ = CreateSolidBrush(D2D1::ColorF(D2D1::ColorF::Black));
+
+        caret_action_ = CreateActionPtr([this]
+        {
+            is_caret_show_ = !is_caret_show_;
+            Repaint();
+        });
 
         //selection_brush_ = CreateSolidBrush(D2D1::ColorF(D2D1::ColorF::LightSkyBlue));
     }
@@ -66,6 +73,14 @@ namespace cru::ui::controls
         if (text_layout_ != nullptr)
         {
             device_context->DrawTextLayout(D2D1::Point2F(), text_layout_.Get(), brush_.Get());
+            if (is_caret_show_)
+            {
+                const auto caret_half_width = Application::GetInstance()->GetCaretInfo().half_caret_width;
+                FLOAT x, y;
+                DWRITE_HIT_TEST_METRICS metrics{};
+                ThrowIfFailed(text_layout_->HitTestTextPosition(position_, FALSE, &x, &y, &metrics));
+                device_context->FillRectangle(D2D1::RectF(metrics.left - caret_half_width, metrics.top, metrics.left + caret_half_width, metrics.top + metrics.height), caret_brush_.Get());
+            }
         }
     }
 
@@ -98,7 +113,8 @@ namespace cru::ui::controls
     {
         Control::OnGetFocusCore(args);
         assert(caret_timer_ == nullptr);
-        caret_timer_ = SetInterval(Application::GetInstance()->GetCaretBlinkDuration(), caret_action_);
+        is_caret_show_ = true;
+        caret_timer_ = SetInterval(Application::GetInstance()->GetCaretInfo().caret_blink_duration, caret_action_);
     }
 
     void TextBox::OnLoseFocusCore(events::FocusChangeEventArgs& args)
@@ -106,13 +122,35 @@ namespace cru::ui::controls
         Control::OnLoseFocusCore(args);
         assert(caret_timer_ != nullptr);
         caret_timer_->Cancel();
+        is_caret_show_ = false;
+    }
+
+    void TextBox::OnCharCore(events::CharEventArgs& args)
+    {
+        Control::OnCharCore(args);
+        if (args.GetChar() == L'\b')
+        {
+            auto text = GetText();
+            if (!text.empty() && position_ > 0)
+            {
+                const auto position = --position_;
+                text.erase(position);
+                SetText(text);
+            }
+            return;
+        }
+
+        if (std::iswprint(args.GetChar()))
+        {
+            const auto position = position_++;
+            auto text = GetText();
+            text.insert(text.cbegin() + position, { args.GetChar() });
+            SetText(text);
+        }
     }
 
     Size TextBox::OnMeasure(const Size& available_size)
     {
-        if (text_.empty())
-            return Size::Zero();
-
         const auto layout_params = GetLayoutParams();
 
         if (layout_params->width.mode == MeasureMode::Stretch && layout_params->height.mode == MeasureMode::Stretch)
@@ -174,16 +212,9 @@ namespace cru::ui::controls
 
     void TextBox::RecreateTextLayout()
     {
-        if (text_.empty())
-        {
-            text_layout_ = nullptr;
-            return;
-        }
+        assert(text_format_ != nullptr);
 
         const auto dwrite_factory = GetDWriteFactory();
-
-        if (text_format_ == nullptr)
-            text_format_ = graph::CreateDefaultTextFormat();
 
         const auto&& size = GetSize();
 
