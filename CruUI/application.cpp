@@ -104,6 +104,8 @@ namespace cru {
 #ifdef CRU_DEBUG_DRAW_CONTROL_BORDER
         debug_border_brush_ = graph::CreateSolidBrush(D2D1::ColorF(D2D1::ColorF::Crimson));
 #endif
+
+        caret_blink_duration_ = std::chrono::milliseconds(::GetCaretBlinkTime());
     }
 
     Application::~Application()

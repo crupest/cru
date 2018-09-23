@@ -101,6 +101,11 @@ namespace cru
             return god_window_.get();
         }
 
+        std::chrono::milliseconds GetCaretBlinkDuration() const
+        {
+            return caret_blink_duration_;
+        }
+
 #ifdef CRU_DEBUG_DRAW_CONTROL_BORDER
         Microsoft::WRL::ComPtr<ID2D1Brush> GetDebugBorderBrush() const
         {
@@ -121,6 +126,8 @@ namespace cru
 #ifdef CRU_DEBUG_DRAW_CONTROL_BORDER
         Microsoft::WRL::ComPtr<ID2D1Brush> debug_border_brush_;
 #endif
+
+        std::chrono::milliseconds caret_blink_duration_;
     };
 
 
