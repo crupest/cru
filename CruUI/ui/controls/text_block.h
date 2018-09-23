@@ -93,7 +93,6 @@ namespace cru
             private:
                 void OnTextChangedCore(const String& old_text, const String& new_text);
 
-                void CreateDefaultTextFormat();
                 void RecreateTextLayout();
 
             private:

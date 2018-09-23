@@ -221,5 +221,25 @@ namespace cru {
             device_context->CreateSolidColorBrush(color, &solid_color_brush);
             return solid_color_brush;
         }
+
+        ComPtr<IDWriteTextFormat> CreateDefaultTextFormat()
+        {
+            const auto dwrite_factory = GraphManager::GetInstance()->GetDWriteFactory();
+
+            ComPtr<IDWriteTextFormat> text_format;
+
+            ThrowIfFailed(dwrite_factory->CreateTextFormat(
+                L"µÈÏß", nullptr,
+                DWRITE_FONT_WEIGHT_NORMAL,
+                DWRITE_FONT_STYLE_NORMAL,
+                DWRITE_FONT_STRETCH_NORMAL,
+                24.0, L"zh-cn",
+                &text_format
+            ));
+
+            ThrowIfFailed(text_format->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER));
+            ThrowIfFailed(text_format->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER));
+            return text_format;
+        }
     }
 }

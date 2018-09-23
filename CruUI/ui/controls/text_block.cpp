@@ -21,8 +21,11 @@ namespace cru
                 const Microsoft::WRL::ComPtr<ID2D1Brush>& init_brush) : Control(false)
             {
                 text_format_ = init_text_format;
+
                 if (init_brush == nullptr)
                     brush_ = CreateSolidBrush(D2D1::ColorF(D2D1::ColorF::Black));
+                else
+                    brush_ = init_brush;
 
                 selection_brush_ = CreateSolidBrush(D2D1::ColorF(D2D1::ColorF::LightSkyBlue));
             }
@@ -60,7 +63,7 @@ namespace cru
             void TextBlock::RemoveTextLayoutHandler(const TextLayoutHandlerPtr& handler)
             {
                 const auto find_result = std::find(text_layout_handlers_.cbegin(), text_layout_handlers_.cend(),
-                                                   handler);
+                    handler);
                 if (find_result != text_layout_handlers_.cend())
                     text_layout_handlers_.erase(find_result);
             }
@@ -259,23 +262,6 @@ namespace cru
                 Repaint();
             }
 
-            void TextBlock::CreateDefaultTextFormat()
-            {
-                const auto dwrite_factory = GetDWriteFactory();
-
-                ThrowIfFailed(dwrite_factory->CreateTextFormat(
-                    L"µÈÏß", nullptr,
-                    DWRITE_FONT_WEIGHT_NORMAL,
-                    DWRITE_FONT_STYLE_NORMAL,
-                    DWRITE_FONT_STRETCH_NORMAL,
-                    24.0, L"zh-cn",
-                    &text_format_
-                ));
-
-                ThrowIfFailed(text_format_->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER));
-                ThrowIfFailed(text_format_->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER));
-            }
-
             void TextBlock::RecreateTextLayout()
             {
                 if (text_.empty())
@@ -287,7 +273,7 @@ namespace cru
                 const auto dwrite_factory = GetDWriteFactory();
 
                 if (text_format_ == nullptr)
-                    CreateDefaultTextFormat();
+                    text_format_ = graph::CreateDefaultTextFormat();
 
                 const auto&& size = GetSize();
 
