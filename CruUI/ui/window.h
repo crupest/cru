@@ -194,6 +194,8 @@ namespace cru {
             events::UiEvent activated_event;
             events::UiEvent deactivated_event;
 
+            events::WindowNativeMessageEvent native_message_event;
+
         private:
             //*************** region: native operations ***************
 

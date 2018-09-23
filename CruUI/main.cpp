@@ -5,6 +5,7 @@
 #include "ui/controls/toggle_button.h"
 #include "ui/controls/button.h"
 #include "ui/controls/margin_container.h"
+#include "ui/events/ui_event.h"
 
 
 using cru::String;
@@ -28,6 +29,15 @@ int APIENTRY wWinMain(
 
     Application application(hInstance);
     Window window;
+
+    window.native_message_event.AddHandler([](cru::ui::events::WindowNativeMessageEventArgs& args)
+    {
+        if (args.GetWindowMessage().msg == WM_PAINT)
+        {
+            OutputDebugStringW(L"Paint!\n");
+            //args.SetResult(0);
+        }
+    });
 
     /*
     // test1

@@ -82,7 +82,7 @@ namespace cru
             Vector<Window*> windows;
             for (auto [key, value] : window_map_)
                 windows.push_back(value);
-            return std::move(windows);
+            return windows;
         }
 
         inline Point PiToDip(const POINT& pi_point)
@@ -201,6 +201,19 @@ namespace cru
         }
 
         bool Window::HandleWindowMessage(HWND hwnd, int msg, WPARAM w_param, LPARAM l_param, LRESULT & result) {
+
+            if (!native_message_event.IsNoHandler())
+            {
+                const events::WindowNativeMessage message{hwnd, msg, w_param, l_param};
+                events::WindowNativeMessageEventArgs args(this, this, message);
+                native_message_event.Raise(args);
+                if (args.GetResult().has_value())
+                {
+                    result = args.GetResult().value();
+                    return true;
+                }
+            }
+
             switch (msg) {
             case WM_PAINT:
                 OnPaintInternal();
