@@ -137,5 +137,18 @@ namespace cru
             Right,
             Middle
         };
+
+        struct TextRange
+        {
+            constexpr TextRange() = default;
+            constexpr TextRange(const int position, const int count)
+                : position(position), count(count)
+            {
+
+            }
+
+            unsigned position = 0;
+            unsigned count = 0;
+        };
     }
 }
