@@ -214,6 +214,10 @@ namespace cru
             //Raised when a mouse button is pressed in the control and released in the control with mouse not leaving it between two operations.
             events::MouseButtonEvent mouse_click_event;
 
+            events::KeyEvent key_down_event;
+            events::KeyEvent key_up_event;
+            events::CharEvent char_event;
+
             events::FocusChangeEvent get_focus_event;
             events::FocusChangeEvent lose_focus_event;
 
@@ -277,6 +281,19 @@ namespace cru
 
             virtual void OnMouseClickBegin(MouseButton button);
             virtual void OnMouseClickEnd(MouseButton button);
+
+            //*************** region: keyboard event ***************
+            virtual void OnKeyDown(events::KeyEventArgs& args);
+            virtual void OnKeyUp(events::KeyEventArgs& args);
+            virtual void OnChar(events::CharEventArgs& args);
+
+            virtual void OnKeyDownCore(events::KeyEventArgs& args);
+            virtual void OnKeyUpCore(events::KeyEventArgs& args);
+            virtual void OnCharCore(events::CharEventArgs& args);
+
+            void RaiseKeyDownEvent(events::KeyEventArgs& args);
+            void RaiseKeyUpEvent(events::KeyEventArgs& args);
+            void RaiseCharEvent(events::CharEventArgs& args);
 
             //*************** region: focus event ***************
             virtual void OnGetFocus(events::FocusChangeEventArgs& args);

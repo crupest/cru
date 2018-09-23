@@ -6,6 +6,7 @@
 #include <memory>
 
 #include "control.h"
+#include "events/ui_event.h"
 
 namespace cru {
     namespace graph {
@@ -218,6 +219,10 @@ namespace cru {
             void OnMouseLeaveInternal();
             void OnMouseDownInternal(MouseButton button, POINT point);
             void OnMouseUpInternal(MouseButton button, POINT point);
+
+            void OnKeyDownInternal(int virtual_code);
+            void OnKeyUpInternal(int virtual_code);
+            void OnCharInternal(wchar_t c);
 
             void OnActivatedInternal();
             void OnDeactivatedInternal();

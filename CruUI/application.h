@@ -28,6 +28,11 @@ namespace cru
 
     class TimerManager;
 
+    struct CaretInfo
+    {
+        std::chrono::milliseconds caret_blink_duration;
+        float half_caret_width;
+    };
 
     class GodWindow : public Object
     {
@@ -101,6 +106,11 @@ namespace cru
             return god_window_.get();
         }
 
+        CaretInfo GetCaretInfo() const
+        {
+            return caret_info_;
+        }
+
 #ifdef CRU_DEBUG_DRAW_CONTROL_BORDER
         Microsoft::WRL::ComPtr<ID2D1Brush> GetDebugBorderBrush() const
         {
@@ -121,6 +131,8 @@ namespace cru
 #ifdef CRU_DEBUG_DRAW_CONTROL_BORDER
         Microsoft::WRL::ComPtr<ID2D1Brush> debug_border_brush_;
 #endif
+
+        CaretInfo caret_info_;
     };
 
 

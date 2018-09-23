@@ -6,6 +6,7 @@
 #include "ui/controls/button.h"
 #include "ui/controls/margin_container.h"
 #include "ui/events/ui_event.h"
+#include "ui/controls/text_box.h"
 
 
 using cru::String;
@@ -20,6 +21,7 @@ using cru::ui::controls::TextBlock;
 using cru::ui::controls::ToggleButton;
 using cru::ui::controls::Button;
 using cru::ui::controls::MarginContainer;
+using cru::ui::controls::TextBox;
 
 int APIENTRY wWinMain(
     HINSTANCE hInstance,
@@ -29,7 +31,7 @@ int APIENTRY wWinMain(
 
     Application application(hInstance);
     Window window;
-
+    /*
     window.native_message_event.AddHandler([](cru::ui::events::WindowNativeMessageEventArgs& args)
     {
         if (args.GetWindowMessage().msg == WM_PAINT)
@@ -38,7 +40,7 @@ int APIENTRY wWinMain(
             //args.SetResult(0);
         }
     });
-
+    */
     /*
     // test1
     cru::ui::controls::TextBlock text_block;
@@ -84,6 +86,7 @@ int APIENTRY wWinMain(
     });
     */
 
+    /*
     //test 2
 
     const auto layout = CreateWithLayout<LinearLayout>(LayoutSideParams::Exactly(500), LayoutSideParams::Content());
@@ -137,6 +140,9 @@ int APIENTRY wWinMain(
 
 
     window.AddChild(layout);
+    */
+
+    window.AddChild(CreateWithLayout<TextBox>(LayoutSideParams::Stretch(), LayoutSideParams::Stretch()));
 
     window.Show();
 

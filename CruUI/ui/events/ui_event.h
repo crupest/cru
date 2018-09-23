@@ -257,6 +257,50 @@ namespace cru
                 std::optional<LRESULT> result_;
             };
 
+            class KeyEventArgs : public UiEventArgs
+            {
+            public:
+                KeyEventArgs(Object* sender, Object* original_sender, int virtual_code)
+                    : UiEventArgs(sender, original_sender), virtual_code_(virtual_code)
+                {
+                }
+                KeyEventArgs(const KeyEventArgs& other) = default;
+                KeyEventArgs(KeyEventArgs&& other) = default;
+                KeyEventArgs& operator=(const KeyEventArgs& other) = default;
+                KeyEventArgs& operator=(KeyEventArgs&& other) = default;
+                ~KeyEventArgs() override = default;
+
+                int GetVirtualCode() const
+                {
+                    return virtual_code_;
+                }
+
+            private:
+                int virtual_code_;
+            };
+
+            class CharEventArgs : public UiEventArgs
+            {
+            public:
+                CharEventArgs(Object* sender, Object* original_sender, wchar_t c)
+                    : UiEventArgs(sender, original_sender), c_(c)
+                {
+                }
+                CharEventArgs(const CharEventArgs& other) = default;
+                CharEventArgs(CharEventArgs&& other) = default;
+                CharEventArgs& operator=(const CharEventArgs& other) = default;
+                CharEventArgs& operator=(CharEventArgs&& other) = default;
+                ~CharEventArgs() override = default;
+
+                wchar_t GetChar() const
+                {
+                    return c_;
+                }
+
+            private:
+                wchar_t c_;
+            };
+
             using UiEvent = Event<UiEventArgs>;
             using MouseEvent = Event<MouseEventArgs>;
             using MouseButtonEvent = Event<MouseButtonEventArgs>;
@@ -266,6 +310,8 @@ namespace cru
             using FocusChangeEvent = Event<FocusChangeEventArgs>;
             using ToggleEvent = Event<ToggleEventArgs>;
             using WindowNativeMessageEvent = Event<WindowNativeMessageEventArgs>;
+            using KeyEvent = Event<KeyEventArgs>;
+            using CharEvent = Event<CharEventArgs>;
         }
     }
 }

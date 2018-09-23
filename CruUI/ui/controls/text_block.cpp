@@ -20,9 +20,11 @@ namespace cru
             TextBlock::TextBlock(const Microsoft::WRL::ComPtr<IDWriteTextFormat>& init_text_format,
                 const Microsoft::WRL::ComPtr<ID2D1Brush>& init_brush) : Control(false)
             {
-                text_format_ = init_text_format;
-                if (init_brush == nullptr)
-                    brush_ = CreateSolidBrush(D2D1::ColorF(D2D1::ColorF::Black));
+                text_format_ = init_text_format == nullptr ? graph::CreateDefaultTextFormat() : init_text_format;
+
+                RecreateTextLayout();
+
+                brush_ = init_brush == nullptr ? CreateSolidBrush(D2D1::ColorF(D2D1::ColorF::Black)) : init_brush;
 
                 selection_brush_ = CreateSolidBrush(D2D1::ColorF(D2D1::ColorF::LightSkyBlue));
             }
@@ -60,7 +62,7 @@ namespace cru
             void TextBlock::RemoveTextLayoutHandler(const TextLayoutHandlerPtr& handler)
             {
                 const auto find_result = std::find(text_layout_handlers_.cbegin(), text_layout_handlers_.cend(),
-                                                   handler);
+                    handler);
                 if (find_result != text_layout_handlers_.cend())
                     text_layout_handlers_.erase(find_result);
             }
@@ -96,42 +98,42 @@ namespace cru
             void TextBlock::OnDraw(ID2D1DeviceContext* device_context)
             {
                 Control::OnDraw(device_context);
-                if (text_layout_ != nullptr)
+                if (selected_range_.has_value())
                 {
-                    if (selected_range_.has_value())
+                    DWRITE_TEXT_METRICS text_metrics{};
+                    ThrowIfFailed(text_layout_->GetMetrics(&text_metrics));
+                    const auto metrics_count = text_metrics.lineCount * text_metrics.maxBidiReorderingDepth;
+
+                    Vector<DWRITE_HIT_TEST_METRICS> hit_test_metrics(metrics_count);
+                    UINT32 actual_count;
+                    text_layout_->HitTestTextRange(
+                        selected_range_.value().position, selected_range_.value().count,
+                        0, 0,
+                        hit_test_metrics.data(), metrics_count, &actual_count
+                    );
+
+                    hit_test_metrics.erase(hit_test_metrics.cbegin() + actual_count, hit_test_metrics.cend());
+
+                    for (const auto& metrics : hit_test_metrics)
                     {
-                        DWRITE_TEXT_METRICS text_metrics{};
-                        ThrowIfFailed(text_layout_->GetMetrics(&text_metrics));
-                        const auto metrics_count = text_metrics.lineCount * text_metrics.maxBidiReorderingDepth;
-
-                        Vector<DWRITE_HIT_TEST_METRICS> hit_test_metrics(metrics_count);
-                        UINT32 actual_count;
-                        text_layout_->HitTestTextRange(
-                            selected_range_.value().position, selected_range_.value().count,
-                            0, 0,
-                            hit_test_metrics.data(), metrics_count, &actual_count
-                        );
-
-                        hit_test_metrics.erase(hit_test_metrics.cbegin() + actual_count, hit_test_metrics.cend());
-
-                        for (const auto& metrics : hit_test_metrics)
-                        {
-                            device_context->FillRoundedRectangle(D2D1::RoundedRect(D2D1::RectF(metrics.left, metrics.top, metrics.left + metrics.width, metrics.top + metrics.height), 3, 3), selection_brush_.Get());
-                        }
+                        device_context->FillRoundedRectangle(D2D1::RoundedRect(D2D1::RectF(metrics.left, metrics.top, metrics.left + metrics.width, metrics.top + metrics.height), 3, 3), selection_brush_.Get());
                     }
-                    device_context->DrawTextLayout(D2D1::Point2F(), text_layout_.Get(), brush_.Get());
                 }
+                device_context->DrawTextLayout(D2D1::Point2F(), text_layout_.Get(), brush_.Get());
             }
 
-            std::optional<unsigned> TextLayoutHitTest(IDWriteTextLayout* text_layout, const Point& point, bool test_inside = true)
+            namespace
             {
-                BOOL is_trailing, is_inside;
-                DWRITE_HIT_TEST_METRICS metrics{};
-                text_layout->HitTestPoint(point.x, point.y, &is_trailing, &is_inside, &metrics);
-                if (!test_inside || is_inside)
-                    return is_trailing == 0 ? metrics.textPosition : metrics.textPosition + 1;
-                else
-                    return std::nullopt;
+                std::optional<unsigned> TextLayoutHitTest(IDWriteTextLayout* text_layout, const Point& point, const bool test_inside = true)
+                {
+                    BOOL is_trailing, is_inside;
+                    DWRITE_HIT_TEST_METRICS metrics{};
+                    text_layout->HitTestPoint(point.x, point.y, &is_trailing, &is_inside, &metrics);
+                    if (!test_inside || is_inside)
+                        return is_trailing == 0 ? metrics.textPosition : metrics.textPosition + 1;
+                    else
+                        return std::nullopt;
+                }
             }
 
             void TextBlock::OnMouseDownCore(events::MouseButtonEventArgs& args)
@@ -197,9 +199,6 @@ namespace cru
 
             Size TextBlock::OnMeasure(const Size& available_size)
             {
-                if (text_.empty())
-                    return Size::Zero();
-
                 const auto layout_params = GetLayoutParams();
 
                 if (layout_params->width.mode == MeasureMode::Stretch && layout_params->height.mode == MeasureMode::Stretch)
@@ -259,35 +258,11 @@ namespace cru
                 Repaint();
             }
 
-            void TextBlock::CreateDefaultTextFormat()
-            {
-                const auto dwrite_factory = GetDWriteFactory();
-
-                ThrowIfFailed(dwrite_factory->CreateTextFormat(
-                    L"µÈÏß", nullptr,
-                    DWRITE_FONT_WEIGHT_NORMAL,
-                    DWRITE_FONT_STYLE_NORMAL,
-                    DWRITE_FONT_STRETCH_NORMAL,
-                    24.0, L"zh-cn",
-                    &text_format_
-                ));
-
-                ThrowIfFailed(text_format_->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER));
-                ThrowIfFailed(text_format_->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER));
-            }
-
             void TextBlock::RecreateTextLayout()
             {
-                if (text_.empty())
-                {
-                    text_layout_ = nullptr;
-                    return;
-                }
+                assert(text_format_ != nullptr);
 
                 const auto dwrite_factory = GetDWriteFactory();
-
-                if (text_format_ == nullptr)
-                    CreateDefaultTextFormat();
 
                 const auto&& size = GetSize();
 

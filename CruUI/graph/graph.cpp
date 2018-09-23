@@ -216,10 +216,30 @@ namespace cru {
 
         ComPtr<ID2D1SolidColorBrush> CreateSolidBrush(const D2D1_COLOR_F& color)
         {
-            const auto device_context = graph::GraphManager::GetInstance()->GetD2D1DeviceContext();
+            const auto device_context = GraphManager::GetInstance()->GetD2D1DeviceContext();
             ComPtr<ID2D1SolidColorBrush> solid_color_brush;
             device_context->CreateSolidColorBrush(color, &solid_color_brush);
             return solid_color_brush;
+        }
+
+        ComPtr<IDWriteTextFormat> CreateDefaultTextFormat()
+        {
+            const auto dwrite_factory = GraphManager::GetInstance()->GetDWriteFactory();
+
+            ComPtr<IDWriteTextFormat> text_format;
+
+            ThrowIfFailed(dwrite_factory->CreateTextFormat(
+                L"等线", nullptr,
+                DWRITE_FONT_WEIGHT_NORMAL,
+                DWRITE_FONT_STYLE_NORMAL,
+                DWRITE_FONT_STRETCH_NORMAL,
+                24.0, L"zh-cn",
+                &text_format
+            ));
+
+            ThrowIfFailed(text_format->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER));
+            ThrowIfFailed(text_format->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER));
+            return text_format;
         }
     }
 }

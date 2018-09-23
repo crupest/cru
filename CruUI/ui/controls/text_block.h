@@ -11,29 +11,6 @@ namespace cru
     {
         namespace controls
         {
-            struct TextRange
-            {
-                TextRange() = default;
-                TextRange(const int position, const int count)
-                    : position(position), count(count)
-                {
-                    
-                }
-                TextRange(const TextRange& other) = default;
-                TextRange(TextRange&& other) = default;
-                TextRange& operator=(const TextRange& other) = default;
-                TextRange& operator=(TextRange&& other) = default;
-                ~TextRange() = default;
-
-                unsigned position;
-                unsigned count;
-
-                explicit operator DWRITE_TEXT_RANGE() const
-                {
-                    return DWRITE_TEXT_RANGE { position, count };
-                }
-            };
-
             class TextBlock : public Control
             {
             public:
@@ -116,7 +93,6 @@ namespace cru
             private:
                 void OnTextChangedCore(const String& old_text, const String& new_text);
 
-                void CreateDefaultTextFormat();
                 void RecreateTextLayout();
 
             private:
