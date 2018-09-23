@@ -125,6 +125,22 @@ namespace cru::ui::controls
         is_caret_show_ = false;
     }
 
+    void TextBox::OnKeyDownCore(events::KeyEventArgs& args)
+    {
+        Control::OnKeyDownCore(args);
+        if (args.GetVirtualCode() == VK_LEFT && position_ > 0)
+        {
+            position_--;
+            Repaint();
+        }
+
+        if (args.GetVirtualCode() == VK_RIGHT && position_ < GetText().size())
+        {
+            position_++;
+            Repaint();
+        }
+    }
+
     void TextBox::OnCharCore(events::CharEventArgs& args)
     {
         Control::OnCharCore(args);

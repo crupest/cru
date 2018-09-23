@@ -31,7 +31,7 @@ int APIENTRY wWinMain(
 
     Application application(hInstance);
     Window window;
-
+    /*
     window.native_message_event.AddHandler([](cru::ui::events::WindowNativeMessageEventArgs& args)
     {
         if (args.GetWindowMessage().msg == WM_PAINT)
@@ -40,7 +40,7 @@ int APIENTRY wWinMain(
             //args.SetResult(0);
         }
     });
-
+    */
     /*
     // test1
     cru::ui::controls::TextBlock text_block;
@@ -88,7 +88,7 @@ int APIENTRY wWinMain(
 
     /*
     //test 2
-    
+
     const auto layout = CreateWithLayout<LinearLayout>(LayoutSideParams::Exactly(500), LayoutSideParams::Content());
 
     layout->mouse_click_event.AddHandler([layout](cru::ui::events::MouseButtonEventArgs& args)

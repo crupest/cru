@@ -57,6 +57,7 @@ namespace cru::ui::controls
         void OnGetFocusCore(events::FocusChangeEventArgs& args) override final;
         void OnLoseFocusCore(events::FocusChangeEventArgs& args) override final;
 
+        void OnKeyDownCore(events::KeyEventArgs& args) override final;
         void OnCharCore(events::CharEventArgs& args) override final;
 
         Size OnMeasure(const Size& available_size) override final;
