@@ -80,6 +80,11 @@ namespace cru {
 				(*ptr)(args);
 		}
 
+        bool IsNoHandler() const
+		{
+		    return handlers_.empty();
+		}
+
     private:
         std::list<EventHandlerPtr> handlers_;
     };
