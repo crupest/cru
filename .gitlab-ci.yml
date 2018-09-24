@@ -4,5 +4,4 @@ stages:
 build:
   stage: build
   script:
-    - vcpkg.exe install folly:x64-windows fmt:x64-windows
     - ./script/build.ps1
