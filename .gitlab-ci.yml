@@ -1,2 +1,12 @@
-test:
-  script: echo "Hello world!"
+before_script:
+  - vcpkg.exe install folly:x64-windows fmt:x64-windows
+
+stages:
+  - build
+  - test
+  - deploy
+
+build:
+  stage: build
+  script:
+    - ./script/build.ps1
