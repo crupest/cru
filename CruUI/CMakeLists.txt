@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.12)
+cmake_minimum_required(VERSION 3.11)
 project(CruUI)
 
 if (MSVC_VERSION GREATER_EQUAL "1900")
@@ -19,7 +19,6 @@ add_executable(CruUI
         ui/controls/margin_container.cpp
         ui/controls/text_block.cpp
         ui/controls/text_box.cpp
-        ui/controls/text_control.cpp
         ui/controls/toggle_button.cpp
         ui/events/ui_event.cpp
         ui/control.cpp
