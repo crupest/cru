@@ -169,6 +169,7 @@
     <ClInclude Include="ui\controls\margin_container.h" />
     <ClInclude Include="ui\controls\text_block.h" />
     <ClInclude Include="ui\controls\text_box.h" />
+    <ClInclude Include="ui\controls\text_control.h" />
     <ClInclude Include="ui\controls\toggle_button.h" />
     <ClInclude Include="ui\events\ui_event.h" />
     <ClInclude Include="ui\layout_base.h" />
@@ -183,6 +184,7 @@
     <ClCompile Include="ui\controls\button.cpp" />
     <ClCompile Include="ui\controls\margin_container.cpp" />
     <ClCompile Include="ui\controls\text_box.cpp" />
+    <ClCompile Include="ui\controls\text_control.cpp" />
     <ClCompile Include="ui\layout_base.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="graph\graph.cpp" />
