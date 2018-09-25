@@ -15,13 +15,9 @@ namespace cru::ui::controls
     }
 
     TextBox::TextBox(const Microsoft::WRL::ComPtr<IDWriteTextFormat>& init_text_format,
-        const Microsoft::WRL::ComPtr<ID2D1Brush>& init_brush) : Control(false)
+        const Microsoft::WRL::ComPtr<ID2D1Brush>& init_brush) : TextControl(init_text_format, init_brush)
     {
-        text_format_ = init_text_format == nullptr ? graph::CreateDefaultTextFormat() : init_text_format;
-
-        RecreateTextLayout();
-
-        brush_ = init_brush == nullptr ? CreateSolidBrush(D2D1::ColorF(D2D1::ColorF::Black)) : init_brush;
+        SetSelectable(true);
 
         caret_brush_ = CreateSolidBrush(D2D1::ColorF(D2D1::ColorF::Black));
 
@@ -30,88 +26,26 @@ namespace cru::ui::controls
             is_caret_show_ = !is_caret_show_;
             Repaint();
         });
-
-        //selection_brush_ = CreateSolidBrush(D2D1::ColorF(D2D1::ColorF::LightSkyBlue));
     }
 
     TextBox::~TextBox() = default;
 
-    void TextBox::SetText(const String& text)
-    {
-        if (text_ != text)
-        {
-            const auto old_text = text_;
-            text_ = text;
-            OnTextChangedCore(old_text, text);
-        }
-    }
-
-    void TextBox::SetBrush(const Microsoft::WRL::ComPtr<ID2D1Brush>& brush)
-    {
-        brush_ = brush;
-        Repaint();
-    }
-
-    void TextBox::SetTextFormat(const Microsoft::WRL::ComPtr<IDWriteTextFormat>& text_format)
-    {
-        text_format_ = text_format;
-        RecreateTextLayout();
-        Repaint();
-    }
-
-    void TextBox::OnSizeChangedCore(events::SizeChangedEventArgs& args)
-    {
-        Control::OnSizeChangedCore(args);
-        text_layout_->SetMaxWidth(args.GetNewSize().width);
-        text_layout_->SetMaxHeight(args.GetNewSize().height);
-        Repaint();
-    }
-
     void TextBox::OnDraw(ID2D1DeviceContext* device_context)
     {
-        Control::OnDraw(device_context);
-        if (text_layout_ != nullptr)
+        TextControl::OnDraw(device_context);
+        if (is_caret_show_)
         {
-            device_context->DrawTextLayout(D2D1::Point2F(), text_layout_.Get(), brush_.Get());
-            if (is_caret_show_)
-            {
-                const auto caret_half_width = Application::GetInstance()->GetCaretInfo().half_caret_width;
-                FLOAT x, y;
-                DWRITE_HIT_TEST_METRICS metrics{};
-                ThrowIfFailed(text_layout_->HitTestTextPosition(position_, FALSE, &x, &y, &metrics));
-                device_context->FillRectangle(D2D1::RectF(metrics.left - caret_half_width, metrics.top, metrics.left + caret_half_width, metrics.top + metrics.height), caret_brush_.Get());
-            }
-        }
-    }
-
-    namespace
-    {
-        std::optional<unsigned> TextLayoutHitTest(IDWriteTextLayout* text_layout, const Point& point, bool test_inside = true)
-        {
-            BOOL is_trailing, is_inside;
+            const auto caret_half_width = Application::GetInstance()->GetCaretInfo().half_caret_width;
+            FLOAT x, y;
             DWRITE_HIT_TEST_METRICS metrics{};
-            text_layout->HitTestPoint(point.x, point.y, &is_trailing, &is_inside, &metrics);
-            if (!test_inside || is_inside)
-                return is_trailing == 0 ? metrics.textPosition : metrics.textPosition + 1;
-            else
-                return std::nullopt;
-        }
-    }
-
-    void TextBox::OnMouseDownCore(events::MouseButtonEventArgs& args)
-    {
-        Control::OnMouseDownCore(args);
-        if (args.GetMouseButton() == MouseButton::Left)
-        {
-            position_ = TextLayoutHitTest(text_layout_.Get(), args.GetPoint(this), false).value();
-
-            Repaint();
+            ThrowIfFailed(text_layout_->HitTestTextPosition(caret_position_, FALSE, &x, &y, &metrics));
+            device_context->FillRectangle(D2D1::RectF(metrics.left - caret_half_width, metrics.top, metrics.left + caret_half_width, metrics.top + metrics.height), caret_brush_.Get());
         }
     }
 
     void TextBox::OnGetFocusCore(events::FocusChangeEventArgs& args)
     {
-        Control::OnGetFocusCore(args);
+        TextControl::OnGetFocusCore(args);
         assert(caret_timer_ == nullptr);
         is_caret_show_ = true;
         caret_timer_ = SetInterval(Application::GetInstance()->GetCaretInfo().caret_blink_duration, caret_action_);
@@ -122,21 +56,24 @@ namespace cru::ui::controls
         Control::OnLoseFocusCore(args);
         assert(caret_timer_ != nullptr);
         caret_timer_->Cancel();
+        caret_timer_ = nullptr;
         is_caret_show_ = false;
     }
 
     void TextBox::OnKeyDownCore(events::KeyEventArgs& args)
     {
         Control::OnKeyDownCore(args);
-        if (args.GetVirtualCode() == VK_LEFT && position_ > 0)
+        if (args.GetVirtualCode() == VK_LEFT && caret_position_ > 0)
         {
-            position_--;
+            ClearSelection();
+            caret_position_--;
             Repaint();
         }
 
-        if (args.GetVirtualCode() == VK_RIGHT && position_ < GetText().size())
+        if (args.GetVirtualCode() == VK_RIGHT && caret_position_ < GetText().size())
         {
-            position_++;
+            ClearSelection();
+            caret_position_++;
             Repaint();
         }
     }
@@ -146,99 +83,57 @@ namespace cru::ui::controls
         Control::OnCharCore(args);
         if (args.GetChar() == L'\b')
         {
-            auto text = GetText();
-            if (!text.empty() && position_ > 0)
+            if (GetSelectedRange().has_value())
             {
-                const auto position = --position_;
-                text.erase(position);
+                const auto selection_range = GetSelectedRange().value();
+                auto text = GetText();
+                text.erase(text.cbegin() + selection_range.position, text.cbegin() + selection_range.position + selection_range.count);
                 SetText(text);
+                caret_position_ = selection_range.position;
+                ClearSelection();
+            }
+            else
+            {
+                if (caret_position_ > 0)
+                {
+                    auto text = GetText();
+                    if (!text.empty())
+                    {
+                        const auto position = --caret_position_;
+                        text.erase(text.cbegin() + position);
+                        SetText(text);
+                    }
+                }
             }
             return;
         }
 
         if (std::iswprint(args.GetChar()))
         {
-            const auto position = position_++;
-            auto text = GetText();
-            text.insert(text.cbegin() + position, { args.GetChar() });
-            SetText(text);
+            if (GetSelectedRange().has_value())
+            {
+                const auto selection_range = GetSelectedRange().value();
+                auto text = GetText();
+                text.erase(selection_range.position, selection_range.count);
+                text.insert(text.cbegin() + selection_range.position, args.GetChar());
+                SetText(text);
+                caret_position_ = selection_range.position + 1;
+                ClearSelection();
+            }
+            else
+            {
+                ClearSelection();
+                const auto position = caret_position_++;
+                auto text = GetText();
+                text.insert(text.cbegin() + position, { args.GetChar() });
+                SetText(text);
+            }
         }
     }
 
-    Size TextBox::OnMeasure(const Size& available_size)
+    void TextBox::RequestChangeCaretPosition(const unsigned position)
     {
-        const auto layout_params = GetLayoutParams();
-
-        if (layout_params->width.mode == MeasureMode::Stretch && layout_params->height.mode == MeasureMode::Stretch)
-            return available_size;
-
-        auto&& get_measure_length = [](const LayoutSideParams& layout_length, const float available_length) -> float
-        {
-            switch (layout_length.mode)
-            {
-            case MeasureMode::Exactly:
-            {
-                return std::min(layout_length.length, available_length);
-            }
-            case MeasureMode::Stretch:
-            case MeasureMode::Content:
-            {
-                return available_length;
-            }
-            default:
-                UnreachableCode();
-            }
-        };
-
-        const Size measure_size(get_measure_length(layout_params->width, available_size.width),
-            get_measure_length(layout_params->height, available_size.height));
-
-        ThrowIfFailed(text_layout_->SetMaxWidth(measure_size.width));
-        ThrowIfFailed(text_layout_->SetMaxHeight(measure_size.height));
-
-        DWRITE_TEXT_METRICS metrics{};
-
-        ThrowIfFailed(text_layout_->GetMetrics(&metrics));
-
-        const Size measure_result(metrics.width, metrics.height);
-
-        auto&& calculate_final_length = [](const LayoutSideParams& layout_length, const float measure_length, const float measure_result_length) -> float
-        {
-            if ((layout_length.mode == MeasureMode::Stretch ||
-                layout_length.mode == MeasureMode::Exactly)
-                && measure_result_length < measure_length)
-                return measure_length;
-            else
-                return measure_result_length;
-        };
-
-        const Size result_size(
-            calculate_final_length(layout_params->width, measure_size.width, measure_result.width),
-            calculate_final_length(layout_params->height, measure_size.height, measure_result.height)
-        );
-
-        return result_size;
-    }
-
-    void TextBox::OnTextChangedCore(const String& old_text, const String& new_text)
-    {
-        RecreateTextLayout();
+        caret_position_ = position;
         Repaint();
-    }
-
-    void TextBox::RecreateTextLayout()
-    {
-        assert(text_format_ != nullptr);
-
-        const auto dwrite_factory = GetDWriteFactory();
-
-        const auto&& size = GetSize();
-
-        ThrowIfFailed(dwrite_factory->CreateTextLayout(
-            text_.c_str(), static_cast<UINT32>(text_.size()),
-            text_format_.Get(),
-            size.width, size.height,
-            &text_layout_
-        ));
     }
 }
