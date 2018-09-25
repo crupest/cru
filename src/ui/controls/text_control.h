@@ -51,14 +51,20 @@ namespace cru::ui::controls
             return is_selectable_;
         }
 
-        void SetSelectable(bool is_selectable);
-
         std::optional<TextRange> GetSelectedRange() const
         {
             return selected_range_;
         }
 
         void SetSelectedRange(std::optional<TextRange> text_range);
+
+        void ClearSelection()
+        {
+            SetSelectedRange(std::nullopt);
+        }
+
+    protected:
+        void SetSelectable(bool is_selectable);
 
     protected:
         void OnSizeChangedCore(events::SizeChangedEventArgs& args) override final;
@@ -68,10 +74,11 @@ namespace cru::ui::controls
         void OnMouseMoveCore(events::MouseEventArgs& args) override final;
         void OnMouseUpCore(events::MouseButtonEventArgs& args) override final;
 
-        void OnLoseFocusCore(events::FocusChangeEventArgs& args) override final;
+        void OnLoseFocusCore(events::FocusChangeEventArgs& args) override;
 
         Size OnMeasure(const Size& available_size) override final;
 
+        virtual void RequestChangeCaretPosition(unsigned position);
 
     private:
         void OnTextChangedCore(const String& old_text, const String& new_text);
@@ -84,8 +91,10 @@ namespace cru::ui::controls
         Microsoft::WRL::ComPtr<ID2D1Brush> brush_;
         Microsoft::WRL::ComPtr<ID2D1Brush> selection_brush_;
         Microsoft::WRL::ComPtr<IDWriteTextFormat> text_format_;
+    protected:
         Microsoft::WRL::ComPtr<IDWriteTextLayout> text_layout_;
 
+    private:
         Vector<TextLayoutHandlerPtr> text_layout_handlers_;
 
         bool is_selectable_ = false;

@@ -66,7 +66,11 @@ namespace cru::ui::controls
     {
         if (!is_selectable)
         {
-            is_selecting_ = false;
+            if (is_selecting_)
+            {
+                is_selecting_ = false;
+                GetWindow()->ReleaseCurrentMouseCapture();
+            }
             selected_range_ = std::nullopt;
             Repaint();
         }
@@ -133,8 +137,6 @@ namespace cru::ui::controls
         device_context->DrawTextLayout(D2D1::Point2F(), text_layout_.Get(), brush_.Get());
     }
 
-
-
     void TextControl::OnMouseDownCore(events::MouseButtonEventArgs& args)
     {
         Control::OnMouseDownCore(args);
@@ -144,6 +146,7 @@ namespace cru::ui::controls
             const auto hit_test_result = TextLayoutHitTest(text_layout_.Get(), args.GetPoint(this), true);
             if (hit_test_result.has_value())
             {
+                RequestChangeCaretPosition(hit_test_result.value());
                 mouse_down_position_ = hit_test_result.value();
                 is_selecting_ = true;
                 GetWindow()->CaptureMouseFor(this);
@@ -158,12 +161,19 @@ namespace cru::ui::controls
         if (is_selecting_)
         {
             const auto hit_test_result = TextLayoutHitTest(text_layout_.Get(), args.GetPoint(this), false).value();
+            RequestChangeCaretPosition(hit_test_result);
             if (hit_test_result > mouse_down_position_)
+            {
                 selected_range_ = TextRange(mouse_down_position_, hit_test_result - mouse_down_position_);
+            }
             else if (hit_test_result < mouse_down_position_)
+            {
                 selected_range_ = TextRange(hit_test_result, mouse_down_position_ - hit_test_result);
+            }
             else
+            {
                 selected_range_ = std::nullopt;
+            }
             Repaint();
         }
     }
@@ -249,6 +259,10 @@ namespace cru::ui::controls
         return result_size;
     }
 
+    void TextControl::RequestChangeCaretPosition(unsigned position)
+    {
+
+    }
 
     void TextControl::OnTextChangedCore(const String& old_text, const String& new_text)
     {

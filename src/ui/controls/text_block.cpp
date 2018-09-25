@@ -1,8 +1,6 @@
 #include "text_block.h"
 
 #include "ui/window.h"
-#include "graph/graph.h"
-#include "exception.h"
 
 namespace cru
 {
