@@ -1,13 +1,13 @@
 #include "application.h"
 #include "ui/window.h"
+#include "ui/events/ui_event.h"
 #include "ui/controls/linear_layout.h"
 #include "ui/controls/text_block.h"
 #include "ui/controls/toggle_button.h"
 #include "ui/controls/button.h"
 #include "ui/controls/margin_container.h"
-#include "ui/events/ui_event.h"
 #include "ui/controls/text_box.h"
-
+#include "ui/controls/border.h"
 
 using cru::String;
 using cru::Application;
@@ -22,6 +22,7 @@ using cru::ui::controls::ToggleButton;
 using cru::ui::controls::Button;
 using cru::ui::controls::MarginContainer;
 using cru::ui::controls::TextBox;
+using cru::ui::controls::Border;
 
 int APIENTRY wWinMain(
     HINSTANCE hInstance,
@@ -142,7 +143,12 @@ int APIENTRY wWinMain(
     window.AddChild(layout);
     */
 
-    window.AddChild(CreateWithLayout<TextBox>(LayoutSideParams::Stretch(), LayoutSideParams::Stretch()));
+    window.AddChild(
+        CreateWithLayout<Border>(LayoutSideParams::Exactly(200), LayoutSideParams::Content(),
+            std::initializer_list<cru::ui::Control*>{
+                CreateWithLayout<TextBox>(LayoutSideParams::Stretch(), LayoutSideParams::Content())
+            }
+    ));
 
     window.Show();
 
