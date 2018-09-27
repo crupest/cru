@@ -32,7 +32,7 @@ namespace cru {
             throw HResultError(h_result);
     }
 
-    inline void ThrowIfFailed(const HRESULT h_result, const std::string& message) {
+    inline void ThrowIfFailed(const HRESULT h_result, const std::string_view& message) {
         if (FAILED(h_result))
             throw HResultError(h_result, message);
     }
