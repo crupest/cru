@@ -242,10 +242,10 @@ namespace cru {
             return window->GetFocusControl() == this;
         }
 
-        void Control::Relayout()
+        void Control::InvalidateLayout()
         {
-            OnMeasure(GetSize());
-            OnLayout(Rect(GetPositionRelative(), GetSize()));
+            if (const auto window = GetWindow())
+                LayoutManager::GetInstance()->InvalidateWindowLayout(window);
         }
 
         void Control::Measure(const Size& available_size)
@@ -278,8 +278,8 @@ namespace cru {
                     control->OnAttachToWindow(window);
                 });
                 window->RefreshControlList();
+                InvalidateLayout();
             }
-            Relayout();
         }
 
         void Control::OnRemoveChild(Control* child)
@@ -290,8 +290,8 @@ namespace cru {
                     control->OnDetachToWindow(window);
                 });
                 window->RefreshControlList();
+                InvalidateLayout();
             }
-            Relayout();
         }
 
         void Control::OnAttachToWindow(Window* window)

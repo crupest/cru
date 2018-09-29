@@ -352,6 +352,12 @@ namespace cru
 
         }
 
+        void Window::Relayout()
+        {
+            OnMeasure(GetSize());
+            OnLayout(Rect(Point::Zero(), GetSize()));
+        }
+
         void Window::RefreshControlList() {
             control_list_.clear();
             TraverseDescendants([this](Control* control) {
@@ -454,6 +460,16 @@ namespace cru
         {
             MSG msg;
             return ::PeekMessageW(&msg, hwnd_, message, message, PM_NOREMOVE) != 0;
+        }
+
+        Size Window::OnMeasure(const Size& available_size)
+        {
+            ForeachChild([available_size](Control* control)
+            {
+                control->Measure(available_size);
+            });
+
+            return available_size;
         }
 
         void Window::OnDestroyInternal() {
