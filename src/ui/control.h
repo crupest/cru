@@ -155,7 +155,7 @@ namespace cru
 
             //*************** region: layout ***************
 
-            void Relayout();
+            void InvalidateLayout();
 
             void Measure(const Size& available_size);
 

@@ -20,7 +20,7 @@ namespace cru::ui::controls
     void MarginContainer::SetMargin(const Thickness& margin)
     {
         margin_ = margin;
-        Relayout();
+        InvalidateLayout();
     }
 
     Size MarginContainer::OnMeasure(const Size& available_size)

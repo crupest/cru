@@ -2,6 +2,7 @@
 
 #include "application.h"
 #include "control.h"
+#include "window.h"
 
 namespace cru::ui
 {
@@ -33,8 +34,8 @@ namespace cru::ui
         if (cache_invalid_controls_.size() == 1) // when insert just now and not repeat to "InvokeLater".
         {
             InvokeLater([this] {
-
-                RefreshInvalidControlPositionCache(); // first refresh position cache.
+                for (const auto i : cache_invalid_controls_)
+                    RefreshControlPositionCache(i);
                 for (const auto i : cache_invalid_controls_) // traverse all descendants of position-invalid controls and notify position change event
                     i->TraverseDescendants([](Control* control)
                 {
@@ -50,6 +51,7 @@ namespace cru::ui
     {
         for (const auto i : cache_invalid_controls_)
             RefreshControlPositionCache(i);
+        cache_invalid_controls_.clear();
     }
 
     void LayoutManager::RefreshControlPositionCache(Control * control)
@@ -62,6 +64,24 @@ namespace cru::ui
             point.y += p.y;
         }
         RefreshControlPositionCacheInternal(control, point);
+    }
+
+    void LayoutManager::InvalidateWindowLayout(Window* window)
+    {
+        layout_invalid_windows_.insert(window);
+
+        if (layout_invalid_windows_.size() == 1)
+            InvokeLater([this]()
+        {
+            this->RefreshInvalidWindowLayout();
+        });
+    }
+
+    void LayoutManager::RefreshInvalidWindowLayout()
+    {
+        for (const auto window : layout_invalid_windows_)
+            window->Relayout();
+        layout_invalid_windows_.clear();
     }
 
     void LayoutManager::RefreshControlPositionCacheInternal(Control * control, const Point & parent_lefttop_absolute)

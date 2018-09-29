@@ -155,8 +155,11 @@ namespace cru {
             //This method has no effect for a window. Use SetClientSize instead.
             void SetSize(const Size& size) override final;
 
+            //*************** region: layout ***************
 
-            //*************** region: features ***************
+            void Relayout();
+
+            //*************** region: functions ***************
 
             //Refresh control list.
             //It should be invoked every time a control is added or removed from the tree.
@@ -204,6 +207,11 @@ namespace cru {
             RECT GetClientRectPixel();
 
             bool IsMessageInQueue(UINT message);
+
+
+            //*************** region: layout ***************
+
+            Size OnMeasure(const Size& available_size) override;
 
 
             //*************** region: native messages ***************
