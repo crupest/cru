@@ -62,9 +62,9 @@ namespace cru
     }
 
     template<typename Type>
-    Type CreateFunctionPtr(Function<Type>&& function)
+    FunctionPtr<Type> CreateFunctionPtr(Function<Type>&& function)
     {
-        return std::make_shared<FunctionPtr<Type>>(std::move(function));
+        return std::make_shared<Function<Type>>(std::move(function));
     }
 
     inline ActionPtr CreateActionPtr(Action&& action)

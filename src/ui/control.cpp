@@ -257,7 +257,7 @@ namespace cru {
         {
             SetPositionRelative(rect.GetLeftTop());
             SetSize(rect.GetSize());
-            OnLayout(rect);
+            OnLayout(Rect(Point::Zero(), rect.GetSize()));
         }
 
         Size Control::GetDesiredSize() const
@@ -617,24 +617,24 @@ namespace cru {
                 const auto layout_params = control->GetLayoutParams();
                 const auto size = control->GetDesiredSize();
 
-                auto&& calculate_anchor = [](const Alignment alignment, const float layout_length, const float control_length) -> float
+                auto&& calculate_anchor = [](const float anchor, const Alignment alignment, const float layout_length, const float control_length) -> float
                 {
                     switch (alignment)
                     {
                     case Alignment::Center:
-                        return (layout_length - control_length) / 2;
+                        return anchor + (layout_length - control_length) / 2;
                     case Alignment::Start:
-                        return 0;
+                        return anchor;
                     case Alignment::End:
-                        return layout_length - control_length;
+                        return anchor + layout_length - control_length;
                     default:
                         UnreachableCode();
                     }
                 };
 
                 control->Layout(Rect(Point(
-                    calculate_anchor(layout_params->width.alignment, rect.width, size.width),
-                    calculate_anchor(layout_params->height.alignment, rect.height, size.height)
+                    calculate_anchor(rect.left, layout_params->width.alignment, rect.width, size.width),
+                    calculate_anchor(rect.top, layout_params->height.alignment, rect.height, size.height)
                 ), size));
             });
         }
