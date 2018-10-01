@@ -257,7 +257,7 @@ namespace cru {
         {
             SetPositionRelative(rect.GetLeftTop());
             SetSize(rect.GetSize());
-            OnLayout(rect);
+            OnLayout(Rect(Point::Zero(), rect.GetSize()));
         }
 
         Size Control::GetDesiredSize() const
@@ -617,24 +617,137 @@ namespace cru {
                 const auto layout_params = control->GetLayoutParams();
                 const auto size = control->GetDesiredSize();
 
-                auto&& calculate_anchor = [](const Alignment alignment, const float layout_length, const float control_length) -> float
+                auto&& calculate_anchor = [](const float anchor, const Alignment alignment, const float layout_length, const float control_length) -> float
                 {
                     switch (alignment)
                     {
                     case Alignment::Center:
-                        return (layout_length - control_length) / 2;
+                        return anchor + (layout_length - control_length) / 2;
                     case Alignment::Start:
-                        return 0;
+                        return anchor;
                     case Alignment::End:
-                        return layout_length - control_length;
+                        return anchor + layout_length - control_length;
                     default:
                         UnreachableCode();
                     }
                 };
 
                 control->Layout(Rect(Point(
-                    calculate_anchor(layout_params->width.alignment, rect.width, size.width),
-                    calculate_anchor(layout_params->height.alignment, rect.height, size.height)
+                    calculate_anchor(rect.left, layout_params->width.alignment, rect.width, size.width),
+                    calculate_anchor(rect.top, layout_params->height.alignment, rect.height, size.height)
+                ), size));
+            });
+        }
+
+        inline Size ThicknessToSize(const Thickness& thickness)
+        {
+            return Size(thickness.left + thickness.right, thickness.top + thickness.bottom);
+        }
+
+        inline float AtLeast0(const float value)
+        {
+            return value < 0 ? 0 : value;
+        }
+
+        inline Size AtLeast0(const Size& size)
+        {
+            return Size(AtLeast0(size.width), AtLeast0(size.height));
+        }
+
+        Size Control::DefaultMeasureWithPadding(const Size& available_size, const Thickness& padding)
+        {
+            const auto layout_params = GetLayoutParams();
+            const auto padding_size = ThicknessToSize(padding);
+
+            if (!layout_params->Validate())
+                throw std::runtime_error("LayoutParams is not valid. Please check it.");
+
+            auto&& get_available_length_for_child = [](const LayoutSideParams& layout_length, const float available_length) -> float
+            {
+                switch (layout_length.mode)
+                {
+                case MeasureMode::Exactly:
+                {
+                    return std::min(layout_length.length, available_length);
+                }
+                case MeasureMode::Stretch:
+                case MeasureMode::Content:
+                {
+                    return available_length;
+                }
+                default:
+                    UnreachableCode();
+                }
+            };
+
+            Size size_for_children(get_available_length_for_child(layout_params->width, available_size.width),
+                get_available_length_for_child(layout_params->height, available_size.height));
+
+            size_for_children = AtLeast0(size_for_children - padding_size);
+
+            auto max_child_size = Size::Zero();
+            ForeachChild([&](Control* control)
+            {
+                control->Measure(size_for_children);
+                const auto&& size = control->GetDesiredSize();
+                if (max_child_size.width < size.width)
+                    max_child_size.width = size.width;
+                if (max_child_size.height < size.height)
+                    max_child_size.height = size.height;
+            });
+
+            auto&& calculate_final_length = [](const LayoutSideParams& layout_length, const float length_for_children, const float max_child_length) -> float
+            {
+                switch (layout_length.mode)
+                {
+                case MeasureMode::Exactly:
+                case MeasureMode::Stretch:
+                    return length_for_children;
+                case MeasureMode::Content:
+                    return max_child_length;
+                default:
+                    UnreachableCode();
+                }
+            };
+
+            return Size(
+                calculate_final_length(layout_params->width, size_for_children.width, max_child_size.width),
+                calculate_final_length(layout_params->height, size_for_children.height, max_child_size.height)
+            ) + padding_size;
+        }
+
+        void Control::DefaultLayoutWithPadding(const Rect& rect, const Thickness& padding)
+        {
+            const Rect final_rect(
+                rect.left + padding.left,
+                rect.top + padding.top,
+                rect.width - padding.left - padding.right,
+                rect.height - padding.top - padding.bottom
+            );
+
+            ForeachChild([final_rect](Control* control)
+            {
+                const auto layout_params = control->GetLayoutParams();
+                const auto size = control->GetDesiredSize();
+
+                auto&& calculate_anchor = [](const float anchor, const Alignment alignment, const float layout_length, const float control_length) -> float
+                {
+                    switch (alignment)
+                    {
+                    case Alignment::Center:
+                        return anchor + (layout_length - control_length) / 2;
+                    case Alignment::Start:
+                        return anchor;
+                    case Alignment::End:
+                        return anchor + layout_length - control_length;
+                    default:
+                        UnreachableCode();
+                    }
+                };
+
+                control->Layout(Rect(Point(
+                    calculate_anchor(final_rect.left, layout_params->width.alignment, final_rect.width, size.width),
+                    calculate_anchor(final_rect.top, layout_params->height.alignment, final_rect.height, size.height)
                 ), size));
             });
         }

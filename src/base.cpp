@@ -17,4 +17,25 @@ namespace cru
             throw Win32Error(::GetLastError(), "Failed to convert wide string to UTF-8.");
         return result;
     }
+
+    void PropertyChangedNotifyObject::AddPropertyChangedListener(FunctionPtr<void(String)> listener)
+    {
+        listeners_.push_back(std::move(listener));
+    }
+
+    void PropertyChangedNotifyObject::RemovePropertyChangedListener(const FunctionPtr<void(String)>& listener)
+    {
+        for (auto i = listeners_.cbegin(); i != listeners_.cend(); ++i)
+            if (*i == listener)
+            {
+                listeners_.erase(i);
+                break;
+            }
+    }
+
+    void PropertyChangedNotifyObject::RaisePropertyChangedEvent(String property_name)
+    {
+        for (const auto& listener : listeners_)
+            (*listener)(property_name);
+    }
 }

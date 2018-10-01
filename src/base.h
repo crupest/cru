@@ -20,6 +20,7 @@
 #include <memory>
 #include <string_view>
 #include <chrono>
+#include <list>
 
 namespace cru
 {
@@ -58,6 +59,12 @@ namespace cru
     {
         static_assert(is_shared_ptr_v<Type>);
         return std::make_shared<typename Type::element_type>(std::forward<Args>(args)...);
+    }
+
+    template<typename Type>
+    FunctionPtr<Type> CreateFunctionPtr(Function<Type>&& function)
+    {
+        return std::make_shared<Function<Type>>(std::move(function));
     }
 
     inline ActionPtr CreateActionPtr(Action&& action)
@@ -104,4 +111,26 @@ namespace cru
     using CancelablePtr = std::shared_ptr<ICancelable>;
 
     MultiByteString ToUtf8String(const StringView& string);
+
+
+    class PropertyChangedNotifyObject : public Object
+    {
+    public:
+        PropertyChangedNotifyObject() = default;
+        PropertyChangedNotifyObject(const PropertyChangedNotifyObject& other) = delete;
+        PropertyChangedNotifyObject(PropertyChangedNotifyObject&& other) = delete;
+        PropertyChangedNotifyObject& operator = (const PropertyChangedNotifyObject& other) = delete;
+        PropertyChangedNotifyObject& operator = (PropertyChangedNotifyObject&& other) = delete;
+        ~PropertyChangedNotifyObject() override = default;
+
+        void AddPropertyChangedListener(FunctionPtr<void(String)> listener);
+
+        void RemovePropertyChangedListener(const FunctionPtr<void(String)>& listener);
+
+    protected:
+        void RaisePropertyChangedEvent(String property_name);
+
+    private:
+        std::list<FunctionPtr<void(String)>> listeners_;
+    };
 }

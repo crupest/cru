@@ -3,6 +3,7 @@
 #include <initializer_list>
 
 #include "ui/control.h"
+#include "border_delegate.h"
 
 namespace cru::ui::controls
 {
@@ -30,12 +31,16 @@ namespace cru::ui::controls
     protected:
         void OnDraw(ID2D1DeviceContext* device_context) override;
 
+        Size OnMeasure(const Size& available_size) override;
+        void OnLayout(const Rect& rect) override;
+
         void OnMouseClickBegin(MouseButton button) override final;
         void OnMouseClickEnd(MouseButton button) override final;
 
     private:
-        Microsoft::WRL::ComPtr<ID2D1Brush> normal_border_brush_;
-        Microsoft::WRL::ComPtr<ID2D1Brush> pressed_border_brush_;
-        ID2D1Brush* current_border_brush_;
+        std::unique_ptr<BorderDelegate> border_delegate_;
+
+        BorderProperty::Ptr normal_border_border_;
+        BorderProperty::Ptr pressed_border_border_;
     };
 }

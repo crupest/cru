@@ -309,6 +309,9 @@ namespace cru
             virtual Size OnMeasure(const Size& available_size);
             virtual void OnLayout(const Rect& rect);
 
+            Size DefaultMeasureWithPadding(const Size& available_size, const Thickness& padding);
+            void DefaultLayoutWithPadding(const Rect& rect, const Thickness& padding);
+
         private:
             // Only for layout manager to use.
             // Check if the old position is updated to current position.

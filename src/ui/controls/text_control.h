@@ -76,7 +76,9 @@ namespace cru::ui::controls
 
         void OnLoseFocusCore(events::FocusChangeEventArgs& args) override;
 
-        Size OnMeasure(const Size& available_size) override final;
+        Size OnMeasure(const Size& available_size) override;
+
+        Size TextMeasureWithPadding(const Size& available_size, const Thickness& padding);
 
         virtual void RequestChangeCaretPosition(unsigned position);
 

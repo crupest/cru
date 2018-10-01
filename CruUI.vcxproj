@@ -122,12 +122,14 @@
     <ClCompile Include="src\ui\animations\animation.cpp" />
     <ClCompile Include="src\ui\control.cpp" />
     <ClCompile Include="src\ui\controls\border.cpp" />
+    <ClCompile Include="src\ui\controls\border_delegate.cpp" />
     <ClCompile Include="src\ui\controls\button.cpp" />
     <ClCompile Include="src\ui\controls\linear_layout.cpp" />
     <ClCompile Include="src\ui\controls\margin_container.cpp" />
     <ClCompile Include="src\ui\controls\text_block.cpp" />
     <ClCompile Include="src\ui\controls\text_box.cpp" />
     <ClInclude Include="src\ui\controls\border.h" />
+    <ClInclude Include="src\ui\controls\border_delegate.h" />
     <ClInclude Include="src\ui\controls\text_control.h" />
     <ClCompile Include="src\ui\controls\toggle_button.cpp" />
     <ClCompile Include="src\ui\events\ui_event.cpp" />

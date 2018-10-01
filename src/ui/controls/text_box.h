@@ -2,6 +2,7 @@
 
 #include "text_control.h"
 #include "timer.h"
+#include "border_delegate.h"
 
 namespace cru::ui::controls
 {
@@ -36,6 +37,8 @@ namespace cru::ui::controls
         void OnKeyDownCore(events::KeyEventArgs& args) override final;
         void OnCharCore(events::CharEventArgs& args) override final;
 
+        Size OnMeasure(const Size& available_size) override;
+
         void RequestChangeCaretPosition(unsigned position) override;
 
     private:
@@ -44,5 +47,7 @@ namespace cru::ui::controls
         ActionPtr caret_action_;
         Microsoft::WRL::ComPtr<ID2D1Brush> caret_brush_;
         bool is_caret_show_ = false;
+
+        std::unique_ptr<BorderDelegate> border_delegate_;
     };
 }
