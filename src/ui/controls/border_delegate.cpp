@@ -82,16 +82,4 @@ namespace cru::ui::controls
             border_property_->GetStrokeStyle().Get()
         );
     }
-
-    Size BorderDelegate::GetBorderSize() const
-    {
-        const auto width = border_property_->GetWidth();
-        return Size(width * 2, width * 2);
-    }
-
-    Rect BorderDelegate::CoerceLayoutRect(const Rect& rect) const
-    {
-        const auto width = border_property_->GetWidth();
-        return Rect(rect.left + width, rect.top + width, rect.width - width * 2, rect.height - width * 2);
-    }
 }

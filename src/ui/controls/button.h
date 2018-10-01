@@ -31,6 +31,9 @@ namespace cru::ui::controls
     protected:
         void OnDraw(ID2D1DeviceContext* device_context) override;
 
+        Size OnMeasure(const Size& available_size) override;
+        void OnLayout(const Rect& rect) override;
+
         void OnMouseClickBegin(MouseButton button) override final;
         void OnMouseClickEnd(MouseButton button) override final;
 

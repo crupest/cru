@@ -29,6 +29,16 @@ namespace cru::ui::controls
         border_delegate_->Draw(device_context, GetSize());
     }
 
+    Size Button::OnMeasure(const Size& available_size)
+    {
+        return Control::DefaultMeasureWithPadding(available_size, border_delegate_->GetBorderThickness());
+    }
+
+    void Button::OnLayout(const Rect& rect)
+    {
+        Control::DefaultLayoutWithPadding(rect, border_delegate_->GetBorderThickness());
+    }
+
     void Button::OnMouseClickBegin(MouseButton button)
     {
         border_delegate_->SetBorderProperty(pressed_border_border_);

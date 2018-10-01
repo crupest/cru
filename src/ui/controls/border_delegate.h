@@ -90,8 +90,10 @@ namespace cru::ui::controls
 
         void Draw(ID2D1DeviceContext* device_context, const Size& size) const;
 
-        Size GetBorderSize() const;
-        Rect CoerceLayoutRect(const Rect& rect) const;
+        Thickness GetBorderThickness() const
+        {
+            return Thickness(border_property_->GetWidth());
+        }
 
     private:
         Control* control_;
