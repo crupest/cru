@@ -143,12 +143,20 @@ int APIENTRY wWinMain(
     window.AddChild(layout);
     */
 
+    /*
     window.AddChild(
         CreateWithLayout<Border>(LayoutSideParams::Exactly(200), LayoutSideParams::Content(),
             std::initializer_list<cru::ui::Control*>{
                 CreateWithLayout<TextBox>(LayoutSideParams::Stretch(), LayoutSideParams::Content())
             }
     ));
+    */
+
+    window.AddChild(
+        Button::Create(
+            {TextBlock::Create(L"Button")}
+        )
+    );
 
     window.Show();
 

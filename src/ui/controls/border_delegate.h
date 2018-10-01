@@ -7,6 +7,12 @@ namespace cru::ui::controls
     class BorderProperty : public PropertyChangedNotifyObject
     {
     public:
+        using Ptr = std::shared_ptr<BorderProperty>;
+        static Ptr Create()
+        {
+            return std::make_shared<BorderProperty>();
+        }
+
         constexpr static auto brush_property_name = L"Brush";
         constexpr static auto width_property_name = L"Width";
         constexpr static auto stroke_style_property_name = L"StrokeStyle";

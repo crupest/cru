@@ -61,12 +61,19 @@ namespace cru::ui::controls
         border_property_->RemovePropertyChangedListener(border_property_changed_listener_);
         border_property_ = std::move(border_property);
         border_property_->AddPropertyChangedListener(border_property_changed_listener_);
+        control_->Repaint();
     }
 
     void BorderDelegate::Draw(ID2D1DeviceContext* device_context, const Size& size) const
     {
         device_context->DrawRoundedRectangle(
-            D2D1::RoundedRect(D2D1::RectF(0.0f, 0.0f, size.width, size.height),
+            D2D1::RoundedRect(
+                D2D1::RectF(
+                    border_property_->GetWidth() / 2.0f,
+                    border_property_->GetWidth() / 2.0f,
+                    size.width - border_property_->GetWidth(),
+                    size.height - border_property_->GetWidth()
+                ),
                 border_property_->GetRadiusX(),
                 border_property_->GetRadiusY()
             ),
