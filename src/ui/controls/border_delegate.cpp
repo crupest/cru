@@ -51,6 +51,11 @@ namespace cru::ui::controls
         border_property_->AddPropertyChangedListener(border_property_changed_listener_);
     }
 
+    BorderDelegate::~BorderDelegate()
+    {
+        border_property_->RemovePropertyChangedListener(border_property_changed_listener_);
+    }
+
     void BorderDelegate::SetBorderProperty(std::shared_ptr<BorderProperty> border_property)
     {
         border_property_->RemovePropertyChangedListener(border_property_changed_listener_);

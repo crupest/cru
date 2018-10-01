@@ -60,6 +60,10 @@ namespace cru::ui::controls
         float radius_y_ = 0.0f;
     };
 
+
+    // BorderDelegate is a delegate for border painting and layout.
+    // It must bind a control and not change the binding.
+    // But multiple BorderDelegate may share a common BorderProperty.
     class BorderDelegate : public Object
     {
     public:
@@ -69,7 +73,7 @@ namespace cru::ui::controls
         BorderDelegate(BorderDelegate&& other) = delete;
         BorderDelegate& operator=(const BorderDelegate& other) = delete;
         BorderDelegate& operator=(BorderDelegate&& other) = delete;
-        ~BorderDelegate() override = default;
+        ~BorderDelegate() override;
 
         std::shared_ptr<BorderProperty> GetBorderProperty() const
         {
