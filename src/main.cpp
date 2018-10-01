@@ -153,9 +153,16 @@ int APIENTRY wWinMain(
     */
 
     window.AddChild(
-        Button::Create(
-            {TextBlock::Create(L"Button")}
-        )
+        Border::Create({
+            MarginContainer::Create(Thickness(50, 50), {
+                LinearLayout::Create(LinearLayout::Orientation::Vertical, {
+                    Button::Create({
+                        TextBlock::Create(L"Button")
+                    }),
+                    TextBox::Create()
+                })
+            })
+        })
     );
 
     window.Show();

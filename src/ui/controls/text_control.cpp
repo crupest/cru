@@ -259,6 +259,76 @@ namespace cru::ui::controls
         return result_size;
     }
 
+    inline Size ThicknessToSize(const Thickness& thickness)
+    {
+        return Size(thickness.left + thickness.right, thickness.top + thickness.bottom);
+    }
+
+    inline float AtLeast0(const float value)
+    {
+        return value < 0 ? 0 : value;
+    }
+
+    inline Size AtLeast0(const Size& size)
+    {
+        return Size(AtLeast0(size.width), AtLeast0(size.height));
+    }
+
+    Size TextControl::TextMeasureWithPadding(const Size& available_size, const Thickness& padding)
+    {
+        const auto layout_params = GetLayoutParams();
+        const auto padding_size = ThicknessToSize(padding);
+
+        auto&& get_measure_length = [](const LayoutSideParams& layout_length, const float available_length) -> float
+        {
+            switch (layout_length.mode)
+            {
+            case MeasureMode::Exactly:
+            {
+                return std::min(layout_length.length, available_length);
+            }
+            case MeasureMode::Stretch:
+            case MeasureMode::Content:
+            {
+                return available_length;
+            }
+            default:
+                UnreachableCode();
+            }
+        };
+
+        Size measure_size(get_measure_length(layout_params->width, available_size.width),
+            get_measure_length(layout_params->height, available_size.height));
+
+        measure_size = AtLeast0(measure_size - padding_size);
+
+        ThrowIfFailed(text_layout_->SetMaxWidth(measure_size.width));
+        ThrowIfFailed(text_layout_->SetMaxHeight(measure_size.height));
+
+        DWRITE_TEXT_METRICS metrics{};
+
+        ThrowIfFailed(text_layout_->GetMetrics(&metrics));
+
+        const Size measure_result(metrics.width, metrics.height);
+
+        auto&& calculate_final_length = [](const LayoutSideParams& layout_length, const float measure_length, const float measure_result_length) -> float
+        {
+            if ((layout_length.mode == MeasureMode::Stretch ||
+                layout_length.mode == MeasureMode::Exactly)
+                && measure_result_length < measure_length)
+                return measure_length;
+            else
+                return measure_result_length;
+        };
+
+        const Size result_size(
+            calculate_final_length(layout_params->width, measure_size.width, measure_result.width),
+            calculate_final_length(layout_params->height, measure_size.height, measure_result.height)
+        );
+
+        return result_size + padding_size;
+    }
+
     void TextControl::RequestChangeCaretPosition(unsigned position)
     {
 

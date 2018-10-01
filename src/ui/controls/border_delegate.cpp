@@ -1,7 +1,19 @@
 #include "border_delegate.h"
+#include "graph/graph.h"
 
 namespace cru::ui::controls
 {
+    BorderProperty::Ptr BorderProperty::Create()
+    {
+        return std::make_shared<BorderProperty>(graph::CreateSolidBrush(D2D1::ColorF(D2D1::ColorF::Black)));
+    }
+
+    BorderProperty::BorderProperty(Microsoft::WRL::ComPtr<ID2D1Brush> brush)
+        : brush_(std::move(brush))
+    {
+
+    }
+
     void BorderProperty::SetBrush(Microsoft::WRL::ComPtr<ID2D1Brush> brush)
     {
         brush_ = std::move(brush);
@@ -33,7 +45,7 @@ namespace cru::ui::controls
     }
 
     BorderDelegate::BorderDelegate(Control* control)
-        : BorderDelegate(control, std::make_shared<BorderProperty>())
+        : BorderDelegate(control, BorderProperty::Create())
     {
 
     }

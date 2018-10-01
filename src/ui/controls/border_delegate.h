@@ -8,10 +8,7 @@ namespace cru::ui::controls
     {
     public:
         using Ptr = std::shared_ptr<BorderProperty>;
-        static Ptr Create()
-        {
-            return std::make_shared<BorderProperty>();
-        }
+        static Ptr Create();
 
         constexpr static auto brush_property_name = L"Brush";
         constexpr static auto width_property_name = L"Width";
@@ -20,6 +17,7 @@ namespace cru::ui::controls
         constexpr static auto radius_y_property_name = L"RadiusY";
 
         BorderProperty() = default;
+        explicit BorderProperty(Microsoft::WRL::ComPtr<ID2D1Brush> brush);
         BorderProperty(const BorderProperty& other) = delete;
         BorderProperty(BorderProperty&& other) = delete;
         BorderProperty& operator=(const BorderProperty& other) = delete;
