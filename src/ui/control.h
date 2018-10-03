@@ -11,6 +11,7 @@
 #include "ui_base.h"
 #include "layout_base.h"
 #include "events/ui_event.h"
+#include "border_property.h"
 
 namespace cru
 {
@@ -25,6 +26,16 @@ namespace cru
         {
             //The lefttop relative to the ancestor.
             Point lefttop_position_absolute;
+        };
+
+
+        enum class RectRange
+        {
+            Content, // content excluding padding, border and margin
+            Padding, // only including content and padding
+            HalfBorder, // including content, padding and half border
+            FullBorder, // including content, padding and full border
+            Margin // including content, padding, border and margin
         };
 
 
@@ -170,6 +181,26 @@ namespace cru
                 return &layout_params_;
             }
 
+            Rect GetRect(RectRange range);
+
+
+            //*************** region: border ***************
+
+            BorderProperty::Ptr GetBorderProperty() const
+            {
+                return border_property_;
+            }
+
+            void SetBorderProperty(BorderProperty::Ptr border_property);
+
+            bool IsBordered() const
+            {
+                return is_bordered_;
+            }
+
+            void SetBordered(bool bordered);
+
+
             //*************** region: additional properties ***************
             template <typename T>
             std::optional<T> GetAdditionalProperty(const String& key)
@@ -237,8 +268,11 @@ namespace cru
             //Invoked when the control is detached to a window. Overrides should invoke base.
             virtual void OnDetachToWindow(Window* window);
 
-            virtual void OnDraw(ID2D1DeviceContext* device_context);
+        private:
+            void OnDraw(ID2D1DeviceContext* device_context);
 
+        protected:
+            virtual void OnDrawContent(ID2D1DeviceContext* device_context);
 
             // For a event, the window event system will first dispatch event to core functions.
             // Therefore for particular controls, you should do essential actions in core functions,
@@ -306,11 +340,11 @@ namespace cru
             void RaiseLoseFocusEvent(events::FocusChangeEventArgs& args);
 
             //*************** region: layout ***************
-            virtual Size OnMeasure(const Size& available_size);
-            virtual void OnLayout(const Rect& rect);
+            Size OnMeasureCore(const Size& available_size);
+            void OnLayoutCore(const Rect& rect);
 
-            Size DefaultMeasureWithPadding(const Size& available_size, const Thickness& padding);
-            void DefaultLayoutWithPadding(const Rect& rect, const Thickness& padding);
+            virtual Size OnMeasureContent(const Size& available_size);
+            virtual void OnLayoutContent(const Rect& rect);
 
         private:
             // Only for layout manager to use.
@@ -358,6 +392,10 @@ namespace cru
             BasicLayoutParams layout_params_{};
             Size desired_size_ = Size::Zero();
 
+            bool is_bordered_ = false;
+            BorderProperty::Ptr border_property_;
+            PropertyChangedNotifyObject::PropertyChangedHandlerPtr border_property_changed_listener_;
+
             std::unordered_map<String, std::any> additional_properties_{};
 
             bool is_focus_on_pressed_ = true;
@@ -379,5 +417,30 @@ namespace cru
             control->GetLayoutParams()->height = height;
             return control;
         }
+
+
+        template <typename TControl, typename... Args>
+        TControl* CreateWithLayout(const Thickness& padding, const Thickness& margin, Args&&... args)
+        {
+            static_assert(std::is_base_of_v<Control, TControl>, "TControl is not a control class.");
+            TControl* control = TControl::Create(std::forward<Args>(args)...);
+            control->GetLayoutParams()->padding = padding;
+            control->GetLayoutParams()->margin = margin;
+            return control;
+        }
+
+        template <typename TControl, typename... Args>
+        TControl* CreateWithLayout(const LayoutSideParams& width, const LayoutSideParams& height, const Thickness& padding, const Thickness& margin, Args&&... args)
+        {
+            static_assert(std::is_base_of_v<Control, TControl>, "TControl is not a control class.");
+            TControl* control = TControl::Create(std::forward<Args>(args)...);
+            control->GetLayoutParams()->width = width;
+            control->GetLayoutParams()->height = height;
+            control->GetLayoutParams()->padding = padding;
+            control->GetLayoutParams()->margin = margin;
+            return control;
+        }
+
+        constexpr std::initializer_list<Control*> ControlList(std::initializer_list<Control*> &&li) { return li; }
     }
 }

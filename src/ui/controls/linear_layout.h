@@ -32,8 +32,8 @@ namespace cru::ui::controls
         ~LinearLayout() override = default;
 
     protected:
-        Size OnMeasure(const Size& available_size) override;
-        void OnLayout(const Rect& rect) override;
+        Size OnMeasureContent(const Size& available_size) override;
+        void OnLayoutContent(const Rect& rect) override;
 
     private:
         Orientation orientation_;

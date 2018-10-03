@@ -1,19 +1,20 @@
 #include "control.h"
 
-#include <string>
-#include <algorithm>
-#include <chrono>
-
 #include "window.h"
-#include "timer.h"
-#include "debug_base.h"
+#include "graph/graph.h"
 
 namespace cru {
     namespace ui {
         using namespace events;
 
         Control::Control(const bool container) :
-            is_container_(container)
+            is_container_(container),
+            border_property_changed_listener_(CreatePtr<PropertyChangedNotifyObject::PropertyChangedHandlerPtr>([this](const StringView& property_name)
+        {
+            if (property_name == BorderProperty::width_property_name)
+                InvalidateLayout();
+            Repaint();
+        }))
         {
 
         }
@@ -209,8 +210,15 @@ namespace cru {
             device_context->SetTransform(old_transform * D2D1::Matrix3x2F::Translation(position.x, position.y));
 
             OnDraw(device_context);
-            DrawEventArgs args(this, this, device_context);
-            draw_event.Raise(args);
+
+            const auto rect = GetRect(RectRange::Content);
+            graph::WithTransform(device_context, D2D1::Matrix3x2F::Translation(rect.left, rect.top),
+                [this](ID2D1DeviceContext* device_context)
+            {
+                OnDrawContent(device_context);
+                DrawEventArgs args(this, this, device_context);
+                draw_event.Raise(args);
+            });
 
             for (auto child : GetChildren())
                 child->Draw(device_context);
@@ -250,14 +258,14 @@ namespace cru {
 
         void Control::Measure(const Size& available_size)
         {
-            SetDesiredSize(OnMeasure(available_size));
+            SetDesiredSize(OnMeasureCore(available_size));
         }
 
         void Control::Layout(const Rect& rect)
         {
             SetPositionRelative(rect.GetLeftTop());
             SetSize(rect.GetSize());
-            OnLayout(Rect(Point::Zero(), rect.GetSize()));
+            OnLayoutCore(Rect(Point::Zero(), rect.GetSize()));
         }
 
         Size Control::GetDesiredSize() const
@@ -268,6 +276,77 @@ namespace cru {
         void Control::SetDesiredSize(const Size& desired_size)
         {
             desired_size_ = desired_size;
+        }
+
+        inline void Shrink(Rect& rect, const Thickness& thickness)
+        {
+            rect.left += thickness.left;
+            rect.top += thickness.top;
+            rect.width -= thickness.GetHorizontalTotal();
+            rect.height -= thickness.GetVerticalTotal();
+        }
+
+        Rect Control::GetRect(RectRange range)
+        {
+            if (GetSize() == Size::Zero())
+                return Rect();
+
+            const auto layout_params = GetLayoutParams();
+
+            auto result = Rect(Point::Zero(), GetSize());
+
+            if (range == RectRange::Margin)
+                return result;
+
+            Shrink(result, layout_params->margin);
+
+            if (range == RectRange::FullBorder)
+                return result;
+
+            if (is_bordered_)
+                Shrink(result, Thickness(border_property_->GetStrokeWidth() / 2.0f));
+
+            if (range == RectRange::HalfBorder)
+                return result;
+
+            if (is_bordered_)
+                Shrink(result, Thickness(border_property_->GetStrokeWidth() / 2.0f));
+
+            if (range == RectRange::Padding)
+                return result;
+
+            Shrink(result, layout_params->padding);
+
+            return result;
+        }
+
+        void Control::SetBorderProperty(BorderProperty::Ptr border_property)
+        {
+            if (border_property == nullptr)
+                throw std::invalid_argument("Border property mustn't be null.");
+
+            if (border_property_ != nullptr)
+                border_property_->RemovePropertyChangedListener(border_property_changed_listener_);
+            border_property_ = std::move(border_property);
+            border_property_->AddPropertyChangedListener(border_property_changed_listener_);
+            InvalidateLayout();
+            Repaint();
+        }
+
+        void Control::SetBordered(const bool bordered)
+        {
+            if (bordered != is_bordered_)
+            {
+                if (bordered && border_property_ == nullptr) // create border property.
+                {
+                    border_property_ = BorderProperty::Create();
+                    border_property_->AddPropertyChangedListener(border_property_changed_listener_);
+                }
+
+                is_bordered_ = bordered;
+                InvalidateLayout();
+                Repaint();
+            }
         }
 
         void Control::OnAddChild(Control* child)
@@ -304,16 +383,38 @@ namespace cru {
             window_ = nullptr;
         }
 
-        void Control::OnDraw(ID2D1DeviceContext * device_context)
+        inline D2D1_RECT_F Convert(const Rect& rect)
+        {
+            return D2D1::RectF(rect.left, rect.top, rect.left + rect.width, rect.top + rect.height);
+        }
+
+        void Control::OnDraw(ID2D1DeviceContext* device_context)
         {
 #ifdef CRU_DEBUG_DRAW_CONTROL_BORDER
             if (GetWindow()->GetDebugDrawControlBorder())
             {
                 auto brush = Application::GetInstance()->GetDebugBorderBrush();
                 const auto size = GetSize();
-                device_context->DrawRectangle(D2D1::RectF(0, 0, size.width, size.height), brush.Get());
+                device_context->DrawRectangle(Convert(GetRect(RectRange::Margin)), brush.Get());
             }
 #endif
+
+            if (is_bordered_)
+                device_context->DrawRoundedRectangle(
+                    D2D1::RoundedRect(
+                        Convert(GetRect(RectRange::HalfBorder)),
+                        border_property_->GetRadiusX(),
+                        border_property_->GetRadiusY()
+                    ),
+                    border_property_->GetBrush().Get(),
+                    border_property_->GetStrokeWidth(),
+                    border_property_->GetStrokeStyle().Get()
+                );
+        }
+
+        void Control::OnDrawContent(ID2D1DeviceContext * device_context)
+        {
+
         }
 
         void Control::OnPositionChanged(PositionChangedEventArgs & args)
@@ -551,9 +652,34 @@ namespace cru {
             lose_focus_event.Raise(args);
         }
 
-        Size Control::OnMeasure(const Size& available_size)
+        inline Size ThicknessToSize(const Thickness& thickness)
+        {
+            return Size(thickness.left + thickness.right, thickness.top + thickness.bottom);
+        }
+
+        inline float AtLeast0(const float value)
+        {
+            return value < 0 ? 0 : value;
+        }
+
+        inline Size AtLeast0(const Size& size)
+        {
+            return Size(AtLeast0(size.width), AtLeast0(size.height));
+        }
+
+        Size Control::OnMeasureCore(const Size& available_size)
         {
             const auto layout_params = GetLayoutParams();
+
+            auto border_size = Size::Zero();
+            if (is_bordered_)
+            {
+                const auto border_width = border_property_->GetStrokeWidth();
+                border_size = Size(border_width, border_width);
+            }
+
+            const auto outer_size = ThicknessToSize(layout_params->padding) +
+                ThicknessToSize(layout_params->margin) + border_size;
 
             if (!layout_params->Validate())
                 throw std::runtime_error("LayoutParams is not valid. Please check it.");
@@ -576,21 +702,14 @@ namespace cru {
                 }
             };
 
-            const Size size_for_children(get_available_length_for_child(layout_params->width, available_size.width),
-                get_available_length_for_child(layout_params->height, available_size.height));
+            const auto size_for_children = AtLeast0(Size(
+                get_available_length_for_child(layout_params->width, available_size.width),
+                get_available_length_for_child(layout_params->height, available_size.height)
+            ) - outer_size);
 
-            auto max_child_size = Size::Zero();
-            ForeachChild([&](Control* control)
-            {
-                control->Measure(size_for_children);
-                const auto&& size = control->GetDesiredSize();
-                if (max_child_size.width < size.width)
-                    max_child_size.width = size.width;
-                if (max_child_size.height < size.height)
-                    max_child_size.height = size.height;
-            });
+            const auto actual_size_for_children = OnMeasureContent(size_for_children);
 
-            auto&& calculate_final_length = [](const LayoutSideParams& layout_length, const float length_for_children, const float max_child_length) -> float
+            auto&& calculate_final_length = [](const LayoutSideParams& layout_length, const float length_for_children, const float actual_length_for_children) -> float
             {
                 switch (layout_length.mode)
                 {
@@ -598,19 +717,52 @@ namespace cru {
                 case MeasureMode::Stretch:
                     return length_for_children;
                 case MeasureMode::Content:
-                    return max_child_length;
+                    return actual_length_for_children;
                 default:
                     UnreachableCode();
                 }
             };
 
             return Size(
-                calculate_final_length(layout_params->width, size_for_children.width, max_child_size.width),
-                calculate_final_length(layout_params->height, size_for_children.height, max_child_size.height)
-            );
+                calculate_final_length(layout_params->width, size_for_children.width, actual_size_for_children.width),
+                calculate_final_length(layout_params->height, size_for_children.height, actual_size_for_children.height)
+            ) + outer_size;
         }
 
-        void Control::OnLayout(const Rect& rect)
+        void Control::OnLayoutCore(const Rect& rect)
+        {
+            const auto layout_params = GetLayoutParams();
+
+            auto border_width = 0.0f;
+            if (is_bordered_)
+            {
+                border_width = border_property_->GetStrokeWidth();
+            }
+
+            OnLayoutContent(Rect(
+                rect.left + layout_params->padding.left + layout_params->margin.right + border_width,
+                rect.top + layout_params->padding.top + layout_params->margin.top + border_width,
+                rect.width - layout_params->padding.GetHorizontalTotal() - layout_params->margin.GetHorizontalTotal() + border_width * 2.0f,
+                rect.height - layout_params->padding.GetVerticalTotal() - layout_params->margin.GetVerticalTotal() + border_width * 2.0f
+            ));
+        }
+
+        Size Control::OnMeasureContent(const Size& available_size)
+        {
+            auto max_child_size = Size::Zero();
+            ForeachChild([&max_child_size, available_size](Control* control)
+            {
+                control->Measure(available_size);
+                const auto&& size = control->GetDesiredSize();
+                if (max_child_size.width < size.width)
+                    max_child_size.width = size.width;
+                if (max_child_size.height < size.height)
+                    max_child_size.height = size.height;
+            });
+            return max_child_size;
+        }
+
+        void Control::OnLayoutContent(const Rect& rect)
         {
             ForeachChild([rect](Control* control)
             {
@@ -635,119 +787,6 @@ namespace cru {
                 control->Layout(Rect(Point(
                     calculate_anchor(rect.left, layout_params->width.alignment, rect.width, size.width),
                     calculate_anchor(rect.top, layout_params->height.alignment, rect.height, size.height)
-                ), size));
-            });
-        }
-
-        inline Size ThicknessToSize(const Thickness& thickness)
-        {
-            return Size(thickness.left + thickness.right, thickness.top + thickness.bottom);
-        }
-
-        inline float AtLeast0(const float value)
-        {
-            return value < 0 ? 0 : value;
-        }
-
-        inline Size AtLeast0(const Size& size)
-        {
-            return Size(AtLeast0(size.width), AtLeast0(size.height));
-        }
-
-        Size Control::DefaultMeasureWithPadding(const Size& available_size, const Thickness& padding)
-        {
-            const auto layout_params = GetLayoutParams();
-            const auto padding_size = ThicknessToSize(padding);
-
-            if (!layout_params->Validate())
-                throw std::runtime_error("LayoutParams is not valid. Please check it.");
-
-            auto&& get_available_length_for_child = [](const LayoutSideParams& layout_length, const float available_length) -> float
-            {
-                switch (layout_length.mode)
-                {
-                case MeasureMode::Exactly:
-                {
-                    return std::min(layout_length.length, available_length);
-                }
-                case MeasureMode::Stretch:
-                case MeasureMode::Content:
-                {
-                    return available_length;
-                }
-                default:
-                    UnreachableCode();
-                }
-            };
-
-            Size size_for_children(get_available_length_for_child(layout_params->width, available_size.width),
-                get_available_length_for_child(layout_params->height, available_size.height));
-
-            size_for_children = AtLeast0(size_for_children - padding_size);
-
-            auto max_child_size = Size::Zero();
-            ForeachChild([&](Control* control)
-            {
-                control->Measure(size_for_children);
-                const auto&& size = control->GetDesiredSize();
-                if (max_child_size.width < size.width)
-                    max_child_size.width = size.width;
-                if (max_child_size.height < size.height)
-                    max_child_size.height = size.height;
-            });
-
-            auto&& calculate_final_length = [](const LayoutSideParams& layout_length, const float length_for_children, const float max_child_length) -> float
-            {
-                switch (layout_length.mode)
-                {
-                case MeasureMode::Exactly:
-                case MeasureMode::Stretch:
-                    return length_for_children;
-                case MeasureMode::Content:
-                    return max_child_length;
-                default:
-                    UnreachableCode();
-                }
-            };
-
-            return Size(
-                calculate_final_length(layout_params->width, size_for_children.width, max_child_size.width),
-                calculate_final_length(layout_params->height, size_for_children.height, max_child_size.height)
-            ) + padding_size;
-        }
-
-        void Control::DefaultLayoutWithPadding(const Rect& rect, const Thickness& padding)
-        {
-            const Rect final_rect(
-                rect.left + padding.left,
-                rect.top + padding.top,
-                rect.width - padding.left - padding.right,
-                rect.height - padding.top - padding.bottom
-            );
-
-            ForeachChild([final_rect](Control* control)
-            {
-                const auto layout_params = control->GetLayoutParams();
-                const auto size = control->GetDesiredSize();
-
-                auto&& calculate_anchor = [](const float anchor, const Alignment alignment, const float layout_length, const float control_length) -> float
-                {
-                    switch (alignment)
-                    {
-                    case Alignment::Center:
-                        return anchor + (layout_length - control_length) / 2;
-                    case Alignment::Start:
-                        return anchor;
-                    case Alignment::End:
-                        return anchor + layout_length - control_length;
-                    default:
-                        UnreachableCode();
-                    }
-                };
-
-                control->Layout(Rect(Point(
-                    calculate_anchor(final_rect.left, layout_params->width.alignment, final_rect.width, size.width),
-                    calculate_anchor(final_rect.top, layout_params->height.alignment, final_rect.height, size.height)
                 ), size));
             });
         }

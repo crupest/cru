@@ -211,7 +211,7 @@ namespace cru {
 
             //*************** region: layout ***************
 
-            Size OnMeasure(const Size& available_size) override;
+            Size OnMeasureContent(const Size& available_size) override;
 
 
             //*************** region: native messages ***************

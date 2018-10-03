@@ -53,6 +53,16 @@ namespace cru
             return Size(left.width - right.width, left.height - right.height);
         }
 
+        constexpr bool operator==(const Size& left, const Size& right)
+        {
+            return left.width == right.width && left.height == right.height;
+        }
+
+        constexpr bool operator!=(const Size& left, const Size& right)
+        {
+            return !(left == right);
+        }
+
         struct Rect
         {
             constexpr Rect() = default;
@@ -104,31 +114,6 @@ namespace cru
             float top = 0.0f;
             float width = 0.0f;
             float height = 0.0f;
-        };
-
-        struct Thickness
-        {
-            constexpr static Thickness Zero()
-            {
-                return Thickness(0);
-            }
-
-            constexpr Thickness() : Thickness(0) { }
-
-            constexpr explicit Thickness(const float width)
-                : left(width), top(width), right(width), bottom(width) { }
-
-            constexpr explicit Thickness(const float horizontal, const float vertical)
-                : left(horizontal), top(vertical), right(horizontal), bottom(vertical) { }
-
-            constexpr Thickness(const float left, const float top, const float right, const float bottom)
-                : left(left), top(top), right(right), bottom(bottom) { }
-
-
-            float left;
-            float top;
-            float right;
-            float bottom;
         };
 
         enum class MouseButton

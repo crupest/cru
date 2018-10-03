@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "ui/control.h"
 
@@ -40,11 +40,11 @@ namespace cru::ui::controls
         virtual void OnToggle(events::ToggleEventArgs& args);
 
     protected:
-        void OnDraw(ID2D1DeviceContext* device_context) override;
+        void OnDrawContent(ID2D1DeviceContext* device_context) override;
 
         void OnMouseClickCore(events::MouseButtonEventArgs& args) override;
 
-        Size OnMeasure(const Size& available_size) override;
+        Size OnMeasureContent(const Size& available_size) override;
 
     private:
         void RaiseToggleEvent(bool new_state);

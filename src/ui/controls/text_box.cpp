@@ -27,27 +27,22 @@ namespace cru::ui::controls
             Repaint();
         });
 
-        border_delegate_ = std::make_unique<BorderDelegate>(this);
+        SetBordered(true);
     }
 
     TextBox::~TextBox() = default;
 
-    void TextBox::OnDraw(ID2D1DeviceContext* device_context)
+    void TextBox::OnDrawContent(ID2D1DeviceContext* device_context)
     {
-        border_delegate_->Draw(device_context, GetSize());
-        const auto border_thickness = border_delegate_->GetBorderThickness();
-        graph::WithTransform(device_context, D2D1::Matrix3x2F::Translation(border_thickness.left, border_thickness.top), [this](ID2D1DeviceContext* device_context)
+        TextControl::OnDrawContent(device_context);
+        if (is_caret_show_)
         {
-            TextControl::OnDraw(device_context);
-            if (is_caret_show_)
-            {
-                const auto caret_half_width = Application::GetInstance()->GetCaretInfo().half_caret_width;
-                FLOAT x, y;
-                DWRITE_HIT_TEST_METRICS metrics{};
-                ThrowIfFailed(text_layout_->HitTestTextPosition(caret_position_, FALSE, &x, &y, &metrics));
-                device_context->FillRectangle(D2D1::RectF(metrics.left - caret_half_width, metrics.top, metrics.left + caret_half_width, metrics.top + metrics.height), caret_brush_.Get());
-            }
-        });
+            const auto caret_half_width = Application::GetInstance()->GetCaretInfo().half_caret_width;
+            FLOAT x, y;
+            DWRITE_HIT_TEST_METRICS metrics{};
+            ThrowIfFailed(text_layout_->HitTestTextPosition(caret_position_, FALSE, &x, &y, &metrics));
+            device_context->FillRectangle(D2D1::RectF(metrics.left - caret_half_width, metrics.top, metrics.left + caret_half_width, metrics.top + metrics.height), caret_brush_.Get());
+        }
     }
 
     void TextBox::OnGetFocusCore(events::FocusChangeEventArgs& args)
@@ -136,11 +131,6 @@ namespace cru::ui::controls
                 SetText(text);
             }
         }
-    }
-
-    Size TextBox::OnMeasure(const Size& available_size)
-    {
-        return TextMeasureWithPadding(available_size, border_delegate_->GetBorderThickness());
     }
 
     void TextBox::RequestChangeCaretPosition(const unsigned position)

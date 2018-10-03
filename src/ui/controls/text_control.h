@@ -68,7 +68,7 @@ namespace cru::ui::controls
 
     protected:
         void OnSizeChangedCore(events::SizeChangedEventArgs& args) override final;
-        void OnDraw(ID2D1DeviceContext* device_context) override;
+        void OnDrawContent(ID2D1DeviceContext* device_context) override;
 
         void OnMouseDownCore(events::MouseButtonEventArgs& args) override final;
         void OnMouseMoveCore(events::MouseEventArgs& args) override final;
@@ -76,9 +76,8 @@ namespace cru::ui::controls
 
         void OnLoseFocusCore(events::FocusChangeEventArgs& args) override;
 
-        Size OnMeasure(const Size& available_size) override;
+        Size OnMeasureContent(const Size& available_size) override;
 
-        Size TextMeasureWithPadding(const Size& available_size, const Thickness& padding);
 
         virtual void RequestChangeCaretPosition(unsigned position);
 
