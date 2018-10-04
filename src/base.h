@@ -116,6 +116,9 @@ namespace cru
     class PropertyChangedNotifyObject : public Object
     {
     public:
+        using PropertyChangedHandler = Function<void(const StringView&)>;
+        using PropertyChangedHandlerPtr = FunctionPtr<void(const StringView&)>;
+
         PropertyChangedNotifyObject() = default;
         PropertyChangedNotifyObject(const PropertyChangedNotifyObject& other) = delete;
         PropertyChangedNotifyObject(PropertyChangedNotifyObject&& other) = delete;
@@ -123,14 +126,14 @@ namespace cru
         PropertyChangedNotifyObject& operator = (PropertyChangedNotifyObject&& other) = delete;
         ~PropertyChangedNotifyObject() override = default;
 
-        void AddPropertyChangedListener(FunctionPtr<void(String)> listener);
+        void AddPropertyChangedListener(FunctionPtr<void(const StringView&)> listener);
 
-        void RemovePropertyChangedListener(const FunctionPtr<void(String)>& listener);
+        void RemovePropertyChangedListener(const FunctionPtr<void(const StringView&)>& listener);
 
     protected:
-        void RaisePropertyChangedEvent(String property_name);
+        void RaisePropertyChangedEvent(const StringView& property_name);
 
     private:
-        std::list<FunctionPtr<void(String)>> listeners_;
+        std::list<FunctionPtr<void(const StringView&)>> listeners_;
     };
 }

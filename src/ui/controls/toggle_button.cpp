@@ -1,4 +1,4 @@
-﻿#include "toggle_button.h"
+#include "toggle_button.h"
 
 #include <fmt/format.h>
 
@@ -83,9 +83,9 @@ namespace cru::ui::controls
 
     }
 
-    void ToggleButton::OnDraw(ID2D1DeviceContext* device_context)
+    void ToggleButton::OnDrawContent(ID2D1DeviceContext* device_context)
     {
-        Control::OnDraw(device_context);
+        Control::OnDrawContent(device_context);
         const auto size = GetSize();
         graph::WithTransform(device_context, D2D1::Matrix3x2F::Translation(size.width / 2, size.height / 2), [this](ID2D1DeviceContext* device_context)
         {
@@ -108,34 +108,11 @@ namespace cru::ui::controls
         Toggle();
     }
 
-    Size ToggleButton::OnMeasure(const Size& available_size)
+    Size ToggleButton::OnMeasureContent(const Size& available_size)
     {
-        const auto layout_params = GetLayoutParams();
-
-        auto&& get_measure_length = [](const LayoutSideParams& layout_length, const float available_length, const float fix_length) -> float
-        {
-            switch (layout_length.mode)
-            {
-            case MeasureMode::Exactly:
-            {
-                return std::max(std::min(layout_length.length, available_length), fix_length);
-            }
-            case MeasureMode::Stretch:
-            {
-                return std::max(available_length, fix_length);
-            }
-            case MeasureMode::Content:
-            {
-                return fix_length;
-            }
-            default:
-                UnreachableCode();
-            }
-        };
-
         const Size result_size(
-            get_measure_length(layout_params->width, available_size.width, half_width * 2 + stroke_width),
-            get_measure_length(layout_params->height, available_size.height, half_height * 2 + stroke_width)
+            half_width * 2 + stroke_width,
+            half_height * 2 + stroke_width
         );
 
         return result_size;

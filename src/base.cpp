@@ -18,12 +18,12 @@ namespace cru
         return result;
     }
 
-    void PropertyChangedNotifyObject::AddPropertyChangedListener(FunctionPtr<void(String)> listener)
+    void PropertyChangedNotifyObject::AddPropertyChangedListener(FunctionPtr<void(const StringView&)> listener)
     {
         listeners_.push_back(std::move(listener));
     }
 
-    void PropertyChangedNotifyObject::RemovePropertyChangedListener(const FunctionPtr<void(String)>& listener)
+    void PropertyChangedNotifyObject::RemovePropertyChangedListener(const FunctionPtr<void(const StringView&)>& listener)
     {
         for (auto i = listeners_.cbegin(); i != listeners_.cend(); ++i)
             if (*i == listener)
@@ -33,7 +33,7 @@ namespace cru
             }
     }
 
-    void PropertyChangedNotifyObject::RaisePropertyChangedEvent(String property_name)
+    void PropertyChangedNotifyObject::RaisePropertyChangedEvent(const StringView& property_name)
     {
         for (const auto& listener : listeners_)
             (*listener)(property_name);

@@ -1,6 +1,5 @@
 #pragma once
 
-#include "system_headers.h"
 #include <unordered_set>
 
 #include "base.h"
@@ -25,6 +24,40 @@ namespace cru
             Exactly,
             Content,
             Stretch
+        };
+
+        struct Thickness
+        {
+            constexpr static Thickness Zero()
+            {
+                return Thickness(0);
+            }
+
+            constexpr Thickness() : Thickness(0) { }
+
+            constexpr explicit Thickness(const float width)
+                : left(width), top(width), right(width), bottom(width) { }
+
+            constexpr explicit Thickness(const float horizontal, const float vertical)
+                : left(horizontal), top(vertical), right(horizontal), bottom(vertical) { }
+
+            constexpr Thickness(const float left, const float top, const float right, const float bottom)
+                : left(left), top(top), right(right), bottom(bottom) { }
+
+            float GetHorizontalTotal() const
+            {
+                return left + right;
+            }
+
+            float GetVerticalTotal() const
+            {
+                return top + bottom;
+            }
+
+            float left;
+            float top;
+            float right;
+            float bottom;
         };
 
         struct LayoutSideParams final
@@ -54,14 +87,7 @@ namespace cru
 
             constexpr bool Validate() const
             {
-                if (mode == MeasureMode::Exactly && length < 0.0)
-                {
-#ifdef CRU_DEBUG
-                    ::OutputDebugStringW(L"LayoutSideParams validation error: mode is Exactly but length is less than 0.\n");
-#endif
-                    return false;
-                }
-                return true;
+                return !(mode == MeasureMode::Exactly && length < 0.0);
             }
 
             float length = 0.0;
@@ -80,25 +106,13 @@ namespace cru
 
             bool Validate() const
             {
-                if (!width.Validate())
-                {
-#ifdef CRU_DEBUG
-                    ::OutputDebugStringW(L"Width(LayoutSideParams) is not valid.");
-#endif
-                    return false;
-                }
-                if (!height.Validate())
-                {
-#ifdef CRU_DEBUG
-                    ::OutputDebugStringW(L"Height(LayoutSideParams) is not valid.");
-#endif
-                    return false;
-                }
-                return true;
+                return width.Validate() && height.Validate();
             }
 
             LayoutSideParams width;
             LayoutSideParams height;
+            Thickness padding;
+            Thickness margin;
         };
 
 

@@ -354,8 +354,8 @@ namespace cru
 
         void Window::Relayout()
         {
-            OnMeasure(GetSize());
-            OnLayout(Rect(Point::Zero(), GetSize()));
+            OnMeasureCore(GetSize());
+            OnLayoutCore(Rect(Point::Zero(), GetSize()));
         }
 
         void Window::RefreshControlList() {
@@ -462,7 +462,7 @@ namespace cru
             return ::PeekMessageW(&msg, hwnd_, message, message, PM_NOREMOVE) != 0;
         }
 
-        Size Window::OnMeasure(const Size& available_size)
+        Size Window::OnMeasureContent(const Size& available_size)
         {
             ForeachChild([available_size](Control* control)
             {
@@ -498,9 +498,10 @@ namespace cru
             ValidateRect(hwnd_, nullptr);
         }
 
-        void Window::OnResizeInternal(int new_width, int new_height) {
+        void Window::OnResizeInternal(const int new_width, const int new_height) {
             render_target_->ResizeBuffer(new_width, new_height);
-            Relayout();
+            if (!(new_width == 0 && new_height == 0))
+                Relayout();
         }
 
         void Window::OnSetFocusInternal()

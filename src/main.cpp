@@ -5,9 +5,7 @@
 #include "ui/controls/text_block.h"
 #include "ui/controls/toggle_button.h"
 #include "ui/controls/button.h"
-#include "ui/controls/margin_container.h"
 #include "ui/controls/text_box.h"
-#include "ui/controls/border.h"
 
 using cru::String;
 using cru::Application;
@@ -15,14 +13,13 @@ using cru::ui::Window;
 using cru::ui::Alignment;
 using cru::ui::LayoutSideParams;
 using cru::ui::Thickness;
+using cru::ui::ControlList;
 using cru::ui::CreateWithLayout;
 using cru::ui::controls::LinearLayout;
 using cru::ui::controls::TextBlock;
 using cru::ui::controls::ToggleButton;
 using cru::ui::controls::Button;
-using cru::ui::controls::MarginContainer;
 using cru::ui::controls::TextBox;
-using cru::ui::controls::Border;
 
 int APIENTRY wWinMain(
     HINSTANCE hInstance,
@@ -31,6 +28,7 @@ int APIENTRY wWinMain(
     int       nCmdShow) {
 
     Application application(hInstance);
+
     Window window;
     /*
     window.native_message_event.AddHandler([](cru::ui::events::WindowNativeMessageEventArgs& args)
@@ -152,18 +150,18 @@ int APIENTRY wWinMain(
     ));
     */
 
-    window.AddChild(
-        Border::Create({
-            MarginContainer::Create(Thickness(50, 50), {
-                LinearLayout::Create(LinearLayout::Orientation::Vertical, {
-                    Button::Create({
-                        TextBlock::Create(L"Button")
-                    }),
-                    TextBox::Create()
-                })
-            })
-        })
-    );
+    const auto linear_layout = CreateWithLayout<LinearLayout>(Thickness(50, 50), Thickness(50, 50), LinearLayout::Orientation::Vertical, ControlList({
+            Button::Create({
+                TextBlock::Create(L"Button")
+            }),
+            TextBox::Create()
+        }));
+
+    linear_layout->SetBordered(true);
+
+    window.AddChild(linear_layout);
+
+    //window.SetDebugDrawControlBorder(true);
 
     window.Show();
 
