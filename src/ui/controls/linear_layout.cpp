@@ -100,7 +100,7 @@ namespace cru::ui::controls
         ForeachChild([this, &current_main_side_anchor, rect](Control* control)
         {
             const auto layout_params = control->GetLayoutParams();
-            const auto size = control->GetSize();
+            const auto size = control->GetDesiredSize();
             const auto alignment = orientation_ == Orientation::Horizontal ? layout_params->height.alignment : layout_params->width.alignment;
 
             auto&& calculate_secondary_side_anchor = [alignment](const float layout_length, const float control_length) -> float

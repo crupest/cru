@@ -354,8 +354,8 @@ namespace cru
 
         void Window::Relayout()
         {
-            OnMeasureContent(GetSize());
-            OnLayoutContent(Rect(Point::Zero(), GetSize()));
+            OnMeasureCore(GetSize());
+            OnLayoutCore(Rect(Point::Zero(), GetSize()));
         }
 
         void Window::RefreshControlList() {

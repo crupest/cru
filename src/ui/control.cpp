@@ -286,7 +286,7 @@ namespace cru {
             rect.height -= thickness.GetVerticalTotal();
         }
 
-        Rect Control::GetRect(RectRange range)
+        Rect Control::GetRect(const RectRange range)
         {
             if (GetSize() == Size::Zero())
                 return Rect();
@@ -400,9 +400,11 @@ namespace cru {
 #endif
 
             if (is_bordered_)
+            {
+                const auto border_rect = GetRect(RectRange::HalfBorder);
                 device_context->DrawRoundedRectangle(
                     D2D1::RoundedRect(
-                        Convert(GetRect(RectRange::HalfBorder)),
+                        Convert(border_rect),
                         border_property_->GetRadiusX(),
                         border_property_->GetRadiusY()
                     ),
@@ -410,6 +412,7 @@ namespace cru {
                     border_property_->GetStrokeWidth(),
                     border_property_->GetStrokeStyle().Get()
                 );
+            }
         }
 
         void Control::OnDrawContent(ID2D1DeviceContext * device_context)
@@ -675,7 +678,7 @@ namespace cru {
             if (is_bordered_)
             {
                 const auto border_width = border_property_->GetStrokeWidth();
-                border_size = Size(border_width, border_width);
+                border_size = Size(border_width * 2.0f, border_width * 2.0f);
             }
 
             const auto outer_size = ThicknessToSize(layout_params->padding) +
@@ -723,10 +726,12 @@ namespace cru {
                 }
             };
 
-            return Size(
+            const auto final_size = Size(
                 calculate_final_length(layout_params->width, size_for_children.width, actual_size_for_children.width),
                 calculate_final_length(layout_params->height, size_for_children.height, actual_size_for_children.height)
             ) + outer_size;
+
+            return final_size;
         }
 
         void Control::OnLayoutCore(const Rect& rect)
@@ -739,12 +744,14 @@ namespace cru {
                 border_width = border_property_->GetStrokeWidth();
             }
 
-            OnLayoutContent(Rect(
+            const Rect content_rect(
                 rect.left + layout_params->padding.left + layout_params->margin.right + border_width,
                 rect.top + layout_params->padding.top + layout_params->margin.top + border_width,
-                rect.width - layout_params->padding.GetHorizontalTotal() - layout_params->margin.GetHorizontalTotal() + border_width * 2.0f,
-                rect.height - layout_params->padding.GetVerticalTotal() - layout_params->margin.GetVerticalTotal() + border_width * 2.0f
-            ));
+                rect.width - layout_params->padding.GetHorizontalTotal() - layout_params->margin.GetHorizontalTotal() - border_width * 2.0f,
+                rect.height - layout_params->padding.GetVerticalTotal() - layout_params->margin.GetVerticalTotal() - border_width * 2.0f
+            );
+
+            OnLayoutContent(content_rect);
         }
 
         Size Control::OnMeasureContent(const Size& available_size)
