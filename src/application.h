@@ -34,6 +34,15 @@ namespace cru
         float half_caret_width;
     };
 
+#ifdef CRU_DEBUG_LAYOUT
+    struct DebugLayoutResource
+    {
+        Microsoft::WRL::ComPtr<ID2D1Brush> out_border_brush;
+        Microsoft::WRL::ComPtr<ID2D1Brush> margin_brush;
+        Microsoft::WRL::ComPtr<ID2D1Brush> padding_brush;
+    };
+#endif
+
     class GodWindow : public Object
     {
     public:
@@ -111,10 +120,10 @@ namespace cru
             return caret_info_;
         }
 
-#ifdef CRU_DEBUG_DRAW_CONTROL_BORDER
-        Microsoft::WRL::ComPtr<ID2D1Brush> GetDebugBorderBrush() const
+#ifdef CRU_DEBUG_LAYOUT
+        const DebugLayoutResource* GetDebugLayoutResource() const
         {
-            return debug_border_brush_;
+            return &debug_layout_resource_;
         }
 #endif
 
@@ -128,8 +137,8 @@ namespace cru
 
         std::unique_ptr<GodWindow> god_window_;
 
-#ifdef CRU_DEBUG_DRAW_CONTROL_BORDER
-        Microsoft::WRL::ComPtr<ID2D1Brush> debug_border_brush_;
+#ifdef CRU_DEBUG_LAYOUT
+        DebugLayoutResource debug_layout_resource_;
 #endif
 
         CaretInfo caret_info_;

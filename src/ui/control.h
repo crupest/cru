@@ -399,6 +399,11 @@ namespace cru
             std::unordered_map<String, std::any> additional_properties_{};
 
             bool is_focus_on_pressed_ = true;
+
+#ifdef CRU_DEBUG_LAYOUT
+            Microsoft::WRL::ComPtr<ID2D1Geometry> margin_geometry_;
+            Microsoft::WRL::ComPtr<ID2D1Geometry> padding_geometry_;
+#endif
         };
 
         // Find the lowest common ancestor.
