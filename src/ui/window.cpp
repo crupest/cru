@@ -439,12 +439,12 @@ namespace cru
             }
         }
 
-#ifdef CRU_DEBUG_DRAW_CONTROL_BORDER
-        void Window::SetDebugDrawControlBorder(const bool value)
+#ifdef CRU_DEBUG_LAYOUT
+        void Window::SetDebugLayout(const bool value)
         {
-            if (debug_draw_control_border_ != value)
+            if (debug_layout_ != value)
             {
-                debug_draw_control_border_ = value;
+                debug_layout_ = value;
                 Repaint();
             }
         }
@@ -501,7 +501,7 @@ namespace cru
         void Window::OnResizeInternal(const int new_width, const int new_height) {
             render_target_->ResizeBuffer(new_width, new_height);
             if (!(new_width == 0 && new_height == 0))
-                Relayout();
+                InvalidateLayout();
         }
 
         void Window::OnSetFocusInternal()

@@ -229,8 +229,7 @@ namespace cru::ui::controls
     void TextControl::OnTextChangedCore(const String& old_text, const String& new_text)
     {
         RecreateTextLayout();
-        if (const auto window = GetWindow())
-            window->Relayout();
+        InvalidateLayout();
         Repaint();
     }
 

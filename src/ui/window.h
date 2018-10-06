@@ -184,13 +184,13 @@ namespace cru {
             Control* ReleaseCurrentMouseCapture();
 
             //*************** region: debug ***************
-#ifdef CRU_DEBUG_DRAW_CONTROL_BORDER
-            bool GetDebugDrawControlBorder() const
+#ifdef CRU_DEBUG_LAYOUT
+            bool IsDebugLayout() const
             {
-                return debug_draw_control_border_;
+                return debug_layout_;
             }
 
-            void SetDebugDrawControlBorder(bool value);
+            void SetDebugLayout(bool value);
 #endif
 
         public:
@@ -276,8 +276,8 @@ namespace cru {
 
             Control* mouse_capture_control_ = nullptr;
 
-#ifdef CRU_DEBUG_DRAW_CONTROL_BORDER
-            bool debug_draw_control_border_ = false;
+#ifdef CRU_DEBUG_LAYOUT
+            bool debug_layout_ = false;
 #endif
         };
     }

@@ -2,6 +2,7 @@
 
 #include "window.h"
 #include "graph/graph.h"
+#include "exception.h"
 
 namespace cru {
     namespace ui {
@@ -390,12 +391,15 @@ namespace cru {
 
         void Control::OnDraw(ID2D1DeviceContext* device_context)
         {
-#ifdef CRU_DEBUG_DRAW_CONTROL_BORDER
-            if (GetWindow()->GetDebugDrawControlBorder())
+#ifdef CRU_DEBUG_LAYOUT
+            if (GetWindow()->IsDebugLayout())
             {
-                auto brush = Application::GetInstance()->GetDebugBorderBrush();
-                const auto size = GetSize();
-                device_context->DrawRectangle(Convert(GetRect(RectRange::Margin)), brush.Get());
+                const auto resource = Application::GetInstance()->GetDebugLayoutResource();
+                if (padding_geometry_ != nullptr)
+                    device_context->FillGeometry(padding_geometry_.Get(), resource->padding_brush.Get());
+                if (margin_geometry_ != nullptr)
+                    device_context->FillGeometry(margin_geometry_.Get(), resource->margin_brush.Get());
+                device_context->DrawRectangle(Convert(GetRect(RectRange::Margin)), resource->out_border_brush.Get());
             }
 #endif
 
@@ -434,9 +438,31 @@ namespace cru {
 
         }
 
+        namespace
+        {
+            Microsoft::WRL::ComPtr<ID2D1Geometry> CalculateSquareRingGeometry(const Rect& out, const Rect& in)
+            {
+                const auto d2d1_factory = graph::GraphManager::GetInstance()->GetD2D1Factory();
+                Microsoft::WRL::ComPtr<ID2D1RectangleGeometry> out_geometry;
+                ThrowIfFailed(d2d1_factory->CreateRectangleGeometry(Convert(out), &out_geometry));
+                Microsoft::WRL::ComPtr<ID2D1RectangleGeometry> in_geometry;
+                ThrowIfFailed(d2d1_factory->CreateRectangleGeometry(Convert(in), &in_geometry));
+                Microsoft::WRL::ComPtr<ID2D1PathGeometry> result_geometry;
+                ThrowIfFailed(d2d1_factory->CreatePathGeometry(&result_geometry));
+                Microsoft::WRL::ComPtr<ID2D1GeometrySink> sink;
+                ThrowIfFailed(result_geometry->Open(&sink));
+                ThrowIfFailed(out_geometry->CombineWithGeometry(in_geometry.Get(), D2D1_COMBINE_MODE_EXCLUDE, D2D1::Matrix3x2F::Identity(), sink.Get()));
+                ThrowIfFailed(sink->Close());
+                return result_geometry;
+            }
+        }
+
         void Control::OnSizeChangedCore(SizeChangedEventArgs & args)
         {
-
+#ifdef CRU_DEBUG_LAYOUT
+            margin_geometry_ = CalculateSquareRingGeometry(GetRect(RectRange::Margin), GetRect(RectRange::FullBorder));
+            padding_geometry_ = CalculateSquareRingGeometry(GetRect(RectRange::Padding), GetRect(RectRange::Content));
+#endif
         }
 
         void Control::RaisePositionChangedEvent(PositionChangedEventArgs& args)

@@ -104,7 +104,7 @@ int APIENTRY wWinMain(
         const auto toggle_button = ToggleButton::Create();
         toggle_button->toggle_event.AddHandler([&window](cru::ui::events::ToggleEventArgs& args)
         {
-            window.SetDebugDrawControlBorder(args.GetNewState());
+            window.SetDebugLayout(args.GetNewState());
         });
 
         inner_layout->AddChild(toggle_button);
@@ -161,7 +161,7 @@ int APIENTRY wWinMain(
 
     window.AddChild(linear_layout);
 
-    //window.SetDebugDrawControlBorder(true);
+    window.SetDebugLayout(true);
 
     window.Show();
 
