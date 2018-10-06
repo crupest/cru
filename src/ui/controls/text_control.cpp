@@ -162,18 +162,7 @@ namespace cru::ui::controls
         {
             const auto hit_test_result = TextLayoutHitTest(text_layout_.Get(), args.GetPoint(this), false).value();
             RequestChangeCaretPosition(hit_test_result);
-            if (hit_test_result > mouse_down_position_)
-            {
-                selected_range_ = TextRange(mouse_down_position_, hit_test_result - mouse_down_position_);
-            }
-            else if (hit_test_result < mouse_down_position_)
-            {
-                selected_range_ = TextRange(hit_test_result, mouse_down_position_ - hit_test_result);
-            }
-            else
-            {
-                selected_range_ = std::nullopt;
-            }
+            selected_range_ = TextRange::FromTwoSides(hit_test_result, mouse_down_position_);
             Repaint();
         }
     }
