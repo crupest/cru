@@ -501,7 +501,7 @@ namespace cru
         void Window::OnResizeInternal(const int new_width, const int new_height) {
             render_target_->ResizeBuffer(new_width, new_height);
             if (!(new_width == 0 && new_height == 0))
-                Relayout();
+                InvalidateLayout();
         }
 
         void Window::OnSetFocusInternal()

@@ -394,7 +394,6 @@ namespace cru {
             if (GetWindow()->GetDebugDrawControlBorder())
             {
                 auto brush = Application::GetInstance()->GetDebugBorderBrush();
-                const auto size = GetSize();
                 device_context->DrawRectangle(Convert(GetRect(RectRange::Margin)), brush.Get());
             }
 #endif
