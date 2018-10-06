@@ -1,5 +1,7 @@
 #pragma once
 
+#include <optional>
+
 
 namespace cru
 {
@@ -125,8 +127,24 @@ namespace cru
 
         struct TextRange
         {
+            constexpr static std::optional<TextRange> FromTwoSides(unsigned first, unsigned second)
+            {
+                if (first > second)
+                    return std::make_optional<TextRange>(second, first - second);
+                if (first < second)
+                    return std::make_optional<TextRange>(first, second - first);
+                return std::nullopt;
+            }
+
+            constexpr static std::pair<unsigned, unsigned> ToTwoSides(std::optional<TextRange> text_range, unsigned default_position = 0)
+            {
+                if (text_range.has_value())
+                    return std::make_pair(text_range.value().position, text_range.value().position + text_range.value().count);
+                return std::make_pair(default_position, default_position);
+            }
+
             constexpr TextRange() = default;
-            constexpr TextRange(const int position, const int count)
+            constexpr TextRange(const unsigned position, const unsigned count)
                 : position(position), count(count)
             {
 
@@ -135,5 +153,8 @@ namespace cru
             unsigned position = 0;
             unsigned count = 0;
         };
+
+        bool IsKeyDown(int virtual_code);
+        bool IsKeyToggled(int virtual_code);
     }
 }

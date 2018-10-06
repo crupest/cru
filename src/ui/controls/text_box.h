@@ -36,7 +36,13 @@ namespace cru::ui::controls
         void OnKeyDownCore(events::KeyEventArgs& args) override final;
         void OnCharCore(events::CharEventArgs& args) override final;
 
-        void RequestChangeCaretPosition(unsigned position) override;
+        void RequestChangeCaretPosition(unsigned position) override final;
+
+    private:
+        // return true if left
+        bool GetCaretSelectionSide() const;
+        void ShiftLeftSelectionRange(int count);
+        void ShiftRightSelectionRange(int count);
 
     private:
         unsigned caret_position_ = 0;

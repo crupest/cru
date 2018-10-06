@@ -67,16 +67,47 @@ namespace cru::ui::controls
         Control::OnKeyDownCore(args);
         if (args.GetVirtualCode() == VK_LEFT && caret_position_ > 0)
         {
-            ClearSelection();
-            caret_position_--;
+            if (IsKeyDown(VK_SHIFT))
+            {
+                if (GetCaretSelectionSide())
+                    ShiftLeftSelectionRange(-1);
+                else
+                    ShiftRightSelectionRange(-1);
+            }
+            else
+            {
+                const auto selection = GetSelectedRange();
+                if (selection.has_value())
+                {
+                    ClearSelection();
+                    caret_position_ = selection.value().position;
+                }
+                else
+                    caret_position_--;
+            }
             Repaint();
         }
 
         if (args.GetVirtualCode() == VK_RIGHT && caret_position_ < GetText().size())
         {
-            ClearSelection();
-            caret_position_++;
-            Repaint();
+            if (IsKeyDown(VK_SHIFT))
+            {
+                if (GetCaretSelectionSide())
+                    ShiftLeftSelectionRange(1);
+                else
+                    ShiftRightSelectionRange(1);
+            }
+            else
+            {
+                const auto selection = GetSelectedRange();
+                if (selection.has_value())
+                {
+                    ClearSelection();
+                    caret_position_ = selection.value().position + selection.value().count;
+                }
+                else
+                    caret_position_++;
+            }
         }
     }
 
@@ -137,5 +168,34 @@ namespace cru::ui::controls
     {
         caret_position_ = position;
         Repaint();
+    }
+
+    bool TextBox::GetCaretSelectionSide() const
+    {
+        const auto selection = TextRange::ToTwoSides(GetSelectedRange(), caret_position_);
+        if (selection.first == caret_position_)
+            return true;
+        if (selection.second == caret_position_)
+            return false;
+        assert(false);
+        return true;
+    }
+
+    void TextBox::ShiftLeftSelectionRange(const int count)
+    {
+        const auto selection_range_side = TextRange::ToTwoSides(GetSelectedRange(), caret_position_);
+        int new_left = selection_range_side.first + count;
+        new_left = new_left < 0 ? 0 : new_left; // at least 0
+        caret_position_ = new_left;
+        SetSelectedRange(TextRange::FromTwoSides(static_cast<unsigned>(new_left), selection_range_side.second));
+    }
+
+    void TextBox::ShiftRightSelectionRange(const int count)
+    {
+        const auto selection_range_side = TextRange::ToTwoSides(GetSelectedRange(), caret_position_);
+        int new_right = selection_range_side.second + count;
+        new_right = new_right < 0 ? 0 : new_right; // at least 0
+        caret_position_ = new_right;
+        SetSelectedRange(TextRange::FromTwoSides(selection_range_side.first, static_cast<unsigned>(new_right)));
     }
 }
