@@ -346,6 +346,10 @@ namespace cru
             virtual Size OnMeasureContent(const Size& available_size);
             virtual void OnLayoutContent(const Rect& rect);
 
+
+            //*************** region: cursor ***************
+            //TODO!
+
         private:
             // Only for layout manager to use.
             // Check if the old position is updated to current position.

@@ -129,6 +129,7 @@
     <ClInclude Include="src\ui\border_property.h" />
     <ClInclude Include="src\ui\controls\text_control.h" />
     <ClCompile Include="src\ui\controls\toggle_button.cpp" />
+    <ClCompile Include="src\ui\cursor.cpp" />
     <ClCompile Include="src\ui\events\ui_event.cpp" />
     <ClCompile Include="src\ui\layout_base.cpp" />
     <ClCompile Include="src\ui\ui_base.cpp" />
@@ -152,6 +153,7 @@
     <ClInclude Include="src\ui\controls\text_box.h" />
     <ClCompile Include="src\ui\controls\text_control.cpp" />
     <ClInclude Include="src\ui\controls\toggle_button.h" />
+    <ClInclude Include="src\ui\cursor.h" />
     <ClInclude Include="src\ui\events\ui_event.h" />
     <ClInclude Include="src\ui\layout_base.h" />
     <ClInclude Include="src\ui\ui_base.h" />
