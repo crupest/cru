@@ -1,9 +1,0 @@
-stages:
-  - build
-
-build:
-  stage: build
-  script:
-    - ./script/build.ps1
-  tags:
-    - windows
