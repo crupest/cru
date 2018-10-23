@@ -1,5 +1,5 @@
 # CruUI
-branch `master`: [![pipeline status](https://gitlab.com/crupest/CruUI/badges/master/pipeline.svg)](https://gitlab.com/crupest/CruUI/commits/master)
+[![Build Status](https://dev.azure.com/crupest/CruUI/_apis/build/status/crupest.CruUI)](https://dev.azure.com/crupest/CruUI/_build/latest?definitionId=4)
 
 The project has migrated to [GitLab](https://gitlab.com/crupest/CruUI).
 Issues and pull requests can only be found on GitLab. Both of them are
