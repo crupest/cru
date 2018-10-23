@@ -12,10 +12,11 @@ variables:
   buildConfiguration: 'Debug'
 
 steps:
-- task: ShellScript@2
+- task: PowerShell@2
   inputs:
-    scriptPath: 'script/install_packages.ps1'
-    cwd: './'
+    targetType: 'filePath'
+    filePath: 'script/install_packages.ps1'
+    errorActionPreference: 'stop'
 
 - task: VSBuild@1
   inputs:
