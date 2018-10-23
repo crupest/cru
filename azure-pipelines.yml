@@ -8,10 +8,15 @@ pool:
 
 variables:
   solution: '**/*.sln'
-  buildPlatform: 'Any CPU'
-  buildConfiguration: 'Release'
+  buildPlatform: 'x64'
+  buildConfiguration: 'Debug'
 
 steps:
+- task: ShellScript@2
+  inputs:
+    scriptPath: 'script/install_packages.ps1'
+    cwd: './'
+
 - task: VSBuild@1
   inputs:
     solution: '$(solution)'
