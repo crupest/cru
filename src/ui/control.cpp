@@ -350,6 +350,16 @@ namespace cru {
             }
         }
 
+        void Control::SetCursor(const Cursor::Ptr& cursor)
+        {
+            
+        }
+
+        Cursor::Ptr Control::GetCursorInherit()
+        {
+
+        }
+
         void Control::OnAddChild(Control* child)
         {
             if (auto window = GetWindow())

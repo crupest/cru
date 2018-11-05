@@ -89,6 +89,17 @@ namespace cru {
 
     namespace
     {
+        CaretInfo GetSystemCaretInfo()
+        {
+            CaretInfo caret_info;
+            caret_info.caret_blink_duration = std::chrono::milliseconds(::GetCaretBlinkTime());
+            DWORD caret_width;
+            if (!::SystemParametersInfoW(SPI_GETCARETWIDTH, 0 , &caret_width, 0))
+                throw Win32Error(::GetLastError(), "Failed to get system caret width.");
+            caret_info.half_caret_width = caret_width / 2.0f;
+            return caret_info;
+        }
+
         void LoadSystemCursor(HINSTANCE h_instance)
         {
             ui::cursors[ui::cursor_arrow_key] = std::make_shared<ui::Cursor>(::LoadCursorW(h_instance, MAKEINTRESOURCEW(IDC_ARROW)), false);
@@ -118,11 +129,7 @@ namespace cru {
         debug_layout_resource_.padding_brush = graph::CreateSolidBrush(D2D1::ColorF(D2D1::ColorF::SkyBlue, 0.25f));
 #endif
 
-        caret_info_.caret_blink_duration = std::chrono::milliseconds(::GetCaretBlinkTime());
-        DWORD caret_width;
-        if (!::SystemParametersInfoW(SPI_GETCARETWIDTH, 0 , &caret_width, 0))
-            throw Win32Error(::GetLastError(), "Failed to get system caret width.");
-        caret_info_.half_caret_width = caret_width / 2.0f;
+        caret_info_ = GetSystemCaretInfo();
 
         LoadSystemCursor(h_instance);
     }

@@ -12,6 +12,7 @@
 #include "layout_base.h"
 #include "events/ui_event.h"
 #include "border_property.h"
+#include "cursor.h"
 
 namespace cru
 {
@@ -231,6 +232,18 @@ namespace cru
                 additional_properties_[key] = std::make_any<T>(std::move(value));
             }
 
+            
+            //*************** region: cursor ***************
+            Cursor::Ptr GetCursor() const
+            {
+                return cursor_;
+            }
+
+            void SetCursor(const Cursor::Ptr& cursor);
+
+            Cursor::Ptr GetCursorInherit();
+
+
             //*************** region: events ***************
             //Raised when mouse enter the control.
             events::MouseEvent mouse_enter_event;
@@ -346,10 +359,6 @@ namespace cru
             virtual Size OnMeasureContent(const Size& available_size);
             virtual void OnLayoutContent(const Rect& rect);
 
-
-            //*************** region: cursor ***************
-            //TODO!
-
         private:
             // Only for layout manager to use.
             // Check if the old position is updated to current position.
@@ -408,6 +417,8 @@ namespace cru
             Microsoft::WRL::ComPtr<ID2D1Geometry> margin_geometry_;
             Microsoft::WRL::ComPtr<ID2D1Geometry> padding_geometry_;
 #endif
+
+            Cursor::Ptr cursor_{};
         };
 
         // Find the lowest common ancestor.
