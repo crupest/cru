@@ -93,6 +93,8 @@ namespace cru {
             ~Window() override;
 
         public:
+            StringView GetControlType() const override final;
+
             //*************** region: handle ***************
 
             //Get the handle of the window. Return null if window is invalid.
