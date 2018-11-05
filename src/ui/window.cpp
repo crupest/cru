@@ -3,6 +3,7 @@
 #include "application.h"
 #include "graph/graph.h"
 #include "exception.h"
+#include "cursor.h"
 
 namespace cru
 {
@@ -91,6 +92,21 @@ namespace cru
             );
         }
 
+        namespace
+        {
+            Cursor::Ptr GetCursorInherit(Control* control)
+            {
+                while (control != nullptr)
+                {
+                    const auto cursor = control->GetCursor();
+                    if (cursor != nullptr)
+                        return cursor;
+                    control = control->GetParent();
+                }
+                return cursors::arrow;
+            }
+        }
+
         Window::Window() : Control(WindowConstructorTag{}, this), control_list_({ this }) {
             const auto app = Application::GetInstance();
             hwnd_ = CreateWindowEx(0,
@@ -106,6 +122,8 @@ namespace cru
             app->GetWindowManager()->RegisterWindow(hwnd_, this);
 
             render_target_ = app->GetGraphManager()->CreateWindowRenderTarget(hwnd_);
+
+            SetCursor(cursors::arrow);
         }
 
         Window::~Window() {
@@ -442,6 +460,14 @@ namespace cru
             }
         }
 
+        void Window::UpdateCursor()
+        {
+            if (IsWindowValid() && mouse_hover_control_ != nullptr)
+            {
+                SetCursorInternal(GetCursorInherit(mouse_hover_control_)->GetHandle());
+            }
+        }
+
 #ifdef CRU_DEBUG_LAYOUT
         void Window::SetDebugLayout(const bool value)
         {
@@ -463,6 +489,16 @@ namespace cru
         {
             MSG msg;
             return ::PeekMessageW(&msg, hwnd_, message, message, PM_NOREMOVE) != 0;
+        }
+
+        void Window::SetCursorInternal(HCURSOR cursor)
+        {
+            if (IsWindowValid())
+            {
+                ::SetClassLongPtrW(GetWindowHandle(), GCLP_HCURSOR, reinterpret_cast<LONG_PTR>(cursor));
+                if (mouse_hover_control_ != nullptr)
+                    ::SetCursor(cursor);
+            }
         }
 
         Size Window::OnMeasureContent(const Size& available_size)
@@ -618,7 +654,10 @@ namespace cru
                 if (old_control != nullptr) // if last mouse-hover-on control exists
                     DispatchEvent(old_control, &Control::RaiseMouseLeaveEvent, lowest_common_ancestor); // dispatch mouse leave event.
                 if (new_control != nullptr)
+                {
                     DispatchEvent(new_control, &Control::RaiseMouseEnterEvent, lowest_common_ancestor, point); // dispatch mouse enter event.
+                    UpdateCursor();
+                }
             }
         }
     }

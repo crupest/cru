@@ -20,6 +20,8 @@ namespace cru::ui::controls
 
         SetBordered(true);
         GetBorderProperty() = normal_border_;
+
+        SetCursor(cursors::hand);
     }
 
     StringView Button::GetControlType() const

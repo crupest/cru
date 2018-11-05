@@ -103,9 +103,9 @@ namespace cru {
 
         void LoadSystemCursor(HINSTANCE h_instance)
         {
-            ui::cursors[ui::cursor_arrow_key] = std::make_shared<ui::Cursor>(::LoadCursorW(h_instance, MAKEINTRESOURCEW(IDC_ARROW)), false);
-            ui::cursors[ui::cursor_hand_key] = std::make_shared<ui::Cursor>(::LoadCursorW(h_instance, MAKEINTRESOURCEW(IDC_HAND)), false);
-            ui::cursors[ui::cursor_i_beam_key] = std::make_shared<ui::Cursor>(::LoadCursorW(h_instance, MAKEINTRESOURCEW(IDC_IBEAM)), false);
+            ui::cursors::arrow = std::make_shared<ui::Cursor>(::LoadCursorW(nullptr, MAKEINTRESOURCEW(IDC_ARROW)), false);
+            ui::cursors::hand = std::make_shared<ui::Cursor>(::LoadCursorW(nullptr, MAKEINTRESOURCEW(IDC_HAND)), false);
+            ui::cursors::i_beam = std::make_shared<ui::Cursor>(::LoadCursorW(nullptr, MAKEINTRESOURCEW(IDC_IBEAM)), false);
         }
     }
 
@@ -137,8 +137,6 @@ namespace cru {
 
     Application::~Application()
     {
-        ui::cursors.clear();
-
         animation_manager_.reset();
         instance_ = nullptr;
     }

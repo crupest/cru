@@ -322,6 +322,14 @@ namespace cru {
             }
         }
 
+        void Control::SetCursor(const Cursor::Ptr& cursor)
+        {
+            cursor_ = cursor;
+            const auto window = GetWindow();
+            if (window && window->GetMouseHoverControl() == this)
+                window->UpdateCursor();
+        }
+
         void Control::OnAddChild(Control* child)
         {
             if (auto window = GetWindow())

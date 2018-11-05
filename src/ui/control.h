@@ -226,17 +226,15 @@ namespace cru
 
             
             //*************** region: cursor ***************
-            //TODO!
-            /*
+            // If cursor is set to null, then it uses parent's cursor.
+            // Window's cursor can't be null.
+
             Cursor::Ptr GetCursor() const
             {
                 return cursor_;
             }
 
             void SetCursor(const Cursor::Ptr& cursor);
-
-            Cursor::Ptr GetCursorInherit();
-            */
 
 
             //*************** region: events ***************

@@ -16,5 +16,10 @@ namespace cru::ui
             ::DestroyCursor(handle_);
     }
 
-    std::unordered_map<String, Cursor::Ptr> cursors;
+    namespace cursors
+    {
+        Cursor::Ptr arrow{};
+        Cursor::Ptr hand{};
+        Cursor::Ptr i_beam{};
+    }
 }

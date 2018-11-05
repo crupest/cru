@@ -143,7 +143,14 @@ namespace cru {
             //Return false if the message is not handled.
             bool HandleWindowMessage(HWND hwnd, int msg, WPARAM w_param, LPARAM l_param, LRESULT& result);
 
+            //*************** region: mouse ***************
+
             Point GetMousePosition();
+
+            Control* GetMouseHoverControl() const
+            {
+                return mouse_hover_control_;
+            }
 
             //*************** region: position and size ***************
 
@@ -187,6 +194,10 @@ namespace cru {
             Control* CaptureMouseFor(Control* control);
             Control* ReleaseCurrentMouseCapture();
 
+            
+            //*************** region: cursor ***************
+            void UpdateCursor();
+
             //*************** region: debug ***************
 #ifdef CRU_DEBUG_LAYOUT
             bool IsDebugLayout() const
@@ -211,6 +222,8 @@ namespace cru {
             RECT GetClientRectPixel();
 
             bool IsMessageInQueue(UINT message);
+
+            void SetCursorInternal(HCURSOR cursor);
 
 
             //*************** region: layout ***************
