@@ -161,8 +161,6 @@ int APIENTRY wWinMain(
 
     window.AddChild(linear_layout);
 
-    window.SetDebugLayout(true);
-
     window.Show();
 
     return application.Run();

@@ -201,11 +201,11 @@ namespace cru {
             const auto rect = GetRect(RectRange::Content);
             graph::WithTransform(device_context, D2D1::Matrix3x2F::Translation(rect.left, rect.top),
                 [this](ID2D1DeviceContext* device_context)
-            {
-                OnDrawContent(device_context);
-                DrawEventArgs args(this, this, device_context);
-                draw_event.Raise(args);
-            });
+                {
+                    OnDrawContent(device_context);
+                    DrawEventArgs args(this, this, device_context);
+                    draw_event.Raise(args);
+                });
 
             for (auto child : GetChildren())
                 child->Draw(device_context);
@@ -412,6 +412,7 @@ namespace cru {
 
         namespace
         {
+#ifdef CRU_DEBUG_LAYOUT
             Microsoft::WRL::ComPtr<ID2D1Geometry> CalculateSquareRingGeometry(const Rect& out, const Rect& in)
             {
                 const auto d2d1_factory = graph::GraphManager::GetInstance()->GetD2D1Factory();
@@ -427,6 +428,7 @@ namespace cru {
                 ThrowIfFailed(sink->Close());
                 return result_geometry;
             }
+#endif
         }
 
         void Control::OnSizeChangedCore(SizeChangedEventArgs & args)

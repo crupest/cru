@@ -77,8 +77,9 @@ namespace cru::ui::controls
     void TextControl::OnSizeChangedCore(events::SizeChangedEventArgs& args)
     {
         Control::OnSizeChangedCore(args);
-        ThrowIfFailed(text_layout_->SetMaxWidth(args.GetNewSize().width));
-        ThrowIfFailed(text_layout_->SetMaxHeight(args.GetNewSize().height));
+        const auto content = GetRect(RectRange::Content);
+        ThrowIfFailed(text_layout_->SetMaxWidth(content.width));
+        ThrowIfFailed(text_layout_->SetMaxHeight(content.height));
         Repaint();
     }
 
