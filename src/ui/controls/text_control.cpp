@@ -52,17 +52,24 @@ namespace cru::ui::controls
 
     void TextControl::SetSelectable(const bool is_selectable)
     {
-        if (!is_selectable)
+        if (is_selectable_ != is_selectable)
         {
-            if (is_selecting_)
+            if (!is_selectable)
             {
-                is_selecting_ = false;
-                GetWindow()->ReleaseCurrentMouseCapture();
+                if (is_selecting_)
+                {
+                    is_selecting_ = false;
+                    GetWindow()->ReleaseCurrentMouseCapture();
+                }
+                selected_range_ = std::nullopt;
+                Repaint();
             }
-            selected_range_ = std::nullopt;
-            Repaint();
+            is_selectable_ = is_selectable;
+            if (is_selectable) //TODO!!!
+                SetCursor(cursors::i_beam);
+            else
+                SetCursor(cursors::arrow);
         }
-        is_selectable_ = is_selectable;
     }
 
     void TextControl::SetSelectedRange(std::optional<TextRange> text_range)
