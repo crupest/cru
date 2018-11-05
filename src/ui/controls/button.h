@@ -9,6 +9,8 @@ namespace cru::ui::controls
     class Button : public Control
     {
     public:
+        static constexpr auto control_type = L"Button";
+
         static Button* Create(const std::initializer_list<Control*>& children = std::initializer_list<Control*>())
         {
             const auto button = new Button();
@@ -26,6 +28,8 @@ namespace cru::ui::controls
         Button& operator=(const Button& other) = delete;
         Button& operator=(Button&& other) = delete;
         ~Button() override = default;
+
+        StringView GetControlType() const override final;
 
     protected:
         void OnMouseClickBegin(MouseButton button) override final;

@@ -22,6 +22,11 @@ namespace cru::ui::controls
         GetBorderProperty() = normal_border_;
     }
 
+    StringView Button::GetControlType() const
+    {
+        return control_type;
+    }
+
     void Button::OnMouseClickBegin(MouseButton button)
     {
         GetBorderProperty() = pressed_border_;

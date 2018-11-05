@@ -7,6 +7,8 @@ namespace cru::ui::controls
     class ToggleButton : public Control
     {
     public:
+        static constexpr auto control_type = L"ToggleButton";
+
         static ToggleButton* Create()
         {
             return new ToggleButton();
@@ -21,6 +23,8 @@ namespace cru::ui::controls
         ToggleButton& operator=(const ToggleButton& other) = delete;
         ToggleButton& operator=(ToggleButton&& other) = delete;
         ~ToggleButton() override = default;
+
+        StringView GetControlType() const override final;
 
         bool IsPointInside(const Point& point) override;
 

@@ -20,6 +20,11 @@ namespace cru::ui::controls
         return Size(AtLeast0(size.width), AtLeast0(size.height));
     }
 
+    StringView LinearLayout::GetControlType() const
+    {
+        return control_type;
+    }
+
     Size LinearLayout::OnMeasureContent(const Size& available_size)
     {
         auto rest_available_size_for_children = available_size;

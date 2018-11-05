@@ -27,6 +27,11 @@ namespace cru::ui::controls
 
     TextBox::~TextBox() = default;
 
+    StringView TextBox::GetControlType() const
+    {
+        return control_type;
+    }
+
     void TextBox::OnDrawContent(ID2D1DeviceContext* device_context)
     {
         TextControl::OnDrawContent(device_context);

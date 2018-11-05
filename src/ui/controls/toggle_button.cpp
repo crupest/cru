@@ -28,6 +28,11 @@ namespace cru::ui::controls
         return D2D1::Point2F(point.x, point.y);
     }
 
+    StringView ToggleButton::GetControlType() const
+    {
+        return control_type;
+    }
+
     bool ToggleButton::IsPointInside(const Point& point)
     {
         const auto size = GetSize();

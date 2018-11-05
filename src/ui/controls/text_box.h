@@ -8,6 +8,8 @@ namespace cru::ui::controls
     class TextBox : public TextControl
     {
     public:
+        static constexpr auto control_type = L"TextBox";
+
         static TextBox* Create(
             const Microsoft::WRL::ComPtr<IDWriteTextFormat>& init_text_format = nullptr,
             const Microsoft::WRL::ComPtr<ID2D1Brush>& init_brush = nullptr)
@@ -26,6 +28,8 @@ namespace cru::ui::controls
         TextBox& operator=(const TextBox& other) = delete;
         TextBox& operator=(TextBox&& other) = delete;
         ~TextBox() override;
+
+        StringView GetControlType() const override final;
 
     protected:
         void OnDrawContent(ID2D1DeviceContext* device_context) override;

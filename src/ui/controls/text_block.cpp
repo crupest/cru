@@ -13,6 +13,11 @@ namespace cru
             {
 
             }
+
+            StringView TextBlock::GetControlType() const
+            {
+                return control_type;
+            }
         }
     }
 }

@@ -63,8 +63,7 @@ namespace cru
         public:
 
             //*************** region: tree ***************
-            //TODO!
-            //virtual StringView GetControlType() const = 0;
+            virtual StringView GetControlType() const = 0;
 
             bool IsContainer() const
             {

@@ -7,6 +7,8 @@ namespace cru::ui::controls
     class LinearLayout : public Control
     {
     public:
+        static constexpr auto control_type = L"LinearLayout";
+
         enum class Orientation
         {
             Horizontal,
@@ -30,6 +32,8 @@ namespace cru::ui::controls
         LinearLayout& operator=(const LinearLayout& other) = delete;
         LinearLayout& operator=(LinearLayout&& other) = delete;
         ~LinearLayout() override = default;
+
+        StringView GetControlType() const override final;
 
     protected:
         Size OnMeasureContent(const Size& available_size) override;
