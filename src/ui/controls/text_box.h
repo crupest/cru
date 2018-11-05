@@ -46,8 +46,7 @@ namespace cru::ui::controls
 
     private:
         unsigned caret_position_ = 0;
-        TimerTask caret_timer_;
-        ActionPtr caret_action_;
+        std::optional<TimerTask> caret_timer_{};
         Microsoft::WRL::ComPtr<ID2D1Brush> caret_brush_;
         bool is_caret_show_ = false;
     };

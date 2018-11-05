@@ -12,8 +12,6 @@ namespace cru::ui::controls
             const Microsoft::WRL::ComPtr<ID2D1Brush>& init_brush
         );
     public:
-        using TextLayoutHandlerPtr = FunctionPtr<void(Microsoft::WRL::ComPtr<IDWriteTextLayout>)>;
-
         TextControl(const TextControl& other) = delete;
         TextControl(TextControl&& other) = delete;
         TextControl& operator=(const TextControl& other) = delete;
@@ -40,11 +38,6 @@ namespace cru::ui::controls
         }
 
         void SetTextFormat(const Microsoft::WRL::ComPtr<IDWriteTextFormat>& text_format);
-
-
-        void AddTextLayoutHandler(TextLayoutHandlerPtr handler);
-
-        void RemoveTextLayoutHandler(const TextLayoutHandlerPtr& handler);
 
         bool IsSelectable() const
         {
@@ -96,8 +89,6 @@ namespace cru::ui::controls
         Microsoft::WRL::ComPtr<IDWriteTextLayout> text_layout_;
 
     private:
-        Vector<TextLayoutHandlerPtr> text_layout_handlers_;
-
         bool is_selectable_ = false;
 
         bool is_selecting_ = false;

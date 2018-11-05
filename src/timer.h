@@ -2,23 +2,19 @@
 
 
 #include "system_headers.h"
-#include <memory>
 #include <map>
 #include <chrono>
+#include <functional>
+#include <optional>
 
 #include "base.h"
-#include "application.h"
 
 namespace cru
 {
+    using TimerAction = std::function<void()>;
+
     class TimerManager : public Object
     {
-    public:
-        static TimerManager* GetInstance()
-        {
-            return Application::GetInstance()->GetTimerManager();
-        }
-
     public:
         TimerManager() = default;
         TimerManager(const TimerManager& other) = delete;
@@ -27,17 +23,36 @@ namespace cru
         TimerManager& operator=(TimerManager&& other) = delete;
         ~TimerManager() override = default;
 
-        UINT_PTR CreateTimer(UINT milliseconds, bool loop, ActionPtr action);
+        UINT_PTR CreateTimer(UINT milliseconds, bool loop, const TimerAction& action);
         void KillTimer(UINT_PTR id);
-        ActionPtr GetAction(UINT_PTR id);
+        std::optional<std::pair<bool, TimerAction>> GetAction(UINT_PTR id);
 
     private:
-        std::map<UINT_PTR, ActionPtr> map_{};
+        std::map<UINT_PTR, std::pair<bool, TimerAction>> map_{};
         UINT_PTR current_count_ = 0;
     };
 
-    using TimerTask = CancelablePtr;
+    class TimerTask
+    {
+        friend TimerTask SetTimeout(std::chrono::milliseconds milliseconds, const TimerAction& action);
+        friend TimerTask SetInterval(std::chrono::milliseconds milliseconds, const TimerAction& action);
 
-    TimerTask SetTimeout(std::chrono::milliseconds milliseconds, ActionPtr action);
-    TimerTask SetInterval(std::chrono::milliseconds milliseconds, ActionPtr action);
+    private:
+        explicit TimerTask(UINT_PTR id);
+
+    public:
+        TimerTask(const TimerTask& other) = default;
+        TimerTask(TimerTask&& other) = default;
+        TimerTask& operator=(const TimerTask& other) = default;
+        TimerTask& operator=(TimerTask&& other) = default;
+        ~TimerTask() = default;
+
+        void Cancel();
+
+    private:
+        UINT_PTR id_;
+    };
+
+    TimerTask SetTimeout(std::chrono::milliseconds milliseconds, const TimerAction& action);
+    TimerTask SetInterval(std::chrono::milliseconds milliseconds, const TimerAction& action);
 }

@@ -10,18 +10,45 @@ namespace cru::ui::animations
 {
     using AnimationTimeUnit = FloatSecond;
 
-    
-    using IAnimationDelegate = ICancelable;
-    using AnimationDelegatePtr = CancelablePtr;
+    struct IAnimationDelegate : virtual Interface
+    {
+        virtual void Cancel() = 0;
+    };
 
-    using AnimationStepHandlerPtr = FunctionPtr<void(AnimationDelegatePtr, double)>;
-    using AnimationStartHandlerPtr = FunctionPtr<void(AnimationDelegatePtr)>;
+    using AnimationDelegatePtr = std::shared_ptr<IAnimationDelegate>;
 
+    using AnimationStepHandler = std::function<void(AnimationDelegatePtr, double)>;
+    using AnimationStartHandler = std::function<void(AnimationDelegatePtr)>;
+    using AnimationFinishHandler = std::function<void()>;
+    using AnimationCancelHandler = std::function<void()>;
 
     namespace details
     {
         class Animation;
         using AnimationPtr = std::unique_ptr<Animation>;
+
+        class AnimationInfo
+        {
+        public:
+            AnimationInfo(String tag, const AnimationTimeUnit duration)
+                : tag(std::move(tag)),
+                  duration(duration)
+            {
+
+            }
+            AnimationInfo(const AnimationInfo& other) = default;
+            AnimationInfo(AnimationInfo&& other) = default;
+            AnimationInfo& operator=(const AnimationInfo& other) = default;
+            AnimationInfo& operator=(AnimationInfo&& other) = default;
+            ~AnimationInfo() = default;
+
+            String tag;
+            AnimationTimeUnit duration;
+            std::vector<AnimationStepHandler> step_handlers{};
+            std::vector<AnimationStartHandler> start_handlers{};
+            std::vector<AnimationFinishHandler> finish_handlers{};
+            std::vector<AnimationCancelHandler> cancel_handlers{};
+        };
 
         class AnimationManager : public Object
         {
@@ -39,14 +66,7 @@ namespace cru::ui::animations
             AnimationManager& operator=(AnimationManager&& other) = delete;
             ~AnimationManager() override;
 
-            AnimationDelegatePtr CreateAnimation(
-                String tag,
-                AnimationTimeUnit duration,
-                Vector<AnimationStepHandlerPtr> step_handlers,
-                Vector<AnimationStartHandlerPtr> start_handlers,
-                Vector<ActionPtr> finish_handlers,
-                Vector<ActionPtr> cancel_handlers
-            );
+            AnimationDelegatePtr CreateAnimation(AnimationInfo info);
             void RemoveAnimation(const String& tag);
 
         private:
@@ -55,8 +75,7 @@ namespace cru::ui::animations
 
         private:
             std::unordered_map<String, AnimationPtr> animations_;
-            std::shared_ptr<ICancelable> timer_;
-            ActionPtr timer_action_;
+            std::optional<TimerTask> timer_;
         };
     }
 
@@ -64,44 +83,49 @@ namespace cru::ui::animations
     {
     public:
         AnimationBuilder(String tag, const AnimationTimeUnit duration)
-            : tag(std::move(tag)), duration(duration)
+            : info_(std::move(tag), duration)
         {
 
         }
 
-        String tag;
-        AnimationTimeUnit duration;
-
-        AnimationBuilder& AddStepHandler(AnimationStepHandlerPtr handler)
+        AnimationBuilder& AddStepHandler(const AnimationStepHandler& handler)
         {
-            step_handlers_.push_back(std::move(handler));
+            CheckValid();
+            info_.step_handlers.push_back(handler);
             return *this;
         }
 
-        AnimationBuilder& AddStartHandler(AnimationStartHandlerPtr handler)
+        AnimationBuilder& AddStartHandler(const AnimationStartHandler& handler)
         {
-            start_handlers_.push_back(std::move(handler));
+            CheckValid();
+            info_.start_handlers.push_back(handler);
             return *this;
         }
 
-        AnimationBuilder& AddFinishHandler(ActionPtr handler)
+        AnimationBuilder& AddFinishHandler(const AnimationFinishHandler& handler)
         {
-            finish_handlers_.push_back(std::move(handler));
+            CheckValid();
+            info_.finish_handlers.push_back(handler);
             return *this;
         }
 
-        AnimationBuilder& AddCancelHandler(ActionPtr handler)
+        AnimationBuilder& AddCancelHandler(const AnimationCancelHandler& handler)
         {
-            cancel_handlers_.push_back(std::move(handler));
+            CheckValid();
+            info_.cancel_handlers.push_back(handler);
             return *this;
         }
 
-        AnimationDelegatePtr Start() const;
+        AnimationDelegatePtr Start();
 
     private:
-        Vector<AnimationStepHandlerPtr> step_handlers_;
-        Vector<AnimationStartHandlerPtr> start_handlers_;
-        Vector<ActionPtr> finish_handlers_;
-        Vector<ActionPtr> cancel_handlers_;
+        void CheckValid() const
+        {
+            if (!valid_)
+                throw std::runtime_error("The animation builder is invalid.");
+        }
+
+        bool valid_ = true;
+        details::AnimationInfo info_;
     };
 }

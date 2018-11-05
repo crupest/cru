@@ -1,32 +1,38 @@
 #include "exception.h"
 
-#include <fmt/format.h>
+#include "format.h"
 
 namespace cru
 {
-    inline std::string HResultMakeMessage(HRESULT h_result, std::optional<std::string> message)
+    inline std::string HResultMakeMessage(HRESULT h_result, std::optional<MultiByteStringView> message)
     {
+        char buffer[10];
+        sprintf_s(buffer, "%#08x", h_result);
+
         if (message.has_value())
-            return fmt::format("An HResultError is thrown. HRESULT: {:#08x}.\nAdditional message: {}\n", h_result, message.value());
+            return Format("An HResultError is thrown. HRESULT: {}.\nAdditional message: {}\n", buffer, message.value());
         else
-            return fmt::format("An HResultError is thrown. HRESULT: {:#08x}.\n", h_result);
+            return Format("An HResultError is thrown. HRESULT: {}.\n", buffer);
     }
 
-    HResultError::HResultError(HRESULT h_result, std::optional<std::string_view> additional_message)
+    HResultError::HResultError(HRESULT h_result, std::optional<MultiByteStringView> additional_message)
         : runtime_error(HResultMakeMessage(h_result, std::nullopt)), h_result_(h_result)
     {
 
     }
 
-    inline std::string Win32MakeMessage(DWORD error_code, std::optional<std::string> message)
+    inline std::string Win32MakeMessage(DWORD error_code, std::optional<MultiByteStringView> message)
     {
+        char buffer[10];
+        sprintf_s(buffer, "%#04x", error_code);
+
         if (message.has_value())
-            return fmt::format("Last error code: {:#04x}.\nAdditional message: {}\n", error_code, message.value());
+            return Format("Last error code: {}.\nAdditional message: {}\n", buffer, message.value());
         else
-            return fmt::format("Last error code: {:#04x}.\n", error_code);
+            return Format("Last error code: {}.\n", buffer);
     }
 
-    Win32Error::Win32Error(DWORD error_code, std::optional<std::string_view> additional_message)
+    Win32Error::Win32Error(DWORD error_code, std::optional<MultiByteStringView> additional_message)
         : runtime_error(Win32MakeMessage(error_code, std::nullopt)), error_code_(error_code)
     {
 

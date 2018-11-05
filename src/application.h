@@ -3,6 +3,7 @@
 #include "system_headers.h"
 #include <memory>
 #include <optional>
+#include <functional>
 
 #include "base.h"
 
@@ -145,6 +146,5 @@ namespace cru
     };
 
 
-    using InvokeLaterAction = Function<void()>;
-    void InvokeLater(InvokeLaterAction&& action);
+    void InvokeLater(const std::function<void()>& action);
 }

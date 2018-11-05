@@ -5,9 +5,9 @@
 #include <any>
 #include <typeinfo>
 #include <utility>
-#include <fmt/format.h>
 
 #include "base.h"
+#include "format.h"
 #include "ui_base.h"
 #include "layout_base.h"
 #include "events/ui_event.h"
@@ -63,6 +63,8 @@ namespace cru
         public:
 
             //*************** region: tree ***************
+            //TODO!
+            //virtual StringView GetControlType() const = 0;
 
             bool IsContainer() const
             {
@@ -75,17 +77,8 @@ namespace cru
                 return parent_;
             }
 
-            //Traverse the children
-            void ForeachChild(Function<void(Control*)>&& predicate) const;
-            void ForeachChild(Function<FlowControl(Control*)>&& predicate) const;
-
-            //Return a vector of all children. This function will create a
-            //temporary copy of vector of children. If you just want to
-            //traverse all children, just call ForeachChild.
-            Vector<Control*> GetChildren() const
-            {
-                return children_;
-            }
+            //Return a immutable vector of all children.
+            const std::vector<Control*>& GetChildren() const;
 
             //Add a child at tail.
             void AddChild(Control* control);
@@ -109,7 +102,7 @@ namespace cru
             }
 
             //Traverse the tree rooted the control including itself.
-            void TraverseDescendants(Function<void(Control*)>&& predicate);
+            void TraverseDescendants(const std::function<void(Control*)>& predicate);
 
             //*************** region: position and size ***************
             // Position and size part must be isolated from layout part.
@@ -187,12 +180,12 @@ namespace cru
 
             //*************** region: border ***************
 
-            BorderProperty::Ptr GetBorderProperty() const
+            BorderProperty& GetBorderProperty()
             {
                 return border_property_;
             }
 
-            void SetBorderProperty(BorderProperty::Ptr border_property);
+            void InvalidateBorder();
 
             bool IsBordered() const
             {
@@ -216,7 +209,7 @@ namespace cru
                 }
                 catch (const std::bad_any_cast&)
                 {
-                    throw std::runtime_error(fmt::format("Key \"{}\" is not of the type {}.", ToUtf8String(key), typeid(T).name()));
+                    throw std::runtime_error(Format("Key \"{}\" is not of the type {}.", ToUtf8String(key), typeid(T).name()));
                 }
             }
 
@@ -234,6 +227,8 @@ namespace cru
 
             
             //*************** region: cursor ***************
+            //TODO!
+            /*
             Cursor::Ptr GetCursor() const
             {
                 return cursor_;
@@ -242,6 +237,7 @@ namespace cru
             void SetCursor(const Cursor::Ptr& cursor);
 
             Cursor::Ptr GetCursorInherit();
+            */
 
 
             //*************** region: events ***************
@@ -380,7 +376,7 @@ namespace cru
 
         private:
             Control * parent_ = nullptr;
-            Vector<Control*> children_{};
+            std::vector<Control*> children_{};
 
             // When position is changed and notification hasn't been
             // sent, it will be the old position. When position is changed
@@ -406,8 +402,7 @@ namespace cru
             Size desired_size_ = Size::Zero();
 
             bool is_bordered_ = false;
-            BorderProperty::Ptr border_property_;
-            PropertyChangedNotifyObject::PropertyChangedHandlerPtr border_property_changed_listener_;
+            BorderProperty border_property_;
 
             std::unordered_map<String, std::any> additional_properties_{};
 
@@ -461,6 +456,6 @@ namespace cru
             return control;
         }
 
-        constexpr std::initializer_list<Control*> ControlList(std::initializer_list<Control*> &&li) { return li; }
+        using ControlList = std::initializer_list<Control*>;
     }
 }

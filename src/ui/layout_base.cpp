@@ -87,13 +87,14 @@ namespace cru::ui
     void LayoutManager::RefreshControlPositionCacheInternal(Control * control, const Point & parent_lefttop_absolute)
     {
         const auto position = control->GetPositionRelative();
-        Point lefttop(
+        const Point lefttop(
             parent_lefttop_absolute.x + position.x,
             parent_lefttop_absolute.y + position.y
         );
         control->position_cache_.lefttop_position_absolute = lefttop;
-        control->ForeachChild([lefttop](Control* c) {
+        for(auto c : control->GetChildren())
+        {
             RefreshControlPositionCacheInternal(c, lefttop);
-        });
+        }
     }
 }

@@ -126,6 +126,7 @@
     <ClCompile Include="src\ui\controls\linear_layout.cpp" />
     <ClCompile Include="src\ui\controls\text_block.cpp" />
     <ClCompile Include="src\ui\controls\text_box.cpp" />
+    <ClInclude Include="src\format.h" />
     <ClInclude Include="src\ui\border_property.h" />
     <ClInclude Include="src\ui\controls\text_control.h" />
     <ClCompile Include="src\ui\controls\toggle_button.cpp" />

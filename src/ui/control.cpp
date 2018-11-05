@@ -1,5 +1,7 @@
 #include "control.h"
 
+#include <algorithm>
+
 #include "window.h"
 #include "graph/graph.h"
 #include "exception.h"
@@ -9,13 +11,7 @@ namespace cru {
         using namespace events;
 
         Control::Control(const bool container) :
-            is_container_(container),
-            border_property_changed_listener_(CreatePtr<PropertyChangedNotifyObject::PropertyChangedHandlerPtr>([this](const StringView& property_name)
-        {
-            if (property_name == BorderProperty::width_property_name)
-                InvalidateLayout();
-            Repaint();
-        }))
+            is_container_(container)
         {
 
         }
@@ -27,27 +23,10 @@ namespace cru {
 
         Control::~Control()
         {
-            ForeachChild([](auto control)
+            for (auto control: GetChildren())
             {
                 delete control;
-            });
-        }
-
-        void Control::ForeachChild(Function<void(Control*)>&& predicate) const
-        {
-            if (is_container_)
-                for (const auto child : children_)
-                    predicate(child);
-        }
-
-        void Control::ForeachChild(Function<FlowControl(Control*)>&& predicate) const
-        {
-            if (is_container_)
-                for (const auto child : children_)
-                {
-                    if (predicate(child) == FlowControl::Break)
-                        break;
-                }
+            }
         }
 
         void AddChildCheck(Control* control)
@@ -57,6 +36,11 @@ namespace cru {
 
             if (dynamic_cast<Window*>(control))
                 throw std::invalid_argument("Can't add a window as child.");
+        }
+
+        const std::vector<Control*>& Control::GetChildren() const
+        {
+            return children_;
         }
 
         void Control::AddChild(Control* control)
@@ -128,15 +112,17 @@ namespace cru {
             return ancestor;
         }
 
-        void TraverseDescendantsInternal(Control* control, Function<void(Control*)>& predicate)
+        void TraverseDescendantsInternal(Control* control, const std::function<void(Control*)>& predicate)
         {
             predicate(control);
-            control->ForeachChild([&predicate](Control* c) {
-                TraverseDescendantsInternal(c, predicate);
-            });
+            if (control->IsContainer())
+                for (auto c: control->GetChildren())
+                {
+                    TraverseDescendantsInternal(c, predicate);
+                }
         }
 
-        void Control::TraverseDescendants(Function<void(Control*)>&& predicate)
+        void Control::TraverseDescendants(const std::function<void(Control*)>& predicate)
         {
             if (is_container_)
                 TraverseDescendantsInternal(this, predicate);
@@ -305,13 +291,13 @@ namespace cru {
                 return result;
 
             if (is_bordered_)
-                Shrink(result, Thickness(border_property_->GetStrokeWidth() / 2.0f));
+                Shrink(result, Thickness(GetBorderProperty().GetStrokeWidth() / 2.0f));
 
             if (range == RectRange::HalfBorder)
                 return result;
 
             if (is_bordered_)
-                Shrink(result, Thickness(border_property_->GetStrokeWidth() / 2.0f));
+                Shrink(result, Thickness(GetBorderProperty().GetStrokeWidth() / 2.0f));
 
             if (range == RectRange::Padding)
                 return result;
@@ -321,15 +307,8 @@ namespace cru {
             return result;
         }
 
-        void Control::SetBorderProperty(BorderProperty::Ptr border_property)
+        void Control::InvalidateBorder()
         {
-            if (border_property == nullptr)
-                throw std::invalid_argument("Border property mustn't be null.");
-
-            if (border_property_ != nullptr)
-                border_property_->RemovePropertyChangedListener(border_property_changed_listener_);
-            border_property_ = std::move(border_property);
-            border_property_->AddPropertyChangedListener(border_property_changed_listener_);
             InvalidateLayout();
             Repaint();
         }
@@ -338,26 +317,9 @@ namespace cru {
         {
             if (bordered != is_bordered_)
             {
-                if (bordered && border_property_ == nullptr) // create border property.
-                {
-                    border_property_ = BorderProperty::Create();
-                    border_property_->AddPropertyChangedListener(border_property_changed_listener_);
-                }
-
                 is_bordered_ = bordered;
-                InvalidateLayout();
-                Repaint();
+                InvalidateBorder();
             }
-        }
-
-        void Control::SetCursor(const Cursor::Ptr& cursor)
-        {
-            
-        }
-
-        Cursor::Ptr Control::GetCursorInherit()
-        {
-
         }
 
         void Control::OnAddChild(Control* child)
@@ -419,12 +381,12 @@ namespace cru {
                 device_context->DrawRoundedRectangle(
                     D2D1::RoundedRect(
                         Convert(border_rect),
-                        border_property_->GetRadiusX(),
-                        border_property_->GetRadiusY()
+                        GetBorderProperty().GetRadiusX(),
+                        GetBorderProperty().GetRadiusY()
                     ),
-                    border_property_->GetBrush().Get(),
-                    border_property_->GetStrokeWidth(),
-                    border_property_->GetStrokeStyle().Get()
+                    GetBorderProperty().GetBrush().Get(),
+                    GetBorderProperty().GetStrokeWidth(),
+                    GetBorderProperty().GetStrokeStyle().Get()
                 );
             }
         }
@@ -713,7 +675,7 @@ namespace cru {
             auto border_size = Size::Zero();
             if (is_bordered_)
             {
-                const auto border_width = border_property_->GetStrokeWidth();
+                const auto border_width = GetBorderProperty().GetStrokeWidth();
                 border_size = Size(border_width * 2.0f, border_width * 2.0f);
             }
 
@@ -777,7 +739,7 @@ namespace cru {
             auto border_width = 0.0f;
             if (is_bordered_)
             {
-                border_width = border_property_->GetStrokeWidth();
+                border_width = GetBorderProperty().GetStrokeWidth();
             }
 
             const Rect content_rect(
@@ -793,7 +755,7 @@ namespace cru {
         Size Control::OnMeasureContent(const Size& available_size)
         {
             auto max_child_size = Size::Zero();
-            ForeachChild([&max_child_size, available_size](Control* control)
+            for (auto control: GetChildren())
             {
                 control->Measure(available_size);
                 const auto&& size = control->GetDesiredSize();
@@ -801,13 +763,13 @@ namespace cru {
                     max_child_size.width = size.width;
                 if (max_child_size.height < size.height)
                     max_child_size.height = size.height;
-            });
+            }
             return max_child_size;
         }
 
         void Control::OnLayoutContent(const Rect& rect)
         {
-            ForeachChild([rect](Control* control)
+            for (auto control: GetChildren())
             {
                 const auto layout_params = control->GetLayoutParams();
                 const auto size = control->GetDesiredSize();
@@ -831,7 +793,7 @@ namespace cru {
                     calculate_anchor(rect.left, layout_params->width.alignment, rect.width, size.width),
                     calculate_anchor(rect.top, layout_params->height.alignment, rect.height, size.height)
                 ), size));
-            });
+            }
         }
 
         void Control::CheckAndNotifyPositionChanged()

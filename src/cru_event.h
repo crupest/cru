@@ -1,9 +1,8 @@
 #pragma once
 
 #include <type_traits>
-#include <list>
-#include <memory>
-#include <algorithm>
+#include <functional>
+#include <unordered_map>
 
 #include "base.h"
 
@@ -46,8 +45,8 @@ namespace cru {
 
 
         using ArgsType = TArgsType;
-        using EventHandler = Function<void(ArgsType&)>;
-        using EventHandlerPtr = std::shared_ptr<EventHandler>;
+        using EventHandler = std::function<void(ArgsType&)>;
+        using EventHandlerToken = long;
 
         Event() = default;
         Event(const Event&) = delete;
@@ -56,28 +55,22 @@ namespace cru {
         Event& operator = (Event&&) = delete;
         ~Event() = default;
 
-        //Create a EventHandlerPtr from the given handler,
-        //add it to list and return it.
-		EventHandlerPtr AddHandler(EventHandler&& handler)
+        EventHandlerToken AddHandler(const EventHandler& handler)
 		{
-			EventHandlerPtr ptr = std::make_shared<EventHandler>(std::move(handler));
-			handlers_.push_back(ptr);
-			return ptr;
+            const auto token = current_token_++;
+		    handlers_.emplace(token, handler);
+            return token;
 		}
 
-		void AddHandler(EventHandlerPtr handler) {
-			handlers_.push_back(handler);
-		}
-
-		void RemoveHandler(EventHandlerPtr handler) {
-			auto find_result = std::find(handlers_.cbegin(), handlers_.cend(), handler);
+		void RemoveHandler(const EventHandlerToken token) {
+			auto find_result = handlers_.find(token);
 			if (find_result != handlers_.cend())
 				handlers_.erase(find_result);
 		}
 
 		void Raise(ArgsType& args) {
-			for (auto ptr : handlers_)
-				(*ptr)(args);
+			for (const auto& handler : handlers_)
+				(handler.second)(args);
 		}
 
         bool IsNoHandler() const
@@ -86,6 +79,8 @@ namespace cru {
 		}
 
     private:
-        std::list<EventHandlerPtr> handlers_;
+        std::unordered_map<EventHandlerToken, EventHandler> handlers_;
+
+        EventHandlerToken current_token_ = 0;
     };
 }

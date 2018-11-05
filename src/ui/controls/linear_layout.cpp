@@ -1,5 +1,7 @@
 #include "linear_layout.h"
 
+#include <algorithm>
+
 namespace cru::ui::controls
 {
     LinearLayout::LinearLayout(const Orientation orientation)
@@ -28,33 +30,33 @@ namespace cru::ui::controls
 
         // First measure Content and Exactly and count Stretch.
         if (orientation_ == Orientation::Horizontal)
-            ForeachChild([&](Control* const control)
-        {
-            const auto mode = control->GetLayoutParams()->width.mode;
-            if (mode == MeasureMode::Content || mode == MeasureMode::Exactly)
+            for(auto control: GetChildren())
             {
-                control->Measure(AtLeast0(rest_available_size_for_children));
-                const auto size = control->GetDesiredSize();
-                rest_available_size_for_children.width -= size.width;
-                secondary_side_child_max_length = std::max(size.height, secondary_side_child_max_length);
+                const auto mode = control->GetLayoutParams()->width.mode;
+                if (mode == MeasureMode::Content || mode == MeasureMode::Exactly)
+                {
+                    control->Measure(AtLeast0(rest_available_size_for_children));
+                    const auto size = control->GetDesiredSize();
+                    rest_available_size_for_children.width -= size.width;
+                    secondary_side_child_max_length = std::max(size.height, secondary_side_child_max_length);
+                }
+                else
+                    stretch_control_list.push_back(control);
             }
-            else
-                stretch_control_list.push_back(control);
-        });
         else
-            ForeachChild([&](Control* const control)
-        {
-            const auto mode = control->GetLayoutParams()->height.mode;
-            if (mode == MeasureMode::Content || mode == MeasureMode::Exactly)
+            for(auto control: GetChildren())
             {
-                control->Measure(AtLeast0(rest_available_size_for_children));
-                const auto size = control->GetDesiredSize();
-                rest_available_size_for_children.height -= size.height;
-                secondary_side_child_max_length = std::max(size.width, secondary_side_child_max_length);
+                const auto mode = control->GetLayoutParams()->height.mode;
+                if (mode == MeasureMode::Content || mode == MeasureMode::Exactly)
+                {
+                    control->Measure(AtLeast0(rest_available_size_for_children));
+                    const auto size = control->GetDesiredSize();
+                    rest_available_size_for_children.height -= size.height;
+                    secondary_side_child_max_length = std::max(size.width, secondary_side_child_max_length);
+                }
+                else
+                    stretch_control_list.push_back(control);
             }
-            else
-                stretch_control_list.push_back(control);
-        });
 
         if (orientation_ == Orientation::Horizontal)
         {
@@ -97,7 +99,7 @@ namespace cru::ui::controls
     void LinearLayout::OnLayoutContent(const Rect& rect)
     {
         float current_main_side_anchor = 0;
-        ForeachChild([this, &current_main_side_anchor, rect](Control* control)
+        for(auto control: GetChildren())
         {
             const auto layout_params = control->GetLayoutParams();
             const auto size = control->GetDesiredSize();
@@ -133,6 +135,6 @@ namespace cru::ui::controls
                 control->Layout(calculate_rect(calculate_secondary_side_anchor(rect.width, size.width), current_main_side_anchor));
                 current_main_side_anchor += size.height;
             }
-        });
+        }
     }
 }

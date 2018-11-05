@@ -1,7 +1,5 @@
 #include "application.h"
 
-#include <fmt/format.h>
-
 #include "exception.h"
 #include "timer.h"
 #include "ui/window.h"
@@ -58,17 +56,20 @@ namespace cru {
         {
         case invoke_later_message_id:
         {
-            const auto p_action = reinterpret_cast<InvokeLaterAction*>(w_param);
+            const auto p_action = reinterpret_cast<std::function<void()>*>(w_param);
             (*p_action)();
             delete p_action;
             return 0;
         }
         case WM_TIMER:
         {
-            const auto action = application_->GetTimerManager()->GetAction(static_cast<UINT_PTR>(w_param));
-            if (action)
+            const auto id = static_cast<UINT_PTR>(w_param);
+            const auto action = application_->GetTimerManager()->GetAction(id);
+            if (action.has_value())
             {
-                (*action)();
+                (action.value().second)();
+                if (!action.value().first)
+                    Application::GetInstance()->GetTimerManager()->KillTimer(id);
                 return 0;
             }
             break;
@@ -159,9 +160,9 @@ namespace cru {
         ::PostQuitMessage(quit_code);
     }
 
-    void InvokeLater(InvokeLaterAction&& action) {
+    void InvokeLater(const std::function<void()>& action) {
         //copy the action to a safe place
-        auto p_action_copy = new InvokeLaterAction(std::move(action));
+        auto p_action_copy = new std::function<void()>(action);
 
         if (PostMessageW(Application::GetInstance()->GetGodWindow()->GetHandle(), invoke_later_message_id, reinterpret_cast<WPARAM>(p_action_copy), 0) == 0)
             throw Win32Error(::GetLastError(), "InvokeLater failed to post message.");

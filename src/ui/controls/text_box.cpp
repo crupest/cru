@@ -1,6 +1,7 @@
 #include "text_box.h"
 
 #include <cwctype>
+#include <cassert>
 
 #include "graph/graph.h"
 #include "exception.h"
@@ -20,12 +21,6 @@ namespace cru::ui::controls
         SetSelectable(true);
 
         caret_brush_ = CreateSolidBrush(D2D1::ColorF(D2D1::ColorF::Black));
-
-        caret_action_ = CreateActionPtr([this]
-        {
-            is_caret_show_ = !is_caret_show_;
-            Repaint();
-        });
 
         SetBordered(true);
     }
@@ -48,17 +43,21 @@ namespace cru::ui::controls
     void TextBox::OnGetFocusCore(events::FocusChangeEventArgs& args)
     {
         TextControl::OnGetFocusCore(args);
-        assert(caret_timer_ == nullptr);
+        assert(!caret_timer_.has_value());
         is_caret_show_ = true;
-        caret_timer_ = SetInterval(Application::GetInstance()->GetCaretInfo().caret_blink_duration, caret_action_);
+        caret_timer_ = SetInterval(Application::GetInstance()->GetCaretInfo().caret_blink_duration, [this]
+        {
+            is_caret_show_ = !is_caret_show_;
+            Repaint();
+        });
     }
 
     void TextBox::OnLoseFocusCore(events::FocusChangeEventArgs& args)
     {
         Control::OnLoseFocusCore(args);
-        assert(caret_timer_ != nullptr);
+        assert(caret_timer_.has_value());
         caret_timer_->Cancel();
-        caret_timer_ = nullptr;
+        caret_timer_ = std::nullopt;
         is_caret_show_ = false;
     }
 

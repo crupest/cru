@@ -70,7 +70,7 @@ namespace cru {
             //Return a pointer to the Window object related to the HWND or nullptr if the hwnd is not in the map.
             Window* FromHandle(HWND hwnd);
 
-            Vector<Window*> GetAllWindows() const;
+            std::vector<Window*> GetAllWindows() const;
 
         private:
             std::unique_ptr<WindowClass> general_window_class_;

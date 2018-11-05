@@ -1,18 +1,19 @@
 #include "timer.h"
 
+#include "application.h"
+
 namespace cru
 {
-    UINT_PTR TimerManager::CreateTimer(const UINT milliseconds, const bool loop, ActionPtr action)
+    inline TimerManager* GetTimerManager()
+    {
+        return Application::GetInstance()->GetTimerManager();
+    }
+
+    UINT_PTR TimerManager::CreateTimer(const UINT milliseconds, const bool loop, const TimerAction& action)
     {
         const auto id = current_count_++;
         ::SetTimer(Application::GetInstance()->GetGodWindow()->GetHandle(), id, milliseconds, nullptr);
-        if (loop)
-            map_[id] = std::move(action);
-        else
-            map_[id] = CreateActionPtr([this, action, id]() mutable {
-            (*action)();
-            this->KillTimer(id);
-        });
+        map_.emplace(id, std::make_pair(loop, action));
         return id;
     }
 
@@ -22,58 +23,38 @@ namespace cru
         if (find_result != map_.cend())
         {
             ::KillTimer(Application::GetInstance()->GetGodWindow()->GetHandle(), id);
-            // When timer is killed in tick action, we need to retain the action itself until the action finishes, so InvokeLater!
-            InvokeLater([=]
-            {
-                map_.erase(find_result);
-            });
+            map_.erase(find_result);
         }
     }
 
-    ActionPtr TimerManager::GetAction(const UINT_PTR id)
+    std::optional<std::pair<bool, TimerAction>> TimerManager::GetAction(const UINT_PTR id)
     {
         const auto find_result = map_.find(id);
         if (find_result == map_.cend())
-            return nullptr;
+            return std::nullopt;
         return find_result->second;
     }
 
-    class TimerTaskImpl : public virtual ICancelable
-    {
-    public:
-        explicit TimerTaskImpl(UINT_PTR id);
-        TimerTaskImpl(const TimerTaskImpl& other) = delete;
-        TimerTaskImpl(TimerTaskImpl&& other) = delete;
-        TimerTaskImpl& operator=(const TimerTaskImpl& other) = delete;
-        TimerTaskImpl& operator=(TimerTaskImpl&& other) = delete;
-        ~TimerTaskImpl() override = default;
-
-        void Cancel() override;
-
-    private:
-        UINT_PTR id_;
-    };
-
-    TimerTaskImpl::TimerTaskImpl(const UINT_PTR id)
+    TimerTask::TimerTask(const UINT_PTR id)
         : id_(id)
     {
 
     }
 
-    void TimerTaskImpl::Cancel()
+    void TimerTask::Cancel()
     {
-        TimerManager::GetInstance()->KillTimer(id_);
+        GetTimerManager()->KillTimer(id_);
     }
 
-    TimerTask SetTimeout(std::chrono::milliseconds milliseconds, ActionPtr action)
+    TimerTask SetTimeout(std::chrono::milliseconds milliseconds, const TimerAction& action)
     {
-        auto id = TimerManager::GetInstance()->CreateTimer(static_cast<UINT>(milliseconds.count()), false, std::move(action));
-        return std::make_shared<TimerTaskImpl>(id);
+        const auto id = GetTimerManager()->CreateTimer(static_cast<UINT>(milliseconds.count()), false, action);
+        return TimerTask(id);
     }
 
-    TimerTask SetInterval(std::chrono::milliseconds milliseconds, ActionPtr action)
+    TimerTask SetInterval(std::chrono::milliseconds milliseconds, const TimerAction& action)
     {
-        auto id = TimerManager::GetInstance()->CreateTimer(static_cast<UINT>(milliseconds.count()), true, std::move(action));
-        return std::make_shared<TimerTaskImpl>(id);
+        const auto id = GetTimerManager()->CreateTimer(static_cast<UINT>(milliseconds.count()), true, action);
+        return TimerTask(id);
     }
 }

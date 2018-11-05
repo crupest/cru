@@ -32,7 +32,7 @@ namespace cru::ui::controls
         void OnMouseClickEnd(MouseButton button) override final;
 
     private:
-        BorderProperty::Ptr normal_border_;
-        BorderProperty::Ptr pressed_border_;
+        BorderProperty normal_border_;
+        BorderProperty pressed_border_;
     };
 }

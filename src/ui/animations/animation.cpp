@@ -1,6 +1,5 @@
 #include "animation.h"
 
-#include <cassert>
 #include <utility>
 
 namespace cru::ui::animations
@@ -39,15 +38,12 @@ namespace cru::ui::animations
         class Animation : public Object
         {
         public:
-            Animation(
-                String tag,
-                AnimationTimeUnit duration,
-                Vector<AnimationStepHandlerPtr> step_handlers,
-                Vector<AnimationStartHandlerPtr> start_handlers,
-                Vector<ActionPtr> finish_handlers,
-                Vector<ActionPtr> cancel_handlers,
-                AnimationDelegatePtr delegate
-            );
+            Animation(AnimationInfo info, AnimationDelegatePtr delegate)
+                : info_(std::move(info)), delegate_(std::move(delegate))
+            {
+                
+            }
+
             Animation(const Animation& other) = delete;
             Animation(Animation&& other) = delete;
             Animation& operator=(const Animation& other) = delete;
@@ -60,35 +56,17 @@ namespace cru::ui::animations
 
             String GetTag() const
             {
-                return tag_;
+                return info_.tag;
             }
 
         private:
-            const String tag_;
-            const AnimationTimeUnit duration_;
-            Vector<AnimationStepHandlerPtr> step_handlers_;
-            Vector<AnimationStartHandlerPtr> start_handlers_;
-            Vector<ActionPtr> finish_handlers_;
-            Vector<ActionPtr> cancel_handlers_;
-            AnimationDelegatePtr delegate_;
+            const AnimationInfo info_;
+            const AnimationDelegatePtr delegate_;
 
             AnimationTimeUnit current_time_ = AnimationTimeUnit::zero();
         };
 
         AnimationManager::AnimationManager()
-            : timer_action_(CreateActionPtr([this]()
-        {
-            auto i = animations_.cbegin();
-            while (i != animations_.cend())
-            {
-                auto current_i = i++;
-                if (current_i->second->Step(frame_step_time))
-                    animations_.erase(current_i);
-            }
-
-            if (animations_.empty())
-                KillTimer();
-        }))
         {
 
         }
@@ -98,16 +76,14 @@ namespace cru::ui::animations
             KillTimer();
         }
 
-        AnimationDelegatePtr AnimationManager::CreateAnimation(String tag, AnimationTimeUnit duration,
-            Vector<AnimationStepHandlerPtr> step_handlers, Vector<AnimationStartHandlerPtr> start_handlers,
-            Vector<ActionPtr> finish_handlers, Vector<ActionPtr> cancel_handlers)
+        AnimationDelegatePtr AnimationManager::CreateAnimation(AnimationInfo info)
         {
             if (animations_.empty())
                 SetTimer();
 
+            const auto tag = info.tag;
             auto delegate = std::make_shared<AnimationDelegateImpl>(tag);
-
-            animations_[tag] = std::make_unique<Animation>(tag, duration, std::move(step_handlers), std::move(start_handlers), std::move(finish_handlers), std::move(cancel_handlers), delegate);
+            animations_[tag] = std::make_unique<Animation>(std::move(info), delegate);
 
             return delegate;
         }
@@ -124,67 +100,63 @@ namespace cru::ui::animations
 
         void AnimationManager::SetTimer()
         {
-            if (timer_ == nullptr)
-                timer_ = SetInterval(std::chrono::duration_cast<std::chrono::milliseconds>(frame_step_time), timer_action_);
+            if (!timer_.has_value())
+                timer_ = SetInterval(std::chrono::duration_cast<std::chrono::milliseconds>(frame_step_time), [this]()
+                {
+                    auto i = animations_.cbegin();
+                    while (i != animations_.cend())
+                    {
+                        auto current_i = i++;
+                        if (current_i->second->Step(frame_step_time))
+                            animations_.erase(current_i);
+                    }
+
+                    if (animations_.empty())
+                        KillTimer();
+                });
         }
 
         void AnimationManager::KillTimer()
         {
-            if (timer_ != nullptr)
+            if (timer_.has_value())
             {
-                timer_->Cancel();
-                timer_ = nullptr;
+                timer_.value().Cancel();
+                timer_ = std::nullopt;
             }
-        }
-
-        Animation::Animation(
-            String tag,
-            AnimationTimeUnit duration,
-            Vector<AnimationStepHandlerPtr> step_handlers,
-            Vector<AnimationStartHandlerPtr> start_handlers,
-            Vector<ActionPtr> finish_handlers,
-            Vector<ActionPtr> cancel_handlers,
-            AnimationDelegatePtr delegate
-        ) : tag_(std::move(tag)), duration_(duration),
-            step_handlers_(std::move(step_handlers)),
-            start_handlers_(std::move(start_handlers)),
-            finish_handlers_(std::move(finish_handlers)),
-            cancel_handlers_(std::move(cancel_handlers)),
-            delegate_(std::move(delegate))
-        {
-
         }
 
         Animation::~Animation()
         {
-            if (current_time_ < duration_)
-                for (auto& handler : cancel_handlers_)
-                    (*handler)();
+            if (current_time_ < info_.duration)
+                for (const auto& handler : info_.cancel_handlers)
+                    handler();
         }
 
         bool Animation::Step(const AnimationTimeUnit time)
         {
             current_time_ += time;
-            if (current_time_ > duration_)
+            if (current_time_ > info_.duration)
             {
-                for (auto& handler : step_handlers_)
-                    (*handler)(delegate_, 1);
-                for (auto& handler : finish_handlers_)
-                    (*handler)();
+                for (const auto& handler : info_.step_handlers)
+                    handler(delegate_, 1);
+                for (const auto& handler : info_.finish_handlers)
+                    handler();
                 return true;
             }
             else
             {
-                for (auto& handler : step_handlers_)
-                    (*handler)(delegate_, current_time_ / duration_);
+                for (const auto& handler : info_.step_handlers)
+                    handler(delegate_, current_time_ / info_.duration);
                 return false;
             }
         }
 
     }
 
-    AnimationDelegatePtr AnimationBuilder::Start() const
+    AnimationDelegatePtr AnimationBuilder::Start()
     {
-        return details::AnimationManager::GetInstance()->CreateAnimation(tag, duration, step_handlers_, start_handlers_, finish_handlers_, cancel_handlers_);
+        CheckValid();
+        valid_ = false;
+        return details::AnimationManager::GetInstance()->CreateAnimation(std::move(info_));
     }
 }

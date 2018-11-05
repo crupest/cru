@@ -7,28 +7,16 @@
 
 namespace cru::ui
 {
-    class BorderProperty final : public PropertyChangedNotifyObject
+    class BorderProperty final
     {
     public:
-        constexpr static auto brush_property_name = L"Brush";
-        constexpr static auto width_property_name = L"StrokeWidth";
-        constexpr static auto stroke_style_property_name = L"StrokeStyle";
-        constexpr static auto radius_x_property_name = L"RadiusX";
-        constexpr static auto radius_y_property_name = L"RadiusY";
-
-        using Ptr = std::shared_ptr<BorderProperty>;
-
-        static Ptr Create()
-        {
-            return std::make_shared<BorderProperty>();
-        }
-
         BorderProperty();
-        BorderProperty(const BorderProperty& other) = delete;
-        BorderProperty(BorderProperty&& other) = delete;
-        BorderProperty& operator=(const BorderProperty& other) = delete;
-        BorderProperty& operator=(BorderProperty&& other) = delete;
-        ~BorderProperty() override = default;
+        explicit BorderProperty(Microsoft::WRL::ComPtr<ID2D1Brush> brush);
+        BorderProperty(const BorderProperty& other) = default;
+        BorderProperty(BorderProperty&& other) = default;
+        BorderProperty& operator=(const BorderProperty& other) = default;
+        BorderProperty& operator=(BorderProperty&& other) = default;
+        ~BorderProperty() = default;
 
 
         Microsoft::WRL::ComPtr<ID2D1Brush> GetBrush() const
@@ -56,14 +44,37 @@ namespace cru::ui
             return radius_y_;
         }
 
-        void SetBrush(Microsoft::WRL::ComPtr<ID2D1Brush> brush);
-        void SetWidth(float width);
-        void SetStrokeStyle(Microsoft::WRL::ComPtr<ID2D1StrokeStyle> stroke_style);
-        void SetRadiusX(float radius_x);
-        void SetRadiusY(float radius_y);
+        void SetBrush(Microsoft::WRL::ComPtr<ID2D1Brush> brush)
+        {
+            Require(brush == nullptr, "Brush of BorderProperty mustn't be null.");
+            brush_ = std::move(brush);
+        }
+
+        void SetStrokeWidth(const float stroke_width)
+        {
+            Require(stroke_width >= 0.0f, "Stroke width must be no less than 0.");
+            stroke_width_ = stroke_width;
+        }
+
+        void SetStrokeStyle(Microsoft::WRL::ComPtr<ID2D1StrokeStyle> stroke_style)
+        {
+            stroke_style_ = std::move(stroke_style);
+        }
+
+        void SetRadiusX(const float radius_x)
+        {
+            Require(radius_x >= 0.0f, "Radius-x must be no less than 0.");
+            radius_x_ = radius_x;
+        }
+
+        void SetRadiusY(const float radius_y)
+        {
+            Require(radius_y >= 0.0f, "Radius-y must be no less than 0.");
+            radius_y_ = radius_y;
+        }
 
     private:
-        Microsoft::WRL::ComPtr<ID2D1Brush> brush_ = nullptr;
+        Microsoft::WRL::ComPtr<ID2D1Brush> brush_;
         float stroke_width_ = 1.0f;
         Microsoft::WRL::ComPtr<ID2D1StrokeStyle> stroke_style_ = nullptr;
         float radius_x_ = 0.0f;

@@ -1,7 +1,5 @@
 #include "toggle_button.h"
 
-#include <fmt/format.h>
-
 #include "graph/graph.h"
 #include "ui/animations/animation.h"
 
@@ -61,12 +59,13 @@ namespace cru::ui::controls
             const auto time = total_time * (std::abs(delta) / (inner_circle_x * 2));
 
             // ReSharper disable once CppExpressionWithoutSideEffects
-            AnimationBuilder(fmt::format(L"ToggleButton {}", reinterpret_cast<size_t>(this)), time)
-            .AddStepHandler(CreatePtr<animations::AnimationStepHandlerPtr>([=](animations::AnimationDelegatePtr, const double percentage)
-            {
-                current_circle_position_ = static_cast<float>(previous_position + delta * percentage);
-                Repaint();
-            })).Start();
+            AnimationBuilder(Format(L"ToggleButton {}", reinterpret_cast<size_t>(this)), time)
+                .AddStepHandler([=](auto, const double percentage)
+                {
+                    current_circle_position_ = static_cast<float>(previous_position + delta * percentage);
+                    Repaint();
+                })
+                .Start();
 
             RaiseToggleEvent(state);
             Repaint();

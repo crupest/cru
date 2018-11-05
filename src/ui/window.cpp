@@ -1,7 +1,5 @@
 #include "window.h"
 
-#include <fmt/format.h>
-
 #include "application.h"
 #include "graph/graph.h"
 #include "exception.h"
@@ -77,9 +75,9 @@ namespace cru
                 return find_result->second;
         }
 
-        Vector<Window*> WindowManager::GetAllWindows() const
+        std::vector<Window*> WindowManager::GetAllWindows() const
         {
-            Vector<Window*> windows;
+            std::vector<Window*> windows;
             for (auto [key, value] : window_map_)
                 windows.push_back(value);
             return windows;
@@ -464,11 +462,10 @@ namespace cru
 
         Size Window::OnMeasureContent(const Size& available_size)
         {
-            ForeachChild([available_size](Control* control)
+            for (auto control: GetChildren())
             {
                 control->Measure(available_size);
-            });
-
+            }
             return available_size;
         }
 

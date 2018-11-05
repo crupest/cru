@@ -2,7 +2,6 @@
 
 #include "system_headers.h"
 #include <optional>
-#include <string_view>
 
 #include "base.h"
 
@@ -11,7 +10,7 @@ namespace cru {
     class HResultError : public std::runtime_error
     {
     public:
-        explicit HResultError(HRESULT h_result, std::optional<std::string_view> additional_message = std::nullopt);
+        explicit HResultError(HRESULT h_result, std::optional<MultiByteStringView> additional_message = std::nullopt);
         HResultError(const HResultError& other) = default;
         HResultError(HResultError&& other) = default;
         HResultError& operator=(const HResultError& other) = default;
@@ -32,7 +31,7 @@ namespace cru {
             throw HResultError(h_result);
     }
 
-    inline void ThrowIfFailed(const HRESULT h_result, const std::string_view& message) {
+    inline void ThrowIfFailed(const HRESULT h_result, const MultiByteStringView& message) {
         if (FAILED(h_result))
             throw HResultError(h_result, message);
     }
@@ -40,7 +39,7 @@ namespace cru {
     class Win32Error : public std::runtime_error
     {
     public:
-        explicit Win32Error(DWORD error_code, std::optional<std::string_view> additional_message = std::nullopt);
+        explicit Win32Error(DWORD error_code, std::optional<MultiByteStringView> additional_message = std::nullopt);
         Win32Error(const Win32Error& other) = default;
         Win32Error(Win32Error&& other) = default;
         Win32Error& operator=(const Win32Error& other) = default;

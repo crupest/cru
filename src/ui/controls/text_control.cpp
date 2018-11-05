@@ -3,6 +3,7 @@
 #include "ui/window.h"
 #include "graph/graph.h"
 #include "exception.h"
+#include <cassert>
 
 namespace cru::ui::controls
 {
@@ -47,19 +48,6 @@ namespace cru::ui::controls
         text_format_ = text_format;
         RecreateTextLayout();
         Repaint();
-    }
-
-    void TextControl::AddTextLayoutHandler(TextLayoutHandlerPtr handler)
-    {
-        text_layout_handlers_.push_back(std::move(handler));
-    }
-
-    void TextControl::RemoveTextLayoutHandler(const TextLayoutHandlerPtr& handler)
-    {
-        const auto find_result = std::find(text_layout_handlers_.cbegin(), text_layout_handlers_.cend(),
-            handler);
-        if (find_result != text_layout_handlers_.cend())
-            text_layout_handlers_.erase(find_result);
     }
 
     void TextControl::SetSelectable(const bool is_selectable)
@@ -115,7 +103,7 @@ namespace cru::ui::controls
                 ThrowIfFailed(layout->GetMetrics(&text_metrics));
                 const auto metrics_count = text_metrics.lineCount * text_metrics.maxBidiReorderingDepth;
 
-                Vector<DWRITE_HIT_TEST_METRICS> hit_test_metrics(metrics_count);
+                std::vector<DWRITE_HIT_TEST_METRICS> hit_test_metrics(metrics_count);
                 UINT32 actual_count;
                 layout->HitTestTextRange(
                     range.value().position, range.value().count,
@@ -238,8 +226,5 @@ namespace cru::ui::controls
             size.width, size.height,
             &text_layout_
         ));
-
-        for (const auto& handler : text_layout_handlers_)
-            (*handler)(text_layout_);
     }
 }
