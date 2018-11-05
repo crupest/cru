@@ -83,6 +83,8 @@ namespace cru {
         {
             friend class WindowManager;
         public:
+            static constexpr auto control_type = L"Window";
+
             Window();
             Window(const Window& other) = delete;
             Window(Window&& other) = delete;

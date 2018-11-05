@@ -115,6 +115,11 @@ namespace cru
             });
         }
 
+        StringView Window::GetControlType() const
+        {
+            return control_type;
+        }
+
         void Window::Close() {
             if (IsWindowValid())
                 DestroyWindow(hwnd_);
