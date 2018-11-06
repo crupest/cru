@@ -3,27 +3,111 @@
 # Add steps that publish symbols, save build artifacts, and more:
 # https://docs.microsoft.com/azure/devops/pipelines/apps/windows/dot-net
 
-pool:
-  vmImage: 'VS2017-Win2016'
+jobs:
+  - job: x86-debug
+    pool:
+      vmImage: 'VS2017-Win2016'
 
-variables:
-  solution: '**/*.sln'
-  buildPlatform: 'x86, x64'
-  buildConfiguration: 'Debug, Release'
+    variables:
+      solution: '**/*.sln'
+      buildPlatform: 'x86'
+      buildConfiguration: 'Debug'
 
-steps:
-- task: VSBuild@1
-  inputs:
-    solution: '$(solution)'
-    platform: '$(buildPlatform)'
-    configuration: '$(buildConfiguration)'
+    steps:
+    - task: VSBuild@1
+      inputs:
+        solution: '$(solution)'
+        platform: '$(buildPlatform)'
+        configuration: '$(buildConfiguration)'
 
-- task: CopyFiles@2
-  inputs:
-    contents: '**/$(BuildConfiguration)/**/(*.exe|*.dll|*.pdb)'
-    targetFolder: '$(build.artifactStagingDirectory)'
+    - task: CopyFiles@2
+      inputs:
+        contents: '**/$(BuildConfiguration)/**/(*.exe|*.dll|*.pdb)'
+        targetFolder: '$(build.artifactStagingDirectory)'
 
-- task: PublishBuildArtifacts@1
-  inputs:
-    pathToPublish: '$(build.artifactStagingDirectory)'
-    artifactName: 'executables'
+    - task: PublishBuildArtifacts@1
+      inputs:
+        pathToPublish: '$(build.artifactStagingDirectory)'
+        artifactName: 'executables'
+
+  - job: x64-debug
+    pool:
+      vmImage: 'VS2017-Win2016'
+
+    variables:
+      solution: '**/*.sln'
+      buildPlatform: 'x64'
+      buildConfiguration: 'Debug'
+
+    steps:
+    - task: VSBuild@1
+      inputs:
+        solution: '$(solution)'
+        platform: '$(buildPlatform)'
+        configuration: '$(buildConfiguration)'
+
+    - task: CopyFiles@2
+      inputs:
+        contents: '**/$(BuildConfiguration)/**/(*.exe|*.dll|*.pdb)'
+        targetFolder: '$(build.artifactStagingDirectory)'
+
+    - task: PublishBuildArtifacts@1
+      inputs:
+        pathToPublish: '$(build.artifactStagingDirectory)'
+        artifactName: 'executables'
+
+  - job: x86-release
+    pool:
+      vmImage: 'VS2017-Win2016'
+
+    dependsOn: x86-debug
+
+    variables:
+      solution: '**/*.sln'
+      buildPlatform: 'x86'
+      buildConfiguration: 'Release'
+
+    steps:
+    - task: VSBuild@1
+      inputs:
+        solution: '$(solution)'
+        platform: '$(buildPlatform)'
+        configuration: '$(buildConfiguration)'
+
+    - task: CopyFiles@2
+      inputs:
+        contents: '**/$(BuildConfiguration)/**/(*.exe|*.dll|*.pdb)'
+        targetFolder: '$(build.artifactStagingDirectory)'
+
+    - task: PublishBuildArtifacts@1
+      inputs:
+        pathToPublish: '$(build.artifactStagingDirectory)'
+        artifactName: 'executables'
+
+  - job: x64-release
+    pool:
+      vmImage: 'VS2017-Win2016'
+
+    dependsOn: x64-debug
+    
+    variables:
+      solution: '**/*.sln'
+      buildPlatform: 'x64'
+      buildConfiguration: 'Release'
+
+    steps:
+    - task: VSBuild@1
+      inputs:
+        solution: '$(solution)'
+        platform: '$(buildPlatform)'
+        configuration: '$(buildConfiguration)'
+
+    - task: CopyFiles@2
+      inputs:
+        contents: '**/$(BuildConfiguration)/**/(*.exe|*.dll|*.pdb)'
+        targetFolder: '$(build.artifactStagingDirectory)'
+
+    - task: PublishBuildArtifacts@1
+      inputs:
+        pathToPublish: '$(build.artifactStagingDirectory)'
+        artifactName: 'executables'
