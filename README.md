@@ -1,5 +1,7 @@
 # CruUI
 
+[![Build Status](https://dev.azure.com/crupest/CruUI/_apis/build/status/crupest.CruUI)](https://dev.azure.com/crupest/CruUI/_build/latest?definitionId=5)
+
 CruUI is a UI library running on **Windows** platform using Direct2D hardware accelaration.
 
 It is **under construction**.
