@@ -4,7 +4,7 @@
 # https://docs.microsoft.com/azure/devops/pipelines/apps/windows/dot-net
 
 jobs:
-  - job: x86-debug
+  - job: x86_debug
     pool:
       vmImage: 'VS2017-Win2016'
 
@@ -30,7 +30,7 @@ jobs:
         pathToPublish: '$(build.artifactStagingDirectory)'
         artifactName: 'executables'
 
-  - job: x64-debug
+  - job: x64_debug
     pool:
       vmImage: 'VS2017-Win2016'
 
@@ -56,11 +56,11 @@ jobs:
         pathToPublish: '$(build.artifactStagingDirectory)'
         artifactName: 'executables'
 
-  - job: x86-release
+  - job: x86_release
     pool:
       vmImage: 'VS2017-Win2016'
 
-    dependsOn: x86-debug
+    dependsOn: x86_debug
 
     variables:
       solution: '**/*.sln'
@@ -84,12 +84,12 @@ jobs:
         pathToPublish: '$(build.artifactStagingDirectory)'
         artifactName: 'executables'
 
-  - job: x64-release
+  - job: x64_release
     pool:
       vmImage: 'VS2017-Win2016'
 
-    dependsOn: x64-debug
-    
+    dependsOn: x64_debug
+
     variables:
       solution: '**/*.sln'
       buildPlatform: 'x64'
