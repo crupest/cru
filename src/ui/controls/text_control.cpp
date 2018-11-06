@@ -232,14 +232,14 @@ namespace cru::ui::controls
     {
         if (!is_selectable_)
         {
-            SetCursor(cursors::arrow);
+            SetCursor(nullptr);
             return;
         }
 
         const auto window = GetWindow();
         if (window == nullptr)
         {
-            SetCursor(cursors::arrow);
+            SetCursor(nullptr);
             return;
         }
 
@@ -253,6 +253,6 @@ namespace cru::ui::controls
         if (GetRect(RectRange::Padding).IsPointInside(p))
             SetCursor(cursors::i_beam);
         else
-            SetCursor(cursors::arrow);
+            SetCursor(nullptr);
     }
 }
