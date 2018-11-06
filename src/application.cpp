@@ -12,7 +12,7 @@ namespace cru {
     constexpr int invoke_later_message_id = WM_USER + 2000;
 
 
-    LRESULT GodWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+    LRESULT CALLBACK GodWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     {
         const auto app = Application::GetInstance();
 
@@ -103,9 +103,9 @@ namespace cru {
 
         void LoadSystemCursor(HINSTANCE h_instance)
         {
-            ui::cursors::arrow = std::make_shared<ui::Cursor>(::LoadCursorW(nullptr, MAKEINTRESOURCEW(IDC_ARROW)), false);
-            ui::cursors::hand = std::make_shared<ui::Cursor>(::LoadCursorW(nullptr, MAKEINTRESOURCEW(IDC_HAND)), false);
-            ui::cursors::i_beam = std::make_shared<ui::Cursor>(::LoadCursorW(nullptr, MAKEINTRESOURCEW(IDC_IBEAM)), false);
+            ui::cursors::arrow = std::make_shared<ui::Cursor>(::LoadCursorW(nullptr, IDC_ARROW), false);
+            ui::cursors::hand = std::make_shared<ui::Cursor>(::LoadCursorW(nullptr, IDC_HAND), false);
+            ui::cursors::i_beam = std::make_shared<ui::Cursor>(::LoadCursorW(nullptr, IDC_IBEAM), false);
         }
     }
 
