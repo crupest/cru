@@ -347,6 +347,8 @@ namespace cru
 
         Point Window::GetMousePosition()
         {
+            if (!IsWindowValid())
+                return Point::Zero();
             POINT point;
             ::GetCursorPos(&point);
             ::ScreenToClient(hwnd_, &point);
