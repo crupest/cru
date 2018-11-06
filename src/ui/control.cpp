@@ -170,13 +170,13 @@ namespace cru {
             return position_cache_.lefttop_position_absolute;
         }
 
-        Point Control::LocalToAbsolute(const Point& point) const
+        Point Control::ControlToWindow(const Point& point) const
         {
             return Point(point.x + position_cache_.lefttop_position_absolute.x,
                 point.y + position_cache_.lefttop_position_absolute.y);
         }
 
-        Point Control::AbsoluteToLocal(const Point & point) const
+        Point Control::WindowToControl(const Point & point) const
         {
             return Point(point.x - position_cache_.lefttop_position_absolute.x,
                 point.y - position_cache_.lefttop_position_absolute.y);

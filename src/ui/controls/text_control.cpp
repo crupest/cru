@@ -249,7 +249,7 @@ namespace cru::ui::controls
             return;
         }
 
-        const auto p = point.value_or(AbsoluteToLocal(window->GetMousePosition()));
+        const auto p = point.value_or(WindowToControl(window->GetMousePosition()));
         if (GetRect(RectRange::Padding).IsPointInside(p))
             SetCursor(cursors::i_beam);
         else

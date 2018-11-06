@@ -392,7 +392,7 @@ namespace cru
         {
             for (auto i = control_list_.crbegin(); i != control_list_.crend(); ++i) {
                 auto control = *i;
-                if (control->IsPointInside(control->AbsoluteToLocal(point))) {
+                if (control->IsPointInside(control->WindowToControl(point))) {
                     return control;
                 }
             }

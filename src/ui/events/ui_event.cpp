@@ -11,7 +11,7 @@ namespace cru
             Point MouseEventArgs::GetPoint(Control* control, const RectRange range) const
             {
                 if (point_.has_value())
-                    return control->TransformPoint(control->AbsoluteToLocal(point_.value()), RectRange::Margin, range);
+                    return control->TransformPoint(control->WindowToControl(point_.value()), RectRange::Margin, range);
                 return Point();
             }
         }

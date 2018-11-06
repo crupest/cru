@@ -115,10 +115,10 @@ namespace cru
             Point GetPositionAbsolute() const;
 
             //Local point to absolute point.
-            Point LocalToAbsolute(const Point& point) const;
+            Point ControlToWindow(const Point& point) const;
 
             //Absolute point to local point.
-            Point AbsoluteToLocal(const Point& point) const;
+            Point WindowToControl(const Point& point) const;
 
             virtual bool IsPointInside(const Point& point);
 
