@@ -65,10 +65,7 @@ namespace cru::ui::controls
                 Repaint();
             }
             is_selectable_ = is_selectable;
-            if (is_selectable) //TODO!!!
-                SetCursor(cursors::i_beam);
-            else
-                SetCursor(cursors::arrow);
+            UpdateCursor(std::nullopt);
         }
     }
 
@@ -92,15 +89,12 @@ namespace cru::ui::controls
 
     namespace
     {
-        std::optional<unsigned> TextLayoutHitTest(IDWriteTextLayout* text_layout, const Point& point, const bool test_inside = true)
+        unsigned TextLayoutHitTest(IDWriteTextLayout* text_layout, const Point& point)
         {
             BOOL is_trailing, is_inside;
             DWRITE_HIT_TEST_METRICS metrics{};
             text_layout->HitTestPoint(point.x, point.y, &is_trailing, &is_inside, &metrics);
-            if (!test_inside || is_inside)
-                return is_trailing == 0 ? metrics.textPosition : metrics.textPosition + 1;
-            else
-                return std::nullopt;
+            return is_trailing == 0 ? metrics.textPosition : metrics.textPosition + 1;
         }
 
         void DrawSelectionRect(ID2D1DeviceContext* device_context, IDWriteTextLayout* layout, ID2D1Brush* brush, const std::optional<TextRange> range)
@@ -136,17 +130,14 @@ namespace cru::ui::controls
     void TextControl::OnMouseDownCore(events::MouseButtonEventArgs& args)
     {
         Control::OnMouseDownCore(args);
-        if (is_selectable_ && args.GetMouseButton() == MouseButton::Left)
+        if (is_selectable_ && args.GetMouseButton() == MouseButton::Left && GetRect(RectRange::Padding).IsPointInside(args.GetPoint(this, RectRange::Margin)))
         {
             selected_range_ = std::nullopt;
-            const auto hit_test_result = TextLayoutHitTest(text_layout_.Get(), args.GetPoint(this), true);
-            if (hit_test_result.has_value())
-            {
-                RequestChangeCaretPosition(hit_test_result.value());
-                mouse_down_position_ = hit_test_result.value();
-                is_selecting_ = true;
-                GetWindow()->CaptureMouseFor(this);
-            }
+            const auto hit_test_result = TextLayoutHitTest(text_layout_.Get(), args.GetPoint(this));
+            RequestChangeCaretPosition(hit_test_result);
+            mouse_down_position_ = hit_test_result;
+            is_selecting_ = true;
+            GetWindow()->CaptureMouseFor(this);
             Repaint();
         }
     }
@@ -156,11 +147,12 @@ namespace cru::ui::controls
         Control::OnMouseMoveCore(args);
         if (is_selecting_)
         {
-            const auto hit_test_result = TextLayoutHitTest(text_layout_.Get(), args.GetPoint(this), false).value();
+            const auto hit_test_result = TextLayoutHitTest(text_layout_.Get(), args.GetPoint(this));
             RequestChangeCaretPosition(hit_test_result);
             selected_range_ = TextRange::FromTwoSides(hit_test_result, mouse_down_position_);
             Repaint();
         }
+        UpdateCursor(args.GetPoint(this, RectRange::Margin));
     }
 
     void TextControl::OnMouseUpCore(events::MouseButtonEventArgs& args)
@@ -234,5 +226,33 @@ namespace cru::ui::controls
             size.width, size.height,
             &text_layout_
         ));
+    }
+
+    void TextControl::UpdateCursor(const std::optional<Point>& point)
+    {
+        if (!is_selectable_)
+        {
+            SetCursor(cursors::arrow);
+            return;
+        }
+
+        const auto window = GetWindow();
+        if (window == nullptr)
+        {
+            SetCursor(cursors::arrow);
+            return;
+        }
+
+        if (is_selecting_)
+        {
+            SetCursor(cursors::i_beam);
+            return;
+        }
+
+        const auto p = point.value_or(AbsoluteToLocal(window->GetMousePosition()));
+        if (GetRect(RectRange::Padding).IsPointInside(p))
+            SetCursor(cursors::i_beam);
+        else
+            SetCursor(cursors::arrow);
     }
 }

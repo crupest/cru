@@ -1,6 +1,5 @@
 #include "application.h"
 #include "ui/window.h"
-#include "ui/events/ui_event.h"
 #include "ui/controls/linear_layout.h"
 #include "ui/controls/text_block.h"
 #include "ui/controls/toggle_button.h"
@@ -150,12 +149,12 @@ int APIENTRY wWinMain(
     ));
     */
 
-    const auto linear_layout = CreateWithLayout<LinearLayout>(Thickness(50, 50), Thickness(50, 50), LinearLayout::Orientation::Vertical, ControlList({
+    const auto linear_layout = CreateWithLayout<LinearLayout>(Thickness(50, 50), Thickness(50, 50), LinearLayout::Orientation::Vertical, ControlList{
             Button::Create({
                 TextBlock::Create(L"Button")
             }),
-            TextBox::Create()
-        }));
+            CreateWithLayout<TextBox>(Thickness(30), Thickness(20))
+        });
 
     linear_layout->SetBordered(true);
 

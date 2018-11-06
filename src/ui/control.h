@@ -29,17 +29,6 @@ namespace cru
             Point lefttop_position_absolute;
         };
 
-
-        enum class RectRange
-        {
-            Content, // content excluding padding, border and margin
-            Padding, // only including content and padding
-            HalfBorder, // including content, padding and half border
-            FullBorder, // including content, padding and full border
-            Margin // including content, padding, border and margin
-        };
-
-
         class Control : public Object
         {
             friend class Window;
@@ -176,6 +165,7 @@ namespace cru
 
             Rect GetRect(RectRange range);
 
+            Point TransformPoint(const Point& point, RectRange from = RectRange::Margin, RectRange to = RectRange::Content);
 
             //*************** region: border ***************
 

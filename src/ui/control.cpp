@@ -307,6 +307,18 @@ namespace cru {
             return result;
         }
 
+        Point Control::TransformPoint(const Point& point, const RectRange from, const RectRange to)
+        {
+            const auto rect_from = GetRect(from);
+            const auto rect_to = GetRect(to);
+            auto p = point;
+            p.x += rect_from.left;
+            p.y += rect_from.top;
+            p.x -= rect_to.left;
+            p.y -= rect_to.top;
+            return p;
+        }
+
         void Control::InvalidateBorder()
         {
             InvalidateLayout();
@@ -324,10 +336,13 @@ namespace cru {
 
         void Control::SetCursor(const Cursor::Ptr& cursor)
         {
-            cursor_ = cursor;
-            const auto window = GetWindow();
-            if (window && window->GetMouseHoverControl() == this)
-                window->UpdateCursor();
+            if (cursor != cursor_)
+            {
+                cursor_ = cursor;
+                const auto window = GetWindow();
+                if (window && window->GetMouseHoverControl() == this)
+                    window->UpdateCursor();
+            }
         }
 
         void Control::OnAddChild(Control* child)

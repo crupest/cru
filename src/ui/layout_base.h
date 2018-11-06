@@ -26,6 +26,15 @@ namespace cru
             Stretch
         };
 
+        enum class RectRange
+        {
+            Content, // content excluding padding, border and margin
+            Padding, // only including content and padding
+            HalfBorder, // including content, padding and half border
+            FullBorder, // including content, padding and full border
+            Margin // including content, padding, border and margin
+        };
+
         struct Thickness
         {
             constexpr static Thickness Zero()

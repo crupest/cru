@@ -79,6 +79,9 @@ namespace cru::ui::controls
 
         void RecreateTextLayout();
 
+        // param point is the mouse point relative to this control.
+        void UpdateCursor(const std::optional<Point>& point);
+
     private:
         String text_;
 

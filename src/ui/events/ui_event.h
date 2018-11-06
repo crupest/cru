@@ -6,6 +6,7 @@
 #include "base.h"
 #include "cru_event.h"
 #include "ui/ui_base.h"
+#include "ui/layout_base.h"
 
 namespace cru
 {
@@ -54,7 +55,7 @@ namespace cru
                 MouseEventArgs& operator=(MouseEventArgs&& other) = default;
                 ~MouseEventArgs() override = default;
 
-                Point GetPoint(Control* control) const;
+                Point GetPoint(Control* control, RectRange range = RectRange::Content) const;
 
             private:
                 std::optional<Point> point_;
