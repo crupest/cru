@@ -8,8 +8,8 @@ pool:
 
 variables:
   solution: '**/*.sln'
-  buildPlatform: 'x64'
-  buildConfiguration: 'Debug'
+  buildPlatform: 'x86, x64'
+  buildConfiguration: 'Debug, Release'
 
 steps:
 - task: VSBuild@1
