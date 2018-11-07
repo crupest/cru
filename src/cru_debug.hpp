@@ -2,8 +2,8 @@
 
 #include <functional>
 
-#include "base.h"
-#include "format.h"
+#include "base.hpp"
+#include "format.hpp"
 
 namespace cru::debug
 {

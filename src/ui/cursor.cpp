@@ -1,6 +1,6 @@
-#include "cursor.h"
+#include "cursor.hpp"
 
-#include "exception.h"
+#include "exception.hpp"
 
 namespace cru::ui
 {

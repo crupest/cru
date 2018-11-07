@@ -1,9 +1,9 @@
-#include "window.h"
+#include "window.hpp"
 
-#include "application.h"
-#include "graph/graph.h"
-#include "exception.h"
-#include "cursor.h"
+#include "application.hpp"
+#include "graph/graph.hpp"
+#include "exception.hpp"
+#include "cursor.hpp"
 
 namespace cru::ui
 {

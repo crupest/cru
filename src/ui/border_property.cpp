@@ -1,6 +1,6 @@
-#include "border_property.h"
+#include "border_property.hpp"
 
-#include "graph/graph.h"
+#include "graph/graph.hpp"
 
 namespace cru::ui
 {

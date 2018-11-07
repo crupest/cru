@@ -77,76 +77,76 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\application.h">
+    <ClInclude Include="src\graph\graph.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\base.h">
+    <ClInclude Include="src\ui\animations\animation.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\cru_event.h">
+    <ClInclude Include="src\ui\controls\button.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\exception.h">
+    <ClInclude Include="src\ui\controls\linear_layout.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\global_macros.h">
+    <ClInclude Include="src\ui\controls\text_block.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\system_headers.h">
+    <ClInclude Include="src\ui\controls\text_box.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\timer.h">
+    <ClInclude Include="src\ui\controls\text_control.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\graph\graph.h">
+    <ClInclude Include="src\ui\controls\toggle_button.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\ui\control.h">
+    <ClInclude Include="src\ui\events\ui_event.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\ui\layout_base.h">
+    <ClInclude Include="src\ui\border_property.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\ui\ui_base.h">
+    <ClInclude Include="src\ui\control.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\ui\window.h">
+    <ClInclude Include="src\ui\cursor.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\ui\animations\animation.h">
+    <ClInclude Include="src\ui\layout_base.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\ui\controls\button.h">
+    <ClInclude Include="src\ui\ui_base.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\ui\controls\linear_layout.h">
+    <ClInclude Include="src\ui\window.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\ui\controls\text_block.h">
+    <ClInclude Include="src\application.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\ui\controls\text_box.h">
+    <ClInclude Include="src\base.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\ui\controls\toggle_button.h">
+    <ClInclude Include="src\cru_debug.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\ui\events\ui_event.h">
+    <ClInclude Include="src\cru_event.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\ui\controls\text_control.h">
+    <ClInclude Include="src\exception.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\ui\border_property.h">
+    <ClInclude Include="src\format.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\ui\cursor.h">
+    <ClInclude Include="src\global_macros.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\format.h">
+    <ClInclude Include="src\system_headers.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\cru_debug.h">
+    <ClInclude Include="src\timer.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

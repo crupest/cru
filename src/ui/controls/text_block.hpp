@@ -1,6 +1,6 @@
 #pragma once
 
-#include "text_control.h"
+#include "text_control.hpp"
 
 namespace cru::ui::controls
 {

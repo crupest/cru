@@ -1,6 +1,6 @@
-#include "timer.h"
+#include "timer.hpp"
 
-#include "application.h"
+#include "application.hpp"
 
 namespace cru
 {

@@ -1,11 +1,11 @@
-#include "control.h"
+#include "control.hpp"
 
 #include <algorithm>
 
-#include "window.h"
-#include "graph/graph.h"
-#include "exception.h"
-#include "cru_debug.h"
+#include "window.hpp"
+#include "graph/graph.hpp"
+#include "exception.hpp"
+#include "cru_debug.hpp"
 
 namespace cru::ui
 {

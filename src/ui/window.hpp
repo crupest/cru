@@ -1,12 +1,12 @@
 #pragma once
 
-#include "system_headers.h"
+#include "system_headers.hpp"
 #include <map>
 #include <list>
 #include <memory>
 
-#include "control.h"
-#include "events/ui_event.h"
+#include "control.hpp"
+#include "events/ui_event.hpp"
 
 namespace cru::graph
 {

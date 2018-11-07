@@ -1,7 +1,7 @@
 #pragma once
 
-#include "text_control.h"
-#include "timer.h"
+#include "text_control.hpp"
+#include "timer.hpp"
 
 namespace cru::ui::controls
 {

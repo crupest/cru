@@ -1,7 +1,7 @@
-#include "base.h"
+#include "base.hpp"
 
-#include "system_headers.h"
-#include "exception.h"
+#include "system_headers.hpp"
+#include "exception.hpp"
 
 namespace cru
 {

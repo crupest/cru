@@ -1,10 +1,10 @@
-#include "text_box.h"
+#include "text_box.hpp"
 
 #include <cwctype>
 #include <cassert>
 
-#include "graph/graph.h"
-#include "exception.h"
+#include "graph/graph.hpp"
+#include "exception.hpp"
 
 namespace cru::ui::controls
 {

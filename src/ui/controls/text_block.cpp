@@ -1,6 +1,6 @@
-#include "text_block.h"
+#include "text_block.hpp"
 
-#include "ui/window.h"
+#include "ui/window.hpp"
 
 namespace cru::ui::controls
 {

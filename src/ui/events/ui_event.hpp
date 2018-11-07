@@ -1,12 +1,12 @@
 #pragma once
 
-#include "system_headers.h"
+#include "system_headers.hpp"
 #include <optional>
 
-#include "base.h"
-#include "cru_event.h"
-#include "ui/ui_base.h"
-#include "ui/layout_base.h"
+#include "base.hpp"
+#include "cru_event.hpp"
+#include "ui/ui_base.hpp"
+#include "ui/layout_base.hpp"
 
 namespace cru::ui
 {

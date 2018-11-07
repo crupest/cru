@@ -1,6 +1,6 @@
-#include "exception.h"
+#include "exception.hpp"
 
-#include "format.h"
+#include "format.hpp"
 
 namespace cru
 {

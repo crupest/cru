@@ -1,10 +1,10 @@
-#include "application.h"
-#include "ui/window.h"
-#include "ui/controls/linear_layout.h"
-#include "ui/controls/text_block.h"
-#include "ui/controls/toggle_button.h"
-#include "ui/controls/button.h"
-#include "ui/controls/text_box.h"
+#include "application.hpp"
+#include "ui/window.hpp"
+#include "ui/controls/linear_layout.hpp"
+#include "ui/controls/text_block.hpp"
+#include "ui/controls/toggle_button.hpp"
+#include "ui/controls/button.hpp"
+#include "ui/controls/text_box.hpp"
 
 using cru::String;
 using cru::Application;

@@ -1,7 +1,7 @@
-#include "toggle_button.h"
+#include "toggle_button.hpp"
 
-#include "graph/graph.h"
-#include "ui/animations/animation.h"
+#include "graph/graph.hpp"
+#include "ui/animations/animation.hpp"
 
 namespace cru::ui::controls
 {

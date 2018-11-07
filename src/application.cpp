@@ -1,11 +1,11 @@
-#include "application.h"
+#include "application.hpp"
 
-#include "exception.h"
-#include "timer.h"
-#include "ui/window.h"
-#include "ui/cursor.h"
-#include "graph/graph.h"
-#include "ui/animations/animation.h"
+#include "exception.hpp"
+#include "timer.hpp"
+#include "ui/window.hpp"
+#include "ui/cursor.hpp"
+#include "graph/graph.hpp"
+#include "ui/animations/animation.hpp"
 
 namespace cru {
     constexpr auto god_window_class_name = L"GodWindowClass";

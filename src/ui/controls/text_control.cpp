@@ -1,8 +1,8 @@
-#include "text_control.h"
+#include "text_control.hpp"
 
-#include "ui/window.h"
-#include "graph/graph.h"
-#include "exception.h"
+#include "ui/window.hpp"
+#include "graph/graph.hpp"
+#include "exception.hpp"
 #include <cassert>
 
 namespace cru::ui::controls

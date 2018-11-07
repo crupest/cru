@@ -1,7 +1,7 @@
-#include "graph.h"
+#include "graph.hpp"
 
-#include "application.h"
-#include "exception.h"
+#include "application.hpp"
+#include "exception.hpp"
 
 namespace cru::graph
 {

@@ -1,6 +1,6 @@
-#include "ui_event.h"
+#include "ui_event.hpp"
 
-#include "ui/control.h"
+#include "ui/control.hpp"
 
 namespace cru::ui::events
 {

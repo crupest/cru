@@ -1,18 +1,18 @@
 #pragma once
 
-#include "system_headers.h"
+#include "system_headers.hpp"
 #include <unordered_map>
 #include <any>
 #include <typeinfo>
 #include <utility>
 
-#include "base.h"
-#include "format.h"
-#include "ui_base.h"
-#include "layout_base.h"
-#include "events/ui_event.h"
-#include "border_property.h"
-#include "cursor.h"
+#include "base.hpp"
+#include "format.hpp"
+#include "ui_base.hpp"
+#include "layout_base.hpp"
+#include "events/ui_event.hpp"
+#include "border_property.hpp"
+#include "cursor.hpp"
 
 namespace cru::ui
 {

@@ -1,6 +1,6 @@
-#include "button.h"
+#include "button.hpp"
 
-#include "graph/graph.h"
+#include "graph/graph.hpp"
 
 namespace cru::ui::controls
 {

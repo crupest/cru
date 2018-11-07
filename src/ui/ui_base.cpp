@@ -1,6 +1,6 @@
-#include "ui_base.h"
+#include "ui_base.hpp"
 
-#include "system_headers.h"
+#include "system_headers.hpp"
 
 namespace cru::ui
 {

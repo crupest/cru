@@ -2,9 +2,9 @@
 
 #include <unordered_map>
 
-#include "base.h"
-#include "application.h"
-#include "timer.h"
+#include "base.hpp"
+#include "application.hpp"
+#include "timer.hpp"
 
 namespace cru::ui::animations
 {

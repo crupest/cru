@@ -2,8 +2,8 @@
 
 #include <unordered_set>
 
-#include "base.h"
-#include "ui_base.h"
+#include "base.hpp"
+#include "ui_base.hpp"
 
 namespace cru::ui
 {

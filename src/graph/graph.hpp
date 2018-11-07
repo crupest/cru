@@ -1,10 +1,10 @@
 #pragma once
 
-#include "system_headers.h"
+#include "system_headers.hpp"
 #include <memory>
 
-#include "base.h"
-#include "application.h"
+#include "base.hpp"
+#include "application.hpp"
 
 
 namespace cru::graph
