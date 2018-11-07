@@ -101,12 +101,27 @@ namespace cru
 
             constexpr bool Validate() const
             {
-                return length >= 0.0;
+                if (length < 0.0)
+                    return false;
+                if (min.has_value() && min.value() < 0.0)
+                    return false;
+                if (max.has_value() && max.value() < 0.0)
+                    return false;
+                if (min.has_value() && max.has_value() && min.value() > max.value())
+                    return false;
+                return true;
             }
 
+            // only used in exactly mode, specify the exactly side length of content.
             float length = 0.0;
             MeasureMode mode = MeasureMode::Content;
             Alignment alignment = Alignment::Center;
+
+            // min and max specify the min/max side length of content.
+            // they are used as hint and respect the actual size that content needs.
+            // when mode is exactly, length is coerced into the min-max range.
+            std::optional<float> min = std::nullopt;
+            std::optional<float> max = std::nullopt;
         };
 
         struct BasicLayoutParams final

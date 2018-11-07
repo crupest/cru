@@ -689,11 +689,6 @@ namespace cru {
             return value < 0 ? 0 : value;
         }
 
-        inline Size AtLeast0(const Size& size)
-        {
-            return Size(AtLeast0(size.width), AtLeast0(size.height));
-        }
-
         Size Control::OnMeasureCore(const Size& available_size)
         {
             const auto layout_params = GetLayoutParams();
@@ -715,11 +710,14 @@ namespace cru {
 
             auto&& get_content_measure_length = [](const LayoutSideParams& layout_length, const float available_length, const float outer_length) -> float
             {
+                float length;
                 if (layout_length.mode == MeasureMode::Exactly)
-                    return layout_length.length;
-                if (available_length > outer_length)
-                    return available_length - outer_length;
-                return 0.0;
+                    length = layout_length.length;
+                else if (available_length > outer_length)
+                    length = available_length - outer_length;
+                else
+                    length = 0;
+                return Coerce(length, layout_length.min, layout_length.max);
             };
 
             // if padding, margin and border exceeded, then content size is 0.
@@ -735,7 +733,7 @@ namespace cru {
                 // only use measure length when stretch and actual length is smaller than measure length, that is "stretch"
                 if (layout_length.mode == MeasureMode::Stretch && actual_length < measure_length)
                     return measure_length;
-                return actual_length;
+                return Coerce(actual_length, layout_length.min, std::nullopt);
             };
 
             const auto final_size = Size(

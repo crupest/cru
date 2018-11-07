@@ -129,6 +129,13 @@ int APIENTRY wWinMain(
     }
 
     {
+        const auto text_box = TextBox::Create();
+        text_box->GetLayoutParams()->width.min = 50.0f;
+        text_box->GetLayoutParams()->width.max = 100.0f;
+        layout->AddChild(text_box);
+    }
+
+    {
         const auto text_block = CreateWithLayout<TextBlock>(LayoutSideParams::Stretch(), LayoutSideParams::Stretch(), L"This is a very very very very very long sentence!!!");
         text_block->SetSelectable(true);
         layout->AddChild(text_block);
