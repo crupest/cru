@@ -2,22 +2,16 @@
 
 #include "ui/window.h"
 
-namespace cru
+namespace cru::ui::controls
 {
-    namespace ui
+    TextBlock::TextBlock(const Microsoft::WRL::ComPtr<IDWriteTextFormat>& init_text_format,
+        const Microsoft::WRL::ComPtr<ID2D1Brush>& init_brush) : TextControl(init_text_format, init_brush)
     {
-        namespace controls
-        {
-            TextBlock::TextBlock(const Microsoft::WRL::ComPtr<IDWriteTextFormat>& init_text_format,
-                const Microsoft::WRL::ComPtr<ID2D1Brush>& init_brush) : TextControl(init_text_format, init_brush)
-            {
 
-            }
+    }
 
-            StringView TextBlock::GetControlType() const
-            {
-                return control_type;
-            }
-        }
+    StringView TextBlock::GetControlType() const
+    {
+        return control_type;
     }
 }
