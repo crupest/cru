@@ -1,7 +1,5 @@
 #pragma once
 
-
-#include "system_headers.h"
 #include <functional>
 
 #include "base.h"
@@ -9,6 +7,8 @@
 
 namespace cru::debug
 {
+    void DebugMessage(const StringView& message);
+
 #ifdef CRU_DEBUG
     inline void DebugTime(const std::function<void()>& action, const StringView& hint_message)
     {
@@ -16,7 +16,7 @@ namespace cru::debug
         action();
         const auto after = std::chrono::steady_clock::now();
         const auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(after - before);
-        OutputDebugStringW(Format(L"{}: {}ms.\n", hint_message, duration.count()).c_str());
+        DebugMessage(Format(L"{}: {}ms.\n", hint_message, duration.count()));
     }
 
     template<typename TReturn>
@@ -26,7 +26,7 @@ namespace cru::debug
         auto&& result = action();
         const auto after = std::chrono::steady_clock::now();
         const auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(after - before);
-        OutputDebugStringW(Format(L"{}: {}ms.\n", hint_message, duration.count()).c_str());
+        DebugMessage(Format(L"{}: {}ms.\n", hint_message, duration.count()));
         return std::move(result);
     }
 #else

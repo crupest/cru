@@ -5,6 +5,7 @@
 #include "window.h"
 #include "graph/graph.h"
 #include "exception.h"
+#include "cru_debug.h"
 
 namespace cru {
     namespace ui {
@@ -697,6 +698,9 @@ namespace cru {
         {
             const auto layout_params = GetLayoutParams();
 
+            if (!layout_params->Validate())
+                throw std::runtime_error("LayoutParams is not valid. Please check it.");
+
             auto border_size = Size::Zero();
             if (is_bordered_)
             {
@@ -704,54 +708,39 @@ namespace cru {
                 border_size = Size(border_width * 2.0f, border_width * 2.0f);
             }
 
+            // the total size of padding, border and margin
             const auto outer_size = ThicknessToSize(layout_params->padding) +
                 ThicknessToSize(layout_params->margin) + border_size;
 
-            if (!layout_params->Validate())
-                throw std::runtime_error("LayoutParams is not valid. Please check it.");
 
-            auto&& get_available_length_for_child = [](const LayoutSideParams& layout_length, const float available_length) -> float
+            auto&& get_content_measure_length = [](const LayoutSideParams& layout_length, const float available_length, const float outer_length) -> float
             {
-                switch (layout_length.mode)
-                {
-                case MeasureMode::Exactly:
-                {
-                    return std::min(layout_length.length, available_length);
-                }
-                case MeasureMode::Stretch:
-                case MeasureMode::Content:
-                {
-                    return available_length;
-                }
-                default:
-                    UnreachableCode();
-                }
+                if (layout_length.mode == MeasureMode::Exactly)
+                    return layout_length.length;
+                if (available_length > outer_length)
+                    return available_length - outer_length;
+                return 0.0;
             };
 
-            const auto size_for_children = AtLeast0(Size(
-                get_available_length_for_child(layout_params->width, available_size.width),
-                get_available_length_for_child(layout_params->height, available_size.height)
-            ) - outer_size);
+            // if padding, margin and border exceeded, then content size is 0.
+            const auto content_measure_size = Size(
+                get_content_measure_length(layout_params->width, available_size.width, outer_size.width),
+                get_content_measure_length(layout_params->height, available_size.height, outer_size.height)
+            );
 
-            const auto actual_size_for_children = OnMeasureContent(size_for_children);
+            const auto content_actual_size = OnMeasureContent(content_measure_size);
 
-            auto&& calculate_final_length = [](const LayoutSideParams& layout_length, const float length_for_children, const float actual_length_for_children) -> float
+            auto&& calculate_final_length = [](const LayoutSideParams& layout_length, const float measure_length, const float actual_length) -> float
             {
-                switch (layout_length.mode)
-                {
-                case MeasureMode::Exactly:
-                case MeasureMode::Stretch:
-                    return length_for_children;
-                case MeasureMode::Content:
-                    return actual_length_for_children;
-                default:
-                    UnreachableCode();
-                }
+                // only use measure length when stretch and actual length is smaller than measure length, that is "stretch"
+                if (layout_length.mode == MeasureMode::Stretch && actual_length < measure_length)
+                    return measure_length;
+                return actual_length;
             };
 
             const auto final_size = Size(
-                calculate_final_length(layout_params->width, size_for_children.width, actual_size_for_children.width),
-                calculate_final_length(layout_params->height, size_for_children.height, actual_size_for_children.height)
+                calculate_final_length(layout_params->width, content_measure_size.width, content_actual_size.width),
+                calculate_final_length(layout_params->height, content_measure_size.height, content_actual_size.height)
             ) + outer_size;
 
             return final_size;
@@ -773,6 +762,11 @@ namespace cru {
                 rect.width - layout_params->padding.GetHorizontalTotal() - layout_params->margin.GetHorizontalTotal() - border_width * 2.0f,
                 rect.height - layout_params->padding.GetVerticalTotal() - layout_params->margin.GetVerticalTotal() - border_width * 2.0f
             );
+
+            if (content_rect.width < 0.0)
+                throw std::runtime_error(Format("Width to layout must sufficient. But in {}, width for content is {}.", ToUtf8String(GetControlType()), content_rect.width));
+            if (content_rect.height < 0.0)
+                throw std::runtime_error(Format("Height to layout must sufficient. But in {}, height for content is {}.", ToUtf8String(GetControlType()), content_rect.height));
 
             OnLayoutContent(content_rect);
         }

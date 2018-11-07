@@ -84,7 +84,7 @@ int APIENTRY wWinMain(
     });
     */
 
-    /*
+    
     //test 2
 
     const auto layout = CreateWithLayout<LinearLayout>(LayoutSideParams::Exactly(500), LayoutSideParams::Content());
@@ -112,7 +112,8 @@ int APIENTRY wWinMain(
 
     {
         const auto button = Button::Create();
-        button->AddChild(MarginContainer::Create(Thickness(20, 5), { TextBlock::Create(L"button") }));
+        button->GetLayoutParams()->padding = Thickness(20, 5);
+        button->AddChild(TextBlock::Create(L"button"));
         layout->AddChild(button);
     }
 
@@ -138,7 +139,6 @@ int APIENTRY wWinMain(
 
 
     window.AddChild(layout);
-    */
 
     /*
     window.AddChild(
@@ -149,6 +149,7 @@ int APIENTRY wWinMain(
     ));
     */
 
+    /* test 3
     const auto linear_layout = CreateWithLayout<LinearLayout>(Thickness(50, 50), Thickness(50, 50), LinearLayout::Orientation::Vertical, ControlList{
             Button::Create({
                 TextBlock::Create(L"Button")
@@ -159,6 +160,7 @@ int APIENTRY wWinMain(
     linear_layout->SetBordered(true);
 
     window.AddChild(linear_layout);
+    */
 
     window.Show();
 

@@ -63,6 +63,11 @@ namespace cru
                 return top + bottom;
             }
 
+            float Validate() const
+            {
+                return left >= 0.0 && top >= 0.0 && right >= 0.0 && bottom >= 0.0;
+            }
+
             float left;
             float top;
             float right;
@@ -96,7 +101,7 @@ namespace cru
 
             constexpr bool Validate() const
             {
-                return !(mode == MeasureMode::Exactly && length < 0.0);
+                return length >= 0.0;
             }
 
             float length = 0.0;
@@ -115,7 +120,7 @@ namespace cru
 
             bool Validate() const
             {
-                return width.Validate() && height.Validate();
+                return width.Validate() && height.Validate() && margin.Validate() && padding.Validate();
             }
 
             LayoutSideParams width;

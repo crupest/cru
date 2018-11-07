@@ -27,7 +27,7 @@ namespace cru::ui::controls
 
     Size LinearLayout::OnMeasureContent(const Size& available_size)
     {
-        auto rest_available_size_for_children = available_size;
+        auto actual_size_for_children = Size::Zero();
 
         float secondary_side_child_max_length = 0;
 
@@ -40,9 +40,10 @@ namespace cru::ui::controls
                 const auto mode = control->GetLayoutParams()->width.mode;
                 if (mode == MeasureMode::Content || mode == MeasureMode::Exactly)
                 {
-                    control->Measure(AtLeast0(rest_available_size_for_children));
+                    Size current_available_size(AtLeast0(available_size.width - actual_size_for_children.width), available_size.height);
+                    control->Measure(current_available_size);
                     const auto size = control->GetDesiredSize();
-                    rest_available_size_for_children.width -= size.width;
+                    actual_size_for_children.width += size.width;
                     secondary_side_child_max_length = std::max(size.height, secondary_side_child_max_length);
                 }
                 else
@@ -54,9 +55,10 @@ namespace cru::ui::controls
                 const auto mode = control->GetLayoutParams()->height.mode;
                 if (mode == MeasureMode::Content || mode == MeasureMode::Exactly)
                 {
-                    control->Measure(AtLeast0(rest_available_size_for_children));
+                    Size current_available_size(available_size.width, AtLeast0(available_size.height - actual_size_for_children.height));
+                    control->Measure(current_available_size);
                     const auto size = control->GetDesiredSize();
-                    rest_available_size_for_children.height -= size.height;
+                    actual_size_for_children.height += size.height;
                     secondary_side_child_max_length = std::max(size.width, secondary_side_child_max_length);
                 }
                 else
@@ -65,38 +67,31 @@ namespace cru::ui::controls
 
         if (orientation_ == Orientation::Horizontal)
         {
-            const auto available_width = rest_available_size_for_children.width / stretch_control_list.size();
+            const auto available_width = AtLeast0(available_size.width - actual_size_for_children.width) / stretch_control_list.size();
             for (const auto control : stretch_control_list)
             {
-                control->Measure(Size(AtLeast0(available_width), rest_available_size_for_children.height));
+                control->Measure(Size(available_width, available_size.height));
                 const auto size = control->GetDesiredSize();
-                rest_available_size_for_children.width -= size.width;
+                actual_size_for_children.width += size.width;
                 secondary_side_child_max_length = std::max(size.height, secondary_side_child_max_length);
             }
         }
         else
         {
-            const auto available_height = rest_available_size_for_children.height / stretch_control_list.size();
+            const auto available_height = AtLeast0(available_size.height - actual_size_for_children.height) / stretch_control_list.size();
             for (const auto control : stretch_control_list)
             {
-                control->Measure(Size(rest_available_size_for_children.width, AtLeast0(available_height)));
+                control->Measure(Size(available_size.width, available_height));
                 const auto size = control->GetDesiredSize();
-                rest_available_size_for_children.height -= size.height;
+                actual_size_for_children.height += size.height;
                 secondary_side_child_max_length = std::max(size.width, secondary_side_child_max_length);
             }
         }
 
-        auto actual_size_for_children = available_size;
         if (orientation_ == Orientation::Horizontal)
-        {
-            actual_size_for_children.width -= rest_available_size_for_children.width;
             actual_size_for_children.height = secondary_side_child_max_length;
-        }
         else
-        {
             actual_size_for_children.width = secondary_side_child_max_length;
-            actual_size_for_children.height -= rest_available_size_for_children.height;
-        }
 
         return actual_size_for_children;
     }
