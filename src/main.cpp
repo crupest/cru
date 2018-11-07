@@ -101,11 +101,12 @@ int APIENTRY wWinMain(
         inner_layout->AddChild(TextBlock::Create(L"Toggle debug border"));
 
         const auto toggle_button = ToggleButton::Create();
+#ifdef CRU_DEBUG_LAYOUT
         toggle_button->toggle_event.AddHandler([&window](cru::ui::events::ToggleEventArgs& args)
         {
             window.SetDebugLayout(args.GetNewState());
         });
-
+#endif
         inner_layout->AddChild(toggle_button);
         layout->AddChild(inner_layout);
     }

@@ -30,13 +30,13 @@ namespace cru::debug
         return std::move(result);
     }
 #else
-    inline void DebugTime(Function<void()>&& action, const StringView& hint_message)
+    inline void DebugTime(const std::function<void()>& action, const StringView& hint_message)
     {
         action();
     }
 
     template<typename TReturn>
-    TReturn DebugTime(Function<TReturn()>&& action, const StringView& hint_message)
+    TReturn DebugTime(const std::function<TReturn()>& action, const StringView& hint_message)
     {
         return action();
     }
