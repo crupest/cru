@@ -19,6 +19,8 @@ namespace cru::ui::controls
             return text_block;
         }
 
+        using TextControl::SetSelectable; // Make this public.
+
     protected:
         TextBlock(
             const Microsoft::WRL::ComPtr<IDWriteTextFormat>& init_text_format,

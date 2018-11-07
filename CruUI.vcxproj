@@ -117,6 +117,7 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\cru_debug.cpp" />
     <ClCompile Include="src\application.cpp" />
     <ClCompile Include="src\base.cpp" />
     <ClCompile Include="src\exception.cpp" />
@@ -144,7 +145,7 @@
     <ClInclude Include="src\application.h" />
     <ClInclude Include="src\base.h" />
     <ClInclude Include="src\cru_event.h" />
-    <ClInclude Include="src\debug_base.h" />
+    <ClInclude Include="src\cru_debug.h" />
     <ClInclude Include="src\exception.h" />
     <ClInclude Include="src\global_macros.h" />
     <ClInclude Include="src\graph\graph.h" />

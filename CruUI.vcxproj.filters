@@ -72,6 +72,9 @@
     <ClCompile Include="src\ui\cursor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\cru_debug.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\application.h">
@@ -81,9 +84,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\cru_event.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\debug_base.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\exception.h">
@@ -144,6 +144,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\format.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\cru_debug.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

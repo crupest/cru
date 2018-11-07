@@ -5,167 +5,184 @@
 #include "base.h"
 #include "ui_base.h"
 
-namespace cru
+namespace cru::ui
 {
-    namespace ui
+    class Control;
+    class Window;
+
+    enum class Alignment
     {
-        class Control;
-        class Window;
+        Center,
+        Start,
+        End
+    };
 
-        enum class Alignment
+    enum class MeasureMode
+    {
+        Exactly,
+        Content,
+        Stretch
+    };
+
+    enum class RectRange
+    {
+        Content, // content excluding padding, border and margin
+        Padding, // only including content and padding
+        HalfBorder, // including content, padding and half border
+        FullBorder, // including content, padding and full border
+        Margin // including content, padding, border and margin
+    };
+
+    struct Thickness
+    {
+        constexpr static Thickness Zero()
         {
-            Center,
-            Start,
-            End
-        };
+            return Thickness(0);
+        }
 
-        enum class MeasureMode
+        constexpr Thickness() : Thickness(0) { }
+
+        constexpr explicit Thickness(const float width)
+            : left(width), top(width), right(width), bottom(width) { }
+
+        constexpr explicit Thickness(const float horizontal, const float vertical)
+            : left(horizontal), top(vertical), right(horizontal), bottom(vertical) { }
+
+        constexpr Thickness(const float left, const float top, const float right, const float bottom)
+            : left(left), top(top), right(right), bottom(bottom) { }
+
+        float GetHorizontalTotal() const
         {
-            Exactly,
-            Content,
-            Stretch
-        };
+            return left + right;
+        }
 
-        enum class RectRange
+        float GetVerticalTotal() const
         {
-            Content, // content excluding padding, border and margin
-            Padding, // only including content and padding
-            HalfBorder, // including content, padding and half border
-            FullBorder, // including content, padding and full border
-            Margin // including content, padding, border and margin
-        };
+            return top + bottom;
+        }
 
-        struct Thickness
+        float Validate() const
         {
-            constexpr static Thickness Zero()
-            {
-                return Thickness(0);
-            }
+            return left >= 0.0 && top >= 0.0 && right >= 0.0 && bottom >= 0.0;
+        }
 
-            constexpr Thickness() : Thickness(0) { }
+        float left;
+        float top;
+        float right;
+        float bottom;
+    };
 
-            constexpr explicit Thickness(const float width)
-                : left(width), top(width), right(width), bottom(width) { }
-
-            constexpr explicit Thickness(const float horizontal, const float vertical)
-                : left(horizontal), top(vertical), right(horizontal), bottom(vertical) { }
-
-            constexpr Thickness(const float left, const float top, const float right, const float bottom)
-                : left(left), top(top), right(right), bottom(bottom) { }
-
-            float GetHorizontalTotal() const
-            {
-                return left + right;
-            }
-
-            float GetVerticalTotal() const
-            {
-                return top + bottom;
-            }
-
-            float left;
-            float top;
-            float right;
-            float bottom;
-        };
-
-        struct LayoutSideParams final
+    struct LayoutSideParams final
+    {
+        constexpr static LayoutSideParams Exactly(const float length, const Alignment alignment = Alignment::Center)
         {
-            constexpr static LayoutSideParams Exactly(const float length, const Alignment alignment = Alignment::Center)
-            {
-                return LayoutSideParams(MeasureMode::Exactly, length, alignment);
-            }
+            return LayoutSideParams(MeasureMode::Exactly, length, alignment);
+        }
 
-            constexpr static LayoutSideParams Content(const Alignment alignment = Alignment::Center)
-            {
-                return LayoutSideParams(MeasureMode::Content, 0, alignment);
-            }
-
-            constexpr static LayoutSideParams Stretch(const Alignment alignment = Alignment::Center)
-            {
-                return LayoutSideParams(MeasureMode::Stretch, 0, alignment);
-            }
-
-            constexpr LayoutSideParams() = default;
-
-            constexpr explicit LayoutSideParams(const MeasureMode mode, const float length, const Alignment alignment)
-                : length(length), mode(mode), alignment(alignment)
-            {
-
-            }
-
-            constexpr bool Validate() const
-            {
-                return !(mode == MeasureMode::Exactly && length < 0.0);
-            }
-
-            float length = 0.0;
-            MeasureMode mode = MeasureMode::Content;
-            Alignment alignment = Alignment::Center;
-        };
-
-        struct BasicLayoutParams final
+        constexpr static LayoutSideParams Content(const Alignment alignment = Alignment::Center)
         {
-            BasicLayoutParams() = default;
-            BasicLayoutParams(const BasicLayoutParams&) = default;
-            BasicLayoutParams(BasicLayoutParams&&) = default;
-            BasicLayoutParams& operator = (const BasicLayoutParams&) = default;
-            BasicLayoutParams& operator = (BasicLayoutParams&&) = default;
-            ~BasicLayoutParams() = default;
+            return LayoutSideParams(MeasureMode::Content, 0, alignment);
+        }
 
-            bool Validate() const
-            {
-                return width.Validate() && height.Validate();
-            }
-
-            LayoutSideParams width;
-            LayoutSideParams height;
-            Thickness padding;
-            Thickness margin;
-        };
-
-
-        class LayoutManager : public Object
+        constexpr static LayoutSideParams Stretch(const Alignment alignment = Alignment::Center)
         {
-        public:
-            static LayoutManager* GetInstance();
+            return LayoutSideParams(MeasureMode::Stretch, 0, alignment);
+        }
 
-        public:
-            LayoutManager() = default;
-            LayoutManager(const LayoutManager& other) = delete;
-            LayoutManager(LayoutManager&& other) = delete;
-            LayoutManager& operator=(const LayoutManager& other) = delete;
-            LayoutManager& operator=(LayoutManager&& other) = delete;
-            ~LayoutManager() override = default;
+        constexpr LayoutSideParams() = default;
+
+        constexpr explicit LayoutSideParams(const MeasureMode mode, const float length, const Alignment alignment)
+            : length(length), mode(mode), alignment(alignment)
+        {
+
+        }
+
+        constexpr bool Validate() const
+        {
+            if (length < 0.0)
+                return false;
+            if (min.has_value() && min.value() < 0.0)
+                return false;
+            if (max.has_value() && max.value() < 0.0)
+                return false;
+            if (min.has_value() && max.has_value() && min.value() > max.value())
+                return false;
+            return true;
+        }
+
+        // only used in exactly mode, specify the exactly side length of content.
+        float length = 0.0;
+        MeasureMode mode = MeasureMode::Content;
+        Alignment alignment = Alignment::Center;
+
+        // min and max specify the min/max side length of content.
+        // they are used as hint and respect the actual size that content needs.
+        // when mode is exactly, length is coerced into the min-max range.
+        std::optional<float> min = std::nullopt;
+        std::optional<float> max = std::nullopt;
+    };
+
+    struct BasicLayoutParams final
+    {
+        BasicLayoutParams() = default;
+        BasicLayoutParams(const BasicLayoutParams&) = default;
+        BasicLayoutParams(BasicLayoutParams&&) = default;
+        BasicLayoutParams& operator = (const BasicLayoutParams&) = default;
+        BasicLayoutParams& operator = (BasicLayoutParams&&) = default;
+        ~BasicLayoutParams() = default;
+
+        bool Validate() const
+        {
+            return width.Validate() && height.Validate() && margin.Validate() && padding.Validate();
+        }
+
+        LayoutSideParams width;
+        LayoutSideParams height;
+        Thickness padding;
+        Thickness margin;
+    };
 
 
-            //*************** region: position cache ***************
+    class LayoutManager : public Object
+    {
+    public:
+        static LayoutManager* GetInstance();
 
-            //Mark position cache of the control and its descendants invalid,
-            //(which is saved as an auto-managed list internal)
-            //and send a message to refresh them.
-            void InvalidateControlPositionCache(Control* control);
-
-            //Refresh position cache of the control and its descendants whose cache
-            //has been marked as invalid.
-            void RefreshInvalidControlPositionCache();
-
-            //Refresh position cache of the control and its descendants immediately.
-            static void RefreshControlPositionCache(Control* control);
+    public:
+        LayoutManager() = default;
+        LayoutManager(const LayoutManager& other) = delete;
+        LayoutManager(LayoutManager&& other) = delete;
+        LayoutManager& operator=(const LayoutManager& other) = delete;
+        LayoutManager& operator=(LayoutManager&& other) = delete;
+        ~LayoutManager() override = default;
 
 
-            //*************** region: layout ***************
+        //*************** region: position cache ***************
 
-            void InvalidateWindowLayout(Window* window);
+        //Mark position cache of the control and its descendants invalid,
+        //(which is saved as an auto-managed list internal)
+        //and send a message to refresh them.
+        void InvalidateControlPositionCache(Control* control);
 
-            void RefreshInvalidWindowLayout();
+        //Refresh position cache of the control and its descendants whose cache
+        //has been marked as invalid.
+        void RefreshInvalidControlPositionCache();
 
-        private:
-            static void RefreshControlPositionCacheInternal(Control* control, const Point& parent_lefttop_absolute);
+        //Refresh position cache of the control and its descendants immediately.
+        static void RefreshControlPositionCache(Control* control);
 
-        private:
-            std::unordered_set<Control*> cache_invalid_controls_;
-            std::unordered_set<Window*> layout_invalid_windows_;
-        };
-    }
+
+        //*************** region: layout ***************
+
+        void InvalidateWindowLayout(Window* window);
+
+        void RefreshInvalidWindowLayout();
+
+    private:
+        static void RefreshControlPositionCacheInternal(Control* control, const Point& parent_lefttop_absolute);
+
+    private:
+        std::unordered_set<Control*> cache_invalid_controls_;
+        std::unordered_set<Window*> layout_invalid_windows_;
+    };
 }

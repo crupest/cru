@@ -84,7 +84,7 @@ int APIENTRY wWinMain(
     });
     */
 
-    /*
+    
     //test 2
 
     const auto layout = CreateWithLayout<LinearLayout>(LayoutSideParams::Exactly(500), LayoutSideParams::Content());
@@ -101,18 +101,20 @@ int APIENTRY wWinMain(
         inner_layout->AddChild(TextBlock::Create(L"Toggle debug border"));
 
         const auto toggle_button = ToggleButton::Create();
+#ifdef CRU_DEBUG_LAYOUT
         toggle_button->toggle_event.AddHandler([&window](cru::ui::events::ToggleEventArgs& args)
         {
             window.SetDebugLayout(args.GetNewState());
         });
-
+#endif
         inner_layout->AddChild(toggle_button);
         layout->AddChild(inner_layout);
     }
 
     {
         const auto button = Button::Create();
-        button->AddChild(MarginContainer::Create(Thickness(20, 5), { TextBlock::Create(L"button") }));
+        button->GetLayoutParams()->padding = Thickness(20, 5);
+        button->AddChild(TextBlock::Create(L"button"));
         layout->AddChild(button);
     }
 
@@ -128,6 +130,13 @@ int APIENTRY wWinMain(
     }
 
     {
+        const auto text_box = TextBox::Create();
+        text_box->GetLayoutParams()->width.min = 50.0f;
+        text_box->GetLayoutParams()->width.max = 100.0f;
+        layout->AddChild(text_box);
+    }
+
+    {
         const auto text_block = CreateWithLayout<TextBlock>(LayoutSideParams::Stretch(), LayoutSideParams::Stretch(), L"This is a very very very very very long sentence!!!");
         text_block->SetSelectable(true);
         layout->AddChild(text_block);
@@ -138,7 +147,6 @@ int APIENTRY wWinMain(
 
 
     window.AddChild(layout);
-    */
 
     /*
     window.AddChild(
@@ -149,6 +157,7 @@ int APIENTRY wWinMain(
     ));
     */
 
+    /* test 3
     const auto linear_layout = CreateWithLayout<LinearLayout>(Thickness(50, 50), Thickness(50, 50), LinearLayout::Orientation::Vertical, ControlList{
             Button::Create({
                 TextBlock::Create(L"Button")
@@ -159,6 +168,7 @@ int APIENTRY wWinMain(
     linear_layout->SetBordered(true);
 
     window.AddChild(linear_layout);
+    */
 
     window.Show();
 

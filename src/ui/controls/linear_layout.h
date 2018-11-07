@@ -4,6 +4,8 @@
 
 namespace cru::ui::controls
 {
+    // Min length of main side in layout params is of no meaning.
+    // All children will layout from start and redundant length is blank.
     class LinearLayout : public Control
     {
     public:
