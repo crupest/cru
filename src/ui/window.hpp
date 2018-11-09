@@ -44,7 +44,10 @@ namespace cru::ui
     class WindowManager : public Object
     {
     public:
+        static WindowManager* GetInstance();
+    private:
         WindowManager();
+    public:
         WindowManager(const WindowManager& other) = delete;
         WindowManager(WindowManager&& other) = delete;
         WindowManager& operator=(const WindowManager& other) = delete;

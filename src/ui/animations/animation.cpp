@@ -2,6 +2,8 @@
 
 #include <utility>
 
+#include "application.hpp"
+
 namespace cru::ui::animations
 {
     namespace details
@@ -65,6 +67,14 @@ namespace cru::ui::animations
 
             AnimationTimeUnit current_time_ = AnimationTimeUnit::zero();
         };
+
+        AnimationManager* AnimationManager::GetInstance()
+        {
+            return Application::GetInstance()->ResolveSingleton<AnimationManager>([](auto)
+            {
+                return new AnimationManager{};
+            });
+        }
 
         AnimationManager::AnimationManager()
         {

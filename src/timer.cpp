@@ -4,9 +4,12 @@
 
 namespace cru
 {
-    inline TimerManager* GetTimerManager()
+    TimerManager* TimerManager::GetInstance()
     {
-        return Application::GetInstance()->GetTimerManager();
+        return Application::GetInstance()->ResolveSingleton<TimerManager>([](auto)
+        {
+            return new TimerManager{};
+        });
     }
 
     UINT_PTR TimerManager::CreateTimer(const UINT milliseconds, const bool loop, const TimerAction& action)
@@ -41,20 +44,20 @@ namespace cru
 
     }
 
-    void TimerTask::Cancel()
+    void TimerTask::Cancel() const
     {
-        GetTimerManager()->KillTimer(id_);
+        TimerManager::GetInstance()->KillTimer(id_);
     }
 
     TimerTask SetTimeout(std::chrono::milliseconds milliseconds, const TimerAction& action)
     {
-        const auto id = GetTimerManager()->CreateTimer(static_cast<UINT>(milliseconds.count()), false, action);
+        const auto id = TimerManager::GetInstance()->CreateTimer(static_cast<UINT>(milliseconds.count()), false, action);
         return TimerTask(id);
     }
 
     TimerTask SetInterval(std::chrono::milliseconds milliseconds, const TimerAction& action)
     {
-        const auto id = GetTimerManager()->CreateTimer(static_cast<UINT>(milliseconds.count()), true, action);
+        const auto id = TimerManager::GetInstance()->CreateTimer(static_cast<UINT>(milliseconds.count()), true, action);
         return TimerTask(id);
     }
 }

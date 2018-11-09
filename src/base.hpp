@@ -5,19 +5,15 @@
 
 
 #include <string>
-#include <type_traits>
 #include <stdexcept>
-#include <memory>
 #include <string_view>
 #include <chrono>
 #include <optional>
+// ReSharper disable once CppUnusedIncludeDirective
+#include <type_traits>
 
 namespace cru
 {
-    template<typename T> struct is_shared_ptr : std::false_type {};
-    template<typename T> struct is_shared_ptr<std::shared_ptr<T>> : std::true_type {};
-    template<typename T> constexpr bool is_shared_ptr_v = is_shared_ptr<T>::value;
-
     template<typename T> struct type_tag {};
 
     //typedefs

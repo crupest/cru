@@ -5,7 +5,6 @@
 #include "ui/window.hpp"
 #include "ui/cursor.hpp"
 #include "graph/graph.hpp"
-#include "ui/animations/animation.hpp"
 
 namespace cru {
     constexpr auto god_window_class_name = L"GodWindowClass";
@@ -64,12 +63,12 @@ namespace cru {
         case WM_TIMER:
         {
             const auto id = static_cast<UINT_PTR>(w_param);
-            const auto action = application_->GetTimerManager()->GetAction(id);
+            const auto action = TimerManager::GetInstance()->GetAction(id);
             if (action.has_value())
             {
                 (action.value().second)();
                 if (!action.value().first)
-                    Application::GetInstance()->GetTimerManager()->KillTimer(id);
+                    TimerManager::GetInstance()->KillTimer(id);
                 return 0;
             }
             break;
@@ -117,11 +116,6 @@ namespace cru {
 
         instance_ = this;
 
-        window_manager_ = std::make_unique<ui::WindowManager>();
-        graph_manager_ = std::make_unique<graph::GraphManager>();
-        timer_manager_ = std::make_unique<TimerManager>();
-        animation_manager_ = std::make_unique<ui::animations::details::AnimationManager>();
-
         god_window_ = std::make_unique<GodWindow>(this);
 
 #ifdef CRU_DEBUG_LAYOUT
@@ -137,7 +131,8 @@ namespace cru {
 
     Application::~Application()
     {
-        animation_manager_.reset();
+        for (auto i = singleton_list_.crbegin(); i != singleton_list_.crend(); ++i)
+            delete *i;
         instance_ = nullptr;
     }
 

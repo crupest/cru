@@ -4,6 +4,8 @@
 #include <memory>
 #include <optional>
 #include <functional>
+#include <typeindex>
+#include <type_traits>
 
 #include "base.hpp"
 
@@ -86,25 +88,6 @@ namespace cru
         int Run();
         void Quit(int quit_code);
 
-        ui::WindowManager* GetWindowManager() const
-        {
-            return window_manager_.get();
-        }
-
-        graph::GraphManager* GetGraphManager() const
-        {
-            return graph_manager_.get();
-        }
-
-        TimerManager* GetTimerManager() const
-        {
-            return timer_manager_.get();
-        }
-
-        ui::animations::details::AnimationManager* GetAnimationManager() const
-        {
-            return animation_manager_.get();
-        }
 
         HINSTANCE GetInstanceHandle() const
         {
@@ -115,6 +98,23 @@ namespace cru
         {
             return god_window_.get();
         }
+
+        // Resolve a singleton.
+        // All singletons will be delete in reverse order of resolve.
+        template<typename T, typename = std::enable_if_t<std::is_base_of_v<Object, T>>>
+        T* ResolveSingleton(const std::function<T*(Application*)>& creator)
+        {
+            const auto& index = std::type_index{typeid(T)};
+            const auto find_result = singleton_map_.find(index);
+            if (find_result != singleton_map_.cend())
+                return static_cast<T*>(find_result->second);
+
+            auto singleton = creator(this);
+            singleton_map_.emplace(index, static_cast<Object*>(singleton));
+            singleton_list_.push_back(singleton);
+            return singleton;
+        }
+
 
         CaretInfo GetCaretInfo() const
         {
@@ -130,13 +130,11 @@ namespace cru
 
     private:
         HINSTANCE h_instance_;
-        
-        std::unique_ptr<ui::WindowManager> window_manager_;
-        std::unique_ptr<graph::GraphManager> graph_manager_;
-        std::unique_ptr<TimerManager> timer_manager_;
-        std::unique_ptr<ui::animations::details::AnimationManager> animation_manager_;
 
         std::unique_ptr<GodWindow> god_window_;
+
+        std::unordered_map<std::type_index, Object*> singleton_map_;
+        std::list<Object*> singleton_list_; // used for reverse destroy.
 
 #ifdef CRU_DEBUG_LAYOUT
         DebugLayoutResource debug_layout_resource_;

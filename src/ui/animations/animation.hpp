@@ -3,7 +3,6 @@
 #include <unordered_map>
 
 #include "base.hpp"
-#include "application.hpp"
 #include "timer.hpp"
 
 namespace cru::ui::animations
@@ -53,13 +52,10 @@ namespace cru::ui::animations
         class AnimationManager : public Object
         {
         public:
-            static AnimationManager* GetInstance()
-            {
-                return Application::GetInstance()->GetAnimationManager();
-            }
-
-        public:
+            static AnimationManager* GetInstance();
+        private:
             AnimationManager();
+        public:
             AnimationManager(const AnimationManager& other) = delete;
             AnimationManager(AnimationManager&& other) = delete;
             AnimationManager& operator=(const AnimationManager& other) = delete;

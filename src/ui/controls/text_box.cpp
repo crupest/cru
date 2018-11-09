@@ -5,6 +5,7 @@
 
 #include "graph/graph.hpp"
 #include "exception.hpp"
+#include "application.hpp"
 
 namespace cru::ui::controls
 {

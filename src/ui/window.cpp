@@ -31,13 +31,21 @@ namespace cru::ui
     }
 
     LRESULT __stdcall GeneralWndProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam) {
-        auto window = Application::GetInstance()->GetWindowManager()->FromHandle(hWnd);
+        auto window = WindowManager::GetInstance()->FromHandle(hWnd);
 
         LRESULT result;
         if (window != nullptr && window->HandleWindowMessage(hWnd, Msg, wParam, lParam, result))
             return result;
 
         return DefWindowProc(hWnd, Msg, wParam, lParam);
+    }
+
+    WindowManager* WindowManager::GetInstance()
+    {
+        return Application::GetInstance()->ResolveSingleton<WindowManager>([](auto)
+        {
+            return new WindowManager{};
+        });
     }
 
     WindowManager::WindowManager() {
@@ -106,20 +114,20 @@ namespace cru::ui
     }
 
     Window::Window() : Control(WindowConstructorTag{}, this), control_list_({ this }) {
-        const auto app = Application::GetInstance();
+        const auto window_manager = WindowManager::GetInstance();
         hwnd_ = CreateWindowEx(0,
-            app->GetWindowManager()->GetGeneralWindowClass()->GetName(),
+            window_manager->GetGeneralWindowClass()->GetName(),
             L"", WS_OVERLAPPEDWINDOW,
             CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
-            nullptr, nullptr, app->GetInstanceHandle(), nullptr
+            nullptr, nullptr, Application::GetInstance()->GetInstanceHandle(), nullptr
         );
 
         if (hwnd_ == nullptr)
             throw std::runtime_error("Failed to create window.");
 
-        app->GetWindowManager()->RegisterWindow(hwnd_, this);
+        window_manager->RegisterWindow(hwnd_, this);
 
-        render_target_ = app->GetGraphManager()->CreateWindowRenderTarget(hwnd_);
+        render_target_ = graph::GraphManager::GetInstance()->CreateWindowRenderTarget(hwnd_);
 
         SetCursor(cursors::arrow);
     }
@@ -511,7 +519,7 @@ namespace cru::ui
     }
 
     void Window::OnDestroyInternal() {
-        Application::GetInstance()->GetWindowManager()->UnregisterWindow(hwnd_);
+        WindowManager::GetInstance()->UnregisterWindow(hwnd_);
         hwnd_ = nullptr;
     }
 
