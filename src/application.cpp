@@ -4,7 +4,7 @@
 #include "timer.hpp"
 #include "ui/window.hpp"
 #include "ui/cursor.hpp"
-#include "graph/graph.hpp"
+#include "ui/predefine.hpp"
 
 namespace cru {
     constexpr auto god_window_class_name = L"GodWindowClass";
@@ -118,11 +118,7 @@ namespace cru {
 
         god_window_ = std::make_unique<GodWindow>(this);
 
-#ifdef CRU_DEBUG_LAYOUT
-        debug_layout_resource_.out_border_brush = graph::CreateSolidBrush(D2D1::ColorF(D2D1::ColorF::Crimson));
-        debug_layout_resource_.margin_brush = graph::CreateSolidBrush(D2D1::ColorF(D2D1::ColorF::LightCoral, 0.25f));
-        debug_layout_resource_.padding_brush = graph::CreateSolidBrush(D2D1::ColorF(D2D1::ColorF::SkyBlue, 0.25f));
-#endif
+        ui::predefine::InitThemes(&predefine_resource_map_);
 
         caret_info_ = GetSystemCaretInfo();
 

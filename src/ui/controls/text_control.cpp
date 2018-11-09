@@ -1,14 +1,14 @@
 #include "text_control.hpp"
 
+#include <cassert>
+
 #include "ui/window.hpp"
 #include "graph/graph.hpp"
 #include "exception.hpp"
-#include <cassert>
+#include "ui/predefine.hpp"
 
 namespace cru::ui::controls
 {
-    using graph::CreateSolidBrush;
-
     inline Microsoft::WRL::ComPtr<IDWriteFactory> GetDWriteFactory()
     {
         return graph::GraphManager::GetInstance()->GetDWriteFactory();
@@ -17,13 +17,13 @@ namespace cru::ui::controls
     TextControl::TextControl(const Microsoft::WRL::ComPtr<IDWriteTextFormat>& init_text_format,
         const Microsoft::WRL::ComPtr<ID2D1Brush>& init_brush) : Control(false)
     {
-        text_format_ = init_text_format == nullptr ? graph::CreateDefaultTextFormat() : init_text_format;
+        text_format_ = init_text_format;
 
         RecreateTextLayout();
 
-        brush_ = init_brush == nullptr ? CreateSolidBrush(D2D1::ColorF(D2D1::ColorF::Black)) : init_brush;
+        brush_ = init_brush;
 
-        selection_brush_ = CreateSolidBrush(D2D1::ColorF(D2D1::ColorF::LightSkyBlue));
+        selection_brush_ = predefine::GetPredefineResourceComPtr<ID2D1Brush>(predefine::key_text_control_selection_brush);
     }
 
 

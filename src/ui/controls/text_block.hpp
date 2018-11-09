@@ -9,23 +9,15 @@ namespace cru::ui::controls
     public:
         static constexpr auto control_type = L"TextBlock";
 
-        static TextBlock* Create(
-            const String& text = L"",
-            const Microsoft::WRL::ComPtr<IDWriteTextFormat>& init_text_format = nullptr,
-            const Microsoft::WRL::ComPtr<ID2D1Brush>& init_brush = nullptr)
+        static TextBlock* Create(const String& text = L"")
         {
-            const auto text_block = new TextBlock(init_text_format, init_brush);
+            const auto text_block = new TextBlock();
             text_block->SetText(text);
             return text_block;
         }
 
-        using TextControl::SetSelectable; // Make this public.
-
     protected:
-        TextBlock(
-            const Microsoft::WRL::ComPtr<IDWriteTextFormat>& init_text_format,
-            const Microsoft::WRL::ComPtr<ID2D1Brush>& init_brush
-        );
+        TextBlock();
     public:
         TextBlock(const TextBlock& other) = delete;
         TextBlock(TextBlock&& other) = delete;
@@ -34,5 +26,7 @@ namespace cru::ui::controls
         ~TextBlock() override = default;
 
         StringView GetControlType() const override final;
+
+        using TextControl::SetSelectable; // Make this public.
     };
 }

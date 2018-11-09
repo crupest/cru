@@ -8,6 +8,10 @@
 #include "exception.hpp"
 #include "cru_debug.hpp"
 
+#ifdef CRU_DEBUG_LAYOUT
+#include "predefine.hpp"
+#endif
+
 namespace cru::ui
 {
     using namespace events;
@@ -391,12 +395,11 @@ namespace cru::ui
 #ifdef CRU_DEBUG_LAYOUT
         if (GetWindow()->IsDebugLayout())
         {
-            const auto resource = Application::GetInstance()->GetDebugLayoutResource();
             if (padding_geometry_ != nullptr)
-                device_context->FillGeometry(padding_geometry_.Get(), resource->padding_brush.Get());
+                device_context->FillGeometry(padding_geometry_.Get(), predefine::GetPredefineResourceComPtr<ID2D1Brush>(predefine::key_debug_layout_padding_brush).Get());
             if (margin_geometry_ != nullptr)
-                device_context->FillGeometry(margin_geometry_.Get(), resource->margin_brush.Get());
-            device_context->DrawRectangle(Convert(GetRect(RectRange::Margin)), resource->out_border_brush.Get());
+                device_context->FillGeometry(margin_geometry_.Get(), predefine::GetPredefineResourceComPtr<ID2D1Brush>(predefine::key_debug_layout_margin_brush).Get());
+            device_context->DrawRectangle(Convert(GetRect(RectRange::Margin)), predefine::GetPredefineResourceComPtr<ID2D1Brush>(predefine::key_debug_layout_out_border_brush).Get());
         }
 #endif
 

@@ -10,18 +10,13 @@ namespace cru::ui::controls
     public:
         static constexpr auto control_type = L"TextBox";
 
-        static TextBox* Create(
-            const Microsoft::WRL::ComPtr<IDWriteTextFormat>& init_text_format = nullptr,
-            const Microsoft::WRL::ComPtr<ID2D1Brush>& init_brush = nullptr)
+        static TextBox* Create()
         {
-            return new TextBox(init_text_format, init_brush);
+            return new TextBox();
         }
 
     protected:
-        explicit TextBox(
-            const Microsoft::WRL::ComPtr<IDWriteTextFormat>& init_text_format,
-            const Microsoft::WRL::ComPtr<ID2D1Brush>& init_brush
-        );
+        TextBox();
     public:
         TextBox(const TextBox& other) = delete;
         TextBox(TextBox&& other) = delete;

@@ -67,10 +67,10 @@ namespace cru
 
         // Set the value of key, and trigger all related listeners.
         template <typename T>
-        void SetValue(const String& key, const T& value)
+        void SetValue(const String& key, T&& value)
         {
             auto& p = map_[key];
-            p.first = std::make_any<T>(value);
+            p.first = std::make_any<T>(std::forward<T>(value));
             InvokeListeners(p.second, p.first);
         }
 

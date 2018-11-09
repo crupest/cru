@@ -6,23 +6,25 @@
 #include "graph/graph.hpp"
 #include "exception.hpp"
 #include "application.hpp"
+#include "ui/predefine.hpp"
 
 namespace cru::ui::controls
 {
-    using graph::CreateSolidBrush;
-
     inline Microsoft::WRL::ComPtr<IDWriteFactory> GetDWriteFactory()
     {
         return graph::GraphManager::GetInstance()->GetDWriteFactory();
     }
 
-    TextBox::TextBox(const Microsoft::WRL::ComPtr<IDWriteTextFormat>& init_text_format,
-        const Microsoft::WRL::ComPtr<ID2D1Brush>& init_brush) : TextControl(init_text_format, init_brush)
+    TextBox::TextBox() : TextControl(
+        predefine::GetPredefineResourceComPtr<IDWriteTextFormat>(predefine::key_text_box_text_format),
+        predefine::GetPredefineResourceComPtr<ID2D1Brush>(predefine::key_text_box_text_brush)
+    )
     {
         SetSelectable(true);
 
-        caret_brush_ = CreateSolidBrush(D2D1::ColorF(D2D1::ColorF::Black));
+        caret_brush_ = predefine::GetPredefineResourceComPtr<ID2D1Brush>(predefine::key_text_box_caret_brush);
 
+        GetBorderProperty() = predefine::GetPredefineResource<BorderProperty>(predefine::key_text_box_border);
         SetBordered(true);
     }
 

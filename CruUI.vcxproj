@@ -124,7 +124,6 @@
     <ClCompile Include="src\exception.cpp" />
     <ClCompile Include="src\graph\graph.cpp" />
     <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\ui\theme.cpp" />
     <ClCompile Include="src\timer.cpp" />
     <ClCompile Include="src\ui\animations\animation.cpp" />
     <ClCompile Include="src\ui\control.cpp" />
@@ -135,13 +134,13 @@
     <ClCompile Include="src\ui\controls\text_box.cpp" />
     <ClInclude Include="src\any_map.h" />
     <ClInclude Include="src\format.hpp" />
-    <ClInclude Include="src\ui\theme.hpp" />
     <ClInclude Include="src\ui\border_property.hpp" />
     <ClInclude Include="src\ui\controls\text_control.hpp" />
     <ClCompile Include="src\ui\controls\toggle_button.cpp" />
     <ClCompile Include="src\ui\cursor.cpp" />
     <ClCompile Include="src\ui\events\ui_event.cpp" />
     <ClCompile Include="src\ui\layout_base.cpp" />
+    <ClCompile Include="src\ui\predefine.cpp" />
     <ClCompile Include="src\ui\ui_base.cpp" />
     <ClCompile Include="src\ui\window.cpp" />
   </ItemGroup>
@@ -166,6 +165,7 @@
     <ClInclude Include="src\ui\cursor.hpp" />
     <ClInclude Include="src\ui\events\ui_event.hpp" />
     <ClInclude Include="src\ui\layout_base.hpp" />
+    <ClInclude Include="src\ui\predefine.hpp" />
     <ClInclude Include="src\ui\ui_base.hpp" />
     <ClInclude Include="src\ui\window.hpp" />
   </ItemGroup>

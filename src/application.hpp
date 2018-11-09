@@ -38,15 +38,6 @@ namespace cru
         float half_caret_width;
     };
 
-#ifdef CRU_DEBUG_LAYOUT
-    struct DebugLayoutResource
-    {
-        Microsoft::WRL::ComPtr<ID2D1Brush> out_border_brush;
-        Microsoft::WRL::ComPtr<ID2D1Brush> margin_brush;
-        Microsoft::WRL::ComPtr<ID2D1Brush> padding_brush;
-    };
-#endif
-
     class GodWindow : public Object
     {
     public:
@@ -122,17 +113,10 @@ namespace cru
             return caret_info_;
         }
 
-        AnyMap* GetThemeMap()
+        const AnyMap* GetPredefineResourceMap() const
         {
-            return &theme_map_;
+            return &predefine_resource_map_;
         }
-
-#ifdef CRU_DEBUG_LAYOUT
-        const DebugLayoutResource* GetDebugLayoutResource() const
-        {
-            return &debug_layout_resource_;
-        }
-#endif
 
     private:
         HINSTANCE h_instance_;
@@ -142,13 +126,9 @@ namespace cru
         std::unordered_map<std::type_index, Object*> singleton_map_;
         std::list<Object*> singleton_list_; // used for reverse destroy.
 
-#ifdef CRU_DEBUG_LAYOUT
-        DebugLayoutResource debug_layout_resource_;
-#endif
-
         CaretInfo caret_info_;
 
-        AnyMap theme_map_{};
+        AnyMap predefine_resource_map_{};
     };
 
 

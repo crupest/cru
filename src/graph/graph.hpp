@@ -164,9 +164,6 @@ namespace cru::graph
         return graph_manager_->GetD2D1DeviceContext();
     }
 
-    Microsoft::WRL::ComPtr<ID2D1SolidColorBrush> CreateSolidBrush(const D2D1_COLOR_F& color);
-    Microsoft::WRL::ComPtr<IDWriteTextFormat> CreateDefaultTextFormat();
-
     inline void WithTransform(ID2D1DeviceContext* device_context, const D2D1_MATRIX_3X2_F matrix, const std::function<void(ID2D1DeviceContext*)>& action)
     {
         D2D1_MATRIX_3X2_F old_transform;

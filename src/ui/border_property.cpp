@@ -1,10 +1,10 @@
 #include "border_property.hpp"
 
-#include "graph/graph.hpp"
+#include "predefine.hpp"
 
 namespace cru::ui
 {
-    BorderProperty::BorderProperty(): BorderProperty(graph::CreateSolidBrush(D2D1::ColorF(D2D1::ColorF::Black)))
+    BorderProperty::BorderProperty(): BorderProperty(predefine::GetPredefineResourceComPtr<ID2D1Brush>(predefine::key_border_property_brush))
     {
 
     }

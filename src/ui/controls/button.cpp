@@ -1,23 +1,14 @@
 #include "button.hpp"
 
 #include "graph/graph.hpp"
+#include "ui/predefine.hpp"
 
 namespace cru::ui::controls
 {
-    using graph::CreateSolidBrush;
-
     Button::Button() : Control(true),
-        normal_border_{CreateSolidBrush(D2D1::ColorF(D2D1::ColorF::RoyalBlue))},
-        pressed_border_{CreateSolidBrush(D2D1::ColorF(D2D1::ColorF::Blue))}
+        normal_border_{predefine::GetPredefineResource<BorderProperty>(predefine::key_button_normal_border)},
+        pressed_border_{predefine::GetPredefineResource<BorderProperty>(predefine::key_button_press_border)}
     {
-        normal_border_.SetStrokeWidth(2);
-        normal_border_.SetRadiusX(6);
-        normal_border_.SetRadiusY(6);
-
-        pressed_border_.SetStrokeWidth(2);
-        pressed_border_.SetRadiusX(6);
-        pressed_border_.SetRadiusY(6);
-
         SetBordered(true);
         GetBorderProperty() = normal_border_;
 
