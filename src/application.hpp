@@ -6,6 +6,7 @@
 #include <functional>
 
 #include "base.hpp"
+#include "any_map.h"
 
 namespace cru 
 {
@@ -121,6 +122,11 @@ namespace cru
             return caret_info_;
         }
 
+        AnyMap* GetThemeMap()
+        {
+            return &theme_map_;
+        }
+
 #ifdef CRU_DEBUG_LAYOUT
         const DebugLayoutResource* GetDebugLayoutResource() const
         {
@@ -143,6 +149,8 @@ namespace cru
 #endif
 
         CaretInfo caret_info_;
+
+        AnyMap theme_map_{};
     };
 
 

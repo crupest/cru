@@ -3,16 +3,15 @@
 #include "system_headers.hpp"
 #include <unordered_map>
 #include <any>
-#include <typeinfo>
 #include <utility>
 
 #include "base.hpp"
-#include "format.hpp"
 #include "ui_base.hpp"
 #include "layout_base.hpp"
 #include "events/ui_event.hpp"
 #include "border_property.hpp"
 #include "cursor.hpp"
+#include "any_map.h"
 
 namespace cru::ui
 {
@@ -183,33 +182,9 @@ namespace cru::ui
 
 
         //*************** region: additional properties ***************
-        template <typename T>
-        std::optional<T> GetAdditionalProperty(const String& key)
+        AnyMap* GetAdditionalPropertyMap()
         {
-            try
-            {
-                const auto find_result = additional_properties_.find(key);
-                if (find_result != additional_properties_.cend())
-                    return std::any_cast<T>(find_result->second);
-                else
-                    return std::nullopt;
-            }
-            catch (const std::bad_any_cast&)
-            {
-                throw std::runtime_error(Format("Key \"{}\" is not of the type {}.", ToUtf8String(key), typeid(T).name()));
-            }
-        }
-
-        template <typename T>
-        void SetAdditionalProperty(const String& key, const T& value)
-        {
-            additional_properties_[key] = std::make_any<T>(value);
-        }
-
-        template <typename T>
-        void SetAdditionalProperty(const String& key, T&& value)
-        {
-            additional_properties_[key] = std::make_any<T>(std::move(value));
+            return &additional_property_map_;
         }
 
         
@@ -389,7 +364,7 @@ namespace cru::ui
         bool is_bordered_ = false;
         BorderProperty border_property_;
 
-        std::unordered_map<String, std::any> additional_properties_{};
+        AnyMap additional_property_map_{};
 
         bool is_focus_on_pressed_ = true;
 
