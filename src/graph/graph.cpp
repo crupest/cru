@@ -116,7 +116,10 @@ namespace cru::graph
 
     GraphManager* GraphManager::GetInstance()
     {
-        return Application::GetInstance()->GetGraphManager();
+        return Application::GetInstance()->ResolveSingleton<GraphManager>([](auto)
+        {
+            return new GraphManager{};
+        });
     }
 
     GraphManager::GraphManager()

@@ -3,6 +3,7 @@
 #include <algorithm>
 
 #include "window.hpp"
+#include "application.hpp"
 #include "graph/graph.hpp"
 #include "exception.hpp"
 #include "cru_debug.hpp"

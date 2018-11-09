@@ -16,7 +16,11 @@ namespace cru
     class TimerManager : public Object
     {
     public:
+        static TimerManager* GetInstance();
+
+    private:
         TimerManager() = default;
+    public:
         TimerManager(const TimerManager& other) = delete;
         TimerManager(TimerManager&& other) = delete;
         TimerManager& operator=(const TimerManager& other) = delete;
@@ -47,7 +51,7 @@ namespace cru
         TimerTask& operator=(TimerTask&& other) = default;
         ~TimerTask() = default;
 
-        void Cancel();
+        void Cancel() const;
 
     private:
         UINT_PTR id_;

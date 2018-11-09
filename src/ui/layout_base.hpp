@@ -147,9 +147,9 @@ namespace cru::ui
     {
     public:
         static LayoutManager* GetInstance();
-
-    public:
+    private:
         LayoutManager() = default;
+    public:
         LayoutManager(const LayoutManager& other) = delete;
         LayoutManager(LayoutManager&& other) = delete;
         LayoutManager& operator=(const LayoutManager& other) = delete;

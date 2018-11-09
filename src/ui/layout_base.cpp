@@ -8,8 +8,10 @@ namespace cru::ui
 {
     LayoutManager* LayoutManager::GetInstance()
     {
-        static LayoutManager layout_manager;
-        return &layout_manager;
+        return Application::GetInstance()->ResolveSingleton<LayoutManager>([](auto)
+        {
+            return new LayoutManager{};
+        });
     }
 
     void LayoutManager::InvalidateControlPositionCache(Control * control)

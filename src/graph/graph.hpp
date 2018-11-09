@@ -2,9 +2,9 @@
 
 #include "system_headers.hpp"
 #include <memory>
+#include <functional>
 
 #include "base.hpp"
-#include "application.hpp"
 
 
 namespace cru::graph
@@ -62,13 +62,14 @@ namespace cru::graph
         float y;
     };
 
-    class GraphManager : public Object
+    class GraphManager final : public Object
     {
     public:
         static GraphManager* GetInstance();
 
-    public:
+    private:
         GraphManager();
+    public:
         GraphManager(const GraphManager& other) = delete;
         GraphManager(GraphManager&& other) = delete;
         GraphManager& operator=(const GraphManager& other) = delete;
@@ -135,12 +136,12 @@ namespace cru::graph
 
     inline int DipToPixelX(const float dip_x)
     {
-        return DipToPixelInternal(dip_x, Application::GetInstance()->GetGraphManager()->GetDpi().x);
+        return DipToPixelInternal(dip_x, GraphManager::GetInstance()->GetDpi().x);
     }
 
     inline int DipToPixelY(const float dip_y)
     {
-        return DipToPixelInternal(dip_y, Application::GetInstance()->GetGraphManager()->GetDpi().y);
+        return DipToPixelInternal(dip_y, GraphManager::GetInstance()->GetDpi().y);
     }
 
     inline float DipToPixelInternal(const int pixel, const float dpi)
@@ -150,12 +151,12 @@ namespace cru::graph
 
     inline float PixelToDipX(const int pixel_x)
     {
-        return DipToPixelInternal(pixel_x, Application::GetInstance()->GetGraphManager()->GetDpi().x);
+        return DipToPixelInternal(pixel_x, GraphManager::GetInstance()->GetDpi().x);
     }
 
     inline float PixelToDipY(const int pixel_y)
     {
-        return DipToPixelInternal(pixel_y, Application::GetInstance()->GetGraphManager()->GetDpi().y);
+        return DipToPixelInternal(pixel_y, GraphManager::GetInstance()->GetDpi().y);
     }
 
     Microsoft::WRL::ComPtr<ID2D1DeviceContext> WindowRenderTarget::GetD2DDeviceContext() const
