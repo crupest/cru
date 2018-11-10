@@ -8,7 +8,6 @@
 #include <type_traits>
 
 #include "base.hpp"
-#include "any_map.h"
 
 #ifdef CRU_DEBUG
 #include <unordered_set>
@@ -42,7 +41,6 @@ namespace cru
         std::optional<LRESULT> HandleGodWindowMessage(HWND hwnd, int msg, WPARAM w_param, LPARAM l_param);
 
     private:
-        Application* application_;
         std::unique_ptr<ui::WindowClass> god_window_class_;
         HWND hwnd_;
     };

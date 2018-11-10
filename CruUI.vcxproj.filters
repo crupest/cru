@@ -155,10 +155,10 @@
     <ClInclude Include="src\timer.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\any_map.h">
+    <ClInclude Include="src\ui\ui_manager.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\ui\ui_manager.hpp">
+    <ClInclude Include="src\any_map.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

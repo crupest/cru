@@ -6,6 +6,7 @@
 #include "ui/controls/button.hpp"
 #include "ui/controls/text_box.hpp"
 
+using cru::ui::Rect;
 using cru::String;
 using cru::Application;
 using cru::ui::Window;
@@ -28,7 +29,7 @@ int APIENTRY wWinMain(
 
     Application application(hInstance);
 
-    Window window;
+    const auto window = Window::CreateOverlapped();
     /*
     window.native_message_event.AddHandler([](cru::ui::events::WindowNativeMessageEventArgs& args)
     {
@@ -86,7 +87,6 @@ int APIENTRY wWinMain(
 
     
     //test 2
-
     const auto layout = CreateWithLayout<LinearLayout>(LayoutSideParams::Exactly(500), LayoutSideParams::Content());
 
     layout->mouse_click_event.AddHandler([layout](cru::ui::events::MouseButtonEventArgs& args)
@@ -104,7 +104,7 @@ int APIENTRY wWinMain(
 #ifdef CRU_DEBUG_LAYOUT
         toggle_button->toggle_event.AddHandler([&window](cru::ui::events::ToggleEventArgs& args)
         {
-            window.SetDebugLayout(args.GetNewState());
+            window->SetDebugLayout(args.GetNewState());
         });
 #endif
         inner_layout->AddChild(toggle_button);
@@ -114,7 +114,37 @@ int APIENTRY wWinMain(
     {
         const auto button = Button::Create();
         button->GetLayoutParams()->padding = Thickness(20, 5);
-        button->AddChild(TextBlock::Create(L"button"));
+        button->AddChild(TextBlock::Create(L"Show popup window parenting this."));
+        button->mouse_click_event.AddHandler([window](auto)
+        {
+            Window::CreatePopup(window)->Show();
+        });
+        layout->AddChild(button);
+    }
+
+    {
+        const auto button = Button::Create();
+        button->GetLayoutParams()->padding = Thickness(20, 5);
+        button->AddChild(TextBlock::Create(L"Show popup window parenting null."));
+        button->mouse_click_event.AddHandler([](auto)
+        {
+            auto popup = Window::CreatePopup(nullptr);
+            popup->SetWindowRect(Rect(100, 100, 300, 300));
+            popup->Show();
+        });
+        layout->AddChild(button);
+    }
+    
+    {
+        const auto button = Button::Create();
+        button->GetLayoutParams()->padding = Thickness(20, 5);
+        button->AddChild(TextBlock::Create(L"Show popup window with caption."));
+        button->mouse_click_event.AddHandler([](auto)
+        {
+            auto popup = Window::CreatePopup(nullptr, true);
+            popup->SetWindowRect(Rect(100, 100, 300, 300));
+            popup->Show();
+        });
         layout->AddChild(button);
     }
 
@@ -146,7 +176,7 @@ int APIENTRY wWinMain(
     layout->AddChild(CreateWithLayout<TextBlock>(LayoutSideParams::Content(Alignment::End), LayoutSideParams::Stretch(), L"By crupest!!!"));
 
 
-    window.AddChild(layout);
+    window->AddChild(layout);
 
     /*
     window.AddChild(
@@ -170,7 +200,8 @@ int APIENTRY wWinMain(
     window.AddChild(linear_layout);
     */
 
-    window.Show();
+
+    window->Show();
 
     return application.Run();
 }

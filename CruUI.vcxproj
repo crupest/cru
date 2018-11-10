@@ -132,7 +132,7 @@
     <ClCompile Include="src\ui\controls\linear_layout.cpp" />
     <ClCompile Include="src\ui\controls\text_block.cpp" />
     <ClCompile Include="src\ui\controls\text_box.cpp" />
-    <ClInclude Include="src\any_map.h" />
+    <ClInclude Include="src\any_map.hpp" />
     <ClInclude Include="src\format.hpp" />
     <ClInclude Include="src\ui\border_property.hpp" />
     <ClInclude Include="src\ui\controls\text_control.hpp" />
