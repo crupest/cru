@@ -202,16 +202,7 @@ namespace cru::ui
         const auto position = GetPositionRelative();
         device_context->SetTransform(old_transform * D2D1::Matrix3x2F::Translation(position.x, position.y));
 
-        OnDraw(device_context);
-
-        const auto rect = GetRect(RectRange::Content);
-        graph::WithTransform(device_context, D2D1::Matrix3x2F::Translation(rect.left, rect.top),
-            [this](ID2D1DeviceContext* device_context)
-            {
-                OnDrawContent(device_context);
-                DrawEventArgs args(this, this, device_context);
-                draw_event.Raise(args);
-            });
+        OnDrawCore(device_context);
 
         for (auto child : GetChildren())
             child->Draw(device_context);
@@ -385,14 +376,15 @@ namespace cru::ui
         window_ = nullptr;
     }
 
+    
     inline D2D1_RECT_F Convert(const Rect& rect)
     {
         return D2D1::RectF(rect.left, rect.top, rect.left + rect.width, rect.top + rect.height);
     }
 
-    void Control::OnDraw(ID2D1DeviceContext* device_context)
+    void Control::OnDrawCore(ID2D1DeviceContext* device_context)
     {
-#ifdef CRU_DEBUG_LAYOUT
+        #ifdef CRU_DEBUG_LAYOUT
         if (GetWindow()->IsDebugLayout())
         {
             if (padding_geometry_ != nullptr)
@@ -417,9 +409,47 @@ namespace cru::ui
                 GetBorderProperty().GetStrokeStyle().Get()
             );
         }
+
+        //draw background.
+        const auto padding_rect = GetRect(RectRange::Padding);
+        graph::WithTransform(device_context, D2D1::Matrix3x2F::Translation(padding_rect.left, padding_rect.top),
+            [this](ID2D1DeviceContext* device_context)
+            {
+                OnDrawBackground(device_context);
+                DrawEventArgs args(this, this, device_context);
+                draw_background_event.Raise(args);
+            });
+
+
+        const auto rect = GetRect(RectRange::Content);
+        graph::WithTransform(device_context, D2D1::Matrix3x2F::Translation(rect.left, rect.top),
+            [this](ID2D1DeviceContext* device_context)
+            {
+                OnDrawContent(device_context);
+                DrawEventArgs args(this, this, device_context);
+                draw_content_event.Raise(args);
+            });
+
+        graph::WithTransform(device_context, D2D1::Matrix3x2F::Translation(padding_rect.left, padding_rect.top),
+            [this](ID2D1DeviceContext* device_context)
+            {
+                OnDrawForeground(device_context);
+                DrawEventArgs args(this, this, device_context);
+                draw_foreground_event.Raise(args);
+            });
     }
 
     void Control::OnDrawContent(ID2D1DeviceContext * device_context)
+    {
+
+    }
+
+    void Control::OnDrawForeground(ID2D1DeviceContext* device_context)
+    {
+
+    }
+
+    void Control::OnDrawBackground(ID2D1DeviceContext* device_context)
     {
 
     }

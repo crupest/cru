@@ -221,7 +221,9 @@ namespace cru::ui
         events::FocusChangeEvent get_focus_event;
         events::FocusChangeEvent lose_focus_event;
 
-        events::DrawEvent draw_event;
+        events::DrawEvent draw_content_event;
+        events::DrawEvent draw_background_event;
+        events::DrawEvent draw_foreground_event;
 
         events::PositionChangedEvent position_changed_event;
         events::SizeChangedEvent size_changed_event;
@@ -238,10 +240,12 @@ namespace cru::ui
         virtual void OnDetachToWindow(Window* window);
 
     private:
-        void OnDraw(ID2D1DeviceContext* device_context);
+        void OnDrawCore(ID2D1DeviceContext* device_context);
 
     protected:
         virtual void OnDrawContent(ID2D1DeviceContext* device_context);
+        virtual void OnDrawForeground(ID2D1DeviceContext* device_context);
+        virtual void OnDrawBackground(ID2D1DeviceContext* device_context);
 
         // For a event, the window event system will first dispatch event to core functions.
         // Therefore for particular controls, you should do essential actions in core functions,
