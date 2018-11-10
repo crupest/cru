@@ -118,7 +118,7 @@ int APIENTRY wWinMain(
         const auto button = Button::Create();
         button->GetLayoutParams()->padding = Thickness(20, 5);
         button->AddChild(TextBlock::Create(L"Show popup window parenting this."));
-        button->mouse_click_event.AddHandler([window](auto)
+        button->mouse_click_event.AddHandler([window, button](auto)
         {
             const auto popup = Window::CreatePopup(window);
 
@@ -140,6 +140,7 @@ int APIENTRY wWinMain(
             popup->AddChild(menu);
 
             popup->SetSizeFitContent();
+            popup->SetWindowPosition(window->PointToScreen(button->GetPositionAbsolute()));
 
             popup->Show();
         });

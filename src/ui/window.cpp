@@ -98,6 +98,15 @@ namespace cru::ui
         );
     }
 
+    inline POINT DipToPi(const Point& dip_point)
+    {
+        POINT result;
+        result.x = graph::DipToPixelX(dip_point.x);
+        result.y = graph::DipToPixelY(dip_point.y);
+        return result;
+    }
+
+
     namespace
     {
         Cursor::Ptr GetCursorInherit(Control* control)
@@ -275,6 +284,41 @@ namespace cru::ui
         }
     }
 
+    void Window::SetWindowPosition(const Point& position)
+    {
+        if (IsWindowValid()) {
+            SetWindowPos(
+                hwnd_, nullptr,
+                graph::DipToPixelX(position.x),
+                graph::DipToPixelY(position.y),
+                0, 0,
+                SWP_NOZORDER | SWP_NOSIZE
+            );
+        }
+    }
+
+    Point Window::PointToScreen(const Point& point)
+    {
+        if (!IsWindowValid())
+            return Point::Zero();
+
+        auto p = DipToPi(point);
+        if (::ClientToScreen(GetWindowHandle(), &p) == 0)
+            throw Win32Error(::GetLastError(), "Failed transform point from window to screen.");
+        return PiToDip(p);
+    }
+
+    Point Window::PointFromScreen(const Point& point)
+    {
+        if (!IsWindowValid())
+            return Point::Zero();
+
+        auto p = DipToPi(point);
+        if (::ScreenToClient(GetWindowHandle(), &p) == 0)
+            throw Win32Error(::GetLastError(), "Failed transform point from screen to window.");
+        return PiToDip(p);
+    }
+
     bool Window::HandleWindowMessage(HWND hwnd, int msg, WPARAM w_param, LPARAM l_param, LRESULT & result) {
 
         if (!native_message_event.IsNoHandler())
@@ -444,14 +488,14 @@ namespace cru::ui
 
     void Window::Relayout()
     {
-        OnMeasureCore(GetSize());
+        Measure(GetSize());
         OnLayoutCore(Rect(Point::Zero(), GetSize()));
         is_layout_invalid_ = false;
     }
 
     void Window::SetSizeFitContent(const Size& max_size)
     {
-        OnMeasureCore(max_size);
+        Measure(max_size);
         SetClientSize(GetDesiredSize());
         OnLayoutCore(Rect(Point::Zero(), GetSize()));
         is_layout_invalid_ = false;
@@ -577,15 +621,6 @@ namespace cru::ui
             if (mouse_hover_control_ != nullptr)
                 ::SetCursor(cursor);
         }
-    }
-
-    Size Window::OnMeasureContent(const Size& available_size)
-    {
-        for (auto control: GetChildren())
-        {
-            control->Measure(available_size);
-        }
-        return available_size;
     }
 
     void Window::OnDestroyInternal() {
