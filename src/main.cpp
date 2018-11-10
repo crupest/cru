@@ -87,6 +87,8 @@ int APIENTRY wWinMain(
     
     //test 2
 
+    Window child_window(&window);
+
     const auto layout = CreateWithLayout<LinearLayout>(LayoutSideParams::Exactly(500), LayoutSideParams::Content());
 
     layout->mouse_click_event.AddHandler([layout](cru::ui::events::MouseButtonEventArgs& args)
@@ -114,7 +116,11 @@ int APIENTRY wWinMain(
     {
         const auto button = Button::Create();
         button->GetLayoutParams()->padding = Thickness(20, 5);
-        button->AddChild(TextBlock::Create(L"button"));
+        button->AddChild(TextBlock::Create(L"Show child window."));
+        button->mouse_click_event.AddHandler([&child_window](auto)
+        {
+            child_window.Show();
+        });
         layout->AddChild(button);
     }
 
@@ -169,6 +175,7 @@ int APIENTRY wWinMain(
 
     window.AddChild(linear_layout);
     */
+
 
     window.Show();
 

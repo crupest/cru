@@ -90,6 +90,7 @@ namespace cru::ui
         static constexpr auto control_type = L"Window";
 
         Window();
+        explicit Window(Window* parent);
         Window(const Window& other) = delete;
         Window(Window&& other) = delete;
         Window& operator=(const Window& other) = delete;

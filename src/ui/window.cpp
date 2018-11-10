@@ -113,13 +113,23 @@ namespace cru::ui
         }
     }
 
-    Window::Window() : Control(WindowConstructorTag{}, this), control_list_({ this }) {
+    Window::Window() : Window(nullptr)
+    {
+
+    }
+
+    Window::Window(Window* parent) : Control(WindowConstructorTag{}, this), control_list_({ this }) {
+
+        if (parent != nullptr && !parent->IsWindowValid())
+            throw std::runtime_error("Parent window is not valid.");
+
         const auto window_manager = WindowManager::GetInstance();
         hwnd_ = CreateWindowEx(0,
             window_manager->GetGeneralWindowClass()->GetName(),
             L"", WS_OVERLAPPEDWINDOW,
             CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
-            nullptr, nullptr, Application::GetInstance()->GetInstanceHandle(), nullptr
+            parent == nullptr ? nullptr : parent->GetWindowHandle(),
+            nullptr, Application::GetInstance()->GetInstanceHandle(), nullptr
         );
 
         if (hwnd_ == nullptr)
