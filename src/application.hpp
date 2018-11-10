@@ -8,7 +8,6 @@
 #include <type_traits>
 
 #include "base.hpp"
-#include "any_map.h"
 
 #ifdef CRU_DEBUG
 #include <unordered_set>
