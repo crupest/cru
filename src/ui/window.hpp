@@ -83,14 +83,26 @@ namespace cru::ui
 
 
 
-    class Window : public Control
+    class Window final : public Control
     {
         friend class WindowManager;
     public:
         static constexpr auto control_type = L"Window";
 
-        Window();
-        explicit Window(Window* parent);
+    public:
+        static Window* CreateOverlapped();
+        static Window* CreatePopup(Window* parent, bool caption = false);
+
+    private:
+        struct tag_overlapped_constructor {};
+        struct tag_popup_constructor {};
+
+        explicit Window(tag_overlapped_constructor);
+        Window(tag_popup_constructor, Window* parent, bool caption);
+
+        void AfterCreateHwnd(WindowManager* window_manager);
+
+    public:
         Window(const Window& other) = delete;
         Window(Window&& other) = delete;
         Window& operator=(const Window& other) = delete;
@@ -99,6 +111,8 @@ namespace cru::ui
 
     public:
         StringView GetControlType() const override final;
+
+        void SetDeleteThisOnDestroy(bool value);
 
         //*************** region: handle ***************
 
@@ -116,6 +130,11 @@ namespace cru::ui
 
 
         //*************** region: window operations ***************
+
+        Window* GetParentWindow() const
+        {
+            return parent_window_;
+        }
 
         //Close and destroy the window if the window is valid.
         void Close();
@@ -286,7 +305,10 @@ namespace cru::ui
         void DispatchMouseHoverControlChangeEvent(Control* old_control, Control * new_control, const Point& point);
  
     private:
+        bool delete_this_on_destroy_ = true;
+
         HWND hwnd_ = nullptr;
+        Window* parent_window_ = nullptr;
         std::shared_ptr<graph::WindowRenderTarget> render_target_{};
  
         std::list<Control*> control_list_{};

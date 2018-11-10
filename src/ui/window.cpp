@@ -113,20 +113,44 @@ namespace cru::ui
         }
     }
 
-    Window::Window() : Window(nullptr)
+    Window* Window::CreateOverlapped()
     {
-
+        return new Window(tag_overlapped_constructor{});
     }
 
-    Window::Window(Window* parent) : Control(WindowConstructorTag{}, this), control_list_({ this }) {
+    Window* Window::CreatePopup(Window* parent, const bool caption)
+    {
+        return new Window(tag_popup_constructor{}, parent, caption);
+    }
 
-        if (parent != nullptr && !parent->IsWindowValid())
-            throw std::runtime_error("Parent window is not valid.");
-
+    Window::Window(tag_overlapped_constructor) : Control(WindowConstructorTag{}, this), control_list_({ this }) {
         const auto window_manager = WindowManager::GetInstance();
+
         hwnd_ = CreateWindowEx(0,
             window_manager->GetGeneralWindowClass()->GetName(),
             L"", WS_OVERLAPPEDWINDOW,
+            CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
+            nullptr, nullptr, Application::GetInstance()->GetInstanceHandle(), nullptr
+        );
+
+        if (hwnd_ == nullptr)
+            throw std::runtime_error("Failed to create window.");
+
+        AfterCreateHwnd(window_manager);
+    }
+
+    Window::Window(tag_popup_constructor, Window* parent, const bool caption) : Control(WindowConstructorTag{}, this), control_list_({ this })
+    {
+        if (parent != nullptr && !parent->IsWindowValid())
+            throw std::runtime_error("Parent window is not valid.");
+
+        parent_window_ = parent;
+
+        const auto window_manager = WindowManager::GetInstance();
+
+        hwnd_ = CreateWindowEx(0,
+            window_manager->GetGeneralWindowClass()->GetName(),
+            L"", caption ? (WS_POPUPWINDOW | WS_CAPTION) : WS_POPUP,
             CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
             parent == nullptr ? nullptr : parent->GetWindowHandle(),
             nullptr, Application::GetInstance()->GetInstanceHandle(), nullptr
@@ -135,6 +159,11 @@ namespace cru::ui
         if (hwnd_ == nullptr)
             throw std::runtime_error("Failed to create window.");
 
+        AfterCreateHwnd(window_manager);
+    }
+
+    void Window::AfterCreateHwnd(WindowManager* window_manager)
+    {
         window_manager->RegisterWindow(hwnd_, this);
 
         render_target_ = graph::GraphManager::GetInstance()->CreateWindowRenderTarget(hwnd_);
@@ -143,7 +172,11 @@ namespace cru::ui
     }
 
     Window::~Window() {
-        Close();
+        if (IsWindowValid())
+        {
+            SetDeleteThisOnDestroy(false); // avoid double delete.
+            Close();
+        }
         TraverseDescendants([this](Control* control) {
             control->OnDetachToWindow(this);
         });
@@ -152,6 +185,11 @@ namespace cru::ui
     StringView Window::GetControlType() const
     {
         return control_type;
+    }
+
+    void Window::SetDeleteThisOnDestroy(bool value)
+    {
+        delete_this_on_destroy_ = value;
     }
 
     void Window::Close() {
@@ -531,6 +569,8 @@ namespace cru::ui
     void Window::OnDestroyInternal() {
         WindowManager::GetInstance()->UnregisterWindow(hwnd_);
         hwnd_ = nullptr;
+        if (delete_this_on_destroy_)
+            delete this;
     }
 
     void Window::OnPaintInternal() {
