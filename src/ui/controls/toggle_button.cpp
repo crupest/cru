@@ -2,7 +2,7 @@
 
 #include "graph/graph.hpp"
 #include "ui/animations/animation.hpp"
-#include "ui/predefine.hpp"
+#include "ui/ui_manager.hpp"
 
 namespace cru::ui::controls
 {
@@ -19,8 +19,8 @@ namespace cru::ui::controls
     {
         graph::GraphManager::GetInstance()->GetD2D1Factory()->CreateRoundedRectangleGeometry(D2D1::RoundedRect(D2D1::RectF(-half_width, -half_height, half_width, half_height), half_height, half_height), &frame_path_);
 
-        on_brush_ = predefine::GetPredefineResourceComPtr<ID2D1Brush>(predefine::key_toggle_button_on_brush);
-        off_brush_ = predefine::GetPredefineResourceComPtr<ID2D1Brush>(predefine::key_toggle_button_off_brush);
+        on_brush_ = UiManager::GetInstance()->GetPredefineResources()->toggle_button_on_brush;
+        off_brush_ = UiManager::GetInstance()->GetPredefineResources()->toggle_button_off_brush;
     }
 
     inline D2D1_POINT_2F ConvertPoint(const Point& point)

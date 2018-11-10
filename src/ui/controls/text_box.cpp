@@ -6,7 +6,7 @@
 #include "graph/graph.hpp"
 #include "exception.hpp"
 #include "application.hpp"
-#include "ui/predefine.hpp"
+#include "ui/ui_manager.hpp"
 
 namespace cru::ui::controls
 {
@@ -16,15 +16,15 @@ namespace cru::ui::controls
     }
 
     TextBox::TextBox() : TextControl(
-        predefine::GetPredefineResourceComPtr<IDWriteTextFormat>(predefine::key_text_box_text_format),
-        predefine::GetPredefineResourceComPtr<ID2D1Brush>(predefine::key_text_box_text_brush)
+        UiManager::GetInstance()->GetPredefineResources()->text_box_text_format,
+        UiManager::GetInstance()->GetPredefineResources()->text_box_text_brush
     )
     {
         SetSelectable(true);
 
-        caret_brush_ = predefine::GetPredefineResourceComPtr<ID2D1Brush>(predefine::key_text_box_caret_brush);
+        caret_brush_ = UiManager::GetInstance()->GetPredefineResources()->text_box_caret_brush;
 
-        GetBorderProperty() = predefine::GetPredefineResource<BorderProperty>(predefine::key_text_box_border);
+        GetBorderProperty() = UiManager::GetInstance()->GetPredefineResources()->text_box_border;
         SetBordered(true);
     }
 
@@ -40,7 +40,7 @@ namespace cru::ui::controls
         TextControl::OnDrawContent(device_context);
         if (is_caret_show_)
         {
-            const auto caret_half_width = Application::GetInstance()->GetCaretInfo().half_caret_width;
+            const auto caret_half_width = UiManager::GetInstance()->GetCaretInfo().half_caret_width;
             FLOAT x, y;
             DWRITE_HIT_TEST_METRICS metrics{};
             ThrowIfFailed(text_layout_->HitTestTextPosition(caret_position_, FALSE, &x, &y, &metrics));
@@ -53,7 +53,7 @@ namespace cru::ui::controls
         TextControl::OnGetFocusCore(args);
         assert(!caret_timer_.has_value());
         is_caret_show_ = true;
-        caret_timer_ = SetInterval(Application::GetInstance()->GetCaretInfo().caret_blink_duration, [this]
+        caret_timer_ = SetInterval(UiManager::GetInstance()->GetCaretInfo().caret_blink_duration, [this]
         {
             is_caret_show_ = !is_caret_show_;
             Repaint();

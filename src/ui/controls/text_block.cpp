@@ -1,13 +1,12 @@
 #include "text_block.hpp"
 
-#include "ui/window.hpp"
-#include "ui/predefine.hpp"
+#include "ui/ui_manager.hpp"
 
 namespace cru::ui::controls
 {
     TextBlock::TextBlock() : TextControl(
-        predefine::GetPredefineResourceComPtr<IDWriteTextFormat>(predefine::key_text_block_text_format),
-        predefine::GetPredefineResourceComPtr<ID2D1Brush>(predefine::key_text_block_text_brush)
+        UiManager::GetInstance()->GetPredefineResources()->text_block_text_format,
+        UiManager::GetInstance()->GetPredefineResources()->text_block_text_brush
     )
     {
 

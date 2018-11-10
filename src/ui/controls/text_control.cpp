@@ -5,7 +5,7 @@
 #include "ui/window.hpp"
 #include "graph/graph.hpp"
 #include "exception.hpp"
-#include "ui/predefine.hpp"
+#include "ui/ui_manager.hpp"
 
 namespace cru::ui::controls
 {
@@ -23,7 +23,7 @@ namespace cru::ui::controls
 
         brush_ = init_brush;
 
-        selection_brush_ = predefine::GetPredefineResourceComPtr<ID2D1Brush>(predefine::key_text_control_selection_brush);
+        selection_brush_ = UiManager::GetInstance()->GetPredefineResources()->text_control_selection_brush;
     }
 
 

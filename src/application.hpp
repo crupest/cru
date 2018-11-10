@@ -10,6 +10,10 @@
 #include "base.hpp"
 #include "any_map.h"
 
+#ifdef CRU_DEBUG
+#include <unordered_set>
+#endif
+
 namespace cru 
 {
     class Application;
@@ -17,26 +21,8 @@ namespace cru
     namespace ui
     {
         class WindowClass;
-        class WindowManager;
-
-        namespace animations::details
-        {
-            class AnimationManager;
-        }
     }
 
-    namespace graph
-    {
-        class GraphManager;
-    }
-
-    class TimerManager;
-
-    struct CaretInfo
-    {
-        std::chrono::milliseconds caret_blink_duration;
-        float half_caret_width;
-    };
 
     class GodWindow : public Object
     {
@@ -101,21 +87,17 @@ namespace cru
             if (find_result != singleton_map_.cend())
                 return static_cast<T*>(find_result->second);
 
+#ifdef CRU_DEBUG
+            const auto type_find_result = singleton_type_set_.find(index);
+            if (type_find_result != singleton_type_set_.cend())
+                throw std::logic_error("The singleton of that type is being constructed. This may cause a dead recursion.");
+            singleton_type_set_.insert(index);
+#endif
+
             auto singleton = creator(this);
             singleton_map_.emplace(index, static_cast<Object*>(singleton));
             singleton_list_.push_back(singleton);
             return singleton;
-        }
-
-
-        CaretInfo GetCaretInfo() const
-        {
-            return caret_info_;
-        }
-
-        const AnyMap* GetPredefineResourceMap() const
-        {
-            return &predefine_resource_map_;
         }
 
     private:
@@ -125,10 +107,9 @@ namespace cru
 
         std::unordered_map<std::type_index, Object*> singleton_map_;
         std::list<Object*> singleton_list_; // used for reverse destroy.
-
-        CaretInfo caret_info_;
-
-        AnyMap predefine_resource_map_{};
+#ifdef CRU_DEBUG
+        std::unordered_set<std::type_index> singleton_type_set_; // used for dead recursion.
+#endif
     };
 
 
