@@ -7,6 +7,7 @@
 #include "graph/graph.hpp"
 #include "exception.hpp"
 #include "cru_debug.hpp"
+#include "convert_util.hpp"
 
 #ifdef CRU_DEBUG_LAYOUT
 #include "ui_manager.hpp"
@@ -237,7 +238,7 @@ namespace cru::ui
     void Control::InvalidateLayout()
     {
         if (const auto window = GetWindow())
-            LayoutManager::GetInstance()->InvalidateWindowLayout(window);
+            window->WindowInvalidateLayout();
     }
 
     void Control::Measure(const Size& available_size)
@@ -374,12 +375,6 @@ namespace cru::ui
     void Control::OnDetachToWindow(Window * window)
     {
         window_ = nullptr;
-    }
-
-    
-    inline D2D1_RECT_F Convert(const Rect& rect)
-    {
-        return D2D1::RectF(rect.left, rect.top, rect.left + rect.width, rect.top + rect.height);
     }
 
     void Control::OnDrawCore(ID2D1DeviceContext* device_context)

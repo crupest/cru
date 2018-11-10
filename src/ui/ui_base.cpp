@@ -15,4 +15,9 @@ namespace cru::ui
         const auto result = ::GetKeyState(virtual_code);
         return (static_cast<unsigned short>(result) & 1) != 0;
     }
+
+    bool IsAnyMouseButtonDown()
+    {
+        return IsKeyDown(VK_LBUTTON) || IsKeyDown(VK_RBUTTON) || IsKeyDown(VK_MBUTTON);
+    }
 }

@@ -5,10 +5,12 @@
 #include "ui/controls/toggle_button.hpp"
 #include "ui/controls/button.hpp"
 #include "ui/controls/text_box.hpp"
+#include "ui/controls/list_item.hpp"
 
-using cru::ui::Rect;
 using cru::String;
+using cru::StringView;
 using cru::Application;
+using cru::ui::Rect;
 using cru::ui::Window;
 using cru::ui::Alignment;
 using cru::ui::LayoutSideParams;
@@ -20,6 +22,7 @@ using cru::ui::controls::TextBlock;
 using cru::ui::controls::ToggleButton;
 using cru::ui::controls::Button;
 using cru::ui::controls::TextBox;
+using cru::ui::controls::ListItem;
 
 int APIENTRY wWinMain(
     HINSTANCE hInstance,
@@ -115,9 +118,31 @@ int APIENTRY wWinMain(
         const auto button = Button::Create();
         button->GetLayoutParams()->padding = Thickness(20, 5);
         button->AddChild(TextBlock::Create(L"Show popup window parenting this."));
-        button->mouse_click_event.AddHandler([window](auto)
+        button->mouse_click_event.AddHandler([window, button](auto)
         {
-            Window::CreatePopup(window)->Show();
+            const auto popup = Window::CreatePopup(window);
+
+            auto create_menu_item = [](const String& text) -> ListItem*
+            {
+                return CreateWithLayout<ListItem>(
+                    LayoutSideParams::Content(Alignment::Start),
+                    LayoutSideParams::Content(Alignment::Start),
+                    ControlList{ TextBlock::Create(text) }
+                );
+            };
+
+            const auto menu = LinearLayout::Create(LinearLayout::Orientation::Vertical, ControlList{
+                create_menu_item(L"copy"),
+                create_menu_item(L"cut"),
+                create_menu_item(L"paste")
+            });
+
+            popup->AddChild(menu);
+
+            popup->SetSizeFitContent();
+            popup->SetWindowPosition(window->PointToScreen(button->GetPositionAbsolute()));
+
+            popup->Show();
         });
         layout->AddChild(button);
     }

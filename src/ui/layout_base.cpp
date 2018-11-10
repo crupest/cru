@@ -68,24 +68,6 @@ namespace cru::ui
         RefreshControlPositionCacheInternal(control, point);
     }
 
-    void LayoutManager::InvalidateWindowLayout(Window* window)
-    {
-        layout_invalid_windows_.insert(window);
-
-        if (layout_invalid_windows_.size() == 1)
-            InvokeLater([this]()
-        {
-            this->RefreshInvalidWindowLayout();
-        });
-    }
-
-    void LayoutManager::RefreshInvalidWindowLayout()
-    {
-        for (const auto window : layout_invalid_windows_)
-            window->Relayout();
-        layout_invalid_windows_.clear();
-    }
-
     void LayoutManager::RefreshControlPositionCacheInternal(Control * control, const Point & parent_lefttop_absolute)
     {
         const auto position = control->GetPositionRelative();

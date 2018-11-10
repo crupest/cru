@@ -53,6 +53,15 @@ namespace cru::ui
         Microsoft::WRL::ComPtr<ID2D1Brush> toggle_button_on_brush;
         Microsoft::WRL::ComPtr<ID2D1Brush> toggle_button_off_brush;
 
+        //region ListItem
+        Microsoft::WRL::ComPtr<ID2D1Brush> list_item_normal_border_brush;
+        Microsoft::WRL::ComPtr<ID2D1Brush> list_item_normal_fill_brush;
+        Microsoft::WRL::ComPtr<ID2D1Brush> list_item_hover_border_brush;
+        Microsoft::WRL::ComPtr<ID2D1Brush> list_item_hover_fill_brush;
+        Microsoft::WRL::ComPtr<ID2D1Brush> list_item_select_border_brush;
+        Microsoft::WRL::ComPtr<ID2D1Brush> list_item_select_fill_brush;
+
+
 #ifdef CRU_DEBUG_LAYOUT
         //region debug
         Microsoft::WRL::ComPtr<ID2D1Brush> debug_layout_out_border_brush;

@@ -63,6 +63,45 @@ namespace cru::ui
         return !(left == right);
     }
 
+    struct Thickness
+    {
+        constexpr static Thickness Zero()
+        {
+            return Thickness(0);
+        }
+
+        constexpr Thickness() : Thickness(0) { }
+
+        constexpr explicit Thickness(const float width)
+            : left(width), top(width), right(width), bottom(width) { }
+
+        constexpr explicit Thickness(const float horizontal, const float vertical)
+            : left(horizontal), top(vertical), right(horizontal), bottom(vertical) { }
+
+        constexpr Thickness(const float left, const float top, const float right, const float bottom)
+            : left(left), top(top), right(right), bottom(bottom) { }
+
+        float GetHorizontalTotal() const
+        {
+            return left + right;
+        }
+
+        float GetVerticalTotal() const
+        {
+            return top + bottom;
+        }
+
+        float Validate() const
+        {
+            return left >= 0.0 && top >= 0.0 && right >= 0.0 && bottom >= 0.0;
+        }
+
+        float left;
+        float top;
+        float right;
+        float bottom;
+    };
+
     struct Rect
     {
         constexpr Rect() = default;
@@ -99,6 +138,11 @@ namespace cru::ui
         constexpr Size GetSize() const
         {
             return Size(width, height);
+        }
+
+        constexpr Rect Shrink(const Thickness& thickness) const
+        {
+            return Rect(left + thickness.left, top + thickness.top, width - thickness.GetHorizontalTotal(), height - thickness.GetVerticalTotal());
         }
 
         constexpr bool IsPointInside(const Point& point) const
@@ -154,4 +198,5 @@ namespace cru::ui
 
     bool IsKeyDown(int virtual_code);
     bool IsKeyToggled(int virtual_code);
+    bool IsAnyMouseButtonDown();
 }

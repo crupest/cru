@@ -162,6 +162,13 @@ namespace cru::ui
         //The lefttop of the rect is relative to screen lefttop.
         void SetWindowRect(const Rect& rect);
 
+        //Set the lefttop of the window relative to screen.
+        void SetWindowPosition(const Point& position);
+
+        Point PointToScreen(const Point& point);
+
+        Point PointFromScreen(const Point& point);
+
         //Handle the raw window message.
         //Return true if the message is handled and get the result through "result" argument.
         //Return false if the message is not handled.
@@ -192,7 +199,11 @@ namespace cru::ui
 
         //*************** region: layout ***************
 
+        void WindowInvalidateLayout();
+
         void Relayout();
+
+        void SetSizeFitContent(const Size& max_size = Size(1000, 1000));
 
         //*************** region: functions ***************
 
@@ -248,11 +259,6 @@ namespace cru::ui
         bool IsMessageInQueue(UINT message);
  
         void SetCursorInternal(HCURSOR cursor);
- 
- 
-        //*************** region: layout ***************
- 
-        Size OnMeasureContent(const Size& available_size) override;
  
  
         //*************** region: native messages ***************
@@ -319,7 +325,9 @@ namespace cru::ui
         Control* focus_control_ = this; // "focus_control_" can't be nullptr
  
         Control* mouse_capture_control_ = nullptr;
- 
+
+        bool is_layout_invalid_ = false;
+
 #ifdef CRU_DEBUG_LAYOUT
         bool debug_layout_ = false;
 #endif
