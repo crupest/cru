@@ -130,11 +130,13 @@
     <ClCompile Include="src\ui\border_property.cpp" />
     <ClCompile Include="src\ui\controls\button.cpp" />
     <ClCompile Include="src\ui\controls\linear_layout.cpp" />
+    <ClCompile Include="src\ui\controls\list_item.cpp" />
     <ClCompile Include="src\ui\controls\text_block.cpp" />
     <ClCompile Include="src\ui\controls\text_box.cpp" />
     <ClInclude Include="src\any_map.hpp" />
     <ClInclude Include="src\format.hpp" />
     <ClInclude Include="src\ui\border_property.hpp" />
+    <ClInclude Include="src\ui\controls\list_item.hpp" />
     <ClInclude Include="src\ui\controls\text_control.hpp" />
     <ClCompile Include="src\ui\controls\toggle_button.cpp" />
     <ClCompile Include="src\ui\cursor.cpp" />
