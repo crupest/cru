@@ -238,7 +238,7 @@ namespace cru::ui
     void Control::InvalidateLayout()
     {
         if (const auto window = GetWindow())
-            LayoutManager::GetInstance()->InvalidateWindowLayout(window);
+            window->WindowInvalidateLayout();
     }
 
     void Control::Measure(const Size& available_size)

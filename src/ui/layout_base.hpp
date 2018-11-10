@@ -132,13 +132,6 @@ namespace cru::ui
         //Refresh position cache of the control and its descendants immediately.
         static void RefreshControlPositionCache(Control* control);
 
-
-        //*************** region: layout ***************
-
-        void InvalidateWindowLayout(Window* window);
-
-        void RefreshInvalidWindowLayout();
-
     private:
         static void RefreshControlPositionCacheInternal(Control* control, const Point& parent_lefttop_absolute);
 

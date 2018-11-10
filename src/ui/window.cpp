@@ -429,10 +429,32 @@ namespace cru::ui
 
     }
 
+    void Window::WindowInvalidateLayout()
+    {
+        if (is_layout_invalid_)
+            return;
+
+        is_layout_invalid_ = true;
+        InvokeLater([this]
+        {
+            if (is_layout_invalid_)
+                Relayout();
+        });
+    }
+
     void Window::Relayout()
     {
         OnMeasureCore(GetSize());
         OnLayoutCore(Rect(Point::Zero(), GetSize()));
+        is_layout_invalid_ = false;
+    }
+
+    void Window::SetSizeFitContent(const Size& max_size)
+    {
+        OnMeasureCore(max_size);
+        SetClientSize(GetDesiredSize());
+        OnLayoutCore(Rect(Point::Zero(), GetSize()));
+        is_layout_invalid_ = false;
     }
 
     void Window::RefreshControlList() {
@@ -597,7 +619,7 @@ namespace cru::ui
     void Window::OnResizeInternal(const int new_width, const int new_height) {
         render_target_->ResizeBuffer(new_width, new_height);
         if (!(new_width == 0 && new_height == 0))
-            InvalidateLayout();
+            WindowInvalidateLayout();
     }
 
     void Window::OnSetFocusInternal()

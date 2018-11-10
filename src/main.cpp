@@ -139,8 +139,7 @@ int APIENTRY wWinMain(
 
             popup->AddChild(menu);
 
-            popup->Relayout();
-            popup->SetClientSize(menu->GetSize());
+            popup->SetSizeFitContent();
 
             popup->Show();
         });

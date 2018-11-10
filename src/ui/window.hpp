@@ -192,7 +192,11 @@ namespace cru::ui
 
         //*************** region: layout ***************
 
+        void WindowInvalidateLayout();
+
         void Relayout();
+
+        void SetSizeFitContent(const Size& max_size = Size(1000, 1000));
 
         //*************** region: functions ***************
 
@@ -319,7 +323,9 @@ namespace cru::ui
         Control* focus_control_ = this; // "focus_control_" can't be nullptr
  
         Control* mouse_capture_control_ = nullptr;
- 
+
+        bool is_layout_invalid_ = false;
+
 #ifdef CRU_DEBUG_LAYOUT
         bool debug_layout_ = false;
 #endif
