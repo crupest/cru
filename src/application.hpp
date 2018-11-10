@@ -42,7 +42,6 @@ namespace cru
         std::optional<LRESULT> HandleGodWindowMessage(HWND hwnd, int msg, WPARAM w_param, LPARAM l_param);
 
     private:
-        Application* application_;
         std::unique_ptr<ui::WindowClass> god_window_class_;
         HWND hwnd_;
     };

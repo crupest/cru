@@ -4,7 +4,6 @@
 #include "timer.hpp"
 #include "ui/window.hpp"
 #include "ui/cursor.hpp"
-#include "ui/ui_manager.hpp"
 
 namespace cru {
     constexpr auto god_window_class_name = L"GodWindowClass";
@@ -27,7 +26,7 @@ namespace cru {
             return DefWindowProc(hWnd, uMsg, wParam, lParam);
     }
 
-    GodWindow::GodWindow(Application* application) : application_(application)
+    GodWindow::GodWindow(Application* application)
     {
         const auto h_instance = application->GetInstanceHandle();
 
@@ -37,7 +36,7 @@ namespace cru {
             god_window_class_name,
             L"", 0,
             CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
-            nullptr, nullptr, h_instance, nullptr
+            HWND_MESSAGE, nullptr, h_instance, nullptr
         );
 
         if (hwnd_ == nullptr)
