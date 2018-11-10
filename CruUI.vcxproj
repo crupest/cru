@@ -140,7 +140,7 @@
     <ClCompile Include="src\ui\cursor.cpp" />
     <ClCompile Include="src\ui\events\ui_event.cpp" />
     <ClCompile Include="src\ui\layout_base.cpp" />
-    <ClCompile Include="src\ui\predefine.cpp" />
+    <ClCompile Include="src\ui\ui_manager.cpp" />
     <ClCompile Include="src\ui\ui_base.cpp" />
     <ClCompile Include="src\ui\window.cpp" />
   </ItemGroup>
@@ -165,7 +165,7 @@
     <ClInclude Include="src\ui\cursor.hpp" />
     <ClInclude Include="src\ui\events\ui_event.hpp" />
     <ClInclude Include="src\ui\layout_base.hpp" />
-    <ClInclude Include="src\ui\predefine.hpp" />
+    <ClInclude Include="src\ui\ui_manager.hpp" />
     <ClInclude Include="src\ui\ui_base.hpp" />
     <ClInclude Include="src\ui\window.hpp" />
   </ItemGroup>

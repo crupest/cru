@@ -12,6 +12,7 @@ namespace cru::ui
     public:
         BorderProperty();
         explicit BorderProperty(Microsoft::WRL::ComPtr<ID2D1Brush> brush);
+        BorderProperty(Microsoft::WRL::ComPtr<ID2D1Brush> brush, float width, float radius_x, float radius_y, Microsoft::WRL::ComPtr<ID2D1StrokeStyle> stroke_style = nullptr);
         BorderProperty(const BorderProperty& other) = default;
         BorderProperty(BorderProperty&& other) = default;
         BorderProperty& operator=(const BorderProperty& other) = default;
@@ -76,8 +77,8 @@ namespace cru::ui
     private:
         Microsoft::WRL::ComPtr<ID2D1Brush> brush_;
         float stroke_width_ = 1.0f;
-        Microsoft::WRL::ComPtr<ID2D1StrokeStyle> stroke_style_ = nullptr;
         float radius_x_ = 0.0f;
         float radius_y_ = 0.0f;
+        Microsoft::WRL::ComPtr<ID2D1StrokeStyle> stroke_style_ = nullptr;
     };
 }

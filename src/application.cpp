@@ -4,7 +4,7 @@
 #include "timer.hpp"
 #include "ui/window.hpp"
 #include "ui/cursor.hpp"
-#include "ui/predefine.hpp"
+#include "ui/ui_manager.hpp"
 
 namespace cru {
     constexpr auto god_window_class_name = L"GodWindowClass";
@@ -89,17 +89,6 @@ namespace cru {
 
     namespace
     {
-        CaretInfo GetSystemCaretInfo()
-        {
-            CaretInfo caret_info;
-            caret_info.caret_blink_duration = std::chrono::milliseconds(::GetCaretBlinkTime());
-            DWORD caret_width;
-            if (!::SystemParametersInfoW(SPI_GETCARETWIDTH, 0 , &caret_width, 0))
-                throw Win32Error(::GetLastError(), "Failed to get system caret width.");
-            caret_info.half_caret_width = caret_width / 2.0f;
-            return caret_info;
-        }
-
         void LoadSystemCursor(HINSTANCE h_instance)
         {
             ui::cursors::arrow = std::make_shared<ui::Cursor>(::LoadCursorW(nullptr, IDC_ARROW), false);
@@ -117,10 +106,6 @@ namespace cru {
         instance_ = this;
 
         god_window_ = std::make_unique<GodWindow>(this);
-
-        ui::predefine::InitThemes(&predefine_resource_map_);
-
-        caret_info_ = GetSystemCaretInfo();
 
         LoadSystemCursor(h_instance);
     }

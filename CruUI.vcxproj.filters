@@ -78,7 +78,7 @@
     <ClCompile Include="src\any_map.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\ui\predefine.cpp">
+    <ClCompile Include="src\ui\ui_manager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -158,7 +158,7 @@
     <ClInclude Include="src\any_map.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\ui\predefine.hpp">
+    <ClInclude Include="src\ui\ui_manager.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
