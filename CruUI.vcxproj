@@ -164,6 +164,7 @@
     <ClInclude Include="src\ui\controls\text_box.hpp" />
     <ClCompile Include="src\ui\controls\text_control.cpp" />
     <ClInclude Include="src\ui\controls\toggle_button.hpp" />
+    <ClInclude Include="src\ui\convert_util.hpp" />
     <ClInclude Include="src\ui\cursor.hpp" />
     <ClInclude Include="src\ui\events\ui_event.hpp" />
     <ClInclude Include="src\ui\layout_base.hpp" />

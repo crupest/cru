@@ -52,29 +52,36 @@ namespace cru::ui
 
     //!!! never use default constructor of border at here, because it will recursively call this method!
     PredefineResources::PredefineResources(graph::GraphManager* graph_manager) :
-        border_property_brush{CreateSolidBrush(graph_manager, D2D1::ColorF(D2D1::ColorF::Black))},
+        border_property_brush           {CreateSolidBrush(graph_manager, D2D1::ColorF(D2D1::ColorF::Black))},
 
-        button_normal_border{CreateSolidBrush(graph_manager, D2D1::ColorF(D2D1::ColorF::RoyalBlue)), 2, 6, 6},
-        button_press_border{CreateSolidBrush(graph_manager, D2D1::ColorF(D2D1::ColorF::Blue)), 2, 6, 6},
+        button_normal_border            {CreateSolidBrush(graph_manager, D2D1::ColorF(D2D1::ColorF::RoyalBlue)), 2, 6, 6},
+        button_press_border             {CreateSolidBrush(graph_manager, D2D1::ColorF(D2D1::ColorF::Blue)), 2, 6, 6},
 
-        text_control_selection_brush{CreateSolidBrush(graph_manager, D2D1::ColorF(D2D1::ColorF::LightSkyBlue))},
+        text_control_selection_brush    {CreateSolidBrush(graph_manager, D2D1::ColorF(D2D1::ColorF::LightSkyBlue))},
 
-        text_box_border{CreateSolidBrush(graph_manager, D2D1::ColorF(D2D1::ColorF::Black))},
-        text_box_text_brush{CreateSolidBrush(graph_manager, D2D1::ColorF(D2D1::ColorF::Black))},
-        text_box_text_format{CreateDefaultTextFormat(graph_manager)},
-        text_box_caret_brush{CreateSolidBrush(graph_manager, D2D1::ColorF(D2D1::ColorF::Black))},
+        text_box_border                 {CreateSolidBrush(graph_manager, D2D1::ColorF(D2D1::ColorF::Black))},
+        text_box_text_brush             {CreateSolidBrush(graph_manager, D2D1::ColorF(D2D1::ColorF::Black))},
+        text_box_text_format            {CreateDefaultTextFormat(graph_manager)},
+        text_box_caret_brush            {CreateSolidBrush(graph_manager, D2D1::ColorF(D2D1::ColorF::Black))},
 
-        text_block_text_brush{CreateSolidBrush(graph_manager, D2D1::ColorF(D2D1::ColorF::Black))},
-        text_block_text_format{CreateDefaultTextFormat(graph_manager)},
+        text_block_text_brush           {CreateSolidBrush(graph_manager, D2D1::ColorF(D2D1::ColorF::Black))},
+        text_block_text_format          {CreateDefaultTextFormat(graph_manager)},
 
-        toggle_button_on_brush{CreateSolidBrush(graph_manager, D2D1::ColorF(D2D1::ColorF::DeepSkyBlue))},
-        toggle_button_off_brush{CreateSolidBrush(graph_manager, D2D1::ColorF(D2D1::ColorF::LightGray))}
+        toggle_button_on_brush          {CreateSolidBrush(graph_manager, D2D1::ColorF(D2D1::ColorF::DeepSkyBlue))},
+        toggle_button_off_brush         {CreateSolidBrush(graph_manager, D2D1::ColorF(D2D1::ColorF::LightGray))},
+
+        list_item_normal_border_brush   {CreateSolidBrush(graph_manager, D2D1::ColorF(D2D1::ColorF::White, 0))},
+        list_item_normal_fill_brush     {CreateSolidBrush(graph_manager, D2D1::ColorF(D2D1::ColorF::White, 0))},
+        list_item_hover_border_brush    {CreateSolidBrush(graph_manager, D2D1::ColorF(D2D1::ColorF::SkyBlue))},
+        list_item_hover_fill_brush      {CreateSolidBrush(graph_manager, D2D1::ColorF(D2D1::ColorF::SkyBlue, 0.3))},
+        list_item_select_border_brush   {CreateSolidBrush(graph_manager, D2D1::ColorF(D2D1::ColorF::MediumBlue))},
+        list_item_select_fill_brush     {CreateSolidBrush(graph_manager, D2D1::ColorF(D2D1::ColorF::SkyBlue, 0.3))}
 
 #ifdef CRU_DEBUG_LAYOUT
         ,
-        debug_layout_out_border_brush{CreateSolidBrush(graph_manager, D2D1::ColorF(D2D1::ColorF::Crimson))},
-        debug_layout_margin_brush{CreateSolidBrush(graph_manager, D2D1::ColorF(D2D1::ColorF::LightCoral, 0.25f))},
-        debug_layout_padding_brush{CreateSolidBrush(graph_manager, D2D1::ColorF(D2D1::ColorF::SkyBlue, 0.25f))}
+        debug_layout_out_border_brush   {CreateSolidBrush(graph_manager, D2D1::ColorF(D2D1::ColorF::Crimson))},
+        debug_layout_margin_brush       {CreateSolidBrush(graph_manager, D2D1::ColorF(D2D1::ColorF::LightCoral, 0.25f))},
+        debug_layout_padding_brush      {CreateSolidBrush(graph_manager, D2D1::ColorF(D2D1::ColorF::SkyBlue, 0.25f))}
 #endif
     {
         

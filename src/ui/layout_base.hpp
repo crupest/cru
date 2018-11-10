@@ -33,45 +33,6 @@ namespace cru::ui
         Margin // including content, padding, border and margin
     };
 
-    struct Thickness
-    {
-        constexpr static Thickness Zero()
-        {
-            return Thickness(0);
-        }
-
-        constexpr Thickness() : Thickness(0) { }
-
-        constexpr explicit Thickness(const float width)
-            : left(width), top(width), right(width), bottom(width) { }
-
-        constexpr explicit Thickness(const float horizontal, const float vertical)
-            : left(horizontal), top(vertical), right(horizontal), bottom(vertical) { }
-
-        constexpr Thickness(const float left, const float top, const float right, const float bottom)
-            : left(left), top(top), right(right), bottom(bottom) { }
-
-        float GetHorizontalTotal() const
-        {
-            return left + right;
-        }
-
-        float GetVerticalTotal() const
-        {
-            return top + bottom;
-        }
-
-        float Validate() const
-        {
-            return left >= 0.0 && top >= 0.0 && right >= 0.0 && bottom >= 0.0;
-        }
-
-        float left;
-        float top;
-        float right;
-        float bottom;
-    };
-
     struct LayoutSideParams final
     {
         constexpr static LayoutSideParams Exactly(const float length, const Alignment alignment = Alignment::Center)
