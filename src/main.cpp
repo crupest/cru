@@ -6,6 +6,7 @@
 #include "ui/controls/button.hpp"
 #include "ui/controls/text_box.hpp"
 #include "ui/controls/list_item.hpp"
+#include "ui/controls/popup_menu.hpp"
 
 using cru::String;
 using cru::StringView;
@@ -120,32 +121,12 @@ int APIENTRY wWinMain(
         button->AddChild(TextBlock::Create(L"Show popup window parenting this."));
         button->mouse_click_event.AddHandler([window, button](auto)
         {
-            const auto popup = Window::CreatePopup(window);
+            std::vector<cru::ui::controls::MenuItemInfo> items;
+            items.emplace_back(L"Hello world!", []{});
+            items.emplace_back(L"Item 2", []{});
+            items.emplace_back(L"Close parent window.", [window]{ window->Close(); });
 
-            auto create_menu_item = [](const String& text) -> ListItem*
-            {
-                auto text_block = TextBlock::Create(text);
-                text_block->GetLayoutParams()->width.alignment = Alignment::Start;
-
-                return CreateWithLayout<ListItem>(
-                    LayoutSideParams::Stretch(Alignment::Center),
-                    LayoutSideParams::Content(Alignment::Start),
-                    ControlList{ text_block }
-                );
-            };
-
-            const auto menu = LinearLayout::Create(LinearLayout::Orientation::Vertical, ControlList{
-                create_menu_item(L"copy"),
-                create_menu_item(L"cut"),
-                create_menu_item(L"paste")
-            });
-
-            popup->AddChild(menu);
-
-            popup->SetSizeFitContent();
-            popup->SetWindowPosition(window->PointToScreen(button->GetPositionAbsolute()));
-
-            popup->Show();
+            cru::ui::controls::CreatePopupMenu(window->PointToScreen(button->GetPositionAbsolute()), items, window)->Show();
         });
         layout->AddChild(button);
     }
