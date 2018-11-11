@@ -627,7 +627,7 @@ namespace cru::ui
         WindowManager::GetInstance()->UnregisterWindow(hwnd_);
         hwnd_ = nullptr;
         if (delete_this_on_destroy_)
-            delete this;
+            InvokeLater([this]{ delete this; });
     }
 
     void Window::OnPaintInternal() {
