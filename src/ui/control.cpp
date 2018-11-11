@@ -492,423 +492,495 @@ namespace cru::ui
 #endif
     }
 
-   void Control::RaisePositionChangedEvent(PositionChangedEventArgs& args)
-   {
-       OnPositionChangedCore(args);
-       OnPositionChanged(args);
-       position_changed_event.Raise(args);
-   }
-
-   void Control::RaiseSizeChangedEvent(SizeChangedEventArgs& args)
-   {
-       OnSizeChangedCore(args);
-       OnSizeChanged(args);
-       size_changed_event.Raise(args);
-   }
-
-   void Control::OnMouseEnter(MouseEventArgs & args)
-   {
-   }
-
-   void Control::OnMouseLeave(MouseEventArgs & args)
-   {
-   }
-
-   void Control::OnMouseMove(MouseEventArgs & args)
-   {
-   }
-
-   void Control::OnMouseDown(MouseButtonEventArgs & args)
-   {
-   }
-
-   void Control::OnMouseUp(MouseButtonEventArgs & args)
-   {
-   }
-
-   void Control::OnMouseClick(MouseButtonEventArgs& args)
-   {
-
-   }
-
-   void Control::OnMouseEnterCore(MouseEventArgs & args)
-   {
-       is_mouse_inside_ = true;
-   }
-
-   void Control::OnMouseLeaveCore(MouseEventArgs & args)
-   {
-       is_mouse_inside_ = false;
-       for (auto& is_mouse_click_valid : is_mouse_click_valid_map_)
-       {
-           if (is_mouse_click_valid.second)
-           {
-               is_mouse_click_valid.second = false;
-               OnMouseClickEnd(is_mouse_click_valid.first);
-           }
-       }
-   }
-
-   void Control::OnMouseMoveCore(MouseEventArgs & args)
-   {
-
-   }
-
-   void Control::OnMouseDownCore(MouseButtonEventArgs & args)
-   {
-       if (is_focus_on_pressed_ && args.GetSender() == args.GetOriginalSender())
-           RequestFocus();
-       is_mouse_click_valid_map_[args.GetMouseButton()] = true;
-       OnMouseClickBegin(args.GetMouseButton());
-   }
-
-   void Control::OnMouseUpCore(MouseButtonEventArgs & args)
-   {
-       if (is_mouse_click_valid_map_[args.GetMouseButton()])
-       {
-           is_mouse_click_valid_map_[args.GetMouseButton()] = false;
-           RaiseMouseClickEvent(args);
-           OnMouseClickEnd(args.GetMouseButton());
-       }
-   }
-
-   void Control::OnMouseClickCore(MouseButtonEventArgs& args)
-   {
-
-   }
-
-   void Control::RaiseMouseEnterEvent(MouseEventArgs& args)
-   {
-       OnMouseEnterCore(args);
-       OnMouseEnter(args);
-       mouse_enter_event.Raise(args);
-   }
-
-   void Control::RaiseMouseLeaveEvent(MouseEventArgs& args)
-   {
-       OnMouseLeaveCore(args);
-       OnMouseLeave(args);
-       mouse_leave_event.Raise(args);
-   }
-
-   void Control::RaiseMouseMoveEvent(MouseEventArgs& args)
-   {
-       OnMouseMoveCore(args);
-       OnMouseMove(args);
-       mouse_move_event.Raise(args);
-   }
-
-   void Control::RaiseMouseDownEvent(MouseButtonEventArgs& args)
-   {
-       OnMouseDownCore(args);
-       OnMouseDown(args);
-       mouse_down_event.Raise(args);
-   }
-
-   void Control::RaiseMouseUpEvent(MouseButtonEventArgs& args)
-   {
-       OnMouseUpCore(args);
-       OnMouseUp(args);
-       mouse_up_event.Raise(args);
-   }
-
-   void Control::RaiseMouseClickEvent(MouseButtonEventArgs& args)
-   {
-       OnMouseClickCore(args);
-       OnMouseClick(args);
-       mouse_click_event.Raise(args);
-   }
-
-   void Control::OnMouseClickBegin(MouseButton button)
-   {
-
-   }
-
-   void Control::OnMouseClickEnd(MouseButton button)
-   {
-
-   }
-
-   void Control::OnKeyDown(KeyEventArgs& args)
-   {
-   }
-
-   void Control::OnKeyUp(KeyEventArgs& args)
-   {
-   }
-
-   void Control::OnChar(CharEventArgs& args)
-   {
-   }
-
-   void Control::OnKeyDownCore(KeyEventArgs& args)
-   {
-   }
-
-   void Control::OnKeyUpCore(KeyEventArgs& args)
-   {
-   }
-
-   void Control::OnCharCore(CharEventArgs& args)
-   {
-   }
-
-   void Control::RaiseKeyDownEvent(KeyEventArgs& args)
-   {
-       OnKeyDownCore(args);
-       OnKeyDown(args);
-       key_down_event.Raise(args);
-   }
-
-   void Control::RaiseKeyUpEvent(KeyEventArgs& args)
-   {
-       OnKeyUpCore(args);
-       OnKeyUp(args);
-       key_up_event.Raise(args);
-   }
-
-   void Control::RaiseCharEvent(CharEventArgs& args)
-   {
-       OnCharCore(args);
-       OnChar(args);
-       char_event.Raise(args);
-   }
-
-   void Control::OnGetFocus(FocusChangeEventArgs& args)
-   {
-
-   }
-
-   void Control::OnLoseFocus(FocusChangeEventArgs& args)
-   {
-
-   }
-
-   void Control::OnGetFocusCore(FocusChangeEventArgs& args)
-   {
-
-   }
-
-   void Control::OnLoseFocusCore(FocusChangeEventArgs& args)
-   {
-
-   }
-
-   void Control::RaiseGetFocusEvent(FocusChangeEventArgs& args)
-   {
-       OnGetFocusCore(args);
-       OnGetFocus(args);
-       get_focus_event.Raise(args);
-   }
-
-   void Control::RaiseLoseFocusEvent(FocusChangeEventArgs& args)
-   {
-       OnLoseFocusCore(args);
-       OnLoseFocus(args);
-       lose_focus_event.Raise(args);
-   }
-
-   inline Size ThicknessToSize(const Thickness& thickness)
-   {
-       return Size(thickness.left + thickness.right, thickness.top + thickness.bottom);
-   }
-
-   inline float AtLeast0(const float value)
-   {
-       return value < 0 ? 0 : value;
-   }
-
-   Size Control::OnMeasureCore(const Size& available_size)
-   {
-       const auto layout_params = GetLayoutParams();
-
-       if (!layout_params->Validate())
-           throw std::runtime_error("LayoutParams is not valid. Please check it.");
-
-       auto border_size = Size::Zero();
-       if (is_bordered_)
-       {
-           const auto border_width = GetBorderProperty().GetStrokeWidth();
-           border_size = Size(border_width * 2.0f, border_width * 2.0f);
-       }
-
-       // the total size of padding, border and margin
-       const auto outer_size = ThicknessToSize(layout_params->padding) +
-           ThicknessToSize(layout_params->margin) + border_size;
-
-
-       auto&& get_content_measure_length = [](const LayoutSideParams& layout_length, const float available_length, const float outer_length) -> float
-       {
-           float length;
-           if (layout_length.mode == MeasureMode::Exactly)
-               length = layout_length.length;
-           else if (available_length > outer_length)
-               length = available_length - outer_length;
-           else
-               length = 0;
-           return Coerce(length, layout_length.min, layout_length.max);
-       };
-
-       // if padding, margin and border exceeded, then content size is 0.
-       const auto content_measure_size = Size(
-           get_content_measure_length(layout_params->width, available_size.width, outer_size.width),
-           get_content_measure_length(layout_params->height, available_size.height, outer_size.height)
-       );
-
-       const auto content_actual_size = OnMeasureContent(content_measure_size);
-
-       auto&& calculate_final_length = [](const LayoutSideParams& layout_length, const float measure_length, const float actual_length) -> float
-       {
-           // only use measure length when stretch and actual length is smaller than measure length, that is "stretch"
-           if (layout_length.mode == MeasureMode::Stretch && actual_length < measure_length)
-               return measure_length;
-           return Coerce(actual_length, layout_length.min, std::nullopt);
-       };
-
-       const auto final_size = Size(
-           calculate_final_length(layout_params->width, content_measure_size.width, content_actual_size.width),
-           calculate_final_length(layout_params->height, content_measure_size.height, content_actual_size.height)
-       ) + outer_size;
-
-       return final_size;
-   }
-
-   void Control::OnLayoutCore(const Rect& rect)
-   {
-       const auto layout_params = GetLayoutParams();
-
-       auto border_width = 0.0f;
-       if (is_bordered_)
-       {
-           border_width = GetBorderProperty().GetStrokeWidth();
-       }
-
-       const Rect content_rect(
-           rect.left + layout_params->padding.left + layout_params->margin.right + border_width,
-           rect.top + layout_params->padding.top + layout_params->margin.top + border_width,
-           rect.width - layout_params->padding.GetHorizontalTotal() - layout_params->margin.GetHorizontalTotal() - border_width * 2.0f,
-           rect.height - layout_params->padding.GetVerticalTotal() - layout_params->margin.GetVerticalTotal() - border_width * 2.0f
-       );
-
-       if (content_rect.width < 0.0)
-           throw std::runtime_error(Format("Width to layout must sufficient. But in {}, width for content is {}.", ToUtf8String(GetControlType()), content_rect.width));
-       if (content_rect.height < 0.0)
-           throw std::runtime_error(Format("Height to layout must sufficient. But in {}, height for content is {}.", ToUtf8String(GetControlType()), content_rect.height));
-
-       OnLayoutContent(content_rect);
-   }
-
-   Size Control::OnMeasureContent(const Size& available_size)
-   {
-       auto max_child_size = Size::Zero();
-       for (auto control: GetChildren())
-       {
-           control->Measure(available_size);
-           const auto&& size = control->GetDesiredSize();
-           if (max_child_size.width < size.width)
-               max_child_size.width = size.width;
-           if (max_child_size.height < size.height)
-               max_child_size.height = size.height;
-       }
-       return max_child_size;
-   }
-
-   void Control::OnLayoutContent(const Rect& rect)
-   {
-       for (auto control: GetChildren())
-       {
-           const auto layout_params = control->GetLayoutParams();
-           const auto size = control->GetDesiredSize();
-
-           auto&& calculate_anchor = [](const float anchor, const Alignment alignment, const float layout_length, const float control_length) -> float
-           {
-               switch (alignment)
-               {
-               case Alignment::Center:
-                   return anchor + (layout_length - control_length) / 2;
-               case Alignment::Start:
-                   return anchor;
-               case Alignment::End:
-                   return anchor + layout_length - control_length;
-               default:
-                   UnreachableCode();
-               }
-           };
-
-           control->Layout(Rect(Point(
-               calculate_anchor(rect.left, layout_params->width.alignment, rect.width, size.width),
-               calculate_anchor(rect.top, layout_params->height.alignment, rect.height, size.height)
-           ), size));
-       }
-   }
-
-   void Control::CheckAndNotifyPositionChanged()
-   {
-       if (this->old_position_ != this->position_)
-       {
-           PositionChangedEventArgs args(this, this, this->old_position_, this->position_);
-           this->RaisePositionChangedEvent(args);
-           this->old_position_ = this->position_;
-       }
-   }
-
-   std::list<Control*> GetAncestorList(Control* control)
-   {
-       std::list<Control*> l;
-       while (control != nullptr)
-       {
-           l.push_front(control);
-           control = control->GetParent();
-       }
-       return l;
-   }
-
-   Control* FindLowestCommonAncestor(Control * left, Control * right)
-   {
-       if (left == nullptr || right == nullptr)
-           return nullptr;
-
-       auto&& left_list = GetAncestorList(left);
-       auto&& right_list = GetAncestorList(right);
-
-       // the root is different
-       if (left_list.front() != right_list.front())
-           return nullptr;
-
-       // find the last same control or the last control (one is ancestor of the other)
-       auto left_i = left_list.cbegin();
-       auto right_i = right_list.cbegin();
-       while (true)
-       {
-           if (left_i == left_list.cend())
-               return *(--left_i);
-           if (right_i == right_list.cend())
-               return *(--right_i);
-           if (*left_i != *right_i)
-               return *(--left_i);
-           ++left_i;
-           ++right_i;
-       }
-   }
-
-   Control * IsAncestorOrDescendant(Control * left, Control * right)
-   {
-       //Search up along the trunk from "left". Return if find "right".
-       auto control = left;
-       while (control != nullptr)
-       {
-           if (control == right)
-               return control;
-           control = control->GetParent();
-       }
-       //Search up along the trunk from "right". Return if find "left".
-       control = right;
-       while (control != nullptr)
-       {
-           if (control == left)
-               return control;
-           control = control->GetParent();
-       }
-       return nullptr;
-   }
+    void Control::RaisePositionChangedEvent(PositionChangedEventArgs& args)
+    {
+        OnPositionChangedCore(args);
+        OnPositionChanged(args);
+        position_changed_event.Raise(args);
+    }
+
+    void Control::RaiseSizeChangedEvent(SizeChangedEventArgs& args)
+    {
+        OnSizeChangedCore(args);
+        OnSizeChanged(args);
+        size_changed_event.Raise(args);
+    }
+
+    void Control::OnMouseEnter(MouseEventArgs & args)
+    {
+    }
+
+    void Control::OnMouseLeave(MouseEventArgs & args)
+    {
+    }
+
+    void Control::OnMouseMove(MouseEventArgs & args)
+    {
+    }
+
+    void Control::OnMouseDown(MouseButtonEventArgs & args)
+    {
+    }
+
+    void Control::OnMouseUp(MouseButtonEventArgs & args)
+    {
+    }
+
+    void Control::OnMouseClick(MouseButtonEventArgs& args)
+    {
+
+    }
+
+    void Control::OnMouseEnterCore(MouseEventArgs & args)
+    {
+        is_mouse_inside_ = true;
+    }
+
+    void Control::OnMouseLeaveCore(MouseEventArgs & args)
+    {
+        is_mouse_inside_ = false;
+        for (auto& is_mouse_click_valid : is_mouse_click_valid_map_)
+        {
+            if (is_mouse_click_valid.second)
+            {
+                is_mouse_click_valid.second = false;
+                OnMouseClickEnd(is_mouse_click_valid.first);
+            }
+        }
+    }
+
+    void Control::OnMouseMoveCore(MouseEventArgs & args)
+    {
+
+    }
+
+    void Control::OnMouseDownCore(MouseButtonEventArgs & args)
+    {
+        if (is_focus_on_pressed_ && args.GetSender() == args.GetOriginalSender())
+            RequestFocus();
+        is_mouse_click_valid_map_[args.GetMouseButton()] = true;
+        OnMouseClickBegin(args.GetMouseButton());
+    }
+
+    void Control::OnMouseUpCore(MouseButtonEventArgs & args)
+    {
+        if (is_mouse_click_valid_map_[args.GetMouseButton()])
+        {
+            is_mouse_click_valid_map_[args.GetMouseButton()] = false;
+            RaiseMouseClickEvent(args);
+            OnMouseClickEnd(args.GetMouseButton());
+        }
+    }
+
+    void Control::OnMouseClickCore(MouseButtonEventArgs& args)
+    {
+
+    }
+
+    void Control::RaiseMouseEnterEvent(MouseEventArgs& args)
+    {
+        OnMouseEnterCore(args);
+        OnMouseEnter(args);
+        mouse_enter_event.Raise(args);
+    }
+
+    void Control::RaiseMouseLeaveEvent(MouseEventArgs& args)
+    {
+        OnMouseLeaveCore(args);
+        OnMouseLeave(args);
+        mouse_leave_event.Raise(args);
+    }
+
+    void Control::RaiseMouseMoveEvent(MouseEventArgs& args)
+    {
+        OnMouseMoveCore(args);
+        OnMouseMove(args);
+        mouse_move_event.Raise(args);
+    }
+
+    void Control::RaiseMouseDownEvent(MouseButtonEventArgs& args)
+    {
+        OnMouseDownCore(args);
+        OnMouseDown(args);
+        mouse_down_event.Raise(args);
+    }
+
+    void Control::RaiseMouseUpEvent(MouseButtonEventArgs& args)
+    {
+        OnMouseUpCore(args);
+        OnMouseUp(args);
+        mouse_up_event.Raise(args);
+    }
+
+    void Control::RaiseMouseClickEvent(MouseButtonEventArgs& args)
+    {
+        OnMouseClickCore(args);
+        OnMouseClick(args);
+        mouse_click_event.Raise(args);
+    }
+
+    void Control::OnMouseClickBegin(MouseButton button)
+    {
+
+    }
+
+    void Control::OnMouseClickEnd(MouseButton button)
+    {
+
+    }
+
+    void Control::OnKeyDown(KeyEventArgs& args)
+    {
+    }
+
+    void Control::OnKeyUp(KeyEventArgs& args)
+    {
+    }
+
+    void Control::OnChar(CharEventArgs& args)
+    {
+    }
+
+    void Control::OnKeyDownCore(KeyEventArgs& args)
+    {
+    }
+
+    void Control::OnKeyUpCore(KeyEventArgs& args)
+    {
+    }
+
+    void Control::OnCharCore(CharEventArgs& args)
+    {
+    }
+
+    void Control::RaiseKeyDownEvent(KeyEventArgs& args)
+    {
+        OnKeyDownCore(args);
+        OnKeyDown(args);
+        key_down_event.Raise(args);
+    }
+
+    void Control::RaiseKeyUpEvent(KeyEventArgs& args)
+    {
+        OnKeyUpCore(args);
+        OnKeyUp(args);
+        key_up_event.Raise(args);
+    }
+
+    void Control::RaiseCharEvent(CharEventArgs& args)
+    {
+        OnCharCore(args);
+        OnChar(args);
+        char_event.Raise(args);
+    }
+
+    void Control::OnGetFocus(FocusChangeEventArgs& args)
+    {
+
+    }
+
+    void Control::OnLoseFocus(FocusChangeEventArgs& args)
+    {
+
+    }
+
+    void Control::OnGetFocusCore(FocusChangeEventArgs& args)
+    {
+
+    }
+
+    void Control::OnLoseFocusCore(FocusChangeEventArgs& args)
+    {
+
+    }
+
+    void Control::RaiseGetFocusEvent(FocusChangeEventArgs& args)
+    {
+        OnGetFocusCore(args);
+        OnGetFocus(args);
+        get_focus_event.Raise(args);
+    }
+
+    void Control::RaiseLoseFocusEvent(FocusChangeEventArgs& args)
+    {
+        OnLoseFocusCore(args);
+        OnLoseFocus(args);
+        lose_focus_event.Raise(args);
+    }
+
+    inline Size ThicknessToSize(const Thickness& thickness)
+    {
+        return Size(thickness.left + thickness.right, thickness.top + thickness.bottom);
+    }
+
+    inline float AtLeast0(const float value)
+    {
+        return value < 0 ? 0 : value;
+    }
+
+    Size Control::OnMeasureCore(const Size& available_size)
+    {
+        const auto layout_params = GetLayoutParams();
+
+        if (!layout_params->Validate())
+            throw std::runtime_error("LayoutParams is not valid. Please check it.");
+
+        auto border_size = Size::Zero();
+        if (is_bordered_)
+        {
+            const auto border_width = GetBorderProperty().GetStrokeWidth();
+            border_size = Size(border_width * 2.0f, border_width * 2.0f);
+        }
+
+        // the total size of padding, border and margin
+        const auto outer_size = ThicknessToSize(layout_params->padding) +
+            ThicknessToSize(layout_params->margin) + border_size;
+
+
+        auto&& get_content_measure_length = [](const LayoutSideParams& layout_length, const float available_length, const float outer_length) -> float
+        {
+            float length;
+            if (layout_length.mode == MeasureMode::Exactly)
+                length = layout_length.length;
+            else if (available_length > outer_length)
+                length = available_length - outer_length;
+            else
+                length = 0;
+            return Coerce(length, layout_length.min, layout_length.max);
+        };
+
+        // if padding, margin and border exceeded, then content size is 0.
+        const auto content_measure_size = Size(
+            get_content_measure_length(layout_params->width, available_size.width, outer_size.width),
+            get_content_measure_length(layout_params->height, available_size.height, outer_size.height)
+        );
+
+        const auto content_actual_size = OnMeasureContent(content_measure_size);
+
+        auto stretch_width = false;
+        auto stretch_width_determined = true;
+        auto stretch_height = false;
+        auto stretch_height_determined = true;
+
+        // if it is stretch, init is stretch, and undetermined.
+        if (layout_params->width.mode == MeasureMode::Stretch)
+        {
+            stretch_width = true;
+            stretch_width_determined = false;
+        }
+        if (layout_params->height.mode == MeasureMode::Stretch)
+        {
+            stretch_height = true;
+            stretch_width_determined = false;
+        }
+
+        if (!stretch_width_determined || !stretch_height_determined)
+        {
+            auto parent = GetParent();
+            while (parent != nullptr)
+            {
+                auto lp = parent->GetLayoutParams();
+
+                if (!stretch_width_determined)
+                {
+                    if (lp->width.mode == MeasureMode::Content) // if the first ancestor that is not stretch is content, then it can't stretch.
+                    {
+                        stretch_width = false;
+                        stretch_width_determined = true;
+                    }
+                    if (lp->width.mode == MeasureMode::Exactly) // if the first ancestor that is not stretch is content, then it must be stretch.
+                    {
+                        stretch_width = true;
+                        stretch_width_determined = true;
+                    }
+                }
+
+                if (!stretch_height_determined) // the same as width
+                {
+                    if (lp->height.mode == MeasureMode::Content) // if the first ancestor that is not stretch is content, then it can't stretch.
+                    {
+                        stretch_height = false;
+                        stretch_height_determined = true;
+                    }
+                    if (lp->height.mode == MeasureMode::Exactly) // if the first ancestor that is not stretch is content, then it must be stretch.
+                    {
+                        stretch_height = true;
+                        stretch_height_determined = true;
+                    }
+                }
+
+                if (stretch_width_determined && stretch_height_determined) // if both are determined.
+                    break;
+
+                parent = GetParent();
+            }
+        }
+         
+        auto&& calculate_final_length = [](const bool stretch, const std::optional<float> min_length, const float measure_length, const float actual_length) -> float
+        {
+            // only use measure length when stretch and actual length is smaller than measure length, that is "stretch"
+            if (stretch && actual_length < measure_length)
+                return measure_length;
+            return Coerce(actual_length, min_length, std::nullopt);
+        };
+
+        const auto final_size = Size(
+            calculate_final_length(stretch_width, layout_params->width.min, content_measure_size.width, content_actual_size.width),
+            calculate_final_length(stretch_height, layout_params->height.min, content_measure_size.height, content_actual_size.height)
+        ) + outer_size;
+
+        return final_size;
+    }
+
+    void Control::OnLayoutCore(const Rect& rect)
+    {
+        const auto layout_params = GetLayoutParams();
+
+        auto border_width = 0.0f;
+        if (is_bordered_)
+        {
+            border_width = GetBorderProperty().GetStrokeWidth();
+        }
+
+        const Rect content_rect(
+            rect.left + layout_params->padding.left + layout_params->margin.right + border_width,
+            rect.top + layout_params->padding.top + layout_params->margin.top + border_width,
+            rect.width - layout_params->padding.GetHorizontalTotal() - layout_params->margin.GetHorizontalTotal() - border_width * 2.0f,
+            rect.height - layout_params->padding.GetVerticalTotal() - layout_params->margin.GetVerticalTotal() - border_width * 2.0f
+        );
+
+        if (content_rect.width < 0.0)
+            throw std::runtime_error(Format("Width to layout must sufficient. But in {}, width for content is {}.", ToUtf8String(GetControlType()), content_rect.width));
+        if (content_rect.height < 0.0)
+            throw std::runtime_error(Format("Height to layout must sufficient. But in {}, height for content is {}.", ToUtf8String(GetControlType()), content_rect.height));
+
+        OnLayoutContent(content_rect);
+    }
+
+    Size Control::OnMeasureContent(const Size& available_size)
+    {
+        auto max_child_size = Size::Zero();
+        for (auto control: GetChildren())
+        {
+            control->Measure(available_size);
+            const auto&& size = control->GetDesiredSize();
+            if (max_child_size.width < size.width)
+                max_child_size.width = size.width;
+            if (max_child_size.height < size.height)
+                max_child_size.height = size.height;
+        }
+
+        // coerce size fro stretch.
+        for (auto control: GetChildren())
+        {
+            auto size = control->GetDesiredSize();
+            const auto layout_params = control->GetLayoutParams();
+            if (layout_params->width.mode == MeasureMode::Stretch)
+                size.width = max_child_size.width;
+            if (layout_params->height.mode == MeasureMode::Stretch)
+                size.height = max_child_size.height;
+            control->SetDesiredSize(size);
+        }
+
+        return max_child_size;
+    }
+
+    void Control::OnLayoutContent(const Rect& rect)
+    {
+        for (auto control: GetChildren())
+        {
+            const auto layout_params = control->GetLayoutParams();
+            const auto size = control->GetDesiredSize();
+
+            auto&& calculate_anchor = [](const float anchor, const Alignment alignment, const float layout_length, const float control_length) -> float
+            {
+                switch (alignment)
+                {
+                case Alignment::Center:
+                    return anchor + (layout_length - control_length) / 2;
+                case Alignment::Start:
+                    return anchor;
+                case Alignment::End:
+                    return anchor + layout_length - control_length;
+                default:
+                    UnreachableCode();
+                }
+            };
+
+            control->Layout(Rect(Point(
+                calculate_anchor(rect.left, layout_params->width.alignment, rect.width, size.width),
+                calculate_anchor(rect.top, layout_params->height.alignment, rect.height, size.height)
+            ), size));
+        }
+    }
+
+    void Control::CheckAndNotifyPositionChanged()
+    {
+        if (this->old_position_ != this->position_)
+        {
+            PositionChangedEventArgs args(this, this, this->old_position_, this->position_);
+            this->RaisePositionChangedEvent(args);
+            this->old_position_ = this->position_;
+        }
+    }
+
+    std::list<Control*> GetAncestorList(Control* control)
+    {
+        std::list<Control*> l;
+        while (control != nullptr)
+        {
+            l.push_front(control);
+            control = control->GetParent();
+        }
+        return l;
+    }
+
+    Control* FindLowestCommonAncestor(Control * left, Control * right)
+    {
+        if (left == nullptr || right == nullptr)
+            return nullptr;
+
+        auto&& left_list = GetAncestorList(left);
+        auto&& right_list = GetAncestorList(right);
+
+        // the root is different
+        if (left_list.front() != right_list.front())
+            return nullptr;
+
+        // find the last same control or the last control (one is ancestor of the other)
+        auto left_i = left_list.cbegin();
+        auto right_i = right_list.cbegin();
+        while (true)
+        {
+            if (left_i == left_list.cend())
+                return *(--left_i);
+            if (right_i == right_list.cend())
+                return *(--right_i);
+            if (*left_i != *right_i)
+                return *(--left_i);
+            ++left_i;
+            ++right_i;
+        }
+    }
+
+    Control * IsAncestorOrDescendant(Control * left, Control * right)
+    {
+        //Search up along the trunk from "left". Return if find "right".
+        auto control = left;
+        while (control != nullptr)
+        {
+            if (control == right)
+                return control;
+            control = control->GetParent();
+        }
+        //Search up along the trunk from "right". Return if find "left".
+        control = right;
+        while (control != nullptr)
+        {
+            if (control == left)
+                return control;
+            control = control->GetParent();
+        }
+        return nullptr;
+    }
 }

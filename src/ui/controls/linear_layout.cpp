@@ -89,9 +89,28 @@ namespace cru::ui::controls
         }
 
         if (orientation_ == Orientation::Horizontal)
+        {
+            for (auto control : GetChildren())
+            {
+                if (control->GetLayoutParams()->height.mode == MeasureMode::Stretch)
+                {
+                    control->SetDesiredSize(Size(control->GetDesiredSize().width, secondary_side_child_max_length));
+                }
+            }
             actual_size_for_children.height = secondary_side_child_max_length;
+        }
         else
+        {
+            for (auto control : GetChildren())
+            {
+                if (control->GetLayoutParams()->width.mode == MeasureMode::Stretch)
+                {
+                    control->SetDesiredSize(Size(secondary_side_child_max_length, control->GetDesiredSize().height));
+                }
+            }
+
             actual_size_for_children.width = secondary_side_child_max_length;
+        }
 
         return actual_size_for_children;
     }

@@ -124,10 +124,13 @@ int APIENTRY wWinMain(
 
             auto create_menu_item = [](const String& text) -> ListItem*
             {
+                auto text_block = TextBlock::Create(text);
+                text_block->GetLayoutParams()->width.alignment = Alignment::Start;
+
                 return CreateWithLayout<ListItem>(
+                    LayoutSideParams::Stretch(Alignment::Center),
                     LayoutSideParams::Content(Alignment::Start),
-                    LayoutSideParams::Content(Alignment::Start),
-                    ControlList{ TextBlock::Create(text) }
+                    ControlList{ text_block }
                 );
             };
 
