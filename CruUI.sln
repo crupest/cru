@@ -5,6 +5,8 @@ VisualStudioVersion = 15.0.28010.2036
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CruUI", "CruUI.vcxproj", "{A987AC8E-C365-44F3-8324-CBA95B33AB97}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CruUI-Generate", "CruUI-Generate/CruUI-Generate.vcxproj", "{E823676A-8860-4177-B062-B003B7F66A6F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -21,6 +23,14 @@ Global
 		{A987AC8E-C365-44F3-8324-CBA95B33AB97}.Release|x64.Build.0 = Release|x64
 		{A987AC8E-C365-44F3-8324-CBA95B33AB97}.Release|x86.ActiveCfg = Release|Win32
 		{A987AC8E-C365-44F3-8324-CBA95B33AB97}.Release|x86.Build.0 = Release|Win32
+		{E823676A-8860-4177-B062-B003B7F66A6F}.Debug|x64.ActiveCfg = Debug|x64
+		{E823676A-8860-4177-B062-B003B7F66A6F}.Debug|x64.Build.0 = Debug|x64
+		{E823676A-8860-4177-B062-B003B7F66A6F}.Debug|x86.ActiveCfg = Debug|Win32
+		{E823676A-8860-4177-B062-B003B7F66A6F}.Debug|x86.Build.0 = Debug|Win32
+		{E823676A-8860-4177-B062-B003B7F66A6F}.Release|x64.ActiveCfg = Release|x64
+		{E823676A-8860-4177-B062-B003B7F66A6F}.Release|x64.Build.0 = Release|x64
+		{E823676A-8860-4177-B062-B003B7F66A6F}.Release|x86.ActiveCfg = Release|Win32
+		{E823676A-8860-4177-B062-B003B7F66A6F}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

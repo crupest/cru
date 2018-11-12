@@ -5,16 +5,10 @@
 
 #include "graph/graph.hpp"
 #include "exception.hpp"
-#include "application.hpp"
 #include "ui/ui_manager.hpp"
 
 namespace cru::ui::controls
 {
-    inline Microsoft::WRL::ComPtr<IDWriteFactory> GetDWriteFactory()
-    {
-        return graph::GraphManager::GetInstance()->GetDWriteFactory();
-    }
-
     TextBox::TextBox() : TextControl(
         UiManager::GetInstance()->GetPredefineResources()->text_box_text_format,
         UiManager::GetInstance()->GetPredefineResources()->text_box_text_brush
