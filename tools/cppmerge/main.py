@@ -7,6 +7,7 @@ import sys
 parser = argparse.ArgumentParser()
 parser.add_argument("-o", "--output", required=True, help="The name of output header and source files excluding extension.")
 parser.add_argument("input", nargs="+", help="The input source files or folders to scan.")
+parser.add_argument("-e", "--exclude", nargs="+", help="Filenames that exludes from merging.")
 args = parser.parse_args()
 
 input_dirs = []
@@ -32,26 +33,38 @@ for path in args.input:
     elif os.path.isfile(path):
         file_name = os.path.basename(path)
         if cpp_source_file_regex.match(file_name):
-            add_source_file(path)
+            if file_name in args.exclude:
+                sys.exit("{} is specified excluding.")
+            else:
+                add_source_file(path)
         elif cpp_header_file_regex.match(file_name):
-            add_header_file(path)
+            if file_name in args.exclude:
+                sys.exit("{} is specified excluding.")
+            else:
+                add_header_file(path)
         else:
             sys.exit("{} is a file but it is neither c++ source nor header.".format(path))
     else:
         sys.exit("{} is neither a file nor a directory.".format(path))
 
+actual_exclude_count = 0
+
 for input_dir in input_dirs:
     for root, subdirs, files in os.walk(input_dir):
         for f in files:
-            if cpp_source_file_regex.match(f):
-                path = os.path.join(root, f)
-                add_source_file(path)
-            elif cpp_header_file_regex.match(f):
-                path = os.path.join(root, f)
-                add_header_file(path)
+            if f in args.exclude:
+                actual_exclude_count += 1
+            else:
+                if cpp_source_file_regex.match(f):
+                    path = os.path.join(root, f)
+                    add_source_file(path)
+                elif cpp_header_file_regex.match(f):
+                    path = os.path.join(root, f)
+                    add_header_file(path)
 
 print()
 print("total find {} header file(s)".format(len(header_file_list)))
 print("total find {} source file(s)".format(len(source_file_list)))
+print("total actual exclude {} file(s)".format(actual_exclude_count))
 print()
 
