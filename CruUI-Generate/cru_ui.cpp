@@ -980,8 +980,15 @@ namespace cru::ui
 
     bool Control::IsPointInside(const Point & point)
     {
-        const auto size = GetSize();
-        return point.x >= 0.0f && point.x < size.width && point.y >= 0.0f && point.y < size.height;
+        if (border_geometry_ != nullptr)
+        {
+            BOOL contains;
+            border_geometry_->FillContainsPoint(Convert(point), D2D1::Matrix3x2F::Identity(), &contains);
+            if (!contains)
+                border_geometry_->StrokeContainsPoint(Convert(point), GetBorderProperty().GetStrokeWidth(), nullptr, D2D1::Matrix3x2F::Identity(), &contains);
+            return contains != 0;
+        }
+        return false;
     }
 
     void Control::Draw(ID2D1DeviceContext* device_context)
@@ -1108,6 +1115,7 @@ namespace cru::ui
 
     void Control::InvalidateBorder()
     {
+        RegenerateBorderGeometry();
         InvalidateLayout();
         Repaint();
     }
@@ -1275,6 +1283,7 @@ namespace cru::ui
 
     void Control::OnSizeChangedCore(SizeChangedEventArgs & args)
     {
+        RegenerateBorderGeometry();
 #ifdef CRU_DEBUG_LAYOUT
         margin_geometry_ = CalculateSquareRingGeometry(GetRect(RectRange::Margin), GetRect(RectRange::FullBorder));
         padding_geometry_ = CalculateSquareRingGeometry(GetRect(RectRange::Padding), GetRect(RectRange::Content));
@@ -1293,6 +1302,20 @@ namespace cru::ui
         OnSizeChangedCore(args);
         OnSizeChanged(args);
         size_changed_event.Raise(args);
+    }
+
+    void Control::RegenerateBorderGeometry()
+    {
+        const auto bound_rect = GetRect(RectRange::HalfBorder);
+        const auto bound_rounded_rect = D2D1::RoundedRect(Convert(bound_rect),
+            GetBorderProperty().GetRadiusX(),
+            GetBorderProperty().GetRadiusY());
+
+        Microsoft::WRL::ComPtr<ID2D1RoundedRectangleGeometry> geometry;
+        ThrowIfFailed(
+            graph::GraphManager::GetInstance()->GetD2D1Factory()->CreateRoundedRectangleGeometry(bound_rounded_rect, &geometry)
+        );
+        border_geometry_ = std::move(geometry);
     }
 
     void Control::OnMouseEnter(MouseEventArgs & args)
@@ -2493,6 +2516,11 @@ namespace cru::ui
     void Window::SetSize(const Size & size)
     {
 
+    }
+
+    bool Window::IsPointInside(const Point& point)
+    {
+        return Rect(Point::Zero(), GetClientSize()).IsPointInside(point);
     }
 
     void Window::WindowInvalidateLayout()
