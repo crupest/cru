@@ -9,11 +9,6 @@
 
 namespace cru::ui::controls
 {
-    inline Microsoft::WRL::ComPtr<IDWriteFactory> GetDWriteFactory()
-    {
-        return graph::GraphManager::GetInstance()->GetDWriteFactory();
-    }
-
     TextControl::TextControl(const Microsoft::WRL::ComPtr<IDWriteTextFormat>& init_text_format,
         const Microsoft::WRL::ComPtr<ID2D1Brush>& init_brush) : Control(false)
     {
@@ -216,7 +211,7 @@ namespace cru::ui::controls
 
         text_layout_ = nullptr;
 
-        const auto dwrite_factory = GetDWriteFactory();
+        const auto dwrite_factory = graph::GraphManager::GetInstance()->GetDWriteFactory();
 
         const auto&& size = GetSize();
 
