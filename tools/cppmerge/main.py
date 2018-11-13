@@ -133,6 +133,7 @@ output_source_file.write('#include "{}"\n'.format(os.path.basename(output_header
 
 
 for source_path in source_file_list:
+    source_path = os.path.normpath(source_path)
     output_source_file.write("//--------------------------------------------------------\n")
     output_source_file.write("//-------begin of file: {}\n".format(source_path))
     output_source_file.write("//--------------------------------------------------------\n")

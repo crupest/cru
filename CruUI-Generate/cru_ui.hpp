@@ -1,6 +1,6 @@
 #pragma once
 //--------------------------------------------------------
-//-------begin of file: ..\..\src\any_map.hpp
+//-------begin of file: src\any_map.hpp
 //--------------------------------------------------------
 
 #include <any>
@@ -10,12 +10,12 @@
 #include <typeinfo>
 
 //--------------------------------------------------------
-//-------begin of file: ..\..\src\base.hpp
+//-------begin of file: src\base.hpp
 //--------------------------------------------------------
 
 // ReSharper disable once CppUnusedIncludeDirective
 //--------------------------------------------------------
-//-------begin of file: ..\..\src\global_macros.hpp
+//-------begin of file: src\global_macros.hpp
 //--------------------------------------------------------
 
 #ifdef _DEBUG
@@ -26,7 +26,7 @@
 #define CRU_DEBUG_LAYOUT
 #endif
 //--------------------------------------------------------
-//-------end of file: ..\..\src\global_macros.hpp
+//-------end of file: src\global_macros.hpp
 //--------------------------------------------------------
 
 
@@ -115,10 +115,10 @@ namespace cru
 
 }
 //--------------------------------------------------------
-//-------end of file: ..\..\src\base.hpp
+//-------end of file: src\base.hpp
 //--------------------------------------------------------
 //--------------------------------------------------------
-//-------begin of file: ..\..\src\format.hpp
+//-------begin of file: src\format.hpp
 //--------------------------------------------------------
 
 
@@ -226,7 +226,7 @@ namespace cru
     }
 }
 //--------------------------------------------------------
-//-------end of file: ..\..\src\format.hpp
+//-------end of file: src\format.hpp
 //--------------------------------------------------------
 
 
@@ -319,14 +319,14 @@ namespace cru
     };
 }
 //--------------------------------------------------------
-//-------end of file: ..\..\src\any_map.hpp
+//-------end of file: src\any_map.hpp
 //--------------------------------------------------------
 //--------------------------------------------------------
-//-------begin of file: ..\..\src\application.hpp
+//-------begin of file: src\application.hpp
 //--------------------------------------------------------
 
 //--------------------------------------------------------
-//-------begin of file: ..\..\src\system_headers.hpp
+//-------begin of file: src\system_headers.hpp
 //--------------------------------------------------------
 
 
@@ -349,7 +349,7 @@ namespace cru
 #include <dxgi1_2.h>
 #include <wrl/client.h>
 //--------------------------------------------------------
-//-------end of file: ..\..\src\system_headers.hpp
+//-------end of file: src\system_headers.hpp
 //--------------------------------------------------------
 #include <memory>
 #include <optional>
@@ -463,10 +463,10 @@ namespace cru
     void InvokeLater(const std::function<void()>& action);
 }
 //--------------------------------------------------------
-//-------end of file: ..\..\src\application.hpp
+//-------end of file: src\application.hpp
 //--------------------------------------------------------
 //--------------------------------------------------------
-//-------begin of file: ..\..\src\exception.hpp
+//-------begin of file: src\exception.hpp
 //--------------------------------------------------------
 
 #include <optional>
@@ -523,10 +523,10 @@ namespace cru {
     };
 }
 //--------------------------------------------------------
-//-------end of file: ..\..\src\exception.hpp
+//-------end of file: src\exception.hpp
 //--------------------------------------------------------
 //--------------------------------------------------------
-//-------begin of file: ..\..\src\timer.hpp
+//-------begin of file: src\timer.hpp
 //--------------------------------------------------------
 
 
@@ -588,10 +588,10 @@ namespace cru
     TimerTask SetInterval(std::chrono::milliseconds milliseconds, const TimerAction& action);
 }
 //--------------------------------------------------------
-//-------end of file: ..\..\src\timer.hpp
+//-------end of file: src\timer.hpp
 //--------------------------------------------------------
 //--------------------------------------------------------
-//-------begin of file: ..\..\src\ui\window.hpp
+//-------begin of file: src\ui\window.hpp
 //--------------------------------------------------------
 
 #include <map>
@@ -599,7 +599,7 @@ namespace cru
 #include <memory>
 
 //--------------------------------------------------------
-//-------begin of file: ..\..\src\ui\control.hpp
+//-------begin of file: src\ui\control.hpp
 //--------------------------------------------------------
 
 #include <unordered_map>
@@ -607,7 +607,7 @@ namespace cru
 #include <utility>
 
 //--------------------------------------------------------
-//-------begin of file: ..\..\src\ui\ui_base.hpp
+//-------begin of file: src\ui\ui_base.hpp
 //--------------------------------------------------------
 
 #include <optional>
@@ -811,10 +811,10 @@ namespace cru::ui
     bool IsAnyMouseButtonDown();
 }
 //--------------------------------------------------------
-//-------end of file: ..\..\src\ui\ui_base.hpp
+//-------end of file: src\ui\ui_base.hpp
 //--------------------------------------------------------
 //--------------------------------------------------------
-//-------begin of file: ..\..\src\ui\layout_base.hpp
+//-------begin of file: src\ui\layout_base.hpp
 //--------------------------------------------------------
 
 #include <unordered_set>
@@ -956,16 +956,16 @@ namespace cru::ui
     };
 }
 //--------------------------------------------------------
-//-------end of file: ..\..\src\ui\layout_base.hpp
+//-------end of file: src\ui\layout_base.hpp
 //--------------------------------------------------------
 //--------------------------------------------------------
-//-------begin of file: ..\..\src\ui\events\ui_event.hpp
+//-------begin of file: src\ui\events\ui_event.hpp
 //--------------------------------------------------------
 
 #include <optional>
 
 //--------------------------------------------------------
-//-------begin of file: ..\..\src\cru_event.hpp
+//-------begin of file: src\cru_event.hpp
 //--------------------------------------------------------
 
 #include <type_traits>
@@ -1052,7 +1052,7 @@ namespace cru {
     };
 }
 //--------------------------------------------------------
-//-------end of file: ..\..\src\cru_event.hpp
+//-------end of file: src\cru_event.hpp
 //--------------------------------------------------------
 
 namespace cru::ui
@@ -1361,10 +1361,10 @@ namespace cru::ui::events
     using CharEvent = Event<CharEventArgs>;
 }
 //--------------------------------------------------------
-//-------end of file: ..\..\src\ui\events\ui_event.hpp
+//-------end of file: src\ui\events\ui_event.hpp
 //--------------------------------------------------------
 //--------------------------------------------------------
-//-------begin of file: ..\..\src\ui\border_property.hpp
+//-------begin of file: src\ui\border_property.hpp
 //--------------------------------------------------------
 
 
@@ -1448,10 +1448,10 @@ namespace cru::ui
     };
 }
 //--------------------------------------------------------
-//-------end of file: ..\..\src\ui\border_property.hpp
+//-------end of file: src\ui\border_property.hpp
 //--------------------------------------------------------
 //--------------------------------------------------------
-//-------begin of file: ..\..\src\ui\cursor.hpp
+//-------begin of file: src\ui\cursor.hpp
 //--------------------------------------------------------
 
 #include <memory>
@@ -1489,7 +1489,7 @@ namespace cru::ui
     }
 }
 //--------------------------------------------------------
-//-------end of file: ..\..\src\ui\cursor.hpp
+//-------end of file: src\ui\cursor.hpp
 //--------------------------------------------------------
 
 namespace cru::ui
@@ -1902,7 +1902,7 @@ namespace cru::ui
     using ControlList = std::initializer_list<Control*>;
 }
 //--------------------------------------------------------
-//-------end of file: ..\..\src\ui\control.hpp
+//-------end of file: src\ui\control.hpp
 //--------------------------------------------------------
 
 namespace cru::graph
@@ -2231,10 +2231,10 @@ namespace cru::ui
     };
 }
 //--------------------------------------------------------
-//-------end of file: ..\..\src\ui\window.hpp
+//-------end of file: src\ui\window.hpp
 //--------------------------------------------------------
 //--------------------------------------------------------
-//-------begin of file: ..\..\src\cru_debug.hpp
+//-------begin of file: src\cru_debug.hpp
 //--------------------------------------------------------
 
 #include <functional>
@@ -2278,10 +2278,10 @@ namespace cru::debug
 #endif
 }
 //--------------------------------------------------------
-//-------end of file: ..\..\src\cru_debug.hpp
+//-------end of file: src\cru_debug.hpp
 //--------------------------------------------------------
 //--------------------------------------------------------
-//-------begin of file: ..\..\src\ui\controls\linear_layout.hpp
+//-------begin of file: src\ui\controls\linear_layout.hpp
 //--------------------------------------------------------
 
 
@@ -2329,14 +2329,14 @@ namespace cru::ui::controls
     };
 }
 //--------------------------------------------------------
-//-------end of file: ..\..\src\ui\controls\linear_layout.hpp
+//-------end of file: src\ui\controls\linear_layout.hpp
 //--------------------------------------------------------
 //--------------------------------------------------------
-//-------begin of file: ..\..\src\ui\controls\text_block.hpp
+//-------begin of file: src\ui\controls\text_block.hpp
 //--------------------------------------------------------
 
 //--------------------------------------------------------
-//-------begin of file: ..\..\src\ui\controls\text_control.hpp
+//-------begin of file: src\ui\controls\text_control.hpp
 //--------------------------------------------------------
 
 
@@ -2438,7 +2438,7 @@ namespace cru::ui::controls
     };
 }
 //--------------------------------------------------------
-//-------end of file: ..\..\src\ui\controls\text_control.hpp
+//-------end of file: src\ui\controls\text_control.hpp
 //--------------------------------------------------------
 
 namespace cru::ui::controls
@@ -2470,10 +2470,10 @@ namespace cru::ui::controls
     };
 }
 //--------------------------------------------------------
-//-------end of file: ..\..\src\ui\controls\text_block.hpp
+//-------end of file: src\ui\controls\text_block.hpp
 //--------------------------------------------------------
 //--------------------------------------------------------
-//-------begin of file: ..\..\src\ui\controls\toggle_button.hpp
+//-------begin of file: src\ui\controls\toggle_button.hpp
 //--------------------------------------------------------
 
 
@@ -2539,10 +2539,10 @@ namespace cru::ui::controls
     };
 }
 //--------------------------------------------------------
-//-------end of file: ..\..\src\ui\controls\toggle_button.hpp
+//-------end of file: src\ui\controls\toggle_button.hpp
 //--------------------------------------------------------
 //--------------------------------------------------------
-//-------begin of file: ..\..\src\ui\controls\button.hpp
+//-------begin of file: src\ui\controls\button.hpp
 //--------------------------------------------------------
 
 #include <initializer_list>
@@ -2585,10 +2585,10 @@ namespace cru::ui::controls
     };
 }
 //--------------------------------------------------------
-//-------end of file: ..\..\src\ui\controls\button.hpp
+//-------end of file: src\ui\controls\button.hpp
 //--------------------------------------------------------
 //--------------------------------------------------------
-//-------begin of file: ..\..\src\ui\controls\text_box.hpp
+//-------begin of file: src\ui\controls\text_box.hpp
 //--------------------------------------------------------
 
 
@@ -2640,10 +2640,10 @@ namespace cru::ui::controls
     };
 }
 //--------------------------------------------------------
-//-------end of file: ..\..\src\ui\controls\text_box.hpp
+//-------end of file: src\ui\controls\text_box.hpp
 //--------------------------------------------------------
 //--------------------------------------------------------
-//-------begin of file: ..\..\src\ui\controls\list_item.hpp
+//-------begin of file: src\ui\controls\list_item.hpp
 //--------------------------------------------------------
 
 #include <map>
@@ -2711,10 +2711,10 @@ namespace cru::ui::controls
     };
 }
 //--------------------------------------------------------
-//-------end of file: ..\..\src\ui\controls\list_item.hpp
+//-------end of file: src\ui\controls\list_item.hpp
 //--------------------------------------------------------
 //--------------------------------------------------------
-//-------begin of file: ..\..\src\ui\controls\popup_menu.hpp
+//-------begin of file: src\ui\controls\popup_menu.hpp
 //--------------------------------------------------------
 
 #include <vector>
@@ -2734,10 +2734,10 @@ namespace cru::ui::controls
     Window* CreatePopupMenu(const Point& anchor, const std::vector<MenuItemInfo>& items, Window* parent = nullptr);
 }
 //--------------------------------------------------------
-//-------end of file: ..\..\src\ui\controls\popup_menu.hpp
+//-------end of file: src\ui\controls\popup_menu.hpp
 //--------------------------------------------------------
 //--------------------------------------------------------
-//-------begin of file: ..\..\src\graph\graph.hpp
+//-------begin of file: src\graph\graph.hpp
 //--------------------------------------------------------
 
 #include <memory>
@@ -2912,10 +2912,10 @@ namespace cru::graph
     }
 }
 //--------------------------------------------------------
-//-------end of file: ..\..\src\graph\graph.hpp
+//-------end of file: src\graph\graph.hpp
 //--------------------------------------------------------
 //--------------------------------------------------------
-//-------begin of file: ..\..\src\ui\ui_manager.hpp
+//-------begin of file: src\ui\ui_manager.hpp
 //--------------------------------------------------------
 
 
@@ -3015,10 +3015,10 @@ namespace cru::ui
     };
 }
 //--------------------------------------------------------
-//-------end of file: ..\..\src\ui\ui_manager.hpp
+//-------end of file: src\ui\ui_manager.hpp
 //--------------------------------------------------------
 //--------------------------------------------------------
-//-------begin of file: ..\..\src\ui\convert_util.hpp
+//-------begin of file: src\ui\convert_util.hpp
 //--------------------------------------------------------
 
 
@@ -3031,10 +3031,10 @@ namespace cru::ui
     }
 }
 //--------------------------------------------------------
-//-------end of file: ..\..\src\ui\convert_util.hpp
+//-------end of file: src\ui\convert_util.hpp
 //--------------------------------------------------------
 //--------------------------------------------------------
-//-------begin of file: ..\..\src\ui\animations\animation.hpp
+//-------begin of file: src\ui\animations\animation.hpp
 //--------------------------------------------------------
 
 #include <unordered_map>
@@ -3161,5 +3161,5 @@ namespace cru::ui::animations
     };
 }
 //--------------------------------------------------------
-//-------end of file: ..\..\src\ui\animations\animation.hpp
+//-------end of file: src\ui\animations\animation.hpp
 //--------------------------------------------------------
