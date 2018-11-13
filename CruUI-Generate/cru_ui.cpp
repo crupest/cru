@@ -982,11 +982,20 @@ namespace cru::ui
     {
         if (border_geometry_ != nullptr)
         {
-            BOOL contains;
-            border_geometry_->FillContainsPoint(Convert(point), D2D1::Matrix3x2F::Identity(), &contains);
-            if (!contains)
-                border_geometry_->StrokeContainsPoint(Convert(point), GetBorderProperty().GetStrokeWidth(), nullptr, D2D1::Matrix3x2F::Identity(), &contains);
-            return contains != 0;
+            if (IsBordered())
+            {
+                BOOL contains;
+                border_geometry_->FillContainsPoint(Convert(point), D2D1::Matrix3x2F::Identity(), &contains);
+                if (!contains)
+                    border_geometry_->StrokeContainsPoint(Convert(point), GetBorderProperty().GetStrokeWidth(), nullptr, D2D1::Matrix3x2F::Identity(), &contains);
+                return contains != 0;
+            }
+            else
+            {
+                BOOL contains;
+                border_geometry_->FillContainsPoint(Convert(point), D2D1::Matrix3x2F::Identity(), &contains);
+                return contains != 0;
+            }
         }
         return false;
     }
@@ -1306,16 +1315,28 @@ namespace cru::ui
 
     void Control::RegenerateBorderGeometry()
     {
-        const auto bound_rect = GetRect(RectRange::HalfBorder);
-        const auto bound_rounded_rect = D2D1::RoundedRect(Convert(bound_rect),
-            GetBorderProperty().GetRadiusX(),
-            GetBorderProperty().GetRadiusY());
+        if (IsBordered())
+        {
+            const auto bound_rect = GetRect(RectRange::HalfBorder);
+            const auto bound_rounded_rect = D2D1::RoundedRect(Convert(bound_rect),
+                GetBorderProperty().GetRadiusX(),
+                GetBorderProperty().GetRadiusY());
 
-        Microsoft::WRL::ComPtr<ID2D1RoundedRectangleGeometry> geometry;
-        ThrowIfFailed(
-            graph::GraphManager::GetInstance()->GetD2D1Factory()->CreateRoundedRectangleGeometry(bound_rounded_rect, &geometry)
-        );
-        border_geometry_ = std::move(geometry);
+            Microsoft::WRL::ComPtr<ID2D1RoundedRectangleGeometry> geometry;
+            ThrowIfFailed(
+                graph::GraphManager::GetInstance()->GetD2D1Factory()->CreateRoundedRectangleGeometry(bound_rounded_rect, &geometry)
+            );
+            border_geometry_ = std::move(geometry);
+        }
+        else
+        {
+            const auto bound_rect = GetRect(RectRange::Padding);
+            Microsoft::WRL::ComPtr<ID2D1RectangleGeometry> geometry;
+            ThrowIfFailed(
+                graph::GraphManager::GetInstance()->GetD2D1Factory()->CreateRectangleGeometry(Convert(bound_rect), &geometry)
+            );
+            border_geometry_ = std::move(geometry);
+        }
     }
 
     void Control::OnMouseEnter(MouseEventArgs & args)

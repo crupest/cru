@@ -372,7 +372,7 @@ namespace cru::ui
         bool is_bordered_ = false;
         BorderProperty border_property_;
 
-        Microsoft::WRL::ComPtr<ID2D1RoundedRectangleGeometry> border_geometry_ = nullptr;
+        Microsoft::WRL::ComPtr<ID2D1Geometry> border_geometry_ = nullptr;
 
         AnyMap additional_property_map_{};
 
