@@ -117,6 +117,8 @@ namespace cru::ui
         //Absolute point to local point.
         Point WindowToControl(const Point& point) const;
 
+        // Default implement in Control is test point in border geometry's
+        // fill and stroke with width of border.
         virtual bool IsPointInside(const Point& point);
 
 
@@ -264,6 +266,8 @@ namespace cru::ui
         void RaisePositionChangedEvent(events::PositionChangedEventArgs& args);
         void RaiseSizeChangedEvent(events::SizeChangedEventArgs& args);
 
+        void RegenerateBorderGeometry();
+
         //*************** region: mouse event ***************
         virtual void OnMouseEnter(events::MouseEventArgs& args);
         virtual void OnMouseLeave(events::MouseEventArgs& args);
@@ -367,6 +371,8 @@ namespace cru::ui
 
         bool is_bordered_ = false;
         BorderProperty border_property_;
+
+        Microsoft::WRL::ComPtr<ID2D1Geometry> border_geometry_ = nullptr;
 
         AnyMap additional_property_map_{};
 

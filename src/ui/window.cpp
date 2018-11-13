@@ -473,6 +473,11 @@ namespace cru::ui
 
     }
 
+    bool Window::IsPointInside(const Point& point)
+    {
+        return Rect(Point::Zero(), GetClientSize()).IsPointInside(point);
+    }
+
     void Window::WindowInvalidateLayout()
     {
         if (is_layout_invalid_)

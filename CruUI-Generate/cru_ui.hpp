@@ -1596,6 +1596,8 @@ namespace cru::ui
         //Absolute point to local point.
         Point WindowToControl(const Point& point) const;
 
+        // Default implement in Control is test point in border geometry's
+        // fill and stroke with width of border.
         virtual bool IsPointInside(const Point& point);
 
 
@@ -1743,6 +1745,8 @@ namespace cru::ui
         void RaisePositionChangedEvent(events::PositionChangedEventArgs& args);
         void RaiseSizeChangedEvent(events::SizeChangedEventArgs& args);
 
+        void RegenerateBorderGeometry();
+
         //*************** region: mouse event ***************
         virtual void OnMouseEnter(events::MouseEventArgs& args);
         virtual void OnMouseLeave(events::MouseEventArgs& args);
@@ -1846,6 +1850,8 @@ namespace cru::ui
 
         bool is_bordered_ = false;
         BorderProperty border_property_;
+
+        Microsoft::WRL::ComPtr<ID2D1Geometry> border_geometry_ = nullptr;
 
         AnyMap additional_property_map_{};
 
@@ -2093,6 +2099,9 @@ namespace cru::ui
 
         //This method has no effect for a window. Use SetClientSize instead.
         void SetSize(const Size& size) override final;
+
+        //Override. If point is in client area, it is in window.
+        bool IsPointInside(const Point& point) override final;
 
         //*************** region: layout ***************
 
@@ -3025,6 +3034,11 @@ namespace cru::ui
 
 namespace cru::ui
 {
+    inline D2D1_POINT_2F Convert(const Point& point)
+    {
+        return D2D1::Point2F(point.x, point.y);
+    }
+
     inline D2D1_RECT_F Convert(const Rect& rect)
     {
         return D2D1::RectF(rect.left, rect.top, rect.left + rect.width, rect.top + rect.height);

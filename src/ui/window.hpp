@@ -197,6 +197,9 @@ namespace cru::ui
         //This method has no effect for a window. Use SetClientSize instead.
         void SetSize(const Size& size) override final;
 
+        //Override. If point is in client area, it is in window.
+        bool IsPointInside(const Point& point) override final;
+
         //*************** region: layout ***************
 
         void WindowInvalidateLayout();
