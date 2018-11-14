@@ -394,6 +394,7 @@ int APIENTRY wWinMain(
         const auto button = Button::Create();
         button->GetLayoutParams()->padding = Thickness(20, 5);
         button->AddChild(TextBlock::Create(L"Show popup window parenting null."));
+        button->SetBackgroundBrush(cru::graph::CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Gold)));
         button->mouse_click_event.AddHandler([](auto)
         {
             auto popup = Window::CreatePopup(nullptr);
@@ -760,6 +761,13 @@ namespace cru::graph
         ThrowIfFailed(
             d2d1_factory_->ReloadSystemMetrics()
         );
+    }
+
+    Microsoft::WRL::ComPtr<ID2D1SolidColorBrush> CreateSolidColorBrush(const D2D1_COLOR_F& color)
+    {
+        Microsoft::WRL::ComPtr<ID2D1SolidColorBrush> brush;
+        ThrowIfFailed(GraphManager::GetInstance()->GetD2D1DeviceContext()->CreateSolidColorBrush(color, &brush));
+        return brush;
     }
 }
 //--------------------------------------------------------
@@ -1196,22 +1204,17 @@ namespace cru::ui
         }
 #endif
 
-        if (is_bordered_)
-        {
-            const auto border_rect = GetRect(RectRange::HalfBorder);
-            device_context->DrawRoundedRectangle(
-                D2D1::RoundedRect(
-                    Convert(border_rect),
-                    GetBorderProperty().GetRadiusX(),
-                    GetBorderProperty().GetRadiusY()
-                ),
+        if (is_bordered_ && border_geometry_ != nullptr)
+            device_context->DrawGeometry(
+                border_geometry_.Get(),
                 GetBorderProperty().GetBrush().Get(),
                 GetBorderProperty().GetStrokeWidth(),
                 GetBorderProperty().GetStrokeStyle().Get()
             );
-        }
 
         //draw background.
+        if (in_border_geometry_ != nullptr && background_brush_ != nullptr)
+            device_context->FillGeometry(in_border_geometry_.Get(), background_brush_.Get());
         const auto padding_rect = GetRect(RectRange::Padding);
         graph::WithTransform(device_context, D2D1::Matrix3x2F::Translation(padding_rect.left, padding_rect.top),
             [this](ID2D1DeviceContext* device_context)
@@ -1231,6 +1234,10 @@ namespace cru::ui
                 draw_content_event.Raise(args);
             });
 
+
+        //draw foreground.
+        if (in_border_geometry_ != nullptr && foreground_brush_ != nullptr)
+            device_context->FillGeometry(in_border_geometry_.Get(), foreground_brush_.Get());
         graph::WithTransform(device_context, D2D1::Matrix3x2F::Translation(padding_rect.left, padding_rect.top),
             [this](ID2D1DeviceContext* device_context)
             {
@@ -1327,6 +1334,17 @@ namespace cru::ui
                 graph::GraphManager::GetInstance()->GetD2D1Factory()->CreateRoundedRectangleGeometry(bound_rounded_rect, &geometry)
             );
             border_geometry_ = std::move(geometry);
+
+            const auto in_border_rect = GetRect(RectRange::Padding);
+            const auto in_border_rounded_rect = D2D1::RoundedRect(Convert(in_border_rect),
+                GetBorderProperty().GetRadiusX() - GetBorderProperty().GetStrokeWidth() / 2.0f,
+                GetBorderProperty().GetRadiusY() - GetBorderProperty().GetStrokeWidth() / 2.0f);
+
+            Microsoft::WRL::ComPtr<ID2D1RoundedRectangleGeometry> geometry2;
+            ThrowIfFailed(
+                graph::GraphManager::GetInstance()->GetD2D1Factory()->CreateRoundedRectangleGeometry(in_border_rounded_rect, &geometry2)
+            );
+            in_border_geometry_ = std::move(geometry2);
         }
         else
         {
@@ -1335,7 +1353,8 @@ namespace cru::ui
             ThrowIfFailed(
                 graph::GraphManager::GetInstance()->GetD2D1Factory()->CreateRectangleGeometry(Convert(bound_rect), &geometry)
             );
-            border_geometry_ = std::move(geometry);
+            border_geometry_ = geometry;
+            in_border_geometry_ = std::move(geometry);
         }
     }
 

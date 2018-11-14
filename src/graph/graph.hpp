@@ -172,4 +172,6 @@ namespace cru::graph
         action(device_context);
         device_context->SetTransform(old_transform);
     }
+
+    Microsoft::WRL::ComPtr<ID2D1SolidColorBrush> CreateSolidColorBrush(const D2D1_COLOR_F& color);
 }

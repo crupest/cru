@@ -7,6 +7,7 @@
 #include "ui/controls/text_box.hpp"
 #include "ui/controls/list_item.hpp"
 #include "ui/controls/popup_menu.hpp"
+#include "graph/graph.hpp"
 
 using cru::String;
 using cru::StringView;
@@ -135,6 +136,7 @@ int APIENTRY wWinMain(
         const auto button = Button::Create();
         button->GetLayoutParams()->padding = Thickness(20, 5);
         button->AddChild(TextBlock::Create(L"Show popup window parenting null."));
+        button->SetBackgroundBrush(cru::graph::CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Gold)));
         button->mouse_click_event.AddHandler([](auto)
         {
             auto popup = Window::CreatePopup(nullptr);
