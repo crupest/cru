@@ -1608,6 +1608,29 @@ namespace cru::ui
 
         virtual void Repaint();
 
+        Microsoft::WRL::ComPtr<ID2D1Brush> GetForegroundBrush() const
+        {
+            return foreground_brush_;
+        }
+
+        void SetForegroundBrush(Microsoft::WRL::ComPtr<ID2D1Brush> foreground_brush)
+        {
+            foreground_brush_ = std::move(foreground_brush);
+            Repaint();
+        }
+
+        Microsoft::WRL::ComPtr<ID2D1Brush> GetBackgroundBrush() const
+        {
+            return background_brush_;
+        }
+
+        void SetBackgroundBrush(Microsoft::WRL::ComPtr<ID2D1Brush> background_brush)
+        {
+            background_brush_ = std::move(background_brush);
+            Repaint();
+        }
+
+
         //*************** region: focus ***************
 
         bool RequestFocus();
@@ -1724,6 +1747,8 @@ namespace cru::ui
         void OnDrawCore(ID2D1DeviceContext* device_context);
 
     protected:
+
+        //*************** region: graphic events ***************
         virtual void OnDrawContent(ID2D1DeviceContext* device_context);
         virtual void OnDrawForeground(ID2D1DeviceContext* device_context);
         virtual void OnDrawBackground(ID2D1DeviceContext* device_context);
@@ -1852,6 +1877,10 @@ namespace cru::ui
         BorderProperty border_property_;
 
         Microsoft::WRL::ComPtr<ID2D1Geometry> border_geometry_ = nullptr;
+        Microsoft::WRL::ComPtr<ID2D1Geometry> in_border_geometry_ = nullptr; //used for foreground and background brush.
+
+        Microsoft::WRL::ComPtr<ID2D1Brush> foreground_brush_ = nullptr;
+        Microsoft::WRL::ComPtr<ID2D1Brush> background_brush_ = nullptr;
 
         AnyMap additional_property_map_{};
 
@@ -2919,6 +2948,8 @@ namespace cru::graph
         action(device_context);
         device_context->SetTransform(old_transform);
     }
+
+    Microsoft::WRL::ComPtr<ID2D1SolidColorBrush> CreateSolidColorBrush(const D2D1_COLOR_F& color);
 }
 //--------------------------------------------------------
 //-------end of file: src\graph\graph.hpp

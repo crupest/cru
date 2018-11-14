@@ -216,4 +216,11 @@ namespace cru::graph
             d2d1_factory_->ReloadSystemMetrics()
         );
     }
+
+    Microsoft::WRL::ComPtr<ID2D1SolidColorBrush> CreateSolidColorBrush(const D2D1_COLOR_F& color)
+    {
+        Microsoft::WRL::ComPtr<ID2D1SolidColorBrush> brush;
+        ThrowIfFailed(GraphManager::GetInstance()->GetD2D1DeviceContext()->CreateSolidColorBrush(color, &brush));
+        return brush;
+    }
 }
