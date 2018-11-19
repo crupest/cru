@@ -206,7 +206,7 @@ namespace cru::ui
             DestroyWindow(hwnd_);
     }
 
-    void Window::Repaint() {
+    void Window::InvalidateDraw() {
         if (IsWindowValid()) {
             InvalidateRect(hwnd_, nullptr, false);
         }
@@ -601,7 +601,7 @@ namespace cru::ui
         if (debug_layout_ != value)
         {
             debug_layout_ = value;
-            Repaint();
+            InvalidateDraw();
         }
     }
 #endif

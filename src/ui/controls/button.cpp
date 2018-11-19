@@ -23,12 +23,12 @@ namespace cru::ui::controls
     void Button::OnMouseClickBegin(MouseButton button)
     {
         GetBorderProperty() = pressed_border_;
-        InvalidateBorder();
+        UpdateBorder();
     }
 
     void Button::OnMouseClickEnd(MouseButton button)
     {
         GetBorderProperty() = normal_border_;
-        InvalidateBorder();
+        UpdateBorder();
     }
 }

@@ -77,10 +77,10 @@ int APIENTRY wWinMain(
     });
 
     cru::SetTimeout(2.0, [&window]() {
-        window.Repaint();
+        window.InvalidateDraw();
 
         auto task = cru::SetInterval(0.5, [&window]() {
-            window.Repaint();
+            window.InvalidateDraw();
         });
 
         cru::SetTimeout(4, [task]() {

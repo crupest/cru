@@ -68,12 +68,12 @@ namespace cru::ui::controls
                 .AddStepHandler([=](auto, const double percentage)
                 {
                     current_circle_position_ = static_cast<float>(previous_position + delta * percentage);
-                    Repaint();
+                    InvalidateDraw();
                 })
                 .Start();
 
             RaiseToggleEvent(state);
-            Repaint();
+            InvalidateDraw();
         }
     }
 

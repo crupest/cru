@@ -335,10 +335,10 @@ int APIENTRY wWinMain(
     });
 
     cru::SetTimeout(2.0, [&window]() {
-        window.Repaint();
+        window.InvalidateDraw();
 
         auto task = cru::SetInterval(0.5, [&window]() {
-            window.Repaint();
+            window.InvalidateDraw();
         });
 
         cru::SetTimeout(4, [task]() {
@@ -949,7 +949,7 @@ namespace cru::ui
             LayoutManager::GetInstance()->InvalidateControlPositionCache(this);
             if (auto window = GetWindow())
             {
-                window->Repaint();
+                window->InvalidateDraw();
             }
         }
     }
@@ -966,7 +966,7 @@ namespace cru::ui
         SizeChangedEventArgs args(this, this, old_size, size);
         RaiseSizeChangedEvent(args);
         if (auto window = GetWindow())
-            window->Repaint();
+            window->InvalidateDraw();
     }
 
     Point Control::GetPositionAbsolute() const
@@ -1024,10 +1024,10 @@ namespace cru::ui
         device_context->SetTransform(old_transform);
     }
 
-    void Control::Repaint()
+    void Control::InvalidateDraw()
     {
         if (window_ != nullptr)
-            window_->Repaint();
+            window_->InvalidateDraw();
     }
 
     bool Control::RequestFocus()
@@ -1130,11 +1130,11 @@ namespace cru::ui
         return p;
     }
 
-    void Control::InvalidateBorder()
+    void Control::UpdateBorder()
     {
         RegenerateBorderGeometry();
         InvalidateLayout();
-        Repaint();
+        InvalidateDraw();
     }
 
     void Control::SetBordered(const bool bordered)
@@ -1142,7 +1142,7 @@ namespace cru::ui
         if (bordered != is_bordered_)
         {
             is_bordered_ = bordered;
-            InvalidateBorder();
+            UpdateBorder();
         }
     }
 
@@ -2291,7 +2291,7 @@ namespace cru::ui
             DestroyWindow(hwnd_);
     }
 
-    void Window::Repaint() {
+    void Window::InvalidateDraw() {
         if (IsWindowValid()) {
             InvalidateRect(hwnd_, nullptr, false);
         }
@@ -2686,7 +2686,7 @@ namespace cru::ui
         if (debug_layout_ != value)
         {
             debug_layout_ = value;
-            Repaint();
+            InvalidateDraw();
         }
     }
 #endif
@@ -3070,13 +3070,13 @@ namespace cru::ui::controls
     void Button::OnMouseClickBegin(MouseButton button)
     {
         GetBorderProperty() = pressed_border_;
-        InvalidateBorder();
+        UpdateBorder();
     }
 
     void Button::OnMouseClickEnd(MouseButton button)
     {
         GetBorderProperty() = normal_border_;
-        InvalidateBorder();
+        UpdateBorder();
     }
 }
 //--------------------------------------------------------
@@ -3273,7 +3273,7 @@ namespace cru::ui::controls
     void ListItem::SetState(const State state)
     {
         state_ = state;
-        Repaint();
+        InvalidateDraw();
     }
 
     void ListItem::OnDrawForeground(ID2D1DeviceContext* device_context)
@@ -3443,7 +3443,7 @@ namespace cru::ui::controls
         caret_timer_ = SetInterval(UiManager::GetInstance()->GetCaretInfo().caret_blink_duration, [this]
         {
             is_caret_show_ = !is_caret_show_;
-            Repaint();
+            InvalidateDraw();
         });
     }
 
@@ -3479,7 +3479,7 @@ namespace cru::ui::controls
                 else
                     caret_position_--;
             }
-            Repaint();
+            InvalidateDraw();
         }
 
         if (args.GetVirtualCode() == VK_RIGHT && caret_position_ < GetText().size())
@@ -3561,7 +3561,7 @@ namespace cru::ui::controls
     void TextBox::RequestChangeCaretPosition(const unsigned position)
     {
         caret_position_ = position;
-        Repaint();
+        InvalidateDraw();
     }
 
     bool TextBox::GetCaretSelectionSide() const
@@ -3631,14 +3631,14 @@ namespace cru::ui::controls
     void TextControl::SetBrush(const Microsoft::WRL::ComPtr<ID2D1Brush>& brush)
     {
         brush_ = brush;
-        Repaint();
+        InvalidateDraw();
     }
 
     void TextControl::SetTextFormat(const Microsoft::WRL::ComPtr<IDWriteTextFormat>& text_format)
     {
         text_format_ = text_format;
         RecreateTextLayout();
-        Repaint();
+        InvalidateDraw();
     }
 
     void TextControl::SetSelectable(const bool is_selectable)
@@ -3653,7 +3653,7 @@ namespace cru::ui::controls
                     GetWindow()->ReleaseCurrentMouseCapture();
                 }
                 selected_range_ = std::nullopt;
-                Repaint();
+                InvalidateDraw();
             }
             is_selectable_ = is_selectable;
             UpdateCursor(std::nullopt);
@@ -3665,7 +3665,7 @@ namespace cru::ui::controls
         if (is_selectable_)
         {
             selected_range_ = text_range;
-            Repaint();
+            InvalidateDraw();
         }
     }
 
@@ -3675,7 +3675,7 @@ namespace cru::ui::controls
         const auto content = GetRect(RectRange::Content);
         ThrowIfFailed(text_layout_->SetMaxWidth(content.width));
         ThrowIfFailed(text_layout_->SetMaxHeight(content.height));
-        Repaint();
+        InvalidateDraw();
     }
 
     namespace
@@ -3729,7 +3729,7 @@ namespace cru::ui::controls
             mouse_down_position_ = hit_test_result;
             is_selecting_ = true;
             GetWindow()->CaptureMouseFor(this);
-            Repaint();
+            InvalidateDraw();
         }
     }
 
@@ -3741,7 +3741,7 @@ namespace cru::ui::controls
             const auto hit_test_result = TextLayoutHitTest(text_layout_.Get(), args.GetPoint(this));
             RequestChangeCaretPosition(hit_test_result);
             selected_range_ = TextRange::FromTwoSides(hit_test_result, mouse_down_position_);
-            Repaint();
+            InvalidateDraw();
         }
         UpdateCursor(args.GetPoint(this, RectRange::Margin));
     }
@@ -3770,7 +3770,7 @@ namespace cru::ui::controls
         if (!args.IsWindow()) // If the focus lose is triggered window-wide, then save the selection state. Otherwise, clear selection.
         {
             selected_range_ = std::nullopt;
-            Repaint();
+            InvalidateDraw();
         }
     }
 
@@ -3798,7 +3798,7 @@ namespace cru::ui::controls
     {
         RecreateTextLayout();
         InvalidateLayout();
-        Repaint();
+        InvalidateDraw();
     }
 
     void TextControl::RecreateTextLayout()
@@ -3919,12 +3919,12 @@ namespace cru::ui::controls
                 .AddStepHandler([=](auto, const double percentage)
                 {
                     current_circle_position_ = static_cast<float>(previous_position + delta * percentage);
-                    Repaint();
+                    InvalidateDraw();
                 })
                 .Start();
 
             RaiseToggleEvent(state);
-            Repaint();
+            InvalidateDraw();
         }
     }
 
