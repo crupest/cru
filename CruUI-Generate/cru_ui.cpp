@@ -283,6 +283,7 @@ using cru::ui::controls::ToggleButton;
 using cru::ui::controls::Button;
 using cru::ui::controls::TextBox;
 using cru::ui::controls::ListItem;
+using cru::ui::controls::FrameLayout;
 
 int APIENTRY wWinMain(
     HINSTANCE hInstance,
@@ -363,6 +364,8 @@ int APIENTRY wWinMain(
 
         inner_layout->AddChild(TextBlock::Create(L"Toggle debug border"));
 
+        const auto l = FrameLayout::Create();
+        l->GetLayoutParams()->padding.SetLeftRight(20.0f);
         const auto toggle_button = ToggleButton::Create();
 #ifdef CRU_DEBUG_LAYOUT
         toggle_button->toggle_event.AddHandler([&window](cru::ui::events::ToggleEventArgs& args)
@@ -370,7 +373,8 @@ int APIENTRY wWinMain(
             window->SetDebugLayout(args.GetNewState());
         });
 #endif
-        inner_layout->AddChild(toggle_button);
+        l->AddChild(toggle_button);
+        inner_layout->AddChild(l);
         layout->AddChild(inner_layout);
     }
 
@@ -3081,6 +3085,27 @@ namespace cru::ui::controls
 }
 //--------------------------------------------------------
 //-------end of file: src\ui\controls\button.cpp
+//--------------------------------------------------------
+//--------------------------------------------------------
+//-------begin of file: src\ui\controls\frame_layout.cpp
+//--------------------------------------------------------
+
+namespace cru::ui::controls
+{
+    FrameLayout::FrameLayout() : Control(true)
+    {
+
+    }
+
+    FrameLayout::~FrameLayout() = default;
+
+    StringView FrameLayout::GetControlType() const
+    {
+        return control_type;
+    }
+}
+//--------------------------------------------------------
+//-------end of file: src\ui\controls\frame_layout.cpp
 //--------------------------------------------------------
 //--------------------------------------------------------
 //-------begin of file: src\ui\controls\linear_layout.cpp
