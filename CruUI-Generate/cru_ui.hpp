@@ -1606,7 +1606,7 @@ namespace cru::ui
         //Draw this control and its child controls.
         void Draw(ID2D1DeviceContext* device_context);
 
-        virtual void Repaint();
+        virtual void InvalidateDraw();
 
         Microsoft::WRL::ComPtr<ID2D1Brush> GetForegroundBrush() const
         {
@@ -1616,7 +1616,7 @@ namespace cru::ui
         void SetForegroundBrush(Microsoft::WRL::ComPtr<ID2D1Brush> foreground_brush)
         {
             foreground_brush_ = std::move(foreground_brush);
-            Repaint();
+            InvalidateDraw();
         }
 
         Microsoft::WRL::ComPtr<ID2D1Brush> GetBackgroundBrush() const
@@ -1627,7 +1627,7 @@ namespace cru::ui
         void SetBackgroundBrush(Microsoft::WRL::ComPtr<ID2D1Brush> background_brush)
         {
             background_brush_ = std::move(background_brush);
-            Repaint();
+            InvalidateDraw();
         }
 
 
@@ -1675,7 +1675,7 @@ namespace cru::ui
             return border_property_;
         }
 
-        void InvalidateBorder();
+        void UpdateBorder();
 
         bool IsBordered() const
         {
@@ -2072,7 +2072,7 @@ namespace cru::ui
         void Close();
 
         //Send a repaint message to the window's message queue which may make the window repaint.
-        void Repaint() override;
+        void InvalidateDraw() override final;
 
         //Show the window.
         void Show();

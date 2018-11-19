@@ -50,7 +50,7 @@ namespace cru::ui::controls
         caret_timer_ = SetInterval(UiManager::GetInstance()->GetCaretInfo().caret_blink_duration, [this]
         {
             is_caret_show_ = !is_caret_show_;
-            Repaint();
+            InvalidateDraw();
         });
     }
 
@@ -86,7 +86,7 @@ namespace cru::ui::controls
                 else
                     caret_position_--;
             }
-            Repaint();
+            InvalidateDraw();
         }
 
         if (args.GetVirtualCode() == VK_RIGHT && caret_position_ < GetText().size())
@@ -168,7 +168,7 @@ namespace cru::ui::controls
     void TextBox::RequestChangeCaretPosition(const unsigned position)
     {
         caret_position_ = position;
-        Repaint();
+        InvalidateDraw();
     }
 
     bool TextBox::GetCaretSelectionSide() const

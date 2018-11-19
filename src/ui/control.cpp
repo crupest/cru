@@ -152,7 +152,7 @@ namespace cru::ui
             LayoutManager::GetInstance()->InvalidateControlPositionCache(this);
             if (auto window = GetWindow())
             {
-                window->Repaint();
+                window->InvalidateDraw();
             }
         }
     }
@@ -169,7 +169,7 @@ namespace cru::ui
         SizeChangedEventArgs args(this, this, old_size, size);
         RaiseSizeChangedEvent(args);
         if (auto window = GetWindow())
-            window->Repaint();
+            window->InvalidateDraw();
     }
 
     Point Control::GetPositionAbsolute() const
@@ -227,10 +227,10 @@ namespace cru::ui
         device_context->SetTransform(old_transform);
     }
 
-    void Control::Repaint()
+    void Control::InvalidateDraw()
     {
         if (window_ != nullptr)
-            window_->Repaint();
+            window_->InvalidateDraw();
     }
 
     bool Control::RequestFocus()
@@ -333,11 +333,11 @@ namespace cru::ui
         return p;
     }
 
-    void Control::InvalidateBorder()
+    void Control::UpdateBorder()
     {
         RegenerateBorderGeometry();
         InvalidateLayout();
-        Repaint();
+        InvalidateDraw();
     }
 
     void Control::SetBordered(const bool bordered)
@@ -345,7 +345,7 @@ namespace cru::ui
         if (bordered != is_bordered_)
         {
             is_bordered_ = bordered;
-            InvalidateBorder();
+            UpdateBorder();
         }
     }
 

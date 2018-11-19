@@ -25,7 +25,7 @@ namespace cru::ui::controls
     void ListItem::SetState(const State state)
     {
         state_ = state;
-        Repaint();
+        InvalidateDraw();
     }
 
     void ListItem::OnDrawForeground(ID2D1DeviceContext* device_context)

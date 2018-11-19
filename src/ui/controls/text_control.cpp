@@ -35,14 +35,14 @@ namespace cru::ui::controls
     void TextControl::SetBrush(const Microsoft::WRL::ComPtr<ID2D1Brush>& brush)
     {
         brush_ = brush;
-        Repaint();
+        InvalidateDraw();
     }
 
     void TextControl::SetTextFormat(const Microsoft::WRL::ComPtr<IDWriteTextFormat>& text_format)
     {
         text_format_ = text_format;
         RecreateTextLayout();
-        Repaint();
+        InvalidateDraw();
     }
 
     void TextControl::SetSelectable(const bool is_selectable)
@@ -57,7 +57,7 @@ namespace cru::ui::controls
                     GetWindow()->ReleaseCurrentMouseCapture();
                 }
                 selected_range_ = std::nullopt;
-                Repaint();
+                InvalidateDraw();
             }
             is_selectable_ = is_selectable;
             UpdateCursor(std::nullopt);
@@ -69,7 +69,7 @@ namespace cru::ui::controls
         if (is_selectable_)
         {
             selected_range_ = text_range;
-            Repaint();
+            InvalidateDraw();
         }
     }
 
@@ -79,7 +79,7 @@ namespace cru::ui::controls
         const auto content = GetRect(RectRange::Content);
         ThrowIfFailed(text_layout_->SetMaxWidth(content.width));
         ThrowIfFailed(text_layout_->SetMaxHeight(content.height));
-        Repaint();
+        InvalidateDraw();
     }
 
     namespace
@@ -133,7 +133,7 @@ namespace cru::ui::controls
             mouse_down_position_ = hit_test_result;
             is_selecting_ = true;
             GetWindow()->CaptureMouseFor(this);
-            Repaint();
+            InvalidateDraw();
         }
     }
 
@@ -145,7 +145,7 @@ namespace cru::ui::controls
             const auto hit_test_result = TextLayoutHitTest(text_layout_.Get(), args.GetPoint(this));
             RequestChangeCaretPosition(hit_test_result);
             selected_range_ = TextRange::FromTwoSides(hit_test_result, mouse_down_position_);
-            Repaint();
+            InvalidateDraw();
         }
         UpdateCursor(args.GetPoint(this, RectRange::Margin));
     }
@@ -174,7 +174,7 @@ namespace cru::ui::controls
         if (!args.IsWindow()) // If the focus lose is triggered window-wide, then save the selection state. Otherwise, clear selection.
         {
             selected_range_ = std::nullopt;
-            Repaint();
+            InvalidateDraw();
         }
     }
 
@@ -202,7 +202,7 @@ namespace cru::ui::controls
     {
         RecreateTextLayout();
         InvalidateLayout();
-        Repaint();
+        InvalidateDraw();
     }
 
     void TextControl::RecreateTextLayout()
