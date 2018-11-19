@@ -7,6 +7,7 @@
 #include "ui/controls/text_box.hpp"
 #include "ui/controls/list_item.hpp"
 #include "ui/controls/popup_menu.hpp"
+#include "ui/controls/frame_layout.hpp"
 #include "graph/graph.hpp"
 
 using cru::String;
@@ -25,6 +26,7 @@ using cru::ui::controls::ToggleButton;
 using cru::ui::controls::Button;
 using cru::ui::controls::TextBox;
 using cru::ui::controls::ListItem;
+using cru::ui::controls::FrameLayout;
 
 int APIENTRY wWinMain(
     HINSTANCE hInstance,
@@ -105,6 +107,8 @@ int APIENTRY wWinMain(
 
         inner_layout->AddChild(TextBlock::Create(L"Toggle debug border"));
 
+        const auto l = FrameLayout::Create();
+        l->GetLayoutParams()->padding.SetLeftRight(20.0f);
         const auto toggle_button = ToggleButton::Create();
 #ifdef CRU_DEBUG_LAYOUT
         toggle_button->toggle_event.AddHandler([&window](cru::ui::events::ToggleEventArgs& args)
@@ -112,7 +116,8 @@ int APIENTRY wWinMain(
             window->SetDebugLayout(args.GetNewState());
         });
 #endif
-        inner_layout->AddChild(toggle_button);
+        l->AddChild(toggle_button);
+        inner_layout->AddChild(l);
         layout->AddChild(inner_layout);
     }
 
