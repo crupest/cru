@@ -33,6 +33,8 @@ namespace cru::ui
     {
         extern Cursor::Ptr arrow;
         extern Cursor::Ptr hand;
-        extern Cursor::Ptr i_beam;        
+        extern Cursor::Ptr i_beam;
+
+        void LoadSystemCursors();
     }
 }

@@ -19,3 +19,5 @@
 
 #include <dxgi1_2.h>
 #include <wrl/client.h>
+
+#include <VersionHelpers.h>

@@ -211,6 +211,15 @@ namespace cru::ui
         return false;
     }
 
+    void Control::SetClipToPadding(const bool clip)
+    {
+        if (clip_to_padding_ == clip)
+            return;
+
+        clip_to_padding_ = clip;
+        InvalidateDraw();
+    }
+
     void Control::Draw(ID2D1DeviceContext* device_context)
     {
         D2D1::Matrix3x2F old_transform;
@@ -219,10 +228,19 @@ namespace cru::ui
         const auto position = GetPositionRelative();
         device_context->SetTransform(old_transform * D2D1::Matrix3x2F::Translation(position.x, position.y));
 
+        OnDrawDecoration(device_context);
+
+        const auto set_layer = in_border_geometry_ != nullptr && IsClipToPadding();
+        if (set_layer)
+            device_context->PushLayer(D2D1::LayerParameters(D2D1::InfiniteRect(), in_border_geometry_.Get()), nullptr);
+
         OnDrawCore(device_context);
 
         for (auto child : GetChildren())
             child->Draw(device_context);
+
+        if (set_layer)
+            device_context->PopLayer();
 
         device_context->SetTransform(old_transform);
     }
@@ -394,9 +412,9 @@ namespace cru::ui
         window_ = nullptr;
     }
 
-    void Control::OnDrawCore(ID2D1DeviceContext* device_context)
+    void Control::OnDrawDecoration(ID2D1DeviceContext* device_context)
     {
-        #ifdef CRU_DEBUG_LAYOUT
+#ifdef CRU_DEBUG_LAYOUT
         if (GetWindow()->IsDebugLayout())
         {
             if (padding_geometry_ != nullptr)
@@ -414,7 +432,10 @@ namespace cru::ui
                 GetBorderProperty().GetStrokeWidth(),
                 GetBorderProperty().GetStrokeStyle().Get()
             );
+    }
 
+    void Control::OnDrawCore(ID2D1DeviceContext* device_context)
+    {
         //draw background.
         if (in_border_geometry_ != nullptr && background_brush_ != nullptr)
             device_context->FillGeometry(in_border_geometry_.Get(), background_brush_.Get());

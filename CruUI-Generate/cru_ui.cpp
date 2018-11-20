@@ -123,16 +123,6 @@ namespace cru {
         return instance_;
     }
 
-    namespace
-    {
-        void LoadSystemCursor(HINSTANCE h_instance)
-        {
-            ui::cursors::arrow = std::make_shared<ui::Cursor>(::LoadCursorW(nullptr, IDC_ARROW), false);
-            ui::cursors::hand = std::make_shared<ui::Cursor>(::LoadCursorW(nullptr, IDC_HAND), false);
-            ui::cursors::i_beam = std::make_shared<ui::Cursor>(::LoadCursorW(nullptr, IDC_IBEAM), false);
-        }
-    }
-
     Application::Application(HINSTANCE h_instance)
         : h_instance_(h_instance) {
 
@@ -141,9 +131,12 @@ namespace cru {
 
         instance_ = this;
 
+        if (!::IsWindows8OrGreater())
+            throw std::runtime_error("Must run on Windows 8 or later.");
+
         god_window_ = std::make_unique<GodWindow>(this);
 
-        LoadSystemCursor(h_instance);
+        ui::cursors::LoadSystemCursors();
     }
 
     Application::~Application()
@@ -1012,6 +1005,15 @@ namespace cru::ui
         return false;
     }
 
+    void Control::SetClipToPadding(const bool clip)
+    {
+        if (clip_to_padding_ == clip)
+            return;
+
+        clip_to_padding_ = clip;
+        InvalidateDraw();
+    }
+
     void Control::Draw(ID2D1DeviceContext* device_context)
     {
         D2D1::Matrix3x2F old_transform;
@@ -1020,10 +1022,19 @@ namespace cru::ui
         const auto position = GetPositionRelative();
         device_context->SetTransform(old_transform * D2D1::Matrix3x2F::Translation(position.x, position.y));
 
+        OnDrawDecoration(device_context);
+
+        const auto set_layer = in_border_geometry_ != nullptr && IsClipToPadding();
+        if (set_layer)
+            device_context->PushLayer(D2D1::LayerParameters(D2D1::InfiniteRect(), in_border_geometry_.Get()), nullptr);
+
         OnDrawCore(device_context);
 
         for (auto child : GetChildren())
             child->Draw(device_context);
+
+        if (set_layer)
+            device_context->PopLayer();
 
         device_context->SetTransform(old_transform);
     }
@@ -1195,9 +1206,9 @@ namespace cru::ui
         window_ = nullptr;
     }
 
-    void Control::OnDrawCore(ID2D1DeviceContext* device_context)
+    void Control::OnDrawDecoration(ID2D1DeviceContext* device_context)
     {
-        #ifdef CRU_DEBUG_LAYOUT
+#ifdef CRU_DEBUG_LAYOUT
         if (GetWindow()->IsDebugLayout())
         {
             if (padding_geometry_ != nullptr)
@@ -1215,7 +1226,10 @@ namespace cru::ui
                 GetBorderProperty().GetStrokeWidth(),
                 GetBorderProperty().GetStrokeStyle().Get()
             );
+    }
 
+    void Control::OnDrawCore(ID2D1DeviceContext* device_context)
+    {
         //draw background.
         if (in_border_geometry_ != nullptr && background_brush_ != nullptr)
             device_context->FillGeometry(in_border_geometry_.Get(), background_brush_.Get());
@@ -1867,6 +1881,13 @@ namespace cru::ui
         Cursor::Ptr arrow{};
         Cursor::Ptr hand{};
         Cursor::Ptr i_beam{};
+
+        void LoadSystemCursors()
+        {
+            arrow = std::make_shared<Cursor>(::LoadCursorW(nullptr, IDC_ARROW), false);
+            hand = std::make_shared<Cursor>(::LoadCursorW(nullptr, IDC_HAND), false);
+            i_beam = std::make_shared<Cursor>(::LoadCursorW(nullptr, IDC_IBEAM), false);
+        }
     }
 }
 //--------------------------------------------------------
@@ -3640,6 +3661,8 @@ namespace cru::ui::controls
         brush_ = init_brush;
 
         selection_brush_ = UiManager::GetInstance()->GetPredefineResources()->text_control_selection_brush;
+
+        SetClipToPadding(true);
     }
 
 

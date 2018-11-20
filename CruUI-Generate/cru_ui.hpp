@@ -348,6 +348,8 @@ namespace cru
 
 #include <dxgi1_2.h>
 #include <wrl/client.h>
+
+#include <VersionHelpers.h>
 //--------------------------------------------------------
 //-------end of file: src\system_headers.hpp
 //--------------------------------------------------------
@@ -1500,7 +1502,9 @@ namespace cru::ui
     {
         extern Cursor::Ptr arrow;
         extern Cursor::Ptr hand;
-        extern Cursor::Ptr i_beam;        
+        extern Cursor::Ptr i_beam;
+
+        void LoadSystemCursors();
     }
 }
 //--------------------------------------------------------
@@ -1617,6 +1621,13 @@ namespace cru::ui
 
 
         //*************** region: graphic ***************
+
+        bool IsClipToPadding() const
+        {
+            return clip_to_padding_;
+        }
+
+        void SetClipToPadding(bool clip);
 
         //Draw this control and its child controls.
         void Draw(ID2D1DeviceContext* device_context);
@@ -1758,12 +1769,11 @@ namespace cru::ui
         //Invoked when the control is detached to a window. Overrides should invoke base.
         virtual void OnDetachToWindow(Window* window);
 
-    private:
-        void OnDrawCore(ID2D1DeviceContext* device_context);
-
-    protected:
-
         //*************** region: graphic events ***************
+    private:
+        void OnDrawDecoration(ID2D1DeviceContext* device_context);
+        void OnDrawCore(ID2D1DeviceContext* device_context);
+    protected:
         virtual void OnDrawContent(ID2D1DeviceContext* device_context);
         virtual void OnDrawForeground(ID2D1DeviceContext* device_context);
         virtual void OnDrawBackground(ID2D1DeviceContext* device_context);
@@ -1858,10 +1868,8 @@ namespace cru::ui
     private:
         bool is_container_;
 
-    protected:
-        Window * window_ = nullptr; // protected for Window class to write it as itself in constructor.
+        Window * window_ = nullptr;
 
-    private:
         Control * parent_ = nullptr;
         std::vector<Control*> children_{};
 
@@ -1890,6 +1898,8 @@ namespace cru::ui
 
         bool is_bordered_ = false;
         BorderProperty border_property_;
+
+        bool clip_to_padding_ = false;
 
         Microsoft::WRL::ComPtr<ID2D1Geometry> border_geometry_ = nullptr;
         Microsoft::WRL::ComPtr<ID2D1Geometry> in_border_geometry_ = nullptr; //used for foreground and background brush.
