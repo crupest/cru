@@ -132,7 +132,8 @@ namespace cru::ui
         return new Window(tag_popup_constructor{}, parent, caption);
     }
 
-    Window::Window(tag_overlapped_constructor) : Control(WindowConstructorTag{}, this), control_list_({ this }) {
+    Window::Window(tag_overlapped_constructor) : Control(WindowConstructorTag{}, this)
+    {
         const auto window_manager = WindowManager::GetInstance();
 
         hwnd_ = CreateWindowEx(0,
@@ -148,7 +149,7 @@ namespace cru::ui
         AfterCreateHwnd(window_manager);
     }
 
-    Window::Window(tag_popup_constructor, Window* parent, const bool caption) : Control(WindowConstructorTag{}, this), control_list_({ this })
+    Window::Window(tag_popup_constructor, Window* parent, const bool caption) : Control(WindowConstructorTag{}, this)
     {
         if (parent != nullptr && !parent->IsWindowValid())
             throw std::runtime_error("Parent window is not valid.");
@@ -504,24 +505,6 @@ namespace cru::ui
         SetClientSize(GetDesiredSize());
         OnLayoutCore(Rect(Point::Zero(), GetSize()));
         is_layout_invalid_ = false;
-    }
-
-    void Window::RefreshControlList() {
-        control_list_.clear();
-        TraverseDescendants([this](Control* control) {
-            this->control_list_.push_back(control);
-        });
-    }
-
-    Control * Window::HitTest(const Point & point)
-    {
-        for (auto i = control_list_.crbegin(); i != control_list_.crend(); ++i) {
-            auto control = *i;
-            if (control->IsPointInside(control->WindowToControl(point))) {
-                return control;
-            }
-        }
-        return nullptr;
     }
 
     bool Window::RequestFocusFor(Control * control)

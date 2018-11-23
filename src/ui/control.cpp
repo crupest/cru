@@ -211,6 +211,30 @@ namespace cru::ui
         return false;
     }
 
+    Control* Control::HitTest(const Point& point)
+    {
+        const auto point_inside = IsPointInside(point);
+
+        if (!point_inside && IsClipToPadding())
+            return nullptr; // if clip then don't test children.
+
+        const auto& children = GetChildren();
+
+        for (auto i = children.crbegin(); i != children.crend(); ++i)
+        {
+            const auto&& lefttop = (*i)->GetPositionRelative();
+            const auto&& coerced_point = Point(point.x - lefttop.x, point.y - lefttop.y);
+            const auto child_hit_test_result = (*i)->HitTest(coerced_point);
+            if (child_hit_test_result != nullptr)
+                return child_hit_test_result;
+        }
+
+        if (!point_inside)
+            return nullptr;
+
+        return this;
+    }
+
     void Control::SetClipToPadding(const bool clip)
     {
         if (clip_to_padding_ == clip)
@@ -385,7 +409,6 @@ namespace cru::ui
             child->TraverseDescendants([window](Control* control) {
                 control->OnAttachToWindow(window);
             });
-            window->RefreshControlList();
             InvalidateLayout();
         }
     }
@@ -397,7 +420,6 @@ namespace cru::ui
             child->TraverseDescendants([window](Control* control) {
                 control->OnDetachToWindow(window);
             });
-            window->RefreshControlList();
             InvalidateLayout();
         }
     }

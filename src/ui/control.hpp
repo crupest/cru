@@ -121,6 +121,8 @@ namespace cru::ui
         // fill and stroke with width of border.
         virtual bool IsPointInside(const Point& point);
 
+        // Get the top control among all descendants (including self) in local coordinate.
+        Control* HitTest(const Point& point);
 
         //*************** region: graphic ***************
 

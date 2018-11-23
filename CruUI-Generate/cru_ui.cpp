@@ -1005,6 +1005,30 @@ namespace cru::ui
         return false;
     }
 
+    Control* Control::HitTest(const Point& point)
+    {
+        const auto point_inside = IsPointInside(point);
+
+        if (!point_inside && IsClipToPadding())
+            return nullptr; // if clip then don't test children.
+
+        const auto& children = GetChildren();
+
+        for (auto i = children.crbegin(); i != children.crend(); ++i)
+        {
+            const auto&& lefttop = (*i)->GetPositionRelative();
+            const auto&& coerced_point = Point(point.x - lefttop.x, point.y - lefttop.y);
+            const auto child_hit_test_result = (*i)->HitTest(coerced_point);
+            if (child_hit_test_result != nullptr)
+                return child_hit_test_result;
+        }
+
+        if (!point_inside)
+            return nullptr;
+
+        return this;
+    }
+
     void Control::SetClipToPadding(const bool clip)
     {
         if (clip_to_padding_ == clip)
@@ -1179,7 +1203,6 @@ namespace cru::ui
             child->TraverseDescendants([window](Control* control) {
                 control->OnAttachToWindow(window);
             });
-            window->RefreshControlList();
             InvalidateLayout();
         }
     }
@@ -1191,7 +1214,6 @@ namespace cru::ui
             child->TraverseDescendants([window](Control* control) {
                 control->OnDetachToWindow(window);
             });
-            window->RefreshControlList();
             InvalidateLayout();
         }
     }
@@ -2242,7 +2264,8 @@ namespace cru::ui
         return new Window(tag_popup_constructor{}, parent, caption);
     }
 
-    Window::Window(tag_overlapped_constructor) : Control(WindowConstructorTag{}, this), control_list_({ this }) {
+    Window::Window(tag_overlapped_constructor) : Control(WindowConstructorTag{}, this)
+    {
         const auto window_manager = WindowManager::GetInstance();
 
         hwnd_ = CreateWindowEx(0,
@@ -2258,7 +2281,7 @@ namespace cru::ui
         AfterCreateHwnd(window_manager);
     }
 
-    Window::Window(tag_popup_constructor, Window* parent, const bool caption) : Control(WindowConstructorTag{}, this), control_list_({ this })
+    Window::Window(tag_popup_constructor, Window* parent, const bool caption) : Control(WindowConstructorTag{}, this)
     {
         if (parent != nullptr && !parent->IsWindowValid())
             throw std::runtime_error("Parent window is not valid.");
@@ -2614,24 +2637,6 @@ namespace cru::ui
         SetClientSize(GetDesiredSize());
         OnLayoutCore(Rect(Point::Zero(), GetSize()));
         is_layout_invalid_ = false;
-    }
-
-    void Window::RefreshControlList() {
-        control_list_.clear();
-        TraverseDescendants([this](Control* control) {
-            this->control_list_.push_back(control);
-        });
-    }
-
-    Control * Window::HitTest(const Point & point)
-    {
-        for (auto i = control_list_.crbegin(); i != control_list_.crend(); ++i) {
-            auto control = *i;
-            if (control->IsPointInside(control->WindowToControl(point))) {
-                return control;
-            }
-        }
-        return nullptr;
     }
 
     bool Window::RequestFocusFor(Control * control)

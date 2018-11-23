@@ -2,7 +2,6 @@
 
 #include "system_headers.hpp"
 #include <map>
-#include <list>
 #include <memory>
 
 #include "control.hpp"
@@ -208,15 +207,6 @@ namespace cru::ui
 
         void SetSizeFitContent(const Size& max_size = Size(1000, 1000));
 
-        //*************** region: functions ***************
-
-        //Refresh control list.
-        //It should be invoked every time a control is added or removed from the tree.
-        void RefreshControlList();
-
-        //Get the most top control at "point".
-        Control* HitTest(const Point& point);
-
 
         //*************** region: focus ***************
 
@@ -319,8 +309,6 @@ namespace cru::ui
         HWND hwnd_ = nullptr;
         Window* parent_window_ = nullptr;
         std::shared_ptr<graph::WindowRenderTarget> render_target_{};
- 
-        std::list<Control*> control_list_{};
  
         Control* mouse_hover_control_ = nullptr;
  
