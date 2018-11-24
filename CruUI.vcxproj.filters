@@ -90,6 +90,9 @@
     <ClCompile Include="src\ui\controls\frame_layout.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\ui\controls\scroll_control.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\graph\graph.hpp">
@@ -180,6 +183,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\ui\controls\frame_layout.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ui\controls\scroll_control.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

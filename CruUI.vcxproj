@@ -133,6 +133,7 @@
     <ClCompile Include="src\ui\controls\linear_layout.cpp" />
     <ClCompile Include="src\ui\controls\list_item.cpp" />
     <ClCompile Include="src\ui\controls\popup_menu.cpp" />
+    <ClCompile Include="src\ui\controls\scroll_control.cpp" />
     <ClCompile Include="src\ui\controls\text_block.cpp" />
     <ClCompile Include="src\ui\controls\text_box.cpp" />
     <ClInclude Include="src\any_map.hpp" />
@@ -141,6 +142,7 @@
     <ClInclude Include="src\ui\controls\frame_layout.hpp" />
     <ClInclude Include="src\ui\controls\list_item.hpp" />
     <ClInclude Include="src\ui\controls\popup_menu.hpp" />
+    <ClInclude Include="src\ui\controls\scroll_control.hpp" />
     <ClInclude Include="src\ui\controls\text_control.hpp" />
     <ClCompile Include="src\ui\controls\toggle_button.cpp" />
     <ClCompile Include="src\ui\cursor.cpp" />

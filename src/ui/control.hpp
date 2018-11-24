@@ -122,7 +122,7 @@ namespace cru::ui
         virtual bool IsPointInside(const Point& point);
 
         // Get the top control among all descendants (including self) in local coordinate.
-        Control* HitTest(const Point& point);
+        virtual Control* HitTest(const Point& point);
 
         //*************** region: graphic ***************
 
@@ -406,7 +406,8 @@ namespace cru::ui
         bool clip_to_padding_ = false;
 
         Microsoft::WRL::ComPtr<ID2D1Geometry> border_geometry_ = nullptr;
-        Microsoft::WRL::ComPtr<ID2D1Geometry> in_border_geometry_ = nullptr; //used for foreground and background brush.
+        // used for foreground and background brush and clip.
+        Microsoft::WRL::ComPtr<ID2D1Geometry> in_border_geometry_ = nullptr;
 
         Microsoft::WRL::ComPtr<ID2D1Brush> foreground_brush_ = nullptr;
         Microsoft::WRL::ComPtr<ID2D1Brush> background_brush_ = nullptr;

@@ -877,7 +877,7 @@ namespace cru::ui
             auto parent = GetParent();
             while (parent != nullptr)
             {
-                auto lp = parent->GetLayoutParams();
+                const auto lp = parent->GetLayoutParams();
 
                 if (!stretch_width_determined)
                 {
