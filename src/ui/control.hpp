@@ -26,10 +26,20 @@ namespace cru::ui
         Point lefttop_position_absolute;
     };
 
+
     class Control : public Object
     {
         friend class Window;
         friend class LayoutManager;
+
+    private:
+        struct GeometryInfo
+        {
+            Microsoft::WRL::ComPtr<ID2D1Geometry> border_geometry = nullptr;
+            Microsoft::WRL::ComPtr<ID2D1Geometry> padding_content_geometry = nullptr;
+            Microsoft::WRL::ComPtr<ID2D1Geometry> content_geometry = nullptr;
+        };
+
 
     protected:
         struct WindowConstructorTag {}; //Used for constructor for class Window. 
@@ -126,12 +136,12 @@ namespace cru::ui
 
         //*************** region: graphic ***************
 
-        bool IsClipToPadding() const
+        bool IsClipContent() const
         {
-            return clip_to_padding_;
+            return clip_content_;
         }
 
-        void SetClipToPadding(bool clip);
+        void SetClipContent(bool clip);
 
         //Draw this control and its child controls.
         void Draw(ID2D1DeviceContext* device_context);
@@ -299,7 +309,7 @@ namespace cru::ui
         void RaisePositionChangedEvent(events::PositionChangedEventArgs& args);
         void RaiseSizeChangedEvent(events::SizeChangedEventArgs& args);
 
-        void RegenerateBorderGeometry();
+        void RegenerateGeometries();
 
         //*************** region: mouse event ***************
         virtual void OnMouseEnter(events::MouseEventArgs& args);
@@ -403,11 +413,9 @@ namespace cru::ui
         bool is_bordered_ = false;
         BorderProperty border_property_;
 
-        bool clip_to_padding_ = false;
+        GeometryInfo geometry_info_{};
 
-        Microsoft::WRL::ComPtr<ID2D1Geometry> border_geometry_ = nullptr;
-        // used for foreground and background brush and clip.
-        Microsoft::WRL::ComPtr<ID2D1Geometry> in_border_geometry_ = nullptr;
+        bool clip_content_ = false;
 
         Microsoft::WRL::ComPtr<ID2D1Brush> foreground_brush_ = nullptr;
         Microsoft::WRL::ComPtr<ID2D1Brush> background_brush_ = nullptr;

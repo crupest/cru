@@ -20,7 +20,7 @@ namespace cru::ui::controls
 
         selection_brush_ = UiManager::GetInstance()->GetPredefineResources()->text_control_selection_brush;
 
-        SetClipToPadding(true);
+        SetClipContent(true);
     }
 
 

@@ -9,7 +9,7 @@ namespace cru::ui::controls
 {
     ScrollControl::ScrollControl(const bool container) : Control(container)
     {
-        SetClipToPadding(true);
+        SetClipContent(true);
     }
 
     ScrollControl::~ScrollControl()
