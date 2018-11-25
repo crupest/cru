@@ -2,22 +2,14 @@
 
 #include <algorithm>
 
+#include "math_util.hpp"
+
 namespace cru::ui::controls
 {
     LinearLayout::LinearLayout(const Orientation orientation)
         : Control(true), orientation_(orientation)
     {
 
-    }
-
-    inline float AtLeast0(const float value)
-    {
-        return value < 0 ? 0 : value;
-    }
-
-    inline Size AtLeast0(const Size& size)
-    {
-        return Size(AtLeast0(size.width), AtLeast0(size.height));
     }
 
     StringView LinearLayout::GetControlType() const

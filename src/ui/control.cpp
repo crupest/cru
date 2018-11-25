@@ -8,6 +8,7 @@
 #include "exception.hpp"
 #include "cru_debug.hpp"
 #include "convert_util.hpp"
+#include "math_util.hpp"
 
 #ifdef CRU_DEBUG_LAYOUT
 #include "ui_manager.hpp"
@@ -316,6 +317,7 @@ namespace cru::ui
     {
         SetPositionRelative(rect.GetLeftTop());
         SetSize(rect.GetSize());
+        AfterLayoutSelf();
         OnLayoutCore(Rect(Point::Zero(), rect.GetSize()));
     }
 
@@ -385,7 +387,7 @@ namespace cru::ui
 
     void Control::UpdateBorder()
     {
-        RegenerateGeometries();
+        RegenerateGeometryInfo();
         InvalidateLayout();
         InvalidateDraw();
     }
@@ -554,7 +556,7 @@ namespace cru::ui
 
     void Control::OnSizeChangedCore(SizeChangedEventArgs & args)
     {
-        RegenerateGeometries();
+        RegenerateGeometryInfo();
 #ifdef CRU_DEBUG_LAYOUT
         margin_geometry_ = CalculateSquareRingGeometry(GetRect(RectRange::Margin), GetRect(RectRange::FullBorder));
         padding_geometry_ = CalculateSquareRingGeometry(GetRect(RectRange::Padding), GetRect(RectRange::Content));
@@ -575,7 +577,7 @@ namespace cru::ui
         size_changed_event.Raise(args);
     }
 
-    void Control::RegenerateGeometries()
+    void Control::RegenerateGeometryInfo()
     {
         if (IsBordered())
         {
@@ -1042,6 +1044,11 @@ namespace cru::ui
                 calculate_anchor(rect.top, layout_params->height.alignment, rect.height, size.height)
             ), size));
         }
+    }
+
+    void Control::AfterLayoutSelf()
+    {
+
     }
 
     void Control::CheckAndNotifyPositionChanged()

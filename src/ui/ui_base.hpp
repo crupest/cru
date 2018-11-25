@@ -150,6 +150,16 @@ namespace cru::ui
             return Point(left + width, top + height);
         }
 
+        constexpr Point GetLeftBottom() const
+        {
+            return Point(left, top + height);
+        }
+
+        constexpr Point GetRightTop() const
+        {
+            return Point(left + width, top);
+        }
+
         constexpr Size GetSize() const
         {
             return Size(width, height);

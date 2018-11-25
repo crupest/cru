@@ -8,9 +8,6 @@
 #include <stdexcept>
 #include <string_view>
 #include <chrono>
-#include <optional>
-// ReSharper disable once CppUnusedIncludeDirective
-#include <type_traits>
 
 namespace cru
 {
@@ -60,31 +57,4 @@ namespace cru
         if (!condition)
             throw std::invalid_argument(error_message.data());
     }
-
-    template <typename T, typename = std::enable_if_t<std::is_arithmetic_v<T>>>
-    float Coerce(const T n, const std::optional<T> min, const std::optional<T> max)
-    {
-        if (min.has_value() && n < min.value())
-            return min.value();
-        if (max.has_value() && n > max.value())
-            return max.value();
-        return n;
-    }
-
-    template <typename T, typename = std::enable_if_t<std::is_arithmetic_v<T>>>
-    float Coerce(const T n, const std::nullopt_t, const std::optional<T> max)
-    {
-        if (max.has_value() && n > max.value())
-            return max.value();
-        return n;
-    }
-
-    template <typename T, typename = std::enable_if_t<std::is_arithmetic_v<T>>>
-    float Coerce(const T n, const std::optional<T> min, const std::nullopt_t)
-    {
-        if (min.has_value() && n < min.value())
-            return min.value();
-        return n;
-    }
-
 }

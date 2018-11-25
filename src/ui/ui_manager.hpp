@@ -61,6 +61,10 @@ namespace cru::ui
         Microsoft::WRL::ComPtr<ID2D1Brush> list_item_select_border_brush;
         Microsoft::WRL::ComPtr<ID2D1Brush> list_item_select_fill_brush;
 
+        //region ScrollControl
+        Microsoft::WRL::ComPtr<ID2D1Brush> scroll_bar_background_brush;
+        Microsoft::WRL::ComPtr<ID2D1Brush> scroll_bar_border_brush;
+        Microsoft::WRL::ComPtr<ID2D1Brush> scroll_bar_brush;
 
 #ifdef CRU_DEBUG_LAYOUT
         //region debug

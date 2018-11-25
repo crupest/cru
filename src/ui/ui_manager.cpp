@@ -75,7 +75,11 @@ namespace cru::ui
         list_item_hover_border_brush    {CreateSolidBrush(graph_manager, D2D1::ColorF(D2D1::ColorF::SkyBlue))},
         list_item_hover_fill_brush      {CreateSolidBrush(graph_manager, D2D1::ColorF(D2D1::ColorF::SkyBlue, 0.3f))},
         list_item_select_border_brush   {CreateSolidBrush(graph_manager, D2D1::ColorF(D2D1::ColorF::MediumBlue))},
-        list_item_select_fill_brush     {CreateSolidBrush(graph_manager, D2D1::ColorF(D2D1::ColorF::SkyBlue, 0.3f))}
+        list_item_select_fill_brush     {CreateSolidBrush(graph_manager, D2D1::ColorF(D2D1::ColorF::SkyBlue, 0.3f))},
+
+        scroll_bar_background_brush     {CreateSolidBrush(graph_manager, D2D1::ColorF(D2D1::ColorF::Gainsboro, 0.3f))},
+        scroll_bar_border_brush         {CreateSolidBrush(graph_manager, D2D1::ColorF(D2D1::ColorF::DimGray))},
+        scroll_bar_brush                {CreateSolidBrush(graph_manager, D2D1::ColorF(D2D1::ColorF::DimGray))}
 
 #ifdef CRU_DEBUG_LAYOUT
         ,

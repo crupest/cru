@@ -32,7 +32,7 @@ namespace cru::ui
         friend class Window;
         friend class LayoutManager;
 
-    private:
+    protected:
         struct GeometryInfo
         {
             Microsoft::WRL::ComPtr<ID2D1Geometry> border_geometry = nullptr;
@@ -309,7 +309,12 @@ namespace cru::ui
         void RaisePositionChangedEvent(events::PositionChangedEventArgs& args);
         void RaiseSizeChangedEvent(events::SizeChangedEventArgs& args);
 
-        void RegenerateGeometries();
+        void RegenerateGeometryInfo();
+
+        const GeometryInfo& GetGeometryInfo() const
+        {
+            return geometry_info_;
+        }
 
         //*************** region: mouse event ***************
         virtual void OnMouseEnter(events::MouseEventArgs& args);
@@ -365,6 +370,9 @@ namespace cru::ui
 
         virtual Size OnMeasureContent(const Size& available_size);
         virtual void OnLayoutContent(const Rect& rect);
+
+        // Called by Layout after set position and size.
+        virtual void AfterLayoutSelf();
 
     private:
         // Only for layout manager to use.

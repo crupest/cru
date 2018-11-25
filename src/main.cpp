@@ -8,6 +8,7 @@
 #include "ui/controls/list_item.hpp"
 #include "ui/controls/popup_menu.hpp"
 #include "ui/controls/frame_layout.hpp"
+#include "ui/controls/scroll_control.hpp"
 #include "graph/graph.hpp"
 
 using cru::String;
@@ -27,6 +28,7 @@ using cru::ui::controls::Button;
 using cru::ui::controls::TextBox;
 using cru::ui::controls::ListItem;
 using cru::ui::controls::FrameLayout;
+using cru::ui::controls::ScrollControl;
 
 int APIENTRY wWinMain(
     HINSTANCE hInstance,
@@ -183,9 +185,16 @@ int APIENTRY wWinMain(
     }
 
     {
-        const auto text_block = CreateWithLayout<TextBlock>(LayoutSideParams::Stretch(), LayoutSideParams::Stretch(), L"This is a very very very very very long sentence!!!");
+        const auto scroll_view = CreateWithLayout<ScrollControl>(LayoutSideParams::Stretch(), LayoutSideParams::Stretch());
+
+        scroll_view->SetVerticalScrollBarVisibility(ScrollControl::ScrollBarVisibility::Always);
+
+        const auto text_block = TextBlock::Create(
+            L"Love myself I do. Not everything, but I love the good as well as the bad. I love my crazy lifestyle, and I love my hard discipline. I love my freedom of speech and the way my eyes get dark when I'm tired. I love that I have learned to trust people with my heart, even if it will get broken. I am proud of everything that I am and will become.");
         text_block->SetSelectable(true);
-        layout->AddChild(text_block);
+
+        scroll_view->AddChild(text_block);
+        layout->AddChild(scroll_view);
     }
 
     layout->AddChild(CreateWithLayout<TextBlock>(LayoutSideParams::Content(Alignment::Start), LayoutSideParams::Content(), L"This is a little short sentence!!!"));
