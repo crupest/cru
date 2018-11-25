@@ -3,6 +3,31 @@
 //-------begin of file: src\any_map.hpp
 //--------------------------------------------------------
 
+// ReSharper disable once CppUnusedIncludeDirective
+//--------------------------------------------------------
+//-------begin of file: src\pre.hpp
+//--------------------------------------------------------
+
+#ifdef _DEBUG
+#define CRU_DEBUG
+#endif
+
+#ifdef CRU_DEBUG
+#define CRU_DEBUG_LAYOUT
+#endif
+
+
+#ifdef CRU_DEBUG
+// ReSharper disable once IdentifierTypo
+// ReSharper disable once CppInconsistentNaming
+#define _CRTDBG_MAP_ALLOC
+#include <cstdlib>
+#include <crtdbg.h>
+#endif
+//--------------------------------------------------------
+//-------end of file: src\pre.hpp
+//--------------------------------------------------------
+
 #include <any>
 #include <unordered_map>
 #include <functional>
@@ -14,29 +39,11 @@
 //--------------------------------------------------------
 
 // ReSharper disable once CppUnusedIncludeDirective
-//--------------------------------------------------------
-//-------begin of file: src\global_macros.hpp
-//--------------------------------------------------------
-
-#ifdef _DEBUG
-#define CRU_DEBUG
-#endif
-
-#ifdef CRU_DEBUG
-#define CRU_DEBUG_LAYOUT
-#endif
-//--------------------------------------------------------
-//-------end of file: src\global_macros.hpp
-//--------------------------------------------------------
-
 
 #include <string>
 #include <stdexcept>
 #include <string_view>
 #include <chrono>
-#include <optional>
-// ReSharper disable once CppUnusedIncludeDirective
-#include <type_traits>
 
 namespace cru
 {
@@ -86,33 +93,6 @@ namespace cru
         if (!condition)
             throw std::invalid_argument(error_message.data());
     }
-
-    template <typename T, typename = std::enable_if_t<std::is_arithmetic_v<T>>>
-    float Coerce(const T n, const std::optional<T> min, const std::optional<T> max)
-    {
-        if (min.has_value() && n < min.value())
-            return min.value();
-        if (max.has_value() && n > max.value())
-            return max.value();
-        return n;
-    }
-
-    template <typename T, typename = std::enable_if_t<std::is_arithmetic_v<T>>>
-    float Coerce(const T n, const std::nullopt_t, const std::optional<T> max)
-    {
-        if (max.has_value() && n > max.value())
-            return max.value();
-        return n;
-    }
-
-    template <typename T, typename = std::enable_if_t<std::is_arithmetic_v<T>>>
-    float Coerce(const T n, const std::optional<T> min, const std::nullopt_t)
-    {
-        if (min.has_value() && n < min.value())
-            return min.value();
-        return n;
-    }
-
 }
 //--------------------------------------------------------
 //-------end of file: src\base.hpp
@@ -120,6 +100,8 @@ namespace cru
 //--------------------------------------------------------
 //-------begin of file: src\format.hpp
 //--------------------------------------------------------
+
+// ReSharper disable once CppUnusedIncludeDirective
 
 
 namespace cru
@@ -325,10 +307,13 @@ namespace cru
 //-------begin of file: src\application.hpp
 //--------------------------------------------------------
 
+// ReSharper disable once CppUnusedIncludeDirective
+
 //--------------------------------------------------------
 //-------begin of file: src\system_headers.hpp
 //--------------------------------------------------------
 
+// ReSharper disable once CppUnusedIncludeDirective
 
 //include system headers
 
@@ -471,6 +456,8 @@ namespace cru
 //-------begin of file: src\exception.hpp
 //--------------------------------------------------------
 
+// ReSharper disable once CppUnusedIncludeDirective
+
 #include <optional>
 
 
@@ -531,6 +518,7 @@ namespace cru {
 //-------begin of file: src\timer.hpp
 //--------------------------------------------------------
 
+// ReSharper disable once CppUnusedIncludeDirective
 
 #include <map>
 #include <chrono>
@@ -596,12 +584,16 @@ namespace cru
 //-------begin of file: src\ui\window.hpp
 //--------------------------------------------------------
 
+// ReSharper disable once CppUnusedIncludeDirective
+
 #include <map>
 #include <memory>
 
 //--------------------------------------------------------
 //-------begin of file: src\ui\control.hpp
 //--------------------------------------------------------
+
+// ReSharper disable once CppUnusedIncludeDirective
 
 #include <unordered_map>
 #include <any>
@@ -610,6 +602,8 @@ namespace cru
 //--------------------------------------------------------
 //-------begin of file: src\ui\ui_base.hpp
 //--------------------------------------------------------
+
+// ReSharper disable once CppUnusedIncludeDirective
 
 #include <optional>
 
@@ -761,6 +755,16 @@ namespace cru::ui
             return Point(left + width, top + height);
         }
 
+        constexpr Point GetLeftBottom() const
+        {
+            return Point(left, top + height);
+        }
+
+        constexpr Point GetRightTop() const
+        {
+            return Point(left + width, top);
+        }
+
         constexpr Size GetSize() const
         {
             return Size(width, height);
@@ -832,6 +836,8 @@ namespace cru::ui
 //--------------------------------------------------------
 //-------begin of file: src\ui\layout_base.hpp
 //--------------------------------------------------------
+
+// ReSharper disable once CppUnusedIncludeDirective
 
 #include <unordered_set>
 
@@ -978,11 +984,15 @@ namespace cru::ui
 //-------begin of file: src\ui\events\ui_event.hpp
 //--------------------------------------------------------
 
+// ReSharper disable once CppUnusedIncludeDirective
+
 #include <optional>
 
 //--------------------------------------------------------
 //-------begin of file: src\cru_event.hpp
 //--------------------------------------------------------
+
+// ReSharper disable once CppUnusedIncludeDirective
 
 #include <type_traits>
 #include <functional>
@@ -1383,6 +1393,8 @@ namespace cru::ui::events
 //-------begin of file: src\ui\border_property.hpp
 //--------------------------------------------------------
 
+// ReSharper disable once CppUnusedIncludeDirective
+
 
 
 
@@ -1470,6 +1482,8 @@ namespace cru::ui
 //-------begin of file: src\ui\cursor.hpp
 //--------------------------------------------------------
 
+// ReSharper disable once CppUnusedIncludeDirective
+
 #include <memory>
 
 
@@ -1523,10 +1537,20 @@ namespace cru::ui
         Point lefttop_position_absolute;
     };
 
+
     class Control : public Object
     {
         friend class Window;
         friend class LayoutManager;
+
+    protected:
+        struct GeometryInfo
+        {
+            Microsoft::WRL::ComPtr<ID2D1Geometry> border_geometry = nullptr;
+            Microsoft::WRL::ComPtr<ID2D1Geometry> padding_content_geometry = nullptr;
+            Microsoft::WRL::ComPtr<ID2D1Geometry> content_geometry = nullptr;
+        };
+
 
     protected:
         struct WindowConstructorTag {}; //Used for constructor for class Window. 
@@ -1619,16 +1643,16 @@ namespace cru::ui
         virtual bool IsPointInside(const Point& point);
 
         // Get the top control among all descendants (including self) in local coordinate.
-        Control* HitTest(const Point& point);
+        virtual Control* HitTest(const Point& point);
 
         //*************** region: graphic ***************
 
-        bool IsClipToPadding() const
+        bool IsClipContent() const
         {
-            return clip_to_padding_;
+            return clip_content_;
         }
 
-        void SetClipToPadding(bool clip);
+        void SetClipContent(bool clip);
 
         //Draw this control and its child controls.
         void Draw(ID2D1DeviceContext* device_context);
@@ -1796,7 +1820,12 @@ namespace cru::ui
         void RaisePositionChangedEvent(events::PositionChangedEventArgs& args);
         void RaiseSizeChangedEvent(events::SizeChangedEventArgs& args);
 
-        void RegenerateBorderGeometry();
+        void RegenerateGeometryInfo();
+
+        const GeometryInfo& GetGeometryInfo() const
+        {
+            return geometry_info_;
+        }
 
         //*************** region: mouse event ***************
         virtual void OnMouseEnter(events::MouseEventArgs& args);
@@ -1853,6 +1882,9 @@ namespace cru::ui
         virtual Size OnMeasureContent(const Size& available_size);
         virtual void OnLayoutContent(const Rect& rect);
 
+        // Called by Layout after set position and size.
+        virtual void AfterLayoutSelf();
+
     private:
         // Only for layout manager to use.
         // Check if the old position is updated to current position.
@@ -1900,10 +1932,9 @@ namespace cru::ui
         bool is_bordered_ = false;
         BorderProperty border_property_;
 
-        bool clip_to_padding_ = false;
+        GeometryInfo geometry_info_{};
 
-        Microsoft::WRL::ComPtr<ID2D1Geometry> border_geometry_ = nullptr;
-        Microsoft::WRL::ComPtr<ID2D1Geometry> in_border_geometry_ = nullptr; //used for foreground and background brush.
+        bool clip_content_ = false;
 
         Microsoft::WRL::ComPtr<ID2D1Brush> foreground_brush_ = nullptr;
         Microsoft::WRL::ComPtr<ID2D1Brush> background_brush_ = nullptr;
@@ -2290,6 +2321,8 @@ namespace cru::ui
 //-------begin of file: src\cru_debug.hpp
 //--------------------------------------------------------
 
+// ReSharper disable once CppUnusedIncludeDirective
+
 #include <functional>
 
 
@@ -2336,6 +2369,8 @@ namespace cru::debug
 //--------------------------------------------------------
 //-------begin of file: src\ui\controls\linear_layout.hpp
 //--------------------------------------------------------
+
+// ReSharper disable once CppUnusedIncludeDirective
 
 
 namespace cru::ui::controls
@@ -2388,9 +2423,13 @@ namespace cru::ui::controls
 //-------begin of file: src\ui\controls\text_block.hpp
 //--------------------------------------------------------
 
+// ReSharper disable once CppUnusedIncludeDirective
+
 //--------------------------------------------------------
 //-------begin of file: src\ui\controls\text_control.hpp
 //--------------------------------------------------------
+
+// ReSharper disable once CppUnusedIncludeDirective
 
 
 namespace cru::ui::controls
@@ -2529,6 +2568,8 @@ namespace cru::ui::controls
 //-------begin of file: src\ui\controls\toggle_button.hpp
 //--------------------------------------------------------
 
+// ReSharper disable once CppUnusedIncludeDirective
+
 
 namespace cru::ui::controls
 {
@@ -2598,6 +2639,8 @@ namespace cru::ui::controls
 //-------begin of file: src\ui\controls\button.hpp
 //--------------------------------------------------------
 
+// ReSharper disable once CppUnusedIncludeDirective
+
 #include <initializer_list>
 
 
@@ -2643,6 +2686,8 @@ namespace cru::ui::controls
 //--------------------------------------------------------
 //-------begin of file: src\ui\controls\text_box.hpp
 //--------------------------------------------------------
+
+// ReSharper disable once CppUnusedIncludeDirective
 
 
 namespace cru::ui::controls
@@ -2698,6 +2743,8 @@ namespace cru::ui::controls
 //--------------------------------------------------------
 //-------begin of file: src\ui\controls\list_item.hpp
 //--------------------------------------------------------
+
+// ReSharper disable once CppUnusedIncludeDirective
 
 #include <map>
 #include <initializer_list>
@@ -2770,6 +2817,8 @@ namespace cru::ui::controls
 //-------begin of file: src\ui\controls\popup_menu.hpp
 //--------------------------------------------------------
 
+// ReSharper disable once CppUnusedIncludeDirective
+
 #include <vector>
 #include <utility>
 #include <functional>
@@ -2792,6 +2841,8 @@ namespace cru::ui::controls
 //--------------------------------------------------------
 //-------begin of file: src\ui\controls\frame_layout.hpp
 //--------------------------------------------------------
+
+// ReSharper disable once CppUnusedIncludeDirective
 
 #include <initializer_list>
 
@@ -2827,8 +2878,172 @@ namespace cru::ui::controls
 //-------end of file: src\ui\controls\frame_layout.hpp
 //--------------------------------------------------------
 //--------------------------------------------------------
+//-------begin of file: src\ui\controls\scroll_control.hpp
+//--------------------------------------------------------
+
+// ReSharper disable once CppUnusedIncludeDirective
+
+#include <optional>
+#include <initializer_list>
+
+
+namespace cru::ui::controls
+{
+    // Done: OnMeasureContent
+    // Done: OnLayoutContent
+    // Done: HitTest(no need)
+    // Done: Draw(no need)
+    // Done: API
+    // Done: ScrollBar
+    // TODO: MouseEvent
+    class ScrollControl : public Control
+    {
+    private:
+        struct ScrollBarInfo
+        {
+            Rect border = Rect();
+            Rect bar = Rect();
+        };
+
+        enum class Orientation
+        {
+            Horizontal,
+            Vertical
+        };
+
+    public:
+        enum class ScrollBarVisibility
+        {
+            None,
+            Auto,
+            Always
+        };
+
+        static ScrollControl* Create(const std::initializer_list<Control*>& children = std::initializer_list<Control*>{})
+        {
+            const auto control = new ScrollControl(true);
+            for (auto child : children)
+                control->AddChild(child);
+            return control;
+        }
+
+        static constexpr auto control_type = L"ScrollControl";
+
+    protected:
+        explicit ScrollControl(bool container);
+    public:
+        ScrollControl(const ScrollControl& other) = delete;
+        ScrollControl(ScrollControl&& other) = delete;
+        ScrollControl& operator=(const ScrollControl& other) = delete;
+        ScrollControl& operator=(ScrollControl&& other) = delete;
+        ~ScrollControl() override;
+
+        StringView GetControlType() const override final;
+
+        bool IsHorizontalScrollEnabled() const
+        {
+            return horizontal_scroll_enabled_;
+        }
+
+        void SetHorizontalScrollEnabled(bool enable);
+
+        bool IsVerticalScrollEnabled() const
+        {
+            return vertical_scroll_enabled_;
+        }
+
+        void SetVerticalScrollEnabled(bool enable);
+
+
+        ScrollBarVisibility GetHorizontalScrollBarVisibility() const
+        {
+            return horizontal_scroll_bar_visibility_;
+        }
+
+        void SetHorizontalScrollBarVisibility(ScrollBarVisibility visibility);
+
+        ScrollBarVisibility GetVerticalScrollBarVisibility() const
+        {
+            return vertical_scroll_bar_visibility_;
+        }
+
+        void SetVerticalScrollBarVisibility(ScrollBarVisibility visibility);
+
+        float GetViewWidth() const
+        {
+            return view_width_;
+        }
+
+        float GetViewHeight() const
+        {
+            return view_height_;
+        }
+
+        float GetScrollOffsetX() const
+        {
+            return offset_x_;
+        }
+
+        float GetScrollOffsetY() const
+        {
+            return offset_y_;
+        }
+
+        // nullopt for not set. value is auto-coerced.
+        void SetScrollOffset(std::optional<float> x, std::optional<float> y);
+
+    protected:
+        void SetViewWidth(float length);
+        void SetViewHeight(float length);
+
+        Size OnMeasureContent(const Size& available_size) override final;
+        void OnLayoutContent(const Rect& rect) override final;
+
+        void AfterLayoutSelf() override;
+
+        void OnDrawForeground(ID2D1DeviceContext* device_context) override;
+
+        void OnMouseDownCore(events::MouseButtonEventArgs& args) override final;
+        void OnMouseMoveCore(events::MouseEventArgs& args) override final;
+        void OnMouseUpCore(events::MouseButtonEventArgs& args) override final;
+
+    private:
+        void CoerceAndSetOffsets(float offset_x, float offset_y, bool update_children = true);
+        void UpdateScrollBarVisibility();
+        void UpdateScrollBarBorderInfo();
+        void UpdateScrollBarBarInfo();
+
+    private:
+        bool horizontal_scroll_enabled_ = true;
+        bool vertical_scroll_enabled_ = true;
+
+        ScrollBarVisibility horizontal_scroll_bar_visibility_ = ScrollBarVisibility::Auto;
+        ScrollBarVisibility vertical_scroll_bar_visibility_ = ScrollBarVisibility::Auto;
+
+        bool is_horizontal_scroll_bar_visible_ = false;
+        bool is_vertical_scroll_bar_visible_ = false;
+
+        float offset_x_ = 0.0f;
+        float offset_y_ = 0.0f;
+
+        float view_width_ = 0.0f;
+        float view_height_ = 0.0f;
+
+        ScrollBarInfo horizontal_bar_info_;
+        ScrollBarInfo vertical_bar_info_;
+
+        std::optional<Orientation> is_pressing_scroll_bar_ = std::nullopt;
+        float pressing_delta_ = 0.0f;
+    };
+}
+//--------------------------------------------------------
+//-------end of file: src\ui\controls\scroll_control.hpp
+//--------------------------------------------------------
+//--------------------------------------------------------
 //-------begin of file: src\graph\graph.hpp
 //--------------------------------------------------------
+
+// ReSharper disable once CppUnusedIncludeDirective
 
 #include <memory>
 #include <functional>
@@ -3010,6 +3225,8 @@ namespace cru::graph
 //-------begin of file: src\ui\ui_manager.hpp
 //--------------------------------------------------------
 
+// ReSharper disable once CppUnusedIncludeDirective
+
 
 
 namespace cru::graph
@@ -3068,6 +3285,10 @@ namespace cru::ui
         Microsoft::WRL::ComPtr<ID2D1Brush> list_item_select_border_brush;
         Microsoft::WRL::ComPtr<ID2D1Brush> list_item_select_fill_brush;
 
+        //region ScrollControl
+        Microsoft::WRL::ComPtr<ID2D1Brush> scroll_bar_background_brush;
+        Microsoft::WRL::ComPtr<ID2D1Brush> scroll_bar_border_brush;
+        Microsoft::WRL::ComPtr<ID2D1Brush> scroll_bar_brush;
 
 #ifdef CRU_DEBUG_LAYOUT
         //region debug
@@ -3113,6 +3334,8 @@ namespace cru::ui
 //-------begin of file: src\ui\convert_util.hpp
 //--------------------------------------------------------
 
+// ReSharper disable once CppUnusedIncludeDirective
+
 
 
 namespace cru::ui
@@ -3131,8 +3354,83 @@ namespace cru::ui
 //-------end of file: src\ui\convert_util.hpp
 //--------------------------------------------------------
 //--------------------------------------------------------
+//-------begin of file: src\math_util.hpp
+//--------------------------------------------------------
+
+// ReSharper disable once CppUnusedIncludeDirective
+
+// ReSharper disable once CppUnusedIncludeDirective
+#include <type_traits>
+#include <optional>
+
+namespace cru
+{
+        template <typename T, typename = std::enable_if_t<std::is_arithmetic_v<T>>>
+    float Coerce(const T n, const std::optional<T> min, const std::optional<T> max)
+    {
+        if (min.has_value() && n < min.value())
+            return min.value();
+        if (max.has_value() && n > max.value())
+            return max.value();
+        return n;
+    }
+    
+    template <typename T, typename = std::enable_if_t<std::is_arithmetic_v<T>>>
+    float Coerce(const T n, const T min, const T max)
+    {
+        if (n < min)
+            return min;
+        if (n > max)
+            return max;
+        return n;
+    }
+
+    template <typename T, typename = std::enable_if_t<std::is_arithmetic_v<T>>>
+    float Coerce(const T n, const std::nullopt_t, const std::optional<T> max)
+    {
+        if (max.has_value() && n > max.value())
+            return max.value();
+        return n;
+    }
+
+    template <typename T, typename = std::enable_if_t<std::is_arithmetic_v<T>>>
+    float Coerce(const T n, const std::optional<T> min, const std::nullopt_t)
+    {
+        if (min.has_value() && n < min.value())
+            return min.value();
+        return n;
+    }
+    
+    template <typename T, typename = std::enable_if_t<std::is_arithmetic_v<T>>>
+    float Coerce(const T n, const std::nullopt_t, const T max)
+    {
+        if (n > max)
+            return max;
+        return n;
+    }
+
+    template <typename T, typename = std::enable_if_t<std::is_arithmetic_v<T>>>
+    float Coerce(const T n, const T min, const std::nullopt_t)
+    {
+        if (n < min)
+            return min;
+        return n;
+    }
+
+    template <typename T, typename = std::enable_if_t<std::is_arithmetic_v<T>>>
+    T AtLeast0(const T value)
+    {
+        return value < static_cast<T>(0) ? static_cast<T>(0) : value;
+    }
+}
+//--------------------------------------------------------
+//-------end of file: src\math_util.hpp
+//--------------------------------------------------------
+//--------------------------------------------------------
 //-------begin of file: src\ui\animations\animation.hpp
 //--------------------------------------------------------
+
+// ReSharper disable once CppUnusedIncludeDirective
 
 #include <unordered_map>
 
