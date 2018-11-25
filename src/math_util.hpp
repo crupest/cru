@@ -1,6 +1,9 @@
 #pragma once
 
 // ReSharper disable once CppUnusedIncludeDirective
+#include "pre.hpp"
+
+// ReSharper disable once CppUnusedIncludeDirective
 #include <type_traits>
 #include <optional>
 

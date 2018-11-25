@@ -1,8 +1,7 @@
 #pragma once
 
 // ReSharper disable once CppUnusedIncludeDirective
-#include "global_macros.hpp"
-
+#include "pre.hpp"
 
 #include <string>
 #include <stdexcept>

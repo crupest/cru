@@ -159,7 +159,7 @@
     <ClInclude Include="src\cru_event.hpp" />
     <ClInclude Include="src\cru_debug.hpp" />
     <ClInclude Include="src\exception.hpp" />
-    <ClInclude Include="src\global_macros.hpp" />
+    <ClInclude Include="src\pre.hpp" />
     <ClInclude Include="src\graph\graph.hpp" />
     <ClInclude Include="src\system_headers.hpp" />
     <ClInclude Include="src\timer.hpp" />

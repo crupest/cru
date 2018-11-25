@@ -1,3 +1,5 @@
+#include "pre.hpp"
+
 #include "application.hpp"
 #include "ui/window.hpp"
 #include "ui/controls/linear_layout.hpp"
@@ -35,6 +37,10 @@ int APIENTRY wWinMain(
     HINSTANCE hPrevInstance,
     LPWSTR    lpCmdLine,
     int       nCmdShow) {
+
+#ifdef CRU_DEBUG
+    _CrtSetDbgFlag ( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );  
+#endif
 
     Application application(hInstance);
 
@@ -224,7 +230,6 @@ int APIENTRY wWinMain(
 
     window.AddChild(linear_layout);
     */
-
 
     window->Show();
 
