@@ -1,5 +1,7 @@
 #pragma once
 
+// ReSharper disable once CppUnusedIncludeDirective
+#include "pre.hpp"
 
 //include system headers
 
@@ -19,3 +21,5 @@
 
 #include <dxgi1_2.h>
 #include <wrl/client.h>
+
+#include <VersionHelpers.h>

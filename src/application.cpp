@@ -86,16 +86,6 @@ namespace cru {
         return instance_;
     }
 
-    namespace
-    {
-        void LoadSystemCursor(HINSTANCE h_instance)
-        {
-            ui::cursors::arrow = std::make_shared<ui::Cursor>(::LoadCursorW(nullptr, IDC_ARROW), false);
-            ui::cursors::hand = std::make_shared<ui::Cursor>(::LoadCursorW(nullptr, IDC_HAND), false);
-            ui::cursors::i_beam = std::make_shared<ui::Cursor>(::LoadCursorW(nullptr, IDC_IBEAM), false);
-        }
-    }
-
     Application::Application(HINSTANCE h_instance)
         : h_instance_(h_instance) {
 
@@ -104,9 +94,12 @@ namespace cru {
 
         instance_ = this;
 
+        if (!::IsWindows8OrGreater())
+            throw std::runtime_error("Must run on Windows 8 or later.");
+
         god_window_ = std::make_unique<GodWindow>(this);
 
-        LoadSystemCursor(h_instance);
+        ui::cursors::LoadSystemCursors();
     }
 
     Application::~Application()

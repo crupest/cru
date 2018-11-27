@@ -90,6 +90,9 @@
     <ClCompile Include="src\ui\controls\frame_layout.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\ui\controls\scroll_control.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\graph\graph.hpp">
@@ -155,9 +158,6 @@
     <ClInclude Include="src\format.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\global_macros.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\system_headers.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -180,6 +180,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\ui\controls\frame_layout.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ui\controls\scroll_control.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\math_util.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pre.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

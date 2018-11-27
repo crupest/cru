@@ -123,16 +123,6 @@ namespace cru {
         return instance_;
     }
 
-    namespace
-    {
-        void LoadSystemCursor(HINSTANCE h_instance)
-        {
-            ui::cursors::arrow = std::make_shared<ui::Cursor>(::LoadCursorW(nullptr, IDC_ARROW), false);
-            ui::cursors::hand = std::make_shared<ui::Cursor>(::LoadCursorW(nullptr, IDC_HAND), false);
-            ui::cursors::i_beam = std::make_shared<ui::Cursor>(::LoadCursorW(nullptr, IDC_IBEAM), false);
-        }
-    }
-
     Application::Application(HINSTANCE h_instance)
         : h_instance_(h_instance) {
 
@@ -141,9 +131,12 @@ namespace cru {
 
         instance_ = this;
 
+        if (!::IsWindows8OrGreater())
+            throw std::runtime_error("Must run on Windows 8 or later.");
+
         god_window_ = std::make_unique<GodWindow>(this);
 
-        LoadSystemCursor(h_instance);
+        ui::cursors::LoadSystemCursors();
     }
 
     Application::~Application()
@@ -267,6 +260,7 @@ namespace cru
 //-------begin of file: src\main.cpp
 //--------------------------------------------------------
 
+
 using cru::String;
 using cru::StringView;
 using cru::Application;
@@ -284,12 +278,17 @@ using cru::ui::controls::Button;
 using cru::ui::controls::TextBox;
 using cru::ui::controls::ListItem;
 using cru::ui::controls::FrameLayout;
+using cru::ui::controls::ScrollControl;
 
 int APIENTRY wWinMain(
     HINSTANCE hInstance,
     HINSTANCE hPrevInstance,
     LPWSTR    lpCmdLine,
     int       nCmdShow) {
+
+#ifdef CRU_DEBUG
+    _CrtSetDbgFlag ( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );  
+#endif
 
     Application application(hInstance);
 
@@ -440,9 +439,16 @@ int APIENTRY wWinMain(
     }
 
     {
-        const auto text_block = CreateWithLayout<TextBlock>(LayoutSideParams::Stretch(), LayoutSideParams::Stretch(), L"This is a very very very very very long sentence!!!");
+        const auto scroll_view = CreateWithLayout<ScrollControl>(LayoutSideParams::Stretch(), LayoutSideParams::Stretch());
+
+        scroll_view->SetVerticalScrollBarVisibility(ScrollControl::ScrollBarVisibility::Always);
+
+        const auto text_block = TextBlock::Create(
+            L"Love myself I do. Not everything, but I love the good as well as the bad. I love my crazy lifestyle, and I love my hard discipline. I love my freedom of speech and the way my eyes get dark when I'm tired. I love that I have learned to trust people with my heart, even if it will get broken. I am proud of everything that I am and will become.");
         text_block->SetSelectable(true);
-        layout->AddChild(text_block);
+
+        scroll_view->AddChild(text_block);
+        layout->AddChild(scroll_view);
     }
 
     layout->AddChild(CreateWithLayout<TextBlock>(LayoutSideParams::Content(Alignment::Start), LayoutSideParams::Content(), L"This is a little short sentence!!!"));
@@ -472,7 +478,6 @@ int APIENTRY wWinMain(
 
     window.AddChild(linear_layout);
     */
-
 
     window->Show();
 
@@ -992,24 +997,65 @@ namespace cru::ui
 
     bool Control::IsPointInside(const Point & point)
     {
-        if (border_geometry_ != nullptr)
+        const auto border_geometry = geometry_info_.border_geometry;
+        if (border_geometry != nullptr)
         {
             if (IsBordered())
             {
                 BOOL contains;
-                border_geometry_->FillContainsPoint(Convert(point), D2D1::Matrix3x2F::Identity(), &contains);
+                border_geometry->FillContainsPoint(Convert(point), D2D1::Matrix3x2F::Identity(), &contains);
                 if (!contains)
-                    border_geometry_->StrokeContainsPoint(Convert(point), GetBorderProperty().GetStrokeWidth(), nullptr, D2D1::Matrix3x2F::Identity(), &contains);
+                    border_geometry->StrokeContainsPoint(Convert(point), GetBorderProperty().GetStrokeWidth(), nullptr, D2D1::Matrix3x2F::Identity(), &contains);
                 return contains != 0;
             }
             else
             {
                 BOOL contains;
-                border_geometry_->FillContainsPoint(Convert(point), D2D1::Matrix3x2F::Identity(), &contains);
+                border_geometry->FillContainsPoint(Convert(point), D2D1::Matrix3x2F::Identity(), &contains);
                 return contains != 0;
             }
         }
         return false;
+    }
+
+    Control* Control::HitTest(const Point& point)
+    {
+        const auto point_inside = IsPointInside(point);
+
+        if (IsClipContent())
+        {
+            if (!point_inside)
+                return nullptr;
+            if (geometry_info_.content_geometry != nullptr)
+            {
+                BOOL contains;
+                ThrowIfFailed(geometry_info_.content_geometry->FillContainsPoint(Convert(point), D2D1::Matrix3x2F::Identity(), &contains));
+                if (contains == 0)
+                    return this;
+            }
+        }
+
+        const auto& children = GetChildren();
+
+        for (auto i = children.crbegin(); i != children.crend(); ++i)
+        {
+            const auto&& lefttop = (*i)->GetPositionRelative();
+            const auto&& coerced_point = Point(point.x - lefttop.x, point.y - lefttop.y);
+            const auto child_hit_test_result = (*i)->HitTest(coerced_point);
+            if (child_hit_test_result != nullptr)
+                return child_hit_test_result;
+        }
+
+        return point_inside ? this : nullptr;
+    }
+
+    void Control::SetClipContent(const bool clip)
+    {
+        if (clip_content_ == clip)
+            return;
+
+        clip_content_ = clip;
+        InvalidateDraw();
     }
 
     void Control::Draw(ID2D1DeviceContext* device_context)
@@ -1020,10 +1066,19 @@ namespace cru::ui
         const auto position = GetPositionRelative();
         device_context->SetTransform(old_transform * D2D1::Matrix3x2F::Translation(position.x, position.y));
 
+        OnDrawDecoration(device_context);
+
+        const auto set_layer = geometry_info_.content_geometry != nullptr && IsClipContent();
+        if (set_layer)
+            device_context->PushLayer(D2D1::LayerParameters(D2D1::InfiniteRect(), geometry_info_.content_geometry.Get()), nullptr);
+
         OnDrawCore(device_context);
 
         for (auto child : GetChildren())
             child->Draw(device_context);
+
+        if (set_layer)
+            device_context->PopLayer();
 
         device_context->SetTransform(old_transform);
     }
@@ -1067,6 +1122,7 @@ namespace cru::ui
     {
         SetPositionRelative(rect.GetLeftTop());
         SetSize(rect.GetSize());
+        AfterLayoutSelf();
         OnLayoutCore(Rect(Point::Zero(), rect.GetSize()));
     }
 
@@ -1136,7 +1192,7 @@ namespace cru::ui
 
     void Control::UpdateBorder()
     {
-        RegenerateBorderGeometry();
+        RegenerateGeometryInfo();
         InvalidateLayout();
         InvalidateDraw();
     }
@@ -1168,7 +1224,6 @@ namespace cru::ui
             child->TraverseDescendants([window](Control* control) {
                 control->OnAttachToWindow(window);
             });
-            window->RefreshControlList();
             InvalidateLayout();
         }
     }
@@ -1180,7 +1235,6 @@ namespace cru::ui
             child->TraverseDescendants([window](Control* control) {
                 control->OnDetachToWindow(window);
             });
-            window->RefreshControlList();
             InvalidateLayout();
         }
     }
@@ -1195,9 +1249,9 @@ namespace cru::ui
         window_ = nullptr;
     }
 
-    void Control::OnDrawCore(ID2D1DeviceContext* device_context)
+    void Control::OnDrawDecoration(ID2D1DeviceContext* device_context)
     {
-        #ifdef CRU_DEBUG_LAYOUT
+#ifdef CRU_DEBUG_LAYOUT
         if (GetWindow()->IsDebugLayout())
         {
             if (padding_geometry_ != nullptr)
@@ -1208,17 +1262,21 @@ namespace cru::ui
         }
 #endif
 
-        if (is_bordered_ && border_geometry_ != nullptr)
+        if (is_bordered_ && geometry_info_.border_geometry != nullptr)
             device_context->DrawGeometry(
-                border_geometry_.Get(),
+                geometry_info_.border_geometry.Get(),
                 GetBorderProperty().GetBrush().Get(),
                 GetBorderProperty().GetStrokeWidth(),
                 GetBorderProperty().GetStrokeStyle().Get()
             );
+    }
 
+    void Control::OnDrawCore(ID2D1DeviceContext* device_context)
+    {
+        const auto ground_geometry = geometry_info_.padding_content_geometry;
         //draw background.
-        if (in_border_geometry_ != nullptr && background_brush_ != nullptr)
-            device_context->FillGeometry(in_border_geometry_.Get(), background_brush_.Get());
+        if (ground_geometry != nullptr && background_brush_ != nullptr)
+            device_context->FillGeometry(ground_geometry.Get(), background_brush_.Get());
         const auto padding_rect = GetRect(RectRange::Padding);
         graph::WithTransform(device_context, D2D1::Matrix3x2F::Translation(padding_rect.left, padding_rect.top),
             [this](ID2D1DeviceContext* device_context)
@@ -1240,8 +1298,8 @@ namespace cru::ui
 
 
         //draw foreground.
-        if (in_border_geometry_ != nullptr && foreground_brush_ != nullptr)
-            device_context->FillGeometry(in_border_geometry_.Get(), foreground_brush_.Get());
+        if (ground_geometry != nullptr && foreground_brush_ != nullptr)
+            device_context->FillGeometry(ground_geometry.Get(), foreground_brush_.Get());
         graph::WithTransform(device_context, D2D1::Matrix3x2F::Translation(padding_rect.left, padding_rect.top),
             [this](ID2D1DeviceContext* device_context)
             {
@@ -1303,7 +1361,7 @@ namespace cru::ui
 
     void Control::OnSizeChangedCore(SizeChangedEventArgs & args)
     {
-        RegenerateBorderGeometry();
+        RegenerateGeometryInfo();
 #ifdef CRU_DEBUG_LAYOUT
         margin_geometry_ = CalculateSquareRingGeometry(GetRect(RectRange::Margin), GetRect(RectRange::FullBorder));
         padding_geometry_ = CalculateSquareRingGeometry(GetRect(RectRange::Padding), GetRect(RectRange::Content));
@@ -1324,7 +1382,7 @@ namespace cru::ui
         size_changed_event.Raise(args);
     }
 
-    void Control::RegenerateBorderGeometry()
+    void Control::RegenerateGeometryInfo()
     {
         if (IsBordered())
         {
@@ -1337,10 +1395,10 @@ namespace cru::ui
             ThrowIfFailed(
                 graph::GraphManager::GetInstance()->GetD2D1Factory()->CreateRoundedRectangleGeometry(bound_rounded_rect, &geometry)
             );
-            border_geometry_ = std::move(geometry);
+            geometry_info_.border_geometry = std::move(geometry);
 
-            const auto in_border_rect = GetRect(RectRange::Padding);
-            const auto in_border_rounded_rect = D2D1::RoundedRect(Convert(in_border_rect),
+            const auto padding_rect = GetRect(RectRange::Padding);
+            const auto in_border_rounded_rect = D2D1::RoundedRect(Convert(padding_rect),
                 GetBorderProperty().GetRadiusX() - GetBorderProperty().GetStrokeWidth() / 2.0f,
                 GetBorderProperty().GetRadiusY() - GetBorderProperty().GetStrokeWidth() / 2.0f);
 
@@ -1348,7 +1406,24 @@ namespace cru::ui
             ThrowIfFailed(
                 graph::GraphManager::GetInstance()->GetD2D1Factory()->CreateRoundedRectangleGeometry(in_border_rounded_rect, &geometry2)
             );
-            in_border_geometry_ = std::move(geometry2);
+            geometry_info_.padding_content_geometry = geometry2;
+
+
+            Microsoft::WRL::ComPtr<ID2D1RectangleGeometry> geometry3;
+            ThrowIfFailed(
+                graph::GraphManager::GetInstance()->GetD2D1Factory()->CreateRectangleGeometry(Convert(GetRect(RectRange::Content)), &geometry3)
+            );
+            Microsoft::WRL::ComPtr<ID2D1PathGeometry> geometry4;
+            ThrowIfFailed(
+                graph::GraphManager::GetInstance()->GetD2D1Factory()->CreatePathGeometry(&geometry4)
+            );
+            Microsoft::WRL::ComPtr<ID2D1GeometrySink> sink;
+            geometry4->Open(&sink);
+            ThrowIfFailed(
+                geometry3->CombineWithGeometry(geometry2.Get(), D2D1_COMBINE_MODE_INTERSECT, D2D1::Matrix3x2F::Identity(), sink.Get())
+            );
+            sink->Close();
+            geometry_info_.content_geometry = std::move(geometry4);
         }
         else
         {
@@ -1357,8 +1432,14 @@ namespace cru::ui
             ThrowIfFailed(
                 graph::GraphManager::GetInstance()->GetD2D1Factory()->CreateRectangleGeometry(Convert(bound_rect), &geometry)
             );
-            border_geometry_ = geometry;
-            in_border_geometry_ = std::move(geometry);
+            geometry_info_.border_geometry = geometry;
+            geometry_info_.padding_content_geometry = std::move(geometry);
+
+            Microsoft::WRL::ComPtr<ID2D1RectangleGeometry> geometry2;
+            ThrowIfFailed(
+                graph::GraphManager::GetInstance()->GetD2D1Factory()->CreateRectangleGeometry(Convert(GetRect(RectRange::Content)), &geometry2)
+            );
+            geometry_info_.content_geometry = std::move(geometry2);
         }
     }
 
@@ -1433,6 +1514,16 @@ namespace cru::ui
 
     }
 
+    void Control::OnMouseWheel(events::MouseWheelEventArgs& args)
+    {
+
+    }
+
+    void Control::OnMouseWheelCore(events::MouseWheelEventArgs& args)
+    {
+
+    }
+
     void Control::RaiseMouseEnterEvent(MouseEventArgs& args)
     {
         OnMouseEnterCore(args);
@@ -1473,6 +1564,13 @@ namespace cru::ui
         OnMouseClickCore(args);
         OnMouseClick(args);
         mouse_click_event.Raise(args);
+    }
+
+    void Control::RaiseMouseWheelEvent(MouseWheelEventArgs& args)
+    {
+        OnMouseWheelCore(args);
+        OnMouseWheel(args);
+        mouse_wheel_event.Raise(args);
     }
 
     void Control::OnMouseClickBegin(MouseButton button)
@@ -1635,7 +1733,7 @@ namespace cru::ui
             auto parent = GetParent();
             while (parent != nullptr)
             {
-                auto lp = parent->GetLayoutParams();
+                const auto lp = parent->GetLayoutParams();
 
                 if (!stretch_width_determined)
                 {
@@ -1770,6 +1868,11 @@ namespace cru::ui
         }
     }
 
+    void Control::AfterLayoutSelf()
+    {
+
+    }
+
     void Control::CheckAndNotifyPositionChanged()
     {
         if (this->old_position_ != this->position_)
@@ -1867,6 +1970,13 @@ namespace cru::ui
         Cursor::Ptr arrow{};
         Cursor::Ptr hand{};
         Cursor::Ptr i_beam{};
+
+        void LoadSystemCursors()
+        {
+            arrow = std::make_shared<Cursor>(::LoadCursorW(nullptr, IDC_ARROW), false);
+            hand = std::make_shared<Cursor>(::LoadCursorW(nullptr, IDC_HAND), false);
+            i_beam = std::make_shared<Cursor>(::LoadCursorW(nullptr, IDC_IBEAM), false);
+        }
     }
 }
 //--------------------------------------------------------
@@ -2060,7 +2170,11 @@ namespace cru::ui
         list_item_hover_border_brush    {CreateSolidBrush(graph_manager, D2D1::ColorF(D2D1::ColorF::SkyBlue))},
         list_item_hover_fill_brush      {CreateSolidBrush(graph_manager, D2D1::ColorF(D2D1::ColorF::SkyBlue, 0.3f))},
         list_item_select_border_brush   {CreateSolidBrush(graph_manager, D2D1::ColorF(D2D1::ColorF::MediumBlue))},
-        list_item_select_fill_brush     {CreateSolidBrush(graph_manager, D2D1::ColorF(D2D1::ColorF::SkyBlue, 0.3f))}
+        list_item_select_fill_brush     {CreateSolidBrush(graph_manager, D2D1::ColorF(D2D1::ColorF::SkyBlue, 0.3f))},
+
+        scroll_bar_background_brush     {CreateSolidBrush(graph_manager, D2D1::ColorF(D2D1::ColorF::Gainsboro, 0.3f))},
+        scroll_bar_border_brush         {CreateSolidBrush(graph_manager, D2D1::ColorF(D2D1::ColorF::DimGray))},
+        scroll_bar_brush                {CreateSolidBrush(graph_manager, D2D1::ColorF(D2D1::ColorF::DimGray))}
 
 #ifdef CRU_DEBUG_LAYOUT
         ,
@@ -2221,7 +2335,8 @@ namespace cru::ui
         return new Window(tag_popup_constructor{}, parent, caption);
     }
 
-    Window::Window(tag_overlapped_constructor) : Control(WindowConstructorTag{}, this), control_list_({ this }) {
+    Window::Window(tag_overlapped_constructor) : Control(WindowConstructorTag{}, this)
+    {
         const auto window_manager = WindowManager::GetInstance();
 
         hwnd_ = CreateWindowEx(0,
@@ -2237,7 +2352,7 @@ namespace cru::ui
         AfterCreateHwnd(window_manager);
     }
 
-    Window::Window(tag_popup_constructor, Window* parent, const bool caption) : Control(WindowConstructorTag{}, this), control_list_({ this })
+    Window::Window(tag_popup_constructor, Window* parent, const bool caption) : Control(WindowConstructorTag{}, this)
     {
         if (parent != nullptr && !parent->IsWindowValid())
             throw std::runtime_error("Parent window is not valid.");
@@ -2500,6 +2615,14 @@ namespace cru::ui
             result = 0;
             return true;
         }
+        case WM_MOUSEWHEEL:
+            POINT point;
+            point.x = GET_X_LPARAM(l_param);
+            point.y = GET_Y_LPARAM(l_param);
+            ScreenToClient(hwnd, &point);
+            OnMouseWheelInternal(GET_WHEEL_DELTA_WPARAM(w_param), point);
+            result = 0;
+            return true;
         case WM_KEYDOWN:
             OnKeyDownInternal(static_cast<int>(w_param));
             result = 0;
@@ -2593,24 +2716,6 @@ namespace cru::ui
         SetClientSize(GetDesiredSize());
         OnLayoutCore(Rect(Point::Zero(), GetSize()));
         is_layout_invalid_ = false;
-    }
-
-    void Window::RefreshControlList() {
-        control_list_.clear();
-        TraverseDescendants([this](Control* control) {
-            this->control_list_.push_back(control);
-        });
-    }
-
-    Control * Window::HitTest(const Point & point)
-    {
-        for (auto i = control_list_.crbegin(); i != control_list_.crend(); ++i) {
-            auto control = *i;
-            if (control->IsPointInside(control->WindowToControl(point))) {
-                return control;
-            }
-        }
-        return nullptr;
     }
 
     bool Window::RequestFocusFor(Control * control)
@@ -2826,6 +2931,20 @@ namespace cru::ui
             control = HitTest(dip_point);
 
         DispatchEvent(control, &Control::RaiseMouseUpEvent, nullptr, dip_point, button);
+    }
+
+    void Window::OnMouseWheelInternal(short delta, POINT point)
+    {
+        const auto dip_point = PiToDip(point);
+
+        Control* control;
+
+        if (mouse_capture_control_)
+            control = mouse_capture_control_;
+        else
+            control = HitTest(dip_point);
+
+        DispatchEvent(control, &Control::RaiseMouseWheelEvent, nullptr, dip_point, static_cast<float>(delta));
     }
 
     void Window::OnKeyDownInternal(int virtual_code)
@@ -3113,22 +3232,13 @@ namespace cru::ui::controls
 
 #include <algorithm>
 
+
 namespace cru::ui::controls
 {
     LinearLayout::LinearLayout(const Orientation orientation)
         : Control(true), orientation_(orientation)
     {
 
-    }
-
-    inline float AtLeast0(const float value)
-    {
-        return value < 0 ? 0 : value;
-    }
-
-    inline Size AtLeast0(const Size& size)
-    {
-        return Size(AtLeast0(size.width), AtLeast0(size.height));
     }
 
     StringView LinearLayout::GetControlType() const
@@ -3395,6 +3505,404 @@ namespace cru::ui::controls
 //-------end of file: src\ui\controls\popup_menu.cpp
 //--------------------------------------------------------
 //--------------------------------------------------------
+//-------begin of file: src\ui\controls\scroll_control.cpp
+//--------------------------------------------------------
+
+#include <limits>
+
+
+namespace cru::ui::controls
+{
+    constexpr auto scroll_bar_width = 15.0f;
+
+    ScrollControl::ScrollControl(const bool container) : Control(container)
+    {
+        SetClipContent(true);
+    }
+
+    ScrollControl::~ScrollControl()
+    {
+
+    }
+
+    StringView ScrollControl::GetControlType() const
+    {
+        return control_type;
+    }
+
+    void ScrollControl::SetHorizontalScrollEnabled(const bool enable)
+    {
+        horizontal_scroll_enabled_ = enable;
+        InvalidateLayout();
+        InvalidateDraw();
+    }
+
+    void ScrollControl::SetVerticalScrollEnabled(const bool enable)
+    {
+        vertical_scroll_enabled_ = enable;
+        InvalidateLayout();
+        InvalidateDraw();
+    }
+
+    void ScrollControl::SetHorizontalScrollBarVisibility(const ScrollBarVisibility visibility)
+    {
+        if (visibility != horizontal_scroll_bar_visibility_)
+        {
+            horizontal_scroll_bar_visibility_ = visibility;
+            switch (visibility)
+            {
+            case ScrollBarVisibility::Always:
+                is_horizontal_scroll_bar_visible_ = true;
+                break;
+            case ScrollBarVisibility::None:
+                is_horizontal_scroll_bar_visible_ = false;
+                break;
+            case ScrollBarVisibility::Auto:
+                UpdateScrollBarVisibility();
+            }
+            InvalidateDraw();
+        }
+    }
+
+    void ScrollControl::SetVerticalScrollBarVisibility(const ScrollBarVisibility visibility)
+    {
+        if (visibility != vertical_scroll_bar_visibility_)
+        {
+            vertical_scroll_bar_visibility_ = visibility;
+            switch (visibility)
+            {
+            case ScrollBarVisibility::Always:
+                is_vertical_scroll_bar_visible_ = true;
+                break;
+            case ScrollBarVisibility::None:
+                is_vertical_scroll_bar_visible_ = false;
+                break;
+            case ScrollBarVisibility::Auto:
+                UpdateScrollBarVisibility();
+            }
+            InvalidateDraw();
+        }
+
+    }
+
+    void ScrollControl::SetScrollOffset(std::optional<float> x, std::optional<float> y)
+    {
+        CoerceAndSetOffsets(x.value_or(GetScrollOffsetX()), y.value_or(GetScrollOffsetY()));
+    }
+
+    void ScrollControl::SetViewWidth(const float length)
+    {
+        view_width_ = length;
+    }
+
+    void ScrollControl::SetViewHeight(const float length)
+    {
+        view_height_ = length;
+    }
+
+    Size ScrollControl::OnMeasureContent(const Size& available_size)
+    {
+        const auto layout_params = GetLayoutParams();
+
+        auto available_size_for_children = available_size;
+        if (IsHorizontalScrollEnabled())
+        {
+            if (layout_params->width.mode == MeasureMode::Content)
+                debug::DebugMessage(L"ScrollControl: Width measure mode is Content and horizontal scroll is enabled. So Stretch is used instead.");
+
+            for (auto child : GetChildren())
+            {
+                const auto child_layout_params = child->GetLayoutParams();
+                if (child_layout_params->width.mode == MeasureMode::Stretch)
+                    throw std::runtime_error(Format("ScrollControl: Horizontal scroll is enabled but a child {} 's width measure mode is Stretch which may cause infinite length.", ToUtf8String(child->GetControlType())));
+            }
+
+            available_size_for_children.width = std::numeric_limits<float>::max();
+        }
+
+        if (IsVerticalScrollEnabled())
+        {
+            if (layout_params->height.mode == MeasureMode::Content)
+                debug::DebugMessage(L"ScrollControl: Height measure mode is Content and vertical scroll is enabled. So Stretch is used instead.");
+
+            for (auto child : GetChildren())
+            {
+                const auto child_layout_params = child->GetLayoutParams();
+                if (child_layout_params->height.mode == MeasureMode::Stretch)
+                    throw std::runtime_error(Format("ScrollControl: Vertical scroll is enabled but a child {} 's height measure mode is Stretch which may cause infinite length.", ToUtf8String(child->GetControlType())));
+            }
+
+            available_size_for_children.height = std::numeric_limits<float>::max();
+        }
+
+        auto max_child_size = Size::Zero();
+        for (auto control: GetChildren())
+        {
+            control->Measure(available_size_for_children);
+            const auto&& size = control->GetDesiredSize();
+            if (max_child_size.width < size.width)
+                max_child_size.width = size.width;
+            if (max_child_size.height < size.height)
+                max_child_size.height = size.height;
+        }
+
+        // coerce size fro stretch.
+        for (auto control: GetChildren())
+        {
+            auto size = control->GetDesiredSize();
+            const auto child_layout_params = control->GetLayoutParams();
+            if (child_layout_params->width.mode == MeasureMode::Stretch)
+                size.width = max_child_size.width;
+            if (child_layout_params->height.mode == MeasureMode::Stretch)
+                size.height = max_child_size.height;
+            control->SetDesiredSize(size);
+        }
+
+        auto result = max_child_size;
+        if (IsHorizontalScrollEnabled())
+        {
+            SetViewWidth(max_child_size.width);
+            result.width = available_size.width;
+        }
+        if (IsVerticalScrollEnabled())
+        {
+            SetViewHeight(max_child_size.height);
+            result.height = available_size.height;
+        }
+
+        return result;
+    }
+
+    void ScrollControl::OnLayoutContent(const Rect& rect)
+    {
+        auto layout_rect = rect;
+
+        if (IsHorizontalScrollEnabled())
+            layout_rect.width = GetViewWidth();
+        if (IsVerticalScrollEnabled())
+            layout_rect.height = GetViewHeight();
+
+        for (auto control: GetChildren())
+        {
+            const auto size = control->GetDesiredSize();
+            // Ignore alignment, always center aligned.
+            auto&& calculate_anchor = [](const float anchor, const float layout_length, const float control_length, const float offset) -> float
+            {
+                return anchor + (layout_length - control_length) / 2 - offset;
+            };
+
+            control->Layout(Rect(Point(
+                calculate_anchor(rect.left, layout_rect.width, size.width, offset_x_),
+                calculate_anchor(rect.top, layout_rect.height, size.height, offset_y_)
+            ), size));
+        }
+    }
+
+    void ScrollControl::AfterLayoutSelf()
+    {
+        UpdateScrollBarBorderInfo();
+        CoerceAndSetOffsets(offset_x_, offset_y_, false);
+        UpdateScrollBarVisibility();
+    }
+
+    void ScrollControl::OnDrawForeground(ID2D1DeviceContext* device_context)
+    {
+        Control::OnDrawForeground(device_context);
+
+        const auto predefined = UiManager::GetInstance()->GetPredefineResources();
+
+        if (is_horizontal_scroll_bar_visible_)
+        {
+            device_context->FillRectangle(
+                Convert(horizontal_bar_info_.border),
+                predefined->scroll_bar_background_brush.Get()
+            );
+
+            device_context->FillRectangle(
+                Convert(horizontal_bar_info_.bar),
+                predefined->scroll_bar_brush.Get()
+            );
+
+            device_context->DrawLine(
+                Convert(horizontal_bar_info_.border.GetLeftTop()),
+                Convert(horizontal_bar_info_.border.GetRightTop()),
+                predefined->scroll_bar_border_brush.Get()
+            );
+        }
+
+        if (is_vertical_scroll_bar_visible_)
+        {
+            device_context->FillRectangle(
+                Convert(vertical_bar_info_.border),
+                predefined->scroll_bar_background_brush.Get()
+            );
+
+            device_context->FillRectangle(
+                Convert(vertical_bar_info_.bar),
+                predefined->scroll_bar_brush.Get()
+            );
+
+            device_context->DrawLine(
+                Convert(vertical_bar_info_.border.GetLeftTop()),
+                Convert(vertical_bar_info_.border.GetLeftBottom()),
+                predefined->scroll_bar_border_brush.Get()
+            );
+        }
+    }
+
+    void ScrollControl::OnMouseDownCore(events::MouseButtonEventArgs& args)
+    {
+        Control::OnMouseDownCore(args);
+
+        if (args.GetMouseButton() == MouseButton::Left)
+        {
+            const auto point = args.GetPoint(this);
+            if (is_vertical_scroll_bar_visible_ && vertical_bar_info_.bar.IsPointInside(point))
+            {
+                GetWindow()->CaptureMouseFor(this);
+                is_pressing_scroll_bar_ = Orientation::Vertical;
+                pressing_delta_ = point.y - vertical_bar_info_.bar.top;
+                return;
+            }
+
+            if (is_horizontal_scroll_bar_visible_ && horizontal_bar_info_.bar.IsPointInside(point))
+            {
+                GetWindow()->CaptureMouseFor(this);
+                pressing_delta_ = point.x - horizontal_bar_info_.bar.left;
+                is_pressing_scroll_bar_ = Orientation::Horizontal;
+                return;
+            }
+        }
+    }
+
+    void ScrollControl::OnMouseMoveCore(events::MouseEventArgs& args)
+    {
+        Control::OnMouseMoveCore(args);
+
+        const auto mouse_point = args.GetPoint(this);
+
+        if (is_pressing_scroll_bar_ == Orientation::Horizontal)
+        {
+            const auto new_head_position = mouse_point.x - pressing_delta_;
+            const auto new_offset = new_head_position / horizontal_bar_info_.border.width * view_width_;
+            SetScrollOffset(new_offset, std::nullopt);
+            return;
+        }
+
+        if (is_pressing_scroll_bar_ == Orientation::Vertical)
+        {
+            const auto new_head_position = mouse_point.y - pressing_delta_;
+            const auto new_offset = new_head_position / vertical_bar_info_.border.height * view_height_;
+            SetScrollOffset(std::nullopt, new_offset);
+            return;
+        }
+    }
+
+    void ScrollControl::OnMouseUpCore(events::MouseButtonEventArgs& args)
+    {
+        Control::OnMouseUpCore(args);
+
+        if (args.GetMouseButton() == MouseButton::Left && is_pressing_scroll_bar_.has_value())
+        {
+            GetWindow()->ReleaseCurrentMouseCapture();
+            is_pressing_scroll_bar_ = std::nullopt;
+        }
+    }
+
+    void ScrollControl::OnMouseWheelCore(events::MouseWheelEventArgs& args)
+    {
+        Control::OnMouseWheelCore(args);
+
+        constexpr const auto view_delta = 30.0f;
+
+        if (args.GetDelta() == 0.0f)
+            return;
+
+        const auto content_rect = GetRect(RectRange::Content);
+        if (IsVerticalScrollEnabled() && GetScrollOffsetY() != (args.GetDelta() > 0.0f ? 0.0f : AtLeast0(GetViewHeight() - content_rect.height)))
+        {
+            SetScrollOffset(std::nullopt, GetScrollOffsetY() - args.GetDelta() / WHEEL_DELTA * view_delta);
+            return;
+        }
+
+        if (IsHorizontalScrollEnabled() && GetScrollOffsetX() != (args.GetDelta() > 0.0f ? 0.0f : AtLeast0(GetViewWidth() - content_rect.width)))
+        {
+            SetScrollOffset(GetScrollOffsetX() - args.GetDelta() / WHEEL_DELTA * view_delta, std::nullopt);
+            return;
+        }
+    }
+
+    void ScrollControl::CoerceAndSetOffsets(const float offset_x, const float offset_y, const bool update_children)
+    {
+        const auto old_offset_x = offset_x_;
+        const auto old_offset_y = offset_y_;
+
+        const auto content_rect = GetRect(RectRange::Content);
+        offset_x_ = Coerce(offset_x, 0.0f, AtLeast0(view_width_ - content_rect.width));
+        offset_y_ = Coerce(offset_y, 0.0f, AtLeast0(view_height_ - content_rect.height));
+        UpdateScrollBarBarInfo();
+
+        if (update_children)
+        {
+            for (auto child : GetChildren())
+            {
+                const auto old_position = child->GetPositionRelative();
+                child->SetPositionRelative(Point(
+                    old_position.x + old_offset_x - offset_x_,
+                    old_position.y + old_offset_y - offset_y_
+                ));
+            }
+        }
+        InvalidateDraw();
+    }
+
+    void ScrollControl::UpdateScrollBarVisibility()
+    {
+        const auto content_rect = GetRect(RectRange::Content);
+        if (GetHorizontalScrollBarVisibility() == ScrollBarVisibility::Auto)
+            is_horizontal_scroll_bar_visible_ = view_width_ > content_rect.width;
+        if (GetVerticalScrollBarVisibility() == ScrollBarVisibility::Auto)
+            is_vertical_scroll_bar_visible_ = view_height_ > content_rect.height;
+    }
+
+    void ScrollControl::UpdateScrollBarBorderInfo()
+    {
+        const auto content_rect = GetRect(RectRange::Content);
+        horizontal_bar_info_.border = Rect(content_rect.left, content_rect.GetBottom() - scroll_bar_width, content_rect.width, scroll_bar_width);
+        vertical_bar_info_.border = Rect(content_rect.GetRight() - scroll_bar_width , content_rect.top, scroll_bar_width, content_rect.height);
+    }
+
+    void ScrollControl::UpdateScrollBarBarInfo()
+    {
+        const auto content_rect = GetRect(RectRange::Content);
+        {
+            const auto& border = horizontal_bar_info_.border;
+            if (view_width_ <= content_rect.width)
+                horizontal_bar_info_.bar = border;
+            else
+            {
+                const auto bar_length =  border.width * content_rect.width / view_width_;
+                const auto offset = border.width * offset_x_ / view_width_;
+                horizontal_bar_info_.bar = Rect(border.left + offset, border.top, bar_length, border.height);
+            }
+        }
+        {
+            const auto& border = vertical_bar_info_.border;
+            if (view_height_ <= content_rect.height)
+                vertical_bar_info_.bar = border;
+            else
+            {
+                const auto bar_length =  border.height * content_rect.height / view_height_;
+                const auto offset = border.height * offset_y_ / view_height_;
+                vertical_bar_info_.bar = Rect(border.left, border.top + offset, border.width, bar_length);
+            }
+        }
+    }
+}
+//--------------------------------------------------------
+//-------end of file: src\ui\controls\scroll_control.cpp
+//--------------------------------------------------------
+//--------------------------------------------------------
 //-------begin of file: src\ui\controls\text_block.cpp
 //--------------------------------------------------------
 
@@ -3640,6 +4148,8 @@ namespace cru::ui::controls
         brush_ = init_brush;
 
         selection_brush_ = UiManager::GetInstance()->GetPredefineResources()->text_control_selection_brush;
+
+        SetClipContent(true);
     }
 
 

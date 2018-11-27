@@ -8,6 +8,7 @@
 #include "exception.hpp"
 #include "cru_debug.hpp"
 #include "convert_util.hpp"
+#include "math_util.hpp"
 
 #ifdef CRU_DEBUG_LAYOUT
 #include "ui_manager.hpp"
@@ -191,24 +192,65 @@ namespace cru::ui
 
     bool Control::IsPointInside(const Point & point)
     {
-        if (border_geometry_ != nullptr)
+        const auto border_geometry = geometry_info_.border_geometry;
+        if (border_geometry != nullptr)
         {
             if (IsBordered())
             {
                 BOOL contains;
-                border_geometry_->FillContainsPoint(Convert(point), D2D1::Matrix3x2F::Identity(), &contains);
+                border_geometry->FillContainsPoint(Convert(point), D2D1::Matrix3x2F::Identity(), &contains);
                 if (!contains)
-                    border_geometry_->StrokeContainsPoint(Convert(point), GetBorderProperty().GetStrokeWidth(), nullptr, D2D1::Matrix3x2F::Identity(), &contains);
+                    border_geometry->StrokeContainsPoint(Convert(point), GetBorderProperty().GetStrokeWidth(), nullptr, D2D1::Matrix3x2F::Identity(), &contains);
                 return contains != 0;
             }
             else
             {
                 BOOL contains;
-                border_geometry_->FillContainsPoint(Convert(point), D2D1::Matrix3x2F::Identity(), &contains);
+                border_geometry->FillContainsPoint(Convert(point), D2D1::Matrix3x2F::Identity(), &contains);
                 return contains != 0;
             }
         }
         return false;
+    }
+
+    Control* Control::HitTest(const Point& point)
+    {
+        const auto point_inside = IsPointInside(point);
+
+        if (IsClipContent())
+        {
+            if (!point_inside)
+                return nullptr;
+            if (geometry_info_.content_geometry != nullptr)
+            {
+                BOOL contains;
+                ThrowIfFailed(geometry_info_.content_geometry->FillContainsPoint(Convert(point), D2D1::Matrix3x2F::Identity(), &contains));
+                if (contains == 0)
+                    return this;
+            }
+        }
+
+        const auto& children = GetChildren();
+
+        for (auto i = children.crbegin(); i != children.crend(); ++i)
+        {
+            const auto&& lefttop = (*i)->GetPositionRelative();
+            const auto&& coerced_point = Point(point.x - lefttop.x, point.y - lefttop.y);
+            const auto child_hit_test_result = (*i)->HitTest(coerced_point);
+            if (child_hit_test_result != nullptr)
+                return child_hit_test_result;
+        }
+
+        return point_inside ? this : nullptr;
+    }
+
+    void Control::SetClipContent(const bool clip)
+    {
+        if (clip_content_ == clip)
+            return;
+
+        clip_content_ = clip;
+        InvalidateDraw();
     }
 
     void Control::Draw(ID2D1DeviceContext* device_context)
@@ -219,10 +261,19 @@ namespace cru::ui
         const auto position = GetPositionRelative();
         device_context->SetTransform(old_transform * D2D1::Matrix3x2F::Translation(position.x, position.y));
 
+        OnDrawDecoration(device_context);
+
+        const auto set_layer = geometry_info_.content_geometry != nullptr && IsClipContent();
+        if (set_layer)
+            device_context->PushLayer(D2D1::LayerParameters(D2D1::InfiniteRect(), geometry_info_.content_geometry.Get()), nullptr);
+
         OnDrawCore(device_context);
 
         for (auto child : GetChildren())
             child->Draw(device_context);
+
+        if (set_layer)
+            device_context->PopLayer();
 
         device_context->SetTransform(old_transform);
     }
@@ -266,6 +317,7 @@ namespace cru::ui
     {
         SetPositionRelative(rect.GetLeftTop());
         SetSize(rect.GetSize());
+        AfterLayoutSelf();
         OnLayoutCore(Rect(Point::Zero(), rect.GetSize()));
     }
 
@@ -335,7 +387,7 @@ namespace cru::ui
 
     void Control::UpdateBorder()
     {
-        RegenerateBorderGeometry();
+        RegenerateGeometryInfo();
         InvalidateLayout();
         InvalidateDraw();
     }
@@ -367,7 +419,6 @@ namespace cru::ui
             child->TraverseDescendants([window](Control* control) {
                 control->OnAttachToWindow(window);
             });
-            window->RefreshControlList();
             InvalidateLayout();
         }
     }
@@ -379,7 +430,6 @@ namespace cru::ui
             child->TraverseDescendants([window](Control* control) {
                 control->OnDetachToWindow(window);
             });
-            window->RefreshControlList();
             InvalidateLayout();
         }
     }
@@ -394,9 +444,9 @@ namespace cru::ui
         window_ = nullptr;
     }
 
-    void Control::OnDrawCore(ID2D1DeviceContext* device_context)
+    void Control::OnDrawDecoration(ID2D1DeviceContext* device_context)
     {
-        #ifdef CRU_DEBUG_LAYOUT
+#ifdef CRU_DEBUG_LAYOUT
         if (GetWindow()->IsDebugLayout())
         {
             if (padding_geometry_ != nullptr)
@@ -407,17 +457,21 @@ namespace cru::ui
         }
 #endif
 
-        if (is_bordered_ && border_geometry_ != nullptr)
+        if (is_bordered_ && geometry_info_.border_geometry != nullptr)
             device_context->DrawGeometry(
-                border_geometry_.Get(),
+                geometry_info_.border_geometry.Get(),
                 GetBorderProperty().GetBrush().Get(),
                 GetBorderProperty().GetStrokeWidth(),
                 GetBorderProperty().GetStrokeStyle().Get()
             );
+    }
 
+    void Control::OnDrawCore(ID2D1DeviceContext* device_context)
+    {
+        const auto ground_geometry = geometry_info_.padding_content_geometry;
         //draw background.
-        if (in_border_geometry_ != nullptr && background_brush_ != nullptr)
-            device_context->FillGeometry(in_border_geometry_.Get(), background_brush_.Get());
+        if (ground_geometry != nullptr && background_brush_ != nullptr)
+            device_context->FillGeometry(ground_geometry.Get(), background_brush_.Get());
         const auto padding_rect = GetRect(RectRange::Padding);
         graph::WithTransform(device_context, D2D1::Matrix3x2F::Translation(padding_rect.left, padding_rect.top),
             [this](ID2D1DeviceContext* device_context)
@@ -439,8 +493,8 @@ namespace cru::ui
 
 
         //draw foreground.
-        if (in_border_geometry_ != nullptr && foreground_brush_ != nullptr)
-            device_context->FillGeometry(in_border_geometry_.Get(), foreground_brush_.Get());
+        if (ground_geometry != nullptr && foreground_brush_ != nullptr)
+            device_context->FillGeometry(ground_geometry.Get(), foreground_brush_.Get());
         graph::WithTransform(device_context, D2D1::Matrix3x2F::Translation(padding_rect.left, padding_rect.top),
             [this](ID2D1DeviceContext* device_context)
             {
@@ -502,7 +556,7 @@ namespace cru::ui
 
     void Control::OnSizeChangedCore(SizeChangedEventArgs & args)
     {
-        RegenerateBorderGeometry();
+        RegenerateGeometryInfo();
 #ifdef CRU_DEBUG_LAYOUT
         margin_geometry_ = CalculateSquareRingGeometry(GetRect(RectRange::Margin), GetRect(RectRange::FullBorder));
         padding_geometry_ = CalculateSquareRingGeometry(GetRect(RectRange::Padding), GetRect(RectRange::Content));
@@ -523,7 +577,7 @@ namespace cru::ui
         size_changed_event.Raise(args);
     }
 
-    void Control::RegenerateBorderGeometry()
+    void Control::RegenerateGeometryInfo()
     {
         if (IsBordered())
         {
@@ -536,10 +590,10 @@ namespace cru::ui
             ThrowIfFailed(
                 graph::GraphManager::GetInstance()->GetD2D1Factory()->CreateRoundedRectangleGeometry(bound_rounded_rect, &geometry)
             );
-            border_geometry_ = std::move(geometry);
+            geometry_info_.border_geometry = std::move(geometry);
 
-            const auto in_border_rect = GetRect(RectRange::Padding);
-            const auto in_border_rounded_rect = D2D1::RoundedRect(Convert(in_border_rect),
+            const auto padding_rect = GetRect(RectRange::Padding);
+            const auto in_border_rounded_rect = D2D1::RoundedRect(Convert(padding_rect),
                 GetBorderProperty().GetRadiusX() - GetBorderProperty().GetStrokeWidth() / 2.0f,
                 GetBorderProperty().GetRadiusY() - GetBorderProperty().GetStrokeWidth() / 2.0f);
 
@@ -547,7 +601,24 @@ namespace cru::ui
             ThrowIfFailed(
                 graph::GraphManager::GetInstance()->GetD2D1Factory()->CreateRoundedRectangleGeometry(in_border_rounded_rect, &geometry2)
             );
-            in_border_geometry_ = std::move(geometry2);
+            geometry_info_.padding_content_geometry = geometry2;
+
+
+            Microsoft::WRL::ComPtr<ID2D1RectangleGeometry> geometry3;
+            ThrowIfFailed(
+                graph::GraphManager::GetInstance()->GetD2D1Factory()->CreateRectangleGeometry(Convert(GetRect(RectRange::Content)), &geometry3)
+            );
+            Microsoft::WRL::ComPtr<ID2D1PathGeometry> geometry4;
+            ThrowIfFailed(
+                graph::GraphManager::GetInstance()->GetD2D1Factory()->CreatePathGeometry(&geometry4)
+            );
+            Microsoft::WRL::ComPtr<ID2D1GeometrySink> sink;
+            geometry4->Open(&sink);
+            ThrowIfFailed(
+                geometry3->CombineWithGeometry(geometry2.Get(), D2D1_COMBINE_MODE_INTERSECT, D2D1::Matrix3x2F::Identity(), sink.Get())
+            );
+            sink->Close();
+            geometry_info_.content_geometry = std::move(geometry4);
         }
         else
         {
@@ -556,8 +627,14 @@ namespace cru::ui
             ThrowIfFailed(
                 graph::GraphManager::GetInstance()->GetD2D1Factory()->CreateRectangleGeometry(Convert(bound_rect), &geometry)
             );
-            border_geometry_ = geometry;
-            in_border_geometry_ = std::move(geometry);
+            geometry_info_.border_geometry = geometry;
+            geometry_info_.padding_content_geometry = std::move(geometry);
+
+            Microsoft::WRL::ComPtr<ID2D1RectangleGeometry> geometry2;
+            ThrowIfFailed(
+                graph::GraphManager::GetInstance()->GetD2D1Factory()->CreateRectangleGeometry(Convert(GetRect(RectRange::Content)), &geometry2)
+            );
+            geometry_info_.content_geometry = std::move(geometry2);
         }
     }
 
@@ -632,6 +709,16 @@ namespace cru::ui
 
     }
 
+    void Control::OnMouseWheel(events::MouseWheelEventArgs& args)
+    {
+
+    }
+
+    void Control::OnMouseWheelCore(events::MouseWheelEventArgs& args)
+    {
+
+    }
+
     void Control::RaiseMouseEnterEvent(MouseEventArgs& args)
     {
         OnMouseEnterCore(args);
@@ -672,6 +759,13 @@ namespace cru::ui
         OnMouseClickCore(args);
         OnMouseClick(args);
         mouse_click_event.Raise(args);
+    }
+
+    void Control::RaiseMouseWheelEvent(MouseWheelEventArgs& args)
+    {
+        OnMouseWheelCore(args);
+        OnMouseWheel(args);
+        mouse_wheel_event.Raise(args);
     }
 
     void Control::OnMouseClickBegin(MouseButton button)
@@ -834,7 +928,7 @@ namespace cru::ui
             auto parent = GetParent();
             while (parent != nullptr)
             {
-                auto lp = parent->GetLayoutParams();
+                const auto lp = parent->GetLayoutParams();
 
                 if (!stretch_width_determined)
                 {
@@ -967,6 +1061,11 @@ namespace cru::ui
                 calculate_anchor(rect.top, layout_params->height.alignment, rect.height, size.height)
             ), size));
         }
+    }
+
+    void Control::AfterLayoutSelf()
+    {
+
     }
 
     void Control::CheckAndNotifyPositionChanged()

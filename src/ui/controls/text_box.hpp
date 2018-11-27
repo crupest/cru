@@ -1,5 +1,8 @@
 #pragma once
 
+// ReSharper disable once CppUnusedIncludeDirective
+#include "pre.hpp"
+
 #include "text_control.hpp"
 #include "timer.hpp"
 

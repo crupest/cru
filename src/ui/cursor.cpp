@@ -21,5 +21,12 @@ namespace cru::ui
         Cursor::Ptr arrow{};
         Cursor::Ptr hand{};
         Cursor::Ptr i_beam{};
+
+        void LoadSystemCursors()
+        {
+            arrow = std::make_shared<Cursor>(::LoadCursorW(nullptr, IDC_ARROW), false);
+            hand = std::make_shared<Cursor>(::LoadCursorW(nullptr, IDC_HAND), false);
+            i_beam = std::make_shared<Cursor>(::LoadCursorW(nullptr, IDC_IBEAM), false);
+        }
     }
 }

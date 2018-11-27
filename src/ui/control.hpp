@@ -1,5 +1,8 @@
 #pragma once
 
+// ReSharper disable once CppUnusedIncludeDirective
+#include "pre.hpp"
+
 #include "system_headers.hpp"
 #include <unordered_map>
 #include <any>
@@ -26,10 +29,20 @@ namespace cru::ui
         Point lefttop_position_absolute;
     };
 
+
     class Control : public Object
     {
         friend class Window;
         friend class LayoutManager;
+
+    protected:
+        struct GeometryInfo
+        {
+            Microsoft::WRL::ComPtr<ID2D1Geometry> border_geometry = nullptr;
+            Microsoft::WRL::ComPtr<ID2D1Geometry> padding_content_geometry = nullptr;
+            Microsoft::WRL::ComPtr<ID2D1Geometry> content_geometry = nullptr;
+        };
+
 
     protected:
         struct WindowConstructorTag {}; //Used for constructor for class Window. 
@@ -121,8 +134,17 @@ namespace cru::ui
         // fill and stroke with width of border.
         virtual bool IsPointInside(const Point& point);
 
+        // Get the top control among all descendants (including self) in local coordinate.
+        virtual Control* HitTest(const Point& point);
 
         //*************** region: graphic ***************
+
+        bool IsClipContent() const
+        {
+            return clip_content_;
+        }
+
+        void SetClipContent(bool clip);
 
         //Draw this control and its child controls.
         void Draw(ID2D1DeviceContext* device_context);
@@ -239,6 +261,8 @@ namespace cru::ui
         //Raised when a mouse button is pressed in the control and released in the control with mouse not leaving it between two operations.
         events::MouseButtonEvent mouse_click_event;
 
+        events::MouseWheelEvent mouse_wheel_event;
+
         events::KeyEvent key_down_event;
         events::KeyEvent key_up_event;
         events::CharEvent char_event;
@@ -264,12 +288,11 @@ namespace cru::ui
         //Invoked when the control is detached to a window. Overrides should invoke base.
         virtual void OnDetachToWindow(Window* window);
 
-    private:
-        void OnDrawCore(ID2D1DeviceContext* device_context);
-
-    protected:
-
         //*************** region: graphic events ***************
+    private:
+        void OnDrawDecoration(ID2D1DeviceContext* device_context);
+        void OnDrawCore(ID2D1DeviceContext* device_context);
+    protected:
         virtual void OnDrawContent(ID2D1DeviceContext* device_context);
         virtual void OnDrawForeground(ID2D1DeviceContext* device_context);
         virtual void OnDrawBackground(ID2D1DeviceContext* device_context);
@@ -291,7 +314,12 @@ namespace cru::ui
         void RaisePositionChangedEvent(events::PositionChangedEventArgs& args);
         void RaiseSizeChangedEvent(events::SizeChangedEventArgs& args);
 
-        void RegenerateBorderGeometry();
+        void RegenerateGeometryInfo();
+
+        const GeometryInfo& GetGeometryInfo() const
+        {
+            return geometry_info_;
+        }
 
         //*************** region: mouse event ***************
         virtual void OnMouseEnter(events::MouseEventArgs& args);
@@ -308,12 +336,17 @@ namespace cru::ui
         virtual void OnMouseUpCore(events::MouseButtonEventArgs& args);
         virtual void OnMouseClickCore(events::MouseButtonEventArgs& args);
 
+        virtual void OnMouseWheel(events::MouseWheelEventArgs& args);
+        virtual void OnMouseWheelCore(events::MouseWheelEventArgs& args);
+
         void RaiseMouseEnterEvent(events::MouseEventArgs& args);
         void RaiseMouseLeaveEvent(events::MouseEventArgs& args);
         void RaiseMouseMoveEvent(events::MouseEventArgs& args);
         void RaiseMouseDownEvent(events::MouseButtonEventArgs& args);
         void RaiseMouseUpEvent(events::MouseButtonEventArgs& args);
         void RaiseMouseClickEvent(events::MouseButtonEventArgs& args);
+
+        void RaiseMouseWheelEvent(events::MouseWheelEventArgs& args);
 
         virtual void OnMouseClickBegin(MouseButton button);
         virtual void OnMouseClickEnd(MouseButton button);
@@ -348,6 +381,9 @@ namespace cru::ui
         virtual Size OnMeasureContent(const Size& available_size);
         virtual void OnLayoutContent(const Rect& rect);
 
+        // Called by Layout after set position and size.
+        virtual void AfterLayoutSelf();
+
     private:
         // Only for layout manager to use.
         // Check if the old position is updated to current position.
@@ -364,10 +400,8 @@ namespace cru::ui
     private:
         bool is_container_;
 
-    protected:
-        Window * window_ = nullptr; // protected for Window class to write it as itself in constructor.
+        Window * window_ = nullptr;
 
-    private:
         Control * parent_ = nullptr;
         std::vector<Control*> children_{};
 
@@ -397,8 +431,9 @@ namespace cru::ui
         bool is_bordered_ = false;
         BorderProperty border_property_;
 
-        Microsoft::WRL::ComPtr<ID2D1Geometry> border_geometry_ = nullptr;
-        Microsoft::WRL::ComPtr<ID2D1Geometry> in_border_geometry_ = nullptr; //used for foreground and background brush.
+        GeometryInfo geometry_info_{};
+
+        bool clip_content_ = false;
 
         Microsoft::WRL::ComPtr<ID2D1Brush> foreground_brush_ = nullptr;
         Microsoft::WRL::ComPtr<ID2D1Brush> background_brush_ = nullptr;

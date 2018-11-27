@@ -1,5 +1,8 @@
 #pragma once
 
+// ReSharper disable once CppUnusedIncludeDirective
+#include "pre.hpp"
+
 #include <optional>
 
 
@@ -148,6 +151,16 @@ namespace cru::ui
         constexpr Point GetRightBottom() const
         {
             return Point(left + width, top + height);
+        }
+
+        constexpr Point GetLeftBottom() const
+        {
+            return Point(left, top + height);
+        }
+
+        constexpr Point GetRightTop() const
+        {
+            return Point(left + width, top);
         }
 
         constexpr Size GetSize() const

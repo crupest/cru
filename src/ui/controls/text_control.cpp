@@ -19,6 +19,8 @@ namespace cru::ui::controls
         brush_ = init_brush;
 
         selection_brush_ = UiManager::GetInstance()->GetPredefineResources()->text_control_selection_brush;
+
+        SetClipContent(true);
     }
 
 

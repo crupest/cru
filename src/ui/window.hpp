@@ -1,8 +1,10 @@
 #pragma once
 
+// ReSharper disable once CppUnusedIncludeDirective
+#include "pre.hpp"
+
 #include "system_headers.hpp"
 #include <map>
-#include <list>
 #include <memory>
 
 #include "control.hpp"
@@ -208,15 +210,6 @@ namespace cru::ui
 
         void SetSizeFitContent(const Size& max_size = Size(1000, 1000));
 
-        //*************** region: functions ***************
-
-        //Refresh control list.
-        //It should be invoked every time a control is added or removed from the tree.
-        void RefreshControlList();
-
-        //Get the most top control at "point".
-        Control* HitTest(const Point& point);
-
 
         //*************** region: focus ***************
 
@@ -277,7 +270,8 @@ namespace cru::ui
         void OnMouseLeaveInternal();
         void OnMouseDownInternal(MouseButton button, POINT point);
         void OnMouseUpInternal(MouseButton button, POINT point);
- 
+
+        void OnMouseWheelInternal(short delta, POINT point);
         void OnKeyDownInternal(int virtual_code);
         void OnKeyUpInternal(int virtual_code);
         void OnCharInternal(wchar_t c);
@@ -319,8 +313,6 @@ namespace cru::ui
         HWND hwnd_ = nullptr;
         Window* parent_window_ = nullptr;
         std::shared_ptr<graph::WindowRenderTarget> render_target_{};
- 
-        std::list<Control*> control_list_{};
  
         Control* mouse_hover_control_ = nullptr;
  

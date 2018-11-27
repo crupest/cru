@@ -1,5 +1,8 @@
 #pragma once
 
+// ReSharper disable once CppUnusedIncludeDirective
+#include "pre.hpp"
+
 #include "system_headers.hpp"
 #include <memory>
 
@@ -33,6 +36,8 @@ namespace cru::ui
     {
         extern Cursor::Ptr arrow;
         extern Cursor::Ptr hand;
-        extern Cursor::Ptr i_beam;        
+        extern Cursor::Ptr i_beam;
+
+        void LoadSystemCursors();
     }
 }

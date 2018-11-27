@@ -1,5 +1,8 @@
 #pragma once
 
+// ReSharper disable once CppUnusedIncludeDirective
+#include "pre.hpp"
+
 #include "system_headers.hpp"
 #include <optional>
 
@@ -82,6 +85,30 @@ namespace cru::ui::events
 
     private:
         MouseButton button_;
+    };
+
+
+    class MouseWheelEventArgs : public MouseEventArgs
+    {
+    public:
+        MouseWheelEventArgs(Object* sender, Object* original_sender, const Point& point, const float delta)
+            : MouseEventArgs(sender, original_sender, point), delta_(delta)
+        {
+
+        }
+        MouseWheelEventArgs(const MouseWheelEventArgs& other) = default;
+        MouseWheelEventArgs(MouseWheelEventArgs&& other) = default;
+        MouseWheelEventArgs& operator=(const MouseWheelEventArgs& other) = default;
+        MouseWheelEventArgs& operator=(MouseWheelEventArgs&& other) = default;
+        ~MouseWheelEventArgs() override = default;
+
+        float GetDelta() const
+        {
+            return delta_;
+        }
+
+    private:
+        float delta_;
     };
 
 
@@ -304,6 +331,7 @@ namespace cru::ui::events
     using UiEvent = Event<UiEventArgs>;
     using MouseEvent = Event<MouseEventArgs>;
     using MouseButtonEvent = Event<MouseButtonEventArgs>;
+    using MouseWheelEvent = Event<MouseWheelEventArgs>;
     using DrawEvent = Event<DrawEventArgs>;
     using PositionChangedEvent = Event<PositionChangedEventArgs>;
     using SizeChangedEvent = Event<SizeChangedEventArgs>;

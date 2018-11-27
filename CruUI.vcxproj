@@ -133,14 +133,17 @@
     <ClCompile Include="src\ui\controls\linear_layout.cpp" />
     <ClCompile Include="src\ui\controls\list_item.cpp" />
     <ClCompile Include="src\ui\controls\popup_menu.cpp" />
+    <ClCompile Include="src\ui\controls\scroll_control.cpp" />
     <ClCompile Include="src\ui\controls\text_block.cpp" />
     <ClCompile Include="src\ui\controls\text_box.cpp" />
     <ClInclude Include="src\any_map.hpp" />
     <ClInclude Include="src\format.hpp" />
+    <ClInclude Include="src\math_util.hpp" />
     <ClInclude Include="src\ui\border_property.hpp" />
     <ClInclude Include="src\ui\controls\frame_layout.hpp" />
     <ClInclude Include="src\ui\controls\list_item.hpp" />
     <ClInclude Include="src\ui\controls\popup_menu.hpp" />
+    <ClInclude Include="src\ui\controls\scroll_control.hpp" />
     <ClInclude Include="src\ui\controls\text_control.hpp" />
     <ClCompile Include="src\ui\controls\toggle_button.cpp" />
     <ClCompile Include="src\ui\cursor.cpp" />
@@ -156,7 +159,7 @@
     <ClInclude Include="src\cru_event.hpp" />
     <ClInclude Include="src\cru_debug.hpp" />
     <ClInclude Include="src\exception.hpp" />
-    <ClInclude Include="src\global_macros.hpp" />
+    <ClInclude Include="src\pre.hpp" />
     <ClInclude Include="src\graph\graph.hpp" />
     <ClInclude Include="src\system_headers.hpp" />
     <ClInclude Include="src\timer.hpp" />
