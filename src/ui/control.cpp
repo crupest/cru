@@ -709,6 +709,16 @@ namespace cru::ui
 
     }
 
+    void Control::OnMouseWheel(events::MouseWheelEventArgs& args)
+    {
+
+    }
+
+    void Control::OnMouseWheelCore(events::MouseWheelEventArgs& args)
+    {
+
+    }
+
     void Control::RaiseMouseEnterEvent(MouseEventArgs& args)
     {
         OnMouseEnterCore(args);
@@ -749,6 +759,13 @@ namespace cru::ui
         OnMouseClickCore(args);
         OnMouseClick(args);
         mouse_click_event.Raise(args);
+    }
+
+    void Control::RaiseMouseWheelEvent(MouseWheelEventArgs& args)
+    {
+        OnMouseWheelCore(args);
+        OnMouseWheel(args);
+        mouse_wheel_event.Raise(args);
     }
 
     void Control::OnMouseClickBegin(MouseButton button)

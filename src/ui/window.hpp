@@ -270,7 +270,8 @@ namespace cru::ui
         void OnMouseLeaveInternal();
         void OnMouseDownInternal(MouseButton button, POINT point);
         void OnMouseUpInternal(MouseButton button, POINT point);
- 
+
+        void OnMouseWheelInternal(short delta, POINT point);
         void OnKeyDownInternal(int virtual_code);
         void OnKeyUpInternal(int virtual_code);
         void OnCharInternal(wchar_t c);

@@ -308,6 +308,29 @@ namespace cru::ui::controls
         }
     }
 
+    void ScrollControl::OnMouseWheelCore(events::MouseWheelEventArgs& args)
+    {
+        Control::OnMouseWheelCore(args);
+
+        constexpr const auto view_delta = 30.0f;
+
+        if (args.GetDelta() == 0.0f)
+            return;
+
+        const auto content_rect = GetRect(RectRange::Content);
+        if (IsVerticalScrollEnabled() && GetScrollOffsetY() != (args.GetDelta() > 0.0f ? 0.0f : AtLeast0(GetViewHeight() - content_rect.height)))
+        {
+            SetScrollOffset(std::nullopt, GetScrollOffsetY() - args.GetDelta() / WHEEL_DELTA * view_delta);
+            return;
+        }
+
+        if (IsHorizontalScrollEnabled() && GetScrollOffsetX() != (args.GetDelta() > 0.0f ? 0.0f : AtLeast0(GetViewWidth() - content_rect.width)))
+        {
+            SetScrollOffset(GetScrollOffsetX() - args.GetDelta() / WHEEL_DELTA * view_delta, std::nullopt);
+            return;
+        }
+    }
+
     void ScrollControl::CoerceAndSetOffsets(const float offset_x, const float offset_y, const bool update_children)
     {
         const auto old_offset_x = offset_x_;

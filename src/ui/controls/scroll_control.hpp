@@ -16,7 +16,7 @@ namespace cru::ui::controls
     // Done: Draw(no need)
     // Done: API
     // Done: ScrollBar
-    // TODO: MouseEvent
+    // Done: MouseEvent
     class ScrollControl : public Control
     {
     private:
@@ -127,6 +127,8 @@ namespace cru::ui::controls
         void OnMouseDownCore(events::MouseButtonEventArgs& args) override final;
         void OnMouseMoveCore(events::MouseEventArgs& args) override final;
         void OnMouseUpCore(events::MouseButtonEventArgs& args) override final;
+
+        void OnMouseWheelCore(events::MouseWheelEventArgs& args) override;
 
     private:
         void CoerceAndSetOffsets(float offset_x, float offset_y, bool update_children = true);

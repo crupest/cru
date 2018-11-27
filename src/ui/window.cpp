@@ -412,6 +412,14 @@ namespace cru::ui
             result = 0;
             return true;
         }
+        case WM_MOUSEWHEEL:
+            POINT point;
+            point.x = GET_X_LPARAM(l_param);
+            point.y = GET_Y_LPARAM(l_param);
+            ScreenToClient(hwnd, &point);
+            OnMouseWheelInternal(GET_WHEEL_DELTA_WPARAM(w_param), point);
+            result = 0;
+            return true;
         case WM_KEYDOWN:
             OnKeyDownInternal(static_cast<int>(w_param));
             result = 0;
@@ -720,6 +728,20 @@ namespace cru::ui
             control = HitTest(dip_point);
 
         DispatchEvent(control, &Control::RaiseMouseUpEvent, nullptr, dip_point, button);
+    }
+
+    void Window::OnMouseWheelInternal(short delta, POINT point)
+    {
+        const auto dip_point = PiToDip(point);
+
+        Control* control;
+
+        if (mouse_capture_control_)
+            control = mouse_capture_control_;
+        else
+            control = HitTest(dip_point);
+
+        DispatchEvent(control, &Control::RaiseMouseWheelEvent, nullptr, dip_point, static_cast<float>(delta));
     }
 
     void Window::OnKeyDownInternal(int virtual_code)

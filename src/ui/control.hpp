@@ -261,6 +261,8 @@ namespace cru::ui
         //Raised when a mouse button is pressed in the control and released in the control with mouse not leaving it between two operations.
         events::MouseButtonEvent mouse_click_event;
 
+        events::MouseWheelEvent mouse_wheel_event;
+
         events::KeyEvent key_down_event;
         events::KeyEvent key_up_event;
         events::CharEvent char_event;
@@ -334,12 +336,17 @@ namespace cru::ui
         virtual void OnMouseUpCore(events::MouseButtonEventArgs& args);
         virtual void OnMouseClickCore(events::MouseButtonEventArgs& args);
 
+        virtual void OnMouseWheel(events::MouseWheelEventArgs& args);
+        virtual void OnMouseWheelCore(events::MouseWheelEventArgs& args);
+
         void RaiseMouseEnterEvent(events::MouseEventArgs& args);
         void RaiseMouseLeaveEvent(events::MouseEventArgs& args);
         void RaiseMouseMoveEvent(events::MouseEventArgs& args);
         void RaiseMouseDownEvent(events::MouseButtonEventArgs& args);
         void RaiseMouseUpEvent(events::MouseButtonEventArgs& args);
         void RaiseMouseClickEvent(events::MouseButtonEventArgs& args);
+
+        void RaiseMouseWheelEvent(events::MouseWheelEventArgs& args);
 
         virtual void OnMouseClickBegin(MouseButton button);
         virtual void OnMouseClickEnd(MouseButton button);
