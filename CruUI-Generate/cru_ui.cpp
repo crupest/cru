@@ -1514,6 +1514,16 @@ namespace cru::ui
 
     }
 
+    void Control::OnMouseWheel(events::MouseWheelEventArgs& args)
+    {
+
+    }
+
+    void Control::OnMouseWheelCore(events::MouseWheelEventArgs& args)
+    {
+
+    }
+
     void Control::RaiseMouseEnterEvent(MouseEventArgs& args)
     {
         OnMouseEnterCore(args);
@@ -1554,6 +1564,13 @@ namespace cru::ui
         OnMouseClickCore(args);
         OnMouseClick(args);
         mouse_click_event.Raise(args);
+    }
+
+    void Control::RaiseMouseWheelEvent(MouseWheelEventArgs& args)
+    {
+        OnMouseWheelCore(args);
+        OnMouseWheel(args);
+        mouse_wheel_event.Raise(args);
     }
 
     void Control::OnMouseClickBegin(MouseButton button)
@@ -2598,6 +2615,14 @@ namespace cru::ui
             result = 0;
             return true;
         }
+        case WM_MOUSEWHEEL:
+            POINT point;
+            point.x = GET_X_LPARAM(l_param);
+            point.y = GET_Y_LPARAM(l_param);
+            ScreenToClient(hwnd, &point);
+            OnMouseWheelInternal(GET_WHEEL_DELTA_WPARAM(w_param), point);
+            result = 0;
+            return true;
         case WM_KEYDOWN:
             OnKeyDownInternal(static_cast<int>(w_param));
             result = 0;
@@ -2906,6 +2931,20 @@ namespace cru::ui
             control = HitTest(dip_point);
 
         DispatchEvent(control, &Control::RaiseMouseUpEvent, nullptr, dip_point, button);
+    }
+
+    void Window::OnMouseWheelInternal(short delta, POINT point)
+    {
+        const auto dip_point = PiToDip(point);
+
+        Control* control;
+
+        if (mouse_capture_control_)
+            control = mouse_capture_control_;
+        else
+            control = HitTest(dip_point);
+
+        DispatchEvent(control, &Control::RaiseMouseWheelEvent, nullptr, dip_point, static_cast<float>(delta));
     }
 
     void Window::OnKeyDownInternal(int virtual_code)
@@ -3767,6 +3806,29 @@ namespace cru::ui::controls
         {
             GetWindow()->ReleaseCurrentMouseCapture();
             is_pressing_scroll_bar_ = std::nullopt;
+        }
+    }
+
+    void ScrollControl::OnMouseWheelCore(events::MouseWheelEventArgs& args)
+    {
+        Control::OnMouseWheelCore(args);
+
+        constexpr const auto view_delta = 30.0f;
+
+        if (args.GetDelta() == 0.0f)
+            return;
+
+        const auto content_rect = GetRect(RectRange::Content);
+        if (IsVerticalScrollEnabled() && GetScrollOffsetY() != (args.GetDelta() > 0.0f ? 0.0f : AtLeast0(GetViewHeight() - content_rect.height)))
+        {
+            SetScrollOffset(std::nullopt, GetScrollOffsetY() - args.GetDelta() / WHEEL_DELTA * view_delta);
+            return;
+        }
+
+        if (IsHorizontalScrollEnabled() && GetScrollOffsetX() != (args.GetDelta() > 0.0f ? 0.0f : AtLeast0(GetViewWidth() - content_rect.width)))
+        {
+            SetScrollOffset(GetScrollOffsetX() - args.GetDelta() / WHEEL_DELTA * view_delta, std::nullopt);
+            return;
         }
     }
 

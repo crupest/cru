@@ -1158,6 +1158,30 @@ namespace cru::ui::events
     };
 
 
+    class MouseWheelEventArgs : public MouseEventArgs
+    {
+    public:
+        MouseWheelEventArgs(Object* sender, Object* original_sender, const Point& point, const float delta)
+            : MouseEventArgs(sender, original_sender, point), delta_(delta)
+        {
+
+        }
+        MouseWheelEventArgs(const MouseWheelEventArgs& other) = default;
+        MouseWheelEventArgs(MouseWheelEventArgs&& other) = default;
+        MouseWheelEventArgs& operator=(const MouseWheelEventArgs& other) = default;
+        MouseWheelEventArgs& operator=(MouseWheelEventArgs&& other) = default;
+        ~MouseWheelEventArgs() override = default;
+
+        float GetDelta() const
+        {
+            return delta_;
+        }
+
+    private:
+        float delta_;
+    };
+
+
     class DrawEventArgs : public UiEventArgs
     {
     public:
@@ -1377,6 +1401,7 @@ namespace cru::ui::events
     using UiEvent = Event<UiEventArgs>;
     using MouseEvent = Event<MouseEventArgs>;
     using MouseButtonEvent = Event<MouseButtonEventArgs>;
+    using MouseWheelEvent = Event<MouseWheelEventArgs>;
     using DrawEvent = Event<DrawEventArgs>;
     using PositionChangedEvent = Event<PositionChangedEventArgs>;
     using SizeChangedEvent = Event<SizeChangedEventArgs>;
@@ -1769,6 +1794,8 @@ namespace cru::ui
         //Raised when a mouse button is pressed in the control and released in the control with mouse not leaving it between two operations.
         events::MouseButtonEvent mouse_click_event;
 
+        events::MouseWheelEvent mouse_wheel_event;
+
         events::KeyEvent key_down_event;
         events::KeyEvent key_up_event;
         events::CharEvent char_event;
@@ -1842,12 +1869,17 @@ namespace cru::ui
         virtual void OnMouseUpCore(events::MouseButtonEventArgs& args);
         virtual void OnMouseClickCore(events::MouseButtonEventArgs& args);
 
+        virtual void OnMouseWheel(events::MouseWheelEventArgs& args);
+        virtual void OnMouseWheelCore(events::MouseWheelEventArgs& args);
+
         void RaiseMouseEnterEvent(events::MouseEventArgs& args);
         void RaiseMouseLeaveEvent(events::MouseEventArgs& args);
         void RaiseMouseMoveEvent(events::MouseEventArgs& args);
         void RaiseMouseDownEvent(events::MouseButtonEventArgs& args);
         void RaiseMouseUpEvent(events::MouseButtonEventArgs& args);
         void RaiseMouseClickEvent(events::MouseButtonEventArgs& args);
+
+        void RaiseMouseWheelEvent(events::MouseWheelEventArgs& args);
 
         virtual void OnMouseClickBegin(MouseButton button);
         virtual void OnMouseClickEnd(MouseButton button);
@@ -2257,7 +2289,8 @@ namespace cru::ui
         void OnMouseLeaveInternal();
         void OnMouseDownInternal(MouseButton button, POINT point);
         void OnMouseUpInternal(MouseButton button, POINT point);
- 
+
+        void OnMouseWheelInternal(short delta, POINT point);
         void OnKeyDownInternal(int virtual_code);
         void OnKeyUpInternal(int virtual_code);
         void OnCharInternal(wchar_t c);
@@ -2895,7 +2928,7 @@ namespace cru::ui::controls
     // Done: Draw(no need)
     // Done: API
     // Done: ScrollBar
-    // TODO: MouseEvent
+    // Done: MouseEvent
     class ScrollControl : public Control
     {
     private:
@@ -3006,6 +3039,8 @@ namespace cru::ui::controls
         void OnMouseDownCore(events::MouseButtonEventArgs& args) override final;
         void OnMouseMoveCore(events::MouseEventArgs& args) override final;
         void OnMouseUpCore(events::MouseButtonEventArgs& args) override final;
+
+        void OnMouseWheelCore(events::MouseWheelEventArgs& args) override;
 
     private:
         void CoerceAndSetOffsets(float offset_x, float offset_y, bool update_children = true);
