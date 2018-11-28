@@ -16,12 +16,52 @@
 
 namespace cru::ui
 {
-    using namespace events;
-
     Control::Control(const bool container) :
         is_container_(container)
     {
+        mouse_leave_event.bubble.AddHandler([this](events::MouseEventArgs& args)
+        {
+            if (args.GetOriginalSender() != this)
+                return;
+            for (auto& is_mouse_click_valid : is_mouse_click_valid_map_)
+            {
+                if (is_mouse_click_valid.second)
+                {
+                    is_mouse_click_valid.second = false;
+                    OnMouseClickEnd(is_mouse_click_valid.first);
+                }
+            }
+        });
 
+        mouse_down_event.bubble.AddHandler([this](events::MouseButtonEventArgs& args)
+        {
+            if (args.GetOriginalSender() != this)
+                return;
+
+            if (is_focus_on_pressed_ && args.GetSender() == args.GetOriginalSender())
+                RequestFocus();
+            const auto button = args.GetMouseButton();
+            is_mouse_click_valid_map_[button] = true;
+            OnMouseClickBegin(button);
+        });
+
+        mouse_up_event.bubble.AddHandler([this](events::MouseButtonEventArgs& args)
+        {
+            if (args.GetOriginalSender() != this)
+                return;
+
+            const auto button = args.GetMouseButton();
+            if (is_mouse_click_valid_map_[button])
+            {
+                is_mouse_click_valid_map_[button] = false;
+                OnMouseClickEnd(button);
+                const auto point = args.GetPoint(GetWindow());
+                InvokeLater([this, button, point]
+                {
+                    DispatchEvent(this, &Control::mouse_click_event, nullptr, point, button);
+                });
+            }
+        });
     }
 
     Control::Control(WindowConstructorTag, Window* window) : Control(true)
@@ -163,12 +203,41 @@ namespace cru::ui
         return size_;
     }
 
+    namespace
+    {
+#ifdef CRU_DEBUG_LAYOUT
+        Microsoft::WRL::ComPtr<ID2D1Geometry> CalculateSquareRingGeometry(const Rect& out, const Rect& in)
+        {
+            const auto d2d1_factory = graph::GraphManager::GetInstance()->GetD2D1Factory();
+            Microsoft::WRL::ComPtr<ID2D1RectangleGeometry> out_geometry;
+            ThrowIfFailed(d2d1_factory->CreateRectangleGeometry(Convert(out), &out_geometry));
+            Microsoft::WRL::ComPtr<ID2D1RectangleGeometry> in_geometry;
+            ThrowIfFailed(d2d1_factory->CreateRectangleGeometry(Convert(in), &in_geometry));
+            Microsoft::WRL::ComPtr<ID2D1PathGeometry> result_geometry;
+            ThrowIfFailed(d2d1_factory->CreatePathGeometry(&result_geometry));
+            Microsoft::WRL::ComPtr<ID2D1GeometrySink> sink;
+            ThrowIfFailed(result_geometry->Open(&sink));
+            ThrowIfFailed(out_geometry->CombineWithGeometry(in_geometry.Get(), D2D1_COMBINE_MODE_EXCLUDE, D2D1::Matrix3x2F::Identity(), sink.Get()));
+            ThrowIfFailed(sink->Close());
+            return result_geometry;
+        }
+#endif
+    }
+
     void Control::SetSize(const Size & size)
     {
         const auto old_size = size_;
         size_ = size;
-        SizeChangedEventArgs args(this, this, old_size, size);
-        RaiseSizeChangedEvent(args);
+        events::SizeChangedEventArgs args(this, this, old_size, size);
+        size_changed_event.Raise(args);
+
+        RegenerateGeometryInfo();
+
+#ifdef CRU_DEBUG_LAYOUT
+        margin_geometry_ = CalculateSquareRingGeometry(GetRect(RectRange::Margin), GetRect(RectRange::FullBorder));
+        padding_geometry_ = CalculateSquareRingGeometry(GetRect(RectRange::Padding), GetRect(RectRange::Content));
+#endif
+
         if (auto window = GetWindow())
             window->InvalidateDraw();
     }
@@ -476,8 +545,7 @@ namespace cru::ui
         graph::WithTransform(device_context, D2D1::Matrix3x2F::Translation(padding_rect.left, padding_rect.top),
             [this](ID2D1DeviceContext* device_context)
             {
-                OnDrawBackground(device_context);
-                DrawEventArgs args(this, this, device_context);
+                events::DrawEventArgs args(this, this, device_context);
                 draw_background_event.Raise(args);
             });
 
@@ -486,8 +554,7 @@ namespace cru::ui
         graph::WithTransform(device_context, D2D1::Matrix3x2F::Translation(rect.left, rect.top),
             [this](ID2D1DeviceContext* device_context)
             {
-                OnDrawContent(device_context);
-                DrawEventArgs args(this, this, device_context);
+                events::DrawEventArgs args(this, this, device_context);
                 draw_content_event.Raise(args);
             });
 
@@ -498,83 +565,9 @@ namespace cru::ui
         graph::WithTransform(device_context, D2D1::Matrix3x2F::Translation(padding_rect.left, padding_rect.top),
             [this](ID2D1DeviceContext* device_context)
             {
-                OnDrawForeground(device_context);
-                DrawEventArgs args(this, this, device_context);
+                events::DrawEventArgs args(this, this, device_context);
                 draw_foreground_event.Raise(args);
             });
-    }
-
-    void Control::OnDrawContent(ID2D1DeviceContext * device_context)
-    {
-
-    }
-
-    void Control::OnDrawForeground(ID2D1DeviceContext* device_context)
-    {
-
-    }
-
-    void Control::OnDrawBackground(ID2D1DeviceContext* device_context)
-    {
-
-    }
-
-    void Control::OnPositionChanged(PositionChangedEventArgs & args)
-    {
-
-    }
-
-    void Control::OnSizeChanged(SizeChangedEventArgs & args)
-    {
-    }
-
-    void Control::OnPositionChangedCore(PositionChangedEventArgs & args)
-    {
-
-    }
-
-    namespace
-    {
-#ifdef CRU_DEBUG_LAYOUT
-        Microsoft::WRL::ComPtr<ID2D1Geometry> CalculateSquareRingGeometry(const Rect& out, const Rect& in)
-        {
-            const auto d2d1_factory = graph::GraphManager::GetInstance()->GetD2D1Factory();
-            Microsoft::WRL::ComPtr<ID2D1RectangleGeometry> out_geometry;
-            ThrowIfFailed(d2d1_factory->CreateRectangleGeometry(Convert(out), &out_geometry));
-            Microsoft::WRL::ComPtr<ID2D1RectangleGeometry> in_geometry;
-            ThrowIfFailed(d2d1_factory->CreateRectangleGeometry(Convert(in), &in_geometry));
-            Microsoft::WRL::ComPtr<ID2D1PathGeometry> result_geometry;
-            ThrowIfFailed(d2d1_factory->CreatePathGeometry(&result_geometry));
-            Microsoft::WRL::ComPtr<ID2D1GeometrySink> sink;
-            ThrowIfFailed(result_geometry->Open(&sink));
-            ThrowIfFailed(out_geometry->CombineWithGeometry(in_geometry.Get(), D2D1_COMBINE_MODE_EXCLUDE, D2D1::Matrix3x2F::Identity(), sink.Get()));
-            ThrowIfFailed(sink->Close());
-            return result_geometry;
-        }
-#endif
-    }
-
-    void Control::OnSizeChangedCore(SizeChangedEventArgs & args)
-    {
-        RegenerateGeometryInfo();
-#ifdef CRU_DEBUG_LAYOUT
-        margin_geometry_ = CalculateSquareRingGeometry(GetRect(RectRange::Margin), GetRect(RectRange::FullBorder));
-        padding_geometry_ = CalculateSquareRingGeometry(GetRect(RectRange::Padding), GetRect(RectRange::Content));
-#endif
-    }
-
-    void Control::RaisePositionChangedEvent(PositionChangedEventArgs& args)
-    {
-        OnPositionChangedCore(args);
-        OnPositionChanged(args);
-        position_changed_event.Raise(args);
-    }
-
-    void Control::RaiseSizeChangedEvent(SizeChangedEventArgs& args)
-    {
-        OnSizeChangedCore(args);
-        OnSizeChanged(args);
-        size_changed_event.Raise(args);
     }
 
     void Control::RegenerateGeometryInfo()
@@ -638,233 +631,17 @@ namespace cru::ui
         }
     }
 
-    void Control::OnMouseEnter(MouseEventArgs & args)
-    {
-    }
-
-    void Control::OnMouseLeave(MouseEventArgs & args)
-    {
-    }
-
-    void Control::OnMouseMove(MouseEventArgs & args)
-    {
-    }
-
-    void Control::OnMouseDown(MouseButtonEventArgs & args)
-    {
-    }
-
-    void Control::OnMouseUp(MouseButtonEventArgs & args)
-    {
-    }
-
-    void Control::OnMouseClick(MouseButtonEventArgs& args)
-    {
-
-    }
-
-    void Control::OnMouseEnterCore(MouseEventArgs & args)
-    {
-        is_mouse_inside_ = true;
-    }
-
-    void Control::OnMouseLeaveCore(MouseEventArgs & args)
-    {
-        is_mouse_inside_ = false;
-        for (auto& is_mouse_click_valid : is_mouse_click_valid_map_)
-        {
-            if (is_mouse_click_valid.second)
-            {
-                is_mouse_click_valid.second = false;
-                OnMouseClickEnd(is_mouse_click_valid.first);
-            }
-        }
-    }
-
-    void Control::OnMouseMoveCore(MouseEventArgs & args)
-    {
-
-    }
-
-    void Control::OnMouseDownCore(MouseButtonEventArgs & args)
-    {
-        if (is_focus_on_pressed_ && args.GetSender() == args.GetOriginalSender())
-            RequestFocus();
-        is_mouse_click_valid_map_[args.GetMouseButton()] = true;
-        OnMouseClickBegin(args.GetMouseButton());
-    }
-
-    void Control::OnMouseUpCore(MouseButtonEventArgs & args)
-    {
-        if (is_mouse_click_valid_map_[args.GetMouseButton()])
-        {
-            is_mouse_click_valid_map_[args.GetMouseButton()] = false;
-            RaiseMouseClickEvent(args);
-            OnMouseClickEnd(args.GetMouseButton());
-        }
-    }
-
-    void Control::OnMouseClickCore(MouseButtonEventArgs& args)
-    {
-
-    }
-
-    void Control::OnMouseWheel(events::MouseWheelEventArgs& args)
-    {
-
-    }
-
-    void Control::OnMouseWheelCore(events::MouseWheelEventArgs& args)
-    {
-
-    }
-
-    void Control::RaiseMouseEnterEvent(MouseEventArgs& args)
-    {
-        OnMouseEnterCore(args);
-        OnMouseEnter(args);
-        mouse_enter_event.Raise(args);
-    }
-
-    void Control::RaiseMouseLeaveEvent(MouseEventArgs& args)
-    {
-        OnMouseLeaveCore(args);
-        OnMouseLeave(args);
-        mouse_leave_event.Raise(args);
-    }
-
-    void Control::RaiseMouseMoveEvent(MouseEventArgs& args)
-    {
-        OnMouseMoveCore(args);
-        OnMouseMove(args);
-        mouse_move_event.Raise(args);
-    }
-
-    void Control::RaiseMouseDownEvent(MouseButtonEventArgs& args)
-    {
-        OnMouseDownCore(args);
-        OnMouseDown(args);
-        mouse_down_event.Raise(args);
-    }
-
-    void Control::RaiseMouseUpEvent(MouseButtonEventArgs& args)
-    {
-        OnMouseUpCore(args);
-        OnMouseUp(args);
-        mouse_up_event.Raise(args);
-    }
-
-    void Control::RaiseMouseClickEvent(MouseButtonEventArgs& args)
-    {
-        OnMouseClickCore(args);
-        OnMouseClick(args);
-        mouse_click_event.Raise(args);
-    }
-
-    void Control::RaiseMouseWheelEvent(MouseWheelEventArgs& args)
-    {
-        OnMouseWheelCore(args);
-        OnMouseWheel(args);
-        mouse_wheel_event.Raise(args);
-    }
-
     void Control::OnMouseClickBegin(MouseButton button)
     {
-
     }
 
     void Control::OnMouseClickEnd(MouseButton button)
     {
-
-    }
-
-    void Control::OnKeyDown(KeyEventArgs& args)
-    {
-    }
-
-    void Control::OnKeyUp(KeyEventArgs& args)
-    {
-    }
-
-    void Control::OnChar(CharEventArgs& args)
-    {
-    }
-
-    void Control::OnKeyDownCore(KeyEventArgs& args)
-    {
-    }
-
-    void Control::OnKeyUpCore(KeyEventArgs& args)
-    {
-    }
-
-    void Control::OnCharCore(CharEventArgs& args)
-    {
-    }
-
-    void Control::RaiseKeyDownEvent(KeyEventArgs& args)
-    {
-        OnKeyDownCore(args);
-        OnKeyDown(args);
-        key_down_event.Raise(args);
-    }
-
-    void Control::RaiseKeyUpEvent(KeyEventArgs& args)
-    {
-        OnKeyUpCore(args);
-        OnKeyUp(args);
-        key_up_event.Raise(args);
-    }
-
-    void Control::RaiseCharEvent(CharEventArgs& args)
-    {
-        OnCharCore(args);
-        OnChar(args);
-        char_event.Raise(args);
-    }
-
-    void Control::OnGetFocus(FocusChangeEventArgs& args)
-    {
-
-    }
-
-    void Control::OnLoseFocus(FocusChangeEventArgs& args)
-    {
-
-    }
-
-    void Control::OnGetFocusCore(FocusChangeEventArgs& args)
-    {
-
-    }
-
-    void Control::OnLoseFocusCore(FocusChangeEventArgs& args)
-    {
-
-    }
-
-    void Control::RaiseGetFocusEvent(FocusChangeEventArgs& args)
-    {
-        OnGetFocusCore(args);
-        OnGetFocus(args);
-        get_focus_event.Raise(args);
-    }
-
-    void Control::RaiseLoseFocusEvent(FocusChangeEventArgs& args)
-    {
-        OnLoseFocusCore(args);
-        OnLoseFocus(args);
-        lose_focus_event.Raise(args);
     }
 
     inline Size ThicknessToSize(const Thickness& thickness)
     {
         return Size(thickness.left + thickness.right, thickness.top + thickness.bottom);
-    }
-
-    inline float AtLeast0(const float value)
-    {
-        return value < 0 ? 0 : value;
     }
 
     Size Control::OnMeasureCore(const Size& available_size)
@@ -1072,8 +849,8 @@ namespace cru::ui
     {
         if (this->old_position_ != this->position_)
         {
-            PositionChangedEventArgs args(this, this, this->old_position_, this->position_);
-            this->RaisePositionChangedEvent(args);
+            events::PositionChangedEventArgs args(this, this, this->old_position_, this->position_);
+            position_changed_event.Raise(args);
             this->old_position_ = this->position_;
         }
     }

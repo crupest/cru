@@ -122,14 +122,6 @@ namespace cru::ui::controls
 
         void AfterLayoutSelf() override;
 
-        void OnDrawForeground(ID2D1DeviceContext* device_context) override;
-
-        void OnMouseDownCore(events::MouseButtonEventArgs& args) override final;
-        void OnMouseMoveCore(events::MouseEventArgs& args) override final;
-        void OnMouseUpCore(events::MouseButtonEventArgs& args) override final;
-
-        void OnMouseWheelCore(events::MouseWheelEventArgs& args) override;
-
     private:
         void CoerceAndSetOffsets(float offset_x, float offset_y, bool update_children = true);
         void UpdateScrollBarVisibility();

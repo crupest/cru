@@ -3,6 +3,7 @@
 #include "graph/graph.hpp"
 #include "ui/animations/animation.hpp"
 #include "ui/ui_manager.hpp"
+#include "ui/convert_util.hpp"
 
 namespace cru::ui::controls
 {
@@ -21,12 +22,33 @@ namespace cru::ui::controls
 
         on_brush_ = UiManager::GetInstance()->GetPredefineResources()->toggle_button_on_brush;
         off_brush_ = UiManager::GetInstance()->GetPredefineResources()->toggle_button_off_brush;
+
+        draw_content_event.AddHandler([this](events::DrawEventArgs& args)
+        {
+            const auto device_context = args.GetDeviceContext();
+            const auto size = GetSize();
+            graph::WithTransform(device_context, D2D1::Matrix3x2F::Translation(size.width / 2, size.height / 2), [this](ID2D1DeviceContext* device_context)
+            {
+                if (state_)
+                {
+                    device_context->DrawGeometry(frame_path_.Get(), on_brush_.Get(), stroke_width);
+                    device_context->FillEllipse(D2D1::Ellipse(D2D1::Point2F(current_circle_position_, 0), inner_circle_radius, inner_circle_radius), on_brush_.Get());
+                }
+                else
+                {
+                    device_context->DrawGeometry(frame_path_.Get(), off_brush_.Get(), stroke_width);
+                    device_context->FillEllipse(D2D1::Ellipse(D2D1::Point2F(current_circle_position_, 0), inner_circle_radius, inner_circle_radius), off_brush_.Get());
+                }
+            });
+        });
+
+        mouse_click_event.bubble.AddHandler([this](events::MouseButtonEventArgs& args)
+        {
+            if (args.GetMouseButton() == MouseButton::Left)
+                Toggle();
+        });
     }
 
-    inline D2D1_POINT_2F ConvertPoint(const Point& point)
-    {
-        return D2D1::Point2F(point.x, point.y);
-    }
 
     StringView ToggleButton::GetControlType() const
     {
@@ -38,9 +60,9 @@ namespace cru::ui::controls
         const auto size = GetSize();
         const auto transform = D2D1::Matrix3x2F::Translation(size.width / 2, size.height / 2);
         BOOL contains;
-        frame_path_->FillContainsPoint(ConvertPoint(point), transform, &contains);
+        frame_path_->FillContainsPoint(Convert(point), transform, &contains);
         if (!contains)
-            frame_path_->StrokeContainsPoint(ConvertPoint(point), stroke_width, nullptr, transform, &contains);
+            frame_path_->StrokeContainsPoint(Convert(point), stroke_width, nullptr, transform, &contains);
         return contains != 0;
     }
 
@@ -72,7 +94,8 @@ namespace cru::ui::controls
                 })
                 .Start();
 
-            RaiseToggleEvent(state);
+            events::ToggleEventArgs args(this, this, state);
+            toggle_event.Raise(args);
             InvalidateDraw();
         }
     }
@@ -80,36 +103,6 @@ namespace cru::ui::controls
     void ToggleButton::Toggle()
     {
         SetState(!GetState());
-    }
-
-    void ToggleButton::OnToggle(events::ToggleEventArgs& args)
-    {
-
-    }
-
-    void ToggleButton::OnDrawContent(ID2D1DeviceContext* device_context)
-    {
-        Control::OnDrawContent(device_context);
-        const auto size = GetSize();
-        graph::WithTransform(device_context, D2D1::Matrix3x2F::Translation(size.width / 2, size.height / 2), [this](ID2D1DeviceContext* device_context)
-        {
-            if (state_)
-            {
-                device_context->DrawGeometry(frame_path_.Get(), on_brush_.Get(), stroke_width);
-                device_context->FillEllipse(D2D1::Ellipse(D2D1::Point2F(current_circle_position_, 0), inner_circle_radius, inner_circle_radius), on_brush_.Get());
-            }
-            else
-            {
-                device_context->DrawGeometry(frame_path_.Get(), off_brush_.Get(), stroke_width);
-                device_context->FillEllipse(D2D1::Ellipse(D2D1::Point2F(current_circle_position_, 0), inner_circle_radius, inner_circle_radius), off_brush_.Get());
-            }
-        });
-    }
-
-    void ToggleButton::OnMouseClickCore(events::MouseButtonEventArgs& args)
-    {
-        Control::OnMouseClickCore(args);
-        Toggle();
     }
 
     Size ToggleButton::OnMeasureContent(const Size& available_size)
@@ -120,12 +113,5 @@ namespace cru::ui::controls
         );
 
         return result_size;
-    }
-
-    void ToggleButton::RaiseToggleEvent(bool new_state)
-    {
-        events::ToggleEventArgs args(this, this, new_state);
-        OnToggle(args);
-        toggle_event.Raise(args);
     }
 }

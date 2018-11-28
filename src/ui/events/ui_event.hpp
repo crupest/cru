@@ -22,7 +22,7 @@ namespace cru::ui::events
     {
     public:
         UiEventArgs(Object* sender, Object* original_sender)
-            : BasicEventArgs(sender), original_sender_(original_sender)
+            : BasicEventArgs(sender), original_sender_(original_sender), handled_(false)
         {
 
         }
@@ -38,10 +38,40 @@ namespace cru::ui::events
             return original_sender_;
         }
 
+        bool IsHandled() const
+        {
+            return handled_;
+        }
+
+        void SetHandled(const bool handled = true)
+        {
+            handled_ = handled;
+        }
+
     private:
         Object* original_sender_;
+        bool handled_;
     };
 
+    template <typename TEventArgs>
+    class RoutedEvent
+    {
+    public:
+        static_assert(std::is_base_of_v<UiEventArgs, TEventArgs>, "TEventArgs must be subclass of UiEventArgs.");
+
+        using EventArgs = TEventArgs;
+
+        RoutedEvent() = default;
+        RoutedEvent(const RoutedEvent& other) = delete;
+        RoutedEvent(RoutedEvent&& other) = delete;
+        RoutedEvent& operator=(const RoutedEvent& other) = delete;
+        RoutedEvent& operator=(RoutedEvent&& other) = delete;
+        ~RoutedEvent() = default;
+
+        Event<TEventArgs> direct;
+        Event<TEventArgs> bubble;
+        Event<TEventArgs> tunnel;
+    };
 
     class MouseEventArgs : public UiEventArgs
     {
@@ -327,17 +357,4 @@ namespace cru::ui::events
     private:
         wchar_t c_;
     };
-
-    using UiEvent = Event<UiEventArgs>;
-    using MouseEvent = Event<MouseEventArgs>;
-    using MouseButtonEvent = Event<MouseButtonEventArgs>;
-    using MouseWheelEvent = Event<MouseWheelEventArgs>;
-    using DrawEvent = Event<DrawEventArgs>;
-    using PositionChangedEvent = Event<PositionChangedEventArgs>;
-    using SizeChangedEvent = Event<SizeChangedEventArgs>;
-    using FocusChangeEvent = Event<FocusChangeEventArgs>;
-    using ToggleEvent = Event<ToggleEventArgs>;
-    using WindowNativeMessageEvent = Event<WindowNativeMessageEventArgs>;
-    using KeyEvent = Event<KeyEventArgs>;
-    using CharEvent = Event<CharEventArgs>;
 }

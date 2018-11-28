@@ -352,7 +352,7 @@ int APIENTRY wWinMain(
     //test 2
     const auto layout = CreateWithLayout<LinearLayout>(LayoutSideParams::Exactly(500), LayoutSideParams::Content());
 
-    layout->mouse_click_event.AddHandler([layout](cru::ui::events::MouseButtonEventArgs& args)
+    layout->mouse_click_event.bubble.AddHandler([layout](cru::ui::events::MouseButtonEventArgs& args)
     {
         if (args.GetSender() == args.GetOriginalSender())
             layout->AddChild(TextBlock::Create(L"Layout is clicked!"));
@@ -381,7 +381,7 @@ int APIENTRY wWinMain(
         const auto button = Button::Create();
         button->GetLayoutParams()->padding = Thickness(20, 5);
         button->AddChild(TextBlock::Create(L"Show popup window parenting this."));
-        button->mouse_click_event.AddHandler([window, button](auto)
+        button->mouse_click_event.bubble.AddHandler([window, button](auto)
         {
             std::vector<cru::ui::controls::MenuItemInfo> items;
             items.emplace_back(L"Hello world!", []{});
@@ -398,7 +398,7 @@ int APIENTRY wWinMain(
         button->GetLayoutParams()->padding = Thickness(20, 5);
         button->AddChild(TextBlock::Create(L"Show popup window parenting null."));
         button->SetBackgroundBrush(cru::graph::CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Gold)));
-        button->mouse_click_event.AddHandler([](auto)
+        button->mouse_click_event.bubble.AddHandler([](auto)
         {
             auto popup = Window::CreatePopup(nullptr);
             popup->SetWindowRect(Rect(100, 100, 300, 300));
@@ -411,7 +411,7 @@ int APIENTRY wWinMain(
         const auto button = Button::Create();
         button->GetLayoutParams()->padding = Thickness(20, 5);
         button->AddChild(TextBlock::Create(L"Show popup window with caption."));
-        button->mouse_click_event.AddHandler([](auto)
+        button->mouse_click_event.bubble.AddHandler([](auto)
         {
             auto popup = Window::CreatePopup(nullptr, true);
             popup->SetWindowRect(Rect(100, 100, 300, 300));
@@ -423,7 +423,7 @@ int APIENTRY wWinMain(
     {
         const auto text_block = CreateWithLayout<TextBlock>(LayoutSideParams::Exactly(200), LayoutSideParams::Exactly(80), L"Hello World!!!");
 
-        text_block->mouse_click_event.AddHandler([layout](cru::ui::events::MouseButtonEventArgs& args)
+        text_block->mouse_click_event.bubble.AddHandler([layout](cru::ui::events::MouseButtonEventArgs& args)
         {
             layout->AddChild(TextBlock::Create(L"Hello world is clicked!"));
         });
@@ -435,6 +435,11 @@ int APIENTRY wWinMain(
         const auto text_box = TextBox::Create();
         text_box->GetLayoutParams()->width.min = 50.0f;
         text_box->GetLayoutParams()->width.max = 100.0f;
+        text_box->char_event.tunnel.AddHandler([](cru::ui::events::CharEventArgs& args)
+        {
+            if (args.GetChar() == L'1')
+                args.SetHandled();
+        });
         layout->AddChild(text_box);
     }
 
@@ -821,12 +826,52 @@ namespace cru::ui
 
 namespace cru::ui
 {
-    using namespace events;
-
     Control::Control(const bool container) :
         is_container_(container)
     {
+        mouse_leave_event.bubble.AddHandler([this](events::MouseEventArgs& args)
+        {
+            if (args.GetOriginalSender() != this)
+                return;
+            for (auto& is_mouse_click_valid : is_mouse_click_valid_map_)
+            {
+                if (is_mouse_click_valid.second)
+                {
+                    is_mouse_click_valid.second = false;
+                    OnMouseClickEnd(is_mouse_click_valid.first);
+                }
+            }
+        });
 
+        mouse_down_event.bubble.AddHandler([this](events::MouseButtonEventArgs& args)
+        {
+            if (args.GetOriginalSender() != this)
+                return;
+
+            if (is_focus_on_pressed_ && args.GetSender() == args.GetOriginalSender())
+                RequestFocus();
+            const auto button = args.GetMouseButton();
+            is_mouse_click_valid_map_[button] = true;
+            OnMouseClickBegin(button);
+        });
+
+        mouse_up_event.bubble.AddHandler([this](events::MouseButtonEventArgs& args)
+        {
+            if (args.GetOriginalSender() != this)
+                return;
+
+            const auto button = args.GetMouseButton();
+            if (is_mouse_click_valid_map_[button])
+            {
+                is_mouse_click_valid_map_[button] = false;
+                OnMouseClickEnd(button);
+                const auto point = args.GetPoint(GetWindow());
+                InvokeLater([this, button, point]
+                {
+                    DispatchEvent(this, &Control::mouse_click_event, nullptr, point, button);
+                });
+            }
+        });
     }
 
     Control::Control(WindowConstructorTag, Window* window) : Control(true)
@@ -968,12 +1013,41 @@ namespace cru::ui
         return size_;
     }
 
+    namespace
+    {
+#ifdef CRU_DEBUG_LAYOUT
+        Microsoft::WRL::ComPtr<ID2D1Geometry> CalculateSquareRingGeometry(const Rect& out, const Rect& in)
+        {
+            const auto d2d1_factory = graph::GraphManager::GetInstance()->GetD2D1Factory();
+            Microsoft::WRL::ComPtr<ID2D1RectangleGeometry> out_geometry;
+            ThrowIfFailed(d2d1_factory->CreateRectangleGeometry(Convert(out), &out_geometry));
+            Microsoft::WRL::ComPtr<ID2D1RectangleGeometry> in_geometry;
+            ThrowIfFailed(d2d1_factory->CreateRectangleGeometry(Convert(in), &in_geometry));
+            Microsoft::WRL::ComPtr<ID2D1PathGeometry> result_geometry;
+            ThrowIfFailed(d2d1_factory->CreatePathGeometry(&result_geometry));
+            Microsoft::WRL::ComPtr<ID2D1GeometrySink> sink;
+            ThrowIfFailed(result_geometry->Open(&sink));
+            ThrowIfFailed(out_geometry->CombineWithGeometry(in_geometry.Get(), D2D1_COMBINE_MODE_EXCLUDE, D2D1::Matrix3x2F::Identity(), sink.Get()));
+            ThrowIfFailed(sink->Close());
+            return result_geometry;
+        }
+#endif
+    }
+
     void Control::SetSize(const Size & size)
     {
         const auto old_size = size_;
         size_ = size;
-        SizeChangedEventArgs args(this, this, old_size, size);
-        RaiseSizeChangedEvent(args);
+        events::SizeChangedEventArgs args(this, this, old_size, size);
+        size_changed_event.Raise(args);
+
+        RegenerateGeometryInfo();
+
+#ifdef CRU_DEBUG_LAYOUT
+        margin_geometry_ = CalculateSquareRingGeometry(GetRect(RectRange::Margin), GetRect(RectRange::FullBorder));
+        padding_geometry_ = CalculateSquareRingGeometry(GetRect(RectRange::Padding), GetRect(RectRange::Content));
+#endif
+
         if (auto window = GetWindow())
             window->InvalidateDraw();
     }
@@ -1281,8 +1355,7 @@ namespace cru::ui
         graph::WithTransform(device_context, D2D1::Matrix3x2F::Translation(padding_rect.left, padding_rect.top),
             [this](ID2D1DeviceContext* device_context)
             {
-                OnDrawBackground(device_context);
-                DrawEventArgs args(this, this, device_context);
+                events::DrawEventArgs args(this, this, device_context);
                 draw_background_event.Raise(args);
             });
 
@@ -1291,8 +1364,7 @@ namespace cru::ui
         graph::WithTransform(device_context, D2D1::Matrix3x2F::Translation(rect.left, rect.top),
             [this](ID2D1DeviceContext* device_context)
             {
-                OnDrawContent(device_context);
-                DrawEventArgs args(this, this, device_context);
+                events::DrawEventArgs args(this, this, device_context);
                 draw_content_event.Raise(args);
             });
 
@@ -1303,83 +1375,9 @@ namespace cru::ui
         graph::WithTransform(device_context, D2D1::Matrix3x2F::Translation(padding_rect.left, padding_rect.top),
             [this](ID2D1DeviceContext* device_context)
             {
-                OnDrawForeground(device_context);
-                DrawEventArgs args(this, this, device_context);
+                events::DrawEventArgs args(this, this, device_context);
                 draw_foreground_event.Raise(args);
             });
-    }
-
-    void Control::OnDrawContent(ID2D1DeviceContext * device_context)
-    {
-
-    }
-
-    void Control::OnDrawForeground(ID2D1DeviceContext* device_context)
-    {
-
-    }
-
-    void Control::OnDrawBackground(ID2D1DeviceContext* device_context)
-    {
-
-    }
-
-    void Control::OnPositionChanged(PositionChangedEventArgs & args)
-    {
-
-    }
-
-    void Control::OnSizeChanged(SizeChangedEventArgs & args)
-    {
-    }
-
-    void Control::OnPositionChangedCore(PositionChangedEventArgs & args)
-    {
-
-    }
-
-    namespace
-    {
-#ifdef CRU_DEBUG_LAYOUT
-        Microsoft::WRL::ComPtr<ID2D1Geometry> CalculateSquareRingGeometry(const Rect& out, const Rect& in)
-        {
-            const auto d2d1_factory = graph::GraphManager::GetInstance()->GetD2D1Factory();
-            Microsoft::WRL::ComPtr<ID2D1RectangleGeometry> out_geometry;
-            ThrowIfFailed(d2d1_factory->CreateRectangleGeometry(Convert(out), &out_geometry));
-            Microsoft::WRL::ComPtr<ID2D1RectangleGeometry> in_geometry;
-            ThrowIfFailed(d2d1_factory->CreateRectangleGeometry(Convert(in), &in_geometry));
-            Microsoft::WRL::ComPtr<ID2D1PathGeometry> result_geometry;
-            ThrowIfFailed(d2d1_factory->CreatePathGeometry(&result_geometry));
-            Microsoft::WRL::ComPtr<ID2D1GeometrySink> sink;
-            ThrowIfFailed(result_geometry->Open(&sink));
-            ThrowIfFailed(out_geometry->CombineWithGeometry(in_geometry.Get(), D2D1_COMBINE_MODE_EXCLUDE, D2D1::Matrix3x2F::Identity(), sink.Get()));
-            ThrowIfFailed(sink->Close());
-            return result_geometry;
-        }
-#endif
-    }
-
-    void Control::OnSizeChangedCore(SizeChangedEventArgs & args)
-    {
-        RegenerateGeometryInfo();
-#ifdef CRU_DEBUG_LAYOUT
-        margin_geometry_ = CalculateSquareRingGeometry(GetRect(RectRange::Margin), GetRect(RectRange::FullBorder));
-        padding_geometry_ = CalculateSquareRingGeometry(GetRect(RectRange::Padding), GetRect(RectRange::Content));
-#endif
-    }
-
-    void Control::RaisePositionChangedEvent(PositionChangedEventArgs& args)
-    {
-        OnPositionChangedCore(args);
-        OnPositionChanged(args);
-        position_changed_event.Raise(args);
-    }
-
-    void Control::RaiseSizeChangedEvent(SizeChangedEventArgs& args)
-    {
-        OnSizeChangedCore(args);
-        OnSizeChanged(args);
-        size_changed_event.Raise(args);
     }
 
     void Control::RegenerateGeometryInfo()
@@ -1443,233 +1441,17 @@ namespace cru::ui
         }
     }
 
-    void Control::OnMouseEnter(MouseEventArgs & args)
-    {
-    }
-
-    void Control::OnMouseLeave(MouseEventArgs & args)
-    {
-    }
-
-    void Control::OnMouseMove(MouseEventArgs & args)
-    {
-    }
-
-    void Control::OnMouseDown(MouseButtonEventArgs & args)
-    {
-    }
-
-    void Control::OnMouseUp(MouseButtonEventArgs & args)
-    {
-    }
-
-    void Control::OnMouseClick(MouseButtonEventArgs& args)
-    {
-
-    }
-
-    void Control::OnMouseEnterCore(MouseEventArgs & args)
-    {
-        is_mouse_inside_ = true;
-    }
-
-    void Control::OnMouseLeaveCore(MouseEventArgs & args)
-    {
-        is_mouse_inside_ = false;
-        for (auto& is_mouse_click_valid : is_mouse_click_valid_map_)
-        {
-            if (is_mouse_click_valid.second)
-            {
-                is_mouse_click_valid.second = false;
-                OnMouseClickEnd(is_mouse_click_valid.first);
-            }
-        }
-    }
-
-    void Control::OnMouseMoveCore(MouseEventArgs & args)
-    {
-
-    }
-
-    void Control::OnMouseDownCore(MouseButtonEventArgs & args)
-    {
-        if (is_focus_on_pressed_ && args.GetSender() == args.GetOriginalSender())
-            RequestFocus();
-        is_mouse_click_valid_map_[args.GetMouseButton()] = true;
-        OnMouseClickBegin(args.GetMouseButton());
-    }
-
-    void Control::OnMouseUpCore(MouseButtonEventArgs & args)
-    {
-        if (is_mouse_click_valid_map_[args.GetMouseButton()])
-        {
-            is_mouse_click_valid_map_[args.GetMouseButton()] = false;
-            RaiseMouseClickEvent(args);
-            OnMouseClickEnd(args.GetMouseButton());
-        }
-    }
-
-    void Control::OnMouseClickCore(MouseButtonEventArgs& args)
-    {
-
-    }
-
-    void Control::OnMouseWheel(events::MouseWheelEventArgs& args)
-    {
-
-    }
-
-    void Control::OnMouseWheelCore(events::MouseWheelEventArgs& args)
-    {
-
-    }
-
-    void Control::RaiseMouseEnterEvent(MouseEventArgs& args)
-    {
-        OnMouseEnterCore(args);
-        OnMouseEnter(args);
-        mouse_enter_event.Raise(args);
-    }
-
-    void Control::RaiseMouseLeaveEvent(MouseEventArgs& args)
-    {
-        OnMouseLeaveCore(args);
-        OnMouseLeave(args);
-        mouse_leave_event.Raise(args);
-    }
-
-    void Control::RaiseMouseMoveEvent(MouseEventArgs& args)
-    {
-        OnMouseMoveCore(args);
-        OnMouseMove(args);
-        mouse_move_event.Raise(args);
-    }
-
-    void Control::RaiseMouseDownEvent(MouseButtonEventArgs& args)
-    {
-        OnMouseDownCore(args);
-        OnMouseDown(args);
-        mouse_down_event.Raise(args);
-    }
-
-    void Control::RaiseMouseUpEvent(MouseButtonEventArgs& args)
-    {
-        OnMouseUpCore(args);
-        OnMouseUp(args);
-        mouse_up_event.Raise(args);
-    }
-
-    void Control::RaiseMouseClickEvent(MouseButtonEventArgs& args)
-    {
-        OnMouseClickCore(args);
-        OnMouseClick(args);
-        mouse_click_event.Raise(args);
-    }
-
-    void Control::RaiseMouseWheelEvent(MouseWheelEventArgs& args)
-    {
-        OnMouseWheelCore(args);
-        OnMouseWheel(args);
-        mouse_wheel_event.Raise(args);
-    }
-
     void Control::OnMouseClickBegin(MouseButton button)
     {
-
     }
 
     void Control::OnMouseClickEnd(MouseButton button)
     {
-
-    }
-
-    void Control::OnKeyDown(KeyEventArgs& args)
-    {
-    }
-
-    void Control::OnKeyUp(KeyEventArgs& args)
-    {
-    }
-
-    void Control::OnChar(CharEventArgs& args)
-    {
-    }
-
-    void Control::OnKeyDownCore(KeyEventArgs& args)
-    {
-    }
-
-    void Control::OnKeyUpCore(KeyEventArgs& args)
-    {
-    }
-
-    void Control::OnCharCore(CharEventArgs& args)
-    {
-    }
-
-    void Control::RaiseKeyDownEvent(KeyEventArgs& args)
-    {
-        OnKeyDownCore(args);
-        OnKeyDown(args);
-        key_down_event.Raise(args);
-    }
-
-    void Control::RaiseKeyUpEvent(KeyEventArgs& args)
-    {
-        OnKeyUpCore(args);
-        OnKeyUp(args);
-        key_up_event.Raise(args);
-    }
-
-    void Control::RaiseCharEvent(CharEventArgs& args)
-    {
-        OnCharCore(args);
-        OnChar(args);
-        char_event.Raise(args);
-    }
-
-    void Control::OnGetFocus(FocusChangeEventArgs& args)
-    {
-
-    }
-
-    void Control::OnLoseFocus(FocusChangeEventArgs& args)
-    {
-
-    }
-
-    void Control::OnGetFocusCore(FocusChangeEventArgs& args)
-    {
-
-    }
-
-    void Control::OnLoseFocusCore(FocusChangeEventArgs& args)
-    {
-
-    }
-
-    void Control::RaiseGetFocusEvent(FocusChangeEventArgs& args)
-    {
-        OnGetFocusCore(args);
-        OnGetFocus(args);
-        get_focus_event.Raise(args);
-    }
-
-    void Control::RaiseLoseFocusEvent(FocusChangeEventArgs& args)
-    {
-        OnLoseFocusCore(args);
-        OnLoseFocus(args);
-        lose_focus_event.Raise(args);
     }
 
     inline Size ThicknessToSize(const Thickness& thickness)
     {
         return Size(thickness.left + thickness.right, thickness.top + thickness.bottom);
-    }
-
-    inline float AtLeast0(const float value)
-    {
-        return value < 0 ? 0 : value;
     }
 
     Size Control::OnMeasureCore(const Size& available_size)
@@ -1877,8 +1659,8 @@ namespace cru::ui
     {
         if (this->old_position_ != this->position_)
         {
-            PositionChangedEventArgs args(this, this, this->old_position_, this->position_);
-            this->RaisePositionChangedEvent(args);
+            events::PositionChangedEventArgs args(this, this, this->old_position_, this->position_);
+            position_changed_event.Raise(args);
             this->old_position_ = this->position_;
         }
     }
@@ -2736,11 +2518,11 @@ namespace cru::ui
         if (focus_control_ == control)
             return true;
 
-        DispatchEvent(focus_control_, &Control::RaiseLoseFocusEvent, nullptr, false);
+        DispatchEvent(focus_control_, &Control::lose_focus_event, nullptr, false);
 
         focus_control_ = control;
 
-        DispatchEvent(control, &Control::RaiseGetFocusEvent, nullptr, false);
+        DispatchEvent(control, &Control::get_focus_event, nullptr, false);
 
         return true;
     }
@@ -2859,13 +2641,13 @@ namespace cru::ui
     void Window::OnSetFocusInternal()
     {
         window_focus_ = true;
-        DispatchEvent(focus_control_, &Control::RaiseGetFocusEvent, nullptr, true);
+        DispatchEvent(focus_control_, &Control::get_focus_event, nullptr, true);
     }
 
     void Window::OnKillFocusInternal()
     {
         window_focus_ = false;
-        DispatchEvent(focus_control_, &Control::RaiseLoseFocusEvent, nullptr, true);
+        DispatchEvent(focus_control_, &Control::lose_focus_event, nullptr, true);
     }
 
     void Window::OnMouseMoveInternal(const POINT point)
@@ -2890,18 +2672,18 @@ namespace cru::ui
 
         if (mouse_capture_control_) // if mouse is captured
         {
-            DispatchEvent(mouse_capture_control_, &Control::RaiseMouseMoveEvent, nullptr, dip_point);
+            DispatchEvent(mouse_capture_control_, &Control::mouse_move_event, nullptr, dip_point);
         }
         else
         {
             DispatchMouseHoverControlChangeEvent(old_control_mouse_hover, new_control_mouse_hover, dip_point);
-            DispatchEvent(new_control_mouse_hover, &Control::RaiseMouseMoveEvent, nullptr, dip_point);
+            DispatchEvent(new_control_mouse_hover, &Control::mouse_move_event, nullptr, dip_point);
         }
     }
 
     void Window::OnMouseLeaveInternal()
     {
-        DispatchEvent(mouse_hover_control_, &Control::RaiseMouseLeaveEvent, nullptr);
+        DispatchEvent(mouse_hover_control_, &Control::mouse_leave_event, nullptr);
         mouse_hover_control_ = nullptr;
     }
 
@@ -2916,7 +2698,7 @@ namespace cru::ui
         else
             control = HitTest(dip_point);
 
-        DispatchEvent(control, &Control::RaiseMouseDownEvent, nullptr, dip_point, button);
+        DispatchEvent(control, &Control::mouse_down_event, nullptr, dip_point, button);
     }
 
     void Window::OnMouseUpInternal(MouseButton button, POINT point)
@@ -2930,7 +2712,7 @@ namespace cru::ui
         else
             control = HitTest(dip_point);
 
-        DispatchEvent(control, &Control::RaiseMouseUpEvent, nullptr, dip_point, button);
+        DispatchEvent(control, &Control::mouse_up_event, nullptr, dip_point, button);
     }
 
     void Window::OnMouseWheelInternal(short delta, POINT point)
@@ -2944,22 +2726,22 @@ namespace cru::ui
         else
             control = HitTest(dip_point);
 
-        DispatchEvent(control, &Control::RaiseMouseWheelEvent, nullptr, dip_point, static_cast<float>(delta));
+        DispatchEvent(control, &Control::mouse_wheel_event, nullptr, dip_point, static_cast<float>(delta));
     }
 
     void Window::OnKeyDownInternal(int virtual_code)
     {
-        DispatchEvent(focus_control_, &Control::RaiseKeyDownEvent, nullptr, virtual_code);
+        DispatchEvent(focus_control_, &Control::key_down_event, nullptr, virtual_code);
     }
 
     void Window::OnKeyUpInternal(int virtual_code)
     {
-        DispatchEvent(focus_control_, &Control::RaiseKeyUpEvent, nullptr, virtual_code);
+        DispatchEvent(focus_control_, &Control::key_up_event, nullptr, virtual_code);
     }
 
     void Window::OnCharInternal(wchar_t c)
     {
-        DispatchEvent(focus_control_, &Control::RaiseCharEvent, nullptr, c);
+        DispatchEvent(focus_control_, &Control::char_event, nullptr, c);
     }
 
     void Window::OnActivatedInternal()
@@ -2980,10 +2762,10 @@ namespace cru::ui
         {
             const auto lowest_common_ancestor = FindLowestCommonAncestor(old_control, new_control);
             if (old_control != nullptr) // if last mouse-hover-on control exists
-                DispatchEvent(old_control, &Control::RaiseMouseLeaveEvent, lowest_common_ancestor); // dispatch mouse leave event.
+                DispatchEvent(old_control, &Control::mouse_leave_event, lowest_common_ancestor); // dispatch mouse leave event.
             if (new_control != nullptr)
             {
-                DispatchEvent(new_control, &Control::RaiseMouseEnterEvent, lowest_common_ancestor, point); // dispatch mouse enter event.
+                DispatchEvent(new_control, &Control::mouse_enter_event, lowest_common_ancestor, point); // dispatch mouse enter event.
                 UpdateCursor();
             }
         }
@@ -3398,6 +3180,39 @@ namespace cru::ui::controls
         brushes_[State::Hover] .fill_brush   = predefine_resources->list_item_hover_fill_brush;
         brushes_[State::Select].border_brush = predefine_resources->list_item_select_border_brush;
         brushes_[State::Select].fill_brush   = predefine_resources->list_item_select_fill_brush;
+
+        draw_foreground_event.AddHandler([this](events::DrawEventArgs& args)
+        {
+            const auto device_context = args.GetDeviceContext();
+            const auto rect = Rect(Point::Zero(), GetRect(RectRange::Padding).GetSize());
+            device_context->FillRectangle(Convert(rect), brushes_[state_].fill_brush.Get());
+            device_context->DrawRectangle(Convert(rect.Shrink(Thickness(0.5))), brushes_[state_].border_brush.Get(), 1);
+        });
+
+        mouse_enter_event.direct.AddHandler([this](events::MouseEventArgs& args)
+        {
+            if (GetState() == State::Select)
+                return;
+
+            if (IsAnyMouseButtonDown())
+                return;
+
+            SetState(State::Hover);
+        });
+
+        mouse_leave_event.direct.AddHandler([this](events::MouseEventArgs& args)
+        {
+            if (GetState() == State::Select)
+                return;
+
+            SetState(State::Normal);
+        });
+
+        mouse_click_event.direct.AddHandler([this](events::MouseButtonEventArgs& args)
+        {
+            if (args.GetMouseButton() == MouseButton::Left)
+                SetState(State::Select);
+        });
     }
 
     StringView ListItem::GetControlType() const
@@ -3409,38 +3224,6 @@ namespace cru::ui::controls
     {
         state_ = state;
         InvalidateDraw();
-    }
-
-    void ListItem::OnDrawForeground(ID2D1DeviceContext* device_context)
-    {
-        const auto rect = Rect(Point::Zero(), GetRect(RectRange::Padding).GetSize());
-        device_context->FillRectangle(Convert(rect), brushes_[state_].fill_brush.Get());
-        device_context->DrawRectangle(Convert(rect.Shrink(Thickness(0.5))), brushes_[state_].border_brush.Get(), 1);
-    }
-
-    void ListItem::OnMouseEnterCore(events::MouseEventArgs& args)
-    {
-        if (GetState() == State::Select)
-            return;
-
-        if (IsAnyMouseButtonDown())
-            return;
-
-        SetState(State::Hover);
-    }
-
-    void ListItem::OnMouseLeaveCore(events::MouseEventArgs& args)
-    {
-        if (GetState() == State::Select)
-            return;
-
-        SetState(State::Normal);
-    }
-
-    void ListItem::OnMouseClickCore(events::MouseButtonEventArgs& args)
-    {
-        if (args.GetMouseButton() == MouseButton::Left)
-            SetState(State::Select);
     }
 }
 //--------------------------------------------------------
@@ -3457,7 +3240,7 @@ namespace cru::ui::controls
     {
         const auto popup = Window::CreatePopup(parent);
 
-        popup->lose_focus_event.AddHandler([popup](events::FocusChangeEventArgs& args)
+        popup->lose_focus_event.bubble.AddHandler([popup](events::FocusChangeEventArgs& args)
         {
             if (args.IsWindow())
                 popup->Close();
@@ -3474,7 +3257,7 @@ namespace cru::ui::controls
                 ControlList{ text_block }
             );
 
-            list_item->mouse_click_event.AddHandler([popup, action](events::MouseButtonEventArgs& args)
+            list_item->mouse_click_event.bubble.AddHandler([popup, action](events::MouseButtonEventArgs& args)
             {
                 if (args.GetMouseButton() == MouseButton::Left)
                 {
@@ -3518,6 +3301,131 @@ namespace cru::ui::controls
     ScrollControl::ScrollControl(const bool container) : Control(container)
     {
         SetClipContent(true);
+
+        draw_foreground_event.AddHandler([this](events::DrawEventArgs& args)
+        {
+            const auto device_context = args.GetDeviceContext();
+            const auto predefined = UiManager::GetInstance()->GetPredefineResources();
+
+            if (is_horizontal_scroll_bar_visible_)
+            {
+                device_context->FillRectangle(
+                    Convert(horizontal_bar_info_.border),
+                    predefined->scroll_bar_background_brush.Get()
+                );
+
+                device_context->FillRectangle(
+                    Convert(horizontal_bar_info_.bar),
+                    predefined->scroll_bar_brush.Get()
+                );
+
+                device_context->DrawLine(
+                    Convert(horizontal_bar_info_.border.GetLeftTop()),
+                    Convert(horizontal_bar_info_.border.GetRightTop()),
+                    predefined->scroll_bar_border_brush.Get()
+                );
+            }
+
+            if (is_vertical_scroll_bar_visible_)
+            {
+                device_context->FillRectangle(
+                    Convert(vertical_bar_info_.border),
+                    predefined->scroll_bar_background_brush.Get()
+                );
+
+                device_context->FillRectangle(
+                    Convert(vertical_bar_info_.bar),
+                    predefined->scroll_bar_brush.Get()
+                );
+
+                device_context->DrawLine(
+                    Convert(vertical_bar_info_.border.GetLeftTop()),
+                    Convert(vertical_bar_info_.border.GetLeftBottom()),
+                    predefined->scroll_bar_border_brush.Get()
+                );
+            }
+        });
+
+        mouse_down_event.tunnel.AddHandler([this](events::MouseButtonEventArgs& args)
+        {
+            if (args.GetMouseButton() == MouseButton::Left)
+            {
+                const auto point = args.GetPoint(this);
+                if (is_vertical_scroll_bar_visible_ && vertical_bar_info_.bar.IsPointInside(point))
+                {
+                    GetWindow()->CaptureMouseFor(this);
+                    is_pressing_scroll_bar_ = Orientation::Vertical;
+                    pressing_delta_ = point.y - vertical_bar_info_.bar.top;
+                    args.SetHandled();
+                    return;
+                }
+
+                if (is_horizontal_scroll_bar_visible_ && horizontal_bar_info_.bar.IsPointInside(point))
+                {
+                    GetWindow()->CaptureMouseFor(this);
+                    pressing_delta_ = point.x - horizontal_bar_info_.bar.left;
+                    is_pressing_scroll_bar_ = Orientation::Horizontal;
+                    args.SetHandled();
+                    return;
+                }
+            }
+        });
+
+        mouse_move_event.tunnel.AddHandler([this](events::MouseEventArgs& args)
+        {
+            const auto mouse_point = args.GetPoint(this);
+
+            if (is_pressing_scroll_bar_ == Orientation::Horizontal)
+            {
+                const auto new_head_position = mouse_point.x - pressing_delta_;
+                const auto new_offset = new_head_position / horizontal_bar_info_.border.width * view_width_;
+                SetScrollOffset(new_offset, std::nullopt);
+                args.SetHandled();
+                return;
+            }
+
+            if (is_pressing_scroll_bar_ == Orientation::Vertical)
+            {
+                const auto new_head_position = mouse_point.y - pressing_delta_;
+                const auto new_offset = new_head_position / vertical_bar_info_.border.height * view_height_;
+                SetScrollOffset(std::nullopt, new_offset);
+                args.SetHandled();
+                return;
+            }
+        });
+
+        mouse_up_event.tunnel.AddHandler([this](events::MouseButtonEventArgs& args)
+        {
+            if (args.GetMouseButton() == MouseButton::Left && is_pressing_scroll_bar_.has_value())
+            {
+                GetWindow()->ReleaseCurrentMouseCapture();
+                is_pressing_scroll_bar_ = std::nullopt;
+                args.SetHandled();
+            }
+        });
+
+        mouse_wheel_event.bubble.AddHandler([this](events::MouseWheelEventArgs& args)
+        {
+            constexpr const auto view_delta = 30.0f;
+
+            if (args.GetDelta() == 0.0f)
+                return;
+
+            const auto content_rect = GetRect(RectRange::Content);
+            if (IsVerticalScrollEnabled() && GetScrollOffsetY() != (args.GetDelta() > 0.0f ? 0.0f : AtLeast0(GetViewHeight() - content_rect.height)))
+            {
+                SetScrollOffset(std::nullopt, GetScrollOffsetY() - args.GetDelta() / WHEEL_DELTA * view_delta);
+                args.SetHandled();
+                return;
+            }
+
+            if (IsHorizontalScrollEnabled() && GetScrollOffsetX() != (args.GetDelta() > 0.0f ? 0.0f : AtLeast0(GetViewWidth() - content_rect.width)))
+            {
+                SetScrollOffset(GetScrollOffsetX() - args.GetDelta() / WHEEL_DELTA * view_delta, std::nullopt);
+                args.SetHandled();
+                return;
+            }
+        });
     }
 
     ScrollControl::~ScrollControl()
@@ -3705,133 +3613,6 @@ namespace cru::ui::controls
         UpdateScrollBarVisibility();
     }
 
-    void ScrollControl::OnDrawForeground(ID2D1DeviceContext* device_context)
-    {
-        Control::OnDrawForeground(device_context);
-
-        const auto predefined = UiManager::GetInstance()->GetPredefineResources();
-
-        if (is_horizontal_scroll_bar_visible_)
-        {
-            device_context->FillRectangle(
-                Convert(horizontal_bar_info_.border),
-                predefined->scroll_bar_background_brush.Get()
-            );
-
-            device_context->FillRectangle(
-                Convert(horizontal_bar_info_.bar),
-                predefined->scroll_bar_brush.Get()
-            );
-
-            device_context->DrawLine(
-                Convert(horizontal_bar_info_.border.GetLeftTop()),
-                Convert(horizontal_bar_info_.border.GetRightTop()),
-                predefined->scroll_bar_border_brush.Get()
-            );
-        }
-
-        if (is_vertical_scroll_bar_visible_)
-        {
-            device_context->FillRectangle(
-                Convert(vertical_bar_info_.border),
-                predefined->scroll_bar_background_brush.Get()
-            );
-
-            device_context->FillRectangle(
-                Convert(vertical_bar_info_.bar),
-                predefined->scroll_bar_brush.Get()
-            );
-
-            device_context->DrawLine(
-                Convert(vertical_bar_info_.border.GetLeftTop()),
-                Convert(vertical_bar_info_.border.GetLeftBottom()),
-                predefined->scroll_bar_border_brush.Get()
-            );
-        }
-    }
-
-    void ScrollControl::OnMouseDownCore(events::MouseButtonEventArgs& args)
-    {
-        Control::OnMouseDownCore(args);
-
-        if (args.GetMouseButton() == MouseButton::Left)
-        {
-            const auto point = args.GetPoint(this);
-            if (is_vertical_scroll_bar_visible_ && vertical_bar_info_.bar.IsPointInside(point))
-            {
-                GetWindow()->CaptureMouseFor(this);
-                is_pressing_scroll_bar_ = Orientation::Vertical;
-                pressing_delta_ = point.y - vertical_bar_info_.bar.top;
-                return;
-            }
-
-            if (is_horizontal_scroll_bar_visible_ && horizontal_bar_info_.bar.IsPointInside(point))
-            {
-                GetWindow()->CaptureMouseFor(this);
-                pressing_delta_ = point.x - horizontal_bar_info_.bar.left;
-                is_pressing_scroll_bar_ = Orientation::Horizontal;
-                return;
-            }
-        }
-    }
-
-    void ScrollControl::OnMouseMoveCore(events::MouseEventArgs& args)
-    {
-        Control::OnMouseMoveCore(args);
-
-        const auto mouse_point = args.GetPoint(this);
-
-        if (is_pressing_scroll_bar_ == Orientation::Horizontal)
-        {
-            const auto new_head_position = mouse_point.x - pressing_delta_;
-            const auto new_offset = new_head_position / horizontal_bar_info_.border.width * view_width_;
-            SetScrollOffset(new_offset, std::nullopt);
-            return;
-        }
-
-        if (is_pressing_scroll_bar_ == Orientation::Vertical)
-        {
-            const auto new_head_position = mouse_point.y - pressing_delta_;
-            const auto new_offset = new_head_position / vertical_bar_info_.border.height * view_height_;
-            SetScrollOffset(std::nullopt, new_offset);
-            return;
-        }
-    }
-
-    void ScrollControl::OnMouseUpCore(events::MouseButtonEventArgs& args)
-    {
-        Control::OnMouseUpCore(args);
-
-        if (args.GetMouseButton() == MouseButton::Left && is_pressing_scroll_bar_.has_value())
-        {
-            GetWindow()->ReleaseCurrentMouseCapture();
-            is_pressing_scroll_bar_ = std::nullopt;
-        }
-    }
-
-    void ScrollControl::OnMouseWheelCore(events::MouseWheelEventArgs& args)
-    {
-        Control::OnMouseWheelCore(args);
-
-        constexpr const auto view_delta = 30.0f;
-
-        if (args.GetDelta() == 0.0f)
-            return;
-
-        const auto content_rect = GetRect(RectRange::Content);
-        if (IsVerticalScrollEnabled() && GetScrollOffsetY() != (args.GetDelta() > 0.0f ? 0.0f : AtLeast0(GetViewHeight() - content_rect.height)))
-        {
-            SetScrollOffset(std::nullopt, GetScrollOffsetY() - args.GetDelta() / WHEEL_DELTA * view_delta);
-            return;
-        }
-
-        if (IsHorizontalScrollEnabled() && GetScrollOffsetX() != (args.GetDelta() > 0.0f ? 0.0f : AtLeast0(GetViewWidth() - content_rect.width)))
-        {
-            SetScrollOffset(GetScrollOffsetX() - args.GetDelta() / WHEEL_DELTA * view_delta, std::nullopt);
-            return;
-        }
-    }
-
     void ScrollControl::CoerceAndSetOffsets(const float offset_x, const float offset_y, const bool update_children)
     {
         const auto old_offset_x = offset_x_;
@@ -3946,6 +3727,138 @@ namespace cru::ui::controls
 
         GetBorderProperty() = UiManager::GetInstance()->GetPredefineResources()->text_box_border;
         SetBordered(true);
+
+        draw_content_event.AddHandler([this](events::DrawEventArgs& args)
+        {
+            const auto device_context = args.GetDeviceContext();
+            if (is_caret_show_)
+            {
+                const auto caret_half_width = UiManager::GetInstance()->GetCaretInfo().half_caret_width;
+                FLOAT x, y;
+                DWRITE_HIT_TEST_METRICS metrics{};
+                ThrowIfFailed(text_layout_->HitTestTextPosition(caret_position_, FALSE, &x, &y, &metrics));
+                device_context->FillRectangle(D2D1::RectF(metrics.left - caret_half_width, metrics.top, metrics.left + caret_half_width, metrics.top + metrics.height), caret_brush_.Get());
+            }
+        });
+
+        get_focus_event.direct.AddHandler([this](events::FocusChangeEventArgs& args)
+        {
+            assert(!caret_timer_.has_value());
+            is_caret_show_ = true;
+            caret_timer_ = SetInterval(UiManager::GetInstance()->GetCaretInfo().caret_blink_duration, [this]
+            {
+                is_caret_show_ = !is_caret_show_;
+                InvalidateDraw();
+            });
+        });
+
+        lose_focus_event.direct.AddHandler([this](events::FocusChangeEventArgs& args)
+        {
+            assert(caret_timer_.has_value());
+            caret_timer_->Cancel();
+            caret_timer_ = std::nullopt;
+            is_caret_show_ = false;
+        });
+
+        key_down_event.bubble.AddHandler([this](events::KeyEventArgs& args)
+        {
+            if (args.GetVirtualCode() == VK_LEFT && caret_position_ > 0)
+            {
+                if (IsKeyDown(VK_SHIFT))
+                {
+                    if (GetCaretSelectionSide())
+                        ShiftLeftSelectionRange(-1);
+                    else
+                        ShiftRightSelectionRange(-1);
+                }
+                else
+                {
+                    const auto selection = GetSelectedRange();
+                    if (selection.has_value())
+                    {
+                        ClearSelection();
+                        caret_position_ = selection.value().position;
+                    }
+                    else
+                        caret_position_--;
+                }
+                InvalidateDraw();
+            }
+
+            if (args.GetVirtualCode() == VK_RIGHT && caret_position_ < GetText().size())
+            {
+                if (IsKeyDown(VK_SHIFT))
+                {
+                    if (GetCaretSelectionSide())
+                        ShiftLeftSelectionRange(1);
+                    else
+                        ShiftRightSelectionRange(1);
+                }
+                else
+                {
+                    const auto selection = GetSelectedRange();
+                    if (selection.has_value())
+                    {
+                        ClearSelection();
+                        caret_position_ = selection.value().position + selection.value().count;
+                    }
+                    else
+                        caret_position_++;
+                }
+            }
+        });
+
+        char_event.bubble.AddHandler([this](events::CharEventArgs& args)
+        {
+            if (args.GetChar() == L'\b')
+            {
+                if (GetSelectedRange().has_value())
+                {
+                    const auto selection_range = GetSelectedRange().value();
+                    auto text = GetText();
+                    text.erase(text.cbegin() + selection_range.position, text.cbegin() + selection_range.position + selection_range.count);
+                    SetText(text);
+                    caret_position_ = selection_range.position;
+                    ClearSelection();
+                }
+                else
+                {
+                    if (caret_position_ > 0)
+                    {
+                        auto text = GetText();
+                        if (!text.empty())
+                        {
+                            const auto position = --caret_position_;
+                            text.erase(text.cbegin() + position);
+                            SetText(text);
+                        }
+                    }
+                }
+                return;
+            }
+
+            if (std::iswprint(args.GetChar()))
+            {
+                if (GetSelectedRange().has_value())
+                {
+                    const auto selection_range = GetSelectedRange().value();
+                    auto text = GetText();
+                    text.erase(selection_range.position, selection_range.count);
+                    text.insert(text.cbegin() + selection_range.position, args.GetChar());
+                    SetText(text);
+                    caret_position_ = selection_range.position + 1;
+                    ClearSelection();
+                }
+                else
+                {
+                    ClearSelection();
+                    const auto position = caret_position_++;
+                    auto text = GetText();
+                    text.insert(text.cbegin() + position, { args.GetChar() });
+                    SetText(text);
+                }
+            }
+        });
     }
 
     TextBox::~TextBox() = default;
@@ -3953,142 +3866,6 @@ namespace cru::ui::controls
     StringView TextBox::GetControlType() const
     {
         return control_type;
-    }
-
-    void TextBox::OnDrawContent(ID2D1DeviceContext* device_context)
-    {
-        TextControl::OnDrawContent(device_context);
-        if (is_caret_show_)
-        {
-            const auto caret_half_width = UiManager::GetInstance()->GetCaretInfo().half_caret_width;
-            FLOAT x, y;
-            DWRITE_HIT_TEST_METRICS metrics{};
-            ThrowIfFailed(text_layout_->HitTestTextPosition(caret_position_, FALSE, &x, &y, &metrics));
-            device_context->FillRectangle(D2D1::RectF(metrics.left - caret_half_width, metrics.top, metrics.left + caret_half_width, metrics.top + metrics.height), caret_brush_.Get());
-        }
-    }
-
-    void TextBox::OnGetFocusCore(events::FocusChangeEventArgs& args)
-    {
-        TextControl::OnGetFocusCore(args);
-        assert(!caret_timer_.has_value());
-        is_caret_show_ = true;
-        caret_timer_ = SetInterval(UiManager::GetInstance()->GetCaretInfo().caret_blink_duration, [this]
-        {
-            is_caret_show_ = !is_caret_show_;
-            InvalidateDraw();
-        });
-    }
-
-    void TextBox::OnLoseFocusCore(events::FocusChangeEventArgs& args)
-    {
-        Control::OnLoseFocusCore(args);
-        assert(caret_timer_.has_value());
-        caret_timer_->Cancel();
-        caret_timer_ = std::nullopt;
-        is_caret_show_ = false;
-    }
-
-    void TextBox::OnKeyDownCore(events::KeyEventArgs& args)
-    {
-        Control::OnKeyDownCore(args);
-        if (args.GetVirtualCode() == VK_LEFT && caret_position_ > 0)
-        {
-            if (IsKeyDown(VK_SHIFT))
-            {
-                if (GetCaretSelectionSide())
-                    ShiftLeftSelectionRange(-1);
-                else
-                    ShiftRightSelectionRange(-1);
-            }
-            else
-            {
-                const auto selection = GetSelectedRange();
-                if (selection.has_value())
-                {
-                    ClearSelection();
-                    caret_position_ = selection.value().position;
-                }
-                else
-                    caret_position_--;
-            }
-            InvalidateDraw();
-        }
-
-        if (args.GetVirtualCode() == VK_RIGHT && caret_position_ < GetText().size())
-        {
-            if (IsKeyDown(VK_SHIFT))
-            {
-                if (GetCaretSelectionSide())
-                    ShiftLeftSelectionRange(1);
-                else
-                    ShiftRightSelectionRange(1);
-            }
-            else
-            {
-                const auto selection = GetSelectedRange();
-                if (selection.has_value())
-                {
-                    ClearSelection();
-                    caret_position_ = selection.value().position + selection.value().count;
-                }
-                else
-                    caret_position_++;
-            }
-        }
-    }
-
-    void TextBox::OnCharCore(events::CharEventArgs& args)
-    {
-        Control::OnCharCore(args);
-        if (args.GetChar() == L'\b')
-        {
-            if (GetSelectedRange().has_value())
-            {
-                const auto selection_range = GetSelectedRange().value();
-                auto text = GetText();
-                text.erase(text.cbegin() + selection_range.position, text.cbegin() + selection_range.position + selection_range.count);
-                SetText(text);
-                caret_position_ = selection_range.position;
-                ClearSelection();
-            }
-            else
-            {
-                if (caret_position_ > 0)
-                {
-                    auto text = GetText();
-                    if (!text.empty())
-                    {
-                        const auto position = --caret_position_;
-                        text.erase(text.cbegin() + position);
-                        SetText(text);
-                    }
-                }
-            }
-            return;
-        }
-
-        if (std::iswprint(args.GetChar()))
-        {
-            if (GetSelectedRange().has_value())
-            {
-                const auto selection_range = GetSelectedRange().value();
-                auto text = GetText();
-                text.erase(selection_range.position, selection_range.count);
-                text.insert(text.cbegin() + selection_range.position, args.GetChar());
-                SetText(text);
-                caret_position_ = selection_range.position + 1;
-                ClearSelection();
-            }
-            else
-            {
-                ClearSelection();
-                const auto position = caret_position_++;
-                auto text = GetText();
-                text.insert(text.cbegin() + position, { args.GetChar() });
-                SetText(text);
-            }
-        }
     }
 
     void TextBox::RequestChangeCaretPosition(const unsigned position)
@@ -4138,6 +3915,40 @@ namespace cru::ui::controls
 
 namespace cru::ui::controls
 {
+    namespace
+    {
+        unsigned TextLayoutHitTest(IDWriteTextLayout* text_layout, const Point& point)
+        {
+            BOOL is_trailing, is_inside;
+            DWRITE_HIT_TEST_METRICS metrics{};
+            text_layout->HitTestPoint(point.x, point.y, &is_trailing, &is_inside, &metrics);
+            return is_trailing == 0 ? metrics.textPosition : metrics.textPosition + 1;
+        }
+
+        void DrawSelectionRect(ID2D1DeviceContext* device_context, IDWriteTextLayout* layout, ID2D1Brush* brush, const std::optional<TextRange> range)
+        {
+            if (range.has_value())
+            {
+                DWRITE_TEXT_METRICS text_metrics{};
+                ThrowIfFailed(layout->GetMetrics(&text_metrics));
+                const auto metrics_count = text_metrics.lineCount * text_metrics.maxBidiReorderingDepth;
+
+                std::vector<DWRITE_HIT_TEST_METRICS> hit_test_metrics(metrics_count);
+                UINT32 actual_count;
+                layout->HitTestTextRange(
+                    range.value().position, range.value().count,
+                    0, 0,
+                    hit_test_metrics.data(), metrics_count, &actual_count
+                );
+
+                hit_test_metrics.erase(hit_test_metrics.cbegin() + actual_count, hit_test_metrics.cend());
+
+                for (const auto& metrics : hit_test_metrics)
+                    device_context->FillRoundedRectangle(D2D1::RoundedRect(D2D1::RectF(metrics.left, metrics.top, metrics.left + metrics.width, metrics.top + metrics.height), 3, 3), brush);
+            }
+        }
+    }
+
     TextControl::TextControl(const Microsoft::WRL::ComPtr<IDWriteTextFormat>& init_text_format,
         const Microsoft::WRL::ComPtr<ID2D1Brush>& init_brush) : Control(false)
     {
@@ -4150,6 +3961,74 @@ namespace cru::ui::controls
         selection_brush_ = UiManager::GetInstance()->GetPredefineResources()->text_control_selection_brush;
 
         SetClipContent(true);
+
+        size_changed_event.AddHandler([this](events::SizeChangedEventArgs& args)
+        {
+            const auto content = GetRect(RectRange::Content);
+            ThrowIfFailed(text_layout_->SetMaxWidth(content.width));
+            ThrowIfFailed(text_layout_->SetMaxHeight(content.height));
+            InvalidateDraw();
+        });
+
+        draw_content_event.AddHandler([this](events::DrawEventArgs& args)
+        {
+            const auto device_context = args.GetDeviceContext();
+            DrawSelectionRect(device_context, text_layout_.Get(), selection_brush_.Get(), selected_range_);
+            device_context->DrawTextLayout(D2D1::Point2F(), text_layout_.Get(), brush_.Get());
+        });
+
+        mouse_down_event.bubble.AddHandler([this](events::MouseButtonEventArgs& args)
+        {
+             if (is_selectable_ && args.GetMouseButton() == MouseButton::Left && GetRect(RectRange::Padding).IsPointInside(args.GetPoint(this, RectRange::Margin)))
+            {
+                selected_range_ = std::nullopt;
+                const auto hit_test_result = TextLayoutHitTest(text_layout_.Get(), args.GetPoint(this));
+                RequestChangeCaretPosition(hit_test_result);
+                mouse_down_position_ = hit_test_result;
+                is_selecting_ = true;
+                GetWindow()->CaptureMouseFor(this);
+                InvalidateDraw();
+            }
+        });
+
+        mouse_move_event.bubble.AddHandler([this](events::MouseEventArgs& args)
+        {
+            if (is_selecting_)
+            {
+                const auto hit_test_result = TextLayoutHitTest(text_layout_.Get(), args.GetPoint(this));
+                RequestChangeCaretPosition(hit_test_result);
+                selected_range_ = TextRange::FromTwoSides(hit_test_result, mouse_down_position_);
+                InvalidateDraw();
+            }
+            UpdateCursor(args.GetPoint(this, RectRange::Margin));
+        });
+
+
+        mouse_up_event.bubble.AddHandler([this](events::MouseButtonEventArgs& args)
+        {
+            if (args.GetMouseButton() == MouseButton::Left)
+            {
+                if (is_selecting_)
+                {
+                    is_selecting_ = false;
+                    GetWindow()->ReleaseCurrentMouseCapture();
+                }
+            }
+        });
+
+        lose_focus_event.direct.AddHandler([this](events::FocusChangeEventArgs& args)
+        {
+            if (is_selecting_)
+            {
+                is_selecting_ = false;
+                GetWindow()->ReleaseCurrentMouseCapture();
+            }
+            if (!args.IsWindow()) // If the focus lose is triggered window-wide, then save the selection state. Otherwise, clear selection.
+            {
+                selected_range_ = std::nullopt;
+                InvalidateDraw();
+            }
+        });
     }
 
 
@@ -4203,112 +4082,6 @@ namespace cru::ui::controls
             InvalidateDraw();
         }
     }
-
-    void TextControl::OnSizeChangedCore(events::SizeChangedEventArgs& args)
-    {
-        Control::OnSizeChangedCore(args);
-        const auto content = GetRect(RectRange::Content);
-        ThrowIfFailed(text_layout_->SetMaxWidth(content.width));
-        ThrowIfFailed(text_layout_->SetMaxHeight(content.height));
-        InvalidateDraw();
-    }
-
-    namespace
-    {
-        unsigned TextLayoutHitTest(IDWriteTextLayout* text_layout, const Point& point)
-        {
-            BOOL is_trailing, is_inside;
-            DWRITE_HIT_TEST_METRICS metrics{};
-            text_layout->HitTestPoint(point.x, point.y, &is_trailing, &is_inside, &metrics);
-            return is_trailing == 0 ? metrics.textPosition : metrics.textPosition + 1;
-        }
-
-        void DrawSelectionRect(ID2D1DeviceContext* device_context, IDWriteTextLayout* layout, ID2D1Brush* brush, const std::optional<TextRange> range)
-        {
-            if (range.has_value())
-            {
-                DWRITE_TEXT_METRICS text_metrics{};
-                ThrowIfFailed(layout->GetMetrics(&text_metrics));
-                const auto metrics_count = text_metrics.lineCount * text_metrics.maxBidiReorderingDepth;
-
-                std::vector<DWRITE_HIT_TEST_METRICS> hit_test_metrics(metrics_count);
-                UINT32 actual_count;
-                layout->HitTestTextRange(
-                    range.value().position, range.value().count,
-                    0, 0,
-                    hit_test_metrics.data(), metrics_count, &actual_count
-                );
-
-                hit_test_metrics.erase(hit_test_metrics.cbegin() + actual_count, hit_test_metrics.cend());
-
-                for (const auto& metrics : hit_test_metrics)
-                    device_context->FillRoundedRectangle(D2D1::RoundedRect(D2D1::RectF(metrics.left, metrics.top, metrics.left + metrics.width, metrics.top + metrics.height), 3, 3), brush);
-            }
-        }
-    }
-    void TextControl::OnDrawContent(ID2D1DeviceContext* device_context)
-    {
-        Control::OnDrawContent(device_context);
-        DrawSelectionRect(device_context, text_layout_.Get(), selection_brush_.Get(), selected_range_);
-        device_context->DrawTextLayout(D2D1::Point2F(), text_layout_.Get(), brush_.Get());
-    }
-
-    void TextControl::OnMouseDownCore(events::MouseButtonEventArgs& args)
-    {
-        Control::OnMouseDownCore(args);
-        if (is_selectable_ && args.GetMouseButton() == MouseButton::Left && GetRect(RectRange::Padding).IsPointInside(args.GetPoint(this, RectRange::Margin)))
-        {
-            selected_range_ = std::nullopt;
-            const auto hit_test_result = TextLayoutHitTest(text_layout_.Get(), args.GetPoint(this));
-            RequestChangeCaretPosition(hit_test_result);
-            mouse_down_position_ = hit_test_result;
-            is_selecting_ = true;
-            GetWindow()->CaptureMouseFor(this);
-            InvalidateDraw();
-        }
-    }
-
-    void TextControl::OnMouseMoveCore(events::MouseEventArgs& args)
-    {
-        Control::OnMouseMoveCore(args);
-        if (is_selecting_)
-        {
-            const auto hit_test_result = TextLayoutHitTest(text_layout_.Get(), args.GetPoint(this));
-            RequestChangeCaretPosition(hit_test_result);
-            selected_range_ = TextRange::FromTwoSides(hit_test_result, mouse_down_position_);
-            InvalidateDraw();
-        }
-        UpdateCursor(args.GetPoint(this, RectRange::Margin));
-    }
-
-    void TextControl::OnMouseUpCore(events::MouseButtonEventArgs& args)
-    {
-        Control::OnMouseUpCore(args);
-        if (args.GetMouseButton() == MouseButton::Left)
-        {
-            if (is_selecting_)
-            {
-                is_selecting_ = false;
-                GetWindow()->ReleaseCurrentMouseCapture();
-            }
-        }
-    }
-
-    void TextControl::OnLoseFocusCore(events::FocusChangeEventArgs& args)
-    {
-        Control::OnLoseFocusCore(args);
-        if (is_selecting_)
-        {
-            is_selecting_ = false;
-            GetWindow()->ReleaseCurrentMouseCapture();
-        }
-        if (!args.IsWindow()) // If the focus lose is triggered window-wide, then save the selection state. Otherwise, clear selection.
-        {
-            selected_range_ = std::nullopt;
-            InvalidateDraw();
-        }
-    }
-
 
     Size TextControl::OnMeasureContent(const Size& available_size)
     {
@@ -4407,12 +4180,33 @@ namespace cru::ui::controls
 
         on_brush_ = UiManager::GetInstance()->GetPredefineResources()->toggle_button_on_brush;
         off_brush_ = UiManager::GetInstance()->GetPredefineResources()->toggle_button_off_brush;
+
+        draw_content_event.AddHandler([this](events::DrawEventArgs& args)
+        {
+            const auto device_context = args.GetDeviceContext();
+            const auto size = GetSize();
+            graph::WithTransform(device_context, D2D1::Matrix3x2F::Translation(size.width / 2, size.height / 2), [this](ID2D1DeviceContext* device_context)
+            {
+                if (state_)
+                {
+                    device_context->DrawGeometry(frame_path_.Get(), on_brush_.Get(), stroke_width);
+                    device_context->FillEllipse(D2D1::Ellipse(D2D1::Point2F(current_circle_position_, 0), inner_circle_radius, inner_circle_radius), on_brush_.Get());
+                }
+                else
+                {
+                    device_context->DrawGeometry(frame_path_.Get(), off_brush_.Get(), stroke_width);
+                    device_context->FillEllipse(D2D1::Ellipse(D2D1::Point2F(current_circle_position_, 0), inner_circle_radius, inner_circle_radius), off_brush_.Get());
+                }
+            });
+        });
+
+        mouse_click_event.bubble.AddHandler([this](events::MouseButtonEventArgs& args)
+        {
+            if (args.GetMouseButton() == MouseButton::Left)
+                Toggle();
+        });
     }
 
-    inline D2D1_POINT_2F ConvertPoint(const Point& point)
-    {
-        return D2D1::Point2F(point.x, point.y);
-    }
 
     StringView ToggleButton::GetControlType() const
     {
@@ -4424,9 +4218,9 @@ namespace cru::ui::controls
         const auto size = GetSize();
         const auto transform = D2D1::Matrix3x2F::Translation(size.width / 2, size.height / 2);
         BOOL contains;
-        frame_path_->FillContainsPoint(ConvertPoint(point), transform, &contains);
+        frame_path_->FillContainsPoint(Convert(point), transform, &contains);
         if (!contains)
-            frame_path_->StrokeContainsPoint(ConvertPoint(point), stroke_width, nullptr, transform, &contains);
+            frame_path_->StrokeContainsPoint(Convert(point), stroke_width, nullptr, transform, &contains);
         return contains != 0;
     }
 
@@ -4458,7 +4252,8 @@ namespace cru::ui::controls
                 })
                 .Start();
 
-            RaiseToggleEvent(state);
+            events::ToggleEventArgs args(this, this, state);
+            toggle_event.Raise(args);
             InvalidateDraw();
         }
     }
@@ -4466,36 +4261,6 @@ namespace cru::ui::controls
     void ToggleButton::Toggle()
     {
         SetState(!GetState());
-    }
-
-    void ToggleButton::OnToggle(events::ToggleEventArgs& args)
-    {
-
-    }
-
-    void ToggleButton::OnDrawContent(ID2D1DeviceContext* device_context)
-    {
-        Control::OnDrawContent(device_context);
-        const auto size = GetSize();
-        graph::WithTransform(device_context, D2D1::Matrix3x2F::Translation(size.width / 2, size.height / 2), [this](ID2D1DeviceContext* device_context)
-        {
-            if (state_)
-            {
-                device_context->DrawGeometry(frame_path_.Get(), on_brush_.Get(), stroke_width);
-                device_context->FillEllipse(D2D1::Ellipse(D2D1::Point2F(current_circle_position_, 0), inner_circle_radius, inner_circle_radius), on_brush_.Get());
-            }
-            else
-            {
-                device_context->DrawGeometry(frame_path_.Get(), off_brush_.Get(), stroke_width);
-                device_context->FillEllipse(D2D1::Ellipse(D2D1::Point2F(current_circle_position_, 0), inner_circle_radius, inner_circle_radius), off_brush_.Get());
-            }
-        });
-    }
-
-    void ToggleButton::OnMouseClickCore(events::MouseButtonEventArgs& args)
-    {
-        Control::OnMouseClickCore(args);
-        Toggle();
     }
 
     Size ToggleButton::OnMeasureContent(const Size& available_size)
@@ -4506,13 +4271,6 @@ namespace cru::ui::controls
         );
 
         return result_size;
-    }
-
-    void ToggleButton::RaiseToggleEvent(bool new_state)
-    {
-        events::ToggleEventArgs args(this, this, new_state);
-        OnToggle(args);
-        toggle_event.Raise(args);
     }
 }
 //--------------------------------------------------------

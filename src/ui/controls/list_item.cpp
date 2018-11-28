@@ -15,6 +15,39 @@ namespace cru::ui::controls
         brushes_[State::Hover] .fill_brush   = predefine_resources->list_item_hover_fill_brush;
         brushes_[State::Select].border_brush = predefine_resources->list_item_select_border_brush;
         brushes_[State::Select].fill_brush   = predefine_resources->list_item_select_fill_brush;
+
+        draw_foreground_event.AddHandler([this](events::DrawEventArgs& args)
+        {
+            const auto device_context = args.GetDeviceContext();
+            const auto rect = Rect(Point::Zero(), GetRect(RectRange::Padding).GetSize());
+            device_context->FillRectangle(Convert(rect), brushes_[state_].fill_brush.Get());
+            device_context->DrawRectangle(Convert(rect.Shrink(Thickness(0.5))), brushes_[state_].border_brush.Get(), 1);
+        });
+
+        mouse_enter_event.direct.AddHandler([this](events::MouseEventArgs& args)
+        {
+            if (GetState() == State::Select)
+                return;
+
+            if (IsAnyMouseButtonDown())
+                return;
+
+            SetState(State::Hover);
+        });
+
+        mouse_leave_event.direct.AddHandler([this](events::MouseEventArgs& args)
+        {
+            if (GetState() == State::Select)
+                return;
+
+            SetState(State::Normal);
+        });
+
+        mouse_click_event.direct.AddHandler([this](events::MouseButtonEventArgs& args)
+        {
+            if (args.GetMouseButton() == MouseButton::Left)
+                SetState(State::Select);
+        });
     }
 
     StringView ListItem::GetControlType() const
@@ -26,37 +59,5 @@ namespace cru::ui::controls
     {
         state_ = state;
         InvalidateDraw();
-    }
-
-    void ListItem::OnDrawForeground(ID2D1DeviceContext* device_context)
-    {
-        const auto rect = Rect(Point::Zero(), GetRect(RectRange::Padding).GetSize());
-        device_context->FillRectangle(Convert(rect), brushes_[state_].fill_brush.Get());
-        device_context->DrawRectangle(Convert(rect.Shrink(Thickness(0.5))), brushes_[state_].border_brush.Get(), 1);
-    }
-
-    void ListItem::OnMouseEnterCore(events::MouseEventArgs& args)
-    {
-        if (GetState() == State::Select)
-            return;
-
-        if (IsAnyMouseButtonDown())
-            return;
-
-        SetState(State::Hover);
-    }
-
-    void ListItem::OnMouseLeaveCore(events::MouseEventArgs& args)
-    {
-        if (GetState() == State::Select)
-            return;
-
-        SetState(State::Normal);
-    }
-
-    void ListItem::OnMouseClickCore(events::MouseButtonEventArgs& args)
-    {
-        if (args.GetMouseButton() == MouseButton::Left)
-            SetState(State::Select);
     }
 }

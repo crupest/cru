@@ -12,7 +12,7 @@ namespace cru::ui::controls
     {
         const auto popup = Window::CreatePopup(parent);
 
-        popup->lose_focus_event.AddHandler([popup](events::FocusChangeEventArgs& args)
+        popup->lose_focus_event.bubble.AddHandler([popup](events::FocusChangeEventArgs& args)
         {
             if (args.IsWindow())
                 popup->Close();
@@ -29,7 +29,7 @@ namespace cru::ui::controls
                 ControlList{ text_block }
             );
 
-            list_item->mouse_click_event.AddHandler([popup, action](events::MouseButtonEventArgs& args)
+            list_item->mouse_click_event.bubble.AddHandler([popup, action](events::MouseButtonEventArgs& args)
             {
                 if (args.GetMouseButton() == MouseButton::Left)
                 {

@@ -5,7 +5,7 @@
 
 #include <type_traits>
 #include <functional>
-#include <unordered_map>
+#include <map>
 
 #include "base.hpp"
 
@@ -76,13 +76,15 @@ namespace cru {
 				(handler.second)(args);
 		}
 
+
+        //TODO: Remove this!
         bool IsNoHandler() const
 		{
 		    return handlers_.empty();
 		}
 
     private:
-        std::unordered_map<EventHandlerToken, EventHandler> handlers_;
+        std::map<EventHandlerToken, EventHandler> handlers_;
 
         EventHandlerToken current_token_ = 0;
     };

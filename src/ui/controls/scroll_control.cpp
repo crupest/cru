@@ -17,6 +17,131 @@ namespace cru::ui::controls
     ScrollControl::ScrollControl(const bool container) : Control(container)
     {
         SetClipContent(true);
+
+        draw_foreground_event.AddHandler([this](events::DrawEventArgs& args)
+        {
+            const auto device_context = args.GetDeviceContext();
+            const auto predefined = UiManager::GetInstance()->GetPredefineResources();
+
+            if (is_horizontal_scroll_bar_visible_)
+            {
+                device_context->FillRectangle(
+                    Convert(horizontal_bar_info_.border),
+                    predefined->scroll_bar_background_brush.Get()
+                );
+
+                device_context->FillRectangle(
+                    Convert(horizontal_bar_info_.bar),
+                    predefined->scroll_bar_brush.Get()
+                );
+
+                device_context->DrawLine(
+                    Convert(horizontal_bar_info_.border.GetLeftTop()),
+                    Convert(horizontal_bar_info_.border.GetRightTop()),
+                    predefined->scroll_bar_border_brush.Get()
+                );
+            }
+
+            if (is_vertical_scroll_bar_visible_)
+            {
+                device_context->FillRectangle(
+                    Convert(vertical_bar_info_.border),
+                    predefined->scroll_bar_background_brush.Get()
+                );
+
+                device_context->FillRectangle(
+                    Convert(vertical_bar_info_.bar),
+                    predefined->scroll_bar_brush.Get()
+                );
+
+                device_context->DrawLine(
+                    Convert(vertical_bar_info_.border.GetLeftTop()),
+                    Convert(vertical_bar_info_.border.GetLeftBottom()),
+                    predefined->scroll_bar_border_brush.Get()
+                );
+            }
+        });
+
+        mouse_down_event.tunnel.AddHandler([this](events::MouseButtonEventArgs& args)
+        {
+            if (args.GetMouseButton() == MouseButton::Left)
+            {
+                const auto point = args.GetPoint(this);
+                if (is_vertical_scroll_bar_visible_ && vertical_bar_info_.bar.IsPointInside(point))
+                {
+                    GetWindow()->CaptureMouseFor(this);
+                    is_pressing_scroll_bar_ = Orientation::Vertical;
+                    pressing_delta_ = point.y - vertical_bar_info_.bar.top;
+                    args.SetHandled();
+                    return;
+                }
+
+                if (is_horizontal_scroll_bar_visible_ && horizontal_bar_info_.bar.IsPointInside(point))
+                {
+                    GetWindow()->CaptureMouseFor(this);
+                    pressing_delta_ = point.x - horizontal_bar_info_.bar.left;
+                    is_pressing_scroll_bar_ = Orientation::Horizontal;
+                    args.SetHandled();
+                    return;
+                }
+            }
+        });
+
+        mouse_move_event.tunnel.AddHandler([this](events::MouseEventArgs& args)
+        {
+            const auto mouse_point = args.GetPoint(this);
+
+            if (is_pressing_scroll_bar_ == Orientation::Horizontal)
+            {
+                const auto new_head_position = mouse_point.x - pressing_delta_;
+                const auto new_offset = new_head_position / horizontal_bar_info_.border.width * view_width_;
+                SetScrollOffset(new_offset, std::nullopt);
+                args.SetHandled();
+                return;
+            }
+
+            if (is_pressing_scroll_bar_ == Orientation::Vertical)
+            {
+                const auto new_head_position = mouse_point.y - pressing_delta_;
+                const auto new_offset = new_head_position / vertical_bar_info_.border.height * view_height_;
+                SetScrollOffset(std::nullopt, new_offset);
+                args.SetHandled();
+                return;
+            }
+        });
+
+        mouse_up_event.tunnel.AddHandler([this](events::MouseButtonEventArgs& args)
+        {
+            if (args.GetMouseButton() == MouseButton::Left && is_pressing_scroll_bar_.has_value())
+            {
+                GetWindow()->ReleaseCurrentMouseCapture();
+                is_pressing_scroll_bar_ = std::nullopt;
+                args.SetHandled();
+            }
+        });
+
+        mouse_wheel_event.bubble.AddHandler([this](events::MouseWheelEventArgs& args)
+        {
+            constexpr const auto view_delta = 30.0f;
+
+            if (args.GetDelta() == 0.0f)
+                return;
+
+            const auto content_rect = GetRect(RectRange::Content);
+            if (IsVerticalScrollEnabled() && GetScrollOffsetY() != (args.GetDelta() > 0.0f ? 0.0f : AtLeast0(GetViewHeight() - content_rect.height)))
+            {
+                SetScrollOffset(std::nullopt, GetScrollOffsetY() - args.GetDelta() / WHEEL_DELTA * view_delta);
+                args.SetHandled();
+                return;
+            }
+
+            if (IsHorizontalScrollEnabled() && GetScrollOffsetX() != (args.GetDelta() > 0.0f ? 0.0f : AtLeast0(GetViewWidth() - content_rect.width)))
+            {
+                SetScrollOffset(GetScrollOffsetX() - args.GetDelta() / WHEEL_DELTA * view_delta, std::nullopt);
+                args.SetHandled();
+                return;
+            }
+        });
     }
 
     ScrollControl::~ScrollControl()
@@ -202,133 +327,6 @@ namespace cru::ui::controls
         UpdateScrollBarBorderInfo();
         CoerceAndSetOffsets(offset_x_, offset_y_, false);
         UpdateScrollBarVisibility();
-    }
-
-    void ScrollControl::OnDrawForeground(ID2D1DeviceContext* device_context)
-    {
-        Control::OnDrawForeground(device_context);
-
-        const auto predefined = UiManager::GetInstance()->GetPredefineResources();
-
-        if (is_horizontal_scroll_bar_visible_)
-        {
-            device_context->FillRectangle(
-                Convert(horizontal_bar_info_.border),
-                predefined->scroll_bar_background_brush.Get()
-            );
-
-            device_context->FillRectangle(
-                Convert(horizontal_bar_info_.bar),
-                predefined->scroll_bar_brush.Get()
-            );
-
-            device_context->DrawLine(
-                Convert(horizontal_bar_info_.border.GetLeftTop()),
-                Convert(horizontal_bar_info_.border.GetRightTop()),
-                predefined->scroll_bar_border_brush.Get()
-            );
-        }
-
-        if (is_vertical_scroll_bar_visible_)
-        {
-            device_context->FillRectangle(
-                Convert(vertical_bar_info_.border),
-                predefined->scroll_bar_background_brush.Get()
-            );
-
-            device_context->FillRectangle(
-                Convert(vertical_bar_info_.bar),
-                predefined->scroll_bar_brush.Get()
-            );
-
-            device_context->DrawLine(
-                Convert(vertical_bar_info_.border.GetLeftTop()),
-                Convert(vertical_bar_info_.border.GetLeftBottom()),
-                predefined->scroll_bar_border_brush.Get()
-            );
-        }
-    }
-
-    void ScrollControl::OnMouseDownCore(events::MouseButtonEventArgs& args)
-    {
-        Control::OnMouseDownCore(args);
-
-        if (args.GetMouseButton() == MouseButton::Left)
-        {
-            const auto point = args.GetPoint(this);
-            if (is_vertical_scroll_bar_visible_ && vertical_bar_info_.bar.IsPointInside(point))
-            {
-                GetWindow()->CaptureMouseFor(this);
-                is_pressing_scroll_bar_ = Orientation::Vertical;
-                pressing_delta_ = point.y - vertical_bar_info_.bar.top;
-                return;
-            }
-
-            if (is_horizontal_scroll_bar_visible_ && horizontal_bar_info_.bar.IsPointInside(point))
-            {
-                GetWindow()->CaptureMouseFor(this);
-                pressing_delta_ = point.x - horizontal_bar_info_.bar.left;
-                is_pressing_scroll_bar_ = Orientation::Horizontal;
-                return;
-            }
-        }
-    }
-
-    void ScrollControl::OnMouseMoveCore(events::MouseEventArgs& args)
-    {
-        Control::OnMouseMoveCore(args);
-
-        const auto mouse_point = args.GetPoint(this);
-
-        if (is_pressing_scroll_bar_ == Orientation::Horizontal)
-        {
-            const auto new_head_position = mouse_point.x - pressing_delta_;
-            const auto new_offset = new_head_position / horizontal_bar_info_.border.width * view_width_;
-            SetScrollOffset(new_offset, std::nullopt);
-            return;
-        }
-
-        if (is_pressing_scroll_bar_ == Orientation::Vertical)
-        {
-            const auto new_head_position = mouse_point.y - pressing_delta_;
-            const auto new_offset = new_head_position / vertical_bar_info_.border.height * view_height_;
-            SetScrollOffset(std::nullopt, new_offset);
-            return;
-        }
-    }
-
-    void ScrollControl::OnMouseUpCore(events::MouseButtonEventArgs& args)
-    {
-        Control::OnMouseUpCore(args);
-
-        if (args.GetMouseButton() == MouseButton::Left && is_pressing_scroll_bar_.has_value())
-        {
-            GetWindow()->ReleaseCurrentMouseCapture();
-            is_pressing_scroll_bar_ = std::nullopt;
-        }
-    }
-
-    void ScrollControl::OnMouseWheelCore(events::MouseWheelEventArgs& args)
-    {
-        Control::OnMouseWheelCore(args);
-
-        constexpr const auto view_delta = 30.0f;
-
-        if (args.GetDelta() == 0.0f)
-            return;
-
-        const auto content_rect = GetRect(RectRange::Content);
-        if (IsVerticalScrollEnabled() && GetScrollOffsetY() != (args.GetDelta() > 0.0f ? 0.0f : AtLeast0(GetViewHeight() - content_rect.height)))
-        {
-            SetScrollOffset(std::nullopt, GetScrollOffsetY() - args.GetDelta() / WHEEL_DELTA * view_delta);
-            return;
-        }
-
-        if (IsHorizontalScrollEnabled() && GetScrollOffsetX() != (args.GetDelta() > 0.0f ? 0.0f : AtLeast0(GetViewWidth() - content_rect.width)))
-        {
-            SetScrollOffset(GetScrollOffsetX() - args.GetDelta() / WHEEL_DELTA * view_delta, std::nullopt);
-            return;
-        }
     }
 
     void ScrollControl::CoerceAndSetOffsets(const float offset_x, const float offset_y, const bool update_children)
