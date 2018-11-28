@@ -24,7 +24,7 @@ namespace cru::ui::controls
             device_context->DrawRectangle(Convert(rect.Shrink(Thickness(0.5))), brushes_[state_].border_brush.Get(), 1);
         });
 
-        mouse_enter_event.bubble.AddHandler([this](events::MouseEventArgs& args)
+        mouse_enter_event.direct.AddHandler([this](events::MouseEventArgs& args)
         {
             if (GetState() == State::Select)
                 return;
@@ -35,7 +35,7 @@ namespace cru::ui::controls
             SetState(State::Hover);
         });
 
-        mouse_leave_event.bubble.AddHandler([this](events::MouseEventArgs& args)
+        mouse_leave_event.direct.AddHandler([this](events::MouseEventArgs& args)
         {
             if (GetState() == State::Select)
                 return;
@@ -43,7 +43,7 @@ namespace cru::ui::controls
             SetState(State::Normal);
         });
 
-        mouse_click_event.bubble.AddHandler([this](events::MouseButtonEventArgs& args)
+        mouse_click_event.direct.AddHandler([this](events::MouseButtonEventArgs& args)
         {
             if (args.GetMouseButton() == MouseButton::Left)
                 SetState(State::Select);

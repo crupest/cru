@@ -34,7 +34,7 @@ namespace cru::ui::controls
             }
         });
 
-        get_focus_event.bubble.AddHandler([this](events::FocusChangeEventArgs& args)
+        get_focus_event.direct.AddHandler([this](events::FocusChangeEventArgs& args)
         {
             assert(!caret_timer_.has_value());
             is_caret_show_ = true;
@@ -45,7 +45,7 @@ namespace cru::ui::controls
             });
         });
 
-        lose_focus_event.bubble.AddHandler([this](events::FocusChangeEventArgs& args)
+        lose_focus_event.direct.AddHandler([this](events::FocusChangeEventArgs& args)
         {
             assert(caret_timer_.has_value());
             caret_timer_->Cancel();

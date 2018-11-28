@@ -110,7 +110,7 @@ namespace cru::ui::controls
             }
         });
 
-        lose_focus_event.bubble.AddHandler([this](events::FocusChangeEventArgs& args)
+        lose_focus_event.direct.AddHandler([this](events::FocusChangeEventArgs& args)
         {
             if (is_selecting_)
             {
