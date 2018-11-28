@@ -249,34 +249,35 @@ namespace cru::ui
 
         //*************** region: events ***************
         //Raised when mouse enter the control.
-        events::MouseEvent mouse_enter_event;
+        events::RoutedEvent<events::MouseEventArgs> mouse_enter_event;
         //Raised when mouse is leave the control.
-        events::MouseEvent mouse_leave_event;
+        events::RoutedEvent<events::MouseEventArgs> mouse_leave_event;
         //Raised when mouse is move in the control.
-        events::MouseEvent mouse_move_event;
+        events::RoutedEvent<events::MouseEventArgs> mouse_move_event;
         //Raised when a mouse button is pressed in the control.
-        events::MouseButtonEvent mouse_down_event;
+        events::RoutedEvent<events::MouseButtonEventArgs> mouse_down_event;
         //Raised when a mouse button is released in the control.
-        events::MouseButtonEvent mouse_up_event;
+        events::RoutedEvent<events::MouseButtonEventArgs> mouse_up_event;
         //Raised when a mouse button is pressed in the control and released in the control with mouse not leaving it between two operations.
-        events::MouseButtonEvent mouse_click_event;
+        events::RoutedEvent<events::MouseButtonEventArgs> mouse_click_event;
 
-        events::MouseWheelEvent mouse_wheel_event;
+        events::RoutedEvent<events::MouseWheelEventArgs> mouse_wheel_event;
 
-        events::KeyEvent key_down_event;
-        events::KeyEvent key_up_event;
-        events::CharEvent char_event;
+        events::RoutedEvent<events::KeyEventArgs> key_down_event;
+        events::RoutedEvent<events::KeyEventArgs> key_up_event;
+        events::RoutedEvent<events::CharEventArgs> char_event;
 
-        events::FocusChangeEvent get_focus_event;
-        events::FocusChangeEvent lose_focus_event;
+        events::RoutedEvent<events::FocusChangeEventArgs> get_focus_event;
+        events::RoutedEvent<events::FocusChangeEventArgs> lose_focus_event;
 
-        events::DrawEvent draw_content_event;
-        events::DrawEvent draw_background_event;
-        events::DrawEvent draw_foreground_event;
+        Event<events::DrawEventArgs> draw_content_event;
+        Event<events::DrawEventArgs> draw_background_event;
+        Event<events::DrawEventArgs> draw_foreground_event;
 
-        events::PositionChangedEvent position_changed_event;
-        events::SizeChangedEvent size_changed_event;
+        Event<events::PositionChangedEventArgs> position_changed_event;
+        Event<events::SizeChangedEventArgs> size_changed_event;
 
+        //*************** region: tree event ***************
     protected:
         //Invoked when a child is added. Overrides should invoke base.
         virtual void OnAddChild(Control* child);
@@ -288,32 +289,15 @@ namespace cru::ui
         //Invoked when the control is detached to a window. Overrides should invoke base.
         virtual void OnDetachToWindow(Window* window);
 
-        //*************** region: graphic events ***************
+
+        //*************** region: graphic event ***************
     private:
         void OnDrawDecoration(ID2D1DeviceContext* device_context);
         void OnDrawCore(ID2D1DeviceContext* device_context);
-    protected:
-        virtual void OnDrawContent(ID2D1DeviceContext* device_context);
-        virtual void OnDrawForeground(ID2D1DeviceContext* device_context);
-        virtual void OnDrawBackground(ID2D1DeviceContext* device_context);
 
-        // For a event, the window event system will first dispatch event to core functions.
-        // Therefore for particular controls, you should do essential actions in core functions,
-        // and override version should invoke base version. The base core function
-        // in "Control" class will call corresponding non-core function and call "Raise" on
-        // event objects. So user custom actions should be done by overriding non-core function
-        // and calling the base version is optional.
 
         //*************** region: position and size event ***************
-        virtual void OnPositionChanged(events::PositionChangedEventArgs& args);
-        virtual void OnSizeChanged(events::SizeChangedEventArgs& args);
-
-        virtual void OnPositionChangedCore(events::PositionChangedEventArgs& args);
-        virtual void OnSizeChangedCore(events::SizeChangedEventArgs& args);
-
-        void RaisePositionChangedEvent(events::PositionChangedEventArgs& args);
-        void RaiseSizeChangedEvent(events::SizeChangedEventArgs& args);
-
+    protected:
         void RegenerateGeometryInfo();
 
         const GeometryInfo& GetGeometryInfo() const
@@ -321,63 +305,19 @@ namespace cru::ui
             return geometry_info_;
         }
 
+
         //*************** region: mouse event ***************
-        virtual void OnMouseEnter(events::MouseEventArgs& args);
-        virtual void OnMouseLeave(events::MouseEventArgs& args);
-        virtual void OnMouseMove(events::MouseEventArgs& args);
-        virtual void OnMouseDown(events::MouseButtonEventArgs& args);
-        virtual void OnMouseUp(events::MouseButtonEventArgs& args);
-        virtual void OnMouseClick(events::MouseButtonEventArgs& args);
-
-        virtual void OnMouseEnterCore(events::MouseEventArgs& args);
-        virtual void OnMouseLeaveCore(events::MouseEventArgs& args);
-        virtual void OnMouseMoveCore(events::MouseEventArgs& args);
-        virtual void OnMouseDownCore(events::MouseButtonEventArgs& args);
-        virtual void OnMouseUpCore(events::MouseButtonEventArgs& args);
-        virtual void OnMouseClickCore(events::MouseButtonEventArgs& args);
-
-        virtual void OnMouseWheel(events::MouseWheelEventArgs& args);
-        virtual void OnMouseWheelCore(events::MouseWheelEventArgs& args);
-
-        void RaiseMouseEnterEvent(events::MouseEventArgs& args);
-        void RaiseMouseLeaveEvent(events::MouseEventArgs& args);
-        void RaiseMouseMoveEvent(events::MouseEventArgs& args);
-        void RaiseMouseDownEvent(events::MouseButtonEventArgs& args);
-        void RaiseMouseUpEvent(events::MouseButtonEventArgs& args);
-        void RaiseMouseClickEvent(events::MouseButtonEventArgs& args);
-
-        void RaiseMouseWheelEvent(events::MouseWheelEventArgs& args);
-
+    protected:
         virtual void OnMouseClickBegin(MouseButton button);
         virtual void OnMouseClickEnd(MouseButton button);
 
-        //*************** region: keyboard event ***************
-        virtual void OnKeyDown(events::KeyEventArgs& args);
-        virtual void OnKeyUp(events::KeyEventArgs& args);
-        virtual void OnChar(events::CharEventArgs& args);
-
-        virtual void OnKeyDownCore(events::KeyEventArgs& args);
-        virtual void OnKeyUpCore(events::KeyEventArgs& args);
-        virtual void OnCharCore(events::CharEventArgs& args);
-
-        void RaiseKeyDownEvent(events::KeyEventArgs& args);
-        void RaiseKeyUpEvent(events::KeyEventArgs& args);
-        void RaiseCharEvent(events::CharEventArgs& args);
-
-        //*************** region: focus event ***************
-        virtual void OnGetFocus(events::FocusChangeEventArgs& args);
-        virtual void OnLoseFocus(events::FocusChangeEventArgs& args);
-
-        virtual void OnGetFocusCore(events::FocusChangeEventArgs& args);
-        virtual void OnLoseFocusCore(events::FocusChangeEventArgs& args);
-
-        void RaiseGetFocusEvent(events::FocusChangeEventArgs& args);
-        void RaiseLoseFocusEvent(events::FocusChangeEventArgs& args);
 
         //*************** region: layout ***************
+    private:
         Size OnMeasureCore(const Size& available_size);
         void OnLayoutCore(const Rect& rect);
 
+    protected:
         virtual Size OnMeasureContent(const Size& available_size);
         virtual void OnLayoutContent(const Rect& rect);
 
@@ -416,8 +356,6 @@ namespace cru::ui
 
         ControlPositionCache position_cache_{};
 
-        bool is_mouse_inside_ = false;
-
         std::unordered_map<MouseButton, bool> is_mouse_click_valid_map_
         {
             { MouseButton::Left, true },
@@ -450,6 +388,71 @@ namespace cru::ui
         Cursor::Ptr cursor_{};
     };
 
+
+    //*************** region: event dispatcher helper ***************
+
+    // Dispatch the event.
+    // 
+    // This will raise routed event of the control and its parent and parent's
+    // parent ... (until "last_receiver" if it's not nullptr) with appropriate args.
+    // 
+    // First tunnel from top to bottom possibly stopped by "handled" flag in EventArgs.
+    // Second bubble from bottom to top possibly stopped by "handled" flag in EventArgs.
+    // Last direct to each control.
+    // 
+    // Args is of type "EventArgs". The first init argument is "sender", which is
+    // automatically bound to each receiving control. The second init argument is
+    // "original_sender", which is unchanged. And "args" will be perfectly forwarded
+    // as the rest arguments.
+    template<typename EventArgs, typename... Args>
+    void DispatchEvent(Control* const original_sender, events::RoutedEvent<EventArgs> Control::* event_ptr, Control* const last_receiver, Args&&... args)
+    {
+        std::list<Control*> receive_list;
+
+        auto parent = original_sender;
+        while (parent != last_receiver)
+        {
+            receive_list.push_back(parent);
+            parent = parent->GetParent();
+        }
+
+        auto handled = false;
+
+        //tunnel
+        for (auto i = receive_list.crbegin(); i != receive_list.crend(); ++i)
+        {
+            EventArgs event_args(*i, original_sender, std::forward<Args>(args)...);
+            (*i->*event_ptr).tunnel.Raise(event_args);
+            if (event_args.IsHandled())
+            {
+                handled = true;
+                break;
+            }
+        }
+
+        //bubble
+        if (!handled)
+        {
+            for (auto i : receive_list)
+            {
+                EventArgs event_args(i, original_sender, std::forward<Args>(args)...);
+                (i->*event_ptr).bubble.Raise(event_args);
+                if (event_args.IsHandled())
+                    break;
+            }
+        }
+
+        //direct
+        for (auto i : receive_list)
+        {
+            EventArgs event_args(i, original_sender, std::forward<Args>(args)...);
+            (i->*event_ptr).direct.Raise(event_args);
+        }
+    }
+
+
+    //*************** region: tree helper ***************
+
     // Find the lowest common ancestor.
     // Return nullptr if "left" and "right" are not in the same tree.
     Control* FindLowestCommonAncestor(Control* left, Control* right);
@@ -467,6 +470,8 @@ namespace cru::ui
         return control;
     }
 
+
+    //*************** region: create helper ***************
 
     template <typename TControl, typename... Args>
     TControl* CreateWithLayout(const Thickness& padding, const Thickness& margin, Args&&... args)

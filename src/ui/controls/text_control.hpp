@@ -62,18 +62,7 @@ namespace cru::ui::controls
     protected:
         void SetSelectable(bool is_selectable);
 
-    protected:
-        void OnSizeChangedCore(events::SizeChangedEventArgs& args) override final;
-        void OnDrawContent(ID2D1DeviceContext* device_context) override;
-
-        void OnMouseDownCore(events::MouseButtonEventArgs& args) override final;
-        void OnMouseMoveCore(events::MouseEventArgs& args) override final;
-        void OnMouseUpCore(events::MouseButtonEventArgs& args) override final;
-
-        void OnLoseFocusCore(events::FocusChangeEventArgs& args) override;
-
-        Size OnMeasureContent(const Size& available_size) override;
-
+        Size OnMeasureContent(const Size& available_size) override final;
 
         virtual void RequestChangeCaretPosition(unsigned position);
 

@@ -4,6 +4,7 @@
 #include "pre.hpp"
 
 #include "system_headers.hpp"
+#include <list>
 #include <map>
 #include <memory>
 
@@ -241,10 +242,10 @@ namespace cru::ui
  
     public:
         //*************** region: events ***************
-        events::UiEvent activated_event;
-        events::UiEvent deactivated_event;
- 
-        events::WindowNativeMessageEvent native_message_event;
+        Event<events::UiEventArgs> activated_event;
+        Event<events::UiEventArgs> deactivated_event;
+
+        Event<events::WindowNativeMessageEventArgs> native_message_event;
  
     private:
         //*************** region: native operations ***************
@@ -280,30 +281,6 @@ namespace cru::ui
         void OnDeactivatedInternal();
  
         //*************** region: event dispatcher helper ***************
- 
-        template<typename EventArgs>
-        using EventMethod = void (Control::*)(EventArgs&);
- 
-        // Dispatch the event.
-        // 
-        // This will invoke the "event_method" of the control and its parent and parent's
-        // parent ... (until "last_receiver" if it's not nullptr) with appropriate args.
-        //
-        // Args is of type "EventArgs". The first init argument is "sender", which is
-        // automatically bound to each receiving control. The second init argument is
-        // "original_sender", which is unchanged. And "args" will be perfectly forwarded
-        // as the rest arguments.
-        template<typename EventArgs, typename... Args>
-        void DispatchEvent(Control* original_sender, EventMethod<EventArgs> event_method, Control* last_receiver, Args&&... args)
-        {
-            auto control = original_sender;
-            while (control != nullptr && control != last_receiver)
-            {
-                EventArgs event_args(control, original_sender, std::forward<Args>(args)...);
-                (control->*event_method)(event_args);
-                control = control->GetParent();
-            }
-        }
  
         void DispatchMouseHoverControlChangeEvent(Control* old_control, Control * new_control, const Point& point);
  

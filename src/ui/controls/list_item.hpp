@@ -56,13 +56,6 @@ namespace cru::ui::controls
 
         void SetState(State state);
 
-    protected:
-        void OnDrawForeground(ID2D1DeviceContext* device_context) override;
-
-        void OnMouseEnterCore(events::MouseEventArgs& args) override final;
-        void OnMouseLeaveCore(events::MouseEventArgs& args) override final;
-        void OnMouseClickCore(events::MouseButtonEventArgs& args) override final;
-
     private:
         State state_ = State::Normal;
         std::map<State, StateBrush> brushes_{};

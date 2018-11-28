@@ -30,14 +30,6 @@ namespace cru::ui::controls
         StringView GetControlType() const override final;
 
     protected:
-        void OnDrawContent(ID2D1DeviceContext* device_context) override;
-
-        void OnGetFocusCore(events::FocusChangeEventArgs& args) override final;
-        void OnLoseFocusCore(events::FocusChangeEventArgs& args) override final;
-
-        void OnKeyDownCore(events::KeyEventArgs& args) override final;
-        void OnCharCore(events::CharEventArgs& args) override final;
-
         void RequestChangeCaretPosition(unsigned position) override final;
 
     private:

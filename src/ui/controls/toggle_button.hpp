@@ -40,21 +40,10 @@ namespace cru::ui::controls
 
         void Toggle();
 
-    public:
-        events::ToggleEvent toggle_event;
+        Event<events::ToggleEventArgs> toggle_event;
 
     protected:
-        virtual void OnToggle(events::ToggleEventArgs& args);
-
-    protected:
-        void OnDrawContent(ID2D1DeviceContext* device_context) override;
-
-        void OnMouseClickCore(events::MouseButtonEventArgs& args) override;
-
         Size OnMeasureContent(const Size& available_size) override;
-
-    private:
-        void RaiseToggleEvent(bool new_state);
 
     private:
         bool state_ = false;

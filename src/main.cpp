@@ -104,7 +104,7 @@ int APIENTRY wWinMain(
     //test 2
     const auto layout = CreateWithLayout<LinearLayout>(LayoutSideParams::Exactly(500), LayoutSideParams::Content());
 
-    layout->mouse_click_event.AddHandler([layout](cru::ui::events::MouseButtonEventArgs& args)
+    layout->mouse_click_event.bubble.AddHandler([layout](cru::ui::events::MouseButtonEventArgs& args)
     {
         if (args.GetSender() == args.GetOriginalSender())
             layout->AddChild(TextBlock::Create(L"Layout is clicked!"));
@@ -133,7 +133,7 @@ int APIENTRY wWinMain(
         const auto button = Button::Create();
         button->GetLayoutParams()->padding = Thickness(20, 5);
         button->AddChild(TextBlock::Create(L"Show popup window parenting this."));
-        button->mouse_click_event.AddHandler([window, button](auto)
+        button->mouse_click_event.bubble.AddHandler([window, button](auto)
         {
             std::vector<cru::ui::controls::MenuItemInfo> items;
             items.emplace_back(L"Hello world!", []{});
@@ -150,7 +150,7 @@ int APIENTRY wWinMain(
         button->GetLayoutParams()->padding = Thickness(20, 5);
         button->AddChild(TextBlock::Create(L"Show popup window parenting null."));
         button->SetBackgroundBrush(cru::graph::CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Gold)));
-        button->mouse_click_event.AddHandler([](auto)
+        button->mouse_click_event.bubble.AddHandler([](auto)
         {
             auto popup = Window::CreatePopup(nullptr);
             popup->SetWindowRect(Rect(100, 100, 300, 300));
@@ -163,7 +163,7 @@ int APIENTRY wWinMain(
         const auto button = Button::Create();
         button->GetLayoutParams()->padding = Thickness(20, 5);
         button->AddChild(TextBlock::Create(L"Show popup window with caption."));
-        button->mouse_click_event.AddHandler([](auto)
+        button->mouse_click_event.bubble.AddHandler([](auto)
         {
             auto popup = Window::CreatePopup(nullptr, true);
             popup->SetWindowRect(Rect(100, 100, 300, 300));
@@ -175,7 +175,7 @@ int APIENTRY wWinMain(
     {
         const auto text_block = CreateWithLayout<TextBlock>(LayoutSideParams::Exactly(200), LayoutSideParams::Exactly(80), L"Hello World!!!");
 
-        text_block->mouse_click_event.AddHandler([layout](cru::ui::events::MouseButtonEventArgs& args)
+        text_block->mouse_click_event.bubble.AddHandler([layout](cru::ui::events::MouseButtonEventArgs& args)
         {
             layout->AddChild(TextBlock::Create(L"Hello world is clicked!"));
         });
@@ -187,6 +187,11 @@ int APIENTRY wWinMain(
         const auto text_box = TextBox::Create();
         text_box->GetLayoutParams()->width.min = 50.0f;
         text_box->GetLayoutParams()->width.max = 100.0f;
+        text_box->char_event.tunnel.AddHandler([](cru::ui::events::CharEventArgs& args)
+        {
+            if (args.GetChar() == L'1')
+                args.SetHandled();
+        });
         layout->AddChild(text_box);
     }
 

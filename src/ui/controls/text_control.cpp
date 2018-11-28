@@ -9,6 +9,40 @@
 
 namespace cru::ui::controls
 {
+    namespace
+    {
+        unsigned TextLayoutHitTest(IDWriteTextLayout* text_layout, const Point& point)
+        {
+            BOOL is_trailing, is_inside;
+            DWRITE_HIT_TEST_METRICS metrics{};
+            text_layout->HitTestPoint(point.x, point.y, &is_trailing, &is_inside, &metrics);
+            return is_trailing == 0 ? metrics.textPosition : metrics.textPosition + 1;
+        }
+
+        void DrawSelectionRect(ID2D1DeviceContext* device_context, IDWriteTextLayout* layout, ID2D1Brush* brush, const std::optional<TextRange> range)
+        {
+            if (range.has_value())
+            {
+                DWRITE_TEXT_METRICS text_metrics{};
+                ThrowIfFailed(layout->GetMetrics(&text_metrics));
+                const auto metrics_count = text_metrics.lineCount * text_metrics.maxBidiReorderingDepth;
+
+                std::vector<DWRITE_HIT_TEST_METRICS> hit_test_metrics(metrics_count);
+                UINT32 actual_count;
+                layout->HitTestTextRange(
+                    range.value().position, range.value().count,
+                    0, 0,
+                    hit_test_metrics.data(), metrics_count, &actual_count
+                );
+
+                hit_test_metrics.erase(hit_test_metrics.cbegin() + actual_count, hit_test_metrics.cend());
+
+                for (const auto& metrics : hit_test_metrics)
+                    device_context->FillRoundedRectangle(D2D1::RoundedRect(D2D1::RectF(metrics.left, metrics.top, metrics.left + metrics.width, metrics.top + metrics.height), 3, 3), brush);
+            }
+        }
+    }
+
     TextControl::TextControl(const Microsoft::WRL::ComPtr<IDWriteTextFormat>& init_text_format,
         const Microsoft::WRL::ComPtr<ID2D1Brush>& init_brush) : Control(false)
     {
@@ -21,6 +55,74 @@ namespace cru::ui::controls
         selection_brush_ = UiManager::GetInstance()->GetPredefineResources()->text_control_selection_brush;
 
         SetClipContent(true);
+
+        size_changed_event.AddHandler([this](events::SizeChangedEventArgs& args)
+        {
+            const auto content = GetRect(RectRange::Content);
+            ThrowIfFailed(text_layout_->SetMaxWidth(content.width));
+            ThrowIfFailed(text_layout_->SetMaxHeight(content.height));
+            InvalidateDraw();
+        });
+
+        draw_content_event.AddHandler([this](events::DrawEventArgs& args)
+        {
+            const auto device_context = args.GetDeviceContext();
+            DrawSelectionRect(device_context, text_layout_.Get(), selection_brush_.Get(), selected_range_);
+            device_context->DrawTextLayout(D2D1::Point2F(), text_layout_.Get(), brush_.Get());
+        });
+
+        mouse_down_event.bubble.AddHandler([this](events::MouseButtonEventArgs& args)
+        {
+             if (is_selectable_ && args.GetMouseButton() == MouseButton::Left && GetRect(RectRange::Padding).IsPointInside(args.GetPoint(this, RectRange::Margin)))
+            {
+                selected_range_ = std::nullopt;
+                const auto hit_test_result = TextLayoutHitTest(text_layout_.Get(), args.GetPoint(this));
+                RequestChangeCaretPosition(hit_test_result);
+                mouse_down_position_ = hit_test_result;
+                is_selecting_ = true;
+                GetWindow()->CaptureMouseFor(this);
+                InvalidateDraw();
+            }
+        });
+
+        mouse_move_event.bubble.AddHandler([this](events::MouseEventArgs& args)
+        {
+            if (is_selecting_)
+            {
+                const auto hit_test_result = TextLayoutHitTest(text_layout_.Get(), args.GetPoint(this));
+                RequestChangeCaretPosition(hit_test_result);
+                selected_range_ = TextRange::FromTwoSides(hit_test_result, mouse_down_position_);
+                InvalidateDraw();
+            }
+            UpdateCursor(args.GetPoint(this, RectRange::Margin));
+        });
+
+
+        mouse_up_event.bubble.AddHandler([this](events::MouseButtonEventArgs& args)
+        {
+            if (args.GetMouseButton() == MouseButton::Left)
+            {
+                if (is_selecting_)
+                {
+                    is_selecting_ = false;
+                    GetWindow()->ReleaseCurrentMouseCapture();
+                }
+            }
+        });
+
+        lose_focus_event.bubble.AddHandler([this](events::FocusChangeEventArgs& args)
+        {
+            if (is_selecting_)
+            {
+                is_selecting_ = false;
+                GetWindow()->ReleaseCurrentMouseCapture();
+            }
+            if (!args.IsWindow()) // If the focus lose is triggered window-wide, then save the selection state. Otherwise, clear selection.
+            {
+                selected_range_ = std::nullopt;
+                InvalidateDraw();
+            }
+        });
     }
 
 
@@ -74,112 +176,6 @@ namespace cru::ui::controls
             InvalidateDraw();
         }
     }
-
-    void TextControl::OnSizeChangedCore(events::SizeChangedEventArgs& args)
-    {
-        Control::OnSizeChangedCore(args);
-        const auto content = GetRect(RectRange::Content);
-        ThrowIfFailed(text_layout_->SetMaxWidth(content.width));
-        ThrowIfFailed(text_layout_->SetMaxHeight(content.height));
-        InvalidateDraw();
-    }
-
-    namespace
-    {
-        unsigned TextLayoutHitTest(IDWriteTextLayout* text_layout, const Point& point)
-        {
-            BOOL is_trailing, is_inside;
-            DWRITE_HIT_TEST_METRICS metrics{};
-            text_layout->HitTestPoint(point.x, point.y, &is_trailing, &is_inside, &metrics);
-            return is_trailing == 0 ? metrics.textPosition : metrics.textPosition + 1;
-        }
-
-        void DrawSelectionRect(ID2D1DeviceContext* device_context, IDWriteTextLayout* layout, ID2D1Brush* brush, const std::optional<TextRange> range)
-        {
-            if (range.has_value())
-            {
-                DWRITE_TEXT_METRICS text_metrics{};
-                ThrowIfFailed(layout->GetMetrics(&text_metrics));
-                const auto metrics_count = text_metrics.lineCount * text_metrics.maxBidiReorderingDepth;
-
-                std::vector<DWRITE_HIT_TEST_METRICS> hit_test_metrics(metrics_count);
-                UINT32 actual_count;
-                layout->HitTestTextRange(
-                    range.value().position, range.value().count,
-                    0, 0,
-                    hit_test_metrics.data(), metrics_count, &actual_count
-                );
-
-                hit_test_metrics.erase(hit_test_metrics.cbegin() + actual_count, hit_test_metrics.cend());
-
-                for (const auto& metrics : hit_test_metrics)
-                    device_context->FillRoundedRectangle(D2D1::RoundedRect(D2D1::RectF(metrics.left, metrics.top, metrics.left + metrics.width, metrics.top + metrics.height), 3, 3), brush);
-            }
-        }
-    }
-    void TextControl::OnDrawContent(ID2D1DeviceContext* device_context)
-    {
-        Control::OnDrawContent(device_context);
-        DrawSelectionRect(device_context, text_layout_.Get(), selection_brush_.Get(), selected_range_);
-        device_context->DrawTextLayout(D2D1::Point2F(), text_layout_.Get(), brush_.Get());
-    }
-
-    void TextControl::OnMouseDownCore(events::MouseButtonEventArgs& args)
-    {
-        Control::OnMouseDownCore(args);
-        if (is_selectable_ && args.GetMouseButton() == MouseButton::Left && GetRect(RectRange::Padding).IsPointInside(args.GetPoint(this, RectRange::Margin)))
-        {
-            selected_range_ = std::nullopt;
-            const auto hit_test_result = TextLayoutHitTest(text_layout_.Get(), args.GetPoint(this));
-            RequestChangeCaretPosition(hit_test_result);
-            mouse_down_position_ = hit_test_result;
-            is_selecting_ = true;
-            GetWindow()->CaptureMouseFor(this);
-            InvalidateDraw();
-        }
-    }
-
-    void TextControl::OnMouseMoveCore(events::MouseEventArgs& args)
-    {
-        Control::OnMouseMoveCore(args);
-        if (is_selecting_)
-        {
-            const auto hit_test_result = TextLayoutHitTest(text_layout_.Get(), args.GetPoint(this));
-            RequestChangeCaretPosition(hit_test_result);
-            selected_range_ = TextRange::FromTwoSides(hit_test_result, mouse_down_position_);
-            InvalidateDraw();
-        }
-        UpdateCursor(args.GetPoint(this, RectRange::Margin));
-    }
-
-    void TextControl::OnMouseUpCore(events::MouseButtonEventArgs& args)
-    {
-        Control::OnMouseUpCore(args);
-        if (args.GetMouseButton() == MouseButton::Left)
-        {
-            if (is_selecting_)
-            {
-                is_selecting_ = false;
-                GetWindow()->ReleaseCurrentMouseCapture();
-            }
-        }
-    }
-
-    void TextControl::OnLoseFocusCore(events::FocusChangeEventArgs& args)
-    {
-        Control::OnLoseFocusCore(args);
-        if (is_selecting_)
-        {
-            is_selecting_ = false;
-            GetWindow()->ReleaseCurrentMouseCapture();
-        }
-        if (!args.IsWindow()) // If the focus lose is triggered window-wide, then save the selection state. Otherwise, clear selection.
-        {
-            selected_range_ = std::nullopt;
-            InvalidateDraw();
-        }
-    }
-
 
     Size TextControl::OnMeasureContent(const Size& available_size)
     {
