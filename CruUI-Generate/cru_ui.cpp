@@ -3189,7 +3189,7 @@ namespace cru::ui::controls
             device_context->DrawRectangle(Convert(rect.Shrink(Thickness(0.5))), brushes_[state_].border_brush.Get(), 1);
         });
 
-        mouse_enter_event.bubble.AddHandler([this](events::MouseEventArgs& args)
+        mouse_enter_event.direct.AddHandler([this](events::MouseEventArgs& args)
         {
             if (GetState() == State::Select)
                 return;
@@ -3200,7 +3200,7 @@ namespace cru::ui::controls
             SetState(State::Hover);
         });
 
-        mouse_leave_event.bubble.AddHandler([this](events::MouseEventArgs& args)
+        mouse_leave_event.direct.AddHandler([this](events::MouseEventArgs& args)
         {
             if (GetState() == State::Select)
                 return;
@@ -3208,7 +3208,7 @@ namespace cru::ui::controls
             SetState(State::Normal);
         });
 
-        mouse_click_event.bubble.AddHandler([this](events::MouseButtonEventArgs& args)
+        mouse_click_event.direct.AddHandler([this](events::MouseButtonEventArgs& args)
         {
             if (args.GetMouseButton() == MouseButton::Left)
                 SetState(State::Select);
@@ -3346,7 +3346,7 @@ namespace cru::ui::controls
             }
         });
 
-        mouse_down_event.bubble.AddHandler([this](events::MouseButtonEventArgs& args)
+        mouse_down_event.tunnel.AddHandler([this](events::MouseButtonEventArgs& args)
         {
             if (args.GetMouseButton() == MouseButton::Left)
             {
@@ -3356,6 +3356,7 @@ namespace cru::ui::controls
                     GetWindow()->CaptureMouseFor(this);
                     is_pressing_scroll_bar_ = Orientation::Vertical;
                     pressing_delta_ = point.y - vertical_bar_info_.bar.top;
+                    args.SetHandled();
                     return;
                 }
 
@@ -3364,12 +3365,13 @@ namespace cru::ui::controls
                     GetWindow()->CaptureMouseFor(this);
                     pressing_delta_ = point.x - horizontal_bar_info_.bar.left;
                     is_pressing_scroll_bar_ = Orientation::Horizontal;
+                    args.SetHandled();
                     return;
                 }
             }
         });
 
-        mouse_move_event.bubble.AddHandler([this](events::MouseEventArgs& args)
+        mouse_move_event.tunnel.AddHandler([this](events::MouseEventArgs& args)
         {
             const auto mouse_point = args.GetPoint(this);
 
@@ -3378,6 +3380,7 @@ namespace cru::ui::controls
                 const auto new_head_position = mouse_point.x - pressing_delta_;
                 const auto new_offset = new_head_position / horizontal_bar_info_.border.width * view_width_;
                 SetScrollOffset(new_offset, std::nullopt);
+                args.SetHandled();
                 return;
             }
 
@@ -3386,16 +3389,18 @@ namespace cru::ui::controls
                 const auto new_head_position = mouse_point.y - pressing_delta_;
                 const auto new_offset = new_head_position / vertical_bar_info_.border.height * view_height_;
                 SetScrollOffset(std::nullopt, new_offset);
+                args.SetHandled();
                 return;
             }
         });
 
-        mouse_up_event.bubble.AddHandler([this](events::MouseButtonEventArgs& args)
+        mouse_up_event.tunnel.AddHandler([this](events::MouseButtonEventArgs& args)
         {
             if (args.GetMouseButton() == MouseButton::Left && is_pressing_scroll_bar_.has_value())
             {
                 GetWindow()->ReleaseCurrentMouseCapture();
                 is_pressing_scroll_bar_ = std::nullopt;
+                args.SetHandled();
             }
         });
 
@@ -3410,12 +3415,14 @@ namespace cru::ui::controls
             if (IsVerticalScrollEnabled() && GetScrollOffsetY() != (args.GetDelta() > 0.0f ? 0.0f : AtLeast0(GetViewHeight() - content_rect.height)))
             {
                 SetScrollOffset(std::nullopt, GetScrollOffsetY() - args.GetDelta() / WHEEL_DELTA * view_delta);
+                args.SetHandled();
                 return;
             }
 
             if (IsHorizontalScrollEnabled() && GetScrollOffsetX() != (args.GetDelta() > 0.0f ? 0.0f : AtLeast0(GetViewWidth() - content_rect.width)))
             {
                 SetScrollOffset(GetScrollOffsetX() - args.GetDelta() / WHEEL_DELTA * view_delta, std::nullopt);
+                args.SetHandled();
                 return;
             }
         });
@@ -3734,7 +3741,7 @@ namespace cru::ui::controls
             }
         });
 
-        get_focus_event.bubble.AddHandler([this](events::FocusChangeEventArgs& args)
+        get_focus_event.direct.AddHandler([this](events::FocusChangeEventArgs& args)
         {
             assert(!caret_timer_.has_value());
             is_caret_show_ = true;
@@ -3745,7 +3752,7 @@ namespace cru::ui::controls
             });
         });
 
-        lose_focus_event.bubble.AddHandler([this](events::FocusChangeEventArgs& args)
+        lose_focus_event.direct.AddHandler([this](events::FocusChangeEventArgs& args)
         {
             assert(caret_timer_.has_value());
             caret_timer_->Cancel();
@@ -4009,7 +4016,7 @@ namespace cru::ui::controls
             }
         });
 
-        lose_focus_event.bubble.AddHandler([this](events::FocusChangeEventArgs& args)
+        lose_focus_event.direct.AddHandler([this](events::FocusChangeEventArgs& args)
         {
             if (is_selecting_)
             {
