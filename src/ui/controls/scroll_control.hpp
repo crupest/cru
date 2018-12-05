@@ -117,10 +117,10 @@ namespace cru::ui::controls
         void SetViewWidth(float length);
         void SetViewHeight(float length);
 
-        Size OnMeasureContent(const Size& available_size) override final;
-        void OnLayoutContent(const Rect& rect) override final;
+        Size OnMeasureContent(const Size& available_size, const AdditionalMeasureInfo& additional_info) override final;
+        void OnLayoutContent(const Rect& rect, const AdditionalLayoutInfo& additional_info) override final;
 
-        void AfterLayoutSelf() override;
+        void OnRectChange(const Rect& old_rect, const Rect& new_rect) override;
 
     private:
         void CoerceAndSetOffsets(float offset_x, float offset_y, bool update_children = true);

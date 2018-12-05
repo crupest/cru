@@ -166,65 +166,6 @@ namespace cru::ui::events
     };
 
 
-    class PositionChangedEventArgs : public UiEventArgs
-    {
-    public:
-        PositionChangedEventArgs(Object* sender, Object* original_sender, const Point& old_position, const Point& new_position)
-            : UiEventArgs(sender, original_sender), old_position_(old_position), new_position_(new_position)
-        {
-
-        }
-        PositionChangedEventArgs(const PositionChangedEventArgs& other) = default;
-        PositionChangedEventArgs(PositionChangedEventArgs&& other) = default;
-        PositionChangedEventArgs& operator=(const PositionChangedEventArgs& other) = default;
-        PositionChangedEventArgs& operator=(PositionChangedEventArgs&& other) = default;
-        ~PositionChangedEventArgs() override = default;
-
-        Point GetOldPosition() const
-        {
-            return old_position_;
-        }
-
-        Point GetNewPosition() const
-        {
-            return new_position_;
-        }
-
-    private:
-        Point old_position_;
-        Point new_position_;
-    };
-
-
-    class SizeChangedEventArgs : public UiEventArgs
-    {
-    public:
-        SizeChangedEventArgs(Object* sender, Object* original_sender, const Size& old_size, const Size& new_size)
-            : UiEventArgs(sender, original_sender), old_size_(old_size), new_size_(new_size)
-        {
-
-        }
-        SizeChangedEventArgs(const SizeChangedEventArgs& other) = default;
-        SizeChangedEventArgs(SizeChangedEventArgs&& other) = default;
-        SizeChangedEventArgs& operator=(const SizeChangedEventArgs& other) = default;
-        SizeChangedEventArgs& operator=(SizeChangedEventArgs&& other) = default;
-        ~SizeChangedEventArgs() override = default;
-
-        Size GetOldSize() const
-        {
-            return old_size_;
-        }
-
-        Size GetNewSize() const
-        {
-            return new_size_;
-        }
-
-    private:
-        Size old_size_;
-        Size new_size_;
-    };
-
     class FocusChangeEventArgs : public UiEventArgs
     {
     public:

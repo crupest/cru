@@ -41,8 +41,8 @@ namespace cru::ui::controls
         StringView GetControlType() const override final;
 
     protected:
-        Size OnMeasureContent(const Size& available_size) override;
-        void OnLayoutContent(const Rect& rect) override;
+        Size OnMeasureContent(const Size& available_size, const AdditionalMeasureInfo& additional_info) override;
+        void OnLayoutContent(const Rect& rect, const AdditionalLayoutInfo& additional_info) override;
 
     private:
         Orientation orientation_;

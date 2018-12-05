@@ -105,7 +105,7 @@ namespace cru::ui::controls
         SetState(!GetState());
     }
 
-    Size ToggleButton::OnMeasureContent(const Size& available_size)
+    Size ToggleButton::OnMeasureContent(const Size& available_size, const AdditionalMeasureInfo&)
     {
         const Size result_size(
             half_width * 2 + stroke_width,

@@ -56,14 +56,6 @@ namespace cru::ui::controls
 
         SetClipContent(true);
 
-        size_changed_event.AddHandler([this](events::SizeChangedEventArgs& args)
-        {
-            const auto content = GetRect(RectRange::Content);
-            ThrowIfFailed(text_layout_->SetMaxWidth(content.width));
-            ThrowIfFailed(text_layout_->SetMaxHeight(content.height));
-            InvalidateDraw();
-        });
-
         draw_content_event.AddHandler([this](events::DrawEventArgs& args)
         {
             const auto device_context = args.GetDeviceContext();
@@ -177,7 +169,7 @@ namespace cru::ui::controls
         }
     }
 
-    Size TextControl::OnMeasureContent(const Size& available_size)
+    Size TextControl::OnMeasureContent(const Size& available_size, const AdditionalMeasureInfo&)
     {
         ThrowIfFailed(text_layout_->SetMaxWidth(available_size.width));
         ThrowIfFailed(text_layout_->SetMaxHeight(available_size.height));
@@ -194,6 +186,13 @@ namespace cru::ui::controls
     void TextControl::RequestChangeCaretPosition(unsigned position)
     {
 
+    }
+
+    void TextControl::OnRectChange(const Rect& old_rect, const Rect& new_rect)
+    {
+        const auto content = GetRect(RectRange::Content);
+        ThrowIfFailed(text_layout_->SetMaxWidth(content.width));
+        ThrowIfFailed(text_layout_->SetMaxHeight(content.height));
     }
 
     void TextControl::OnTextChangedCore(const String& old_text, const String& new_text)

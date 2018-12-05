@@ -180,27 +180,25 @@ namespace cru::ui
 
     Point Control::GetPositionRelative()
     {
-        return position_;
-    }
-
-    void Control::SetPositionRelative(const Point & position)
-    {
-        if (position != position_)
-        {
-            if (old_position_ == position) // if cache has been refreshed and no pending notify
-                old_position_ = position_;
-            position_ = position;
-            LayoutManager::GetInstance()->InvalidateControlPositionCache(this);
-            if (auto window = GetWindow())
-            {
-                window->InvalidateDraw();
-            }
-        }
+        return rect_.GetLeftTop();
     }
 
     Size Control::GetSize()
     {
-        return size_;
+        return rect_.GetSize();
+    }
+
+    void Control::SetRect(const Rect& rect)
+    {
+        const auto old_rect = rect_;
+        rect_ = rect;
+
+        RegenerateGeometryInfo();
+
+        OnRectChange(old_rect, rect);
+
+        if (auto window = GetWindow())
+            window->InvalidateDraw();
     }
 
     namespace
@@ -222,24 +220,6 @@ namespace cru::ui
             return result_geometry;
         }
 #endif
-    }
-
-    void Control::SetSize(const Size & size)
-    {
-        const auto old_size = size_;
-        size_ = size;
-        events::SizeChangedEventArgs args(this, this, old_size, size);
-        size_changed_event.Raise(args);
-
-        RegenerateGeometryInfo();
-
-#ifdef CRU_DEBUG_LAYOUT
-        margin_geometry_ = CalculateSquareRingGeometry(GetRect(RectRange::Margin), GetRect(RectRange::FullBorder));
-        padding_geometry_ = CalculateSquareRingGeometry(GetRect(RectRange::Padding), GetRect(RectRange::Content));
-#endif
-
-        if (auto window = GetWindow())
-            window->InvalidateDraw();
     }
 
     Point Control::GetPositionAbsolute() const
@@ -377,17 +357,21 @@ namespace cru::ui
             window->WindowInvalidateLayout();
     }
 
-    void Control::Measure(const Size& available_size)
+    void Control::Measure(const Size& available_size, const AdditionalMeasureInfo& additional_info)
     {
-        SetDesiredSize(OnMeasureCore(available_size));
+        SetDesiredSize(OnMeasureCore(available_size, additional_info));
     }
 
-    void Control::Layout(const Rect& rect)
+    void Control::Layout(const Rect& rect, const AdditionalLayoutInfo& additional_info)
     {
-        SetPositionRelative(rect.GetLeftTop());
-        SetSize(rect.GetSize());
-        AfterLayoutSelf();
-        OnLayoutCore(Rect(Point::Zero(), rect.GetSize()));
+        auto my_additional_info = additional_info;
+        my_additional_info.total_offset.x += rect.left;
+        my_additional_info.total_offset.y += rect.top;
+        position_cache_.lefttop_position_absolute.x = my_additional_info.total_offset.x;
+        position_cache_.lefttop_position_absolute.y = my_additional_info.total_offset.y;
+
+        SetRect(rect);
+        OnLayoutCore(Rect(Point::Zero(), rect.GetSize()), my_additional_info);
     }
 
     Size Control::GetDesiredSize() const
@@ -570,6 +554,11 @@ namespace cru::ui
             });
     }
 
+    void Control::OnRectChange(const Rect& old_rect, const Rect& new_rect)
+    {
+
+    }
+
     void Control::RegenerateGeometryInfo()
     {
         if (IsBordered())
@@ -629,6 +618,12 @@ namespace cru::ui
             );
             geometry_info_.content_geometry = std::move(geometry2);
         }
+
+        //TODO: generate debug geometry
+#ifdef CRU_DEBUG_LAYOUT
+        margin_geometry_ = CalculateSquareRingGeometry(GetRect(RectRange::Margin), GetRect(RectRange::FullBorder));
+        padding_geometry_ = CalculateSquareRingGeometry(GetRect(RectRange::Padding), GetRect(RectRange::Content));
+#endif
     }
 
     void Control::OnMouseClickBegin(MouseButton button)
@@ -644,12 +639,27 @@ namespace cru::ui
         return Size(thickness.left + thickness.right, thickness.top + thickness.bottom);
     }
 
-    Size Control::OnMeasureCore(const Size& available_size)
+    Size Control::OnMeasureCore(const Size& available_size, const AdditionalMeasureInfo& additional_info)
     {
         const auto layout_params = GetLayoutParams();
 
         if (!layout_params->Validate())
             throw std::runtime_error("LayoutParams is not valid. Please check it.");
+
+        auto my_additional_info = additional_info;
+
+        if (layout_params->width.mode == MeasureMode::Content)
+            my_additional_info.horizontal_stretchable = false;
+        else if (layout_params->width.mode == MeasureMode::Exactly)
+            my_additional_info.horizontal_stretchable = true;
+        // if stretch, then inherent parent's value
+
+        if (layout_params->height.mode == MeasureMode::Content)
+            my_additional_info.vertical_stretchable = false;
+        else if (layout_params->height.mode == MeasureMode::Exactly)
+            my_additional_info.vertical_stretchable = true;
+        // if stretch, then inherent parent's value
+
 
         auto border_size = Size::Zero();
         if (is_bordered_)
@@ -681,66 +691,9 @@ namespace cru::ui
             get_content_measure_length(layout_params->height, available_size.height, outer_size.height)
         );
 
-        const auto content_actual_size = OnMeasureContent(content_measure_size);
+        const auto content_actual_size = OnMeasureContent(content_measure_size, my_additional_info);
 
-        auto stretch_width = false;
-        auto stretch_width_determined = true;
-        auto stretch_height = false;
-        auto stretch_height_determined = true;
 
-        // if it is stretch, init is stretch, and undetermined.
-        if (layout_params->width.mode == MeasureMode::Stretch)
-        {
-            stretch_width = true;
-            stretch_width_determined = false;
-        }
-        if (layout_params->height.mode == MeasureMode::Stretch)
-        {
-            stretch_height = true;
-            stretch_width_determined = false;
-        }
-
-        if (!stretch_width_determined || !stretch_height_determined)
-        {
-            auto parent = GetParent();
-            while (parent != nullptr)
-            {
-                const auto lp = parent->GetLayoutParams();
-
-                if (!stretch_width_determined)
-                {
-                    if (lp->width.mode == MeasureMode::Content) // if the first ancestor that is not stretch is content, then it can't stretch.
-                    {
-                        stretch_width = false;
-                        stretch_width_determined = true;
-                    }
-                    if (lp->width.mode == MeasureMode::Exactly) // if the first ancestor that is not stretch is content, then it must be stretch.
-                    {
-                        stretch_width = true;
-                        stretch_width_determined = true;
-                    }
-                }
-
-                if (!stretch_height_determined) // the same as width
-                {
-                    if (lp->height.mode == MeasureMode::Content) // if the first ancestor that is not stretch is content, then it can't stretch.
-                    {
-                        stretch_height = false;
-                        stretch_height_determined = true;
-                    }
-                    if (lp->height.mode == MeasureMode::Exactly) // if the first ancestor that is not stretch is content, then it must be stretch.
-                    {
-                        stretch_height = true;
-                        stretch_height_determined = true;
-                    }
-                }
-
-                if (stretch_width_determined && stretch_height_determined) // if both are determined.
-                    break;
-
-                parent = GetParent();
-            }
-        }
          
         auto&& calculate_final_length = [](const bool stretch, const std::optional<float> min_length, const float measure_length, const float actual_length) -> float
         {
@@ -751,14 +704,14 @@ namespace cru::ui
         };
 
         const auto final_size = Size(
-            calculate_final_length(stretch_width, layout_params->width.min, content_measure_size.width, content_actual_size.width),
-            calculate_final_length(stretch_height, layout_params->height.min, content_measure_size.height, content_actual_size.height)
+            calculate_final_length(my_additional_info.horizontal_stretchable, layout_params->width.min, content_measure_size.width, content_actual_size.width),
+            calculate_final_length(my_additional_info.vertical_stretchable, layout_params->height.min, content_measure_size.height, content_actual_size.height)
         ) + outer_size;
 
         return final_size;
     }
 
-    void Control::OnLayoutCore(const Rect& rect)
+    void Control::OnLayoutCore(const Rect& rect, const AdditionalLayoutInfo& additional_info)
     {
         const auto layout_params = GetLayoutParams();
 
@@ -780,15 +733,15 @@ namespace cru::ui
         if (content_rect.height < 0.0)
             throw std::runtime_error(Format("Height to layout must sufficient. But in {}, height for content is {}.", ToUtf8String(GetControlType()), content_rect.height));
 
-        OnLayoutContent(content_rect);
+        OnLayoutContent(content_rect, additional_info);
     }
 
-    Size Control::OnMeasureContent(const Size& available_size)
+    Size Control::OnMeasureContent(const Size& available_size, const AdditionalMeasureInfo& additional_info)
     {
         auto max_child_size = Size::Zero();
         for (auto control: GetChildren())
         {
-            control->Measure(available_size);
+            control->Measure(available_size, additional_info);
             const auto&& size = control->GetDesiredSize();
             if (max_child_size.width < size.width)
                 max_child_size.width = size.width;
@@ -811,7 +764,7 @@ namespace cru::ui
         return max_child_size;
     }
 
-    void Control::OnLayoutContent(const Rect& rect)
+    void Control::OnLayoutContent(const Rect& rect, const AdditionalLayoutInfo& additional_info)
     {
         for (auto control: GetChildren())
         {
@@ -836,22 +789,7 @@ namespace cru::ui
             control->Layout(Rect(Point(
                 calculate_anchor(rect.left, layout_params->width.alignment, rect.width, size.width),
                 calculate_anchor(rect.top, layout_params->height.alignment, rect.height, size.height)
-            ), size));
-        }
-    }
-
-    void Control::AfterLayoutSelf()
-    {
-
-    }
-
-    void Control::CheckAndNotifyPositionChanged()
-    {
-        if (this->old_position_ != this->position_)
-        {
-            events::PositionChangedEventArgs args(this, this, this->old_position_, this->position_);
-            position_changed_event.Raise(args);
-            this->old_position_ = this->position_;
+            ), size), additional_info);
         }
     }
 

@@ -17,7 +17,7 @@ namespace cru::ui::controls
         return control_type;
     }
 
-    Size LinearLayout::OnMeasureContent(const Size& available_size)
+    Size LinearLayout::OnMeasureContent(const Size& available_size, const AdditionalMeasureInfo& additional_info)
     {
         auto actual_size_for_children = Size::Zero();
 
@@ -33,7 +33,7 @@ namespace cru::ui::controls
                 if (mode == MeasureMode::Content || mode == MeasureMode::Exactly)
                 {
                     Size current_available_size(AtLeast0(available_size.width - actual_size_for_children.width), available_size.height);
-                    control->Measure(current_available_size);
+                    control->Measure(current_available_size, additional_info);
                     const auto size = control->GetDesiredSize();
                     actual_size_for_children.width += size.width;
                     secondary_side_child_max_length = std::max(size.height, secondary_side_child_max_length);
@@ -48,7 +48,7 @@ namespace cru::ui::controls
                 if (mode == MeasureMode::Content || mode == MeasureMode::Exactly)
                 {
                     Size current_available_size(available_size.width, AtLeast0(available_size.height - actual_size_for_children.height));
-                    control->Measure(current_available_size);
+                    control->Measure(current_available_size, additional_info);
                     const auto size = control->GetDesiredSize();
                     actual_size_for_children.height += size.height;
                     secondary_side_child_max_length = std::max(size.width, secondary_side_child_max_length);
@@ -62,7 +62,7 @@ namespace cru::ui::controls
             const auto available_width = AtLeast0(available_size.width - actual_size_for_children.width) / stretch_control_list.size();
             for (const auto control : stretch_control_list)
             {
-                control->Measure(Size(available_width, available_size.height));
+                control->Measure(Size(available_width, available_size.height), additional_info);
                 const auto size = control->GetDesiredSize();
                 actual_size_for_children.width += size.width;
                 secondary_side_child_max_length = std::max(size.height, secondary_side_child_max_length);
@@ -73,7 +73,7 @@ namespace cru::ui::controls
             const auto available_height = AtLeast0(available_size.height - actual_size_for_children.height) / stretch_control_list.size();
             for (const auto control : stretch_control_list)
             {
-                control->Measure(Size(available_size.width, available_height));
+                control->Measure(Size(available_size.width, available_height), additional_info);
                 const auto size = control->GetDesiredSize();
                 actual_size_for_children.height += size.height;
                 secondary_side_child_max_length = std::max(size.width, secondary_side_child_max_length);
@@ -107,7 +107,7 @@ namespace cru::ui::controls
         return actual_size_for_children;
     }
 
-    void LinearLayout::OnLayoutContent(const Rect& rect)
+    void LinearLayout::OnLayoutContent(const Rect& rect, const AdditionalLayoutInfo& additional_info)
     {
         float current_main_side_anchor = 0;
         for(auto control: GetChildren())
@@ -138,12 +138,12 @@ namespace cru::ui::controls
 
             if (orientation_ == Orientation::Horizontal)
             {
-                control->Layout(calculate_rect(current_main_side_anchor, calculate_secondary_side_anchor(rect.height, size.height)));
+                control->Layout(calculate_rect(current_main_side_anchor, calculate_secondary_side_anchor(rect.height, size.height)), additional_info);
                 current_main_side_anchor += size.width;
             }
             else
             {
-                control->Layout(calculate_rect(calculate_secondary_side_anchor(rect.width, size.width), current_main_side_anchor));
+                control->Layout(calculate_rect(calculate_secondary_side_anchor(rect.width, size.width), current_main_side_anchor), additional_info);
                 current_main_side_anchor += size.height;
             }
         }

@@ -464,17 +464,12 @@ namespace cru::ui
         return Point();
     }
 
-    void Window::SetPositionRelative(const Point & position)
-    {
-
-    }
-
     Size Window::GetSize()
     {
         return GetClientSize();
     }
 
-    void Window::SetSize(const Size & size)
+    void Window::SetRect(const Rect& size)
     {
 
     }
@@ -499,16 +494,16 @@ namespace cru::ui
 
     void Window::Relayout()
     {
-        Measure(GetSize());
-        OnLayoutCore(Rect(Point::Zero(), GetSize()));
+        Measure(GetSize(), AdditionalMeasureInfo{});
+        OnLayoutCore(Rect(Point::Zero(), GetSize()), AdditionalLayoutInfo{});
         is_layout_invalid_ = false;
     }
 
     void Window::SetSizeFitContent(const Size& max_size)
     {
-        Measure(max_size);
+        Measure(max_size, AdditionalMeasureInfo{});
         SetClientSize(GetDesiredSize());
-        OnLayoutCore(Rect(Point::Zero(), GetSize()));
+        OnLayoutCore(Rect(Point::Zero(), GetSize()), AdditionalLayoutInfo{});
         is_layout_invalid_ = false;
     }
 

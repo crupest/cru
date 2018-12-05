@@ -22,18 +22,28 @@ namespace cru::ui
     class Window;
 
 
+    struct AdditionalMeasureInfo
+    {
+        bool horizontal_stretchable = true;
+        bool vertical_stretchable = true;
+    };
+
+    struct AdditionalLayoutInfo
+    {
+        Point total_offset = Point::Zero();
+    };
+
     //the position cache
     struct ControlPositionCache
     {
         //The lefttop relative to the ancestor.
-        Point lefttop_position_absolute;
+        Point lefttop_position_absolute = Point::Zero();
     };
 
 
     class Control : public Object
     {
         friend class Window;
-        friend class LayoutManager;
 
     protected:
         struct GeometryInfo
@@ -103,21 +113,14 @@ namespace cru::ui
         void TraverseDescendants(const std::function<void(Control*)>& predicate);
 
         //*************** region: position and size ***************
-        // Position and size part must be isolated from layout part.
-        // All the operations in this part must be done independently.
-        // And layout part must use api of this part.
 
         //Get the lefttop relative to its parent.
         virtual Point GetPositionRelative();
 
-        //Set the lefttop relative to its parent.
-        virtual void SetPositionRelative(const Point& position);
-
         //Get the actual size.
         virtual Size GetSize();
 
-        //Set the actual size directly without re-layout.
-        virtual void SetSize(const Size& size);
+        virtual void SetRect(const Rect& rect);
 
         //Get lefttop relative to ancestor. This is only valid when
         //attached to window. Notice that the value is cached.
@@ -194,9 +197,9 @@ namespace cru::ui
 
         void InvalidateLayout();
 
-        void Measure(const Size& available_size);
+        void Measure(const Size& available_size, const AdditionalMeasureInfo& additional_info);
 
-        void Layout(const Rect& rect);
+        void Layout(const Rect& rect, const AdditionalLayoutInfo& additional_info);
 
         Size GetDesiredSize() const;
 
@@ -274,8 +277,6 @@ namespace cru::ui
         Event<events::DrawEventArgs> draw_background_event;
         Event<events::DrawEventArgs> draw_foreground_event;
 
-        Event<events::PositionChangedEventArgs> position_changed_event;
-        Event<events::SizeChangedEventArgs> size_changed_event;
 
         //*************** region: tree event ***************
     protected:
@@ -298,6 +299,8 @@ namespace cru::ui
 
         //*************** region: position and size event ***************
     protected:
+        virtual void OnRectChange(const Rect& old_rect, const Rect& new_rect);
+        
         void RegenerateGeometryInfo();
 
         const GeometryInfo& GetGeometryInfo() const
@@ -314,23 +317,15 @@ namespace cru::ui
 
         //*************** region: layout ***************
     private:
-        Size OnMeasureCore(const Size& available_size);
-        void OnLayoutCore(const Rect& rect);
+        Size OnMeasureCore(const Size& available_size, const AdditionalMeasureInfo& additional_info);
+        void OnLayoutCore(const Rect& rect, const AdditionalLayoutInfo& additional_info);
 
     protected:
-        virtual Size OnMeasureContent(const Size& available_size);
-        virtual void OnLayoutContent(const Rect& rect);
+        virtual Size OnMeasureContent(const Size& available_size, const AdditionalMeasureInfo& additional_info);
+        virtual void OnLayoutContent(const Rect& rect, const AdditionalLayoutInfo& additional_info);
 
-        // Called by Layout after set position and size.
-        virtual void AfterLayoutSelf();
 
     private:
-        // Only for layout manager to use.
-        // Check if the old position is updated to current position.
-        // If not, then a notify of position change and update will
-        // be done.
-        void CheckAndNotifyPositionChanged();
-
         void ThrowIfNotContainer() const
         {
             if (!is_container_)
@@ -345,15 +340,8 @@ namespace cru::ui
         Control * parent_ = nullptr;
         std::vector<Control*> children_{};
 
-        // When position is changed and notification hasn't been
-        // sent, it will be the old position. When position is changed
-        // more than once, it will be the oldest position since last
-        // notification. If notification has been sent, it will be updated
-        // to position_.
-        Point old_position_ = Point::Zero();
-        Point position_ = Point::Zero();
-        Size size_ = Size::Zero();
-
+        Rect rect_{};
+        
         ControlPositionCache position_cache_{};
 
         std::unordered_map<MouseButton, bool> is_mouse_click_valid_map_
@@ -460,6 +448,9 @@ namespace cru::ui
     // Return the ancestor if one control is the ancestor of the other one, otherwise nullptr.
     Control* IsAncestorOrDescendant(Control* left, Control* right);
 
+
+    //*************** region: create helper ***************
+
     template <typename TControl, typename... Args>
     TControl* CreateWithLayout(const LayoutSideParams& width, const LayoutSideParams& height, Args&&... args)
     {
@@ -469,9 +460,6 @@ namespace cru::ui
         control->GetLayoutParams()->height = height;
         return control;
     }
-
-
-    //*************** region: create helper ***************
 
     template <typename TControl, typename... Args>
     TControl* CreateWithLayout(const Thickness& padding, const Thickness& margin, Args&&... args)
