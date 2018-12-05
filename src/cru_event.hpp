@@ -76,13 +76,6 @@ namespace cru {
 				(handler.second)(args);
 		}
 
-
-        //TODO: Remove this!
-        bool IsNoHandler() const
-		{
-		    return handlers_.empty();
-		}
-
     private:
         std::map<EventHandlerToken, EventHandler> handlers_;
 

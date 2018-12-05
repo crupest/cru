@@ -322,15 +322,12 @@ namespace cru::ui
 
     bool Window::HandleWindowMessage(HWND hwnd, int msg, WPARAM w_param, LPARAM l_param, LRESULT & result) {
 
-        if (!native_message_event.IsNoHandler())
+        events::WindowNativeMessageEventArgs args(this, this, {hwnd, msg, w_param, l_param});
+        native_message_event.Raise(args);
+        if (args.GetResult().has_value())
         {
-            events::WindowNativeMessageEventArgs args(this, this, {hwnd, msg, w_param, l_param});
-            native_message_event.Raise(args);
-            if (args.GetResult().has_value())
-            {
-                result = args.GetResult().value();
-                return true;
-            }
+            result = args.GetResult().value();
+            return true;
         }
 
         switch (msg) {
