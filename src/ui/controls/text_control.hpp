@@ -66,6 +66,8 @@ namespace cru::ui::controls
 
         virtual void RequestChangeCaretPosition(unsigned position);
 
+        void OnRectChange(const Rect& old_rect, const Rect& new_rect) override;
+
     private:
         void OnTextChangedCore(const String& old_text, const String& new_text);
 

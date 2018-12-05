@@ -3,16 +3,10 @@
 // ReSharper disable once CppUnusedIncludeDirective
 #include "pre.hpp"
 
-#include <unordered_set>
-
-#include "base.hpp"
 #include "ui_base.hpp"
 
 namespace cru::ui
 {
-    class Control;
-    class Window;
-
     enum class Alignment
     {
         Center,
@@ -104,42 +98,5 @@ namespace cru::ui
         LayoutSideParams height;
         Thickness padding;
         Thickness margin;
-    };
-
-
-    class LayoutManager : public Object
-    {
-    public:
-        static LayoutManager* GetInstance();
-    private:
-        LayoutManager() = default;
-    public:
-        LayoutManager(const LayoutManager& other) = delete;
-        LayoutManager(LayoutManager&& other) = delete;
-        LayoutManager& operator=(const LayoutManager& other) = delete;
-        LayoutManager& operator=(LayoutManager&& other) = delete;
-        ~LayoutManager() override = default;
-
-
-        //*************** region: position cache ***************
-
-        //Mark position cache of the control and its descendants invalid,
-        //(which is saved as an auto-managed list internal)
-        //and send a message to refresh them.
-        void InvalidateControlPositionCache(Control* control);
-
-        //Refresh position cache of the control and its descendants whose cache
-        //has been marked as invalid.
-        void RefreshInvalidControlPositionCache();
-
-        //Refresh position cache of the control and its descendants immediately.
-        static void RefreshControlPositionCache(Control* control);
-
-    private:
-        static void RefreshControlPositionCacheInternal(Control* control, const Point& parent_lefttop_absolute);
-
-    private:
-        std::unordered_set<Control*> cache_invalid_controls_;
-        std::unordered_set<Window*> layout_invalid_windows_;
     };
 }

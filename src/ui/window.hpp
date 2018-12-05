@@ -190,14 +190,11 @@ namespace cru::ui
         //Always return (0, 0) for a window.
         Point GetPositionRelative() override final;
 
-        //This method has no effect for a window.
-        void SetPositionRelative(const Point& position) override final;
-
         //Get the size of client area for a window.
         Size GetSize() override final;
 
         //This method has no effect for a window. Use SetClientSize instead.
-        void SetSize(const Size& size) override final;
+        void SetRect(const Rect& size) override final;
 
         //Override. If point is in client area, it is in window.
         bool IsPointInside(const Point& point) override final;
@@ -282,7 +279,7 @@ namespace cru::ui
         //*************** region: event dispatcher helper ***************
  
         void DispatchMouseHoverControlChangeEvent(Control* old_control, Control * new_control, const Point& point);
- 
+
     private:
         bool delete_this_on_destroy_ = true;
 

@@ -283,7 +283,7 @@ namespace cru::ui::controls
         return result;
     }
 
-    void ScrollControl::OnLayoutContent(const Rect& rect)
+    void ScrollControl::OnLayoutContent(const Rect& rect, const AdditionalLayoutInfo& additional_info)
     {
         auto layout_rect = rect;
 
@@ -304,11 +304,11 @@ namespace cru::ui::controls
             control->Layout(Rect(Point(
                 calculate_anchor(rect.left, layout_rect.width, size.width, offset_x_),
                 calculate_anchor(rect.top, layout_rect.height, size.height, offset_y_)
-            ), size));
+            ), size), additional_info);
         }
     }
 
-    void ScrollControl::AfterLayoutSelf()
+    void ScrollControl::OnRectChange(const Rect& old_rect, const Rect& new_rect)
     {
         UpdateScrollBarBorderInfo();
         CoerceAndSetOffsets(offset_x_, offset_y_, false);
@@ -330,10 +330,10 @@ namespace cru::ui::controls
             for (auto child : GetChildren())
             {
                 const auto old_position = child->GetPositionRelative();
-                child->SetPositionRelative(Point(
+                child->SetRect(Rect(Point(
                     old_position.x + old_offset_x - offset_x_,
                     old_position.y + old_offset_y - offset_y_
-                ));
+                ), child->GetSize()));
             }
         }
         InvalidateDraw();

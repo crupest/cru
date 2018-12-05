@@ -42,7 +42,7 @@ namespace cru::ui::controls
 
     protected:
         Size OnMeasureContent(const Size& available_size, const AdditionalMeasureInfo& additional_info) override;
-        void OnLayoutContent(const Rect& rect) override;
+        void OnLayoutContent(const Rect& rect, const AdditionalLayoutInfo& additional_info) override;
 
     private:
         Orientation orientation_;

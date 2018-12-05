@@ -107,7 +107,7 @@ namespace cru::ui::controls
         return actual_size_for_children;
     }
 
-    void LinearLayout::OnLayoutContent(const Rect& rect)
+    void LinearLayout::OnLayoutContent(const Rect& rect, const AdditionalLayoutInfo& additional_info)
     {
         float current_main_side_anchor = 0;
         for(auto control: GetChildren())
@@ -138,12 +138,12 @@ namespace cru::ui::controls
 
             if (orientation_ == Orientation::Horizontal)
             {
-                control->Layout(calculate_rect(current_main_side_anchor, calculate_secondary_side_anchor(rect.height, size.height)));
+                control->Layout(calculate_rect(current_main_side_anchor, calculate_secondary_side_anchor(rect.height, size.height)), additional_info);
                 current_main_side_anchor += size.width;
             }
             else
             {
-                control->Layout(calculate_rect(calculate_secondary_side_anchor(rect.width, size.width), current_main_side_anchor));
+                control->Layout(calculate_rect(calculate_secondary_side_anchor(rect.width, size.width), current_main_side_anchor), additional_info);
                 current_main_side_anchor += size.height;
             }
         }

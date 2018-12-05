@@ -180,27 +180,25 @@ namespace cru::ui
 
     Point Control::GetPositionRelative()
     {
-        return position_;
-    }
-
-    void Control::SetPositionRelative(const Point & position)
-    {
-        if (position != position_)
-        {
-            if (old_position_ == position) // if cache has been refreshed and no pending notify
-                old_position_ = position_;
-            position_ = position;
-            LayoutManager::GetInstance()->InvalidateControlPositionCache(this);
-            if (auto window = GetWindow())
-            {
-                window->InvalidateDraw();
-            }
-        }
+        return rect_.GetLeftTop();
     }
 
     Size Control::GetSize()
     {
-        return size_;
+        return rect_.GetSize();
+    }
+
+    void Control::SetRect(const Rect& rect)
+    {
+        const auto old_rect = rect_;
+        rect_ = rect;
+
+        RegenerateGeometryInfo();
+
+        OnRectChange(old_rect, rect);
+
+        if (auto window = GetWindow())
+            window->InvalidateDraw();
     }
 
     namespace
@@ -222,24 +220,6 @@ namespace cru::ui
             return result_geometry;
         }
 #endif
-    }
-
-    void Control::SetSize(const Size & size)
-    {
-        const auto old_size = size_;
-        size_ = size;
-        events::SizeChangedEventArgs args(this, this, old_size, size);
-        size_changed_event.Raise(args);
-
-        RegenerateGeometryInfo();
-
-#ifdef CRU_DEBUG_LAYOUT
-        margin_geometry_ = CalculateSquareRingGeometry(GetRect(RectRange::Margin), GetRect(RectRange::FullBorder));
-        padding_geometry_ = CalculateSquareRingGeometry(GetRect(RectRange::Padding), GetRect(RectRange::Content));
-#endif
-
-        if (auto window = GetWindow())
-            window->InvalidateDraw();
     }
 
     Point Control::GetPositionAbsolute() const
@@ -382,13 +362,16 @@ namespace cru::ui
         SetDesiredSize(OnMeasureCore(available_size, additional_info));
     }
 
-
-    void Control::Layout(const Rect& rect)
+    void Control::Layout(const Rect& rect, const AdditionalLayoutInfo& additional_info)
     {
-        SetPositionRelative(rect.GetLeftTop());
-        SetSize(rect.GetSize());
-        AfterLayoutSelf();
-        OnLayoutCore(Rect(Point::Zero(), rect.GetSize()));
+        auto my_additional_info = additional_info;
+        my_additional_info.total_offset.x += rect.left;
+        my_additional_info.total_offset.y += rect.top;
+        position_cache_.lefttop_position_absolute.x = my_additional_info.total_offset.x;
+        position_cache_.lefttop_position_absolute.y = my_additional_info.total_offset.y;
+
+        SetRect(rect);
+        OnLayoutCore(Rect(Point::Zero(), rect.GetSize()), my_additional_info);
     }
 
     Size Control::GetDesiredSize() const
@@ -571,6 +554,11 @@ namespace cru::ui
             });
     }
 
+    void Control::OnRectChange(const Rect& old_rect, const Rect& new_rect)
+    {
+
+    }
+
     void Control::RegenerateGeometryInfo()
     {
         if (IsBordered())
@@ -630,6 +618,12 @@ namespace cru::ui
             );
             geometry_info_.content_geometry = std::move(geometry2);
         }
+
+        //TODO: generate debug geometry
+#ifdef CRU_DEBUG_LAYOUT
+        margin_geometry_ = CalculateSquareRingGeometry(GetRect(RectRange::Margin), GetRect(RectRange::FullBorder));
+        padding_geometry_ = CalculateSquareRingGeometry(GetRect(RectRange::Padding), GetRect(RectRange::Content));
+#endif
     }
 
     void Control::OnMouseClickBegin(MouseButton button)
@@ -717,7 +711,7 @@ namespace cru::ui
         return final_size;
     }
 
-    void Control::OnLayoutCore(const Rect& rect)
+    void Control::OnLayoutCore(const Rect& rect, const AdditionalLayoutInfo& additional_info)
     {
         const auto layout_params = GetLayoutParams();
 
@@ -739,7 +733,7 @@ namespace cru::ui
         if (content_rect.height < 0.0)
             throw std::runtime_error(Format("Height to layout must sufficient. But in {}, height for content is {}.", ToUtf8String(GetControlType()), content_rect.height));
 
-        OnLayoutContent(content_rect);
+        OnLayoutContent(content_rect, additional_info);
     }
 
     Size Control::OnMeasureContent(const Size& available_size, const AdditionalMeasureInfo& additional_info)
@@ -770,7 +764,7 @@ namespace cru::ui
         return max_child_size;
     }
 
-    void Control::OnLayoutContent(const Rect& rect)
+    void Control::OnLayoutContent(const Rect& rect, const AdditionalLayoutInfo& additional_info)
     {
         for (auto control: GetChildren())
         {
@@ -795,22 +789,7 @@ namespace cru::ui
             control->Layout(Rect(Point(
                 calculate_anchor(rect.left, layout_params->width.alignment, rect.width, size.width),
                 calculate_anchor(rect.top, layout_params->height.alignment, rect.height, size.height)
-            ), size));
-        }
-    }
-
-    void Control::AfterLayoutSelf()
-    {
-
-    }
-
-    void Control::CheckAndNotifyPositionChanged()
-    {
-        if (this->old_position_ != this->position_)
-        {
-            events::PositionChangedEventArgs args(this, this, this->old_position_, this->position_);
-            position_changed_event.Raise(args);
-            this->old_position_ = this->position_;
+            ), size), additional_info);
         }
     }
 
