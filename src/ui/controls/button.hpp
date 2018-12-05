@@ -9,16 +9,15 @@
 
 namespace cru::ui::controls
 {
-    class Button : public Control
+    class Button : public SingleChildControl
     {
     public:
         static constexpr auto control_type = L"Button";
 
-        static Button* Create(const std::initializer_list<Control*>& children = std::initializer_list<Control*>())
+        static Button* Create(Control* child = nullptr)
         {
             const auto button = new Button();
-            for (const auto control : children)
-                button->AddChild(control);
+            button->SetChild(child);
             return button;
         }
 

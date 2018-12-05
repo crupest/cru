@@ -55,59 +55,44 @@ namespace cru::ui
 
 
     protected:
-        struct WindowConstructorTag {}; //Used for constructor for class Window. 
-
-        explicit Control(bool container = false);
-
-        // Used only for creating Window. It will set window_ as window.
-        Control(WindowConstructorTag, Window* window);
-
+        Control();
     public:
         Control(const Control& other) = delete;
         Control(Control&& other) = delete;
         Control& operator=(const Control& other) = delete;
         Control& operator=(Control&& other) = delete;
-        ~Control() override;
+        ~Control() override = default;
 
     public:
 
         //*************** region: tree ***************
         virtual StringView GetControlType() const = 0;
 
-        bool IsContainer() const
-        {
-            return is_container_;
-        }
-
-        //Get parent of control, return nullptr if it has no parent.
         Control* GetParent() const
         {
-            return parent_;
+            return parent_ == nullptr ? internal_parent_ : parent_;
         }
 
-        //Return a immutable vector of all children.
-        const std::vector<Control*>& GetChildren() const;
-
-        //Add a child at tail.
-        void AddChild(Control* control);
-
-        //Add a child before the position.
-        void AddChild(Control* control, int position);
-
-        //Remove a child.
-        void RemoveChild(Control* child);
-
-        //Remove a child at specified position.
-        void RemoveChild(int position);
-
-        //Get the ancestor of the control.
-        Control* GetAncestor();
+        Control* GetInternalParent() const
+        {
+            return internal_parent_;
+        }
 
         //Get the window if attached, otherwise, return nullptr.
         Window* GetWindow() const
         {
             return window_;
         }
+
+
+        virtual const std::vector<Control*>& GetInternalChildren() const = 0;
+
+        void SetParent(Control* parent);
+
+        void SetInternalParent(Control* internal_parent);
+
+        void SetDescendantWindow(Window* window);
+
 
         //Traverse the tree rooted the control including itself.
         void TraverseDescendants(const std::function<void(Control*)>& predicate);
@@ -280,10 +265,9 @@ namespace cru::ui
 
         //*************** region: tree event ***************
     protected:
-        //Invoked when a child is added. Overrides should invoke base.
-        virtual void OnAddChild(Control* child);
-        //Invoked when a child is removed. Overrides should invoke base.
-        virtual void OnRemoveChild(Control* child);
+        virtual void OnParentChanged(Control* old_parent, Control* new_parent);
+
+        virtual void OnInternalParentChanged(Control* old_internal_parent, Control* new_internal_parent);
 
         //Invoked when the control is attached to a window. Overrides should invoke base.
         virtual void OnAttachToWindow(Window* window);
@@ -321,24 +305,13 @@ namespace cru::ui
         void OnLayoutCore(const Rect& rect, const AdditionalLayoutInfo& additional_info);
 
     protected:
-        virtual Size OnMeasureContent(const Size& available_size, const AdditionalMeasureInfo& additional_info);
-        virtual void OnLayoutContent(const Rect& rect, const AdditionalLayoutInfo& additional_info);
-
-
-    private:
-        void ThrowIfNotContainer() const
-        {
-            if (!is_container_)
-                throw std::runtime_error("You can't perform such operation on a non-container control.");
-        }
+        virtual Size OnMeasureContent(const Size& available_size, const AdditionalMeasureInfo& additional_info) = 0;
+        virtual void OnLayoutContent(const Rect& rect, const AdditionalLayoutInfo& additional_info) = 0;
 
     private:
-        bool is_container_;
-
         Window * window_ = nullptr;
-
-        Control * parent_ = nullptr;
-        std::vector<Control*> children_{};
+        Control* parent_ = nullptr; // when parent and internal parent are the same, parent_ is nullptr.
+        Control * internal_parent_ = nullptr;
 
         Rect rect_{};
         
@@ -377,6 +350,113 @@ namespace cru::ui
     };
 
 
+    
+    class NoChildControl : public Control
+    {
+    private:
+        // used in GetInternalChildren.
+        static const std::vector<Control*> empty_control_vector;
+
+    protected:
+        NoChildControl() = default;
+    public:
+        NoChildControl(const NoChildControl& other) = delete;
+        NoChildControl(NoChildControl&& other) = delete;
+        NoChildControl& operator=(const NoChildControl& other) = delete;
+        NoChildControl& operator=(NoChildControl&& other) = delete;
+        ~NoChildControl() override = default;
+
+        const std::vector<Control*>& GetInternalChildren() const override final
+        {
+            return empty_control_vector;
+        }
+
+    protected:
+        void OnLayoutContent(const Rect& rect, const AdditionalLayoutInfo& additional_info) override;
+    };
+
+
+    class SingleChildControl : public Control
+    {
+    protected:
+        SingleChildControl();
+    public:
+        SingleChildControl(const SingleChildControl& other) = delete;
+        SingleChildControl(SingleChildControl&& other) = delete;
+        SingleChildControl& operator=(const SingleChildControl& other) = delete;
+        SingleChildControl& operator=(SingleChildControl&& other) = delete;
+        ~SingleChildControl() override;
+
+        const std::vector<Control*>& GetInternalChildren() const override final
+        {
+            return child_vector_;
+        }
+
+        Control* GetChild() const
+        {
+            return child_;
+        }
+
+        void SetChild(Control* child);
+
+    protected:
+        // Override should call base.
+        virtual void OnChildChanged(Control* old_child, Control* new_child);
+
+        Size OnMeasureContent(const Size& available_size, const AdditionalMeasureInfo& additional_info) override;
+        void OnLayoutContent(const Rect& rect, const AdditionalLayoutInfo& additional_info) override;
+
+    private:
+        std::vector<Control*> child_vector_;
+        Control*& child_;
+    };
+
+
+    class MultiChildControl : public Control
+    {
+    protected:
+        MultiChildControl() = default;
+    public:
+        MultiChildControl(const MultiChildControl& other) = delete;
+        MultiChildControl(MultiChildControl&& other) = delete;
+        MultiChildControl& operator=(const MultiChildControl& other) = delete;
+        MultiChildControl& operator=(MultiChildControl&& other) = delete;
+        ~MultiChildControl() override;
+
+        const std::vector<Control*>& GetInternalChildren() const override final
+        {
+            return children_;
+        }
+
+        const std::vector<Control*>& GetChildren() const
+        {
+            return children_;
+        }
+
+        //Add a child at tail.
+        void AddChild(Control* control);
+
+        //Add a child before the position.
+        void AddChild(Control* control, int position);
+
+        //Remove a child.
+        void RemoveChild(Control* child);
+
+        //Remove a child at specified position.
+        void RemoveChild(int position);
+
+    protected:
+        //Invoked when a child is added. Overrides should invoke base.
+        virtual void OnAddChild(Control* child);
+        //Invoked when a child is removed. Overrides should invoke base.
+        virtual void OnRemoveChild(Control* child);
+
+    private:
+        std::vector<Control*> children_;
+    };
+
+
+
     //*************** region: event dispatcher helper ***************
 
     // Dispatch the event.
@@ -401,7 +481,7 @@ namespace cru::ui
         while (parent != last_receiver)
         {
             receive_list.push_back(parent);
-            parent = parent->GetParent();
+            parent = parent->GetInternalParent();
         }
 
         auto handled = false;
@@ -444,9 +524,6 @@ namespace cru::ui
     // Find the lowest common ancestor.
     // Return nullptr if "left" and "right" are not in the same tree.
     Control* FindLowestCommonAncestor(Control* left, Control* right);
-
-    // Return the ancestor if one control is the ancestor of the other one, otherwise nullptr.
-    Control* IsAncestorOrDescendant(Control* left, Control* right);
 
 
     //*************** region: create helper ***************

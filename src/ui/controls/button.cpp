@@ -5,7 +5,7 @@
 
 namespace cru::ui::controls
 {
-    Button::Button() : Control(true),
+    Button::Button() :
         normal_border_{UiManager::GetInstance()->GetPredefineResources()->button_normal_border},
         pressed_border_{UiManager::GetInstance()->GetPredefineResources()->button_press_border}
     {

@@ -132,7 +132,7 @@ int APIENTRY wWinMain(
     {
         const auto button = Button::Create();
         button->GetLayoutParams()->padding = Thickness(20, 5);
-        button->AddChild(TextBlock::Create(L"Show popup window parenting this."));
+        button->SetChild(TextBlock::Create(L"Show popup window parenting this."));
         button->mouse_click_event.bubble.AddHandler([window, button](auto)
         {
             std::vector<cru::ui::controls::MenuItemInfo> items;
@@ -148,7 +148,7 @@ int APIENTRY wWinMain(
     {
         const auto button = Button::Create();
         button->GetLayoutParams()->padding = Thickness(20, 5);
-        button->AddChild(TextBlock::Create(L"Show popup window parenting null."));
+        button->SetChild(TextBlock::Create(L"Show popup window parenting null."));
         button->SetBackgroundBrush(cru::graph::CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Gold)));
         button->mouse_click_event.bubble.AddHandler([](auto)
         {
@@ -162,7 +162,7 @@ int APIENTRY wWinMain(
     {
         const auto button = Button::Create();
         button->GetLayoutParams()->padding = Thickness(20, 5);
-        button->AddChild(TextBlock::Create(L"Show popup window with caption."));
+        button->SetChild(TextBlock::Create(L"Show popup window with caption."));
         button->mouse_click_event.bubble.AddHandler([](auto)
         {
             auto popup = Window::CreatePopup(nullptr, true);
@@ -204,7 +204,7 @@ int APIENTRY wWinMain(
             L"Love myself I do. Not everything, but I love the good as well as the bad. I love my crazy lifestyle, and I love my hard discipline. I love my freedom of speech and the way my eyes get dark when I'm tired. I love that I have learned to trust people with my heart, even if it will get broken. I am proud of everything that I am and will become.");
         text_block->SetSelectable(true);
 
-        scroll_view->AddChild(text_block);
+        scroll_view->SetChild(text_block);
         layout->AddChild(scroll_view);
     }
 
@@ -212,7 +212,7 @@ int APIENTRY wWinMain(
     layout->AddChild(CreateWithLayout<TextBlock>(LayoutSideParams::Content(Alignment::End), LayoutSideParams::Stretch(), L"By crupest!!!"));
 
 
-    window->AddChild(layout);
+    window->SetChild(layout);
 
     /*
     window.AddChild(

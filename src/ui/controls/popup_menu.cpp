@@ -26,7 +26,7 @@ namespace cru::ui::controls
             auto list_item = CreateWithLayout<ListItem>(
                 LayoutSideParams::Stretch(Alignment::Center),
                 LayoutSideParams::Content(Alignment::Start),
-                ControlList{ text_block }
+                text_block
             );
 
             list_item->mouse_click_event.bubble.AddHandler([popup, action](events::MouseButtonEventArgs& args)
@@ -48,7 +48,7 @@ namespace cru::ui::controls
         for (const auto& item : items)
             menu->AddChild(create_menu_item(item.first, item.second));
 
-        popup->AddChild(menu);
+        popup->SetChild(menu);
 
         popup->SetSizeFitContent();
         popup->SetWindowPosition(anchor);

@@ -7,7 +7,7 @@
 
 namespace cru::ui::controls
 {
-    class ToggleButton : public Control
+    class ToggleButton : public NoChildControl
     {
     public:
         static constexpr auto control_type = L"ToggleButton";

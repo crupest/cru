@@ -3,7 +3,6 @@
 #include <limits>
 
 #include "cru_debug.hpp"
-#include "format.hpp"
 #include "ui/convert_util.hpp"
 #include "exception.hpp"
 #include "math_util.hpp"
@@ -14,7 +13,7 @@ namespace cru::ui::controls
 {
     constexpr auto scroll_bar_width = 15.0f;
 
-    ScrollControl::ScrollControl(const bool container) : Control(container)
+    ScrollControl::ScrollControl(const bool container)
     {
         SetClipContent(true);
 
@@ -245,38 +244,25 @@ namespace cru::ui::controls
             available_size_for_children.height = std::numeric_limits<float>::max();
         }
 
-        auto max_child_size = Size::Zero();
-        for (auto control: GetChildren())
+        const auto child = GetChild();
+
+        auto size = Size::Zero();
+        if (child)
         {
-            control->Measure(available_size_for_children, AdditionalMeasureInfo{false, false});
-            const auto&& size = control->GetDesiredSize();
-            if (max_child_size.width < size.width)
-                max_child_size.width = size.width;
-            if (max_child_size.height < size.height)
-                max_child_size.height = size.height;
+            child->Measure(available_size_for_children, AdditionalMeasureInfo{false, false});
+            size = child->GetDesiredSize();
         }
 
-        // coerce size for stretch.
-        for (auto control: GetChildren())
-        {
-            auto size = control->GetDesiredSize();
-            const auto child_layout_params = control->GetLayoutParams();
-            if (child_layout_params->width.mode == MeasureMode::Stretch)
-                size.width = max_child_size.width;
-            if (child_layout_params->height.mode == MeasureMode::Stretch)
-                size.height = max_child_size.height;
-            control->SetDesiredSize(size);
-        }
 
-        auto result = max_child_size;
+        auto result = size;
         if (IsHorizontalScrollEnabled())
         {
-            SetViewWidth(max_child_size.width);
+            SetViewWidth(size.width);
             result.width = available_size.width;
         }
         if (IsVerticalScrollEnabled())
         {
-            SetViewHeight(max_child_size.height);
+            SetViewHeight(size.height);
             result.height = available_size.height;
         }
 
@@ -292,18 +278,31 @@ namespace cru::ui::controls
         if (IsVerticalScrollEnabled())
             layout_rect.height = GetViewHeight();
 
-        for (auto control: GetChildren())
+        const auto child = GetChild();
+
+        if (child)
         {
-            const auto size = control->GetDesiredSize();
-            // Ignore alignment, always center aligned.
-            auto&& calculate_anchor = [](const float anchor, const float layout_length, const float control_length, const float offset) -> float
+            const auto layout_params = child->GetLayoutParams();
+            const auto size = child->GetDesiredSize();
+
+            auto&& calculate_anchor = [](const float anchor, const Alignment alignment, const float layout_length, const float control_length) -> float
             {
-                return anchor + (layout_length - control_length) / 2 - offset;
+                switch (alignment)
+                {
+                case Alignment::Center:
+                    return anchor + (layout_length - control_length) / 2;
+                case Alignment::Start:
+                    return anchor;
+                case Alignment::End:
+                    return anchor + layout_length - control_length;
+                default:
+                    UnreachableCode();
+                }
             };
 
-            control->Layout(Rect(Point(
-                calculate_anchor(rect.left, layout_rect.width, size.width, offset_x_),
-                calculate_anchor(rect.top, layout_rect.height, size.height, offset_y_)
+            child->Layout(Rect(Point(
+                IsHorizontalScrollEnabled() ? layout_rect.left + offset_x_ : calculate_anchor(layout_rect.left, layout_params->width.alignment, layout_rect.width, size.width),
+                IsVerticalScrollEnabled() ? layout_rect.top + offset_y_ : calculate_anchor(layout_rect.top, layout_params->height.alignment, layout_rect.height, size.height)
             ), size), additional_info);
         }
     }
@@ -327,7 +326,7 @@ namespace cru::ui::controls
 
         if (update_children)
         {
-            for (auto child : GetChildren())
+            if (const auto child = GetChild())
             {
                 const auto old_position = child->GetPositionRelative();
                 child->SetRect(Rect(Point(
