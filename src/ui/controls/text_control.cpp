@@ -177,7 +177,7 @@ namespace cru::ui::controls
         }
     }
 
-    Size TextControl::OnMeasureContent(const Size& available_size)
+    Size TextControl::OnMeasureContent(const Size& available_size, const AdditionalMeasureInfo&)
     {
         ThrowIfFailed(text_layout_->SetMaxWidth(available_size.width));
         ThrowIfFailed(text_layout_->SetMaxHeight(available_size.height));

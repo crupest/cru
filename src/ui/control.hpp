@@ -22,6 +22,13 @@ namespace cru::ui
     class Window;
 
 
+    struct AdditionalMeasureInfo
+    {
+        bool horizontal_stretchable = true;
+        bool vertical_stretchable = true;
+    };
+
+
     //the position cache
     struct ControlPositionCache
     {
@@ -194,7 +201,7 @@ namespace cru::ui
 
         void InvalidateLayout();
 
-        void Measure(const Size& available_size);
+        void Measure(const Size& available_size, const AdditionalMeasureInfo& additional_info);
 
         void Layout(const Rect& rect);
 
@@ -314,11 +321,11 @@ namespace cru::ui
 
         //*************** region: layout ***************
     private:
-        Size OnMeasureCore(const Size& available_size);
+        Size OnMeasureCore(const Size& available_size, const AdditionalMeasureInfo& additional_info);
         void OnLayoutCore(const Rect& rect);
 
     protected:
-        virtual Size OnMeasureContent(const Size& available_size);
+        virtual Size OnMeasureContent(const Size& available_size, const AdditionalMeasureInfo& additional_info);
         virtual void OnLayoutContent(const Rect& rect);
 
         // Called by Layout after set position and size.

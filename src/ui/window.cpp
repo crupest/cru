@@ -499,14 +499,14 @@ namespace cru::ui
 
     void Window::Relayout()
     {
-        Measure(GetSize());
+        Measure(GetSize(), AdditionalMeasureInfo{});
         OnLayoutCore(Rect(Point::Zero(), GetSize()));
         is_layout_invalid_ = false;
     }
 
     void Window::SetSizeFitContent(const Size& max_size)
     {
-        Measure(max_size);
+        Measure(max_size, AdditionalMeasureInfo{});
         SetClientSize(GetDesiredSize());
         OnLayoutCore(Rect(Point::Zero(), GetSize()));
         is_layout_invalid_ = false;

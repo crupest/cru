@@ -224,7 +224,7 @@ namespace cru::ui::controls
         view_height_ = length;
     }
 
-    Size ScrollControl::OnMeasureContent(const Size& available_size)
+    Size ScrollControl::OnMeasureContent(const Size& available_size, const AdditionalMeasureInfo& additional_info)
     {
         const auto layout_params = GetLayoutParams();
 
@@ -234,13 +234,6 @@ namespace cru::ui::controls
             if (layout_params->width.mode == MeasureMode::Content)
                 debug::DebugMessage(L"ScrollControl: Width measure mode is Content and horizontal scroll is enabled. So Stretch is used instead.");
 
-            for (auto child : GetChildren())
-            {
-                const auto child_layout_params = child->GetLayoutParams();
-                if (child_layout_params->width.mode == MeasureMode::Stretch)
-                    throw std::runtime_error(Format("ScrollControl: Horizontal scroll is enabled but a child {} 's width measure mode is Stretch which may cause infinite length.", ToUtf8String(child->GetControlType())));
-            }
-
             available_size_for_children.width = std::numeric_limits<float>::max();
         }
 
@@ -249,20 +242,13 @@ namespace cru::ui::controls
             if (layout_params->height.mode == MeasureMode::Content)
                 debug::DebugMessage(L"ScrollControl: Height measure mode is Content and vertical scroll is enabled. So Stretch is used instead.");
 
-            for (auto child : GetChildren())
-            {
-                const auto child_layout_params = child->GetLayoutParams();
-                if (child_layout_params->height.mode == MeasureMode::Stretch)
-                    throw std::runtime_error(Format("ScrollControl: Vertical scroll is enabled but a child {} 's height measure mode is Stretch which may cause infinite length.", ToUtf8String(child->GetControlType())));
-            }
-
             available_size_for_children.height = std::numeric_limits<float>::max();
         }
 
         auto max_child_size = Size::Zero();
         for (auto control: GetChildren())
         {
-            control->Measure(available_size_for_children);
+            control->Measure(available_size_for_children, AdditionalMeasureInfo{false, false});
             const auto&& size = control->GetDesiredSize();
             if (max_child_size.width < size.width)
                 max_child_size.width = size.width;
@@ -270,7 +256,7 @@ namespace cru::ui::controls
                 max_child_size.height = size.height;
         }
 
-        // coerce size fro stretch.
+        // coerce size for stretch.
         for (auto control: GetChildren())
         {
             auto size = control->GetDesiredSize();

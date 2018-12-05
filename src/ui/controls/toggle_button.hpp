@@ -43,7 +43,7 @@ namespace cru::ui::controls
         Event<events::ToggleEventArgs> toggle_event;
 
     protected:
-        Size OnMeasureContent(const Size& available_size) override;
+        Size OnMeasureContent(const Size& available_size, const AdditionalMeasureInfo&) override;
 
     private:
         bool state_ = false;

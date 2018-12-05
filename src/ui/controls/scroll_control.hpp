@@ -117,7 +117,7 @@ namespace cru::ui::controls
         void SetViewWidth(float length);
         void SetViewHeight(float length);
 
-        Size OnMeasureContent(const Size& available_size) override final;
+        Size OnMeasureContent(const Size& available_size, const AdditionalMeasureInfo& additional_info) override final;
         void OnLayoutContent(const Rect& rect) override final;
 
         void AfterLayoutSelf() override;

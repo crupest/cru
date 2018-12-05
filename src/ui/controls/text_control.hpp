@@ -62,7 +62,7 @@ namespace cru::ui::controls
     protected:
         void SetSelectable(bool is_selectable);
 
-        Size OnMeasureContent(const Size& available_size) override final;
+        Size OnMeasureContent(const Size& available_size, const AdditionalMeasureInfo&) override final;
 
         virtual void RequestChangeCaretPosition(unsigned position);
 

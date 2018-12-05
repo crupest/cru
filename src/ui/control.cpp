@@ -377,10 +377,11 @@ namespace cru::ui
             window->WindowInvalidateLayout();
     }
 
-    void Control::Measure(const Size& available_size)
+    void Control::Measure(const Size& available_size, const AdditionalMeasureInfo& additional_info)
     {
-        SetDesiredSize(OnMeasureCore(available_size));
+        SetDesiredSize(OnMeasureCore(available_size, additional_info));
     }
+
 
     void Control::Layout(const Rect& rect)
     {
@@ -644,12 +645,27 @@ namespace cru::ui
         return Size(thickness.left + thickness.right, thickness.top + thickness.bottom);
     }
 
-    Size Control::OnMeasureCore(const Size& available_size)
+    Size Control::OnMeasureCore(const Size& available_size, const AdditionalMeasureInfo& additional_info)
     {
         const auto layout_params = GetLayoutParams();
 
         if (!layout_params->Validate())
             throw std::runtime_error("LayoutParams is not valid. Please check it.");
+
+        auto my_additional_info = additional_info;
+
+        if (layout_params->width.mode == MeasureMode::Content)
+            my_additional_info.horizontal_stretchable = false;
+        else if (layout_params->width.mode == MeasureMode::Exactly)
+            my_additional_info.horizontal_stretchable = true;
+        // if stretch, then inherent parent's value
+
+        if (layout_params->height.mode == MeasureMode::Content)
+            my_additional_info.vertical_stretchable = false;
+        else if (layout_params->height.mode == MeasureMode::Exactly)
+            my_additional_info.vertical_stretchable = true;
+        // if stretch, then inherent parent's value
+
 
         auto border_size = Size::Zero();
         if (is_bordered_)
@@ -681,66 +697,9 @@ namespace cru::ui
             get_content_measure_length(layout_params->height, available_size.height, outer_size.height)
         );
 
-        const auto content_actual_size = OnMeasureContent(content_measure_size);
+        const auto content_actual_size = OnMeasureContent(content_measure_size, my_additional_info);
 
-        auto stretch_width = false;
-        auto stretch_width_determined = true;
-        auto stretch_height = false;
-        auto stretch_height_determined = true;
 
-        // if it is stretch, init is stretch, and undetermined.
-        if (layout_params->width.mode == MeasureMode::Stretch)
-        {
-            stretch_width = true;
-            stretch_width_determined = false;
-        }
-        if (layout_params->height.mode == MeasureMode::Stretch)
-        {
-            stretch_height = true;
-            stretch_width_determined = false;
-        }
-
-        if (!stretch_width_determined || !stretch_height_determined)
-        {
-            auto parent = GetParent();
-            while (parent != nullptr)
-            {
-                const auto lp = parent->GetLayoutParams();
-
-                if (!stretch_width_determined)
-                {
-                    if (lp->width.mode == MeasureMode::Content) // if the first ancestor that is not stretch is content, then it can't stretch.
-                    {
-                        stretch_width = false;
-                        stretch_width_determined = true;
-                    }
-                    if (lp->width.mode == MeasureMode::Exactly) // if the first ancestor that is not stretch is content, then it must be stretch.
-                    {
-                        stretch_width = true;
-                        stretch_width_determined = true;
-                    }
-                }
-
-                if (!stretch_height_determined) // the same as width
-                {
-                    if (lp->height.mode == MeasureMode::Content) // if the first ancestor that is not stretch is content, then it can't stretch.
-                    {
-                        stretch_height = false;
-                        stretch_height_determined = true;
-                    }
-                    if (lp->height.mode == MeasureMode::Exactly) // if the first ancestor that is not stretch is content, then it must be stretch.
-                    {
-                        stretch_height = true;
-                        stretch_height_determined = true;
-                    }
-                }
-
-                if (stretch_width_determined && stretch_height_determined) // if both are determined.
-                    break;
-
-                parent = GetParent();
-            }
-        }
          
         auto&& calculate_final_length = [](const bool stretch, const std::optional<float> min_length, const float measure_length, const float actual_length) -> float
         {
@@ -751,8 +710,8 @@ namespace cru::ui
         };
 
         const auto final_size = Size(
-            calculate_final_length(stretch_width, layout_params->width.min, content_measure_size.width, content_actual_size.width),
-            calculate_final_length(stretch_height, layout_params->height.min, content_measure_size.height, content_actual_size.height)
+            calculate_final_length(my_additional_info.horizontal_stretchable, layout_params->width.min, content_measure_size.width, content_actual_size.width),
+            calculate_final_length(my_additional_info.vertical_stretchable, layout_params->height.min, content_measure_size.height, content_actual_size.height)
         ) + outer_size;
 
         return final_size;
@@ -783,12 +742,12 @@ namespace cru::ui
         OnLayoutContent(content_rect);
     }
 
-    Size Control::OnMeasureContent(const Size& available_size)
+    Size Control::OnMeasureContent(const Size& available_size, const AdditionalMeasureInfo& additional_info)
     {
         auto max_child_size = Size::Zero();
         for (auto control: GetChildren())
         {
-            control->Measure(available_size);
+            control->Measure(available_size, additional_info);
             const auto&& size = control->GetDesiredSize();
             if (max_child_size.width < size.width)
                 max_child_size.width = size.width;

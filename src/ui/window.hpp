@@ -4,7 +4,6 @@
 #include "pre.hpp"
 
 #include "system_headers.hpp"
-#include <list>
 #include <map>
 #include <memory>
 
