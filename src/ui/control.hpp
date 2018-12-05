@@ -448,6 +448,9 @@ namespace cru::ui
     // Return the ancestor if one control is the ancestor of the other one, otherwise nullptr.
     Control* IsAncestorOrDescendant(Control* left, Control* right);
 
+
+    //*************** region: create helper ***************
+
     template <typename TControl, typename... Args>
     TControl* CreateWithLayout(const LayoutSideParams& width, const LayoutSideParams& height, Args&&... args)
     {
@@ -457,9 +460,6 @@ namespace cru::ui
         control->GetLayoutParams()->height = height;
         return control;
     }
-
-
-    //*************** region: create helper ***************
 
     template <typename TControl, typename... Args>
     TControl* CreateWithLayout(const Thickness& padding, const Thickness& margin, Args&&... args)
