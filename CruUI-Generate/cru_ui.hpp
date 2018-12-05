@@ -586,7 +586,6 @@ namespace cru
 
 // ReSharper disable once CppUnusedIncludeDirective
 
-#include <list>
 #include <map>
 #include <memory>
 
@@ -840,14 +839,9 @@ namespace cru::ui
 
 // ReSharper disable once CppUnusedIncludeDirective
 
-#include <unordered_set>
-
 
 namespace cru::ui
 {
-    class Control;
-    class Window;
-
     enum class Alignment
     {
         Center,
@@ -939,43 +933,6 @@ namespace cru::ui
         LayoutSideParams height;
         Thickness padding;
         Thickness margin;
-    };
-
-
-    class LayoutManager : public Object
-    {
-    public:
-        static LayoutManager* GetInstance();
-    private:
-        LayoutManager() = default;
-    public:
-        LayoutManager(const LayoutManager& other) = delete;
-        LayoutManager(LayoutManager&& other) = delete;
-        LayoutManager& operator=(const LayoutManager& other) = delete;
-        LayoutManager& operator=(LayoutManager&& other) = delete;
-        ~LayoutManager() override = default;
-
-
-        //*************** region: position cache ***************
-
-        //Mark position cache of the control and its descendants invalid,
-        //(which is saved as an auto-managed list internal)
-        //and send a message to refresh them.
-        void InvalidateControlPositionCache(Control* control);
-
-        //Refresh position cache of the control and its descendants whose cache
-        //has been marked as invalid.
-        void RefreshInvalidControlPositionCache();
-
-        //Refresh position cache of the control and its descendants immediately.
-        static void RefreshControlPositionCache(Control* control);
-
-    private:
-        static void RefreshControlPositionCacheInternal(Control* control, const Point& parent_lefttop_absolute);
-
-    private:
-        std::unordered_set<Control*> cache_invalid_controls_;
-        std::unordered_set<Window*> layout_invalid_windows_;
     };
 }
 //--------------------------------------------------------
@@ -1231,65 +1188,6 @@ namespace cru::ui::events
         ID2D1DeviceContext * device_context_;
     };
 
-
-    class PositionChangedEventArgs : public UiEventArgs
-    {
-    public:
-        PositionChangedEventArgs(Object* sender, Object* original_sender, const Point& old_position, const Point& new_position)
-            : UiEventArgs(sender, original_sender), old_position_(old_position), new_position_(new_position)
-        {
-
-        }
-        PositionChangedEventArgs(const PositionChangedEventArgs& other) = default;
-        PositionChangedEventArgs(PositionChangedEventArgs&& other) = default;
-        PositionChangedEventArgs& operator=(const PositionChangedEventArgs& other) = default;
-        PositionChangedEventArgs& operator=(PositionChangedEventArgs&& other) = default;
-        ~PositionChangedEventArgs() override = default;
-
-        Point GetOldPosition() const
-        {
-            return old_position_;
-        }
-
-        Point GetNewPosition() const
-        {
-            return new_position_;
-        }
-
-    private:
-        Point old_position_;
-        Point new_position_;
-    };
-
-
-    class SizeChangedEventArgs : public UiEventArgs
-    {
-    public:
-        SizeChangedEventArgs(Object* sender, Object* original_sender, const Size& old_size, const Size& new_size)
-            : UiEventArgs(sender, original_sender), old_size_(old_size), new_size_(new_size)
-        {
-
-        }
-        SizeChangedEventArgs(const SizeChangedEventArgs& other) = default;
-        SizeChangedEventArgs(SizeChangedEventArgs&& other) = default;
-        SizeChangedEventArgs& operator=(const SizeChangedEventArgs& other) = default;
-        SizeChangedEventArgs& operator=(SizeChangedEventArgs&& other) = default;
-        ~SizeChangedEventArgs() override = default;
-
-        Size GetOldSize() const
-        {
-            return old_size_;
-        }
-
-        Size GetNewSize() const
-        {
-            return new_size_;
-        }
-
-    private:
-        Size old_size_;
-        Size new_size_;
-    };
 
     class FocusChangeEventArgs : public UiEventArgs
     {
@@ -1568,18 +1466,28 @@ namespace cru::ui
     class Window;
 
 
+    struct AdditionalMeasureInfo
+    {
+        bool horizontal_stretchable = true;
+        bool vertical_stretchable = true;
+    };
+
+    struct AdditionalLayoutInfo
+    {
+        Point total_offset = Point::Zero();
+    };
+
     //the position cache
     struct ControlPositionCache
     {
         //The lefttop relative to the ancestor.
-        Point lefttop_position_absolute;
+        Point lefttop_position_absolute = Point::Zero();
     };
 
 
     class Control : public Object
     {
         friend class Window;
-        friend class LayoutManager;
 
     protected:
         struct GeometryInfo
@@ -1649,21 +1557,14 @@ namespace cru::ui
         void TraverseDescendants(const std::function<void(Control*)>& predicate);
 
         //*************** region: position and size ***************
-        // Position and size part must be isolated from layout part.
-        // All the operations in this part must be done independently.
-        // And layout part must use api of this part.
 
         //Get the lefttop relative to its parent.
         virtual Point GetPositionRelative();
 
-        //Set the lefttop relative to its parent.
-        virtual void SetPositionRelative(const Point& position);
-
         //Get the actual size.
         virtual Size GetSize();
 
-        //Set the actual size directly without re-layout.
-        virtual void SetSize(const Size& size);
+        virtual void SetRect(const Rect& rect);
 
         //Get lefttop relative to ancestor. This is only valid when
         //attached to window. Notice that the value is cached.
@@ -1740,9 +1641,9 @@ namespace cru::ui
 
         void InvalidateLayout();
 
-        void Measure(const Size& available_size);
+        void Measure(const Size& available_size, const AdditionalMeasureInfo& additional_info);
 
-        void Layout(const Rect& rect);
+        void Layout(const Rect& rect, const AdditionalLayoutInfo& additional_info);
 
         Size GetDesiredSize() const;
 
@@ -1820,8 +1721,6 @@ namespace cru::ui
         Event<events::DrawEventArgs> draw_background_event;
         Event<events::DrawEventArgs> draw_foreground_event;
 
-        Event<events::PositionChangedEventArgs> position_changed_event;
-        Event<events::SizeChangedEventArgs> size_changed_event;
 
         //*************** region: tree event ***************
     protected:
@@ -1844,6 +1743,8 @@ namespace cru::ui
 
         //*************** region: position and size event ***************
     protected:
+        virtual void OnRectChange(const Rect& old_rect, const Rect& new_rect);
+        
         void RegenerateGeometryInfo();
 
         const GeometryInfo& GetGeometryInfo() const
@@ -1860,23 +1761,15 @@ namespace cru::ui
 
         //*************** region: layout ***************
     private:
-        Size OnMeasureCore(const Size& available_size);
-        void OnLayoutCore(const Rect& rect);
+        Size OnMeasureCore(const Size& available_size, const AdditionalMeasureInfo& additional_info);
+        void OnLayoutCore(const Rect& rect, const AdditionalLayoutInfo& additional_info);
 
     protected:
-        virtual Size OnMeasureContent(const Size& available_size);
-        virtual void OnLayoutContent(const Rect& rect);
+        virtual Size OnMeasureContent(const Size& available_size, const AdditionalMeasureInfo& additional_info);
+        virtual void OnLayoutContent(const Rect& rect, const AdditionalLayoutInfo& additional_info);
 
-        // Called by Layout after set position and size.
-        virtual void AfterLayoutSelf();
 
     private:
-        // Only for layout manager to use.
-        // Check if the old position is updated to current position.
-        // If not, then a notify of position change and update will
-        // be done.
-        void CheckAndNotifyPositionChanged();
-
         void ThrowIfNotContainer() const
         {
             if (!is_container_)
@@ -1891,15 +1784,8 @@ namespace cru::ui
         Control * parent_ = nullptr;
         std::vector<Control*> children_{};
 
-        // When position is changed and notification hasn't been
-        // sent, it will be the old position. When position is changed
-        // more than once, it will be the oldest position since last
-        // notification. If notification has been sent, it will be updated
-        // to position_.
-        Point old_position_ = Point::Zero();
-        Point position_ = Point::Zero();
-        Size size_ = Size::Zero();
-
+        Rect rect_{};
+        
         ControlPositionCache position_cache_{};
 
         std::unordered_map<MouseButton, bool> is_mouse_click_valid_map_
@@ -2227,14 +2113,11 @@ namespace cru::ui
         //Always return (0, 0) for a window.
         Point GetPositionRelative() override final;
 
-        //This method has no effect for a window.
-        void SetPositionRelative(const Point& position) override final;
-
         //Get the size of client area for a window.
         Size GetSize() override final;
 
         //This method has no effect for a window. Use SetClientSize instead.
-        void SetSize(const Size& size) override final;
+        void SetRect(const Rect& size) override final;
 
         //Override. If point is in client area, it is in window.
         bool IsPointInside(const Point& point) override final;
@@ -2319,7 +2202,7 @@ namespace cru::ui
         //*************** region: event dispatcher helper ***************
  
         void DispatchMouseHoverControlChangeEvent(Control* old_control, Control * new_control, const Point& point);
- 
+
     private:
         bool delete_this_on_destroy_ = true;
 
@@ -2436,8 +2319,8 @@ namespace cru::ui::controls
         StringView GetControlType() const override final;
 
     protected:
-        Size OnMeasureContent(const Size& available_size) override;
-        void OnLayoutContent(const Rect& rect) override;
+        Size OnMeasureContent(const Size& available_size, const AdditionalMeasureInfo& additional_info) override;
+        void OnLayoutContent(const Rect& rect, const AdditionalLayoutInfo& additional_info) override;
 
     private:
         Orientation orientation_;
@@ -2516,9 +2399,11 @@ namespace cru::ui::controls
     protected:
         void SetSelectable(bool is_selectable);
 
-        Size OnMeasureContent(const Size& available_size) override final;
+        Size OnMeasureContent(const Size& available_size, const AdditionalMeasureInfo&) override final;
 
         virtual void RequestChangeCaretPosition(unsigned position);
+
+        void OnRectChange(const Rect& old_rect, const Rect& new_rect) override;
 
     private:
         void OnTextChangedCore(const String& old_text, const String& new_text);
@@ -2625,7 +2510,7 @@ namespace cru::ui::controls
         Event<events::ToggleEventArgs> toggle_event;
 
     protected:
-        Size OnMeasureContent(const Size& available_size) override;
+        Size OnMeasureContent(const Size& available_size, const AdditionalMeasureInfo&) override;
 
     private:
         bool state_ = false;
@@ -2986,10 +2871,10 @@ namespace cru::ui::controls
         void SetViewWidth(float length);
         void SetViewHeight(float length);
 
-        Size OnMeasureContent(const Size& available_size) override final;
-        void OnLayoutContent(const Rect& rect) override final;
+        Size OnMeasureContent(const Size& available_size, const AdditionalMeasureInfo& additional_info) override final;
+        void OnLayoutContent(const Rect& rect, const AdditionalLayoutInfo& additional_info) override final;
 
-        void AfterLayoutSelf() override;
+        void OnRectChange(const Rect& old_rect, const Rect& new_rect) override;
 
     private:
         void CoerceAndSetOffsets(float offset_x, float offset_y, bool update_children = true);
