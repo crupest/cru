@@ -469,7 +469,7 @@ namespace cru::ui
         return PiToDip(point);
     }
 
-    Point Window::GetPositionRelative()
+    Point Window::GetOffset()
     {
         return Point();
     }

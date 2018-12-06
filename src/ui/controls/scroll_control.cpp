@@ -328,11 +328,12 @@ namespace cru::ui::controls
         {
             if (const auto child = GetChild())
             {
-                const auto old_position = child->GetPositionRelative();
+                const auto old_position = child->GetOffset();
                 child->SetRect(Rect(Point(
                     old_position.x + old_offset_x - offset_x_,
                     old_position.y + old_offset_y - offset_y_
                 ), child->GetSize()));
+                child->RefreshDescendantPositionCache();
             }
         }
         InvalidateDraw();

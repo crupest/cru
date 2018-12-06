@@ -189,7 +189,7 @@ namespace cru::ui
         //*************** region: position and size ***************
 
         //Always return (0, 0) for a window.
-        Point GetPositionRelative() override final;
+        Point GetOffset() override final;
 
         //Get the size of client area for a window.
         Size GetSize() override final;

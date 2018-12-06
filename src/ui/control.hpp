@@ -18,7 +18,6 @@
 
 namespace cru::ui
 {
-    class Control;
     class Window;
 
 
@@ -68,6 +67,8 @@ namespace cru::ui
         //*************** region: tree ***************
         virtual StringView GetControlType() const = 0;
 
+        virtual const std::vector<Control*>& GetInternalChildren() const = 0;
+
         Control* GetParent() const
         {
             return parent_ == nullptr ? internal_parent_ : parent_;
@@ -84,9 +85,6 @@ namespace cru::ui
             return window_;
         }
 
-
-        virtual const std::vector<Control*>& GetInternalChildren() const = 0;
-
         void SetParent(Control* parent);
 
         void SetInternalParent(Control* internal_parent);
@@ -100,11 +98,12 @@ namespace cru::ui
         //*************** region: position and size ***************
 
         //Get the lefttop relative to its parent.
-        virtual Point GetPositionRelative();
+        virtual Point GetOffset();
 
         //Get the actual size.
         virtual Size GetSize();
 
+        // If offset changes, call RefreshDescendantPositionCache.
         virtual void SetRect(const Rect& rect);
 
         //Get lefttop relative to ancestor. This is only valid when
@@ -117,6 +116,13 @@ namespace cru::ui
 
         //Absolute point to local point.
         Point WindowToControl(const Point& point) const;
+
+        void RefreshDescendantPositionCache();
+
+    private:
+        static void RefreshControlPositionCacheInternal(Control* control, const Point& parent_lefttop_absolute);
+
+    public:
 
         // Default implement in Control is test point in border geometry's
         // fill and stroke with width of border.

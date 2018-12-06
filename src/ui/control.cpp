@@ -125,7 +125,7 @@ namespace cru::ui
         TraverseDescendantsInternal(this, predicate);
     }
 
-    Point Control::GetPositionRelative()
+    Point Control::GetOffset()
     {
         return rect_.GetLeftTop();
     }
@@ -186,6 +186,33 @@ namespace cru::ui
             point.y - position_cache_.lefttop_position_absolute.y);
     }
 
+    void Control::RefreshDescendantPositionCache()
+    {
+        auto point = Point::Zero();
+        auto parent = this;
+        while ((parent = parent->GetParent()))
+        {
+            const auto p = parent->GetOffset();
+            point.x += p.x;
+            point.y += p.y;
+        }
+        RefreshControlPositionCacheInternal(this, point);
+    }
+
+    void Control::RefreshControlPositionCacheInternal(Control* control, const Point& parent_lefttop_absolute)
+    {
+        const auto position = control->GetOffset();
+        const Point lefttop(
+            parent_lefttop_absolute.x + position.x,
+            parent_lefttop_absolute.y + position.y
+        );
+        control->position_cache_.lefttop_position_absolute = lefttop;
+        for(auto c : control->GetInternalChildren())
+        {
+            RefreshControlPositionCacheInternal(c, lefttop);
+        }
+    }
+
     bool Control::IsPointInside(const Point & point)
     {
         const auto border_geometry = geometry_info_.border_geometry;
@@ -230,7 +257,7 @@ namespace cru::ui
 
         for (auto i = children.crbegin(); i != children.crend(); ++i)
         {
-            const auto&& lefttop = (*i)->GetPositionRelative();
+            const auto&& lefttop = (*i)->GetOffset();
             const auto&& coerced_point = Point(point.x - lefttop.x, point.y - lefttop.y);
             const auto child_hit_test_result = (*i)->HitTest(coerced_point);
             if (child_hit_test_result != nullptr)
@@ -254,7 +281,7 @@ namespace cru::ui
         D2D1::Matrix3x2F old_transform;
         device_context->GetTransform(&old_transform);
 
-        const auto position = GetPositionRelative();
+        const auto position = GetOffset();
         device_context->SetTransform(old_transform * D2D1::Matrix3x2F::Translation(position.x, position.y));
 
         OnDrawDecoration(device_context);
