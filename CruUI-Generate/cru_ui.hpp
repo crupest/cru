@@ -1462,7 +1462,6 @@ namespace cru::ui
 
 namespace cru::ui
 {
-    class Control;
     class Window;
 
 
@@ -1499,53 +1498,30 @@ namespace cru::ui
 
 
     protected:
-        struct WindowConstructorTag {}; //Used for constructor for class Window. 
-
-        explicit Control(bool container = false);
-
-        // Used only for creating Window. It will set window_ as window.
-        Control(WindowConstructorTag, Window* window);
-
+        Control();
     public:
         Control(const Control& other) = delete;
         Control(Control&& other) = delete;
         Control& operator=(const Control& other) = delete;
         Control& operator=(Control&& other) = delete;
-        ~Control() override;
+        ~Control() override = default;
 
     public:
 
         //*************** region: tree ***************
         virtual StringView GetControlType() const = 0;
 
-        bool IsContainer() const
-        {
-            return is_container_;
-        }
+        virtual const std::vector<Control*>& GetInternalChildren() const = 0;
 
-        //Get parent of control, return nullptr if it has no parent.
         Control* GetParent() const
         {
-            return parent_;
+            return parent_ == nullptr ? internal_parent_ : parent_;
         }
 
-        //Return a immutable vector of all children.
-        const std::vector<Control*>& GetChildren() const;
-
-        //Add a child at tail.
-        void AddChild(Control* control);
-
-        //Add a child before the position.
-        void AddChild(Control* control, int position);
-
-        //Remove a child.
-        void RemoveChild(Control* child);
-
-        //Remove a child at specified position.
-        void RemoveChild(int position);
-
-        //Get the ancestor of the control.
-        Control* GetAncestor();
+        Control* GetInternalParent() const
+        {
+            return internal_parent_;
+        }
 
         //Get the window if attached, otherwise, return nullptr.
         Window* GetWindow() const
@@ -1553,17 +1529,25 @@ namespace cru::ui
             return window_;
         }
 
+        void SetParent(Control* parent);
+
+        void SetInternalParent(Control* internal_parent);
+
+        void SetDescendantWindow(Window* window);
+
+
         //Traverse the tree rooted the control including itself.
         void TraverseDescendants(const std::function<void(Control*)>& predicate);
 
         //*************** region: position and size ***************
 
         //Get the lefttop relative to its parent.
-        virtual Point GetPositionRelative();
+        virtual Point GetOffset();
 
         //Get the actual size.
         virtual Size GetSize();
 
+        // If offset changes, call RefreshDescendantPositionCache.
         virtual void SetRect(const Rect& rect);
 
         //Get lefttop relative to ancestor. This is only valid when
@@ -1576,6 +1560,13 @@ namespace cru::ui
 
         //Absolute point to local point.
         Point WindowToControl(const Point& point) const;
+
+        void RefreshDescendantPositionCache();
+
+    private:
+        static void RefreshControlPositionCacheInternal(Control* control, const Point& parent_lefttop_absolute);
+
+    public:
 
         // Default implement in Control is test point in border geometry's
         // fill and stroke with width of border.
@@ -1724,10 +1715,9 @@ namespace cru::ui
 
         //*************** region: tree event ***************
     protected:
-        //Invoked when a child is added. Overrides should invoke base.
-        virtual void OnAddChild(Control* child);
-        //Invoked when a child is removed. Overrides should invoke base.
-        virtual void OnRemoveChild(Control* child);
+        virtual void OnParentChanged(Control* old_parent, Control* new_parent);
+
+        virtual void OnInternalParentChanged(Control* old_internal_parent, Control* new_internal_parent);
 
         //Invoked when the control is attached to a window. Overrides should invoke base.
         virtual void OnAttachToWindow(Window* window);
@@ -1765,24 +1755,13 @@ namespace cru::ui
         void OnLayoutCore(const Rect& rect, const AdditionalLayoutInfo& additional_info);
 
     protected:
-        virtual Size OnMeasureContent(const Size& available_size, const AdditionalMeasureInfo& additional_info);
-        virtual void OnLayoutContent(const Rect& rect, const AdditionalLayoutInfo& additional_info);
-
-
-    private:
-        void ThrowIfNotContainer() const
-        {
-            if (!is_container_)
-                throw std::runtime_error("You can't perform such operation on a non-container control.");
-        }
+        virtual Size OnMeasureContent(const Size& available_size, const AdditionalMeasureInfo& additional_info) = 0;
+        virtual void OnLayoutContent(const Rect& rect, const AdditionalLayoutInfo& additional_info) = 0;
 
     private:
-        bool is_container_;
-
         Window * window_ = nullptr;
-
-        Control * parent_ = nullptr;
-        std::vector<Control*> children_{};
+        Control* parent_ = nullptr; // when parent and internal parent are the same, parent_ is nullptr.
+        Control * internal_parent_ = nullptr;
 
         Rect rect_{};
         
@@ -1821,6 +1800,113 @@ namespace cru::ui
     };
 
 
+    
+    class NoChildControl : public Control
+    {
+    private:
+        // used in GetInternalChildren.
+        static const std::vector<Control*> empty_control_vector;
+
+    protected:
+        NoChildControl() = default;
+    public:
+        NoChildControl(const NoChildControl& other) = delete;
+        NoChildControl(NoChildControl&& other) = delete;
+        NoChildControl& operator=(const NoChildControl& other) = delete;
+        NoChildControl& operator=(NoChildControl&& other) = delete;
+        ~NoChildControl() override = default;
+
+        const std::vector<Control*>& GetInternalChildren() const override final
+        {
+            return empty_control_vector;
+        }
+
+    protected:
+        void OnLayoutContent(const Rect& rect, const AdditionalLayoutInfo& additional_info) override;
+    };
+
+
+    class SingleChildControl : public Control
+    {
+    protected:
+        SingleChildControl();
+    public:
+        SingleChildControl(const SingleChildControl& other) = delete;
+        SingleChildControl(SingleChildControl&& other) = delete;
+        SingleChildControl& operator=(const SingleChildControl& other) = delete;
+        SingleChildControl& operator=(SingleChildControl&& other) = delete;
+        ~SingleChildControl() override;
+
+        const std::vector<Control*>& GetInternalChildren() const override final
+        {
+            return child_vector_;
+        }
+
+        Control* GetChild() const
+        {
+            return child_;
+        }
+
+        void SetChild(Control* child);
+
+    protected:
+        // Override should call base.
+        virtual void OnChildChanged(Control* old_child, Control* new_child);
+
+        Size OnMeasureContent(const Size& available_size, const AdditionalMeasureInfo& additional_info) override;
+        void OnLayoutContent(const Rect& rect, const AdditionalLayoutInfo& additional_info) override;
+
+    private:
+        std::vector<Control*> child_vector_;
+        Control*& child_;
+    };
+
+
+    class MultiChildControl : public Control
+    {
+    protected:
+        MultiChildControl() = default;
+    public:
+        MultiChildControl(const MultiChildControl& other) = delete;
+        MultiChildControl(MultiChildControl&& other) = delete;
+        MultiChildControl& operator=(const MultiChildControl& other) = delete;
+        MultiChildControl& operator=(MultiChildControl&& other) = delete;
+        ~MultiChildControl() override;
+
+        const std::vector<Control*>& GetInternalChildren() const override final
+        {
+            return children_;
+        }
+
+        const std::vector<Control*>& GetChildren() const
+        {
+            return children_;
+        }
+
+        //Add a child at tail.
+        void AddChild(Control* control);
+
+        //Add a child before the position.
+        void AddChild(Control* control, int position);
+
+        //Remove a child.
+        void RemoveChild(Control* child);
+
+        //Remove a child at specified position.
+        void RemoveChild(int position);
+
+    protected:
+        //Invoked when a child is added. Overrides should invoke base.
+        virtual void OnAddChild(Control* child);
+        //Invoked when a child is removed. Overrides should invoke base.
+        virtual void OnRemoveChild(Control* child);
+
+    private:
+        std::vector<Control*> children_;
+    };
+
+
+
     //*************** region: event dispatcher helper ***************
 
     // Dispatch the event.
@@ -1845,7 +1931,7 @@ namespace cru::ui
         while (parent != last_receiver)
         {
             receive_list.push_back(parent);
-            parent = parent->GetParent();
+            parent = parent->GetInternalParent();
         }
 
         auto handled = false;
@@ -1889,8 +1975,8 @@ namespace cru::ui
     // Return nullptr if "left" and "right" are not in the same tree.
     Control* FindLowestCommonAncestor(Control* left, Control* right);
 
-    // Return the ancestor if one control is the ancestor of the other one, otherwise nullptr.
-    Control* IsAncestorOrDescendant(Control* left, Control* right);
+
+    //*************** region: create helper ***************
 
     template <typename TControl, typename... Args>
     TControl* CreateWithLayout(const LayoutSideParams& width, const LayoutSideParams& height, Args&&... args)
@@ -1901,9 +1987,6 @@ namespace cru::ui
         control->GetLayoutParams()->height = height;
         return control;
     }
-
-
-    //*************** region: create helper ***************
 
     template <typename TControl, typename... Args>
     TControl* CreateWithLayout(const Thickness& padding, const Thickness& margin, Args&&... args)
@@ -2008,7 +2091,7 @@ namespace cru::ui
 
 
 
-    class Window final : public Control
+    class Window final : public SingleChildControl
     {
         friend class WindowManager;
     public:
@@ -2025,6 +2108,7 @@ namespace cru::ui
         explicit Window(tag_overlapped_constructor);
         Window(tag_popup_constructor, Window* parent, bool caption);
 
+        void BeforeCreateHwnd();
         void AfterCreateHwnd(WindowManager* window_manager);
 
     public:
@@ -2111,7 +2195,7 @@ namespace cru::ui
         //*************** region: position and size ***************
 
         //Always return (0, 0) for a window.
-        Point GetPositionRelative() override final;
+        Point GetOffset() override final;
 
         //Get the size of client area for a window.
         Size GetSize() override final;
@@ -2287,7 +2371,7 @@ namespace cru::ui::controls
 {
     // Min length of main side in layout params is of no meaning.
     // All children will layout from start and redundant length is blank.
-    class LinearLayout : public Control
+    class LinearLayout : public MultiChildControl
     {
     public:
         static constexpr auto control_type = L"LinearLayout";
@@ -2344,7 +2428,7 @@ namespace cru::ui::controls
 
 namespace cru::ui::controls
 {
-    class TextControl : public Control
+    class TextControl : public NoChildControl
     {
     protected:
         TextControl(
@@ -2474,7 +2558,7 @@ namespace cru::ui::controls
 
 namespace cru::ui::controls
 {
-    class ToggleButton : public Control
+    class ToggleButton : public NoChildControl
     {
     public:
         static constexpr auto control_type = L"ToggleButton";
@@ -2536,16 +2620,15 @@ namespace cru::ui::controls
 
 namespace cru::ui::controls
 {
-    class Button : public Control
+    class Button : public SingleChildControl
     {
     public:
         static constexpr auto control_type = L"Button";
 
-        static Button* Create(const std::initializer_list<Control*>& children = std::initializer_list<Control*>())
+        static Button* Create(Control* child = nullptr)
         {
             const auto button = new Button();
-            for (const auto control : children)
-                button->AddChild(control);
+            button->SetChild(child);
             return button;
         }
 
@@ -2634,7 +2717,7 @@ namespace cru::ui::controls
 
 namespace cru::ui::controls
 {
-    class ListItem : public Control
+    class ListItem : public SingleChildControl
     {
     public:
         static constexpr auto control_type = L"ListItem";
@@ -2654,11 +2737,10 @@ namespace cru::ui::controls
         };
 
     public:
-        static ListItem* Create(const std::initializer_list<Control*>& children)
+        static ListItem* Create(Control* child = nullptr)
         {
             const auto list_item = new ListItem();
-            for (auto control : children)
-                list_item->AddChild(control);
+            list_item->SetChild(child);
             return list_item;
         }
 
@@ -2724,7 +2806,7 @@ namespace cru::ui::controls
 
 namespace cru::ui::controls
 {
-    class FrameLayout : public Control
+    class FrameLayout : public MultiChildControl
     {
     public:
         static constexpr auto control_type = L"FrameLayout";
@@ -2747,6 +2829,10 @@ namespace cru::ui::controls
         ~FrameLayout() override;
 
         StringView GetControlType() const override final;
+
+    protected:
+        Size OnMeasureContent(const Size& available_size, const AdditionalMeasureInfo& additional_info) override;
+        void OnLayoutContent(const Rect& rect, const AdditionalLayoutInfo& additional_info) override;
     };
 }
 //--------------------------------------------------------
@@ -2771,7 +2857,7 @@ namespace cru::ui::controls
     // Done: API
     // Done: ScrollBar
     // Done: MouseEvent
-    class ScrollControl : public Control
+    class ScrollControl : public SingleChildControl
     {
     private:
         struct ScrollBarInfo
@@ -2794,11 +2880,10 @@ namespace cru::ui::controls
             Always
         };
 
-        static ScrollControl* Create(const std::initializer_list<Control*>& children = std::initializer_list<Control*>{})
+        static ScrollControl* Create(Control* child = nullptr)
         {
             const auto control = new ScrollControl(true);
-            for (auto child : children)
-                control->AddChild(child);
+            control->SetChild(child);
             return control;
         }
 

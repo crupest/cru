@@ -17,7 +17,7 @@ namespace cru::ui::controls
     // Done: API
     // Done: ScrollBar
     // Done: MouseEvent
-    class ScrollControl : public Control
+    class ScrollControl : public SingleChildControl
     {
     private:
         struct ScrollBarInfo
@@ -40,11 +40,10 @@ namespace cru::ui::controls
             Always
         };
 
-        static ScrollControl* Create(const std::initializer_list<Control*>& children = std::initializer_list<Control*>{})
+        static ScrollControl* Create(Control* child = nullptr)
         {
             const auto control = new ScrollControl(true);
-            for (auto child : children)
-                control->AddChild(child);
+            control->SetChild(child);
             return control;
         }
 

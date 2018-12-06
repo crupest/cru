@@ -85,7 +85,7 @@ namespace cru::ui
 
 
 
-    class Window final : public Control
+    class Window final : public SingleChildControl
     {
         friend class WindowManager;
     public:
@@ -102,6 +102,7 @@ namespace cru::ui
         explicit Window(tag_overlapped_constructor);
         Window(tag_popup_constructor, Window* parent, bool caption);
 
+        void BeforeCreateHwnd();
         void AfterCreateHwnd(WindowManager* window_manager);
 
     public:
@@ -188,7 +189,7 @@ namespace cru::ui
         //*************** region: position and size ***************
 
         //Always return (0, 0) for a window.
-        Point GetPositionRelative() override final;
+        Point GetOffset() override final;
 
         //Get the size of client area for a window.
         Size GetSize() override final;

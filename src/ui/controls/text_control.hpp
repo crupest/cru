@@ -7,7 +7,7 @@
 
 namespace cru::ui::controls
 {
-    class TextControl : public Control
+    class TextControl : public NoChildControl
     {
     protected:
         TextControl(

@@ -5,7 +5,7 @@
 
 namespace cru::ui::controls
 {
-    ListItem::ListItem() : Control(true)
+    ListItem::ListItem()
     {
         const auto predefine_resources = UiManager::GetInstance()->GetPredefineResources();
 

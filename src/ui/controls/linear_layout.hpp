@@ -9,7 +9,7 @@ namespace cru::ui::controls
 {
     // Min length of main side in layout params is of no meaning.
     // All children will layout from start and redundant length is blank.
-    class LinearLayout : public Control
+    class LinearLayout : public MultiChildControl
     {
     public:
         static constexpr auto control_type = L"LinearLayout";

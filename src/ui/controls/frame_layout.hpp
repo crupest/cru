@@ -9,7 +9,7 @@
 
 namespace cru::ui::controls
 {
-    class FrameLayout : public Control
+    class FrameLayout : public MultiChildControl
     {
     public:
         static constexpr auto control_type = L"FrameLayout";
@@ -32,5 +32,9 @@ namespace cru::ui::controls
         ~FrameLayout() override;
 
         StringView GetControlType() const override final;
+
+    protected:
+        Size OnMeasureContent(const Size& available_size, const AdditionalMeasureInfo& additional_info) override;
+        void OnLayoutContent(const Rect& rect, const AdditionalLayoutInfo& additional_info) override;
     };
 }

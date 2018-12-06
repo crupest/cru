@@ -116,7 +116,7 @@ namespace cru::ui
                 const auto cursor = control->GetCursor();
                 if (cursor != nullptr)
                     return cursor;
-                control = control->GetParent();
+                control = control->GetInternalParent();
             }
             return cursors::arrow;
         }
@@ -132,8 +132,11 @@ namespace cru::ui
         return new Window(tag_popup_constructor{}, parent, caption);
     }
 
-    Window::Window(tag_overlapped_constructor) : Control(WindowConstructorTag{}, this)
+
+    Window::Window(tag_overlapped_constructor)
     {
+        BeforeCreateHwnd();
+
         const auto window_manager = WindowManager::GetInstance();
 
         hwnd_ = CreateWindowEx(0,
@@ -149,10 +152,12 @@ namespace cru::ui
         AfterCreateHwnd(window_manager);
     }
 
-    Window::Window(tag_popup_constructor, Window* parent, const bool caption) : Control(WindowConstructorTag{}, this)
+    Window::Window(tag_popup_constructor, Window* parent, const bool caption)
     {
         if (parent != nullptr && !parent->IsWindowValid())
             throw std::runtime_error("Parent window is not valid.");
+
+        BeforeCreateHwnd();
 
         parent_window_ = parent;
 
@@ -170,6 +175,11 @@ namespace cru::ui
             throw std::runtime_error("Failed to create window.");
 
         AfterCreateHwnd(window_manager);
+    }
+
+    void Window::BeforeCreateHwnd()
+    {
+        window_ = this;
     }
 
     void Window::AfterCreateHwnd(WindowManager* window_manager)
@@ -459,7 +469,7 @@ namespace cru::ui
         return PiToDip(point);
     }
 
-    Point Window::GetPositionRelative()
+    Point Window::GetOffset()
     {
         return Point();
     }

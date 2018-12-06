@@ -10,7 +10,7 @@
 
 namespace cru::ui::controls
 {
-    class ListItem : public Control
+    class ListItem : public SingleChildControl
     {
     public:
         static constexpr auto control_type = L"ListItem";
@@ -30,11 +30,10 @@ namespace cru::ui::controls
         };
 
     public:
-        static ListItem* Create(const std::initializer_list<Control*>& children)
+        static ListItem* Create(Control* child = nullptr)
         {
             const auto list_item = new ListItem();
-            for (auto control : children)
-                list_item->AddChild(control);
+            list_item->SetChild(child);
             return list_item;
         }
 
