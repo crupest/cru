@@ -9,7 +9,7 @@
 
 namespace cru
 {
-        template <typename T, typename = std::enable_if_t<std::is_arithmetic_v<T>>>
+    template <typename T, typename = std::enable_if_t<std::is_arithmetic_v<T>>>
     float Coerce(const T n, const std::optional<T> min, const std::optional<T> max)
     {
         if (min.has_value() && n < min.value())

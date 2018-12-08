@@ -109,7 +109,7 @@ namespace cru
         std::unordered_map<std::type_index, Object*> singleton_map_;
         std::list<Object*> singleton_list_; // used for reverse destroy.
 #ifdef CRU_DEBUG
-        std::unordered_set<std::type_index> singleton_type_set_; // used for dead recursion.
+        std::unordered_set<std::type_index> singleton_type_set_; // used for detecting dead recursion.
 #endif
     };
 
