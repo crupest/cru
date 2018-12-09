@@ -167,13 +167,75 @@ namespace cru::ui::render
     class OffsetRenderObject : public MatrixRenderObject
     {
     public:
-        OffsetRenderObject(const float offset_x, const float offset_y) : MatrixRenderObject(D2D1::Matrix3x2F::Translation(offset_x, offset_y))
+        explicit OffsetRenderObject(const float offset_x = 0.0f, const float offset_y = 0.0f)
+            : MatrixRenderObject(D2D1::Matrix3x2F::Translation(offset_x, offset_y)),
+            offset_x_(offset_x), offset_y_(offset_y)
         {
-            
+
         }
+
+        float GetOffsetX() const
+        {
+            return offset_x_;
+        }
+
+        void SetOffsetX(float new_offset_x);
+
+        float GetOffsetY() const
+        {
+            return offset_y_;
+        }
+
+        void SetOffsetY(float new_offset_y);
+
+    private:
+        float offset_x_;
+        float offset_y_;
     };
 
+    class BorderRenderObject; //TODO!
 
+    class FillGeometryRenderObject; //TODO!
+
+    class CustomDrawHandlerRenderObject; //TODO!
+
+    class ContainerRenderObject; //TODO!
+
+
+
+    // Render object tree for a control. (RO for RenderObject)
+    //
+    //                                        ControlRO (not a SingleChildRO because child is not changed)
+    //                                             |
+    //                                         MatrixRO (control transform, only matrix exposed)
+    //                                             |
+    //                                           ClipRO (control clip, only clip geometry exposed)
+    //                                             |
+    //                                         OffsetRO (border offset)
+    //                                             |
+    //                                        ContainerRO
+    //                                     /       |
+    //                             BorderRO    OffsetRO (padding offset)
+    //                                        /    |     \
+    //                                     /       |        \
+    //                                  /          |           \
+    //                               /             |              \
+    //                            /                |                 \
+    //                         /                   |                    \
+    //                ContainerRO (background)     |         ContainerRO (foreground, symmetrical to background)
+    //                  /      \                   |                  /           \
+    //   GeometryFillRO    CustomDrawHandlerRO     |        GeometryFillRO      CustomDrawHandlerRO
+    //                                             |
+    //                                         OffsetRO (content offset)
+    //                                             |
+    //                                       ContainerRO (content)
+    //                                    /        |        \
+    //                                 /           |           \
+    //                              /              |              \
+    //   ContainerRO (control-define content ROs)  |            ContainerRO (child-control ROs)
+    //                                             |
+    //                                     CustomDrawHandlerRO (user-define drawing)
+    //
     class ControlRenderObject : public RenderObject
     {
     public:
@@ -184,6 +246,19 @@ namespace cru::ui::render
         ControlRenderObject& operator=(ControlRenderObject&& other) = delete;
         ~ControlRenderObject() override = default;
 
-        
+
+        D2D1_MATRIX_3X2_F GetControlTransform() const;
+        Microsoft::WRL::ComPtr<ID2D1Geometry> GetControlClip() const;
+
+        Point GetBorderOffset() const;
+        BorderRenderObject* GetBorderRenderObject() const;
+
+        Point GetPaddingOffset() const;
+        Microsoft::WRL::ComPtr<ID2D1Geometry> GetPaddingGeometry() const;
+
+        Point GetContentOffset() const;
+        ContainerRenderObject* GetContentContainer() const;
+
+        ContainerRenderObject* GetChildrenContainer() const;
     };
 }

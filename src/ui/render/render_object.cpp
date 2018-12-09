@@ -116,6 +116,18 @@ namespace cru::ui::render
         render_target->SetTransform(&old_matrix);
     }
 
+    void OffsetRenderObject::SetOffsetX(const float new_offset_x)
+    {
+        offset_x_ = new_offset_x;
+        SetMatrix(D2D1::Matrix3x2F::Translation(offset_x_, offset_y_));
+    }
+
+    void OffsetRenderObject::SetOffsetY(const float new_offset_y)
+    {
+        offset_y_ = new_offset_y;
+        SetMatrix(D2D1::Matrix3x2F::Translation(offset_x_, offset_y_));
+    }
+
     const MatrixRenderObject::MatrixApplier MatrixRenderObject::append_applier(ApplyAppendMatrix);
     const MatrixRenderObject::MatrixApplier MatrixRenderObject::set_applier(ApplySetMatrix);
 }
