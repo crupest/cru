@@ -30,3 +30,4 @@ Please using VS2017 open the `CruUI.sln` file in the root directory.
 
 - `CruUI-Generate/` contains codes and project file that used to test merged codes.
 
+- `snippets/` contains useful snippets file for *Visual Studio*, you can import it.
