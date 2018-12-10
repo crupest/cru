@@ -188,6 +188,20 @@ namespace cru::ui
         float height = 0.0f;
     };
 
+    constexpr bool operator==(const Rect& left, const Rect& right)
+    {
+        return left.left == right.left &&
+            left.top == right.top &&
+            left.width == right.width &&
+            left.height == right.height;
+    }
+
+    constexpr bool operator!=(const Rect& left, const Rect& right)
+    {
+        return !(left == right);
+    }
+
+
     enum class MouseButton
     {
         Left,

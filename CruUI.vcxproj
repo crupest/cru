@@ -172,7 +172,7 @@
     <ClInclude Include="src\ui\controls\text_box.hpp" />
     <ClCompile Include="src\ui\controls\text_control.cpp" />
     <ClInclude Include="src\ui\controls\toggle_button.hpp" />
-    <ClInclude Include="src\ui\convert_util.hpp" />
+    <ClInclude Include="src\ui\d2d_util.hpp" />
     <ClInclude Include="src\ui\cursor.hpp" />
     <ClInclude Include="src\ui\events\ui_event.hpp" />
     <ClInclude Include="src\ui\layout_base.hpp" />
@@ -180,6 +180,9 @@
     <ClInclude Include="src\ui\ui_manager.hpp" />
     <ClInclude Include="src\ui\ui_base.hpp" />
     <ClInclude Include="src\ui\window.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="snippets\vc++snippets.snippet" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

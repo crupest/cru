@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CodeSnippets xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+    <CodeSnippet Format="1.0.0">
+        <Header>
+            <Title>Deleted Copy Constructor/Assignment</Title>
+            <Author>crupest</Author>
+            <Description>Declare a deleted copy constructor and a deleted copy assignment operator for a class.</Description>
+            <Shortcut>dcopy</Shortcut>
+            <SnippetTypes>
+                <SnippetType>Expansion</SnippetType>
+            </SnippetTypes>
+        </Header>
+        <Snippet>
+            <Declarations>
+                <Literal>
+                    <ID>classname</ID>
+                    <Default>class_name</Default>
+                    <ToolTip>The name of the class.</ToolTip>
+                </Literal>
+            </Declarations>
+            <Code Language="CPP" Kind="method decl">
+                <![CDATA[
+                $classname$(const $classname$& other) = delete;
+                $classname$& operator=(const $classname$& other) = delete;
+                ]]>
+            </Code>
+        </Snippet>
+    </CodeSnippet>
+    <CodeSnippet Format="1.0.0">
+        <Header>
+            <Title>Deleted Move Constructor/Assignment</Title>
+            <Author>crupest</Author>
+            <Description>Declare a deleted move constructor and a deleted move assignment operator for a class.</Description>
+            <Shortcut>dmove</Shortcut>
+            <SnippetTypes>
+                <SnippetType>Expansion</SnippetType>
+            </SnippetTypes>
+        </Header>
+        <Snippet>
+            <Declarations>
+                <Literal>
+                    <ID>classname</ID>
+                    <Default>class_name</Default>
+                    <ToolTip>The name of the class.</ToolTip>
+                </Literal>
+            </Declarations>
+            <Code Language="CPP" Kind="method decl">
+                <![CDATA[
+                $classname$($classname$&& other) = delete;
+                $classname$& operator=($classname$&& other) = delete;
+                ]]>
+            </Code>
+        </Snippet>
+    </CodeSnippet>
+</CodeSnippets>

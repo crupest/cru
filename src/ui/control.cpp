@@ -8,7 +8,7 @@
 #include "graph/graph.hpp"
 #include "exception.hpp"
 #include "cru_debug.hpp"
-#include "convert_util.hpp"
+#include "d2d_util.hpp"
 #include "math_util.hpp"
 
 #ifdef CRU_DEBUG_LAYOUT

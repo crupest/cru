@@ -7,6 +7,7 @@
 
 #include "base.hpp"
 #include "ui/ui_base.hpp"
+#include "ui/d2d_util.hpp"
 
 namespace cru::ui::render
 {
@@ -193,11 +194,154 @@ namespace cru::ui::render
         float offset_y_;
     };
 
-    class BorderRenderObject; //TODO!
 
-    class FillGeometryRenderObject; //TODO!
+    class StrokeRenderObject : public virtual RenderObject
+    {
+    protected:
+        StrokeRenderObject() = default;
+    public:
+        StrokeRenderObject(const StrokeRenderObject& other) = delete;
+        StrokeRenderObject(StrokeRenderObject&& other) = delete;
+        StrokeRenderObject& operator=(const StrokeRenderObject& other) = delete;
+        StrokeRenderObject& operator=(StrokeRenderObject&& other) = delete;
+        ~StrokeRenderObject() override = default;
 
-    class CustomDrawHandlerRenderObject; //TODO!
+        float GetStrokeWidth() const
+        {
+            return stroke_width_;
+        }
+
+        void SetStrokeWidth(float new_stroke_width);
+
+        Microsoft::WRL::ComPtr<ID2D1Brush> GetBrush() const
+        {
+            return brush_;
+        }
+
+        void SetBrush(Microsoft::WRL::ComPtr<ID2D1Brush> new_brush);
+
+        Microsoft::WRL::ComPtr<ID2D1StrokeStyle> GetStrokeStyle() const
+        {
+            return stroke_style_;
+        }
+
+        void SetStrokeStyle(Microsoft::WRL::ComPtr<ID2D1StrokeStyle> new_stroke_style);
+
+    private:
+        float stroke_width_ = 1.0f;
+        Microsoft::WRL::ComPtr<ID2D1Brush> brush_ = nullptr;
+        Microsoft::WRL::ComPtr<ID2D1StrokeStyle> stroke_style_ = nullptr;
+    };
+
+
+    class FillRenderObject : public virtual RenderObject
+    {
+    protected:
+        FillRenderObject() = default;
+    public:
+        FillRenderObject(const FillRenderObject& other) = delete;
+        FillRenderObject(FillRenderObject&& other) = delete;
+        FillRenderObject& operator=(const FillRenderObject& other) = delete;
+        FillRenderObject& operator=(FillRenderObject&& other) = delete;
+        ~FillRenderObject() override = default;
+
+        Microsoft::WRL::ComPtr<ID2D1Brush> GetBrush() const
+        {
+            return brush_;
+        }
+
+        void SetBrush(Microsoft::WRL::ComPtr<ID2D1Brush> new_brush);
+
+    private:
+        Microsoft::WRL::ComPtr<ID2D1Brush> brush_ = nullptr;
+    };
+
+
+    class RoundedRectangleRenderObject : public virtual RenderObject
+    {
+    protected:
+        RoundedRectangleRenderObject() = default;
+    public:
+        RoundedRectangleRenderObject(const RoundedRectangleRenderObject& other) = delete;
+        RoundedRectangleRenderObject(RoundedRectangleRenderObject&& other) = delete;
+        RoundedRectangleRenderObject& operator=(const RoundedRectangleRenderObject& other) = delete;
+        RoundedRectangleRenderObject& operator=(RoundedRectangleRenderObject&& other) = delete;
+        ~RoundedRectangleRenderObject() override = default;
+
+        Rect GetRect() const
+        {
+            return Convert(rounded_rect_.rect);
+        }
+
+        void SetRect(const Rect& rect);
+
+        float GetRadiusX() const
+        {
+            return rounded_rect_.radiusX;
+        }
+
+        void SetRadiusX(float new_radius_x);
+
+        float GetRadiusY() const
+        {
+            return rounded_rect_.radiusY;
+        }
+
+        void SetRadiusY(float new_radius_y);
+
+        D2D1_ROUNDED_RECT GetRoundedRect() const
+        {
+            return rounded_rect_;
+        }
+
+        void SetRoundedRect(const D2D1_ROUNDED_RECT& new_rounded_rect);
+
+    private:
+        D2D1_ROUNDED_RECT rounded_rect_ = D2D1::RoundedRect(D2D1::RectF(), 0.0f, 0.0f);
+    };
+
+
+    class RoundedRectangleStrokeRenderObject final : public StrokeRenderObject, public RoundedRectangleRenderObject
+    {
+    public:
+        RoundedRectangleStrokeRenderObject() = default;
+        RoundedRectangleStrokeRenderObject(const RoundedRectangleStrokeRenderObject& other) = delete;
+        RoundedRectangleStrokeRenderObject(RoundedRectangleStrokeRenderObject&& other) = delete;
+        RoundedRectangleStrokeRenderObject& operator=(const RoundedRectangleStrokeRenderObject& other) = delete;
+        RoundedRectangleStrokeRenderObject& operator=(RoundedRectangleStrokeRenderObject&& other) = delete;
+        ~RoundedRectangleStrokeRenderObject() override = default;
+
+    protected:
+        void Draw(ID2D1RenderTarget* render_target) override;
+    };
+
+
+    class CustomDrawHandlerRenderObject : public RenderObject
+    {
+    public:
+        using DrawHandler = std::function<void(ID2D1RenderTarget*)>;
+
+        CustomDrawHandlerRenderObject() = default;
+        CustomDrawHandlerRenderObject(const CustomDrawHandlerRenderObject& other) = delete;
+        CustomDrawHandlerRenderObject& operator=(const CustomDrawHandlerRenderObject& other) = delete;
+        CustomDrawHandlerRenderObject(CustomDrawHandlerRenderObject&& other) = delete;
+        CustomDrawHandlerRenderObject& operator=(CustomDrawHandlerRenderObject&& other) = delete;
+        ~CustomDrawHandlerRenderObject() override = default;
+
+        DrawHandler GetDrawHandler() const
+        {
+            return draw_handler_;
+        }
+
+        void SetDrawHandler(DrawHandler new_draw_handler);
+
+    protected:
+        void Draw(ID2D1RenderTarget* render_target) override;
+
+    private:
+        DrawHandler draw_handler_{};
+    };
+
 
     class ContainerRenderObject; //TODO!
 
@@ -215,7 +359,7 @@ namespace cru::ui::render
     //                                             |
     //                                        ContainerRO
     //                                     /       |
-    //                             BorderRO    OffsetRO (padding offset)
+    //                      StrokeRO (border)  OffsetRO (padding offset)
     //                                        /    |     \
     //                                     /       |        \
     //                                  /          |           \
@@ -224,7 +368,7 @@ namespace cru::ui::render
     //                         /                   |                    \
     //                ContainerRO (background)     |         ContainerRO (foreground, symmetrical to background)
     //                  /      \                   |                  /           \
-    //   GeometryFillRO    CustomDrawHandlerRO     |        GeometryFillRO      CustomDrawHandlerRO
+    //             FillRO  CustomDrawHandlerRO     |               FillRO      CustomDrawHandlerRO
     //                                             |
     //                                         OffsetRO (content offset)
     //                                             |
@@ -247,13 +391,13 @@ namespace cru::ui::render
         ~ControlRenderObject() override = default;
 
 
-        D2D1_MATRIX_3X2_F GetControlTransform() const;
-        Microsoft::WRL::ComPtr<ID2D1Geometry> GetControlClip() const;
+        MatrixRenderObject* GetControlTransformRenderObject() const;
+        ClipRenderObject* GetControlClipRenderObject() const;
 
-        Point GetBorderOffset() const;
-        BorderRenderObject* GetBorderRenderObject() const;
+        OffsetRenderObject* GetBorderOffsetRenderObject() const;
+        RoundedRectangleStrokeRenderObject* GetBorderRenderObject() const;
 
-        Point GetPaddingOffset() const;
+        OffsetRenderObject* GetPaddingOffsetRenderObject() const;
         Microsoft::WRL::ComPtr<ID2D1Geometry> GetPaddingGeometry() const;
 
         Point GetContentOffset() const;
