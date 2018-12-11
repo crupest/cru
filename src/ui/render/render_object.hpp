@@ -4,6 +4,7 @@
 
 #include "system_headers.hpp"
 #include <functional>
+#include <cassert>
 
 #include "base.hpp"
 #include "ui/ui_base.hpp"
@@ -343,7 +344,40 @@ namespace cru::ui::render
     };
 
 
-    class ContainerRenderObject; //TODO!
+    class ContainerRenderObject : public RenderObject
+    {
+    public:
+        ContainerRenderObject() = default;
+        ContainerRenderObject(const ContainerRenderObject& other) = delete;
+        ContainerRenderObject& operator=(const ContainerRenderObject& other) = delete;
+        ContainerRenderObject(ContainerRenderObject&& other) = delete;
+        ContainerRenderObject& operator=(ContainerRenderObject&& other) = delete;
+        ~ContainerRenderObject();
+
+        const std::vector<RenderObject*>& GetChildren() const
+        {
+            return children_;
+        }
+
+        RenderObject* GetAt(const int position) const
+        {
+            assert(position >= 0);
+            assert(position < static_cast<int>(children_.size()));
+            return children_.at(static_cast<std::vector<RenderObject*>::size_type>(position));
+        }
+
+        void AddChild(RenderObject* child);
+
+        void AddChild(RenderObject* child, int position);
+
+        void RemoveChild(int position);
+
+    protected:
+        void Draw(ID2D1RenderTarget* render_target) override;
+
+    private:
+        std::vector<RenderObject*> children_;
+    };
 
 
 

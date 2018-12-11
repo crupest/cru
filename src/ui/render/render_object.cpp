@@ -220,9 +220,40 @@ namespace cru::ui::render
         InvalidateRenderHost;
     }
 
-    void CustomDrawHandlerRenderObject::Draw(ID2D1RenderTarget * render_target)
+    void CustomDrawHandlerRenderObject::Draw(ID2D1RenderTarget* render_target)
     {
         if (draw_handler_ != nullptr)
             draw_handler_(render_target);
+    }
+
+    ContainerRenderObject::~ContainerRenderObject()
+    {
+        for (const auto child : children_)
+            delete child;
+    }
+
+    void ContainerRenderObject::AddChild(RenderObject* child)
+    {
+        children_.push_back(child);
+    }
+
+    void ContainerRenderObject::AddChild(RenderObject* child, const int position)
+    {
+        assert(position >= 0);
+        assert(position <= children_.size());
+        children_.insert(children_.cbegin() + position, child);
+    }
+
+    void ContainerRenderObject::RemoveChild(const int position)
+    {
+        assert(position >= 0);
+        assert(position < children_.size());
+        children_.erase(children_.cbegin() + position);
+    }
+
+    void ContainerRenderObject::Draw(ID2D1RenderTarget* render_target)
+    {
+        for (const auto child : children_)
+            child->Draw(render_target);
     }
 }
