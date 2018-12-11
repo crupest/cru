@@ -165,19 +165,68 @@ namespace cru::ui::render
     using EllipseRenderObject = details::ShapeRenderObject<Ellipse>;
 
 
-    class RoundedRectangleStrokeRenderObject final : public StrokeRenderObject, public RoundedRectangleRenderObject
+    namespace details
     {
-    public:
-        RoundedRectangleStrokeRenderObject() = default;
-        RoundedRectangleStrokeRenderObject(const RoundedRectangleStrokeRenderObject& other) = delete;
-        RoundedRectangleStrokeRenderObject(RoundedRectangleStrokeRenderObject&& other) = delete;
-        RoundedRectangleStrokeRenderObject& operator=(const RoundedRectangleStrokeRenderObject& other) = delete;
-        RoundedRectangleStrokeRenderObject& operator=(RoundedRectangleStrokeRenderObject&& other) = delete;
-        ~RoundedRectangleStrokeRenderObject() override = default;
+        template<typename TShapeType, typename TD2D1ShapeType, void (ID2D1RenderTarget::*draw_function)(const TD2D1ShapeType&, ID2D1Brush*, float, ID2D1StrokeStyle*)>
+        class ShapeStrokeRenderObject : public ShapeRenderObject<TShapeType>, public StrokeRenderObject
+        {
+        public:
+            ShapeStrokeRenderObject() = default;
+            ShapeStrokeRenderObject(const ShapeStrokeRenderObject& other) = delete;
+            ShapeStrokeRenderObject& operator=(const ShapeStrokeRenderObject& other) = delete;
+            ShapeStrokeRenderObject(ShapeStrokeRenderObject&& other) = delete;
+            ShapeStrokeRenderObject& operator=(ShapeStrokeRenderObject&& other) = delete;
+            ~ShapeStrokeRenderObject() = default;
 
-    protected:
-        void Draw(ID2D1RenderTarget* render_target) override;
-    };
+        protected:
+            void Draw(ID2D1RenderTarget* render_target) override
+            {
+                const auto brush = GetBrush();
+                if (brush != nullptr)
+                    (render_target->*draw_function)(Convert(GetShape()), brush.Get(), GetStrokeWidth(), GetStrokeStyle().Get());
+            }
+        };
+
+        extern template ShapeStrokeRenderObject<Rect, D2D1_RECT_F, &ID2D1RenderTarget::DrawRectangle>;
+        extern template ShapeStrokeRenderObject<RoundedRect, D2D1_ROUNDED_RECT, &ID2D1RenderTarget::DrawRoundedRectangle>;
+        extern template ShapeStrokeRenderObject<Ellipse, D2D1_ELLIPSE, &ID2D1RenderTarget::DrawEllipse>;
+    }
+
+    using RectangleStrokeRenderObject = details::ShapeStrokeRenderObject<Rect, D2D1_RECT_F, &ID2D1RenderTarget::DrawRectangle>;
+    using RoundedRectangleStrokeRenderObject = details::ShapeStrokeRenderObject<RoundedRect, D2D1_ROUNDED_RECT, &ID2D1RenderTarget::DrawRoundedRectangle>;
+    using EllipseStrokeRenderObject = details::ShapeStrokeRenderObject<Ellipse, D2D1_ELLIPSE, &ID2D1RenderTarget::DrawEllipse>;
+
+
+    namespace details
+    {
+        template<typename TShapeType, typename TD2D1ShapeType, void (ID2D1RenderTarget::*fill_function)(const TD2D1ShapeType&, ID2D1Brush*)>
+        class ShapeFillRenderObject : public ShapeRenderObject<TShapeType>, public StrokeRenderObject
+        {
+        public:
+            ShapeFillRenderObject() = default;
+            ShapeFillRenderObject(const ShapeFillRenderObject& other) = delete;
+            ShapeFillRenderObject& operator=(const ShapeFillRenderObject& other) = delete;
+            ShapeFillRenderObject(ShapeFillRenderObject&& other) = delete;
+            ShapeFillRenderObject& operator=(ShapeFillRenderObject&& other) = delete;
+            ~ShapeFillRenderObject() = default;
+
+        protected:
+            void Draw(ID2D1RenderTarget* render_target) override
+            {
+                const auto brush = GetBrush();
+                if (brush != nullptr)
+                    (render_target->*fill_function)(Convert(GetShape()), brush.Get());
+            }
+        };
+
+        extern template ShapeFillRenderObject<Rect, D2D1_RECT_F, &ID2D1RenderTarget::FillRectangle>;
+        extern template ShapeFillRenderObject<RoundedRect, D2D1_ROUNDED_RECT, &ID2D1RenderTarget::FillRoundedRectangle>;
+        extern template ShapeFillRenderObject<Ellipse, D2D1_ELLIPSE, &ID2D1RenderTarget::FillEllipse>;
+    }
+
+    using RectangleFillRenderObject = details::ShapeFillRenderObject<Rect, D2D1_RECT_F, &ID2D1RenderTarget::FillRectangle>;
+    using RoundedRectangleFillRenderObject = details::ShapeFillRenderObject<RoundedRect, D2D1_ROUNDED_RECT, &ID2D1RenderTarget::FillRoundedRectangle>;
+    using EllipseFillRenderObject = details::ShapeFillRenderObject<Ellipse, D2D1_ELLIPSE, &ID2D1RenderTarget::FillEllipse>;
 
 
     class CustomDrawHandlerRenderObject : public RenderObject

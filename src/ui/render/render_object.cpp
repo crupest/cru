@@ -67,11 +67,18 @@ namespace cru::ui::render
         template class ShapeRenderObject<Ellipse>;
     }
 
-    void RoundedRectangleStrokeRenderObject::Draw(ID2D1RenderTarget* render_target)
+    namespace details
     {
-        const auto brush = GetBrush();
-        if (brush != nullptr)
-            render_target->DrawRoundedRectangle(Convert(GetShape()), GetBrush().Get(), GetStrokeWidth());
+        template ShapeStrokeRenderObject<Rect, D2D1_RECT_F, &ID2D1RenderTarget::DrawRectangle>;
+        template ShapeStrokeRenderObject<RoundedRect, D2D1_ROUNDED_RECT, &ID2D1RenderTarget::DrawRoundedRectangle>;
+        template ShapeStrokeRenderObject<Ellipse, D2D1_ELLIPSE, &ID2D1RenderTarget::DrawEllipse>;
+    }
+
+    namespace details
+    {
+        template ShapeFillRenderObject<Rect, D2D1_RECT_F, &ID2D1RenderTarget::FillRectangle>;
+        template ShapeFillRenderObject<RoundedRect, D2D1_ROUNDED_RECT, &ID2D1RenderTarget::FillRoundedRectangle>;
+        template ShapeFillRenderObject<Ellipse, D2D1_ELLIPSE, &ID2D1RenderTarget::FillEllipse>;
     }
 
     void CustomDrawHandlerRenderObject::SetDrawHandler(DrawHandler new_draw_handler)
