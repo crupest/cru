@@ -119,48 +119,50 @@ namespace cru::ui::render
     };
 
 
-    class RoundedRectangleRenderObject : public virtual RenderObject
+    namespace details
     {
-    protected:
-        RoundedRectangleRenderObject() = default;
-    public:
-        RoundedRectangleRenderObject(const RoundedRectangleRenderObject& other) = delete;
-        RoundedRectangleRenderObject(RoundedRectangleRenderObject&& other) = delete;
-        RoundedRectangleRenderObject& operator=(const RoundedRectangleRenderObject& other) = delete;
-        RoundedRectangleRenderObject& operator=(RoundedRectangleRenderObject&& other) = delete;
-        ~RoundedRectangleRenderObject() override = default;
-
-        Rect GetRect() const
+        template <typename TShapeType>
+        class ShapeRenderObject : public virtual RenderObject
         {
-            return Convert(rounded_rect_.rect);
-        }
+        public:
+            using ShapeType = TShapeType;
+        protected:
+            ShapeRenderObject() = default;
+        public:
+            ShapeRenderObject(const ShapeRenderObject& other) = delete;
+            ShapeRenderObject& operator=(const ShapeRenderObject& other) = delete;
+            ShapeRenderObject(ShapeRenderObject&& other) = delete;
+            ShapeRenderObject& operator=(ShapeRenderObject&& other) = delete;
+            ~ShapeRenderObject() override = default;
 
-        void SetRect(const Rect& rect);
+            ShapeType GetShape() const
+            {
+                return shape_;
+            }
 
-        float GetRadiusX() const
-        {
-            return rounded_rect_.radiusX;
-        }
+            void SetShape(const ShapeType& new_shape)
+            {
+                if (new_shape == shape_)
+                    return;
 
-        void SetRadiusX(float new_radius_x);
+                shape_ = new_shape;
+                InvalidateRenderHost();
+            }
 
-        float GetRadiusY() const
-        {
-            return rounded_rect_.radiusY;
-        }
+        private:
+            ShapeType shape_;
+        };
 
-        void SetRadiusY(float new_radius_y);
 
-        D2D1_ROUNDED_RECT GetRoundedRect() const
-        {
-            return rounded_rect_;
-        }
+        extern template class ShapeRenderObject<Rect>;
+        extern template class ShapeRenderObject<RoundedRect>;
+        extern template class ShapeRenderObject<Ellipse>;
+    }
 
-        void SetRoundedRect(const D2D1_ROUNDED_RECT& new_rounded_rect);
 
-    private:
-        D2D1_ROUNDED_RECT rounded_rect_ = D2D1::RoundedRect(D2D1::RectF(), 0.0f, 0.0f);
-    };
+    using RectangleRenderObject = details::ShapeRenderObject<Rect>;
+    using RoundedRectangleRenderObject = details::ShapeRenderObject<RoundedRect>;
+    using EllipseRenderObject = details::ShapeRenderObject<Ellipse>;
 
 
     class RoundedRectangleStrokeRenderObject final : public StrokeRenderObject, public RoundedRectangleRenderObject

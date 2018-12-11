@@ -60,48 +60,18 @@ namespace cru::ui::render
         InvalidateRenderHost();
     }
 
-    void RoundedRectangleRenderObject::SetRect(const Rect& rect)
+    namespace details
     {
-        const auto converted_rect = Convert(rect);
-        if (rounded_rect_.rect == converted_rect)
-            return;
-
-        rounded_rect_.rect = converted_rect;
-        InvalidateRenderHost();
-    }
-
-    void RoundedRectangleRenderObject::SetRadiusX(const float new_radius_x)
-    {
-        if (rounded_rect_.radiusX == new_radius_x)
-            return;
-
-        rounded_rect_.radiusX = new_radius_x;
-        InvalidateRenderHost();
-    }
-
-    void RoundedRectangleRenderObject::SetRadiusY(const float new_radius_y)
-    {
-        if (rounded_rect_.radiusY == new_radius_y)
-            return;
-
-        rounded_rect_.radiusY = new_radius_y;
-        InvalidateRenderHost();
-    }
-
-    void RoundedRectangleRenderObject::SetRoundedRect(const D2D1_ROUNDED_RECT& new_rounded_rect)
-    {
-        if (rounded_rect_ == new_rounded_rect)
-            return;
-
-        rounded_rect_ = new_rounded_rect;
-        InvalidateRenderHost();
+        template class ShapeRenderObject<Rect>;
+        template class ShapeRenderObject<RoundedRect>;
+        template class ShapeRenderObject<Ellipse>;
     }
 
     void RoundedRectangleStrokeRenderObject::Draw(ID2D1RenderTarget* render_target)
     {
         const auto brush = GetBrush();
         if (brush != nullptr)
-            render_target->DrawRoundedRectangle(GetRoundedRect(), GetBrush().Get(), GetStrokeWidth());
+            render_target->DrawRoundedRectangle(Convert(GetShape()), GetBrush().Get(), GetStrokeWidth());
     }
 
     void CustomDrawHandlerRenderObject::SetDrawHandler(DrawHandler new_draw_handler)
@@ -110,7 +80,7 @@ namespace cru::ui::render
             return;
 
         draw_handler_ = std::move(new_draw_handler);
-        InvalidateRenderHost;
+        InvalidateRenderHost();
     }
 
     void CustomDrawHandlerRenderObject::Draw(ID2D1RenderTarget* render_target)

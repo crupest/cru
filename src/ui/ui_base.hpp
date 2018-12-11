@@ -32,6 +32,7 @@ namespace cru::ui
         return !(left == right);
     }
 
+
     struct Size
     {
         constexpr static Size Zero()
@@ -65,6 +66,7 @@ namespace cru::ui
     {
         return !(left == right);
     }
+
 
     struct Thickness
     {
@@ -120,6 +122,20 @@ namespace cru::ui
         float bottom;
     };
 
+    constexpr bool operator == (const Thickness& left, const Thickness& right)
+    {
+        return left.left == right.left &&
+            left.top == right.top &&
+            left.right == right.right &&
+            left.bottom == right.bottom; 
+    }
+
+    constexpr bool operator != (const Thickness& left, const Thickness& right)
+    {
+        return !(left == right);
+    }
+
+
     struct Rect
     {
         constexpr Rect() = default;
@@ -131,6 +147,11 @@ namespace cru::ui
         constexpr static Rect FromVertices(const float left, const float top, const float right, const float bottom)
         {
             return Rect(left, top, right - left, bottom - top);
+        }
+
+        constexpr static Rect FromCenter(const Point& center, const float width, const float height)
+        {
+            return Rect(center.x - width / 2.0f, center.y - height / 2.0f, width, height);
         }
 
         constexpr float GetRight() const
@@ -161,6 +182,11 @@ namespace cru::ui
         constexpr Point GetRightTop() const
         {
             return Point(left + width, top);
+        }
+
+        constexpr Point GetCenter() const
+        {
+            return Point(left + width / 2.0f, top + height / 2.0f);
         }
 
         constexpr Size GetSize() const
@@ -202,12 +228,66 @@ namespace cru::ui
     }
 
 
+    struct RoundedRect
+    {
+        constexpr RoundedRect() = default;
+        constexpr RoundedRect(const Rect& rect, const float radius_x, const float radius_y)
+            : rect(rect), radius_x(radius_x), radius_y(radius_y) { }
+
+        Rect rect{};
+        float radius_x = 0.0f;
+        float radius_y = 0.0f;
+    };
+
+    constexpr bool operator == (const RoundedRect& left, const RoundedRect& right)
+    {
+        return left.rect == right.rect && left.radius_x == right.radius_x && left.radius_y == right.radius_y;
+    }
+
+    constexpr bool operator != (const RoundedRect& left, const RoundedRect& right)
+    {
+        return !(left == right);
+    }
+
+    struct Ellipse
+    {
+        constexpr Ellipse() = default;
+        constexpr Ellipse(const Point& center, const float radius_x, const float radius_y)
+            : center(center), radius_x(radius_x), radius_y(radius_y) { }
+
+        constexpr static Ellipse FromRect(const Rect& rect)
+        {
+            return Ellipse(rect.GetCenter(), rect.width / 2.0f, rect.height / 2.0f);
+        }
+
+        constexpr Rect GetBoundRect() const
+        {
+            return Rect::FromCenter(center, radius_x * 2.0f, radius_y * 2.0f);
+        }
+
+        Point center{};
+        float radius_x = 0.0f;
+        float radius_y = 0.0f;
+    };
+
+    constexpr bool operator == (const Ellipse& left, const Ellipse& right)
+    {
+        return left.center == right.center && left.radius_x == right.radius_x && left.radius_y == right.radius_y;
+    }
+
+    constexpr bool operator != (const Ellipse& left, const Ellipse& right)
+    {
+        return !(left == right);
+    }
+
+
     enum class MouseButton
     {
         Left,
         Right,
         Middle
     };
+
 
     struct TextRange
     {
