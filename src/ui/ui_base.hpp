@@ -8,7 +8,7 @@
 
 namespace cru::ui
 {
-    struct Point
+    struct Point final
     {
         constexpr static Point Zero()
         {
@@ -32,7 +32,8 @@ namespace cru::ui
         return !(left == right);
     }
 
-    struct Size
+
+    struct Size final
     {
         constexpr static Size Zero()
         {
@@ -46,12 +47,12 @@ namespace cru::ui
         float height = 0;
     };
 
-    constexpr Size operator + (const Size& left, const Size& right)
+    constexpr Size operator+(const Size& left, const Size& right)
     {
         return Size(left.width + right.width, left.height + right.height);
     }
 
-    constexpr Size operator - (const Size& left, const Size& right)
+    constexpr Size operator-(const Size& left, const Size& right)
     {
         return Size(left.width - right.width, left.height - right.height);
     }
@@ -66,7 +67,8 @@ namespace cru::ui
         return !(left == right);
     }
 
-    struct Thickness
+
+    struct Thickness final
     {
         constexpr static Thickness Zero()
         {
@@ -120,7 +122,7 @@ namespace cru::ui
         float bottom;
     };
 
-    struct Rect
+    struct Rect final
     {
         constexpr Rect() = default;
         constexpr Rect(const float left, const float top, const float width, const float height)
@@ -188,14 +190,8 @@ namespace cru::ui
         float height = 0.0f;
     };
 
-    enum class MouseButton
-    {
-        Left,
-        Right,
-        Middle
-    };
 
-    struct TextRange
+    struct TextRange final
     {
         constexpr static std::optional<TextRange> FromTwoSides(unsigned first, unsigned second)
         {
@@ -223,8 +219,4 @@ namespace cru::ui
         unsigned position = 0;
         unsigned count = 0;
     };
-
-    bool IsKeyDown(int virtual_code);
-    bool IsKeyToggled(int virtual_code);
-    bool IsAnyMouseButtonDown();
 }
