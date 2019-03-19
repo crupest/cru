@@ -1,6 +1,4 @@
 #pragma once
-
-// ReSharper disable once CppUnusedIncludeDirective
 #include "pre.hpp"
 
 //include system headers

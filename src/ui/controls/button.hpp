@@ -9,7 +9,7 @@
 
 namespace cru::ui::controls
 {
-    class Button : public SingleChildControl
+    class Button : public ContentControl
     {
     public:
         static constexpr auto control_type = L"Button";

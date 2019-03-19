@@ -2,256 +2,108 @@
 
 #include "pre.hpp"
 
+#include <optional>
+#include <vector>
 #include "system_headers.hpp"
-#include <functional>
-#include <cassert>
 
 #include "base.hpp"
 #include "ui/ui_base.hpp"
-#include "ui/d2d_util.hpp"
 
 namespace cru::ui::render
 {
-    /* About Render Object
-     * 
-     * Render object is a concrete subclass of RenderObject class.
-     * It represents a painting action on a d2d render target. By
-     * overriding "Draw" virtual method, it can customize its painting
-     * action.
-     */
+struct MeasureConstraint
+{
+    std::optional<float> min_width;
+    std::optional<float> min_height;
+    std::optional<float> max_width;
+    std::optional<float> max_height;
+};
 
 
-    struct IRenderHost : Interface
-    {
-        virtual void InvalidateRender() = 0;
-    };
+struct LayoutConstraint
+{
+    float preferred_width;
+    float preferred_height;
+};
 
 
-    class RenderObject : public Object
-    {
-    protected:
-        RenderObject() = default;
-    public:
-        RenderObject(const RenderObject& other) = delete;
-        RenderObject(RenderObject&& other) = delete;
-        RenderObject& operator=(const RenderObject& other) = delete;
-        RenderObject& operator=(RenderObject&& other) = delete;
-        ~RenderObject() override = default;
-
-        virtual void Draw(ID2D1RenderTarget* render_target) = 0;
-
-        IRenderHost* GetRenderHost() const
-        {
-            return render_host_;
-        }
-
-        void SetRenderHost(IRenderHost* new_render_host);
-
-    protected:
-        virtual void OnRenderHostChanged(IRenderHost* old_render_host, IRenderHost* new_render_host);
-
-        void InvalidateRenderHost();
-
-    private:
-        IRenderHost* render_host_ = nullptr;
-    };
+struct IRenderHost : Interface
+{
+    virtual void InvalidatePaint() = 0;
+    virtual void InvalidateLayout() = 0;
+};
 
 
-    class StrokeRenderObject : public virtual RenderObject
-    {
-    protected:
-        StrokeRenderObject() = default;
-    public:
-        StrokeRenderObject(const StrokeRenderObject& other) = delete;
-        StrokeRenderObject(StrokeRenderObject&& other) = delete;
-        StrokeRenderObject& operator=(const StrokeRenderObject& other) = delete;
-        StrokeRenderObject& operator=(StrokeRenderObject&& other) = delete;
-        ~StrokeRenderObject() override = default;
+// features:
+// 1. tree
+// 2. layout
+// 3. paint
+// 3. hit test
+class RenderObject : public Object
+{
+protected:
+    RenderObject() = default;
 
-        float GetStrokeWidth() const
-        {
-            return stroke_width_;
-        }
+public:
+    RenderObject(const RenderObject& other) = delete;
+    RenderObject(RenderObject&& other) = delete;
+    RenderObject& operator=(const RenderObject& other) = delete;
+    RenderObject& operator=(RenderObject&& other) = delete;
+    ~RenderObject() override = default;
 
-        void SetStrokeWidth(float new_stroke_width);
+    IRenderHost* GetRenderHost() const { return render_host_; }
+    void SetRenderHost(IRenderHost* new_render_host);
 
-        Microsoft::WRL::ComPtr<ID2D1Brush> GetBrush() const
-        {
-            return brush_;
-        }
+    RenderObject* GetParent() const { return parent_; }
 
-        void SetBrush(Microsoft::WRL::ComPtr<ID2D1Brush> new_brush);
+    const std::vector<RenderObject*>& GetChildren() const { return children_; }
+    void AddChild(RenderObject* render_object, int position);
+    void RemoveChild(int position);
 
-        Microsoft::WRL::ComPtr<ID2D1StrokeStyle> GetStrokeStyle() const
-        {
-            return stroke_style_;
-        }
+    virtual void Measure(const MeasureConstraint& constraint) = 0;
+    virtual void Layout(const LayoutConstraint& constraint) = 0;
 
-        void SetStrokeStyle(Microsoft::WRL::ComPtr<ID2D1StrokeStyle> new_stroke_style);
+    virtual void Draw(ID2D1RenderTarget* render_target) = 0;
 
-    private:
-        float stroke_width_ = 1.0f;
-        Microsoft::WRL::ComPtr<ID2D1Brush> brush_ = nullptr;
-        Microsoft::WRL::ComPtr<ID2D1StrokeStyle> stroke_style_ = nullptr;
-    };
+    virtual void HitTest(const Point& point) = 0;
 
+protected:
+    virtual void OnRenderHostChanged(IRenderHost* old_render_host,
+                                     IRenderHost* new_render_host);
 
-    class FillRenderObject : public virtual RenderObject
-    {
-    protected:
-        FillRenderObject() = default;
-    public:
-        FillRenderObject(const FillRenderObject& other) = delete;
-        FillRenderObject(FillRenderObject&& other) = delete;
-        FillRenderObject& operator=(const FillRenderObject& other) = delete;
-        FillRenderObject& operator=(FillRenderObject&& other) = delete;
-        ~FillRenderObject() override = default;
+    void InvalidateRenderHostPaint() const;
+    void InvalidateRenderHostLayout() const;
 
-        Microsoft::WRL::ComPtr<ID2D1Brush> GetBrush() const
-        {
-            return brush_;
-        }
+    virtual void OnParentChanged(RenderObject* old_parent,
+                                 RenderObject* new_parent);
 
-        void SetBrush(Microsoft::WRL::ComPtr<ID2D1Brush> new_brush);
+    virtual void OnAddChild(RenderObject* new_child, int position);
+    virtual void OnRemoveChild(RenderObject* removed_child, int position);
 
-    private:
-        Microsoft::WRL::ComPtr<ID2D1Brush> brush_ = nullptr;
-    };
+private:
+    void SetParent(RenderObject* new_parent);
+
+private:
+    IRenderHost* render_host_ = nullptr;
+    RenderObject* parent_ = nullptr;
+    std::vector<RenderObject*> children_;
+};
 
 
-    namespace details
-    {
-        template <typename TShapeType>
-        class ShapeRenderObject : public virtual RenderObject
-        {
-        public:
-            using ShapeType = TShapeType;
-        protected:
-            ShapeRenderObject() = default;
-        public:
-            ShapeRenderObject(const ShapeRenderObject& other) = delete;
-            ShapeRenderObject& operator=(const ShapeRenderObject& other) = delete;
-            ShapeRenderObject(ShapeRenderObject&& other) = delete;
-            ShapeRenderObject& operator=(ShapeRenderObject&& other) = delete;
-            ~ShapeRenderObject() override = default;
+class LinearLayoutRenderObject : public RenderObject
+{
+public:
+    LinearLayoutRenderObject() = default;
+    LinearLayoutRenderObject(const LinearLayoutRenderObject& other) = delete;
+    LinearLayoutRenderObject& operator=(const LinearLayoutRenderObject& other) =
+        delete;
+    LinearLayoutRenderObject(LinearLayoutRenderObject&& other) = delete;
+    LinearLayoutRenderObject& operator=(LinearLayoutRenderObject&& other) =
+        delete;
+    ~LinearLayoutRenderObject() = default;
 
-            ShapeType GetShape() const
-            {
-                return shape_;
-            }
+    void Measure(const MeasureConstraint& constraint) override;
 
-            void SetShape(const ShapeType& new_shape)
-            {
-                if (new_shape == shape_)
-                    return;
-
-                shape_ = new_shape;
-                InvalidateRenderHost();
-            }
-
-        private:
-            ShapeType shape_;
-        };
-
-
-        extern template class ShapeRenderObject<Rect>;
-        extern template class ShapeRenderObject<RoundedRect>;
-        extern template class ShapeRenderObject<Ellipse>;
-    }
-
-
-    using RectangleRenderObject = details::ShapeRenderObject<Rect>;
-    using RoundedRectangleRenderObject = details::ShapeRenderObject<RoundedRect>;
-    using EllipseRenderObject = details::ShapeRenderObject<Ellipse>;
-
-
-    namespace details
-    {
-        template<typename TShapeType, typename TD2D1ShapeType, void (ID2D1RenderTarget::*draw_function)(const TD2D1ShapeType&, ID2D1Brush*, float, ID2D1StrokeStyle*)>
-        class ShapeStrokeRenderObject : public ShapeRenderObject<TShapeType>, public StrokeRenderObject
-        {
-        public:
-            ShapeStrokeRenderObject() = default;
-            ShapeStrokeRenderObject(const ShapeStrokeRenderObject& other) = delete;
-            ShapeStrokeRenderObject& operator=(const ShapeStrokeRenderObject& other) = delete;
-            ShapeStrokeRenderObject(ShapeStrokeRenderObject&& other) = delete;
-            ShapeStrokeRenderObject& operator=(ShapeStrokeRenderObject&& other) = delete;
-            ~ShapeStrokeRenderObject() = default;
-
-        protected:
-            void Draw(ID2D1RenderTarget* render_target) override
-            {
-                const auto brush = GetBrush();
-                if (brush != nullptr)
-                    (render_target->*draw_function)(Convert(GetShape()), brush.Get(), GetStrokeWidth(), GetStrokeStyle().Get());
-            }
-        };
-
-        extern template ShapeStrokeRenderObject<Rect, D2D1_RECT_F, &ID2D1RenderTarget::DrawRectangle>;
-        extern template ShapeStrokeRenderObject<RoundedRect, D2D1_ROUNDED_RECT, &ID2D1RenderTarget::DrawRoundedRectangle>;
-        extern template ShapeStrokeRenderObject<Ellipse, D2D1_ELLIPSE, &ID2D1RenderTarget::DrawEllipse>;
-    }
-
-    using RectangleStrokeRenderObject = details::ShapeStrokeRenderObject<Rect, D2D1_RECT_F, &ID2D1RenderTarget::DrawRectangle>;
-    using RoundedRectangleStrokeRenderObject = details::ShapeStrokeRenderObject<RoundedRect, D2D1_ROUNDED_RECT, &ID2D1RenderTarget::DrawRoundedRectangle>;
-    using EllipseStrokeRenderObject = details::ShapeStrokeRenderObject<Ellipse, D2D1_ELLIPSE, &ID2D1RenderTarget::DrawEllipse>;
-
-
-    namespace details
-    {
-        template<typename TShapeType, typename TD2D1ShapeType, void (ID2D1RenderTarget::*fill_function)(const TD2D1ShapeType&, ID2D1Brush*)>
-        class ShapeFillRenderObject : public ShapeRenderObject<TShapeType>, public StrokeRenderObject
-        {
-        public:
-            ShapeFillRenderObject() = default;
-            ShapeFillRenderObject(const ShapeFillRenderObject& other) = delete;
-            ShapeFillRenderObject& operator=(const ShapeFillRenderObject& other) = delete;
-            ShapeFillRenderObject(ShapeFillRenderObject&& other) = delete;
-            ShapeFillRenderObject& operator=(ShapeFillRenderObject&& other) = delete;
-            ~ShapeFillRenderObject() = default;
-
-        protected:
-            void Draw(ID2D1RenderTarget* render_target) override
-            {
-                const auto brush = GetBrush();
-                if (brush != nullptr)
-                    (render_target->*fill_function)(Convert(GetShape()), brush.Get());
-            }
-        };
-
-        extern template ShapeFillRenderObject<Rect, D2D1_RECT_F, &ID2D1RenderTarget::FillRectangle>;
-        extern template ShapeFillRenderObject<RoundedRect, D2D1_ROUNDED_RECT, &ID2D1RenderTarget::FillRoundedRectangle>;
-        extern template ShapeFillRenderObject<Ellipse, D2D1_ELLIPSE, &ID2D1RenderTarget::FillEllipse>;
-    }
-
-    using RectangleFillRenderObject = details::ShapeFillRenderObject<Rect, D2D1_RECT_F, &ID2D1RenderTarget::FillRectangle>;
-    using RoundedRectangleFillRenderObject = details::ShapeFillRenderObject<RoundedRect, D2D1_ROUNDED_RECT, &ID2D1RenderTarget::FillRoundedRectangle>;
-    using EllipseFillRenderObject = details::ShapeFillRenderObject<Ellipse, D2D1_ELLIPSE, &ID2D1RenderTarget::FillEllipse>;
-
-
-    class CustomDrawHandlerRenderObject : public RenderObject
-    {
-    public:
-        using DrawHandler = std::function<void(ID2D1RenderTarget*)>;
-
-        CustomDrawHandlerRenderObject() = default;
-        CustomDrawHandlerRenderObject(const CustomDrawHandlerRenderObject& other) = delete;
-        CustomDrawHandlerRenderObject& operator=(const CustomDrawHandlerRenderObject& other) = delete;
-        CustomDrawHandlerRenderObject(CustomDrawHandlerRenderObject&& other) = delete;
-        CustomDrawHandlerRenderObject& operator=(CustomDrawHandlerRenderObject&& other) = delete;
-        ~CustomDrawHandlerRenderObject() override = default;
-
-        DrawHandler GetDrawHandler() const
-        {
-            return draw_handler_;
-        }
-
-        void SetDrawHandler(DrawHandler new_draw_handler);
-
-    protected:
-        void Draw(ID2D1RenderTarget* render_target) override;
-
-    private:
-        DrawHandler draw_handler_{};
-    };
-}
+private:
+};
+}  // namespace cru::ui::render

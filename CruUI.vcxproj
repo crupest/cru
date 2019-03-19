@@ -117,10 +117,10 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\any_map.cpp" />
+    <ClCompile Include="src\ui\window_class.cpp" />
+    <ClCompile Include="src\util\any_map.cpp" />
     <ClCompile Include="src\cru_debug.cpp" />
     <ClCompile Include="src\application.cpp" />
-    <ClCompile Include="src\base.cpp" />
     <ClCompile Include="src\exception.cpp" />
     <ClCompile Include="src\graph\graph.cpp" />
     <ClCompile Include="src\main.cpp" />
@@ -136,9 +136,11 @@
     <ClCompile Include="src\ui\controls\scroll_control.cpp" />
     <ClCompile Include="src\ui\controls\text_block.cpp" />
     <ClCompile Include="src\ui\controls\text_box.cpp" />
-    <ClInclude Include="src\any_map.hpp" />
-    <ClInclude Include="src\format.hpp" />
-    <ClInclude Include="src\math_util.hpp" />
+    <ClCompile Include="src\util\string_util.cpp" />
+    <ClInclude Include="src\ui\window_class.hpp" />
+    <ClInclude Include="src\util\any_map.hpp" />
+    <ClInclude Include="src\util\format.hpp" />
+    <ClInclude Include="src\util\math_util.hpp" />
     <ClInclude Include="src\ui\border_property.hpp" />
     <ClInclude Include="src\ui\controls\frame_layout.hpp" />
     <ClInclude Include="src\ui\controls\list_item.hpp" />
@@ -150,10 +152,12 @@
     <ClCompile Include="src\ui\events\ui_event.cpp" />
     <ClCompile Include="src\ui\input_util.cpp" />
     <ClCompile Include="src\ui\layout_base.cpp" />
+    <ClCompile Include="src\ui\render\linear_layout_render_object.cpp" />
     <ClCompile Include="src\ui\render\render_object.cpp" />
     <ClCompile Include="src\ui\ui_manager.cpp" />
     <ClCompile Include="src\ui\ui_base.cpp" />
     <ClCompile Include="src\ui\window.cpp" />
+    <ClInclude Include="src\util\string_util.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\application.hpp" />
@@ -178,6 +182,7 @@
     <ClInclude Include="src\ui\events\ui_event.hpp" />
     <ClInclude Include="src\ui\input_util.hpp" />
     <ClInclude Include="src\ui\layout_base.hpp" />
+    <ClInclude Include="src\ui\render\linear_layout_render_object.hpp" />
     <ClInclude Include="src\ui\render\render_object.hpp" />
     <ClInclude Include="src\ui\ui_manager.hpp" />
     <ClInclude Include="src\ui\ui_base.hpp" />
@@ -185,6 +190,9 @@
   </ItemGroup>
   <ItemGroup>
     <Xml Include="snippets\vc++snippets.snippet" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include=".clang-format" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

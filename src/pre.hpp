@@ -8,11 +8,8 @@
 #define CRU_DEBUG_LAYOUT
 #endif
 
-
 #ifdef CRU_DEBUG
-// ReSharper disable once IdentifierTypo
-// ReSharper disable once CppInconsistentNaming
 #define _CRTDBG_MAP_ALLOC
-#include <cstdlib>
 #include <crtdbg.h>
+#include <cstdlib>
 #endif

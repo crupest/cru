@@ -8,7 +8,7 @@
 
 namespace cru::ui
 {
-    struct Point
+    struct Point final
     {
         constexpr static Point Zero()
         {
@@ -33,7 +33,7 @@ namespace cru::ui
     }
 
 
-    struct Size
+    struct Size final
     {
         constexpr static Size Zero()
         {
@@ -68,7 +68,7 @@ namespace cru::ui
     }
 
 
-    struct Thickness
+    struct Thickness final
     {
         constexpr static Thickness Zero()
         {
@@ -122,7 +122,7 @@ namespace cru::ui
         float bottom;
     };
 
-    constexpr bool operator == (const Thickness& left, const Thickness& right)
+    constexpr bool operator==(const Thickness& left, const Thickness& right)
     {
         return left.left == right.left &&
             left.top == right.top &&
@@ -130,13 +130,13 @@ namespace cru::ui
             left.bottom == right.bottom; 
     }
 
-    constexpr bool operator != (const Thickness& left, const Thickness& right)
+    constexpr bool operator!=(const Thickness& left, const Thickness& right)
     {
         return !(left == right);
     }
 
 
-    struct Rect
+    struct Rect final
     {
         constexpr Rect() = default;
         constexpr Rect(const float left, const float top, const float width, const float height)
@@ -228,7 +228,7 @@ namespace cru::ui
     }
 
 
-    struct RoundedRect
+    struct RoundedRect final
     {
         constexpr RoundedRect() = default;
         constexpr RoundedRect(const Rect& rect, const float radius_x, const float radius_y)
@@ -239,17 +239,18 @@ namespace cru::ui
         float radius_y = 0.0f;
     };
 
-    constexpr bool operator == (const RoundedRect& left, const RoundedRect& right)
+    constexpr bool operator==(const RoundedRect& left, const RoundedRect& right)
     {
         return left.rect == right.rect && left.radius_x == right.radius_x && left.radius_y == right.radius_y;
     }
 
-    constexpr bool operator != (const RoundedRect& left, const RoundedRect& right)
+    constexpr bool operator!=(const RoundedRect& left, const RoundedRect& right)
     {
         return !(left == right);
     }
 
-    struct Ellipse
+
+    struct Ellipse final
     {
         constexpr Ellipse() = default;
         constexpr Ellipse(const Point& center, const float radius_x, const float radius_y)
@@ -270,26 +271,18 @@ namespace cru::ui
         float radius_y = 0.0f;
     };
 
-    constexpr bool operator == (const Ellipse& left, const Ellipse& right)
+    constexpr bool operator==(const Ellipse& left, const Ellipse& right)
     {
         return left.center == right.center && left.radius_x == right.radius_x && left.radius_y == right.radius_y;
     }
 
-    constexpr bool operator != (const Ellipse& left, const Ellipse& right)
+    constexpr bool operator!=(const Ellipse& left, const Ellipse& right)
     {
         return !(left == right);
     }
 
 
-    enum class MouseButton
-    {
-        Left,
-        Right,
-        Middle
-    };
-
-
-    struct TextRange
+    struct TextRange final
     {
         constexpr static std::optional<TextRange> FromTwoSides(unsigned first, unsigned second)
         {
@@ -317,8 +310,4 @@ namespace cru::ui
         unsigned position = 0;
         unsigned count = 0;
     };
-
-    bool IsKeyDown(int virtual_code);
-    bool IsKeyToggled(int virtual_code);
-    bool IsAnyMouseButtonDown();
 }

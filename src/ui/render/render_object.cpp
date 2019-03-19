@@ -3,96 +3,88 @@
 
 namespace cru::ui::render
 {
-    void RenderObject::SetRenderHost(IRenderHost* new_render_host)
-    {
-        if (new_render_host == render_host_)
-            return;
+void RenderObject::SetRenderHost(IRenderHost* new_render_host)
+{
+    if (new_render_host == render_host_) return;
 
-        const auto old = render_host_;
-        render_host_ = new_render_host;
-        OnRenderHostChanged(old, new_render_host);
-    }
-
-    void RenderObject::OnRenderHostChanged(IRenderHost* old_render_host, IRenderHost* new_render_host)
-    {
-
-    }
-
-    void RenderObject::InvalidateRenderHost()
-    {
-        if (render_host_ != nullptr)
-            render_host_->InvalidateRender();
-    }
-
-    void StrokeRenderObject::SetStrokeWidth(const float new_stroke_width)
-    {
-        if (stroke_width_ == new_stroke_width)
-            return;
-
-        stroke_width_ = new_stroke_width;
-        InvalidateRenderHost();
-    }
-
-    void StrokeRenderObject::SetBrush(Microsoft::WRL::ComPtr<ID2D1Brush> new_brush)
-    {
-        if (brush_ == new_brush)
-            return;
-
-        brush_ = std::move(new_brush);
-        InvalidateRenderHost();
-    }
-
-    void StrokeRenderObject::SetStrokeStyle(Microsoft::WRL::ComPtr<ID2D1StrokeStyle> new_stroke_style)
-    {
-        if (stroke_style_ == new_stroke_style)
-            return;
-
-        stroke_style_ = std::move(new_stroke_style);
-        InvalidateRenderHost();
-    }
-
-    void FillRenderObject::SetBrush(Microsoft::WRL::ComPtr<ID2D1Brush> new_brush)
-    {
-        if (brush_ == new_brush)
-            return;
-
-        brush_ = std::move(new_brush);
-        InvalidateRenderHost();
-    }
-
-    namespace details
-    {
-        template class ShapeRenderObject<Rect>;
-        template class ShapeRenderObject<RoundedRect>;
-        template class ShapeRenderObject<Ellipse>;
-    }
-
-    namespace details
-    {
-        template ShapeStrokeRenderObject<Rect, D2D1_RECT_F, &ID2D1RenderTarget::DrawRectangle>;
-        template ShapeStrokeRenderObject<RoundedRect, D2D1_ROUNDED_RECT, &ID2D1RenderTarget::DrawRoundedRectangle>;
-        template ShapeStrokeRenderObject<Ellipse, D2D1_ELLIPSE, &ID2D1RenderTarget::DrawEllipse>;
-    }
-
-    namespace details
-    {
-        template ShapeFillRenderObject<Rect, D2D1_RECT_F, &ID2D1RenderTarget::FillRectangle>;
-        template ShapeFillRenderObject<RoundedRect, D2D1_ROUNDED_RECT, &ID2D1RenderTarget::FillRoundedRectangle>;
-        template ShapeFillRenderObject<Ellipse, D2D1_ELLIPSE, &ID2D1RenderTarget::FillEllipse>;
-    }
-
-    void CustomDrawHandlerRenderObject::SetDrawHandler(DrawHandler new_draw_handler)
-    {
-        if (draw_handler_ == nullptr && new_draw_handler == nullptr)
-            return;
-
-        draw_handler_ = std::move(new_draw_handler);
-        InvalidateRenderHost();
-    }
-
-    void CustomDrawHandlerRenderObject::Draw(ID2D1RenderTarget* render_target)
-    {
-        if (draw_handler_ != nullptr)
-            draw_handler_(render_target);
-    }
+    const auto old = render_host_;
+    render_host_ = new_render_host;
+    OnRenderHostChanged(old, new_render_host);
 }
+
+void RenderObject::AddChild(RenderObject* render_object, const int position)
+{
+    if (render_object->GetParent() != nullptr)
+        throw std::invalid_argument("Render object already has a parent.");
+
+    if (position < 0)
+        throw std::invalid_argument("Position index is less than 0.");
+
+    if (static_cast<std::vector<RenderObject*>::size_type>(position) >
+        children_.size())
+        throw std::invalid_argument("Position index is out of bound.");
+
+    children_.insert(children_.cbegin() + position, render_object);
+    render_object->SetParent(this);
+    OnAddChild(render_object, position);
+}
+
+void RenderObject::RemoveChild(const int position)
+{
+    if (position < 0)
+        throw std::invalid_argument("Position index is less than 0.");
+
+    if (static_cast<std::vector<RenderObject*>::size_type>(position) >=
+        children_.size())
+        throw std::invalid_argument("Position index is out of bound.");
+
+    const auto i = children_.cbegin() + position;
+    const auto removed_child = *i;
+    children_.erase(i);
+    removed_child->SetParent(nullptr);
+    OnRemoveChild(removed_child, position);
+}
+
+
+void RenderObject::OnRenderHostChanged(IRenderHost* old_render_host,
+                                       IRenderHost* new_render_host)
+{
+}
+
+void RenderObject::InvalidateRenderHostPaint() const
+{
+    if (render_host_ != nullptr) render_host_->InvalidatePaint();
+}
+
+void RenderObject::InvalidateRenderHostLayout() const
+{
+    if (render_host_ != nullptr) render_host_->InvalidateLayout();
+}
+
+void RenderObject::OnParentChanged(RenderObject* old_parent,
+                                   RenderObject* new_parent)
+{
+}
+
+
+void RenderObject::OnAddChild(RenderObject* new_child, int position)
+{
+}
+
+void RenderObject::OnRemoveChild(RenderObject* removed_child, int position)
+{
+}
+
+void RenderObject::SetParent(RenderObject* new_parent)
+{
+    const auto old_parent = parent_;
+    parent_ = new_parent;
+    OnParentChanged(old_parent, new_parent);
+}
+
+
+void LinearLayoutRenderObject::Measure(const MeasureConstraint& constraint)
+{
+
+}
+}  // namespace cru::ui::render

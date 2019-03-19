@@ -12,32 +12,13 @@
 #include "ui_base.hpp"
 #include "layout_base.hpp"
 #include "events/ui_event.hpp"
-#include "border_property.hpp"
 #include "cursor.hpp"
 #include "any_map.hpp"
+#include "input_util.hpp"
 
 namespace cru::ui
 {
     class Window;
-
-
-    struct AdditionalMeasureInfo
-    {
-        bool horizontal_stretchable = true;
-        bool vertical_stretchable = true;
-    };
-
-    struct AdditionalLayoutInfo
-    {
-        Point total_offset = Point::Zero();
-    };
-
-    //the position cache
-    struct ControlPositionCache
-    {
-        //The lefttop relative to the ancestor.
-        Point lefttop_position_absolute = Point::Zero();
-    };
 
 
     class Control : public Object
@@ -45,16 +26,7 @@ namespace cru::ui
         friend class Window;
 
     protected:
-        struct GeometryInfo
-        {
-            Microsoft::WRL::ComPtr<ID2D1Geometry> border_geometry = nullptr;
-            Microsoft::WRL::ComPtr<ID2D1Geometry> padding_content_geometry = nullptr;
-            Microsoft::WRL::ComPtr<ID2D1Geometry> content_geometry = nullptr;
-        };
-
-
-    protected:
-        Control();
+        Control() = default;
     public:
         Control(const Control& other) = delete;
         Control(Control&& other) = delete;
@@ -63,53 +35,35 @@ namespace cru::ui
         ~Control() override = default;
 
     public:
-
-        //*************** region: tree ***************
         virtual StringView GetControlType() const = 0;
 
-        virtual const std::vector<Control*>& GetInternalChildren() const = 0;
 
-        Control* GetParent() const
-        {
-            return parent_ == nullptr ? internal_parent_ : parent_;
-        }
-
-        Control* GetInternalParent() const
-        {
-            return internal_parent_;
-        }
-
+        //*************** region: tree ***************
+    public:
         //Get the window if attached, otherwise, return nullptr.
         Window* GetWindow() const
         {
             return window_;
         }
 
+        Control* GetParent() const
+        {
+            return parent_;
+        }
+
         void SetParent(Control* parent);
 
-        void SetInternalParent(Control* internal_parent);
-
         void SetDescendantWindow(Window* window);
-
 
         //Traverse the tree rooted the control including itself.
         void TraverseDescendants(const std::function<void(Control*)>& predicate);
 
-        //*************** region: position and size ***************
+    private:
+        static void TraverseDescendantsInternal(Control* control, const std::function<void(Control*)>& predicate);
 
-        //Get the lefttop relative to its parent.
-        virtual Point GetOffset();
-
-        //Get the actual size.
-        virtual Size GetSize();
-
-        // If offset changes, call RefreshDescendantPositionCache.
-        virtual void SetRect(const Rect& rect);
-
-        //Get lefttop relative to ancestor. This is only valid when
-        //attached to window. Notice that the value is cached.
-        //You can invalidate and recalculate it by calling "InvalidatePositionCache". 
-        Point GetPositionAbsolute() const;
+        //*************** region: position ***************
+    public:
+        virtual Point GetPositionInWindow() const = 0;
 
         //Local point to absolute point.
         Point ControlToWindow(const Point& point) const;
@@ -117,122 +71,19 @@ namespace cru::ui
         //Absolute point to local point.
         Point WindowToControl(const Point& point) const;
 
-        void RefreshDescendantPositionCache();
-
-    private:
-        static void RefreshControlPositionCacheInternal(Control* control, const Point& parent_lefttop_absolute);
-
-    public:
-
-        // Default implement in Control is test point in border geometry's
-        // fill and stroke with width of border.
-        virtual bool IsPointInside(const Point& point);
-
-        // Get the top control among all descendants (including self) in local coordinate.
-        virtual Control* HitTest(const Point& point);
-
-        //*************** region: graphic ***************
-
-        bool IsClipContent() const
-        {
-            return clip_content_;
-        }
-
-        void SetClipContent(bool clip);
-
-        //Draw this control and its child controls.
-        void Draw(ID2D1DeviceContext* device_context);
-
-        virtual void InvalidateDraw();
-
-        Microsoft::WRL::ComPtr<ID2D1Brush> GetForegroundBrush() const
-        {
-            return foreground_brush_;
-        }
-
-        void SetForegroundBrush(Microsoft::WRL::ComPtr<ID2D1Brush> foreground_brush)
-        {
-            foreground_brush_ = std::move(foreground_brush);
-            InvalidateDraw();
-        }
-
-        Microsoft::WRL::ComPtr<ID2D1Brush> GetBackgroundBrush() const
-        {
-            return background_brush_;
-        }
-
-        void SetBackgroundBrush(Microsoft::WRL::ComPtr<ID2D1Brush> background_brush)
-        {
-            background_brush_ = std::move(background_brush);
-            InvalidateDraw();
-        }
 
 
         //*************** region: focus ***************
-
+    public:
         bool RequestFocus();
 
         bool HasFocus();
-
-        bool IsFocusOnPressed() const
-        {
-            return is_focus_on_pressed_;
-        }
-
-        void SetFocusOnPressed(const bool value)
-        {
-            is_focus_on_pressed_ = value;
-        }
-
-        //*************** region: layout ***************
-
-        void InvalidateLayout();
-
-        void Measure(const Size& available_size, const AdditionalMeasureInfo& additional_info);
-
-        void Layout(const Rect& rect, const AdditionalLayoutInfo& additional_info);
-
-        Size GetDesiredSize() const;
-
-        void SetDesiredSize(const Size& desired_size);
-
-        BasicLayoutParams* GetLayoutParams()
-        {
-            return &layout_params_;
-        }
-
-        Rect GetRect(RectRange range);
-
-        Point TransformPoint(const Point& point, RectRange from = RectRange::Margin, RectRange to = RectRange::Content);
-
-        //*************** region: border ***************
-
-        BorderProperty& GetBorderProperty()
-        {
-            return border_property_;
-        }
-
-        void UpdateBorder();
-
-        bool IsBordered() const
-        {
-            return is_bordered_;
-        }
-
-        void SetBordered(bool bordered);
-
-
-        //*************** region: additional properties ***************
-        AnyMap* GetAdditionalPropertyMap()
-        {
-            return &additional_property_map_;
-        }
 
         
         //*************** region: cursor ***************
         // If cursor is set to null, then it uses parent's cursor.
         // Window's cursor can't be null.
-
+    public:
         Cursor::Ptr GetCursor() const
         {
             return cursor_;
@@ -241,7 +92,16 @@ namespace cru::ui
         void SetCursor(const Cursor::Ptr& cursor);
 
 
+        //*************** region: additional properties ***************
+    public:
+        AnyMap* GetAdditionalPropertyMap()
+        {
+            return &additional_property_map_;
+        }
+
+
         //*************** region: events ***************
+    public:
         //Raised when mouse enter the control.
         events::RoutedEvent<events::MouseEventArgs> mouse_enter_event;
         //Raised when mouse is leave the control.
@@ -264,95 +124,29 @@ namespace cru::ui
         events::RoutedEvent<events::FocusChangeEventArgs> get_focus_event;
         events::RoutedEvent<events::FocusChangeEventArgs> lose_focus_event;
 
-        Event<events::DrawEventArgs> draw_content_event;
-        Event<events::DrawEventArgs> draw_background_event;
-        Event<events::DrawEventArgs> draw_foreground_event;
 
-
-        //*************** region: tree event ***************
+        //*************** region: tree ***************
     protected:
+        virtual const std::vector<Control*>& GetInternalChildren() const = 0;
+
         virtual void OnParentChanged(Control* old_parent, Control* new_parent);
-
-        virtual void OnInternalParentChanged(Control* old_internal_parent, Control* new_internal_parent);
-
-        //Invoked when the control is attached to a window. Overrides should invoke base.
         virtual void OnAttachToWindow(Window* window);
-        //Invoked when the control is detached to a window. Overrides should invoke base.
         virtual void OnDetachToWindow(Window* window);
 
 
-        //*************** region: graphic event ***************
-    private:
-        void OnDrawDecoration(ID2D1DeviceContext* device_context);
-        void OnDrawCore(ID2D1DeviceContext* device_context);
-
-
-        //*************** region: position and size event ***************
-    protected:
-        virtual void OnRectChange(const Rect& old_rect, const Rect& new_rect);
-        
-        void RegenerateGeometryInfo();
-
-        const GeometryInfo& GetGeometryInfo() const
-        {
-            return geometry_info_;
-        }
-
-
-        //*************** region: mouse event ***************
+        //*************** region: additional mouse event ***************
     protected:
         virtual void OnMouseClickBegin(MouseButton button);
         virtual void OnMouseClickEnd(MouseButton button);
 
 
-        //*************** region: layout ***************
-    private:
-        Size OnMeasureCore(const Size& available_size, const AdditionalMeasureInfo& additional_info);
-        void OnLayoutCore(const Rect& rect, const AdditionalLayoutInfo& additional_info);
-
-    protected:
-        virtual Size OnMeasureContent(const Size& available_size, const AdditionalMeasureInfo& additional_info) = 0;
-        virtual void OnLayoutContent(const Rect& rect, const AdditionalLayoutInfo& additional_info) = 0;
-
     private:
         Window * window_ = nullptr;
-        Control* parent_ = nullptr; // when parent and internal parent are the same, parent_ is nullptr.
-        Control * internal_parent_ = nullptr;
-
-        Rect rect_{};
-        
-        ControlPositionCache position_cache_{};
-
-        std::unordered_map<MouseButton, bool> is_mouse_click_valid_map_
-        {
-            { MouseButton::Left, true },
-            { MouseButton::Middle, true },
-            { MouseButton::Right, true }
-        }; // used for clicking determination
-
-        BasicLayoutParams layout_params_{};
-        Size desired_size_ = Size::Zero();
-
-        bool is_bordered_ = false;
-        BorderProperty border_property_;
-
-        GeometryInfo geometry_info_{};
-
-        bool clip_content_ = false;
-
-        Microsoft::WRL::ComPtr<ID2D1Brush> foreground_brush_ = nullptr;
-        Microsoft::WRL::ComPtr<ID2D1Brush> background_brush_ = nullptr;
-
-        AnyMap additional_property_map_{};
-
-        bool is_focus_on_pressed_ = true;
-
-#ifdef CRU_DEBUG_LAYOUT
-        Microsoft::WRL::ComPtr<ID2D1Geometry> margin_geometry_;
-        Microsoft::WRL::ComPtr<ID2D1Geometry> padding_geometry_;
-#endif
+        Control* parent_ = nullptr;
 
         Cursor::Ptr cursor_{};
+
+        AnyMap additional_property_map_{};
     };
 
 
@@ -372,31 +166,24 @@ namespace cru::ui
         NoChildControl& operator=(NoChildControl&& other) = delete;
         ~NoChildControl() override = default;
 
+    protected:
         const std::vector<Control*>& GetInternalChildren() const override final
         {
             return empty_control_vector;
         }
-
-    protected:
-        void OnLayoutContent(const Rect& rect, const AdditionalLayoutInfo& additional_info) override;
     };
 
 
-    class SingleChildControl : public Control
+    class ContentControl : public Control
     {
     protected:
-        SingleChildControl();
+        ContentControl();
     public:
-        SingleChildControl(const SingleChildControl& other) = delete;
-        SingleChildControl(SingleChildControl&& other) = delete;
-        SingleChildControl& operator=(const SingleChildControl& other) = delete;
-        SingleChildControl& operator=(SingleChildControl&& other) = delete;
-        ~SingleChildControl() override;
-
-        const std::vector<Control*>& GetInternalChildren() const override final
-        {
-            return child_vector_;
-        }
+        ContentControl(const ContentControl& other) = delete;
+        ContentControl(ContentControl&& other) = delete;
+        ContentControl& operator=(const ContentControl& other) = delete;
+        ContentControl& operator=(ContentControl&& other) = delete;
+        ~ContentControl() override;
 
         Control* GetChild() const
         {
@@ -406,11 +193,13 @@ namespace cru::ui
         void SetChild(Control* child);
 
     protected:
+        const std::vector<Control*>& GetInternalChildren() const override final
+        {
+            return child_vector_;
+        }
+
         // Override should call base.
         virtual void OnChildChanged(Control* old_child, Control* new_child);
-
-        Size OnMeasureContent(const Size& available_size, const AdditionalMeasureInfo& additional_info) override;
-        void OnLayoutContent(const Rect& rect, const AdditionalLayoutInfo& additional_info) override;
 
     private:
         std::vector<Control*> child_vector_;
@@ -452,9 +241,7 @@ namespace cru::ui
         void RemoveChild(int position);
 
     protected:
-        //Invoked when a child is added. Overrides should invoke base.
         virtual void OnAddChild(Control* child);
-        //Invoked when a child is removed. Overrides should invoke base.
         virtual void OnRemoveChild(Control* child);
 
     private:

@@ -10,7 +10,7 @@
 
 namespace cru::ui::controls
 {
-    class ListItem : public SingleChildControl
+    class ListItem : public ContentControl
     {
     public:
         static constexpr auto control_type = L"ListItem";

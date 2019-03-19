@@ -17,7 +17,7 @@ namespace cru::ui::controls
     // Done: API
     // Done: ScrollBar
     // Done: MouseEvent
-    class ScrollControl : public SingleChildControl
+    class ScrollControl : public ContentControl
     {
     private:
         struct ScrollBarInfo
