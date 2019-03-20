@@ -1,313 +1,238 @@
 #pragma once
-
-// ReSharper disable once CppUnusedIncludeDirective
 #include "pre.hpp"
 
 #include <optional>
 
+namespace cru::ui {
+struct Point final {
+  constexpr static Point Zero() { return Point(0, 0); }
 
-namespace cru::ui
-{
-    struct Point final
-    {
-        constexpr static Point Zero()
-        {
-            return Point(0, 0);
-        }
+  constexpr Point() = default;
+  constexpr Point(const float x, const float y) : x(x), y(y) {}
 
-        constexpr Point() = default;
-        constexpr Point(const float x, const float y) : x(x), y(y) { }
+  float x = 0;
+  float y = 0;
+};
 
-        float x = 0;
-        float y = 0;
-    };
-
-    constexpr bool operator==(const Point& left, const Point& right)
-    {
-        return left.x == right.x && left.y == right.y;
-    }
-
-    constexpr bool operator!=(const Point& left, const Point& right)
-    {
-        return !(left == right);
-    }
-
-
-    struct Size final
-    {
-        constexpr static Size Zero()
-        {
-            return Size(0, 0);
-        }
-
-        constexpr Size() = default;
-        constexpr Size(const float width, const float height) : width(width), height(height) { }
-
-        float width = 0;
-        float height = 0;
-    };
-
-    constexpr Size operator + (const Size& left, const Size& right)
-    {
-        return Size(left.width + right.width, left.height + right.height);
-    }
-
-    constexpr Size operator - (const Size& left, const Size& right)
-    {
-        return Size(left.width - right.width, left.height - right.height);
-    }
-
-    constexpr bool operator==(const Size& left, const Size& right)
-    {
-        return left.width == right.width && left.height == right.height;
-    }
-
-    constexpr bool operator!=(const Size& left, const Size& right)
-    {
-        return !(left == right);
-    }
-
-
-    struct Thickness final
-    {
-        constexpr static Thickness Zero()
-        {
-            return Thickness(0);
-        }
-
-        constexpr Thickness() : Thickness(0) { }
-
-        constexpr explicit Thickness(const float width)
-            : left(width), top(width), right(width), bottom(width) { }
-
-        constexpr explicit Thickness(const float horizontal, const float vertical)
-            : left(horizontal), top(vertical), right(horizontal), bottom(vertical) { }
-
-        constexpr Thickness(const float left, const float top, const float right, const float bottom)
-            : left(left), top(top), right(right), bottom(bottom) { }
-
-        float GetHorizontalTotal() const
-        {
-            return left + right;
-        }
-
-        float GetVerticalTotal() const
-        {
-            return top + bottom;
-        }
-
-        void SetLeftRight(const float value)
-        {
-            left = right = value;
-        }
-
-        void SetTopBottom(const float value)
-        {
-            top = bottom = value;
-        }
-
-        void SetAll(const float value)
-        {
-            left = top = right = bottom = value;
-        }
-
-        float Validate() const
-        {
-            return left >= 0.0 && top >= 0.0 && right >= 0.0 && bottom >= 0.0;
-        }
-
-        float left;
-        float top;
-        float right;
-        float bottom;
-    };
-
-    constexpr bool operator==(const Thickness& left, const Thickness& right)
-    {
-        return left.left == right.left &&
-            left.top == right.top &&
-            left.right == right.right &&
-            left.bottom == right.bottom; 
-    }
-
-    constexpr bool operator!=(const Thickness& left, const Thickness& right)
-    {
-        return !(left == right);
-    }
-
-
-    struct Rect final
-    {
-        constexpr Rect() = default;
-        constexpr Rect(const float left, const float top, const float width, const float height)
-            : left(left), top(top), width(width), height(height) { }
-        constexpr Rect(const Point& lefttop, const Size& size)
-            : left(lefttop.x), top(lefttop.y), width(size.width), height(size.height) { }
-
-        constexpr static Rect FromVertices(const float left, const float top, const float right, const float bottom)
-        {
-            return Rect(left, top, right - left, bottom - top);
-        }
-
-        constexpr static Rect FromCenter(const Point& center, const float width, const float height)
-        {
-            return Rect(center.x - width / 2.0f, center.y - height / 2.0f, width, height);
-        }
-
-        constexpr float GetRight() const
-        {
-            return left + width;
-        }
-
-        constexpr float GetBottom() const
-        {
-            return top + height;
-        }
-
-        constexpr Point GetLeftTop() const
-        {
-            return Point(left, top);
-        }
-
-        constexpr Point GetRightBottom() const
-        {
-            return Point(left + width, top + height);
-        }
-
-        constexpr Point GetLeftBottom() const
-        {
-            return Point(left, top + height);
-        }
-
-        constexpr Point GetRightTop() const
-        {
-            return Point(left + width, top);
-        }
-
-        constexpr Point GetCenter() const
-        {
-            return Point(left + width / 2.0f, top + height / 2.0f);
-        }
-
-        constexpr Size GetSize() const
-        {
-            return Size(width, height);
-        }
-
-        constexpr Rect Shrink(const Thickness& thickness) const
-        {
-            return Rect(left + thickness.left, top + thickness.top, width - thickness.GetHorizontalTotal(), height - thickness.GetVerticalTotal());
-        }
-
-        constexpr bool IsPointInside(const Point& point) const
-        {
-            return
-                point.x >= left &&
-                point.x < GetRight() &&
-                point.y >= top &&
-                point.y < GetBottom();
-        }
-
-        float left = 0.0f;
-        float top = 0.0f;
-        float width = 0.0f;
-        float height = 0.0f;
-    };
-
-    constexpr bool operator==(const Rect& left, const Rect& right)
-    {
-        return left.left == right.left &&
-            left.top == right.top &&
-            left.width == right.width &&
-            left.height == right.height;
-    }
-
-    constexpr bool operator!=(const Rect& left, const Rect& right)
-    {
-        return !(left == right);
-    }
-
-
-    struct RoundedRect final
-    {
-        constexpr RoundedRect() = default;
-        constexpr RoundedRect(const Rect& rect, const float radius_x, const float radius_y)
-            : rect(rect), radius_x(radius_x), radius_y(radius_y) { }
-
-        Rect rect{};
-        float radius_x = 0.0f;
-        float radius_y = 0.0f;
-    };
-
-    constexpr bool operator==(const RoundedRect& left, const RoundedRect& right)
-    {
-        return left.rect == right.rect && left.radius_x == right.radius_x && left.radius_y == right.radius_y;
-    }
-
-    constexpr bool operator!=(const RoundedRect& left, const RoundedRect& right)
-    {
-        return !(left == right);
-    }
-
-
-    struct Ellipse final
-    {
-        constexpr Ellipse() = default;
-        constexpr Ellipse(const Point& center, const float radius_x, const float radius_y)
-            : center(center), radius_x(radius_x), radius_y(radius_y) { }
-
-        constexpr static Ellipse FromRect(const Rect& rect)
-        {
-            return Ellipse(rect.GetCenter(), rect.width / 2.0f, rect.height / 2.0f);
-        }
-
-        constexpr Rect GetBoundRect() const
-        {
-            return Rect::FromCenter(center, radius_x * 2.0f, radius_y * 2.0f);
-        }
-
-        Point center{};
-        float radius_x = 0.0f;
-        float radius_y = 0.0f;
-    };
-
-    constexpr bool operator==(const Ellipse& left, const Ellipse& right)
-    {
-        return left.center == right.center && left.radius_x == right.radius_x && left.radius_y == right.radius_y;
-    }
-
-    constexpr bool operator!=(const Ellipse& left, const Ellipse& right)
-    {
-        return !(left == right);
-    }
-
-
-    struct TextRange final
-    {
-        constexpr static std::optional<TextRange> FromTwoSides(unsigned first, unsigned second)
-        {
-            if (first > second)
-                return std::make_optional<TextRange>(second, first - second);
-            if (first < second)
-                return std::make_optional<TextRange>(first, second - first);
-            return std::nullopt;
-        }
-
-        constexpr static std::pair<unsigned, unsigned> ToTwoSides(std::optional<TextRange> text_range, unsigned default_position = 0)
-        {
-            if (text_range.has_value())
-                return std::make_pair(text_range.value().position, text_range.value().position + text_range.value().count);
-            return std::make_pair(default_position, default_position);
-        }
-
-        constexpr TextRange() = default;
-        constexpr TextRange(const unsigned position, const unsigned count)
-            : position(position), count(count)
-        {
-
-        }
-
-        unsigned position = 0;
-        unsigned count = 0;
-    };
+constexpr bool operator==(const Point& left, const Point& right) {
+  return left.x == right.x && left.y == right.y;
 }
+
+constexpr bool operator!=(const Point& left, const Point& right) {
+  return !(left == right);
+}
+
+struct Size final {
+  constexpr static Size Zero() { return Size(0, 0); }
+
+  constexpr Size() = default;
+  constexpr Size(const float width, const float height)
+      : width(width), height(height) {}
+
+  float width = 0;
+  float height = 0;
+};
+
+constexpr Size operator+(const Size& left, const Size& right) {
+  return Size(left.width + right.width, left.height + right.height);
+}
+
+constexpr Size operator-(const Size& left, const Size& right) {
+  return Size(left.width - right.width, left.height - right.height);
+}
+
+constexpr bool operator==(const Size& left, const Size& right) {
+  return left.width == right.width && left.height == right.height;
+}
+
+constexpr bool operator!=(const Size& left, const Size& right) {
+  return !(left == right);
+}
+
+struct Thickness final {
+  constexpr static Thickness Zero() { return Thickness(0); }
+
+  constexpr Thickness() : Thickness(0) {}
+
+  constexpr explicit Thickness(const float width)
+      : left(width), top(width), right(width), bottom(width) {}
+
+  constexpr explicit Thickness(const float horizontal, const float vertical)
+      : left(horizontal), top(vertical), right(horizontal), bottom(vertical) {}
+
+  constexpr Thickness(const float left, const float top, const float right,
+                      const float bottom)
+      : left(left), top(top), right(right), bottom(bottom) {}
+
+  float GetHorizontalTotal() const { return left + right; }
+
+  float GetVerticalTotal() const { return top + bottom; }
+
+  void SetLeftRight(const float value) { left = right = value; }
+
+  void SetTopBottom(const float value) { top = bottom = value; }
+
+  void SetAll(const float value) { left = top = right = bottom = value; }
+
+  float Validate() const {
+    return left >= 0.0 && top >= 0.0 && right >= 0.0 && bottom >= 0.0;
+  }
+
+  float left;
+  float top;
+  float right;
+  float bottom;
+};
+
+constexpr bool operator==(const Thickness& left, const Thickness& right) {
+  return left.left == right.left && left.top == right.top &&
+         left.right == right.right && left.bottom == right.bottom;
+}
+
+constexpr bool operator!=(const Thickness& left, const Thickness& right) {
+  return !(left == right);
+}
+
+struct Rect final {
+  constexpr Rect() = default;
+  constexpr Rect(const float left, const float top, const float width,
+                 const float height)
+      : left(left), top(top), width(width), height(height) {}
+  constexpr Rect(const Point& lefttop, const Size& size)
+      : left(lefttop.x),
+        top(lefttop.y),
+        width(size.width),
+        height(size.height) {}
+
+  constexpr static Rect FromVertices(const float left, const float top,
+                                     const float right, const float bottom) {
+    return Rect(left, top, right - left, bottom - top);
+  }
+
+  constexpr static Rect FromCenter(const Point& center, const float width,
+                                   const float height) {
+    return Rect(center.x - width / 2.0f, center.y - height / 2.0f, width,
+                height);
+  }
+
+  constexpr float GetRight() const { return left + width; }
+
+  constexpr float GetBottom() const { return top + height; }
+
+  constexpr Point GetLeftTop() const { return Point(left, top); }
+
+  constexpr Point GetRightBottom() const {
+    return Point(left + width, top + height);
+  }
+
+  constexpr Point GetLeftBottom() const { return Point(left, top + height); }
+
+  constexpr Point GetRightTop() const { return Point(left + width, top); }
+
+  constexpr Point GetCenter() const {
+    return Point(left + width / 2.0f, top + height / 2.0f);
+  }
+
+  constexpr Size GetSize() const { return Size(width, height); }
+
+  constexpr Rect Shrink(const Thickness& thickness) const {
+    return Rect(left + thickness.left, top + thickness.top,
+                width - thickness.GetHorizontalTotal(),
+                height - thickness.GetVerticalTotal());
+  }
+
+  constexpr bool IsPointInside(const Point& point) const {
+    return point.x >= left && point.x < GetRight() && point.y >= top &&
+           point.y < GetBottom();
+  }
+
+  float left = 0.0f;
+  float top = 0.0f;
+  float width = 0.0f;
+  float height = 0.0f;
+};
+
+constexpr bool operator==(const Rect& left, const Rect& right) {
+  return left.left == right.left && left.top == right.top &&
+         left.width == right.width && left.height == right.height;
+}
+
+constexpr bool operator!=(const Rect& left, const Rect& right) {
+  return !(left == right);
+}
+
+struct RoundedRect final {
+  constexpr RoundedRect() = default;
+  constexpr RoundedRect(const Rect& rect, const float radius_x,
+                        const float radius_y)
+      : rect(rect), radius_x(radius_x), radius_y(radius_y) {}
+
+  Rect rect{};
+  float radius_x = 0.0f;
+  float radius_y = 0.0f;
+};
+
+constexpr bool operator==(const RoundedRect& left, const RoundedRect& right) {
+  return left.rect == right.rect && left.radius_x == right.radius_x &&
+         left.radius_y == right.radius_y;
+}
+
+constexpr bool operator!=(const RoundedRect& left, const RoundedRect& right) {
+  return !(left == right);
+}
+
+struct Ellipse final {
+  constexpr Ellipse() = default;
+  constexpr Ellipse(const Point& center, const float radius_x,
+                    const float radius_y)
+      : center(center), radius_x(radius_x), radius_y(radius_y) {}
+
+  constexpr static Ellipse FromRect(const Rect& rect) {
+    return Ellipse(rect.GetCenter(), rect.width / 2.0f, rect.height / 2.0f);
+  }
+
+  constexpr Rect GetBoundRect() const {
+    return Rect::FromCenter(center, radius_x * 2.0f, radius_y * 2.0f);
+  }
+
+  Point center{};
+  float radius_x = 0.0f;
+  float radius_y = 0.0f;
+};
+
+constexpr bool operator==(const Ellipse& left, const Ellipse& right) {
+  return left.center == right.center && left.radius_x == right.radius_x &&
+         left.radius_y == right.radius_y;
+}
+
+constexpr bool operator!=(const Ellipse& left, const Ellipse& right) {
+  return !(left == right);
+}
+
+struct TextRange final {
+  constexpr static std::optional<TextRange> FromTwoSides(unsigned first,
+                                                         unsigned second) {
+    if (first > second)
+      return std::make_optional<TextRange>(second, first - second);
+    if (first < second)
+      return std::make_optional<TextRange>(first, second - first);
+    return std::nullopt;
+  }
+
+  constexpr static std::pair<unsigned, unsigned> ToTwoSides(
+      std::optional<TextRange> text_range, unsigned default_position = 0) {
+    if (text_range.has_value())
+      return std::make_pair(
+          text_range.value().position,
+          text_range.value().position + text_range.value().count);
+    return std::make_pair(default_position, default_position);
+  }
+
+  constexpr TextRange() = default;
+  constexpr TextRange(const unsigned position, const unsigned count)
+      : position(position), count(count) {}
+
+  unsigned position = 0;
+  unsigned count = 0;
+};
+}  // namespace cru::ui

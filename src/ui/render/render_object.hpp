@@ -1,5 +1,4 @@
 #pragma once
-
 #include "pre.hpp"
 
 #include <optional>
@@ -9,101 +8,89 @@
 #include "base.hpp"
 #include "ui/ui_base.hpp"
 
-namespace cru::ui::render
-{
-struct MeasureConstraint
-{
-    std::optional<float> min_width;
-    std::optional<float> min_height;
-    std::optional<float> max_width;
-    std::optional<float> max_height;
+namespace cru::ui::render {
+struct IRenderHost : Interface {
+  virtual void InvalidatePaint() = 0;
+  virtual void InvalidateLayout() = 0;
 };
 
+class RenderObject : public Object {
+ protected:
+  RenderObject() = default;
 
-struct LayoutConstraint
-{
-    float preferred_width;
-    float preferred_height;
-};
+ public:
+  RenderObject(const RenderObject& other) = delete;
+  RenderObject(RenderObject&& other) = delete;
+  RenderObject& operator=(const RenderObject& other) = delete;
+  RenderObject& operator=(RenderObject&& other) = delete;
+  ~RenderObject() override = default;
 
+  IRenderHost* GetRenderHost() const { return render_host_; }
+  void SetRenderHost(IRenderHost* new_render_host);
 
-struct IRenderHost : Interface
-{
-    virtual void InvalidatePaint() = 0;
-    virtual void InvalidateLayout() = 0;
-};
+  RenderObject* GetParent() const { return parent_; }
 
+  const std::vector<RenderObject*>& GetChildren() const { return children_; }
+  void AddChild(RenderObject* render_object, int position);
+  void RemoveChild(int position);
 
-// features:
-// 1. tree
-// 2. layout
-// 3. paint
-// 3. hit test
-class RenderObject : public Object
-{
-protected:
-    RenderObject() = default;
+  Point GetOffset() const { return offset_; }
+  void SetOffset(const Point& offset) { offset_ = offset; }
+  Size GetSize() const { return size_; }
+  void SetSize(const Size& size) { size_ = size; }
 
-public:
-    RenderObject(const RenderObject& other) = delete;
-    RenderObject(RenderObject&& other) = delete;
-    RenderObject& operator=(const RenderObject& other) = delete;
-    RenderObject& operator=(RenderObject&& other) = delete;
-    ~RenderObject() override = default;
+  Thickness GetMargin() const { return margin_; }
+  void SetMargin(const Thickness& margin) { margin_ = margin; }
 
-    IRenderHost* GetRenderHost() const { return render_host_; }
-    void SetRenderHost(IRenderHost* new_render_host);
+  Thickness GetPadding() const { return padding_; }
+  void SetPadding(const Thickness& padding) { padding_ = padding; }
 
-    RenderObject* GetParent() const { return parent_; }
+  Size GetPreferredSize() const { return preferred_size_; }
+  void SetPreferredSize(const Size& preferred_size) {
+    preferred_size_ = preferred_size;
+  }
 
-    const std::vector<RenderObject*>& GetChildren() const { return children_; }
-    void AddChild(RenderObject* render_object, int position);
-    void RemoveChild(int position);
+  void Measure(const Size& available_size);
+  void Layout(const Rect& rect);
 
-    virtual void Measure(const MeasureConstraint& constraint) = 0;
-    virtual void Layout(const LayoutConstraint& constraint) = 0;
+  virtual void Draw(ID2D1RenderTarget* render_target) = 0;
 
-    virtual void Draw(ID2D1RenderTarget* render_target) = 0;
+  virtual RenderObject* HitTest(const Point& point) = 0;
 
-    virtual void HitTest(const Point& point) = 0;
+ protected:
+  virtual void OnRenderHostChanged(IRenderHost* old_render_host,
+                                   IRenderHost* new_render_host);
 
-protected:
-    virtual void OnRenderHostChanged(IRenderHost* old_render_host,
-                                     IRenderHost* new_render_host);
+  void InvalidateRenderHostPaint() const;
+  void InvalidateRenderHostLayout() const;
 
-    void InvalidateRenderHostPaint() const;
-    void InvalidateRenderHostLayout() const;
+  virtual void OnParentChanged(RenderObject* old_parent,
+                               RenderObject* new_parent);
 
-    virtual void OnParentChanged(RenderObject* old_parent,
-                                 RenderObject* new_parent);
+  virtual void OnAddChild(RenderObject* new_child, int position);
+  virtual void OnRemoveChild(RenderObject* removed_child, int position);
 
-    virtual void OnAddChild(RenderObject* new_child, int position);
-    virtual void OnRemoveChild(RenderObject* removed_child, int position);
+  virtual Size OnMeasureContent(const Size& available_size) = 0;
+  virtual void OnLayoutContent(const Rect& content_rect) = 0;
 
-private:
-    void SetParent(RenderObject* new_parent);
+ private:
+  void SetParent(RenderObject* new_parent);
 
-private:
-    IRenderHost* render_host_ = nullptr;
-    RenderObject* parent_ = nullptr;
-    std::vector<RenderObject*> children_;
-};
+  void OnMeasureCore(const Size& available_size);
+  void OnLayoutCore(const Rect& rect);
 
+ private:
+  IRenderHost* render_host_ = nullptr;
 
-class LinearLayoutRenderObject : public RenderObject
-{
-public:
-    LinearLayoutRenderObject() = default;
-    LinearLayoutRenderObject(const LinearLayoutRenderObject& other) = delete;
-    LinearLayoutRenderObject& operator=(const LinearLayoutRenderObject& other) =
-        delete;
-    LinearLayoutRenderObject(LinearLayoutRenderObject&& other) = delete;
-    LinearLayoutRenderObject& operator=(LinearLayoutRenderObject&& other) =
-        delete;
-    ~LinearLayoutRenderObject() = default;
+  RenderObject* parent_ = nullptr;
+  std::vector<RenderObject*> children_{};
 
-    void Measure(const MeasureConstraint& constraint) override;
+  Point offset_ = Point::Zero();
+  Size size_ = Size::Zero();
 
-private:
+  Thickness margin_ = Thickness::Zero();
+  Thickness padding_ = Thickness::Zero();
+
+  Size preferred_size_ = Size::Zero();
 };
 }  // namespace cru::ui::render
