@@ -18,7 +18,10 @@ class TextRenderObject : public RenderObject {
   ~TextRenderObject() override = default;
 
   String GetText() const { return text_; }
-  void SetText(String new_text) { text_ = std::move(new_text); }
+  void SetText(String new_text) {
+    text_ = std::move(new_text);
+    RecreateTextLayout();
+  }
 
   Microsoft::WRL::ComPtr<ID2D1Brush> GetBrush() const { return brush_; }
   void SetBrush(Microsoft::WRL::ComPtr<ID2D1Brush> new_brush) {
@@ -31,6 +34,7 @@ class TextRenderObject : public RenderObject {
   void SetTextFormat(
       Microsoft::WRL::ComPtr<IDWriteTextFormat> new_text_format) {
     text_format_ = std::move(new_text_format);
+    RecreateTextLayout();
   }
 
   std::optional<TextRange> GetSelectionRange() const {

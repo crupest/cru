@@ -1,19 +1,8 @@
 #include "control.hpp"
 
-#include <algorithm>
 #include <cassert>
 
-#include "application.hpp"
-#include "cru_debug.hpp"
-#include "d2d_util.hpp"
-#include "exception.hpp"
-#include "graph/graph.hpp"
-#include "math_util.hpp"
 #include "window.hpp"
-
-#ifdef CRU_DEBUG_LAYOUT
-#include "ui_manager.hpp"
-#endif
 
 namespace cru::ui {
 
@@ -122,11 +111,11 @@ void ControlAddChildCheck(Control* control) {
     throw std::invalid_argument("Can't add a window as child.");
 }
 
-MultiChildControl::~MultiChildControl() {
+Layout::~Layout() {
   for (const auto child : children_) delete child;
 }
 
-void MultiChildControl::AddChild(Control* control, const int position) {
+void Layout::AddChild(Control* control, const int position) {
   ControlAddChildCheck(control);
 
   if (position < 0 || static_cast<decltype(children_.size())>(position) >
@@ -138,10 +127,10 @@ void MultiChildControl::AddChild(Control* control, const int position) {
   control->_SetParent(this);
   control->_SetDescendantWindow(GetWindow());
 
-  OnAddChild(control);
+  OnAddChild(control, position);
 }
 
-void MultiChildControl::RemoveChild(const int position) {
+void Layout::RemoveChild(const int position) {
   if (position < 0 || static_cast<decltype(this->children_.size())>(position) >=
                           this->children_.size())
     throw std::invalid_argument("The position is out of range.");
@@ -154,12 +143,12 @@ void MultiChildControl::RemoveChild(const int position) {
   child->_SetParent(nullptr);
   child->_SetDescendantWindow(nullptr);
 
-  OnRemoveChild(child);
+  OnRemoveChild(child, position);
 }
 
-void MultiChildControl::OnAddChild(Control* child) {}
+void Layout::OnAddChild(Control* child, int position) {}
 
-void MultiChildControl::OnRemoveChild(Control* child) {}
+void Layout::OnRemoveChild(Control* child, int position) {}
 
 std::list<Control*> GetAncestorList(Control* control) {
   std::list<Control*> l;

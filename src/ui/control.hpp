@@ -1,9 +1,6 @@
 #pragma once
 #include "pre.hpp"
 
-#include <any>
-#include <unordered_map>
-#include <utility>
 #include "system_headers.hpp"
 
 #include "base.hpp"
@@ -14,6 +11,10 @@
 
 namespace cru::ui {
 class Window;
+
+namespace render {
+class RenderObject;
+}
 
 class Control : public Object {
   friend class Window;
@@ -49,6 +50,9 @@ class Control : public Object {
  private:
   static void TraverseDescendantsInternal(
       Control* control, const std::function<void(Control*)>& predicate);
+
+ public:
+  virtual render::RenderObject* GetRenderObject() const = 0;
 
   //*************** region: focus ***************
  public:
@@ -152,16 +156,16 @@ class ContentControl : public Control {
   Control*& child_;
 };
 
-class MultiChildControl : public Control {
+class Layout : public Control {
  protected:
-  MultiChildControl() = default;
+  Layout() = default;
 
  public:
-  MultiChildControl(const MultiChildControl& other) = delete;
-  MultiChildControl(MultiChildControl&& other) = delete;
-  MultiChildControl& operator=(const MultiChildControl& other) = delete;
-  MultiChildControl& operator=(MultiChildControl&& other) = delete;
-  ~MultiChildControl() override;
+  Layout(const Layout& other) = delete;
+  Layout(Layout&& other) = delete;
+  Layout& operator=(const Layout& other) = delete;
+  Layout& operator=(Layout&& other) = delete;
+  ~Layout() override;
 
   const std::vector<Control*>& GetChildren() const override final {
     return children_;
@@ -172,8 +176,8 @@ class MultiChildControl : public Control {
   void RemoveChild(int position);
 
  protected:
-  virtual void OnAddChild(Control* child);
-  virtual void OnRemoveChild(Control* child);
+  virtual void OnAddChild(Control* child, int position);
+  virtual void OnRemoveChild(Control* child, int position);
 
  private:
   std::vector<Control*> children_;
