@@ -8,11 +8,11 @@
 #include "base.hpp"
 #include "ui/ui_base.hpp"
 
+namespace cru::ui {
+class Control;
+}
+
 namespace cru::ui::render {
-struct IRenderHost : Interface {
-  virtual void InvalidatePaint() = 0;
-  virtual void InvalidateLayout() = 0;
-};
 
 class RenderObject : public Object {
  protected:
@@ -25,8 +25,8 @@ class RenderObject : public Object {
   RenderObject& operator=(RenderObject&& other) = delete;
   ~RenderObject() override = default;
 
-  IRenderHost* GetRenderHost() const { return render_host_; }
-  void SetRenderHost(IRenderHost* new_render_host);
+  Control* GetAttachedControl() const { return control_; }
+  void SetAttachedControl(Control* new_control) { control_ = new_control; }
 
   RenderObject* GetParent() const { return parent_; }
 
@@ -58,12 +58,6 @@ class RenderObject : public Object {
   virtual RenderObject* HitTest(const Point& point) = 0;
 
  protected:
-  virtual void OnRenderHostChanged(IRenderHost* old_render_host,
-                                   IRenderHost* new_render_host);
-
-  void InvalidateRenderHostPaint() const;
-  void InvalidateRenderHostLayout() const;
-
   virtual void OnParentChanged(RenderObject* old_parent,
                                RenderObject* new_parent);
 
@@ -80,7 +74,7 @@ class RenderObject : public Object {
   void OnLayoutCore(const Rect& rect);
 
  private:
-  IRenderHost* render_host_ = nullptr;
+  Control* control_ = nullptr;
 
   RenderObject* parent_ = nullptr;
   std::vector<RenderObject*> children_{};

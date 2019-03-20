@@ -127,7 +127,6 @@
     <ClCompile Include="src\timer.cpp" />
     <ClCompile Include="src\ui\animations\animation.cpp" />
     <ClCompile Include="src\ui\control.cpp" />
-    <ClCompile Include="src\ui\border_property.cpp" />
     <ClCompile Include="src\ui\controls\button.cpp" />
     <ClCompile Include="src\ui\controls\frame_layout.cpp" />
     <ClCompile Include="src\ui\controls\linear_layout.cpp" />
@@ -141,7 +140,6 @@
     <ClInclude Include="src\util\any_map.hpp" />
     <ClInclude Include="src\util\format.hpp" />
     <ClInclude Include="src\util\math_util.hpp" />
-    <ClInclude Include="src\ui\border_property.hpp" />
     <ClInclude Include="src\ui\controls\frame_layout.hpp" />
     <ClInclude Include="src\ui\controls\list_item.hpp" />
     <ClInclude Include="src\ui\controls\popup_menu.hpp" />
@@ -151,7 +149,6 @@
     <ClCompile Include="src\ui\cursor.cpp" />
     <ClCompile Include="src\ui\events\ui_event.cpp" />
     <ClCompile Include="src\ui\input_util.cpp" />
-    <ClCompile Include="src\ui\layout_base.cpp" />
     <ClCompile Include="src\ui\render\flex_layout_render_object.cpp" />
     <ClCompile Include="src\ui\render\render_object.cpp" />
     <ClCompile Include="src\ui\ui_manager.cpp" />
@@ -180,7 +177,6 @@
     <ClInclude Include="src\ui\cursor.hpp" />
     <ClInclude Include="src\ui\events\ui_event.hpp" />
     <ClInclude Include="src\ui\input_util.hpp" />
-    <ClInclude Include="src\ui\layout_base.hpp" />
     <ClInclude Include="src\ui\render\flex_layout_render_object.hpp" />
     <ClInclude Include="src\ui\render\render_object.hpp" />
     <ClInclude Include="src\ui\ui_manager.hpp" />

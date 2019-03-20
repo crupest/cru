@@ -27,7 +27,7 @@ namespace cru::ui::controls
 
         // First measure Content and Exactly and count Stretch.
         if (orientation_ == Orientation::Horizontal)
-            for(auto control: GetInternalChildren())
+            for(auto control: GetChildren())
             {
                 const auto mode = control->GetLayoutParams()->width.mode;
                 if (mode == MeasureMode::Content || mode == MeasureMode::Exactly)
@@ -42,7 +42,7 @@ namespace cru::ui::controls
                     stretch_control_list.push_back(control);
             }
         else
-            for(auto control: GetInternalChildren())
+            for(auto control: GetChildren())
             {
                 const auto mode = control->GetLayoutParams()->height.mode;
                 if (mode == MeasureMode::Content || mode == MeasureMode::Exactly)
@@ -82,7 +82,7 @@ namespace cru::ui::controls
 
         if (orientation_ == Orientation::Horizontal)
         {
-            for (auto control : GetInternalChildren())
+            for (auto control : GetChildren())
             {
                 if (control->GetLayoutParams()->height.mode == MeasureMode::Stretch)
                 {
@@ -93,7 +93,7 @@ namespace cru::ui::controls
         }
         else
         {
-            for (auto control : GetInternalChildren())
+            for (auto control : GetChildren())
             {
                 if (control->GetLayoutParams()->width.mode == MeasureMode::Stretch)
                 {
@@ -110,7 +110,7 @@ namespace cru::ui::controls
     void LinearLayout::OnLayoutContent(const Rect& rect, const AdditionalLayoutInfo& additional_info)
     {
         float current_main_side_anchor = 0;
-        for(auto control: GetInternalChildren())
+        for(auto control: GetChildren())
         {
             const auto layout_params = control->GetLayoutParams();
             const auto size = control->GetDesiredSize();

@@ -3,14 +3,6 @@
 #include "cru_debug.hpp"
 
 namespace cru::ui::render {
-void RenderObject::SetRenderHost(IRenderHost* new_render_host) {
-  if (new_render_host == render_host_) return;
-
-  const auto old = render_host_;
-  render_host_ = new_render_host;
-  OnRenderHostChanged(old, new_render_host);
-}
-
 void RenderObject::AddChild(RenderObject* render_object, const int position) {
   if (render_object->GetParent() != nullptr)
     throw std::invalid_argument("Render object already has a parent.");
@@ -50,17 +42,6 @@ void RenderObject::Layout(const Rect& rect) {
   SetOffset(rect.GetLeftTop());
   SetSize(rect.GetSize());
   OnLayoutCore(Rect{Point::Zero(), rect.GetSize()});
-}
-
-void RenderObject::OnRenderHostChanged(IRenderHost* old_render_host,
-                                       IRenderHost* new_render_host) {}
-
-void RenderObject::InvalidateRenderHostPaint() const {
-  if (render_host_ != nullptr) render_host_->InvalidatePaint();
-}
-
-void RenderObject::InvalidateRenderHostLayout() const {
-  if (render_host_ != nullptr) render_host_->InvalidateLayout();
 }
 
 void RenderObject::OnParentChanged(RenderObject* old_parent,
