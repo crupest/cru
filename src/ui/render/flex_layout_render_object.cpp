@@ -152,58 +152,73 @@ Size FlexLayoutRenderObject::OnMeasureContent(const Size& available_size) {
 }
 
 void FlexLayoutRenderObject::OnLayoutContent(const Rect& content_rect) {
-  auto calculate_cross_anchor = [](Alignment alignment, float start_point,
-                                   float content_length,
-                                   float preferred_length) -> float {
+  auto calculate_anchor = [](Alignment alignment, float start_point,
+                             float total_length,
+                             float content_length) -> float {
     switch (alignment) {
       case Alignment::Start:
         return start_point;
       case Alignment::Center:
-        return start_point + (content_length - preferred_length) / 2.0f;
+        return start_point + (total_length - content_length) / 2.0f;
       case Alignment::End:
-        return start_point + content_length - preferred_length;
+        return start_point + total_length - content_length;
     }
   };
 
   const auto& children = GetChildren();
   if (direction_ == FlexDirection::Horizontal ||
       direction_ == FlexDirection::HorizontalReverse) {
+    float actual_content_width = 0;
+    for (const auto child : children) {
+      actual_content_width += child->GetPreferredSize().width;
+    }
+
+    const float content_anchor_x = calculate_anchor(
+        content_main_align_, 0, content_rect.width, actual_content_width);
+
     auto anchor_x = 0;
     for (int i = 0; i < children.size(); i++) {
       const auto child = children[i];
       const auto size = child->GetPreferredSize();
 
-      float real_anchor_x;
-      if (direction_ == FlexDirection::Horizontal) {
-        real_anchor_x = anchor_x + content_rect.left;
-      } else {
-        real_anchor_x = content_rect.GetRight() - anchor_x;
-      }
-      child->Layout(Rect{real_anchor_x,
-                         calculate_cross_anchor(
-                             child_layout_data_[i].alignment, content_rect.top,
-                             content_rect.height, size.height),
-                         size.width, size.height});
+      float real_anchor_x = anchor_x + content_anchor_x;
+      if (direction_ == FlexDirection::Horizontal)
+        real_anchor_x = content_rect.left + real_anchor_x;
+      else
+        real_anchor_x = content_rect.GetRight() - real_anchor_x;
+      child->Layout(Rect{
+          real_anchor_x,
+          calculate_anchor(child_layout_data_[i].alignment, content_rect.top,
+                           content_rect.height, size.height),
+          size.width, size.height});
 
       anchor_x += size.width;
     }
   } else {
+    float actual_content_height = 0;
+    for (const auto child : children) {
+      actual_content_height = child->GetPreferredSize().height;
+    }
+
+    const float content_anchor_y = calculate_anchor(
+        content_main_align_, 0, content_rect.height, actual_content_height);
+
     auto anchor_y = 0;
     for (int i = 0; i < children.size(); i++) {
       const auto child = children[i];
       const auto size = child->GetPreferredSize();
 
-      float real_anchor_y;
+      float real_anchor_y = anchor_y + content_anchor_y;
       if (direction_ == FlexDirection::Vertical) {
-        real_anchor_y = anchor_y + content_rect.top;
+        real_anchor_y = content_rect.top + real_anchor_y;
       } else {
-        real_anchor_y = content_rect.GetBottom() - anchor_y;
+        real_anchor_y = content_rect.GetBottom() - real_anchor_y;
       }
-      child->Layout(Rect{real_anchor_y,
-                         calculate_cross_anchor(child_layout_data_[i].alignment,
-                                                content_rect.left,
-                                                content_rect.width, size.width),
-                         size.width, size.height});
+      child->Layout(Rect{
+          real_anchor_y,
+          calculate_anchor(child_layout_data_[i].alignment, content_rect.left,
+                           content_rect.width, size.width),
+          size.width, size.height});
 
       anchor_y += size.height;
     }

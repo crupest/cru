@@ -35,6 +35,13 @@ class FlexLayoutRenderObject : public RenderObject {
   FlexDirection GetFlexDirection() const { return direction_; }
   void SetFlexDirection(FlexDirection direction) { direction_ = direction; }
 
+  Alignment GetContentMainAlign() const {
+    return content_main_align_;
+  }
+  void SetContentMainAlign(Alignment align) {
+    content_main_align_ = align;
+  }
+
   FlexChildLayoutData* GetChildLayoutData(int position);
 
   void Draw(ID2D1RenderTarget* render_target) override;
@@ -50,6 +57,7 @@ class FlexLayoutRenderObject : public RenderObject {
 
  private:
   FlexDirection direction_ = FlexDirection::Horizontal;
+  Alignment content_main_align_ = Alignment::Start;
   std::vector<FlexChildLayoutData> child_layout_data_{};
 };
 }  // namespace cru::ui::render
