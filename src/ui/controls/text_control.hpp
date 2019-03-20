@@ -62,7 +62,6 @@ namespace cru::ui::controls
     protected:
         void SetSelectable(bool is_selectable);
 
-        Size OnMeasureContent(const Size& available_size, const AdditionalMeasureInfo&) override final;
 
         virtual void RequestChangeCaretPosition(unsigned position);
 
@@ -82,14 +81,12 @@ namespace cru::ui::controls
         Microsoft::WRL::ComPtr<ID2D1Brush> brush_;
         Microsoft::WRL::ComPtr<ID2D1Brush> selection_brush_;
         Microsoft::WRL::ComPtr<IDWriteTextFormat> text_format_;
-    protected:
         Microsoft::WRL::ComPtr<IDWriteTextLayout> text_layout_;
 
-    private:
         bool is_selectable_ = false;
+        std::optional<TextRange> selected_range_ = std::nullopt;
 
         bool is_selecting_ = false;
         unsigned mouse_down_position_ = 0;
-        std::optional<TextRange> selected_range_ = std::nullopt;
     };
 }

@@ -96,6 +96,9 @@
     <ClCompile Include="src\ui\render\flex_layout_render_object.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\ui\render\text_render_object.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\graph\graph.hpp">
@@ -201,6 +204,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\ui\render\flex_layout_render_object.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ui\render\text_render_object.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

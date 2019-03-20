@@ -117,6 +117,7 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\ui\render\text_render_object.cpp" />
     <ClCompile Include="src\ui\window_class.cpp" />
     <ClCompile Include="src\util\any_map.cpp" />
     <ClCompile Include="src\cru_debug.cpp" />
@@ -136,6 +137,7 @@
     <ClCompile Include="src\ui\controls\text_block.cpp" />
     <ClCompile Include="src\ui\controls\text_box.cpp" />
     <ClCompile Include="src\util\string_util.cpp" />
+    <ClInclude Include="src\ui\render\text_render_object.hpp" />
     <ClInclude Include="src\ui\window_class.hpp" />
     <ClInclude Include="src\util\any_map.hpp" />
     <ClInclude Include="src\util\format.hpp" />
