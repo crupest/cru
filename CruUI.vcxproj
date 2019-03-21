@@ -123,7 +123,6 @@
     <ClCompile Include="src\ui\render\text_render_object.cpp" />
     <ClCompile Include="src\ui\render\window_render_object.cpp" />
     <ClCompile Include="src\ui\window_class.cpp" />
-    <ClCompile Include="src\util\any_map.cpp" />
     <ClCompile Include="src\cru_debug.cpp" />
     <ClCompile Include="src\application.cpp" />
     <ClCompile Include="src\exception.cpp" />
@@ -140,7 +139,6 @@
     <ClInclude Include="src\ui\render\window_render_object.hpp" />
     <ClInclude Include="src\ui\render\text_render_object.hpp" />
     <ClInclude Include="src\ui\window_class.hpp" />
-    <ClInclude Include="src\util\any_map.hpp" />
     <ClInclude Include="src\util\format.hpp" />
     <ClInclude Include="src\util\math_util.hpp" />
     <ClInclude Include="src\ui\controls\text_block.hpp" />
