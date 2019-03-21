@@ -1,6 +1,7 @@
 #pragma once
 #include "pre.hpp"
 
+#include <cassert>
 #include <chrono>
 #include <stdexcept>
 #include <string>

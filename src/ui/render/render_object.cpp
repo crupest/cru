@@ -4,15 +4,10 @@
 
 namespace cru::ui::render {
 void RenderObject::AddChild(RenderObject* render_object, const int position) {
-  if (render_object->GetParent() != nullptr)
-    throw std::invalid_argument("Render object already has a parent.");
-
-  if (position < 0)
-    throw std::invalid_argument("Position index is less than 0.");
-
-  if (static_cast<std::vector<RenderObject*>::size_type>(position) >
-      children_.size())
-    throw std::invalid_argument("Position index is out of bound.");
+  assert(render_object->GetParent() ==
+         nullptr);                       // Render object already has a parent.
+  assert(position >= 0);                 // Position index is less than 0.
+  assert(position <= children_.size());  // Position index is out of bound.
 
   children_.insert(children_.cbegin() + position, render_object);
   render_object->SetParent(this);
@@ -20,12 +15,8 @@ void RenderObject::AddChild(RenderObject* render_object, const int position) {
 }
 
 void RenderObject::RemoveChild(const int position) {
-  if (position < 0)
-    throw std::invalid_argument("Position index is less than 0.");
-
-  if (static_cast<std::vector<RenderObject*>::size_type>(position) >=
-      children_.size())
-    throw std::invalid_argument("Position index is out of bound.");
+  assert(position >= 0);                // Position index is less than 0.
+  assert(position < children_.size());  // Position index is out of bound.
 
   const auto i = children_.cbegin() + position;
   const auto removed_child = *i;

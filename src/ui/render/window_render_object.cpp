@@ -1,7 +1,5 @@
 #include "window_render_object.hpp"
 
-#include <cassert>
-
 #include "graph/graph.hpp"
 #include "ui/window.hpp"
 

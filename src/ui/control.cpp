@@ -1,11 +1,8 @@
 #include "control.hpp"
 
-#include <cassert>
-
 #include "window.hpp"
 
 namespace cru::ui {
-
 void Control::_SetParent(Control* parent) {
   const auto old_parent = GetParent();
   parent_ = parent;

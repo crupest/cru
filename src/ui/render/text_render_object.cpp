@@ -1,7 +1,5 @@
 #include "text_render_object.hpp"
 
-#include <cassert>
-
 #include "exception.hpp"
 #include "graph/graph.hpp"
 

@@ -9,9 +9,7 @@ ContentControl::ContentControl()
 ContentControl::~ContentControl() { delete child_; }
 
 void ContentControl::SetChild(Control* child) {
-  if (dynamic_cast<Window*>(child))
-    throw std::invalid_argument("Can't add a window as child.");
-
+  assert(!dynamic_cast<Window*>(child));  // Can't add a window as child.
   if (child == child_) return;
 
   const auto window = GetWindow();

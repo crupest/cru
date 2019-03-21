@@ -1,5 +1,7 @@
 #include "window_class.hpp"
 
+#include "exception.hpp"
+
 namespace cru::ui {
 WindowClass::WindowClass(const String& name, WNDPROC window_proc,
                          HINSTANCE h_instance)
@@ -20,6 +22,7 @@ WindowClass::WindowClass(const String& name, WNDPROC window_proc,
   window_class.hIconSm = NULL;
 
   atom_ = ::RegisterClassExW(&window_class);
-  if (atom_ == 0) throw std::runtime_error("Failed to create window class.");
+  if (atom_ == 0)
+    throw Win32Error(::GetLastError(), "Failed to create window class.");
 }
 }  // namespace cru::ui

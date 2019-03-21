@@ -117,19 +117,14 @@ WindowManager::WindowManager() {
 }
 
 void WindowManager::RegisterWindow(HWND hwnd, Window* window) {
-  const auto find_result = window_map_.find(hwnd);
-  if (find_result != window_map_.end())
-    throw std::runtime_error("The hwnd is already in the map.");
-
+  assert(window_map_.count(hwnd) == 0);  // The hwnd is already in the map.
   window_map_.emplace(hwnd, window);
 }
 
 void WindowManager::UnregisterWindow(HWND hwnd) {
   const auto find_result = window_map_.find(hwnd);
-  if (find_result == window_map_.end())
-    throw std::runtime_error("The hwnd is not in the map.");
+  assert(find_result != window_map_.end());  // The hwnd is not in the map.
   window_map_.erase(find_result);
-
   if (window_map_.empty()) Application::GetInstance()->Quit(0);
 }
 
@@ -188,14 +183,15 @@ Window::Window(tag_overlapped_constructor) {
                      CW_USEDEFAULT, CW_USEDEFAULT, nullptr, nullptr,
                      Application::GetInstance()->GetInstanceHandle(), nullptr);
 
-  if (hwnd_ == nullptr) throw std::runtime_error("Failed to create window.");
+  if (hwnd_ == nullptr)
+    throw Win32Error(::GetLastError(), "Failed to create window.");
 
   AfterCreateHwnd(window_manager);
 }
 
 Window::Window(tag_popup_constructor, Window* parent, const bool caption) {
-  if (parent != nullptr && !parent->IsWindowValid())
-    throw std::runtime_error("Parent window is not valid.");
+  assert(parent == nullptr ||
+         parent->IsWindowValid());  // Parent window is not valid.
 
   BeforeCreateHwnd();
 
@@ -210,7 +206,8 @@ Window::Window(tag_popup_constructor, Window* parent, const bool caption) {
       parent == nullptr ? nullptr : parent->GetWindowHandle(), nullptr,
       Application::GetInstance()->GetInstanceHandle(), nullptr);
 
-  if (hwnd_ == nullptr) throw std::runtime_error("Failed to create window.");
+  if (hwnd_ == nullptr)
+    throw Win32Error(::GetLastError(), "Failed to create window.");
 
   AfterCreateHwnd(window_manager);
 }
@@ -474,10 +471,8 @@ Point Window::GetMousePosition() {
 }
 
 bool Window::RequestFocusFor(Control* control) {
-  if (control == nullptr)
-    throw std::invalid_argument(
-        "The control to request focus can't be null. You can set it as the "
-        "window.");
+  assert(control != nullptr);  // The control to request focus can't be null.
+                               // You can set it as the window.
 
   if (!IsWindowValid()) return false;
 
