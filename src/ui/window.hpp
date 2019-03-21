@@ -1,6 +1,4 @@
 #pragma once
-
-// ReSharper disable once CppUnusedIncludeDirective
 #include "pre.hpp"
 
 #include <map>
@@ -9,9 +7,14 @@
 
 #include "control.hpp"
 #include "events/ui_event.hpp"
+#include "window_class.hpp"
 
 namespace cru::graph {
 class WindowRenderTarget;
+}
+
+namespace cru::ui::render {
+class WindowRenderObject;
 }
 
 namespace cru::ui {
@@ -85,6 +88,8 @@ class Window final : public ContentControl {
  public:
   StringView GetControlType() const override final;
 
+  render::RenderObject* GetRenderObject() const override;
+
   void SetDeleteThisOnDestroy(bool value);
 
   //*************** region: handle ***************
@@ -105,7 +110,7 @@ class Window final : public ContentControl {
 
   // Send a repaint message to the window's message queue which may make the
   // window repaint.
-  void InvalidateDraw() override final;
+  void InvalidateDraw();
 
   // Show the window.
   void Show();
@@ -146,14 +151,6 @@ class Window final : public ContentControl {
 
   Control* GetMouseHoverControl() const { return mouse_hover_control_; }
 
-  //*************** region: layout ***************
-
-  void WindowInvalidateLayout();
-
-  void Relayout();
-
-  void SetSizeFitContent(const Size& max_size = Size(1000, 1000));
-
   //*************** region: focus ***************
 
   // Request focus for specified control.
@@ -170,13 +167,6 @@ class Window final : public ContentControl {
   //*************** region: cursor ***************
   void UpdateCursor();
 
-  //*************** region: debug ***************
-#ifdef CRU_DEBUG_LAYOUT
-  bool IsDebugLayout() const { return debug_layout_; }
-
-  void SetDebugLayout(bool value);
-#endif
-
  public:
   //*************** region: events ***************
   Event<events::UiEventArgs> activated_event;
@@ -184,7 +174,12 @@ class Window final : public ContentControl {
 
   Event<events::WindowNativeMessageEventArgs> native_message_event;
 
+ protected:
+  void OnChildChanged(Control* old_child, Control* new_child) override;
+
  private:
+  Control* HitTest(const Point& point);
+
   //*************** region: native operations ***************
 
   // Get the client rect in pixel.
@@ -228,6 +223,8 @@ class Window final : public ContentControl {
   HWND hwnd_ = nullptr;
   Window* parent_window_ = nullptr;
   std::shared_ptr<graph::WindowRenderTarget> render_target_{};
+
+  render::WindowRenderObject* render_object_;
 
   Control* mouse_hover_control_ = nullptr;
 

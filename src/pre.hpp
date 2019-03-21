@@ -5,10 +5,6 @@
 #endif
 
 #ifdef CRU_DEBUG
-#define CRU_DEBUG_LAYOUT
-#endif
-
-#ifdef CRU_DEBUG
 #define _CRTDBG_MAP_ALLOC
 #include <crtdbg.h>
 #include <cstdlib>

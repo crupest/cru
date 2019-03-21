@@ -51,6 +51,8 @@ void RenderObject::OnAddChild(RenderObject* new_child, int position) {}
 
 void RenderObject::OnRemoveChild(RenderObject* removed_child, int position) {}
 
+void RenderObject::OnSizeChanged(const Size& old_size, const Size& new_size) {}
+
 void RenderObject::SetParent(RenderObject* new_parent) {
   const auto old_parent = parent_;
   parent_ = new_parent;
@@ -80,8 +82,7 @@ void RenderObject::OnMeasureCore(const Size& available_size) {
   const auto actual_content_size =
       OnMeasureContent(coerced_content_available_size);
 
-  SetPreferredSize(margin_padding_size + content_available_size +
-                   actual_content_size);
+  SetPreferredSize(margin_padding_size + actual_content_size);
 }
 
 void RenderObject::OnLayoutCore(const Rect& rect) {

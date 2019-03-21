@@ -62,6 +62,12 @@ RenderObject* TextRenderObject::HitTest(const Point& point) {
   return Rect{Point::Zero(), GetSize()}.IsPointInside(point) ? this : nullptr;
 }
 
+void TextRenderObject::OnSizeChanged(const Size& old_size,
+                                     const Size& new_size) {
+  ThrowIfFailed(text_layout_->SetMaxWidth(new_size.width));
+  ThrowIfFailed(text_layout_->SetMaxHeight(new_size.height));
+}
+
 Size TextRenderObject::OnMeasureContent(const Size& available_size) {
   ThrowIfFailed(text_layout_->SetMaxWidth(available_size.width));
   ThrowIfFailed(text_layout_->SetMaxHeight(available_size.height));

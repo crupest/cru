@@ -56,6 +56,8 @@ class TextRenderObject : public RenderObject {
   RenderObject* HitTest(const Point& point) override;
 
  protected:
+  void OnSizeChanged(const Size& old_size, const Size& new_size) override;
+
   Size OnMeasureContent(const Size& available_size) override;
   void OnLayoutContent(const Rect& content_rect) override;
 

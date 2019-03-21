@@ -162,6 +162,8 @@ void FlexLayoutRenderObject::OnLayoutContent(const Rect& content_rect) {
         return start_point + (total_length - content_length) / 2.0f;
       case Alignment::End:
         return start_point + total_length - content_length;
+      default:
+        UnreachableCode();
     }
   };
 

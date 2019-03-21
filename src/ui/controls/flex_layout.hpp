@@ -13,8 +13,12 @@ class FlexLayout : public Layout {
  public:
   static constexpr auto control_type = L"FlexLayout";
 
- public:
+  static FlexLayout* Create() { return new FlexLayout(); }
+
+ protected:
   FlexLayout();
+
+ public:
   FlexLayout(const FlexLayout& other) = delete;
   FlexLayout(FlexLayout&& other) = delete;
   FlexLayout& operator=(const FlexLayout& other) = delete;
@@ -23,9 +27,7 @@ class FlexLayout : public Layout {
 
   StringView GetControlType() const override final { return control_type; }
 
-  render::RenderObject* GetRenderObject() const override {
-    return render_object_;
-  }
+  render::RenderObject* GetRenderObject() const override;
 
  protected:
   void OnAddChild(Control* child, int position) override;

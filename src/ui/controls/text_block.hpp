@@ -12,8 +12,12 @@ class TextBlock : public NoChildControl {
  public:
   static constexpr auto control_type = L"TextBlock";
 
- public:
+  static TextBlock* Create() { return new TextBlock(); }
+
+ protected:
   TextBlock();
+
+ public:
   TextBlock(const TextBlock& other) = delete;
   TextBlock(TextBlock&& other) = delete;
   TextBlock& operator=(const TextBlock& other) = delete;
@@ -22,9 +26,7 @@ class TextBlock : public NoChildControl {
 
   StringView GetControlType() const override final { return control_type; }
 
-  render::RenderObject* GetRenderObject() const override {
-    return render_object_;
-  }
+  render::RenderObject* GetRenderObject() const override;
 
   String GetText() const;
   void SetText(const String& text);

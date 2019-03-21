@@ -207,7 +207,7 @@ void DispatchEvent(Control* const original_sender,
   auto parent = original_sender;
   while (parent != last_receiver) {
     receive_list.push_back(parent);
-    parent = parent->GetInternalParent();
+    parent = parent->GetParent();
   }
 
   auto handled = false;

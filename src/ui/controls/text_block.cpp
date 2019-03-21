@@ -17,6 +17,10 @@ TextBlock::TextBlock() {
 
 TextBlock::~TextBlock() { delete render_object_; }
 
+render::RenderObject* TextBlock::GetRenderObject() const {
+  return render_object_;
+}
+
 String TextBlock::GetText() const { return render_object_->GetText(); }
 
 void TextBlock::SetText(const String& text) { render_object_->SetText(text); }

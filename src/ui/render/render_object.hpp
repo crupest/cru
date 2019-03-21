@@ -37,7 +37,11 @@ class RenderObject : public Object {
   Point GetOffset() const { return offset_; }
   void SetOffset(const Point& offset) { offset_ = offset; }
   Size GetSize() const { return size_; }
-  void SetSize(const Size& size) { size_ = size; }
+  void SetSize(const Size& size) {
+    const auto old_size = size_;
+    size_ = size;
+    OnSizeChanged(old_size, size);
+  }
 
   Thickness GetMargin() const { return margin_; }
   void SetMargin(const Thickness& margin) { margin_ = margin; }
@@ -63,6 +67,8 @@ class RenderObject : public Object {
 
   virtual void OnAddChild(RenderObject* new_child, int position);
   virtual void OnRemoveChild(RenderObject* removed_child, int position);
+
+  virtual void OnSizeChanged(const Size& old_size, const Size& new_size);
 
   virtual Size OnMeasureContent(const Size& available_size) = 0;
   virtual void OnLayoutContent(const Rect& content_rect) = 0;
