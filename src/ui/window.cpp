@@ -7,6 +7,92 @@
 #include "render/window_render_object.hpp"
 
 namespace cru::ui {
+namespace {
+// Dispatch the event.
+//
+// This will raise routed event of the control and its parent and parent's
+// parent ... (until "last_receiver" if it's not nullptr) with appropriate args.
+//
+// First tunnel from top to bottom possibly stopped by "handled" flag in
+// EventArgs. Second bubble from bottom to top possibly stopped by "handled"
+// flag in EventArgs. Last direct to each control.
+//
+// Args is of type "EventArgs". The first init argument is "sender", which is
+// automatically bound to each receiving control. The second init argument is
+// "original_sender", which is unchanged. And "args" will be perfectly forwarded
+// as the rest arguments.
+template <typename EventArgs, typename... Args>
+void DispatchEvent(Control* const original_sender,
+                   events::RoutedEvent<EventArgs> Control::*event_ptr,
+                   Control* const last_receiver, Args&&... args) {
+  std::list<Control*> receive_list;
+
+  auto parent = original_sender;
+  while (parent != last_receiver) {
+    receive_list.push_back(parent);
+    parent = parent->GetParent();
+  }
+
+  auto handled = false;
+
+  // tunnel
+  for (auto i = receive_list.crbegin(); i != receive_list.crend(); ++i) {
+    EventArgs event_args(*i, original_sender, std::forward<Args>(args)...);
+    (*i->*event_ptr).tunnel.Raise(event_args);
+    if (event_args.IsHandled()) {
+      handled = true;
+      break;
+    }
+  }
+
+  // bubble
+  if (!handled) {
+    for (auto i : receive_list) {
+      EventArgs event_args(i, original_sender, std::forward<Args>(args)...);
+      (i->*event_ptr).bubble.Raise(event_args);
+      if (event_args.IsHandled()) break;
+    }
+  }
+
+  // direct
+  for (auto i : receive_list) {
+    EventArgs event_args(i, original_sender, std::forward<Args>(args)...);
+    (i->*event_ptr).direct.Raise(event_args);
+  }
+}
+
+std::list<Control*> GetAncestorList(Control* control) {
+  std::list<Control*> l;
+  while (control != nullptr) {
+    l.push_front(control);
+    control = control->GetParent();
+  }
+  return l;
+}
+
+Control* FindLowestCommonAncestor(Control* left, Control* right) {
+  if (left == nullptr || right == nullptr) return nullptr;
+
+  auto&& left_list = GetAncestorList(left);
+  auto&& right_list = GetAncestorList(right);
+
+  // the root is different
+  if (left_list.front() != right_list.front()) return nullptr;
+
+  // find the last same control or the last control (one is ancestor of the
+  // other)
+  auto left_i = left_list.cbegin();
+  auto right_i = right_list.cbegin();
+  while (true) {
+    if (left_i == left_list.cend()) return *(--left_i);
+    if (right_i == right_list.cend()) return *(--right_i);
+    if (*left_i != *right_i) return *(--left_i);
+    ++left_i;
+    ++right_i;
+  }
+}
+}  // namespace
+
 LRESULT __stdcall GeneralWndProc(HWND hWnd, UINT Msg, WPARAM wParam,
                                  LPARAM lParam) {
   auto window = WindowManager::GetInstance()->FromHandle(hWnd);

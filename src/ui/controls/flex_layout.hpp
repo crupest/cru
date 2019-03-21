@@ -1,7 +1,7 @@
 #pragma once
 #include "pre.hpp"
 
-#include "ui/control.hpp"
+#include "ui/layout_control.hpp"
 
 namespace cru::ui::render {
 class FlexLayoutRenderObject;
@@ -9,7 +9,7 @@ class FlexLayoutRenderObject;
 
 namespace cru::ui::controls {
 
-class FlexLayout : public Layout {
+class FlexLayout : public LayoutControl {
  public:
   static constexpr auto control_type = L"FlexLayout";
 

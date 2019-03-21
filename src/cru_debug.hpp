@@ -7,7 +7,11 @@
 #include "util/format.hpp"
 
 namespace cru::debug {
+#ifdef CRU_DEBUG
 void DebugMessage(const StringView& message);
+#else
+inline void DebugMessage(const StringView& message) {}
+#endif
 
 #ifdef CRU_DEBUG
 inline void DebugTime(const std::function<void()>& action,

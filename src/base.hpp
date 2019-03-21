@@ -7,9 +7,6 @@
 #include <string_view>
 
 namespace cru {
-template <typename T>
-struct type_tag {};
-
 // typedefs
 using String = std::wstring;
 using MultiByteString = std::string;
@@ -37,10 +34,5 @@ struct Interface {
 
 [[noreturn]] inline void UnreachableCode() {
   throw std::logic_error("Unreachable code.");
-}
-
-inline void Require(const bool condition,
-                    const MultiByteStringView& error_message) {
-  if (!condition) throw std::invalid_argument(error_message.data());
 }
 }  // namespace cru

@@ -1,7 +1,7 @@
 #pragma once
 #include "pre.hpp"
 
-#include "ui/control.hpp"
+#include "ui/no_child_control.hpp"
 
 namespace cru::ui::render {
 class TextRenderObject;

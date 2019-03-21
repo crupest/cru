@@ -35,14 +35,14 @@ void Control::_SetDescendantWindow(Window* window) {
 
 void Control::TraverseDescendants(
     const std::function<void(Control*)>& predicate) {
-  TraverseDescendantsInternal(this, predicate);
+  _TraverseDescendants(this, predicate);
 }
 
-void Control::TraverseDescendantsInternal(
+void Control::_TraverseDescendants(
     Control* control, const std::function<void(Control*)>& predicate) {
   predicate(control);
   for (auto c : control->GetChildren())
-    TraverseDescendantsInternal(c, predicate);
+    _TraverseDescendants(c, predicate);
 }
 bool Control::RequestFocus() {
   auto window = GetWindow();
@@ -76,108 +76,4 @@ void Control::OnDetachToWindow(Window* window) {}
 void Control::OnMouseClickBegin(MouseButton button) {}
 
 void Control::OnMouseClickEnd(MouseButton button) {}
-
-const std::vector<Control*> NoChildControl::empty_control_vector{};
-
-ContentControl::ContentControl()
-    : child_vector_{nullptr}, child_(child_vector_[0]) {}
-
-ContentControl::~ContentControl() { delete child_; }
-
-void ContentControl::SetChild(Control* child) {
-  if (child == child_) return;
-
-  const auto window = GetWindow();
-  const auto old_child = child_;
-  child_ = child;
-  if (old_child) {
-    old_child->_SetParent(nullptr);
-    old_child->_SetDescendantWindow(nullptr);
-  }
-  if (child) {
-    child->_SetParent(this);
-    child->_SetDescendantWindow(window);
-  }
-  OnChildChanged(old_child, child);
-}
-
-void ContentControl::OnChildChanged(Control* old_child, Control* new_child) {}
-
-void ControlAddChildCheck(Control* control) {
-  if (control->GetParent() != nullptr)
-    throw std::invalid_argument("The control already has a parent.");
-
-  if (dynamic_cast<Window*>(control))
-    throw std::invalid_argument("Can't add a window as child.");
-}
-
-Layout::~Layout() {
-  for (const auto child : children_) delete child;
-}
-
-void Layout::AddChild(Control* control, const int position) {
-  ControlAddChildCheck(control);
-
-  if (position < 0 || static_cast<decltype(children_.size())>(position) >
-                          this->children_.size())
-    throw std::invalid_argument("The position is out of range.");
-
-  children_.insert(this->children_.cbegin() + position, control);
-
-  control->_SetParent(this);
-  control->_SetDescendantWindow(GetWindow());
-
-  OnAddChild(control, position);
-}
-
-void Layout::RemoveChild(const int position) {
-  if (position < 0 || static_cast<decltype(this->children_.size())>(position) >=
-                          this->children_.size())
-    throw std::invalid_argument("The position is out of range.");
-
-  const auto i = children_.cbegin() + position;
-  const auto child = *i;
-
-  children_.erase(i);
-
-  child->_SetParent(nullptr);
-  child->_SetDescendantWindow(nullptr);
-
-  OnRemoveChild(child, position);
-}
-
-void Layout::OnAddChild(Control* child, int position) {}
-
-void Layout::OnRemoveChild(Control* child, int position) {}
-
-std::list<Control*> GetAncestorList(Control* control) {
-  std::list<Control*> l;
-  while (control != nullptr) {
-    l.push_front(control);
-    control = control->GetParent();
-  }
-  return l;
-}
-
-Control* FindLowestCommonAncestor(Control* left, Control* right) {
-  if (left == nullptr || right == nullptr) return nullptr;
-
-  auto&& left_list = GetAncestorList(left);
-  auto&& right_list = GetAncestorList(right);
-
-  // the root is different
-  if (left_list.front() != right_list.front()) return nullptr;
-
-  // find the last same control or the last control (one is ancestor of the
-  // other)
-  auto left_i = left_list.cbegin();
-  auto right_i = right_list.cbegin();
-  while (true) {
-    if (left_i == left_list.cend()) return *(--left_i);
-    if (right_i == right_list.cend()) return *(--right_i);
-    if (*left_i != *right_i) return *(--left_i);
-    ++left_i;
-    ++right_i;
-  }
-}
 }  // namespace cru::ui

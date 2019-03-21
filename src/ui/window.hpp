@@ -5,7 +5,7 @@
 #include <memory>
 #include "system_headers.hpp"
 
-#include "control.hpp"
+#include "content_control.hpp"
 #include "events/ui_event.hpp"
 #include "window_class.hpp"
 
@@ -230,13 +230,6 @@ class Window final : public ContentControl {
 
   bool window_focus_ = false;
   Control* focus_control_ = this;  // "focus_control_" can't be nullptr
-
   Control* mouse_capture_control_ = nullptr;
-
-  bool is_layout_invalid_ = false;
-
-#ifdef CRU_DEBUG_LAYOUT
-  bool debug_layout_ = false;
-#endif
 };
 }  // namespace cru::ui
