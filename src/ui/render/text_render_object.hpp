@@ -1,9 +1,14 @@
 #pragma once
 #include "pre.hpp"
 
-#include "system_headers.hpp"
+#include <wrl/client.h>  // for ComPtr
 
 #include "render_object.hpp"
+
+// forward declarations
+struct ID2D1Brush;
+struct IDWriteTextFormat;
+struct IDWriteTextLayout;
 
 namespace cru::ui::render {
 class TextRenderObject : public RenderObject {

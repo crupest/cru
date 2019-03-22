@@ -3,10 +3,12 @@
 
 #include <optional>
 #include <vector>
-#include "system_headers.hpp"
 
 #include "base.hpp"
 #include "ui/ui_base.hpp"
+
+// forward declarations
+struct ID2D1RenderTarget;
 
 namespace cru::ui {
 class Control;
@@ -70,14 +72,13 @@ class RenderObject : public Object {
 
   virtual void OnSizeChanged(const Size& old_size, const Size& new_size);
 
+  virtual void OnMeasureCore(const Size& available_size);
+  virtual void OnLayoutCore(const Rect& rect);
   virtual Size OnMeasureContent(const Size& available_size) = 0;
   virtual void OnLayoutContent(const Rect& content_rect) = 0;
 
  private:
   void SetParent(RenderObject* new_parent);
-
-  void OnMeasureCore(const Size& available_size);
-  void OnLayoutCore(const Rect& rect);
 
  private:
   Control* control_ = nullptr;

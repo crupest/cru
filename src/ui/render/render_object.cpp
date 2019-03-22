@@ -1,5 +1,8 @@
 #include "render_object.hpp"
 
+#include <d2d1.h>
+#include <dwrite.h>
+
 #include "cru_debug.hpp"
 
 namespace cru::ui::render {
@@ -44,36 +47,31 @@ void RenderObject::OnRemoveChild(RenderObject* removed_child, int position) {}
 
 void RenderObject::OnSizeChanged(const Size& old_size, const Size& new_size) {}
 
-void RenderObject::SetParent(RenderObject* new_parent) {
-  const auto old_parent = parent_;
-  parent_ = new_parent;
-  OnParentChanged(old_parent, new_parent);
-}
-
 void RenderObject::OnMeasureCore(const Size& available_size) {
   Size margin_padding_size{
       margin_.GetHorizontalTotal() + padding_.GetHorizontalTotal(),
       margin_.GetVerticalTotal() + padding_.GetVerticalTotal()};
-  const auto content_available_size = available_size - margin_padding_size;
-  auto coerced_content_available_size = content_available_size;
 
-  if (coerced_content_available_size.width < 0) {
+  auto coerced_margin_padding_size = margin_padding_size;
+  if (coerced_margin_padding_size.width > available_size.width) {
     debug::DebugMessage(
         L"Measure: horizontal length of padding and margin is bigger than "
         L"available length.");
-    coerced_content_available_size.width = 0;
+    coerced_margin_padding_size.width = available_size.width;
   }
-  if (coerced_content_available_size.height < 0) {
+  if (coerced_margin_padding_size.height > available_size.height) {
     debug::DebugMessage(
         L"Measure: vertical length of padding and margin is bigger than "
         L"available length.");
-    coerced_content_available_size.height = 0;
+    coerced_margin_padding_size.height = available_size.height;
   }
 
+  const auto coerced_content_available_size =
+      available_size - coerced_margin_padding_size;
   const auto actual_content_size =
       OnMeasureContent(coerced_content_available_size);
 
-  SetPreferredSize(margin_padding_size + actual_content_size);
+  SetPreferredSize(coerced_margin_padding_size + actual_content_size);
 }
 
 void RenderObject::OnLayoutCore(const Rect& rect) {
@@ -99,5 +97,11 @@ void RenderObject::OnLayoutCore(const Rect& rect) {
   OnLayoutContent(Rect{margin_.left + padding_.left, margin_.top + padding_.top,
                        coerced_content_available_size.width,
                        coerced_content_available_size.height});
+}
+
+void RenderObject::SetParent(RenderObject* new_parent) {
+  const auto old_parent = parent_;
+  parent_ = new_parent;
+  OnParentChanged(old_parent, new_parent);
 }
 }  // namespace cru::ui::render

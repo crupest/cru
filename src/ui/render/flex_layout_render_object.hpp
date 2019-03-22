@@ -16,7 +16,7 @@ enum class FlexDirection {
 enum class Alignment { Start, End, Center };
 
 struct FlexChildLayoutData {
-  std::optional<float> flex_basis;
+  std::optional<float> flex_basis;  // nullopt stands for content
   float flex_grow = 0;
   float flex_shrink = 0;
   Alignment alignment = Alignment::Center;
@@ -35,12 +35,8 @@ class FlexLayoutRenderObject : public RenderObject {
   FlexDirection GetFlexDirection() const { return direction_; }
   void SetFlexDirection(FlexDirection direction) { direction_ = direction; }
 
-  Alignment GetContentMainAlign() const {
-    return content_main_align_;
-  }
-  void SetContentMainAlign(Alignment align) {
-    content_main_align_ = align;
-  }
+  Alignment GetContentMainAlign() const { return content_main_align_; }
+  void SetContentMainAlign(Alignment align) { content_main_align_ = align; }
 
   FlexChildLayoutData* GetChildLayoutData(int position);
 
