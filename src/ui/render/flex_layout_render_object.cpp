@@ -8,8 +8,8 @@
 
 namespace cru::ui::render {
 FlexChildLayoutData* FlexLayoutRenderObject::GetChildLayoutData(int position) {
-  if (position < 0 || position >= child_layout_data_.size())
-    throw std::invalid_argument("Position out of bound.");
+  assert(position >= 0 &&
+         position < child_layout_data_.size());  // Position out of bound.
 
   return &child_layout_data_[position];
 }
