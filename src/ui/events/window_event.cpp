@@ -1,3 +1,3 @@
-#include "ui_event.hpp"
+#include "window_event.hpp"
 
 namespace cru::ui::events {}

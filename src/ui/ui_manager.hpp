@@ -1,7 +1,8 @@
 #pragma once
 #include "pre.hpp"
 
-#include "system_headers.hpp"
+#include <d2d1.h>
+#include <wrl/client.h>
 
 #include "base.hpp"
 

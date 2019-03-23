@@ -1,6 +1,6 @@
 #include "input_util.hpp"
 
-#include "system_headers.hpp"
+#include <Windows.h>
 
 namespace cru::ui {
 bool IsKeyDown(const int virtual_code) {

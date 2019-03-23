@@ -55,15 +55,6 @@ bool Control::HasFocus() {
   return window->GetFocusControl() == this;
 }
 
-void Control::SetCursor(const Cursor::Ptr& cursor) {
-  if (cursor != cursor_) {
-    cursor_ = cursor;
-    const auto window = GetWindow();
-    if (window && window->GetMouseHoverControl() == this)
-      window->UpdateCursor();
-  }
-}
-
 void Control::OnParentChanged(Control* old_parent, Control* new_parent) {}
 
 void Control::OnAttachToWindow(Window* window) {}

@@ -1,6 +1,7 @@
 #include "string_util.hpp"
 
-#include "system_headers.hpp"
+#include <Windows.h>
+
 #include "exception.hpp"
 
 namespace cru::util {
@@ -18,4 +19,4 @@ MultiByteString ToUtf8String(const StringView& string) {
                      "Failed to convert wide string to UTF-8.");
   return result;
 }
-}
+}  // namespace cru::util

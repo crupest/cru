@@ -1,5 +1,7 @@
 #include "ui_manager.hpp"
 
+#include <Windows.h>
+
 #include "application.hpp"
 #include "exception.hpp"
 #include "graph/graph.hpp"

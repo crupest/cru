@@ -1,12 +1,8 @@
 #pragma once
 #include "pre.hpp"
 
-#include "system_headers.hpp"
-
 #include "base.hpp"
-#include "cursor.hpp"
 #include "events/ui_event.hpp"
-#include "input_util.hpp"
 #include "ui_base.hpp"
 
 namespace cru::ui {
@@ -60,14 +56,6 @@ class Control : public Object {
 
   bool HasFocus();
 
-  //*************** region: cursor ***************
-  // If cursor is set to null, then it uses parent's cursor.
-  // Window's cursor can't be null.
- public:
-  Cursor::Ptr GetCursor() const { return cursor_; }
-
-  void SetCursor(const Cursor::Ptr& cursor);
-
   //*************** region: events ***************
  public:
   // Raised when mouse enter the control.
@@ -107,7 +95,5 @@ class Control : public Object {
  private:
   Window* window_ = nullptr;
   Control* parent_ = nullptr;
-
-  Cursor::Ptr cursor_{};
 };
 }  // namespace cru::ui

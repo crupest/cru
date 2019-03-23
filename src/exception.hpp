@@ -1,8 +1,8 @@
 #pragma once
 #include "pre.hpp"
 
+#include <Windows.h>
 #include <optional>
-#include "system_headers.hpp"
 
 #include "base.hpp"
 

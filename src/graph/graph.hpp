@@ -1,9 +1,13 @@
 #pragma once
 #include "pre.hpp"
 
+#include <d2d1_2.h>
+#include <dxgi1_2.h>
+#include <d3d11.h>
+#include <dwrite.h>
+#include <wrl/client.h>
 #include <functional>
 #include <memory>
-#include "system_headers.hpp"
 
 #include "base.hpp"
 
@@ -101,7 +105,7 @@ class GraphManager final : public Object {
 
   Microsoft::WRL::ComPtr<IDWriteFontCollection> GetSystemFontCollection()
       const {
-    return dwrite_system_font_collection_.Get();
+    return dwrite_system_font_collection_;
   }
 
  private:

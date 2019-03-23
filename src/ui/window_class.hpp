@@ -1,7 +1,7 @@
 #pragma once
 #include "pre.hpp"
 
-#include "system_headers.hpp"
+#include <Windows.h>
 
 #include "base.hpp"
 

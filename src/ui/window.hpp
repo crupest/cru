@@ -1,12 +1,13 @@
 #pragma once
 #include "pre.hpp"
 
+#include <Windows.h>
 #include <map>
 #include <memory>
-#include "system_headers.hpp"
 
 #include "content_control.hpp"
 #include "events/ui_event.hpp"
+#include "events/window_event.hpp"
 #include "window_class.hpp"
 
 namespace cru::graph {
@@ -163,9 +164,6 @@ class Window final : public ContentControl {
 
   Control* CaptureMouseFor(Control* control);
   Control* ReleaseCurrentMouseCapture();
-
-  //*************** region: cursor ***************
-  void UpdateCursor();
 
  public:
   //*************** region: events ***************

@@ -1,6 +1,6 @@
 #include "cru_debug.hpp"
 
-#include "system_headers.hpp"
+#include <Windows.h>
 
 namespace cru::debug {
 #ifdef CRU_DEBUG

@@ -83,6 +83,7 @@
       <TargetMachine>MachineX86</TargetMachine>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
+      <AdditionalDependencies>D3D11.lib;D2d1.lib;DWrite.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -100,6 +101,7 @@
       <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>D3D11.lib;D2d1.lib;DWrite.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -108,6 +110,9 @@
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <PreprocessorDefinitions>CRU_X64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
+    <Link>
+      <AdditionalDependencies>D3D11.lib;D2d1.lib;DWrite.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -115,9 +120,14 @@
       <AdditionalIncludeDirectories>$(ProjectDir)\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>CRU_X64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
+    <Link>
+      <AdditionalDependencies>D3D11.lib;D2d1.lib;DWrite.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\ui\content_control.cpp" />
+    <ClCompile Include="src\ui\controls\button.cpp" />
+    <ClCompile Include="src\ui\events\window_event.cpp" />
     <ClCompile Include="src\ui\layout_control.cpp" />
     <ClCompile Include="src\ui\no_child_control.cpp" />
     <ClCompile Include="src\ui\render\border_render_object.cpp" />
@@ -135,6 +145,8 @@
     <ClCompile Include="src\ui\controls\flex_layout.cpp" />
     <ClCompile Include="src\util\string_util.cpp" />
     <ClInclude Include="src\ui\content_control.hpp" />
+    <ClInclude Include="src\ui\controls\button.hpp" />
+    <ClInclude Include="src\ui\events\window_event.hpp" />
     <ClInclude Include="src\ui\layout_control.hpp" />
     <ClInclude Include="src\ui\no_child_control.hpp" />
     <ClInclude Include="src\ui\render\border_render_object.hpp" />
@@ -144,7 +156,6 @@
     <ClInclude Include="src\util\format.hpp" />
     <ClInclude Include="src\util\math_util.hpp" />
     <ClInclude Include="src\ui\controls\text_block.hpp" />
-    <ClCompile Include="src\ui\cursor.cpp" />
     <ClCompile Include="src\ui\events\ui_event.cpp" />
     <ClCompile Include="src\ui\input_util.cpp" />
     <ClCompile Include="src\ui\render\flex_layout_render_object.cpp" />
@@ -161,14 +172,12 @@
     <ClInclude Include="src\exception.hpp" />
     <ClInclude Include="src\pre.hpp" />
     <ClInclude Include="src\graph\graph.hpp" />
-    <ClInclude Include="src\system_headers.hpp" />
     <ClInclude Include="src\timer.hpp" />
     <ClInclude Include="src\ui\animations\animation.hpp" />
     <ClInclude Include="src\ui\control.hpp" />
     <ClInclude Include="src\ui\controls\flex_layout.hpp" />
     <ClCompile Include="src\ui\controls\text_block.cpp" />
     <ClInclude Include="src\ui\d2d_util.hpp" />
-    <ClInclude Include="src\ui\cursor.hpp" />
     <ClInclude Include="src\ui\events\ui_event.hpp" />
     <ClInclude Include="src\ui\input_util.hpp" />
     <ClInclude Include="src\ui\render\flex_layout_render_object.hpp" />

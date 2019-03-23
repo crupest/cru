@@ -1,5 +1,7 @@
 #include "text_render_object.hpp"
 
+#include <d2d1.h>
+#include <dwrite.h>
 #include <algorithm>
 
 #include "exception.hpp"

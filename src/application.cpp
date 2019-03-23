@@ -1,8 +1,9 @@
 #include "application.hpp"
 
+#include <VersionHelpers.h>
+
 #include "exception.hpp"
 #include "timer.hpp"
-#include "ui/cursor.hpp"
 #include "ui/window_class.hpp"
 
 namespace cru {
@@ -79,8 +80,6 @@ Application::Application(HINSTANCE h_instance) : h_instance_(h_instance) {
     throw std::runtime_error("Must run on Windows 8 or later.");
 
   god_window_ = std::make_unique<GodWindow>(this);
-
-  ui::cursors::LoadSystemCursors();
 }
 
 Application::~Application() {

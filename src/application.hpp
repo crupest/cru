@@ -1,12 +1,12 @@
 #pragma once
 #include "pre.hpp"
 
+#include <Windows.h>
 #include <functional>
 #include <memory>
 #include <optional>
 #include <type_traits>
 #include <typeindex>
-#include "system_headers.hpp"
 
 #include "base.hpp"
 

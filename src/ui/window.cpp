@@ -1,7 +1,8 @@
 #include "window.hpp"
 
+#include <windowsx.h>
+
 #include "application.hpp"
-#include "cursor.hpp"
 #include "exception.hpp"
 #include "graph/graph.hpp"
 #include "render/window_render_object.hpp"
@@ -153,17 +154,6 @@ inline POINT DipToPi(const Point& dip_point) {
   return result;
 }
 
-namespace {
-Cursor::Ptr GetCursorInherit(Control* control) {
-  while (control != nullptr) {
-    const auto cursor = control->GetCursor();
-    if (cursor != nullptr) return cursor;
-    control = control->GetParent();
-  }
-  return cursors::arrow;
-}
-}  // namespace
-
 Window* Window::CreateOverlapped() {
   return new Window(tag_overlapped_constructor{});
 }
@@ -219,8 +209,6 @@ void Window::AfterCreateHwnd(WindowManager* window_manager) {
 
   render_target_ =
       graph::GraphManager::GetInstance()->CreateWindowRenderTarget(hwnd_);
-
-  SetCursor(cursors::arrow);
 
   render_object_ = new render::WindowRenderObject(this);
 }
@@ -522,12 +510,6 @@ Control* Window::ReleaseCurrentMouseCapture() {
   }
 }
 
-void Window::UpdateCursor() {
-  if (IsWindowValid() && mouse_hover_control_ != nullptr) {
-    SetCursorInternal(GetCursorInherit(mouse_hover_control_)->GetHandle());
-  }
-}
-
 #ifdef CRU_DEBUG_LAYOUT
 void Window::SetDebugLayout(const bool value) {
   if (debug_layout_ != value) {
@@ -719,7 +701,6 @@ void Window::DispatchMouseHoverControlChangeEvent(Control* old_control,
       DispatchEvent(new_control, &Control::mouse_enter_event,
                     lowest_common_ancestor,
                     point);  // dispatch mouse enter event.
-      UpdateCursor();
     }
   }
 }

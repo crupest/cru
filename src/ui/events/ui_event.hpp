@@ -2,12 +2,13 @@
 #include "pre.hpp"
 
 #include <optional>
-#include "system_headers.hpp"
 
 #include "base.hpp"
 #include "cru_event.hpp"
 #include "ui/ui_base.hpp"
 #include "ui/input_util.hpp"
+
+struct ID2D1RenderTarget;
 
 namespace cru::ui {
 class Control;
@@ -112,18 +113,18 @@ class MouseWheelEventArgs : public MouseEventArgs {
 class DrawEventArgs : public UiEventArgs {
  public:
   DrawEventArgs(Object* sender, Object* original_sender,
-                ID2D1DeviceContext* device_context)
-      : UiEventArgs(sender, original_sender), device_context_(device_context) {}
+                ID2D1RenderTarget* render_target)
+      : UiEventArgs(sender, original_sender), render_target_(render_target) {}
   DrawEventArgs(const DrawEventArgs& other) = default;
   DrawEventArgs(DrawEventArgs&& other) = default;
   DrawEventArgs& operator=(const DrawEventArgs& other) = default;
   DrawEventArgs& operator=(DrawEventArgs&& other) = default;
   ~DrawEventArgs() = default;
 
-  ID2D1DeviceContext* GetDeviceContext() const { return device_context_; }
+  ID2D1RenderTarget* GetRenderTarget() const { return render_target_; }
 
  private:
-  ID2D1DeviceContext* device_context_;
+  ID2D1RenderTarget* render_target_;
 };
 
 class FocusChangeEventArgs : public UiEventArgs {
@@ -158,40 +159,6 @@ class ToggleEventArgs : public UiEventArgs {
 
  private:
   bool new_state_;
-};
-
-struct WindowNativeMessage {
-  HWND hwnd;
-  int msg;
-  WPARAM w_param;
-  LPARAM l_param;
-};
-
-class WindowNativeMessageEventArgs : public UiEventArgs {
- public:
-  WindowNativeMessageEventArgs(Object* sender, Object* original_sender,
-                               const WindowNativeMessage& message)
-      : UiEventArgs(sender, original_sender),
-        message_(message),
-        result_(std::nullopt) {}
-  WindowNativeMessageEventArgs(const WindowNativeMessageEventArgs& other) =
-      default;
-  WindowNativeMessageEventArgs(WindowNativeMessageEventArgs&& other) = default;
-  WindowNativeMessageEventArgs& operator=(
-      const WindowNativeMessageEventArgs& other) = default;
-  WindowNativeMessageEventArgs& operator=(
-      WindowNativeMessageEventArgs&& other) = default;
-  ~WindowNativeMessageEventArgs() override = default;
-
-  WindowNativeMessage GetWindowMessage() const { return message_; }
-
-  std::optional<LRESULT> GetResult() const { return result_; }
-
-  void SetResult(const std::optional<LRESULT> result) { result_ = result; }
-
- private:
-  WindowNativeMessage message_;
-  std::optional<LRESULT> result_;
 };
 
 class KeyEventArgs : public UiEventArgs {
