@@ -1,5 +1,7 @@
 #include "text_render_object.hpp"
 
+#include <algorithm>
+
 #include "exception.hpp"
 #include "graph/graph.hpp"
 
@@ -57,13 +59,27 @@ void TextRenderObject::Draw(ID2D1RenderTarget* render_target) {
 }
 
 RenderObject* TextRenderObject::HitTest(const Point& point) {
-  return Rect{Point::Zero(), GetSize()}.IsPointInside(point) ? this : nullptr;
+  const auto margin = GetMargin();
+  const auto size = GetSize();
+  return Rect{margin.left, margin.top,
+              std::max(size.width - margin.GetHorizontalTotal(), 0.0f),
+              std::max(size.height - margin.GetVerticalTotal(), 0.0f)}
+                 .IsPointInside(point)
+             ? this
+             : nullptr;
 }
 
 void TextRenderObject::OnSizeChanged(const Size& old_size,
                                      const Size& new_size) {
-  ThrowIfFailed(text_layout_->SetMaxWidth(new_size.width));
-  ThrowIfFailed(text_layout_->SetMaxHeight(new_size.height));
+  const auto margin = GetMargin();
+  const auto padding = GetPadding();
+  ThrowIfFailed(text_layout_->SetMaxWidth(
+      std::max(new_size.width - margin.GetHorizontalTotal() -
+                   padding.GetHorizontalTotal(),
+               0.0f)));
+  ThrowIfFailed(text_layout_->SetMaxHeight(std::max(
+      new_size.height - margin.GetVerticalTotal() - padding.GetVerticalTotal(),
+      0.0f)));
 }
 
 Size TextRenderObject::OnMeasureContent(const Size& available_size) {

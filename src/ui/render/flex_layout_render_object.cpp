@@ -33,8 +33,16 @@ RenderObject* FlexLayoutRenderObject::HitTest(const Point& point) {
       return result;
     }
   }
-  return Rect{Point::Zero(), GetSize()}.IsPointInside(point) ? this : nullptr;
-}
+
+  const auto margin = GetMargin();
+  const auto size = GetSize();
+  return Rect{margin.left, margin.top,
+              std::max(size.width - margin.GetHorizontalTotal(), 0.0f),
+              std::max(size.height - margin.GetVerticalTotal(), 0.0f)}
+                 .IsPointInside(point)
+             ? this
+             : nullptr;
+}  // namespace cru::ui::render
 
 void FlexLayoutRenderObject::OnAddChild(RenderObject* new_child, int position) {
   child_layout_data_.emplace(child_layout_data_.cbegin() + position);
