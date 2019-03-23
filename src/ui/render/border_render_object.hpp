@@ -9,14 +9,23 @@
 struct ID2D1Brush;
 struct ID2D1Geometry;
 
+namespace cru::ui::render {
 struct CornerRadius {
-  float left_top;
-  float right_top;
-  float left_bottom;
-  float right_bottom;
+  constexpr CornerRadius()
+      : left_top(), right_top(), left_bottom(), right_bottom() {}
+  constexpr CornerRadius(Point left_top, Point right_top, Point left_bottom,
+                         Point right_bottom)
+      : left_top(left_top),
+        right_top(right_top),
+        left_bottom(left_bottom),
+        right_bottom(right_bottom) {}
+
+  Point left_top;
+  Point right_top;
+  Point left_bottom;
+  Point right_bottom;
 };
 
-namespace cru::ui::render {
 class BorderRenderObject : public RenderObject {
  public:
   explicit BorderRenderObject(Microsoft::WRL::ComPtr<ID2D1Brush> brush);
@@ -34,8 +43,8 @@ class BorderRenderObject : public RenderObject {
     border_brush_ = std::move(new_brush);
   }
 
-  Thickness GetBorderWidth() const { return border_width_; }
-  void SetBorderWidth(const Thickness& thickness) { border_width_ = thickness; }
+  Thickness GetBorderWidth() const { return border_thickness_; }
+  void SetBorderWidth(const Thickness& thickness) { border_thickness_ = thickness; }
 
   CornerRadius GetCornerRadius() const { return corner_radius_; }
   void SetCornerRadius(const CornerRadius& new_corner_radius) {
@@ -49,6 +58,8 @@ class BorderRenderObject : public RenderObject {
   RenderObject* HitTest(const Point& point) override;  // TODO
 
  protected:
+  void OnAddChild(RenderObject* new_child, int position) override;
+
   void OnMeasureCore(const Size& available_size) override;
   void OnLayoutCore(const Rect& rect) override;
   Size OnMeasureContent(const Size& available_size) override;
@@ -60,12 +71,13 @@ class BorderRenderObject : public RenderObject {
   }
 
  private:
-  bool is_enabled_;
+  bool is_enabled_ = false;
 
   Microsoft::WRL::ComPtr<ID2D1Brush> border_brush_;
-  Thickness border_width_;
-  CornerRadius corner_radius_;
+  Thickness border_thickness_ = Thickness::Zero();
+  CornerRadius corner_radius_{};
 
-  Microsoft::WRL::ComPtr<ID2D1Geometry> geometry_;
+  Microsoft::WRL::ComPtr<ID2D1Geometry> geometry_{nullptr};
+  Microsoft::WRL::ComPtr<ID2D1Geometry> border_outer_geometry_{nullptr};
 };
 }  // namespace cru::ui::render

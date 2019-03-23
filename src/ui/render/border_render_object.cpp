@@ -1,10 +1,112 @@
 #include "border_render_object.hpp"
 
+#include <algorithm>
+
 #include "cru_debug.hpp"
+#include "exception.hpp"
+#include "graph/graph.hpp"
 
 namespace cru::ui::render {
 BorderRenderObject::BorderRenderObject(Microsoft::WRL::ComPtr<ID2D1Brush> brush)
     : border_brush_(std::move(brush)) {}
+
+void BorderRenderObject::RecreateGeometry() {
+  const auto d2d_factory = graph::GraphManager::GetInstance()->GetD2D1Factory();
+
+  Microsoft::WRL::ComPtr<ID2D1PathGeometry> geometry;
+  ThrowIfFailed(d2d_factory->CreatePathGeometry(&geometry));
+
+  Microsoft::WRL::ComPtr<ID2D1PathGeometry> border_outer_geometry;
+  ThrowIfFailed(d2d_factory->CreatePathGeometry(&border_outer_geometry));
+
+  ID2D1GeometrySink* sink;
+  auto f = [sink](const Rect& rect, const CornerRadius& corner) {
+    sink->BeginFigure(D2D1::Point2F(rect.left + corner.left_top.x, rect.top),
+                      D2D1_FIGURE_BEGIN_FILLED);
+    sink->AddLine(
+        D2D1::Point2F(rect.GetRight() - corner.right_top.x, rect.top));
+    sink->AddQuadraticBezier(D2D1::QuadraticBezierSegment(
+        D2D1::Point2F(rect.GetRight(), rect.top),
+        D2D1::Point2F(rect.GetRight(), rect.top + corner.right_top.y)));
+    sink->AddLine(D2D1::Point2F(rect.GetRight(),
+                                rect.GetBottom() - corner.right_bottom.y));
+    sink->AddQuadraticBezier(D2D1::QuadraticBezierSegment(
+        D2D1::Point2F(rect.GetRight(), rect.GetBottom()),
+        D2D1::Point2F(rect.GetRight() - corner.right_bottom.x,
+                      rect.GetBottom())));
+    sink->AddLine(
+        D2D1::Point2F(rect.left + corner.left_bottom.x, rect.GetBottom()));
+    sink->AddQuadraticBezier(D2D1::QuadraticBezierSegment(
+        D2D1::Point2F(rect.left, rect.GetBottom()),
+        D2D1::Point2F(rect.left, rect.GetBottom() - corner.left_bottom.y)));
+    sink->AddLine(D2D1::Point2F(rect.left, rect.top + corner.left_top.y));
+    sink->AddQuadraticBezier(D2D1::QuadraticBezierSegment(
+        D2D1::Point2F(rect.left, rect.top),
+        D2D1::Point2F(rect.left + corner.left_top.x, rect.top)));
+    sink->EndFigure(D2D1_FIGURE_END_CLOSED);
+  };
+
+  const auto size = GetSize();
+  const auto margin = GetMargin();
+  const Rect outer_rect{margin.left, margin.top, size.width - margin.right,
+                        size.height - size.height};
+  ThrowIfFailed(border_outer_geometry->Open(&sink));
+  f(outer_rect, corner_radius_);
+  ThrowIfFailed(sink->Close());
+  sink->Release();
+
+  const Rect inner_rect = outer_rect.Shrink(border_thickness_);
+  ThrowIfFailed(geometry->Open(&sink));
+  f(outer_rect, corner_radius_);
+  f(inner_rect, corner_radius_);
+  ThrowIfFailed(sink->Close());
+  sink->Release();
+
+  geometry_ = std::move(geometry);
+  border_outer_geometry_ = std::move(border_outer_geometry);
+}
+
+void BorderRenderObject::Draw(ID2D1RenderTarget* render_target) {
+  render_target->FillGeometry(geometry_.Get(), border_brush_.Get());
+  if (const auto child = GetChild()) {
+    auto offset = child->GetOffset();
+    graph::WithTransform(render_target,
+                         D2D1::Matrix3x2F::Translation(offset.x, offset.y),
+                         [child](auto rt) { child->Draw(rt); });
+  }
+}
+
+RenderObject* BorderRenderObject::HitTest(const Point& point) {
+  if (const auto child = GetChild()) {
+    auto offset = child->GetOffset();
+    Point p{point.x - offset.x, point.y - offset.y};
+    const auto result = child->HitTest(point);
+    if (result != nullptr) {
+      return result;
+    }
+  }
+
+  if (is_enabled_) {
+    BOOL contains;
+    ThrowIfFailed(border_outer_geometry_->FillContainsPoint(
+        D2D1::Point2F(point.x, point.y), D2D1::Matrix3x2F::Identity(),
+        &contains));
+    return contains != 0 ? this : nullptr;
+  } else {
+    const auto margin = GetMargin();
+    const auto size = GetSize();
+    return Rect{margin.left, margin.top,
+                std::max(size.width - margin.GetHorizontalTotal(), 0.0f),
+                std::max(size.height - margin.GetVerticalTotal(), 0.0f)}
+                   .IsPointInside(point)
+               ? this
+               : nullptr;
+  }
+}
+
+void BorderRenderObject::OnAddChild(RenderObject* new_child, int position) {
+  assert(GetChildren().size() == 1);
+}
 
 void BorderRenderObject::OnMeasureCore(const Size& available_size) {
   const auto margin = GetMargin();
@@ -14,8 +116,8 @@ void BorderRenderObject::OnMeasureCore(const Size& available_size) {
       margin.GetVerticalTotal() + padding.GetVerticalTotal()};
 
   if (is_enabled_) {
-    margin_border_padding_size.width += border_width_.GetHorizontalTotal();
-    margin_border_padding_size.height += border_width_.GetVerticalTotal();
+    margin_border_padding_size.width += border_thickness_.GetHorizontalTotal();
+    margin_border_padding_size.height += border_thickness_.GetVerticalTotal();
   }
 
   auto coerced_margin_border_padding_size = margin_border_padding_size;
@@ -49,8 +151,8 @@ void BorderRenderObject::OnLayoutCore(const Rect& rect) {
       margin.GetVerticalTotal() + padding.GetVerticalTotal()};
 
   if (is_enabled_) {
-    margin_border_padding_size.width += border_width_.GetHorizontalTotal();
-    margin_border_padding_size.height += border_width_.GetVerticalTotal();
+    margin_border_padding_size.width += border_thickness_.GetHorizontalTotal();
+    margin_border_padding_size.height += border_thickness_.GetVerticalTotal();
   }
 
   const auto content_available_size =
@@ -70,11 +172,11 @@ void BorderRenderObject::OnLayoutCore(const Rect& rect) {
     coerced_content_available_size.height = 0;
   }
 
-  OnLayoutContent(
-      Rect{margin.left + (is_enabled_ ? border_width_.left : 0) + padding.left,
-           margin.top + (is_enabled_ ? border_width_.top : 0) + padding.top,
-           coerced_content_available_size.width,
-           coerced_content_available_size.height});
+  OnLayoutContent(Rect{
+      margin.left + (is_enabled_ ? border_thickness_.left : 0) + padding.left,
+      margin.top + (is_enabled_ ? border_thickness_.top : 0) + padding.top,
+      coerced_content_available_size.width,
+      coerced_content_available_size.height});
 }
 
 Size BorderRenderObject::OnMeasureContent(const Size& available_size) {
