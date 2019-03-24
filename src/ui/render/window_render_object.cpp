@@ -1,6 +1,6 @@
 #include "window_render_object.hpp"
 
-#include "graph/graph.hpp"
+#include "graph/graph_util.hpp"
 #include "ui/window.hpp"
 
 namespace cru::ui::render {

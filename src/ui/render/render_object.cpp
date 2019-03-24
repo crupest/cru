@@ -1,8 +1,5 @@
 #include "render_object.hpp"
 
-#include <d2d1.h>
-#include <dwrite.h>
-
 #include "cru_debug.hpp"
 
 namespace cru::ui::render {

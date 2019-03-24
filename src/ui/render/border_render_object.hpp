@@ -28,20 +28,18 @@ struct CornerRadius {
 
 class BorderRenderObject : public RenderObject {
  public:
-  explicit BorderRenderObject(Microsoft::WRL::ComPtr<ID2D1Brush> brush);
+  explicit BorderRenderObject(ID2D1Brush* brush);
   BorderRenderObject(const BorderRenderObject& other) = delete;
   BorderRenderObject(BorderRenderObject&& other) = delete;
   BorderRenderObject& operator=(const BorderRenderObject& other) = delete;
   BorderRenderObject& operator=(BorderRenderObject&& other) = delete;
-  ~BorderRenderObject() override = default;
+  ~BorderRenderObject() override;
 
   bool IsEnabled() const { return is_enabled_; }
   void SetEnabled(bool enabled) { is_enabled_ = enabled; }
 
-  Microsoft::WRL::ComPtr<ID2D1Brush> GetBrush() const { return border_brush_; }
-  void SetBrush(const Microsoft::WRL::ComPtr<ID2D1Brush> new_brush) {
-    border_brush_ = std::move(new_brush);
-  }
+  ID2D1Brush* GetBrush() const { return border_brush_; }
+  void SetBrush(ID2D1Brush* new_brush);
 
   Thickness GetBorderWidth() const { return border_thickness_; }
   void SetBorderWidth(const Thickness& thickness) { border_thickness_ = thickness; }
@@ -51,11 +49,11 @@ class BorderRenderObject : public RenderObject {
     corner_radius_ = new_corner_radius;
   }
 
-  void RecreateGeometry();  // TODO
+  void RecreateGeometry();
 
-  void Draw(ID2D1RenderTarget* render_target) override;  // TODO
+  void Draw(ID2D1RenderTarget* render_target) override;
 
-  RenderObject* HitTest(const Point& point) override;  // TODO
+  RenderObject* HitTest(const Point& point) override;
 
  protected:
   void OnAddChild(RenderObject* new_child, int position) override;
@@ -73,11 +71,11 @@ class BorderRenderObject : public RenderObject {
  private:
   bool is_enabled_ = false;
 
-  Microsoft::WRL::ComPtr<ID2D1Brush> border_brush_;
+  ID2D1Brush* border_brush_ = nullptr;
   Thickness border_thickness_ = Thickness::Zero();
   CornerRadius corner_radius_{};
 
-  Microsoft::WRL::ComPtr<ID2D1Geometry> geometry_{nullptr};
-  Microsoft::WRL::ComPtr<ID2D1Geometry> border_outer_geometry_{nullptr};
+  ID2D1Geometry* geometry_ = nullptr;
+  ID2D1Geometry* border_outer_geometry_ = nullptr;
 };
 }  // namespace cru::ui::render

@@ -125,6 +125,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\graph\window_render_target.cpp" />
     <ClCompile Include="src\ui\content_control.cpp" />
     <ClCompile Include="src\ui\controls\button.cpp" />
     <ClCompile Include="src\ui\events\window_event.cpp" />
@@ -137,13 +138,15 @@
     <ClCompile Include="src\cru_debug.cpp" />
     <ClCompile Include="src\application.cpp" />
     <ClCompile Include="src\exception.cpp" />
-    <ClCompile Include="src\graph\graph.cpp" />
+    <ClCompile Include="src\graph\graph_manager.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\timer.cpp" />
     <ClCompile Include="src\ui\animations\animation.cpp" />
     <ClCompile Include="src\ui\control.cpp" />
     <ClCompile Include="src\ui\controls\flex_layout.cpp" />
     <ClCompile Include="src\util\string_util.cpp" />
+    <ClInclude Include="src\graph\graph_util.hpp" />
+    <ClInclude Include="src\graph\window_render_target.hpp" />
     <ClInclude Include="src\ui\content_control.hpp" />
     <ClInclude Include="src\ui\controls\button.hpp" />
     <ClInclude Include="src\ui\events\window_event.hpp" />
@@ -153,6 +156,7 @@
     <ClInclude Include="src\ui\render\window_render_object.hpp" />
     <ClInclude Include="src\ui\render\text_render_object.hpp" />
     <ClInclude Include="src\ui\window_class.hpp" />
+    <ClInclude Include="src\util\com_util.hpp" />
     <ClInclude Include="src\util\format.hpp" />
     <ClInclude Include="src\util\math_util.hpp" />
     <ClInclude Include="src\ui\controls\text_block.hpp" />
@@ -171,7 +175,7 @@
     <ClInclude Include="src\cru_debug.hpp" />
     <ClInclude Include="src\exception.hpp" />
     <ClInclude Include="src\pre.hpp" />
-    <ClInclude Include="src\graph\graph.hpp" />
+    <ClInclude Include="src\graph\graph_manager.hpp" />
     <ClInclude Include="src\timer.hpp" />
     <ClInclude Include="src\ui\animations\animation.hpp" />
     <ClInclude Include="src\ui\control.hpp" />

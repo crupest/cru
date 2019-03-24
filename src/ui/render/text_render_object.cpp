@@ -5,17 +5,59 @@
 #include <algorithm>
 
 #include "exception.hpp"
-#include "graph/graph.hpp"
+#include "graph/graph_manager.hpp"
+#include "graph/graph_util.hpp"
+#include "util/com_util.hpp"
 
 namespace cru::ui::render {
-TextRenderObject::TextRenderObject(
-    Microsoft::WRL::ComPtr<ID2D1Brush> brush,
-    Microsoft::WRL::ComPtr<IDWriteTextFormat> format,
-    Microsoft::WRL::ComPtr<ID2D1Brush> selection_brush)
-    : brush_(std::move(brush)),
-      text_format_(std::move(format)),
-      selection_brush_(std::move(selection_brush)) {
+TextRenderObject::TextRenderObject(ID2D1Brush* brush, IDWriteTextFormat* format,
+                                   ID2D1Brush* selection_brush) {
+  assert(brush);
+  assert(format);
+  assert(selection_brush);
+  brush->AddRef();
+  format->AddRef();
+  selection_brush->AddRef();
+  this->brush_ = brush;
+  this->text_format_ = format;
+  this->selection_brush_ = selection_brush;
+  try {
+    RecreateTextLayout();
+  } catch (...) {
+    brush->Release();
+    format->Release();
+    selection_brush->Release();
+    throw;
+  }
+}
+
+TextRenderObject::~TextRenderObject() {
+  util::SafeRelease(brush_);
+  util::SafeRelease(text_format_);
+  util::SafeRelease(text_layout_);
+  util::SafeRelease(selection_brush_);
+}
+
+void TextRenderObject::SetBrush(ID2D1Brush* new_brush) {
+  assert(new_brush);
+  util::SafeRelease(brush_);
+  new_brush->AddRef();
+  brush_ = new_brush;
+}
+
+void TextRenderObject::SetTextFormat(IDWriteTextFormat* new_text_format) {
+  assert(new_text_format);
+  util::SafeRelease(text_format_);
+  new_text_format->AddRef();
+  text_format_ = new_text_format;
   RecreateTextLayout();
+}
+
+void TextRenderObject::SetSelectionBrush(ID2D1Brush* new_brush) {
+  assert(new_brush);
+  util::SafeRelease(selection_brush_);
+  new_brush->AddRef();
+  selection_brush_ = new_brush;
 }
 
 namespace {
@@ -54,9 +96,8 @@ void TextRenderObject::Draw(ID2D1RenderTarget* render_target) {
       D2D1::Matrix3x2F::Translation(GetMargin().left + GetPadding().left,
                                     GetMargin().top + GetPadding().top),
       [this](auto rt) {
-        DrawSelectionRect(rt, text_layout_.Get(), selection_brush_.Get(),
-                          selection_range_);
-        rt->DrawTextLayout(D2D1::Point2F(), text_layout_.Get(), brush_.Get());
+        DrawSelectionRect(rt, text_layout_, selection_brush_, selection_range_);
+        rt->DrawTextLayout(D2D1::Point2F(), text_layout_, brush_);
       });
 }
 
@@ -99,7 +140,7 @@ void TextRenderObject::OnLayoutContent(const Rect& content_rect) {}
 void TextRenderObject::RecreateTextLayout() {
   assert(text_format_ != nullptr);
 
-  text_layout_ = nullptr;  // release last one
+  util::SafeRelease(text_layout_);
 
   const auto dwrite_factory =
       graph::GraphManager::GetInstance()->GetDWriteFactory();
@@ -107,7 +148,7 @@ void TextRenderObject::RecreateTextLayout() {
   const auto&& size = GetSize();
 
   ThrowIfFailed(dwrite_factory->CreateTextLayout(
-      text_.c_str(), static_cast<UINT32>(text_.size()), text_format_.Get(),
+      text_.c_str(), static_cast<UINT32>(text_.size()), text_format_,
       size.width, size.height, &text_layout_));
 }
 }  // namespace cru::ui::render

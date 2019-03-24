@@ -1,10 +1,13 @@
 #include "window.hpp"
 
 #include <windowsx.h>
+#include <d2d1_1.h>
 
 #include "application.hpp"
 #include "exception.hpp"
-#include "graph/graph.hpp"
+#include "graph/graph_manager.hpp"
+#include "graph/graph_util.hpp"
+#include "graph/window_render_target.hpp"
 #include "render/window_render_object.hpp"
 
 namespace cru::ui {
@@ -207,10 +210,9 @@ void Window::BeforeCreateHwnd() { window_ = this; }
 void Window::AfterCreateHwnd(WindowManager* window_manager) {
   window_manager->RegisterWindow(hwnd_, this);
 
-  render_target_ =
-      graph::GraphManager::GetInstance()->CreateWindowRenderTarget(hwnd_);
+  render_target_.reset(new graph::WindowRenderTarget(graph::GraphManager::GetInstance(), hwnd_));
 
-  render_object_ = new render::WindowRenderObject(this);
+  render_object_.reset(new render::WindowRenderObject(this));
 }
 
 Window::~Window() {
@@ -220,12 +222,11 @@ Window::~Window() {
   }
   TraverseDescendants(
       [this](Control* control) { control->OnDetachToWindow(this); });
-  delete render_object_;
 }
 
 StringView Window::GetControlType() const { return control_type; }
 
-render::RenderObject* Window::GetRenderObject() const { return render_object_; }
+render::RenderObject* Window::GetRenderObject() const { return render_object_.get(); }
 
 void Window::SetDeleteThisOnDestroy(bool value) {
   delete_this_on_destroy_ = value;
@@ -556,17 +557,12 @@ void Window::OnDestroyInternal() {
 void Window::OnPaintInternal() {
   render_target_->SetAsTarget();
 
-  auto device_context = render_target_->GetD2DDeviceContext();
-
+  auto device_context = render_target_->GetGraphManager()->GetD2D1DeviceContext();
   device_context->BeginDraw();
-
   // Clear the background.
   device_context->Clear(D2D1::ColorF(D2D1::ColorF::White));
-
-  render_object_->Draw(device_context.Get());
-
+  render_object_->Draw(device_context);
   ThrowIfFailed(device_context->EndDraw(), "Failed to draw window.");
-
   render_target_->Present();
 
   ValidateRect(hwnd_, nullptr);

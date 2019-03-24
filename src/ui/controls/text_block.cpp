@@ -1,7 +1,5 @@
 #include "text_block.hpp"
 
-#include <dwrite.h>
-
 #include "ui/render/text_render_object.hpp"
 #include "ui/ui_manager.hpp"
 

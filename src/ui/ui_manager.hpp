@@ -18,22 +18,17 @@ struct CaretInfo {
 
 class PredefineResources : public Object {
  public:
-  explicit PredefineResources(graph::GraphManager* graph_manager);
+  PredefineResources();
   PredefineResources(const PredefineResources& other) = delete;
   PredefineResources(PredefineResources&& other) = delete;
   PredefineResources& operator=(const PredefineResources& other) = delete;
   PredefineResources& operator=(PredefineResources&& other) = delete;
-  ~PredefineResources() override = default;
+  ~PredefineResources() override;
 
   // region TextBlock
-  Microsoft::WRL::ComPtr<ID2D1Brush> text_block_selection_brush;
-  Microsoft::WRL::ComPtr<ID2D1Brush> text_block_text_brush;
-  Microsoft::WRL::ComPtr<IDWriteTextFormat> text_block_text_format;
-
-  // region debug
-  Microsoft::WRL::ComPtr<ID2D1Brush> debug_layout_out_border_brush;
-  Microsoft::WRL::ComPtr<ID2D1Brush> debug_layout_margin_brush;
-  Microsoft::WRL::ComPtr<ID2D1Brush> debug_layout_padding_brush;
+  ID2D1Brush* text_block_selection_brush = nullptr;
+  ID2D1Brush* text_block_text_brush = nullptr;
+  IDWriteTextFormat* text_block_text_format = nullptr;
 };
 
 class UiManager : public Object {

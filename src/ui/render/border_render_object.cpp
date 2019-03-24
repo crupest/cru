@@ -1,16 +1,45 @@
 #include "border_render_object.hpp"
 
+#include <d2d1_1.h>
+#include <wrl/client.h>
 #include <algorithm>
 
 #include "cru_debug.hpp"
 #include "exception.hpp"
-#include "graph/graph.hpp"
+#include "graph/graph_manager.hpp"
+#include "graph/graph_util.hpp"
+#include "util/com_util.hpp"
 
 namespace cru::ui::render {
-BorderRenderObject::BorderRenderObject(Microsoft::WRL::ComPtr<ID2D1Brush> brush)
-    : border_brush_(std::move(brush)) {}
+BorderRenderObject::BorderRenderObject(ID2D1Brush* brush) {
+  assert(brush);
+  brush->AddRef();
+  this->border_brush_ = brush;
+  try {
+    RecreateGeometry();
+  } catch (...) {
+    brush->Release();
+    throw;
+  }
+}
+
+BorderRenderObject::~BorderRenderObject() {
+  util::SafeRelease(border_brush_);
+  util::SafeRelease(geometry_);
+  util::SafeRelease(border_outer_geometry_);
+}
+
+void BorderRenderObject::SetBrush(ID2D1Brush* new_brush) {
+  assert(new_brush);
+  util::SafeRelease(border_brush_);
+  new_brush->AddRef();
+  border_brush_ = new_brush;
+}
 
 void BorderRenderObject::RecreateGeometry() {
+  util::SafeRelease(geometry_);
+  util::SafeRelease(border_outer_geometry_);
+
   const auto d2d_factory = graph::GraphManager::GetInstance()->GetD2D1Factory();
 
   Microsoft::WRL::ComPtr<ID2D1PathGeometry> geometry;
@@ -19,8 +48,8 @@ void BorderRenderObject::RecreateGeometry() {
   Microsoft::WRL::ComPtr<ID2D1PathGeometry> border_outer_geometry;
   ThrowIfFailed(d2d_factory->CreatePathGeometry(&border_outer_geometry));
 
-  ID2D1GeometrySink* sink;
-  auto f = [sink](const Rect& rect, const CornerRadius& corner) {
+  Microsoft::WRL::ComPtr<ID2D1GeometrySink> sink;
+  auto f = [&sink](const Rect& rect, const CornerRadius& corner) {
     sink->BeginFigure(D2D1::Point2F(rect.left + corner.left_top.x, rect.top),
                       D2D1_FIGURE_BEGIN_FILLED);
     sink->AddLine(
@@ -53,21 +82,21 @@ void BorderRenderObject::RecreateGeometry() {
   ThrowIfFailed(border_outer_geometry->Open(&sink));
   f(outer_rect, corner_radius_);
   ThrowIfFailed(sink->Close());
-  sink->Release();
+  sink = nullptr;
 
   const Rect inner_rect = outer_rect.Shrink(border_thickness_);
   ThrowIfFailed(geometry->Open(&sink));
   f(outer_rect, corner_radius_);
   f(inner_rect, corner_radius_);
   ThrowIfFailed(sink->Close());
-  sink->Release();
+  sink = nullptr;
 
-  geometry_ = std::move(geometry);
-  border_outer_geometry_ = std::move(border_outer_geometry);
+  geometry_ = geometry.Detach();
+  border_outer_geometry_ = border_outer_geometry.Detach();
 }
 
 void BorderRenderObject::Draw(ID2D1RenderTarget* render_target) {
-  render_target->FillGeometry(geometry_.Get(), border_brush_.Get());
+  render_target->FillGeometry(geometry_, border_brush_);
   if (const auto child = GetChild()) {
     auto offset = child->GetOffset();
     graph::WithTransform(render_target,
@@ -167,7 +196,8 @@ void BorderRenderObject::OnLayoutCore(const Rect& rect) {
   }
   if (coerced_content_available_size.height < 0) {
     debug::DebugMessage(
-        L"Layout: vertical length of padding, border and margin is bigger than "
+        L"Layout: vertical length of padding, border and margin is bigger "
+        L"than "
         L"available length.");
     coerced_content_available_size.height = 0;
   }

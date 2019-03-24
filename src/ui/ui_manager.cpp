@@ -1,10 +1,14 @@
 #include "ui_manager.hpp"
 
 #include <Windows.h>
+#include <d2d1.h>
+#include <dwrite.h>
 
 #include "application.hpp"
 #include "exception.hpp"
-#include "graph/graph.hpp"
+#include "graph/graph_manager.hpp"
+#include "graph/graph_util.hpp"
+#include "util/com_util.hpp"
 
 namespace cru::ui {
 namespace {
@@ -17,19 +21,10 @@ void GetSystemCaretInfo(CaretInfo* caret_info) {
   caret_info->half_caret_width = caret_width / 2.0f;
 }
 
-Microsoft::WRL::ComPtr<ID2D1Brush> CreateSolidBrush(
-    graph::GraphManager* graph_manager, const D2D1_COLOR_F& color) {
-  const auto device_context = graph_manager->GetD2D1DeviceContext();
-  Microsoft::WRL::ComPtr<ID2D1SolidColorBrush> solid_color_brush;
-  device_context->CreateSolidColorBrush(color, &solid_color_brush);
-  return solid_color_brush;
-}
-
-Microsoft::WRL::ComPtr<IDWriteTextFormat> CreateDefaultTextFormat(
-    graph::GraphManager* graph_manager) {
-  const auto dwrite_factory = graph_manager->GetDWriteFactory();
-
-  Microsoft::WRL::ComPtr<IDWriteTextFormat> text_format;
+IDWriteTextFormat* CreateDefaultTextFormat() {
+  const auto dwrite_factory =
+      graph::GraphManager::GetInstance()->GetDWriteFactory();
+  IDWriteTextFormat* text_format;
 
   ThrowIfFailed(dwrite_factory->CreateTextFormat(
       L"等线", nullptr, DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STYLE_NORMAL,
@@ -43,26 +38,32 @@ Microsoft::WRL::ComPtr<IDWriteTextFormat> CreateDefaultTextFormat(
 }
 }  // namespace
 
-PredefineResources::PredefineResources(graph::GraphManager* graph_manager)
-    : text_block_selection_brush{CreateSolidBrush(
-          graph_manager, D2D1::ColorF(D2D1::ColorF::LightSkyBlue))},
-      text_block_text_brush{
-          CreateSolidBrush(graph_manager, D2D1::ColorF(D2D1::ColorF::Black))},
-      text_block_text_format{CreateDefaultTextFormat(graph_manager)},
-      debug_layout_out_border_brush{
-          CreateSolidBrush(graph_manager, D2D1::ColorF(D2D1::ColorF::Crimson))},
-      debug_layout_margin_brush{CreateSolidBrush(
-          graph_manager, D2D1::ColorF(D2D1::ColorF::LightCoral, 0.25f))},
-      debug_layout_padding_brush{CreateSolidBrush(
-          graph_manager, D2D1::ColorF(D2D1::ColorF::SkyBlue, 0.25f))} {}
+PredefineResources::PredefineResources() {
+  try {
+    text_block_selection_brush =
+        graph::CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::LightSkyBlue));
+    text_block_text_brush =
+        graph::CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Black));
+    text_block_text_format = CreateDefaultTextFormat();
+  } catch (...) {
+    util::SafeRelease(text_block_selection_brush);
+    util::SafeRelease(text_block_text_brush);
+    util::SafeRelease(text_block_text_format);
+  }
+}
+
+PredefineResources::~PredefineResources() {
+  util::SafeRelease(text_block_selection_brush);
+  util::SafeRelease(text_block_text_brush);
+  util::SafeRelease(text_block_text_format);
+}
 
 UiManager* UiManager::GetInstance() {
   return Application::GetInstance()->ResolveSingleton<UiManager>(
       [](auto) { return new UiManager{}; });
 }
 
-UiManager::UiManager()
-    : predefine_resources_(graph::GraphManager::GetInstance()) {
+UiManager::UiManager() : predefine_resources_() {
   GetSystemCaretInfo(&caret_info_);
 }
 }  // namespace cru::ui

@@ -4,7 +4,7 @@
 #include <functional>
 
 #include "cru_debug.hpp"
-#include "graph/graph.hpp"
+#include "graph/graph_util.hpp"
 
 namespace cru::ui::render {
 FlexChildLayoutData* FlexLayoutRenderObject::GetChildLayoutData(int position) {

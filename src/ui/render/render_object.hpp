@@ -1,7 +1,6 @@
 #pragma once
 #include "pre.hpp"
 
-#include <optional>
 #include <vector>
 
 #include "base.hpp"
@@ -9,7 +8,6 @@
 
 // forward declarations
 struct ID2D1RenderTarget;
-
 namespace cru::ui {
 class Control;
 }

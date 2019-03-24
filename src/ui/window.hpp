@@ -221,8 +221,7 @@ class Window final : public ContentControl {
   HWND hwnd_ = nullptr;
   Window* parent_window_ = nullptr;
   std::shared_ptr<graph::WindowRenderTarget> render_target_{};
-
-  render::WindowRenderObject* render_object_;
+  std::shared_ptr<render::WindowRenderObject> render_object_{};
 
   Control* mouse_hover_control_ = nullptr;
 
