@@ -9,16 +9,14 @@ using render::TextRenderObject;
 TextBlock::TextBlock() {
   const auto predefined_resources =
       UiManager::GetInstance()->GetPredefineResources();
-  render_object_ =
+  render_object_.reset(
       new TextRenderObject(predefined_resources->text_block_text_brush,
                            predefined_resources->text_block_text_format,
-                           predefined_resources->text_block_selection_brush);
+                           predefined_resources->text_block_selection_brush));
 }
 
-TextBlock::~TextBlock() { delete render_object_; }
-
 render::RenderObject* TextBlock::GetRenderObject() const {
-  return render_object_;
+  return render_object_.get();
 }
 
 String TextBlock::GetText() const { return render_object_->GetText(); }

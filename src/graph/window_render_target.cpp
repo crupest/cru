@@ -93,7 +93,5 @@ void WindowRenderTarget::CreateTargetBitmap() {
       graph_manager_->GetD2D1DeviceContext()->CreateBitmapFromDxgiSurface(
           dxgi_back_buffer.Get(), &bitmap_properties, &bitmap));
   this->target_bitmap_ = util::CreateComSharedPtr(bitmap);
-
-  dxgi_back_buffer->Release();
 }
 }  // namespace cru::graph

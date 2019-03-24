@@ -1,6 +1,8 @@
 #pragma once
 #include "pre.hpp"
 
+#include <memory>
+
 #include "ui/no_child_control.hpp"
 
 namespace cru::ui::render {
@@ -22,7 +24,7 @@ class TextBlock : public NoChildControl {
   TextBlock(TextBlock&& other) = delete;
   TextBlock& operator=(const TextBlock& other) = delete;
   TextBlock& operator=(TextBlock&& other) = delete;
-  ~TextBlock() override;
+  ~TextBlock() override = default;
 
   StringView GetControlType() const override final { return control_type; }
 
@@ -32,6 +34,6 @@ class TextBlock : public NoChildControl {
   void SetText(const String& text);
 
  private:
-  render::TextRenderObject* render_object_;
+  std::shared_ptr<render::TextRenderObject> render_object_;
 };
 }  // namespace cru::ui::controls

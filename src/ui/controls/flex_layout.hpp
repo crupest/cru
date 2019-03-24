@@ -1,6 +1,8 @@
 #pragma once
 #include "pre.hpp"
 
+#include <memory>
+
 #include "ui/layout_control.hpp"
 
 namespace cru::ui::render {
@@ -23,7 +25,7 @@ class FlexLayout : public LayoutControl {
   FlexLayout(FlexLayout&& other) = delete;
   FlexLayout& operator=(const FlexLayout& other) = delete;
   FlexLayout& operator=(FlexLayout&& other) = delete;
-  ~FlexLayout() override;
+  ~FlexLayout() override = default;
 
   StringView GetControlType() const override final { return control_type; }
 
@@ -34,6 +36,6 @@ class FlexLayout : public LayoutControl {
   void OnRemoveChild(Control* child, int position) override;
 
  private:
-  render::FlexLayoutRenderObject* render_object_;
+  std::shared_ptr<render::FlexLayoutRenderObject> render_object_;
 };
 }  // namespace cru::ui::controls

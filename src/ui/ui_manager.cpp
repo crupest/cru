@@ -40,12 +40,16 @@ IDWriteTextFormat* CreateDefaultTextFormat() {
 
 PredefineResources::PredefineResources() {
   try {
+    button_normal_border_brush =
+        graph::CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Black));
+
     text_block_selection_brush =
         graph::CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::LightSkyBlue));
     text_block_text_brush =
         graph::CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Black));
     text_block_text_format = CreateDefaultTextFormat();
   } catch (...) {
+    util::SafeRelease(button_normal_border_brush);
     util::SafeRelease(text_block_selection_brush);
     util::SafeRelease(text_block_text_brush);
     util::SafeRelease(text_block_text_format);
@@ -53,6 +57,7 @@ PredefineResources::PredefineResources() {
 }
 
 PredefineResources::~PredefineResources() {
+  util::SafeRelease(button_normal_border_brush);
   util::SafeRelease(text_block_selection_brush);
   util::SafeRelease(text_block_text_brush);
   util::SafeRelease(text_block_text_format);

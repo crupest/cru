@@ -77,8 +77,9 @@ void BorderRenderObject::RecreateGeometry() {
 
   const auto size = GetSize();
   const auto margin = GetMargin();
-  const Rect outer_rect{margin.left, margin.top, size.width - margin.right,
-                        size.height - size.height};
+  const Rect outer_rect{margin.left, margin.top,
+                        size.width - margin.GetHorizontalTotal(),
+                        size.height - margin.GetVerticalTotal()};
   ThrowIfFailed(border_outer_geometry->Open(&sink));
   f(outer_rect, corner_radius_);
   ThrowIfFailed(sink->Close());
@@ -135,6 +136,11 @@ RenderObject* BorderRenderObject::HitTest(const Point& point) {
 
 void BorderRenderObject::OnAddChild(RenderObject* new_child, int position) {
   assert(GetChildren().size() == 1);
+}
+
+void BorderRenderObject::OnSizeChanged(const Size& old_size,
+                                       const Size& new_size) {
+  RecreateGeometry();
 }
 
 void BorderRenderObject::OnMeasureCore(const Size& available_size) {

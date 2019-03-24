@@ -1,11 +1,10 @@
 #pragma once
 #include "pre.hpp"
 
-#include <d2d1.h>
-#include <wrl/client.h>
-
 #include "base.hpp"
 
+struct ID2D1Brush;
+struct IDWriteTextFormat;
 namespace cru::graph {
 class GraphManager;
 }
@@ -24,6 +23,9 @@ class PredefineResources : public Object {
   PredefineResources& operator=(const PredefineResources& other) = delete;
   PredefineResources& operator=(PredefineResources&& other) = delete;
   ~PredefineResources() override;
+
+  // region Button
+  ID2D1Brush* button_normal_border_brush = nullptr;
 
   // region TextBlock
   ID2D1Brush* text_block_selection_brush = nullptr;

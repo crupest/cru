@@ -59,11 +59,11 @@ class TextRenderObject : public RenderObject {
  private:
   String text_;
 
-  ID2D1Brush* brush_;
-  IDWriteTextFormat* text_format_;
-  IDWriteTextLayout* text_layout_;
+  ID2D1Brush* brush_ = nullptr;
+  IDWriteTextFormat* text_format_ = nullptr;
+  IDWriteTextLayout* text_layout_ = nullptr;
 
   std::optional<TextRange> selection_range_ = std::nullopt;
-  ID2D1Brush* selection_brush_;
+  ID2D1Brush* selection_brush_ = nullptr;
 };
 }  // namespace cru::ui::render

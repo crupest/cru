@@ -13,6 +13,11 @@ namespace cru::ui::render {
 struct CornerRadius {
   constexpr CornerRadius()
       : left_top(), right_top(), left_bottom(), right_bottom() {}
+  constexpr CornerRadius(const Point& value)
+      : left_top(value),
+        right_top(value),
+        left_bottom(value),
+        right_bottom(value) {}
   constexpr CornerRadius(Point left_top, Point right_top, Point left_bottom,
                          Point right_bottom)
       : left_top(left_top),
@@ -42,7 +47,9 @@ class BorderRenderObject : public RenderObject {
   void SetBrush(ID2D1Brush* new_brush);
 
   Thickness GetBorderWidth() const { return border_thickness_; }
-  void SetBorderWidth(const Thickness& thickness) { border_thickness_ = thickness; }
+  void SetBorderWidth(const Thickness& thickness) {
+    border_thickness_ = thickness;
+  }
 
   CornerRadius GetCornerRadius() const { return corner_radius_; }
   void SetCornerRadius(const CornerRadius& new_corner_radius) {
@@ -57,6 +64,8 @@ class BorderRenderObject : public RenderObject {
 
  protected:
   void OnAddChild(RenderObject* new_child, int position) override;
+
+  void OnSizeChanged(const Size& old_size, const Size& new_size) override;
 
   void OnMeasureCore(const Size& available_size) override;
   void OnLayoutCore(const Rect& rect) override;

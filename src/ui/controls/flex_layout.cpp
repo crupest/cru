@@ -5,12 +5,10 @@
 namespace cru::ui::controls {
 using render::FlexLayoutRenderObject;
 
-FlexLayout::FlexLayout() { render_object_ = new FlexLayoutRenderObject(); }
-
-FlexLayout::~FlexLayout() { delete render_object_; }
+FlexLayout::FlexLayout() { render_object_.reset(new FlexLayoutRenderObject()); }
 
 render::RenderObject* FlexLayout::GetRenderObject() const {
-  return render_object_;
+  return render_object_.get();
 }
 
 void FlexLayout::OnAddChild(Control* child, int position) {
