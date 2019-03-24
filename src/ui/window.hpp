@@ -165,12 +165,18 @@ class Window final : public ContentControl {
   Control* CaptureMouseFor(Control* control);
   Control* ReleaseCurrentMouseCapture();
 
- public:
   //*************** region: events ***************
-  Event<events::UiEventArgs> activated_event;
-  Event<events::UiEventArgs> deactivated_event;
+ public:
+  Event<events::UiEventArgs>* ActivatedEvent() { return &activated_event_; }
+  Event<events::UiEventArgs>* DeactivatedEvent() { return &deactivated_event_; }
+  Event<events::WindowNativeMessageEventArgs>* NativeMessageEvent() {
+    return &native_message_event_;
+  }
 
-  Event<events::WindowNativeMessageEventArgs> native_message_event;
+ private:
+  Event<events::UiEventArgs> activated_event_;
+  Event<events::UiEventArgs> deactivated_event_;
+  Event<events::WindowNativeMessageEventArgs> native_message_event_;
 
  protected:
   void OnChildChanged(Control* old_child, Control* new_child) override;

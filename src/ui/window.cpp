@@ -1,7 +1,7 @@
 #include "window.hpp"
 
-#include <windowsx.h>
 #include <d2d1_1.h>
+#include <windowsx.h>
 
 #include "application.hpp"
 #include "exception.hpp"
@@ -27,7 +27,7 @@ namespace {
 // as the rest arguments.
 template <typename EventArgs, typename... Args>
 void DispatchEvent(Control* const original_sender,
-                   events::RoutedEvent<EventArgs> Control::*event_ptr,
+                   events::RoutedEvent<EventArgs>* (Control::*event_ptr)(),
                    Control* const last_receiver, Args&&... args) {
   std::list<Control*> receive_list;
 
@@ -42,7 +42,7 @@ void DispatchEvent(Control* const original_sender,
   // tunnel
   for (auto i = receive_list.crbegin(); i != receive_list.crend(); ++i) {
     EventArgs event_args(*i, original_sender, std::forward<Args>(args)...);
-    (*i->*event_ptr).tunnel.Raise(event_args);
+    (*i->*event_ptr)()->tunnel.Raise(event_args);
     if (event_args.IsHandled()) {
       handled = true;
       break;
@@ -53,7 +53,7 @@ void DispatchEvent(Control* const original_sender,
   if (!handled) {
     for (auto i : receive_list) {
       EventArgs event_args(i, original_sender, std::forward<Args>(args)...);
-      (i->*event_ptr).bubble.Raise(event_args);
+      (i->*event_ptr)()->bubble.Raise(event_args);
       if (event_args.IsHandled()) break;
     }
   }
@@ -61,7 +61,7 @@ void DispatchEvent(Control* const original_sender,
   // direct
   for (auto i : receive_list) {
     EventArgs event_args(i, original_sender, std::forward<Args>(args)...);
-    (i->*event_ptr).direct.Raise(event_args);
+    (i->*event_ptr)()->direct.Raise(event_args);
   }
 }
 
@@ -210,7 +210,8 @@ void Window::BeforeCreateHwnd() { window_ = this; }
 void Window::AfterCreateHwnd(WindowManager* window_manager) {
   window_manager->RegisterWindow(hwnd_, this);
 
-  render_target_.reset(new graph::WindowRenderTarget(graph::GraphManager::GetInstance(), hwnd_));
+  render_target_.reset(
+      new graph::WindowRenderTarget(graph::GraphManager::GetInstance(), hwnd_));
 
   render_object_.reset(new render::WindowRenderObject(this));
 }
@@ -226,7 +227,9 @@ Window::~Window() {
 
 StringView Window::GetControlType() const { return control_type; }
 
-render::RenderObject* Window::GetRenderObject() const { return render_object_.get(); }
+render::RenderObject* Window::GetRenderObject() const {
+  return render_object_.get();
+}
 
 void Window::SetDeleteThisOnDestroy(bool value) {
   delete_this_on_destroy_ = value;
@@ -333,7 +336,7 @@ bool Window::HandleWindowMessage(HWND hwnd, int msg, WPARAM w_param,
                                  LPARAM l_param, LRESULT& result) {
   events::WindowNativeMessageEventArgs args(this, this,
                                             {hwnd, msg, w_param, l_param});
-  native_message_event.Raise(args);
+  native_message_event_.Raise(args);
   if (args.GetResult().has_value()) {
     result = args.GetResult().value();
     return true;
@@ -474,11 +477,11 @@ bool Window::RequestFocusFor(Control* control) {
 
   if (focus_control_ == control) return true;
 
-  DispatchEvent(focus_control_, &Control::lose_focus_event, nullptr, false);
+  DispatchEvent(focus_control_, &Control::LoseFocusEvent, nullptr, false);
 
   focus_control_ = control;
 
-  DispatchEvent(control, &Control::get_focus_event, nullptr, false);
+  DispatchEvent(control, &Control::GainFocusEvent, nullptr, false);
 
   return true;
 }
@@ -557,7 +560,8 @@ void Window::OnDestroyInternal() {
 void Window::OnPaintInternal() {
   render_target_->SetAsTarget();
 
-  auto device_context = render_target_->GetGraphManager()->GetD2D1DeviceContext();
+  auto device_context =
+      render_target_->GetGraphManager()->GetD2D1DeviceContext();
   device_context->BeginDraw();
   // Clear the background.
   device_context->Clear(D2D1::ColorF(D2D1::ColorF::White));
@@ -575,12 +579,12 @@ void Window::OnResizeInternal(const int new_width, const int new_height) {
 
 void Window::OnSetFocusInternal() {
   window_focus_ = true;
-  DispatchEvent(focus_control_, &Control::get_focus_event, nullptr, true);
+  DispatchEvent(focus_control_, &Control::GainFocusEvent, nullptr, true);
 }
 
 void Window::OnKillFocusInternal() {
   window_focus_ = false;
-  DispatchEvent(focus_control_, &Control::lose_focus_event, nullptr, true);
+  DispatchEvent(focus_control_, &Control::LoseFocusEvent, nullptr, true);
 }
 
 void Window::OnMouseMoveInternal(const POINT point) {
@@ -604,18 +608,18 @@ void Window::OnMouseMoveInternal(const POINT point) {
 
   if (mouse_capture_control_)  // if mouse is captured
   {
-    DispatchEvent(mouse_capture_control_, &Control::mouse_move_event, nullptr,
+    DispatchEvent(mouse_capture_control_, &Control::MouseMoveEvent, nullptr,
                   dip_point);
   } else {
     DispatchMouseHoverControlChangeEvent(old_control_mouse_hover,
                                          new_control_mouse_hover, dip_point);
-    DispatchEvent(new_control_mouse_hover, &Control::mouse_move_event, nullptr,
+    DispatchEvent(new_control_mouse_hover, &Control::MouseMoveEvent, nullptr,
                   dip_point);
   }
 }
 
 void Window::OnMouseLeaveInternal() {
-  DispatchEvent(mouse_hover_control_, &Control::mouse_leave_event, nullptr);
+  DispatchEvent(mouse_hover_control_, &Control::MouseLeaveEvent, nullptr);
   mouse_hover_control_ = nullptr;
 }
 
@@ -629,7 +633,7 @@ void Window::OnMouseDownInternal(MouseButton button, POINT point) {
   else
     control = HitTest(dip_point);
 
-  DispatchEvent(control, &Control::mouse_down_event, nullptr, dip_point,
+  DispatchEvent(control, &Control::MouseDownEvent, nullptr, dip_point,
                 button);
 }
 
@@ -643,7 +647,7 @@ void Window::OnMouseUpInternal(MouseButton button, POINT point) {
   else
     control = HitTest(dip_point);
 
-  DispatchEvent(control, &Control::mouse_up_event, nullptr, dip_point, button);
+  DispatchEvent(control, &Control::MouseUpEvent, nullptr, dip_point, button);
 }
 
 void Window::OnMouseWheelInternal(short delta, POINT point) {
@@ -656,31 +660,31 @@ void Window::OnMouseWheelInternal(short delta, POINT point) {
   else
     control = HitTest(dip_point);
 
-  DispatchEvent(control, &Control::mouse_wheel_event, nullptr, dip_point,
+  DispatchEvent(control, &Control::MouseWheelEvent, nullptr, dip_point,
                 static_cast<float>(delta));
 }
 
 void Window::OnKeyDownInternal(int virtual_code) {
-  DispatchEvent(focus_control_, &Control::key_down_event, nullptr,
+  DispatchEvent(focus_control_, &Control::KeyDownEvent, nullptr,
                 virtual_code);
 }
 
 void Window::OnKeyUpInternal(int virtual_code) {
-  DispatchEvent(focus_control_, &Control::key_up_event, nullptr, virtual_code);
+  DispatchEvent(focus_control_, &Control::KeyUpEvent, nullptr, virtual_code);
 }
 
 void Window::OnCharInternal(wchar_t c) {
-  DispatchEvent(focus_control_, &Control::char_event, nullptr, c);
+  DispatchEvent(focus_control_, &Control::CharEvent, nullptr, c);
 }
 
 void Window::OnActivatedInternal() {
   events::UiEventArgs args(this, this);
-  activated_event.Raise(args);
+  activated_event_.Raise(args);
 }
 
 void Window::OnDeactivatedInternal() {
   events::UiEventArgs args(this, this);
-  deactivated_event.Raise(args);
+  deactivated_event_.Raise(args);
 }
 
 void Window::DispatchMouseHoverControlChangeEvent(Control* old_control,
@@ -691,10 +695,10 @@ void Window::DispatchMouseHoverControlChangeEvent(Control* old_control,
     const auto lowest_common_ancestor =
         FindLowestCommonAncestor(old_control, new_control);
     if (old_control != nullptr)  // if last mouse-hover-on control exists
-      DispatchEvent(old_control, &Control::mouse_leave_event,
+      DispatchEvent(old_control, &Control::MouseLeaveEvent,
                     lowest_common_ancestor);  // dispatch mouse leave event.
     if (new_control != nullptr) {
-      DispatchEvent(new_control, &Control::mouse_enter_event,
+      DispatchEvent(new_control, &Control::MouseEnterEvent,
                     lowest_common_ancestor,
                     point);  // dispatch mouse enter event.
     }

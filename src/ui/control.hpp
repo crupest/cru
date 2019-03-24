@@ -59,27 +59,64 @@ class Control : public Object {
   //*************** region: events ***************
  public:
   // Raised when mouse enter the control.
-  events::RoutedEvent<events::MouseEventArgs> mouse_enter_event;
+  events::RoutedEvent<events::MouseEventArgs>* MouseEnterEvent() {
+    return &mouse_enter_event_;
+  }
   // Raised when mouse is leave the control.
-  events::RoutedEvent<events::MouseEventArgs> mouse_leave_event;
+  events::RoutedEvent<events::MouseEventArgs>* MouseLeaveEvent() {
+    return &mouse_leave_event_;
+  }
   // Raised when mouse is move in the control.
-  events::RoutedEvent<events::MouseEventArgs> mouse_move_event;
+  events::RoutedEvent<events::MouseEventArgs>* MouseMoveEvent() {
+    return &mouse_move_event_;
+  }
   // Raised when a mouse button is pressed in the control.
-  events::RoutedEvent<events::MouseButtonEventArgs> mouse_down_event;
+  events::RoutedEvent<events::MouseButtonEventArgs>* MouseDownEvent() {
+    return &mouse_down_event_;
+  }
   // Raised when a mouse button is released in the control.
-  events::RoutedEvent<events::MouseButtonEventArgs> mouse_up_event;
+  events::RoutedEvent<events::MouseButtonEventArgs>* MouseUpEvent() {
+    return &mouse_up_event_;
+  }
   // Raised when a mouse button is pressed in the control and released in the
   // control with mouse not leaving it between two operations.
-  events::RoutedEvent<events::MouseButtonEventArgs> mouse_click_event;
+  events::RoutedEvent<events::MouseButtonEventArgs>* MouseClickEvent() {
+    return &mouse_click_event_;
+  }
+  events::RoutedEvent<events::MouseWheelEventArgs>* MouseWheelEvent() {
+    return &mouse_wheel_event_;
+  }
+  events::RoutedEvent<events::KeyEventArgs>* KeyDownEvent() {
+    return &key_down_event_;
+  }
+  events::RoutedEvent<events::KeyEventArgs>* KeyUpEvent() {
+    return &key_up_event_;
+  }
+  events::RoutedEvent<events::CharEventArgs>* CharEvent() {
+    return &char_event_;
+  }
+  events::RoutedEvent<events::FocusChangeEventArgs>* GainFocusEvent() {
+    return &gain_focus_event_;
+  }
+  events::RoutedEvent<events::FocusChangeEventArgs>* LoseFocusEvent() {
+    return &lose_focus_event_;
+  }
 
-  events::RoutedEvent<events::MouseWheelEventArgs> mouse_wheel_event;
+ private:
+  events::RoutedEvent<events::MouseEventArgs> mouse_enter_event_;
+  events::RoutedEvent<events::MouseEventArgs> mouse_leave_event_;
+  events::RoutedEvent<events::MouseEventArgs> mouse_move_event_;
+  events::RoutedEvent<events::MouseButtonEventArgs> mouse_down_event_;
+  events::RoutedEvent<events::MouseButtonEventArgs> mouse_up_event_;
+  events::RoutedEvent<events::MouseButtonEventArgs> mouse_click_event_;
+  events::RoutedEvent<events::MouseWheelEventArgs> mouse_wheel_event_;
 
-  events::RoutedEvent<events::KeyEventArgs> key_down_event;
-  events::RoutedEvent<events::KeyEventArgs> key_up_event;
-  events::RoutedEvent<events::CharEventArgs> char_event;
+  events::RoutedEvent<events::KeyEventArgs> key_down_event_;
+  events::RoutedEvent<events::KeyEventArgs> key_up_event_;
+  events::RoutedEvent<events::CharEventArgs> char_event_;
 
-  events::RoutedEvent<events::FocusChangeEventArgs> get_focus_event;
-  events::RoutedEvent<events::FocusChangeEventArgs> lose_focus_event;
+  events::RoutedEvent<events::FocusChangeEventArgs> gain_focus_event_;
+  events::RoutedEvent<events::FocusChangeEventArgs> lose_focus_event_;
 
   //*************** region: tree ***************
  protected:
