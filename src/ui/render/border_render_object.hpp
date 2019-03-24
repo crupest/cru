@@ -56,7 +56,7 @@ class BorderRenderObject : public RenderObject {
     corner_radius_ = new_corner_radius;
   }
 
-  void RecreateGeometry();
+  void Refresh() { RecreateGeometry(); }
 
   void Draw(ID2D1RenderTarget* render_target) override;
 
@@ -76,6 +76,8 @@ class BorderRenderObject : public RenderObject {
   RenderObject* GetChild() const {
     return GetChildren().empty() ? nullptr : GetChildren()[0];
   }
+
+  void RecreateGeometry();
 
  private:
   bool is_enabled_ = false;

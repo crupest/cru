@@ -114,15 +114,9 @@ RenderObject* TextRenderObject::HitTest(const Point& point) {
 
 void TextRenderObject::OnSizeChanged(const Size& old_size,
                                      const Size& new_size) {
-  const auto margin = GetMargin();
-  const auto padding = GetPadding();
-  ThrowIfFailed(text_layout_->SetMaxWidth(
-      std::max(new_size.width - margin.GetHorizontalTotal() -
-                   padding.GetHorizontalTotal(),
-               0.0f)));
-  ThrowIfFailed(text_layout_->SetMaxHeight(std::max(
-      new_size.height - margin.GetVerticalTotal() - padding.GetVerticalTotal(),
-      0.0f)));
+  const auto&& size = GetContentRect().GetSize();
+  ThrowIfFailed(text_layout_->SetMaxWidth(size.width));
+  ThrowIfFailed(text_layout_->SetMaxHeight(size.height));
 }
 
 Size TextRenderObject::OnMeasureContent(const Size& available_size) {
@@ -145,7 +139,7 @@ void TextRenderObject::RecreateTextLayout() {
   const auto dwrite_factory =
       graph::GraphManager::GetInstance()->GetDWriteFactory();
 
-  const auto&& size = GetSize();
+  const auto&& size = GetContentRect().GetSize();
 
   ThrowIfFailed(dwrite_factory->CreateTextLayout(
       text_.c_str(), static_cast<UINT32>(text_.size()), text_format_,

@@ -38,10 +38,10 @@ class TextRenderObject : public RenderObject {
     selection_range_ = std::move(new_range);
   }
 
-  ID2D1Brush* GetSelectionBrush() const {
-    return selection_brush_;
-  }
+  ID2D1Brush* GetSelectionBrush() const { return selection_brush_; }
   void SetSelectionBrush(ID2D1Brush* new_brush);
+
+  void Refresh() { RecreateTextLayout(); }
 
   void Draw(ID2D1RenderTarget* render_target) override;
 

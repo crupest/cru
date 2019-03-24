@@ -36,66 +36,6 @@ void BorderRenderObject::SetBrush(ID2D1Brush* new_brush) {
   border_brush_ = new_brush;
 }
 
-void BorderRenderObject::RecreateGeometry() {
-  util::SafeRelease(geometry_);
-  util::SafeRelease(border_outer_geometry_);
-
-  const auto d2d_factory = graph::GraphManager::GetInstance()->GetD2D1Factory();
-
-  Microsoft::WRL::ComPtr<ID2D1PathGeometry> geometry;
-  ThrowIfFailed(d2d_factory->CreatePathGeometry(&geometry));
-
-  Microsoft::WRL::ComPtr<ID2D1PathGeometry> border_outer_geometry;
-  ThrowIfFailed(d2d_factory->CreatePathGeometry(&border_outer_geometry));
-
-  Microsoft::WRL::ComPtr<ID2D1GeometrySink> sink;
-  auto f = [&sink](const Rect& rect, const CornerRadius& corner) {
-    sink->BeginFigure(D2D1::Point2F(rect.left + corner.left_top.x, rect.top),
-                      D2D1_FIGURE_BEGIN_FILLED);
-    sink->AddLine(
-        D2D1::Point2F(rect.GetRight() - corner.right_top.x, rect.top));
-    sink->AddQuadraticBezier(D2D1::QuadraticBezierSegment(
-        D2D1::Point2F(rect.GetRight(), rect.top),
-        D2D1::Point2F(rect.GetRight(), rect.top + corner.right_top.y)));
-    sink->AddLine(D2D1::Point2F(rect.GetRight(),
-                                rect.GetBottom() - corner.right_bottom.y));
-    sink->AddQuadraticBezier(D2D1::QuadraticBezierSegment(
-        D2D1::Point2F(rect.GetRight(), rect.GetBottom()),
-        D2D1::Point2F(rect.GetRight() - corner.right_bottom.x,
-                      rect.GetBottom())));
-    sink->AddLine(
-        D2D1::Point2F(rect.left + corner.left_bottom.x, rect.GetBottom()));
-    sink->AddQuadraticBezier(D2D1::QuadraticBezierSegment(
-        D2D1::Point2F(rect.left, rect.GetBottom()),
-        D2D1::Point2F(rect.left, rect.GetBottom() - corner.left_bottom.y)));
-    sink->AddLine(D2D1::Point2F(rect.left, rect.top + corner.left_top.y));
-    sink->AddQuadraticBezier(D2D1::QuadraticBezierSegment(
-        D2D1::Point2F(rect.left, rect.top),
-        D2D1::Point2F(rect.left + corner.left_top.x, rect.top)));
-    sink->EndFigure(D2D1_FIGURE_END_CLOSED);
-  };
-
-  const auto size = GetSize();
-  const auto margin = GetMargin();
-  const Rect outer_rect{margin.left, margin.top,
-                        size.width - margin.GetHorizontalTotal(),
-                        size.height - margin.GetVerticalTotal()};
-  ThrowIfFailed(border_outer_geometry->Open(&sink));
-  f(outer_rect, corner_radius_);
-  ThrowIfFailed(sink->Close());
-  sink = nullptr;
-
-  const Rect inner_rect = outer_rect.Shrink(border_thickness_);
-  ThrowIfFailed(geometry->Open(&sink));
-  f(outer_rect, corner_radius_);
-  f(inner_rect, corner_radius_);
-  ThrowIfFailed(sink->Close());
-  sink = nullptr;
-
-  geometry_ = geometry.Detach();
-  border_outer_geometry_ = border_outer_geometry.Detach();
-}
-
 void BorderRenderObject::Draw(ID2D1RenderTarget* render_target) {
   render_target->FillGeometry(geometry_, border_brush_);
   if (const auto child = GetChild()) {
@@ -230,5 +170,65 @@ void BorderRenderObject::OnLayoutContent(const Rect& content_rect) {
   if (child) {
     child->Layout(content_rect);
   }
+}
+
+void BorderRenderObject::RecreateGeometry() {
+  util::SafeRelease(geometry_);
+  util::SafeRelease(border_outer_geometry_);
+
+  const auto d2d_factory = graph::GraphManager::GetInstance()->GetD2D1Factory();
+
+  Microsoft::WRL::ComPtr<ID2D1PathGeometry> geometry;
+  ThrowIfFailed(d2d_factory->CreatePathGeometry(&geometry));
+
+  Microsoft::WRL::ComPtr<ID2D1PathGeometry> border_outer_geometry;
+  ThrowIfFailed(d2d_factory->CreatePathGeometry(&border_outer_geometry));
+
+  Microsoft::WRL::ComPtr<ID2D1GeometrySink> sink;
+  auto f = [&sink](const Rect& rect, const CornerRadius& corner) {
+    sink->BeginFigure(D2D1::Point2F(rect.left + corner.left_top.x, rect.top),
+                      D2D1_FIGURE_BEGIN_FILLED);
+    sink->AddLine(
+        D2D1::Point2F(rect.GetRight() - corner.right_top.x, rect.top));
+    sink->AddQuadraticBezier(D2D1::QuadraticBezierSegment(
+        D2D1::Point2F(rect.GetRight(), rect.top),
+        D2D1::Point2F(rect.GetRight(), rect.top + corner.right_top.y)));
+    sink->AddLine(D2D1::Point2F(rect.GetRight(),
+                                rect.GetBottom() - corner.right_bottom.y));
+    sink->AddQuadraticBezier(D2D1::QuadraticBezierSegment(
+        D2D1::Point2F(rect.GetRight(), rect.GetBottom()),
+        D2D1::Point2F(rect.GetRight() - corner.right_bottom.x,
+                      rect.GetBottom())));
+    sink->AddLine(
+        D2D1::Point2F(rect.left + corner.left_bottom.x, rect.GetBottom()));
+    sink->AddQuadraticBezier(D2D1::QuadraticBezierSegment(
+        D2D1::Point2F(rect.left, rect.GetBottom()),
+        D2D1::Point2F(rect.left, rect.GetBottom() - corner.left_bottom.y)));
+    sink->AddLine(D2D1::Point2F(rect.left, rect.top + corner.left_top.y));
+    sink->AddQuadraticBezier(D2D1::QuadraticBezierSegment(
+        D2D1::Point2F(rect.left, rect.top),
+        D2D1::Point2F(rect.left + corner.left_top.x, rect.top)));
+    sink->EndFigure(D2D1_FIGURE_END_CLOSED);
+  };
+
+  const auto size = GetSize();
+  const auto margin = GetMargin();
+  const Rect outer_rect{margin.left, margin.top,
+                        size.width - margin.GetHorizontalTotal(),
+                        size.height - margin.GetVerticalTotal()};
+  ThrowIfFailed(border_outer_geometry->Open(&sink));
+  f(outer_rect, corner_radius_);
+  ThrowIfFailed(sink->Close());
+  sink = nullptr;
+
+  const Rect inner_rect = outer_rect.Shrink(border_thickness_);
+  ThrowIfFailed(geometry->Open(&sink));
+  f(outer_rect, corner_radius_);
+  f(inner_rect, corner_radius_);
+  ThrowIfFailed(sink->Close());
+  sink = nullptr;
+
+  geometry_ = geometry.Detach();
+  border_outer_geometry_ = border_outer_geometry.Detach();
 }
 }  // namespace cru::ui::render

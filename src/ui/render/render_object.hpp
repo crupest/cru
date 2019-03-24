@@ -75,6 +75,8 @@ class RenderObject : public Object {
   virtual Size OnMeasureContent(const Size& available_size) = 0;
   virtual void OnLayoutContent(const Rect& content_rect) = 0;
 
+  Rect GetContentRect() const;
+
  private:
   void SetParent(RenderObject* new_parent);
 

@@ -1,5 +1,7 @@
 #include "render_object.hpp"
 
+#include <algorithm>
+
 #include "cru_debug.hpp"
 
 namespace cru::ui::render {
@@ -94,6 +96,15 @@ void RenderObject::OnLayoutCore(const Rect& rect) {
   OnLayoutContent(Rect{margin_.left + padding_.left, margin_.top + padding_.top,
                        coerced_content_available_size.width,
                        coerced_content_available_size.height});
+}
+
+Rect RenderObject::GetContentRect() const {
+  Rect rect{Point::Zero(), GetSize()};
+  rect = rect.Shrink(GetMargin());
+  rect = rect.Shrink(GetPadding());
+  rect.width = std::max(rect.width, 0.0f);
+  rect.height = std::max(rect.height, 0.0f);
+  return rect;
 }
 
 void RenderObject::SetParent(RenderObject* new_parent) {
