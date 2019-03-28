@@ -28,14 +28,10 @@ add_library(cru_ui STATIC
 target_include_directories(cru_ui PUBLIC .)
 
 if(WIN32)
-find_library(D3D11_LIB D3D11)
-find_library(D2D1_LIB D2d1)
-find_library(DWRITE_LIB DWrite)
-
-target_link_libraries(cru_ui PRIVATE ${D3D11_LIB} ${D2D1_LIB} ${DWRITE_LIB})
-
+target_link_libraries(cru_ui PRIVATE D3D11 D2d1 DWrite)
 target_compile_definitions(cru_ui PUBLIC UNICODE _UNICODE)
 endif()
 
 add_executable(demo main.cpp)
+
 target_link_libraries(demo PRIVATE cru_ui)
