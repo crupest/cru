@@ -22,7 +22,7 @@ vs_path = 'C:/Program Files (x86)/Microsoft Visual Studio/2017/{edition}'.format
 def setup_vs_env():
     old_dir = os.getcwd()
     os.chdir(os.path.join(vs_path, 'VC/Auxiliary/Build'))
-    output = subprocess.check_output('vcvarsall.bat {arch} & set'.format(arch=args.arch), text=True)
+    output = subprocess.check_output('vcvarsall.bat {arch} & set'.format(arch=args.arch), encoding='utf-8')
     for line in output.splitlines():
         e = line.find('=')
         os.environ[line[:e]] = line[e+1:]
