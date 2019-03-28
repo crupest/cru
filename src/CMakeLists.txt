@@ -32,6 +32,6 @@ target_link_libraries(cru_ui PRIVATE D3D11 D2d1 DWrite)
 target_compile_definitions(cru_ui PUBLIC UNICODE _UNICODE) # use unicode
 endif()
 
-add_executable(demo main.cpp)
+add_executable(demo WIN32 main.cpp)
 
 target_link_libraries(demo PRIVATE cru_ui)

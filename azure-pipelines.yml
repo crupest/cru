@@ -21,7 +21,7 @@ jobs:
           buildConfiguration: 'Release'
 
     steps:
-    - script: py -3 tools\build.py -a $(buildPlatform) -c $(buildConfiguration) -e Enterprise
+    - script: py -3 tools\build.py -a $(buildPlatform) -c $(buildConfiguration)
 
     - task: CopyFiles@2
       inputs:

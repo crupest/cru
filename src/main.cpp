@@ -16,12 +16,13 @@ using cru::ui::controls::Button;
 using cru::ui::controls::FlexLayout;
 using cru::ui::controls::TextBlock;
 
-int main() {
+int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
+                      LPWSTR lpCmdLine, int nCmdShow) {
 #ifdef CRU_DEBUG
   _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif
 
-  Application application(::GetModuleHandleW(nullptr));
+  Application application(hInstance);
 
   const auto window = Window::CreateOverlapped();
 
