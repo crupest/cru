@@ -13,7 +13,6 @@ add_library(cru_ui STATIC
     ui/ui_manager.cpp
     ui/window_class.cpp
     ui/window.cpp
-    ui/animations/animation.cpp
     ui/controls/button.cpp
     ui/controls/flex_layout.cpp
     ui/controls/text_block.cpp
