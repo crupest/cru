@@ -15,6 +15,8 @@ args = parser.parse_args()
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 os.chdir(project_root)
 
+os.environ['PreferredToolArchitecture'] = 'x64' # use x64 toolchain
+
 generater_vs_arch_map = {
     'x86': 'Win32',
     'x64': 'x64'
