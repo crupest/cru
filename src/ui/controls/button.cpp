@@ -1,34 +1,24 @@
 #include "button.hpp"
 
-#include "graph/graph.hpp"
+#include "ui/render/border_render_object.hpp"
 #include "ui/ui_manager.hpp"
 
-namespace cru::ui::controls
-{
-    Button::Button() :
-        normal_border_{UiManager::GetInstance()->GetPredefineResources()->button_normal_border},
-        pressed_border_{UiManager::GetInstance()->GetPredefineResources()->button_press_border}
-    {
-        SetBordered(true);
-        GetBorderProperty() = normal_border_;
-
-        SetCursor(cursors::hand);
-    }
-
-    StringView Button::GetControlType() const
-    {
-        return control_type;
-    }
-
-    void Button::OnMouseClickBegin(MouseButton button)
-    {
-        GetBorderProperty() = pressed_border_;
-        UpdateBorder();
-    }
-
-    void Button::OnMouseClickEnd(MouseButton button)
-    {
-        GetBorderProperty() = normal_border_;
-        UpdateBorder();
-    }
+namespace cru::ui::controls {
+Button::Button() {
+  const auto predefined_resource =
+      UiManager::GetInstance()->GetPredefineResources();
+  render_object_.reset(new render::BorderRenderObject(
+      predefined_resource->button_normal_border_brush));
+  render_object_->SetEnabled(true);
+  render_object_->SetBorderWidth(Thickness{3});
+  render_object_->SetCornerRadius(render::CornerRadius{Point{10, 5}});
 }
+
+render::RenderObject* Button::GetRenderObject() const { return render_object_.get(); }
+
+void Button::OnChildChanged(Control* old_child, Control* new_child) {
+  if (old_child != nullptr) render_object_->RemoveChild(0);
+  if (new_child != nullptr)
+    render_object_->AddChild(new_child->GetRenderObject(), 0);
+}
+}  // namespace cru::ui::controls

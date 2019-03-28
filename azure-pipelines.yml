@@ -1,106 +1,27 @@
-# .NET Desktop
-# Build and run tests for .NET Desktop or Windows classic desktop solutions.
-# Add steps that publish symbols, save build artifacts, and more:
-# https://docs.microsoft.com/azure/devops/pipelines/apps/windows/dot-net
+trigger:
+- master
 
 jobs:
-  - job: x86_debug
+  - job: Windows_Build
     pool:
       vmImage: 'VS2017-Win2016'
-
-    variables:
-      solution: '**/*.sln'
-      buildPlatform: 'x86'
-      buildConfiguration: 'Debug'
-
-    steps:
-    - task: VSBuild@1
-      inputs:
-        solution: '$(solution)'
-        platform: '$(buildPlatform)'
-        configuration: '$(buildConfiguration)'
-
-    - task: CopyFiles@2
-      inputs:
-        contents: '**\$(buildConfiguration)\**\?(*.exe|*.dll|*.pdb)'
-        targetFolder: '$(build.artifactStagingDirectory)'
-
-    - task: PublishBuildArtifacts@1
-      inputs:
-        pathToPublish: '$(build.artifactStagingDirectory)'
-        artifactName: 'executables'
-
-  - job: x64_debug
-    pool:
-      vmImage: 'VS2017-Win2016'
-
-    variables:
-      solution: '**/*.sln'
-      buildPlatform: 'x64'
-      buildConfiguration: 'Debug'
+    strategy:
+      matrix:
+        x86_debug:
+          buildPlatform: 'x86'
+          buildConfiguration: 'Debug'
+        x86_release:
+          buildPlatform: 'x86'
+          buildConfiguration: 'Release'
+        x64_debug:
+          buildPlatform: 'x64'
+          buildConfiguration: 'Debug'
+        x64_release:
+          buildPlatform: 'x64'
+          buildConfiguration: 'Release'
 
     steps:
-    - task: VSBuild@1
-      inputs:
-        solution: '$(solution)'
-        platform: '$(buildPlatform)'
-        configuration: '$(buildConfiguration)'
-
-    - task: CopyFiles@2
-      inputs:
-        contents: '**\$(buildConfiguration)\**\?(*.exe|*.dll|*.pdb)'
-        targetFolder: '$(build.artifactStagingDirectory)'
-
-    - task: PublishBuildArtifacts@1
-      inputs:
-        pathToPublish: '$(build.artifactStagingDirectory)'
-        artifactName: 'executables'
-
-  - job: x86_release
-    pool:
-      vmImage: 'VS2017-Win2016'
-
-    dependsOn: x86_debug
-
-    variables:
-      solution: '**/*.sln'
-      buildPlatform: 'x86'
-      buildConfiguration: 'Release'
-
-    steps:
-    - task: VSBuild@1
-      inputs:
-        solution: '$(solution)'
-        platform: '$(buildPlatform)'
-        configuration: '$(buildConfiguration)'
-
-    - task: CopyFiles@2
-      inputs:
-        contents: '**\$(buildConfiguration)\**\?(*.exe|*.dll|*.pdb)'
-        targetFolder: '$(build.artifactStagingDirectory)'
-
-    - task: PublishBuildArtifacts@1
-      inputs:
-        pathToPublish: '$(build.artifactStagingDirectory)'
-        artifactName: 'executables'
-
-  - job: x64_release
-    pool:
-      vmImage: 'VS2017-Win2016'
-
-    dependsOn: x64_debug
-
-    variables:
-      solution: '**/*.sln'
-      buildPlatform: 'x64'
-      buildConfiguration: 'Release'
-
-    steps:
-    - task: VSBuild@1
-      inputs:
-        solution: '$(solution)'
-        platform: '$(buildPlatform)'
-        configuration: '$(buildConfiguration)'
+    - script: py -3 tools\build.py -a $(buildPlatform) -c $(buildConfiguration)
 
     - task: CopyFiles@2
       inputs:

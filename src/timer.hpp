@@ -1,64 +1,64 @@
 #pragma once
-
-// ReSharper disable once CppUnusedIncludeDirective
 #include "pre.hpp"
 
-#include "system_headers.hpp"
-#include <map>
+#include <Windows.h>
 #include <chrono>
 #include <functional>
+#include <map>
 #include <optional>
 
 #include "base.hpp"
 
-namespace cru
-{
-    using TimerAction = std::function<void()>;
+namespace cru {
+using TimerAction = std::function<void()>;
 
-    class TimerManager : public Object
-    {
-    public:
-        static TimerManager* GetInstance();
+class TimerManager : public Object {
+ public:
+  static TimerManager* GetInstance();
 
-    private:
-        TimerManager() = default;
-    public:
-        TimerManager(const TimerManager& other) = delete;
-        TimerManager(TimerManager&& other) = delete;
-        TimerManager& operator=(const TimerManager& other) = delete;
-        TimerManager& operator=(TimerManager&& other) = delete;
-        ~TimerManager() override = default;
+ private:
+  TimerManager() = default;
 
-        UINT_PTR CreateTimer(UINT milliseconds, bool loop, const TimerAction& action);
-        void KillTimer(UINT_PTR id);
-        std::optional<std::pair<bool, TimerAction>> GetAction(UINT_PTR id);
+ public:
+  TimerManager(const TimerManager& other) = delete;
+  TimerManager(TimerManager&& other) = delete;
+  TimerManager& operator=(const TimerManager& other) = delete;
+  TimerManager& operator=(TimerManager&& other) = delete;
+  ~TimerManager() override = default;
 
-    private:
-        std::map<UINT_PTR, std::pair<bool, TimerAction>> map_{};
-        UINT_PTR current_count_ = 0;
-    };
+  UINT_PTR CreateTimer(UINT milliseconds, bool loop, const TimerAction& action);
+  void KillTimer(UINT_PTR id);
+  std::optional<std::pair<bool, TimerAction>> GetAction(UINT_PTR id);
 
-    class TimerTask
-    {
-        friend TimerTask SetTimeout(std::chrono::milliseconds milliseconds, const TimerAction& action);
-        friend TimerTask SetInterval(std::chrono::milliseconds milliseconds, const TimerAction& action);
+ private:
+  std::map<UINT_PTR, std::pair<bool, TimerAction>> map_{};
+  UINT_PTR current_count_ = 0;
+};
 
-    private:
-        explicit TimerTask(UINT_PTR id);
+class TimerTask {
+  friend TimerTask SetTimeout(std::chrono::milliseconds milliseconds,
+                              const TimerAction& action);
+  friend TimerTask SetInterval(std::chrono::milliseconds milliseconds,
+                               const TimerAction& action);
 
-    public:
-        TimerTask(const TimerTask& other) = default;
-        TimerTask(TimerTask&& other) = default;
-        TimerTask& operator=(const TimerTask& other) = default;
-        TimerTask& operator=(TimerTask&& other) = default;
-        ~TimerTask() = default;
+ private:
+  explicit TimerTask(UINT_PTR id);
 
-        void Cancel() const;
+ public:
+  TimerTask(const TimerTask& other) = default;
+  TimerTask(TimerTask&& other) = default;
+  TimerTask& operator=(const TimerTask& other) = default;
+  TimerTask& operator=(TimerTask&& other) = default;
+  ~TimerTask() = default;
 
-    private:
-        UINT_PTR id_;
-    };
+  void Cancel() const;
 
-    TimerTask SetTimeout(std::chrono::milliseconds milliseconds, const TimerAction& action);
-    TimerTask SetInterval(std::chrono::milliseconds milliseconds, const TimerAction& action);
-}
+ private:
+  UINT_PTR id_;
+};
+
+TimerTask SetTimeout(std::chrono::milliseconds milliseconds,
+                     const TimerAction& action);
+TimerTask SetInterval(std::chrono::milliseconds milliseconds,
+                      const TimerAction& action);
+}  // namespace cru

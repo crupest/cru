@@ -12,11 +12,9 @@ Please using VS2017 open the `CruUI.sln` file in the root directory.
 
 ## structure of repository
 
-- `CruUI.sln` is *Visual Studio* solution file of the repository which including two vc++ projects.
+- `CruUI.sln` is *Visual Studio* solution file of the repository.
 
     - `CruUI.vcxproj` is a *Visual Studio* vc++ project file that includes the main code in `src/`.
-
-    - `CruUI-Generate/CruUI-Generate.vcxproj` is a *Visual Studio* vc++ project file that includes a header and a source generated from tools(see below). It is a project used to test that generated codes work well.
 
 - `src/` contains the main codes including headers and sources.
 
@@ -24,9 +22,4 @@ Please using VS2017 open the `CruUI.sln` file in the root directory.
 
     - `tools/cppmerge` contains a *python* script program that merges all cpp headers and sources into one **single** header and source.
 
-- `scripts/` contains some useful scripts.
-
-    - `scripts/merge.py` is a *python* script that invoke the *cppmerge* tool to merge code in `src\` to `CruUI-Generate\cru_ui.h` and `CruUI-Generate\cru_ui.cpp`.
-
-- `CruUI-Generate/` contains codes and project file that used to test merged codes.
-
+- `snippets/` contains useful snippets file for *Visual Studio*, you can import it.

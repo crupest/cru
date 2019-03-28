@@ -1,35 +1,39 @@
 #pragma once
-
-// ReSharper disable once CppUnusedIncludeDirective
 #include "pre.hpp"
 
-#include "text_control.hpp"
+#include <memory>
 
-namespace cru::ui::controls
-{
-    class TextBlock : public TextControl
-    {
-    public:
-        static constexpr auto control_type = L"TextBlock";
+#include "ui/no_child_control.hpp"
 
-        static TextBlock* Create(const String& text = L"")
-        {
-            const auto text_block = new TextBlock();
-            text_block->SetText(text);
-            return text_block;
-        }
-
-    protected:
-        TextBlock();
-    public:
-        TextBlock(const TextBlock& other) = delete;
-        TextBlock(TextBlock&& other) = delete;
-        TextBlock& operator=(const TextBlock& other) = delete;
-        TextBlock& operator=(TextBlock&& other) = delete;
-        ~TextBlock() override = default;
-
-        StringView GetControlType() const override final;
-
-        using TextControl::SetSelectable; // Make this public.
-    };
+namespace cru::ui::render {
+class TextRenderObject;
 }
+
+namespace cru::ui::controls {
+class TextBlock : public NoChildControl {
+ public:
+  static constexpr auto control_type = L"TextBlock";
+
+  static TextBlock* Create() { return new TextBlock(); }
+
+ protected:
+  TextBlock();
+
+ public:
+  TextBlock(const TextBlock& other) = delete;
+  TextBlock(TextBlock&& other) = delete;
+  TextBlock& operator=(const TextBlock& other) = delete;
+  TextBlock& operator=(TextBlock&& other) = delete;
+  ~TextBlock() override = default;
+
+  StringView GetControlType() const override final { return control_type; }
+
+  render::RenderObject* GetRenderObject() const override;
+
+  String GetText() const;
+  void SetText(const String& text);
+
+ private:
+  std::shared_ptr<render::TextRenderObject> render_object_;
+};
+}  // namespace cru::ui::controls

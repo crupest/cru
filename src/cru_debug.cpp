@@ -1,11 +1,11 @@
 #include "cru_debug.hpp"
 
-#include "system_headers.hpp"
+#include <Windows.h>
 
-namespace cru::debug
-{
-    void DebugMessage(const StringView& message)
-    {
-        ::OutputDebugStringW(message.data());
-    }
+namespace cru::debug {
+#ifdef CRU_DEBUG
+void DebugMessage(const StringView& message) {
+  ::OutputDebugStringW(message.data());
 }
+#endif
+}  // namespace cru::debug
