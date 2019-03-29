@@ -40,4 +40,4 @@ jobs:
     - task: PublishBuildArtifacts@1
       inputs:
         pathToPublish: '$(build.artifactStagingDirectory)'
-        artifactName: 'executables'
+        artifactName: 'executables_$(buildPlatform)_$(buildConfiguration)'
