@@ -73,6 +73,8 @@ def build_skia():
 
 build_skia()
 
+os.chdir(project_root)
+
 def build_cru_ui():
     os.environ['PreferredToolArchitecture'] = 'x64' # use vs x64 toolchain
 
