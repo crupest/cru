@@ -6,9 +6,11 @@ import sys
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-a', '--arch', choices=['x86', 'x64'],
-                    required=True, help='specify target cpu architecture')
+                    default='x64', help='specify target cpu architecture')
 parser.add_argument('-c', '--config', choices=['Debug', 'Release'],
                     required=True, help='specify build configuration')
+parser.add_argument('--only-skia', action='store_true',
+                    help='when this option is specified, only skia is built')
 parser.add_argument('--clang-build-skia', action='store_true',
                     help='whether use clang to build skia')
 args = parser.parse_args()
@@ -23,7 +25,6 @@ if args.arch == 'x86' and args.clang_build_skia:
     raise ConflictArgumentError('clang does not support to build skia in x86')
 
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-os.chdir(project_root)
 
 
 def detect_ninja():
@@ -35,10 +36,11 @@ def detect_ninja():
                               stdout=sys.stdout, stderr=sys.stderr)
 
 
-detect_ninja()
-
-
 def build_skia():
+    os.chdir(project_root)
+
+    detect_ninja()
+
     subprocess.check_call('py -2 .\\skia\\tools\\git-sync-deps',
                           stdout=sys.stdout, stderr=sys.stderr)
 
@@ -81,12 +83,9 @@ def build_skia():
     subprocess.check_call('ninja -C .\\out\\{} skia'.format(out_dir))
 
 
-build_skia()
-
-os.chdir(project_root)
-
-
 def build_cru_ui():
+    os.chdir(project_root)
+
     os.environ['PreferredToolArchitecture'] = 'x64'  # use vs x64 toolchain
 
     generater_vs_arch_map = {
@@ -103,4 +102,8 @@ def build_cru_ui():
                    stdout=sys.stdout, stderr=sys.stderr)
 
 
-build_cru_ui()
+if args.only_skia:
+    build_skia()
+else:
+    build_skia()
+    build_cru_ui()

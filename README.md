@@ -10,7 +10,11 @@ It is **under construction**.
 
 ## build
 
-Set python2 on path to make skia build tool work. Use python3 to run `tool/build.py`. Run with `-h` to see the options.
+Set python**2** on path to allow skia build tool work. Use python**3** to run `tool/build.py`. Run with `-h` to see the options.
+
+Notice: x86 is **not** currently supported!
+
+Tips: You can run the build script with `--only-skia` to build the skia dependency fisrt. Then feel free to open an ide and edit the source code of cruui and build it with command in ide.
 
 ## structure of repository
 
