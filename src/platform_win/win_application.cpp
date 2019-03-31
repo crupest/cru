@@ -7,6 +7,12 @@
 #include "god_window_message.hpp"
 #include "timer.hpp"
 
+namespace cru::platform {
+UiApplication* UiApplication::GetInstance() {
+  return win::WinApplication::GetInstance();
+}
+}
+
 namespace cru::platform::win {
 WinApplication* WinApplication::instance_ = nullptr;
 
