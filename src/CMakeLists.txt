@@ -25,7 +25,6 @@ add_library(cru_ui STATIC
 
 
 target_include_directories(cru_ui PUBLIC .)
-target_link_libraries(cru_ui PUBLIC skia)
 
 if(WIN32)
 target_link_libraries(cru_ui PRIVATE D3D11 D2d1 DWrite)

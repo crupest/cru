@@ -9,78 +9,10 @@ parser.add_argument('-a', '--arch', choices=['x86', 'x64'],
                     default='x64', help='specify target cpu architecture')
 parser.add_argument('-c', '--config', choices=['Debug', 'Release'],
                     required=True, help='specify build configuration')
-parser.add_argument('--only-skia', action='store_true',
-                    help='when this option is specified, only skia is built')
-parser.add_argument('--clang-build-skia', action='store_true',
-                    help='whether use clang to build skia')
 args = parser.parse_args()
 
 
-class ConflictArgumentError(Exception):
-    def __init__(self, message):
-        self.message = message
-
-
-if args.arch == 'x86' and args.clang_build_skia:
-    raise ConflictArgumentError('clang does not support to build skia in x86')
-
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-
-
-def detect_ninja():
-    try:
-        subprocess.check_call('ninja --version')
-    except:
-        print('No ninja, install ninja.')
-        subprocess.check_call('choco install ninja',
-                              stdout=sys.stdout, stderr=sys.stderr)
-
-
-def build_skia():
-    os.chdir(project_root)
-
-    detect_ninja()
-
-    subprocess.check_call('py -2 .\\skia\\tools\\git-sync-deps',
-                          stdout=sys.stdout, stderr=sys.stderr)
-
-    gn_args = '''
-    is_debug = {debug}
-
-    skia_enable_ccpr = false
-    skia_enable_discrete_gpu = false
-    skia_enable_gpu = false
-    skia_enable_nvpr = false
-    skia_enable_particles = false
-    skia_enable_pdf = false
-    skia_enable_skottie = false
-    skia_use_dng_sdk = false
-    skia_use_lua = false
-    skia_use_sfntly = false
-    skia_use_xps = false
-    '''.format(debug='true' if args.config == 'Debug' else 'false')
-
-    if args.arch == 'x86':
-        gn_args += 'target_cpu="x86"\n'
-
-    if args.clang_build_skia:
-        gn_args += 'clang_win = "C:/Program Files/LLVM"\n'
-
-    out_dir = '{}_{}'.format(args.config, args.arch)
-    if args.clang_build_skia:
-        out_dir += '_clang'
-
-    os.makedirs("skia/out/{}".format(out_dir), exist_ok=True)
-    gn_arg_file_path = os.path.join(
-        project_root, 'skia/out', out_dir, 'args.gn')
-
-    with open(gn_arg_file_path, 'w+') as f:
-        f.write(gn_args)
-
-    os.chdir('./skia')
-    subprocess.check_call('.\\bin\\gn.exe gen .\\out\\{}\\'.format(
-        out_dir), stdout=sys.stdout, stderr=sys.stderr)
-    subprocess.check_call('ninja -C .\\out\\{} skia'.format(out_dir))
 
 
 def build_cru_ui():
@@ -93,17 +25,12 @@ def build_cru_ui():
         'x64': 'x64'
     }
 
-    subprocess.run('cmake -S . -B build -G "Visual Studio 15 2017" -A {arch} {clang}'
-                   .format(arch=generater_vs_arch_map[args.arch],
-                           clang="-DCRU_SKIA_USE_CLANG=TRUE" if args.clang_build_skia else ""),
+    subprocess.run('cmake -S . -B build -G "Visual Studio 15 2017" -A {arch}'
+                   .format(arch=generater_vs_arch_map[args.arch]),
                    stdout=sys.stdout, stderr=sys.stderr)
 
     subprocess.run('cmake --build build --target ALL_BUILD --config {config}'.format(config=args.config),
                    stdout=sys.stdout, stderr=sys.stderr)
 
 
-if args.only_skia:
-    build_skia()
-else:
-    build_skia()
-    build_cru_ui()
+build_cru_ui()

@@ -4,17 +4,13 @@
 
 ## overview
 
-CruUI is a UI library using [*skia*](https://skia.org/).
+CruUI is a UI library.
 
 It is **under construction**.
 
 ## build
 
-Set python**2** on path to allow skia build tool work. Use python**3** to run `tool/build.py`. Run with `-h` to see the options.
-
-Notice: x86 is **not** currently supported!
-
-Tips: You can run the build script with `--only-skia` to build the skia dependency fisrt. Then feel free to open an ide and edit the source code of cruui and build it with command in ide.
+Use python3 to run `tool/build.py`. Run with `-h` to see the options.
 
 ## structure of repository
 
