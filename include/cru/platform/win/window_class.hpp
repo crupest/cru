@@ -1,14 +1,14 @@
 #pragma once
-#include "pre.hpp"
+#include "win_pre_config.hpp"
 
-#include <Windows.h>
+#include "cru/common/base.hpp"
 
-#include "base.hpp"
+#include <string>
 
-namespace cru::ui {
+namespace cru::platform::win {
 class WindowClass : public Object {
  public:
-  WindowClass(const String& name, WNDPROC window_proc, HINSTANCE h_instance);
+  WindowClass(const std::wstring& name, WNDPROC window_proc, HINSTANCE h_instance);
   WindowClass(const WindowClass& other) = delete;
   WindowClass(WindowClass&& other) = delete;
   WindowClass& operator=(const WindowClass& other) = delete;
@@ -20,7 +20,7 @@ class WindowClass : public Object {
   ATOM GetAtom() const { return atom_; }
 
  private:
-  String name_;
+  std::wstring name_;
   ATOM atom_;
 };
 }  // namespace cru::ui

@@ -1,17 +1,15 @@
 #pragma once
-#include "pre.hpp"
+#include "win_pre_config.hpp"
 
-#include <Windows.h>
-#include <optional>
+#include <stdexcept>
+#include <string_view>
 
-#include "base.hpp"
-
-namespace cru {
+namespace cru::platform::win {
 class HResultError : public std::runtime_error {
  public:
-  explicit HResultError(
-      HRESULT h_result,
-      std::optional<MultiByteStringView> additional_message = std::nullopt);
+  explicit HResultError(HRESULT h_result);
+  explicit HResultError(HRESULT h_result,
+                        const std::string_view& additional_message);
   HResultError(const HResultError& other) = default;
   HResultError(HResultError&& other) = default;
   HResultError& operator=(const HResultError& other) = default;
@@ -29,15 +27,14 @@ inline void ThrowIfFailed(const HRESULT h_result) {
 }
 
 inline void ThrowIfFailed(const HRESULT h_result,
-                          const MultiByteStringView& message) {
+                          const std::string_view& message) {
   if (FAILED(h_result)) throw HResultError(h_result, message);
 }
 
 class Win32Error : public std::runtime_error {
  public:
-  explicit Win32Error(
-      DWORD error_code,
-      std::optional<MultiByteStringView> additional_message = std::nullopt);
+  explicit Win32Error(DWORD error_code);
+  Win32Error(DWORD error_code, const std::string_view& additional_message);
   Win32Error(const Win32Error& other) = default;
   Win32Error(Win32Error&& other) = default;
   Win32Error& operator=(const Win32Error& other) = default;
@@ -49,4 +46,4 @@ class Win32Error : public std::runtime_error {
  private:
   DWORD error_code_;
 };
-}  // namespace cru
+}  // namespace cru::platform::win

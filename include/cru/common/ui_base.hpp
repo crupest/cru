@@ -1,12 +1,11 @@
 #pragma once
-#include "pre.hpp"
+#include "pre_config.hpp"
 
+#include <utility>
 #include <optional>
 
 namespace cru::ui {
 struct Point final {
-  constexpr static Point Zero() { return Point(0, 0); }
-
   constexpr Point() = default;
   constexpr Point(const float x, const float y) : x(x), y(y) {}
 
@@ -23,8 +22,6 @@ constexpr bool operator!=(const Point& left, const Point& right) {
 }
 
 struct Size final {
-  constexpr static Size Zero() { return Size(0, 0); }
-
   constexpr Size() = default;
   constexpr Size(const float width, const float height)
       : width(width), height(height) {}
@@ -50,8 +47,6 @@ constexpr bool operator!=(const Size& left, const Size& right) {
 }
 
 struct Thickness final {
-  constexpr static Thickness Zero() { return Thickness(0); }
-
   constexpr Thickness() : Thickness(0) {}
 
   constexpr explicit Thickness(const float width)
@@ -64,9 +59,9 @@ struct Thickness final {
                       const float bottom)
       : left(left), top(top), right(right), bottom(bottom) {}
 
-  float GetHorizontalTotal() const { return left + right; }
+  constexpr float GetHorizontalTotal() const { return left + right; }
 
-  float GetVerticalTotal() const { return top + bottom; }
+  constexpr float GetVerticalTotal() const { return top + bottom; }
 
   void SetLeftRight(const float value) { left = right = value; }
 
@@ -74,7 +69,7 @@ struct Thickness final {
 
   void SetAll(const float value) { left = top = right = bottom = value; }
 
-  float Validate() const {
+  constexpr float Validate() const {
     return left >= 0.0 && top >= 0.0 && right >= 0.0 && bottom >= 0.0;
   }
 

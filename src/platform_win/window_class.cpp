@@ -1,9 +1,9 @@
-#include "window_class.hpp"
+#include "cru/platform/win/window_class.hpp"
 
-#include "exception.hpp"
+#include "cru/platform/win/exception.hpp"
 
-namespace cru::ui {
-WindowClass::WindowClass(const String& name, WNDPROC window_proc,
+namespace cru::platform::win {
+WindowClass::WindowClass(const std::wstring& name, WNDPROC window_proc,
                          HINSTANCE h_instance)
     : name_(name) {
   WNDCLASSEX window_class;

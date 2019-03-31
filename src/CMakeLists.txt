@@ -1,8 +1,4 @@
 add_library(cru_ui STATIC
-    application.cpp
-    cru_debug.cpp
-    exception.cpp
-    timer.cpp
     graph/graph_manager.cpp
     graph/window_render_target.cpp
     ui/content_control.cpp
@@ -11,7 +7,6 @@ add_library(cru_ui STATIC
     ui/layout_control.cpp
     ui/no_child_control.cpp
     ui/ui_manager.cpp
-    ui/window_class.cpp
     ui/window.cpp
     ui/controls/button.cpp
     ui/controls/flex_layout.cpp
@@ -23,13 +18,14 @@ add_library(cru_ui STATIC
     ui/render/window_render_object.cpp
     util/string_util.cpp)
 
-
-target_include_directories(cru_ui PUBLIC .)
+target_include_directories(cru_ui PUBLIC ${PROJECT_SOURCE_DIR}/include .)
 
 if(WIN32)
-target_link_libraries(cru_ui PRIVATE D3D11 D2d1 DWrite)
-target_compile_definitions(cru_ui PUBLIC UNICODE _UNICODE) # use unicode
+add_subdirectory(platform_win)
+target_link_libraries(cru_ui PUBLIC cru_platform_win)
 endif()
+
+
 
 add_executable(demo WIN32 main.cpp)
 
