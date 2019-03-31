@@ -1,8 +1,11 @@
 #pragma once
 #include "cru/common/base.hpp"
 
+#include "basic_types.hpp"
+
 #include <chrono>
 #include <functional>
+#include <vector>
 
 namespace cru::platform {
 struct NativeWindow;
@@ -16,12 +19,15 @@ struct UiApplication : public virtual Interface {
 
   virtual void InvokeLater(const std::function<void()>& action) = 0;
   virtual unsigned long SetTimeout(std::chrono::milliseconds milliseconds,
-                          const std::function<void()>& action) = 0;
+                                   const std::function<void()>& action) = 0;
   virtual unsigned long SetInterval(std::chrono::milliseconds milliseconds,
-                           const std::function<void()>& action) = 0;
+                                    const std::function<void()>& action) = 0;
   virtual void CancelTimer(unsigned long id) = 0;
 
+  virtual std::vector<NativeWindow*> GetAllWindow() = 0;
   virtual NativeWindow* CreateWindow() = 0;
+
+  virtual Dpi GetDpi() = 0;
 
   virtual GraphFactory* GetGraphFactory() = 0;
 };

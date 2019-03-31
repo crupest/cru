@@ -9,6 +9,7 @@
 namespace cru::platform::win {
 class GodWindow;
 class TimerManager;
+class WindowManager;
 
 class WinApplication : public Object, public virtual UiApplication {
  public:
@@ -33,21 +34,24 @@ class WinApplication : public Object, public virtual UiApplication {
 
   void InvokeLater(const std::function<void()>& action) override;
   unsigned long SetTimeout(std::chrono::milliseconds milliseconds,
-                                   const std::function<void()>& action) override;
+                           const std::function<void()>& action) override;
   unsigned long SetInterval(std::chrono::milliseconds milliseconds,
-                                    const std::function<void()>& action) override;
+                            const std::function<void()>& action) override;
   void CancelTimer(unsigned long id) override;
 
   HINSTANCE GetInstanceHandle() const { return h_instance_; }
 
   GodWindow* GetGodWindow() const { return god_window_.get(); }
 
-  TimerManager* GetTimerManager() const;
+  TimerManager* GetTimerManager() const { return timer_manager_.get(); }
+
+  WindowManager* GetWindowManager() const { return window_manager_.get(); }
 
  private:
   HINSTANCE h_instance_;
 
   std::shared_ptr<GodWindow> god_window_;
   std::shared_ptr<TimerManager> timer_manager_;
+  std::shared_ptr<WindowManager> window_manager_;
 };
 }  // namespace cru::platform::win

@@ -14,10 +14,11 @@ LRESULT CALLBACK GodWndProc(HWND hWnd, UINT uMsg, WPARAM wParam,
   const auto app = WinApplication::GetInstance();
 
   if (app) {
-    const auto result =
-        app->GetGodWindow()->HandleGodWindowMessage(hWnd, uMsg, wParam, lParam);
-    if (result.has_value())
-      return result.value();
+    LRESULT result;
+    const auto handled =
+        app->GetGodWindow()->HandleGodWindowMessage(hWnd, uMsg, wParam, lParam, &result);
+    if (handled)
+      return result;
     else
       return DefWindowProcW(hWnd, uMsg, wParam, lParam);
   } else
@@ -41,15 +42,15 @@ GodWindow::GodWindow(WinApplication* application) {
 
 GodWindow::~GodWindow() { ::DestroyWindow(hwnd_); }
 
-std::optional<LRESULT> GodWindow::HandleGodWindowMessage(HWND hwnd, int msg,
-                                                         WPARAM w_param,
-                                                         LPARAM l_param) {
+bool GodWindow::HandleGodWindowMessage(HWND hwnd, UINT msg, WPARAM w_param,
+                                       LPARAM l_param, LRESULT* result) {
   switch (msg) {
     case invoke_later_message_id: {
       const auto p_action = reinterpret_cast<std::function<void()>*>(w_param);
       (*p_action)();
       delete p_action;
-      return 0;
+      *result = 0;
+      return true;
     }
     case WM_TIMER: {
       const auto id = static_cast<UINT_PTR>(w_param);
@@ -58,13 +59,14 @@ std::optional<LRESULT> GodWindow::HandleGodWindowMessage(HWND hwnd, int msg,
         (action.value().second)();
         if (!action.value().first)
           application_->GetTimerManager()->KillTimer(id);
-        return 0;
+        result = 0;
+        return true;
       }
       break;
     }
     default:
-      return std::nullopt;
+      return false;
   }
-  return std::nullopt;
+  return false;
 }
 }  // namespace cru::platform::win

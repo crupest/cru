@@ -1,25 +1,20 @@
 #pragma once
-#include "pre.hpp"
+#include "win_pre_config.hpp"
 
-#include <Windows.h>
+#include "cru/common/base.hpp"
 
-#include "ui_event.hpp"
-
-namespace cru::ui::events {
+namespace cru::platform::win {
 struct WindowNativeMessage {
   HWND hwnd;
-  int msg;
+  UINT msg;
   WPARAM w_param;
   LPARAM l_param;
 };
 
-class WindowNativeMessageEventArgs : public UiEventArgs {
+class WindowNativeMessageEventArgs : public Object {
  public:
-  WindowNativeMessageEventArgs(Object* sender, Object* original_sender,
-                               const WindowNativeMessage& message)
-      : UiEventArgs(sender, original_sender),
-        message_(message),
-        result_(std::nullopt) {}
+  WindowNativeMessageEventArgs(const WindowNativeMessage& message)
+      : message_(message) {}
   WindowNativeMessageEventArgs(const WindowNativeMessageEventArgs& other) =
       default;
   WindowNativeMessageEventArgs(WindowNativeMessageEventArgs&& other) = default;
@@ -31,12 +26,20 @@ class WindowNativeMessageEventArgs : public UiEventArgs {
 
   WindowNativeMessage GetWindowMessage() const { return message_; }
 
-  std::optional<LRESULT> GetResult() const { return result_; }
+  LRESULT GetResult() const { return result_; }
+  void SetResult(LRESULT result) { result_ = result; }
 
-  void SetResult(const std::optional<LRESULT> result) { result_ = result; }
+  bool IsHandled() const { return handled_; }
+  void SetHandled(bool handled) { handled_ = handled; }
+
+  void HandledAndSetResult(LRESULT result) {
+    handled_ = true;
+    result_ = result;
+  }
 
  private:
   WindowNativeMessage message_;
-  std::optional<LRESULT> result_;
+  LRESULT result_;
+  bool handled_ = false;
 };
-}
+}  // namespace cru::platform::win

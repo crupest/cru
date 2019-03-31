@@ -97,54 +97,6 @@ Control* FindLowestCommonAncestor(Control* left, Control* right) {
 }
 }  // namespace
 
-LRESULT __stdcall GeneralWndProc(HWND hWnd, UINT Msg, WPARAM wParam,
-                                 LPARAM lParam) {
-  auto window = WindowManager::GetInstance()->FromHandle(hWnd);
-
-  LRESULT result;
-  if (window != nullptr &&
-      window->HandleWindowMessage(hWnd, Msg, wParam, lParam, result))
-    return result;
-
-  return DefWindowProc(hWnd, Msg, wParam, lParam);
-}
-
-WindowManager* WindowManager::GetInstance() {
-  return Application::GetInstance()->ResolveSingleton<WindowManager>(
-      [](auto) { return new WindowManager{}; });
-}
-
-WindowManager::WindowManager() {
-  general_window_class_ = std::make_unique<WindowClass>(
-      L"CruUIWindowClass", GeneralWndProc,
-      Application::GetInstance()->GetInstanceHandle());
-}
-
-void WindowManager::RegisterWindow(HWND hwnd, Window* window) {
-  assert(window_map_.count(hwnd) == 0);  // The hwnd is already in the map.
-  window_map_.emplace(hwnd, window);
-}
-
-void WindowManager::UnregisterWindow(HWND hwnd) {
-  const auto find_result = window_map_.find(hwnd);
-  assert(find_result != window_map_.end());  // The hwnd is not in the map.
-  window_map_.erase(find_result);
-  if (window_map_.empty()) Application::GetInstance()->Quit(0);
-}
-
-Window* WindowManager::FromHandle(HWND hwnd) {
-  const auto find_result = window_map_.find(hwnd);
-  if (find_result == window_map_.end())
-    return nullptr;
-  else
-    return find_result->second;
-}
-
-std::vector<Window*> WindowManager::GetAllWindows() const {
-  std::vector<Window*> windows;
-  for (auto [key, value] : window_map_) windows.push_back(value);
-  return windows;
-}
 
 inline Point PiToDip(const POINT& pi_point) {
   return Point(graph::PixelToDipX(pi_point.x), graph::PixelToDipY(pi_point.y));
@@ -217,10 +169,7 @@ void Window::AfterCreateHwnd(WindowManager* window_manager) {
 }
 
 Window::~Window() {
-  if (IsWindowValid()) {
-    SetDeleteThisOnDestroy(false);  // avoid double delete.
-    Close();
-  }
+
   TraverseDescendants(
       [this](Control* control) { control->OnDetachToWindow(this); });
 }
@@ -229,107 +178,6 @@ StringView Window::GetControlType() const { return control_type; }
 
 render::RenderObject* Window::GetRenderObject() const {
   return render_object_.get();
-}
-
-void Window::SetDeleteThisOnDestroy(bool value) {
-  delete_this_on_destroy_ = value;
-}
-
-void Window::Close() {
-  if (IsWindowValid()) DestroyWindow(hwnd_);
-}
-
-void Window::InvalidateDraw() {
-  if (IsWindowValid()) {
-    InvalidateRect(hwnd_, nullptr, false);
-  }
-}
-
-void Window::Show() {
-  if (IsWindowValid()) {
-    ShowWindow(hwnd_, SW_SHOWNORMAL);
-  }
-}
-
-void Window::Hide() {
-  if (IsWindowValid()) {
-    ShowWindow(hwnd_, SW_HIDE);
-  }
-}
-
-Size Window::GetClientSize() {
-  if (!IsWindowValid()) return Size();
-
-  const auto pixel_rect = GetClientRectPixel();
-  return Size(graph::PixelToDipX(pixel_rect.right),
-              graph::PixelToDipY(pixel_rect.bottom));
-}
-
-void Window::SetClientSize(const Size& size) {
-  if (IsWindowValid()) {
-    const auto window_style =
-        static_cast<DWORD>(GetWindowLongPtr(hwnd_, GWL_STYLE));
-    const auto window_ex_style =
-        static_cast<DWORD>(GetWindowLongPtr(hwnd_, GWL_EXSTYLE));
-
-    RECT rect;
-    rect.left = 0;
-    rect.top = 0;
-    rect.right = graph::DipToPixelX(size.width);
-    rect.bottom = graph::DipToPixelY(size.height);
-    AdjustWindowRectEx(&rect, window_style, FALSE, window_ex_style);
-
-    SetWindowPos(hwnd_, nullptr, 0, 0, rect.right - rect.left,
-                 rect.bottom - rect.top, SWP_NOZORDER | SWP_NOMOVE);
-  }
-}
-
-Rect Window::GetWindowRect() {
-  if (!IsWindowValid()) return Rect();
-
-  RECT rect;
-  ::GetWindowRect(hwnd_, &rect);
-
-  return Rect::FromVertices(
-      graph::PixelToDipX(rect.left), graph::PixelToDipY(rect.top),
-      graph::PixelToDipX(rect.right), graph::PixelToDipY(rect.bottom));
-}
-
-void Window::SetWindowRect(const Rect& rect) {
-  if (IsWindowValid()) {
-    SetWindowPos(hwnd_, nullptr, graph::DipToPixelX(rect.left),
-                 graph::DipToPixelY(rect.top),
-                 graph::DipToPixelX(rect.GetRight()),
-                 graph::DipToPixelY(rect.GetBottom()), SWP_NOZORDER);
-  }
-}
-
-void Window::SetWindowPosition(const Point& position) {
-  if (IsWindowValid()) {
-    SetWindowPos(hwnd_, nullptr, graph::DipToPixelX(position.x),
-                 graph::DipToPixelY(position.y), 0, 0,
-                 SWP_NOZORDER | SWP_NOSIZE);
-  }
-}
-
-Point Window::PointToScreen(const Point& point) {
-  if (!IsWindowValid()) return Point::Zero();
-
-  auto p = DipToPi(point);
-  if (::ClientToScreen(GetWindowHandle(), &p) == 0)
-    throw Win32Error(::GetLastError(),
-                     "Failed transform point from window to screen.");
-  return PiToDip(p);
-}
-
-Point Window::PointFromScreen(const Point& point) {
-  if (!IsWindowValid()) return Point::Zero();
-
-  auto p = DipToPi(point);
-  if (::ScreenToClient(GetWindowHandle(), &p) == 0)
-    throw Win32Error(::GetLastError(),
-                     "Failed transform point from screen to window.");
-  return PiToDip(p);
 }
 
 bool Window::HandleWindowMessage(HWND hwnd, int msg, WPARAM w_param,

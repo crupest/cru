@@ -2,7 +2,6 @@
 #include "win_pre_config.hpp"
 
 #include <memory>
-#include <optional>
 
 #include "cru/common/base.hpp"
 
@@ -21,8 +20,8 @@ class GodWindow : public Object {
 
   HWND GetHandle() const { return hwnd_; }
 
-  std::optional<LRESULT> HandleGodWindowMessage(HWND hwnd, int msg,
-                                                WPARAM w_param, LPARAM l_param);
+  bool HandleGodWindowMessage(HWND hwnd, UINT msg, WPARAM w_param,
+                              LPARAM l_param, LRESULT* result);
 
  private:
   WinApplication* application_;
