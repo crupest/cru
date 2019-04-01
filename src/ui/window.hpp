@@ -1,29 +1,18 @@
 #pragma once
-#include "pre.hpp"
+#include "cru/common/pre_config.hpp"
 
-#include <Windows.h>
 #include <map>
 #include <memory>
 
 #include "content_control.hpp"
 #include "events/ui_event.hpp"
-#include "events/window_event.hpp"
 #include "window_class.hpp"
 
-namespace cru::graph {
-class WindowRenderTarget;
-}
-
-namespace cru::ui::render {
-class WindowRenderObject;
-}
 
 namespace cru::ui {
 
 
 class Window final : public ContentControl {
-  friend class WindowManager;
-
  public:
   static constexpr auto control_type = L"Window";
 

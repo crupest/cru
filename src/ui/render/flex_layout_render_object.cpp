@@ -1,12 +1,15 @@
-#include "flex_layout_render_object.hpp"
+#include "cru/ui/render/flex_layout_render_object.hpp"
+
+#include "cru/platform/debug.hpp"
+#include "cru/platform/painter_util.hpp"
 
 #include <algorithm>
+#include <cassert>
 #include <functional>
 
-#include "cru_debug.hpp"
-#include "graph/graph_util.hpp"
-
 namespace cru::ui::render {
+using namespace platform;
+
 FlexChildLayoutData* FlexLayoutRenderObject::GetChildLayoutData(int position) {
   assert(position >= 0 &&
          position < child_layout_data_.size());  // Position out of bound.
@@ -14,12 +17,11 @@ FlexChildLayoutData* FlexLayoutRenderObject::GetChildLayoutData(int position) {
   return &child_layout_data_[position];
 }
 
-void FlexLayoutRenderObject::Draw(ID2D1RenderTarget* render_target) {
+void FlexLayoutRenderObject::Draw(platform::Painter* painter) {
   for (const auto child : GetChildren()) {
     auto offset = child->GetOffset();
-    graph::WithTransform(render_target,
-                         D2D1::Matrix3x2F::Translation(offset.x, offset.y),
-                         [child](auto rt) { child->Draw(rt); });
+    util::WithTransform(painter, Matrix::Translation(offset.x, offset.y),
+                        [child](auto rt) { child->Draw(rt); });
   }
 }
 
@@ -171,7 +173,7 @@ void FlexLayoutRenderObject::OnLayoutContent(const Rect& content_rect) {
       case Alignment::End:
         return start_point + total_length - content_length;
       default:
-        UnreachableCode();
+        return 0;
     }
   };
 

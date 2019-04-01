@@ -1,16 +1,14 @@
 #pragma once
-#include "pre.hpp"
+#include "cru/common/base.hpp"
 
-#include "base.hpp"
-#include "events/ui_event.hpp"
-#include "ui_base.hpp"
+#include "cru/ui/event/ui_event.hpp"
+
+#include ""
+
+#include <string_view>
 
 namespace cru::ui {
 class Window;
-
-namespace render {
-class RenderObject;
-}
 
 class Control : public Object {
   friend class Window;
@@ -26,7 +24,7 @@ class Control : public Object {
   ~Control() override = default;
 
  public:
-  virtual StringView GetControlType() const = 0;
+  virtual std::wstring_view GetControlType() const = 0;
 
   //*************** region: tree ***************
  public:

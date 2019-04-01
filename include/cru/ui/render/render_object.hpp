@@ -1,19 +1,20 @@
 #pragma once
-#include "pre.hpp"
+#include "cru/common/base.hpp"
+
+#include "cru/common/ui_base.hpp"
 
 #include <vector>
 
-#include "base.hpp"
-#include "ui/ui_base.hpp"
-
 // forward declarations
-struct ID2D1RenderTarget;
 namespace cru::ui {
 class Control;
 }
 
-namespace cru::ui::render {
+namespace cru::platform {
+struct Painter;
+}
 
+namespace cru::ui::render {
 class RenderObject : public Object {
  protected:
   RenderObject() = default;
@@ -57,7 +58,7 @@ class RenderObject : public Object {
   void Measure(const Size& available_size);
   void Layout(const Rect& rect);
 
-  virtual void Draw(ID2D1RenderTarget* render_target) = 0;
+  virtual void Draw(platform::Painter* render_target) = 0;
 
   virtual RenderObject* HitTest(const Point& point) = 0;
 
@@ -86,12 +87,12 @@ class RenderObject : public Object {
   RenderObject* parent_ = nullptr;
   std::vector<RenderObject*> children_{};
 
-  Point offset_ = Point::Zero();
-  Size size_ = Size::Zero();
+  Point offset_{};
+  Size size_{};
 
-  Thickness margin_ = Thickness::Zero();
-  Thickness padding_ = Thickness::Zero();
+  Thickness margin_{};
+  Thickness padding_{};
 
-  Size preferred_size_ = Size::Zero();
+  Size preferred_size_{};
 };
 }  // namespace cru::ui::render

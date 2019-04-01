@@ -15,6 +15,8 @@ class WinPainter : public Object, public virtual Painter {
   WinPainter& operator=(WinPainter&& other) = delete;
   ~WinPainter() override;
 
+  Matrix GetTransform() override;
+  void SetTransform(const Matrix& matrix) override;
   void StrokeGeometry(Geometry* geometry, Brush* brush, float width) override;
   void FillGeometry(Geometry* geometry, Brush* brush) override;
   void EndDraw() override;

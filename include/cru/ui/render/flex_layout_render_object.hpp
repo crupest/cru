@@ -1,9 +1,7 @@
 #pragma once
-#include "pre.hpp"
+#include "render_object.hpp"
 
 #include <optional>
-
-#include "render_object.hpp"
 
 namespace cru::ui::render {
 enum class FlexDirection {
@@ -40,7 +38,7 @@ class FlexLayoutRenderObject : public RenderObject {
 
   FlexChildLayoutData* GetChildLayoutData(int position);
 
-  void Draw(ID2D1RenderTarget* render_target) override;
+  void Draw(platform::Painter* painter) override;
 
   RenderObject* HitTest(const Point& point) override;
 

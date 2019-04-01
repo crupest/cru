@@ -1,9 +1,21 @@
 #pragma once
 #include "win_pre_config.hpp"
 
+#include "../matrix.hpp"
 #include "cru/common/ui_base.hpp"
 
 namespace cru::platform::win::util {
+inline D2D1_MATRIX_3X2_F Convert(const Matrix& matrix) {
+  D2D1_MATRIX_3X2_F m;
+  m._11 = matrix.m11;
+  m._12 = matrix.m12;
+  m._21 = matrix.m21;
+  m._22 = matrix.m22;
+  m._31 = matrix.m31;
+  m._32 = matrix.m32;
+  return m;
+}
+
 inline D2D1_COLOR_F Convert(const ui::Color& color) {
   return D2D1::ColorF(color.red / 255.0f, color.green / 255.0f,
                       color.blue / 255.0f, color.alpha / 255.0f);
@@ -26,6 +38,11 @@ inline D2D1_ROUNDED_RECT Convert(const ui::RoundedRect& rounded_rect) {
 inline D2D1_ELLIPSE Convert(const ui::Ellipse& ellipse) {
   return D2D1::Ellipse(Convert(ellipse.center), ellipse.radius_x,
                        ellipse.radius_y);
+}
+
+inline Matrix Convert(const D2D1_MATRIX_3X2_F& matrix) {
+  return Matrix{matrix._11, matrix._12, matrix._21,
+                matrix._22, matrix._31, matrix._32};
 }
 
 inline ui::Color Convert(const D2D1_COLOR_F& color) {

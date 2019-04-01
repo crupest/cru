@@ -1,24 +1,25 @@
 #pragma once
-#include "pre.hpp"
+#include "cru/common/base.hpp"
+
+#include "cru/common/event.hpp"
+#include "cru/common/ui_base.hpp"
+#include "cru/platform/basic_types.hpp"
 
 #include <optional>
 
-#include "base.hpp"
-#include "cru_event.hpp"
-#include "ui/ui_base.hpp"
-#include "ui/input_util.hpp"
-
-struct ID2D1RenderTarget;
+namespace cru::platform {
+struct Painter;
+}
 
 namespace cru::ui {
 class Control;
 }
 
-namespace cru::ui::events {
-class UiEventArgs : public BasicEventArgs {
+namespace cru::ui::event {
+class UiEventArgs : public Object {
  public:
   UiEventArgs(Object* sender, Object* original_sender)
-      : BasicEventArgs(sender),
+      : sender_(sender),
         original_sender_(original_sender),
         handled_(false) {}
 
@@ -31,10 +32,10 @@ class UiEventArgs : public BasicEventArgs {
   Object* GetOriginalSender() const { return original_sender_; }
 
   bool IsHandled() const { return handled_; }
-
   void SetHandled(const bool handled = true) { handled_ = handled; }
 
  private:
+  Object* sender_;
   Object* original_sender_;
   bool handled_;
 };
@@ -70,7 +71,7 @@ class MouseEventArgs : public UiEventArgs {
   MouseEventArgs& operator=(MouseEventArgs&& other) = default;
   ~MouseEventArgs() override = default;
 
-  Point GetPoint() const { return point_.value_or(Point::Zero()); }
+  Point GetPoint() const { return point_.value_or(Point{}); }
 
  private:
   std::optional<Point> point_;
@@ -79,7 +80,7 @@ class MouseEventArgs : public UiEventArgs {
 class MouseButtonEventArgs : public MouseEventArgs {
  public:
   MouseButtonEventArgs(Object* sender, Object* original_sender,
-                       const Point& point, const MouseButton button)
+                       const Point& point, const platform::MouseButton button)
       : MouseEventArgs(sender, original_sender, point), button_(button) {}
   MouseButtonEventArgs(const MouseButtonEventArgs& other) = default;
   MouseButtonEventArgs(MouseButtonEventArgs&& other) = default;
@@ -87,10 +88,10 @@ class MouseButtonEventArgs : public MouseEventArgs {
   MouseButtonEventArgs& operator=(MouseButtonEventArgs&& other) = default;
   ~MouseButtonEventArgs() override = default;
 
-  MouseButton GetMouseButton() const { return button_; }
+  platform::MouseButton GetMouseButton() const { return button_; }
 
  private:
-  MouseButton button_;
+  platform::MouseButton button_;
 };
 
 class MouseWheelEventArgs : public MouseEventArgs {
@@ -110,21 +111,21 @@ class MouseWheelEventArgs : public MouseEventArgs {
   float delta_;
 };
 
-class DrawEventArgs : public UiEventArgs {
+class PaintEventArgs : public UiEventArgs {
  public:
-  DrawEventArgs(Object* sender, Object* original_sender,
-                ID2D1RenderTarget* render_target)
-      : UiEventArgs(sender, original_sender), render_target_(render_target) {}
-  DrawEventArgs(const DrawEventArgs& other) = default;
-  DrawEventArgs(DrawEventArgs&& other) = default;
-  DrawEventArgs& operator=(const DrawEventArgs& other) = default;
-  DrawEventArgs& operator=(DrawEventArgs&& other) = default;
-  ~DrawEventArgs() = default;
+  PaintEventArgs(Object* sender, Object* original_sender,
+                platform::Painter* painter)
+      : UiEventArgs(sender, original_sender), painter_(painter) {}
+  PaintEventArgs(const PaintEventArgs& other) = default;
+  PaintEventArgs(PaintEventArgs&& other) = default;
+  PaintEventArgs& operator=(const PaintEventArgs& other) = default;
+  PaintEventArgs& operator=(PaintEventArgs&& other) = default;
+  ~PaintEventArgs() = default;
 
-  ID2D1RenderTarget* GetRenderTarget() const { return render_target_; }
+  platform::Painter* GetPainter() const { return painter_; }
 
  private:
-  ID2D1RenderTarget* render_target_;
+  platform::Painter* painter_;
 };
 
 class FocusChangeEventArgs : public UiEventArgs {
@@ -145,6 +146,7 @@ class FocusChangeEventArgs : public UiEventArgs {
   bool is_window_;
 };
 
+/*
 class ToggleEventArgs : public UiEventArgs {
  public:
   ToggleEventArgs(Object* sender, Object* original_sender, bool new_state)
@@ -160,6 +162,7 @@ class ToggleEventArgs : public UiEventArgs {
  private:
   bool new_state_;
 };
+*/
 
 class KeyEventArgs : public UiEventArgs {
  public:
@@ -177,6 +180,7 @@ class KeyEventArgs : public UiEventArgs {
   int virtual_code_;
 };
 
+/*
 class CharEventArgs : public UiEventArgs {
  public:
   CharEventArgs(Object* sender, Object* original_sender, wchar_t c)
@@ -192,4 +196,5 @@ class CharEventArgs : public UiEventArgs {
  private:
   wchar_t c_;
 };
+*/
 }  // namespace cru::ui::events

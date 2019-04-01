@@ -14,7 +14,7 @@ std::string ToUtf8String(const std::wstring_view& string) {
                             static_cast<int>(result.size()), nullptr,
                             nullptr) == 0)
     throw win::Win32Error(::GetLastError(),
-                     "Failed to convert wide string to UTF-8.");
+                          "Failed to convert wide string to UTF-8.");
   return result;
 }
-}  // namespace cru::util
+}  // namespace cru::platform::util

@@ -1,5 +1,6 @@
 #include "cru/platform/win/win_painter.hpp"
 
+#include "cru/platform/win/d2d_util.hpp"
 #include "cru/platform/win/exception.hpp"
 #include "cru/platform/win/graph_manager.hpp"
 #include "cru/platform/win/win_brush.hpp"
@@ -24,6 +25,16 @@ WinPainter::~WinPainter() {
   if (!IsDisposed()) {
     ThrowIfFailed(render_target_->EndDraw());
   }
+}
+
+Matrix WinPainter::GetTransform() {
+  D2D1_MATRIX_3X2_F m;
+  render_target_->GetTransform(&m);
+  return util::Convert(m);
+}
+
+void WinPainter::SetTransform(const Matrix& matrix) {
+  render_target_->SetTransform(util::Convert(matrix));
 }
 
 void WinPainter::StrokeGeometry(Geometry* geometry, Brush* brush, float width) {

@@ -1,7 +1,5 @@
-#include "border_render_object.hpp"
+#include "cru/ui/render/border_render_object.hpp"
 
-#include <d2d1_1.h>
-#include <wrl/client.h>
 #include <algorithm>
 
 #include "cru_debug.hpp"

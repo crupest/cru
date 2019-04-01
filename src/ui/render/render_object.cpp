@@ -1,8 +1,9 @@
-#include "render_object.hpp"
+#include "cru/ui/render/render_object.hpp"
+
+#include "cru/platform/debug.hpp"
 
 #include <algorithm>
-
-#include "cru_debug.hpp"
+#include <cassert>
 
 namespace cru::ui::render {
 void RenderObject::AddChild(RenderObject* render_object, const int position) {
@@ -34,7 +35,7 @@ void RenderObject::Measure(const Size& available_size) {
 void RenderObject::Layout(const Rect& rect) {
   SetOffset(rect.GetLeftTop());
   SetSize(rect.GetSize());
-  OnLayoutCore(Rect{Point::Zero(), rect.GetSize()});
+  OnLayoutCore(Rect{Point{}, rect.GetSize()});
 }
 
 void RenderObject::OnParentChanged(RenderObject* old_parent,
@@ -53,13 +54,13 @@ void RenderObject::OnMeasureCore(const Size& available_size) {
 
   auto coerced_margin_padding_size = margin_padding_size;
   if (coerced_margin_padding_size.width > available_size.width) {
-    debug::DebugMessage(
+    platform::debug::DebugMessage(
         L"Measure: horizontal length of padding and margin is bigger than "
         L"available length.");
     coerced_margin_padding_size.width = available_size.width;
   }
   if (coerced_margin_padding_size.height > available_size.height) {
-    debug::DebugMessage(
+    platform::debug::DebugMessage(
         L"Measure: vertical length of padding and margin is bigger than "
         L"available length.");
     coerced_margin_padding_size.height = available_size.height;
@@ -81,13 +82,13 @@ void RenderObject::OnLayoutCore(const Rect& rect) {
   auto coerced_content_available_size = content_available_size;
 
   if (coerced_content_available_size.width < 0) {
-    debug::DebugMessage(
+    platform::debug::DebugMessage(
         L"Layout: horizontal length of padding and margin is bigger than "
         L"available length.");
     coerced_content_available_size.width = 0;
   }
   if (coerced_content_available_size.height < 0) {
-    debug::DebugMessage(
+    platform::debug::DebugMessage(
         L"Layout: vertical length of padding and margin is bigger than "
         L"available length.");
     coerced_content_available_size.height = 0;
@@ -99,7 +100,7 @@ void RenderObject::OnLayoutCore(const Rect& rect) {
 }
 
 Rect RenderObject::GetContentRect() const {
-  Rect rect{Point::Zero(), GetSize()};
+  Rect rect{Point{}, GetSize()};
   rect = rect.Shrink(GetMargin());
   rect = rect.Shrink(GetPadding());
   rect.width = std::max(rect.width, 0.0f);

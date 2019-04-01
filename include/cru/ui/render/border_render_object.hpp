@@ -1,13 +1,9 @@
 #pragma once
-#include "pre.hpp"
-
-#include <wrl/client.h>  // for ComPtr
-
 #include "render_object.hpp"
 
-// forward declarations
-struct ID2D1Brush;
-struct ID2D1Geometry;
+namespace cru::platform {
+struct Brush;
+}
 
 namespace cru::ui::render {
 struct CornerRadius {
@@ -33,7 +29,7 @@ struct CornerRadius {
 
 class BorderRenderObject : public RenderObject {
  public:
-  explicit BorderRenderObject(ID2D1Brush* brush);
+  explicit BorderRenderObject(platform::Brush* brush);
   BorderRenderObject(const BorderRenderObject& other) = delete;
   BorderRenderObject(BorderRenderObject&& other) = delete;
   BorderRenderObject& operator=(const BorderRenderObject& other) = delete;
