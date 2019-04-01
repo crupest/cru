@@ -2,6 +2,7 @@
 
 #include "cru/platform/win/exception.hpp"
 #include "cru/platform/win/win_application.hpp"
+#include "cru/platform/win/win_painter.hpp"
 #include "cru/platform/win/window_class.hpp"
 #include "dpi_util.hpp"
 #include "window_manager.hpp"
@@ -110,6 +111,8 @@ void WinNativeWindow::SetWindowRect(const ui::Rect& rect) {
       throw Win32Error(::GetLastError(), "Failed to invoke SetWindowPos.");
   }
 }
+
+Painter* WinNativeWindow::BeginPaint() { return new WinPainter(this); }
 
 bool WinNativeWindow::HandleNativeWindowMessage(HWND hwnd, UINT msg,
                                                 WPARAM w_param, LPARAM l_param,

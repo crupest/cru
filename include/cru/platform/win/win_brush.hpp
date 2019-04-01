@@ -4,7 +4,13 @@
 #include "../brush.hpp"
 
 namespace cru::platform::win {
-class WinSolidColorBrush : public Object, public virtual SolidColorBrush {
+struct WinBrush : virtual Brush {
+  virtual ID2D1Brush* GetD2DBrush() = 0;
+};
+
+class WinSolidColorBrush : public Object,
+                           public virtual SolidColorBrush,
+                           public virtual WinBrush {
  public:
   explicit WinSolidColorBrush(
       Microsoft::WRL::ComPtr<ID2D1SolidColorBrush> brush);
@@ -16,6 +22,8 @@ class WinSolidColorBrush : public Object, public virtual SolidColorBrush {
 
   ui::Color GetColor() override;
   void SetColor(const ui::Color& color) override;
+
+  ID2D1Brush* GetD2DBrush() override { return brush_.Get(); }
 
  private:
   Microsoft::WRL::ComPtr<ID2D1SolidColorBrush> brush_;

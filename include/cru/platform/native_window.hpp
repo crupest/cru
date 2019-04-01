@@ -32,7 +32,7 @@ struct NativeWindow : public virtual Interface {
   // The lefttop of the rect is relative to screen lefttop.
   virtual void SetWindowRect(const ui::Rect& rect) = 0;
 
-  virtual Painter* BeginDraw() = 0;
+  virtual Painter* BeginPaint() = 0;
 
   virtual Event<>* DestroyEvent() = 0;
   virtual Event<ui::Size>* ResizeEvent() = 0;
