@@ -25,7 +25,7 @@ struct UiApplication : public virtual Interface {
   virtual void CancelTimer(unsigned long id) = 0;
 
   virtual std::vector<NativeWindow*> GetAllWindow() = 0;
-  virtual NativeWindow* CreateWindow() = 0;
+  virtual NativeWindow* CreateWindow(NativeWindow* parent) = 0;
 
   virtual GraphFactory* GetGraphFactory() = 0;
 };

@@ -4,11 +4,13 @@
 #include "cru/platform/win/god_window.hpp"
 #include "cru/platform/win/graph_manager.hpp"
 #include "cru/platform/win/win_graph_factory.hpp"
+#include "cru/platform/win/win_native_window.hpp"
 #include "god_window_message.hpp"
 #include "timer.hpp"
 #include "window_manager.hpp"
 
 #include <VersionHelpers.h>
+#include <cassert>
 
 namespace cru::platform {
 UiApplication* UiApplication::GetInstance() {
@@ -79,5 +81,25 @@ unsigned long WinApplication::SetInterval(
 void WinApplication::CancelTimer(unsigned long id) {
   timer_manager_->KillTimer(static_cast<UINT_PTR>(id));
 }
+
+std::vector<NativeWindow*> WinApplication::GetAllWindow() {
+  const auto&& windows = window_manager_->GetAllWindows();
+  std::vector<NativeWindow*> result;
+  for (const auto w : windows) {
+    result.push_back(static_cast<NativeWindow*>(w));
+  }
+  return result;
+}
+
+NativeWindow* WinApplication::CreateWindow(NativeWindow* parent) {
+  WinNativeWindow* p = nullptr;
+  if (parent != nullptr) {
+    p = dynamic_cast<WinNativeWindow*>(parent);
+    assert(p);
+  }
+  return new WinNativeWindow(this, window_manager_->GetGeneralWindowClass(),
+                             WS_OVERLAPPEDWINDOW, p);
+}
+
 GraphFactory* WinApplication::GetGraphFactory() { return graph_factory_.get(); }
 }  // namespace cru::platform::win
