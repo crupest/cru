@@ -1,10 +1,10 @@
 #pragma once
-#include "ui_applicaition.hpp"
+
+// The dpi awareness needs to be implemented in the future. Currently we use 96
+// as default.
 
 namespace cru::platform {
-inline Dpi GetDpi() {
-  return UiApplication::GetInstance()->GetDpi();
-}
+inline Dpi GetDpi() { return Dpi{96.0f, 96.0f}; }
 
 inline int DipToPixelInternal(const float dip, const float dpi) {
   return static_cast<int>(dip * dpi / 96.0f);

@@ -3,7 +3,7 @@
 #include "cru/platform/debug.hpp"
 
 
-namespace cru::debug {
+namespace cru::platform::debug {
 void DebugMessage(const std::wstring_view& message) {
   ::OutputDebugStringW(message.data());
 }

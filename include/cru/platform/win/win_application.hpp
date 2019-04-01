@@ -10,6 +10,8 @@ namespace cru::platform::win {
 class GodWindow;
 class TimerManager;
 class WindowManager;
+class GraphManager;
+class WinGraphFactory;
 
 class WinApplication : public Object, public virtual UiApplication {
  public:
@@ -39,13 +41,16 @@ class WinApplication : public Object, public virtual UiApplication {
                             const std::function<void()>& action) override;
   void CancelTimer(unsigned long id) override;
 
+  GraphFactory* GetGraphFactory() override;
+
+
   HINSTANCE GetInstanceHandle() const { return h_instance_; }
 
   GodWindow* GetGodWindow() const { return god_window_.get(); }
-
   TimerManager* GetTimerManager() const { return timer_manager_.get(); }
-
   WindowManager* GetWindowManager() const { return window_manager_.get(); }
+  GraphManager* GetGraphManager() const { return graph_manager_.get(); }
+  WinGraphFactory* GetWinGraphFactory() const { return graph_factory_.get(); }
 
  private:
   HINSTANCE h_instance_;
@@ -53,5 +58,7 @@ class WinApplication : public Object, public virtual UiApplication {
   std::shared_ptr<GodWindow> god_window_;
   std::shared_ptr<TimerManager> timer_manager_;
   std::shared_ptr<WindowManager> window_manager_;
+  std::shared_ptr<GraphManager> graph_manager_;
+  std::shared_ptr<WinGraphFactory> graph_factory_;
 };
 }  // namespace cru::platform::win

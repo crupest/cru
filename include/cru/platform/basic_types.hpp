@@ -7,5 +7,4 @@ struct Dpi {
 };
 
 enum class MouseButton { Left, Right, Middle };
-
 }  // namespace cru::platform

@@ -1,9 +1,9 @@
 #include "cru/platform/win/win_native_window.hpp"
 
-#include "cru/platform/dpi_util.hpp"
 #include "cru/platform/win/exception.hpp"
 #include "cru/platform/win/win_application.hpp"
 #include "cru/platform/win/window_class.hpp"
+#include "dpi_util.hpp"
 #include "window_manager.hpp"
 
 #include <assert.h>
@@ -309,8 +309,7 @@ void WinNativeWindow::OnMouseUpInternal(MouseButton button, POINT point) {
   mouse_up_event_.Raise(button, dip_point);
 }
 
-void WinNativeWindow::OnMouseWheelInternal(short delta, POINT point) {
-}
+void WinNativeWindow::OnMouseWheelInternal(short delta, POINT point) {}
 
 void WinNativeWindow::OnKeyDownInternal(int virtual_code) {
   key_down_event_.Raise(virtual_code);
@@ -320,12 +319,9 @@ void WinNativeWindow::OnKeyUpInternal(int virtual_code) {
   key_up_event_.Raise(virtual_code);
 }
 
-void WinNativeWindow::OnCharInternal(wchar_t c) {
-}
+void WinNativeWindow::OnCharInternal(wchar_t c) {}
 
-void WinNativeWindow::OnActivatedInternal() {
-}
+void WinNativeWindow::OnActivatedInternal() {}
 
-void WinNativeWindow::OnDeactivatedInternal() {
-}
+void WinNativeWindow::OnDeactivatedInternal() {}
 }  // namespace cru::platform::win

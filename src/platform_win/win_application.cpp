@@ -1,17 +1,20 @@
 #include "cru/platform/win/win_application.hpp"
 
-#include <VersionHelpers.h>
-
 #include "cru/platform/win/exception.hpp"
 #include "cru/platform/win/god_window.hpp"
+#include "cru/platform/win/graph_manager.hpp"
+#include "cru/platform/win/win_graph_factory.hpp"
 #include "god_window_message.hpp"
 #include "timer.hpp"
+#include "window_manager.hpp"
+
+#include <VersionHelpers.h>
 
 namespace cru::platform {
 UiApplication* UiApplication::GetInstance() {
   return win::WinApplication::GetInstance();
 }
-}
+}  // namespace cru::platform
 
 namespace cru::platform::win {
 WinApplication* WinApplication::instance_ = nullptr;
@@ -33,6 +36,9 @@ WinApplication::WinApplication(HINSTANCE h_instance) : h_instance_(h_instance) {
 
   god_window_ = std::make_shared<GodWindow>(this);
   timer_manager_ = std::make_shared<TimerManager>(god_window_.get());
+  window_manager_ = std::make_shared<WindowManager>(this);
+  graph_manager_ = std::make_shared<GraphManager>();
+  graph_factory_ = std::make_shared<GraphFactory>(graph_manager_.get());
 }
 
 WinApplication::~WinApplication() { instance_ = nullptr; }
@@ -73,4 +79,5 @@ unsigned long WinApplication::SetInterval(
 void WinApplication::CancelTimer(unsigned long id) {
   timer_manager_->KillTimer(static_cast<UINT_PTR>(id));
 }
+GraphFactory* WinApplication::GetGraphFactory() { return graph_factory_.get(); }
 }  // namespace cru::platform::win

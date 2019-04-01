@@ -1,15 +1,10 @@
 #pragma once
-#include "pre.hpp"
+#include "win_pre_config.hpp"
 
-#include <Windows.h>
-#include <memory>
+#include "cru/common/base.hpp"
 
-#include "base.hpp"
 
-struct IDXGISwapChain1;
-struct ID2D1Bitmap1;
-
-namespace cru::graph {
+namespace cru::platform::win {
 class GraphManager;
 
 // Represents a window render target.
@@ -27,7 +22,7 @@ class WindowRenderTarget : public Object {
   GraphManager* GetGraphManager() const { return graph_manager_; }
 
   // Get the target bitmap which can be set as the ID2D1DeviceContext's target.
-  ID2D1Bitmap1* GetTargetBitmap() const { return target_bitmap_.get(); }
+  ID2D1Bitmap1* GetTargetBitmap() const { return target_bitmap_.Get(); }
 
   // Resize the underlying buffer.
   void ResizeBuffer(int width, int height);
@@ -43,7 +38,7 @@ class WindowRenderTarget : public Object {
 
  private:
   GraphManager* graph_manager_;
-  std::shared_ptr<IDXGISwapChain1> dxgi_swap_chain_;
-  std::shared_ptr<ID2D1Bitmap1> target_bitmap_;
+  Microsoft::WRL::ComPtr<IDXGISwapChain1> dxgi_swap_chain_;
+  Microsoft::WRL::ComPtr<ID2D1Bitmap1> target_bitmap_;
 };
 }  // namespace cru::graph

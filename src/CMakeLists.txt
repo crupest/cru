@@ -1,6 +1,4 @@
 add_library(cru_ui STATIC
-    graph/graph_manager.cpp
-    graph/window_render_target.cpp
     ui/content_control.cpp
     ui/control.cpp
     ui/input_util.cpp

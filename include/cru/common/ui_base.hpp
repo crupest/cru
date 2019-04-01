@@ -1,8 +1,9 @@
 #pragma once
 #include "pre_config.hpp"
 
-#include <utility>
+#include <cstdint>
 #include <optional>
+#include <utility>
 
 namespace cru::ui {
 struct Point final {
@@ -229,5 +230,12 @@ struct TextRange final {
 
   unsigned position = 0;
   unsigned count = 0;
+};
+
+struct Color {
+  std::uint8_t red;
+  std::uint8_t green;
+  std::uint8_t blue;
+  std::uint8_t alpha;
 };
 }  // namespace cru::ui

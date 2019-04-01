@@ -1,46 +1,55 @@
 #pragma once
-#include "pre.hpp"
+#include "win_pre_config.hpp"
 
-#include <d2d1.h>
+#include "cru/common/ui_base.hpp"
 
-#include "ui_base.hpp"
+namespace cru::platform::win::util {
+inline D2D1_COLOR_F Convert(const ui::Color& color) {
+  return D2D1::ColorF(color.red / 255.0f, color.green / 255.0f,
+                      color.blue / 255.0f, color.alpha / 255.0f);
+}
 
-namespace cru::ui {
-inline D2D1_POINT_2F Convert(const Point& point) {
+inline D2D1_POINT_2F Convert(const ui::Point& point) {
   return D2D1::Point2F(point.x, point.y);
 }
 
-inline D2D1_RECT_F Convert(const Rect& rect) {
+inline D2D1_RECT_F Convert(const ui::Rect& rect) {
   return D2D1::RectF(rect.left, rect.top, rect.left + rect.width,
                      rect.top + rect.height);
 }
 
-inline D2D1_ROUNDED_RECT Convert(const RoundedRect& rounded_rect) {
+inline D2D1_ROUNDED_RECT Convert(const ui::RoundedRect& rounded_rect) {
   return D2D1::RoundedRect(Convert(rounded_rect.rect), rounded_rect.radius_x,
                            rounded_rect.radius_y);
 }
 
-inline D2D1_ELLIPSE Convert(const Ellipse& ellipse) {
+inline D2D1_ELLIPSE Convert(const ui::Ellipse& ellipse) {
   return D2D1::Ellipse(Convert(ellipse.center), ellipse.radius_x,
                        ellipse.radius_y);
 }
 
-inline Point Convert(const D2D1_POINT_2F& point) {
-  return Point(point.x, point.y);
+inline ui::Color Convert(const D2D1_COLOR_F& color) {
+  auto floor = [](float n) { return static_cast<std::uint8_t>(n + 0.5f); };
+  return ui::Color{floor(color.r * 255.0f), floor(color.g * 255.0f),
+                   floor(color.b * 255.0f), floor(color.a * 255.0f)};
 }
 
-inline Rect Convert(const D2D1_RECT_F& rect) {
-  return Rect(rect.left, rect.top, rect.right - rect.left,
-              rect.bottom - rect.top);
+inline ui::Point Convert(const D2D1_POINT_2F& point) {
+  return ui::Point(point.x, point.y);
 }
 
-inline RoundedRect Convert(const D2D1_ROUNDED_RECT& rounded_rect) {
-  return RoundedRect(Convert(rounded_rect.rect), rounded_rect.radiusX,
-                     rounded_rect.radiusY);
+inline ui::Rect Convert(const D2D1_RECT_F& rect) {
+  return ui::Rect(rect.left, rect.top, rect.right - rect.left,
+                  rect.bottom - rect.top);
 }
 
-inline Ellipse Convert(const D2D1_ELLIPSE& ellipse) {
-  return Ellipse(Convert(ellipse.point), ellipse.radiusX, ellipse.radiusY);
+inline ui::RoundedRect Convert(const D2D1_ROUNDED_RECT& rounded_rect) {
+  return ui::RoundedRect(Convert(rounded_rect.rect), rounded_rect.radiusX,
+                         rounded_rect.radiusY);
+}
+
+inline ui::Ellipse Convert(const D2D1_ELLIPSE& ellipse) {
+  return ui::Ellipse(Convert(ellipse.point), ellipse.radiusX, ellipse.radiusY);
 }
 
 inline bool operator==(const D2D1_POINT_2F& left, const D2D1_POINT_2F& right) {
@@ -79,4 +88,4 @@ inline bool operator==(const D2D1_ELLIPSE& left, const D2D1_ELLIPSE& right) {
 inline bool operator!=(const D2D1_ELLIPSE& left, const D2D1_ELLIPSE& right) {
   return !(left == right);
 }
-}  // namespace cru::ui
+}  // namespace cru::platform::win::util

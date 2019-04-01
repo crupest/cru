@@ -10,6 +10,7 @@ namespace cru::platform::win {
 class WinApplication;
 class WindowClass;
 class WindowManager;
+class WindowRenderTarget;
 
 class WinNativeWindow : public Object, public virtual NativeWindow {
  public:
@@ -70,6 +71,10 @@ class WinNativeWindow : public Object, public virtual NativeWindow {
   bool HandleNativeWindowMessage(HWND hwnd, UINT msg, WPARAM w_param,
                                  LPARAM l_param, LRESULT* result);
 
+  WindowRenderTarget* GetWindowRenderTarget() const {
+    return window_render_target_.get();
+  }
+
  private:
   // Get the client rect in pixel.
   RECT GetClientRectPixel();
@@ -106,6 +111,8 @@ class WinNativeWindow : public Object, public virtual NativeWindow {
 
   bool has_focus_ = false;
   bool is_mouse_in_ = false;
+
+  std::shared_ptr<WindowRenderTarget> window_render_target_;
 
   Event<> destroy_event_;
   Event<ui::Size> resize_event_;

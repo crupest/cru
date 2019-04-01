@@ -27,8 +27,6 @@ struct UiApplication : public virtual Interface {
   virtual std::vector<NativeWindow*> GetAllWindow() = 0;
   virtual NativeWindow* CreateWindow() = 0;
 
-  virtual Dpi GetDpi() = 0;
-
   virtual GraphFactory* GetGraphFactory() = 0;
 };
 }  // namespace cru::platform

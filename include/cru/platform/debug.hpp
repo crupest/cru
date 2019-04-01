@@ -4,5 +4,5 @@
 #include <string_view>
 
 namespace cru::platform::debug {
-void DebugMessage(const std::string_view& message);
+void DebugMessage(const std::wstring_view& message);
 }

@@ -1,16 +1,12 @@
-#include "window_render_target.hpp"
+#include "cru/platform/win/window_render_target.hpp"
 
-#include <d2d1_1.h>
-#include <d3d11.h>
-#include <dxgi1_2.h>
-#include <wrl/client.h>
+#include "cru/platform/win/exception.hpp"
+#include "cru/platform/win/graph_manager.hpp"
+#include "dpi_util.hpp"
 
-#include "exception.hpp"
-#include "graph_manager.hpp"
-#include "graph_util.hpp"
-#include "util/com_util.hpp"
+#include <cassert>
 
-namespace cru::graph {
+namespace cru::platform::win {
 WindowRenderTarget::WindowRenderTarget(GraphManager* graph_manager, HWND hwnd) {
   this->graph_manager_ = graph_manager;
 
@@ -33,12 +29,10 @@ WindowRenderTarget::WindowRenderTarget(GraphManager* graph_manager, HWND hwnd) {
       DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;  // all apps must use this SwapEffect
   swap_chain_desc.Flags = 0;
 
-  IDXGISwapChain1* dxgi_swap_chain;
   // Get the final swap chain for this window from the DXGI factory.
-  ThrowIfFailed(
-      dxgi_factory->CreateSwapChainForHwnd(d3d11_device, hwnd, &swap_chain_desc,
-                                           nullptr, nullptr, &dxgi_swap_chain));
-  this->dxgi_swap_chain_ = util::CreateComSharedPtr(dxgi_swap_chain);
+  ThrowIfFailed(dxgi_factory->CreateSwapChainForHwnd(
+      d3d11_device, hwnd, &swap_chain_desc, nullptr, nullptr,
+      &dxgi_swap_chain_));
 
   CreateTargetBitmap();
 }
@@ -47,24 +41,24 @@ void WindowRenderTarget::ResizeBuffer(const int width, const int height) {
   const auto graph_manager = graph_manager_;
   const auto d2d1_device_context = graph_manager->GetD2D1DeviceContext();
 
-  ID2D1Image* old_target;
+  Microsoft::WRL::ComPtr<ID2D1Image> old_target;
   d2d1_device_context->GetTarget(&old_target);
-  const auto target_this = old_target == this->target_bitmap_.get();
+  const auto target_this = old_target == this->target_bitmap_;
   if (target_this) d2d1_device_context->SetTarget(nullptr);
 
-  util::SafeRelease(old_target);
-  target_bitmap_.reset();
+  old_target = nullptr;
+  target_bitmap_ = nullptr;
 
   ThrowIfFailed(dxgi_swap_chain_->ResizeBuffers(0, width, height,
                                                 DXGI_FORMAT_UNKNOWN, 0));
 
   CreateTargetBitmap();
 
-  if (target_this) d2d1_device_context->SetTarget(target_bitmap_.get());
+  if (target_this) d2d1_device_context->SetTarget(target_bitmap_.Get());
 }
 
 void WindowRenderTarget::SetAsTarget() {
-  graph_manager_->GetD2D1DeviceContext()->SetTarget(target_bitmap_.get());
+  graph_manager_->GetD2D1DeviceContext()->SetTarget(target_bitmap_.Get());
 }
 
 void WindowRenderTarget::Present() {
@@ -86,12 +80,10 @@ void WindowRenderTarget::CreateTargetBitmap() {
       D2D1::PixelFormat(DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_IGNORE),
       dpi.x, dpi.y);
 
-  ID2D1Bitmap1* bitmap;
   // Get a D2D surface from the DXGI back buffer to use as the D2D render
   // target.
   ThrowIfFailed(
       graph_manager_->GetD2D1DeviceContext()->CreateBitmapFromDxgiSurface(
-          dxgi_back_buffer.Get(), &bitmap_properties, &bitmap));
-  this->target_bitmap_ = util::CreateComSharedPtr(bitmap);
+          dxgi_back_buffer.Get(), &bitmap_properties, &target_bitmap_));
 }
-}  // namespace cru::graph
+}  // namespace cru::platform::win
