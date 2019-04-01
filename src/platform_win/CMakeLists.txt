@@ -3,6 +3,7 @@ add_library(cru_platform_win STATIC
 	exception.cpp
 	god_window.cpp
 	graph_manager.cpp
+	string_util.cpp
 	timer.cpp
 	win_application.cpp
 	win_brush.cpp

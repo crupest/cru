@@ -13,8 +13,7 @@ add_library(cru_ui STATIC
     ui/render/flex_layout_render_object.cpp
     ui/render/render_object.cpp
     ui/render/text_render_object.cpp
-    ui/render/window_render_object.cpp
-    util/string_util.cpp)
+    ui/render/window_render_object.cpp)
 
 target_include_directories(cru_ui PUBLIC ${PROJECT_SOURCE_DIR}/include .)
 
