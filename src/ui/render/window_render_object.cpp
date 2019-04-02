@@ -1,20 +1,21 @@
-#include "window_render_object.hpp"
+#include "cru/ui/render/window_render_object.hpp"
 
-#include "graph/graph_util.hpp"
-#include "ui/window.hpp"
+#include "cru/platform/painter_util.hpp"
+
+#include <cassert>
 
 namespace cru::ui::render {
 void WindowRenderObject::MeasureAndLayout() {
   const auto client_size = window_->GetClientSize();
   Measure(client_size);
-  Layout(Rect{Point::Zero(), client_size});
+  Layout(Rect{Point{}, client_size});
 }
 
-void WindowRenderObject::Draw(ID2D1RenderTarget* render_target) {
+void WindowRenderObject::Draw(platform::Painter* painter) {
   if (const auto child = GetChild()) {
     auto offset = child->GetOffset();
-    graph::WithTransform(render_target,
-                         D2D1::Matrix3x2F::Translation(offset.x, offset.y),
+    platform::util::WithTransform(painter,
+                         platform::Matrix::Translation(offset.x, offset.y),
                          [child](auto rt) { child->Draw(rt); });
   }
 }
@@ -28,7 +29,7 @@ RenderObject* WindowRenderObject::HitTest(const Point& point) {
       return result;
     }
   }
-  return Rect{Point::Zero(), GetSize()}.IsPointInside(point) ? this : nullptr;
+  return Rect{Point{}, GetSize()}.IsPointInside(point) ? this : nullptr;
 }
 
 void WindowRenderObject::OnAddChild(RenderObject* new_child, int position) {
