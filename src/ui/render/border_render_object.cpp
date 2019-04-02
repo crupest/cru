@@ -1,46 +1,28 @@
 #include "cru/ui/render/border_render_object.hpp"
 
-#include <algorithm>
+#include "cru/platform/debug.hpp"
+#include "cru/platform/geometry.hpp"
+#include "cru/platform/graph_factory.hpp"
+#include "cru/platform/painter_util.hpp"
+#include "cru/platform/ui_applicaition.hpp"
 
-#include "cru_debug.hpp"
-#include "exception.hpp"
-#include "graph/graph_manager.hpp"
-#include "graph/graph_util.hpp"
-#include "util/com_util.hpp"
+#include <algorithm>
+#include <cassert>
 
 namespace cru::ui::render {
-BorderRenderObject::BorderRenderObject(ID2D1Brush* brush) {
+BorderRenderObject::BorderRenderObject(std::shared_ptr<platform::Brush> brush) {
   assert(brush);
-  brush->AddRef();
-  this->border_brush_ = brush;
-  try {
-    RecreateGeometry();
-  } catch (...) {
-    brush->Release();
-    throw;
-  }
+  this->border_brush_ = std::move(brush);
+  RecreateGeometry();
 }
 
-BorderRenderObject::~BorderRenderObject() {
-  util::SafeRelease(border_brush_);
-  util::SafeRelease(geometry_);
-  util::SafeRelease(border_outer_geometry_);
-}
-
-void BorderRenderObject::SetBrush(ID2D1Brush* new_brush) {
-  assert(new_brush);
-  util::SafeRelease(border_brush_);
-  new_brush->AddRef();
-  border_brush_ = new_brush;
-}
-
-void BorderRenderObject::Draw(ID2D1RenderTarget* render_target) {
-  render_target->FillGeometry(geometry_, border_brush_);
+void BorderRenderObject::Draw(platform::Painter* painter) {
+  painter->FillGeometry(geometry_.get(), border_brush_.get());
   if (const auto child = GetChild()) {
     auto offset = child->GetOffset();
-    graph::WithTransform(render_target,
-                         D2D1::Matrix3x2F::Translation(offset.x, offset.y),
-                         [child](auto rt) { child->Draw(rt); });
+    platform::util::WithTransform(
+        painter, platform::Matrix::Translation(offset.x, offset.y),
+        [child](auto p) { child->Draw(p); });
   }
 }
 
@@ -55,11 +37,9 @@ RenderObject* BorderRenderObject::HitTest(const Point& point) {
   }
 
   if (is_enabled_) {
-    BOOL contains;
-    ThrowIfFailed(border_outer_geometry_->FillContainsPoint(
-        D2D1::Point2F(point.x, point.y), D2D1::Matrix3x2F::Identity(),
-        &contains));
-    return contains != 0 ? this : nullptr;
+    const auto contains =
+        border_outer_geometry_->FillContains(Point{point.x, point.y});
+    return contains ? this : nullptr;
   } else {
     const auto margin = GetMargin();
     const auto size = GetSize();
@@ -95,13 +75,13 @@ void BorderRenderObject::OnMeasureCore(const Size& available_size) {
 
   auto coerced_margin_border_padding_size = margin_border_padding_size;
   if (coerced_margin_border_padding_size.width > available_size.width) {
-    debug::DebugMessage(
+    platform::debug::DebugMessage(
         L"Measure: horizontal length of padding, border and margin is bigger "
         L"than available length.");
     coerced_margin_border_padding_size.width = available_size.width;
   }
   if (coerced_margin_border_padding_size.height > available_size.height) {
-    debug::DebugMessage(
+    platform::debug::DebugMessage(
         L"Measure: vertical length of padding, border and margin is bigger "
         L"than available length.");
     coerced_margin_border_padding_size.height = available_size.height;
@@ -133,13 +113,13 @@ void BorderRenderObject::OnLayoutCore(const Rect& rect) {
   auto coerced_content_available_size = content_available_size;
 
   if (coerced_content_available_size.width < 0) {
-    debug::DebugMessage(
+    platform::debug::DebugMessage(
         L"Layout: horizontal length of padding, border and margin is bigger "
         L"than available length.");
     coerced_content_available_size.width = 0;
   }
   if (coerced_content_available_size.height < 0) {
-    debug::DebugMessage(
+    platform::debug::DebugMessage(
         L"Layout: vertical length of padding, border and margin is bigger "
         L"than "
         L"available length.");
@@ -159,7 +139,7 @@ Size BorderRenderObject::OnMeasureContent(const Size& available_size) {
     child->Measure(available_size);
     return child->GetPreferredSize();
   } else {
-    return Size::Zero();
+    return Size{};
   }
 }
 
@@ -171,42 +151,29 @@ void BorderRenderObject::OnLayoutContent(const Rect& content_rect) {
 }
 
 void BorderRenderObject::RecreateGeometry() {
-  util::SafeRelease(geometry_);
-  util::SafeRelease(border_outer_geometry_);
+  geometry_.reset();
+  border_outer_geometry_.reset();
 
-  const auto d2d_factory = graph::GraphManager::GetInstance()->GetD2D1Factory();
-
-  Microsoft::WRL::ComPtr<ID2D1PathGeometry> geometry;
-  ThrowIfFailed(d2d_factory->CreatePathGeometry(&geometry));
-
-  Microsoft::WRL::ComPtr<ID2D1PathGeometry> border_outer_geometry;
-  ThrowIfFailed(d2d_factory->CreatePathGeometry(&border_outer_geometry));
-
-  Microsoft::WRL::ComPtr<ID2D1GeometrySink> sink;
-  auto f = [&sink](const Rect& rect, const CornerRadius& corner) {
-    sink->BeginFigure(D2D1::Point2F(rect.left + corner.left_top.x, rect.top),
-                      D2D1_FIGURE_BEGIN_FILLED);
-    sink->AddLine(
-        D2D1::Point2F(rect.GetRight() - corner.right_top.x, rect.top));
-    sink->AddQuadraticBezier(D2D1::QuadraticBezierSegment(
-        D2D1::Point2F(rect.GetRight(), rect.top),
-        D2D1::Point2F(rect.GetRight(), rect.top + corner.right_top.y)));
-    sink->AddLine(D2D1::Point2F(rect.GetRight(),
-                                rect.GetBottom() - corner.right_bottom.y));
-    sink->AddQuadraticBezier(D2D1::QuadraticBezierSegment(
-        D2D1::Point2F(rect.GetRight(), rect.GetBottom()),
-        D2D1::Point2F(rect.GetRight() - corner.right_bottom.x,
-                      rect.GetBottom())));
-    sink->AddLine(
-        D2D1::Point2F(rect.left + corner.left_bottom.x, rect.GetBottom()));
-    sink->AddQuadraticBezier(D2D1::QuadraticBezierSegment(
-        D2D1::Point2F(rect.left, rect.GetBottom()),
-        D2D1::Point2F(rect.left, rect.GetBottom() - corner.left_bottom.y)));
-    sink->AddLine(D2D1::Point2F(rect.left, rect.top + corner.left_top.y));
-    sink->AddQuadraticBezier(D2D1::QuadraticBezierSegment(
-        D2D1::Point2F(rect.left, rect.top),
-        D2D1::Point2F(rect.left + corner.left_top.x, rect.top)));
-    sink->EndFigure(D2D1_FIGURE_END_CLOSED);
+  auto f = [](platform::GeometryBuilder* builder, const Rect& rect,
+              const CornerRadius& corner) {
+    builder->BeginFigure(Point(rect.left + corner.left_top.x, rect.top));
+    builder->LineTo(Point(rect.GetRight() - corner.right_top.x, rect.top));
+    builder->QuadraticBezierTo(
+        Point(rect.GetRight(), rect.top),
+        Point(rect.GetRight(), rect.top + corner.right_top.y));
+    builder->LineTo(
+        Point(rect.GetRight(), rect.GetBottom() - corner.right_bottom.y));
+    builder->QuadraticBezierTo(
+        Point(rect.GetRight(), rect.GetBottom()),
+        Point(rect.GetRight() - corner.right_bottom.x, rect.GetBottom()));
+    builder->LineTo(Point(rect.left + corner.left_bottom.x, rect.GetBottom()));
+    builder->QuadraticBezierTo(
+        Point(rect.left, rect.GetBottom()),
+        Point(rect.left, rect.GetBottom() - corner.left_bottom.y));
+    builder->LineTo(Point(rect.left, rect.top + corner.left_top.y));
+    builder->QuadraticBezierTo(Point(rect.left, rect.top),
+                               Point(rect.left + corner.left_top.x, rect.top));
+    builder->CloseFigure(true);
   };
 
   const auto size = GetSize();
@@ -214,19 +181,18 @@ void BorderRenderObject::RecreateGeometry() {
   const Rect outer_rect{margin.left, margin.top,
                         size.width - margin.GetHorizontalTotal(),
                         size.height - margin.GetVerticalTotal()};
-  ThrowIfFailed(border_outer_geometry->Open(&sink));
-  f(outer_rect, corner_radius_);
-  ThrowIfFailed(sink->Close());
-  sink = nullptr;
+  const auto graph_factory =
+      platform::UiApplication::GetInstance()->GetGraphFactory();
+  std::unique_ptr<platform::GeometryBuilder> builder{graph_factory->CreateGeometryBuilder()};
+  f(builder.get(), outer_rect, corner_radius_);
+  border_outer_geometry_.reset(builder->Build());
+  builder.reset();
 
   const Rect inner_rect = outer_rect.Shrink(border_thickness_);
-  ThrowIfFailed(geometry->Open(&sink));
-  f(outer_rect, corner_radius_);
-  f(inner_rect, corner_radius_);
-  ThrowIfFailed(sink->Close());
-  sink = nullptr;
-
-  geometry_ = geometry.Detach();
-  border_outer_geometry_ = border_outer_geometry.Detach();
+  builder.reset(graph_factory->CreateGeometryBuilder());
+  f(builder.get(), outer_rect, corner_radius_);
+  f(builder.get(), inner_rect, corner_radius_);
+  border_outer_geometry_.reset(builder->Build());
+  builder.reset();
 }
 }  // namespace cru::ui::render

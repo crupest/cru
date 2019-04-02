@@ -21,7 +21,7 @@ void FlexLayoutRenderObject::Draw(platform::Painter* painter) {
   for (const auto child : GetChildren()) {
     auto offset = child->GetOffset();
     util::WithTransform(painter, Matrix::Translation(offset.x, offset.y),
-                        [child](auto rt) { child->Draw(rt); });
+                        [child](auto p) { child->Draw(p); });
   }
 }
 
