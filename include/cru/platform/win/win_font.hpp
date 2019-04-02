@@ -11,7 +11,7 @@ class GraphManager;
 class WinFontDescriptor : public Object, public virtual FontDescriptor {
  public:
   explicit WinFontDescriptor(GraphManager* graph_manager,
-                             const std::wstring_view& font_family);
+                             const std::wstring_view& font_family, float font_size);
   WinFontDescriptor(const WinFontDescriptor& other) = delete;
   WinFontDescriptor(WinFontDescriptor&& other) = delete;
   WinFontDescriptor& operator=(const WinFontDescriptor& other) = delete;
