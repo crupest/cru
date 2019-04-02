@@ -7,10 +7,12 @@ add_library(cru_platform_win STATIC
 	timer.cpp
 	win_application.cpp
 	win_brush.cpp
+	win_font.cpp
 	win_geometry.cpp
 	win_graph_factory.cpp
 	win_native_window.cpp
 	win_painter.cpp
+	win_text_layout.cpp
 	window_class.cpp
 	window_manager.cpp
 	window_render_target.cpp)
