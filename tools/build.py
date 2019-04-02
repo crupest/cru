@@ -25,11 +25,11 @@ def build_cru_ui():
         'x64': 'x64'
     }
 
-    subprocess.run('cmake -S . -B build -G "Visual Studio 15 2017" -A {arch}'
+    subprocess.check_call('cmake -S . -B build -G "Visual Studio 15 2017" -A {arch}'
                    .format(arch=generater_vs_arch_map[args.arch]),
                    stdout=sys.stdout, stderr=sys.stderr)
 
-    subprocess.run('cmake --build build --target ALL_BUILD --config {config}'.format(config=args.config),
+    subprocess.check_call('cmake --build build --target ALL_BUILD --config {config}'.format(config=args.config),
                    stdout=sys.stdout, stderr=sys.stderr)
 
 
