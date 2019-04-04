@@ -1,4 +1,4 @@
-#include "cru/ui/render/border_render_object.hpp"
+ #include "cru/ui/render/border_render_object.hpp"
 
 #include "cru/platform/debug.hpp"
 #include "cru/platform/geometry.hpp"

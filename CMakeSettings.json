@@ -2,28 +2,32 @@
   "configurations": [
     {
       "name": "x86-Debug",
-      "generator": "Visual Studio 15 2017",
+      "generator": "Ninja",
+      "inheritEnvironments": [ "msvc_x86_x64" ],
       "configurationType": "Debug",
       "buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\build\\${name}",
       "installRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\install\\${name}"
     },
     {
       "name": "x86-Realse",
-      "generator": "Visual Studio 15 2017",
+      "generator": "Ninja",
+      "inheritEnvironments": [ "msvc_x86_x64" ],
       "configurationType": "Release",
       "buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\build\\${name}",
       "installRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\install\\${name}"
     },
     {
       "name": "x64-Debug",
-      "generator": "Visual Studio 15 2017 Win64",
+      "generator": "Ninja",
+      "inheritEnvironments": [ "msvc_x64" ],
       "configurationType": "Debug",
       "buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\build\\${name}",
       "installRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\install\\${name}"
     },
     {
       "name": "x64-Release",
-      "generator": "Visual Studio 15 2017 Win64",
+      "generator": "Ninja",
+      "inheritEnvironments": [ "msvc_x64" ],
       "configurationType": "Release",
       "buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\build\\${name}",
       "installRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\install\\${name}"
