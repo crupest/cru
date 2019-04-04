@@ -14,6 +14,8 @@ Use python3 to run `tool/build.py`. Run with `-h` to see the options.
 
 ## structure of repository
 
+- 'include/' contains public headers.
+
 - `src/` contains the main codes including headers and sources.
 
 - `tools/` contains some codes of tools like code generators.
