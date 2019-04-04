@@ -104,10 +104,16 @@ Window::Window(tag_overlapped_constructor) {
   render_object_.reset(new render::WindowRenderObject(this));
 
   event_revokers_.push_back(native_window_->DestroyEvent()->AddHandler(
-      this, Window::OnNativeDestroy));
-  event_revokers_.push_back(
-      native_window_->PaintEvent()->AddHandler(this, Window::OnNativePaint));
-  //TODO
+      std::bind(&Window::OnNativeDestroy, this)));
+  event_revokers_.push_back(native_window_->PaintEvent()->AddHandler(
+      std::bind(&Window::OnNativePaint, this)));
+  event_revokers_.push_back(native_window_->ResizeEvent()->AddHandler(
+      std::bind(&Window::OnNativeResize, this)));
+  event_revokers_.push_back(native_window_->FocusEvent()->AddHandler(
+      std::bind(&Window::OnNativeFocus, this)));
+  event_revokers_.push_back(native_window_->FocusEvent()->AddHandler(
+      std::bind(&Window::OnNativeFocus, this)));
+  //TODO!
 }
 
 Window::~Window() {
@@ -166,6 +172,13 @@ void Window::OnNativeFocus(bool focus) {
       : DispatchEvent(focus_control_, &Control::LoseFocusEvent, nullptr, true);
 }
 
+void Window::OnNativeMouseEnterLeave(bool enter) {
+  if (!enter) {
+    DispatchEvent(mouse_hover_control_, &Control::MouseLeaveEvent, nullptr);
+    mouse_hover_control_ = nullptr;
+  }
+}
+
 void Window::OnNativeMouseMove(const Point& point) {
   // Find the first control that hit test succeed.
   const auto new_control_mouse_hover = HitTest(point);
@@ -176,11 +189,6 @@ void Window::OnNativeMouseMove(const Point& point) {
                                        new_control_mouse_hover, point);
   DispatchEvent(new_control_mouse_hover, &Control::MouseMoveEvent, nullptr,
                 point);
-}
-
-void Window::OnNativeMouseLeave() {
-  DispatchEvent(mouse_hover_control_, &Control::MouseLeaveEvent, nullptr);
-  mouse_hover_control_ = nullptr;
 }
 
 void Window::OnNativeMouseDown(platform::MouseButton button,

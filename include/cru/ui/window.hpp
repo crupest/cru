@@ -64,8 +64,8 @@ class Window final : public ContentControl {
 
   void OnNativeFocus(bool focus);
 
+  void OnNativeMouseEnterLeave(bool enter);
   void OnNativeMouseMove(const Point& point);
-  void OnNativeMouseLeave();
   void OnNativeMouseDown(platform::MouseButton button, const Point& point);
   void OnNativeMouseUp(platform::MouseButton button, const Point& point);
 

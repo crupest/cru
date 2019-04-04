@@ -57,6 +57,12 @@ class Event {
     return EventHandlerRevoker(EventHandlerRevokerImpl(event_resolver_, token));
   }
 
+  EventHandlerRevoker AddHandler(EventHandler&& handler) {
+    const auto token = current_token_++;
+    handlers_.emplace(token, std::move(handler));
+    return EventHandlerRevoker(EventHandlerRevokerImpl(event_resolver_, token));
+  }
+
   template <typename... Args>
   EventHandlerRevoker AddHandler(Args&& args...) {
     const auto token = current_token_++;
