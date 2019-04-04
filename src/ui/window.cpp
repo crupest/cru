@@ -105,25 +105,25 @@ Window::Window(tag_overlapped_constructor) {
       platform::UiApplication::GetInstance()->CreateWindow(nullptr);
   render_object_.reset(new render::WindowRenderObject(this));
 
-  event_revokers_.push_back(native_window_->DestroyEvent()->AddHandler(
+  event_revoker_guard_.Add(native_window_->DestroyEvent()->AddHandler(
       std::bind(&Window::OnNativeDestroy, this)));
-  event_revokers_.push_back(native_window_->PaintEvent()->AddHandler(
+  event_revoker_guard_.Add(native_window_->PaintEvent()->AddHandler(
       std::bind(&Window::OnNativePaint, this)));
-  event_revokers_.push_back(native_window_->ResizeEvent()->AddHandler(
+  event_revoker_guard_.Add(native_window_->ResizeEvent()->AddHandler(
       std::bind(&Window::OnNativeResize, this, _1)));
-  event_revokers_.push_back(native_window_->FocusEvent()->AddHandler(
+  event_revoker_guard_.Add(native_window_->FocusEvent()->AddHandler(
       std::bind(&Window::OnNativeFocus, this, _1)));
-  event_revokers_.push_back(native_window_->MouseEnterLeaveEvent()->AddHandler(
+  event_revoker_guard_.Add(native_window_->MouseEnterLeaveEvent()->AddHandler(
       std::bind(&Window::OnNativeMouseEnterLeave, this, _1)));
-  event_revokers_.push_back(native_window_->MouseMoveEvent()->AddHandler(
+  event_revoker_guard_.Add(native_window_->MouseMoveEvent()->AddHandler(
       std::bind(&Window::OnNativeMouseMove, this, _1)));
-  event_revokers_.push_back(native_window_->MouseDownEvent()->AddHandler(
+  event_revoker_guard_.Add(native_window_->MouseDownEvent()->AddHandler(
       std::bind(&Window::OnNativeMouseDown, this, _1, _2)));
-  event_revokers_.push_back(native_window_->MouseUpEvent()->AddHandler(
+  event_revoker_guard_.Add(native_window_->MouseUpEvent()->AddHandler(
       std::bind(&Window::OnNativeMouseUp, this, _1, _2)));
-  event_revokers_.push_back(native_window_->KeyDownEvent()->AddHandler(
+  event_revoker_guard_.Add(native_window_->KeyDownEvent()->AddHandler(
       std::bind(&Window::OnNativeKeyDown, this, _1)));
-  event_revokers_.push_back(native_window_->KeyUpEvent()->AddHandler(
+  event_revoker_guard_.Add(native_window_->KeyUpEvent()->AddHandler(
       std::bind(&Window::OnNativeKeyUp, this, _1)));  
 }
 

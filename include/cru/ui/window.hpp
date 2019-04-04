@@ -81,7 +81,7 @@ class Window final : public ContentControl {
 
  private:
   platform::NativeWindow* native_window_;
-  std::vector<EventHandlerRevoker> event_revokers_;
+  EventRevokerGuard event_revoker_guard_;
 
   std::shared_ptr<render::WindowRenderObject> render_object_;
 
