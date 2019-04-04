@@ -17,6 +17,7 @@ class WinPainter : public Object, public virtual Painter {
 
   Matrix GetTransform() override;
   void SetTransform(const Matrix& matrix) override;
+  void Clear(const ui::Color& color) override;
   void StrokeRectangle(const ui::Rect& rectangle, Brush* brush,
                                float width) override;
   void FillRectangle(const ui::Rect& rectangle, Brush* brush) override;

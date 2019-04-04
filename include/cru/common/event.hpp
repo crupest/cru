@@ -3,33 +3,65 @@
 
 #include <functional>
 #include <map>
+#include <memory>
 #include <utility>
 
 namespace cru {
+using EventHandlerRevoker = std::function<void()>;
+
 // A non-copyable non-movable Event class.
 // It stores a list of event handlers.
 template <typename... TArgs>
 class Event {
+ private:
+  using EventResolver = std::function<Event*()>;
+  class EventHandlerRevokerImpl {
+   public:
+    EventHandlerRevokerImpl(const std::shared_ptr<EventResolver>& resolver,
+                            long token)
+        : resolver_(resolver), token_(token) {}
+    EventHandlerRevokerImpl(const EventHandlerRevokerImpl& other) = default;
+    EventHandlerRevokerImpl(EventHandlerRevokerImpl&& other) = default;
+    EventHandlerRevokerImpl& operator=(EventHandlerRevokerImpl&& other) =
+        default;
+    EventHandlerRevokerImpl& operator=(EventHandlerRevokerImpl&& other) =
+        default;
+    ~EventHandlerRevokerImpl() = default;
+
+    void operator()() {
+      const auto true_resolver = resolver_.lock();
+      if (true_resolver) {
+        true_resolver()->RemoveHandler(token_);
+      }
+    }
+
+   private:
+    std::weak_ptr<EventResolver> resolver_;
+    long token_;
+  };
+
  public:
   using EventHandler = std::function<void(TArgs...)>;
-  using EventHandlerToken = long;
 
-  Event() = default;
+  Event()
+      : event_resolver_(new std::function<Event*()>([this] { return this; })) {}
   Event(const Event&) = delete;
   Event& operator=(const Event&) = delete;
   Event(Event&&) = delete;
   Event& operator=(Event&&) = delete;
   ~Event() = default;
 
-  EventHandlerToken AddHandler(const EventHandler& handler) {
+  EventHandlerRevoker AddHandler(const EventHandler& handler) {
     const auto token = current_token_++;
     handlers_.emplace(token, handler);
-    return token;
+    return EventHandlerRevoker(EventHandlerRevokerImpl(event_resolver_, token));
   }
 
-  void RemoveHandler(const EventHandlerToken token) {
-    auto find_result = handlers_.find(token);
-    if (find_result != handlers_.cend()) handlers_.erase(find_result);
+  template <typename... Args>
+  EventHandlerRevoker AddHandler(Args&& args...) {
+    const auto token = current_token_++;
+    handlers_.emplace(token, EventHandler(std::forward<Args>(args)...));
+    return EventHandlerRevoker(EventHandlerRevokerImpl(event_resolver_, token));
   }
 
   template <typename... Args>
@@ -39,8 +71,14 @@ class Event {
   }
 
  private:
-  std::map<EventHandlerToken, EventHandler> handlers_;
+  void RemoveHandler(const long token) {
+    auto find_result = handlers_.find(token);
+    if (find_result != handlers_.cend()) handlers_.erase(find_result);
+  }
 
-  EventHandlerToken current_token_ = 0;
+ private:
+  std::map<long, EventHandler> handlers_{};
+  long current_token_ = 0;
+  std::shared_ptr<EventResolver> event_resolver_;
 };
 }  // namespace cru

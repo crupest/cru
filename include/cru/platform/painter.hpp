@@ -12,6 +12,7 @@ struct TextLayout;
 struct Painter : virtual Interface {
   virtual Matrix GetTransform() = 0;
   virtual void SetTransform(const Matrix& matrix) = 0;
+  virtual void Clear(const ui::Color& color) = 0;
   virtual void StrokeRectangle(const ui::Rect& rectangle, Brush* brush,
                                float width) = 0;
   virtual void FillRectangle(const ui::Rect& rectangle, Brush* brush) = 0;

@@ -1,8 +1,9 @@
 #include "cru/ui/window.hpp"
 
-#include "cru/ui/render/window_render_object.hpp"
-#include "cru/platform/ui_applicaition.hpp"
 #include "cru/platform/native_window.hpp"
+#include "cru/platform/painter.hpp"
+#include "cru/platform/ui_applicaition.hpp"
+#include "cru/ui/render/window_render_object.hpp"
 
 #include <cassert>
 
@@ -97,10 +98,16 @@ Window* Window::CreateOverlapped() {
   return new Window(tag_overlapped_constructor{});
 }
 
-
 Window::Window(tag_overlapped_constructor) {
-  native_window_ = platform::UiApplication::GetInstance()->CreateWindow(nullptr);
+  native_window_ =
+      platform::UiApplication::GetInstance()->CreateWindow(nullptr);
   render_object_.reset(new render::WindowRenderObject(this));
+
+  event_revokers_.push_back(native_window_->DestroyEvent()->AddHandler(
+      this, Window::OnNativeDestroy));
+  event_revokers_.push_back(
+      native_window_->PaintEvent()->AddHandler(this, Window::OnNativePaint));
+  //TODO
 }
 
 Window::~Window() {
@@ -143,133 +150,56 @@ Control* Window::HitTest(const Point& point) {
 void Window::OnNativeDestroy() { delete this; }
 
 void Window::OnNativePaint() {
-  render_target_->SetAsTarget();
-
-  auto device_context =
-      render_target_->GetGraphManager()->GetD2D1DeviceContext();
-  device_context->BeginDraw();
-  // Clear the background.
-  device_context->Clear(D2D1::ColorF(D2D1::ColorF::White));
-  render_object_->Draw(device_context);
-  ThrowIfFailed(device_context->EndDraw(), "Failed to draw window.");
-  render_target_->Present();
-
-  ValidateRect(hwnd_, nullptr);
+  const auto painter =
+      std::make_unique<platform::Painter>(native_window_->BeginPaint());
+  render_object_->Draw(painter.get());
+  painter->EndDraw();
 }
 
-void Window::OnResizeInternal(const int new_width, const int new_height) {
-  render_target_->ResizeBuffer(new_width, new_height);
-  if (!(new_width == 0 && new_height == 0)) render_object_->MeasureAndLayout();
+void Window::OnNativeResize(const Size& size) {
+  render_object_->MeasureAndLayout();
 }
 
-void Window::OnSetFocusInternal() {
-  window_focus_ = true;
-  DispatchEvent(focus_control_, &Control::GainFocusEvent, nullptr, true);
+void Window::OnNativeFocus(bool focus) {
+  focus
+      ? DispatchEvent(focus_control_, &Control::GainFocusEvent, nullptr, true)
+      : DispatchEvent(focus_control_, &Control::LoseFocusEvent, nullptr, true);
 }
 
-void Window::OnKillFocusInternal() {
-  window_focus_ = false;
-  DispatchEvent(focus_control_, &Control::LoseFocusEvent, nullptr, true);
-}
-
-void Window::OnMouseMoveInternal(const POINT point) {
-  const auto dip_point = PiToDip(point);
-
-  // when mouse was previous outside the window
-  if (mouse_hover_control_ == nullptr) {
-    // invoke TrackMouseEvent to have WM_MOUSELEAVE sent.
-    TRACKMOUSEEVENT tme;
-    tme.cbSize = sizeof tme;
-    tme.dwFlags = TME_LEAVE;
-    tme.hwndTrack = hwnd_;
-
-    TrackMouseEvent(&tme);
-  }
-
+void Window::OnNativeMouseMove(const Point& point) {
   // Find the first control that hit test succeed.
-  const auto new_control_mouse_hover = HitTest(dip_point);
+  const auto new_control_mouse_hover = HitTest(point);
   const auto old_control_mouse_hover = mouse_hover_control_;
   mouse_hover_control_ = new_control_mouse_hover;
 
-  if (mouse_capture_control_)  // if mouse is captured
-  {
-    DispatchEvent(mouse_capture_control_, &Control::MouseMoveEvent, nullptr,
-                  dip_point);
-  } else {
-    DispatchMouseHoverControlChangeEvent(old_control_mouse_hover,
-                                         new_control_mouse_hover, dip_point);
-    DispatchEvent(new_control_mouse_hover, &Control::MouseMoveEvent, nullptr,
-                  dip_point);
-  }
+  DispatchMouseHoverControlChangeEvent(old_control_mouse_hover,
+                                       new_control_mouse_hover, point);
+  DispatchEvent(new_control_mouse_hover, &Control::MouseMoveEvent, nullptr,
+                point);
 }
 
-void Window::OnMouseLeaveInternal() {
+void Window::OnNativeMouseLeave() {
   DispatchEvent(mouse_hover_control_, &Control::MouseLeaveEvent, nullptr);
   mouse_hover_control_ = nullptr;
 }
 
-void Window::OnMouseDownInternal(MouseButton button, POINT point) {
-  const auto dip_point = PiToDip(point);
-
-  Control* control;
-
-  if (mouse_capture_control_)
-    control = mouse_capture_control_;
-  else
-    control = HitTest(dip_point);
-
-  DispatchEvent(control, &Control::MouseDownEvent, nullptr, dip_point,
-                button);
+void Window::OnNativeMouseDown(platform::MouseButton button,
+                               const Point& point) {
+  Control* control = HitTest(point);
+  DispatchEvent(control, &Control::MouseDownEvent, nullptr, point, button);
 }
 
-void Window::OnMouseUpInternal(MouseButton button, POINT point) {
-  const auto dip_point = PiToDip(point);
-
-  Control* control;
-
-  if (mouse_capture_control_)
-    control = mouse_capture_control_;
-  else
-    control = HitTest(dip_point);
-
-  DispatchEvent(control, &Control::MouseUpEvent, nullptr, dip_point, button);
+void Window::OnNativeMouseUp(platform::MouseButton button, const Point& point) {
+  Control* control = HitTest(point);
+  DispatchEvent(control, &Control::MouseUpEvent, nullptr, point, button);
 }
 
-void Window::OnMouseWheelInternal(short delta, POINT point) {
-  const auto dip_point = PiToDip(point);
-
-  Control* control;
-
-  if (mouse_capture_control_)
-    control = mouse_capture_control_;
-  else
-    control = HitTest(dip_point);
-
-  DispatchEvent(control, &Control::MouseWheelEvent, nullptr, dip_point,
-                static_cast<float>(delta));
+void Window::OnNativeKeyDown(int virtual_code) {
+  DispatchEvent(focus_control_, &Control::KeyDownEvent, nullptr, virtual_code);
 }
 
-void Window::OnKeyDownInternal(int virtual_code) {
-  DispatchEvent(focus_control_, &Control::KeyDownEvent, nullptr,
-                virtual_code);
-}
-
-void Window::OnKeyUpInternal(int virtual_code) {
+void Window::OnNativeKeyUp(int virtual_code) {
   DispatchEvent(focus_control_, &Control::KeyUpEvent, nullptr, virtual_code);
-}
-
-void Window::OnCharInternal(wchar_t c) {
-  DispatchEvent(focus_control_, &Control::CharEvent, nullptr, c);
-}
-
-void Window::OnActivatedInternal() {
-  events::UiEventArgs args(this, this);
-  activated_event_.Raise(args);
-}
-
-void Window::OnDeactivatedInternal() {
-  events::UiEventArgs args(this, this);
-  deactivated_event_.Raise(args);
 }
 
 void Window::DispatchMouseHoverControlChangeEvent(Control* old_control,

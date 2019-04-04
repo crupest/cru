@@ -35,13 +35,13 @@ struct NativeWindow : public virtual Interface {
   virtual Painter* BeginPaint() = 0;
 
   virtual Event<>* DestroyEvent() = 0;
-  virtual Event<ui::Size>* ResizeEvent() = 0;
+  virtual Event<const ui::Size&>* ResizeEvent() = 0;
   virtual Event<>* PaintEvent() = 0;
   virtual Event<bool>* FocusEvent() = 0;
   virtual Event<bool>* MouseEnterLeaveEvent() = 0;
-  virtual Event<ui::Point>* MouseMoveEvent() = 0;
-  virtual Event<MouseButton, ui::Point>* MouseDownEvent() = 0;
-  virtual Event<MouseButton, ui::Point>* MouseUpEvent() = 0;
+  virtual Event<const ui::Point&>* MouseMoveEvent() = 0;
+  virtual Event<MouseButton, const ui::Point&>* MouseDownEvent() = 0;
+  virtual Event<MouseButton, const ui::Point&>* MouseUpEvent() = 0;
   virtual Event<int>* KeyDownEvent() = 0;
   virtual Event<int>* KeyUpEvent() = 0;
 };

@@ -40,6 +40,11 @@ void WinPainter::SetTransform(const Matrix& matrix) {
   render_target_->SetTransform(util::Convert(matrix));
 }
 
+void WinPainter::Clear(const ui::Color& color) {
+  assert(!IsDisposed());
+  render_target_->Clear(util::Convert(color));
+}
+
 void WinPainter::StrokeRectangle(const ui::Rect& rectangle, Brush* brush,
                                  float width) {
   assert(!IsDisposed());

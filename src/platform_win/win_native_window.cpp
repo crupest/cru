@@ -4,6 +4,7 @@
 #include "cru/platform/win/win_application.hpp"
 #include "cru/platform/win/win_painter.hpp"
 #include "cru/platform/win/window_class.hpp"
+#include "cru/platform/win/window_render_target.hpp"
 #include "dpi_util.hpp"
 #include "window_manager.hpp"
 
@@ -258,10 +259,11 @@ void WinNativeWindow::OnPaintInternal() {
 
 void WinNativeWindow::OnResizeInternal(const int new_width,
                                        const int new_height) {
-  // render_target_->ResizeBuffer(new_width, new_height);
-  if (!(new_width == 0 && new_height == 0))
+  if (!(new_width == 0 && new_height == 0)) {
+    window_render_target_->ResizeBuffer(new_width, new_height);
     resize_event_.Raise(
         ui::Size{PixelToDipX(new_width), PixelToDipY(new_height)});
+  }
 }
 
 void WinNativeWindow::OnSetFocusInternal() {

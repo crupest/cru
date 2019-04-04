@@ -60,23 +60,18 @@ class Window final : public ContentControl {
 
   void OnNativeDestroy();
   void OnNativePaint();
-  void OnNativeResize(float new_width, float new_height);
+  void OnNativeResize(const Size& size);
 
-  void OnSetFocusInternal();
-  void OnKillFocusInternal();
+  void OnNativeFocus(bool focus);
 
-  void OnMouseMoveInternal(POINT point);
-  void OnMouseLeaveInternal();
-  void OnMouseDownInternal(MouseButton button, POINT point);
-  void OnMouseUpInternal(MouseButton button, POINT point);
+  void OnNativeMouseMove(const Point& point);
+  void OnNativeMouseLeave();
+  void OnNativeMouseDown(platform::MouseButton button, const Point& point);
+  void OnNativeMouseUp(platform::MouseButton button, const Point& point);
 
-  void OnMouseWheelInternal(short delta, POINT point);
-  void OnKeyDownInternal(int virtual_code);
-  void OnKeyUpInternal(int virtual_code);
-  void OnCharInternal(wchar_t c);
+  void OnNativeKeyDown(int virtual_code);
+  void OnNativeKeyUp(int virtual_code);
 
-  void OnActivatedInternal();
-  void OnDeactivatedInternal();
 
   //*************** region: event dispatcher helper ***************
 
@@ -86,7 +81,7 @@ class Window final : public ContentControl {
 
  private:
   platform::NativeWindow* native_window_;
-  std::vector<EventHandlerToken> revoke_tokens_;
+  std::vector<EventHandlerRevoker> event_revokers_;
 
   std::shared_ptr<render::WindowRenderObject> render_object_;
 

@@ -47,17 +47,17 @@ class WinNativeWindow : public Object, public virtual NativeWindow {
   Painter* BeginPaint() override;
 
   Event<>* DestroyEvent() override { return &destroy_event_; }
-  Event<ui::Size>* ResizeEvent() override { return &resize_event_; }
+  Event<const ui::Size&>* ResizeEvent() override { return &resize_event_; }
   Event<>* PaintEvent() override { return &paint_event_; }
   Event<bool>* FocusEvent() override { return &focus_event_; }
   Event<bool>* MouseEnterLeaveEvent() override {
     return &mouse_enter_leave_event_;
   }
-  Event<ui::Point>* MouseMoveEvent() override { return &mouse_move_event_; }
-  Event<MouseButton, ui::Point>* MouseDownEvent() override {
+  Event<const ui::Point&>* MouseMoveEvent() override { return &mouse_move_event_; }
+  Event<MouseButton, const ui::Point&>* MouseDownEvent() override {
     return &mouse_down_event_;
   }
-  Event<MouseButton, ui::Point>* MouseUpEvent() override {
+  Event<MouseButton, const ui::Point&>* MouseUpEvent() override {
     return &mouse_up_event_;
   }
   Event<int>* KeyDownEvent() override { return &key_down_event_; }
@@ -117,13 +117,13 @@ class WinNativeWindow : public Object, public virtual NativeWindow {
   std::shared_ptr<WindowRenderTarget> window_render_target_;
 
   Event<> destroy_event_;
-  Event<ui::Size> resize_event_;
+  Event<const ui::Size&> resize_event_;
   Event<> paint_event_;
   Event<bool> focus_event_;
   Event<bool> mouse_enter_leave_event_;
-  Event<ui::Point> mouse_move_event_;
-  Event<MouseButton, ui::Point> mouse_down_event_;
-  Event<MouseButton, ui::Point> mouse_up_event_;
+  Event<const ui::Point&> mouse_move_event_;
+  Event<MouseButton, const ui::Point&> mouse_down_event_;
+  Event<MouseButton, const ui::Point&> mouse_up_event_;
   Event<int> key_down_event_;
   Event<int> key_up_event_;
 
