@@ -1,5 +1,7 @@
 #include "cru/ui/ui_manager.hpp"
 
+#include "cru/platform/brush.hpp"
+#include "cru/platform/font.hpp"
 #include "cru/platform/graph_factory.hpp"
 #include "cru/platform/ui_applicaition.hpp"
 
@@ -8,13 +10,12 @@ PredefineResources::PredefineResources() {
   const auto graph_factory =
       platform::UiApplication::GetInstance()->GetGraphFactory();
 
-  button_normal_border_brush.reset(
-      graph_factory->CreateSolidColorBrush(colors::black));
-
-  text_block_selection_brush.reset(
-      graph_factory->CreateSolidColorBrush(colors::skyblue));
-  text_block_text_brush.reset(
-      graph_factory->CreateSolidColorBrush(colors::black));
+  button_normal_border_brush.reset(static_cast<platform::Brush*>(
+      graph_factory->CreateSolidColorBrush(colors::black)));
+  text_block_selection_brush.reset(static_cast<platform::Brush*>(
+      graph_factory->CreateSolidColorBrush(colors::skyblue)));
+  text_block_text_brush.reset(static_cast<platform::Brush*>(
+      graph_factory->CreateSolidColorBrush(colors::black)));
   text_block_font.reset(graph_factory->CreateFontDescriptor(L"等线", 24.0f));
 }
 

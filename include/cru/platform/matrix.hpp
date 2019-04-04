@@ -1,3 +1,4 @@
+#pragma once
 #include "cru/common/pre_config.hpp"
 
 #include "cru/common/ui_base.hpp"
@@ -29,12 +30,14 @@ struct Matrix {
            m31 == 0.0f && m32 == 0.0f;
   }
 
-  Matrix& operator*=(const Matrix& matrix) const {
+  Matrix& operator*=(const Matrix& matrix) {
     *this = Product(*this, matrix);
     return *this;
   }
 
-  Matrix operator*(const Matrix& matrix) const { return Product(this, matrix); }
+  Matrix operator*(const Matrix& matrix) const {
+    return Product(*this, matrix);
+  }
 
   ui::Point TransformPoint(const ui::Point& point) const {
     return ui::Point{point.x * m11 + point.y * m21 + m31,

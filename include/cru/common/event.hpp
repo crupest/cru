@@ -22,7 +22,7 @@ class Event {
         : resolver_(resolver), token_(token) {}
     EventHandlerRevokerImpl(const EventHandlerRevokerImpl& other) = default;
     EventHandlerRevokerImpl(EventHandlerRevokerImpl&& other) = default;
-    EventHandlerRevokerImpl& operator=(EventHandlerRevokerImpl&& other) =
+    EventHandlerRevokerImpl& operator=(const EventHandlerRevokerImpl& other) =
         default;
     EventHandlerRevokerImpl& operator=(EventHandlerRevokerImpl&& other) =
         default;
@@ -31,7 +31,7 @@ class Event {
     void operator()() {
       const auto true_resolver = resolver_.lock();
       if (true_resolver) {
-        true_resolver()->RemoveHandler(token_);
+        (*true_resolver)()->RemoveHandler(token_);
       }
     }
 
@@ -63,10 +63,11 @@ class Event {
     return EventHandlerRevoker(EventHandlerRevokerImpl(event_resolver_, token));
   }
 
-  template <typename... Args>
-  EventHandlerRevoker AddHandler(Args&& args...) {
+  template <typename Arg>
+  EventHandlerRevoker AddHandler(Arg&& handler) {
+    static_assert(std::is_invocable_v<Arg, TArgs...>, "Handler not invocable.");
     const auto token = current_token_++;
-    handlers_.emplace(token, EventHandler(std::forward<Args>(args)...));
+    handlers_.emplace(token, EventHandler(std::forward<Arg>(handler)));
     return EventHandlerRevoker(EventHandlerRevokerImpl(event_resolver_, token));
   }
 

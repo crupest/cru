@@ -97,6 +97,7 @@ void WinPainter::EndDraw() {
   if (!IsDisposed()) {
     ThrowIfFailed(render_target_->EndDraw());
     render_target_ = nullptr;
+    window_->GetWindowRenderTarget()->Present();
     is_disposed = true;
   }
 }

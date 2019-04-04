@@ -1,28 +1,27 @@
-#include "pre.hpp"
+#include "cru/platform/native_window.hpp"
+#include "cru/platform/ui_applicaition.hpp"
+#include "cru/ui/controls/button.hpp"
+#include "cru/ui/controls/flex_layout.hpp"
+#include "cru/ui/controls/text_block.hpp"
+#include "cru/ui/window.hpp"
 
-#include "application.hpp"
-#include "ui/controls/button.hpp"
-#include "ui/controls/flex_layout.hpp"
-#include "ui/controls/text_block.hpp"
-#include "ui/window.hpp"
-
-using cru::Application;
-using cru::String;
-using cru::StringView;
+using cru::platform::UiApplication;
 using cru::ui::Rect;
 using cru::ui::Thickness;
 using cru::ui::Window;
 using cru::ui::controls::Button;
 using cru::ui::controls::FlexLayout;
 using cru::ui::controls::TextBlock;
-
+/*
 int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
                       LPWSTR lpCmdLine, int nCmdShow) {
 #ifdef CRU_DEBUG
   _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif
+*/
 
-  Application application(hInstance);
+int main() {
+  auto application = UiApplication::GetInstance();
 
   const auto window = Window::CreateOverlapped();
 
@@ -40,7 +39,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   text_block2->SetText(L"Hello World!");
   flex_layout->AddChild(text_block2, 1);
 
-  window->Show();
+  window->GetNativeWindow()->SetVisible(true);
 
-  return application.Run();
+  return application->Run();
 }

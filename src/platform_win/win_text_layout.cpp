@@ -17,8 +17,9 @@ WinTextLayout::WinTextLayout(GraphManager* graph_manager,
   font_descriptor_.swap(font);
 
   ThrowIfFailed(graph_manager_->GetDWriteFactory()->CreateTextLayout(
-      text_.c_str(), text_.size(), font_descriptor_->GetDWriteTextFormat(),
-      max_width_, max_height_, &text_layout_));
+      text_.c_str(), static_cast<UINT32>(text_.size()),
+      font_descriptor_->GetDWriteTextFormat(), max_width_, max_height_,
+      &text_layout_));
 }
 
 std::wstring WinTextLayout::GetText() { return text_; }
@@ -26,8 +27,9 @@ std::wstring WinTextLayout::GetText() { return text_; }
 void WinTextLayout::SetText(std::wstring new_text) {
   text_.swap(new_text);
   ThrowIfFailed(graph_manager_->GetDWriteFactory()->CreateTextLayout(
-      text_.c_str(), text_.size(), font_descriptor_->GetDWriteTextFormat(),
-      max_width_, max_height_, &text_layout_));
+      text_.c_str(), static_cast<UINT32>(text_.size()),
+      font_descriptor_->GetDWriteTextFormat(), max_width_, max_height_,
+      &text_layout_));
 }
 
 std::shared_ptr<FontDescriptor> WinTextLayout::GetFont() {
@@ -39,8 +41,9 @@ void WinTextLayout::SetFont(std::shared_ptr<FontDescriptor> font) {
   assert(f);
   f.swap(font_descriptor_);
   ThrowIfFailed(graph_manager_->GetDWriteFactory()->CreateTextLayout(
-      text_.c_str(), text_.size(), font_descriptor_->GetDWriteTextFormat(),
-      max_width_, max_height_, &text_layout_));
+      text_.c_str(), static_cast<UINT32>(text_.size()),
+      font_descriptor_->GetDWriteTextFormat(), max_width_, max_height_,
+      &text_layout_));
 }
 
 void WinTextLayout::SetMaxWidth(float max_width) {

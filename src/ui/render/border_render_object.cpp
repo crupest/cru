@@ -192,7 +192,7 @@ void BorderRenderObject::RecreateGeometry() {
   builder.reset(graph_factory->CreateGeometryBuilder());
   f(builder.get(), outer_rect, corner_radius_);
   f(builder.get(), inner_rect, corner_radius_);
-  border_outer_geometry_.reset(builder->Build());
+  geometry_.reset(builder->Build());
   builder.reset();
 }
 }  // namespace cru::ui::render

@@ -188,7 +188,7 @@ void FlexLayoutRenderObject::OnLayoutContent(const Rect& content_rect) {
     const float content_anchor_x = calculate_anchor(
         content_main_align_, 0, content_rect.width, actual_content_width);
 
-    auto anchor_x = 0;
+    float anchor_x = 0;
     for (int i = 0; i < children.size(); i++) {
       const auto child = children[i];
       const auto size = child->GetPreferredSize();
@@ -215,7 +215,7 @@ void FlexLayoutRenderObject::OnLayoutContent(const Rect& content_rect) {
     const float content_anchor_y = calculate_anchor(
         content_main_align_, 0, content_rect.height, actual_content_height);
 
-    auto anchor_y = 0;
+    float anchor_y = 0;
     for (int i = 0; i < children.size(); i++) {
       const auto child = children[i];
       const auto size = child->GetPreferredSize();

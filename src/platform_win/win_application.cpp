@@ -40,7 +40,7 @@ WinApplication::WinApplication(HINSTANCE h_instance) : h_instance_(h_instance) {
   timer_manager_ = std::make_shared<TimerManager>(god_window_.get());
   window_manager_ = std::make_shared<WindowManager>(this);
   graph_manager_ = std::make_shared<GraphManager>();
-  graph_factory_ = std::make_shared<GraphFactory>(graph_manager_.get());
+  graph_factory_ = std::make_shared<WinGraphFactory>(graph_manager_.get());
 }
 
 WinApplication::~WinApplication() { instance_ = nullptr; }

@@ -17,7 +17,7 @@ class WinTextLayout : public Object, public virtual TextLayout {
   WinTextLayout(WinTextLayout&& other) = delete;
   WinTextLayout& operator=(const WinTextLayout& other) = delete;
   WinTextLayout& operator=(WinTextLayout&& other) = delete;
-  ~WinTextLayout() override;
+  ~WinTextLayout() override = default;
 
   std::wstring GetText() override;
   void SetText(std::wstring new_text) override;

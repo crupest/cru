@@ -1,9 +1,7 @@
 #pragma once
-#include "pre.hpp"
+#include "../layout_control.hpp"
 
 #include <memory>
-
-#include "ui/layout_control.hpp"
 
 namespace cru::ui::render {
 class FlexLayoutRenderObject;
@@ -27,7 +25,9 @@ class FlexLayout : public LayoutControl {
   FlexLayout& operator=(FlexLayout&& other) = delete;
   ~FlexLayout() override = default;
 
-  StringView GetControlType() const override final { return control_type; }
+  std::wstring_view GetControlType() const override final {
+    return control_type;
+  }
 
   render::RenderObject* GetRenderObject() const override;
 

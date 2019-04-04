@@ -1,9 +1,7 @@
 #pragma once
-#include "pre.hpp"
+#include "../content_control.hpp"
 
 #include <memory>
-
-#include "ui/content_control.hpp"
 
 namespace cru::ui::render {
 class BorderRenderObject;
@@ -26,7 +24,9 @@ class Button : public ContentControl {
   Button& operator=(Button&& other) = delete;
   ~Button() override = default;
 
-  StringView GetControlType() const override final { return control_type; }
+  std::wstring_view GetControlType() const override final {
+    return control_type;
+  }
 
   render::RenderObject* GetRenderObject() const override;
 

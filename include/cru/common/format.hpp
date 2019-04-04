@@ -83,7 +83,7 @@ inline std::string_view FormatToString(const std::string& string,
 }
 
 inline std::wstring_view FormatToString(const std::wstring_view& string,
-                                        details::TypeTag<String>) {
+                                        details::TypeTag<std::wstring>) {
   return string;
 }
 
@@ -93,7 +93,7 @@ inline std::string_view FormatToString(const std::string_view& string,
 }
 
 inline std::wstring_view FormatToString(const wchar_t* string,
-                                        details::TypeTag<String>) {
+                                        details::TypeTag<std::wstring>) {
   return std::wstring_view(string);
 }
 

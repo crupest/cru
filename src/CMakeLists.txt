@@ -22,7 +22,6 @@ target_link_libraries(cru_ui PUBLIC cru_platform_win)
 endif()
 
 
-
-add_executable(demo WIN32 main.cpp)
+add_executable(demo main.cpp)
 
 target_link_libraries(demo PRIVATE cru_ui)

@@ -2,13 +2,15 @@
 
 #include "cru/platform/win/win_application.hpp"
 #include "cru/platform/win/win_native_window.hpp"
+#include "cru/platform/win/window_class.hpp"
 
 #include <assert.h>
 
 namespace cru::platform::win {
 LRESULT __stdcall GeneralWndProc(HWND hWnd, UINT Msg, WPARAM wParam,
                                  LPARAM lParam) {
-  auto window = WinApplication::GetInstance()->GetWindowManager()->FromHandle(hWnd);
+  auto window =
+      WinApplication::GetInstance()->GetWindowManager()->FromHandle(hWnd);
 
   LRESULT result;
   if (window != nullptr &&
@@ -21,8 +23,7 @@ LRESULT __stdcall GeneralWndProc(HWND hWnd, UINT Msg, WPARAM wParam,
 WindowManager::WindowManager(WinApplication* application) {
   application_ = application;
   general_window_class_ = std::make_shared<WindowClass>(
-      L"CruUIWindowClass", GeneralWndProc,
-      application->GetInstanceHandle());
+      L"CruUIWindowClass", GeneralWndProc, application->GetInstanceHandle());
 }
 
 void WindowManager::RegisterWindow(HWND hwnd, WinNativeWindow* window) {
@@ -50,4 +51,4 @@ std::vector<WinNativeWindow*> WindowManager::GetAllWindows() const {
   for (auto [key, value] : window_map_) windows.push_back(value);
   return windows;
 }
-}
+}  // namespace cru::platform::win

@@ -21,7 +21,7 @@ class TextRenderObject : public RenderObject {
   TextRenderObject(TextRenderObject&& other) = delete;
   TextRenderObject& operator=(const TextRenderObject& other) = delete;
   TextRenderObject& operator=(TextRenderObject&& other) = delete;
-  ~TextRenderObject() override;
+  ~TextRenderObject() override = default;
 
   std::wstring GetText() const;
   void SetText(std::wstring new_text);

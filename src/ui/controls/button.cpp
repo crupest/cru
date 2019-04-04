@@ -1,7 +1,7 @@
-#include "button.hpp"
+#include "cru/ui/controls/button.hpp"
 
-#include "ui/render/border_render_object.hpp"
-#include "ui/ui_manager.hpp"
+#include "cru/ui/render/border_render_object.hpp"
+#include "cru/ui/ui_manager.hpp"
 
 namespace cru::ui::controls {
 Button::Button() {
@@ -14,7 +14,9 @@ Button::Button() {
   render_object_->SetCornerRadius(render::CornerRadius{Point{10, 5}});
 }
 
-render::RenderObject* Button::GetRenderObject() const { return render_object_.get(); }
+render::RenderObject* Button::GetRenderObject() const {
+  return render_object_.get();
+}
 
 void Button::OnChildChanged(Control* old_child, Control* new_child) {
   if (old_child != nullptr) render_object_->RemoveChild(0);

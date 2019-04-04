@@ -99,6 +99,8 @@ Window* Window::CreateOverlapped() {
 }
 
 Window::Window(tag_overlapped_constructor) {
+  using namespace std::placeholders;
+
   native_window_ =
       platform::UiApplication::GetInstance()->CreateWindow(nullptr);
   render_object_.reset(new render::WindowRenderObject(this));
@@ -108,12 +110,21 @@ Window::Window(tag_overlapped_constructor) {
   event_revokers_.push_back(native_window_->PaintEvent()->AddHandler(
       std::bind(&Window::OnNativePaint, this)));
   event_revokers_.push_back(native_window_->ResizeEvent()->AddHandler(
-      std::bind(&Window::OnNativeResize, this)));
+      std::bind(&Window::OnNativeResize, this, _1)));
   event_revokers_.push_back(native_window_->FocusEvent()->AddHandler(
-      std::bind(&Window::OnNativeFocus, this)));
-  event_revokers_.push_back(native_window_->FocusEvent()->AddHandler(
-      std::bind(&Window::OnNativeFocus, this)));
-  //TODO!
+      std::bind(&Window::OnNativeFocus, this, _1)));
+  event_revokers_.push_back(native_window_->MouseEnterLeaveEvent()->AddHandler(
+      std::bind(&Window::OnNativeMouseEnterLeave, this, _1)));
+  event_revokers_.push_back(native_window_->MouseMoveEvent()->AddHandler(
+      std::bind(&Window::OnNativeMouseMove, this, _1)));
+  event_revokers_.push_back(native_window_->MouseDownEvent()->AddHandler(
+      std::bind(&Window::OnNativeMouseDown, this, _1, _2)));
+  event_revokers_.push_back(native_window_->MouseUpEvent()->AddHandler(
+      std::bind(&Window::OnNativeMouseUp, this, _1, _2)));
+  event_revokers_.push_back(native_window_->KeyDownEvent()->AddHandler(
+      std::bind(&Window::OnNativeKeyDown, this, _1)));
+  event_revokers_.push_back(native_window_->KeyUpEvent()->AddHandler(
+      std::bind(&Window::OnNativeKeyUp, this, _1)));  
 }
 
 Window::~Window() {
@@ -157,7 +168,7 @@ void Window::OnNativeDestroy() { delete this; }
 
 void Window::OnNativePaint() {
   const auto painter =
-      std::make_unique<platform::Painter>(native_window_->BeginPaint());
+      std::unique_ptr<platform::Painter>(native_window_->BeginPaint());
   render_object_->Draw(painter.get());
   painter->EndDraw();
 }

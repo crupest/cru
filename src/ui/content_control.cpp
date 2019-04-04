@@ -1,6 +1,6 @@
 #include "cru/ui/content_control.hpp"
 
-#include "window.hpp"
+#include "cru/ui/window.hpp"
 
 #include <cassert>
 

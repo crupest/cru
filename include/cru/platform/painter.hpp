@@ -19,7 +19,7 @@ struct Painter : virtual Interface {
   virtual void StrokeGeometry(Geometry* geometry, Brush* brush,
                               float width) = 0;
   virtual void FillGeometry(Geometry* geometry, Brush* brush) = 0;
-  virtual void DrawText(const ui::Point& offset, TextLayout* text_layout, Brush* brush);
+  virtual void DrawText(const ui::Point& offset, TextLayout* text_layout, Brush* brush) = 0;
   virtual void EndDraw() = 0;
   virtual bool IsDisposed() = 0;
 };

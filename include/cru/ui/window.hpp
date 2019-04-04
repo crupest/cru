@@ -38,7 +38,7 @@ class Window final : public ContentControl {
 
   render::RenderObject* GetRenderObject() const override;
 
-  platform::NativeWindow* GetNativeWindow() const;
+  platform::NativeWindow* GetNativeWindow() const { return native_window_; }
 
   Control* GetMouseHoverControl() const { return mouse_hover_control_; }
 

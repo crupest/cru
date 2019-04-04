@@ -34,6 +34,9 @@ WinNativeWindow::WinNativeWindow(WinApplication* application,
     throw Win32Error(::GetLastError(), "Failed to create window.");
 
   window_manager->RegisterWindow(hwnd_, this);
+
+  window_render_target_.reset(
+      new WindowRenderTarget(application->GetGraphManager(), hwnd_));
 }
 
 WinNativeWindow::~WinNativeWindow() {
@@ -113,7 +116,8 @@ void WinNativeWindow::SetWindowRect(const ui::Rect& rect) {
   }
 }
 
-Painter* WinNativeWindow::BeginPaint() { return new WinPainter(this); }
+Painter* WinNativeWindow::BeginPaint() { 
+  return new WinPainter(this); }
 
 bool WinNativeWindow::HandleNativeWindowMessage(HWND hwnd, UINT msg,
                                                 WPARAM w_param, LPARAM l_param,
