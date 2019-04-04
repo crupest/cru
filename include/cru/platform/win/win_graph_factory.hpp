@@ -17,6 +17,10 @@ class WinGraphFactory : public Object, public virtual GraphFactory {
 
   SolidColorBrush* CreateSolidColorBrush(const ui::Color& color) override;
   GeometryBuilder* CreateGeometryBuilder() override;
+  FontDescriptor* CreateFontDescriptor(const std::wstring_view& font_family,
+                                       float font_size);
+  TextLayout* CreateTextLayout(std::shared_ptr<FontDescriptor> font,
+                               std::wstring text);
 
  private:
   GraphManager* graph_manager_;
