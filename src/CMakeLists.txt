@@ -1,7 +1,6 @@
 add_library(cru_ui STATIC
     ui/content_control.cpp
     ui/control.cpp
-    ui/input_util.cpp
     ui/layout_control.cpp
     ui/no_child_control.cpp
     ui/ui_manager.cpp

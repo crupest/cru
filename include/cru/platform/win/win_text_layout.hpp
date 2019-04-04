@@ -21,6 +21,8 @@ class WinTextLayout : public Object, public virtual TextLayout {
 
   std::wstring GetText() override;
   void SetText(std::wstring new_text) override;
+  std::shared_ptr<FontDescriptor> GetFont();
+  void SetFont(std::shared_ptr<FontDescriptor> font);
   void SetMaxWidth(float max_width) override;
   void SetMaxHeight(float max_height) override;
   ui::Rect GetTextBounds() override;

@@ -1,20 +1,14 @@
 #pragma once
-#include "pre.hpp"
+#include "cru/common/base.hpp"
 
-#include "base.hpp"
+#include <memory>
 
-struct ID2D1Brush;
-struct IDWriteTextFormat;
-namespace cru::graph {
-class GraphManager;
-}
+namespace cru::platform {
+struct Brush;
+struct FontDescriptor;
+}  // namespace cru::platform
 
 namespace cru::ui {
-struct CaretInfo {
-  std::chrono::milliseconds caret_blink_duration;
-  float half_caret_width;
-};
-
 class PredefineResources : public Object {
  public:
   PredefineResources();
@@ -22,15 +16,15 @@ class PredefineResources : public Object {
   PredefineResources(PredefineResources&& other) = delete;
   PredefineResources& operator=(const PredefineResources& other) = delete;
   PredefineResources& operator=(PredefineResources&& other) = delete;
-  ~PredefineResources() override;
+  ~PredefineResources() override = default;
 
   // region Button
-  ID2D1Brush* button_normal_border_brush = nullptr;
+  std::shared_ptr<platform::Brush> button_normal_border_brush;
 
   // region TextBlock
-  ID2D1Brush* text_block_selection_brush = nullptr;
-  ID2D1Brush* text_block_text_brush = nullptr;
-  IDWriteTextFormat* text_block_text_format = nullptr;
+  std::shared_ptr<platform::Brush> text_block_selection_brush;
+  std::shared_ptr<platform::Brush> text_block_text_brush;
+  std::shared_ptr<platform::FontDescriptor> text_block_font;
 };
 
 class UiManager : public Object {
@@ -47,15 +41,11 @@ class UiManager : public Object {
   UiManager& operator=(UiManager&& other) = delete;
   ~UiManager() override = default;
 
-  CaretInfo GetCaretInfo() const { return caret_info_; }
-
   const PredefineResources* GetPredefineResources() const {
-    return &predefine_resources_;
+    return predefine_resources_.get();
   }
 
  private:
-  CaretInfo caret_info_;
-
-  PredefineResources predefine_resources_;
+  std::unique_ptr<PredefineResources> predefine_resources_;
 };
 }  // namespace cru::ui

@@ -1,6 +1,8 @@
-#include "content_control.hpp"
+#include "cru/ui/content_control.hpp"
 
 #include "window.hpp"
+
+#include <cassert>
 
 namespace cru::ui {
 ContentControl::ContentControl()

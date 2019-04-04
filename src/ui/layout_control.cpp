@@ -1,6 +1,8 @@
-#include "layout_control.hpp"
+#include "cru/ui/layout_control.hpp"
 
 #include "window.hpp"
+
+#include <cassert>
 
 namespace cru::ui {
 LayoutControl::~LayoutControl() {
@@ -10,7 +12,8 @@ LayoutControl::~LayoutControl() {
 void LayoutControl::AddChild(Control* control, const int position) {
   assert(control->GetParent() == nullptr);  // The control already has a parent.
   assert(!dynamic_cast<Window*>(control));  // Can't add a window as child.
-  assert(position >= 0 || position <= this->children_.size()); // The position is out of range.
+  assert(position >= 0 ||
+         position <= this->children_.size());  // The position is out of range.
 
   children_.insert(this->children_.cbegin() + position, control);
 

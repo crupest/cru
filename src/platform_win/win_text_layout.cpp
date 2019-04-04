@@ -30,6 +30,19 @@ void WinTextLayout::SetText(std::wstring new_text) {
       max_width_, max_height_, &text_layout_));
 }
 
+std::shared_ptr<FontDescriptor> WinTextLayout::GetFont() {
+  return font_descriptor_;
+}
+
+void WinTextLayout::SetFont(std::shared_ptr<FontDescriptor> font) {
+  auto f = std::dynamic_pointer_cast<WinFontDescriptor>(font);
+  assert(f);
+  f.swap(font_descriptor_);
+  ThrowIfFailed(graph_manager_->GetDWriteFactory()->CreateTextLayout(
+      text_.c_str(), text_.size(), font_descriptor_->GetDWriteTextFormat(),
+      max_width_, max_height_, &text_layout_));
+}
+
 void WinTextLayout::SetMaxWidth(float max_width) {
   max_width_ = max_width;
   ThrowIfFailed(text_layout_->SetMaxWidth(max_width_));

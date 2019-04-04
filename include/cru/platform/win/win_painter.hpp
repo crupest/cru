@@ -17,8 +17,13 @@ class WinPainter : public Object, public virtual Painter {
 
   Matrix GetTransform() override;
   void SetTransform(const Matrix& matrix) override;
+  void StrokeRectangle(const ui::Rect& rectangle, Brush* brush,
+                               float width) override;
+  void FillRectangle(const ui::Rect& rectangle, Brush* brush) override;
   void StrokeGeometry(Geometry* geometry, Brush* brush, float width) override;
   void FillGeometry(Geometry* geometry, Brush* brush) override;
+  void DrawText(const ui::Point& offset, TextLayout* text_layout,
+                Brush* brush) override;
   void EndDraw() override;
   bool IsDisposed() override { return is_disposed; }
 

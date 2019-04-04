@@ -233,9 +233,25 @@ struct TextRange final {
 };
 
 struct Color {
+  constexpr Color() : Color(0, 0, 0, 255) {}
+  constexpr Color(std::uint8_t red, std::uint8_t green, std::uint8_t blue,
+                  std::uint8_t alpha = 255)
+      : red(red), green(green), blue(blue), alpha(alpha) {}
+
+  constexpr static Color FromHex(std::uint32_t hex) {
+    return Color(hex & (0b11111111 << 16), hex & (0b11111111 << 8),
+                 hex & (0b11111111), hex & (0b11111111 << 24));
+  }
+
   std::uint8_t red;
   std::uint8_t green;
   std::uint8_t blue;
   std::uint8_t alpha;
 };
+
+namespace colors {
+constexpr Color black{0, 0, 0};
+constexpr Color white{255, 255, 255};
+constexpr Color skyblue = Color::FromHex(0x87ceeb);
+}  // namespace colors
 }  // namespace cru::ui

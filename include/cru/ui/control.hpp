@@ -1,14 +1,17 @@
 #pragma once
 #include "cru/common/base.hpp"
 
-#include "cru/ui/event/ui_event.hpp"
-
-#include ""
+#include "cru/platform/basic_types.hpp"
+#include "event/ui_event.hpp"
 
 #include <string_view>
+#include <vector>
 
 namespace cru::ui {
 class Window;
+namespace render {
+class RenderObject;
+}  // namespace render
 
 class Control : public Object {
   friend class Window;
@@ -57,64 +60,64 @@ class Control : public Object {
   //*************** region: events ***************
  public:
   // Raised when mouse enter the control.
-  events::RoutedEvent<events::MouseEventArgs>* MouseEnterEvent() {
+  event::RoutedEvent<event::MouseEventArgs>* MouseEnterEvent() {
     return &mouse_enter_event_;
   }
   // Raised when mouse is leave the control.
-  events::RoutedEvent<events::MouseEventArgs>* MouseLeaveEvent() {
+  event::RoutedEvent<event::MouseEventArgs>* MouseLeaveEvent() {
     return &mouse_leave_event_;
   }
   // Raised when mouse is move in the control.
-  events::RoutedEvent<events::MouseEventArgs>* MouseMoveEvent() {
+  event::RoutedEvent<event::MouseEventArgs>* MouseMoveEvent() {
     return &mouse_move_event_;
   }
   // Raised when a mouse button is pressed in the control.
-  events::RoutedEvent<events::MouseButtonEventArgs>* MouseDownEvent() {
+  event::RoutedEvent<event::MouseButtonEventArgs>* MouseDownEvent() {
     return &mouse_down_event_;
   }
   // Raised when a mouse button is released in the control.
-  events::RoutedEvent<events::MouseButtonEventArgs>* MouseUpEvent() {
+  event::RoutedEvent<event::MouseButtonEventArgs>* MouseUpEvent() {
     return &mouse_up_event_;
   }
   // Raised when a mouse button is pressed in the control and released in the
   // control with mouse not leaving it between two operations.
-  events::RoutedEvent<events::MouseButtonEventArgs>* MouseClickEvent() {
+  event::RoutedEvent<event::MouseButtonEventArgs>* MouseClickEvent() {
     return &mouse_click_event_;
   }
-  events::RoutedEvent<events::MouseWheelEventArgs>* MouseWheelEvent() {
+  event::RoutedEvent<event::MouseWheelEventArgs>* MouseWheelEvent() {
     return &mouse_wheel_event_;
   }
-  events::RoutedEvent<events::KeyEventArgs>* KeyDownEvent() {
+  event::RoutedEvent<event::KeyEventArgs>* KeyDownEvent() {
     return &key_down_event_;
   }
-  events::RoutedEvent<events::KeyEventArgs>* KeyUpEvent() {
+  event::RoutedEvent<event::KeyEventArgs>* KeyUpEvent() {
     return &key_up_event_;
   }
-  events::RoutedEvent<events::CharEventArgs>* CharEvent() {
-    return &char_event_;
-  }
-  events::RoutedEvent<events::FocusChangeEventArgs>* GainFocusEvent() {
+  //  event::RoutedEvent<event::CharEventArgs>* CharEvent() {
+  //    return &char_event_;
+  //  }
+  event::RoutedEvent<event::FocusChangeEventArgs>* GainFocusEvent() {
     return &gain_focus_event_;
   }
-  events::RoutedEvent<events::FocusChangeEventArgs>* LoseFocusEvent() {
+  event::RoutedEvent<event::FocusChangeEventArgs>* LoseFocusEvent() {
     return &lose_focus_event_;
   }
 
  private:
-  events::RoutedEvent<events::MouseEventArgs> mouse_enter_event_;
-  events::RoutedEvent<events::MouseEventArgs> mouse_leave_event_;
-  events::RoutedEvent<events::MouseEventArgs> mouse_move_event_;
-  events::RoutedEvent<events::MouseButtonEventArgs> mouse_down_event_;
-  events::RoutedEvent<events::MouseButtonEventArgs> mouse_up_event_;
-  events::RoutedEvent<events::MouseButtonEventArgs> mouse_click_event_;
-  events::RoutedEvent<events::MouseWheelEventArgs> mouse_wheel_event_;
+  event::RoutedEvent<event::MouseEventArgs> mouse_enter_event_;
+  event::RoutedEvent<event::MouseEventArgs> mouse_leave_event_;
+  event::RoutedEvent<event::MouseEventArgs> mouse_move_event_;
+  event::RoutedEvent<event::MouseButtonEventArgs> mouse_down_event_;
+  event::RoutedEvent<event::MouseButtonEventArgs> mouse_up_event_;
+  event::RoutedEvent<event::MouseButtonEventArgs> mouse_click_event_;
+  event::RoutedEvent<event::MouseWheelEventArgs> mouse_wheel_event_;
 
-  events::RoutedEvent<events::KeyEventArgs> key_down_event_;
-  events::RoutedEvent<events::KeyEventArgs> key_up_event_;
-  events::RoutedEvent<events::CharEventArgs> char_event_;
+  event::RoutedEvent<event::KeyEventArgs> key_down_event_;
+  event::RoutedEvent<event::KeyEventArgs> key_up_event_;
+  //  event::RoutedEvent<event::CharEventArgs> char_event_;
 
-  events::RoutedEvent<events::FocusChangeEventArgs> gain_focus_event_;
-  events::RoutedEvent<events::FocusChangeEventArgs> lose_focus_event_;
+  event::RoutedEvent<event::FocusChangeEventArgs> gain_focus_event_;
+  event::RoutedEvent<event::FocusChangeEventArgs> lose_focus_event_;
 
   //*************** region: tree ***************
  protected:
@@ -124,8 +127,8 @@ class Control : public Object {
 
   //*************** region: additional mouse event ***************
  protected:
-  virtual void OnMouseClickBegin(MouseButton button);
-  virtual void OnMouseClickEnd(MouseButton button);
+  virtual void OnMouseClickBegin(platform::MouseButton button);
+  virtual void OnMouseClickEnd(platform::MouseButton button);
 
  private:
   Window* window_ = nullptr;

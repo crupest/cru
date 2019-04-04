@@ -1,35 +1,38 @@
 #pragma once
-#include "pre.hpp"
-
 #include "render_object.hpp"
 
+#include <memory>
+#include <string>
+
 // forward declarations
-struct ID2D1Brush;
-struct IDWriteTextFormat;
-struct IDWriteTextLayout;
+namespace cru::platform {
+struct Brush;
+struct FontDescriptor;
+struct TextLayout;
+}  // namespace cru::platform
 
 namespace cru::ui::render {
 class TextRenderObject : public RenderObject {
  public:
-  TextRenderObject(ID2D1Brush* brush, IDWriteTextFormat* format,
-                   ID2D1Brush* selection_brush);
+  TextRenderObject(std::shared_ptr<platform::Brush> brush,
+                   std::shared_ptr<platform::FontDescriptor> font,
+                   std::shared_ptr<platform::Brush> selection_brush);
   TextRenderObject(const TextRenderObject& other) = delete;
   TextRenderObject(TextRenderObject&& other) = delete;
   TextRenderObject& operator=(const TextRenderObject& other) = delete;
   TextRenderObject& operator=(TextRenderObject&& other) = delete;
   ~TextRenderObject() override;
 
-  String GetText() const { return text_; }
-  void SetText(String new_text) {
-    text_ = std::move(new_text);
-    RecreateTextLayout();
+  std::wstring GetText() const;
+  void SetText(std::wstring new_text);
+
+  std::shared_ptr<platform::Brush> GetBrush() const { return brush_; }
+  void SetBrush(std::shared_ptr<platform::Brush> new_brush) {
+    new_brush.swap(brush_);
   }
 
-  ID2D1Brush* GetBrush() const { return brush_; }
-  void SetBrush(ID2D1Brush* new_brush);
-
-  IDWriteTextFormat* GetTextFormat() const { return text_format_; }
-  void SetTextFormat(IDWriteTextFormat* new_text_format);
+  std::shared_ptr<platform::FontDescriptor> GetFont() const;
+  void SetFont(std::shared_ptr<platform::FontDescriptor> font);
 
   std::optional<TextRange> GetSelectionRange() const {
     return selection_range_;
@@ -38,12 +41,14 @@ class TextRenderObject : public RenderObject {
     selection_range_ = std::move(new_range);
   }
 
-  ID2D1Brush* GetSelectionBrush() const { return selection_brush_; }
-  void SetSelectionBrush(ID2D1Brush* new_brush);
+  std::shared_ptr<platform::Brush> GetSelectionBrush() const {
+    return selection_brush_;
+  }
+  void SetSelectionBrush(std::shared_ptr<platform::Brush> new_brush) {
+    new_brush.swap(selection_brush_);
+  }
 
-  void Refresh() { RecreateTextLayout(); }
-
-  void Draw(ID2D1RenderTarget* render_target) override;
+  void Draw(platform::Painter* painter) override;
 
   RenderObject* HitTest(const Point& point) override;
 
@@ -54,16 +59,11 @@ class TextRenderObject : public RenderObject {
   void OnLayoutContent(const Rect& content_rect) override;
 
  private:
-  void RecreateTextLayout();
-
- private:
-  String text_;
-
-  ID2D1Brush* brush_ = nullptr;
-  IDWriteTextFormat* text_format_ = nullptr;
-  IDWriteTextLayout* text_layout_ = nullptr;
+  std::shared_ptr<platform::Brush> brush_;
+  std::shared_ptr<platform::FontDescriptor> font_;
+  std::shared_ptr<platform::TextLayout> text_layout_;
 
   std::optional<TextRange> selection_range_ = std::nullopt;
-  ID2D1Brush* selection_brush_ = nullptr;
+  std::shared_ptr<platform::Brush>  selection_brush_;
 };
 }  // namespace cru::ui::render

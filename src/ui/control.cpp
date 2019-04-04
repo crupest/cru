@@ -1,6 +1,8 @@
-#include "control.hpp"
+#include "cru/ui/control.hpp"
 
 #include "window.hpp"
+
+#include <cassert>
 
 namespace cru::ui {
 void Control::_SetParent(Control* parent) {
@@ -61,7 +63,7 @@ void Control::OnAttachToWindow(Window* window) {}
 
 void Control::OnDetachToWindow(Window* window) {}
 
-void Control::OnMouseClickBegin(MouseButton button) {}
+void Control::OnMouseClickBegin(platform::MouseButton button) {}
 
-void Control::OnMouseClickEnd(MouseButton button) {}
+void Control::OnMouseClickEnd(platform::MouseButton button) {}
 }  // namespace cru::ui

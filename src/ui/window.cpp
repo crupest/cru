@@ -1,14 +1,10 @@
-#include "window.hpp"
+#include "cru/ui/window.hpp"
 
-#include <d2d1_1.h>
-#include <windowsx.h>
+#include "cru/ui/render/window_render_object.hpp"
+#include "cru/platform/ui_applicaition.hpp"
+#include "cru/platform/native_window.hpp"
 
-#include "application.hpp"
-#include "exception.hpp"
-#include "graph/graph_manager.hpp"
-#include "graph/graph_util.hpp"
-#include "graph/window_render_target.hpp"
-#include "render/window_render_object.hpp"
+#include <cassert>
 
 namespace cru::ui {
 namespace {
@@ -27,7 +23,7 @@ namespace {
 // as the rest arguments.
 template <typename EventArgs, typename... Args>
 void DispatchEvent(Control* const original_sender,
-                   events::RoutedEvent<EventArgs>* (Control::*event_ptr)(),
+                   event::RoutedEvent<EventArgs>* (Control::*event_ptr)(),
                    Control* const last_receiver, Args&&... args) {
   std::list<Control*> receive_list;
 
@@ -97,231 +93,30 @@ Control* FindLowestCommonAncestor(Control* left, Control* right) {
 }
 }  // namespace
 
-
-inline Point PiToDip(const POINT& pi_point) {
-  return Point(graph::PixelToDipX(pi_point.x), graph::PixelToDipY(pi_point.y));
-}
-
-inline POINT DipToPi(const Point& dip_point) {
-  POINT result;
-  result.x = graph::DipToPixelX(dip_point.x);
-  result.y = graph::DipToPixelY(dip_point.y);
-  return result;
-}
-
 Window* Window::CreateOverlapped() {
   return new Window(tag_overlapped_constructor{});
 }
 
-Window* Window::CreatePopup(Window* parent, const bool caption) {
-  return new Window(tag_popup_constructor{}, parent, caption);
-}
 
 Window::Window(tag_overlapped_constructor) {
-  BeforeCreateHwnd();
-
-  const auto window_manager = WindowManager::GetInstance();
-
-  hwnd_ =
-      CreateWindowEx(0, window_manager->GetGeneralWindowClass()->GetName(), L"",
-                     WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT,
-                     CW_USEDEFAULT, CW_USEDEFAULT, nullptr, nullptr,
-                     Application::GetInstance()->GetInstanceHandle(), nullptr);
-
-  if (hwnd_ == nullptr)
-    throw Win32Error(::GetLastError(), "Failed to create window.");
-
-  AfterCreateHwnd(window_manager);
-}
-
-Window::Window(tag_popup_constructor, Window* parent, const bool caption) {
-  assert(parent == nullptr ||
-         parent->IsWindowValid());  // Parent window is not valid.
-
-  BeforeCreateHwnd();
-
-  parent_window_ = parent;
-
-  const auto window_manager = WindowManager::GetInstance();
-
-  hwnd_ = CreateWindowEx(
-      0, window_manager->GetGeneralWindowClass()->GetName(), L"",
-      caption ? (WS_POPUPWINDOW | WS_CAPTION) : WS_POPUP, CW_USEDEFAULT,
-      CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
-      parent == nullptr ? nullptr : parent->GetWindowHandle(), nullptr,
-      Application::GetInstance()->GetInstanceHandle(), nullptr);
-
-  if (hwnd_ == nullptr)
-    throw Win32Error(::GetLastError(), "Failed to create window.");
-
-  AfterCreateHwnd(window_manager);
-}
-
-void Window::BeforeCreateHwnd() { window_ = this; }
-
-void Window::AfterCreateHwnd(WindowManager* window_manager) {
-  window_manager->RegisterWindow(hwnd_, this);
-
-  render_target_.reset(
-      new graph::WindowRenderTarget(graph::GraphManager::GetInstance(), hwnd_));
-
+  native_window_ = platform::UiApplication::GetInstance()->CreateWindow(nullptr);
   render_object_.reset(new render::WindowRenderObject(this));
 }
 
 Window::~Window() {
-
   TraverseDescendants(
       [this](Control* control) { control->OnDetachToWindow(this); });
 }
 
-StringView Window::GetControlType() const { return control_type; }
+std::wstring_view Window::GetControlType() const { return control_type; }
 
 render::RenderObject* Window::GetRenderObject() const {
   return render_object_.get();
 }
 
-bool Window::HandleWindowMessage(HWND hwnd, int msg, WPARAM w_param,
-                                 LPARAM l_param, LRESULT& result) {
-  events::WindowNativeMessageEventArgs args(this, this,
-                                            {hwnd, msg, w_param, l_param});
-  native_message_event_.Raise(args);
-  if (args.GetResult().has_value()) {
-    result = args.GetResult().value();
-    return true;
-  }
-
-  switch (msg) {
-    case WM_PAINT:
-      OnPaintInternal();
-      result = 0;
-      return true;
-    case WM_ERASEBKGND:
-      result = 1;
-      return true;
-    case WM_SETFOCUS:
-      OnSetFocusInternal();
-      result = 0;
-      return true;
-    case WM_KILLFOCUS:
-      OnKillFocusInternal();
-      result = 0;
-      return true;
-    case WM_MOUSEMOVE: {
-      POINT point;
-      point.x = GET_X_LPARAM(l_param);
-      point.y = GET_Y_LPARAM(l_param);
-      OnMouseMoveInternal(point);
-      result = 0;
-      return true;
-    }
-    case WM_LBUTTONDOWN: {
-      POINT point;
-      point.x = GET_X_LPARAM(l_param);
-      point.y = GET_Y_LPARAM(l_param);
-      OnMouseDownInternal(MouseButton::Left, point);
-      result = 0;
-      return true;
-    }
-    case WM_LBUTTONUP: {
-      POINT point;
-      point.x = GET_X_LPARAM(l_param);
-      point.y = GET_Y_LPARAM(l_param);
-      OnMouseUpInternal(MouseButton::Left, point);
-      result = 0;
-      return true;
-    }
-    case WM_RBUTTONDOWN: {
-      POINT point;
-      point.x = GET_X_LPARAM(l_param);
-      point.y = GET_Y_LPARAM(l_param);
-      OnMouseDownInternal(MouseButton::Right, point);
-      result = 0;
-      return true;
-    }
-    case WM_RBUTTONUP: {
-      POINT point;
-      point.x = GET_X_LPARAM(l_param);
-      point.y = GET_Y_LPARAM(l_param);
-      OnMouseUpInternal(MouseButton::Right, point);
-      result = 0;
-      return true;
-    }
-    case WM_MBUTTONDOWN: {
-      POINT point;
-      point.x = GET_X_LPARAM(l_param);
-      point.y = GET_Y_LPARAM(l_param);
-      OnMouseDownInternal(MouseButton::Middle, point);
-      result = 0;
-      return true;
-    }
-    case WM_MBUTTONUP: {
-      POINT point;
-      point.x = GET_X_LPARAM(l_param);
-      point.y = GET_Y_LPARAM(l_param);
-      OnMouseUpInternal(MouseButton::Middle, point);
-      result = 0;
-      return true;
-    }
-    case WM_MOUSEWHEEL:
-      POINT point;
-      point.x = GET_X_LPARAM(l_param);
-      point.y = GET_Y_LPARAM(l_param);
-      ScreenToClient(hwnd, &point);
-      OnMouseWheelInternal(GET_WHEEL_DELTA_WPARAM(w_param), point);
-      result = 0;
-      return true;
-    case WM_KEYDOWN:
-      OnKeyDownInternal(static_cast<int>(w_param));
-      result = 0;
-      return true;
-    case WM_KEYUP:
-      OnKeyUpInternal(static_cast<int>(w_param));
-      result = 0;
-      return true;
-    case WM_CHAR:
-      OnCharInternal(static_cast<wchar_t>(w_param));
-      result = 0;
-      return true;
-    case WM_SIZE:
-      OnResizeInternal(LOWORD(l_param), HIWORD(l_param));
-      result = 0;
-      return true;
-    case WM_ACTIVATE:
-      if (w_param == WA_ACTIVE || w_param == WA_CLICKACTIVE)
-        OnActivatedInternal();
-      else if (w_param == WA_INACTIVE)
-        OnDeactivatedInternal();
-      result = 0;
-      return true;
-    case WM_DESTROY:
-      OnDestroyInternal();
-      result = 0;
-      return true;
-    default:
-      return false;
-  }
-}
-
-Point Window::GetMousePosition() {
-  if (!IsWindowValid()) return Point::Zero();
-  POINT point;
-  ::GetCursorPos(&point);
-  ::ScreenToClient(hwnd_, &point);
-  return PiToDip(point);
-}
-
 bool Window::RequestFocusFor(Control* control) {
   assert(control != nullptr);  // The control to request focus can't be null.
                                // You can set it as the window.
-
-  if (!IsWindowValid()) return false;
-
-  if (!window_focus_) {
-    focus_control_ = control;
-    ::SetFocus(hwnd_);
-    return true;  // event dispatch will be done in window message handling
-                  // function "OnSetFocusInternal".
-  }
 
   if (focus_control_ == control) return true;
 
@@ -336,41 +131,6 @@ bool Window::RequestFocusFor(Control* control) {
 
 Control* Window::GetFocusControl() { return focus_control_; }
 
-Control* Window::CaptureMouseFor(Control* control) {
-  if (control != nullptr) {
-    ::SetCapture(hwnd_);
-    std::swap(mouse_capture_control_, control);
-    DispatchMouseHoverControlChangeEvent(
-        control ? control : mouse_hover_control_, mouse_capture_control_,
-        GetMousePosition());
-    return control;
-  } else {
-    return ReleaseCurrentMouseCapture();
-  }
-}
-
-Control* Window::ReleaseCurrentMouseCapture() {
-  if (mouse_capture_control_) {
-    const auto previous = mouse_capture_control_;
-    mouse_capture_control_ = nullptr;
-    ::ReleaseCapture();
-    DispatchMouseHoverControlChangeEvent(previous, mouse_hover_control_,
-                                         GetMousePosition());
-    return previous;
-  } else {
-    return nullptr;
-  }
-}
-
-#ifdef CRU_DEBUG_LAYOUT
-void Window::SetDebugLayout(const bool value) {
-  if (debug_layout_ != value) {
-    debug_layout_ = value;
-    InvalidateDraw();
-  }
-}
-#endif
-
 void Window::OnChildChanged(Control* old_child, Control* new_child) {
   if (old_child) render_object_->RemoveChild(0);
   if (new_child) render_object_->AddChild(new_child->GetRenderObject(), 0);
@@ -380,32 +140,9 @@ Control* Window::HitTest(const Point& point) {
   return render_object_->HitTest(point)->GetAttachedControl();
 }
 
-RECT Window::GetClientRectPixel() {
-  RECT rect{};
-  GetClientRect(hwnd_, &rect);
-  return rect;
-}
+void Window::OnNativeDestroy() { delete this; }
 
-bool Window::IsMessageInQueue(UINT message) {
-  MSG msg;
-  return ::PeekMessageW(&msg, hwnd_, message, message, PM_NOREMOVE) != 0;
-}
-
-void Window::SetCursorInternal(HCURSOR cursor) {
-  if (IsWindowValid()) {
-    ::SetClassLongPtrW(GetWindowHandle(), GCLP_HCURSOR,
-                       reinterpret_cast<LONG_PTR>(cursor));
-    if (mouse_hover_control_ != nullptr) ::SetCursor(cursor);
-  }
-}
-
-void Window::OnDestroyInternal() {
-  WindowManager::GetInstance()->UnregisterWindow(hwnd_);
-  hwnd_ = nullptr;
-  if (delete_this_on_destroy_) InvokeLater([this] { delete this; });
-}
-
-void Window::OnPaintInternal() {
+void Window::OnNativePaint() {
   render_target_->SetAsTarget();
 
   auto device_context =

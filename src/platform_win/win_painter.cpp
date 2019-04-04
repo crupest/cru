@@ -6,6 +6,7 @@
 #include "cru/platform/win/win_brush.hpp"
 #include "cru/platform/win/win_geometry.hpp"
 #include "cru/platform/win/win_native_window.hpp"
+#include "cru/platform/win/win_text_layout.hpp"
 #include "cru/platform/win/window_render_target.hpp"
 
 #include <cassert>
@@ -28,13 +29,31 @@ WinPainter::~WinPainter() {
 }
 
 Matrix WinPainter::GetTransform() {
+  assert(!IsDisposed());
   D2D1_MATRIX_3X2_F m;
   render_target_->GetTransform(&m);
   return util::Convert(m);
 }
 
 void WinPainter::SetTransform(const Matrix& matrix) {
+  assert(!IsDisposed());
   render_target_->SetTransform(util::Convert(matrix));
+}
+
+void WinPainter::StrokeRectangle(const ui::Rect& rectangle, Brush* brush,
+                                 float width) {
+  assert(!IsDisposed());
+  const auto b = dynamic_cast<WinBrush*>(brush);
+  assert(b);
+  render_target_->DrawRectangle(util::Convert(rectangle), b->GetD2DBrush(),
+                                width);
+}
+
+void WinPainter::FillRectangle(const ui::Rect& rectangle, Brush* brush) {
+  assert(!IsDisposed());
+  const auto b = dynamic_cast<WinBrush*>(brush);
+  assert(b);
+  render_target_->FillRectangle(util::Convert(rectangle), b->GetD2DBrush());
 }
 
 void WinPainter::StrokeGeometry(Geometry* geometry, Brush* brush, float width) {
@@ -55,6 +74,18 @@ void WinPainter::FillGeometry(Geometry* geometry, Brush* brush) {
   assert(b);
 
   render_target_->FillGeometry(g->GetNative(), b->GetD2DBrush());
+}
+
+void WinPainter::DrawText(const ui::Point& offset, TextLayout* text_layout,
+                          Brush* brush) {
+  assert(!IsDisposed());
+  const auto t = dynamic_cast<WinTextLayout*>(text_layout);
+  assert(t);
+  const auto b = dynamic_cast<WinBrush*>(brush);
+  assert(b);
+
+  render_target_->DrawTextLayout(util::Convert(offset),
+                                 t->GetDWriteTextLayout(), b->GetD2DBrush());
 }
 
 void WinPainter::EndDraw() {

@@ -18,5 +18,8 @@ WinFontDescriptor::WinFontDescriptor(GraphManager* graph_manager,
       font_family.data(), nullptr, DWRITE_FONT_WEIGHT_NORMAL,
       DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, font_size,
       buffer.data(), &text_format_));
+
+  ThrowIfFailed(text_format_->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER));
+  ThrowIfFailed(text_format_->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER));
 }
 }  // namespace cru::platform::win
