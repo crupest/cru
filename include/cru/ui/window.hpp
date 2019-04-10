@@ -5,7 +5,7 @@
 
 #include <memory>
 
-namespace cru::platform {
+namespace cru::platform::native {
 struct NativeWindow;
 }
 
@@ -38,7 +38,7 @@ class Window final : public ContentControl {
 
   render::RenderObject* GetRenderObject() const override;
 
-  platform::NativeWindow* GetNativeWindow() const { return native_window_; }
+  platform::native::NativeWindow* GetNativeWindow() const { return native_window_; }
 
   Control* GetMouseHoverControl() const { return mouse_hover_control_; }
 
@@ -66,12 +66,13 @@ class Window final : public ContentControl {
 
   void OnNativeMouseEnterLeave(bool enter);
   void OnNativeMouseMove(const Point& point);
-  void OnNativeMouseDown(platform::MouseButton button, const Point& point);
-  void OnNativeMouseUp(platform::MouseButton button, const Point& point);
+  void OnNativeMouseDown(platform::native::MouseButton button,
+                         const Point& point);
+  void OnNativeMouseUp(platform::native::MouseButton button,
+                       const Point& point);
 
   void OnNativeKeyDown(int virtual_code);
   void OnNativeKeyUp(int virtual_code);
-
 
   //*************** region: event dispatcher helper ***************
 
@@ -80,7 +81,7 @@ class Window final : public ContentControl {
                                             const Point& point);
 
  private:
-  platform::NativeWindow* native_window_;
+  platform::native::NativeWindow* native_window_;
   EventRevokerGuard event_revoker_guard_;
 
   std::shared_ptr<render::WindowRenderObject> render_object_;

@@ -1,7 +1,7 @@
 #include "cru/ui/render/window_render_object.hpp"
 
-#include "cru/platform/native_window.hpp"
-#include "cru/platform/painter_util.hpp"
+#include "cru/platform/graph/painter_util.hpp"
+#include "cru/platform/native/native_window.hpp"
 #include "cru/ui/window.hpp"
 
 #include <cassert>
@@ -13,11 +13,11 @@ void WindowRenderObject::MeasureAndLayout() {
   Layout(Rect{Point{}, client_size});
 }
 
-void WindowRenderObject::Draw(platform::Painter* painter) {
+void WindowRenderObject::Draw(platform::graph::Painter* painter) {
   painter->Clear(colors::white);
   if (const auto child = GetChild()) {
     auto offset = child->GetOffset();
-    platform::util::WithTransform(
+    platform::graph::util::WithTransform(
         painter, platform::Matrix::Translation(offset.x, offset.y),
         [child](auto rt) { child->Draw(rt); });
   }

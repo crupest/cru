@@ -3,6 +3,6 @@
 
 #include <string_view>
 
-namespace cru::platform::debug {
+namespace cru::platform {
 void DebugMessage(const std::wstring_view& message);
 }

@@ -1,7 +1,7 @@
 #pragma once
 #include "cru/common/base.hpp"
 
-#include "cru/platform/basic_types.hpp"
+#include "cru/platform/native/basic_types.hpp"
 #include "event/ui_event.hpp"
 
 #include <string_view>
@@ -127,8 +127,8 @@ class Control : public Object {
 
   //*************** region: additional mouse event ***************
  protected:
-  virtual void OnMouseClickBegin(platform::MouseButton button);
-  virtual void OnMouseClickEnd(platform::MouseButton button);
+  virtual void OnMouseClickBegin(platform::native::MouseButton button);
+  virtual void OnMouseClickEnd(platform::native::MouseButton button);
 
  private:
   Window* window_ = nullptr;

@@ -1,26 +1,26 @@
- #include "cru/ui/render/border_render_object.hpp"
+#include "cru/ui/render/border_render_object.hpp"
 
 #include "cru/platform/debug.hpp"
-#include "cru/platform/geometry.hpp"
-#include "cru/platform/graph_factory.hpp"
-#include "cru/platform/painter_util.hpp"
-#include "cru/platform/ui_applicaition.hpp"
+#include "cru/platform/graph/geometry.hpp"
+#include "cru/platform/graph/graph_factory.hpp"
+#include "cru/platform/graph/painter_util.hpp"
 
 #include <algorithm>
 #include <cassert>
 
 namespace cru::ui::render {
-BorderRenderObject::BorderRenderObject(std::shared_ptr<platform::Brush> brush) {
+BorderRenderObject::BorderRenderObject(
+    std::shared_ptr<platform::graph::Brush> brush) {
   assert(brush);
   this->border_brush_ = std::move(brush);
   RecreateGeometry();
 }
 
-void BorderRenderObject::Draw(platform::Painter* painter) {
+void BorderRenderObject::Draw(platform::graph::Painter* painter) {
   painter->FillGeometry(geometry_.get(), border_brush_.get());
   if (const auto child = GetChild()) {
     auto offset = child->GetOffset();
-    platform::util::WithTransform(
+    platform::graph::util::WithTransform(
         painter, platform::Matrix::Translation(offset.x, offset.y),
         [child](auto p) { child->Draw(p); });
   }
@@ -75,13 +75,13 @@ void BorderRenderObject::OnMeasureCore(const Size& available_size) {
 
   auto coerced_margin_border_padding_size = margin_border_padding_size;
   if (coerced_margin_border_padding_size.width > available_size.width) {
-    platform::debug::DebugMessage(
+    platform::DebugMessage(
         L"Measure: horizontal length of padding, border and margin is bigger "
         L"than available length.");
     coerced_margin_border_padding_size.width = available_size.width;
   }
   if (coerced_margin_border_padding_size.height > available_size.height) {
-    platform::debug::DebugMessage(
+    platform::DebugMessage(
         L"Measure: vertical length of padding, border and margin is bigger "
         L"than available length.");
     coerced_margin_border_padding_size.height = available_size.height;
@@ -113,13 +113,13 @@ void BorderRenderObject::OnLayoutCore(const Rect& rect) {
   auto coerced_content_available_size = content_available_size;
 
   if (coerced_content_available_size.width < 0) {
-    platform::debug::DebugMessage(
+    platform::DebugMessage(
         L"Layout: horizontal length of padding, border and margin is bigger "
         L"than available length.");
     coerced_content_available_size.width = 0;
   }
   if (coerced_content_available_size.height < 0) {
-    platform::debug::DebugMessage(
+    platform::DebugMessage(
         L"Layout: vertical length of padding, border and margin is bigger "
         L"than "
         L"available length.");
@@ -154,7 +154,7 @@ void BorderRenderObject::RecreateGeometry() {
   geometry_.reset();
   border_outer_geometry_.reset();
 
-  auto f = [](platform::GeometryBuilder* builder, const Rect& rect,
+  auto f = [](platform::graph::GeometryBuilder* builder, const Rect& rect,
               const CornerRadius& corner) {
     builder->BeginFigure(Point(rect.left + corner.left_top.x, rect.top));
     builder->LineTo(Point(rect.GetRight() - corner.right_top.x, rect.top));
@@ -181,9 +181,9 @@ void BorderRenderObject::RecreateGeometry() {
   const Rect outer_rect{margin.left, margin.top,
                         size.width - margin.GetHorizontalTotal(),
                         size.height - margin.GetVerticalTotal()};
-  const auto graph_factory =
-      platform::UiApplication::GetInstance()->GetGraphFactory();
-  std::unique_ptr<platform::GeometryBuilder> builder{graph_factory->CreateGeometryBuilder()};
+  const auto graph_factory = platform::graph::GraphFactory::GetInstance();
+  std::unique_ptr<platform::graph::GeometryBuilder> builder{
+      graph_factory->CreateGeometryBuilder()};
   f(builder.get(), outer_rect, corner_radius_);
   border_outer_geometry_.reset(builder->Build());
   builder.reset();

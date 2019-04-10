@@ -3,11 +3,11 @@
 
 #include "cru/common/event.hpp"
 #include "cru/common/ui_base.hpp"
-#include "cru/platform/basic_types.hpp"
+#include "cru/platform/native/basic_types.hpp"
 
 #include <optional>
 
-namespace cru::platform {
+namespace cru::platform::graph {
 struct Painter;
 }
 
@@ -19,9 +19,7 @@ namespace cru::ui::event {
 class UiEventArgs : public Object {
  public:
   UiEventArgs(Object* sender, Object* original_sender)
-      : sender_(sender),
-        original_sender_(original_sender),
-        handled_(false) {}
+      : sender_(sender), original_sender_(original_sender), handled_(false) {}
 
   UiEventArgs(const UiEventArgs& other) = default;
   UiEventArgs(UiEventArgs&& other) = default;
@@ -80,7 +78,8 @@ class MouseEventArgs : public UiEventArgs {
 class MouseButtonEventArgs : public MouseEventArgs {
  public:
   MouseButtonEventArgs(Object* sender, Object* original_sender,
-                       const Point& point, const platform::MouseButton button)
+                       const Point& point,
+                       const platform::native::MouseButton button)
       : MouseEventArgs(sender, original_sender, point), button_(button) {}
   MouseButtonEventArgs(const MouseButtonEventArgs& other) = default;
   MouseButtonEventArgs(MouseButtonEventArgs&& other) = default;
@@ -88,10 +87,10 @@ class MouseButtonEventArgs : public MouseEventArgs {
   MouseButtonEventArgs& operator=(MouseButtonEventArgs&& other) = default;
   ~MouseButtonEventArgs() override = default;
 
-  platform::MouseButton GetMouseButton() const { return button_; }
+  platform::native::MouseButton GetMouseButton() const { return button_; }
 
  private:
-  platform::MouseButton button_;
+  platform::native::MouseButton button_;
 };
 
 class MouseWheelEventArgs : public MouseEventArgs {
@@ -114,7 +113,7 @@ class MouseWheelEventArgs : public MouseEventArgs {
 class PaintEventArgs : public UiEventArgs {
  public:
   PaintEventArgs(Object* sender, Object* original_sender,
-                platform::Painter* painter)
+                 platform::graph::Painter* painter)
       : UiEventArgs(sender, original_sender), painter_(painter) {}
   PaintEventArgs(const PaintEventArgs& other) = default;
   PaintEventArgs(PaintEventArgs&& other) = default;
@@ -122,10 +121,10 @@ class PaintEventArgs : public UiEventArgs {
   PaintEventArgs& operator=(PaintEventArgs&& other) = default;
   ~PaintEventArgs() = default;
 
-  platform::Painter* GetPainter() const { return painter_; }
+  platform::graph::Painter* GetPainter() const { return painter_; }
 
  private:
-  platform::Painter* painter_;
+  platform::graph::Painter* painter_;
 };
 
 class FocusChangeEventArgs : public UiEventArgs {
@@ -197,4 +196,4 @@ class CharEventArgs : public UiEventArgs {
   wchar_t c_;
 };
 */
-}  // namespace cru::ui::events
+}  // namespace cru::ui::event

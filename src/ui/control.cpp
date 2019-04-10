@@ -63,7 +63,7 @@ void Control::OnAttachToWindow(Window* window) {}
 
 void Control::OnDetachToWindow(Window* window) {}
 
-void Control::OnMouseClickBegin(platform::MouseButton button) {}
+void Control::OnMouseClickBegin(platform::native::MouseButton button) {}
 
-void Control::OnMouseClickEnd(platform::MouseButton button) {}
+void Control::OnMouseClickEnd(platform::native::MouseButton button) {}
 }  // namespace cru::ui

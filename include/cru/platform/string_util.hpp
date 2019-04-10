@@ -4,6 +4,6 @@
 #include <string>
 #include <string_view>
 
-namespace cru::platform::util {
+namespace cru::platform {
 std::string ToUtf8String(const std::wstring_view& string);
 }

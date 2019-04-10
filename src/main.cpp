@@ -1,11 +1,11 @@
-#include "cru/platform/native_window.hpp"
-#include "cru/platform/ui_applicaition.hpp"
+#include "cru/platform/native/native_window.hpp"
+#include "cru/platform/native/ui_applicaition.hpp"
 #include "cru/ui/controls/button.hpp"
 #include "cru/ui/controls/flex_layout.hpp"
 #include "cru/ui/controls/text_block.hpp"
 #include "cru/ui/window.hpp"
 
-using cru::platform::UiApplication;
+using cru::platform::native::UiApplication;
 using cru::ui::Rect;
 using cru::ui::Thickness;
 using cru::ui::Window;

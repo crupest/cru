@@ -38,7 +38,7 @@ class FlexLayoutRenderObject : public RenderObject {
 
   FlexChildLayoutData* GetChildLayoutData(int position);
 
-  void Draw(platform::Painter* painter) override;
+  void Draw(platform::graph::Painter* painter) override;
 
   RenderObject* HitTest(const Point& point) override;
 

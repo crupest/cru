@@ -1,15 +1,13 @@
 #include "cru/ui/render/flex_layout_render_object.hpp"
 
 #include "cru/platform/debug.hpp"
-#include "cru/platform/painter_util.hpp"
+#include "cru/platform/graph/painter_util.hpp"
 
 #include <algorithm>
 #include <cassert>
 #include <functional>
 
 namespace cru::ui::render {
-using namespace platform;
-
 FlexChildLayoutData* FlexLayoutRenderObject::GetChildLayoutData(int position) {
   assert(position >= 0 &&
          position < child_layout_data_.size());  // Position out of bound.
@@ -17,11 +15,12 @@ FlexChildLayoutData* FlexLayoutRenderObject::GetChildLayoutData(int position) {
   return &child_layout_data_[position];
 }
 
-void FlexLayoutRenderObject::Draw(platform::Painter* painter) {
+void FlexLayoutRenderObject::Draw(platform::graph::Painter* painter) {
   for (const auto child : GetChildren()) {
     auto offset = child->GetOffset();
-    util::WithTransform(painter, Matrix::Translation(offset.x, offset.y),
-                        [child](auto p) { child->Draw(p); });
+    platform::graph::util::WithTransform(
+        painter, platform::Matrix::Translation(offset.x, offset.y),
+        [child](auto p) { child->Draw(p); });
   }
 }
 

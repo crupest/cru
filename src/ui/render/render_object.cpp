@@ -54,13 +54,13 @@ void RenderObject::OnMeasureCore(const Size& available_size) {
 
   auto coerced_margin_padding_size = margin_padding_size;
   if (coerced_margin_padding_size.width > available_size.width) {
-    platform::debug::DebugMessage(
+    platform::DebugMessage(
         L"Measure: horizontal length of padding and margin is bigger than "
         L"available length.");
     coerced_margin_padding_size.width = available_size.width;
   }
   if (coerced_margin_padding_size.height > available_size.height) {
-    platform::debug::DebugMessage(
+    platform::DebugMessage(
         L"Measure: vertical length of padding and margin is bigger than "
         L"available length.");
     coerced_margin_padding_size.height = available_size.height;
@@ -82,13 +82,13 @@ void RenderObject::OnLayoutCore(const Rect& rect) {
   auto coerced_content_available_size = content_available_size;
 
   if (coerced_content_available_size.width < 0) {
-    platform::debug::DebugMessage(
+    platform::DebugMessage(
         L"Layout: horizontal length of padding and margin is bigger than "
         L"available length.");
     coerced_content_available_size.width = 0;
   }
   if (coerced_content_available_size.height < 0) {
-    platform::debug::DebugMessage(
+    platform::DebugMessage(
         L"Layout: vertical length of padding and margin is bigger than "
         L"available length.");
     coerced_content_available_size.height = 0;

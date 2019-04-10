@@ -3,7 +3,7 @@
 
 #include <memory>
 
-namespace cru::platform {
+namespace cru::platform::graph {
 struct Brush;
 struct Geometry;
 }  // namespace cru::platform
@@ -32,7 +32,7 @@ struct CornerRadius {
 
 class BorderRenderObject : public RenderObject {
  public:
-  explicit BorderRenderObject(std::shared_ptr<platform::Brush> brush);
+  explicit BorderRenderObject(std::shared_ptr<platform::graph::Brush> brush);
   BorderRenderObject(const BorderRenderObject& other) = delete;
   BorderRenderObject(BorderRenderObject&& other) = delete;
   BorderRenderObject& operator=(const BorderRenderObject& other) = delete;
@@ -42,8 +42,8 @@ class BorderRenderObject : public RenderObject {
   bool IsEnabled() const { return is_enabled_; }
   void SetEnabled(bool enabled) { is_enabled_ = enabled; }
 
-  std::shared_ptr<platform::Brush> GetBrush() const { return border_brush_; }
-  void SetBrush(std::shared_ptr<platform::Brush> new_brush) {
+  std::shared_ptr<platform::graph::Brush> GetBrush() const { return border_brush_; }
+  void SetBrush(std::shared_ptr<platform::graph::Brush> new_brush) {
     border_brush_ = std::move(new_brush);
   }
 
@@ -59,7 +59,7 @@ class BorderRenderObject : public RenderObject {
 
   void Refresh() { RecreateGeometry(); }
 
-  void Draw(platform::Painter* painter) override;
+  void Draw(platform::graph::Painter* painter) override;
 
   RenderObject* HitTest(const Point& point) override;
 
@@ -83,11 +83,11 @@ class BorderRenderObject : public RenderObject {
  private:
   bool is_enabled_ = false;
 
-  std::shared_ptr<platform::Brush> border_brush_ = nullptr;
+  std::shared_ptr<platform::graph::Brush> border_brush_ = nullptr;
   Thickness border_thickness_{};
   CornerRadius corner_radius_{};
 
-  std::shared_ptr<platform::Geometry> geometry_ = nullptr;
-  std::shared_ptr<platform::Geometry> border_outer_geometry_ = nullptr;
+  std::shared_ptr<platform::graph::Geometry> geometry_ = nullptr;
+  std::shared_ptr<platform::graph::Geometry> border_outer_geometry_ = nullptr;
 };
 }  // namespace cru::ui::render

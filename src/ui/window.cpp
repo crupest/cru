@@ -1,8 +1,8 @@
 #include "cru/ui/window.hpp"
 
-#include "cru/platform/native_window.hpp"
-#include "cru/platform/painter.hpp"
-#include "cru/platform/ui_applicaition.hpp"
+#include "cru/platform/graph/painter.hpp"
+#include "cru/platform/native/native_window.hpp"
+#include "cru/platform/native/ui_applicaition.hpp"
 #include "cru/ui/render/window_render_object.hpp"
 
 #include <cassert>
@@ -102,7 +102,7 @@ Window::Window(tag_overlapped_constructor) {
   using namespace std::placeholders;
 
   native_window_ =
-      platform::UiApplication::GetInstance()->CreateWindow(nullptr);
+      platform::native::UiApplication::GetInstance()->CreateWindow(nullptr);
   render_object_.reset(new render::WindowRenderObject(this));
 
   event_revoker_guard_.Add(native_window_->DestroyEvent()->AddHandler(
@@ -124,7 +124,7 @@ Window::Window(tag_overlapped_constructor) {
   event_revoker_guard_.Add(native_window_->KeyDownEvent()->AddHandler(
       std::bind(&Window::OnNativeKeyDown, this, _1)));
   event_revoker_guard_.Add(native_window_->KeyUpEvent()->AddHandler(
-      std::bind(&Window::OnNativeKeyUp, this, _1)));  
+      std::bind(&Window::OnNativeKeyUp, this, _1)));
 }
 
 Window::~Window() {
@@ -168,7 +168,7 @@ void Window::OnNativeDestroy() { delete this; }
 
 void Window::OnNativePaint() {
   const auto painter =
-      std::unique_ptr<platform::Painter>(native_window_->BeginPaint());
+      std::unique_ptr<platform::graph::Painter>(native_window_->BeginPaint());
   render_object_->Draw(painter.get());
   painter->EndDraw();
 }
@@ -202,13 +202,13 @@ void Window::OnNativeMouseMove(const Point& point) {
                 point);
 }
 
-void Window::OnNativeMouseDown(platform::MouseButton button,
+void Window::OnNativeMouseDown(platform::native::MouseButton button,
                                const Point& point) {
   Control* control = HitTest(point);
   DispatchEvent(control, &Control::MouseDownEvent, nullptr, point, button);
 }
 
-void Window::OnNativeMouseUp(platform::MouseButton button, const Point& point) {
+void Window::OnNativeMouseUp(platform::native::MouseButton button, const Point& point) {
   Control* control = HitTest(point);
   DispatchEvent(control, &Control::MouseUpEvent, nullptr, point, button);
 }
