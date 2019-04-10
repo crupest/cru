@@ -14,7 +14,7 @@ Use python3 to run `tool/build.py`. Run with `-h` to see the options.
 
 ## structure of repository
 
-- 'include/' contains public headers.
+- `include/` contains public headers.
 
 - `src/` contains the main codes including headers and sources.
 
@@ -25,3 +25,6 @@ Use python3 to run `tool/build.py`. Run with `-h` to see the options.
     - `tools/build.py` is a python3 script to build the source code.
 
 - `snippets/` contains useful snippets file for *Visual Studio*, you can import it.
+
+## project structure
+![project structure](art/project_structure.png)
