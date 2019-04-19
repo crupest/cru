@@ -6,14 +6,14 @@
 namespace cru::win::graph {
 class GraphManager;
 
-class WinPainter : public Object, public virtual platform::graph::Painter {
+class D2DPainter : public Object, public virtual platform::graph::Painter {
  public:
-  explicit WinPainter(ID2D1RenderTarget* render_target);
-  WinPainter(const WinPainter& other) = delete;
-  WinPainter(WinPainter&& other) = delete;
-  WinPainter& operator=(const WinPainter& other) = delete;
-  WinPainter& operator=(WinPainter&& other) = delete;
-  ~WinPainter() override;
+  explicit D2DPainter(ID2D1RenderTarget* render_target);
+  D2DPainter(const D2DPainter& other) = delete;
+  D2DPainter(D2DPainter&& other) = delete;
+  D2DPainter& operator=(const D2DPainter& other) = delete;
+  D2DPainter& operator=(D2DPainter&& other) = delete;
+  ~D2DPainter() override = default;
 
   platform::Matrix GetTransform() override;
   void SetTransform(const platform::Matrix& matrix) override;
@@ -29,8 +29,8 @@ class WinPainter : public Object, public virtual platform::graph::Painter {
   void DrawText(const ui::Point& offset,
                 platform::graph::TextLayout* text_layout,
                 platform::graph::Brush* brush) override;
-  void EndDraw() override;
-  bool IsDisposed() override { return is_disposed_; }
+  void EndDraw() override final;
+  bool IsDisposed() override final { return is_disposed_; }
 
   void EndDrawAndDeleteThis() {
     EndDraw();
@@ -38,7 +38,7 @@ class WinPainter : public Object, public virtual platform::graph::Painter {
   }
 
  protected:
-  virtual void DoEndDraw();
+  virtual void DoEndDraw() = 0;
 
  private:
   ID2D1RenderTarget* render_target_;

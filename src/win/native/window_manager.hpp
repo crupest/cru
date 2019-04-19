@@ -19,7 +19,7 @@ class WindowManager : public Object {
   WindowManager(WindowManager&& other) = delete;
   WindowManager& operator=(const WindowManager& other) = delete;
   WindowManager& operator=(WindowManager&& other) = delete;
-  ~WindowManager() override = default;
+  ~WindowManager() override;
 
   // Get the general window class for creating ordinary window.
   std::shared_ptr<WindowClass> GetGeneralWindowClass() const {

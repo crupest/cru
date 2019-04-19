@@ -254,6 +254,7 @@ RECT WinNativeWindow::GetClientRectPixel() {
 void WinNativeWindow::OnDestroyInternal() {
   application_->GetWindowManager()->UnregisterWindow(hwnd_);
   hwnd_ = nullptr;
+  destroy_event_.Raise();
   if (delete_this_on_destroy_)
     application_->InvokeLater([this] { delete this; });
 }

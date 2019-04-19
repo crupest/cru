@@ -1,6 +1,7 @@
 #include "cru/win/native/win_application.hpp"
 
 #include "cru/win/exception.hpp"
+#include "cru/win/graph/graph_manager.hpp"
 #include "cru/win/native/god_window.hpp"
 #include "cru/win/native/win_native_window.hpp"
 #include "god_window_message.hpp"
@@ -17,19 +18,22 @@ UiApplication* UiApplication::GetInstance() {
 }  // namespace cru::platform::native
 
 namespace cru::win::native {
-WinApplication* WinApplication::instance_ = nullptr;
+WinApplication* WinApplication::instance = nullptr;
+
+namespace {
+bool application_constructing = false;
+}
 
 WinApplication* WinApplication::GetInstance() {
-  if (instance_ == nullptr)
-    instance_ = new WinApplication(::GetModuleHandleW(nullptr));
-  return instance_;
+  if (instance == nullptr && !application_constructing) {
+    application_constructing = true;
+    instance = new WinApplication(::GetModuleHandleW(nullptr));
+  }
+  return instance;
 }
 
 WinApplication::WinApplication(HINSTANCE h_instance) : h_instance_(h_instance) {
-  if (instance_)
-    throw std::runtime_error("A application instance already exists.");
-
-  instance_ = this;
+  assert(instance == nullptr);
 
   if (!::IsWindows8OrGreater())
     throw std::runtime_error("Must run on Windows 8 or later.");
@@ -39,7 +43,8 @@ WinApplication::WinApplication(HINSTANCE h_instance) : h_instance_(h_instance) {
   window_manager_ = std::make_shared<WindowManager>(this);
 }
 
-WinApplication::~WinApplication() { instance_ = nullptr; }
+WinApplication::~WinApplication() {
+  instance = nullptr; }
 
 int WinApplication::Run() {
   MSG msg;
@@ -47,10 +52,20 @@ int WinApplication::Run() {
     TranslateMessage(&msg);
     DispatchMessageW(&msg);
   }
+
+  for (const auto& handler : quit_handlers_) handler();
+
+  delete graph::GraphManager::GetInstance();
+  delete this;
+
   return static_cast<int>(msg.wParam);
 }
 
 void WinApplication::Quit(const int quit_code) { ::PostQuitMessage(quit_code); }
+
+void WinApplication::AddOnQuitHandler(const std::function<void()>& handler) {
+  quit_handlers_.push_back(handler);
+}
 
 void WinApplication::InvokeLater(const std::function<void()>& action) {
   // copy the action to a safe place

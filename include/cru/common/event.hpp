@@ -102,8 +102,9 @@ class Event : public details::EventBase {
 
   template <typename... Args>
   void Raise(Args&&... args) {
-    for (const auto& handler : handlers_)
-      (handler.second)(std::forward<Args>(args)...);
+    std::list<EventHandler> handlers;
+    for (const auto& [key, handler] : handlers_) handlers.push_back(handler);
+    for (const auto& handler : handlers)  handler(std::forward<Args>(args)...);
   }
 
  protected:

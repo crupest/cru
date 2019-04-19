@@ -26,6 +26,11 @@ WindowManager::WindowManager(WinApplication* application) {
       L"CruUIWindowClass", GeneralWndProc, application->GetInstanceHandle());
 }
 
+WindowManager::~WindowManager() {
+  for (const auto [key, window] : window_map_)
+    delete window;
+}
+
 void WindowManager::RegisterWindow(HWND hwnd, WinNativeWindow* window) {
   assert(window_map_.count(hwnd) == 0);  // The hwnd is already in the map.
   window_map_.emplace(hwnd, window);

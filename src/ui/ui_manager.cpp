@@ -19,8 +19,12 @@ PredefineResources::PredefineResources() {
 }
 
 UiManager* UiManager::GetInstance() {
-  static UiManager instance;
-  return &instance;
+  static UiManager* instance = new UiManager();
+  platform::native::UiApplication::GetInstance()->AddOnQuitHandler([] {
+    delete instance;
+    instance = nullptr;
+  });
+  return instance;
 }
 
 UiManager::UiManager() : predefine_resources_(new PredefineResources()) {}

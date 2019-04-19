@@ -2,10 +2,12 @@
 
 #include "cru/win/exception.hpp"
 
+#include <cassert>
+
 namespace cru::win::graph {
 GraphManager* GraphManager::GetInstance() {
-  static GraphManager instance;
-  return &instance;
+  static GraphManager* instance = new GraphManager();
+  return instance;
 }
 
 GraphManager::GraphManager() {

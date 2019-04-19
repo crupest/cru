@@ -18,6 +18,8 @@ struct UiApplication : public virtual Interface {
   virtual int Run() = 0;
   virtual void Quit(int quite_code) = 0;
 
+  virtual void AddOnQuitHandler(const std::function<void()>& handler) = 0;
+
   virtual void InvokeLater(const std::function<void()>& action) = 0;
   virtual unsigned long SetTimeout(std::chrono::milliseconds milliseconds,
                                    const std::function<void()>& action) = 0;

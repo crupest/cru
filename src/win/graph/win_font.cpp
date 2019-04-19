@@ -13,7 +13,7 @@ WinFontDescriptor::WinFontDescriptor(GraphManager* graph_manager,
                                      float font_size) {
   assert(graph_manager);
   std::array<wchar_t, LOCALE_NAME_MAX_LENGTH> buffer;
-  if (!::GetUserDefaultLocaleName(buffer.data(), buffer.size()))
+  if (!::GetUserDefaultLocaleName(buffer.data(), static_cast<int>(buffer.size())))
     throw Win32Error(::GetLastError(), "Failed to get locale.");
 
   ThrowIfFailed(graph_manager->GetDWriteFactory()->CreateTextFormat(
