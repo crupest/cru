@@ -20,11 +20,12 @@ Use python3 to run `tool/build.py`. Run with `-h` to see the options.
 
 - `tools/` contains some codes of tools like code generators.
 
-    - `tools/cppmerge` contains a *python* script program that merges all cpp headers and sources into one **single** header and source. **Not use now**.
+  - `tools/cppmerge` contains a *python* script program that merges all cpp headers and sources into one **single** header and source. **Not use now**.
 
-    - `tools/build.py` is a python3 script to build the source code.
+  - `tools/build.py` is a python3 script to build the source code.
 
 - `snippets/` contains useful snippets file for *Visual Studio*, you can import it.
 
 ## project structure
+
 ![project structure](art/project_structure.png)

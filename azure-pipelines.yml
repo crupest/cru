@@ -21,15 +21,7 @@ jobs:
           buildConfiguration: 'Release'
 
     steps:
-    - checkout: self
-      submodules: true
-
-    - task: UsePythonVersion@0
-      inputs:
-        versionSpec: '2.7'
-        addToPath: true
-
-    - script: py -3 tools\build.py -a $(buildPlatform) -c $(buildConfiguration)
+    - script: py -3 tools\win_build.py -a $(buildPlatform) -c $(buildConfiguration)
 
     - task: CopyFiles@2
       inputs:
