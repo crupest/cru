@@ -11,37 +11,45 @@ namespace cru {
 class EventRevoker;
 
 namespace details {
+// Base class of all Event<T...>.
+// It erases event args types and provides a
+// unified form to create event revoker and
+// revoke(remove) handler.
 class EventBase {
   friend EventRevoker;
 
  protected:
   using EventHandlerToken = long;
 
-  EventBase() : resolve_ptr_(new std::reference_wrapper(*this)) {}
-
+  EventBase() : resolver_(new EventBase*(this)) {}
   EventBase(const EventBase& other) = delete;
   EventBase(EventBase&& other) = delete;
   EventBase& operator=(const EventBase& other) = delete;
   EventBase& operator=(EventBase&& other) = delete;
   virtual ~EventBase() = default;
 
+  // Remove the handler with the given token. If the token
+  // corresponds to no handler (which might have be revoked
+  // before), then nothing will be done.
   virtual void RemoveHandler(EventHandlerToken token) = 0;
 
+  // Create a revoker with the given token.
   inline EventRevoker CreateRevoker(EventHandlerToken token);
 
  private:
-  std::shared_ptr<std::reference_wrapper<EventBase>> resolve_ptr_;
+  std::shared_ptr<EventBase*> resolver_;
 };
 }  // namespace details
 
+// A copyable and movable event revoker.
+// Call function call operator to revoke the handler.
 class EventRevoker {
   friend class ::cru::details::EventBase;
 
  private:
-  EventRevoker(const std::shared_ptr<
-                   std::reference_wrapper<details::EventBase>>& resolve_ptr,
+  EventRevoker(const std::shared_ptr<details::EventBase*>& resolver,
                details::EventBase::EventHandlerToken token)
-      : weak_ptr_(resolve_ptr), token_(token) {}
+      : weak_resolver_(resolver), token_(token) {}
 
  public:
   EventRevoker(const EventRevoker& other) = default;
@@ -50,20 +58,25 @@ class EventRevoker {
   EventRevoker& operator=(EventRevoker&& other) = default;
   ~EventRevoker() = default;
 
+  // Revoke the registered handler. If the event has already
+  // been destroyed, then nothing will be done. If one of the
+  // copies calls this, then other copies's calls will have no
+  // effect. (They have the same token.)
   void operator()() const {
-    const auto true_resolver = weak_ptr_.lock();
+    const auto true_resolver = weak_resolver_.lock();
+    // if true_resolver is nullptr, then the event has been destroyed.
     if (true_resolver) {
-      (*true_resolver).get().RemoveHandler(token_);
+      (*true_resolver)->RemoveHandler(token_);
     }
   }
 
  private:
-  std::weak_ptr<std::reference_wrapper<details::EventBase>> weak_ptr_;
+  std::weak_ptr<details::EventBase*> weak_resolver_;
   details::EventBase::EventHandlerToken token_;
 };
 
 inline EventRevoker details::EventBase::CreateRevoker(EventHandlerToken token) {
-  return EventRevoker(resolve_ptr_, token);
+  return EventRevoker(resolver_, token);
 }
 
 // A non-copyable non-movable Event class.
@@ -92,19 +105,24 @@ class Event : public details::EventBase {
     return CreateRevoker(token);
   }
 
-  template <typename Arg>
-  EventRevoker AddHandler(Arg&& handler) {
-    static_assert(std::is_invocable_v<Arg, TArgs...>, "Handler not invocable.");
+  template <typename FArg>
+  EventRevoker AddHandler(FArg&& handler) {
+    static_assert(std::is_invocable_v<FArg, TArgs...>,
+                  "Handler not invocable.");
     const auto token = current_token_++;
-    handlers_.emplace(token, EventHandler(std::forward<Arg>(handler)));
+    handlers_.emplace(token, EventHandler(std::forward<FArg>(handler)));
     return CreateRevoker(token);
   }
 
-  template <typename... Args>
-  void Raise(Args&&... args) {
+  template <typename... FArg>
+  void Raise(FArg&&... args) {
+    // copy the handlers to a list, because the handler might be removed
+    // during executing, and the handler with its data will be destroyed.
+    // if the handler is a lambda with member data, then the member data
+    // will be destroyed and result in seg fault.
     std::list<EventHandler> handlers;
     for (const auto& [key, handler] : handlers_) handlers.push_back(handler);
-    for (const auto& handler : handlers)  handler(std::forward<Args>(args)...);
+    for (const auto& handler : handlers) handler(std::forward<FArg>(args)...);
   }
 
  protected:
@@ -118,20 +136,28 @@ class Event : public details::EventBase {
   EventHandlerToken current_token_ = 0;
 };
 
+namespace details {
+struct EventRevokerGuardDestroyer {
+  void operator()(EventRevoker* p) const {
+    (*p)();
+    delete p;
+  }
+};
+}  // namespace details
+
 class EventRevokerGuard {
  public:
-  EventRevokerGuard() = default;
+  explicit EventRevokerGuard(EventRevoker revoker)
+      : revoker_(new EventRevoker(std::move(revoker))) {}
   EventRevokerGuard(const EventRevokerGuard& other) = delete;
-  EventRevokerGuard(EventRevokerGuard&& other) = delete;
+  EventRevokerGuard(EventRevokerGuard&& other) = default;
   EventRevokerGuard& operator=(const EventRevokerGuard& other) = delete;
-  EventRevokerGuard& operator=(EventRevokerGuard&& other) = delete;
-  ~EventRevokerGuard() {
-    for (const auto revoker : revokers_) revoker();
-  }
+  EventRevokerGuard& operator=(EventRevokerGuard&& other) = default;
+  ~EventRevokerGuard() = default;
 
-  void Add(EventRevoker revoker) { revokers_.push_back(std::move(revoker)); }
+  EventRevoker Get() const { return *revoker_; }
 
  private:
-  std::list<EventRevoker> revokers_;
+  std::unique_ptr<EventRevoker, details::EventRevokerGuardDestroyer> revoker_;
 };
 }  // namespace cru

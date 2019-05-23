@@ -4,6 +4,7 @@
 #include "event/ui_event.hpp"
 
 #include <memory>
+#include <vector>
 
 namespace cru::platform::native {
 struct NativeWindow;
@@ -82,7 +83,7 @@ class Window final : public ContentControl {
 
  private:
   platform::native::NativeWindow* native_window_;
-  EventRevokerGuard event_revoker_guard_;
+  std::vector<EventRevokerGuard> event_revoker_guards_;
 
   std::shared_ptr<render::WindowRenderObject> render_object_;
 
