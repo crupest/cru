@@ -2,7 +2,7 @@
   "configurations": [
     {
       "name": "x86-Debug",
-      "generator": "Ninja",
+      "generator": "Visual Studio 16 2019",
       "inheritEnvironments": [ "msvc_x86_x64" ],
       "configurationType": "Debug",
       "buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\build\\${name}",
@@ -10,7 +10,7 @@
     },
     {
       "name": "x86-Realse",
-      "generator": "Ninja",
+      "generator": "Visual Studio 16 2019",
       "inheritEnvironments": [ "msvc_x86_x64" ],
       "configurationType": "Release",
       "buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\build\\${name}",
@@ -18,7 +18,7 @@
     },
     {
       "name": "x64-Debug",
-      "generator": "Ninja",
+      "generator": "Visual Studio 16 2019 Win64",
       "inheritEnvironments": [ "msvc_x64" ],
       "configurationType": "Debug",
       "buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\build\\${name}",
@@ -26,7 +26,7 @@
     },
     {
       "name": "x64-Release",
-      "generator": "Ninja",
+      "generator": "Visual Studio 16 2019 Win64",
       "inheritEnvironments": [ "msvc_x64" ],
       "configurationType": "Release",
       "buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\build\\${name}",
