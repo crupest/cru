@@ -6,11 +6,11 @@
 
 CruUI is a UI library.
 
-It is **under construction**.
+It is **under construction**. It can be built with *CMake*.
 
 ## build
 
-Use python3 to run `tool/build.py`. Run with `-h` to see the options.
+Use python3 to run `tool/win_build.py` to build on Windows. Run with `-h` to see the options.
 
 ## structure of repository
 
@@ -26,6 +26,9 @@ Use python3 to run `tool/build.py`. Run with `-h` to see the options.
 
 - `snippets/` contains useful snippets file for *Visual Studio*, you can import it.
 
+- `CMakeSettings.json` is a file that helps *Visual Studio* to config CMake and setup intellisense.
+
 ## project structure
+Test and Linux module is not developed now.
 
 ![project structure](art/project_structure.png)
