@@ -1,7 +1,7 @@
 #include "cru/ui/render/flex_layout_render_object.hpp"
 
 #include "cru/platform/debug.hpp"
-#include "cru/platform/graph/painter_util.hpp"
+#include "cru/platform/graph/util/painter_util.hpp"
 
 #include <algorithm>
 #include <cassert>
@@ -15,7 +15,7 @@ FlexChildLayoutData* FlexLayoutRenderObject::GetChildLayoutData(int position) {
   return &child_layout_data_[position];
 }
 
-void FlexLayoutRenderObject::Draw(platform::graph::Painter* painter) {
+void FlexLayoutRenderObject::Draw(platform::graph::IPainter* painter) {
   for (const auto child : GetChildren()) {
     auto offset = child->GetOffset();
     platform::graph::util::WithTransform(

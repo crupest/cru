@@ -4,9 +4,9 @@
 #include "cru/common/ui_base.hpp"
 
 namespace cru::platform::graph {
-struct Brush : public virtual Interface {};
+struct IBrush : public virtual Interface {};
 
-struct SolidColorBrush : public virtual Brush {
+struct ISolidColorBrush : public virtual IBrush {
   virtual ui::Color GetColor() = 0;
   virtual void SetColor(const ui::Color& color) = 0;
 };

@@ -5,14 +5,11 @@
 #include <functional>
 #include <vector>
 
-namespace cru::platform::graph {
-struct GraphFactory;
-}
-
 namespace cru::platform::native {
 struct NativeWindow;
 
 struct UiApplication : public virtual Interface {
+  static UiApplication* CreateInstance();
   static UiApplication* GetInstance();
 
   virtual int Run() = 0;

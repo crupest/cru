@@ -45,7 +45,7 @@ class WinNativeWindow : public Object,
   // The lefttop of the rect is relative to screen lefttop.
   void SetWindowRect(const ui::Rect& rect) override;
 
-  platform::graph::Painter* BeginPaint() override;
+  platform::graph::IPainter* BeginPaint() override;
 
   Event<>* DestroyEvent() override { return &destroy_event_; }
   Event<const ui::Size&>* ResizeEvent() override { return &resize_event_; }

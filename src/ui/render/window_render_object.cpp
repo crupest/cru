@@ -1,6 +1,6 @@
 #include "cru/ui/render/window_render_object.hpp"
 
-#include "cru/platform/graph/painter_util.hpp"
+#include "cru/platform/graph/util/painter_util.hpp"
 #include "cru/platform/native/native_window.hpp"
 #include "cru/ui/window.hpp"
 
@@ -13,13 +13,13 @@ void WindowRenderObject::MeasureAndLayout() {
   Layout(Rect{Point{}, client_size});
 }
 
-void WindowRenderObject::Draw(platform::graph::Painter* painter) {
+void WindowRenderObject::Draw(platform::graph::IPainter* painter) {
   painter->Clear(colors::white);
   if (const auto child = GetChild()) {
     auto offset = child->GetOffset();
     platform::graph::util::WithTransform(
         painter, platform::Matrix::Translation(offset.x, offset.y),
-        [child](auto rt) { child->Draw(rt); });
+        [child](platform::graph::IPainter* p) { child->Draw(p); });
   }
 }
 

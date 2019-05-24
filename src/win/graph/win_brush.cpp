@@ -1,16 +1,16 @@
 #include "cru/win/graph/win_brush.hpp"
 
 #include "cru/win/exception.hpp"
-#include "cru/win/graph/d2d_util.hpp"
-#include "cru/win/graph/graph_manager.hpp"
+#include "cru/win/graph/win_native_factory.hpp"
+#include "cru/win/graph/util/convert_util.hpp"
 
 #include <cassert>
 
 namespace cru::win::graph {
-WinSolidColorBrush::WinSolidColorBrush(GraphManager* graph_manager,
+WinSolidColorBrush::WinSolidColorBrush(IWinNativeFactory* factory,
                                        const ui::Color& color) {
-  assert(graph_manager);
-  ThrowIfFailed(graph_manager->GetD2D1DeviceContext()->CreateSolidColorBrush(
+  assert(factory);
+  ThrowIfFailed(factory->GetD2D1DeviceContext()->CreateSolidColorBrush(
       util::Convert(color), &brush_));
 }
 

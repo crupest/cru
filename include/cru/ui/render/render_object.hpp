@@ -11,7 +11,7 @@ class Control;
 }
 
 namespace cru::platform::graph {
-struct Painter;
+struct IPainter;
 }
 
 namespace cru::ui::render {
@@ -58,7 +58,7 @@ class RenderObject : public Object {
   void Measure(const Size& available_size);
   void Layout(const Rect& rect);
 
-  virtual void Draw(platform::graph::Painter* painter) = 0;
+  virtual void Draw(platform::graph::IPainter* painter) = 0;
 
   virtual RenderObject* HitTest(const Point& point) = 0;
 

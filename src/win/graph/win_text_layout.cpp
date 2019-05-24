@@ -1,23 +1,23 @@
 #include "cru/win/graph/win_text_layout.hpp"
 
 #include "cru/win/exception.hpp"
-#include "cru/win/graph/graph_manager.hpp"
 #include "cru/win/graph/win_font.hpp"
+#include "cru/win/graph/win_native_factory.hpp"
 
 #include <cassert>
 #include <utility>
 
 namespace cru::win::graph {
-WinTextLayout::WinTextLayout(GraphManager* graph_manager,
+WinTextLayout::WinTextLayout(IWinNativeFactory* factory,
                              std::shared_ptr<WinFontDescriptor> font,
                              std::wstring text) {
-  assert(graph_manager);
+  assert(factory);
   assert(font);
-  graph_manager_ = graph_manager;
+  factory_ = factory;
   text_.swap(text);
   font_descriptor_.swap(font);
 
-  ThrowIfFailed(graph_manager_->GetDWriteFactory()->CreateTextLayout(
+  ThrowIfFailed(factory->GetDWriteFactory()->CreateTextLayout(
       text_.c_str(), static_cast<UINT32>(text_.size()),
       font_descriptor_->GetDWriteTextFormat(), max_width_, max_height_,
       &text_layout_));
@@ -27,22 +27,22 @@ std::wstring WinTextLayout::GetText() { return text_; }
 
 void WinTextLayout::SetText(std::wstring new_text) {
   text_.swap(new_text);
-  ThrowIfFailed(graph_manager_->GetDWriteFactory()->CreateTextLayout(
+  ThrowIfFailed(factory_->GetDWriteFactory()->CreateTextLayout(
       text_.c_str(), static_cast<UINT32>(text_.size()),
       font_descriptor_->GetDWriteTextFormat(), max_width_, max_height_,
       &text_layout_));
 }
 
-std::shared_ptr<platform::graph::FontDescriptor> WinTextLayout::GetFont() {
+std::shared_ptr<platform::graph::IFontDescriptor> WinTextLayout::GetFont() {
   return font_descriptor_;
 }
 
 void WinTextLayout::SetFont(
-    std::shared_ptr<platform::graph::FontDescriptor> font) {
+    std::shared_ptr<platform::graph::IFontDescriptor> font) {
   auto f = std::dynamic_pointer_cast<WinFontDescriptor>(font);
   assert(f);
   f.swap(font_descriptor_);
-  ThrowIfFailed(graph_manager_->GetDWriteFactory()->CreateTextLayout(
+  ThrowIfFailed(factory_->GetDWriteFactory()->CreateTextLayout(
       text_.c_str(), static_cast<UINT32>(text_.size()),
       font_descriptor_->GetDWriteTextFormat(), max_width_, max_height_,
       &text_layout_));

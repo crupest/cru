@@ -1,26 +1,26 @@
 #pragma once
 #include "cru/common/base.hpp"
 
-#include "cru/common/ui_base.hpp"
 #include "../matrix.hpp"
+#include "cru/common/endable.hpp"
+#include "cru/common/ui_base.hpp"
 
 namespace cru::platform::graph {
-struct Brush;
-struct Geometry;
-struct TextLayout;
+struct IBrush;
+struct IGeometry;
+struct ITextLayout;
 
-struct Painter : virtual Interface {
+struct IPainter : virtual Interface, virtual IEndable<void> {
   virtual Matrix GetTransform() = 0;
   virtual void SetTransform(const Matrix& matrix) = 0;
   virtual void Clear(const ui::Color& color) = 0;
-  virtual void StrokeRectangle(const ui::Rect& rectangle, Brush* brush,
+  virtual void StrokeRectangle(const ui::Rect& rectangle, IBrush* brush,
                                float width) = 0;
-  virtual void FillRectangle(const ui::Rect& rectangle, Brush* brush) = 0;
-  virtual void StrokeGeometry(Geometry* geometry, Brush* brush,
+  virtual void FillRectangle(const ui::Rect& rectangle, IBrush* brush) = 0;
+  virtual void StrokeGeometry(IGeometry* geometry, IBrush* brush,
                               float width) = 0;
-  virtual void FillGeometry(Geometry* geometry, Brush* brush) = 0;
-  virtual void DrawText(const ui::Point& offset, TextLayout* text_layout, Brush* brush) = 0;
-  virtual void EndDraw() = 0;
-  virtual bool IsDisposed() = 0;
+  virtual void FillGeometry(IGeometry* geometry, IBrush* brush) = 0;
+  virtual void DrawText(const ui::Point& offset, ITextLayout* text_layout,
+                        IBrush* brush) = 0;
 };
-}  // namespace cru::platform
+}  // namespace cru::platform::graph

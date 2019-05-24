@@ -1,7 +1,7 @@
 #include "cru/win/native/win_application.hpp"
 
 #include "cru/win/exception.hpp"
-#include "cru/win/graph/graph_manager.hpp"
+#include "cru/win/graph/win_graph_factory.hpp"
 #include "cru/win/native/god_window.hpp"
 #include "cru/win/native/win_native_window.hpp"
 #include "god_window_message.hpp"
@@ -38,13 +38,14 @@ WinApplication::WinApplication(HINSTANCE h_instance) : h_instance_(h_instance) {
   if (!::IsWindows8OrGreater())
     throw std::runtime_error("Must run on Windows 8 or later.");
 
+  graph::WinGraphFactory::CreateInstance();
+
   god_window_ = std::make_shared<GodWindow>(this);
   timer_manager_ = std::make_shared<TimerManager>(god_window_.get());
   window_manager_ = std::make_shared<WindowManager>(this);
 }
 
-WinApplication::~WinApplication() {
-  instance = nullptr; }
+WinApplication::~WinApplication() { instance = nullptr; }
 
 int WinApplication::Run() {
   MSG msg;
@@ -55,7 +56,7 @@ int WinApplication::Run() {
 
   for (const auto& handler : quit_handlers_) handler();
 
-  delete graph::GraphManager::GetInstance();
+  delete graph::WinGraphFactory::GetInstance();
   delete this;
 
   return static_cast<int>(msg.wParam);

@@ -6,12 +6,12 @@
 #include <string_view>
 
 namespace cru::win::graph {
-class GraphManager;
+struct IWinNativeFactory;
 
 class WinFontDescriptor : public Object,
-                          public virtual platform::graph::FontDescriptor {
+                          public virtual platform::graph::IFontDescriptor {
  public:
-  explicit WinFontDescriptor(GraphManager* graph_manager,
+  explicit WinFontDescriptor(IWinNativeFactory* factory,
                              const std::wstring_view& font_family,
                              float font_size);
   WinFontDescriptor(const WinFontDescriptor& other) = delete;

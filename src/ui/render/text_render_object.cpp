@@ -1,7 +1,7 @@
 #include "cru/ui/render/text_render_object.hpp"
 
 #include "cru/platform/graph/graph_factory.hpp"
-#include "cru/platform/graph/painter_util.hpp"
+#include "cru/platform/graph/util/painter_util.hpp"
 #include "cru/platform/graph/text_layout.hpp"
 
 #include <algorithm>
@@ -9,9 +9,9 @@
 
 namespace cru::ui::render {
 TextRenderObject::TextRenderObject(
-    std::shared_ptr<platform::graph::Brush> brush,
-    std::shared_ptr<platform::graph::FontDescriptor> font,
-    std::shared_ptr<platform::graph::Brush> selection_brush) {
+    std::shared_ptr<platform::graph::IBrush> brush,
+    std::shared_ptr<platform::graph::IFontDescriptor> font,
+    std::shared_ptr<platform::graph::IBrush> selection_brush) {
   assert(brush);
   assert(font);
   assert(selection_brush);
@@ -20,8 +20,7 @@ TextRenderObject::TextRenderObject(
   font.swap(font_);
   selection_brush.swap(selection_brush_);
 
-  const auto graph_factory = platform::graph::GraphFactory::GetInstance();
-
+  const auto graph_factory = platform::graph::IGraphFactory::GetInstance();
   text_layout_.reset(graph_factory->CreateTextLayout(font_, L""));
 }
 
@@ -33,22 +32,22 @@ void TextRenderObject::SetText(std::wstring new_text) {
   text_layout_->SetText(std::move(new_text));
 }
 
-std::shared_ptr<platform::graph::FontDescriptor> TextRenderObject::GetFont()
+std::shared_ptr<platform::graph::IFontDescriptor> TextRenderObject::GetFont()
     const {
   return text_layout_->GetFont();
 }
 
 void TextRenderObject::SetFont(
-    std::shared_ptr<platform::graph::FontDescriptor> font) {
+    std::shared_ptr<platform::graph::IFontDescriptor> font) {
   text_layout_->SetFont(std::move(font));
 }
 
-void TextRenderObject::Draw(platform::graph::Painter* painter) {
+void TextRenderObject::Draw(platform::graph::IPainter* painter) {
   platform::graph::util::WithTransform(
       painter,
       platform::Matrix::Translation(GetMargin().left + GetPadding().left,
                                     GetMargin().top + GetPadding().top),
-      [this](platform::graph::Painter* p) {
+      [this](platform::graph::IPainter* p) {
         if (this->selection_range_.has_value()) {
           const auto&& rects =
               text_layout_->TextRangeRect(this->selection_range_.value());

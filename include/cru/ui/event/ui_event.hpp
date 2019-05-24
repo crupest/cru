@@ -8,7 +8,7 @@
 #include <optional>
 
 namespace cru::platform::graph {
-struct Painter;
+struct IPainter;
 }
 
 namespace cru::ui {
@@ -113,7 +113,7 @@ class MouseWheelEventArgs : public MouseEventArgs {
 class PaintEventArgs : public UiEventArgs {
  public:
   PaintEventArgs(Object* sender, Object* original_sender,
-                 platform::graph::Painter* painter)
+                 platform::graph::IPainter* painter)
       : UiEventArgs(sender, original_sender), painter_(painter) {}
   PaintEventArgs(const PaintEventArgs& other) = default;
   PaintEventArgs(PaintEventArgs&& other) = default;
@@ -121,10 +121,10 @@ class PaintEventArgs : public UiEventArgs {
   PaintEventArgs& operator=(PaintEventArgs&& other) = default;
   ~PaintEventArgs() = default;
 
-  platform::graph::Painter* GetPainter() const { return painter_; }
+  platform::graph::IPainter* GetPainter() const { return painter_; }
 
  private:
-  platform::graph::Painter* painter_;
+  platform::graph::IPainter* painter_;
 };
 
 class FocusChangeEventArgs : public UiEventArgs {

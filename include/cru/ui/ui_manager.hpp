@@ -4,8 +4,8 @@
 #include <memory>
 
 namespace cru::platform::graph {
-struct Brush;
-struct FontDescriptor;
+struct IBrush;
+struct IFontDescriptor;
 }  // namespace cru::platform
 
 namespace cru::ui {
@@ -19,12 +19,12 @@ class PredefineResources : public Object {
   ~PredefineResources() override = default;
 
   // region Button
-  std::shared_ptr<platform::graph::Brush> button_normal_border_brush;
+  std::shared_ptr<platform::graph::IBrush> button_normal_border_brush;
 
   // region TextBlock
-  std::shared_ptr<platform::graph::Brush> text_block_selection_brush;
-  std::shared_ptr<platform::graph::Brush> text_block_text_brush;
-  std::shared_ptr<platform::graph::FontDescriptor> text_block_font;
+  std::shared_ptr<platform::graph::IBrush> text_block_selection_brush;
+  std::shared_ptr<platform::graph::IBrush> text_block_text_brush;
+  std::shared_ptr<platform::graph::IFontDescriptor> text_block_font;
 };
 
 class UiManager : public Object {

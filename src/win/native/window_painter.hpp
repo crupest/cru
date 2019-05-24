@@ -1,9 +1,9 @@
 #pragma once
-#include "cru/win/graph/d2d_painter.hpp"
+#include "cru/win/graph/win_painter.hpp"
 #include "cru/win/native/win_native_window.hpp"
 
 namespace cru::win::native {
-class WindowPainter : public graph::D2DPainter {
+class WindowPainter : public graph::WinPainter {
  public:
   explicit WindowPainter(WinNativeWindow* window);
   WindowPainter(const WindowPainter& other) = delete;

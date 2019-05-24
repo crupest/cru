@@ -4,18 +4,17 @@
 #include "cru/platform/graph/brush.hpp"
 
 namespace cru::win::graph {
-class GraphManager;
+struct IWinNativeFactory;
 
-struct WinBrush : virtual platform::graph::Brush {
+struct IWinBrush : virtual platform::graph::IBrush {
   virtual ID2D1Brush* GetD2DBrush() = 0;
 };
 
 class WinSolidColorBrush : public Object,
-                           public virtual platform::graph::SolidColorBrush,
-                           public virtual WinBrush {
+                           public virtual platform::graph::ISolidColorBrush,
+                           public virtual IWinBrush {
  public:
-  explicit WinSolidColorBrush(GraphManager* graph_manager,
-                              const ui::Color& color);
+  WinSolidColorBrush(IWinNativeFactory* factory, const ui::Color& color);
   WinSolidColorBrush(const WinSolidColorBrush& other) = delete;
   WinSolidColorBrush(WinSolidColorBrush&& other) = delete;
   WinSolidColorBrush& operator=(const WinSolidColorBrush& other) = delete;

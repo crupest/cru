@@ -4,14 +4,14 @@
 #include "cru/common/base.hpp"
 
 namespace cru::win::graph {
-class GraphManager;
+struct IWinNativeFactory;
 }
 
 namespace cru::win::native {
 // Represents a window render target.
 class WindowRenderTarget : public Object {
  public:
-  WindowRenderTarget(graph::GraphManager* graph_manager, HWND hwnd);
+  WindowRenderTarget(graph::IWinNativeFactory* factory, HWND hwnd);
   WindowRenderTarget(const WindowRenderTarget& other) = delete;
   WindowRenderTarget(WindowRenderTarget&& other) = delete;
   WindowRenderTarget& operator=(const WindowRenderTarget& other) = delete;
@@ -19,8 +19,7 @@ class WindowRenderTarget : public Object {
   ~WindowRenderTarget() override = default;
 
  public:
-  // Get the graph manager that created the render target.
-  graph::GraphManager* GetGraphManager() const { return graph_manager_; }
+  graph::IWinNativeFactory* GetWinNativeFactory() const { return factory_; }
 
   // Get the target bitmap which can be set as the ID2D1DeviceContext's target.
   ID2D1Bitmap1* GetTargetBitmap() const { return target_bitmap_.Get(); }
@@ -38,7 +37,7 @@ class WindowRenderTarget : public Object {
   void CreateTargetBitmap();
 
  private:
-  graph::GraphManager* graph_manager_;
+  graph::IWinNativeFactory* factory_;
   Microsoft::WRL::ComPtr<IDXGISwapChain1> dxgi_swap_chain_;
   Microsoft::WRL::ComPtr<ID2D1Bitmap1> target_bitmap_;
 };

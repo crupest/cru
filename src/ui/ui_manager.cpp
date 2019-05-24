@@ -7,13 +7,13 @@
 
 namespace cru::ui {
 PredefineResources::PredefineResources() {
-  const auto graph_factory = platform::graph::GraphFactory::GetInstance();
+  const auto graph_factory = platform::graph::IGraphFactory::GetInstance();
 
-  button_normal_border_brush.reset(static_cast<platform::graph::Brush*>(
+  button_normal_border_brush.reset(static_cast<platform::graph::IBrush*>(
       graph_factory->CreateSolidColorBrush(colors::black)));
-  text_block_selection_brush.reset(static_cast<platform::graph::Brush*>(
+  text_block_selection_brush.reset(static_cast<platform::graph::IBrush*>(
       graph_factory->CreateSolidColorBrush(colors::skyblue)));
-  text_block_text_brush.reset(static_cast<platform::graph::Brush*>(
+  text_block_text_brush.reset(static_cast<platform::graph::IBrush*>(
       graph_factory->CreateSolidColorBrush(colors::black)));
   text_block_font.reset(graph_factory->CreateFontDescriptor(L"等线", 24.0f));
 }

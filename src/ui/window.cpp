@@ -178,9 +178,9 @@ void Window::OnNativeDestroy() { delete this; }
 
 void Window::OnNativePaint() {
   const auto painter =
-      std::unique_ptr<platform::graph::Painter>(native_window_->BeginPaint());
+      std::unique_ptr<platform::graph::IPainter>(native_window_->BeginPaint());
   render_object_->Draw(painter.get());
-  painter->EndDraw();
+  painter->End();
 }
 
 void Window::OnNativeResize(const Size& size) {

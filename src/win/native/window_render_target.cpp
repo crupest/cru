@@ -1,18 +1,18 @@
 #include "cru/win/native/window_render_target.hpp"
 
 #include "cru/win/exception.hpp"
-#include "cru/win/graph/graph_manager.hpp"
+#include "cru/win/graph/win_native_factory.hpp"
 #include "dpi_util.hpp"
 
 #include <cassert>
 
 namespace cru::win::native {
-WindowRenderTarget::WindowRenderTarget(graph::GraphManager* graph_manager,
+WindowRenderTarget::WindowRenderTarget(graph::IWinNativeFactory* factory,
                                        HWND hwnd) {
-  this->graph_manager_ = graph_manager;
+  this->factory_ = factory;
 
-  const auto d3d11_device = graph_manager->GetD3D11Device();
-  const auto dxgi_factory = graph_manager->GetDxgiFactory();
+  const auto d3d11_device = factory->GetD3D11Device();
+  const auto dxgi_factory = factory->GetDxgiFactory();
 
   // Allocate a descriptor.
   DXGI_SWAP_CHAIN_DESC1 swap_chain_desc = {0};
@@ -39,8 +39,8 @@ WindowRenderTarget::WindowRenderTarget(graph::GraphManager* graph_manager,
 }
 
 void WindowRenderTarget::ResizeBuffer(const int width, const int height) {
-  const auto graph_manager = graph_manager_;
-  const auto d2d1_device_context = graph_manager->GetD2D1DeviceContext();
+  const auto factory = factory_;
+  const auto d2d1_device_context = factory->GetD2D1DeviceContext();
 
   Microsoft::WRL::ComPtr<ID2D1Image> old_target;
   d2d1_device_context->GetTarget(&old_target);
@@ -59,7 +59,7 @@ void WindowRenderTarget::ResizeBuffer(const int width, const int height) {
 }
 
 void WindowRenderTarget::SetAsTarget() {
-  graph_manager_->GetD2D1DeviceContext()->SetTarget(target_bitmap_.Get());
+  factory_->GetD2D1DeviceContext()->SetTarget(target_bitmap_.Get());
 }
 
 void WindowRenderTarget::Present() {
@@ -83,8 +83,7 @@ void WindowRenderTarget::CreateTargetBitmap() {
 
   // Get a D2D surface from the DXGI back buffer to use as the D2D render
   // target.
-  ThrowIfFailed(
-      graph_manager_->GetD2D1DeviceContext()->CreateBitmapFromDxgiSurface(
-          dxgi_back_buffer.Get(), &bitmap_properties, &target_bitmap_));
+  ThrowIfFailed(factory_->GetD2D1DeviceContext()->CreateBitmapFromDxgiSurface(
+      dxgi_back_buffer.Get(), &bitmap_properties, &target_bitmap_));
 }
 }  // namespace cru::win::native

@@ -5,6 +5,7 @@
       "generator": "Visual Studio 16 2019",
       "inheritEnvironments": [ "msvc_x86_x64" ],
       "configurationType": "Debug",
+      "cmakeCommandArgs": "-T host=x64",
       "buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\build\\${name}",
       "installRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\install\\${name}"
     },
@@ -13,22 +14,25 @@
       "generator": "Visual Studio 16 2019",
       "inheritEnvironments": [ "msvc_x86_x64" ],
       "configurationType": "Release",
+      "cmakeCommandArgs": "-T host=x64",
       "buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\build\\${name}",
       "installRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\install\\${name}"
     },
     {
       "name": "x64-Debug",
       "generator": "Visual Studio 16 2019 Win64",
-      "inheritEnvironments": [ "msvc_x64" ],
+      "inheritEnvironments": [ "msvc_x64_x64" ],
       "configurationType": "Debug",
+      "cmakeCommandArgs": "-T host=x64",
       "buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\build\\${name}",
       "installRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\install\\${name}"
     },
     {
       "name": "x64-Release",
       "generator": "Visual Studio 16 2019 Win64",
-      "inheritEnvironments": [ "msvc_x64" ],
+      "inheritEnvironments": [ "msvc_x64_x64" ],
       "configurationType": "Release",
+      "cmakeCommandArgs": "-T host=x64",
       "buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\build\\${name}",
       "installRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\install\\${name}"
     }

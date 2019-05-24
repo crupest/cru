@@ -1,16 +1,15 @@
 #include "cru/win/graph/win_geometry.hpp"
 
 #include "cru/win/exception.hpp"
-#include "cru/win/graph/d2d_util.hpp"
-#include "cru/win/graph/graph_manager.hpp"
+#include "cru/win/graph/util/convert_util.hpp"
+#include "cru/win/graph/win_native_factory.hpp"
 
 #include <cassert>
 
 namespace cru::win::graph {
-WinGeometryBuilder::WinGeometryBuilder(GraphManager* graph_manager) {
-  assert(graph_manager);
-  ThrowIfFailed(
-      graph_manager->GetD2D1Factory()->CreatePathGeometry(&geometry_));
+WinGeometryBuilder::WinGeometryBuilder(IWinNativeFactory* factory) {
+  assert(factory);
+  ThrowIfFailed(factory->GetD2D1Factory()->CreatePathGeometry(&geometry_));
   ThrowIfFailed(geometry_->Open(&geometry_sink_));
 }
 
@@ -21,33 +20,33 @@ WinGeometryBuilder::~WinGeometryBuilder() {
 }
 
 void WinGeometryBuilder::BeginFigure(const ui::Point& point) {
-  assert(IsValid());
+  assert(IsEnded());
   geometry_sink_->BeginFigure(util::Convert(point), D2D1_FIGURE_BEGIN_FILLED);
 }
 
 void WinGeometryBuilder::LineTo(const ui::Point& point) {
-  assert(IsValid());
+  assert(IsEnded());
   geometry_sink_->AddLine(util::Convert(point));
 }
 
 void WinGeometryBuilder::QuadraticBezierTo(const ui::Point& control_point,
                                            const ui::Point& end_point) {
-  assert(IsValid());
+  assert(IsEnded());
   geometry_sink_->AddQuadraticBezier(D2D1::QuadraticBezierSegment(
       util::Convert(control_point), util::Convert(end_point)));
 }
 
 void WinGeometryBuilder::CloseFigure(bool close) {
-  assert(IsValid());
+  assert(IsEnded());
   geometry_sink_->EndFigure(close ? D2D1_FIGURE_END_CLOSED
                                   : D2D1_FIGURE_END_OPEN);
 }
 
-platform::graph::Geometry* WinGeometryBuilder::Build() {
-  assert(IsValid());
+platform::graph::IGeometry* WinGeometryBuilder::End() {
+  assert(IsEnded());
   ThrowIfFailed(geometry_sink_->Close());
   geometry_sink_ = nullptr;
-  const auto geometry = new WinGeometry(geometry_);
+  const auto geometry = new WinGeometry(std::move(geometry_));
   geometry_ = nullptr;
   return geometry;
 }

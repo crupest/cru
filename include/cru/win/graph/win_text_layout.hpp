@@ -6,12 +6,12 @@
 #include <memory>
 
 namespace cru::win::graph {
-class GraphManager;
+struct IWinNativeFactory;
 class WinFontDescriptor;
 
-class WinTextLayout : public Object, public virtual platform::graph::TextLayout {
+class WinTextLayout : public Object, public virtual platform::graph::ITextLayout {
  public:
-  explicit WinTextLayout(GraphManager* graph_manager,
+  explicit WinTextLayout(IWinNativeFactory* factory,
                          std::shared_ptr<WinFontDescriptor> font, std::wstring text);
   WinTextLayout(const WinTextLayout& other) = delete;
   WinTextLayout(WinTextLayout&& other) = delete;
@@ -21,8 +21,8 @@ class WinTextLayout : public Object, public virtual platform::graph::TextLayout 
 
   std::wstring GetText() override;
   void SetText(std::wstring new_text) override;
-  std::shared_ptr<platform::graph::FontDescriptor> GetFont();
-  void SetFont(std::shared_ptr<platform::graph::FontDescriptor> font);
+  std::shared_ptr<platform::graph::IFontDescriptor> GetFont();
+  void SetFont(std::shared_ptr<platform::graph::IFontDescriptor> font);
   void SetMaxWidth(float max_width) override;
   void SetMaxHeight(float max_height) override;
   ui::Rect GetTextBounds() override;
@@ -32,7 +32,7 @@ class WinTextLayout : public Object, public virtual platform::graph::TextLayout 
   IDWriteTextLayout* GetDWriteTextLayout() const { return text_layout_.Get(); }
 
  private:
-  GraphManager* graph_manager_;
+  IWinNativeFactory* factory_;
   std::wstring text_;
   std::shared_ptr<WinFontDescriptor> font_descriptor_;
   float max_width_ = 0.0f;

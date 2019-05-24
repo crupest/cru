@@ -1,7 +1,7 @@
 #include "cru/win/native/win_native_window.hpp"
 
 #include "cru/win/exception.hpp"
-#include "cru/win/graph/graph_manager.hpp"
+#include "cru/win/graph/win_graph_factory.hpp"
 #include "cru/win/native/win_application.hpp"
 #include "cru/win/native/window_class.hpp"
 #include "cru/win/native/window_render_target.hpp"
@@ -37,7 +37,7 @@ WinNativeWindow::WinNativeWindow(WinApplication* application,
   window_manager->RegisterWindow(hwnd_, this);
 
   window_render_target_.reset(
-      new WindowRenderTarget(graph::GraphManager::GetInstance(), hwnd_));
+      new WindowRenderTarget(graph::WinGraphFactory::GetInstance(), hwnd_));
 }
 
 WinNativeWindow::~WinNativeWindow() {
@@ -117,7 +117,7 @@ void WinNativeWindow::SetWindowRect(const ui::Rect& rect) {
   }
 }
 
-platform::graph::Painter* WinNativeWindow::BeginPaint() {
+platform::graph::IPainter* WinNativeWindow::BeginPaint() {
   return new WindowPainter(this);
 }
 
