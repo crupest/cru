@@ -25,7 +25,7 @@ def build_cru_ui():
         'x64': 'x64'
     }
 
-    subprocess.check_call('cmake -S . -B build -G "Visual Studio 15 2017" -A {arch}'
+    subprocess.check_call('cmake -S . -B build -G "Visual Studio 16 2019" -A {arch}'
                    .format(arch=generater_vs_arch_map[args.arch]),
                    stdout=sys.stdout, stderr=sys.stderr)
 

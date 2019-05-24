@@ -4,7 +4,7 @@ trigger:
 jobs:
   - job: Windows_Build
     pool:
-      vmImage: 'VS2017-Win2016'
+      vmImage: 'windows-2019'
     strategy:
       matrix:
         x86_debug:
