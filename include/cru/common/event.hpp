@@ -41,7 +41,7 @@ class EventBase {
 };
 }  // namespace details
 
-// A copyable and movable event revoker.
+// A non-copyable and movable event revoker.
 // Call function call operator to revoke the handler.
 class EventRevoker {
   friend class ::cru::details::EventBase;
@@ -52,9 +52,9 @@ class EventRevoker {
       : weak_resolver_(resolver), token_(token) {}
 
  public:
-  EventRevoker(const EventRevoker& other) = default;
+  EventRevoker(const EventRevoker& other) = delete;
   EventRevoker(EventRevoker&& other) = default;
-  EventRevoker& operator=(const EventRevoker& other) = default;
+  EventRevoker& operator=(const EventRevoker& other) = delete;
   EventRevoker& operator=(EventRevoker&& other) = default;
   ~EventRevoker() = default;
 
@@ -136,28 +136,19 @@ class Event : public details::EventBase {
   EventHandlerToken current_token_ = 0;
 };
 
-namespace details {
-struct EventRevokerGuardDestroyer {
-  void operator()(EventRevoker* p) const {
-    (*p)();
-    delete p;
-  }
-};
-}  // namespace details
-
 class EventRevokerGuard {
  public:
-  explicit EventRevokerGuard(EventRevoker revoker)
-      : revoker_(new EventRevoker(std::move(revoker))) {}
+  explicit EventRevokerGuard(EventRevoker&& revoker)
+      : revoker_(std::move(revoker)) {}
   EventRevokerGuard(const EventRevokerGuard& other) = delete;
   EventRevokerGuard(EventRevokerGuard&& other) = default;
   EventRevokerGuard& operator=(const EventRevokerGuard& other) = delete;
   EventRevokerGuard& operator=(EventRevokerGuard&& other) = default;
-  ~EventRevokerGuard() = default;
+  ~EventRevokerGuard() { revoker_(); }
 
-  EventRevoker Get() const { return *revoker_; }
+  EventRevoker ReleaseAndGet() { return std::move(revoker_); }
 
  private:
-  std::unique_ptr<EventRevoker, details::EventRevokerGuardDestroyer> revoker_;
+  EventRevoker revoker_;
 };
 }  // namespace cru
