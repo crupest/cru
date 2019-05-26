@@ -99,6 +99,6 @@ inline std::wstring_view FormatToString(const wchar_t* string,
 
 inline std::string_view FormatToString(const char* string,
                                        details::TypeTag<std::string>) {
-  return std::string(string);
+  return std::string_view(string);
 }
 }  // namespace cru::util
