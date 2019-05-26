@@ -8,7 +8,7 @@ namespace cru::win::graph {
 class WinGraphFactory : public Object,
                         public virtual platform::graph::IGraphFactory,
                         public virtual IWinNativeFactory {
-  friend IGraphFactory* ::cru::platform::graph::IGraphFactory::CreateInstance();
+  friend IGraphFactory* IGraphFactory::CreateInstance();
 
  public:
   static WinGraphFactory* GetInstance();

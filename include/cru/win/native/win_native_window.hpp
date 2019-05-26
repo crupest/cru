@@ -13,7 +13,7 @@ class WindowManager;
 class WindowRenderTarget;
 
 class WinNativeWindow : public Object,
-                        public virtual platform::native::NativeWindow {
+                        public virtual platform::native::INativeWindow {
  public:
   WinNativeWindow(WinApplication* application,
                   std::shared_ptr<WindowClass> window_class, DWORD window_style,
@@ -29,7 +29,7 @@ class WinNativeWindow : public Object,
 
   void Close() override;
 
-  NativeWindow* GetParent() override { return parent_window_; }
+  INativeWindow* GetParent() override { return parent_window_; }
 
   bool IsVisible() override;
   void SetVisible(bool is_visible) override;

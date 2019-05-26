@@ -11,26 +11,27 @@
 #include <VersionHelpers.h>
 #include <cassert>
 
+namespace cru::win::native {
+namespace {
+WinApplication* instance = nullptr;
+}
+}  // namespace cru::win::native
+
 namespace cru::platform::native {
-UiApplication* UiApplication::GetInstance() {
-  return win::native::WinApplication::GetInstance();
+IUiApplication* IUiApplication::CreateInstance() {
+  auto& i = ::cru::win::native::instance;  // avoid long namespace prefix
+  assert(i == nullptr);
+  i = new win::native::WinApplication(::GetModuleHandleW(nullptr));
+  return i;
+}
+
+IUiApplication* IUiApplication::GetInstance() {
+  return ::cru::win::native::instance;
 }
 }  // namespace cru::platform::native
 
 namespace cru::win::native {
-WinApplication* WinApplication::instance = nullptr;
-
-namespace {
-bool application_constructing = false;
-}
-
-WinApplication* WinApplication::GetInstance() {
-  if (instance == nullptr && !application_constructing) {
-    application_constructing = true;
-    instance = new WinApplication(::GetModuleHandleW(nullptr));
-  }
-  return instance;
-}
+WinApplication* WinApplication::GetInstance() { return instance; }
 
 WinApplication::WinApplication(HINSTANCE h_instance) : h_instance_(h_instance) {
   assert(instance == nullptr);
@@ -38,7 +39,8 @@ WinApplication::WinApplication(HINSTANCE h_instance) : h_instance_(h_instance) {
   if (!::IsWindows8OrGreater())
     throw std::runtime_error("Must run on Windows 8 or later.");
 
-  graph::WinGraphFactory::CreateInstance();
+  const auto graph_factory = platform::graph::IGraphFactory::CreateInstance();
+  graph_factory->SetAutoDelete(true);
 
   god_window_ = std::make_shared<GodWindow>(this);
   timer_manager_ = std::make_shared<TimerManager>(god_window_.get());
@@ -56,8 +58,7 @@ int WinApplication::Run() {
 
   for (const auto& handler : quit_handlers_) handler();
 
-  delete graph::WinGraphFactory::GetInstance();
-  delete this;
+  if (auto_delete_) delete this;
 
   return static_cast<int>(msg.wParam);
 }
@@ -94,17 +95,17 @@ void WinApplication::CancelTimer(unsigned long id) {
   timer_manager_->KillTimer(static_cast<UINT_PTR>(id));
 }
 
-std::vector<platform::native::NativeWindow*> WinApplication::GetAllWindow() {
+std::vector<platform::native::INativeWindow*> WinApplication::GetAllWindow() {
   const auto&& windows = window_manager_->GetAllWindows();
-  std::vector<platform::native::NativeWindow*> result;
+  std::vector<platform::native::INativeWindow*> result;
   for (const auto w : windows) {
-    result.push_back(static_cast<platform::native::NativeWindow*>(w));
+    result.push_back(static_cast<platform::native::INativeWindow*>(w));
   }
   return result;
 }
 
-platform::native::NativeWindow* WinApplication::CreateWindow(
-    platform::native::NativeWindow* parent) {
+platform::native::INativeWindow* WinApplication::CreateWindow(
+    platform::native::INativeWindow* parent) {
   WinNativeWindow* p = nullptr;
   if (parent != nullptr) {
     p = dynamic_cast<WinNativeWindow*>(parent);

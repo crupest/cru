@@ -102,7 +102,7 @@ Window::Window(tag_overlapped_constructor) {
   using namespace std::placeholders;
 
   native_window_ =
-      platform::native::UiApplication::GetInstance()->CreateWindow(nullptr);
+      platform::native::IUiApplication::GetInstance()->CreateWindow(nullptr);
   render_object_.reset(new render::WindowRenderObject(this));
 
   event_revoker_guards_.push_back(

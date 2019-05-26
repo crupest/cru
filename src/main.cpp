@@ -5,7 +5,7 @@
 #include "cru/ui/controls/text_block.hpp"
 #include "cru/ui/window.hpp"
 
-using cru::platform::native::UiApplication;
+using cru::platform::native::IUiApplication;
 using cru::ui::Rect;
 using cru::ui::Thickness;
 using cru::ui::Window;
@@ -21,7 +21,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 */
 
 int main() {
-  auto application = UiApplication::GetInstance();
+  std::unique_ptr<IUiApplication> application(IUiApplication::CreateInstance());
 
   const auto window = Window::CreateOverlapped();
 

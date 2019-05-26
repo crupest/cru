@@ -10,7 +10,7 @@ struct IPainter;
 }
 
 namespace cru::platform::native {
-struct NativeWindow : public virtual Interface {
+struct INativeWindow : public virtual Interface {
   // Return if the window is still valid, that is, hasn't been closed or
   // destroyed.
   virtual bool IsValid() = 0;
@@ -18,7 +18,7 @@ struct NativeWindow : public virtual Interface {
 
   virtual void Close() = 0;
 
-  virtual NativeWindow* GetParent() = 0;
+  virtual INativeWindow* GetParent() = 0;
 
   virtual bool IsVisible() = 0;
   virtual void SetVisible(bool is_visible) = 0;

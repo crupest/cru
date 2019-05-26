@@ -11,12 +11,10 @@ class TimerManager;
 class WindowManager;
 
 class WinApplication : public Object,
-                       public virtual platform::native::UiApplication {
+                       public virtual platform::native::IUiApplication {
+  friend IUiApplication* IUiApplication::CreateInstance();
  public:
   static WinApplication* GetInstance();
-
- private:
-  static WinApplication* instance;
 
  private:
   explicit WinApplication(HINSTANCE h_instance);
@@ -41,9 +39,12 @@ class WinApplication : public Object,
                             const std::function<void()>& action) override;
   void CancelTimer(unsigned long id) override;
 
-  std::vector<platform::native::NativeWindow*> GetAllWindow() override;
-  platform::native::NativeWindow* CreateWindow(
-      platform::native::NativeWindow* parent) override;
+  std::vector<platform::native::INativeWindow*> GetAllWindow() override;
+  platform::native::INativeWindow* CreateWindow(
+      platform::native::INativeWindow* parent) override;
+
+  bool IsAutoDelete() const override { return auto_delete_; }
+  void SetAutoDelete(bool value) override { auto_delete_ = value; }
 
   HINSTANCE GetInstanceHandle() const { return h_instance_; }
 
@@ -52,6 +53,8 @@ class WinApplication : public Object,
   WindowManager* GetWindowManager() const { return window_manager_.get(); }
 
  private:
+  bool auto_delete_ = false;
+
   HINSTANCE h_instance_;
 
   std::shared_ptr<GodWindow> god_window_;

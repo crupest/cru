@@ -15,10 +15,14 @@
 
 namespace cru::platform::graph {
 // Entry point of the graph module.
+// If you create a IUiApplication instance, then you should not create
+// IGraphFactory manually. IUiApplication will call
+// IGraphFactory::CreateInstance and set auto-delete to true.
+// The manual creation method of IGraphFactory provides a you a way to use graph
+// related tools without interact with actual ui like window system.
 struct IGraphFactory : virtual Interface, virtual IAutoDelete {
   // Create a platform-specific instance and save it as the global instance.
   // Do not create the instance twice. Implements should assert for that.
-  // After the
   // After creating, get the instance by GetInstance.
   static IGraphFactory* CreateInstance();
 
