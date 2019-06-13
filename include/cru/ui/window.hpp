@@ -1,6 +1,7 @@
 #pragma once
 #include "content_control.hpp"
 
+#include "cru/platform/native/native_event.hpp"
 #include "event/ui_event.hpp"
 
 #include <memory>
@@ -39,7 +40,9 @@ class Window final : public ContentControl {
 
   render::RenderObject* GetRenderObject() const override;
 
-  platform::native::INativeWindow* GetNativeWindow() const { return native_window_; }
+  platform::native::INativeWindow* GetNativeWindow() const {
+    return native_window_;
+  }
 
   Control* GetMouseHoverControl() const { return mouse_hover_control_; }
 
@@ -59,18 +62,18 @@ class Window final : public ContentControl {
 
   //*************** region: native messages ***************
 
-  void OnNativeDestroy();
-  void OnNativePaint();
+  void OnNativeDestroy(std::nullptr_t);
+  void OnNativePaint(std::nullptr_t);
   void OnNativeResize(const Size& size);
 
   void OnNativeFocus(bool focus);
 
   void OnNativeMouseEnterLeave(bool enter);
   void OnNativeMouseMove(const Point& point);
-  void OnNativeMouseDown(platform::native::MouseButton button,
-                         const Point& point);
-  void OnNativeMouseUp(platform::native::MouseButton button,
-                       const Point& point);
+  void OnNativeMouseDown(
+      const platform::native::NativeMouseButtonEventArgs& args);
+  void OnNativeMouseUp(
+      const platform::native::NativeMouseButtonEventArgs& args);
 
   void OnNativeKeyDown(int virtual_code);
   void OnNativeKeyUp(int virtual_code);
@@ -87,8 +90,8 @@ class Window final : public ContentControl {
 
   std::shared_ptr<render::WindowRenderObject> render_object_;
 
-  Control* mouse_hover_control_ = nullptr;
+  Control* mouse_hover_control_;
 
-  Control* focus_control_ = this;  // "focus_control_" can't be nullptr
+  Control* focus_control_;  // "focus_control_" can't be nullptr
 };
 }  // namespace cru::ui

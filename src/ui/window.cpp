@@ -98,43 +98,42 @@ Window* Window::CreateOverlapped() {
   return new Window(tag_overlapped_constructor{});
 }
 
-Window::Window(tag_overlapped_constructor) {
-  using namespace std::placeholders;
+namespace {
+template <typename T>
+void BindNativeEvent(Window* window, IEvent<T>* event,
+                     void (Window::*handler)(typename IEvent<T>::EventArgs),
+                     std::vector<EventRevokerGuard>& guard_pool) {
+  guard_pool.push_back(EventRevokerGuard(
+      event->AddHandler(std::bind(handler, window, std::placeholders::_1))));
+}
+}  // namespace
 
+Window::Window(tag_overlapped_constructor)
+    : mouse_hover_control_(nullptr), focus_control_(this) {
   native_window_ =
       platform::native::IUiApplication::GetInstance()->CreateWindow(nullptr);
   render_object_.reset(new render::WindowRenderObject(this));
 
-  event_revoker_guards_.push_back(
-      EventRevokerGuard(native_window_->DestroyEvent()->AddHandler(
-      std::bind(&Window::OnNativeDestroy, this))));
-  event_revoker_guards_.push_back(
-      EventRevokerGuard(native_window_->PaintEvent()->AddHandler(
-      std::bind(&Window::OnNativePaint, this))));
-  event_revoker_guards_.push_back(
-      EventRevokerGuard(native_window_->ResizeEvent()->AddHandler(
-      std::bind(&Window::OnNativeResize, this, _1))));
-  event_revoker_guards_.push_back(
-      EventRevokerGuard(native_window_->FocusEvent()->AddHandler(
-      std::bind(&Window::OnNativeFocus, this, _1))));
-  event_revoker_guards_.push_back(
-      EventRevokerGuard(native_window_->MouseEnterLeaveEvent()->AddHandler(
-      std::bind(&Window::OnNativeMouseEnterLeave, this, _1))));
-  event_revoker_guards_.push_back(
-      EventRevokerGuard(native_window_->MouseMoveEvent()->AddHandler(
-      std::bind(&Window::OnNativeMouseMove, this, _1))));
-  event_revoker_guards_.push_back(
-      EventRevokerGuard(native_window_->MouseDownEvent()->AddHandler(
-      std::bind(&Window::OnNativeMouseDown, this, _1, _2))));
-  event_revoker_guards_.push_back(
-      EventRevokerGuard(native_window_->MouseUpEvent()->AddHandler(
-      std::bind(&Window::OnNativeMouseUp, this, _1, _2))));
-  event_revoker_guards_.push_back(
-      EventRevokerGuard(native_window_->KeyDownEvent()->AddHandler(
-      std::bind(&Window::OnNativeKeyDown, this, _1))));
-  event_revoker_guards_.push_back(
-      EventRevokerGuard(native_window_->KeyUpEvent()->AddHandler(
-      std::bind(&Window::OnNativeKeyUp, this, _1))));
+  BindNativeEvent(this, native_window_->DestroyEvent(),
+                  &Window::OnNativeDestroy, event_revoker_guards_);
+  BindNativeEvent(this, native_window_->PaintEvent(), &Window::OnNativePaint,
+                  event_revoker_guards_);
+  BindNativeEvent(this, native_window_->ResizeEvent(), &Window::OnNativeResize,
+                  event_revoker_guards_);
+  BindNativeEvent(this, native_window_->FocusEvent(), &Window::OnNativeFocus,
+                  event_revoker_guards_);
+  BindNativeEvent(this, native_window_->MouseEnterLeaveEvent(),
+                  &Window::OnNativeMouseEnterLeave, event_revoker_guards_);
+  BindNativeEvent(this, native_window_->MouseMoveEvent(),
+                  &Window::OnNativeMouseMove, event_revoker_guards_);
+  BindNativeEvent(this, native_window_->MouseDownEvent(),
+                  &Window::OnNativeMouseDown, event_revoker_guards_);
+  BindNativeEvent(this, native_window_->MouseUpEvent(),
+                  &Window::OnNativeMouseUp, event_revoker_guards_);
+  BindNativeEvent(this, native_window_->KeyDownEvent(),
+                  &Window::OnNativeKeyDown, event_revoker_guards_);
+  BindNativeEvent(this, native_window_->KeyUpEvent(), &Window::OnNativeKeyUp,
+                  event_revoker_guards_);
 }
 
 Window::~Window() {
@@ -174,9 +173,9 @@ Control* Window::HitTest(const Point& point) {
   return render_object_->HitTest(point)->GetAttachedControl();
 }
 
-void Window::OnNativeDestroy() { delete this; }
+void Window::OnNativeDestroy(std::nullptr_t) { delete this; }
 
-void Window::OnNativePaint() {
+void Window::OnNativePaint(std::nullptr_t) {
   const auto painter =
       std::unique_ptr<platform::graph::IPainter>(native_window_->BeginPaint());
   render_object_->Draw(painter.get());
@@ -212,15 +211,18 @@ void Window::OnNativeMouseMove(const Point& point) {
                 point);
 }
 
-void Window::OnNativeMouseDown(platform::native::MouseButton button,
-                               const Point& point) {
-  Control* control = HitTest(point);
-  DispatchEvent(control, &Control::MouseDownEvent, nullptr, point, button);
+void Window::OnNativeMouseDown(
+    const platform::native::NativeMouseButtonEventArgs& args) {
+  Control* control = HitTest(args.point);
+  DispatchEvent(control, &Control::MouseDownEvent, nullptr, args.point,
+                args.button);
 }
 
-void Window::OnNativeMouseUp(platform::native::MouseButton button, const Point& point) {
-  Control* control = HitTest(point);
-  DispatchEvent(control, &Control::MouseUpEvent, nullptr, point, button);
+void Window::OnNativeMouseUp(
+    const platform::native::NativeMouseButtonEventArgs& args) {
+  Control* control = HitTest(args.point);
+  DispatchEvent(control, &Control::MouseUpEvent, nullptr, args.point,
+                args.button);
 }
 
 void Window::OnNativeKeyDown(int virtual_code) {

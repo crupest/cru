@@ -13,6 +13,11 @@ class Object {
 };
 
 struct Interface {
+  Interface() = default;
+  Interface(const Interface& other) = delete;
+  Interface(Interface&& other) = delete;
+  Interface& operator=(const Interface& other) = delete;
+  Interface& operator=(Interface&& other) = delete;
   virtual ~Interface() = default;
 };
 }  // namespace cru

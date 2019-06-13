@@ -4,6 +4,7 @@
 #include "basic_types.hpp"
 #include "cru/common/event.hpp"
 #include "cru/common/ui_base.hpp"
+#include "native_event.hpp"
 
 namespace cru::platform::graph {
 struct IPainter;
@@ -36,15 +37,15 @@ struct INativeWindow : public virtual Interface {
 
   virtual graph::IPainter* BeginPaint() = 0;
 
-  virtual Event<>* DestroyEvent() = 0;
-  virtual Event<const ui::Size&>* ResizeEvent() = 0;
-  virtual Event<>* PaintEvent() = 0;
-  virtual Event<bool>* FocusEvent() = 0;
-  virtual Event<bool>* MouseEnterLeaveEvent() = 0;
-  virtual Event<const ui::Point&>* MouseMoveEvent() = 0;
-  virtual Event<MouseButton, const ui::Point&>* MouseDownEvent() = 0;
-  virtual Event<MouseButton, const ui::Point&>* MouseUpEvent() = 0;
-  virtual Event<int>* KeyDownEvent() = 0;
-  virtual Event<int>* KeyUpEvent() = 0;
+  virtual IEvent<std::nullptr_t>* DestroyEvent() = 0;
+  virtual IEvent<std::nullptr_t>* PaintEvent() = 0;
+  virtual IEvent<ui::Size>* ResizeEvent() = 0;
+  virtual IEvent<bool>* FocusEvent() = 0;
+  virtual IEvent<bool>* MouseEnterLeaveEvent() = 0;
+  virtual IEvent<ui::Point>* MouseMoveEvent() = 0;
+  virtual IEvent<NativeMouseButtonEventArgs>* MouseDownEvent() = 0;
+  virtual IEvent<NativeMouseButtonEventArgs>* MouseUpEvent() = 0;
+  virtual IEvent<int>* KeyDownEvent() = 0;
+  virtual IEvent<int>* KeyUpEvent() = 0;
 };
-}  // namespace cru::platform::ui
+}  // namespace cru::platform::native

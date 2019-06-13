@@ -79,13 +79,44 @@ inline EventRevoker details::EventBase::CreateRevoker(EventHandlerToken token) {
   return EventRevoker(resolver_, token);
 }
 
+template <typename TRaw>
+using DeducedEventArgs = std::conditional_t<
+    std::is_lvalue_reference_v<TRaw>, TRaw,
+    std::conditional_t<std::is_scalar_v<TRaw>, TRaw, const TRaw&>>;
+
+// Provides an interface of event.
+//
+// Note that this class does not inherit Interface because Interface is
+// public destructable, but I want to make this class not public
+// destructable to prevent user from destructing it.
+//
+// IEvent only allow to add handler but not to raise the event. You may
+// want to create an Event object and expose IEvent only so users won't
+// be able to emit the event.
+template <typename TEventArgs>
+struct IEvent {
+ public:
+  using EventArgs = DeducedEventArgs<TEventArgs>;
+  using EventHandler = std::function<void(EventArgs)>;
+
+ protected:
+  IEvent() = default;
+  IEvent(const IEvent& other) = delete;
+  IEvent(IEvent&& other) = delete;
+  IEvent& operator=(const IEvent& other) = delete;
+  IEvent& operator=(IEvent&& other) = delete;
+  ~IEvent() = default;
+
+ public:
+  virtual EventRevoker AddHandler(const EventHandler& handler) = 0;
+  virtual EventRevoker AddHandler(EventHandler&& handler) = 0;
+};
+
 // A non-copyable non-movable Event class.
 // It stores a list of event handlers.
-template <typename... TArgs>
-class Event : public details::EventBase {
+template <typename TEventArgs>
+class Event : public details::EventBase, public IEvent<TEventArgs> {
  public:
-  using EventHandler = std::function<void(TArgs...)>;
-
   Event() = default;
   Event(const Event&) = delete;
   Event& operator=(const Event&) = delete;
@@ -93,36 +124,26 @@ class Event : public details::EventBase {
   Event& operator=(Event&&) = delete;
   ~Event() = default;
 
-  EventRevoker AddHandler(const EventHandler& handler) {
+  EventRevoker AddHandler(const EventHandler& handler) override {
     const auto token = current_token_++;
     handlers_.emplace(token, handler);
     return CreateRevoker(token);
   }
 
-  EventRevoker AddHandler(EventHandler&& handler) {
+  EventRevoker AddHandler(EventHandler&& handler) override {
     const auto token = current_token_++;
     handlers_.emplace(token, std::move(handler));
     return CreateRevoker(token);
   }
 
-  template <typename FArg>
-  EventRevoker AddHandler(FArg&& handler) {
-    static_assert(std::is_invocable_v<FArg, TArgs...>,
-                  "Handler not invocable.");
-    const auto token = current_token_++;
-    handlers_.emplace(token, EventHandler(std::forward<FArg>(handler)));
-    return CreateRevoker(token);
-  }
-
-  template <typename... FArg>
-  void Raise(FArg&&... args) {
+  void Raise(EventArgs args) {
     // copy the handlers to a list, because the handler might be removed
     // during executing, and the handler with its data will be destroyed.
     // if the handler is a lambda with member data, then the member data
     // will be destroyed and result in seg fault.
     std::list<EventHandler> handlers;
     for (const auto& [key, handler] : handlers_) handlers.push_back(handler);
-    for (const auto& handler : handlers) handler(std::forward<FArg>(args)...);
+    for (const auto& handler : handlers) handler(args);
   }
 
  protected:

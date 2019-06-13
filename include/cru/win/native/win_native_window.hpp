@@ -47,28 +47,26 @@ class WinNativeWindow : public Object,
 
   platform::graph::IPainter* BeginPaint() override;
 
-  Event<>* DestroyEvent() override { return &destroy_event_; }
-  Event<const ui::Size&>* ResizeEvent() override { return &resize_event_; }
-  Event<>* PaintEvent() override { return &paint_event_; }
-  Event<bool>* FocusEvent() override { return &focus_event_; }
-  Event<bool>* MouseEnterLeaveEvent() override {
+  IEvent<std::nullptr_t>* DestroyEvent() override { return &destroy_event_; }
+  IEvent<std::nullptr_t>* PaintEvent() override { return &paint_event_; }
+  IEvent<ui::Size>* ResizeEvent() override { return &resize_event_; }
+  IEvent<bool>* FocusEvent() override { return &focus_event_; }
+  IEvent<bool>* MouseEnterLeaveEvent() override {
     return &mouse_enter_leave_event_;
   }
-  Event<const ui::Point&>* MouseMoveEvent() override {
-    return &mouse_move_event_;
-  }
-  Event<platform::native::MouseButton, const ui::Point&>* MouseDownEvent()
+  IEvent<ui::Point>* MouseMoveEvent() override { return &mouse_move_event_; }
+  IEvent<platform::native::NativeMouseButtonEventArgs>* MouseDownEvent()
       override {
     return &mouse_down_event_;
   }
-  Event<platform::native::MouseButton, const ui::Point&>* MouseUpEvent()
+  IEvent<platform::native::NativeMouseButtonEventArgs>* MouseUpEvent()
       override {
     return &mouse_up_event_;
   }
-  Event<int>* KeyDownEvent() override { return &key_down_event_; }
-  Event<int>* KeyUpEvent() override { return &key_up_event_; }
+  IEvent<int>* KeyDownEvent() override { return &key_down_event_; }
+  IEvent<int>* KeyUpEvent() override { return &key_up_event_; }
 
-  Event<WindowNativeMessageEventArgs&>* NativeMessageEvent() {
+  IEvent<WindowNativeMessageEventArgs&>* NativeMessageEvent() {
     return &native_message_event_;
   }
 
@@ -121,14 +119,14 @@ class WinNativeWindow : public Object,
 
   std::shared_ptr<WindowRenderTarget> window_render_target_;
 
-  Event<> destroy_event_;
-  Event<const ui::Size&> resize_event_;
-  Event<> paint_event_;
+  Event<std::nullptr_t> destroy_event_;
+  Event<std::nullptr_t> paint_event_;
+  Event<ui::Size> resize_event_;
   Event<bool> focus_event_;
   Event<bool> mouse_enter_leave_event_;
-  Event<const ui::Point&> mouse_move_event_;
-  Event<platform::native::MouseButton, const ui::Point&> mouse_down_event_;
-  Event<platform::native::MouseButton, const ui::Point&> mouse_up_event_;
+  Event<ui::Point> mouse_move_event_;
+  Event<platform::native::NativeMouseButtonEventArgs> mouse_down_event_;
+  Event<platform::native::NativeMouseButtonEventArgs> mouse_up_event_;
   Event<int> key_down_event_;
   Event<int> key_up_event_;
 

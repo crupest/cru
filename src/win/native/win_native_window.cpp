@@ -254,13 +254,13 @@ RECT WinNativeWindow::GetClientRectPixel() {
 void WinNativeWindow::OnDestroyInternal() {
   application_->GetWindowManager()->UnregisterWindow(hwnd_);
   hwnd_ = nullptr;
-  destroy_event_.Raise();
+  destroy_event_.Raise(nullptr);
   if (delete_this_on_destroy_)
     application_->InvokeLater([this] { delete this; });
 }
 
 void WinNativeWindow::OnPaintInternal() {
-  paint_event_.Raise();
+  paint_event_.Raise(nullptr);
   ValidateRect(hwnd_, nullptr);
 }
 
@@ -302,8 +302,7 @@ void WinNativeWindow::OnMouseMoveInternal(const POINT point) {
     mouse_enter_leave_event_.Raise(true);
   }
 
-  const auto dip_point = PiToDip(point);
-  mouse_move_event_.Raise(dip_point);
+  mouse_move_event_.Raise(PiToDip(point));
 }
 
 void WinNativeWindow::OnMouseLeaveInternal() {
@@ -314,13 +313,13 @@ void WinNativeWindow::OnMouseLeaveInternal() {
 void WinNativeWindow::OnMouseDownInternal(platform::native::MouseButton button,
                                           POINT point) {
   const auto dip_point = PiToDip(point);
-  mouse_down_event_.Raise(button, dip_point);
+  mouse_down_event_.Raise({button, dip_point});
 }
 
 void WinNativeWindow::OnMouseUpInternal(platform::native::MouseButton button,
                                         POINT point) {
   const auto dip_point = PiToDip(point);
-  mouse_up_event_.Raise(button, dip_point);
+  mouse_up_event_.Raise({button, dip_point});
 }
 
 void WinNativeWindow::OnMouseWheelInternal(short delta, POINT point) {}
