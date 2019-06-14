@@ -79,6 +79,9 @@ inline EventRevoker details::EventBase::CreateRevoker(EventHandlerToken token) {
   return EventRevoker(resolver_, token);
 }
 
+// int -> int
+// Point -> const Point&
+// int& -> int&
 template <typename TRaw>
 using DeducedEventArgs = std::conditional_t<
     std::is_lvalue_reference_v<TRaw>, TRaw,

@@ -11,6 +11,14 @@ struct IPainter;
 }
 
 namespace cru::platform::native {
+// Represents a native window, which exposes some low-level events and
+// operations.
+//
+// Although you can always retain an instance of this class, the real window
+// associated with it might be have already been destroyed by explicitly calling
+// Close or closed by the user, which leads to an invalid instance. You can
+// check the validity by IsValid. When you call perform native operations on the
+// invalid instance, there is no effect.
 struct INativeWindow : public virtual Interface {
   // Return if the window is still valid, that is, hasn't been closed or
   // destroyed.
