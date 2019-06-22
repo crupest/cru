@@ -7,6 +7,7 @@ target_sources(cru_base INTERFACE
 	${CRU_BASE_INCLUDE_DIR}/event.hpp
 	${CRU_BASE_INCLUDE_DIR}/format.hpp
 	${CRU_BASE_INCLUDE_DIR}/pre_config.hpp
+	${CRU_BASE_INCLUDE_DIR}/self_resolvable.hpp
 	${CRU_BASE_INCLUDE_DIR}/ui_base.hpp
 )
 target_include_directories(cru_base INTERFACE ${CRU_INCLUDE_DIR})

@@ -1,13 +1,17 @@
 #pragma once
 #include "../layout_control.hpp"
 
+#include "../render/flex_layout_render_object.hpp"
+#include "../window.hpp"
+
 #include <memory>
 
-namespace cru::ui::render {
-class FlexLayoutRenderObject;
-}
-
 namespace cru::ui::controls {
+// import these basic entities
+using render::FlexChildLayoutData;
+using render::FlexCrossAlignment;
+using render::FlexDirection;
+using render::FlexMainAlignment;
 
 class FlexLayout : public LayoutControl {
  public:
@@ -30,6 +34,16 @@ class FlexLayout : public LayoutControl {
   }
 
   render::RenderObject* GetRenderObject() const override;
+
+  FlexMainAlignment GetContentMainAlign() const {
+    return render_object_->GetContentMainAlign();
+  }
+
+  void SetContentMainAlign(FlexMainAlignment value) {
+    if (value == GetContentMainAlign()) return;
+    render_object_->SetContentMainAlign(value);
+    GetWindow()->InvalidateLayout();
+  }
 
  protected:
   void OnAddChild(Control* child, int position) override;

@@ -161,15 +161,15 @@ Size FlexLayoutRenderObject::OnMeasureContent(const Size& available_size) {
 }
 
 void FlexLayoutRenderObject::OnLayoutContent(const Rect& content_rect) {
-  auto calculate_anchor = [](Alignment alignment, float start_point,
+  auto calculate_anchor = [](int alignment, float start_point,
                              float total_length,
                              float content_length) -> float {
     switch (alignment) {
-      case Alignment::Start:
+      case internal::align_start:
         return start_point;
-      case Alignment::Center:
+      case internal::align_center:
         return start_point + (total_length - content_length) / 2.0f;
-      case Alignment::End:
+      case internal::align_end:
         return start_point + total_length - content_length;
       default:
         return 0;
@@ -184,8 +184,9 @@ void FlexLayoutRenderObject::OnLayoutContent(const Rect& content_rect) {
       actual_content_width += child->GetPreferredSize().width;
     }
 
-    const float content_anchor_x = calculate_anchor(
-        content_main_align_, 0, content_rect.width, actual_content_width);
+    const float content_anchor_x =
+        calculate_anchor(static_cast<int>(content_main_align_), 0,
+                         content_rect.width, actual_content_width);
 
     float anchor_x = 0;
     for (int i = 0; i < children.size(); i++) {
@@ -199,8 +200,10 @@ void FlexLayoutRenderObject::OnLayoutContent(const Rect& content_rect) {
         real_anchor_x = content_rect.GetRight() - real_anchor_x;
       child->Layout(Rect{
           real_anchor_x,
-          calculate_anchor(child_layout_data_[i].alignment, content_rect.top,
-                           content_rect.height, size.height),
+          calculate_anchor(
+              static_cast<int>(child_layout_data_[i].cross_alignment.value_or(
+                  this->item_cross_align_)),
+              content_rect.top, content_rect.height, size.height),
           size.width, size.height});
 
       anchor_x += size.width;
@@ -211,8 +214,9 @@ void FlexLayoutRenderObject::OnLayoutContent(const Rect& content_rect) {
       actual_content_height = child->GetPreferredSize().height;
     }
 
-    const float content_anchor_y = calculate_anchor(
-        content_main_align_, 0, content_rect.height, actual_content_height);
+    const float content_anchor_y =
+        calculate_anchor(static_cast<int>(content_main_align_), 0,
+                         content_rect.height, actual_content_height);
 
     float anchor_y = 0;
     for (int i = 0; i < children.size(); i++) {
@@ -227,8 +231,10 @@ void FlexLayoutRenderObject::OnLayoutContent(const Rect& content_rect) {
       }
       child->Layout(Rect{
           real_anchor_y,
-          calculate_anchor(child_layout_data_[i].alignment, content_rect.left,
-                           content_rect.width, size.width),
+          calculate_anchor(
+              static_cast<int>(child_layout_data_[i].cross_alignment.value_or(
+                  this->item_cross_align_)),
+              content_rect.left, content_rect.width, size.width),
           size.width, size.height});
 
       anchor_y += size.height;

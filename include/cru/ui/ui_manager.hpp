@@ -9,6 +9,7 @@ struct IFontDescriptor;
 }  // namespace cru::platform
 
 namespace cru::ui {
+//TODO: Make this theme resource.
 class PredefineResources : public Object {
  public:
   PredefineResources();

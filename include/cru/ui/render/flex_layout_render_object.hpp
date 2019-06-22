@@ -11,13 +11,32 @@ enum class FlexDirection {
   VertivalReverse
 };
 
-enum class Alignment { Start, End, Center };
+namespace internal {
+constexpr int align_start = 0;
+constexpr int align_end = align_start + 1;
+constexpr int align_center = align_end + 1;
+//constexpr int align_stretch = align_center + 1;
+}  // namespace internal
+
+enum class FlexMainAlignment {
+  Start = internal::align_start,
+  End = internal::align_end,
+  Center = internal::align_center
+};
+enum class FlexCrossAlignment {
+  Start = internal::align_start,
+  End = internal::align_end,
+  Center = internal::align_center,
+//  Stretch = internal::align_stretch
+};
 
 struct FlexChildLayoutData {
-  std::optional<float> flex_basis;  // nullopt stands for content
+  // nullopt stands for looking at my content
+  std::optional<float> flex_basis = std::nullopt;
   float flex_grow = 0;
   float flex_shrink = 0;
-  Alignment alignment = Alignment::Center;
+  // nullopt stands for looking at parent's setting
+  std::optional<FlexCrossAlignment> cross_alignment = std::nullopt;
 };
 
 class FlexLayoutRenderObject : public RenderObject {
@@ -33,8 +52,15 @@ class FlexLayoutRenderObject : public RenderObject {
   FlexDirection GetFlexDirection() const { return direction_; }
   void SetFlexDirection(FlexDirection direction) { direction_ = direction; }
 
-  Alignment GetContentMainAlign() const { return content_main_align_; }
-  void SetContentMainAlign(Alignment align) { content_main_align_ = align; }
+  FlexMainAlignment GetContentMainAlign() const { return content_main_align_; }
+  void SetContentMainAlign(FlexMainAlignment align) {
+    content_main_align_ = align;
+  }
+
+  FlexCrossAlignment GetItemCrossAlign() const { return item_cross_align_; }
+  void SetItemCrossAlign(FlexCrossAlignment align) {
+    item_cross_align_ = align;
+  }
 
   FlexChildLayoutData* GetChildLayoutData(int position);
 
@@ -51,7 +77,8 @@ class FlexLayoutRenderObject : public RenderObject {
 
  private:
   FlexDirection direction_ = FlexDirection::Horizontal;
-  Alignment content_main_align_ = Alignment::Start;
+  FlexMainAlignment content_main_align_ = FlexMainAlignment::Start;
+  FlexCrossAlignment item_cross_align_ = FlexCrossAlignment::Center;
   std::vector<FlexChildLayoutData> child_layout_data_{};
 };
 }  // namespace cru::ui::render

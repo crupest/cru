@@ -147,6 +147,21 @@ render::RenderObject* Window::GetRenderObject() const {
   return render_object_.get();
 }
 
+void Window::Relayout() { this->render_object_->MeasureAndLayout(); }
+
+void Window::InvalidateLayout() {
+  if (!need_layout_) {
+    platform::native::IUiApplication::GetInstance()->InvokeLater(
+        [resolver = this->CreateResolver()] {
+          if (const auto window = resolver.Resolve()) {
+            window->Relayout();
+            window->need_layout_ = false;
+          }
+      });
+    need_layout_ = true;
+  }
+}
+
 bool Window::RequestFocusFor(Control* control) {
   assert(control != nullptr);  // The control to request focus can't be null.
                                // You can set it as the window.

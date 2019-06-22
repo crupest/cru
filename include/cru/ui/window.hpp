@@ -1,6 +1,7 @@
 #pragma once
 #include "content_control.hpp"
 
+#include "cru/common/self_resolvable.hpp"
 #include "cru/platform/native/native_event.hpp"
 #include "event/ui_event.hpp"
 
@@ -16,7 +17,7 @@ namespace render {
 class WindowRenderObject;
 }
 
-class Window final : public ContentControl {
+class Window final : public ContentControl, public SelfResovable<Window> {
  public:
   static constexpr auto control_type = L"Window";
 
@@ -45,6 +46,11 @@ class Window final : public ContentControl {
   }
 
   Control* GetMouseHoverControl() const { return mouse_hover_control_; }
+
+  //*************** region: layout ***************
+  void Relayout();
+
+  void InvalidateLayout();
 
   //*************** region: focus ***************
 
@@ -93,5 +99,7 @@ class Window final : public ContentControl {
   Control* mouse_hover_control_;
 
   Control* focus_control_;  // "focus_control_" can't be nullptr
+
+  bool need_layout_ = false;
 };
 }  // namespace cru::ui
