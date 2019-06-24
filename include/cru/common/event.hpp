@@ -1,6 +1,8 @@
 #pragma once
 #include "base.hpp"
 
+#include "self_resolvable.hpp"
+
 #include <functional>
 #include <list>
 #include <map>
@@ -15,13 +17,13 @@ namespace details {
 // It erases event args types and provides a
 // unified form to create event revoker and
 // revoke(remove) handler.
-class EventBase {
+class EventBase : private SelfResovable<EventBase> {
   friend EventRevoker;
 
  protected:
   using EventHandlerToken = long;
 
-  EventBase() : resolver_(new EventBase*(this)) {}
+  EventBase() {}
   EventBase(const EventBase& other) = delete;
   EventBase(EventBase&& other) = delete;
   EventBase& operator=(const EventBase& other) = delete;
@@ -35,9 +37,6 @@ class EventBase {
 
   // Create a revoker with the given token.
   inline EventRevoker CreateRevoker(EventHandlerToken token);
-
- private:
-  std::shared_ptr<EventBase*> resolver_;
 };
 }  // namespace details
 
@@ -47,14 +46,14 @@ class EventRevoker {
   friend class ::cru::details::EventBase;
 
  private:
-  EventRevoker(const std::shared_ptr<details::EventBase*>& resolver,
+  EventRevoker(ObjectResovler<details::EventBase>&& resolver,
                details::EventBase::EventHandlerToken token)
-      : weak_resolver_(resolver), token_(token) {}
+      : resolver_(std::move(resolver)), token_(token) {}
 
  public:
-  EventRevoker(const EventRevoker& other) = delete;
+  EventRevoker(const EventRevoker& other) = default;
   EventRevoker(EventRevoker&& other) = default;
-  EventRevoker& operator=(const EventRevoker& other) = delete;
+  EventRevoker& operator=(const EventRevoker& other) = default;
   EventRevoker& operator=(EventRevoker&& other) = default;
   ~EventRevoker() = default;
 
@@ -63,20 +62,18 @@ class EventRevoker {
   // copies calls this, then other copies's calls will have no
   // effect. (They have the same token.)
   void operator()() const {
-    const auto true_resolver = weak_resolver_.lock();
-    // if true_resolver is nullptr, then the event has been destroyed.
-    if (true_resolver) {
-      (*true_resolver)->RemoveHandler(token_);
+    if (const auto event = resolver_.Resolve()) {
+      event->RemoveHandler(token_);
     }
   }
 
  private:
-  std::weak_ptr<details::EventBase*> weak_resolver_;
+  ObjectResovler<details::EventBase> resolver_;
   details::EventBase::EventHandlerToken token_;
 };
 
 inline EventRevoker details::EventBase::CreateRevoker(EventHandlerToken token) {
-  return EventRevoker(resolver_, token);
+  return EventRevoker(CreateResolver(), token);
 }
 
 // int -> int
@@ -160,19 +157,35 @@ class Event : public details::EventBase, public IEvent<TEventArgs> {
   EventHandlerToken current_token_ = 0;
 };
 
+namespace details {
+struct EventRevokerDestroyer {
+  void operator()(EventRevoker* p) {
+    (*p)();
+    delete p;
+  }
+};
+}  // namespace details
+
 class EventRevokerGuard {
  public:
   explicit EventRevokerGuard(EventRevoker&& revoker)
-      : revoker_(std::move(revoker)) {}
+      : revoker_(new EventRevoker(std::move(revoker))) {}
   EventRevokerGuard(const EventRevokerGuard& other) = delete;
   EventRevokerGuard(EventRevokerGuard&& other) = default;
   EventRevokerGuard& operator=(const EventRevokerGuard& other) = delete;
   EventRevokerGuard& operator=(EventRevokerGuard&& other) = default;
-  ~EventRevokerGuard() { revoker_(); }
+  ~EventRevokerGuard() = default;
 
-  EventRevoker ReleaseAndGet() { return std::move(revoker_); }
+  EventRevoker Get() {
+    // revoker is only null when this is moved
+    // you shouldn't use a moved instance
+    assert(revoker_);
+    return *revoker_;
+  }
+
+  void Release() { revoker_.release(); }
 
  private:
-  EventRevoker revoker_;
-};
+  std::unique_ptr<EventRevoker, details::EventRevokerDestroyer> revoker_;
+};  // namespace cru
 }  // namespace cru

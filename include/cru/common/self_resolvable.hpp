@@ -1,7 +1,9 @@
 #pragma once
 #include "pre_config.hpp"
 
+#include <cassert>
 #include <memory>
+#include <type_traits>
 
 namespace cru {
 template <typename T>
@@ -21,7 +23,12 @@ class ObjectResovler {
   ObjectResovler& operator=(ObjectResovler&&) = default;
   ~ObjectResovler() = default;
 
-  T* Resolve() const { return *resolver_; }
+  T* Resolve() const {
+    // resolver_ is null only when this has been moved.
+    // You shouldn't resolve a moved resolver. So assert it.
+    assert(resolver_);
+    return *resolver_;
+  }
 
  private:
   std::shared_ptr<T*> resolver_;
