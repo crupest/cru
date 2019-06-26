@@ -3,9 +3,9 @@
 
 #include "self_resolvable.hpp"
 
+#include <algorithm>
 #include <functional>
 #include <list>
-#include <map>
 #include <memory>
 #include <utility>
 
@@ -43,7 +43,7 @@ class EventBase : private SelfResovable<EventBase> {
 // A non-copyable and movable event revoker.
 // Call function call operator to revoke the handler.
 class EventRevoker {
-  friend class ::cru::details::EventBase;
+  friend details::EventBase;
 
  private:
   EventRevoker(ObjectResovler<details::EventBase>&& resolver,
@@ -116,6 +116,14 @@ struct IEvent {
 // It stores a list of event handlers.
 template <typename TEventArgs>
 class Event : public details::EventBase, public IEvent<TEventArgs> {
+ private:
+  struct HandlerData {
+    HandlerData(EventHandlerToken token, EventHandler handler)
+        : token(token), handler(handler) {}
+    EventHandlerToken token;
+    EventHandler handler;
+  };
+
  public:
   Event() = default;
   Event(const Event&) = delete;
@@ -126,34 +134,45 @@ class Event : public details::EventBase, public IEvent<TEventArgs> {
 
   EventRevoker AddHandler(const EventHandler& handler) override {
     const auto token = current_token_++;
-    handlers_.emplace(token, handler);
+    handlers_->emplace_back(token, handler);
     return CreateRevoker(token);
   }
 
   EventRevoker AddHandler(EventHandler&& handler) override {
     const auto token = current_token_++;
-    handlers_.emplace(token, std::move(handler));
+    handlers_->emplace_back(token, std::move(handler));
     return CreateRevoker(token);
   }
 
   void Raise(EventArgs args) {
-    // copy the handlers to a list, because the handler might be removed
-    // during executing, and the handler with its data will be destroyed.
-    // if the handler is a lambda with member data, then the member data
-    // will be destroyed and result in seg fault.
-    std::list<EventHandler> handlers;
-    for (const auto& [key, handler] : handlers_) handlers.push_back(handler);
-    for (const auto& handler : handlers) handler(args);
+    // Make a copy of the shared_ptr to retain the handlers in case the event is
+    // deleted during executing. if the handler is a lambda with member data,
+    // then the member data will be destroyed and result in seg fault.
+    const auto handlers = handlers_;
+    // do not use range for because it is not safe when current node is deleted.
+    auto i = handlers->cbegin();
+    while (i != handlers->cend()) {
+      // first move the i forward.
+      const auto current = i++;
+      // The same as above but in case that the RemoveHandler is called and
+      // the handler is not valid then.
+      const auto handler = current->handler;
+      handler(args);
+    }
   }
 
  protected:
   void RemoveHandler(EventHandlerToken token) override {
-    auto find_result = handlers_.find(token);
-    if (find_result != handlers_.cend()) handlers_.erase(find_result);
+    auto find_result = std::find_if(handlers_->cbegin(), handlers_->cend(),
+                                    [token](const HandlerData& handler_data) {
+                                      return handler_data.token == token;
+                                    });
+    if (find_result != handlers_->cend()) handlers_->erase(find_result);
   }
 
  private:
-  std::map<EventHandlerToken, EventHandler> handlers_{};
+  std::shared_ptr<std::list<HandlerData>> handlers_ =
+      std::make_shared<std::list<HandlerData>>();
   EventHandlerToken current_token_ = 0;
 };
 
