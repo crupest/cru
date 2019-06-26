@@ -1,27 +1,26 @@
 #pragma once
-#include "../win_pre_config.hpp"
+#include "direct_factory.hpp"
+
+#include "brush.hpp"
 
 #include "cru/platform/graph/graph_factory.hpp"
-#include "win_native_factory.hpp"
 
-namespace cru::win::graph {
-class WinGraphFactory : public Object,
-                        public virtual platform::graph::IGraphFactory,
-                        public virtual IWinNativeFactory {
-  friend IGraphFactory* IGraphFactory::CreateInstance();
+namespace cru::platform::graph::win::direct {
+class DirectGraphFactory : public GraphFactory, IDirectFactory {
+  friend GraphFactory* GraphFactory::CreateInstance();
 
  public:
-  static WinGraphFactory* GetInstance();
+  static DirectGraphFactory* GetInstance();
 
  private:
-  explicit WinGraphFactory();
+  DirectGraphFactory();
 
  public:
-  WinGraphFactory(const WinGraphFactory& other) = delete;
-  WinGraphFactory(WinGraphFactory&& other) = delete;
-  WinGraphFactory& operator=(const WinGraphFactory& other) = delete;
-  WinGraphFactory& operator=(WinGraphFactory&& other) = delete;
-  ~WinGraphFactory() override;
+  DirectGraphFactory(const DirectGraphFactory& other) = delete;
+  DirectGraphFactory(DirectGraphFactory&& other) = delete;
+  DirectGraphFactory& operator=(const DirectGraphFactory& other) = delete;
+  DirectGraphFactory& operator=(DirectGraphFactory&& other) = delete;
+  ~DirectGraphFactory() override;
 
   ID2D1Factory1* GetD2D1Factory() const override { return d2d1_factory_.Get(); }
   ID2D1DeviceContext* GetD2D1DeviceContext() const override {
@@ -36,14 +35,14 @@ class WinGraphFactory : public Object,
     return dwrite_system_font_collection_.Get();
   }
 
-  platform::graph::ISolidColorBrush* CreateSolidColorBrush(
-      const ui::Color& color) override;
-  platform::graph::IGeometryBuilder* CreateGeometryBuilder() override;
-  platform::graph::IFontDescriptor* CreateFontDescriptor(
-      const std::wstring_view& font_family, float font_size);
-  platform::graph::ITextLayout* CreateTextLayout(
-      std::shared_ptr<platform::graph::IFontDescriptor> font,
-      std::wstring text);
+  D2DSolidColorBrush* CreateSolidColorBrush() override;
+
+  D2DGeometryBuilder* CreateGeometryBuilder() override;
+  D2DFont* CreateFont(
+      const std::wstring_view& font_family, float font_size) override;
+  DWriteTextLayout* CreateTextLayout(
+      std::shared_ptr<Font> font,
+      std::wstring text) override;
 
   bool IsAutoDelete() const override { return auto_delete_; }
   void SetAutoDelete(bool value) override { auto_delete_ = value; }

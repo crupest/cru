@@ -1,45 +1,48 @@
-#include "cru/win/graph/win_graph_factory.hpp"
+#include "cru/win/graph/direct/graph_factory.hpp"
 
-#include "cru/win/exception.hpp"
-#include "cru/win/graph/win_brush.hpp"
-#include "cru/win/graph/win_font.hpp"
-#include "cru/win/graph/win_geometry.hpp"
-#include "cru/win/graph/win_text_layout.hpp"
+#include "cru/win/graph/direct/brush.hpp"
+#include "cru/win/graph/direct/exception.hpp"
+#include "cru/win/graph/direct/font.hpp"
+#include "cru/win/graph/direct/geometry.hpp"
+#include "cru/win/graph/direct/text_layout.hpp"
 
 #include <cassert>
 #include <cstdlib>
 #include <utility>
 
-namespace cru::win::graph {
+namespace cru::platform::graph::win::direct {
 namespace {
-WinGraphFactory* instance = nullptr;
+DirectGraphFactory* instance = nullptr;
 }
-}  // namespace cru::win::graph
+}  // namespace cru::platform::graph::win::direct
 
 namespace cru::platform::graph {
 void GraphFactoryAutoDeleteExitHandler() {
-  const auto i = ::cru::win::graph::instance;  // avoid long namespace prefix
+  const auto i =
+      ::cru::platform::graph::win::direct::instance;  // avoid long namespace
+                                                      // prefix
   if (i == nullptr) return;
   if (i->IsAutoDelete()) delete i;
 }
 
-IGraphFactory* IGraphFactory::CreateInstance() {
-  auto& i = ::cru::win::graph::instance;  // avoid long namespace prefix
+GraphFactory* GraphFactory::CreateInstance() {
+  auto& i = ::cru::platform::graph::win::direct::instance;  // avoid long
+                                                            // namespace prefix
   assert(i == nullptr);
-  i = new cru::win::graph::WinGraphFactory();
+  i = new ::cru::platform::graph::win::direct::DirectGraphFactory();
   std::atexit(&GraphFactoryAutoDeleteExitHandler);
   return i;
 }
 
-IGraphFactory* IGraphFactory::GetInstance() {
-  return ::cru::win::graph::instance;
+GraphFactory* GraphFactory::GetInstance() {
+  return ::cru::platform::graph::win::direct::instance;
 }
 }  // namespace cru::platform::graph
 
-namespace cru::win::graph {
-WinGraphFactory* WinGraphFactory::GetInstance() { return instance; }
+namespace cru::platform::graph::win::direct {
+DirectGraphFactory* DirectGraphFactory::GetInstance() { return instance; }
 
-WinGraphFactory::WinGraphFactory() {
+DirectGraphFactory::DirectGraphFactory() {
   UINT creation_flags = D3D11_CREATE_DEVICE_BGRA_SUPPORT;
 
 #ifdef CRU_DEBUG
@@ -86,11 +89,10 @@ WinGraphFactory::WinGraphFactory() {
       &dwrite_system_font_collection_));
 }
 
-WinGraphFactory::~WinGraphFactory() { instance = nullptr; }
+DirectGraphFactory::~DirectGraphFactory() { instance = nullptr; }
 
-platform::graph::ISolidColorBrush* WinGraphFactory::CreateSolidColorBrush(
-    const ui::Color& color) {
-  return new WinSolidColorBrush(this, color);
+D2DSolidColorBrush* DirectGraphFactory::CreateSolidColorBrush() {
+  return new D2DSolidColorBrush(this);
 }
 
 platform::graph::IGeometryBuilder* WinGraphFactory::CreateGeometryBuilder() {
@@ -108,4 +110,4 @@ platform::graph::ITextLayout* WinGraphFactory::CreateTextLayout(
   assert(f);
   return new WinTextLayout(this, std::move(f), std::move(text));
 }
-}  // namespace cru::win::graph
+}  // namespace cru::platform::graph::win::direct

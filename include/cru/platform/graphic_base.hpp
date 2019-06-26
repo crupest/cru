@@ -1,11 +1,11 @@
 #pragma once
-#include "pre_config.hpp"
+#include "cru/common/pre_config.hpp"
 
 #include <cstdint>
 #include <optional>
 #include <utility>
 
-namespace cru::ui {
+namespace cru::platform {
 struct Point final {
   constexpr Point() = default;
   constexpr Point(const float x, const float y) : x(x), y(y) {}

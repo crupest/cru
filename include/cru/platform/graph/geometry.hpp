@@ -1,19 +1,45 @@
 #pragma once
-#include "cru/common/base.hpp"
-
-#include "cru/common/endable.hpp"
-#include "cru/common/ui_base.hpp"
+#include "../graphic_base.hpp"
+#include "../native_resource.hpp"
 
 namespace cru::platform::graph {
-struct IGeometry : virtual Interface {
-  virtual bool FillContains(const ui::Point& point) = 0;
+class Geometry : public NativeResource {
+ protected:
+  Geometry() = default;
+
+ public:
+  Geometry(const Geometry& other) = delete;
+  Geometry& operator=(const Geometry& other) = delete;
+
+  Geometry(Geometry&& other) = delete;
+  Geometry& operator=(Geometry&& other) = delete;
+
+  ~Geometry() override = default;
+
+ public:
+  virtual bool FillContains(const Point& point) = 0;
 };
 
-struct IGeometryBuilder : virtual Interface, virtual IEndable<IGeometry*> {
-  virtual void BeginFigure(const ui::Point& point) = 0;
-  virtual void LineTo(const ui::Point& point) = 0;
-  virtual void QuadraticBezierTo(const ui::Point& control_point,
-                                 const ui::Point& end_point) = 0;
+class GeometryBuilder : public NativeResource {
+ protected:
+  GeometryBuilder() = default;
+
+ public:
+  GeometryBuilder(const GeometryBuilder& other) = delete;
+  GeometryBuilder& operator=(const GeometryBuilder& other) = delete;
+
+  GeometryBuilder(GeometryBuilder&& other) = delete;
+  GeometryBuilder& operator=(GeometryBuilder&& other) = delete;
+
+  ~GeometryBuilder() override = default;
+
+ public:
+  virtual void BeginFigure(const Point& point) = 0;
+  virtual void LineTo(const Point& point) = 0;
+  virtual void QuadraticBezierTo(const Point& control_point,
+                                 const Point& end_point) = 0;
   virtual void CloseFigure(bool close) = 0;
+
+  virtual Geometry* Build() = 0;
 };
 }  // namespace cru::platform::graph

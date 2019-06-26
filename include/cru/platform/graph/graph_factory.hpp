@@ -1,8 +1,6 @@
 #pragma once
-#include "cru/common/base.hpp"
-
-#include "cru/common/auto_delete.hpp"
-#include "cru/common/ui_base.hpp"
+#include "../graphic_base.hpp"
+#include "../native_resource.hpp"
 
 #include "brush.hpp"
 #include "font.hpp"
@@ -20,20 +18,42 @@ namespace cru::platform::graph {
 // IGraphFactory::CreateInstance and set auto-delete to true.
 // The manual creation method of IGraphFactory provides a you a way to use graph
 // related tools without interact with actual ui like window system.
-struct IGraphFactory : virtual Interface, virtual IAutoDelete {
+class GraphFactory : public NativeResource {
+ public:
   // Create a platform-specific instance and save it as the global instance.
   // Do not create the instance twice. Implements should assert for that.
   // After creating, get the instance by GetInstance.
-  static IGraphFactory* CreateInstance();
+  static GraphFactory* CreateInstance();
 
   // Get the global instance. If it is not created, then return nullptr.
-  static IGraphFactory* GetInstance();
+  static GraphFactory* GetInstance();
 
-  virtual ISolidColorBrush* CreateSolidColorBrush(const ui::Color& color) = 0;
-  virtual IGeometryBuilder* CreateGeometryBuilder() = 0;
-  virtual IFontDescriptor* CreateFontDescriptor(
-      const std::wstring_view& font_family, float font_size) = 0;
-  virtual ITextLayout* CreateTextLayout(std::shared_ptr<IFontDescriptor> font,
-                                        std::wstring text) = 0;
+ protected:
+  GraphFactory() = default;
+
+ public:
+  GraphFactory(const GraphFactory& other) = delete;
+  GraphFactory& operator=(const GraphFactory& other) = delete;
+
+  GraphFactory(GraphFactory&& other) = delete;
+  GraphFactory& operator=(GraphFactory&& other) = delete;
+
+  ~GraphFactory() override = default;
+
+ public:
+  virtual SolidColorBrush* CreateSolidColorBrush() = 0;
+  SolidColorBrush* CreateSolidColorBrush(const Color& color) {
+    const auto brush = CreateSolidColorBrush();
+    brush->SetColor(color);
+    return brush;
+  }
+
+  virtual GeometryBuilder* CreateGeometryBuilder() = 0;
+
+  virtual Font* CreateFont(const std::wstring_view& font_family,
+                           float font_size) = 0;
+
+  virtual TextLayout* CreateTextLayout(std::shared_ptr<Font> font,
+                                       std::wstring text) = 0;
 };
 }  // namespace cru::platform::graph

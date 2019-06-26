@@ -1,7 +1,5 @@
 #pragma once
-#include "cru/common/pre_config.hpp"
-
-#include "cru/common/ui_base.hpp"
+#include "graphic_base.hpp"
 
 #include <cmath>
 

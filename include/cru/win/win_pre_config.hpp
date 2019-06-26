@@ -5,6 +5,7 @@
 #include <Windows.h>
 #undef CreateWindow
 #undef DrawText
+#undef CreateFont
 
 #include <d2d1_2.h>
 #include <d3d11.h>

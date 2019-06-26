@@ -1,14 +1,11 @@
 set(CRU_BASE_INCLUDE_DIR ${CRU_INCLUDE_DIR}/cru/common)
 add_library(cru_base INTERFACE)
 target_sources(cru_base INTERFACE
-	${CRU_BASE_INCLUDE_DIR}/auto_delete.hpp
 	${CRU_BASE_INCLUDE_DIR}/base.hpp
-	${CRU_BASE_INCLUDE_DIR}/endable.hpp
 	${CRU_BASE_INCLUDE_DIR}/event.hpp
 	${CRU_BASE_INCLUDE_DIR}/format.hpp
 	${CRU_BASE_INCLUDE_DIR}/pre_config.hpp
 	${CRU_BASE_INCLUDE_DIR}/self_resolvable.hpp
-	${CRU_BASE_INCLUDE_DIR}/ui_base.hpp
 )
 target_include_directories(cru_base INTERFACE ${CRU_INCLUDE_DIR})
 
@@ -17,7 +14,9 @@ add_library(cru_platform_base INTERFACE)
 target_sources(cru_platform_base INTERFACE
 	${CRU_PLATFORM_BASE_INCLUDE_DIR}/debug.hpp
 	${CRU_PLATFORM_BASE_INCLUDE_DIR}/exception.hpp
+	${CRU_PLATFORM_BASE_INCLUDE_DIR}/graphic_base.hpp
 	${CRU_PLATFORM_BASE_INCLUDE_DIR}/matrix.hpp
+	${CRU_PLATFORM_BASE_INCLUDE_DIR}/native_resource.hpp
 	${CRU_PLATFORM_BASE_INCLUDE_DIR}/string_util.hpp
 )
 target_link_libraries(cru_platform_base INTERFACE cru_base)

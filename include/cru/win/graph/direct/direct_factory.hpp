@@ -1,11 +1,11 @@
 #pragma once
-#include "../win_pre_config.hpp"
+#include "../../win_pre_config.hpp"
 
-#include "cru/common/base.hpp"
-
-namespace cru::win::graph {
+namespace cru::platform::graph::win::direct {
 // Interface provides access to root d2d resources.
-struct IWinNativeFactory : virtual Interface {
+struct IDirectFactory {
+  virtual ~IDirectFactory() = default;
+
   virtual ID2D1Factory1* GetD2D1Factory() const = 0;
   virtual ID2D1DeviceContext* GetD2D1DeviceContext() const = 0;
   virtual ID3D11Device* GetD3D11Device() const = 0;
@@ -13,4 +13,4 @@ struct IWinNativeFactory : virtual Interface {
   virtual IDWriteFactory* GetDWriteFactory() const = 0;
   virtual IDWriteFontCollection* GetSystemFontCollection() const = 0;
 };
-}
+}  // namespace cru::platform::graph::win::direct
