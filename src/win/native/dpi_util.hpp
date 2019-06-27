@@ -5,7 +5,7 @@
 // The dpi awareness needs to be implemented in the future. Currently we use 96
 // as default.
 
-namespace cru::win::native {
+namespace cru::platform::native::win {
 inline platform::native::Dpi GetDpi() {
   return platform::native::Dpi{96.0f, 96.0f};
 }
@@ -33,4 +33,4 @@ inline float PixelToDipX(const int pixel_x) {
 inline float PixelToDipY(const int pixel_y) {
   return DipToPixelInternal(pixel_y, GetDpi().y);
 }
-}  // namespace cru::win::native
+}  // namespace cru::platform::native::win

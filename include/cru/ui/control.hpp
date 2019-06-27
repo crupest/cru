@@ -1,5 +1,6 @@
 #pragma once
 #include "cru/common/base.hpp"
+#include "base.hpp"
 
 #include "cru/platform/native/basic_types.hpp"
 #include "event/ui_event.hpp"

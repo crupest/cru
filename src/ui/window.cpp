@@ -111,7 +111,7 @@ void BindNativeEvent(Window* window, IEvent<T>* event,
 Window::Window(tag_overlapped_constructor)
     : mouse_hover_control_(nullptr), focus_control_(this) {
   native_window_ =
-      platform::native::IUiApplication::GetInstance()->CreateWindow(nullptr);
+      platform::native::UiApplication::GetInstance()->CreateWindow(nullptr);
   render_object_.reset(new render::WindowRenderObject(this));
 
   BindNativeEvent(this, native_window_->DestroyEvent(),
@@ -151,7 +151,7 @@ void Window::Relayout() { this->render_object_->MeasureAndLayout(); }
 
 void Window::InvalidateLayout() {
   if (!need_layout_) {
-    platform::native::IUiApplication::GetInstance()->InvokeLater(
+    platform::native::UiApplication::GetInstance()->InvokeLater(
         [resolver = this->CreateResolver()] {
           if (const auto window = resolver.Resolve()) {
             window->Relayout();
@@ -192,9 +192,9 @@ void Window::OnNativeDestroy(std::nullptr_t) { delete this; }
 
 void Window::OnNativePaint(std::nullptr_t) {
   const auto painter =
-      std::unique_ptr<platform::graph::IPainter>(native_window_->BeginPaint());
+      std::unique_ptr<platform::graph::Painter>(native_window_->BeginPaint());
   render_object_->Draw(painter.get());
-  painter->End();
+  painter->EndDraw();
 }
 
 void Window::OnNativeResize(const Size& size) {

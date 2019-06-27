@@ -15,7 +15,7 @@ FlexChildLayoutData* FlexLayoutRenderObject::GetChildLayoutData(int position) {
   return &child_layout_data_[position];
 }
 
-void FlexLayoutRenderObject::Draw(platform::graph::IPainter* painter) {
+void FlexLayoutRenderObject::Draw(platform::graph::Painter* painter) {
   for (const auto child : GetChildren()) {
     auto offset = child->GetOffset();
     platform::graph::util::WithTransform(

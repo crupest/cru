@@ -1,16 +1,16 @@
 #include "window_manager.hpp"
 
-#include "cru/win/native/win_application.hpp"
-#include "cru/win/native/win_native_window.hpp"
+#include "cru/win/native/ui_application.hpp"
+#include "cru/win/native/native_window.hpp"
 #include "cru/win/native/window_class.hpp"
 
 #include <assert.h>
 
-namespace cru::win::native {
+namespace cru::platform::native::win {
 LRESULT __stdcall GeneralWndProc(HWND hWnd, UINT Msg, WPARAM wParam,
                                  LPARAM lParam) {
   auto window =
-      WinApplication::GetInstance()->GetWindowManager()->FromHandle(hWnd);
+      WinUiApplication::GetInstance()->GetWindowManager()->FromHandle(hWnd);
 
   LRESULT result;
   if (window != nullptr &&
@@ -20,15 +20,14 @@ LRESULT __stdcall GeneralWndProc(HWND hWnd, UINT Msg, WPARAM wParam,
   return DefWindowProc(hWnd, Msg, wParam, lParam);
 }
 
-WindowManager::WindowManager(WinApplication* application) {
+WindowManager::WindowManager(WinUiApplication* application) {
   application_ = application;
   general_window_class_ = std::make_shared<WindowClass>(
       L"CruUIWindowClass", GeneralWndProc, application->GetInstanceHandle());
 }
 
 WindowManager::~WindowManager() {
-  for (const auto [key, window] : window_map_)
-    delete window;
+  for (const auto [key, window] : window_map_) delete window;
 }
 
 void WindowManager::RegisterWindow(HWND hwnd, WinNativeWindow* window) {
@@ -56,4 +55,4 @@ std::vector<WinNativeWindow*> WindowManager::GetAllWindows() const {
   for (auto [key, value] : window_map_) windows.push_back(value);
   return windows;
 }
-}  // namespace cru::win::native
+}  // namespace cru::platform::native::win

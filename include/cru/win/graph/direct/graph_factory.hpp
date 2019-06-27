@@ -10,7 +10,7 @@
 #include "cru/platform/graph/graph_factory.hpp"
 
 namespace cru::platform::graph::win::direct {
-class DirectGraphFactory : public GraphFactory, IDirectFactory {
+class DirectGraphFactory : public GraphFactory, public IDirectFactory {
   friend GraphFactory* GraphFactory::CreateInstance();
 
  public:

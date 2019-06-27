@@ -6,9 +6,9 @@
 
 namespace cru::platform::graph::util {
 template <typename Fn>
-inline void WithTransform(IPainter* painter, const Matrix& matrix,
+inline void WithTransform(Painter* painter, const Matrix& matrix,
                           const Fn& action) {
-  static_assert(std::is_invocable_v<decltype(action), IPainter*>,
+  static_assert(std::is_invocable_v<decltype(action), Painter*>,
                 "Action must can be be invoked with painter.");
   const auto old = painter->GetTransform();
   painter->SetTransform(old * matrix);

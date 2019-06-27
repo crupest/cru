@@ -4,9 +4,9 @@
 #include <memory>
 
 namespace cru::platform::graph {
-struct IBrush;
-struct IGeometry;
-}  // namespace cru::platform
+class Brush;
+class Geometry;
+}  // namespace cru::platform::graph
 
 namespace cru::ui::render {
 struct CornerRadius {
@@ -32,7 +32,7 @@ struct CornerRadius {
 
 class BorderRenderObject : public RenderObject {
  public:
-  explicit BorderRenderObject(std::shared_ptr<platform::graph::IBrush> brush);
+  explicit BorderRenderObject(std::shared_ptr<platform::graph::Brush> brush);
   BorderRenderObject(const BorderRenderObject& other) = delete;
   BorderRenderObject(BorderRenderObject&& other) = delete;
   BorderRenderObject& operator=(const BorderRenderObject& other) = delete;
@@ -42,8 +42,10 @@ class BorderRenderObject : public RenderObject {
   bool IsEnabled() const { return is_enabled_; }
   void SetEnabled(bool enabled) { is_enabled_ = enabled; }
 
-  std::shared_ptr<platform::graph::IBrush> GetBrush() const { return border_brush_; }
-  void SetBrush(std::shared_ptr<platform::graph::IBrush> new_brush) {
+  std::shared_ptr<platform::graph::Brush> GetBrush() const {
+    return border_brush_;
+  }
+  void SetBrush(std::shared_ptr<platform::graph::Brush> new_brush) {
     border_brush_ = std::move(new_brush);
   }
 
@@ -59,7 +61,7 @@ class BorderRenderObject : public RenderObject {
 
   void Refresh() { RecreateGeometry(); }
 
-  void Draw(platform::graph::IPainter* painter) override;
+  void Draw(platform::graph::Painter* painter) override;
 
   RenderObject* HitTest(const Point& point) override;
 
@@ -83,11 +85,11 @@ class BorderRenderObject : public RenderObject {
  private:
   bool is_enabled_ = false;
 
-  std::shared_ptr<platform::graph::IBrush> border_brush_ = nullptr;
+  std::shared_ptr<platform::graph::Brush> border_brush_ = nullptr;
   Thickness border_thickness_{};
   CornerRadius corner_radius_{};
 
-  std::shared_ptr<platform::graph::IGeometry> geometry_ = nullptr;
-  std::shared_ptr<platform::graph::IGeometry> border_outer_geometry_ = nullptr;
+  std::shared_ptr<platform::graph::Geometry> geometry_ = nullptr;
+  std::shared_ptr<platform::graph::Geometry> border_outer_geometry_ = nullptr;
 };
 }  // namespace cru::ui::render

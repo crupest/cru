@@ -1,17 +1,17 @@
 #include "cru/win/native/god_window.hpp"
 
-#include "cru/win/exception.hpp"
-#include "cru/win/native/win_application.hpp"
+#include "cru/win/native/exception.hpp"
+#include "cru/win/native/ui_application.hpp"
 #include "cru/win/native/window_class.hpp"
 #include "god_window_message.hpp"
 #include "timer.hpp"
 
-namespace cru::win::native {
+namespace cru::platform::native::win {
 constexpr auto god_window_class_name = L"GodWindowClass";
 
 LRESULT CALLBACK GodWndProc(HWND hWnd, UINT uMsg, WPARAM wParam,
                             LPARAM lParam) {
-  const auto app = WinApplication::GetInstance();
+  const auto app = WinUiApplication::GetInstance();
 
   if (app) {
     LRESULT result;
@@ -25,7 +25,7 @@ LRESULT CALLBACK GodWndProc(HWND hWnd, UINT uMsg, WPARAM wParam,
     return DefWindowProcW(hWnd, uMsg, wParam, lParam);
 }
 
-GodWindow::GodWindow(WinApplication* application) {
+GodWindow::GodWindow(WinUiApplication* application) {
   application_ = application;
 
   const auto h_instance = application->GetInstanceHandle();
@@ -70,4 +70,4 @@ bool GodWindow::HandleGodWindowMessage(HWND hwnd, UINT msg, WPARAM w_param,
   }
   return false;
 }
-}  // namespace cru::win::native
+}  // namespace cru::platform::native::win

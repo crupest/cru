@@ -13,13 +13,13 @@ void WindowRenderObject::MeasureAndLayout() {
   Layout(Rect{Point{}, client_size});
 }
 
-void WindowRenderObject::Draw(platform::graph::IPainter* painter) {
+void WindowRenderObject::Draw(platform::graph::Painter* painter) {
   painter->Clear(colors::white);
   if (const auto child = GetChild()) {
     auto offset = child->GetOffset();
     platform::graph::util::WithTransform(
         painter, platform::Matrix::Translation(offset.x, offset.y),
-        [child](platform::graph::IPainter* p) { child->Draw(p); });
+        [child](platform::graph::Painter* p) { child->Draw(p); });
   }
 }
 

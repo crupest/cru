@@ -1,15 +1,16 @@
 #pragma once
+#include "base.hpp"
 #include "cru/common/base.hpp"
 
 #include <memory>
 
 namespace cru::platform::graph {
-struct IBrush;
-struct IFontDescriptor;
-}  // namespace cru::platform
+class Brush;
+class Font;
+}  // namespace cru::platform::graph
 
 namespace cru::ui {
-//TODO: Make this theme resource.
+// TODO: Make this theme resource.
 class PredefineResources : public Object {
  public:
   PredefineResources();
@@ -20,12 +21,12 @@ class PredefineResources : public Object {
   ~PredefineResources() override = default;
 
   // region Button
-  std::shared_ptr<platform::graph::IBrush> button_normal_border_brush;
+  std::shared_ptr<platform::graph::Brush> button_normal_border_brush;
 
   // region TextBlock
-  std::shared_ptr<platform::graph::IBrush> text_block_selection_brush;
-  std::shared_ptr<platform::graph::IBrush> text_block_text_brush;
-  std::shared_ptr<platform::graph::IFontDescriptor> text_block_font;
+  std::shared_ptr<platform::graph::Brush> text_block_selection_brush;
+  std::shared_ptr<platform::graph::Brush> text_block_text_brush;
+  std::shared_ptr<platform::graph::Font> text_block_font;
 };
 
 class UiManager : public Object {

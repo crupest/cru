@@ -1,6 +1,6 @@
 #include "timer.hpp"
 
-namespace cru::win::native {
+namespace cru::platform::native::win {
 TimerManager::TimerManager(GodWindow* god_window) { god_window_ = god_window; }
 
 UINT_PTR TimerManager::CreateTimer(const UINT milliseconds, const bool loop,
@@ -25,4 +25,4 @@ std::optional<std::pair<bool, TimerAction>> TimerManager::GetAction(
   if (find_result == map_.cend()) return std::nullopt;
   return find_result->second;
 }
-}  // namespace cru::win::native
+}  // namespace cru::platform::native::win

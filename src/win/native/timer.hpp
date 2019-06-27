@@ -9,7 +9,7 @@
 #include <map>
 #include <optional>
 
-namespace cru::win::native {
+namespace cru::platform::native::win {
 using TimerAction = std::function<void()>;
 
 class TimerManager : public Object {

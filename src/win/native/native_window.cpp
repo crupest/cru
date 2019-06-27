@@ -1,19 +1,19 @@
-#include "cru/win/native/win_native_window.hpp"
+#include "cru/win/native/native_window.hpp"
 
-#include "cru/win/exception.hpp"
-#include "cru/win/graph/win_graph_factory.hpp"
-#include "cru/win/native/win_application.hpp"
+#include "cru/win/graph/direct/graph_factory.hpp"
+#include "cru/win/native/exception.hpp"
+#include "cru/win/native/ui_application.hpp"
 #include "cru/win/native/window_class.hpp"
 #include "cru/win/native/window_render_target.hpp"
 #include "dpi_util.hpp"
+#include "window_d2d_painter.hpp"
 #include "window_manager.hpp"
-#include "window_painter.hpp"
 
 #include <assert.h>
 #include <windowsx.h>
 
-namespace cru::win::native {
-WinNativeWindow::WinNativeWindow(WinApplication* application,
+namespace cru::platform::native::win {
+WinNativeWindow::WinNativeWindow(WinUiApplication* application,
                                  std::shared_ptr<WindowClass> window_class,
                                  DWORD window_style, WinNativeWindow* parent) {
   assert(application);  // application can't be null.
@@ -37,7 +37,7 @@ WinNativeWindow::WinNativeWindow(WinApplication* application,
   window_manager->RegisterWindow(hwnd_, this);
 
   window_render_target_.reset(
-      new WindowRenderTarget(graph::WinGraphFactory::GetInstance(), hwnd_));
+      new WindowRenderTarget(graph::win::direct::DirectGraphFactory::GetInstance(), hwnd_));
 }
 
 WinNativeWindow::~WinNativeWindow() {
@@ -66,15 +66,15 @@ void WinNativeWindow::SetVisible(bool is_visible) {
   if (!IsValid()) return;
   is_visible ? ShowWindow(hwnd_, SW_SHOWNORMAL) : ShowWindow(hwnd_, SW_HIDE);
 }
-ui::Size WinNativeWindow::GetClientSize() {
-  if (!IsValid()) return ui::Size{};
+Size WinNativeWindow::GetClientSize() {
+  if (!IsValid()) return Size{};
 
   const auto pixel_rect = GetClientRectPixel();
-  return ui::Size(PixelToDipX(pixel_rect.right),
+  return Size(PixelToDipX(pixel_rect.right),
                   PixelToDipY(pixel_rect.bottom));
 }
 
-void WinNativeWindow::SetClientSize(const ui::Size& size) {
+void WinNativeWindow::SetClientSize(const Size& size) {
   if (IsValid()) {
     const auto window_style =
         static_cast<DWORD>(GetWindowLongPtr(hwnd_, GWL_STYLE));
@@ -96,19 +96,19 @@ void WinNativeWindow::SetClientSize(const ui::Size& size) {
   }
 }
 
-ui::Rect WinNativeWindow::GetWindowRect() {
-  if (!IsValid()) return ui::Rect{};
+Rect WinNativeWindow::GetWindowRect() {
+  if (!IsValid()) return Rect{};
 
   RECT rect;
   if (!::GetWindowRect(hwnd_, &rect))
     throw Win32Error(::GetLastError(), "Failed to invoke GetWindowRect.");
 
-  return ui::Rect::FromVertices(PixelToDipX(rect.left), PixelToDipY(rect.top),
+  return Rect::FromVertices(PixelToDipX(rect.left), PixelToDipY(rect.top),
                                 PixelToDipX(rect.right),
                                 PixelToDipY(rect.bottom));
 }
 
-void WinNativeWindow::SetWindowRect(const ui::Rect& rect) {
+void WinNativeWindow::SetWindowRect(const Rect& rect) {
   if (IsValid()) {
     if (!SetWindowPos(hwnd_, nullptr, DipToPixelX(rect.left),
                       DipToPixelY(rect.top), DipToPixelX(rect.GetRight()),
@@ -117,8 +117,8 @@ void WinNativeWindow::SetWindowRect(const ui::Rect& rect) {
   }
 }
 
-platform::graph::IPainter* WinNativeWindow::BeginPaint() {
-  return new WindowPainter(this);
+graph::Painter* WinNativeWindow::BeginPaint() {
+  return new WindowD2DPainter(this);
 }
 
 bool WinNativeWindow::HandleNativeWindowMessage(HWND hwnd, UINT msg,
@@ -269,7 +269,7 @@ void WinNativeWindow::OnResizeInternal(const int new_width,
   if (!(new_width == 0 && new_height == 0)) {
     window_render_target_->ResizeBuffer(new_width, new_height);
     resize_event_.Raise(
-        ui::Size{PixelToDipX(new_width), PixelToDipY(new_height)});
+        Size{PixelToDipX(new_width), PixelToDipY(new_height)});
   }
 }
 
@@ -283,8 +283,8 @@ void WinNativeWindow::OnKillFocusInternal() {
   focus_event_.Raise(false);
 }
 
-inline ui::Point PiToDip(const POINT& pi_point) {
-  return ui::Point(PixelToDipX(pi_point.x), PixelToDipY(pi_point.y));
+inline Point PiToDip(const POINT& pi_point) {
+  return Point(PixelToDipX(pi_point.x), PixelToDipY(pi_point.y));
 }
 
 void WinNativeWindow::OnMouseMoveInternal(const POINT point) {
@@ -337,4 +337,4 @@ void WinNativeWindow::OnCharInternal(wchar_t c) {}
 void WinNativeWindow::OnActivatedInternal() {}
 
 void WinNativeWindow::OnDeactivatedInternal() {}
-}  // namespace cru::win::native
+}  // namespace cru::platform::native::win

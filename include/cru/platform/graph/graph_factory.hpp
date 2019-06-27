@@ -55,5 +55,8 @@ class GraphFactory : public NativeResource {
 
   virtual TextLayout* CreateTextLayout(std::shared_ptr<Font> font,
                                        std::wstring text) = 0;
+
+  virtual bool IsAutoDelete() const = 0;
+  virtual void SetAutoDelete(bool value) = 0;
 };
 }  // namespace cru::platform::graph

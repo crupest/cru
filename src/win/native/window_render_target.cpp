@@ -1,14 +1,14 @@
 #include "cru/win/native/window_render_target.hpp"
 
-#include "cru/win/exception.hpp"
-#include "cru/win/graph/win_native_factory.hpp"
+#include "cru/win/graph/direct/direct_factory.hpp"
+#include "cru/win/graph/direct/exception.hpp"
 #include "dpi_util.hpp"
 
 #include <cassert>
 
-namespace cru::win::native {
-WindowRenderTarget::WindowRenderTarget(graph::IWinNativeFactory* factory,
-                                       HWND hwnd) {
+namespace cru::platform::native::win {
+using namespace cru::platform::graph::win::direct;
+WindowRenderTarget::WindowRenderTarget(IDirectFactory* factory, HWND hwnd) {
   this->factory_ = factory;
 
   const auto d3d11_device = factory->GetD3D11Device();
@@ -86,4 +86,4 @@ void WindowRenderTarget::CreateTargetBitmap() {
   ThrowIfFailed(factory_->GetD2D1DeviceContext()->CreateBitmapFromDxgiSurface(
       dxgi_back_buffer.Get(), &bitmap_properties, &target_bitmap_));
 }
-}  // namespace cru::win::native
+}  // namespace cru::platform::native::win

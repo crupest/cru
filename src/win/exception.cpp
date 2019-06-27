@@ -2,7 +2,7 @@
 
 #include "cru/common/format.hpp"
 
-namespace cru::win {
+namespace cru::platform::win {
 using util::Format;
 
 inline std::string HResultMakeMessage(HRESULT h_result,

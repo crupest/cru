@@ -2,7 +2,6 @@ set(CRU_WIN_GRAPH_DIRECT_INCLUDE_DIR ${CRU_INCLUDE_DIR}/cru/win/graph/direct)
 
 add_library(cru_win_graph_direct STATIC
 	brush.cpp
-	exception.cpp
 	font.cpp
 	geometry.cpp
 	graph_factory.cpp

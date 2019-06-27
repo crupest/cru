@@ -37,8 +37,8 @@ struct Matrix {
     return Product(*this, matrix);
   }
 
-  ui::Point TransformPoint(const ui::Point& point) const {
-    return ui::Point{point.x * m11 + point.y * m21 + m31,
+  Point TransformPoint(const Point& point) const {
+    return Point{point.x * m11 + point.y * m21 + m31,
                      point.x * m12 + point.y * m22 + m32};
   }
 

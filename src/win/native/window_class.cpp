@@ -1,8 +1,8 @@
 #include "cru/win/native/window_class.hpp"
 
-#include "cru/win/exception.hpp"
+#include "cru/win/native/exception.hpp"
 
-namespace cru::win::native {
+namespace cru::platform::native::win {
 WindowClass::WindowClass(const std::wstring& name, WNDPROC window_proc,
                          HINSTANCE h_instance)
     : name_(name) {
@@ -25,4 +25,4 @@ WindowClass::WindowClass(const std::wstring& name, WNDPROC window_proc,
   if (atom_ == 0)
     throw Win32Error(::GetLastError(), "Failed to create window class.");
 }
-}  // namespace cru::win::native
+}  // namespace cru::platform::native::win

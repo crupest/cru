@@ -6,21 +6,22 @@
 #include "cru/platform/native/ui_applicaition.hpp"
 
 namespace cru::ui {
+using namespace cru::platform::graph;
 PredefineResources::PredefineResources() {
-  const auto graph_factory = platform::graph::IGraphFactory::GetInstance();
+  const auto graph_factory = GraphFactory::GetInstance();
 
-  button_normal_border_brush.reset(static_cast<platform::graph::IBrush*>(
-      graph_factory->CreateSolidColorBrush(colors::black)));
-  text_block_selection_brush.reset(static_cast<platform::graph::IBrush*>(
+  button_normal_border_brush.reset(
+      static_cast<Brush*>(graph_factory->CreateSolidColorBrush(colors::black)));
+  text_block_selection_brush.reset(static_cast<Brush*>(
       graph_factory->CreateSolidColorBrush(colors::skyblue)));
-  text_block_text_brush.reset(static_cast<platform::graph::IBrush*>(
-      graph_factory->CreateSolidColorBrush(colors::black)));
-  text_block_font.reset(graph_factory->CreateFontDescriptor(L"等线", 24.0f));
+  text_block_text_brush.reset(
+      static_cast<Brush*>(graph_factory->CreateSolidColorBrush(colors::black)));
+  text_block_font.reset(graph_factory->CreateFont(L"等线", 24.0f));
 }
 
 UiManager* UiManager::GetInstance() {
   static UiManager* instance = new UiManager();
-  platform::native::IUiApplication::GetInstance()->AddOnQuitHandler([] {
+  platform::native::UiApplication::GetInstance()->AddOnQuitHandler([] {
     delete instance;
     instance = nullptr;
   });

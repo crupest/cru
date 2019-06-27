@@ -9,8 +9,9 @@ class NativeResource : public Object {
   NativeResource() = default;
 
  public:
-  NativeResource(NativeResource&& other) = delete;
-  NativeResource& operator=(NativeResource&& other) = delete;
+  NativeResource(const NativeResource& other) = delete;
+  NativeResource& operator=(const NativeResource& other) = delete;
+                
 
   NativeResource(NativeResource&& other) = delete;
   NativeResource& operator=(NativeResource&& other) = delete;

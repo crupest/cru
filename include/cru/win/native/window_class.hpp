@@ -5,7 +5,7 @@
 
 #include <string>
 
-namespace cru::win::native {
+namespace cru::platform::native::win {
 class WindowClass : public Object {
  public:
   WindowClass(const std::wstring& name, WNDPROC window_proc,

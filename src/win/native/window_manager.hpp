@@ -7,14 +7,14 @@
 #include <memory>
 #include <vector>
 
-namespace cru::win::native {
-class WinApplication;
+namespace cru::platform::native::win {
+class WinUiApplication;
 class WinNativeWindow;
 class WindowClass;
 
 class WindowManager : public Object {
  public:
-  WindowManager(WinApplication* application);
+  WindowManager(WinUiApplication* application);
   WindowManager(const WindowManager& other) = delete;
   WindowManager(WindowManager&& other) = delete;
   WindowManager& operator=(const WindowManager& other) = delete;
@@ -43,7 +43,7 @@ class WindowManager : public Object {
   std::vector<WinNativeWindow*> GetAllWindows() const;
 
  private:
-  WinApplication* application_;
+  WinUiApplication* application_;
 
   std::shared_ptr<WindowClass> general_window_class_;
   std::map<HWND, WinNativeWindow*> window_map_;

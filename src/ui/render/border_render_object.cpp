@@ -10,13 +10,13 @@
 
 namespace cru::ui::render {
 BorderRenderObject::BorderRenderObject(
-    std::shared_ptr<platform::graph::IBrush> brush) {
+    std::shared_ptr<platform::graph::Brush> brush) {
   assert(brush);
   this->border_brush_ = std::move(brush);
   RecreateGeometry();
 }
 
-void BorderRenderObject::Draw(platform::graph::IPainter* painter) {
+void BorderRenderObject::Draw(platform::graph::Painter* painter) {
   painter->FillGeometry(geometry_.get(), border_brush_.get());
   if (const auto child = GetChild()) {
     auto offset = child->GetOffset();
@@ -154,7 +154,7 @@ void BorderRenderObject::RecreateGeometry() {
   geometry_.reset();
   border_outer_geometry_.reset();
 
-  auto f = [](platform::graph::IGeometryBuilder* builder, const Rect& rect,
+  auto f = [](platform::graph::GeometryBuilder* builder, const Rect& rect,
               const CornerRadius& corner) {
     builder->BeginFigure(Point(rect.left + corner.left_top.x, rect.top));
     builder->LineTo(Point(rect.GetRight() - corner.right_top.x, rect.top));
@@ -181,18 +181,18 @@ void BorderRenderObject::RecreateGeometry() {
   const Rect outer_rect{margin.left, margin.top,
                         size.width - margin.GetHorizontalTotal(),
                         size.height - margin.GetVerticalTotal()};
-  const auto graph_factory = platform::graph::IGraphFactory::GetInstance();
-  std::unique_ptr<platform::graph::IGeometryBuilder> builder{
+  const auto graph_factory = platform::graph::GraphFactory::GetInstance();
+  std::unique_ptr<platform::graph::GeometryBuilder> builder{
       graph_factory->CreateGeometryBuilder()};
   f(builder.get(), outer_rect, corner_radius_);
-  border_outer_geometry_.reset(builder->End());
+  border_outer_geometry_.reset(builder->Build());
   builder.reset();
 
   const Rect inner_rect = outer_rect.Shrink(border_thickness_);
   builder.reset(graph_factory->CreateGeometryBuilder());
   f(builder.get(), outer_rect, corner_radius_);
   f(builder.get(), inner_rect, corner_radius_);
-  geometry_.reset(builder->End());
+  geometry_.reset(builder->Build());
   builder.reset();
 }
 }  // namespace cru::ui::render

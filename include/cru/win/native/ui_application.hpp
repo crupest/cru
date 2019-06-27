@@ -1,30 +1,34 @@
 #pragma once
 #include "../win_pre_config.hpp"
 
+#include "platform_id.hpp"
+
 #include "cru/platform/native/ui_applicaition.hpp"
 
 #include <memory>
 
-namespace cru::win::native {
+namespace cru::platform::native::win {
 class GodWindow;
 class TimerManager;
 class WindowManager;
 
-class WinApplication : public Object,
-                       public virtual platform::native::IUiApplication {
-  friend IUiApplication* IUiApplication::CreateInstance();
+class WinUiApplication : public UiApplication {
+  friend UiApplication* UiApplication::CreateInstance();
+
  public:
-  static WinApplication* GetInstance();
+  static WinUiApplication* GetInstance();
 
  private:
-  explicit WinApplication(HINSTANCE h_instance);
+  explicit WinUiApplication(HINSTANCE h_instance);
 
  public:
-  WinApplication(const WinApplication&) = delete;
-  WinApplication(WinApplication&&) = delete;
-  WinApplication& operator=(const WinApplication&) = delete;
-  WinApplication& operator=(WinApplication&&) = delete;
-  ~WinApplication() override;
+  WinUiApplication(const WinUiApplication&) = delete;
+  WinUiApplication(WinUiApplication&&) = delete;
+  WinUiApplication& operator=(const WinUiApplication&) = delete;
+  WinUiApplication& operator=(WinUiApplication&&) = delete;
+  ~WinUiApplication() override;
+
+  CRU_PLATFORMID_IMPLEMENT_WIN
 
  public:
   int Run() override;
@@ -39,12 +43,11 @@ class WinApplication : public Object,
                             const std::function<void()>& action) override;
   void CancelTimer(unsigned long id) override;
 
-  std::vector<platform::native::INativeWindow*> GetAllWindow() override;
-  platform::native::INativeWindow* CreateWindow(
-      platform::native::INativeWindow* parent) override;
+  std::vector<NativeWindow*> GetAllWindow() override;
+  NativeWindow* CreateWindow(NativeWindow* parent) override;
 
-  bool IsAutoDelete() const override { return auto_delete_; }
-  void SetAutoDelete(bool value) override { auto_delete_ = value; }
+  bool IsAutoDelete() const { return auto_delete_; }
+  void SetAutoDelete(bool value) { auto_delete_ = value; }
 
   HINSTANCE GetInstanceHandle() const { return h_instance_; }
 
@@ -63,4 +66,4 @@ class WinApplication : public Object,
 
   std::vector<std::function<void()>> quit_handlers_;
 };
-}  // namespace cru::win::native
+}  // namespace cru::platform::native::win

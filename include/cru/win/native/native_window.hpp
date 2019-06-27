@@ -2,20 +2,20 @@
 #include "../win_pre_config.hpp"
 
 #include "cru/platform/native/native_window.hpp"
+#include "platform_id.hpp"
 #include "window_native_message_event_args.hpp"
 
 #include <memory>
 
-namespace cru::win::native {
-class WinApplication;
+namespace cru::platform::native::win {
+class WinUiApplication;
 class WindowClass;
 class WindowManager;
 class WindowRenderTarget;
 
-class WinNativeWindow : public Object,
-                        public virtual platform::native::INativeWindow {
+class WinNativeWindow : public NativeWindow {
  public:
-  WinNativeWindow(WinApplication* application,
+  WinNativeWindow(WinUiApplication* application,
                   std::shared_ptr<WindowClass> window_class, DWORD window_style,
                   WinNativeWindow* parent);
   WinNativeWindow(const WinNativeWindow& other) = delete;
@@ -24,37 +24,40 @@ class WinNativeWindow : public Object,
   WinNativeWindow& operator=(WinNativeWindow&& other) = delete;
   ~WinNativeWindow() override;
 
+  CRU_PLATFORMID_IMPLEMENT_WIN
+
+ public:
   bool IsValid() override;
   void SetDeleteThisOnDestroy(bool value) override;
 
   void Close() override;
 
-  INativeWindow* GetParent() override { return parent_window_; }
+  WinNativeWindow* GetParent() override { return parent_window_; }
 
   bool IsVisible() override;
   void SetVisible(bool is_visible) override;
 
-  ui::Size GetClientSize() override;
-  void SetClientSize(const ui::Size& size) override;
+  Size GetClientSize() override;
+  void SetClientSize(const Size& size) override;
 
   // Get the rect of the window containing frame.
   // The lefttop of the rect is relative to screen lefttop.
-  ui::Rect GetWindowRect() override;
+  Rect GetWindowRect() override;
 
   // Set the rect of the window containing frame.
   // The lefttop of the rect is relative to screen lefttop.
-  void SetWindowRect(const ui::Rect& rect) override;
+  void SetWindowRect(const Rect& rect) override;
 
-  platform::graph::IPainter* BeginPaint() override;
+  graph::Painter* BeginPaint() override;
 
   IEvent<std::nullptr_t>* DestroyEvent() override { return &destroy_event_; }
   IEvent<std::nullptr_t>* PaintEvent() override { return &paint_event_; }
-  IEvent<ui::Size>* ResizeEvent() override { return &resize_event_; }
+  IEvent<Size>* ResizeEvent() override { return &resize_event_; }
   IEvent<bool>* FocusEvent() override { return &focus_event_; }
   IEvent<bool>* MouseEnterLeaveEvent() override {
     return &mouse_enter_leave_event_;
   }
-  IEvent<ui::Point>* MouseMoveEvent() override { return &mouse_move_event_; }
+  IEvent<Point>* MouseMoveEvent() override { return &mouse_move_event_; }
   IEvent<platform::native::NativeMouseButtonEventArgs>* MouseDownEvent()
       override {
     return &mouse_down_event_;
@@ -107,7 +110,7 @@ class WinNativeWindow : public Object,
   void OnDeactivatedInternal();
 
  private:
-  WinApplication* application_;
+  WinUiApplication* application_;
 
   bool delete_this_on_destroy_ = true;
 
@@ -121,10 +124,10 @@ class WinNativeWindow : public Object,
 
   Event<std::nullptr_t> destroy_event_;
   Event<std::nullptr_t> paint_event_;
-  Event<ui::Size> resize_event_;
+  Event<Size> resize_event_;
   Event<bool> focus_event_;
   Event<bool> mouse_enter_leave_event_;
-  Event<ui::Point> mouse_move_event_;
+  Event<Point> mouse_move_event_;
   Event<platform::native::NativeMouseButtonEventArgs> mouse_down_event_;
   Event<platform::native::NativeMouseButtonEventArgs> mouse_up_event_;
   Event<int> key_down_event_;
@@ -132,4 +135,4 @@ class WinNativeWindow : public Object,
 
   Event<WindowNativeMessageEventArgs&> native_message_event_;
 };
-}  // namespace cru::win::native
+}  // namespace cru::platform::native::win

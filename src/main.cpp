@@ -5,7 +5,7 @@
 #include "cru/ui/controls/text_block.hpp"
 #include "cru/ui/window.hpp"
 
-using cru::platform::native::IUiApplication;
+using cru::platform::native::UiApplication;
 using cru::ui::Rect;
 using cru::ui::Thickness;
 using cru::ui::Window;
@@ -15,13 +15,16 @@ using cru::ui::controls::TextBlock;
 /*
 int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
                       LPWSTR lpCmdLine, int nCmdShow) {
-#ifdef CRU_DEBUG
-  _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
-#endif
+
 */
 
 int main() {
-  std::unique_ptr<IUiApplication> application(IUiApplication::CreateInstance());
+
+#ifdef CRU_DEBUG
+  _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+#endif
+
+  std::unique_ptr<UiApplication> application(UiApplication::CreateInstance());
 
   const auto window = Window::CreateOverlapped();
 

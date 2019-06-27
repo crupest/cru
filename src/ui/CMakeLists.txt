@@ -17,6 +17,7 @@ add_library(cru_ui STATIC
     render/window_render_object.cpp
 )
 target_sources(cru_ui PUBLIC
+	${CRU_UI_INCLUDE_DIR}/base.hpp
 	${CRU_UI_INCLUDE_DIR}/content_control.hpp
 	${CRU_UI_INCLUDE_DIR}/control.hpp
 	${CRU_UI_INCLUDE_DIR}/layout_control.hpp

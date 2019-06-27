@@ -3,7 +3,7 @@
 
 #include "cru/common/base.hpp"
 
-namespace cru::win::native {
+namespace cru::platform::native::win {
 struct WindowNativeMessage {
   HWND hwnd;
   UINT msg;
