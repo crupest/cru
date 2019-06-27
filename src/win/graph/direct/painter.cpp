@@ -1,93 +1,106 @@
-#include "cru/win/graph/win_painter.hpp"
+#include "cru/win/graph/direct/painter.hpp"
 
-#include "cru/win/exception.hpp"
-#include "cru/win/graph/win_native_factory.hpp"
-#include "cru/win/graph/util/convert_util.hpp"
-#include "cru/win/graph/win_brush.hpp"
-#include "cru/win/graph/win_geometry.hpp"
-#include "cru/win/graph/win_text_layout.hpp"
+#include "cru/win/graph/direct/brush.hpp"
+#include "cru/win/graph/direct/convert_util.hpp"
+#include "cru/win/graph/direct/exception.hpp"
+#include "cru/win/graph/direct/geometry.hpp"
+#include "cru/win/graph/direct/text_layout.hpp"
 
 #include <cassert>
+#include <type_traits>
 
-namespace cru::win::graph {
-WinPainter::WinPainter(ID2D1RenderTarget* render_target) {
+namespace cru::platform::graph::win::direct {
+
+namespace {
+template <typename T, typename U, typename = void>
+struct is_static_castable : std::false_type {};
+
+template <typename T, typename U>
+struct is_static_castable<
+    T, U, std::void_t<decltype(static_cast<U>(std::declval<T>()))>>
+    : std::true_type {};
+
+template <typename TDes, typename TSrc>
+TDes* CheckAndCast(TSrc* src) {
+  assert(src);
+  assert(IsDirectResource(src));
+  if constexpr (is_static_castable<TSrc*, TDes*>::value)
+    return static_cast<TDes*>(src);
+  else {
+    TDes* d = dynamic_cast<TDes*>(src);
+    assert(d);
+    return d;
+  }
+}
+}  // namespace
+
+D2DPainter::D2DPainter(ID2D1RenderTarget* render_target) {
   assert(render_target);
   render_target_ = render_target;
 }
 
-platform::Matrix WinPainter::GetTransform() {
-  assert(!IsEnded());
+platform::Matrix D2DPainter::GetTransform() {
+  assert(IsValid());
   D2D1_MATRIX_3X2_F m;
   render_target_->GetTransform(&m);
-  return util::Convert(m);
+  return Convert(m);
 }
 
-void WinPainter::SetTransform(const platform::Matrix& matrix) {
-  assert(!IsEnded());
-  render_target_->SetTransform(util::Convert(matrix));
+void D2DPainter::SetTransform(const platform::Matrix& matrix) {
+  assert(IsValid());
+  render_target_->SetTransform(Convert(matrix));
 }
 
-void WinPainter::Clear(const ui::Color& color) {
-  assert(!IsEnded());
-  render_target_->Clear(util::Convert(color));
+void D2DPainter::Clear(const Color& color) {
+  assert(IsValid());
+  render_target_->Clear(Convert(color));
 }
 
-void WinPainter::StrokeRectangle(const ui::Rect& rectangle,
-                                 platform::graph::IBrush* brush, float width) {
-  assert(!IsEnded());
-  const auto b = dynamic_cast<IWinBrush*>(brush);
-  assert(b);
-  render_target_->DrawRectangle(util::Convert(rectangle), b->GetD2DBrush(),
+void D2DPainter::StrokeRectangle(const Rect& rectangle, Brush* brush,
+                                 float width) {
+  assert(IsValid());
+  const auto b = CheckAndCast<ID2DBrush>(brush);
+  render_target_->DrawRectangle(Convert(rectangle), b->GetD2DBrushInterface(),
                                 width);
 }
 
-void WinPainter::FillRectangle(const ui::Rect& rectangle,
-                               platform::graph::IBrush* brush) {
-  assert(!IsEnded());
-  const auto b = dynamic_cast<IWinBrush*>(brush);
-  assert(b);
-  render_target_->FillRectangle(util::Convert(rectangle), b->GetD2DBrush());
+void D2DPainter::FillRectangle(const Rect& rectangle, Brush* brush) {
+  assert(IsValid());
+  const auto b = CheckAndCast<ID2DBrush>(brush);
+  render_target_->FillRectangle(Convert(rectangle), b->GetD2DBrushInterface());
 }
 
-void WinPainter::StrokeGeometry(platform::graph::IGeometry* geometry,
-                                platform::graph::IBrush* brush, float width) {
-  assert(!IsEnded());
-  const auto g = dynamic_cast<WinGeometry*>(geometry);
-  assert(g);
-  const auto b = dynamic_cast<IWinBrush*>(brush);
-  assert(b);
+void D2DPainter::StrokeGeometry(Geometry* geometry, Brush* brush, float width) {
+  assert(IsValid());
+  const auto g = CheckAndCast<D2DGeometry>(geometry);
+  const auto b = CheckAndCast<ID2DBrush>(brush);
 
-  render_target_->DrawGeometry(g->GetNative(), b->GetD2DBrush(), width);
+  render_target_->DrawGeometry(g->GetComInterface(), b->GetD2DBrushInterface(),
+                               width);
 }
 
-void WinPainter::FillGeometry(platform::graph::IGeometry* geometry,
-                              platform::graph::IBrush* brush) {
-  assert(!IsEnded());
-  const auto g = dynamic_cast<WinGeometry*>(geometry);
-  assert(g);
-  const auto b = dynamic_cast<IWinBrush*>(brush);
-  assert(b);
+void D2DPainter::FillGeometry(Geometry* geometry, Brush* brush) {
+  assert(IsValid());
+  const auto g = CheckAndCast<D2DGeometry>(geometry);
+  const auto b = CheckAndCast<ID2DBrush>(brush);
 
-  render_target_->FillGeometry(g->GetNative(), b->GetD2DBrush());
+  render_target_->FillGeometry(g->GetComInterface(), b->GetD2DBrushInterface());
 }
 
-void WinPainter::DrawText(const ui::Point& offset,
-                          platform::graph::ITextLayout* text_layout,
-                          platform::graph::IBrush* brush) {
-  assert(!IsEnded());
-  const auto t = dynamic_cast<WinTextLayout*>(text_layout);
-  assert(t);
-  const auto b = dynamic_cast<IWinBrush*>(brush);
-  assert(b);
+void D2DPainter::DrawText(const Point& offset, TextLayout* text_layout,
+                          Brush* brush) {
+  assert(IsValid());
+  const auto t = CheckAndCast<DWriteTextLayout>(text_layout);
+  const auto b = CheckAndCast<ID2DBrush>(brush);
 
-  render_target_->DrawTextLayout(util::Convert(offset),
-                                 t->GetDWriteTextLayout(), b->GetD2DBrush());
+  render_target_->DrawTextLayout(Convert(offset), t->GetComInterface(),
+                                 b->GetD2DBrushInterface());
 }
 
-void WinPainter::End() {
-  if (!is_draw_ended_) {
-    is_draw_ended_ = true;
+void D2DPainter::EndDraw() {
+  if (is_drawing_) {
+    is_drawing_ = false;
     DoEndDraw();
   }
 }
-}  // namespace cru::win::graph
+}  // namespace cru::platform::graph::win::direct

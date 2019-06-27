@@ -37,5 +37,7 @@ class Painter : public NativeResource {
 
   virtual void DrawText(const Point& offset, TextLayout* text_layout,
                         Brush* brush) = 0;
+
+  virtual void EndDraw() = 0;
 };
 }  // namespace cru::platform::graph

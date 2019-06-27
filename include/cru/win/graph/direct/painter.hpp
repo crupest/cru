@@ -1,43 +1,54 @@
 #pragma once
-#include "../win_pre_config.hpp"
+#include "com_resource.hpp"
+#include "platform_id.hpp"
 
 #include "cru/platform/graph/painter.hpp"
 
-namespace cru::win::graph {
-class GraphManager;
-
-class WinPainter : public Object, public virtual platform::graph::IPainter {
+namespace cru::platform::graph::win::direct {
+class D2DPainter : public Painter, public IComResource<ID2D1RenderTarget> {
  public:
-  explicit WinPainter(ID2D1RenderTarget* render_target);
-  WinPainter(const WinPainter& other) = delete;
-  WinPainter(WinPainter&& other) = delete;
-  WinPainter& operator=(const WinPainter& other) = delete;
-  WinPainter& operator=(WinPainter&& other) = delete;
-  ~WinPainter() override = default;
+  explicit D2DPainter(ID2D1RenderTarget* render_target);
 
-  platform::Matrix GetTransform() override;
+  D2DPainter(const D2DPainter& other) = delete;
+  D2DPainter& operator=(const D2DPainter& other) = delete;
+
+  D2DPainter(D2DPainter&& other) = delete;
+  D2DPainter& operator=(D2DPainter&& other) = delete;
+
+  ~D2DPainter() override = default;
+
+  CRU_PLATFORMID_IMPLEMENT_DIRECT
+
+ public:
+  ID2D1RenderTarget* GetComInterface() const override { return render_target_; }
+
+ public:
+  Matrix GetTransform() override;
   void SetTransform(const platform::Matrix& matrix) override;
-  void Clear(const ui::Color& color) override;
-  void StrokeRectangle(const ui::Rect& rectangle, platform::graph::IBrush* brush,
+
+  void Clear(const Color& color) override;
+
+  void StrokeRectangle(const Rect& rectangle, Brush* brush,
                        float width) override;
-  void FillRectangle(const ui::Rect& rectangle,
-                     platform::graph::IBrush* brush) override;
-  void StrokeGeometry(platform::graph::IGeometry* geometry,
-                      platform::graph::IBrush* brush, float width) override;
-  void FillGeometry(platform::graph::IGeometry* geometry,
-                    platform::graph::IBrush* brush) override;
-  void DrawText(const ui::Point& offset,
-                platform::graph::ITextLayout* text_layout,
-                platform::graph::IBrush* brush) override;
-  void End() override final;
-  bool IsEnded() const override final { return is_draw_ended_; }
+  void FillRectangle(const Rect& rectangle, Brush* brush) override;
+
+  void StrokeGeometry(Geometry* geometry, Brush* brush, float width) override;
+  void FillGeometry(Geometry* geometry, Brush* brush) override;
+
+  void DrawText(const Point& offset, TextLayout* text_layout,
+                Brush* brush) override;
+
+  void EndDraw() override final;
 
  protected:
   virtual void DoEndDraw() = 0;
 
  private:
+  bool IsValid() { return is_drawing_; }
+
+ private:
   ID2D1RenderTarget* render_target_;
 
-  bool is_draw_ended_ = false;
+  bool is_drawing_ = true;
 };
-}  // namespace cru::win::graph
+}  // namespace cru::platform::graph::win::direct

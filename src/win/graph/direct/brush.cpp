@@ -1,7 +1,6 @@
 #include "cru/win/graph/direct/brush.hpp"
 
 #include "cru/win/graph/direct/convert_util.hpp"
-#include "cru/win/graph/direct/direct_factory.hpp"
 #include "cru/win/graph/direct/exception.hpp"
 
 #include <cassert>

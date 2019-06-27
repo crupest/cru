@@ -1,48 +1,63 @@
 #pragma once
-#include "../win_pre_config.hpp"
+#include "com_resource.hpp"
+#include "direct_factory.hpp"
+#include "platform_id.hpp"
 
 #include "cru/platform/graph/geometry.hpp"
 
-namespace cru::win::graph {
-struct IWinNativeFactory;
-
-class WinGeometryBuilder : public Object,
-                           public virtual platform::graph::IGeometryBuilder {
+namespace cru::platform::graph::win::direct {
+class D2DGeometryBuilder : public GeometryBuilder {
  public:
-  explicit WinGeometryBuilder(IWinNativeFactory* factory);
-  WinGeometryBuilder(const WinGeometryBuilder& other) = delete;
-  WinGeometryBuilder(WinGeometryBuilder&& other) = delete;
-  WinGeometryBuilder& operator=(const WinGeometryBuilder& other) = delete;
-  WinGeometryBuilder& operator=(WinGeometryBuilder&& other) = delete;
-  ~WinGeometryBuilder() override;
+  explicit D2DGeometryBuilder(IDirectFactory* factory);
 
-  void BeginFigure(const ui::Point& point) override;
-  void LineTo(const ui::Point& point) override;
-  void QuadraticBezierTo(const ui::Point& control_point,
-                         const ui::Point& end_point) override;
+  D2DGeometryBuilder(const D2DGeometryBuilder& other) = delete;
+  D2DGeometryBuilder& operator=(const D2DGeometryBuilder& other) = delete;
+
+  D2DGeometryBuilder(D2DGeometryBuilder&& other) = delete;
+  D2DGeometryBuilder& operator=(D2DGeometryBuilder&& other) = delete;
+
+  ~D2DGeometryBuilder() override;
+
+  CRU_PLATFORMID_IMPLEMENT_DIRECT
+
+ public:
+  void BeginFigure(const Point& point) override;
+  void LineTo(const Point& point) override;
+  void QuadraticBezierTo(const Point& control_point,
+                         const Point& end_point) override;
   void CloseFigure(bool close) override;
-  platform::graph::IGeometry* End() override;
-  bool IsEnded() const override { return geometry_ != nullptr; }
+
+  Geometry* Build() override;
+
+ private:
+  bool IsValid() { return geometry_ != nullptr; }
 
  private:
   Microsoft::WRL::ComPtr<ID2D1PathGeometry> geometry_;
   Microsoft::WRL::ComPtr<ID2D1GeometrySink> geometry_sink_;
 };
 
-class WinGeometry : public Object, public virtual platform::graph::IGeometry {
+class D2DGeometry : public Geometry, public IComResource<ID2D1Geometry> {
  public:
-  explicit WinGeometry(Microsoft::WRL::ComPtr<ID2D1PathGeometry> geometry);
-  WinGeometry(const WinGeometry& other) = delete;
-  WinGeometry(WinGeometry&& other) = delete;
-  WinGeometry& operator=(const WinGeometry& other) = delete;
-  WinGeometry& operator=(WinGeometry&& other) = delete;
-  ~WinGeometry() override = default;
+  explicit D2DGeometry(Microsoft::WRL::ComPtr<ID2D1PathGeometry> geometry);
 
-  bool FillContains(const ui::Point& point) override;
+  D2DGeometry(const D2DGeometry& other) = delete;
+  D2DGeometry& operator=(const D2DGeometry& other) = delete;
 
-  ID2D1PathGeometry* GetNative() const { return geometry_.Get(); }
+  D2DGeometry(D2DGeometry&& other) = delete;
+  D2DGeometry& operator=(D2DGeometry&& other) = delete;
+
+  ~D2DGeometry() override = default;
+
+  CRU_PLATFORMID_IMPLEMENT_DIRECT
+
+ public:
+  ID2D1Geometry* GetComInterface() const override { return geometry_.Get(); }
+
+ public:
+  bool FillContains(const Point& point) override;
 
  private:
   Microsoft::WRL::ComPtr<ID2D1PathGeometry> geometry_;
 };
-}  // namespace cru::win::graph
+}  // namespace cru::platform::graph::win::direct

@@ -1,21 +1,20 @@
-#include "cru/win/graph/win_font.hpp"
+#include "cru/win/graph/direct/font.hpp"
 
 #include "cru/win/exception.hpp"
-#include "cru/win/graph/win_native_factory.hpp"
+#include "cru/win/graph/direct/exception.hpp"
 
 #include <array>
 #include <cassert>
 #include <utility>
 
-namespace cru::win::graph {
-WinFontDescriptor::WinFontDescriptor(IWinNativeFactory* factory,
-                                     const std::wstring_view& font_family,
-                                     float font_size) {
+namespace cru::platform::graph::win::direct {
+DWriteFont::DWriteFont(IDirectFactory* factory,
+                       const std::wstring_view& font_family, float font_size) {
   assert(factory);
   std::array<wchar_t, LOCALE_NAME_MAX_LENGTH> buffer;
   if (!::GetUserDefaultLocaleName(buffer.data(),
                                   static_cast<int>(buffer.size())))
-    throw Win32Error(::GetLastError(), "Failed to get locale.");
+    throw platform::win::Win32Error(::GetLastError(), "Failed to get locale.");
 
   ThrowIfFailed(factory->GetDWriteFactory()->CreateTextFormat(
       font_family.data(), nullptr, DWRITE_FONT_WEIGHT_NORMAL,
@@ -26,4 +25,4 @@ WinFontDescriptor::WinFontDescriptor(IWinNativeFactory* factory,
   ThrowIfFailed(
       text_format_->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER));
 }
-}  // namespace cru::win::graph
+}  // namespace cru::platform::graph::win::direct

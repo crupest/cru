@@ -1,7 +1,11 @@
 #pragma once
 #include "direct_factory.hpp"
+#include "platform_id.hpp"
 
 #include "brush.hpp"
+#include "font.hpp"
+#include "geometry.hpp"
+#include "text_layout.hpp"
 
 #include "cru/platform/graph/graph_factory.hpp"
 
@@ -17,11 +21,16 @@ class DirectGraphFactory : public GraphFactory, IDirectFactory {
 
  public:
   DirectGraphFactory(const DirectGraphFactory& other) = delete;
-  DirectGraphFactory(DirectGraphFactory&& other) = delete;
   DirectGraphFactory& operator=(const DirectGraphFactory& other) = delete;
+
+  DirectGraphFactory(DirectGraphFactory&& other) = delete;
   DirectGraphFactory& operator=(DirectGraphFactory&& other) = delete;
+
   ~DirectGraphFactory() override;
 
+  CRU_PLATFORMID_IMPLEMENT_DIRECT
+
+ public:
   ID2D1Factory1* GetD2D1Factory() const override { return d2d1_factory_.Get(); }
   ID2D1DeviceContext* GetD2D1DeviceContext() const override {
     return d2d1_device_context_.Get();
@@ -35,14 +44,16 @@ class DirectGraphFactory : public GraphFactory, IDirectFactory {
     return dwrite_system_font_collection_.Get();
   }
 
+ public:
   D2DSolidColorBrush* CreateSolidColorBrush() override;
 
   D2DGeometryBuilder* CreateGeometryBuilder() override;
-  D2DFont* CreateFont(
-      const std::wstring_view& font_family, float font_size) override;
-  DWriteTextLayout* CreateTextLayout(
-      std::shared_ptr<Font> font,
-      std::wstring text) override;
+
+  DWriteFont* CreateFont(const std::wstring_view& font_family,
+                         float font_size) override;
+
+  DWriteTextLayout* CreateTextLayout(std::shared_ptr<Font> font,
+                                     std::wstring text) override;
 
   bool IsAutoDelete() const override { return auto_delete_; }
   void SetAutoDelete(bool value) override { auto_delete_ = value; }
@@ -57,4 +68,4 @@ class DirectGraphFactory : public GraphFactory, IDirectFactory {
   Microsoft::WRL::ComPtr<IDWriteFactory> dwrite_factory_;
   Microsoft::WRL::ComPtr<IDWriteFontCollection> dwrite_system_font_collection_;
 };
-}  // namespace cru::win::graph
+}  // namespace cru::platform::graph::win::direct

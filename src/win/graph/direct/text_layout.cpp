@@ -1,71 +1,66 @@
-#include "cru/win/graph/win_text_layout.hpp"
+#include "cru/win/graph/direct/text_layout.hpp"
 
-#include "cru/win/exception.hpp"
-#include "cru/win/graph/win_font.hpp"
-#include "cru/win/graph/win_native_factory.hpp"
+#include "cru/win/graph/direct/exception.hpp"
 
 #include <cassert>
 #include <utility>
 
-namespace cru::win::graph {
-WinTextLayout::WinTextLayout(IWinNativeFactory* factory,
-                             std::shared_ptr<WinFontDescriptor> font,
-                             std::wstring text) {
+namespace cru::platform::graph::win::direct {
+DWriteTextLayout::DWriteTextLayout(IDirectFactory* factory,
+                                   std::shared_ptr<Font> font,
+                                   std::wstring text)
+    : text_(std::move(text)) {
   assert(factory);
   assert(font);
+  assert(IsDirectResource(font.get()));
   factory_ = factory;
-  text_.swap(text);
-  font_descriptor_.swap(font);
+  font_ = std::static_pointer_cast<DWriteFont>(font);
 
   ThrowIfFailed(factory->GetDWriteFactory()->CreateTextLayout(
       text_.c_str(), static_cast<UINT32>(text_.size()),
-      font_descriptor_->GetDWriteTextFormat(), max_width_, max_height_,
-      &text_layout_));
+      font_->GetComInterface(), max_width_, max_height_, &text_layout_));
 }
 
-std::wstring WinTextLayout::GetText() { return text_; }
+std::wstring DWriteTextLayout::GetText() { return text_; }
 
-void WinTextLayout::SetText(std::wstring new_text) {
+void DWriteTextLayout::SetText(std::wstring new_text) {
   text_.swap(new_text);
   ThrowIfFailed(factory_->GetDWriteFactory()->CreateTextLayout(
       text_.c_str(), static_cast<UINT32>(text_.size()),
-      font_descriptor_->GetDWriteTextFormat(), max_width_, max_height_,
-      &text_layout_));
+      font_->GetComInterface(), max_width_, max_height_, &text_layout_));
 }
 
-std::shared_ptr<platform::graph::IFontDescriptor> WinTextLayout::GetFont() {
-  return font_descriptor_;
+std::shared_ptr<Font> DWriteTextLayout::GetFont() {
+  return std::static_pointer_cast<Font>(font_);
 }
 
-void WinTextLayout::SetFont(
-    std::shared_ptr<platform::graph::IFontDescriptor> font) {
-  auto f = std::dynamic_pointer_cast<WinFontDescriptor>(font);
-  assert(f);
-  f.swap(font_descriptor_);
+void DWriteTextLayout::SetFont(std::shared_ptr<Font> font) {
+  assert(IsDirectResource(font.get()));
+  auto f = std::static_pointer_cast<DWriteFont>(font);
+
+  f.swap(font_);
   ThrowIfFailed(factory_->GetDWriteFactory()->CreateTextLayout(
       text_.c_str(), static_cast<UINT32>(text_.size()),
-      font_descriptor_->GetDWriteTextFormat(), max_width_, max_height_,
-      &text_layout_));
+      font_->GetComInterface(), max_width_, max_height_, &text_layout_));
 }
 
-void WinTextLayout::SetMaxWidth(float max_width) {
+void DWriteTextLayout::SetMaxWidth(float max_width) {
   max_width_ = max_width;
   ThrowIfFailed(text_layout_->SetMaxWidth(max_width_));
 }
 
-void WinTextLayout::SetMaxHeight(float max_height) {
+void DWriteTextLayout::SetMaxHeight(float max_height) {
   max_height_ = max_height;
   ThrowIfFailed(text_layout_->SetMaxHeight(max_height_));
 }
 
-ui::Rect WinTextLayout::GetTextBounds() {
+Rect DWriteTextLayout::GetTextBounds() {
   DWRITE_TEXT_METRICS metrics;
   ThrowIfFailed(text_layout_->GetMetrics(&metrics));
-  return ui::Rect{metrics.left, metrics.top, metrics.width, metrics.height};
+  return Rect{metrics.left, metrics.top, metrics.width, metrics.height};
 }
 
-std::vector<ui::Rect> WinTextLayout::TextRangeRect(
-    const ui::TextRange& text_range) {
+std::vector<Rect> DWriteTextLayout::TextRangeRect(const TextRange& text_range) {
   DWRITE_TEXT_METRICS text_metrics;
   ThrowIfFailed(text_layout_->GetMetrics(&text_metrics));
   const auto metrics_count =
@@ -80,15 +75,15 @@ std::vector<ui::Rect> WinTextLayout::TextRangeRect(
   hit_test_metrics.erase(hit_test_metrics.cbegin() + actual_count,
                          hit_test_metrics.cend());
 
-  std::vector<ui::Rect> result;
+  std::vector<Rect> result;
   result.reserve(actual_count);
 
   for (const auto& metrics : hit_test_metrics) {
-    result.push_back(ui::Rect{metrics.left, metrics.top,
-                              metrics.left + metrics.width,
-                              metrics.top + metrics.height});
+    result.push_back(Rect{metrics.left, metrics.top,
+                          metrics.left + metrics.width,
+                          metrics.top + metrics.height});
   }
 
   return result;
 }
-}  // namespace cru::win::graph
+}  // namespace cru::platform::graph::win::direct

@@ -95,19 +95,17 @@ D2DSolidColorBrush* DirectGraphFactory::CreateSolidColorBrush() {
   return new D2DSolidColorBrush(this);
 }
 
-platform::graph::IGeometryBuilder* WinGraphFactory::CreateGeometryBuilder() {
-  return new WinGeometryBuilder(this);
+D2DGeometryBuilder* DirectGraphFactory::CreateGeometryBuilder() {
+  return new D2DGeometryBuilder(this);
 }
 
-platform::graph::IFontDescriptor* WinGraphFactory::CreateFontDescriptor(
+DWriteFont* DirectGraphFactory::CreateFont(
     const std::wstring_view& font_family, float font_size) {
-  return new WinFontDescriptor(this, font_family, font_size);
+  return new DWriteFont(this, font_family, font_size);
 }
 
-platform::graph::ITextLayout* WinGraphFactory::CreateTextLayout(
-    std::shared_ptr<platform::graph::IFontDescriptor> font, std::wstring text) {
-  const auto f = std::dynamic_pointer_cast<WinFontDescriptor>(font);
-  assert(f);
-  return new WinTextLayout(this, std::move(f), std::move(text));
+DWriteTextLayout* DirectGraphFactory::CreateTextLayout(
+    std::shared_ptr<Font> font, std::wstring text) {
+  return new DWriteTextLayout(this, std::move(font), std::move(text));
 }
 }  // namespace cru::platform::graph::win::direct
