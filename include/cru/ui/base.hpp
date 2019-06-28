@@ -16,6 +16,8 @@ using cru::platform::Thickness;
 using cru::platform::native::MouseButton;
 
 namespace colors {
-using namespace cru::platform::colors;
-}
+using cru::platform::colors::black;
+using cru::platform::colors::white;
+using cru::platform::colors::skyblue;
+}  // namespace colors
 }  // namespace cru::ui
