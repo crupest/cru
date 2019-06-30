@@ -12,37 +12,31 @@ D2DGeometryBuilder::D2DGeometryBuilder(IDirectFactory* factory) {
   ThrowIfFailed(geometry_->Open(&geometry_sink_));
 }
 
-D2DGeometryBuilder::~D2DGeometryBuilder() {
-  if (geometry_sink_) {
-    ThrowIfFailed(geometry_sink_->Close());
-  }
-}
-
 void D2DGeometryBuilder::BeginFigure(const Point& point) {
-  assert(IsValid());
+  CheckValidation();
   geometry_sink_->BeginFigure(Convert(point), D2D1_FIGURE_BEGIN_FILLED);
 }
 
 void D2DGeometryBuilder::LineTo(const Point& point) {
-  assert(IsValid());
+  CheckValidation();
   geometry_sink_->AddLine(Convert(point));
 }
 
 void D2DGeometryBuilder::QuadraticBezierTo(const Point& control_point,
                                            const Point& end_point) {
-  assert(IsValid());
+  CheckValidation();
   geometry_sink_->AddQuadraticBezier(
       D2D1::QuadraticBezierSegment(Convert(control_point), Convert(end_point)));
 }
 
 void D2DGeometryBuilder::CloseFigure(bool close) {
-  assert(IsValid());
+  CheckValidation();
   geometry_sink_->EndFigure(close ? D2D1_FIGURE_END_CLOSED
                                   : D2D1_FIGURE_END_OPEN);
 }
 
 Geometry* D2DGeometryBuilder::Build() {
-  assert(IsValid());
+  CheckValidation();
   ThrowIfFailed(geometry_sink_->Close());
   geometry_sink_ = nullptr;
   const auto geometry = new D2DGeometry(std::move(geometry_));

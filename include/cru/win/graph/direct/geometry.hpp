@@ -3,6 +3,7 @@
 #include "direct_factory.hpp"
 #include "platform_id.hpp"
 
+#include "cru/platform/exception.hpp"
 #include "cru/platform/graph/geometry.hpp"
 
 namespace cru::platform::graph::win::direct {
@@ -16,7 +17,7 @@ class D2DGeometryBuilder : public GeometryBuilder {
   D2DGeometryBuilder(D2DGeometryBuilder&& other) = delete;
   D2DGeometryBuilder& operator=(D2DGeometryBuilder&& other) = delete;
 
-  ~D2DGeometryBuilder() override;
+  ~D2DGeometryBuilder() override = default;
 
   CRU_PLATFORMID_IMPLEMENT_DIRECT
 
@@ -31,6 +32,10 @@ class D2DGeometryBuilder : public GeometryBuilder {
 
  private:
   bool IsValid() { return geometry_ != nullptr; }
+  void CheckValidation() {
+    if (!IsValid())
+      throw ReuseException("The geometry builder is already disposed.");
+  }
 
  private:
   Microsoft::WRL::ComPtr<ID2D1PathGeometry> geometry_;
