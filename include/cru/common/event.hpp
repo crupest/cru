@@ -17,7 +17,7 @@ namespace details {
 // It erases event args types and provides a
 // unified form to create event revoker and
 // revoke(remove) handler.
-class EventBase : private SelfResovable<EventBase> {
+class EventBase : public SelfResovable<EventBase> {
   friend EventRevoker;
 
  protected:
@@ -116,6 +116,7 @@ struct IEvent {
 // It stores a list of event handlers.
 template <typename TEventArgs>
 class Event : public details::EventBase, public IEvent<TEventArgs> {
+  using typename IEvent<TEventArgs>::EventHandler;
  private:
   struct HandlerData {
     HandlerData(EventHandlerToken token, EventHandler handler)

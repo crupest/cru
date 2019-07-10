@@ -1,6 +1,7 @@
 import argparse
 import os
 import os.path
+import shutil
 import subprocess
 import sys
 
@@ -15,6 +16,20 @@ args = parser.parse_args()
 
 
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+
+
+def init_vc_environment(arch):
+    arch_bat_map = {
+        'x86': 'vcvarsamd64_x86',
+        'x64': 'vcvars64'
+    }
+    vars = subprocess.check_output(['C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Auxiliary\\Build\\{}'.format(
+        arch_bat_map[arch]), '&&', 'set'], shell=True, text=True)
+    for var in vars.splitlines():
+        k, _, v = map(str.strip, var.strip().partition('='))
+        if k.startswith('?'):
+            continue
+        os.environ[k] = v
 
 
 def configure():
@@ -33,7 +48,7 @@ def build():
 
 
 os.chdir(project_root)
-configure()
 
+configure()
 if args.command == 'build':
     build()
