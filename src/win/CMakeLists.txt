@@ -3,6 +3,7 @@ set(CRU_WIN_BASE_INCLUDE_DIR ${CRU_INCLUDE_DIR}/cru/win/)
 add_library(cru_win_base STATIC
 	debug.cpp
 	exception.cpp
+	heap_debug.cpp
 	string_util.cpp
 )
 target_sources(cru_win_base PUBLIC

@@ -1,3 +1,4 @@
+#include "cru/platform/heap_debug.hpp"
 #include "cru/platform/native/native_window.hpp"
 #include "cru/platform/native/ui_applicaition.hpp"
 #include "cru/ui/controls/button.hpp"
@@ -12,16 +13,11 @@ using cru::ui::Window;
 using cru::ui::controls::Button;
 using cru::ui::controls::FlexLayout;
 using cru::ui::controls::TextBlock;
-/*
-int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
-                      LPWSTR lpCmdLine, int nCmdShow) {
 
-*/
 
 int main() {
-
 #ifdef CRU_DEBUG
-  _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+  cru::platform::SetupHeapDebug();
 #endif
 
   std::unique_ptr<UiApplication> application(UiApplication::CreateInstance());
