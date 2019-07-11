@@ -21,7 +21,12 @@ jobs:
           buildConfiguration: 'Release'
 
     steps:
-    - script: py -3 tools\win_build.py -a $(buildPlatform) -c $(buildConfiguration)
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: '3.x'
+        addToPath: true
+
+    - script: python tools\win_build.py -a $(buildPlatform) -c $(buildConfiguration)
 
     - task: CopyFiles@2
       inputs:
