@@ -588,4 +588,5 @@ flycheck_*.el
 
 # End of https://www.gitignore.io/api/emacs
 
-.clang_complete
+.ccls
+.ccls-cache

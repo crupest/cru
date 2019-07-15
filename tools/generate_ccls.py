@@ -7,7 +7,7 @@ parser.add_argument('-d', '--debug', action='store_true',
                     default='Debug', help='specify build configuration')
 args = parser.parse_args()
 
-clang_complete_file_name = '.clang_complete'
+ccls_file_name = '.ccls'
 
 # project root dir
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
@@ -26,7 +26,7 @@ if args.debug:
     global_definitions.append('_DEBUG')
 
 
-def generate_clang_complete_content(additional_include_paths=[], additional_definitions=[]):
+def generate_ccls_content(additional_include_paths=[], additional_definitions=[]):
     include_args = [
         '-I{}'.format(path) for path in additional_include_paths + global_include_paths]
     definition_args = [
@@ -35,19 +35,19 @@ def generate_clang_complete_content(additional_include_paths=[], additional_defi
     return '\n'.join(args)
 
 
-def generate_root_clang_complete():
-    with open(clang_complete_file_name, 'w') as f:
-        print(generate_clang_complete_content(), file=f)
+def generate_root_ccls():
+    with open(ccls_file_name, 'w') as f:
+        print(generate_ccls_content(), file=f)
 
 
-def generate_win_clang_complete_content():
-    return generate_clang_complete_content(additional_definitions=['UNICODE', '_UNICODE', 'WIN32', '_WINDOWS'])
+def generate_win_ccls_content():
+    return generate_ccls_content(additional_definitions=['UNICODE', '_UNICODE', 'WIN32', '_WINDOWS'])
 
 
-def generate_win_clang_complete():
+def generate_win_ccls():
     for path in ['src/win/', 'include/cru/win/']:
-        with open(os.path.join(path, clang_complete_file_name), 'w') as f:
-            print(generate_win_clang_complete_content(), file=f)
+        with open(os.path.join(path, ccls_file_name), 'w') as f:
+            print(generate_win_ccls_content(), file=f)
 
-generate_root_clang_complete()
-generate_win_clang_complete()
+generate_root_ccls()
+generate_win_ccls()
