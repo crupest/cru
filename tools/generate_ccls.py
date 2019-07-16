@@ -14,7 +14,7 @@ project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 os.chdir(project_root)
 
 global_std_standard = 'c++17'  # change this to change standard
-global_std_standard_arg = '--std={}'.format(global_std_standard)
+global_std_standard_arg = '%cpp --std={}'.format(global_std_standard)
 
 global_include_paths = [
     os.path.abspath('include')
@@ -31,7 +31,7 @@ def generate_ccls_content(additional_include_paths=[], additional_definitions=[]
         '-I{}'.format(path) for path in additional_include_paths + global_include_paths]
     definition_args = [
         '-D{}'.format(definition) for definition in additional_definitions + global_definitions]
-    args = [global_std_standard_arg] + include_args + definition_args
+    args = ['clang', global_std_standard_arg] + include_args + definition_args
     return '\n'.join(args)
 
 
@@ -48,6 +48,7 @@ def generate_win_ccls():
     for path in ['src/win/', 'include/cru/win/']:
         with open(os.path.join(path, ccls_file_name), 'w') as f:
             print(generate_win_ccls_content(), file=f)
+
 
 generate_root_ccls()
 generate_win_ccls()
