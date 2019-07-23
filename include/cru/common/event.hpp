@@ -3,9 +3,8 @@
 
 #include "self_resolvable.hpp"
 
-#include <algorithm>
+#include <forward_list>
 #include <functional>
-#include <list>
 #include <memory>
 #include <utility>
 
@@ -17,7 +16,7 @@ namespace details {
 // It erases event args types and provides a
 // unified form to create event revoker and
 // revoke(remove) handler.
-class EventBase : public SelfResovable<EventBase> {
+class EventBase : public SelfResolvable<EventBase> {
   friend EventRevoker;
 
  protected:
@@ -46,7 +45,7 @@ class EventRevoker {
   friend details::EventBase;
 
  private:
-  EventRevoker(ObjectResovler<details::EventBase>&& resolver,
+  EventRevoker(ObjectResolver<details::EventBase>&& resolver,
                details::EventBase::EventHandlerToken token)
       : resolver_(std::move(resolver)), token_(token) {}
 
@@ -68,7 +67,7 @@ class EventRevoker {
   }
 
  private:
-  ObjectResovler<details::EventBase> resolver_;
+  ObjectResolver<details::EventBase> resolver_;
   details::EventBase::EventHandlerToken token_;
 };
 
@@ -85,11 +84,6 @@ using DeducedEventArgs = std::conditional_t<
     std::conditional_t<std::is_scalar_v<TRaw>, TRaw, const TRaw&>>;
 
 // Provides an interface of event.
-//
-// Note that this class does not inherit Interface because Interface is
-// public destructable, but I want to make this class not public
-// destructable to prevent user from destructing it.
-//
 // IEvent only allow to add handler but not to raise the event. You may
 // want to create an Event object and expose IEvent only so users won't
 // be able to emit the event.
@@ -117,6 +111,7 @@ struct IEvent {
 template <typename TEventArgs>
 class Event : public details::EventBase, public IEvent<TEventArgs> {
   using typename IEvent<TEventArgs>::EventHandler;
+
  private:
   struct HandlerData {
     HandlerData(EventHandlerToken token, EventHandler handler)
@@ -135,45 +130,45 @@ class Event : public details::EventBase, public IEvent<TEventArgs> {
 
   EventRevoker AddHandler(const EventHandler& handler) override {
     const auto token = current_token_++;
-    handlers_->emplace_back(token, handler);
+    this->handler_data_list_.emplace_after(this->last_handler_iterator_ ,token, handler);
+    ++(this->last_handler_iterator_);
     return CreateRevoker(token);
   }
 
   EventRevoker AddHandler(EventHandler&& handler) override {
     const auto token = current_token_++;
-    handlers_->emplace_back(token, std::move(handler));
+    this->handler_data_list_.emplace_after(this->last_handler_iterator_ ,token, std::move(handler));
+    ++(this->last_handler_iterator_);
     return CreateRevoker(token);
   }
 
+  // This method will make a copy of all handlers. Because user might delete a
+  // handler in a handler, which may lead to seg fault as the handler is deleted
+  // while being executed.
+  // Thanks to this behavior, all handlers will be taken a snapshot when Raise
+  // is called, so even if you delete a handler during this period, all handlers
+  // in the snapshot will be executed.
   void Raise(EventArgs args) {
-    // Make a copy of the shared_ptr to retain the handlers in case the event is
-    // deleted during executing. if the handler is a lambda with member data,
-    // then the member data will be destroyed and result in seg fault.
-    const auto handlers = handlers_;
-    // do not use range for because it is not safe when current node is deleted.
-    auto i = handlers->cbegin();
-    while (i != handlers->cend()) {
-      // first move the i forward.
-      const auto current = i++;
-      // The same as above but in case that the RemoveHandler is called and
-      // the handler is not valid then.
-      const auto handler = current->handler;
+    std::forward_list<EventHandler> handlers;
+    auto iter = handlers.cbefore_begin();
+    for (const auto& data : this->handler_data_list_) {
+      handlers.insert_after(iter, data.handler);
+      iter++;
+    }
+    for (const auto& handler : handlers) {
       handler(args);
     }
   }
 
  protected:
   void RemoveHandler(EventHandlerToken token) override {
-    auto find_result = std::find_if(handlers_->cbegin(), handlers_->cend(),
-                                    [token](const HandlerData& handler_data) {
-                                      return handler_data.token == token;
-                                    });
-    if (find_result != handlers_->cend()) handlers_->erase(find_result);
+    this->handler_data_list_.remove_if(
+				       [token](const HandlerData& data) { return data.token == token; });
   }
 
  private:
-  std::shared_ptr<std::list<HandlerData>> handlers_ =
-      std::make_shared<std::list<HandlerData>>();
+  std::forward_list<HandlerData> handler_data_list_{};
+  typename std::forward_list<HandlerData>::const_iterator last_handler_iterator_ = this->handler_data_list_.cbefore_begin(); // remember the last handler to make push back O(1)
   EventHandlerToken current_token_ = 0;
 };
 

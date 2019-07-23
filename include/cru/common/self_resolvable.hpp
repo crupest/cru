@@ -7,21 +7,21 @@
 
 namespace cru {
 template <typename T>
-class SelfResovable;
+class SelfResolvable;
 
 template <typename T>
-class ObjectResovler {
-  friend SelfResovable<T>;
+class ObjectResolver {
+  friend SelfResolvable<T>;
 
  private:
-  ObjectResovler(const std::shared_ptr<T*>& resolver) : resolver_(resolver) {}
+  ObjectResolver(const std::shared_ptr<T*>& resolver) : resolver_(resolver) {}
 
  public:
-  ObjectResovler(const ObjectResovler&) = default;
-  ObjectResovler& operator=(const ObjectResovler&) = default;
-  ObjectResovler(ObjectResovler&&) = default;
-  ObjectResovler& operator=(ObjectResovler&&) = default;
-  ~ObjectResovler() = default;
+  ObjectResolver(const ObjectResolver&) = default;
+  ObjectResolver& operator=(const ObjectResolver&) = default;
+  ObjectResolver(ObjectResolver&&) = default;
+  ObjectResolver& operator=(ObjectResolver&&) = default;
+  ~ObjectResolver() = default;
 
   T* Resolve() const {
     // resolver_ is null only when this has been moved.
@@ -35,16 +35,16 @@ class ObjectResovler {
 };
 
 template <typename T>
-class SelfResovable {
+class SelfResolvable {
  public:
-  SelfResovable() : resolver_(new T*(static_cast<T*>(this))) {}
-  SelfResovable(const SelfResovable&) = delete;
-  SelfResovable& operator=(const SelfResovable&) = delete;
-  SelfResovable(SelfResovable&&) = delete;
-  SelfResovable& operator=(SelfResovable&&) = delete;
-  virtual ~SelfResovable() { (*resolver_) = nullptr; }
+  SelfResolvable() : resolver_(new T*(static_cast<T*>(this))) {}
+  SelfResolvable(const SelfResolvable&) = delete;
+  SelfResolvable& operator=(const SelfResolvable&) = delete;
+  SelfResolvable(SelfResolvable&&) = delete;
+  SelfResolvable& operator=(SelfResolvable&&) = delete;
+  virtual ~SelfResolvable() { (*resolver_) = nullptr; }
 
-  ObjectResovler<T> CreateResolver() { return ObjectResovler<T>(resolver_); }
+  ObjectResolver<T> CreateResolver() { return ObjectResolver<T>(resolver_); }
 
  private:
   std::shared_ptr<T*> resolver_;

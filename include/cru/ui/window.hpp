@@ -17,7 +17,7 @@ namespace render {
 class WindowRenderObject;
 }
 
-class Window final : public ContentControl, public SelfResovable<Window> {
+class Window final : public ContentControl, public SelfResolvable<Window> {
  public:
   static constexpr auto control_type = L"Window";
 

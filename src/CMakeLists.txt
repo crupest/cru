@@ -46,7 +46,7 @@ target_sources(cru_platform_native INTERFACE
 target_link_libraries(cru_platform_native INTERFACE cru_platform_graph)
 
 if(WIN32)
-add_subdirectory(win)
+  add_subdirectory(win)
 endif()
 
 add_subdirectory(ui)
