@@ -1,6 +1,8 @@
 file(GLOB CRU_UI_INCLUDE_DIR ${CRU_INCLUDE_DIR}/cru/ui)
 
 add_library(cru_ui STATIC
+	routed_event_dispatch.hpp
+
     content_control.cpp
     control.cpp
     layout_control.cpp

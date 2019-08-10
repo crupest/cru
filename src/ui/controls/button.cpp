@@ -23,4 +23,18 @@ void Button::OnChildChanged(Control* old_child, Control* new_child) {
   if (new_child != nullptr)
     render_object_->AddChild(new_child->GetRenderObject(), 0);
 }
+
+void Button::OnMouseClickBegin(platform::native::MouseButton button) {
+  if (button & trigger_button_) {
+    SetState(ButtonState::Press);
+    //TODO!
+  }
+}
+
+void Button::OnMouseClickEnd(platform::native::MouseButton button) {
+  if (button & trigger_button_) {
+    SetState(ButtonState::Normal);
+    //TODO!
+  }
+}
 }  // namespace cru::ui::controls

@@ -4,6 +4,7 @@
 #include "../base.hpp"
 #include "cru/common/event.hpp"
 
+#include <memory>
 #include <optional>
 
 namespace cru::platform::graph {
@@ -37,6 +38,8 @@ class UiEventArgs : public Object {
   bool handled_;
 };
 
+// TEventArgs must not be a reference type. This class help add reference.
+// EventArgs must be reference because the IsHandled property must be settable.
 template <typename TEventArgs>
 class RoutedEvent {
  public:
@@ -45,16 +48,19 @@ class RoutedEvent {
 
   using EventArgs = TEventArgs;
 
-  RoutedEvent() = default;
+  RoutedEvent()
+      : direct(new Event<TEventArgs&>()),
+        bubble(new Event<TEventArgs&>()),
+        tunnel(new Event<TEventArgs&>()) {}
   RoutedEvent(const RoutedEvent& other) = delete;
   RoutedEvent(RoutedEvent&& other) = delete;
   RoutedEvent& operator=(const RoutedEvent& other) = delete;
   RoutedEvent& operator=(RoutedEvent&& other) = delete;
   ~RoutedEvent() = default;
 
-  Event<TEventArgs> direct;
-  Event<TEventArgs> bubble;
-  Event<TEventArgs> tunnel;
+  const std::unique_ptr<IEvent<TEventArgs&>> direct;
+  const std::unique_ptr<IEvent<TEventArgs&>> bubble;
+  const std::unique_ptr<IEvent<TEventArgs&>> tunnel;
 };
 
 class MouseEventArgs : public UiEventArgs {
@@ -77,9 +83,11 @@ class MouseEventArgs : public UiEventArgs {
 class MouseButtonEventArgs : public MouseEventArgs {
  public:
   MouseButtonEventArgs(Object* sender, Object* original_sender,
-                       const Point& point,
-                       const MouseButton button)
+                       const Point& point, const MouseButton button)
       : MouseEventArgs(sender, original_sender, point), button_(button) {}
+  MouseButtonEventArgs(Object* sender, Object* original_sender,
+                       const MouseButton button)
+      : MouseEventArgs(sender, original_sender), button_(button) {}
   MouseButtonEventArgs(const MouseButtonEventArgs& other) = default;
   MouseButtonEventArgs(MouseButtonEventArgs&& other) = default;
   MouseButtonEventArgs& operator=(const MouseButtonEventArgs& other) = default;

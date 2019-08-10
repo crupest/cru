@@ -11,7 +11,7 @@ class PlatformException : public std::runtime_error {
 
 // This exception is throwed when a resource has been disposed and not usable
 // again.
-// For example, calling Build twice on a GeometryBuild will lead to this
+// For example, calling Build twice on a GeometryBuilder::Build will lead to this
 // exception.
 class ReuseException : public std::runtime_error {
  public:

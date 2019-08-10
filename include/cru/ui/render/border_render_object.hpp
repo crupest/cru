@@ -1,4 +1,6 @@
 #pragma once
+#include "cru/platform/graph/brush.hpp"
+#include "cru/ui/base.hpp"
 #include "render_object.hpp"
 
 #include <memory>
@@ -30,6 +32,12 @@ struct CornerRadius {
   Point right_bottom;
 };
 
+struct BorderStyle {
+  std::shared_ptr<platform::graph::Brush> brush;
+  Thickness thickness;
+  CornerRadius corner_radius;
+};
+
 class BorderRenderObject : public RenderObject {
  public:
   explicit BorderRenderObject(std::shared_ptr<platform::graph::Brush> brush);
@@ -43,20 +51,30 @@ class BorderRenderObject : public RenderObject {
   void SetEnabled(bool enabled) { is_enabled_ = enabled; }
 
   std::shared_ptr<platform::graph::Brush> GetBrush() const {
-    return border_brush_;
+    return style_.brush;
   }
   void SetBrush(std::shared_ptr<platform::graph::Brush> new_brush) {
-    border_brush_ = std::move(new_brush);
+    style_.brush = std::move(new_brush);
   }
 
-  Thickness GetBorderWidth() const { return border_thickness_; }
+  Thickness GetBorderWidth() const { return style_.thickness; }
+  // Remember to call Refresh after set shape properties.
   void SetBorderWidth(const Thickness& thickness) {
-    border_thickness_ = thickness;
+    style_.thickness = thickness;
   }
 
-  CornerRadius GetCornerRadius() const { return corner_radius_; }
+  CornerRadius GetCornerRadius() const { return style_.corner_radius; }
+  // Remember to call Refresh after set shape properties.
   void SetCornerRadius(const CornerRadius& new_corner_radius) {
-    corner_radius_ = new_corner_radius;
+    style_.corner_radius = new_corner_radius;
+  }
+
+  BorderStyle GetStyle() const {
+    return style_;
+  }
+  // Remember to call Refresh after set shape properties.
+  void SetStyle(BorderStyle newStyle) {
+    style_ = std::move(newStyle);
   }
 
   void Refresh() { RecreateGeometry(); }
@@ -85,11 +103,11 @@ class BorderRenderObject : public RenderObject {
  private:
   bool is_enabled_ = false;
 
-  std::shared_ptr<platform::graph::Brush> border_brush_ = nullptr;
-  Thickness border_thickness_{};
-  CornerRadius corner_radius_{};
+  BorderStyle style_;
 
+  // The ring. Used for painting.
   std::shared_ptr<platform::graph::Geometry> geometry_ = nullptr;
+  // Area including border ring and inner area. Used for hit test.
   std::shared_ptr<platform::graph::Geometry> border_outer_geometry_ = nullptr;
 };
 }  // namespace cru::ui::render

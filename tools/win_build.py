@@ -17,7 +17,7 @@ args = parser.parse_args()
 
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 
-
+# this is not used when generator is Visual Studio
 def init_vc_environment(arch):
     arch_bat_map = {
         'x86': 'vcvarsamd64_x86',

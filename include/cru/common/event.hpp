@@ -148,7 +148,7 @@ class Event : public details::EventBase, public IEvent<TEventArgs> {
   // Thanks to this behavior, all handlers will be taken a snapshot when Raise
   // is called, so even if you delete a handler during this period, all handlers
   // in the snapshot will be executed.
-  void Raise(EventArgs args) {
+  void Raise(typename IEvent<TEventArgs>::EventArgs args) {
     std::forward_list<EventHandler> handlers;
     auto iter = handlers.cbefore_begin();
     for (const auto& data : this->handler_data_list_) {

@@ -1,6 +1,6 @@
 #pragma once
-#include "cru/common/base.hpp"
 #include "base.hpp"
+#include "cru/common/base.hpp"
 
 #include "cru/platform/native/basic_types.hpp"
 #include "event/ui_event.hpp"
@@ -57,6 +57,10 @@ class Control : public Object {
   bool RequestFocus();
 
   bool HasFocus();
+
+  //*************** region: focus ***************
+ public:
+  bool IsMouseOver() const { return is_mouse_over_; }
 
   //*************** region: events ***************
  public:
@@ -130,9 +134,19 @@ class Control : public Object {
  protected:
   virtual void OnMouseClickBegin(platform::native::MouseButton button);
   virtual void OnMouseClickEnd(platform::native::MouseButton button);
+  virtual void OnMouseClickCancel(platform::native::MouseButton button);
 
  private:
   Window* window_ = nullptr;
   Control* parent_ = nullptr;
+
+ private:
+  bool is_mouse_over_ = false;
+
+  struct {
+    bool left;
+    bool middle;
+    bool right;
+  } click_map_;
 };
 }  // namespace cru::ui

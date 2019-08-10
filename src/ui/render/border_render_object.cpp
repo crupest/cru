@@ -12,12 +12,12 @@ namespace cru::ui::render {
 BorderRenderObject::BorderRenderObject(
     std::shared_ptr<platform::graph::Brush> brush) {
   assert(brush);
-  this->border_brush_ = std::move(brush);
+  this->style_.brush = std::move(brush);
   RecreateGeometry();
 }
 
 void BorderRenderObject::Draw(platform::graph::Painter* painter) {
-  painter->FillGeometry(geometry_.get(), border_brush_.get());
+  painter->FillGeometry(geometry_.get(), style_.brush.get());
   if (const auto child = GetChild()) {
     auto offset = child->GetOffset();
     platform::graph::util::WithTransform(
@@ -69,8 +69,8 @@ void BorderRenderObject::OnMeasureCore(const Size& available_size) {
       margin.GetVerticalTotal() + padding.GetVerticalTotal()};
 
   if (is_enabled_) {
-    margin_border_padding_size.width += border_thickness_.GetHorizontalTotal();
-    margin_border_padding_size.height += border_thickness_.GetVerticalTotal();
+    margin_border_padding_size.width += style_.thickness.GetHorizontalTotal();
+    margin_border_padding_size.height += style_.thickness.GetVerticalTotal();
   }
 
   auto coerced_margin_border_padding_size = margin_border_padding_size;
@@ -104,8 +104,8 @@ void BorderRenderObject::OnLayoutCore(const Rect& rect) {
       margin.GetVerticalTotal() + padding.GetVerticalTotal()};
 
   if (is_enabled_) {
-    margin_border_padding_size.width += border_thickness_.GetHorizontalTotal();
-    margin_border_padding_size.height += border_thickness_.GetVerticalTotal();
+    margin_border_padding_size.width += style_.thickness.GetHorizontalTotal();
+    margin_border_padding_size.height += style_.thickness.GetVerticalTotal();
   }
 
   const auto content_available_size =
@@ -121,14 +121,13 @@ void BorderRenderObject::OnLayoutCore(const Rect& rect) {
   if (coerced_content_available_size.height < 0) {
     platform::DebugMessage(
         L"Layout: vertical length of padding, border and margin is bigger "
-        L"than "
-        L"available length.");
+        L"than available length.");
     coerced_content_available_size.height = 0;
   }
 
   OnLayoutContent(Rect{
-      margin.left + (is_enabled_ ? border_thickness_.left : 0) + padding.left,
-      margin.top + (is_enabled_ ? border_thickness_.top : 0) + padding.top,
+      margin.left + (is_enabled_ ? style_.thickness.left : 0) + padding.left,
+      margin.top + (is_enabled_ ? style_.thickness.top : 0) + padding.top,
       coerced_content_available_size.width,
       coerced_content_available_size.height});
 }
@@ -184,14 +183,14 @@ void BorderRenderObject::RecreateGeometry() {
   const auto graph_factory = platform::graph::GraphFactory::GetInstance();
   std::unique_ptr<platform::graph::GeometryBuilder> builder{
       graph_factory->CreateGeometryBuilder()};
-  f(builder.get(), outer_rect, corner_radius_);
+  f(builder.get(), outer_rect, style_.corner_radius);
   border_outer_geometry_.reset(builder->Build());
   builder.reset();
 
-  const Rect inner_rect = outer_rect.Shrink(border_thickness_);
+  const Rect inner_rect = outer_rect.Shrink(style_.thickness);
   builder.reset(graph_factory->CreateGeometryBuilder());
-  f(builder.get(), outer_rect, corner_radius_);
-  f(builder.get(), inner_rect, corner_radius_);
+  f(builder.get(), outer_rect, style_.corner_radius);
+  f(builder.get(), inner_rect, style_.corner_radius);
   geometry_.reset(builder->Build());
   builder.reset();
 }
