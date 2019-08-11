@@ -15,7 +15,7 @@ void Control::_SetParent(Control* parent) {
   const auto new_parent = GetParent();
   if (old_parent != new_parent) OnParentChanged(old_parent, new_parent);
 
-  MouseDownEvent()->direct->AddHandler(
+  MouseDownEvent()->Direct()->AddHandler(
       [this](event::MouseButtonEventArgs& args) {
         switch (args.GetMouseButton()) {
           case MouseButton::Left:
@@ -33,11 +33,11 @@ void Control::_SetParent(Control* parent) {
         }
       });
 
-  MouseEnterEvent()->direct->AddHandler([this](event::MouseEventArgs&) {
+  MouseEnterEvent()->Direct()->AddHandler([this](event::MouseEventArgs&) {
     this->is_mouse_over_ = true;
   });
 
-  MouseLeaveEvent()->direct->AddHandler([this](event::MouseEventArgs&) {
+  MouseLeaveEvent()->Direct()->AddHandler([this](event::MouseEventArgs&) {
     this->is_mouse_over_ = false;
     if (click_map_.left) {
       OnMouseClickCancel(MouseButton::Left);
@@ -51,7 +51,7 @@ void Control::_SetParent(Control* parent) {
     click_map_.left = click_map_.middle = click_map_.right = false;
   });
 
-  MouseUpEvent()->direct->AddHandler([this](event::MouseButtonEventArgs& args) {
+  MouseUpEvent()->Direct()->AddHandler([this](event::MouseButtonEventArgs& args) {
     switch (args.GetMouseButton()) {
       case MouseButton::Left:
         if (click_map_.left) {

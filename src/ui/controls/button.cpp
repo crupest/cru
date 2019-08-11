@@ -37,4 +37,8 @@ void Button::OnMouseClickEnd(platform::native::MouseButton button) {
     //TODO!
   }
 }
+
+void Button::OnStateChange(ButtonState oldState, ButtonState newState) {
+  
+}
 }  // namespace cru::ui::controls

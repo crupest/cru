@@ -6,6 +6,7 @@
 
 #include <memory>
 #include <optional>
+#include <type_traits>
 
 namespace cru::platform::graph {
 class Painter;
@@ -45,22 +46,28 @@ class RoutedEvent {
  public:
   static_assert(std::is_base_of_v<UiEventArgs, TEventArgs>,
                 "TEventArgs must be subclass of UiEventArgs.");
+  static_assert(!std::is_reference_v<TEventArgs>,
+                "TEventArgs must not be reference.");
 
   using EventArgs = TEventArgs;
 
-  RoutedEvent()
-      : direct(new Event<TEventArgs&>()),
-        bubble(new Event<TEventArgs&>()),
-        tunnel(new Event<TEventArgs&>()) {}
+  RoutedEvent() = default;
   RoutedEvent(const RoutedEvent& other) = delete;
   RoutedEvent(RoutedEvent&& other) = delete;
   RoutedEvent& operator=(const RoutedEvent& other) = delete;
   RoutedEvent& operator=(RoutedEvent&& other) = delete;
   ~RoutedEvent() = default;
 
-  const std::unique_ptr<IEvent<TEventArgs&>> direct;
-  const std::unique_ptr<IEvent<TEventArgs&>> bubble;
-  const std::unique_ptr<IEvent<TEventArgs&>> tunnel;
+  IEvent<TEventArgs&>* Direct() { return &direct_; }
+
+  IEvent<TEventArgs&>* Bubble() { return &bubble_; }
+
+  IEvent<TEventArgs&>* Tunnel() { return &tunnel_; }
+
+ private:
+  Event<TEventArgs&> direct_;
+  Event<TEventArgs&> bubble_;
+  Event<TEventArgs&> tunnel_;
 };
 
 class MouseEventArgs : public UiEventArgs {

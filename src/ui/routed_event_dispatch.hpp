@@ -32,7 +32,7 @@ void DispatchEvent(Control* const original_sender,
   // tunnel
   for (auto i = receive_list.crbegin(); i != receive_list.crend(); ++i) {
     EventArgs event_args(*i, original_sender, std::forward<Args>(args)...);
-    static_cast<Event<EventArgs>*>(((*i)->*event_ptr)()->tunnel.get())
+    static_cast<Event<EventArgs&>*>(((*i)->*event_ptr)()->Tunnel())
         ->Raise(event_args);
     if (event_args.IsHandled()) {
       handled = true;
@@ -44,7 +44,7 @@ void DispatchEvent(Control* const original_sender,
   if (!handled) {
     for (auto i : receive_list) {
       EventArgs event_args(i, original_sender, std::forward<Args>(args)...);
-      static_cast<Event<EventArgs>*>((i->*event_ptr)()->bubble.get())
+      static_cast<Event<EventArgs&>*>((i->*event_ptr)()->Bubble())
           ->Raise(event_args);
       if (event_args.IsHandled()) break;
     }
@@ -53,7 +53,7 @@ void DispatchEvent(Control* const original_sender,
   // direct
   for (auto i : receive_list) {
     EventArgs event_args(i, original_sender, std::forward<Args>(args)...);
-    static_cast<Event<EventArgs>*>((i->*event_ptr)()->direct.get())
+    static_cast<Event<EventArgs&>*>((i->*event_ptr)()->Direct())
         ->Raise(event_args);
   }
 }
