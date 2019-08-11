@@ -239,8 +239,14 @@ struct Color {
       : red(red), green(green), blue(blue), alpha(alpha) {}
 
   constexpr static Color FromHex(std::uint32_t hex) {
-    return Color(hex & (0b11111111 << 16), hex & (0b11111111 << 8),
-                 hex & (0b11111111), hex & (0b11111111 << 24));
+    const std::uint32_t mask = 0b11111111;
+    return Color((hex >> 16) & mask, (hex >> 8) & mask, hex & mask, 255);
+  }
+
+  constexpr static Color FromHexAlpha(std::uint32_t hex) {
+    const std::uint32_t mask = 0b11111111;
+    return Color((hex >> 16) & mask, (hex >> 8) & mask, hex & mask,
+                 (hex >> 24) & mask);
   }
 
   std::uint8_t red;
@@ -254,4 +260,4 @@ constexpr Color black{0, 0, 0};
 constexpr Color white{255, 255, 255};
 constexpr Color skyblue = Color::FromHex(0x87ceeb);
 }  // namespace colors
-}  // namespace cru::ui
+}  // namespace cru::platform

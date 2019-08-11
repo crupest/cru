@@ -13,6 +13,7 @@ TextBlock::TextBlock() {
       new TextRenderObject(predefined_resources->text_block_text_brush,
                            predefined_resources->text_block_font,
                            predefined_resources->text_block_selection_brush));
+  render_object_->SetAttachedControl(this);
 }
 
 render::RenderObject* TextBlock::GetRenderObject() const {

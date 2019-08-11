@@ -5,7 +5,10 @@
 namespace cru::ui::controls {
 using render::FlexLayoutRenderObject;
 
-FlexLayout::FlexLayout() { render_object_.reset(new FlexLayoutRenderObject()); }
+FlexLayout::FlexLayout() {
+  render_object_.reset(new FlexLayoutRenderObject());
+  render_object_->SetAttachedControl(this);
+}
 
 render::RenderObject* FlexLayout::GetRenderObject() const {
   return render_object_.get();

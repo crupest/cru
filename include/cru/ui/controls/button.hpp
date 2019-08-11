@@ -1,10 +1,10 @@
 #pragma once
 #include "../content_control.hpp"
 
+#include "../click_detector.hpp"
+#include "../render/border_render_object.hpp"
 #include "cru/platform/graph/brush.hpp"
 #include "cru/platform/native/basic_types.hpp"
-#include "cru/ui/base.hpp"
-#include "cru/ui/render/border_render_object.hpp"
 
 #include <memory>
 
@@ -94,13 +94,11 @@ class Button : public ContentControl {
  protected:
   void OnChildChanged(Control* old_child, Control* new_child) override;
 
-  void OnMouseClickBegin(platform::native::MouseButton button) override;
-  void OnMouseClickEnd(platform::native::MouseButton button) override;
-
   virtual void OnStateChange(ButtonState oldState, ButtonState newState);
 
  private:
   void SetState(ButtonState newState) {
+    if (state_ == newState) return;
     const auto oldState = state_;
     state_ = newState;
     OnStateChange(oldState, newState);
@@ -114,5 +112,7 @@ class Button : public ContentControl {
   MouseButton trigger_button_ = MouseButton::Left;
 
   ButtonBorderStyle border_style_;
+
+  ClickDetector click_detector_;
 };
 }  // namespace cru::ui::controls

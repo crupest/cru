@@ -47,7 +47,7 @@ class ClickDetector : public Object {
 
   // Return a union of buttons being pressed. Return 0 if no button is being
   // pressed.
-  MouseButton IsPressing() const {
+  MouseButton GetPressingButton() const {
     unsigned result = 0;
     if (click_map_.left.has_value()) result |= MouseButton::Left;
     if (click_map_.middle.has_value()) result |= MouseButton::Middle;
@@ -56,6 +56,9 @@ class ClickDetector : public Object {
   }
 
   IEvent<ClickEventArgs>* ClickEvent() { return &event_; }
+
+  IEvent<MouseButton>* ClickBeginEvent() { return &begin_event_; }
+  IEvent<MouseButton>* ClickEndEvent() { return &end_event_; }
 
  private:
   std::optional<Point>& FromButton(MouseButton button) {
@@ -75,6 +78,9 @@ class ClickDetector : public Object {
   Control* control_;
 
   Event<ClickEventArgs> event_;
+
+  Event<MouseButton> begin_event_;
+  Event<MouseButton> end_event_;
 
   std::forward_list<EventRevokerGuard> event_rovoker_guards_;
 

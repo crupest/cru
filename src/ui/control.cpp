@@ -54,6 +54,7 @@ void Control::_TraverseDescendants(
   predicate(control);
   for (auto c : control->GetChildren()) _TraverseDescendants(c, predicate);
 }
+
 bool Control::RequestFocus() {
   auto window = GetWindow();
   if (window == nullptr) return false;
@@ -68,15 +69,21 @@ bool Control::HasFocus() {
   return window->GetFocusControl() == this;
 }
 
+bool Control::CaptureMouse() {
+  return GetWindow()->CaptureMouseFor(this);
+}
+
+bool Control::ReleaseMouse() {
+  return GetWindow()->CaptureMouseFor(nullptr);
+}
+
+bool Control::IsMouseCaptured() {
+  return GetWindow()->GetMouseCaptureControl() == this;
+}
+
 void Control::OnParentChanged(Control* old_parent, Control* new_parent) {}
 
 void Control::OnAttachToWindow(Window* window) {}
 
 void Control::OnDetachToWindow(Window* window) {}
-
-void Control::OnMouseClickBegin(platform::native::MouseButton button) {}
-
-void Control::OnMouseClickEnd(platform::native::MouseButton button) {}
-
-void Control::OnMouseClickCancel(platform::native::MouseButton button) {}
 }  // namespace cru::ui

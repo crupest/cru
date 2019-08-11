@@ -12,8 +12,9 @@ ClickDetector::ClickDetector(Control* control) {
       EventRevokerGuard(control->MouseDownEvent()->Direct()->AddHandler(
           [this, control](event::MouseButtonEventArgs& args) {
             if (!control->CaptureMouse()) return;  // capture failed
-            FromButton(args.GetMouseButton()) =
-                args.GetPoint();  // save mouse down point
+            const auto button = args.GetMouseButton();
+            FromButton(button) = args.GetPoint();  // save mouse down point
+            begin_event_.Raise(button);
           })));
 
   event_rovoker_guards_.push_front(
@@ -25,8 +26,10 @@ ClickDetector::ClickDetector(Control* control) {
             if (down_point.has_value()) {
               event_.Raise(ClickEventArgs(control, down_point.value(),
                                           args.GetPoint(), button));
+              end_event_.Raise(button);
               down_point = std::nullopt;
             }
+            control->ReleaseMouse();
           })));
 }
 }  // namespace cru::ui

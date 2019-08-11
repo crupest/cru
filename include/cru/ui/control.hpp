@@ -62,9 +62,11 @@ class Control : public Object {
  public:
   bool IsMouseOver() const { return is_mouse_over_; }
 
-  bool CaptureMouse();  // TODO
+  bool CaptureMouse();
 
-  bool IsMouseCaptured();  // TODO
+  bool ReleaseMouse();
+
+  bool IsMouseCaptured();
 
   //*************** region: events ***************
  public:
@@ -127,12 +129,6 @@ class Control : public Object {
   virtual void OnParentChanged(Control* old_parent, Control* new_parent);
   virtual void OnAttachToWindow(Window* window);
   virtual void OnDetachToWindow(Window* window);
-
-  //*************** region: additional mouse event ***************
- protected:
-  virtual void OnMouseClickBegin(platform::native::MouseButton button);
-  virtual void OnMouseClickEnd(platform::native::MouseButton button);
-  virtual void OnMouseClickCancel(platform::native::MouseButton button);
 
  private:
   Window* window_ = nullptr;

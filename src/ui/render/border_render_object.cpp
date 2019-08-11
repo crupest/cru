@@ -30,7 +30,7 @@ RenderObject* BorderRenderObject::HitTest(const Point& point) {
   if (const auto child = GetChild()) {
     auto offset = child->GetOffset();
     Point p{point.x - offset.x, point.y - offset.y};
-    const auto result = child->HitTest(point);
+    const auto result = child->HitTest(p);
     if (result != nullptr) {
       return result;
     }

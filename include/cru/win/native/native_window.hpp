@@ -53,6 +53,7 @@ class WinNativeWindow : public NativeWindow {
   bool CaptureMouse() override;
   bool ReleaseMouse() override;
 
+  void Repaint() override;
   graph::Painter* BeginPaint() override;
 
   IEvent<std::nullptr_t>* DestroyEvent() override { return &destroy_event_; }

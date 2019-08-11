@@ -147,6 +147,15 @@ bool WinNativeWindow::ReleaseMouse() {
   return false;
 }
 
+void WinNativeWindow::Repaint() {
+  if (IsValid()) {
+    if (!::InvalidateRect(hwnd_, nullptr, FALSE))
+      throw Win32Error(::GetLastError(), "Failed to invalidate window.");
+    if (!::UpdateWindow(hwnd_))
+      throw Win32Error(::GetLastError(), "Failed to update window.");
+  }
+}
+
 graph::Painter* WinNativeWindow::BeginPaint() {
   return new WindowD2DPainter(this);
 }

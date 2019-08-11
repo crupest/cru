@@ -29,7 +29,7 @@ RenderObject* FlexLayoutRenderObject::HitTest(const Point& point) {
   for (auto i = children.crbegin(); i != children.crend(); ++i) {
     auto offset = (*i)->GetOffset();
     Point p{point.x - offset.x, point.y - offset.y};
-    const auto result = (*i)->HitTest(point);
+    const auto result = (*i)->HitTest(p);
     if (result != nullptr) {
       return result;
     }

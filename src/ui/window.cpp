@@ -7,6 +7,7 @@
 #include "routed_event_dispatch.hpp"
 
 #include <cassert>
+#include <list>
 
 namespace cru::ui {
 namespace {
@@ -54,6 +55,7 @@ Control* FindLowestCommonAncestor(Control* left, Control* right,
           *find_result = in_right;
           return result;
         }
+        ++right_i;
       }
       return result;
     }
@@ -64,6 +66,7 @@ Control* FindLowestCommonAncestor(Control* left, Control* right,
           *find_result = in_left;
           return result;
         }
+        ++left_i;
       }
       return result;
     }
@@ -75,13 +78,16 @@ Control* FindLowestCommonAncestor(Control* left, Control* right,
           *find_result = in_right;
           return result;
         }
+        ++right_i;
       }
       while (left_i != left_list.cend()) {
         if (*left_i == find_control) {
           *find_result = in_left;
           return result;
         }
+        ++left_i;
       }
+      return result;
     }
     ++left_i;
     ++right_i;
@@ -107,9 +113,11 @@ Window::Window(tag_overlapped_constructor)
     : mouse_hover_control_(nullptr),
       focus_control_(this),
       mouse_captured_control_(nullptr) {
+  window_ = this;
   native_window_ =
       platform::native::UiApplication::GetInstance()->CreateWindow(nullptr);
   render_object_.reset(new render::WindowRenderObject(this));
+  render_object_->SetAttachedControl(this);
 
   BindNativeEvent(this, native_window_->DestroyEvent(),
                   &Window::OnNativeDestroy, event_revoker_guards_);
