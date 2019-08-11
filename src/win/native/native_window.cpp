@@ -13,6 +13,10 @@
 #include <windowsx.h>
 
 namespace cru::platform::native::win {
+inline Point PiToDip(const POINT& pi_point) {
+  return Point(PixelToDipX(pi_point.x), PixelToDipY(pi_point.y));
+}
+
 WinNativeWindow::WinNativeWindow(WinUiApplication* application,
                                  std::shared_ptr<WindowClass> window_class,
                                  DWORD window_style, WinNativeWindow* parent) {
@@ -36,8 +40,8 @@ WinNativeWindow::WinNativeWindow(WinUiApplication* application,
 
   window_manager->RegisterWindow(hwnd_, this);
 
-  window_render_target_.reset(
-      new WindowRenderTarget(graph::win::direct::DirectGraphFactory::GetInstance(), hwnd_));
+  window_render_target_.reset(new WindowRenderTarget(
+      graph::win::direct::DirectGraphFactory::GetInstance(), hwnd_));
 }
 
 WinNativeWindow::~WinNativeWindow() {
@@ -70,8 +74,7 @@ Size WinNativeWindow::GetClientSize() {
   if (!IsValid()) return Size{};
 
   const auto pixel_rect = GetClientRectPixel();
-  return Size(PixelToDipX(pixel_rect.right),
-                  PixelToDipY(pixel_rect.bottom));
+  return Size(PixelToDipX(pixel_rect.right), PixelToDipY(pixel_rect.bottom));
 }
 
 void WinNativeWindow::SetClientSize(const Size& size) {
@@ -104,8 +107,7 @@ Rect WinNativeWindow::GetWindowRect() {
     throw Win32Error(::GetLastError(), "Failed to invoke GetWindowRect.");
 
   return Rect::FromVertices(PixelToDipX(rect.left), PixelToDipY(rect.top),
-                                PixelToDipX(rect.right),
-                                PixelToDipY(rect.bottom));
+                            PixelToDipX(rect.right), PixelToDipY(rect.bottom));
 }
 
 void WinNativeWindow::SetWindowRect(const Rect& rect) {
@@ -115,6 +117,34 @@ void WinNativeWindow::SetWindowRect(const Rect& rect) {
                       DipToPixelY(rect.GetBottom()), SWP_NOZORDER))
       throw Win32Error(::GetLastError(), "Failed to invoke SetWindowPos.");
   }
+}
+
+Point WinNativeWindow::GetMousePosition() {
+  if (IsValid()) {
+    POINT p;
+    if (!::GetCursorPos(&p))
+      throw Win32Error(::GetLastError(), "Failed to get cursor position.");
+    if (!::ScreenToClient(hwnd_, &p))
+      throw Win32Error(::GetLastError(), "Failed to call ScreenToClient.");
+    return PiToDip(p);
+  }
+  return Point{};
+}
+
+bool WinNativeWindow::CaptureMouse() {
+  if (IsValid()) {
+    ::SetCapture(hwnd_);
+    return true;
+  }
+  return false;
+}
+
+bool WinNativeWindow::ReleaseMouse() {
+  if (IsValid()) {
+    const auto result = ::ReleaseCapture();
+    return result != 0;
+  }
+  return false;
 }
 
 graph::Painter* WinNativeWindow::BeginPaint() {
@@ -268,8 +298,7 @@ void WinNativeWindow::OnResizeInternal(const int new_width,
                                        const int new_height) {
   if (!(new_width == 0 && new_height == 0)) {
     window_render_target_->ResizeBuffer(new_width, new_height);
-    resize_event_.Raise(
-        Size{PixelToDipX(new_width), PixelToDipY(new_height)});
+    resize_event_.Raise(Size{PixelToDipX(new_width), PixelToDipY(new_height)});
   }
 }
 
@@ -281,10 +310,6 @@ void WinNativeWindow::OnSetFocusInternal() {
 void WinNativeWindow::OnKillFocusInternal() {
   has_focus_ = false;
   focus_event_.Raise(false);
-}
-
-inline Point PiToDip(const POINT& pi_point) {
-  return Point(PixelToDipX(pi_point.x), PixelToDipY(pi_point.y));
 }
 
 void WinNativeWindow::OnMouseMoveInternal(const POINT point) {

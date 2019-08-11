@@ -19,7 +19,20 @@ std::list<Control*> GetAncestorList(Control* control) {
   return l;
 }
 
-Control* FindLowestCommonAncestor(Control* left, Control* right) {
+constexpr int in_neither = 0;
+constexpr int in_left = 1;
+constexpr int in_right = 2;
+
+// if find_control is not nullptr, then find_result will be set as where the
+// find_control is located. in_neither means mouse hover state of it is not
+// changed. in_left means mouse move out it. in_right means mouse move in it.
+// This is useful for mouse capture.
+Control* FindLowestCommonAncestor(Control* left, Control* right,
+                                  Control* find_control, int* find_result) {
+  if (find_control) {
+    *find_result = in_neither;
+  }
+
   if (left == nullptr || right == nullptr) return nullptr;
 
   auto&& left_list = GetAncestorList(left);
@@ -32,10 +45,44 @@ Control* FindLowestCommonAncestor(Control* left, Control* right) {
   // other)
   auto left_i = left_list.cbegin();
   auto right_i = right_list.cbegin();
+
   while (true) {
-    if (left_i == left_list.cend()) return *(--left_i);
-    if (right_i == right_list.cend()) return *(--right_i);
-    if (*left_i != *right_i) return *(--left_i);
+    if (left_i == left_list.cend()) {
+      Control* result = *(--left_i);
+      while (right_i != right_list.cend()) {
+        if (*right_i == find_control) {
+          *find_result = in_right;
+          return result;
+        }
+      }
+      return result;
+    }
+    if (right_i == right_list.cend()) {
+      Control* result = *(--right_i);
+      while (left_i != left_list.cend()) {
+        if (*left_i == find_control) {
+          *find_result = in_left;
+          return result;
+        }
+      }
+      return result;
+    }
+    if (*left_i != *right_i) {
+      Control* result = *(--left_i);
+      ++left_i;
+      while (right_i != right_list.cend()) {
+        if (*right_i == find_control) {
+          *find_result = in_right;
+          return result;
+        }
+      }
+      while (left_i != left_list.cend()) {
+        if (*left_i == find_control) {
+          *find_result = in_left;
+          return result;
+        }
+      }
+    }
     ++left_i;
     ++right_i;
   }
@@ -57,7 +104,9 @@ void BindNativeEvent(Window* window, IEvent<T>* event,
 }  // namespace
 
 Window::Window(tag_overlapped_constructor)
-    : mouse_hover_control_(nullptr), focus_control_(this) {
+    : mouse_hover_control_(nullptr),
+      focus_control_(this),
+      mouse_captured_control_(nullptr) {
   native_window_ =
       platform::native::UiApplication::GetInstance()->CreateWindow(nullptr);
   render_object_.reset(new render::WindowRenderObject(this));
@@ -127,6 +176,25 @@ bool Window::RequestFocusFor(Control* control) {
 
 Control* Window::GetFocusControl() { return focus_control_; }
 
+bool Window::CaptureMouseFor(Control* control) {
+  if (control == nullptr) {
+    if (mouse_captured_control_) {
+      mouse_captured_control_ = nullptr;
+      OnNativeMouseMove(GetNativeWindow()->GetMousePosition());
+    }
+    return true;
+  }
+
+  if (mouse_captured_control_) return false;
+  mouse_captured_control_ = control;
+  const auto c =
+      FindLowestCommonAncestor(control, mouse_hover_control_, nullptr, nullptr);
+  DispatchEvent(mouse_hover_control_, &Control::MouseLeaveEvent, c);
+  return true;
+}
+
+Control* Window::GetMouseCaptureControl() { return mouse_captured_control_; }
+
 void Window::OnChildChanged(Control* old_child, Control* new_child) {
   if (old_child) render_object_->RemoveChild(0);
   if (new_child) render_object_->AddChild(new_child->GetRenderObject(), 0);
@@ -176,14 +244,16 @@ void Window::OnNativeMouseMove(const Point& point) {
 
 void Window::OnNativeMouseDown(
     const platform::native::NativeMouseButtonEventArgs& args) {
-  Control* control = HitTest(args.point);
+  Control* control =
+      mouse_captured_control_ ? mouse_captured_control_ : HitTest(args.point);
   DispatchEvent(control, &Control::MouseDownEvent, nullptr, args.point,
                 args.button);
 }
 
 void Window::OnNativeMouseUp(
     const platform::native::NativeMouseButtonEventArgs& args) {
-  Control* control = HitTest(args.point);
+  Control* control =
+      mouse_captured_control_ ? mouse_captured_control_ : HitTest(args.point);
   DispatchEvent(control, &Control::MouseUpEvent, nullptr, args.point,
                 args.button);
 }
@@ -201,12 +271,17 @@ void Window::DispatchMouseHoverControlChangeEvent(Control* old_control,
                                                   const Point& point) {
   if (new_control != old_control)  // if the mouse-hover-on control changed
   {
-    const auto lowest_common_ancestor =
-        FindLowestCommonAncestor(old_control, new_control);
-    if (old_control != nullptr)  // if last mouse-hover-on control exists
+    int find_result;
+    const auto lowest_common_ancestor = FindLowestCommonAncestor(
+        old_control, new_control, mouse_captured_control_, &find_result);
+    if (old_control != nullptr &&  // if last mouse-hover-on control exists
+        (mouse_captured_control_ == nullptr ||  // and if mouse is not captured
+         find_result == in_left))  // or mouse is captured andc mouse is move
+                                   // out of capturing control
       DispatchEvent(old_control, &Control::MouseLeaveEvent,
                     lowest_common_ancestor);  // dispatch mouse leave event.
-    if (new_control != nullptr) {
+    if (new_control != nullptr &&
+        (mouse_captured_control_ == nullptr || find_result == in_right)) {
       DispatchEvent(new_control, &Control::MouseEnterEvent,
                     lowest_common_ancestor,
                     point);  // dispatch mouse enter event.

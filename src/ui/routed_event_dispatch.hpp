@@ -1,6 +1,8 @@
 #pragma once
 #include "cru/ui/control.hpp"
 
+#include <list>
+
 namespace cru::ui {
 // Dispatch the event.
 //

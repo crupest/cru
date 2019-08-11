@@ -48,6 +48,11 @@ class WinNativeWindow : public NativeWindow {
   // The lefttop of the rect is relative to screen lefttop.
   void SetWindowRect(const Rect& rect) override;
 
+  Point GetMousePosition() override;
+
+  bool CaptureMouse() override;
+  bool ReleaseMouse() override;
+
   graph::Painter* BeginPaint() override;
 
   IEvent<std::nullptr_t>* DestroyEvent() override { return &destroy_event_; }

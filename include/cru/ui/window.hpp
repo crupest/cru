@@ -60,6 +60,14 @@ class Window final : public ContentControl, public SelfResolvable<Window> {
   // Get the control that has focus.
   Control* GetFocusControl();
 
+  //*************** region: focus ***************
+
+  // Pass nullptr to release capture.
+  bool CaptureMouseFor(Control* control);
+
+  // Return null if not captured.
+  Control* GetMouseCaptureControl();
+
  protected:
   void OnChildChanged(Control* old_child, Control* new_child) override;
 
@@ -86,6 +94,7 @@ class Window final : public ContentControl, public SelfResolvable<Window> {
 
   //*************** region: event dispatcher helper ***************
 
+  // dispatch enter is useful when mouse is captured.
   void DispatchMouseHoverControlChangeEvent(Control* old_control,
                                             Control* new_control,
                                             const Point& point);
@@ -99,6 +108,8 @@ class Window final : public ContentControl, public SelfResolvable<Window> {
   Control* mouse_hover_control_;
 
   Control* focus_control_;  // "focus_control_" can't be nullptr
+
+  Control* mouse_captured_control_;
 
   bool need_layout_ = false;
 };

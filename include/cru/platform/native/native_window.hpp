@@ -56,6 +56,12 @@ class NativeWindow : public NativeResource {
   // The lefttop of the rect is relative to screen lefttop.
   virtual void SetWindowRect(const Rect& rect) = 0;
 
+  // Relative to client lefttop.
+  virtual Point GetMousePosition() = 0;
+
+  virtual bool CaptureMouse() = 0;
+  virtual bool ReleaseMouse() = 0;
+
   virtual graph::Painter* BeginPaint() = 0;
 
   virtual IEvent<std::nullptr_t>* DestroyEvent() = 0;
