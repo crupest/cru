@@ -9,74 +9,20 @@
 #include <cassert>
 
 namespace cru::ui {
+Control::Control() {
+  MouseEnterEvent()->Direct()->AddHandler(
+      [this](event::MouseEventArgs&) { this->is_mouse_over_ = true; });
+
+  MouseLeaveEvent()->Direct()->AddHandler(
+      [this](event::MouseEventArgs&) { this->is_mouse_over_ = false; });
+}
+
 void Control::_SetParent(Control* parent) {
   const auto old_parent = GetParent();
   parent_ = parent;
   const auto new_parent = GetParent();
   if (old_parent != new_parent) OnParentChanged(old_parent, new_parent);
-
-  MouseDownEvent()->Direct()->AddHandler(
-      [this](event::MouseButtonEventArgs& args) {
-        switch (args.GetMouseButton()) {
-          case MouseButton::Left:
-            click_map_.left = true;
-            OnMouseClickBegin(MouseButton::Left);
-            break;
-          case MouseButton::Middle:
-            click_map_.middle = true;
-            OnMouseClickBegin(MouseButton::Middle);
-            break;
-          case MouseButton::Right:
-            click_map_.right = true;
-            OnMouseClickBegin(MouseButton::Right);
-            break;
-        }
-      });
-
-  MouseEnterEvent()->Direct()->AddHandler([this](event::MouseEventArgs&) {
-    this->is_mouse_over_ = true;
-  });
-
-  MouseLeaveEvent()->Direct()->AddHandler([this](event::MouseEventArgs&) {
-    this->is_mouse_over_ = false;
-    if (click_map_.left) {
-      OnMouseClickCancel(MouseButton::Left);
-    }
-    if (click_map_.middle) {
-      OnMouseClickCancel(MouseButton::Middle);
-    }
-    if (click_map_.right) {
-      OnMouseClickCancel(MouseButton::Right);
-    }
-    click_map_.left = click_map_.middle = click_map_.right = false;
-  });
-
-  MouseUpEvent()->Direct()->AddHandler([this](event::MouseButtonEventArgs& args) {
-    switch (args.GetMouseButton()) {
-      case MouseButton::Left:
-        if (click_map_.left) {
-          click_map_.left = false;
-          OnMouseClickEnd(MouseButton::Left);
-          DispatchEvent(this, &Control::MouseClickEvent, nullptr, args.GetPoint(), args.GetMouseButton());
-        }
-        break;
-      case MouseButton::Middle:
-        if (click_map_.middle) {
-          click_map_.middle = false;
-          OnMouseClickEnd(MouseButton::Middle);
-          DispatchEvent(this, &Control::MouseClickEvent, nullptr, args.GetPoint(), args.GetMouseButton());
-        }
-        break;
-      case MouseButton::Right:
-        if (click_map_.right) {
-          click_map_.right = false;
-          OnMouseClickEnd(MouseButton::Right);
-          DispatchEvent(this, &Control::MouseClickEvent, nullptr, args.GetPoint(), args.GetMouseButton());
-        }
-        break;
-    }
-  });
-}  // namespace cru::ui
+}
 
 void Control::_SetDescendantWindow(Window* window) {
   if (window == nullptr && window_ == nullptr) return;

@@ -35,8 +35,8 @@ class DWriteTextLayout : public TextLayout,
   std::wstring GetText() override;
   void SetText(std::wstring new_text) override;
 
-  std::shared_ptr<Font> GetFont();
-  void SetFont(std::shared_ptr<Font> font);
+  std::shared_ptr<Font> GetFont() override;
+  void SetFont(std::shared_ptr<Font> font) override;
 
   void SetMaxWidth(float max_width) override;
   void SetMaxHeight(float max_height) override;

@@ -3,6 +3,7 @@ file(GLOB CRU_UI_INCLUDE_DIR ${CRU_INCLUDE_DIR}/cru/ui)
 add_library(cru_ui STATIC
 	routed_event_dispatch.hpp
 
+	click_detector.cpp
     content_control.cpp
     control.cpp
     layout_control.cpp
@@ -20,6 +21,7 @@ add_library(cru_ui STATIC
 )
 target_sources(cru_ui PUBLIC
 	${CRU_UI_INCLUDE_DIR}/base.hpp
+	${CRU_UI_INCLUDE_DIR}/click_detector.hpp
 	${CRU_UI_INCLUDE_DIR}/content_control.hpp
 	${CRU_UI_INCLUDE_DIR}/control.hpp
 	${CRU_UI_INCLUDE_DIR}/layout_control.hpp

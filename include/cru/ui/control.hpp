@@ -18,7 +18,7 @@ class Control : public Object {
   friend class Window;
 
  protected:
-  Control() = default;
+  Control();
 
  public:
   Control(const Control& other) = delete;
@@ -58,9 +58,13 @@ class Control : public Object {
 
   bool HasFocus();
 
-  //*************** region: focus ***************
+  //*************** region: mouse ***************
  public:
   bool IsMouseOver() const { return is_mouse_over_; }
+
+  bool CaptureMouse();  // TODO
+
+  bool IsMouseCaptured();  // TODO
 
   //*************** region: events ***************
  public:
@@ -83,11 +87,6 @@ class Control : public Object {
   // Raised when a mouse button is released in the control.
   event::RoutedEvent<event::MouseButtonEventArgs>* MouseUpEvent() {
     return &mouse_up_event_;
-  }
-  // Raised when a mouse button is pressed in the control and released in the
-  // control with mouse not leaving it between two operations.
-  event::RoutedEvent<event::MouseButtonEventArgs>* MouseClickEvent() {
-    return &mouse_click_event_;
   }
   event::RoutedEvent<event::MouseWheelEventArgs>* MouseWheelEvent() {
     return &mouse_wheel_event_;
@@ -114,7 +113,6 @@ class Control : public Object {
   event::RoutedEvent<event::MouseEventArgs> mouse_move_event_;
   event::RoutedEvent<event::MouseButtonEventArgs> mouse_down_event_;
   event::RoutedEvent<event::MouseButtonEventArgs> mouse_up_event_;
-  event::RoutedEvent<event::MouseButtonEventArgs> mouse_click_event_;
   event::RoutedEvent<event::MouseWheelEventArgs> mouse_wheel_event_;
 
   event::RoutedEvent<event::KeyEventArgs> key_down_event_;
