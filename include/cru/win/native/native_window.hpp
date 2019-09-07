@@ -56,6 +56,8 @@ class WinNativeWindow : public NativeWindow {
   void Repaint() override;
   graph::Painter* BeginPaint() override;
 
+  void SetCursor(std::shared_ptr<Cursor> cursor) override;
+
   IEvent<std::nullptr_t>* DestroyEvent() override { return &destroy_event_; }
   IEvent<std::nullptr_t>* PaintEvent() override { return &paint_event_; }
   IEvent<Size>* ResizeEvent() override { return &resize_event_; }

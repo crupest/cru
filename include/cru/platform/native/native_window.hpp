@@ -1,9 +1,11 @@
 #pragma once
 #include "../native_resource.hpp"
 
+#include "cru/common/event.hpp"
+
 #include "../graphic_base.hpp"
 #include "basic_types.hpp"
-#include "cru/common/event.hpp"
+#include "cursor.hpp"
 #include "native_event.hpp"
 
 namespace cru::platform::graph {
@@ -61,6 +63,8 @@ class NativeWindow : public NativeResource {
 
   virtual bool CaptureMouse() = 0;
   virtual bool ReleaseMouse() = 0;
+
+  virtual void SetCursor(std::shared_ptr<Cursor> cursor) = 0;
 
   virtual void Repaint() = 0;
   virtual graph::Painter* BeginPaint() = 0;

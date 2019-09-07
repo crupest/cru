@@ -1,6 +1,9 @@
 #include "cru/win/native/native_window.hpp"
 
+#include "cru/common/format.hpp"
+#include "cru/platform/debug.hpp"
 #include "cru/win/graph/direct/graph_factory.hpp"
+#include "cru/win/native/cursor.hpp"
 #include "cru/win/native/exception.hpp"
 #include "cru/win/native/ui_application.hpp"
 #include "cru/win/native/window_class.hpp"
@@ -158,6 +161,52 @@ void WinNativeWindow::Repaint() {
 
 graph::Painter* WinNativeWindow::BeginPaint() {
   return new WindowD2DPainter(this);
+}
+
+void WinNativeWindow::SetCursor(std::shared_ptr<Cursor> cursor) {
+  if (!IsValid()) return;
+  assert(cursor);
+  WinCursor* c = static_cast<WinCursor*>(cursor.get());
+
+  auto outputError = [] {
+    DebugMessage(util::Format(util::Format(
+        L"Failed to set cursor. Last error code: {}.", ::GetLastError())));
+  };
+
+  if (!::SetWindowLongPtrW(hwnd_, GCLP_HCURSOR,
+                           reinterpret_cast<LONG_PTR>(c->GetHandle()))) {
+    outputError();
+    return;
+  }
+
+  ::POINT point;
+  if (!::GetCursorPos(&point)) {
+    outputError();
+    return;
+  }
+
+  ::RECT rect;
+  if (!::GetClientRect(hwnd_, &rect)) {
+    outputError();
+    return;
+  }
+
+  ::POINT lefttop{rect.left, rect.top};
+  ::POINT rightbottom{rect.right, rect.bottom};
+  if (!::ClientToScreen(hwnd_, &lefttop)) {
+    outputError();
+    return;
+  }
+
+  if (!::ClientToScreen(hwnd_, &rightbottom)) {
+    outputError();
+    return;
+  }
+
+  if (point.x >= lefttop.x && point.y >= lefttop.y &&
+      point.x <= rightbottom.x && point.y <= rightbottom.y) {
+    ::SetCursor(c->GetHandle());
+  }
 }
 
 bool WinNativeWindow::HandleNativeWindowMessage(HWND hwnd, UINT msg,
