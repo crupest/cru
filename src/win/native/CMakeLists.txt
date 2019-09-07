@@ -7,6 +7,7 @@ add_library(cru_win_native STATIC
 	window_d2d_painter.hpp
 	window_manager.hpp
 
+	cursor.cpp
 	god_window.cpp
 	native_window.cpp
 	timer.cpp
@@ -17,6 +18,7 @@ add_library(cru_win_native STATIC
 	window_render_target.cpp
 )
 target_sources(cru_win_native PUBLIC
+	${CRU_WIN_NATIVE_INCLUDE_DIR}/cursor.hpp
 	${CRU_WIN_NATIVE_INCLUDE_DIR}/exception.hpp
 	${CRU_WIN_NATIVE_INCLUDE_DIR}/god_window.hpp
 	${CRU_WIN_NATIVE_INCLUDE_DIR}/native_window.hpp

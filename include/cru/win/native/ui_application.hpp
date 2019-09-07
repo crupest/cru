@@ -1,9 +1,10 @@
 #pragma once
 #include "../win_pre_config.hpp"
 
-#include "platform_id.hpp"
-
 #include "cru/platform/native/ui_applicaition.hpp"
+
+#include "platform_id.hpp"
+#include "cursor.hpp"
 
 #include <memory>
 
@@ -46,6 +47,8 @@ class WinUiApplication : public UiApplication {
   std::vector<NativeWindow*> GetAllWindow() override;
   NativeWindow* CreateWindow(NativeWindow* parent) override;
 
+  WinCursorManager* GetCursorManager() override;
+
   bool IsAutoDelete() const { return auto_delete_; }
   void SetAutoDelete(bool value) { auto_delete_ = value; }
 
@@ -63,6 +66,8 @@ class WinUiApplication : public UiApplication {
   std::shared_ptr<GodWindow> god_window_;
   std::shared_ptr<TimerManager> timer_manager_;
   std::shared_ptr<WindowManager> window_manager_;
+
+  std::unique_ptr<WinCursorManager> cursor_manager_;
 
   std::vector<std::function<void()>> quit_handlers_;
 };

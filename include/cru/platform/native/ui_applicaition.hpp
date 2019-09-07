@@ -1,6 +1,8 @@
 #pragma once
 #include "../native_resource.hpp"
 
+#include "cursor.hpp"
+
 #include <chrono>
 #include <functional>
 #include <vector>
@@ -50,5 +52,7 @@ class UiApplication : public NativeResource {
 
   virtual std::vector<NativeWindow*> GetAllWindow() = 0;
   virtual NativeWindow* CreateWindow(NativeWindow* parent) = 0;
+
+  virtual CursorManager* GetCursorManager() = 0;
 };
 }  // namespace cru::platform::native

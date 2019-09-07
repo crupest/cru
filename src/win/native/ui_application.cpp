@@ -47,6 +47,8 @@ WinUiApplication::WinUiApplication(HINSTANCE h_instance)
   god_window_ = std::make_shared<GodWindow>(this);
   timer_manager_ = std::make_shared<TimerManager>(god_window_.get());
   window_manager_ = std::make_shared<WindowManager>(this);
+
+  cursor_manager_.reset(new WinCursorManager());
 }
 
 WinUiApplication::~WinUiApplication() { instance = nullptr; }
@@ -117,5 +119,9 @@ NativeWindow* WinUiApplication::CreateWindow(NativeWindow* parent) {
   }
   return new WinNativeWindow(this, window_manager_->GetGeneralWindowClass(),
                              WS_OVERLAPPEDWINDOW, p);
+}
+
+WinCursorManager* WinUiApplication::GetCursorManager() {
+  return cursor_manager_.get();
 }
 }  // namespace cru::platform::native::win
