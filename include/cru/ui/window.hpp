@@ -18,6 +18,8 @@ class WindowRenderObject;
 }
 
 class Window final : public ContentControl, public SelfResolvable<Window> {
+  friend class Control;
+
  public:
   static constexpr auto control_type = L"Window";
 
@@ -45,6 +47,10 @@ class Window final : public ContentControl, public SelfResolvable<Window> {
     return native_window_;
   }
 
+  // Get current control that mouse hovers on. This ignores the mouse-capture
+  // control. Even when mouse is captured by another control, this function
+  // return the control under cursor. You can use `GetMouseCaptureControl` to
+  // get more info.
   Control* GetMouseHoverControl() const { return mouse_hover_control_; }
 
   //*************** region: layout ***************
@@ -62,7 +68,16 @@ class Window final : public ContentControl, public SelfResolvable<Window> {
 
   //*************** region: focus ***************
 
-  // Pass nullptr to release capture.
+  // Pass nullptr to release capture. If mouse is already capture by a control,
+  // this capture will fail and return false. If control is identical to the
+  // capturing control, capture is not changed and this function will return
+  // true.
+  //
+  // When capturing control changes,
+  // appropriate event will be sent. If mouse is not on the capturing control
+  // and capture is released, mouse enter event will be sent to the mouse-hover
+  // control. If mouse is not on the capturing control and capture is set, mouse
+  // leave event will be sent to the mouse-hover control.
   bool CaptureMouseFor(Control* control);
 
   // Return null if not captured.
@@ -94,10 +109,12 @@ class Window final : public ContentControl, public SelfResolvable<Window> {
 
   //*************** region: event dispatcher helper ***************
 
-  // dispatch enter is useful when mouse is captured.
   void DispatchMouseHoverControlChangeEvent(Control* old_control,
                                             Control* new_control,
-                                            const Point& point);
+                                            const Point& point, bool no_leave,
+                                            bool no_enter);
+
+  void UpdateCursor();
 
  private:
   platform::native::NativeWindow* native_window_;

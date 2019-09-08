@@ -173,7 +173,7 @@ void WinNativeWindow::SetCursor(std::shared_ptr<Cursor> cursor) {
         L"Failed to set cursor. Last error code: {}.", ::GetLastError())));
   };
 
-  if (!::SetWindowLongPtrW(hwnd_, GCLP_HCURSOR,
+  if (!::SetClassLongPtrW(hwnd_, GCLP_HCURSOR,
                            reinterpret_cast<LONG_PTR>(c->GetHandle()))) {
     outputError();
     return;

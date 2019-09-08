@@ -3,8 +3,10 @@
 #include "cru/common/base.hpp"
 
 #include "cru/platform/native/basic_types.hpp"
+#include "cru/platform/native/cursor.hpp"
 #include "event/ui_event.hpp"
 
+#include <memory>
 #include <string_view>
 #include <vector>
 
@@ -68,13 +70,31 @@ class Control : public Object {
 
   bool IsMouseCaptured();
 
+  //*************** region: cursor ***************
+  // Cursor is inherited from parent recursively if not set.
+ public:
+  // null for not set
+  std::shared_ptr<platform::native::Cursor> GetCursor();
+
+  // will not return nullptr
+  std::shared_ptr<platform::native::Cursor> GetInheritedCursor();
+
+  // null to unset
+  void SetCursor(std::shared_ptr<platform::native::Cursor> cursor);
+
   //*************** region: events ***************
  public:
-  // Raised when mouse enter the control.
+  // Raised when mouse enter the control. Even when the control itself captures
+  // the mouse, this event is raised as regular. But if mouse is captured by
+  // another control, the control will not receive any mouse enter event. You
+  // can use `IsMouseCaptured` to get more info.
   event::RoutedEvent<event::MouseEventArgs>* MouseEnterEvent() {
     return &mouse_enter_event_;
   }
-  // Raised when mouse is leave the control.
+  // Raised when mouse is leave the control. Even when the control itself
+  // captures the mouse, this event is raised as regular. But if mouse is
+  // captured by another control, the control will not receive any mouse leave
+  // event. You can use `IsMouseCaptured` to get more info.
   event::RoutedEvent<event::MouseEventArgs>* MouseLeaveEvent() {
     return &mouse_leave_event_;
   }
@@ -142,5 +162,7 @@ class Control : public Object {
     bool middle;
     bool right;
   } click_map_;
+
+  std::shared_ptr<platform::native::Cursor> cursor_ = nullptr;
 };
 }  // namespace cru::ui

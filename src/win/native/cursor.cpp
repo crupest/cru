@@ -25,7 +25,7 @@ WinCursor::~WinCursor() {
 
 namespace {
 WinCursor* LoadWinCursor(const wchar_t* name) {
-  const auto handle = ::LoadCursorW(NULL, name);
+  const auto handle = static_cast<HCURSOR>(::LoadImageW(NULL, name, IMAGE_CURSOR, SM_CYCURSOR, SM_CYCURSOR, LR_SHARED));
   if (handle == NULL) {
     throw Win32Error(::GetLastError(), "Failed to get system cursor.");
   }

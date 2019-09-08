@@ -3,12 +3,17 @@
 
 #include "cru/platform/graph/brush.hpp"
 #include "cru/platform/graph/graph_factory.hpp"
+#include "cru/platform/native/cursor.hpp"
 #include "cru/platform/native/native_window.hpp"
+#include "cru/platform/native/ui_applicaition.hpp"
 #include "cru/ui/render/border_render_object.hpp"
 #include "cru/ui/ui_manager.hpp"
 #include "cru/ui/window.hpp"
 
 namespace cru::ui::controls {
+using platform::native::SystemCursor;
+using platform::native::UiApplication;
+
 Button::Button() : click_detector_(this) {
   // const auto predefined_resource =
   //    UiManager::GetInstance()->GetPredefineResources();
@@ -39,10 +44,15 @@ Button::Button() : click_detector_(this) {
     } else {
       SetState(ButtonState::Hover);
     }
+    SetCursor(UiApplication::GetInstance()->GetCursorManager()->GetSystemCursor(
+        SystemCursor::Hand));
   });
 
-  MouseLeaveEvent()->Direct()->AddHandler(
-      [this](event::MouseEventArgs& args) { SetState(ButtonState::Normal); });
+  MouseLeaveEvent()->Direct()->AddHandler([this](event::MouseEventArgs& args) {
+    SetState(ButtonState::Normal);
+    SetCursor(UiApplication::GetInstance()->GetCursorManager()->GetSystemCursor(
+        SystemCursor::Arrow));
+  });
 
   click_detector_.ClickBeginEvent()->AddHandler([this](MouseButton button) {
     if (button & trigger_button_) {
