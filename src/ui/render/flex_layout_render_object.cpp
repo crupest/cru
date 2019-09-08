@@ -1,6 +1,5 @@
 #include "cru/ui/render/flex_layout_render_object.hpp"
 
-#include "cru/platform/debug.hpp"
 #include "cru/platform/graph/util/painter_util.hpp"
 
 #include <algorithm>

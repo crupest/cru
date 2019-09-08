@@ -1,6 +1,6 @@
 #include "cru/ui/render/border_render_object.hpp"
 
-#include "cru/platform/debug.hpp"
+#include "cru/common/logger.hpp"
 #include "cru/platform/graph/geometry.hpp"
 #include "cru/platform/graph/graph_factory.hpp"
 #include "cru/platform/graph/util/painter_util.hpp"
@@ -75,13 +75,13 @@ void BorderRenderObject::OnMeasureCore(const Size& available_size) {
 
   auto coerced_margin_border_padding_size = margin_border_padding_size;
   if (coerced_margin_border_padding_size.width > available_size.width) {
-    platform::DebugMessage(
+    log::Warn(
         L"Measure: horizontal length of padding, border and margin is bigger "
         L"than available length.");
     coerced_margin_border_padding_size.width = available_size.width;
   }
   if (coerced_margin_border_padding_size.height > available_size.height) {
-    platform::DebugMessage(
+    log::Warn(
         L"Measure: vertical length of padding, border and margin is bigger "
         L"than available length.");
     coerced_margin_border_padding_size.height = available_size.height;
@@ -113,13 +113,13 @@ void BorderRenderObject::OnLayoutCore(const Rect& rect) {
   auto coerced_content_available_size = content_available_size;
 
   if (coerced_content_available_size.width < 0) {
-    platform::DebugMessage(
+    log::Warn(
         L"Layout: horizontal length of padding, border and margin is bigger "
         L"than available length.");
     coerced_content_available_size.width = 0;
   }
   if (coerced_content_available_size.height < 0) {
-    platform::DebugMessage(
+    log::Warn(
         L"Layout: vertical length of padding, border and margin is bigger "
         L"than available length.");
     coerced_content_available_size.height = 0;

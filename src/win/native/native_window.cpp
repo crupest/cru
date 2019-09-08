@@ -1,7 +1,7 @@
 #include "cru/win/native/native_window.hpp"
 
 #include "cru/common/format.hpp"
-#include "cru/platform/debug.hpp"
+#include "cru/common/logger.hpp"
 #include "cru/win/graph/direct/graph_factory.hpp"
 #include "cru/win/native/cursor.hpp"
 #include "cru/win/native/exception.hpp"
@@ -169,12 +169,11 @@ void WinNativeWindow::SetCursor(std::shared_ptr<Cursor> cursor) {
   WinCursor* c = static_cast<WinCursor*>(cursor.get());
 
   auto outputError = [] {
-    DebugMessage(util::Format(util::Format(
-        L"Failed to set cursor. Last error code: {}.", ::GetLastError())));
+    log::Debug(L"Failed to set cursor. Last error code: {}.", ::GetLastError());
   };
 
   if (!::SetClassLongPtrW(hwnd_, GCLP_HCURSOR,
-                           reinterpret_cast<LONG_PTR>(c->GetHandle()))) {
+                          reinterpret_cast<LONG_PTR>(c->GetHandle()))) {
     outputError();
     return;
   }

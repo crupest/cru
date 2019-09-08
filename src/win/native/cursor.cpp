@@ -1,7 +1,7 @@
 #include "cru/win/native/cursor.hpp"
 
 #include "cru/common/format.hpp"
-#include "cru/platform/debug.hpp"
+#include "cru/common/logger.hpp"
 #include "cru/win/native/exception.hpp"
 
 #include <stdexcept>
@@ -15,17 +15,17 @@ WinCursor::WinCursor(HCURSOR handle, bool auto_delete) {
 WinCursor::~WinCursor() {
   if (auto_delete_) {
     if (!::DestroyCursor(handle_)) {
-      DebugMessage(
-          util::Format(L"Failed to destroy a cursor. Last error code: {}",
-                       ::GetLastError()));  // This is not a fetal error but
-                                            // might still need notice.
+      // This is not a fetal error but might still need notice.
+      log::Warn(L"Failed to destroy a cursor. Last error code: {}",
+                ::GetLastError());
     }
   }
 }
 
 namespace {
 WinCursor* LoadWinCursor(const wchar_t* name) {
-  const auto handle = static_cast<HCURSOR>(::LoadImageW(NULL, name, IMAGE_CURSOR, SM_CYCURSOR, SM_CYCURSOR, LR_SHARED));
+  const auto handle = static_cast<HCURSOR>(::LoadImageW(
+      NULL, name, IMAGE_CURSOR, SM_CYCURSOR, SM_CYCURSOR, LR_SHARED));
   if (handle == NULL) {
     throw Win32Error(::GetLastError(), "Failed to get system cursor.");
   }

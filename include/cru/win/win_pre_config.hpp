@@ -1,3 +1,5 @@
+#pragma once
+
 #include "cru/common/pre_config.hpp"
 
 #define NOMINMAX

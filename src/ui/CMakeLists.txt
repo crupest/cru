@@ -1,4 +1,4 @@
-file(GLOB CRU_UI_INCLUDE_DIR ${CRU_INCLUDE_DIR}/cru/ui)
+set(CRU_UI_INCLUDE_DIR ${CRU_INCLUDE_DIR}/cru/ui)
 
 add_library(cru_ui STATIC
 	routed_event_dispatch.hpp

@@ -1,5 +1,7 @@
 #include "cru/win/native/ui_application.hpp"
 
+#include "../debug_logger.hpp"
+#include "cru/common/logger.hpp"
 #include "cru/win/graph/direct/graph_factory.hpp"
 #include "cru/win/native/exception.hpp"
 #include "cru/win/native/god_window.hpp"
@@ -37,6 +39,9 @@ WinUiApplication* WinUiApplication::GetInstance() { return instance; }
 WinUiApplication::WinUiApplication(HINSTANCE h_instance)
     : h_instance_(h_instance) {
   assert(instance == nullptr);
+
+  log::Logger::GetInstance()->AddSource(
+      new ::cru::platform::win::WinDebugLoggerSource());
 
   if (!::IsWindows8OrGreater())
     throw std::runtime_error("Must run on Windows 8 or later.");

@@ -1,18 +1,8 @@
-set(CRU_BASE_INCLUDE_DIR ${CRU_INCLUDE_DIR}/cru/common)
-add_library(cru_base INTERFACE)
-target_sources(cru_base INTERFACE
-	${CRU_BASE_INCLUDE_DIR}/base.hpp
-	${CRU_BASE_INCLUDE_DIR}/event.hpp
-	${CRU_BASE_INCLUDE_DIR}/format.hpp
-	${CRU_BASE_INCLUDE_DIR}/pre_config.hpp
-	${CRU_BASE_INCLUDE_DIR}/self_resolvable.hpp
-)
-target_include_directories(cru_base INTERFACE ${CRU_INCLUDE_DIR})
+add_subdirectory(common)
 
 set(CRU_PLATFORM_BASE_INCLUDE_DIR ${CRU_INCLUDE_DIR}/cru/platform)
 add_library(cru_platform_base INTERFACE)
 target_sources(cru_platform_base INTERFACE
-	${CRU_PLATFORM_BASE_INCLUDE_DIR}/debug.hpp
 	${CRU_PLATFORM_BASE_INCLUDE_DIR}/exception.hpp
 	${CRU_PLATFORM_BASE_INCLUDE_DIR}/graphic_base.hpp
 	${CRU_PLATFORM_BASE_INCLUDE_DIR}/heap_debug.hpp
