@@ -56,7 +56,9 @@ class Logger : public Object {
 
   template <typename... TArgs>
   void Debug(const std::wstring_view& format, TArgs&&... args) {
+#ifdef CRU_DEBUG
     Log(LogLevel::Debug, util::Format(format, std::forward<TArgs>(args)...));
+#endif
   }
 
   template <typename... TArgs>
@@ -80,8 +82,10 @@ class Logger : public Object {
 
 template <typename... TArgs>
 void Debug(const std::wstring_view& format, TArgs&&... args) {
+#ifdef CRU_DEBUG
   Logger::GetInstance()->Log(
       LogLevel::Debug, util::Format(format, std::forward<TArgs>(args)...));
+#endif
 }
 
 template <typename... TArgs>
@@ -101,4 +105,4 @@ void Error(const std::wstring_view& format, TArgs&&... args) {
   Logger::GetInstance()->Log(
       LogLevel::Error, util::Format(format, std::forward<TArgs>(args)...));
 }
-}  // namespace cru::logger
+}  // namespace cru::log

@@ -49,6 +49,11 @@ std::wstring_view LogLevelToString(LogLevel level) {
 }  // namespace
 
 void Logger::Log(LogLevel level, const std::wstring_view &s) {
+#ifndef CRU_DEBUG
+  if (level == LogLevel::Debug) {
+    return;
+  }
+#endif
   for (const auto source : sources_) {
     auto now = std::time(nullptr);
     wchar_t buffer[50];
