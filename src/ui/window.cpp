@@ -232,15 +232,19 @@ void Window::OnNativeMouseEnterLeave(bool enter) {
 
 void Window::OnNativeMouseMove(const Point& point) {
   // Find the first control that hit test succeed.
-  const auto new_control_mouse_hover = HitTest(point);
-  const auto old_control_mouse_hover = mouse_hover_control_;
-  mouse_hover_control_ = new_control_mouse_hover;
+  const auto new_mouse_hover_control = HitTest(point);
+  const auto old_mouse_hover_control = mouse_hover_control_;
+  mouse_hover_control_ = new_mouse_hover_control;
 
   if (mouse_captured_control_) {
-    DispatchMouseHoverControlChangeEvent(
-        mouse_captured_control_, new_control_mouse_hover, point, false, true);
-    DispatchMouseHoverControlChangeEvent(
-        old_control_mouse_hover, mouse_captured_control_, point, true, false);
+    const auto n = FindLowestCommonAncestor(new_mouse_hover_control, mouse_captured_control_);
+    const auto o = FindLowestCommonAncestor(old_mouse_hover_control, mouse_captured_control_);
+    bool a = IsAncestor(o, n);
+    if (a) {
+      DispatchEvent(event_names::MouseLeave, o, &Control::MouseLeaveEvent, n);
+    } else {
+      DispatchEvent(event_names::MouseEnter, n, &Control::MouseEnterEvent, o, point);
+    }
     DispatchEvent(event_names::MouseMove, mouse_captured_control_,
                   &Control::MouseMoveEvent, nullptr, point);
     UpdateCursor();
@@ -248,8 +252,8 @@ void Window::OnNativeMouseMove(const Point& point) {
   }
 
   DispatchMouseHoverControlChangeEvent(
-      old_control_mouse_hover, new_control_mouse_hover, point, false, false);
-  DispatchEvent(event_names::MouseMove, new_control_mouse_hover,
+      old_mouse_hover_control, new_mouse_hover_control, point, false, false);
+  DispatchEvent(event_names::MouseMove, new_mouse_hover_control,
                 &Control::MouseMoveEvent, nullptr, point);
   UpdateCursor();
 }

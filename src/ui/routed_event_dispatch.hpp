@@ -24,13 +24,21 @@ void DispatchEvent(const std::wstring_view& event_name,
                    Control* const original_sender,
                    event::RoutedEvent<EventArgs>* (Control::*event_ptr)(),
                    Control* const last_receiver, Args&&... args) {
-  if (original_sender == last_receiver) {
 #ifdef CRU_DEBUG
-    log::Debug(
-        L"Routed event {} no need to dispatch (original_sender == "
-        L"last_receiver). Original sender is {}.",
-        event_name, original_sender->GetControlType());
+  bool do_log = true;
+  if (event_name == L"MouseMove") do_log = false;
 #endif
+
+  if (original_sender == last_receiver) {
+    /*
+    #ifdef CRU_DEBUG
+        if (do_log)
+          log::Debug(
+              L"Routed event {} no need to dispatch (original_sender == "
+              L"last_receiver). Original sender is {}.",
+              event_name, original_sender->GetControlType());
+    #endif
+    */
     return;
   }
 
@@ -43,7 +51,7 @@ void DispatchEvent(const std::wstring_view& event_name,
   }
 
 #ifdef CRU_DEBUG
-  {
+  if (do_log) {
     std::wstring log = L"Dispatch routed event ";
     log += event_name;
     log += L". Path (parent first): ";
@@ -75,10 +83,11 @@ void DispatchEvent(const std::wstring_view& event_name,
     if (event_args.IsHandled()) {
       handled = true;
 #ifdef CRU_DEBUG
-      log::Debug(
-          L"Routed event is short-circuit in TUNNEL at {}-st control (count "
-          L"from parent).",
-          count);
+      if (do_log)
+        log::Debug(
+            L"Routed event is short-circuit in TUNNEL at {}-st control (count "
+            L"from parent).",
+            count);
 #endif
       break;
     }
@@ -95,10 +104,12 @@ void DispatchEvent(const std::wstring_view& event_name,
           ->Raise(event_args);
       if (event_args.IsHandled()) {
 #ifdef CRU_DEBUG
-        log::Debug(
-            L"Routed event is short-circuit in BUBBLE at {}-st control (count "
-            L"from parent).",
-            count);
+        if (do_log)
+          log::Debug(
+              L"Routed event is short-circuit in BUBBLE at {}-st control "
+              L"(count "
+              L"from parent).",
+              count);
 #endif
         break;
       }
@@ -113,7 +124,7 @@ void DispatchEvent(const std::wstring_view& event_name,
   }
 
 #ifdef CRU_DEBUG
-  log::Debug(L"Routed event dispatch finished.");
+  if (do_log) log::Debug(L"Routed event dispatch finished.");
 #endif
 }
 }  // namespace cru::ui
