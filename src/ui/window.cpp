@@ -10,6 +10,22 @@
 #include <list>
 
 namespace cru::ui {
+namespace event_names {
+#define CRU_DEFINE_EVENT_NAME(name) constexpr const wchar_t* name = L#name;
+
+CRU_DEFINE_EVENT_NAME(LoseFocus)
+CRU_DEFINE_EVENT_NAME(GainFocus)
+CRU_DEFINE_EVENT_NAME(MouseEnter)
+CRU_DEFINE_EVENT_NAME(MouseLeave)
+CRU_DEFINE_EVENT_NAME(MouseMove)
+CRU_DEFINE_EVENT_NAME(MouseDown)
+CRU_DEFINE_EVENT_NAME(MouseUp)
+CRU_DEFINE_EVENT_NAME(KeyDown)
+CRU_DEFINE_EVENT_NAME(KeyUp)
+
+#undef CRU_DEFINE_EVENT_NAME
+}  // namespace event_names
+
 namespace {
 bool IsAncestor(Control* control, Control* ancestor) {
   while (control != nullptr) {
@@ -136,11 +152,13 @@ bool Window::RequestFocusFor(Control* control) {
 
   if (focus_control_ == control) return true;
 
-  DispatchEvent(focus_control_, &Control::LoseFocusEvent, nullptr, false);
+  DispatchEvent(event_names::LoseFocus, focus_control_,
+                &Control::LoseFocusEvent, nullptr, false);
 
   focus_control_ = control;
 
-  DispatchEvent(control, &Control::GainFocusEvent, nullptr, false);
+  DispatchEvent(event_names::GainFocus, control, &Control::GainFocusEvent,
+                nullptr, false);
 
   return true;
 }
@@ -198,14 +216,16 @@ void Window::OnNativeResize(const Size& size) {
 }
 
 void Window::OnNativeFocus(bool focus) {
-  focus
-      ? DispatchEvent(focus_control_, &Control::GainFocusEvent, nullptr, true)
-      : DispatchEvent(focus_control_, &Control::LoseFocusEvent, nullptr, true);
+  focus ? DispatchEvent(event_names::GainFocus, focus_control_,
+                        &Control::GainFocusEvent, nullptr, true)
+        : DispatchEvent(event_names::LoseFocus, focus_control_,
+                        &Control::LoseFocusEvent, nullptr, true);
 }
 
 void Window::OnNativeMouseEnterLeave(bool enter) {
   if (!enter) {
-    DispatchEvent(mouse_hover_control_, &Control::MouseLeaveEvent, nullptr);
+    DispatchEvent(event_names::MouseLeave, mouse_hover_control_,
+                  &Control::MouseLeaveEvent, nullptr);
     mouse_hover_control_ = nullptr;
   }
 }
@@ -221,16 +241,16 @@ void Window::OnNativeMouseMove(const Point& point) {
         mouse_captured_control_, new_control_mouse_hover, point, false, true);
     DispatchMouseHoverControlChangeEvent(
         old_control_mouse_hover, mouse_captured_control_, point, true, false);
-    DispatchEvent(mouse_captured_control_, &Control::MouseMoveEvent, nullptr,
-                  point);
+    DispatchEvent(event_names::MouseMove, mouse_captured_control_,
+                  &Control::MouseMoveEvent, nullptr, point);
     UpdateCursor();
     return;
   }
 
   DispatchMouseHoverControlChangeEvent(
       old_control_mouse_hover, new_control_mouse_hover, point, false, false);
-  DispatchEvent(new_control_mouse_hover, &Control::MouseMoveEvent, nullptr,
-                point);
+  DispatchEvent(event_names::MouseMove, new_control_mouse_hover,
+                &Control::MouseMoveEvent, nullptr, point);
   UpdateCursor();
 }
 
@@ -238,24 +258,26 @@ void Window::OnNativeMouseDown(
     const platform::native::NativeMouseButtonEventArgs& args) {
   Control* control =
       mouse_captured_control_ ? mouse_captured_control_ : HitTest(args.point);
-  DispatchEvent(control, &Control::MouseDownEvent, nullptr, args.point,
-                args.button);
+  DispatchEvent(event_names::MouseDown, control, &Control::MouseDownEvent,
+                nullptr, args.point, args.button);
 }
 
 void Window::OnNativeMouseUp(
     const platform::native::NativeMouseButtonEventArgs& args) {
   Control* control =
       mouse_captured_control_ ? mouse_captured_control_ : HitTest(args.point);
-  DispatchEvent(control, &Control::MouseUpEvent, nullptr, args.point,
-                args.button);
+  DispatchEvent(event_names::MouseUp, control, &Control::MouseUpEvent, nullptr,
+                args.point, args.button);
 }
 
 void Window::OnNativeKeyDown(int virtual_code) {
-  DispatchEvent(focus_control_, &Control::KeyDownEvent, nullptr, virtual_code);
+  DispatchEvent(event_names::KeyDown, focus_control_, &Control::KeyDownEvent,
+                nullptr, virtual_code);
 }
 
 void Window::OnNativeKeyUp(int virtual_code) {
-  DispatchEvent(focus_control_, &Control::KeyUpEvent, nullptr, virtual_code);
+  DispatchEvent(event_names::KeyUp, focus_control_, &Control::KeyUpEvent,
+                nullptr, virtual_code);
 }
 
 void Window::DispatchMouseHoverControlChangeEvent(Control* old_control,
@@ -268,11 +290,12 @@ void Window::DispatchMouseHoverControlChangeEvent(Control* old_control,
     const auto lowest_common_ancestor =
         FindLowestCommonAncestor(old_control, new_control);
     if (!no_leave && old_control != nullptr)
-      DispatchEvent(old_control, &Control::MouseLeaveEvent,
+      DispatchEvent(event_names::MouseLeave, old_control,
+                    &Control::MouseLeaveEvent,
                     lowest_common_ancestor);  // dispatch mouse leave event.
     if (!no_enter && new_control != nullptr) {
-      DispatchEvent(new_control, &Control::MouseEnterEvent,
-                    lowest_common_ancestor,
+      DispatchEvent(event_names::MouseEnter, new_control,
+                    &Control::MouseEnterEvent, lowest_common_ancestor,
                     point);  // dispatch mouse enter event.
     }
   }
