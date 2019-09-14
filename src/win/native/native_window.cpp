@@ -12,7 +12,7 @@
 #include "window_d2d_painter.hpp"
 #include "window_manager.hpp"
 
-#include <assert.h>
+#include <cassert>
 #include <windowsx.h>
 
 namespace cru::platform::native::win {
