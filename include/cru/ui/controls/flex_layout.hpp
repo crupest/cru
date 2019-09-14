@@ -42,8 +42,21 @@ class FlexLayout : public LayoutControl {
   void SetContentMainAlign(FlexMainAlignment value) {
     if (value == GetContentMainAlign()) return;
     render_object_->SetContentMainAlign(value);
-    GetWindow()->InvalidateLayout();
+    if (const auto window = GetWindow()) window->InvalidateLayout();
   }
+
+  FlexDirection GetFlexDirection() const {
+    return render_object_->GetFlexDirection();
+  }
+
+  void SetFlexDirection(FlexDirection direction) {
+    if (direction == GetFlexDirection()) return;
+    render_object_->SetFlexDirection(direction);
+    if (const auto window = GetWindow()) window->InvalidateLayout();
+  }
+
+  FlexChildLayoutData GetChildLayoutData(Control* control);
+  void SetChildLayoutData(Control* control, const FlexChildLayoutData& data);
 
  protected:
   void OnAddChild(Control* child, int position) override;

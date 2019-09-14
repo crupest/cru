@@ -13,7 +13,7 @@ inline bool IsWindowsResource(NativeResource* resource) {
 
 }  // namespace cru::platform::native::win
 
-#define CRU_PLATFORMID_IMPLEMENT_WIN                             \
-  std::wstring_view GetPlatformId() const override {             \
+#define CRU_PLATFORMID_IMPLEMENT_WIN                      \
+  std::wstring_view GetPlatformId() const override {      \
     return ::cru::platform::native::win::win_platform_id; \
   }
