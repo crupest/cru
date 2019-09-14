@@ -11,7 +11,11 @@
 
 namespace cru::ui {
 namespace event_names {
+#ifdef CRU_DEBUG
 #define CRU_DEFINE_EVENT_NAME(name) constexpr const wchar_t* name = L#name;
+#else
+#define CRU_DEFINE_EVENT_NAME(name) constexpr const wchar_t* name = nullptr;
+#endif
 
 CRU_DEFINE_EVENT_NAME(LoseFocus)
 CRU_DEFINE_EVENT_NAME(GainFocus)
