@@ -20,6 +20,8 @@ struct ButtonBorderStyle {
   render::BorderStyle hover;
   // corresponds to ButtonState::Press
   render::BorderStyle press;
+  // corresponds to ButtonState::PressCancel
+  render::BorderStyle press_cancel;
 };
 
 enum class ButtonState {
@@ -27,8 +29,10 @@ enum class ButtonState {
   Normal,
   // mouse is in it and not pressed
   Hover,
-  // mouse is pressed in it (click begins)
-  Press
+  // mouse is pressed in it
+  Press,
+  // mouse is pressed outside button
+  PressCancel,  
 };
 
 class Button : public ContentControl {

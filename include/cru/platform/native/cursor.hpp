@@ -34,4 +34,6 @@ class CursorManager : public NativeResource {
 
   //TODO: Add method to create cursor.
 };
+
+std::shared_ptr<Cursor> GetSystemCursor(SystemCursor type);
 }  // namespace cru::platform::native

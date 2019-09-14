@@ -1,6 +1,8 @@
 #pragma once
 #include "pre_config.hpp"
 
+#include <stdexcept>
+
 #define CRU_DEFAULT_COPY(classname)      \
   classname(const classname&) = default; \
   classname& operator=(const classname&) = default;
@@ -36,4 +38,8 @@ struct Interface {
   Interface& operator=(Interface&& other) = delete;
   virtual ~Interface() = default;
 };
+
+[[noreturn]] inline void UnreachableCode() {
+  throw std::runtime_error("Unreachable code.");
+}
 }  // namespace cru

@@ -2,7 +2,7 @@
 
 #include "cru/platform/graph/painter.hpp"
 #include "cru/platform/native/native_window.hpp"
-#include "cru/platform/native/ui_applicaition.hpp"
+#include "cru/platform/native/ui_application.hpp"
 #include "cru/ui/render/window_render_object.hpp"
 #include "routed_event_dispatch.hpp"
 

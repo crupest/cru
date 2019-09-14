@@ -1,7 +1,7 @@
 #pragma once
 #include "../win_pre_config.hpp"
 
-#include "cru/platform/native/ui_applicaition.hpp"
+#include "cru/platform/native/ui_application.hpp"
 
 #include "platform_id.hpp"
 #include "cursor.hpp"

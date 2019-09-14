@@ -1,6 +1,6 @@
 #include "cru/platform/heap_debug.hpp"
 #include "cru/platform/native/native_window.hpp"
-#include "cru/platform/native/ui_applicaition.hpp"
+#include "cru/platform/native/ui_application.hpp"
 #include "cru/ui/controls/button.hpp"
 #include "cru/ui/controls/flex_layout.hpp"
 #include "cru/ui/controls/text_block.hpp"

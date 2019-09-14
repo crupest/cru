@@ -4,7 +4,7 @@
 #include "cru/win/native/native_window.hpp"
 #include "cru/win/native/window_class.hpp"
 
-#include <assert.h>
+#include <cassert>
 
 namespace cru::platform::native::win {
 LRESULT __stdcall GeneralWndProc(HWND hWnd, UINT Msg, WPARAM wParam,

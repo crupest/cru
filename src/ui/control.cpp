@@ -3,7 +3,7 @@
 #include "cru/platform/native/basic_types.hpp"
 #include "cru/platform/native/cursor.hpp"
 #include "cru/platform/native/native_window.hpp"
-#include "cru/platform/native/ui_applicaition.hpp"
+#include "cru/platform/native/ui_application.hpp"
 #include "cru/ui/base.hpp"
 #include "cru/ui/event/ui_event.hpp"
 #include "cru/ui/window.hpp"

@@ -3,7 +3,7 @@
 #include "cru/platform/graph/brush.hpp"
 #include "cru/platform/graph/font.hpp"
 #include "cru/platform/graph/graph_factory.hpp"
-#include "cru/platform/native/ui_applicaition.hpp"
+#include "cru/platform/native/ui_application.hpp"
 
 namespace cru::ui {
 using namespace cru::platform::graph;

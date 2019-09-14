@@ -70,7 +70,7 @@ class ClickDetector : public Object {
       case MouseButton::Right:
         return click_map_.right;
       default:
-        std::abort();
+        UnreachableCode();
     }
   }
 

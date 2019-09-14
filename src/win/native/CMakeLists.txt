@@ -28,4 +28,4 @@ target_sources(cru_win_native PUBLIC
 	${CRU_WIN_NATIVE_INCLUDE_DIR}/window_native_message_event_args.hpp
 	${CRU_WIN_NATIVE_INCLUDE_DIR}/window_render_target.hpp
 )
-target_link_libraries(cru_win_native PUBLIC cru_win_graph_direct)
+target_link_libraries(cru_win_native PUBLIC cru_win_graph_direct cru_platform_native)
