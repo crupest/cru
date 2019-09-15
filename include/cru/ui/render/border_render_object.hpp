@@ -33,48 +33,41 @@ struct CornerRadius {
 };
 
 struct BorderStyle {
-  std::shared_ptr<platform::graph::Brush> brush;
-  Thickness thickness;
-  CornerRadius corner_radius;
+  std::shared_ptr<platform::graph::Brush> brush{};
+  Thickness thickness{};
+  CornerRadius corner_radius{};
 };
 
 class BorderRenderObject : public RenderObject {
  public:
-  explicit BorderRenderObject(std::shared_ptr<platform::graph::Brush> brush);
+  BorderRenderObject();
   BorderRenderObject(const BorderRenderObject& other) = delete;
   BorderRenderObject(BorderRenderObject&& other) = delete;
   BorderRenderObject& operator=(const BorderRenderObject& other) = delete;
   BorderRenderObject& operator=(BorderRenderObject&& other) = delete;
-  ~BorderRenderObject() override = default;
+  ~BorderRenderObject() override;
 
-  bool IsEnabled() const { return is_enabled_; }
-  void SetEnabled(bool enabled) { is_enabled_ = enabled; }
+  bool IsBorderEnabled() const { return is_border_enabled_; }
+  void SetBorderEnabled(bool enabled) { is_border_enabled_ = enabled; }
 
-  std::shared_ptr<platform::graph::Brush> GetBrush() const {
-    return style_.brush;
-  }
-  void SetBrush(std::shared_ptr<platform::graph::Brush> new_brush) {
-    style_.brush = std::move(new_brush);
+  BorderStyle* GetBorderStyle() {
+    return &border_style_;
   }
 
-  Thickness GetBorderWidth() const { return style_.thickness; }
-  // Remember to call Refresh after set shape properties.
-  void SetBorderWidth(const Thickness& thickness) {
-    style_.thickness = thickness;
+  std::shared_ptr<platform::graph::Brush> GetForegroundBrush() {
+    return foreground_brush_;
   }
 
-  CornerRadius GetCornerRadius() const { return style_.corner_radius; }
-  // Remember to call Refresh after set shape properties.
-  void SetCornerRadius(const CornerRadius& new_corner_radius) {
-    style_.corner_radius = new_corner_radius;
+  void SetForegroundBrush(std::shared_ptr<platform::graph::Brush> brush) {
+    foreground_brush_ = std::move(brush);
   }
 
-  BorderStyle GetStyle() const {
-    return style_;
+  std::shared_ptr<platform::graph::Brush> GetBackgroundBrush() {
+    return foreground_brush_;
   }
-  // Remember to call Refresh after set shape properties.
-  void SetStyle(BorderStyle newStyle) {
-    style_ = std::move(newStyle);
+
+  void SetBackgroundBrush(std::shared_ptr<platform::graph::Brush> brush) {
+    foreground_brush_ = std::move(brush);
   }
 
   void Refresh() { RecreateGeometry(); }
@@ -101,13 +94,17 @@ class BorderRenderObject : public RenderObject {
   void RecreateGeometry();
 
  private:
-  bool is_enabled_ = false;
+  bool is_border_enabled_ = false;
+  BorderStyle border_style_;
 
-  BorderStyle style_;
+  std::shared_ptr<platform::graph::Brush> foreground_brush_;
+  std::shared_ptr<platform::graph::Brush> background_brush_;
 
   // The ring. Used for painting.
-  std::shared_ptr<platform::graph::Geometry> geometry_ = nullptr;
+  std::unique_ptr<platform::graph::Geometry> geometry_;
+  // Area including inner area of the border. Used for painting foreground and background.
+  std::unique_ptr<platform::graph::Geometry> border_inner_geometry_;
   // Area including border ring and inner area. Used for hit test.
-  std::shared_ptr<platform::graph::Geometry> border_outer_geometry_ = nullptr;
+  std::unique_ptr<platform::graph::Geometry> border_outer_geometry_;
 };
 }  // namespace cru::ui::render

@@ -22,7 +22,7 @@ FlexChildLayoutData FlexLayout::GetChildLayoutData(Control* control) {
   if (find_result == render_objects.cend()) {
     throw std::logic_error("Control is not a child of FlexLayout.");
   }
-  int position = find_result - render_objects.cbegin();
+  int position = static_cast<int>(find_result - render_objects.cbegin());
   return *(render_object_->GetChildLayoutData(position));
 }
 
@@ -35,7 +35,7 @@ void FlexLayout::SetChildLayoutData(Control* control,
   if (find_result == render_objects.cend()) {
     throw std::logic_error("Control is not a child of FlexLayout.");
   }
-  int position = find_result - render_objects.cbegin();
+  int position = static_cast<int>(find_result - render_objects.cbegin());
   const auto d = render_object_->GetChildLayoutData(position);
   *d = data;
   if (const auto window = GetWindow()) window->InvalidateLayout();

@@ -37,11 +37,10 @@ Button::Button() : click_detector_(this) {
           border_style_.press_cancel.corner_radius =
               render::CornerRadius{Point{10, 5}};
 
-  render_object_.reset(
-      new render::BorderRenderObject(border_style_.normal.brush));
+  render_object_.reset(new render::BorderRenderObject);
   render_object_->SetAttachedControl(this);
-  render_object_->SetEnabled(true);
-  render_object_->SetStyle(border_style_.normal);
+  render_object_->SetBorderEnabled(true);
+  (*render_object_->GetBorderStyle()) = border_style_.normal;
 
   MouseEnterEvent()->Direct()->AddHandler([this](event::MouseEventArgs& args) {
     if (click_detector_.GetPressingButton() & trigger_button_) {
@@ -85,19 +84,19 @@ void Button::OnChildChanged(Control* old_child, Control* new_child) {
 void Button::OnStateChange(ButtonState oldState, ButtonState newState) {
   switch (newState) {
     case ButtonState::Normal:
-      render_object_->SetStyle(border_style_.normal);
+      (*render_object_->GetBorderStyle()) = border_style_.normal;
       SetCursor(GetSystemCursor(SystemCursor::Arrow));
       break;
     case ButtonState::Hover:
-      render_object_->SetStyle(border_style_.hover);
+      (*render_object_->GetBorderStyle()) = border_style_.hover;
       SetCursor(GetSystemCursor(SystemCursor::Hand));
       break;
     case ButtonState::Press:
-      render_object_->SetStyle(border_style_.press);
+      (*render_object_->GetBorderStyle()) = border_style_.press;
       SetCursor(GetSystemCursor(SystemCursor::Hand));
       break;
     case ButtonState::PressCancel:
-      render_object_->SetStyle(border_style_.press_cancel);
+      (*render_object_->GetBorderStyle()) = border_style_.press_cancel;
       SetCursor(GetSystemCursor(SystemCursor::Arrow));
       break;
   }

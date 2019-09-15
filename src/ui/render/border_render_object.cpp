@@ -9,21 +9,30 @@
 #include <cassert>
 
 namespace cru::ui::render {
-BorderRenderObject::BorderRenderObject(
-    std::shared_ptr<platform::graph::Brush> brush) {
-  assert(brush);
-  this->style_.brush = std::move(brush);
-  RecreateGeometry();
-}
+BorderRenderObject::BorderRenderObject() { RecreateGeometry(); }
+
+BorderRenderObject::~BorderRenderObject() {}
 
 void BorderRenderObject::Draw(platform::graph::Painter* painter) {
-  painter->FillGeometry(geometry_.get(), style_.brush.get());
+  if (background_brush_ != nullptr)
+    painter->FillGeometry(border_inner_geometry_.get(),
+                          background_brush_.get());
+  if (is_border_enabled_) {
+    if (border_style_.brush == nullptr) {
+      log::Warn(L"Border is enabled but brush is null");
+    } else {
+      painter->FillGeometry(geometry_.get(), border_style_.brush.get());
+    }
+  }
   if (const auto child = GetChild()) {
     auto offset = child->GetOffset();
     platform::graph::util::WithTransform(
         painter, platform::Matrix::Translation(offset.x, offset.y),
         [child](auto p) { child->Draw(p); });
   }
+  if (foreground_brush_ != nullptr)
+    painter->FillGeometry(border_inner_geometry_.get(),
+                          foreground_brush_.get());
 }
 
 RenderObject* BorderRenderObject::HitTest(const Point& point) {
@@ -36,7 +45,7 @@ RenderObject* BorderRenderObject::HitTest(const Point& point) {
     }
   }
 
-  if (is_enabled_) {
+  if (is_border_enabled_) {
     const auto contains =
         border_outer_geometry_->FillContains(Point{point.x, point.y});
     return contains ? this : nullptr;
@@ -68,9 +77,11 @@ void BorderRenderObject::OnMeasureCore(const Size& available_size) {
       margin.GetHorizontalTotal() + padding.GetHorizontalTotal(),
       margin.GetVerticalTotal() + padding.GetVerticalTotal()};
 
-  if (is_enabled_) {
-    margin_border_padding_size.width += style_.thickness.GetHorizontalTotal();
-    margin_border_padding_size.height += style_.thickness.GetVerticalTotal();
+  if (is_border_enabled_) {
+    margin_border_padding_size.width +=
+        border_style_.thickness.GetHorizontalTotal();
+    margin_border_padding_size.height +=
+        border_style_.thickness.GetVerticalTotal();
   }
 
   auto coerced_margin_border_padding_size = margin_border_padding_size;
@@ -103,9 +114,11 @@ void BorderRenderObject::OnLayoutCore(const Rect& rect) {
       margin.GetHorizontalTotal() + padding.GetHorizontalTotal(),
       margin.GetVerticalTotal() + padding.GetVerticalTotal()};
 
-  if (is_enabled_) {
-    margin_border_padding_size.width += style_.thickness.GetHorizontalTotal();
-    margin_border_padding_size.height += style_.thickness.GetVerticalTotal();
+  if (is_border_enabled_) {
+    margin_border_padding_size.width +=
+        border_style_.thickness.GetHorizontalTotal();
+    margin_border_padding_size.height +=
+        border_style_.thickness.GetVerticalTotal();
   }
 
   const auto content_available_size =
@@ -126,8 +139,10 @@ void BorderRenderObject::OnLayoutCore(const Rect& rect) {
   }
 
   OnLayoutContent(Rect{
-      margin.left + (is_enabled_ ? style_.thickness.left : 0) + padding.left,
-      margin.top + (is_enabled_ ? style_.thickness.top : 0) + padding.top,
+      margin.left + (is_border_enabled_ ? border_style_.thickness.left : 0) +
+          padding.left,
+      margin.top + (is_border_enabled_ ? border_style_.thickness.top : 0) +
+          padding.top,
       coerced_content_available_size.width,
       coerced_content_available_size.height});
 }
@@ -183,14 +198,20 @@ void BorderRenderObject::RecreateGeometry() {
   const auto graph_factory = platform::graph::GraphFactory::GetInstance();
   std::unique_ptr<platform::graph::GeometryBuilder> builder{
       graph_factory->CreateGeometryBuilder()};
-  f(builder.get(), outer_rect, style_.corner_radius);
+  f(builder.get(), outer_rect, border_style_.corner_radius);
   border_outer_geometry_.reset(builder->Build());
   builder.reset();
 
-  const Rect inner_rect = outer_rect.Shrink(style_.thickness);
+  const Rect inner_rect = outer_rect.Shrink(border_style_.thickness);
+
   builder.reset(graph_factory->CreateGeometryBuilder());
-  f(builder.get(), outer_rect, style_.corner_radius);
-  f(builder.get(), inner_rect, style_.corner_radius);
+  f(builder.get(), inner_rect, border_style_.corner_radius);
+  border_inner_geometry_.reset(builder->Build());
+  builder.reset();
+
+  builder.reset(graph_factory->CreateGeometryBuilder());
+  f(builder.get(), outer_rect, border_style_.corner_radius);
+  f(builder.get(), inner_rect, border_style_.corner_radius);
   geometry_.reset(builder->Build());
   builder.reset();
 }

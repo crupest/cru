@@ -11,6 +11,7 @@ add_library(cru_ui STATIC
     ui_manager.cpp
     window.cpp
     controls/button.cpp
+    controls/container.cpp
     controls/flex_layout.cpp
     controls/text_block.cpp
     render/border_render_object.cpp
@@ -29,6 +30,7 @@ target_sources(cru_ui PUBLIC
 	${CRU_UI_INCLUDE_DIR}/ui_manager.hpp
 	${CRU_UI_INCLUDE_DIR}/window.hpp
 	${CRU_UI_INCLUDE_DIR}/controls/button.hpp
+	${CRU_UI_INCLUDE_DIR}/controls/container.hpp
 	${CRU_UI_INCLUDE_DIR}/controls/flex_layout.hpp
 	${CRU_UI_INCLUDE_DIR}/controls/text_block.hpp
 	${CRU_UI_INCLUDE_DIR}/event/ui_event.hpp
