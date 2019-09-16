@@ -17,7 +17,9 @@ class WindowRenderObject : public RenderObject {
   WindowRenderObject& operator=(WindowRenderObject&& other) = delete;
   ~WindowRenderObject() override = default;
 
-  void MeasureAndLayout();
+  Window* GetWindow() const { return window_; }
+
+  void Relayout();
 
   void Draw(platform::graph::Painter* painter) override;
 

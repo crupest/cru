@@ -53,11 +53,6 @@ class Window final : public ContentControl, public SelfResolvable<Window> {
   // get more info.
   Control* GetMouseHoverControl() const { return mouse_hover_control_; }
 
-  //*************** region: layout ***************
-  void Relayout();
-
-  void InvalidateLayout();
-
   //*************** region: focus ***************
 
   // Request focus for specified control.

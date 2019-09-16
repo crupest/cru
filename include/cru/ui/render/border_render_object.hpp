@@ -32,11 +32,16 @@ struct CornerRadius {
   Point right_bottom;
 };
 
-struct BorderStyle {
-  std::shared_ptr<platform::graph::Brush> brush{};
-  Thickness thickness{};
-  CornerRadius corner_radius{};
-};
+inline bool operator==(const CornerRadius& left, const CornerRadius& right) {
+  return left.left_top == right.left_top &&
+         left.left_bottom == right.left_bottom &&
+         left.right_top == right.right_top &&
+         left.right_bottom == right.right_bottom;
+}
+
+inline bool operator!=(const CornerRadius& left, const CornerRadius& right) {
+  return !(left == right);
+}
 
 class BorderRenderObject : public RenderObject {
  public:
@@ -50,8 +55,30 @@ class BorderRenderObject : public RenderObject {
   bool IsBorderEnabled() const { return is_border_enabled_; }
   void SetBorderEnabled(bool enabled) { is_border_enabled_ = enabled; }
 
-  BorderStyle* GetBorderStyle() {
-    return &border_style_;
+  std::shared_ptr<platform::graph::Brush> GetBorderBrush() {
+    return border_brush_;
+  }
+
+  void SetBorderBrush(std::shared_ptr<platform::graph::Brush> brush) {
+    if (brush == border_brush_) return;
+    border_brush_ = std::move(brush);
+    InvalidatePaint();
+  }
+
+  platform::Thickness GetBorderThickness() { return border_thickness_; }
+
+  void SetBorderThickness(const platform::Thickness thickness) {
+    if (thickness == border_thickness_) return;
+    border_thickness_ = thickness;
+    InvalidateLayout();
+  }
+
+  CornerRadius GetBorderRadius() { return border_radius_; }
+
+  void SetBorderRadius(const CornerRadius radius) {
+    if (radius == border_radius_) return;
+    border_radius_ = radius;
+    RecreateGeometry();
   }
 
   std::shared_ptr<platform::graph::Brush> GetForegroundBrush() {
@@ -59,18 +86,20 @@ class BorderRenderObject : public RenderObject {
   }
 
   void SetForegroundBrush(std::shared_ptr<platform::graph::Brush> brush) {
+    if (brush == foreground_brush_) return;
     foreground_brush_ = std::move(brush);
+    InvalidatePaint();
   }
 
   std::shared_ptr<platform::graph::Brush> GetBackgroundBrush() {
-    return foreground_brush_;
+    return background_brush_;
   }
 
   void SetBackgroundBrush(std::shared_ptr<platform::graph::Brush> brush) {
-    foreground_brush_ = std::move(brush);
+    if (brush == background_brush_) return;
+    background_brush_ = std::move(brush);
+    InvalidatePaint();
   }
-
-  void Refresh() { RecreateGeometry(); }
 
   void Draw(platform::graph::Painter* painter) override;
 
@@ -93,14 +122,18 @@ class BorderRenderObject : public RenderObject {
 
  private:
   bool is_border_enabled_ = false;
-  BorderStyle border_style_;
+
+  std::shared_ptr<platform::graph::Brush> border_brush_;
+  platform::Thickness border_thickness_;
+  CornerRadius border_radius_;
 
   std::shared_ptr<platform::graph::Brush> foreground_brush_;
   std::shared_ptr<platform::graph::Brush> background_brush_;
 
   // The ring. Used for painting.
   std::unique_ptr<platform::graph::Geometry> geometry_;
-  // Area including inner area of the border. Used for painting foreground and background.
+  // Area including inner area of the border. Used for painting foreground and
+  // background.
   std::unique_ptr<platform::graph::Geometry> border_inner_geometry_;
   // Area including border ring and inner area. Used for hit test.
   std::unique_ptr<platform::graph::Geometry> border_outer_geometry_;

@@ -135,21 +135,6 @@ render::RenderObject* Window::GetRenderObject() const {
   return render_object_.get();
 }
 
-void Window::Relayout() { this->render_object_->MeasureAndLayout(); }
-
-void Window::InvalidateLayout() {
-  if (!need_layout_) {
-    platform::native::UiApplication::GetInstance()->InvokeLater(
-        [resolver = this->CreateResolver()] {
-          if (const auto window = resolver.Resolve()) {
-            window->Relayout();
-            window->need_layout_ = false;
-          }
-        });
-    need_layout_ = true;
-  }
-}
-
 bool Window::RequestFocusFor(Control* control) {
   assert(control != nullptr);  // The control to request focus can't be null.
                                // You can set it as the window.
@@ -216,7 +201,7 @@ void Window::OnNativePaint(std::nullptr_t) {
 }
 
 void Window::OnNativeResize(const Size& size) {
-  render_object_->MeasureAndLayout();
+  render_object_->GetRenderHost()->InvalidateLayout();
 }
 
 void Window::OnNativeFocus(bool focus) {
@@ -241,13 +226,16 @@ void Window::OnNativeMouseMove(const Point& point) {
   mouse_hover_control_ = new_mouse_hover_control;
 
   if (mouse_captured_control_) {
-    const auto n = FindLowestCommonAncestor(new_mouse_hover_control, mouse_captured_control_);
-    const auto o = FindLowestCommonAncestor(old_mouse_hover_control, mouse_captured_control_);
+    const auto n = FindLowestCommonAncestor(new_mouse_hover_control,
+                                            mouse_captured_control_);
+    const auto o = FindLowestCommonAncestor(old_mouse_hover_control,
+                                            mouse_captured_control_);
     bool a = IsAncestor(o, n);
     if (a) {
       DispatchEvent(event_names::MouseLeave, o, &Control::MouseLeaveEvent, n);
     } else {
-      DispatchEvent(event_names::MouseEnter, n, &Control::MouseEnterEvent, o, point);
+      DispatchEvent(event_names::MouseEnter, n, &Control::MouseEnterEvent, o,
+                    point);
     }
     DispatchEvent(event_names::MouseMove, mouse_captured_control_,
                   &Control::MouseMoveEvent, nullptr, point);

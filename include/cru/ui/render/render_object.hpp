@@ -2,6 +2,7 @@
 #include "cru/common/base.hpp"
 
 #include "../base.hpp"
+#include "cru/common/event.hpp"
 
 #include <vector>
 
@@ -15,6 +16,9 @@ class Painter;
 }
 
 namespace cru::ui::render {
+
+struct AfterLayoutEventArgs {};
+
 struct IRenderHost : Interface {
   // Mark the layout as invalid, and arrange a re-layout later.
   // Note this method might be called more than one times in a message cycle. So
@@ -25,6 +29,8 @@ struct IRenderHost : Interface {
   // Note this method might be called more than one times in a message cycle. So
   // implementation should merge multiple request into once.
   virtual void InvalidatePaint() = 0;
+
+  virtual IEvent<AfterLayoutEventArgs>* AfterLayoutEvent() = 0;
 };
 
 class RenderObject : public Object {
