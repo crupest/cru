@@ -1,6 +1,8 @@
 #pragma once
 #include "render_object.hpp"
 
+#include <memory>
+
 namespace cru::ui {
 class Window;
 }
@@ -8,7 +10,7 @@ class Window;
 namespace cru::ui::render {
 class WindowRenderObject : public RenderObject {
  public:
-  WindowRenderObject(Window* window) : window_(window) {}
+  WindowRenderObject(Window* window);
   WindowRenderObject(const WindowRenderObject& other) = delete;
   WindowRenderObject(WindowRenderObject&& other) = delete;
   WindowRenderObject& operator=(const WindowRenderObject& other) = delete;
@@ -23,6 +25,7 @@ class WindowRenderObject : public RenderObject {
 
  protected:
   void OnAddChild(RenderObject* new_child, int position) override;
+  void OnRemoveChild(RenderObject* new_child, int position) override;
 
   Size OnMeasureContent(const Size& available_size) override;
   void OnLayoutContent(const Rect& content_rect) override;
@@ -34,5 +37,7 @@ class WindowRenderObject : public RenderObject {
 
  private:
   Window* window_;
+
+  std::unique_ptr<IRenderHost> render_host_;
 };
 }  // namespace cru::ui::render

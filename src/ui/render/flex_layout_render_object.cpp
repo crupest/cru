@@ -7,6 +7,10 @@
 #include <functional>
 
 namespace cru::ui::render {
+FlexLayoutRenderObject::FlexLayoutRenderObject() {
+  SetChildMode(ChildMode::Multiple);
+}
+
 FlexChildLayoutData* FlexLayoutRenderObject::GetChildLayoutData(int position) {
   assert(position >= 0 &&
          position < child_layout_data_.size());  // Position out of bound.

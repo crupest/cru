@@ -16,6 +16,8 @@ TextRenderObject::TextRenderObject(
   assert(font);
   assert(selection_brush);
 
+  SetChildMode(ChildMode::None);
+
   brush.swap(brush_);
   font.swap(font_);
   selection_brush.swap(selection_brush_);

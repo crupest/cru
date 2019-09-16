@@ -9,7 +9,10 @@
 #include <cassert>
 
 namespace cru::ui::render {
-BorderRenderObject::BorderRenderObject() { RecreateGeometry(); }
+BorderRenderObject::BorderRenderObject() {
+  SetChildMode(ChildMode::Single);
+  RecreateGeometry();
+}
 
 BorderRenderObject::~BorderRenderObject() {}
 
@@ -59,10 +62,6 @@ RenderObject* BorderRenderObject::HitTest(const Point& point) {
                ? this
                : nullptr;
   }
-}
-
-void BorderRenderObject::OnAddChild(RenderObject* new_child, int position) {
-  assert(GetChildren().size() == 1);
 }
 
 void BorderRenderObject::OnSizeChanged(const Size& old_size,

@@ -7,6 +7,9 @@
 
 namespace cru::ui::render {
 void RenderObject::AddChild(RenderObject* render_object, const int position) {
+  assert(child_mode_ == ChildMode::None);
+  assert(child_mode_ == ChildMode::Single && children_.size() > 0);
+
   assert(render_object->GetParent() ==
          nullptr);                       // Render object already has a parent.
   assert(position >= 0);                 // Position index is less than 0.
@@ -41,9 +44,15 @@ void RenderObject::Layout(const Rect& rect) {
 void RenderObject::OnParentChanged(RenderObject* old_parent,
                                    RenderObject* new_parent) {}
 
-void RenderObject::OnAddChild(RenderObject* new_child, int position) {}
+void RenderObject::OnAddChild(RenderObject* new_child, int position) {
+  InvalidateLayout();
+  InvalidatePaint();
+}
 
-void RenderObject::OnRemoveChild(RenderObject* removed_child, int position) {}
+void RenderObject::OnRemoveChild(RenderObject* removed_child, int position) {
+  InvalidateLayout();
+  InvalidatePaint();
+}
 
 void RenderObject::OnSizeChanged(const Size& old_size, const Size& new_size) {}
 

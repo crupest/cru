@@ -41,7 +41,7 @@ struct FlexChildLayoutData {
 
 class FlexLayoutRenderObject : public RenderObject {
  public:
-  FlexLayoutRenderObject() = default;
+  FlexLayoutRenderObject();
   FlexLayoutRenderObject(const FlexLayoutRenderObject& other) = delete;
   FlexLayoutRenderObject& operator=(const FlexLayoutRenderObject& other) =
       delete;

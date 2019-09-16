@@ -7,6 +7,26 @@
 #include <cassert>
 
 namespace cru::ui::render {
+class WindowRenderHost : public IRenderHost {
+ public:
+  WindowRenderHost(Window* window) : window_(window) {
+    assert(window != nullptr);
+  }
+
+  void InvalidateLayout() override { window_->InvalidateLayout(); }
+
+  void InvalidatePaint() override { window_->GetNativeWindow()->Repaint(); }
+
+ private:
+  Window* window_;
+};
+
+WindowRenderObject::WindowRenderObject(Window* window)
+    : window_(window), render_host_(new WindowRenderHost(window)) {
+  SetChildMode(ChildMode::Single);
+  SetRenderHost(render_host_.get());
+}
+
 void WindowRenderObject::MeasureAndLayout() {
   const auto client_size = window_->GetNativeWindow()->GetClientSize();
   Measure(client_size);
@@ -35,8 +55,21 @@ RenderObject* WindowRenderObject::HitTest(const Point& point) {
   return Rect{Point{}, GetSize()}.IsPointInside(point) ? this : nullptr;
 }
 
+namespace {
+void SetRenderHostRecursive(RenderObject* render_object, IRenderHost* host) {
+  render_object->SetRenderHost(host);
+  for (const auto child : render_object->GetChildren()) {
+    SetRenderHostRecursive(render_object, host);
+  }
+}
+}  // namespace
+
 void WindowRenderObject::OnAddChild(RenderObject* new_child, int position) {
-  assert(GetChildren().size() == 1);
+  SetRenderHostRecursive(new_child, render_host_.get());
+}
+
+void WindowRenderObject::OnRemoveChild(RenderObject* new_child, int position) {
+  SetRenderHostRecursive(new_child, nullptr);
 }
 
 Size WindowRenderObject::OnMeasureContent(const Size& available_size) {
