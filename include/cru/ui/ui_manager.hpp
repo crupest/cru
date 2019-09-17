@@ -2,6 +2,8 @@
 #include "base.hpp"
 #include "cru/common/base.hpp"
 
+#include "controls/button.hpp"
+
 #include <memory>
 
 namespace cru::platform::graph {
@@ -29,6 +31,10 @@ class PredefineResources : public Object {
   std::shared_ptr<platform::graph::Font> text_block_font;
 };
 
+struct ThemeResources {
+  controls::ButtonStyle button_style;
+};
+
 class UiManager : public Object {
  public:
   static UiManager* GetInstance();
@@ -47,7 +53,13 @@ class UiManager : public Object {
     return predefine_resources_.get();
   }
 
+  ThemeResources* GetThemeResources() {
+    return &theme_resource_;
+  }
+
  private:
   std::unique_ptr<PredefineResources> predefine_resources_;
+
+  ThemeResources theme_resource_;
 };
 }  // namespace cru::ui

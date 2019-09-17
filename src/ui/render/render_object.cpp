@@ -7,8 +7,8 @@
 
 namespace cru::ui::render {
 void RenderObject::AddChild(RenderObject* render_object, const int position) {
-  assert(child_mode_ == ChildMode::None);
-  assert(child_mode_ == ChildMode::Single && children_.size() > 0);
+  assert(child_mode_ != ChildMode::None);
+  assert(!(child_mode_ == ChildMode::Single && children_.size() > 0));
 
   assert(render_object->GetParent() ==
          nullptr);                       // Render object already has a parent.

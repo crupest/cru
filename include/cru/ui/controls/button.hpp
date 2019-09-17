@@ -18,7 +18,7 @@ using render::CornerRadius;
 struct ButtonStateStyle {
   std::shared_ptr<platform::graph::Brush> border_brush;
   Thickness border_thickness;
-  CornerRadius corner_radius;
+  CornerRadius border_radius;
   std::shared_ptr<platform::graph::Brush> foreground_brush;
   std::shared_ptr<platform::graph::Brush> background_brush;
 };

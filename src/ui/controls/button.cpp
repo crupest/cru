@@ -14,33 +14,23 @@ namespace cru::ui::controls {
 using platform::native::GetSystemCursor;
 using platform::native::SystemCursor;
 
+namespace {
+void Set(render::BorderRenderObject* o, const ButtonStateStyle& s) {
+  o->SetBorderBrush(s.border_brush);
+  o->SetBorderThickness(s.border_thickness);
+  o->SetBorderRadius(s.border_radius);
+  o->SetForegroundBrush(s.foreground_brush);
+  o->SetBackgroundBrush(s.background_brush);
+}
+}  // namespace
+
 Button::Button() : click_detector_(this) {
-  // const auto predefined_resource =
-  //    UiManager::GetInstance()->GetPredefineResources();
-
-  const auto factory = platform::graph::GraphFactory::GetInstance();
-  border_style_.normal.brush = std::shared_ptr<platform::graph::Brush>(
-      factory->CreateSolidColorBrush(Color::FromHex(0x00bfff)));
-  border_style_.hover.brush = std::shared_ptr<platform::graph::Brush>(
-      factory->CreateSolidColorBrush(Color::FromHex(0x47d1ff)));
-  border_style_.press.brush = std::shared_ptr<platform::graph::Brush>(
-      factory->CreateSolidColorBrush(Color::FromHex(0x91e4ff)));
-  border_style_.press_cancel.brush = std::shared_ptr<platform::graph::Brush>(
-      factory->CreateSolidColorBrush(Color::FromHex(0x91e4ff)));
-
-  border_style_.normal.thickness = border_style_.hover.thickness =
-      border_style_.press.thickness = border_style_.press_cancel.thickness =
-          Thickness{3};
-
-  border_style_.normal.corner_radius = border_style_.hover.corner_radius =
-      border_style_.press.corner_radius =
-          border_style_.press_cancel.corner_radius =
-              render::CornerRadius{Point{10, 5}};
+  style_ = UiManager::GetInstance()->GetThemeResources()->button_style;
 
   render_object_.reset(new render::BorderRenderObject);
   render_object_->SetAttachedControl(this);
+  Set(render_object_.get(), style_.normal);
   render_object_->SetBorderEnabled(true);
-  (*render_object_->GetBorderStyle()) = border_style_.normal;
 
   MouseEnterEvent()->Direct()->AddHandler([this](event::MouseEventArgs& args) {
     if (click_detector_.GetPressingButton() & trigger_button_) {
@@ -84,19 +74,19 @@ void Button::OnChildChanged(Control* old_child, Control* new_child) {
 void Button::OnStateChange(ButtonState oldState, ButtonState newState) {
   switch (newState) {
     case ButtonState::Normal:
-      (*render_object_->GetBorderStyle()) = border_style_.normal;
+      Set(render_object_.get(), style_.normal);
       SetCursor(GetSystemCursor(SystemCursor::Arrow));
       break;
     case ButtonState::Hover:
-      (*render_object_->GetBorderStyle()) = border_style_.hover;
+      Set(render_object_.get(), style_.hover);
       SetCursor(GetSystemCursor(SystemCursor::Hand));
       break;
     case ButtonState::Press:
-      (*render_object_->GetBorderStyle()) = border_style_.press;
+      Set(render_object_.get(), style_.press);
       SetCursor(GetSystemCursor(SystemCursor::Hand));
       break;
     case ButtonState::PressCancel:
-      (*render_object_->GetBorderStyle()) = border_style_.press_cancel;
+      Set(render_object_.get(), style_.press_cancel);
       SetCursor(GetSystemCursor(SystemCursor::Arrow));
       break;
   }

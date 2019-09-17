@@ -28,5 +28,27 @@ UiManager* UiManager::GetInstance() {
   return instance;
 }
 
-UiManager::UiManager() : predefine_resources_(new PredefineResources()) {}
+UiManager::UiManager() : predefine_resources_(new PredefineResources()) {
+  const auto factory = GraphFactory::GetInstance();
+  theme_resource_.button_style.normal.border_brush = std::shared_ptr<platform::graph::Brush>(
+      factory->CreateSolidColorBrush(Color::FromHex(0x00bfff)));
+  theme_resource_.button_style.hover.border_brush = std::shared_ptr<platform::graph::Brush>(
+      factory->CreateSolidColorBrush(Color::FromHex(0x47d1ff)));
+  theme_resource_.button_style.press.border_brush = std::shared_ptr<platform::graph::Brush>(
+      factory->CreateSolidColorBrush(Color::FromHex(0x91e4ff)));
+  theme_resource_.button_style.press_cancel.border_brush = std::shared_ptr<platform::graph::Brush>(
+      factory->CreateSolidColorBrush(Color::FromHex(0x91e4ff)));
+
+  theme_resource_.button_style.normal.border_thickness =
+      theme_resource_.button_style.hover.border_thickness =
+          theme_resource_.button_style.press.border_thickness =
+              theme_resource_.button_style.press_cancel.border_thickness =
+                  Thickness(3);
+
+  theme_resource_.button_style.normal.border_radius =
+      theme_resource_.button_style.hover.border_radius =
+          theme_resource_.button_style.press.border_radius =
+              theme_resource_.button_style.press_cancel.border_radius =
+                  controls::CornerRadius({5, 5});
+}
 }  // namespace cru::ui
