@@ -40,6 +40,8 @@ class WindowRenderObject : public RenderObject {
  private:
   Window* window_;
 
+  EventRevokerGuard after_layout_event_guard_;
+
   std::unique_ptr<IRenderHost> render_host_;
 };
 }  // namespace cru::ui::render

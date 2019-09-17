@@ -106,12 +106,12 @@ class BorderRenderObject : public RenderObject {
   RenderObject* HitTest(const Point& point) override;
 
  protected:
-  void OnSizeChanged(const Size& old_size, const Size& new_size) override;
-
   void OnMeasureCore(const Size& available_size) override;
   void OnLayoutCore(const Rect& rect) override;
   Size OnMeasureContent(const Size& available_size) override;
   void OnLayoutContent(const Rect& content_rect) override;
+
+  void OnAfterLayout() override;
 
  private:
   RenderObject* GetChild() const {

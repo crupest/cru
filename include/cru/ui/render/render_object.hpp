@@ -59,11 +59,7 @@ class RenderObject : public Object {
   Point GetOffset() const { return offset_; }
   void SetOffset(const Point& offset) { offset_ = offset; }
   Size GetSize() const { return size_; }
-  void SetSize(const Size& size) {
-    const auto old_size = size_;
-    size_ = size;
-    OnSizeChanged(old_size, size);
-  }
+  void SetSize(const Size& size) { size_ = size; }
 
   Thickness GetMargin() const { return margin_; }
   void SetMargin(const Thickness& margin) { margin_ = margin; }
@@ -109,12 +105,13 @@ class RenderObject : public Object {
   // default is to invalidate both layout and paint
   virtual void OnRemoveChild(RenderObject* removed_child, int position);
 
-  virtual void OnSizeChanged(const Size& old_size, const Size& new_size);
-
   virtual void OnMeasureCore(const Size& available_size);
   virtual void OnLayoutCore(const Rect& rect);
   virtual Size OnMeasureContent(const Size& available_size) = 0;
   virtual void OnLayoutContent(const Rect& content_rect) = 0;
+
+  virtual void OnAfterLayout();
+  static void NotifyAfterLayoutRecursive(RenderObject* render_object);
 
   Rect GetContentRect() const;
 

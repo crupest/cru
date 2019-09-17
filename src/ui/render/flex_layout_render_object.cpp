@@ -11,13 +11,6 @@ FlexLayoutRenderObject::FlexLayoutRenderObject() {
   SetChildMode(ChildMode::Multiple);
 }
 
-FlexChildLayoutData* FlexLayoutRenderObject::GetChildLayoutData(int position) {
-  assert(position >= 0 &&
-         position < child_layout_data_.size());  // Position out of bound.
-
-  return &child_layout_data_[position];
-}
-
 void FlexLayoutRenderObject::Draw(platform::graph::Painter* painter) {
   for (const auto child : GetChildren()) {
     auto offset = child->GetOffset();

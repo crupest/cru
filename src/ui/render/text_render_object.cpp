@@ -1,8 +1,8 @@
 #include "cru/ui/render/text_render_object.hpp"
 
 #include "cru/platform/graph/graph_factory.hpp"
-#include "cru/platform/graph/util/painter_util.hpp"
 #include "cru/platform/graph/text_layout.hpp"
+#include "cru/platform/graph/util/painter_util.hpp"
 
 #include <algorithm>
 #include <cassert>
@@ -34,13 +34,11 @@ void TextRenderObject::SetText(std::wstring new_text) {
   text_layout_->SetText(std::move(new_text));
 }
 
-std::shared_ptr<platform::graph::Font> TextRenderObject::GetFont()
-    const {
+std::shared_ptr<platform::graph::Font> TextRenderObject::GetFont() const {
   return text_layout_->GetFont();
 }
 
-void TextRenderObject::SetFont(
-    std::shared_ptr<platform::graph::Font> font) {
+void TextRenderObject::SetFont(std::shared_ptr<platform::graph::Font> font) {
   text_layout_->SetFont(std::move(font));
 }
 
@@ -71,13 +69,6 @@ RenderObject* TextRenderObject::HitTest(const Point& point) {
              : nullptr;
 }
 
-void TextRenderObject::OnSizeChanged(const Size& old_size,
-                                     const Size& new_size) {
-  const auto&& size = GetContentRect().GetSize();
-  text_layout_->SetMaxWidth(size.width);
-  text_layout_->SetMaxHeight(size.height);
-}
-
 Size TextRenderObject::OnMeasureContent(const Size& available_size) {
   text_layout_->SetMaxWidth(available_size.width);
   text_layout_->SetMaxHeight(available_size.height);
@@ -85,4 +76,11 @@ Size TextRenderObject::OnMeasureContent(const Size& available_size) {
 }
 
 void TextRenderObject::OnLayoutContent(const Rect& content_rect) {}
+
+void TextRenderObject::OnAfterLayout() {
+  const auto&& size = GetContentRect().GetSize();
+  text_layout_->SetMaxWidth(size.width);
+  text_layout_->SetMaxHeight(size.height);
+}
+
 }  // namespace cru::ui::render

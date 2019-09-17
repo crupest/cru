@@ -183,6 +183,7 @@ struct EventRevokerDestroyer {
 
 class EventRevokerGuard {
  public:
+  EventRevokerGuard() = default;
   explicit EventRevokerGuard(EventRevoker&& revoker)
       : revoker_(new EventRevoker(std::move(revoker))) {}
   EventRevokerGuard(const EventRevokerGuard& other) = delete;
@@ -199,6 +200,10 @@ class EventRevokerGuard {
   }
 
   void Release() { revoker_.release(); }
+
+  void Reset(EventRevoker&& revoker) {
+    revoker_.reset(new EventRevoker(std::move(revoker)));
+  }
 
  private:
   std::unique_ptr<EventRevoker, details::EventRevokerDestroyer> revoker_;

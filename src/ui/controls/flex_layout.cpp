@@ -14,31 +14,29 @@ render::RenderObject* FlexLayout::GetRenderObject() const {
   return render_object_.get();
 }
 
-FlexChildLayoutData FlexLayout::GetChildLayoutData(Control* control) {
-  const auto& render_objects = render_object_->GetChildren();
+namespace {
+int FindPosition(render::RenderObject* parent, render::RenderObject* child) {
+  const auto& render_objects = parent->GetChildren();
   const auto find_result =
-      std::find(render_objects.cbegin(), render_objects.cend(),
-                control->GetRenderObject());
+      std::find(render_objects.cbegin(), render_objects.cend(), child);
   if (find_result == render_objects.cend()) {
     throw std::logic_error("Control is not a child of FlexLayout.");
   }
-  int position = static_cast<int>(find_result - render_objects.cbegin());
-  return *(render_object_->GetChildLayoutData(position));
+  return static_cast<int>(find_result - render_objects.cbegin());
+}
+}  // namespace
+
+FlexChildLayoutData FlexLayout::GetChildLayoutData(Control* control) {
+  assert(control);
+  return render_object_->GetChildLayoutData(
+      FindPosition(render_object_.get(), control->GetRenderObject()));
 }
 
 void FlexLayout::SetChildLayoutData(Control* control,
                                     const FlexChildLayoutData& data) {
-  const auto& render_objects = render_object_->GetChildren();
-  const auto find_result =
-      std::find(render_objects.cbegin(), render_objects.cend(),
-                control->GetRenderObject());
-  if (find_result == render_objects.cend()) {
-    throw std::logic_error("Control is not a child of FlexLayout.");
-  }
-  int position = static_cast<int>(find_result - render_objects.cbegin());
-  const auto d = render_object_->GetChildLayoutData(position);
-  *d = data;
-  if (const auto window = GetWindow()) window->InvalidateLayout();
+  assert(control);
+  render_object_->SetChildLayoutData(
+      FindPosition(render_object_.get(), control->GetRenderObject()), data);
 }
 
 void FlexLayout::OnAddChild(Control* child, int position) {

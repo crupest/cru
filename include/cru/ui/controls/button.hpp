@@ -13,15 +13,25 @@ class BorderRenderObject;
 }
 
 namespace cru::ui::controls {
-struct ButtonBorderStyle {
+using render::CornerRadius;
+
+struct ButtonStateStyle {
+  std::shared_ptr<platform::graph::Brush> border_brush;
+  Thickness border_thickness;
+  CornerRadius corner_radius;
+  std::shared_ptr<platform::graph::Brush> foreground_brush;
+  std::shared_ptr<platform::graph::Brush> background_brush;
+};
+
+struct ButtonStyle {
   // corresponds to ButtonState::Normal
-  render::BorderStyle normal;
+  ButtonStateStyle normal;
   // corresponds to ButtonState::Hover
-  render::BorderStyle hover;
+  ButtonStateStyle hover;
   // corresponds to ButtonState::Press
-  render::BorderStyle press;
+  ButtonStateStyle press;
   // corresponds to ButtonState::PressCancel
-  render::BorderStyle press_cancel;
+  ButtonStateStyle press_cancel;
 };
 
 enum class ButtonState {
@@ -32,7 +42,7 @@ enum class ButtonState {
   // mouse is pressed in it
   Press,
   // mouse is pressed outside button
-  PressCancel,  
+  PressCancel,
 };
 
 class Button : public ContentControl {
@@ -58,31 +68,8 @@ class Button : public ContentControl {
   render::RenderObject* GetRenderObject() const override;
 
  public:
-  render::BorderStyle GetNormalBorderStyle() const {
-    return border_style_.normal;
-  }
-  void SetNormalBorderStyle(render::BorderStyle newStyle) {
-    border_style_.normal = std::move(newStyle);
-  }
-
-  render::BorderStyle GetHoverBorderStyle() const {
-    return border_style_.hover;
-  }
-  void SetHoverBorderStyle(render::BorderStyle newStyle) {
-    border_style_.hover = std::move(newStyle);
-  }
-
-  render::BorderStyle GetPressBorderStyle() const {
-    return border_style_.press;
-  }
-  void SetPressBorderStyle(render::BorderStyle newStyle) {
-    border_style_.press = std::move(newStyle);
-  }
-
-  ButtonBorderStyle GetBorderStyle() const { return border_style_; }
-  void SetBorderStyle(ButtonBorderStyle newStyle) {
-    border_style_ = std::move(newStyle);
-  }
+  const ButtonStyle& GetStyle() const { return style_; }
+  void SetStyle(ButtonStyle style);
 
   ButtonState GetState() const { return state_; }
 
@@ -115,7 +102,7 @@ class Button : public ContentControl {
 
   MouseButton trigger_button_ = MouseButton::Left;
 
-  ButtonBorderStyle border_style_;
+  ButtonStyle style_;
 
   ClickDetector click_detector_;
 };

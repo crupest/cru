@@ -15,7 +15,7 @@ namespace internal {
 constexpr int align_start = 0;
 constexpr int align_end = align_start + 1;
 constexpr int align_center = align_end + 1;
-//constexpr int align_stretch = align_center + 1;
+// constexpr int align_stretch = align_center + 1;
 }  // namespace internal
 
 enum class FlexMainAlignment {
@@ -27,7 +27,7 @@ enum class FlexCrossAlignment {
   Start = internal::align_start,
   End = internal::align_end,
   Center = internal::align_center,
-//  Stretch = internal::align_stretch
+  //  Stretch = internal::align_stretch
 };
 
 struct FlexChildLayoutData {
@@ -50,19 +50,33 @@ class FlexLayoutRenderObject : public RenderObject {
   ~FlexLayoutRenderObject() override = default;
 
   FlexDirection GetFlexDirection() const { return direction_; }
-  void SetFlexDirection(FlexDirection direction) { direction_ = direction; }
+  void SetFlexDirection(FlexDirection direction) {
+    direction_ = direction;
+    InvalidateLayout();
+  }
 
   FlexMainAlignment GetContentMainAlign() const { return content_main_align_; }
   void SetContentMainAlign(FlexMainAlignment align) {
     content_main_align_ = align;
+    InvalidateLayout();
   }
 
   FlexCrossAlignment GetItemCrossAlign() const { return item_cross_align_; }
   void SetItemCrossAlign(FlexCrossAlignment align) {
     item_cross_align_ = align;
+    InvalidateLayout();
   }
 
-  FlexChildLayoutData* GetChildLayoutData(int position);
+  FlexChildLayoutData GetChildLayoutData(int position) {
+    assert(position >= 0 && position < child_layout_data_.size());
+    return child_layout_data_[position];
+  }
+
+  void SetChildLayoutData(int position, const FlexChildLayoutData& data) {
+    assert(position >= 0 && position < child_layout_data_.size());
+    child_layout_data_[position] = data;
+    InvalidateLayout();
+  }
 
   void Draw(platform::graph::Painter* painter) override;
 

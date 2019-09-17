@@ -56,6 +56,8 @@ WindowRenderObject::WindowRenderObject(Window* window)
     : window_(window), render_host_(new WindowRenderHost(this)) {
   SetChildMode(ChildMode::Single);
   SetRenderHost(render_host_.get());
+  after_layout_event_guard_.Reset(render_host_->AfterLayoutEvent()->AddHandler(
+      [this](auto) { NotifyAfterLayoutRecursive(this); }));
 }
 
 void WindowRenderObject::Relayout() {

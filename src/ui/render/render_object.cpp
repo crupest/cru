@@ -54,8 +54,6 @@ void RenderObject::OnRemoveChild(RenderObject* removed_child, int position) {
   InvalidatePaint();
 }
 
-void RenderObject::OnSizeChanged(const Size& old_size, const Size& new_size) {}
-
 void RenderObject::OnMeasureCore(const Size& available_size) {
   Size margin_padding_size{
       margin_.GetHorizontalTotal() + padding_.GetHorizontalTotal(),
@@ -108,6 +106,8 @@ void RenderObject::OnLayoutCore(const Rect& rect) {
                        coerced_content_available_size.height});
 }
 
+void RenderObject::OnAfterLayout() {}
+
 Rect RenderObject::GetContentRect() const {
   Rect rect{Point{}, GetSize()};
   rect = rect.Shrink(GetMargin());
@@ -121,5 +121,12 @@ void RenderObject::SetParent(RenderObject* new_parent) {
   const auto old_parent = parent_;
   parent_ = new_parent;
   OnParentChanged(old_parent, new_parent);
+}
+
+void RenderObject::NotifyAfterLayoutRecursive(RenderObject* render_object) {
+  render_object->OnAfterLayout();
+  for (const auto o : render_object->GetChildren()) {
+    NotifyAfterLayoutRecursive(o);
+  }
 }
 }  // namespace cru::ui::render
