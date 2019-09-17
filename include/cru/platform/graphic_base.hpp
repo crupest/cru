@@ -14,6 +14,14 @@ struct Point final {
   float y = 0;
 };
 
+constexpr Point operator+(const Point& left, const Point& right) {
+  return Point(left.x + right.x, left.y + right.y);
+}
+
+constexpr Point operator-(const Point& left, const Point& right) {
+  return Point(left.x - right.x, left.y - right.y);
+}
+
 constexpr bool operator==(const Point& left, const Point& right) {
   return left.x == right.x && left.y == right.y;
 }

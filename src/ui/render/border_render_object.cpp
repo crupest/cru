@@ -72,10 +72,8 @@ void BorderRenderObject::OnMeasureCore(const Size& available_size) {
       margin.GetVerticalTotal() + padding.GetVerticalTotal()};
 
   if (is_border_enabled_) {
-    margin_border_padding_size.width +=
-        border_thickness_.GetHorizontalTotal();
-    margin_border_padding_size.height +=
-        border_thickness_.GetVerticalTotal();
+    margin_border_padding_size.width += border_thickness_.GetHorizontalTotal();
+    margin_border_padding_size.height += border_thickness_.GetVerticalTotal();
   }
 
   auto coerced_margin_border_padding_size = margin_border_padding_size;
@@ -109,10 +107,8 @@ void BorderRenderObject::OnLayoutCore(const Rect& rect) {
       margin.GetVerticalTotal() + padding.GetVerticalTotal()};
 
   if (is_border_enabled_) {
-    margin_border_padding_size.width +=
-        border_thickness_.GetHorizontalTotal();
-    margin_border_padding_size.height +=
-        border_thickness_.GetVerticalTotal();
+    margin_border_padding_size.width += border_thickness_.GetHorizontalTotal();
+    margin_border_padding_size.height += border_thickness_.GetVerticalTotal();
   }
 
   const auto content_available_size =
@@ -132,13 +128,13 @@ void BorderRenderObject::OnLayoutCore(const Rect& rect) {
     coerced_content_available_size.height = 0;
   }
 
-  OnLayoutContent(Rect{
-      margin.left + (is_border_enabled_ ? border_thickness_.left : 0) +
-          padding.left,
-      margin.top + (is_border_enabled_ ? border_thickness_.top : 0) +
-          padding.top,
-      coerced_content_available_size.width,
-      coerced_content_available_size.height});
+  OnLayoutContent(
+      Rect{margin.left + (is_border_enabled_ ? border_thickness_.left : 0) +
+               padding.left,
+           margin.top + (is_border_enabled_ ? border_thickness_.top : 0) +
+               padding.top,
+           coerced_content_available_size.width,
+           coerced_content_available_size.height});
 }
 
 Size BorderRenderObject::OnMeasureContent(const Size& available_size) {
@@ -158,13 +154,28 @@ void BorderRenderObject::OnLayoutContent(const Rect& content_rect) {
   }
 }
 
-void BorderRenderObject::OnAfterLayout() {
-  RecreateGeometry();
-}
+void BorderRenderObject::OnAfterLayout() { RecreateGeometry(); }
 
 void BorderRenderObject::RecreateGeometry() {
   geometry_.reset();
   border_outer_geometry_.reset();
+
+  Thickness t = border_thickness_;
+  t.left /= 2.0;
+  t.top /= 2.0;
+  t.right /= 2.0;
+  t.bottom /= 2.0;
+  const CornerRadius& r = border_radius_;
+
+  CornerRadius outer_radius(r.left_top + Point{t.left, t.top},
+                            r.right_top + Point{t.right, t.top},
+                            r.left_bottom + Point{t.left, t.bottom},
+                            r.right_bottom + Point{t.right, t.bottom});
+
+  CornerRadius inner_radius(r.left_top - Point{t.left, t.top},
+                            r.right_top - Point{t.right, t.top},
+                            r.left_bottom - Point{t.left, t.bottom},
+                            r.right_bottom - Point{t.right, t.bottom});
 
   auto f = [](platform::graph::GeometryBuilder* builder, const Rect& rect,
               const CornerRadius& corner) {
@@ -196,20 +207,20 @@ void BorderRenderObject::RecreateGeometry() {
   const auto graph_factory = platform::graph::GraphFactory::GetInstance();
   std::unique_ptr<platform::graph::GeometryBuilder> builder{
       graph_factory->CreateGeometryBuilder()};
-  f(builder.get(), outer_rect, border_radius_);
+  f(builder.get(), outer_rect, outer_radius);
   border_outer_geometry_.reset(builder->Build());
   builder.reset();
 
   const Rect inner_rect = outer_rect.Shrink(border_thickness_);
 
   builder.reset(graph_factory->CreateGeometryBuilder());
-  f(builder.get(), inner_rect, border_radius_);
+  f(builder.get(), inner_rect, inner_radius);
   border_inner_geometry_.reset(builder->Build());
   builder.reset();
 
   builder.reset(graph_factory->CreateGeometryBuilder());
-  f(builder.get(), outer_rect, border_radius_);
-  f(builder.get(), inner_rect, border_radius_);
+  f(builder.get(), outer_rect, outer_radius);
+  f(builder.get(), inner_rect, inner_radius);
   geometry_.reset(builder->Build());
   builder.reset();
 }
