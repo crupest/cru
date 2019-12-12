@@ -24,6 +24,12 @@ WinUiApplication::WinUiApplication() {
   }
 
   instance = this;
+  IUiApplication::instance = this;
+
+  instance_handle_ = ::GetModuleHandleW(nullptr);
+  if (!instance_handle_)
+    throw Win32Error(::GetLastError(),
+                     "Failed to get module(instance) handle.");
 
   log::Logger::GetInstance()->AddSource(
       std::make_unique<::cru::platform::win::WinDebugLoggerSource>());
@@ -37,7 +43,10 @@ WinUiApplication::WinUiApplication() {
   cursor_manager_ = std::make_unique<WinCursorManager>();
 }
 
-WinUiApplication::~WinUiApplication() { instance = nullptr; }
+WinUiApplication::~WinUiApplication() {
+  IUiApplication::instance = nullptr;
+  instance = nullptr;
+}
 
 int WinUiApplication::Run() {
   MSG msg;

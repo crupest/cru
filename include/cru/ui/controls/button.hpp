@@ -3,24 +3,19 @@
 
 #include "../click_detector.hpp"
 #include "../render/border_render_object.hpp"
-#include "cru/platform/graph/brush.hpp"
 #include "cru/platform/native/basic_types.hpp"
 
 #include <memory>
-
-namespace cru::ui::render {
-class BorderRenderObject;
-}
 
 namespace cru::ui::controls {
 using render::CornerRadius;
 
 struct ButtonStateStyle {
-  std::shared_ptr<platform::graph::Brush> border_brush;
+  std::shared_ptr<platform::graph::IBrush> border_brush;
   Thickness border_thickness;
   CornerRadius border_radius;
-  std::shared_ptr<platform::graph::Brush> foreground_brush;
-  std::shared_ptr<platform::graph::Brush> background_brush;
+  std::shared_ptr<platform::graph::IBrush> foreground_brush;
+  std::shared_ptr<platform::graph::IBrush> background_brush;
 };
 
 struct ButtonStyle {
@@ -47,7 +42,7 @@ enum class ButtonState {
 
 class Button : public ContentControl {
  public:
-  static constexpr auto control_type = L"Button";
+  static constexpr std::string_view control_type = "Button";
 
   static Button* Create() { return new Button(); }
 
@@ -61,7 +56,7 @@ class Button : public ContentControl {
   Button& operator=(Button&& other) = delete;
   ~Button() override = default;
 
-  std::wstring_view GetControlType() const override final {
+  std::string_view GetControlType() const final {
     return control_type;
   }
 
@@ -96,7 +91,7 @@ class Button : public ContentControl {
   }
 
  private:
-  std::shared_ptr<render::BorderRenderObject> render_object_{};
+  std::unique_ptr<render::BorderRenderObject> render_object_{};
 
   ButtonState state_ = ButtonState::Normal;
 

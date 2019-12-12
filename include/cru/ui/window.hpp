@@ -2,14 +2,13 @@
 #include "content_control.hpp"
 
 #include "cru/common/self_resolvable.hpp"
-#include "cru/platform/native/native_event.hpp"
-#include "event/ui_event.hpp"
+#include "cru/platform/native/event.hpp"
 
 #include <memory>
 #include <vector>
 
 namespace cru::platform::native {
-class INativeWindow;
+struct INativeWindow;
 }
 
 namespace cru::ui {
@@ -21,7 +20,7 @@ class Window final : public ContentControl, public SelfResolvable<Window> {
   friend class Control;
 
  public:
-  static constexpr auto control_type = L"Window";
+  static constexpr std::string_view control_type = "Window";
 
  public:
   static Window* CreateOverlapped();
@@ -39,7 +38,7 @@ class Window final : public ContentControl, public SelfResolvable<Window> {
   ~Window() override;
 
  public:
-  std::wstring_view GetControlType() const override final;
+  std::string_view GetControlType() const override final;
 
   render::RenderObject* GetRenderObject() const override;
 
@@ -90,9 +89,10 @@ class Window final : public ContentControl, public SelfResolvable<Window> {
   void OnNativePaint(std::nullptr_t);
   void OnNativeResize(const Size& size);
 
-  void OnNativeFocus(bool focus);
+  void OnNativeFocus(cru::platform::native::FocusChangeType focus);
 
-  void OnNativeMouseEnterLeave(bool enter);
+  void OnNativeMouseEnterLeave(
+      cru::platform::native::MouseEnterLeaveType enter);
   void OnNativeMouseMove(const Point& point);
   void OnNativeMouseDown(
       const platform::native::NativeMouseButtonEventArgs& args);
@@ -115,7 +115,7 @@ class Window final : public ContentControl, public SelfResolvable<Window> {
   platform::native::INativeWindow* native_window_;
   std::vector<EventRevokerGuard> event_revoker_guards_;
 
-  std::shared_ptr<render::WindowRenderObject> render_object_;
+  std::unique_ptr<render::WindowRenderObject> render_object_;
 
   Control* mouse_hover_control_;
 

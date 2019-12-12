@@ -21,7 +21,7 @@ class WindowRenderObject : public RenderObject {
 
   void Relayout();
 
-  void Draw(platform::graph::Painter* painter) override;
+  void Draw(platform::graph::IPainter* painter) override;
 
   RenderObject* HitTest(const Point& point) override;
 

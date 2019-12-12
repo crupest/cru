@@ -29,6 +29,7 @@ WindowRenderTarget::WindowRenderTarget(DirectGraphFactory* factory, HWND hwnd)
   swap_chain_desc.Scaling = DXGI_SCALING_NONE;
   swap_chain_desc.SwapEffect =
       DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;  // all apps must use this SwapEffect
+  swap_chain_desc.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
   swap_chain_desc.Flags = 0;
 
   // Get the final swap chain for this window from the DXGI factory.

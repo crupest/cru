@@ -1,13 +1,11 @@
 #pragma once
-#include "cru/platform/graph/brush.hpp"
-#include "cru/ui/base.hpp"
 #include "render_object.hpp"
 
 #include <memory>
 
 namespace cru::platform::graph {
-class Brush;
-class IGeometry;
+struct IBrush;
+struct IGeometry;
 }  // namespace cru::platform::graph
 
 namespace cru::ui::render {
@@ -55,19 +53,19 @@ class BorderRenderObject : public RenderObject {
   bool IsBorderEnabled() const { return is_border_enabled_; }
   void SetBorderEnabled(bool enabled) { is_border_enabled_ = enabled; }
 
-  std::shared_ptr<platform::graph::Brush> GetBorderBrush() {
+  std::shared_ptr<platform::graph::IBrush> GetBorderBrush() {
     return border_brush_;
   }
 
-  void SetBorderBrush(std::shared_ptr<platform::graph::Brush> brush) {
+  void SetBorderBrush(std::shared_ptr<platform::graph::IBrush> brush) {
     if (brush == border_brush_) return;
     border_brush_ = std::move(brush);
     InvalidatePaint();
   }
 
-  platform::Thickness GetBorderThickness() { return border_thickness_; }
+  Thickness GetBorderThickness() { return border_thickness_; }
 
-  void SetBorderThickness(const platform::Thickness thickness) {
+  void SetBorderThickness(const Thickness thickness) {
     if (thickness == border_thickness_) return;
     border_thickness_ = thickness;
     InvalidateLayout();
@@ -81,27 +79,27 @@ class BorderRenderObject : public RenderObject {
     RecreateGeometry();
   }
 
-  std::shared_ptr<platform::graph::Brush> GetForegroundBrush() {
+  std::shared_ptr<platform::graph::IBrush> GetForegroundBrush() {
     return foreground_brush_;
   }
 
-  void SetForegroundBrush(std::shared_ptr<platform::graph::Brush> brush) {
+  void SetForegroundBrush(std::shared_ptr<platform::graph::IBrush> brush) {
     if (brush == foreground_brush_) return;
     foreground_brush_ = std::move(brush);
     InvalidatePaint();
   }
 
-  std::shared_ptr<platform::graph::Brush> GetBackgroundBrush() {
+  std::shared_ptr<platform::graph::IBrush> GetBackgroundBrush() {
     return background_brush_;
   }
 
-  void SetBackgroundBrush(std::shared_ptr<platform::graph::Brush> brush) {
+  void SetBackgroundBrush(std::shared_ptr<platform::graph::IBrush> brush) {
     if (brush == background_brush_) return;
     background_brush_ = std::move(brush);
     InvalidatePaint();
   }
 
-  void Draw(platform::graph::Painter* painter) override;
+  void Draw(platform::graph::IPainter* painter) override;
 
   RenderObject* HitTest(const Point& point) override;
 
@@ -123,12 +121,12 @@ class BorderRenderObject : public RenderObject {
  private:
   bool is_border_enabled_ = false;
 
-  std::shared_ptr<platform::graph::Brush> border_brush_;
+  std::shared_ptr<platform::graph::IBrush> border_brush_;
   platform::Thickness border_thickness_;
   CornerRadius border_radius_;
 
-  std::shared_ptr<platform::graph::Brush> foreground_brush_;
-  std::shared_ptr<platform::graph::Brush> background_brush_;
+  std::shared_ptr<platform::graph::IBrush> foreground_brush_;
+  std::shared_ptr<platform::graph::IBrush> background_brush_;
 
   // The ring. Used for painting.
   std::unique_ptr<platform::graph::IGeometry> geometry_;

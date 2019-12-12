@@ -16,6 +16,12 @@ struct ICursorManager;
 // The entry point of a ui application.
 struct IUiApplication : public virtual INativeResource {
  public:
+  static IUiApplication* GetInstance() { return instance; }
+
+ protected:
+  static IUiApplication* instance;
+
+ public:
   // Block current thread and run the message loop. Return the exit code when
   // message loop gets a quit message (possibly posted by method RequestQuit).
   virtual int Run() = 0;

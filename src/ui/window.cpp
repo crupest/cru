@@ -1,8 +1,8 @@
 #include "cru/ui/window.hpp"
 
 #include "cru/platform/graph/painter.hpp"
-#include "cru/platform/native/native_window.hpp"
 #include "cru/platform/native/ui_application.hpp"
+#include "cru/platform/native/window.hpp"
 #include "cru/ui/render/window_render_object.hpp"
 #include "routed_event_dispatch.hpp"
 
@@ -10,11 +10,15 @@
 #include <list>
 
 namespace cru::ui {
+using cru::platform::native::FocusChangeType;
+using cru::platform::native::IUiApplication;
+using cru::platform::native::MouseEnterLeaveType;
+
 namespace event_names {
 #ifdef CRU_DEBUG
-#define CRU_DEFINE_EVENT_NAME(name) constexpr const wchar_t* name = L#name;
+#define CRU_DEFINE_EVENT_NAME(name) constexpr const char* name = #name;
 #else
-#define CRU_DEFINE_EVENT_NAME(name) constexpr const wchar_t* name = nullptr;
+#define CRU_DEFINE_EVENT_NAME(name) constexpr const char* name = nullptr;
 #endif
 
 CRU_DEFINE_EVENT_NAME(LoseFocus)
@@ -97,8 +101,7 @@ Window::Window(tag_overlapped_constructor)
       focus_control_(this),
       mouse_captured_control_(nullptr) {
   window_ = this;
-  native_window_ =
-      platform::native::UiApplication::GetInstance()->CreateWindow(nullptr);
+  native_window_ = IUiApplication::GetInstance()->CreateWindow(nullptr);
   render_object_.reset(new render::WindowRenderObject(this));
   render_object_->SetAttachedControl(this);
 
@@ -129,7 +132,7 @@ Window::~Window() {
       [this](Control* control) { control->OnDetachToWindow(this); });
 }
 
-std::wstring_view Window::GetControlType() const { return control_type; }
+std::string_view Window::GetControlType() const { return control_type; }
 
 render::RenderObject* Window::GetRenderObject() const {
   return render_object_.get();
@@ -194,8 +197,7 @@ Control* Window::HitTest(const Point& point) {
 void Window::OnNativeDestroy(std::nullptr_t) { delete this; }
 
 void Window::OnNativePaint(std::nullptr_t) {
-  const auto painter =
-      std::unique_ptr<platform::graph::Painter>(native_window_->BeginPaint());
+  auto painter = native_window_->BeginPaint();
   render_object_->Draw(painter.get());
   painter->EndDraw();
 }
@@ -204,15 +206,16 @@ void Window::OnNativeResize(const Size& size) {
   render_object_->GetRenderHost()->InvalidateLayout();
 }
 
-void Window::OnNativeFocus(bool focus) {
-  focus ? DispatchEvent(event_names::GainFocus, focus_control_,
-                        &Control::GainFocusEvent, nullptr, true)
-        : DispatchEvent(event_names::LoseFocus, focus_control_,
-                        &Control::LoseFocusEvent, nullptr, true);
+void Window::OnNativeFocus(FocusChangeType focus) {
+  focus == FocusChangeType::Gain
+      ? DispatchEvent(event_names::GainFocus, focus_control_,
+                      &Control::GainFocusEvent, nullptr, true)
+      : DispatchEvent(event_names::LoseFocus, focus_control_,
+                      &Control::LoseFocusEvent, nullptr, true);
 }
 
-void Window::OnNativeMouseEnterLeave(bool enter) {
-  if (!enter) {
+void Window::OnNativeMouseEnterLeave(MouseEnterLeaveType type) {
+  if (type == MouseEnterLeaveType::Leave) {
     DispatchEvent(event_names::MouseLeave, mouse_hover_control_,
                   &Control::MouseLeaveEvent, nullptr);
     mouse_hover_control_ = nullptr;

@@ -1,14 +1,17 @@
 #pragma once
 #include "base.hpp"
-#include "cru/common/base.hpp"
 
-#include "cru/platform/native/basic_types.hpp"
-#include "cru/platform/native/cursor.hpp"
-#include "event/ui_event.hpp"
+#include "cru/common/event.hpp"
+#include "ui_event.hpp"
 
+#include <functional>
 #include <memory>
 #include <string_view>
 #include <vector>
+
+namespace cru::platform::native {
+struct ICursor;
+}
 
 namespace cru::ui {
 class Window;
@@ -30,7 +33,7 @@ class Control : public Object {
   ~Control() override = default;
 
  public:
-  virtual std::wstring_view GetControlType() const = 0;
+  virtual std::string_view GetControlType() const = 0;
 
   //*************** region: tree ***************
  public:
@@ -74,13 +77,13 @@ class Control : public Object {
   // Cursor is inherited from parent recursively if not set.
  public:
   // null for not set
-  std::shared_ptr<platform::native::Cursor> GetCursor();
+  std::shared_ptr<platform::native::ICursor> GetCursor();
 
   // will not return nullptr
-  std::shared_ptr<platform::native::Cursor> GetInheritedCursor();
+  std::shared_ptr<platform::native::ICursor> GetInheritedCursor();
 
   // null to unset
-  void SetCursor(std::shared_ptr<platform::native::Cursor> cursor);
+  void SetCursor(std::shared_ptr<platform::native::ICursor> cursor);
 
   //*************** region: events ***************
  public:
@@ -163,6 +166,6 @@ class Control : public Object {
     bool right;
   } click_map_;
 
-  std::shared_ptr<platform::native::Cursor> cursor_ = nullptr;
+  std::shared_ptr<platform::native::ICursor> cursor_ = nullptr;
 };
 }  // namespace cru::ui

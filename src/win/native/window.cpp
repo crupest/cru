@@ -43,6 +43,9 @@ WinNativeWindow::WinNativeWindow(WinUiApplication* application,
 
   window_manager->RegisterWindow(hwnd_, this);
 
+  SetCursor(application->GetCursorManager()->GetSystemCursor(
+      cru::platform::native::SystemCursorType::Arrow));
+
   window_render_target_ = std::make_unique<WindowRenderTarget>(
       application->GetDirectFactory(), hwnd_);
 }

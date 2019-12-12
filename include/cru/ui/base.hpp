@@ -1,5 +1,6 @@
 #pragma once
-#include "cru/platform/graphic_base.hpp"
+#include "cru/common/base.hpp"
+#include "cru/platform/graph_base.hpp"
 #include "cru/platform/matrix.hpp"
 #include "cru/platform/native/basic_types.hpp"
 
@@ -17,7 +18,7 @@ using cru::platform::native::MouseButton;
 
 namespace colors {
 using cru::platform::colors::black;
-using cru::platform::colors::white;
 using cru::platform::colors::skyblue;
+using cru::platform::colors::white;
 }  // namespace colors
 }  // namespace cru::ui

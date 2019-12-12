@@ -1,18 +1,16 @@
 #include "cru/ui/controls/button.hpp"
 #include <memory>
 
+#include "../helper.hpp"
 #include "cru/platform/graph/brush.hpp"
-#include "cru/platform/graph/graph_factory.hpp"
 #include "cru/platform/native/cursor.hpp"
-#include "cru/platform/native/native_window.hpp"
 #include "cru/platform/native/ui_application.hpp"
 #include "cru/ui/render/border_render_object.hpp"
 #include "cru/ui/ui_manager.hpp"
 #include "cru/ui/window.hpp"
 
 namespace cru::ui::controls {
-using platform::native::GetSystemCursor;
-using platform::native::SystemCursor;
+using cru::platform::native::SystemCursorType;
 
 namespace {
 void Set(render::BorderRenderObject* o, const ButtonStateStyle& s) {
@@ -22,12 +20,17 @@ void Set(render::BorderRenderObject* o, const ButtonStateStyle& s) {
   o->SetForegroundBrush(s.foreground_brush);
   o->SetBackgroundBrush(s.background_brush);
 }
+
+std::shared_ptr<platform::native::ICursor> GetSystemCursor(
+    SystemCursorType type) {
+  return GetUiApplication()->GetCursorManager()->GetSystemCursor(type);
+}
 }  // namespace
 
 Button::Button() : click_detector_(this) {
   style_ = UiManager::GetInstance()->GetThemeResources()->button_style;
 
-  render_object_.reset(new render::BorderRenderObject);
+  render_object_ = std::make_unique<render::BorderRenderObject>();
   render_object_->SetAttachedControl(this);
   Set(render_object_.get(), style_.normal);
   render_object_->SetBorderEnabled(true);
@@ -75,21 +78,20 @@ void Button::OnStateChange(ButtonState oldState, ButtonState newState) {
   switch (newState) {
     case ButtonState::Normal:
       Set(render_object_.get(), style_.normal);
-      SetCursor(GetSystemCursor(SystemCursor::Arrow));
+      SetCursor(GetSystemCursor(SystemCursorType::Arrow));
       break;
     case ButtonState::Hover:
       Set(render_object_.get(), style_.hover);
-      SetCursor(GetSystemCursor(SystemCursor::Hand));
+      SetCursor(GetSystemCursor(SystemCursorType::Hand));
       break;
     case ButtonState::Press:
       Set(render_object_.get(), style_.press);
-      SetCursor(GetSystemCursor(SystemCursor::Hand));
+      SetCursor(GetSystemCursor(SystemCursorType::Hand));
       break;
     case ButtonState::PressCancel:
       Set(render_object_.get(), style_.press_cancel);
-      SetCursor(GetSystemCursor(SystemCursor::Arrow));
+      SetCursor(GetSystemCursor(SystemCursorType::Arrow));
       break;
   }
-  GetWindow()->GetNativeWindow()->Repaint();
 }
 }  // namespace cru::ui::controls

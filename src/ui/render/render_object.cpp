@@ -62,14 +62,14 @@ void RenderObject::OnMeasureCore(const Size& available_size) {
   auto coerced_margin_padding_size = margin_padding_size;
   if (coerced_margin_padding_size.width > available_size.width) {
     log::Warn(
-        L"Measure: horizontal length of padding and margin is bigger than "
-        L"available length.");
+        "Measure: horizontal length of padding and margin is bigger than "
+        "available length.");
     coerced_margin_padding_size.width = available_size.width;
   }
   if (coerced_margin_padding_size.height > available_size.height) {
     log::Warn(
-        L"Measure: vertical length of padding and margin is bigger than "
-        L"available length.");
+        "Measure: vertical length of padding and margin is bigger than "
+        "available length.");
     coerced_margin_padding_size.height = available_size.height;
   }
 
@@ -90,14 +90,14 @@ void RenderObject::OnLayoutCore(const Rect& rect) {
 
   if (coerced_content_available_size.width < 0) {
     log::Warn(
-        L"Layout: horizontal length of padding and margin is bigger than "
-        L"available length.");
+        "Layout: horizontal length of padding and margin is bigger than "
+        "available length.");
     coerced_content_available_size.width = 0;
   }
   if (coerced_content_available_size.height < 0) {
     log::Warn(
-        L"Layout: vertical length of padding and margin is bigger than "
-        L"available length.");
+        "Layout: vertical length of padding and margin is bigger than "
+        "available length.");
     coerced_content_available_size.height = 0;
   }
 

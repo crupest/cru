@@ -1,14 +1,13 @@
 #pragma once
 #include "base.hpp"
-#include "cru/common/base.hpp"
 
 #include "controls/button.hpp"
 
 #include <memory>
 
 namespace cru::platform::graph {
-class Brush;
-class Font;
+struct IBrush;
+struct IFont;
 }  // namespace cru::platform::graph
 
 namespace cru::ui {
@@ -23,12 +22,12 @@ class PredefineResources : public Object {
   ~PredefineResources() override = default;
 
   // region Button
-  std::shared_ptr<platform::graph::Brush> button_normal_border_brush;
+  std::shared_ptr<platform::graph::IBrush> button_normal_border_brush;
 
   // region TextBlock
-  std::shared_ptr<platform::graph::Brush> text_block_selection_brush;
-  std::shared_ptr<platform::graph::Brush> text_block_text_brush;
-  std::shared_ptr<platform::graph::Font> text_block_font;
+  std::shared_ptr<platform::graph::IBrush> text_block_selection_brush;
+  std::shared_ptr<platform::graph::IBrush> text_block_text_brush;
+  std::shared_ptr<platform::graph::IFont> text_block_font;
 };
 
 struct ThemeResources {
@@ -53,9 +52,7 @@ class UiManager : public Object {
     return predefine_resources_.get();
   }
 
-  ThemeResources* GetThemeResources() {
-    return &theme_resource_;
-  }
+  ThemeResources* GetThemeResources() { return &theme_resource_; }
 
  private:
   std::unique_ptr<PredefineResources> predefine_resources_;

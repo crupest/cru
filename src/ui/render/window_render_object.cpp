@@ -1,9 +1,10 @@
 #include "cru/ui/render/window_render_object.hpp"
 
+#include "../helper.hpp"
 #include "cru/common/logger.hpp"
-#include "cru/platform/graph/util/painter_util.hpp"
-#include "cru/platform/native/native_window.hpp"
+#include "cru/platform/graph/util/painter.hpp"
 #include "cru/platform/native/ui_application.hpp"
+#include "cru/platform/native/window.hpp"
 #include "cru/ui/window.hpp"
 
 #include <cassert>
@@ -20,7 +21,7 @@ class WindowRenderHost : public IRenderHost,
   void InvalidateLayout() override;
 
   void InvalidatePaint() override {
-    render_object_->GetWindow()->GetNativeWindow()->Repaint();
+    render_object_->GetWindow()->GetNativeWindow()->RequestRepaint();
   }
 
   IEvent<AfterLayoutEventArgs>* AfterLayoutEvent() override {
@@ -37,17 +38,16 @@ class WindowRenderHost : public IRenderHost,
 
 void WindowRenderHost::InvalidateLayout() {
   if (!need_layout_) {
-    log::Debug(L"A relayout is required.");
-    platform::native::UiApplication::GetInstance()->InvokeLater(
-        [resolver = this->CreateResolver()] {
-          if (const auto host = resolver.Resolve()) {
-            host->render_object_->Relayout();
-            host->need_layout_ = false;
-            host->after_layout_event_.Raise(AfterLayoutEventArgs{});
-            log::Debug(L"A relayout finished.");
-            host->InvalidatePaint();
-          }
-        });
+    log::Debug("A relayout is required.");
+    GetUiApplication()->InvokeLater([resolver = this->CreateResolver()] {
+      if (const auto host = resolver.Resolve()) {
+        host->render_object_->Relayout();
+        host->need_layout_ = false;
+        host->after_layout_event_.Raise(AfterLayoutEventArgs{});
+        log::Debug("A relayout finished.");
+        host->InvalidatePaint();
+      }
+    });
     need_layout_ = true;
   }
 }
@@ -66,13 +66,13 @@ void WindowRenderObject::Relayout() {
   Layout(Rect{Point{}, client_size});
 }
 
-void WindowRenderObject::Draw(platform::graph::Painter* painter) {
+void WindowRenderObject::Draw(platform::graph::IPainter* painter) {
   painter->Clear(colors::white);
   if (const auto child = GetChild()) {
     auto offset = child->GetOffset();
     platform::graph::util::WithTransform(
         painter, platform::Matrix::Translation(offset.x, offset.y),
-        [child](platform::graph::Painter* p) { child->Draw(p); });
+        [child](platform::graph::IPainter* p) { child->Draw(p); });
   }
 }
 

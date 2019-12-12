@@ -23,10 +23,9 @@ class WinUiApplication : public WinNativeResource,
  private:
   static WinUiApplication* instance;
 
- private:
+ public:
   WinUiApplication();
 
- public:
   CRU_DELETE_COPY(WinUiApplication)
   CRU_DELETE_MOVE(WinUiApplication)
 

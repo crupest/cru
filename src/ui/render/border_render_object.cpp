@@ -1,9 +1,10 @@
 #include "cru/ui/render/border_render_object.hpp"
 
+#include "../helper.hpp"
 #include "cru/common/logger.hpp"
+#include "cru/platform/graph/factory.hpp"
 #include "cru/platform/graph/geometry.hpp"
-#include "cru/platform/graph/graph_factory.hpp"
-#include "cru/platform/graph/util/painter_util.hpp"
+#include "cru/platform/graph/util/painter.hpp"
 
 #include <algorithm>
 #include <cassert>
@@ -16,13 +17,13 @@ BorderRenderObject::BorderRenderObject() {
 
 BorderRenderObject::~BorderRenderObject() {}
 
-void BorderRenderObject::Draw(platform::graph::Painter* painter) {
+void BorderRenderObject::Draw(platform::graph::IPainter* painter) {
   if (background_brush_ != nullptr)
     painter->FillGeometry(border_inner_geometry_.get(),
                           background_brush_.get());
   if (is_border_enabled_) {
     if (border_brush_ == nullptr) {
-      log::Warn(L"Border is enabled but brush is null");
+      log::Warn("Border is enabled but brush is null");
     } else {
       painter->FillGeometry(geometry_.get(), border_brush_.get());
     }
@@ -79,14 +80,14 @@ void BorderRenderObject::OnMeasureCore(const Size& available_size) {
   auto coerced_margin_border_padding_size = margin_border_padding_size;
   if (coerced_margin_border_padding_size.width > available_size.width) {
     log::Warn(
-        L"Measure: horizontal length of padding, border and margin is bigger "
-        L"than available length.");
+        "Measure: horizontal length of padding, border and margin is bigger "
+        "than available length.");
     coerced_margin_border_padding_size.width = available_size.width;
   }
   if (coerced_margin_border_padding_size.height > available_size.height) {
     log::Warn(
-        L"Measure: vertical length of padding, border and margin is bigger "
-        L"than available length.");
+        "Measure: vertical length of padding, border and margin is bigger "
+        "than available length.");
     coerced_margin_border_padding_size.height = available_size.height;
   }
 
@@ -117,14 +118,14 @@ void BorderRenderObject::OnLayoutCore(const Rect& rect) {
 
   if (coerced_content_available_size.width < 0) {
     log::Warn(
-        L"Layout: horizontal length of padding, border and margin is bigger "
-        L"than available length.");
+        "Layout: horizontal length of padding, border and margin is bigger "
+        "than available length.");
     coerced_content_available_size.width = 0;
   }
   if (coerced_content_available_size.height < 0) {
     log::Warn(
-        L"Layout: vertical length of padding, border and margin is bigger "
-        L"than available length.");
+        "Layout: vertical length of padding, border and margin is bigger "
+        "than available length.");
     coerced_content_available_size.height = 0;
   }
 
@@ -177,7 +178,7 @@ void BorderRenderObject::RecreateGeometry() {
                             r.left_bottom - Point{t.left, t.bottom},
                             r.right_bottom - Point{t.right, t.bottom});
 
-  auto f = [](platform::graph::GeometryBuilder* builder, const Rect& rect,
+  auto f = [](platform::graph::IGeometryBuilder* builder, const Rect& rect,
               const CornerRadius& corner) {
     builder->BeginFigure(Point(rect.left + corner.left_top.x, rect.top));
     builder->LineTo(Point(rect.GetRight() - corner.right_top.x, rect.top));
@@ -204,24 +205,24 @@ void BorderRenderObject::RecreateGeometry() {
   const Rect outer_rect{margin.left, margin.top,
                         size.width - margin.GetHorizontalTotal(),
                         size.height - margin.GetVerticalTotal()};
-  const auto graph_factory = platform::graph::GraphFactory::GetInstance();
-  std::unique_ptr<platform::graph::GeometryBuilder> builder{
+  const auto graph_factory = GetGraphFactory();
+  std::unique_ptr<platform::graph::IGeometryBuilder> builder{
       graph_factory->CreateGeometryBuilder()};
   f(builder.get(), outer_rect, outer_radius);
-  border_outer_geometry_.reset(builder->Build());
+  border_outer_geometry_ = builder->Build();
   builder.reset();
 
   const Rect inner_rect = outer_rect.Shrink(border_thickness_);
 
-  builder.reset(graph_factory->CreateGeometryBuilder());
+  builder = graph_factory->CreateGeometryBuilder();
   f(builder.get(), inner_rect, inner_radius);
-  border_inner_geometry_.reset(builder->Build());
+  border_inner_geometry_ = builder->Build();
   builder.reset();
 
-  builder.reset(graph_factory->CreateGeometryBuilder());
+  builder = graph_factory->CreateGeometryBuilder();
   f(builder.get(), outer_rect, outer_radius);
   f(builder.get(), inner_rect, inner_radius);
-  geometry_.reset(builder->Build());
+  geometry_ = builder->Build();
   builder.reset();
 }
 }  // namespace cru::ui::render

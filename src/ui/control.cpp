@@ -2,10 +2,9 @@
 
 #include "cru/platform/native/basic_types.hpp"
 #include "cru/platform/native/cursor.hpp"
-#include "cru/platform/native/native_window.hpp"
 #include "cru/platform/native/ui_application.hpp"
+#include "cru/platform/native/window.hpp"
 #include "cru/ui/base.hpp"
-#include "cru/ui/event/ui_event.hpp"
 #include "cru/ui/window.hpp"
 #include "routed_event_dispatch.hpp"
 
@@ -13,9 +12,9 @@
 #include <memory>
 
 namespace cru::ui {
-using platform::native::Cursor;
-using platform::native::SystemCursor;
-using platform::native::UiApplication;
+using platform::native::ICursor;
+using platform::native::IUiApplication;
+using platform::native::SystemCursorType;
 
 Control::Control() {
   MouseEnterEvent()->Direct()->AddHandler(
@@ -85,20 +84,20 @@ bool Control::IsMouseCaptured() {
   return GetWindow()->GetMouseCaptureControl() == this;
 }
 
-std::shared_ptr<Cursor> Control::GetCursor() { return cursor_; }
+std::shared_ptr<ICursor> Control::GetCursor() { return cursor_; }
 
-std::shared_ptr<Cursor> Control::GetInheritedCursor() {
+std::shared_ptr<ICursor> Control::GetInheritedCursor() {
   Control* control = this;
   while (control != nullptr) {
     const auto cursor = control->GetCursor();
     if (cursor != nullptr) return cursor;
     control = control->GetParent();
   }
-  return UiApplication::GetInstance()->GetCursorManager()->GetSystemCursor(
-      SystemCursor::Arrow);
+  return IUiApplication::GetInstance()->GetCursorManager()->GetSystemCursor(
+      SystemCursorType::Arrow);
 }
 
-void Control::SetCursor(std::shared_ptr<Cursor> cursor) {
+void Control::SetCursor(std::shared_ptr<ICursor> cursor) {
   cursor_ = std::move(cursor);
   const auto window = GetWindow();
   if (window != nullptr) {

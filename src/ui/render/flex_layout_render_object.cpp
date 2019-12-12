@@ -1,6 +1,6 @@
 #include "cru/ui/render/flex_layout_render_object.hpp"
 
-#include "cru/platform/graph/util/painter_util.hpp"
+#include "cru/platform/graph/util/painter.hpp"
 
 #include <algorithm>
 #include <cassert>
@@ -11,7 +11,7 @@ FlexLayoutRenderObject::FlexLayoutRenderObject() {
   SetChildMode(ChildMode::Multiple);
 }
 
-void FlexLayoutRenderObject::Draw(platform::graph::Painter* painter) {
+void FlexLayoutRenderObject::Draw(platform::graph::IPainter* painter) {
   for (const auto child : GetChildren()) {
     auto offset = child->GetOffset();
     platform::graph::util::WithTransform(

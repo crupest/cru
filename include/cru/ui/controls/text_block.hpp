@@ -10,7 +10,7 @@ class TextRenderObject;
 namespace cru::ui::controls {
 class TextBlock : public NoChildControl {
  public:
-  static constexpr auto control_type = L"TextBlock";
+  static constexpr std::string_view control_type = "TextBlock";
 
   static TextBlock* Create() { return new TextBlock(); }
 
@@ -22,18 +22,18 @@ class TextBlock : public NoChildControl {
   TextBlock(TextBlock&& other) = delete;
   TextBlock& operator=(const TextBlock& other) = delete;
   TextBlock& operator=(TextBlock&& other) = delete;
-  ~TextBlock() override = default;
+  ~TextBlock() override;
 
-  std::wstring_view GetControlType() const override final {
+  std::string_view GetControlType() const final {
     return control_type;
   }
 
   render::RenderObject* GetRenderObject() const override;
 
-  std::wstring GetText() const;
-  void SetText(std::wstring text);
+  std::string GetText() const;
+  void SetText(std::string text);
 
  private:
-  std::shared_ptr<render::TextRenderObject> render_object_;
+  std::unique_ptr<render::TextRenderObject> render_object_;
 };
 }  // namespace cru::ui::controls

@@ -15,7 +15,7 @@ using render::FlexMainAlignment;
 
 class FlexLayout : public LayoutControl {
  public:
-  static constexpr auto control_type = L"FlexLayout";
+  static constexpr std::string_view control_type = "FlexLayout";
 
   static FlexLayout* Create() { return new FlexLayout(); }
 
@@ -29,7 +29,7 @@ class FlexLayout : public LayoutControl {
   FlexLayout& operator=(FlexLayout&& other) = delete;
   ~FlexLayout() override = default;
 
-  std::wstring_view GetControlType() const override final {
+  std::string_view GetControlType() const final {
     return control_type;
   }
 

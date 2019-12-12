@@ -7,7 +7,7 @@ class BorderRenderObject;
 
 namespace cru::ui::controls {
 class Container : public ContentControl {
-  static constexpr auto control_type = L"Container";
+  static constexpr std::string_view control_type = "Container";
 
  protected:
   Container();
@@ -19,7 +19,7 @@ class Container : public ContentControl {
   ~Container() override;
 
  public:
-  std::wstring_view GetControlType() const override final {
+  std::string_view GetControlType() const final {
     return control_type;
   }
 

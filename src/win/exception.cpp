@@ -7,7 +7,7 @@ using util::Format;
 
 inline std::string HResultMakeMessage(HRESULT h_result,
                                       const std::string_view* message) {
-  char buffer[10];
+  char buffer[20];
   sprintf_s(buffer, "%#08x", h_result);
 
   if (message)
@@ -29,7 +29,7 @@ HResultError::HResultError(HRESULT h_result,
 
 inline std::string Win32MakeMessage(DWORD error_code,
                                     const std::string_view* message) {
-  char buffer[10];
+  char buffer[20];
   sprintf_s(buffer, "%#04x", error_code);
 
   if (message)

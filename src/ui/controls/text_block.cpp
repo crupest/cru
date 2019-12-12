@@ -9,20 +9,22 @@ using render::TextRenderObject;
 TextBlock::TextBlock() {
   const auto predefined_resources =
       UiManager::GetInstance()->GetPredefineResources();
-  render_object_.reset(
-      new TextRenderObject(predefined_resources->text_block_text_brush,
-                           predefined_resources->text_block_font,
-                           predefined_resources->text_block_selection_brush));
+  render_object_ = std::make_unique<TextRenderObject>(
+      predefined_resources->text_block_text_brush,
+      predefined_resources->text_block_font,
+      predefined_resources->text_block_selection_brush);
   render_object_->SetAttachedControl(this);
 }
+
+TextBlock::~TextBlock() = default;
 
 render::RenderObject* TextBlock::GetRenderObject() const {
   return render_object_.get();
 }
 
-std::wstring TextBlock::GetText() const { return render_object_->GetText(); }
+std::string TextBlock::GetText() const { return render_object_->GetText(); }
 
-void TextBlock::SetText(std::wstring text) {
+void TextBlock::SetText(std::string text) {
   render_object_->SetText(std::move(text));
 }
 }  // namespace cru::ui::controls

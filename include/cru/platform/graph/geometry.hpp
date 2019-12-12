@@ -10,7 +10,7 @@ struct IGeometry : virtual IGraphResource {
 
 // After called Build, calling every method will throw a
 
-class IGeometryBuilder : virtual IGraphResource {
+struct IGeometryBuilder : virtual IGraphResource {
   virtual void BeginFigure(const Point& point) = 0;
   virtual void LineTo(const Point& point) = 0;
   virtual void QuadraticBezierTo(const Point& control_point,
