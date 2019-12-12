@@ -5,35 +5,16 @@
 #include <memory>
 
 namespace cru::platform::native {
-class Cursor : public NativeResource {
- public:
-  Cursor() = default;
+struct ICursor : public virtual INativeResource {};
 
-  CRU_DELETE_COPY(Cursor)
-  CRU_DELETE_MOVE(Cursor)
-
-  ~Cursor() override = default;
-};
-
-enum class SystemCursor {
+enum class SystemCursorType {
   Arrow,
   Hand,
 };
 
-class CursorManager : public NativeResource {
- public:
-  CursorManager() = default;
+struct ICursorManager : public virtual INativeResource {
+  virtual std::shared_ptr<ICursor> GetSystemCursor(SystemCursorType type) = 0;
 
-  CRU_DELETE_COPY(CursorManager)
-  CRU_DELETE_MOVE(CursorManager)
-
-  ~CursorManager() override = default;
-
- public:
-  virtual std::shared_ptr<Cursor> GetSystemCursor(SystemCursor type) = 0;
-
-  //TODO: Add method to create cursor.
+  // TODO: Add method to create cursor.
 };
-
-std::shared_ptr<Cursor> GetSystemCursor(SystemCursor type);
 }  // namespace cru::platform::native

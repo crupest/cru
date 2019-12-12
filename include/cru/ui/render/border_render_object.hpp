@@ -7,7 +7,7 @@
 
 namespace cru::platform::graph {
 class Brush;
-class Geometry;
+class IGeometry;
 }  // namespace cru::platform::graph
 
 namespace cru::ui::render {
@@ -131,11 +131,11 @@ class BorderRenderObject : public RenderObject {
   std::shared_ptr<platform::graph::Brush> background_brush_;
 
   // The ring. Used for painting.
-  std::unique_ptr<platform::graph::Geometry> geometry_;
+  std::unique_ptr<platform::graph::IGeometry> geometry_;
   // Area including inner area of the border. Used for painting foreground and
   // background.
-  std::unique_ptr<platform::graph::Geometry> border_inner_geometry_;
+  std::unique_ptr<platform::graph::IGeometry> border_inner_geometry_;
   // Area including border ring and inner area. Used for hit test.
-  std::unique_ptr<platform::graph::Geometry> border_outer_geometry_;
+  std::unique_ptr<platform::graph::IGeometry> border_outer_geometry_;
 };
 }  // namespace cru::ui::render

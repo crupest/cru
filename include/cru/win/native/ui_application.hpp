@@ -44,8 +44,8 @@ class WinUiApplication : public UiApplication {
                             const std::function<void()>& action) override;
   void CancelTimer(unsigned long id) override;
 
-  std::vector<NativeWindow*> GetAllWindow() override;
-  NativeWindow* CreateWindow(NativeWindow* parent) override;
+  std::vector<INativeWindow*> GetAllWindow() override;
+  INativeWindow* CreateWindow(INativeWindow* parent) override;
 
   WinCursorManager* GetCursorManager() override;
 

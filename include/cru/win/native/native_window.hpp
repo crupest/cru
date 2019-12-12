@@ -13,7 +13,7 @@ class WindowClass;
 class WindowManager;
 class WindowRenderTarget;
 
-class WinNativeWindow : public NativeWindow {
+class WinNativeWindow : public INativeWindow {
  public:
   WinNativeWindow(WinUiApplication* application,
                   std::shared_ptr<WindowClass> window_class, DWORD window_style,

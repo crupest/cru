@@ -23,19 +23,15 @@ namespace cru {
 class Object {
  public:
   Object() = default;
-  Object(const Object&) = default;
-  Object& operator=(const Object&) = default;
-  Object(Object&&) = default;
-  Object& operator=(Object&&) = default;
+  CRU_DEFAULT_COPY(Object)
+  CRU_DEFAULT_MOVE(Object)
   virtual ~Object() = default;
 };
 
 struct Interface {
   Interface() = default;
-  Interface(const Interface& other) = delete;
-  Interface(Interface&& other) = delete;
-  Interface& operator=(const Interface& other) = delete;
-  Interface& operator=(Interface&& other) = delete;
+  CRU_DELETE_COPY(Interface)
+  CRU_DELETE_MOVE(Interface)
   virtual ~Interface() = default;
 };
 

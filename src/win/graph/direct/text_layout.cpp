@@ -1,46 +1,49 @@
 #include "cru/win/graph/direct/text_layout.hpp"
 
+#include "cru/platform/check.hpp"
 #include "cru/win/graph/direct/exception.hpp"
+#include "cru/win/graph/direct/factory.hpp"
+#include "cru/win/graph/direct/font.hpp"
+#include "cru/win/string.hpp"
 
 #include <cassert>
 #include <utility>
 
 namespace cru::platform::graph::win::direct {
-DWriteTextLayout::DWriteTextLayout(IDirectFactory* factory,
-                                   std::shared_ptr<Font> font,
-                                   std::wstring text)
-    : text_(std::move(text)) {
-  assert(factory);
+DWriteTextLayout::DWriteTextLayout(DirectGraphFactory* factory,
+                                   std::shared_ptr<IFont> font,
+                                   std::string text)
+    : DirectGraphResource(factory), text_(std::move(text)) {
   assert(font);
-  assert(IsDirectResource(font.get()));
-  factory_ = factory;
-  font_ = std::static_pointer_cast<DWriteFont>(font);
+  font_ = CheckPlatform<DWriteFont>(font, GetPlatformId());
+
+  w_text_ = cru::platform::win::ToUtf16String(text_);
 
   ThrowIfFailed(factory->GetDWriteFactory()->CreateTextLayout(
-      text_.c_str(), static_cast<UINT32>(text_.size()),
+      w_text_.c_str(), static_cast<UINT32>(w_text_.size()),
       font_->GetComInterface(), max_width_, max_height_, &text_layout_));
 }
 
-std::wstring DWriteTextLayout::GetText() { return text_; }
+DWriteTextLayout::~DWriteTextLayout() = default;
 
-void DWriteTextLayout::SetText(std::wstring new_text) {
+std::string DWriteTextLayout::GetText() { return text_; }
+
+void DWriteTextLayout::SetText(std::string new_text) {
   text_.swap(new_text);
-  ThrowIfFailed(factory_->GetDWriteFactory()->CreateTextLayout(
-      text_.c_str(), static_cast<UINT32>(text_.size()),
+  w_text_ = cru::platform::win::ToUtf16String(text_);
+  ThrowIfFailed(GetDirectFactory()->GetDWriteFactory()->CreateTextLayout(
+      w_text_.c_str(), static_cast<UINT32>(w_text_.size()),
       font_->GetComInterface(), max_width_, max_height_, &text_layout_));
 }
 
-std::shared_ptr<Font> DWriteTextLayout::GetFont() {
-  return std::static_pointer_cast<Font>(font_);
+std::shared_ptr<IFont> DWriteTextLayout::GetFont() {
+  return std::dynamic_pointer_cast<IFont>(font_);
 }
 
-void DWriteTextLayout::SetFont(std::shared_ptr<Font> font) {
-  assert(IsDirectResource(font.get()));
-  auto f = std::static_pointer_cast<DWriteFont>(font);
-
-  f.swap(font_);
-  ThrowIfFailed(factory_->GetDWriteFactory()->CreateTextLayout(
-      text_.c_str(), static_cast<UINT32>(text_.size()),
+void DWriteTextLayout::SetFont(std::shared_ptr<IFont> font) {
+  font_ = CheckPlatform<DWriteFont>(font, GetPlatformId());
+  ThrowIfFailed(GetDirectFactory()->GetDWriteFactory()->CreateTextLayout(
+      w_text_.c_str(), static_cast<UINT32>(w_text_.size()),
       font_->GetComInterface(), max_width_, max_height_, &text_layout_));
 }
 

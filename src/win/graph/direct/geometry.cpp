@@ -2,14 +2,20 @@
 
 #include "cru/win/graph/direct/convert_util.hpp"
 #include "cru/win/graph/direct/exception.hpp"
+#include "cru/win/graph/direct/factory.hpp"
 
 #include <cassert>
 
 namespace cru::platform::graph::win::direct {
-D2DGeometryBuilder::D2DGeometryBuilder(IDirectFactory* factory) {
-  assert(factory);
+D2DGeometryBuilder::D2DGeometryBuilder(DirectGraphFactory* factory)
+    : DirectGraphResource(factory) {
   ThrowIfFailed(factory->GetD2D1Factory()->CreatePathGeometry(&geometry_));
   ThrowIfFailed(geometry_->Open(&geometry_sink_));
+}
+
+void D2DGeometryBuilder::CheckValidation() {
+  if (!IsValid())
+    throw ReuseException("The geometry builder is already disposed.");
 }
 
 void D2DGeometryBuilder::BeginFigure(const Point& point) {
@@ -35,19 +41,19 @@ void D2DGeometryBuilder::CloseFigure(bool close) {
                                   : D2D1_FIGURE_END_OPEN);
 }
 
-Geometry* D2DGeometryBuilder::Build() {
+std::unique_ptr<IGeometry> D2DGeometryBuilder::Build() {
   CheckValidation();
   ThrowIfFailed(geometry_sink_->Close());
   geometry_sink_ = nullptr;
-  const auto geometry = new D2DGeometry(std::move(geometry_));
+  auto geometry =
+      std::make_unique<D2DGeometry>(GetDirectFactory(), std::move(geometry_));
   geometry_ = nullptr;
   return geometry;
 }
 
-D2DGeometry::D2DGeometry(Microsoft::WRL::ComPtr<ID2D1PathGeometry> geometry) {
-  assert(geometry);
-  geometry_ = std::move(geometry);
-}
+D2DGeometry::D2DGeometry(DirectGraphFactory* factory,
+                         Microsoft::WRL::ComPtr<ID2D1PathGeometry> geometry)
+    : DirectGraphResource(factory), geometry_(std::move(geometry)) {}
 
 bool D2DGeometry::FillContains(const Point& point) {
   BOOL result;

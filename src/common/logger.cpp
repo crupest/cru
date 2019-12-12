@@ -2,6 +2,7 @@
 
 #include "cru/common/format.hpp"
 
+#include <array>
 #include <cstdlib>
 #include <ctime>
 #include <memory>
@@ -11,7 +12,7 @@ namespace cru::log {
 namespace {
 Logger *CreateLogger() {
   const auto logger = new Logger();
-  logger->AddSource(new StdioLoggerSource());
+  logger->AddSource(std::make_unique<StdioLogSource>());
   return logger;
 }
 }  // namespace
@@ -21,45 +22,45 @@ Logger *Logger::GetInstance() {
   return logger.get();
 }
 
-Logger::~Logger() {
-  for (const auto i : sources_) {
-    delete i;
-  }
+void Logger::AddSource(std::unique_ptr<ILogSource> source) {
+  sources_.push_back(std::move(source));
 }
 
-void Logger::AddSource(ILoggerSource *source) { sources_.push_back(source); }
-
-void Logger::RemoveSource(ILoggerSource *source) { sources_.remove(source); }
+void Logger::RemoveSource(ILogSource *source) {
+  sources_.remove_if([source](const std::unique_ptr<ILogSource> &s) {
+    return s.get() == source;
+  });
+}
 
 namespace {
-std::wstring_view LogLevelToString(LogLevel level) {
+std::string_view LogLevelToString(LogLevel level) {
   switch (level) {
     case LogLevel::Debug:
-      return L"DEBUG";
+      return "DEBUG";
     case LogLevel::Info:
-      return L"INFO";
+      return "INFO";
     case LogLevel::Warn:
-      return L"WARN";
+      return "WARN";
     case LogLevel::Error:
-      return L"ERROR";
+      return "ERROR";
     default:
       std::abort();
   }
 }
 }  // namespace
 
-void Logger::Log(LogLevel level, const std::wstring_view &s) {
+void Logger::Log(LogLevel level, const std::string_view &s) {
 #ifndef CRU_DEBUG
   if (level == LogLevel::Debug) {
     return;
   }
 #endif
-  for (const auto source : sources_) {
+  for (const auto &source : sources_) {
     auto now = std::time(nullptr);
-    wchar_t buffer[50];
-    std::wcsftime(buffer, 50, L"%c", std::localtime(&now));
+    std::array<char, 50> buffer;
+    std::strftime(buffer.data(), 50, "%c", std::localtime(&now));
 
-    source->Write(level, util::Format(L"[{}] {}: {}\n", buffer,
+    source->Write(level, util::Format("[{}] {}: {}\n", buffer.data(),
                                       LogLevelToString(level), s));
   }
 }

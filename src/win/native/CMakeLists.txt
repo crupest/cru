@@ -22,7 +22,6 @@ target_sources(cru_win_native PUBLIC
 	${CRU_WIN_NATIVE_INCLUDE_DIR}/exception.hpp
 	${CRU_WIN_NATIVE_INCLUDE_DIR}/god_window.hpp
 	${CRU_WIN_NATIVE_INCLUDE_DIR}/native_window.hpp
-	${CRU_WIN_NATIVE_INCLUDE_DIR}/platform_id.hpp
 	${CRU_WIN_NATIVE_INCLUDE_DIR}/ui_application.hpp
 	${CRU_WIN_NATIVE_INCLUDE_DIR}/window_class.hpp
 	${CRU_WIN_NATIVE_INCLUDE_DIR}/window_native_message_event_args.hpp

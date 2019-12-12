@@ -107,16 +107,16 @@ void WinUiApplication::CancelTimer(unsigned long id) {
   timer_manager_->KillTimer(static_cast<UINT_PTR>(id));
 }
 
-std::vector<NativeWindow*> WinUiApplication::GetAllWindow() {
+std::vector<INativeWindow*> WinUiApplication::GetAllWindow() {
   const auto&& windows = window_manager_->GetAllWindows();
-  std::vector<NativeWindow*> result;
+  std::vector<INativeWindow*> result;
   for (const auto w : windows) {
-    result.push_back(static_cast<NativeWindow*>(w));
+    result.push_back(static_cast<INativeWindow*>(w));
   }
   return result;
 }
 
-NativeWindow* WinUiApplication::CreateWindow(NativeWindow* parent) {
+INativeWindow* WinUiApplication::CreateWindow(INativeWindow* parent) {
   WinNativeWindow* p = nullptr;
   if (parent != nullptr) {
     p = dynamic_cast<WinNativeWindow*>(parent);

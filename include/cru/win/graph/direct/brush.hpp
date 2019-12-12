@@ -1,44 +1,39 @@
 #pragma once
 #include "com_resource.hpp"
-#include "direct_factory.hpp"
-#include "platform_id.hpp"
+#include "resource.hpp"
 
 #include "cru/platform/graph/brush.hpp"
 
 namespace cru::platform::graph::win::direct {
-struct ID2DBrush {
-  virtual ~ID2DBrush() = default;
-
+struct ID2DBrush : virtual IBrush {
   virtual ID2D1Brush* GetD2DBrushInterface() const = 0;
 };
 
-class D2DSolidColorBrush : public SolidColorBrush,
-                           public ID2DBrush,
-                           public IComResource<ID2D1SolidColorBrush> {
+class D2DSolidColorBrush : public DirectGraphResource,
+                           public virtual ISolidColorBrush,
+                           public virtual ID2DBrush,
+                           public virtual IComResource<ID2D1SolidColorBrush> {
  public:
-  explicit D2DSolidColorBrush(IDirectFactory* factory);
+  explicit D2DSolidColorBrush(DirectGraphFactory* factory);
 
-  D2DSolidColorBrush(const D2DSolidColorBrush& other) = delete;
-  D2DSolidColorBrush& operator=(const D2DSolidColorBrush& other) = delete;
-
-  D2DSolidColorBrush(D2DSolidColorBrush&& other) = delete;
-  D2DSolidColorBrush& operator=(D2DSolidColorBrush&& other) = delete;
+  CRU_DELETE_COPY(D2DSolidColorBrush)
+  CRU_DELETE_MOVE(D2DSolidColorBrush)
 
   ~D2DSolidColorBrush() override = default;
 
-  CRU_PLATFORMID_IMPLEMENT_DIRECT
-
  public:
+  Color GetColor() override { return color_; }
+  void SetColor(const Color& color) override;
+
   ID2D1Brush* GetD2DBrushInterface() const override { return brush_.Get(); }
 
   ID2D1SolidColorBrush* GetComInterface() const override {
     return brush_.Get();
   }
 
- protected:
-  void OnSetColor(const Color& color) override;
-
  private:
+  Color color_ = colors::black;
+
   Microsoft::WRL::ComPtr<ID2D1SolidColorBrush> brush_;
 };
 }  // namespace cru::platform::graph::win::direct

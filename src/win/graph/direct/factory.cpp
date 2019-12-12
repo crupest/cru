@@ -1,4 +1,4 @@
-#include "cru/win/graph/direct/graph_factory.hpp"
+#include "cru/win/graph/direct/factory.hpp"
 
 #include "cru/win/graph/direct/brush.hpp"
 #include "cru/win/graph/direct/exception.hpp"
@@ -11,37 +11,6 @@
 #include <utility>
 
 namespace cru::platform::graph::win::direct {
-namespace {
-DirectGraphFactory* instance = nullptr;
-}
-}  // namespace cru::platform::graph::win::direct
-
-namespace cru::platform::graph {
-void GraphFactoryAutoDeleteExitHandler() {
-  const auto i =
-      ::cru::platform::graph::win::direct::instance;  // avoid long namespace
-                                                      // prefix
-  if (i == nullptr) return;
-  if (i->IsAutoDelete()) delete i;
-}
-
-GraphFactory* GraphFactory::CreateInstance() {
-  auto& i = ::cru::platform::graph::win::direct::instance;  // avoid long
-                                                            // namespace prefix
-  assert(i == nullptr);
-  i = new ::cru::platform::graph::win::direct::DirectGraphFactory();
-  std::atexit(&GraphFactoryAutoDeleteExitHandler);
-  return i;
-}
-
-GraphFactory* GraphFactory::GetInstance() {
-  return ::cru::platform::graph::win::direct::instance;
-}
-}  // namespace cru::platform::graph
-
-namespace cru::platform::graph::win::direct {
-DirectGraphFactory* DirectGraphFactory::GetInstance() { return instance; }
-
 DirectGraphFactory::DirectGraphFactory() {
   UINT creation_flags = D3D11_CREATE_DEVICE_BGRA_SUPPORT;
 
@@ -89,23 +58,22 @@ DirectGraphFactory::DirectGraphFactory() {
       &dwrite_system_font_collection_));
 }
 
-DirectGraphFactory::~DirectGraphFactory() { instance = nullptr; }
-
-D2DSolidColorBrush* DirectGraphFactory::CreateSolidColorBrush() {
-  return new D2DSolidColorBrush(this);
+std::unique_ptr<ISolidColorBrush> DirectGraphFactory::CreateSolidColorBrush() {
+  return std::make_unique<D2DSolidColorBrush>(this);
 }
 
-D2DGeometryBuilder* DirectGraphFactory::CreateGeometryBuilder() {
-  return new D2DGeometryBuilder(this);
+std::unique_ptr<IGeometryBuilder> DirectGraphFactory::CreateGeometryBuilder() {
+  return std::make_unique<D2DGeometryBuilder>(this);
 }
 
-DWriteFont* DirectGraphFactory::CreateFont(
-    const std::wstring_view& font_family, float font_size) {
-  return new DWriteFont(this, font_family, font_size);
+std::unique_ptr<IFont> DirectGraphFactory::CreateFont(
+    const std::string_view& font_family, float font_size) {
+  return std::make_unique<DWriteFont>(this, font_family, font_size);
 }
 
-DWriteTextLayout* DirectGraphFactory::CreateTextLayout(
-    std::shared_ptr<Font> font, std::wstring text) {
-  return new DWriteTextLayout(this, std::move(font), std::move(text));
+std::unique_ptr<ITextLayout> DirectGraphFactory::CreateTextLayout(
+    std::shared_ptr<IFont> font, std::string text) {
+  return std::make_unique<DWriteTextLayout>(this, std::move(font),
+                                            std::move(text));
 }
 }  // namespace cru::platform::graph::win::direct

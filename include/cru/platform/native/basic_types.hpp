@@ -7,5 +7,5 @@ struct Dpi {
   float y;
 };
 
-enum MouseButton : unsigned { Left = 1, Right = 2, Middle = 4 };
+enum MouseButton : unsigned { Left = 0b1, Right = 0b10, Middle = 0b100 };
 }  // namespace cru::platform::native

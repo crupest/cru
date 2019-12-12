@@ -1,5 +1,5 @@
 #pragma once
-#include "graphic_base.hpp"
+#include "graph_base.hpp"
 
 #include <cmath>
 
@@ -39,7 +39,7 @@ struct Matrix {
 
   Point TransformPoint(const Point& point) const {
     return Point{point.x * m11 + point.y * m21 + m31,
-                     point.x * m12 + point.y * m22 + m32};
+                 point.x * m12 + point.y * m22 + m32};
   }
 
   static Matrix Identity() {
@@ -50,10 +50,8 @@ struct Matrix {
     return Matrix{1.0f, 0.0f, 0.0f, 1.0f, x, y};
   }
 
-  static Matrix Scale(float sx, float sy) { return Scale(sx, sy, 0.0f, 0.0f); }
-
-  static Matrix Scale(float sx, float sy, float cx, float cy) {
-    return Matrix{sx, 0.0f, 0.0f, sy, cx - sx * cx, cy - sy * cy};
+  static Matrix Scale(float sx, float sy) {
+    return Matrix{sx, 0.0f, 0.0f, sy, 0.0f, 0.0f};
   }
 
   static Matrix Rotation(float angle) {

@@ -1,8 +1,7 @@
 #pragma once
 #include "../../win_pre_config.hpp"
 
-#include "cru/platform/graphic_base.hpp"
-#include "cru/platform/matrix.hpp"
+#include "cru/platform/graph/base.hpp"
 
 namespace cru::platform::graph::win::direct {
 inline D2D1_MATRIX_3X2_F Convert(const platform::Matrix& matrix) {
@@ -48,7 +47,7 @@ inline platform::Matrix Convert(const D2D1_MATRIX_3X2_F& matrix) {
 inline Color Convert(const D2D1_COLOR_F& color) {
   auto floor = [](float n) { return static_cast<std::uint8_t>(n + 0.5f); };
   return Color{floor(color.r * 255.0f), floor(color.g * 255.0f),
-                   floor(color.b * 255.0f), floor(color.a * 255.0f)};
+               floor(color.b * 255.0f), floor(color.a * 255.0f)};
 }
 
 inline Point Convert(const D2D1_POINT_2F& point) {
@@ -57,12 +56,12 @@ inline Point Convert(const D2D1_POINT_2F& point) {
 
 inline Rect Convert(const D2D1_RECT_F& rect) {
   return Rect(rect.left, rect.top, rect.right - rect.left,
-                  rect.bottom - rect.top);
+              rect.bottom - rect.top);
 }
 
 inline RoundedRect Convert(const D2D1_ROUNDED_RECT& rounded_rect) {
   return RoundedRect(Convert(rounded_rect.rect), rounded_rect.radiusX,
-                         rounded_rect.radiusY);
+                     rounded_rect.radiusY);
 }
 
 inline Ellipse Convert(const D2D1_ELLIPSE& ellipse) {

@@ -1,25 +1,19 @@
 #pragma once
 #include "com_resource.hpp"
-#include "direct_factory.hpp"
-#include "platform_id.hpp"
+#include "resource.hpp"
 
-#include "cru/platform/exception.hpp"
 #include "cru/platform/graph/geometry.hpp"
 
 namespace cru::platform::graph::win::direct {
-class D2DGeometryBuilder : public GeometryBuilder {
+class D2DGeometryBuilder : public DirectGraphResource,
+                           public virtual IGeometryBuilder {
  public:
-  explicit D2DGeometryBuilder(IDirectFactory* factory);
+  explicit D2DGeometryBuilder(DirectGraphFactory* factory);
 
-  D2DGeometryBuilder(const D2DGeometryBuilder& other) = delete;
-  D2DGeometryBuilder& operator=(const D2DGeometryBuilder& other) = delete;
-
-  D2DGeometryBuilder(D2DGeometryBuilder&& other) = delete;
-  D2DGeometryBuilder& operator=(D2DGeometryBuilder&& other) = delete;
+  CRU_DELETE_COPY(D2DGeometryBuilder)
+  CRU_DELETE_MOVE(D2DGeometryBuilder)
 
   ~D2DGeometryBuilder() override = default;
-
-  CRU_PLATFORMID_IMPLEMENT_DIRECT
 
  public:
   void BeginFigure(const Point& point) override;
@@ -28,33 +22,28 @@ class D2DGeometryBuilder : public GeometryBuilder {
                          const Point& end_point) override;
   void CloseFigure(bool close) override;
 
-  Geometry* Build() override;
+  std::unique_ptr<IGeometry> Build() override;
 
  private:
   bool IsValid() { return geometry_ != nullptr; }
-  void CheckValidation() {
-    if (!IsValid())
-      throw ReuseException("The geometry builder is already disposed.");
-  }
+  void CheckValidation();
 
  private:
   Microsoft::WRL::ComPtr<ID2D1PathGeometry> geometry_;
   Microsoft::WRL::ComPtr<ID2D1GeometrySink> geometry_sink_;
 };
 
-class D2DGeometry : public Geometry, public IComResource<ID2D1Geometry> {
+class D2DGeometry : public DirectGraphResource,
+                    public virtual IGeometry,
+                    public IComResource<ID2D1Geometry> {
  public:
-  explicit D2DGeometry(Microsoft::WRL::ComPtr<ID2D1PathGeometry> geometry);
+  D2DGeometry(DirectGraphFactory* factory,
+              Microsoft::WRL::ComPtr<ID2D1PathGeometry> geometry);
 
-  D2DGeometry(const D2DGeometry& other) = delete;
-  D2DGeometry& operator=(const D2DGeometry& other) = delete;
-
-  D2DGeometry(D2DGeometry&& other) = delete;
-  D2DGeometry& operator=(D2DGeometry&& other) = delete;
+  CRU_DELETE_COPY(D2DGeometry)
+  CRU_DELETE_MOVE(D2DGeometry)
 
   ~D2DGeometry() override = default;
-
-  CRU_PLATFORMID_IMPLEMENT_DIRECT
 
  public:
   ID2D1Geometry* GetComInterface() const override { return geometry_.Get(); }

@@ -2,7 +2,7 @@ set(CRU_BASE_INCLUDE_DIR ${CRU_INCLUDE_DIR}/cru/common)
 add_library(cru_base STATIC 
     logger.cpp
 )
-target_sources(cru_base INTERFACE
+target_sources(cru_base PUBLIC
 	${CRU_BASE_INCLUDE_DIR}/base.hpp
 	${CRU_BASE_INCLUDE_DIR}/event.hpp
 	${CRU_BASE_INCLUDE_DIR}/format.hpp

@@ -9,7 +9,7 @@
 #include <vector>
 
 namespace cru::platform::native {
-class NativeWindow;
+class INativeWindow;
 }
 
 namespace cru::ui {
@@ -43,7 +43,7 @@ class Window final : public ContentControl, public SelfResolvable<Window> {
 
   render::RenderObject* GetRenderObject() const override;
 
-  platform::native::NativeWindow* GetNativeWindow() const {
+  platform::native::INativeWindow* GetNativeWindow() const {
     return native_window_;
   }
 
@@ -112,7 +112,7 @@ class Window final : public ContentControl, public SelfResolvable<Window> {
   void UpdateCursor();
 
  private:
-  platform::native::NativeWindow* native_window_;
+  platform::native::INativeWindow* native_window_;
   std::vector<EventRevokerGuard> event_revoker_guards_;
 
   std::shared_ptr<render::WindowRenderObject> render_object_;

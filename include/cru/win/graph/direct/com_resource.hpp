@@ -1,11 +1,11 @@
 #pragma once
 #include "../../win_pre_config.hpp"
 
-namespace cru::platform::graph::win::direct {
-template<typename TInterface>
-struct IComResource {
-  virtual ~IComResource() = default;
+#include "cru/common/base.hpp"
 
+namespace cru::platform::graph::win::direct {
+template <typename TInterface>
+struct IComResource : virtual Interface {
   virtual TInterface* GetComInterface() const = 0;
 };
-}  // namespace cru::platform::graph::win_direct
+}  // namespace cru::platform::graph::win::direct

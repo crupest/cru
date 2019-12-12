@@ -1,30 +1,25 @@
 #pragma once
 #include "com_resource.hpp"
-#include "direct_factory.hpp"
-#include "platform_id.hpp"
+#include "resource.hpp"
 
 #include "cru/platform/graph/text_layout.hpp"
-
-#include "font.hpp"
 
 #include <memory>
 
 namespace cru::platform::graph::win::direct {
-class DWriteTextLayout : public TextLayout,
-                         public IComResource<IDWriteTextLayout> {
+class DWriteFont;
+
+class DWriteTextLayout : public DirectGraphResource,
+                         public virtual ITextLayout,
+                         public virtual IComResource<IDWriteTextLayout> {
  public:
-  explicit DWriteTextLayout(IDirectFactory* factory, std::shared_ptr<Font> font,
-                            std::wstring text);
+  DWriteTextLayout(DirectGraphFactory* factory, std::shared_ptr<IFont> font,
+                   std::string text);
 
-  DWriteTextLayout(const DWriteTextLayout& other) = delete;
-  DWriteTextLayout& operator=(const DWriteTextLayout& other) = delete;
+  CRU_DELETE_COPY(DWriteTextLayout)
+  CRU_DELETE_MOVE(DWriteTextLayout)
 
-  DWriteTextLayout(DWriteTextLayout&& other) = delete;
-  DWriteTextLayout& operator=(DWriteTextLayout&& other) = delete;
-
-  ~DWriteTextLayout() override = default;
-
-  CRU_PLATFORMID_IMPLEMENT_DIRECT
+  ~DWriteTextLayout() override;
 
  public:
   IDWriteTextLayout* GetComInterface() const override {
@@ -32,11 +27,11 @@ class DWriteTextLayout : public TextLayout,
   }
 
  public:
-  std::wstring GetText() override;
-  void SetText(std::wstring new_text) override;
+  std::string GetText() override;
+  void SetText(std::string new_text) override;
 
-  std::shared_ptr<Font> GetFont() override;
-  void SetFont(std::shared_ptr<Font> font) override;
+  std::shared_ptr<IFont> GetFont() override;
+  void SetFont(std::shared_ptr<IFont> font) override;
 
   void SetMaxWidth(float max_width) override;
   void SetMaxHeight(float max_height) override;
@@ -45,8 +40,8 @@ class DWriteTextLayout : public TextLayout,
   std::vector<Rect> TextRangeRect(const TextRange& text_range) override;
 
  private:
-  IDirectFactory* factory_;
-  std::wstring text_;
+  std::string text_;
+  std::wstring w_text_;
   std::shared_ptr<DWriteFont> font_;
   float max_width_ = 0.0f;
   float max_height_ = 0.0f;

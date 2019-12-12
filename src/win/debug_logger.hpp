@@ -4,7 +4,7 @@
 
 namespace cru::platform::win {
 
-class WinDebugLoggerSource : public ::cru::log::ILoggerSource {
+class WinDebugLoggerSource : public ::cru::log::ILogSource {
  public:
   WinDebugLoggerSource() = default;
 
@@ -13,8 +13,8 @@ class WinDebugLoggerSource : public ::cru::log::ILoggerSource {
 
   ~WinDebugLoggerSource() = default;
 
-  void Write(::cru::log::LogLevel level, const std::wstring_view& s) override {
-    ::OutputDebugStringW(s.data());
+  void Write(::cru::log::LogLevel level, const std::string_view& s) override {
+    ::OutputDebugStringA(s.data());
   }
 };
 }  // namespace cru::platform::win
