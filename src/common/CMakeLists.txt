@@ -11,3 +11,5 @@ target_sources(cru_base PUBLIC
 	${CRU_BASE_INCLUDE_DIR}/self_resolvable.hpp
 )
 target_include_directories(cru_base PUBLIC ${CRU_INCLUDE_DIR})
+
+target_compile_definitions(cru_base PUBLIC $<$<CONFIG:Debug>:CRU_DEBUG>)

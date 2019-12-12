@@ -5,8 +5,4 @@
 #pragma warning(disable : 4250)
 #endif
 
-#ifdef _DEBUG
-#define CRU_DEBUG
-#endif
-
 #define _CRT_SECURE_NO_WARNINGS
