@@ -1,7 +1,7 @@
 #include "window_manager.hpp"
 
 #include "cru/win/native/ui_application.hpp"
-#include "cru/win/native/native_window.hpp"
+#include "cru/win/native/window.hpp"
 #include "cru/win/native/window_class.hpp"
 
 #include <cassert>
@@ -22,7 +22,7 @@ LRESULT __stdcall GeneralWndProc(HWND hWnd, UINT Msg, WPARAM wParam,
 
 WindowManager::WindowManager(WinUiApplication* application) {
   application_ = application;
-  general_window_class_ = std::make_shared<WindowClass>(
+  general_window_class_ = std::make_unique<WindowClass>(
       L"CruUIWindowClass", GeneralWndProc, application->GetInstanceHandle());
 }
 
@@ -39,7 +39,7 @@ void WindowManager::UnregisterWindow(HWND hwnd) {
   const auto find_result = window_map_.find(hwnd);
   assert(find_result != window_map_.end());  // The hwnd is not in the map.
   window_map_.erase(find_result);
-  if (window_map_.empty()) application_->Quit(0);
+  if (window_map_.empty()) application_->RequestQuit(0);
 }
 
 WinNativeWindow* WindowManager::FromHandle(HWND hwnd) {

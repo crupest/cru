@@ -1,21 +1,22 @@
 #include "cru/win/native/window_render_target.hpp"
 
-#include "cru/win/graph/direct/direct_factory.hpp"
 #include "cru/win/graph/direct/exception.hpp"
+#include "cru/win/graph/direct/factory.hpp"
 #include "dpi_util.hpp"
 
 #include <cassert>
 
 namespace cru::platform::native::win {
 using namespace cru::platform::graph::win::direct;
-WindowRenderTarget::WindowRenderTarget(IDirectFactory* factory, HWND hwnd) {
-  this->factory_ = factory;
+WindowRenderTarget::WindowRenderTarget(DirectGraphFactory* factory, HWND hwnd)
+    : factory_(factory) {
+  assert(factory);
 
   const auto d3d11_device = factory->GetD3D11Device();
   const auto dxgi_factory = factory->GetDxgiFactory();
 
   // Allocate a descriptor.
-  DXGI_SWAP_CHAIN_DESC1 swap_chain_desc = {0};
+  DXGI_SWAP_CHAIN_DESC1 swap_chain_desc;
   swap_chain_desc.Width = 0;  // use automatic sizing
   swap_chain_desc.Height = 0;
   swap_chain_desc.Format =
@@ -74,7 +75,7 @@ void WindowRenderTarget::CreateTargetBitmap() {
   ThrowIfFailed(
       dxgi_swap_chain_->GetBuffer(0, IID_PPV_ARGS(&dxgi_back_buffer)));
 
-  const auto dpi = GetDpi();
+  const auto dpi = GetDpi();  // TODO! DPI awareness.
 
   auto bitmap_properties = D2D1::BitmapProperties1(
       D2D1_BITMAP_OPTIONS_TARGET | D2D1_BITMAP_OPTIONS_CANNOT_DRAW,

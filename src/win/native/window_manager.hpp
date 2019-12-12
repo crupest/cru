@@ -15,15 +15,15 @@ class WindowClass;
 class WindowManager : public Object {
  public:
   WindowManager(WinUiApplication* application);
-  WindowManager(const WindowManager& other) = delete;
-  WindowManager(WindowManager&& other) = delete;
-  WindowManager& operator=(const WindowManager& other) = delete;
-  WindowManager& operator=(WindowManager&& other) = delete;
+
+  CRU_DELETE_COPY(WindowManager)
+  CRU_DELETE_MOVE(WindowManager)
+
   ~WindowManager() override;
 
   // Get the general window class for creating ordinary window.
-  std::shared_ptr<WindowClass> GetGeneralWindowClass() const {
-    return general_window_class_;
+  WindowClass* GetGeneralWindowClass() const {
+    return general_window_class_.get();
   }
 
   // Register a window newly created.
@@ -45,8 +45,7 @@ class WindowManager : public Object {
  private:
   WinUiApplication* application_;
 
-  std::shared_ptr<WindowClass> general_window_class_;
+  std::unique_ptr<WindowClass> general_window_class_;
   std::map<HWND, WinNativeWindow*> window_map_;
 };
-
-}  // namespace cru::win::native
+}  // namespace cru::platform::native::win

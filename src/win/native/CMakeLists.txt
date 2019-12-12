@@ -9,9 +9,9 @@ add_library(cru_win_native STATIC
 
 	cursor.cpp
 	god_window.cpp
-	native_window.cpp
 	timer.cpp
 	ui_application.cpp
+	window.cpp
 	window_class.cpp
 	window_d2d_painter.cpp
 	window_manager.cpp
@@ -21,8 +21,9 @@ target_sources(cru_win_native PUBLIC
 	${CRU_WIN_NATIVE_INCLUDE_DIR}/cursor.hpp
 	${CRU_WIN_NATIVE_INCLUDE_DIR}/exception.hpp
 	${CRU_WIN_NATIVE_INCLUDE_DIR}/god_window.hpp
-	${CRU_WIN_NATIVE_INCLUDE_DIR}/native_window.hpp
+	${CRU_WIN_NATIVE_INCLUDE_DIR}/resource.hpp
 	${CRU_WIN_NATIVE_INCLUDE_DIR}/ui_application.hpp
+	${CRU_WIN_NATIVE_INCLUDE_DIR}/window.hpp
 	${CRU_WIN_NATIVE_INCLUDE_DIR}/window_class.hpp
 	${CRU_WIN_NATIVE_INCLUDE_DIR}/window_native_message_event_args.hpp
 	${CRU_WIN_NATIVE_INCLUDE_DIR}/window_render_target.hpp

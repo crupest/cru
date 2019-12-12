@@ -1,8 +1,8 @@
-#include "cru/win/native/native_window.hpp"
+#include "cru/win/native/window.hpp"
 
 #include "cru/common/format.hpp"
 #include "cru/common/logger.hpp"
-#include "cru/win/graph/direct/graph_factory.hpp"
+#include "cru/platform/check.hpp"
 #include "cru/win/native/cursor.hpp"
 #include "cru/win/native/exception.hpp"
 #include "cru/win/native/ui_application.hpp"
@@ -12,8 +12,8 @@
 #include "window_d2d_painter.hpp"
 #include "window_manager.hpp"
 
-#include <cassert>
 #include <windowsx.h>
+#include <cassert>
 
 namespace cru::platform::native::win {
 inline Point PiToDip(const POINT& pi_point) {
@@ -21,14 +21,14 @@ inline Point PiToDip(const POINT& pi_point) {
 }
 
 WinNativeWindow::WinNativeWindow(WinUiApplication* application,
-                                 std::shared_ptr<WindowClass> window_class,
-                                 DWORD window_style, WinNativeWindow* parent) {
+                                 WindowClass* window_class, DWORD window_style,
+                                 WinNativeWindow* parent)
+    : application_(application), parent_window_(parent) {
   assert(application);  // application can't be null.
-  assert(parent == nullptr ||
-         parent->IsValid());  // Parent window is not valid.
 
-  application_ = application;
-  parent_window_ = parent;
+  if (parent != nullptr && !parent->IsValid()) {
+    throw new std::runtime_error("Can't use a invalid window as parent.");
+  }
 
   const auto window_manager = application->GetWindowManager();
 
@@ -43,8 +43,8 @@ WinNativeWindow::WinNativeWindow(WinUiApplication* application,
 
   window_manager->RegisterWindow(hwnd_, this);
 
-  window_render_target_.reset(new WindowRenderTarget(
-      graph::win::direct::DirectGraphFactory::GetInstance(), hwnd_));
+  window_render_target_ = std::make_unique<WindowRenderTarget>(
+      application->GetDirectFactory(), hwnd_);
 }
 
 WinNativeWindow::~WinNativeWindow() {
@@ -150,7 +150,7 @@ bool WinNativeWindow::ReleaseMouse() {
   return false;
 }
 
-void WinNativeWindow::Repaint() {
+void WinNativeWindow::RequestRepaint() {
   if (IsValid()) {
     if (!::InvalidateRect(hwnd_, nullptr, FALSE))
       throw Win32Error(::GetLastError(), "Failed to invalidate window.");
@@ -159,52 +159,64 @@ void WinNativeWindow::Repaint() {
   }
 }
 
-graph::Painter* WinNativeWindow::BeginPaint() {
-  return new WindowD2DPainter(this);
+std::unique_ptr<graph::IPainter> WinNativeWindow::BeginPaint() {
+  return std::make_unique<WindowD2DPainter>(this);
 }
 
-void WinNativeWindow::SetCursor(std::shared_ptr<Cursor> cursor) {
-  if (!IsValid()) return;
-  assert(cursor);
-  WinCursor* c = static_cast<WinCursor*>(cursor.get());
+void WinNativeWindow::SetCursor(std::shared_ptr<ICursor> cursor) {
+  if (cursor == nullptr) {
+    throw std::runtime_error("Can't use a nullptr as cursor.");
+  }
 
-  auto outputError = [] {
-    log::Debug(L"Failed to set cursor. Last error code: {}.", ::GetLastError());
-  };
+  if (!IsValid()) return;
+
+  cursor_ = CheckPlatform<WinCursor>(cursor, GetPlatformId());
 
   if (!::SetClassLongPtrW(hwnd_, GCLP_HCURSOR,
-                          reinterpret_cast<LONG_PTR>(c->GetHandle()))) {
-    outputError();
+                          reinterpret_cast<LONG_PTR>(cursor_->GetHandle()))) {
+    log::Warn(
+        "Failed to set cursor because failed to set class long. Last error "
+        "code: {}.",
+        ::GetLastError());
     return;
   }
 
+  if (!IsVisible()) return;
+
+  auto lg = [](const std::string_view& reason) {
+    log::Warn(
+        "Failed to set cursor because {} when window is visible. (We need "
+        "to update cursor if it is inside the window.) Last error code: {}.",
+        reason, ::GetLastError());
+  };
+
   ::POINT point;
   if (!::GetCursorPos(&point)) {
-    outputError();
+    lg("failed to get cursor pos");
     return;
   }
 
   ::RECT rect;
   if (!::GetClientRect(hwnd_, &rect)) {
-    outputError();
+    lg("failed to get window's client rect");
     return;
   }
 
   ::POINT lefttop{rect.left, rect.top};
   ::POINT rightbottom{rect.right, rect.bottom};
   if (!::ClientToScreen(hwnd_, &lefttop)) {
-    outputError();
+    lg("failed to call ClientToScreen on lefttop");
     return;
   }
 
   if (!::ClientToScreen(hwnd_, &rightbottom)) {
-    outputError();
+    lg("failed to call ClientToScreen on rightbottom");
     return;
   }
 
   if (point.x >= lefttop.x && point.y >= lefttop.y &&
       point.x <= rightbottom.x && point.y <= rightbottom.y) {
-    ::SetCursor(c->GetHandle());
+    ::SetCursor(cursor_->GetHandle());
   }
 }
 
@@ -361,12 +373,12 @@ void WinNativeWindow::OnResizeInternal(const int new_width,
 
 void WinNativeWindow::OnSetFocusInternal() {
   has_focus_ = true;
-  focus_event_.Raise(true);
+  focus_event_.Raise(FocusChangeType::Gain);
 }
 
 void WinNativeWindow::OnKillFocusInternal() {
   has_focus_ = false;
-  focus_event_.Raise(false);
+  focus_event_.Raise(FocusChangeType::Lost);
 }
 
 void WinNativeWindow::OnMouseMoveInternal(const POINT point) {
@@ -381,7 +393,7 @@ void WinNativeWindow::OnMouseMoveInternal(const POINT point) {
     TrackMouseEvent(&tme);
 
     is_mouse_in_ = true;
-    mouse_enter_leave_event_.Raise(true);
+    mouse_enter_leave_event_.Raise(MouseEnterLeaveType::Enter);
   }
 
   mouse_move_event_.Raise(PiToDip(point));
@@ -389,7 +401,7 @@ void WinNativeWindow::OnMouseMoveInternal(const POINT point) {
 
 void WinNativeWindow::OnMouseLeaveInternal() {
   is_mouse_in_ = false;
-  mouse_enter_leave_event_.Raise(false);
+  mouse_enter_leave_event_.Raise(MouseEnterLeaveType::Leave);
 }
 
 void WinNativeWindow::OnMouseDownInternal(platform::native::MouseButton button,

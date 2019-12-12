@@ -8,12 +8,11 @@
 namespace cru::platform::native::win {
 class WindowClass : public Object {
  public:
-  WindowClass(const std::wstring& name, WNDPROC window_proc,
-              HINSTANCE h_instance);
-  WindowClass(const WindowClass& other) = delete;
-  WindowClass(WindowClass&& other) = delete;
-  WindowClass& operator=(const WindowClass& other) = delete;
-  WindowClass& operator=(WindowClass&& other) = delete;
+  WindowClass(std::wstring name, WNDPROC window_proc, HINSTANCE h_instance);
+
+  CRU_DELETE_COPY(WindowClass)
+  CRU_DELETE_MOVE(WindowClass)
+
   ~WindowClass() override = default;
 
   const wchar_t* GetName() const { return name_.c_str(); }
@@ -24,4 +23,4 @@ class WindowClass : public Object {
   std::wstring name_;
   ATOM atom_;
 };
-}  // namespace cru::win::native
+}  // namespace cru::platform::native::win

@@ -12,10 +12,10 @@ class WindowClass;
 class GodWindow : public Object {
  public:
   explicit GodWindow(WinUiApplication* application);
-  GodWindow(const GodWindow& other) = delete;
-  GodWindow(GodWindow&& other) = delete;
-  GodWindow& operator=(const GodWindow& other) = delete;
-  GodWindow& operator=(GodWindow&& other) = delete;
+
+  CRU_DELETE_COPY(GodWindow)
+  CRU_DELETE_MOVE(GodWindow)
+
   ~GodWindow() override;
 
   HWND GetHandle() const { return hwnd_; }
@@ -26,7 +26,7 @@ class GodWindow : public Object {
  private:
   WinUiApplication* application_;
 
-  std::shared_ptr<WindowClass> god_window_class_;
+  std::unique_ptr<WindowClass> god_window_class_;
   HWND hwnd_;
 };
-}  // namespace cru::win::native
+}  // namespace cru::platform::native::win

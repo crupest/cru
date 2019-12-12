@@ -4,22 +4,23 @@
 #include "cru/common/base.hpp"
 
 namespace cru::platform::graph::win::direct {
-struct IDirectFactory;
+class DirectGraphFactory;
 }
 
 namespace cru::platform::native::win {
 // Represents a window render target.
 class WindowRenderTarget : public Object {
  public:
-  WindowRenderTarget(graph::win::direct::IDirectFactory* factory, HWND hwnd);
-  WindowRenderTarget(const WindowRenderTarget& other) = delete;
-  WindowRenderTarget(WindowRenderTarget&& other) = delete;
-  WindowRenderTarget& operator=(const WindowRenderTarget& other) = delete;
-  WindowRenderTarget& operator=(WindowRenderTarget&& other) = delete;
+  WindowRenderTarget(graph::win::direct::DirectGraphFactory* factory,
+                     HWND hwnd);
+
+  CRU_DELETE_COPY(WindowRenderTarget)
+  CRU_DELETE_MOVE(WindowRenderTarget)
+
   ~WindowRenderTarget() override = default;
 
  public:
-  graph::win::direct::IDirectFactory* GetWinNativeFactory() const {
+  graph::win::direct::DirectGraphFactory* GetDirectFactory() const {
     return factory_;
   }
 
@@ -39,7 +40,7 @@ class WindowRenderTarget : public Object {
   void CreateTargetBitmap();
 
  private:
-  graph::win::direct::IDirectFactory* factory_;
+  graph::win::direct::DirectGraphFactory* factory_;
   Microsoft::WRL::ComPtr<IDXGISwapChain1> dxgi_swap_chain_;
   Microsoft::WRL::ComPtr<ID2D1Bitmap1> target_bitmap_;
 };

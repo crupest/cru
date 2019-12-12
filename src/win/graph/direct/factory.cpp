@@ -12,6 +12,9 @@
 
 namespace cru::platform::graph::win::direct {
 DirectGraphFactory::DirectGraphFactory() {
+  // TODO! Detect repeated creation. Because I don't think we can create two d2d
+  // and dwrite factory so we need to prevent the "probably dangerous" behavior.
+
   UINT creation_flags = D3D11_CREATE_DEVICE_BGRA_SUPPORT;
 
 #ifdef CRU_DEBUG

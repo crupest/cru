@@ -15,10 +15,10 @@ using TimerAction = std::function<void()>;
 class TimerManager : public Object {
  public:
   TimerManager(GodWindow* god_window);
-  TimerManager(const TimerManager& other) = delete;
-  TimerManager(TimerManager&& other) = delete;
-  TimerManager& operator=(const TimerManager& other) = delete;
-  TimerManager& operator=(TimerManager&& other) = delete;
+
+  CRU_DELETE_COPY(TimerManager)
+  CRU_DELETE_MOVE(TimerManager)
+
   ~TimerManager() override = default;
 
   UINT_PTR CreateTimer(UINT milliseconds, bool loop, const TimerAction& action);
@@ -31,4 +31,4 @@ class TimerManager : public Object {
   std::map<UINT_PTR, std::pair<bool, TimerAction>> map_{};
   UINT_PTR current_count_ = 0;
 };
-}  // namespace cru::win::native
+}  // namespace cru::platform::native::win

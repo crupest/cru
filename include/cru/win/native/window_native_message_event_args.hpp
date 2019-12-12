@@ -15,13 +15,8 @@ class WindowNativeMessageEventArgs : public Object {
  public:
   WindowNativeMessageEventArgs(const WindowNativeMessage& message)
       : message_(message) {}
-  WindowNativeMessageEventArgs(const WindowNativeMessageEventArgs& other) =
-      default;
-  WindowNativeMessageEventArgs(WindowNativeMessageEventArgs&& other) = default;
-  WindowNativeMessageEventArgs& operator=(
-      const WindowNativeMessageEventArgs& other) = default;
-  WindowNativeMessageEventArgs& operator=(
-      WindowNativeMessageEventArgs&& other) = default;
+  CRU_DEFAULT_COPY(WindowNativeMessageEventArgs)
+  CRU_DEFAULT_MOVE(WindowNativeMessageEventArgs)
   ~WindowNativeMessageEventArgs() override = default;
 
   WindowNativeMessage GetWindowMessage() const { return message_; }
@@ -42,4 +37,4 @@ class WindowNativeMessageEventArgs : public Object {
   LRESULT result_;
   bool handled_ = false;
 };
-}  // namespace cru::win::native
+}  // namespace cru::platform::native::win

@@ -1,15 +1,13 @@
 #pragma once
 #include "cru/win/graph/direct/painter.hpp"
-#include "cru/win/native/native_window.hpp"
+#include "cru/win/native/window.hpp"
 
 namespace cru::platform::native::win {
 class WindowD2DPainter : public graph::win::direct::D2DPainter {
  public:
   explicit WindowD2DPainter(WinNativeWindow* window);
-  WindowD2DPainter(const WindowD2DPainter& other) = delete;
-  WindowD2DPainter& operator=(const WindowD2DPainter& other) = delete;
-  WindowD2DPainter(WindowD2DPainter&& other) = delete;
-  WindowD2DPainter& operator=(WindowD2DPainter&& other) = delete;
+  CRU_DELETE_COPY(WindowD2DPainter)
+  CRU_DELETE_MOVE(WindowD2DPainter)
   ~WindowD2DPainter() override;
 
  protected:
@@ -18,4 +16,4 @@ class WindowD2DPainter : public graph::win::direct::D2DPainter {
  private:
   WinNativeWindow* window_;
 };
-}  // namespace cru::win::native
+}  // namespace cru::platform::native::win

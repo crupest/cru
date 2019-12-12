@@ -1,5 +1,6 @@
 #include "cru/win/native/god_window.hpp"
 
+#include "cru/common/logger.hpp"
 #include "cru/win/native/exception.hpp"
 #include "cru/win/native/ui_application.hpp"
 #include "cru/win/native/window_class.hpp"
@@ -30,7 +31,7 @@ GodWindow::GodWindow(WinUiApplication* application) {
 
   const auto h_instance = application->GetInstanceHandle();
 
-  god_window_class_ = std::make_shared<WindowClass>(god_window_class_name,
+  god_window_class_ = std::make_unique<WindowClass>(god_window_class_name,
                                                     GodWndProc, h_instance);
 
   hwnd_ = CreateWindowEx(0, god_window_class_name, L"", 0, CW_USEDEFAULT,
@@ -41,7 +42,12 @@ GodWindow::GodWindow(WinUiApplication* application) {
     throw Win32Error(::GetLastError(), "Failed to create god window.");
 }
 
-GodWindow::~GodWindow() { ::DestroyWindow(hwnd_); }
+GodWindow::~GodWindow() {
+  if (!::DestroyWindow(hwnd_)) {
+    // Although this could be "safely" ignore.
+    log::Warn("Failed to destroy god window.");
+  }
+}
 
 bool GodWindow::HandleGodWindowMessage(HWND hwnd, UINT msg, WPARAM w_param,
                                        LPARAM l_param, LRESULT* result) {

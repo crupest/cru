@@ -1,12 +1,11 @@
 #pragma once
-#include "../native_resource.hpp"
+#include "../resource.hpp"
 
-#include "cru/common/event.hpp"
-
-#include "../graphic_base.hpp"
+#include "../graph_base.hpp"
 #include "basic_types.hpp"
+#include "cru/common/event.hpp"
 #include "cursor.hpp"
-#include "native_event.hpp"
+#include "event.hpp"
 
 namespace cru::platform::graph {
 struct IPainter;
@@ -21,7 +20,7 @@ namespace cru::platform::native {
 // Close or closed by the user, which leads to an invalid instance. You can
 // check the validity by IsValid. When you call perform native operations on the
 // invalid instance, there is no effect.
-struct INativeWindow : public virtual INativeResource {
+struct INativeWindow : virtual INativeResource {
   // Return if the window is still valid, that is, hasn't been closed or
   // destroyed.
   virtual bool IsValid() = 0;

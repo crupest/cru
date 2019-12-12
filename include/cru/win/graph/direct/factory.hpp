@@ -5,10 +5,9 @@
 
 namespace cru::platform::graph::win::direct {
 class DirectGraphFactory : public DirectResource, public virtual IGraphFactory {
- private:
+ public:
   DirectGraphFactory();
 
- public:
   CRU_DELETE_COPY(DirectGraphFactory)
   CRU_DELETE_MOVE(DirectGraphFactory)
 

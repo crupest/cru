@@ -1,30 +1,28 @@
 #pragma once
-#include "../win_pre_config.hpp"
+#include "resource.hpp"
 
-#include "cru/platform/native/native_window.hpp"
-#include "platform_id.hpp"
+#include "cru/platform/native/window.hpp"
 #include "window_native_message_event_args.hpp"
 
 #include <memory>
 
 namespace cru::platform::native::win {
 class WinUiApplication;
+class WinCursor;
 class WindowClass;
 class WindowManager;
 class WindowRenderTarget;
 
-class WinNativeWindow : public INativeWindow {
+class WinNativeWindow : public WinNativeResource, public virtual INativeWindow {
  public:
   WinNativeWindow(WinUiApplication* application,
-                  std::shared_ptr<WindowClass> window_class, DWORD window_style,
+                  WindowClass* window_class, DWORD window_style,
                   WinNativeWindow* parent);
-  WinNativeWindow(const WinNativeWindow& other) = delete;
-  WinNativeWindow(WinNativeWindow&& other) = delete;
-  WinNativeWindow& operator=(const WinNativeWindow& other) = delete;
-  WinNativeWindow& operator=(WinNativeWindow&& other) = delete;
-  ~WinNativeWindow() override;
 
-  CRU_PLATFORMID_IMPLEMENT_WIN
+  CRU_DELETE_COPY(WinNativeWindow)
+  CRU_DELETE_MOVE(WinNativeWindow)
+
+  ~WinNativeWindow() override;
 
  public:
   bool IsValid() override;
@@ -53,16 +51,16 @@ class WinNativeWindow : public INativeWindow {
   bool CaptureMouse() override;
   bool ReleaseMouse() override;
 
-  void Repaint() override;
-  graph::Painter* BeginPaint() override;
+  void RequestRepaint() override;
+  std::unique_ptr<graph::IPainter> BeginPaint() override;
 
-  void SetCursor(std::shared_ptr<Cursor> cursor) override;
+  void SetCursor(std::shared_ptr<ICursor> cursor) override;
 
   IEvent<std::nullptr_t>* DestroyEvent() override { return &destroy_event_; }
   IEvent<std::nullptr_t>* PaintEvent() override { return &paint_event_; }
   IEvent<Size>* ResizeEvent() override { return &resize_event_; }
-  IEvent<bool>* FocusEvent() override { return &focus_event_; }
-  IEvent<bool>* MouseEnterLeaveEvent() override {
+  IEvent<FocusChangeType>* FocusEvent() override { return &focus_event_; }
+  IEvent<MouseEnterLeaveType>* MouseEnterLeaveEvent() override {
     return &mouse_enter_leave_event_;
   }
   IEvent<Point>* MouseMoveEvent() override { return &mouse_move_event_; }
@@ -128,13 +126,15 @@ class WinNativeWindow : public INativeWindow {
   bool has_focus_ = false;
   bool is_mouse_in_ = false;
 
-  std::shared_ptr<WindowRenderTarget> window_render_target_;
+  std::unique_ptr<WindowRenderTarget> window_render_target_;
+
+  std::shared_ptr<WinCursor> cursor_;
 
   Event<std::nullptr_t> destroy_event_;
   Event<std::nullptr_t> paint_event_;
   Event<Size> resize_event_;
-  Event<bool> focus_event_;
-  Event<bool> mouse_enter_leave_event_;
+  Event<FocusChangeType> focus_event_;
+  Event<MouseEnterLeaveType> mouse_enter_leave_event_;
   Event<Point> mouse_move_event_;
   Event<platform::native::NativeMouseButtonEventArgs> mouse_down_event_;
   Event<platform::native::NativeMouseButtonEventArgs> mouse_up_event_;

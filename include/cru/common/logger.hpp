@@ -28,6 +28,11 @@ class StdioLogSource : public virtual ILogSource {
   ~StdioLogSource() override = default;
 
   void Write(LogLevel level, const std::string_view& s) override {
+    // TODO: Emmm... Since it is buggy to use narrow char in UTF-8 on Windows. I
+    // think this implementation might be broken. (However, I didn't test it.)
+    // Maybe, I should detect Windows and use wide char (And I didn't test this
+    // either) or other more complicated implementation. Currently, I settled
+    // with this.
     if (level == LogLevel::Error) {
       std::cerr << s;
     } else {

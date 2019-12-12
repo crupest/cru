@@ -3,9 +3,9 @@
 #include "cru/win/native/exception.hpp"
 
 namespace cru::platform::native::win {
-WindowClass::WindowClass(const std::wstring& name, WNDPROC window_proc,
+WindowClass::WindowClass(std::wstring name, WNDPROC window_proc,
                          HINSTANCE h_instance)
-    : name_(name) {
+    : name_(std::move(name)) {
   WNDCLASSEXW window_class;
   window_class.cbSize = sizeof(WNDCLASSEXW);
 
@@ -18,7 +18,7 @@ WindowClass::WindowClass(const std::wstring& name, WNDPROC window_proc,
   window_class.hCursor = LoadCursor(NULL, IDC_ARROW);
   window_class.hbrBackground = GetSysColorBrush(COLOR_BTNFACE);
   window_class.lpszMenuName = NULL;
-  window_class.lpszClassName = name.c_str();
+  window_class.lpszClassName = name_.c_str();
   window_class.hIconSm = NULL;
 
   atom_ = ::RegisterClassExW(&window_class);

@@ -1,39 +1,40 @@
 #pragma once
-#include "../win_pre_config.hpp"
+#include "resource.hpp"
 
 #include "cru/platform/native/ui_application.hpp"
 
-#include "platform_id.hpp"
-#include "cursor.hpp"
-
 #include <memory>
+
+namespace cru::platform::graph::win::direct {
+class DirectGraphFactory;
+}
 
 namespace cru::platform::native::win {
 class GodWindow;
 class TimerManager;
 class WindowManager;
+class WinCursorManager;
 
-class WinUiApplication : public UiApplication {
-  friend UiApplication* UiApplication::CreateInstance();
-
+class WinUiApplication : public WinNativeResource,
+                         public virtual IUiApplication {
  public:
-  static WinUiApplication* GetInstance();
+  static WinUiApplication* GetInstance() { return instance; }
 
  private:
-  explicit WinUiApplication(HINSTANCE h_instance);
+  static WinUiApplication* instance;
+
+ private:
+  WinUiApplication();
 
  public:
-  WinUiApplication(const WinUiApplication&) = delete;
-  WinUiApplication(WinUiApplication&&) = delete;
-  WinUiApplication& operator=(const WinUiApplication&) = delete;
-  WinUiApplication& operator=(WinUiApplication&&) = delete;
-  ~WinUiApplication() override;
+  CRU_DELETE_COPY(WinUiApplication)
+  CRU_DELETE_MOVE(WinUiApplication)
 
-  CRU_PLATFORMID_IMPLEMENT_WIN
+  ~WinUiApplication() override;
 
  public:
   int Run() override;
-  void Quit(int quit_code) override;
+  void RequestQuit(int quit_code) override;
 
   void AddOnQuitHandler(const std::function<void()>& handler) override;
 
@@ -47,25 +48,29 @@ class WinUiApplication : public UiApplication {
   std::vector<INativeWindow*> GetAllWindow() override;
   INativeWindow* CreateWindow(INativeWindow* parent) override;
 
-  WinCursorManager* GetCursorManager() override;
+  cru::platform::graph::IGraphFactory* GetGraphFactory() override;
 
-  bool IsAutoDelete() const { return auto_delete_; }
-  void SetAutoDelete(bool value) { auto_delete_ = value; }
+  cru::platform::graph::win::direct::DirectGraphFactory* GetDirectFactory() {
+    return graph_factory_.get();
+  }
 
-  HINSTANCE GetInstanceHandle() const { return h_instance_; }
+  ICursorManager* GetCursorManager() override;
+
+  HINSTANCE GetInstanceHandle() const { return instance_handle_; }
 
   GodWindow* GetGodWindow() const { return god_window_.get(); }
   TimerManager* GetTimerManager() const { return timer_manager_.get(); }
   WindowManager* GetWindowManager() const { return window_manager_.get(); }
 
  private:
-  bool auto_delete_ = false;
+  HINSTANCE instance_handle_;
 
-  HINSTANCE h_instance_;
+  std::unique_ptr<cru::platform::graph::win::direct::DirectGraphFactory>
+      graph_factory_;
 
-  std::shared_ptr<GodWindow> god_window_;
-  std::shared_ptr<TimerManager> timer_manager_;
-  std::shared_ptr<WindowManager> window_manager_;
+  std::unique_ptr<GodWindow> god_window_;
+  std::unique_ptr<TimerManager> timer_manager_;
+  std::unique_ptr<WindowManager> window_manager_;
 
   std::unique_ptr<WinCursorManager> cursor_manager_;
 

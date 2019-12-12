@@ -2,58 +2,39 @@
 
 #include "../debug_logger.hpp"
 #include "cru/common/logger.hpp"
-#include "cru/win/graph/direct/graph_factory.hpp"
+#include "cru/platform/check.hpp"
+#include "cru/win/graph/direct/factory.hpp"
+#include "cru/win/native/cursor.hpp"
 #include "cru/win/native/exception.hpp"
 #include "cru/win/native/god_window.hpp"
-#include "cru/win/native/native_window.hpp"
+#include "cru/win/native/window.hpp"
 #include "god_window_message.hpp"
 #include "timer.hpp"
 #include "window_manager.hpp"
 
-#include <VersionHelpers.h>
 #include <cassert>
 
 namespace cru::platform::native::win {
-namespace {
-WinUiApplication* instance = nullptr;
-}
-}  // namespace cru::platform::native::win
+WinUiApplication* WinUiApplication::instance = nullptr;
 
-namespace cru::platform::native {
-UiApplication* UiApplication::CreateInstance() {
-  auto& i =
-      ::cru::platform::native::win::instance;  // avoid long namespace prefix
-  assert(i == nullptr);
-  i = new win::WinUiApplication(::GetModuleHandleW(nullptr));
-  return i;
-}
+WinUiApplication::WinUiApplication() {
+  if (instance) {
+    throw new std::runtime_error(
+        "Already created an instance of WinUiApplication");
+  }
 
-UiApplication* UiApplication::GetInstance() {
-  return ::cru::platform::native::win::instance;
-}
-}  // namespace cru::platform::native
-
-namespace cru::platform::native::win {
-WinUiApplication* WinUiApplication::GetInstance() { return instance; }
-
-WinUiApplication::WinUiApplication(HINSTANCE h_instance)
-    : h_instance_(h_instance) {
-  assert(instance == nullptr);
+  instance = this;
 
   log::Logger::GetInstance()->AddSource(
-      new ::cru::platform::win::WinDebugLoggerSource());
+      std::make_unique<::cru::platform::win::WinDebugLoggerSource>());
 
-  if (!::IsWindows8OrGreater())
-    throw std::runtime_error("Must run on Windows 8 or later.");
+  graph_factory_ =
+      std::make_unique<cru::platform::graph::win::direct::DirectGraphFactory>();
 
-  const auto graph_factory = graph::GraphFactory::CreateInstance();
-  graph_factory->SetAutoDelete(true);
-
-  god_window_ = std::make_shared<GodWindow>(this);
-  timer_manager_ = std::make_shared<TimerManager>(god_window_.get());
-  window_manager_ = std::make_shared<WindowManager>(this);
-
-  cursor_manager_.reset(new WinCursorManager());
+  god_window_ = std::make_unique<GodWindow>(this);
+  timer_manager_ = std::make_unique<TimerManager>(god_window_.get());
+  window_manager_ = std::make_unique<WindowManager>(this);
+  cursor_manager_ = std::make_unique<WinCursorManager>();
 }
 
 WinUiApplication::~WinUiApplication() { instance = nullptr; }
@@ -67,12 +48,10 @@ int WinUiApplication::Run() {
 
   for (const auto& handler : quit_handlers_) handler();
 
-  if (auto_delete_) delete this;
-
   return static_cast<int>(msg.wParam);
 }
 
-void WinUiApplication::Quit(const int quit_code) {
+void WinUiApplication::RequestQuit(const int quit_code) {
   ::PostQuitMessage(quit_code);
 }
 
@@ -84,8 +63,8 @@ void WinUiApplication::InvokeLater(const std::function<void()>& action) {
   // copy the action to a safe place
   auto p_action_copy = new std::function<void()>(action);
 
-  if (PostMessageW(GetGodWindow()->GetHandle(), invoke_later_message_id,
-                   reinterpret_cast<WPARAM>(p_action_copy), 0) == 0)
+  if (::PostMessageW(GetGodWindow()->GetHandle(), invoke_later_message_id,
+                     reinterpret_cast<WPARAM>(p_action_copy), 0) == 0)
     throw Win32Error(::GetLastError(), "InvokeLater failed to post message.");
 }
 
@@ -119,14 +98,17 @@ std::vector<INativeWindow*> WinUiApplication::GetAllWindow() {
 INativeWindow* WinUiApplication::CreateWindow(INativeWindow* parent) {
   WinNativeWindow* p = nullptr;
   if (parent != nullptr) {
-    p = dynamic_cast<WinNativeWindow*>(parent);
-    assert(p);
+    p = CheckPlatform<WinNativeWindow>(parent, GetPlatformId());
   }
   return new WinNativeWindow(this, window_manager_->GetGeneralWindowClass(),
                              WS_OVERLAPPEDWINDOW, p);
 }
 
-WinCursorManager* WinUiApplication::GetCursorManager() {
+cru::platform::graph::IGraphFactory* WinUiApplication::GetGraphFactory() {
+  return graph_factory_.get();
+}
+
+ICursorManager* WinUiApplication::GetCursorManager() {
   return cursor_manager_.get();
 }
 }  // namespace cru::platform::native::win
