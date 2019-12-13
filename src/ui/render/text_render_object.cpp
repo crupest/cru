@@ -8,7 +8,7 @@
 #include <algorithm>
 #include <cassert>
 
-//TODO: Null Check!!!
+// TODO: Null Check!!!
 
 namespace cru::ui::render {
 TextRenderObject::TextRenderObject(
@@ -78,7 +78,9 @@ Size TextRenderObject::OnMeasureContent(const Size& available_size) {
   return text_layout_->GetTextBounds().GetSize();
 }
 
-void TextRenderObject::OnLayoutContent(const Rect& content_rect) {}
+void TextRenderObject::OnLayoutContent(const Rect& content_rect) {
+  CRU_UNUSED(content_rect)
+}
 
 void TextRenderObject::OnAfterLayout() {
   const auto&& size = GetContentRect().GetSize();

@@ -44,6 +44,8 @@ void FlexLayout::OnAddChild(Control* child, int position) {
 }
 
 void FlexLayout::OnRemoveChild(Control* child, int position) {
+  CRU_UNUSED(child)
+
   render_object_->RemoveChild(position);
 }
 }  // namespace cru::ui::controls

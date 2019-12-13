@@ -92,16 +92,20 @@ namespace {
 void SetRenderHostRecursive(RenderObject* render_object, IRenderHost* host) {
   render_object->SetRenderHost(host);
   for (const auto child : render_object->GetChildren()) {
-    SetRenderHostRecursive(render_object, host);
+    SetRenderHostRecursive(child, host);
   }
 }
 }  // namespace
 
 void WindowRenderObject::OnAddChild(RenderObject* new_child, int position) {
+  CRU_UNUSED(position)
+
   SetRenderHostRecursive(new_child, render_host_.get());
 }
 
 void WindowRenderObject::OnRemoveChild(RenderObject* new_child, int position) {
+  CRU_UNUSED(position)
+
   SetRenderHostRecursive(new_child, nullptr);
 }
 

@@ -3,6 +3,8 @@
 
 #include <stdexcept>
 
+#define CRU_UNUSED(entity) static_cast<void>(entity);
+
 #define CRU_DEFAULT_COPY(classname)      \
   classname(const classname&) = default; \
   classname& operator=(const classname&) = default;

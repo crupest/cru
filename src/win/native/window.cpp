@@ -33,8 +33,8 @@ WinNativeWindow::WinNativeWindow(WinUiApplication* application,
   const auto window_manager = application->GetWindowManager();
 
   hwnd_ = CreateWindowExW(
-      0, window_manager->GetGeneralWindowClass()->GetName(), L"", window_style,
-      CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
+      0, window_class->GetName(), L"", window_style, CW_USEDEFAULT,
+      CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
       parent == nullptr ? nullptr : parent->GetWindowHandle(), nullptr,
       application->GetInstanceHandle(), nullptr);
 
@@ -419,7 +419,10 @@ void WinNativeWindow::OnMouseUpInternal(platform::native::MouseButton button,
   mouse_up_event_.Raise({button, dip_point});
 }
 
-void WinNativeWindow::OnMouseWheelInternal(short delta, POINT point) {}
+void WinNativeWindow::OnMouseWheelInternal(short delta, POINT point) {
+  CRU_UNUSED(delta)
+  CRU_UNUSED(point)
+}
 
 void WinNativeWindow::OnKeyDownInternal(int virtual_code) {
   key_down_event_.Raise(virtual_code);
@@ -429,7 +432,7 @@ void WinNativeWindow::OnKeyUpInternal(int virtual_code) {
   key_up_event_.Raise(virtual_code);
 }
 
-void WinNativeWindow::OnCharInternal(wchar_t c) {}
+void WinNativeWindow::OnCharInternal(wchar_t c) { CRU_UNUSED(c) }
 
 void WinNativeWindow::OnActivatedInternal() {}
 

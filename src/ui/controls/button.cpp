@@ -36,6 +36,8 @@ Button::Button() : click_detector_(this) {
   render_object_->SetBorderEnabled(true);
 
   MouseEnterEvent()->Direct()->AddHandler([this](event::MouseEventArgs& args) {
+    CRU_UNUSED(args)
+
     if (click_detector_.GetPressingButton() & trigger_button_) {
       SetState(ButtonState::Press);
     } else {
@@ -44,6 +46,8 @@ Button::Button() : click_detector_(this) {
   });
 
   MouseLeaveEvent()->Direct()->AddHandler([this](event::MouseEventArgs& args) {
+    CRU_UNUSED(args)
+
     if (click_detector_.GetPressingButton() & trigger_button_) {
       SetState(ButtonState::Normal);
     } else {
@@ -75,6 +79,8 @@ void Button::OnChildChanged(Control* old_child, Control* new_child) {
 }
 
 void Button::OnStateChange(ButtonState oldState, ButtonState newState) {
+  CRU_UNUSED(oldState)
+
   switch (newState) {
     case ButtonState::Normal:
       Set(render_object_.get(), style_.normal);

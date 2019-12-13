@@ -42,11 +42,15 @@ RenderObject* FlexLayoutRenderObject::HitTest(const Point& point) {
 }  // namespace cru::ui::render
 
 void FlexLayoutRenderObject::OnAddChild(RenderObject* new_child, int position) {
+  CRU_UNUSED(new_child)
+
   child_layout_data_.emplace(child_layout_data_.cbegin() + position);
 }
 
 void FlexLayoutRenderObject::OnRemoveChild(RenderObject* removed_child,
                                            int position) {
+  CRU_UNUSED(removed_child)
+
   child_layout_data_.erase(child_layout_data_.cbegin() + position);
 }
 

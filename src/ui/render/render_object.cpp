@@ -42,14 +42,23 @@ void RenderObject::Layout(const Rect& rect) {
 }
 
 void RenderObject::OnParentChanged(RenderObject* old_parent,
-                                   RenderObject* new_parent) {}
+                                   RenderObject* new_parent) {
+  CRU_UNUSED(old_parent)
+  CRU_UNUSED(new_parent)
+}
 
 void RenderObject::OnAddChild(RenderObject* new_child, int position) {
+  CRU_UNUSED(new_child)
+  CRU_UNUSED(position)
+
   InvalidateLayout();
   InvalidatePaint();
 }
 
 void RenderObject::OnRemoveChild(RenderObject* removed_child, int position) {
+  CRU_UNUSED(removed_child)
+  CRU_UNUSED(position)
+
   InvalidateLayout();
   InvalidatePaint();
 }

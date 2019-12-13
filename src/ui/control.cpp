@@ -105,9 +105,12 @@ void Control::SetCursor(std::shared_ptr<ICursor> cursor) {
   }
 }
 
-void Control::OnParentChanged(Control* old_parent, Control* new_parent) {}
+void Control::OnParentChanged(Control* old_parent, Control* new_parent) {
+  CRU_UNUSED(old_parent)
+  CRU_UNUSED(new_parent)
+}
 
-void Control::OnAttachToWindow(Window* window) {}
+void Control::OnAttachToWindow(Window* window) { CRU_UNUSED(window) }
 
-void Control::OnDetachToWindow(Window* window) {}
+void Control::OnDetachToWindow(Window* window) { CRU_UNUSED(window) }
 }  // namespace cru::ui

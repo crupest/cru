@@ -51,6 +51,9 @@ GodWindow::~GodWindow() {
 
 bool GodWindow::HandleGodWindowMessage(HWND hwnd, UINT msg, WPARAM w_param,
                                        LPARAM l_param, LRESULT* result) {
+  CRU_UNUSED(hwnd)
+  CRU_UNUSED(l_param)
+
   switch (msg) {
     case invoke_later_message_id: {
       const auto p_action = reinterpret_cast<std::function<void()>*>(w_param);

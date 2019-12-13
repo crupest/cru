@@ -42,8 +42,4 @@ target_sources(cru_ui PUBLIC
 	${CRU_UI_INCLUDE_DIR}/render/text_render_object.hpp
 	${CRU_UI_INCLUDE_DIR}/render/window_render_object.hpp
 )
-target_link_libraries(cru_ui PUBLIC cru_base)
-
-if(WIN32)
 target_link_libraries(cru_ui PUBLIC cru_platform_native)
-endif()

@@ -203,6 +203,8 @@ void Window::OnNativePaint(std::nullptr_t) {
 }
 
 void Window::OnNativeResize(const Size& size) {
+  CRU_UNUSED(size)
+
   render_object_->GetRenderHost()->InvalidateLayout();
 }
 

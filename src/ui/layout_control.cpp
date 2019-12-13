@@ -38,7 +38,13 @@ void LayoutControl::RemoveChild(const int position) {
   OnRemoveChild(child, position);
 }
 
-void LayoutControl::OnAddChild(Control* child, int position) {}
+void LayoutControl::OnAddChild(Control* child, int position) {
+  CRU_UNUSED(child)
+  CRU_UNUSED(position)
+}
 
-void LayoutControl::OnRemoveChild(Control* child, int position) {}
+void LayoutControl::OnRemoveChild(Control* child, int position) {
+  CRU_UNUSED(child)
+  CRU_UNUSED(position)
+}
 }  // namespace cru::ui

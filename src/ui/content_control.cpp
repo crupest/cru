@@ -28,5 +28,8 @@ void ContentControl::SetChild(Control* child) {
   OnChildChanged(old_child, child);
 }
 
-void ContentControl::OnChildChanged(Control* old_child, Control* new_child) {}
+void ContentControl::OnChildChanged(Control* old_child, Control* new_child) {
+  CRU_UNUSED(old_child)
+  CRU_UNUSED(new_child)
+}
 }  // namespace cru::ui
