@@ -24,6 +24,10 @@ void DispatchEvent(const std::string_view& event_name,
                    Control* const original_sender,
                    event::RoutedEvent<EventArgs>* (Control::*event_ptr)(),
                    Control* const last_receiver, Args&&... args) {
+#ifndef CRU_DEBUG
+  CRU_UNUSED(event_name)
+#endif
+
 #ifdef CRU_DEBUG
   bool do_log = true;
   if (event_name == "MouseMove") do_log = false;

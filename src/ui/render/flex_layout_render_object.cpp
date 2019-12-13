@@ -59,7 +59,7 @@ Size FlexLayoutRenderObject::OnMeasureContent(const Size& available_size) {
   std::vector<int> no_basis_children;
   std::vector<int> grow_children;
   std::vector<int> shrink_chilren;
-  for (int i = 0; i < child_layout_data_.size(); i++) {
+  for (int i = 0; i < static_cast<int>(child_layout_data_.size()); i++) {
     const auto& layout_data = child_layout_data_[i];
     if (layout_data.flex_basis.has_value())
       has_basis_children.push_back(i);
@@ -189,7 +189,7 @@ void FlexLayoutRenderObject::OnLayoutContent(const Rect& content_rect) {
                          content_rect.width, actual_content_width);
 
     float anchor_x = 0;
-    for (int i = 0; i < children.size(); i++) {
+    for (int i = 0; i < static_cast<int>(children.size()); i++) {
       const auto child = children[i];
       const auto size = child->GetPreferredSize();
 
@@ -219,7 +219,7 @@ void FlexLayoutRenderObject::OnLayoutContent(const Rect& content_rect) {
                          content_rect.height, actual_content_height);
 
     float anchor_y = 0;
-    for (int i = 0; i < children.size(); i++) {
+    for (int i = 0; i < static_cast<int>(children.size()); i++) {
       const auto child = children[i];
       const auto size = child->GetPreferredSize();
 

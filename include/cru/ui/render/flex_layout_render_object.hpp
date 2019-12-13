@@ -68,12 +68,12 @@ class FlexLayoutRenderObject : public RenderObject {
   }
 
   FlexChildLayoutData GetChildLayoutData(int position) {
-    assert(position >= 0 && position < child_layout_data_.size());
+    assert(position >= 0 && position < static_cast<int>(child_layout_data_.size()));
     return child_layout_data_[position];
   }
 
   void SetChildLayoutData(int position, const FlexChildLayoutData& data) {
-    assert(position >= 0 && position < child_layout_data_.size());
+    assert(position >= 0 && position < static_cast<int>(child_layout_data_.size()));
     child_layout_data_[position] = data;
     InvalidateLayout();
   }
