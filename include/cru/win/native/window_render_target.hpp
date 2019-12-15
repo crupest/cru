@@ -24,8 +24,7 @@ class WindowRenderTarget : public Object {
     return factory_;
   }
 
-  // Get the target bitmap which can be set as the ID2D1DeviceContext's target.
-  ID2D1Bitmap1* GetTargetBitmap() const { return target_bitmap_.Get(); }
+  ID2D1DeviceContext* GetD2D1DeviceContext() { return d2d1_device_context_.Get(); }
 
   // Resize the underlying buffer.
   void ResizeBuffer(int width, int height);
@@ -41,6 +40,7 @@ class WindowRenderTarget : public Object {
 
  private:
   graph::win::direct::DirectGraphFactory* factory_;
+  Microsoft::WRL::ComPtr<ID2D1DeviceContext> d2d1_device_context_;
   Microsoft::WRL::ComPtr<IDXGISwapChain1> dxgi_swap_chain_;
   Microsoft::WRL::ComPtr<ID2D1Bitmap1> target_bitmap_;
 };

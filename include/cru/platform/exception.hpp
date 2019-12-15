@@ -1,5 +1,5 @@
 #pragma once
-#include "cru/common/pre_config.hpp"
+#include "cru/common/base.hpp"
 
 #include <stdexcept>
 

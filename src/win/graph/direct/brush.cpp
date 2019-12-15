@@ -9,7 +9,7 @@
 namespace cru::platform::graph::win::direct {
 D2DSolidColorBrush::D2DSolidColorBrush(DirectGraphFactory* factory)
     : DirectGraphResource(factory) {
-  ThrowIfFailed(factory->GetD2D1DeviceContext()->CreateSolidColorBrush(
+  ThrowIfFailed(factory->GetDefaultD2D1DeviceContext()->CreateSolidColorBrush(
       Convert(color_), &brush_));
 }
 

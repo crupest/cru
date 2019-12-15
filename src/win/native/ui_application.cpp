@@ -28,8 +28,7 @@ WinUiApplication::WinUiApplication() {
 
   instance_handle_ = ::GetModuleHandleW(nullptr);
   if (!instance_handle_)
-    throw Win32Error(::GetLastError(),
-                     "Failed to get module(instance) handle.");
+    throw Win32Error("Failed to get module(instance) handle.");
 
   log::Logger::GetInstance()->AddSource(
       std::make_unique<::cru::platform::win::WinDebugLoggerSource>());

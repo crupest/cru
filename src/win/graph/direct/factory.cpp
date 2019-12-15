@@ -1,5 +1,6 @@
 #include "cru/win/graph/direct/factory.hpp"
 
+#include "cru/common/logger.hpp"
 #include "cru/win/graph/direct/brush.hpp"
 #include "cru/win/graph/direct/exception.hpp"
 #include "cru/win/graph/direct/font.hpp"
@@ -11,9 +12,27 @@
 #include <utility>
 
 namespace cru::platform::graph::win::direct {
+namespace {
+void InitializeCom() {
+  const auto hresult = ::CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
+  if (FAILED(hresult)) {
+    throw HResultError(hresult, "Failed to call CoInitializeEx.");
+  }
+  if (hresult == S_FALSE) {
+    log::Debug(
+        "Try to call CoInitializeEx, but it seems COM is already "
+        "initialized.");
+  }
+}
+
+void UninitializeCom() { ::CoUninitialize(); }
+}  // namespace
+
 DirectGraphFactory::DirectGraphFactory() {
   // TODO! Detect repeated creation. Because I don't think we can create two d2d
   // and dwrite factory so we need to prevent the "probably dangerous" behavior.
+
+  InitializeCom();
 
   UINT creation_flags = D3D11_CREATE_DEVICE_BGRA_SUPPORT;
 
@@ -39,12 +58,9 @@ DirectGraphFactory::DirectGraphFactory() {
   ThrowIfFailed(D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED,
                                   IID_PPV_ARGS(&d2d1_factory_)));
 
-  Microsoft::WRL::ComPtr<ID2D1Device> d2d1_device;
+  ThrowIfFailed(d2d1_factory_->CreateDevice(dxgi_device.Get(), &d2d1_device_));
 
-  ThrowIfFailed(d2d1_factory_->CreateDevice(dxgi_device.Get(), &d2d1_device));
-
-  ThrowIfFailed(d2d1_device->CreateDeviceContext(
-      D2D1_DEVICE_CONTEXT_OPTIONS_NONE, &d2d1_device_context_));
+  d2d1_device_context_ = CreateD2D1DeviceContext();
 
   // Identify the physical adapter (GPU or card) this device is runs on.
   Microsoft::WRL::ComPtr<IDXGIAdapter> dxgi_adapter;
@@ -59,6 +75,16 @@ DirectGraphFactory::DirectGraphFactory() {
 
   ThrowIfFailed(dwrite_factory_->GetSystemFontCollection(
       &dwrite_system_font_collection_));
+}
+
+DirectGraphFactory::~DirectGraphFactory() { UninitializeCom(); }
+
+Microsoft::WRL::ComPtr<ID2D1DeviceContext>
+DirectGraphFactory::CreateD2D1DeviceContext() {
+  Microsoft::WRL::ComPtr<ID2D1DeviceContext> d2d1_device_context;
+  ThrowIfFailed(d2d1_device_->CreateDeviceContext(
+      D2D1_DEVICE_CONTEXT_OPTIONS_NONE, &d2d1_device_context));
+  return d2d1_device_context;
 }
 
 std::unique_ptr<ISolidColorBrush> DirectGraphFactory::CreateSolidColorBrush() {

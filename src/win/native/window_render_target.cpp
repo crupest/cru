@@ -15,6 +15,8 @@ WindowRenderTarget::WindowRenderTarget(DirectGraphFactory* factory, HWND hwnd)
   const auto d3d11_device = factory->GetD3D11Device();
   const auto dxgi_factory = factory->GetDxgiFactory();
 
+  d2d1_device_context_ = factory->CreateD2D1DeviceContext();
+
   // Allocate a descriptor.
   DXGI_SWAP_CHAIN_DESC1 swap_chain_desc;
   swap_chain_desc.Width = 0;  // use automatic sizing
@@ -41,27 +43,12 @@ WindowRenderTarget::WindowRenderTarget(DirectGraphFactory* factory, HWND hwnd)
 }
 
 void WindowRenderTarget::ResizeBuffer(const int width, const int height) {
-  const auto factory = factory_;
-  const auto d2d1_device_context = factory->GetD2D1DeviceContext();
-
-  Microsoft::WRL::ComPtr<ID2D1Image> old_target;
-  d2d1_device_context->GetTarget(&old_target);
-  const auto target_this = old_target == this->target_bitmap_;
-  if (target_this) d2d1_device_context->SetTarget(nullptr);
-
-  old_target = nullptr;
+  // In order to resize buffer, we need to untarget the buffer first.
+  d2d1_device_context_->SetTarget(nullptr);
   target_bitmap_ = nullptr;
-
   ThrowIfFailed(dxgi_swap_chain_->ResizeBuffers(0, width, height,
                                                 DXGI_FORMAT_UNKNOWN, 0));
-
   CreateTargetBitmap();
-
-  if (target_this) d2d1_device_context->SetTarget(target_bitmap_.Get());
-}
-
-void WindowRenderTarget::SetAsTarget() {
-  factory_->GetD2D1DeviceContext()->SetTarget(target_bitmap_.Get());
 }
 
 void WindowRenderTarget::Present() {
@@ -85,7 +72,9 @@ void WindowRenderTarget::CreateTargetBitmap() {
 
   // Get a D2D surface from the DXGI back buffer to use as the D2D render
   // target.
-  ThrowIfFailed(factory_->GetD2D1DeviceContext()->CreateBitmapFromDxgiSurface(
+  ThrowIfFailed(d2d1_device_context_->CreateBitmapFromDxgiSurface(
       dxgi_back_buffer.Get(), &bitmap_properties, &target_bitmap_));
+
+  d2d1_device_context_->SetTarget(target_bitmap_.Get());
 }
 }  // namespace cru::platform::native::win

@@ -163,7 +163,7 @@ void WinNativeWindow::RequestRepaint() {
 }
 
 std::unique_ptr<graph::IPainter> WinNativeWindow::BeginPaint() {
-  return std::make_unique<WindowD2DPainter>(this);
+  return std::make_unique<WindowD2DPainter>(window_render_target_.get());
 }
 
 void WinNativeWindow::SetCursor(std::shared_ptr<ICursor> cursor) {
