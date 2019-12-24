@@ -7,17 +7,31 @@ import sys
 
 parser = argparse.ArgumentParser()
 parser.add_argument('command', choices=[
-                    'configure', 'build'], nargs='?', default='build', help='specify command to execute')
+                    'configure', 'build', 'test'], nargs='?', default='test', help='specify command to execute')
 parser.add_argument('-a', '--arch', choices=['x86', 'x64'],
                     default='x64', help='specify target cpu architecture')
 parser.add_argument('-c', '--config', choices=['Debug', 'Release'],
                     default='Debug', help='specify build configuration')
+parser.add_argument('-d', '--work-dir', default='build',
+                    help='specify working directory for building')
 args = parser.parse_args()
 
 
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+work_dir = os.path.join(project_root, args.work_dir)
+
+try:
+    vcpkg_root = os.environ.get('VCPKG_INSTALLATION_ROOT')
+except:
+    print('Failed to find vcpkg installation root by environment variable.')
+    exit(1)
+
+cmake_toolchain_path = os.path.join(
+    vcpkg_root, 'scripts/buildsystems/vcpkg.cmake')
 
 # this is not used when generator is Visual Studio
+
+
 def init_vc_environment(arch):
     arch_bat_map = {
         'x86': 'vcvarsamd64_x86',
@@ -37,18 +51,31 @@ def configure():
         'x86': 'Win32',
         'x64': 'x64'
     }
-    subprocess.check_call('cmake -S . -B build -G "Visual Studio 16 2019" -A {arch} -T host=x64 -DCMAKE_EXPORT_COMPILE_COMMANDS=ON'
-                          .format(arch=generater_vs_arch_map[args.arch]),
+
+    subprocess.check_call('vcpkg install gtest',
+                          stdout=sys.stdout, stderr=sys.stderr)
+
+    # -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+    subprocess.check_call('cmake -S . -B {build_dir} -G "Visual Studio 16 2019" -A {arch} -T host=x64 -DCMAKE_TOOLCHAIN_FILE={toolchain}'
+                          .format(build_dir=work_dir, arch=generater_vs_arch_map[args.arch], toolchain=cmake_toolchain_path),
                           stdout=sys.stdout, stderr=sys.stderr)
 
 
 def build():
-    subprocess.check_call('cmake --build build --target ALL_BUILD --config {config}'.format(config=args.config),
+    subprocess.check_call('cmake --build {build_dir} --target ALL_BUILD --config {config}'.format(build_dir=work_dir, config=args.config),
                           stdout=sys.stdout, stderr=sys.stderr)
+
+
+def test():
+    os.chdir(work_dir)
+    subprocess.check_call('ctest')
+    os.chdir(project_root)
 
 
 os.chdir(project_root)
 
 configure()
-if args.command == 'build':
+if args.command == 'build' or args.command == 'test':
     build()
+    if args.command == 'test':
+        test()
