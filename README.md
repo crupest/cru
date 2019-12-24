@@ -31,7 +31,7 @@ Use python3 to run `tool/win_build.py` to build on Windows. Run with `-h` to see
 ## project structure
 Test and Linux module is not developed now.
 
-![project structure](art/project_structure.png)
+![project structure](docs/project_structure.png)
 
 ## jibber jabber
 Time: 2019.12.13 2:51
