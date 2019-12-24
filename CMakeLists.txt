@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.14)
 
 project(CruUI)
 
+enable_testing()
+
 set(CMAKE_CXX_STANDARD 20)
 
 if (MSVC)
@@ -12,3 +14,4 @@ endif()
 set(CRU_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include)
 
 add_subdirectory(src)
+add_subdirectory(test)
