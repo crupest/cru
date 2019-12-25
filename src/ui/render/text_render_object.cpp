@@ -29,6 +29,8 @@ TextRenderObject::TextRenderObject(
   text_layout_ = graph_factory->CreateTextLayout(font_, "");
 }
 
+TextRenderObject::~TextRenderObject() = default;
+
 std::string TextRenderObject::GetText() const {
   return text_layout_->GetText();
 }

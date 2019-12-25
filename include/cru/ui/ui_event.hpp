@@ -25,6 +25,8 @@ class UiEventArgs : public Object {
   UiEventArgs& operator=(UiEventArgs&& other) = default;
   ~UiEventArgs() override = default;
 
+  Object* GetSender() const { return sender_; }
+
   Object* GetOriginalSender() const { return original_sender_; }
 
   bool IsHandled() const { return handled_; }
