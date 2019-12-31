@@ -60,9 +60,10 @@ class Utf8Iterator : public Object {
 };
 
 class Utf16Iterator : public Object {
-  static_assert(sizeof(wchar_t) == 2,
-                "Emmm, according to my knowledge, wchar_t should be 2-length on "
-                "Windows. If not, Utf16 will be broken.");
+  static_assert(
+      sizeof(wchar_t) == 2,
+      "Emmm, according to my knowledge, wchar_t should be 2-length on "
+      "Windows. If not, Utf16 will be broken.");
 
  public:
   Utf16Iterator(const std::wstring_view& string) : string_(string) {}
@@ -86,4 +87,11 @@ class Utf16Iterator : public Object {
   std::wstring_view string_;
   int position_ = 0;
 };
+
+int IndexUtf8ToUtf16(const std::string_view& utf8_string, int utf8_index,
+                     const std::wstring_view& utf16_string);
+
+int IndexUtf16ToUtf8(const std::wstring_view& utf16_string, int utf16_index,
+                     const std::string_view& utf8_string);
+
 }  // namespace cru::platform::win

@@ -143,4 +143,44 @@ CodePoint Utf16Iterator::Next() {
   }
 }
 
+int IndexUtf8ToUtf16(const std::string_view& utf8_string, int utf8_index,
+                     const std::wstring_view& utf16_string) {
+  if (utf8_index >= static_cast<int>(utf8_string.length()))
+    return static_cast<int>(utf16_string.length());
+
+  int cp_index = 0;
+  Utf8Iterator iter{utf8_string};
+  while (iter.CurrentPosition() <= utf8_index) {
+    iter.Next();
+    cp_index++;
+  }
+
+  Utf16Iterator result_iter{utf16_string};
+  for (int i = 0; i < cp_index - 1; i++) {
+    if (result_iter.Next() == k_code_point_end) break;
+  }
+
+  return result_iter.CurrentPosition();
+}
+
+int IndexUtf16ToUtf8(const std::wstring_view& utf16_string, int utf16_index,
+                     const std::string_view& utf8_string) {
+  if (utf16_index >= static_cast<int>(utf16_string.length()))
+    return static_cast<int>(utf8_string.length());
+
+  int cp_index = 0;
+  Utf16Iterator iter{utf16_string};
+  while (iter.CurrentPosition() <= utf16_index) {
+    iter.Next();
+    cp_index++;
+  }
+
+  Utf8Iterator result_iter{utf8_string};
+  for (int i = 0; i < cp_index - 1; i++) {
+    if (result_iter.Next() == k_code_point_end) break;
+  }
+
+  return result_iter.CurrentPosition();
+}
+
 }  // namespace cru::platform::win
