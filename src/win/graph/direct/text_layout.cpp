@@ -10,6 +10,9 @@
 #include <utility>
 
 namespace cru::platform::graph::win::direct {
+using cru::platform::win::IndexUtf16ToUtf8;
+using cru::platform::win::IndexUtf8ToUtf16;
+
 DWriteTextLayout::DWriteTextLayout(DirectGraphFactory* factory,
                                    std::shared_ptr<IFont> font,
                                    std::string text)
@@ -64,6 +67,12 @@ Rect DWriteTextLayout::GetTextBounds() {
 }
 
 std::vector<Rect> DWriteTextLayout::TextRangeRect(const TextRange& text_range) {
+  // TODO: This can be faster with one iteration.
+  const int start_index =
+      IndexUtf8ToUtf16(text_, static_cast<int>(text_range.position), w_text_);
+  const int end_index = IndexUtf8ToUtf16(
+      text_, static_cast<int>(text_range.position + text_range.count), w_text_);
+
   DWRITE_TEXT_METRICS text_metrics;
   ThrowIfFailed(text_layout_->GetMetrics(&text_metrics));
   const auto metrics_count =
@@ -71,8 +80,9 @@ std::vector<Rect> DWriteTextLayout::TextRangeRect(const TextRange& text_range) {
 
   std::vector<DWRITE_HIT_TEST_METRICS> hit_test_metrics(metrics_count);
   UINT32 actual_count;
-  text_layout_->HitTestTextRange(text_range.position, text_range.count, 0, 0,
-                                 hit_test_metrics.data(), metrics_count,
+  text_layout_->HitTestTextRange(static_cast<UINT32>(start_index),
+                                 static_cast<UINT32>(end_index - start_index),
+                                 0, 0, hit_test_metrics.data(), metrics_count,
                                  &actual_count);
 
   hit_test_metrics.erase(hit_test_metrics.cbegin() + actual_count,
