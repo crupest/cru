@@ -3,11 +3,12 @@
 
 #include "self_resolvable.hpp"
 
+#include <algorithm>
 #include <cassert>
-#include <forward_list>
 #include <functional>
 #include <memory>
 #include <utility>
+#include <vector>
 
 namespace cru {
 class EventRevoker;
@@ -132,17 +133,13 @@ class Event : public details::EventBase, public IEvent<TEventArgs> {
 
   EventRevoker AddHandler(const EventHandler& handler) override {
     const auto token = current_token_++;
-    this->handler_data_list_.emplace_after(this->last_handler_iterator_, token,
-                                           handler);
-    ++(this->last_handler_iterator_);
+    this->handler_data_list_.emplace_back(token, handler);
     return CreateRevoker(token);
   }
 
   EventRevoker AddHandler(EventHandler&& handler) override {
     const auto token = current_token_++;
-    this->handler_data_list_.emplace_after(this->last_handler_iterator_, token,
-                                           std::move(handler));
-    ++(this->last_handler_iterator_);
+    this->handler_data_list_.emplace_back(token, std::move(handler));
     return CreateRevoker(token);
   }
 
@@ -153,11 +150,10 @@ class Event : public details::EventBase, public IEvent<TEventArgs> {
   // is called, so even if you delete a handler during this period, all handlers
   // in the snapshot will be executed.
   void Raise(typename IEvent<TEventArgs>::EventArgs args) {
-    std::forward_list<EventHandler> handlers;
-    auto iter = handlers.cbefore_begin();
+    std::vector<EventHandler> handlers;
+    handlers.reserve(this->handler_data_list_.size());
     for (const auto& data : this->handler_data_list_) {
-      handlers.insert_after(iter, data.handler);
-      iter++;
+      handlers.push_back(data.handler);
     }
     for (const auto& handler : handlers) {
       handler(args);
@@ -166,16 +162,16 @@ class Event : public details::EventBase, public IEvent<TEventArgs> {
 
  protected:
   void RemoveHandler(EventHandlerToken token) override {
-    this->handler_data_list_.remove_if(
+    const auto find_result = std::find_if(
+        this->handler_data_list_.cbegin(), this->handler_data_list_.cend(),
         [token](const HandlerData& data) { return data.token == token; });
+    if (find_result != this->handler_data_list_.cend()) {
+      this->handler_data_list_.erase(find_result);
+    }
   }
 
  private:
-  std::forward_list<HandlerData> handler_data_list_{};
-  typename std::forward_list<
-      HandlerData>::const_iterator last_handler_iterator_ =
-      this->handler_data_list_
-          .cbefore_begin();  // remember the last handler to make push back O(1)
+  std::vector<HandlerData> handler_data_list_;
   EventHandlerToken current_token_ = 0;
 };
 
