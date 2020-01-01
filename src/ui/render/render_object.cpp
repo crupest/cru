@@ -18,6 +18,7 @@ void RenderObject::AddChild(RenderObject* render_object, const int position) {
 
   children_.insert(children_.cbegin() + position, render_object);
   render_object->SetParent(this);
+  render_object->SetRenderHostRecursive(GetRenderHost());
   OnAddChild(render_object, position);
 }
 
@@ -30,6 +31,7 @@ void RenderObject::RemoveChild(const int position) {
   const auto removed_child = *i;
   children_.erase(i);
   removed_child->SetParent(nullptr);
+  removed_child->SetRenderHostRecursive(nullptr);
   OnRemoveChild(removed_child, position);
 }
 
@@ -140,4 +142,12 @@ void RenderObject::NotifyAfterLayoutRecursive(RenderObject* render_object) {
     NotifyAfterLayoutRecursive(o);
   }
 }
+
+void RenderObject::SetRenderHostRecursive(IRenderHost* host) {
+  SetRenderHost(host);
+  for (const auto child : GetChildren()) {
+    child->SetRenderHostRecursive(host);
+  }
+}
+
 }  // namespace cru::ui::render

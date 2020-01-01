@@ -49,7 +49,17 @@ class ClickDetector : public Object {
 
   Control* GetControl() const { return control_; }
 
+  ClickState GetState() const { return state_; }
+
+  // Default is enable.
+  bool IsEnabled() const { return enable_; }
+  // If disable when user is pressing, the pressing is deactivated.
+  void SetEnabled(bool enable);
+
+  // Default is left and right.
   MouseButton GetTriggerButton() const { return trigger_button_; }
+  // If unset the trigger button when user is pressing, the pressing is
+  // deactivated.
   void SetTriggerButton(MouseButton trigger_button);
 
   IEvent<ClickEventArgs>* ClickEvent() { return &event_; }
@@ -57,33 +67,22 @@ class ClickDetector : public Object {
   IEvent<ClickState>* StateChangeEvent() { return &state_change_event_; }
 
  private:
-  std::optional<Point>& FromButton(MouseButton button) {
-    switch (button) {
-      case MouseButton::Left:
-        return click_map_.left;
-      case MouseButton::Middle:
-        return click_map_.middle;
-      case MouseButton::Right:
-        return click_map_.right;
-      default:
-        UnreachableCode();
-    }
-  }
+  void SetState(ClickState state);
 
  private:
   Control* control_;
 
-  MouseButton trigger_button_ = MouseButton::Left | MouseButton::Right;
+  ClickState state_;
+
+  bool enable_ = true;
+  MouseButton trigger_button_ = mouse_buttons::left | mouse_buttons::right;
 
   Event<ClickEventArgs> event_;
   Event<ClickState> state_change_event_;
 
   std::vector<EventRevokerGuard> event_rovoker_guards_;
 
-  struct {
-    std::optional<Point> left = std::nullopt;
-    std::optional<Point> middle = std::nullopt;
-    std::optional<Point> right = std::nullopt;
-  } click_map_;
+  Point down_point_;
+  MouseButton button_;
 };
 }  // namespace cru::ui

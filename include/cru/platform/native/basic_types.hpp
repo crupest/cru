@@ -1,5 +1,6 @@
 #pragma once
 #include "cru/common/base.hpp"
+#include "cru/common/bitmask.hpp"
 
 namespace cru::platform::native {
 struct Dpi {
@@ -7,7 +8,16 @@ struct Dpi {
   float y;
 };
 
-enum class MouseButton : unsigned { Left = 0b1, Right = 0b10, Middle = 0b100 };
-}  // namespace cru::platform::native
+namespace details {
+struct TagMouseButton {};
+}  // namespace details
 
-CRU_ENABLE_BITMASK_OPERATORS(::cru::platform::native::MouseButton)
+using MouseButton = Bitmask<details::TagMouseButton>;
+
+namespace mouse_buttons {
+constexpr MouseButton left{0b1};
+constexpr MouseButton middle{0b10};
+constexpr MouseButton right{0b100};
+}  // namespace mouse_buttons
+
+}  // namespace cru::platform::native

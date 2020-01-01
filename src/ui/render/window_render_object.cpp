@@ -88,27 +88,6 @@ RenderObject* WindowRenderObject::HitTest(const Point& point) {
   return Rect{Point{}, GetSize()}.IsPointInside(point) ? this : nullptr;
 }
 
-namespace {
-void SetRenderHostRecursive(RenderObject* render_object, IRenderHost* host) {
-  render_object->SetRenderHost(host);
-  for (const auto child : render_object->GetChildren()) {
-    SetRenderHostRecursive(child, host);
-  }
-}
-}  // namespace
-
-void WindowRenderObject::OnAddChild(RenderObject* new_child, int position) {
-  CRU_UNUSED(position)
-
-  SetRenderHostRecursive(new_child, render_host_.get());
-}
-
-void WindowRenderObject::OnRemoveChild(RenderObject* new_child, int position) {
-  CRU_UNUSED(position)
-
-  SetRenderHostRecursive(new_child, nullptr);
-}
-
 Size WindowRenderObject::OnMeasureContent(const Size& available_size) {
   if (const auto child = GetChild()) child->Measure(available_size);
   return available_size;

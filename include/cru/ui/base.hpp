@@ -16,6 +16,12 @@ using cru::platform::TextRange;
 using cru::platform::Thickness;
 using cru::platform::native::MouseButton;
 
+namespace mouse_buttons {
+using cru::platform::native::mouse_buttons::left;
+using cru::platform::native::mouse_buttons::middle;
+using cru::platform::native::mouse_buttons::right;
+}  // namespace mouse_buttons
+
 namespace colors {
 using cru::platform::colors::black;
 using cru::platform::colors::skyblue;

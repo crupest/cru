@@ -26,9 +26,6 @@ class WindowRenderObject : public RenderObject {
   RenderObject* HitTest(const Point& point) override;
 
  protected:
-  void OnAddChild(RenderObject* new_child, int position) override;
-  void OnRemoveChild(RenderObject* new_child, int position) override;
-
   Size OnMeasureContent(const Size& available_size) override;
   void OnLayoutContent(const Rect& content_rect) override;
 

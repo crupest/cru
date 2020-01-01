@@ -117,6 +117,8 @@ class RenderObject : public Object {
  private:
   void SetParent(RenderObject* new_parent);
 
+  void SetRenderHostRecursive(IRenderHost* host);
+
  private:
   Control* control_ = nullptr;
   IRenderHost* render_host_ = nullptr;

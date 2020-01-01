@@ -155,6 +155,7 @@ bool WinNativeWindow::ReleaseMouse() {
 
 void WinNativeWindow::RequestRepaint() {
   if (IsValid()) {
+    log::Debug("A repaint is requested.");
     if (!::InvalidateRect(hwnd_, nullptr, FALSE))
       throw Win32Error(::GetLastError(), "Failed to invalidate window.");
     if (!::UpdateWindow(hwnd_))
@@ -262,7 +263,7 @@ bool WinNativeWindow::HandleNativeWindowMessage(HWND hwnd, UINT msg,
       POINT point;
       point.x = GET_X_LPARAM(l_param);
       point.y = GET_Y_LPARAM(l_param);
-      OnMouseDownInternal(platform::native::MouseButton::Left, point);
+      OnMouseDownInternal(platform::native::mouse_buttons::left, point);
       *result = 0;
       return true;
     }
@@ -270,7 +271,7 @@ bool WinNativeWindow::HandleNativeWindowMessage(HWND hwnd, UINT msg,
       POINT point;
       point.x = GET_X_LPARAM(l_param);
       point.y = GET_Y_LPARAM(l_param);
-      OnMouseUpInternal(platform::native::MouseButton::Left, point);
+      OnMouseUpInternal(platform::native::mouse_buttons::left, point);
       *result = 0;
       return true;
     }
@@ -278,7 +279,7 @@ bool WinNativeWindow::HandleNativeWindowMessage(HWND hwnd, UINT msg,
       POINT point;
       point.x = GET_X_LPARAM(l_param);
       point.y = GET_Y_LPARAM(l_param);
-      OnMouseDownInternal(platform::native::MouseButton::Right, point);
+      OnMouseDownInternal(platform::native::mouse_buttons::right, point);
       *result = 0;
       return true;
     }
@@ -286,7 +287,7 @@ bool WinNativeWindow::HandleNativeWindowMessage(HWND hwnd, UINT msg,
       POINT point;
       point.x = GET_X_LPARAM(l_param);
       point.y = GET_Y_LPARAM(l_param);
-      OnMouseUpInternal(platform::native::MouseButton::Right, point);
+      OnMouseUpInternal(platform::native::mouse_buttons::right, point);
       *result = 0;
       return true;
     }
@@ -294,7 +295,7 @@ bool WinNativeWindow::HandleNativeWindowMessage(HWND hwnd, UINT msg,
       POINT point;
       point.x = GET_X_LPARAM(l_param);
       point.y = GET_Y_LPARAM(l_param);
-      OnMouseDownInternal(platform::native::MouseButton::Middle, point);
+      OnMouseDownInternal(platform::native::mouse_buttons::middle, point);
       *result = 0;
       return true;
     }
@@ -302,7 +303,7 @@ bool WinNativeWindow::HandleNativeWindowMessage(HWND hwnd, UINT msg,
       POINT point;
       point.x = GET_X_LPARAM(l_param);
       point.y = GET_Y_LPARAM(l_param);
-      OnMouseUpInternal(platform::native::MouseButton::Middle, point);
+      OnMouseUpInternal(platform::native::mouse_buttons::middle, point);
       *result = 0;
       return true;
     }

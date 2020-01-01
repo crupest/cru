@@ -4,6 +4,7 @@ add_library(cru_base STATIC
 )
 target_sources(cru_base PUBLIC
 	${CRU_BASE_INCLUDE_DIR}/base.hpp
+	${CRU_BASE_INCLUDE_DIR}/bitmask.hpp
 	${CRU_BASE_INCLUDE_DIR}/event.hpp
 	${CRU_BASE_INCLUDE_DIR}/format.hpp
 	${CRU_BASE_INCLUDE_DIR}/logger.hpp

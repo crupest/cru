@@ -100,7 +100,7 @@ class MouseButtonEventArgs : public MouseEventArgs {
   MouseButtonEventArgs& operator=(MouseButtonEventArgs&& other) = default;
   ~MouseButtonEventArgs() override = default;
 
-  MouseButton GetMouseButton() const { return button_; }
+  MouseButton GetButton() const { return button_; }
 
  private:
   MouseButton button_;

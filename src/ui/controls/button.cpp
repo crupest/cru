@@ -35,37 +35,27 @@ Button::Button() : click_detector_(this) {
   Set(render_object_.get(), style_.normal);
   render_object_->SetBorderEnabled(true);
 
-  MouseEnterEvent()->Direct()->AddHandler([this](event::MouseEventArgs& args) {
-    CRU_UNUSED(args)
-
-    if (click_detector_.GetPressingButton() & trigger_button_) {
-      SetState(ButtonState::Press);
-    } else {
-      SetState(ButtonState::Hover);
-    }
-  });
-
-  MouseLeaveEvent()->Direct()->AddHandler([this](event::MouseEventArgs& args) {
-    CRU_UNUSED(args)
-
-    if (click_detector_.GetPressingButton() & trigger_button_) {
-      SetState(ButtonState::Normal);
-    } else {
-      SetState(ButtonState::PressCancel);
-    }
-  });
-
-  click_detector_.ClickBeginEvent()->AddHandler([this](MouseButton button) {
-    if (button & trigger_button_) {
-      SetState(ButtonState::Press);
-    }
-  });
-
-  click_detector_.ClickEndEvent()->AddHandler([this](MouseButton button) {
-    if (button & trigger_button_) {
-      SetState(ButtonState::Hover);
-    }
-  });
+  click_detector_.StateChangeEvent()->AddHandler(
+      [this](const ClickState& state) {
+        switch (state) {
+          case ClickState::None:
+            Set(render_object_.get(), style_.normal);
+            SetCursor(GetSystemCursor(SystemCursorType::Arrow));
+            break;
+          case ClickState::Hover:
+            Set(render_object_.get(), style_.hover);
+            SetCursor(GetSystemCursor(SystemCursorType::Hand));
+            break;
+          case ClickState::Press:
+            Set(render_object_.get(), style_.press);
+            SetCursor(GetSystemCursor(SystemCursorType::Hand));
+            break;
+          case ClickState::PressInactive:
+            Set(render_object_.get(), style_.press_cancel);
+            SetCursor(GetSystemCursor(SystemCursorType::Arrow));
+            break;
+        }
+      });
 }
 
 render::RenderObject* Button::GetRenderObject() const {
@@ -78,26 +68,4 @@ void Button::OnChildChanged(Control* old_child, Control* new_child) {
     render_object_->AddChild(new_child->GetRenderObject(), 0);
 }
 
-void Button::OnStateChange(ButtonState oldState, ButtonState newState) {
-  CRU_UNUSED(oldState)
-
-  switch (newState) {
-    case ButtonState::Normal:
-      Set(render_object_.get(), style_.normal);
-      SetCursor(GetSystemCursor(SystemCursorType::Arrow));
-      break;
-    case ButtonState::Hover:
-      Set(render_object_.get(), style_.hover);
-      SetCursor(GetSystemCursor(SystemCursorType::Hand));
-      break;
-    case ButtonState::Press:
-      Set(render_object_.get(), style_.press);
-      SetCursor(GetSystemCursor(SystemCursorType::Hand));
-      break;
-    case ButtonState::PressCancel:
-      Set(render_object_.get(), style_.press_cancel);
-      SetCursor(GetSystemCursor(SystemCursorType::Arrow));
-      break;
-  }
-}
 }  // namespace cru::ui::controls
