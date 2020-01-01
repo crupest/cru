@@ -8,7 +8,14 @@ ClickDetector::ClickDetector(Control* control) {
   assert(control);
   control_ = control;
 
-  event_rovoker_guards_.push_front(
+  event_rovoker_guards_.push_back(
+      EventRevokerGuard(control->MouseEnterEvent()->Direct()->AddHandler(
+          [this, control](event::MouseEventArgs& args) {
+            if 
+
+          })));
+
+  event_rovoker_guards_.push_back(
       EventRevokerGuard(control->MouseDownEvent()->Direct()->AddHandler(
           [this, control](event::MouseButtonEventArgs& args) {
             if (!control->CaptureMouse()) return;  // capture failed
@@ -17,7 +24,7 @@ ClickDetector::ClickDetector(Control* control) {
             begin_event_.Raise(button);
           })));
 
-  event_rovoker_guards_.push_front(
+  event_rovoker_guards_.push_back(
       EventRevokerGuard(control->MouseUpEvent()->Direct()->AddHandler(
           [this, control](event::MouseButtonEventArgs& args) {
             if (!control->IsMouseCaptured()) return;

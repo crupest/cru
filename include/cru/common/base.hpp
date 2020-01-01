@@ -2,6 +2,7 @@
 #include "pre_config.hpp"
 
 #include <stdexcept>
+#include <type_traits>
 
 #define CRU_UNUSED(entity) static_cast<void>(entity);
 
@@ -40,4 +41,70 @@ struct Interface {
 [[noreturn]] inline void UnreachableCode() {
   throw std::runtime_error("Unreachable code.");
 }
+
 }  // namespace cru
+
+template <typename Enum>
+struct enable_bitmask_operators : std::false_type {};
+
+#define CRU_ENABLE_BITMASK_OPERATORS(enumname) \
+  template <>                                  \
+  struct enable_bitmask_operators<enumname> : std::true_type {};
+
+template <typename Enum>
+auto operator|(Enum lhs, Enum rhs)
+    -> std::enable_if_t<enable_bitmask_operators<Enum>::value, Enum> {
+  using underlying = typename std::underlying_type<Enum>::type;
+  return static_cast<Enum>(static_cast<underlying>(lhs) |
+                           static_cast<underlying>(rhs));
+}
+
+template <typename Enum>
+auto operator&(Enum lhs, Enum rhs)
+    -> std::enable_if_t<enable_bitmask_operators<Enum>::value, Enum> {
+  using underlying = typename std::underlying_type<Enum>::type;
+  return static_cast<Enum>(static_cast<underlying>(lhs) &
+                           static_cast<underlying>(rhs));
+}
+
+template <typename Enum>
+auto operator^(Enum lhs, Enum rhs)
+    -> std::enable_if_t<enable_bitmask_operators<Enum>::value, Enum> {
+  using underlying = typename std::underlying_type<Enum>::type;
+  return static_cast<Enum>(static_cast<underlying>(lhs) ^
+                           static_cast<underlying>(rhs));
+}
+
+template <typename Enum>
+auto operator~(Enum rhs)
+    -> std::enable_if_t<enable_bitmask_operators<Enum>::value, Enum> {
+  using underlying = typename std::underlying_type<Enum>::type;
+  return static_cast<Enum>(~static_cast<underlying>(rhs));
+}
+
+template <typename Enum>
+auto operator|=(Enum& lhs, Enum rhs)
+    -> std::enable_if_t<enable_bitmask_operators<Enum>::value, Enum&> {
+  using underlying = typename std::underlying_type<Enum>::type;
+  lhs = static_cast<Enum>(static_cast<underlying>(lhs) |
+                          static_cast<underlying>(rhs));
+  return lhs;
+}
+
+template <typename Enum>
+auto operator&=(Enum& lhs, Enum rhs)
+    -> std::enable_if_t<enable_bitmask_operators<Enum>::value, Enum&> {
+  using underlying = typename std::underlying_type<Enum>::type;
+  lhs = static_cast<Enum>(static_cast<underlying>(lhs) &
+                          static_cast<underlying>(rhs));
+  return lhs;
+}
+
+template <typename Enum>
+auto operator^=(Enum& lhs, Enum rhs)
+    -> std::enable_if_t<enable_bitmask_operators<Enum>::value, Enum&> {
+  using underlying = typename std::underlying_type<Enum>::type;
+  lhs = static_cast<Enum>(static_cast<underlying>(lhs) ^
+                          static_cast<underlying>(rhs));
+  return lhs;
+}

@@ -1,5 +1,5 @@
 #pragma once
-#include "cru/common/pre_config.hpp"
+#include "cru/common/base.hpp"
 
 namespace cru::platform::native {
 struct Dpi {
@@ -7,5 +7,7 @@ struct Dpi {
   float y;
 };
 
-enum MouseButton : unsigned { Left = 0b1, Right = 0b10, Middle = 0b100 };
+enum class MouseButton : unsigned { Left = 0b1, Right = 0b10, Middle = 0b100 };
 }  // namespace cru::platform::native
+
+CRU_ENABLE_BITMASK_OPERATORS(::cru::platform::native::MouseButton)

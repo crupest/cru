@@ -1,9 +1,8 @@
 #pragma once
 #include "control.hpp"
 
-#include <cstdlib>
-#include <forward_list>
 #include <optional>
+#include <vector>
 
 namespace cru::ui {
 class ClickEventArgs : Object {
@@ -32,33 +31,30 @@ class ClickEventArgs : Object {
   MouseButton button_;
 };
 
+enum class ClickState {
+  None,          // Mouse is outside the control.
+  Hover,         // Mouse hovers on the control but not pressed
+  Press,         // Mouse is pressed and if released click is done.
+  PressInactive  // Mouse is pressed but if released click is canceled.
+};
+
 class ClickDetector : public Object {
  public:
   explicit ClickDetector(Control* control);
 
-  ClickDetector(const ClickDetector& other) = delete;
-  ClickDetector& operator=(const ClickDetector& other) = delete;
-  ClickDetector(ClickDetector&& other) = delete;
-  ClickDetector& operator=(ClickDetector&& other) = delete;
+  CRU_DELETE_COPY(ClickDetector)
+  CRU_DELETE_MOVE(ClickDetector)
 
   ~ClickDetector() override = default;
 
   Control* GetControl() const { return control_; }
 
-  // Return a union of buttons being pressed. Return 0 if no button is being
-  // pressed.
-  MouseButton GetPressingButton() const {
-    unsigned result = 0;
-    if (click_map_.left.has_value()) result |= MouseButton::Left;
-    if (click_map_.middle.has_value()) result |= MouseButton::Middle;
-    if (click_map_.right.has_value()) result |= MouseButton::Right;
-    return static_cast<MouseButton>(result);
-  }
+  MouseButton GetTriggerButton() const { return trigger_button_; }
+  void SetTriggerButton(MouseButton trigger_button);
 
   IEvent<ClickEventArgs>* ClickEvent() { return &event_; }
 
-  IEvent<MouseButton>* ClickBeginEvent() { return &begin_event_; }
-  IEvent<MouseButton>* ClickEndEvent() { return &end_event_; }
+  IEvent<ClickState>* StateChangeEvent() { return &state_change_event_; }
 
  private:
   std::optional<Point>& FromButton(MouseButton button) {
@@ -77,12 +73,12 @@ class ClickDetector : public Object {
  private:
   Control* control_;
 
+  MouseButton trigger_button_ = MouseButton::Left | MouseButton::Right;
+
   Event<ClickEventArgs> event_;
+  Event<ClickState> state_change_event_;
 
-  Event<MouseButton> begin_event_;
-  Event<MouseButton> end_event_;
-
-  std::forward_list<EventRevokerGuard> event_rovoker_guards_;
+  std::vector<EventRevokerGuard> event_rovoker_guards_;
 
   struct {
     std::optional<Point> left = std::nullopt;

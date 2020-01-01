@@ -3,6 +3,7 @@
 
 #include "self_resolvable.hpp"
 
+#include <cassert>
 #include <forward_list>
 #include <functional>
 #include <memory>
@@ -99,7 +100,8 @@ struct IEvent {
   IEvent(IEvent&& other) = delete;
   IEvent& operator=(const IEvent& other) = delete;
   IEvent& operator=(IEvent&& other) = delete;
-  ~IEvent() = default;
+  ~IEvent() = default;  // Note that user can't destroy a Event via IEvent. So
+                        // destructor should be protected.
 
  public:
   virtual EventRevoker AddHandler(const EventHandler& handler) = 0;
@@ -130,14 +132,16 @@ class Event : public details::EventBase, public IEvent<TEventArgs> {
 
   EventRevoker AddHandler(const EventHandler& handler) override {
     const auto token = current_token_++;
-    this->handler_data_list_.emplace_after(this->last_handler_iterator_ ,token, handler);
+    this->handler_data_list_.emplace_after(this->last_handler_iterator_, token,
+                                           handler);
     ++(this->last_handler_iterator_);
     return CreateRevoker(token);
   }
 
   EventRevoker AddHandler(EventHandler&& handler) override {
     const auto token = current_token_++;
-    this->handler_data_list_.emplace_after(this->last_handler_iterator_ ,token, std::move(handler));
+    this->handler_data_list_.emplace_after(this->last_handler_iterator_, token,
+                                           std::move(handler));
     ++(this->last_handler_iterator_);
     return CreateRevoker(token);
   }
@@ -163,12 +167,15 @@ class Event : public details::EventBase, public IEvent<TEventArgs> {
  protected:
   void RemoveHandler(EventHandlerToken token) override {
     this->handler_data_list_.remove_if(
-				       [token](const HandlerData& data) { return data.token == token; });
+        [token](const HandlerData& data) { return data.token == token; });
   }
 
  private:
   std::forward_list<HandlerData> handler_data_list_{};
-  typename std::forward_list<HandlerData>::const_iterator last_handler_iterator_ = this->handler_data_list_.cbefore_begin(); // remember the last handler to make push back O(1)
+  typename std::forward_list<
+      HandlerData>::const_iterator last_handler_iterator_ =
+      this->handler_data_list_
+          .cbefore_begin();  // remember the last handler to make push back O(1)
   EventHandlerToken current_token_ = 0;
 };
 
