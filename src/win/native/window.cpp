@@ -23,10 +23,12 @@ inline Point PiToDip(const POINT& pi_point) {
 WinNativeWindow::WinNativeWindow(WinUiApplication* application,
                                  WindowClass* window_class, DWORD window_style,
                                  WinNativeWindow* parent)
-    : application_(application), parent_window_(parent) {
+    : application_(application),
+      resolver_(std::make_shared<WinNativeWindowResolver>(this)),
+      parent_window_(parent) {
   assert(application);  // application can't be null.
 
-  if (parent != nullptr && !parent->IsValid()) {
+  if (parent != nullptr) {
     throw new std::runtime_error("Can't use a invalid window as parent.");
   }
 
@@ -51,63 +53,45 @@ WinNativeWindow::WinNativeWindow(WinUiApplication* application,
 }
 
 WinNativeWindow::~WinNativeWindow() {
-  if (IsValid()) {
-    SetDeleteThisOnDestroy(false);  // avoid double delete.
+  if (!sync_flag_) {
+    sync_flag_ = true;
     Close();
   }
+  resolver_->Reset();
 }
 
-bool WinNativeWindow::IsValid() { return hwnd_ != nullptr; }
+void WinNativeWindow::Close() { ::DestroyWindow(hwnd_); }
 
-void WinNativeWindow::SetDeleteThisOnDestroy(bool value) {
-  delete_this_on_destroy_ = value;
-}
-
-void WinNativeWindow::Close() {
-  if (IsValid()) DestroyWindow(hwnd_);
-}
-
-bool WinNativeWindow::IsVisible() {
-  if (IsValid()) return ::IsWindowVisible(hwnd_);
-  return false;
-}
+bool WinNativeWindow::IsVisible() { return ::IsWindowVisible(hwnd_); }
 
 void WinNativeWindow::SetVisible(bool is_visible) {
-  if (!IsValid()) return;
   is_visible ? ShowWindow(hwnd_, SW_SHOWNORMAL) : ShowWindow(hwnd_, SW_HIDE);
 }
 Size WinNativeWindow::GetClientSize() {
-  if (!IsValid()) return Size{};
-
   const auto pixel_rect = GetClientRectPixel();
   return Size(PixelToDipX(pixel_rect.right), PixelToDipY(pixel_rect.bottom));
 }
 
 void WinNativeWindow::SetClientSize(const Size& size) {
-  if (IsValid()) {
-    const auto window_style =
-        static_cast<DWORD>(GetWindowLongPtr(hwnd_, GWL_STYLE));
-    const auto window_ex_style =
-        static_cast<DWORD>(GetWindowLongPtr(hwnd_, GWL_EXSTYLE));
+  const auto window_style =
+      static_cast<DWORD>(GetWindowLongPtr(hwnd_, GWL_STYLE));
+  const auto window_ex_style =
+      static_cast<DWORD>(GetWindowLongPtr(hwnd_, GWL_EXSTYLE));
 
-    RECT rect;
-    rect.left = 0;
-    rect.top = 0;
-    rect.right = DipToPixelX(size.width);
-    rect.bottom = DipToPixelY(size.height);
-    if (!AdjustWindowRectEx(&rect, window_style, FALSE, window_ex_style))
-      throw Win32Error(::GetLastError(),
-                       "Failed to invoke AdjustWindowRectEx.");
+  RECT rect;
+  rect.left = 0;
+  rect.top = 0;
+  rect.right = DipToPixelX(size.width);
+  rect.bottom = DipToPixelY(size.height);
+  if (!AdjustWindowRectEx(&rect, window_style, FALSE, window_ex_style))
+    throw Win32Error(::GetLastError(), "Failed to invoke AdjustWindowRectEx.");
 
-    if (!SetWindowPos(hwnd_, nullptr, 0, 0, rect.right - rect.left,
-                      rect.bottom - rect.top, SWP_NOZORDER | SWP_NOMOVE))
-      throw Win32Error(::GetLastError(), "Failed to invoke SetWindowPos.");
-  }
+  if (!SetWindowPos(hwnd_, nullptr, 0, 0, rect.right - rect.left,
+                    rect.bottom - rect.top, SWP_NOZORDER | SWP_NOMOVE))
+    throw Win32Error(::GetLastError(), "Failed to invoke SetWindowPos.");
 }
 
 Rect WinNativeWindow::GetWindowRect() {
-  if (!IsValid()) return Rect{};
-
   RECT rect;
   if (!::GetWindowRect(hwnd_, &rect))
     throw Win32Error(::GetLastError(), "Failed to invoke GetWindowRect.");
@@ -117,50 +101,37 @@ Rect WinNativeWindow::GetWindowRect() {
 }
 
 void WinNativeWindow::SetWindowRect(const Rect& rect) {
-  if (IsValid()) {
-    if (!SetWindowPos(hwnd_, nullptr, DipToPixelX(rect.left),
-                      DipToPixelY(rect.top), DipToPixelX(rect.GetRight()),
-                      DipToPixelY(rect.GetBottom()), SWP_NOZORDER))
-      throw Win32Error(::GetLastError(), "Failed to invoke SetWindowPos.");
-  }
+  if (!SetWindowPos(hwnd_, nullptr, DipToPixelX(rect.left),
+                    DipToPixelY(rect.top), DipToPixelX(rect.GetRight()),
+                    DipToPixelY(rect.GetBottom()), SWP_NOZORDER))
+    throw Win32Error(::GetLastError(), "Failed to invoke SetWindowPos.");
 }
 
 Point WinNativeWindow::GetMousePosition() {
-  if (IsValid()) {
-    POINT p;
-    if (!::GetCursorPos(&p))
-      throw Win32Error(::GetLastError(), "Failed to get cursor position.");
-    if (!::ScreenToClient(hwnd_, &p))
-      throw Win32Error(::GetLastError(), "Failed to call ScreenToClient.");
-    return PiToDip(p);
-  }
-  return Point{};
+  POINT p;
+  if (!::GetCursorPos(&p))
+    throw Win32Error(::GetLastError(), "Failed to get cursor position.");
+  if (!::ScreenToClient(hwnd_, &p))
+    throw Win32Error(::GetLastError(), "Failed to call ScreenToClient.");
+  return PiToDip(p);
 }
 
 bool WinNativeWindow::CaptureMouse() {
-  if (IsValid()) {
-    ::SetCapture(hwnd_);
-    return true;
-  }
-  return false;
+  ::SetCapture(hwnd_);
+  return true;
 }
 
 bool WinNativeWindow::ReleaseMouse() {
-  if (IsValid()) {
-    const auto result = ::ReleaseCapture();
-    return result != 0;
-  }
-  return false;
+  const auto result = ::ReleaseCapture();
+  return result != 0;
 }
 
 void WinNativeWindow::RequestRepaint() {
-  if (IsValid()) {
-    log::Debug("A repaint is requested.");
-    if (!::InvalidateRect(hwnd_, nullptr, FALSE))
-      throw Win32Error(::GetLastError(), "Failed to invalidate window.");
-    if (!::UpdateWindow(hwnd_))
-      throw Win32Error(::GetLastError(), "Failed to update window.");
-  }
+  log::Debug("A repaint is requested.");
+  if (!::InvalidateRect(hwnd_, nullptr, FALSE))
+    throw Win32Error(::GetLastError(), "Failed to invalidate window.");
+  if (!::UpdateWindow(hwnd_))
+    throw Win32Error(::GetLastError(), "Failed to update window.");
 }
 
 std::unique_ptr<graph::IPainter> WinNativeWindow::BeginPaint() {
@@ -171,8 +142,6 @@ void WinNativeWindow::SetCursor(std::shared_ptr<ICursor> cursor) {
   if (cursor == nullptr) {
     throw std::runtime_error("Can't use a nullptr as cursor.");
   }
-
-  if (!IsValid()) return;
 
   cursor_ = CheckPlatform<WinCursor>(cursor, GetPlatformId());
 
@@ -358,8 +327,10 @@ void WinNativeWindow::OnDestroyInternal() {
   application_->GetWindowManager()->UnregisterWindow(hwnd_);
   hwnd_ = nullptr;
   destroy_event_.Raise(nullptr);
-  if (delete_this_on_destroy_)
-    application_->InvokeLater([this] { delete this; });
+  if (!sync_flag_) {
+    sync_flag_ = true;
+    delete this;
+  }
 }
 
 void WinNativeWindow::OnPaintInternal() {
@@ -438,4 +409,9 @@ void WinNativeWindow::OnCharInternal(wchar_t c) { CRU_UNUSED(c) }
 void WinNativeWindow::OnActivatedInternal() {}
 
 void WinNativeWindow::OnDeactivatedInternal() {}
+
+void WinNativeWindowResolver::Reset() {
+  assert(window_);  // already reset, can't reset again
+  window_ = nullptr;
+}
 }  // namespace cru::platform::native::win

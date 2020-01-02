@@ -12,22 +12,17 @@ struct IPainter;
 }
 
 namespace cru::platform::native {
+struct INativeWindowResolver;
+
 // Represents a native window, which exposes some low-level events and
 // operations.
 //
-// Although you can always retain an instance of this class, the real window
-// associated with it might be have already been destroyed by explicitly calling
-// Close or closed by the user, which leads to an invalid instance. You can
-// check the validity by IsValid. When you call perform native operations on the
-// invalid instance, there is no effect.
+// Usually you save an INativeWindowResolver after creating a window. Because
+// window may be destroyed when user do certain actions like click the close
+// button. Then the INativeWindow instance is destroyed and
+// INativeWindowResolver::Resolve return nullptr to indicate the fact.
 struct INativeWindow : virtual INativeResource {
-  // Return if the window is still valid, that is, hasn't been closed or
-  // destroyed.
-  virtual bool IsValid() = 0;
-
-  // Set if the instance is deleted automatically when the window is destroyed
-  // by other ways. Default is true.
-  virtual void SetDeleteThisOnDestroy(bool value) = 0;
+  virtual std::shared_ptr<INativeWindowResolver> GetResolver() = 0;
 
   virtual void Close() = 0;
 
@@ -70,5 +65,10 @@ struct INativeWindow : virtual INativeResource {
   virtual IEvent<NativeMouseButtonEventArgs>* MouseUpEvent() = 0;
   virtual IEvent<int>* KeyDownEvent() = 0;
   virtual IEvent<int>* KeyUpEvent() = 0;
+};
+
+// See INativeWindow for more info.
+struct INativeWindowResolver : virtual INativeResource {
+  virtual INativeWindow* Resolve() = 0;
 };
 }  // namespace cru::platform::native

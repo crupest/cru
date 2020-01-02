@@ -9,7 +9,8 @@
 
 namespace cru::platform::native {
 struct INativeWindow;
-}
+struct INativeWindowResolver;
+}  // namespace cru::platform::native
 
 namespace cru::ui {
 namespace render {
@@ -38,13 +39,11 @@ class Window final : public ContentControl, public SelfResolvable<Window> {
   ~Window() override;
 
  public:
-  std::string_view GetControlType() const override final;
+  std::string_view GetControlType() const final;
 
   render::RenderObject* GetRenderObject() const override;
 
-  platform::native::INativeWindow* GetNativeWindow() const {
-    return native_window_;
-  }
+  platform::native::INativeWindow* GetNativeWindow();
 
   // Get current control that mouse hovers on. This ignores the mouse-capture
   // control. Even when mouse is captured by another control, this function
@@ -85,22 +84,29 @@ class Window final : public ContentControl, public SelfResolvable<Window> {
 
   //*************** region: native messages ***************
 
-  void OnNativeDestroy(std::nullptr_t);
-  void OnNativePaint(std::nullptr_t);
-  void OnNativeResize(const Size& size);
+  void OnNativeDestroy(platform::native::INativeWindow* window, std::nullptr_t);
+  void OnNativePaint(platform::native::INativeWindow* window, std::nullptr_t);
+  void OnNativeResize(platform::native::INativeWindow* window,
+                      const Size& size);
 
-  void OnNativeFocus(cru::platform::native::FocusChangeType focus);
+  void OnNativeFocus(platform::native::INativeWindow* window,
+                     cru::platform::native::FocusChangeType focus);
 
   void OnNativeMouseEnterLeave(
+      platform::native::INativeWindow* window,
       cru::platform::native::MouseEnterLeaveType enter);
-  void OnNativeMouseMove(const Point& point);
+  void OnNativeMouseMove(platform::native::INativeWindow* window,
+                         const Point& point);
   void OnNativeMouseDown(
+      platform::native::INativeWindow* window,
       const platform::native::NativeMouseButtonEventArgs& args);
   void OnNativeMouseUp(
+      platform::native::INativeWindow* window,
       const platform::native::NativeMouseButtonEventArgs& args);
 
-  void OnNativeKeyDown(int virtual_code);
-  void OnNativeKeyUp(int virtual_code);
+  void OnNativeKeyDown(platform::native::INativeWindow* window,
+                       int virtual_code);
+  void OnNativeKeyUp(platform::native::INativeWindow* window, int virtual_code);
 
   //*************** region: event dispatcher helper ***************
 
@@ -112,7 +118,9 @@ class Window final : public ContentControl, public SelfResolvable<Window> {
   void UpdateCursor();
 
  private:
-  platform::native::INativeWindow* native_window_;
+  std::shared_ptr<platform::native::INativeWindowResolver>
+      native_window_resolver_;
+
   std::vector<EventRevokerGuard> event_revoker_guards_;
 
   std::unique_ptr<render::WindowRenderObject> render_object_;

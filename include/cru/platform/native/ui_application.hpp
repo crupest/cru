@@ -3,6 +3,7 @@
 
 #include <chrono>
 #include <functional>
+#include <memory>
 #include <vector>
 
 namespace cru::platform::graph {
@@ -11,6 +12,7 @@ struct IGraphFactory;
 
 namespace cru::platform::native {
 struct INativeWindow;
+struct INativeWindowResolver;
 struct ICursorManager;
 
 // The entry point of a ui application.
@@ -39,7 +41,8 @@ struct IUiApplication : public virtual INativeResource {
   virtual void CancelTimer(unsigned long id) = 0;
 
   virtual std::vector<INativeWindow*> GetAllWindow() = 0;
-  virtual INativeWindow* CreateWindow(INativeWindow* parent) = 0;
+  virtual std::shared_ptr<INativeWindowResolver> CreateWindow(
+      INativeWindow* parent) = 0;
 
   virtual cru::platform::graph::IGraphFactory* GetGraphFactory() = 0;
 

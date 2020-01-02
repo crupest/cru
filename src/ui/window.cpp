@@ -11,6 +11,8 @@
 
 namespace cru::ui {
 using cru::platform::native::FocusChangeType;
+using cru::platform::native::INativeWindow;
+using cru::platform::native::INativeWindowResolver;
 using cru::platform::native::IUiApplication;
 using cru::platform::native::MouseEnterLeaveType;
 
@@ -88,11 +90,12 @@ Window* Window::CreateOverlapped() {
 
 namespace {
 template <typename T>
-void BindNativeEvent(Window* window, IEvent<T>* event,
-                     void (Window::*handler)(typename IEvent<T>::EventArgs),
-                     std::vector<EventRevokerGuard>& guard_pool) {
-  guard_pool.push_back(EventRevokerGuard(
-      event->AddHandler(std::bind(handler, window, std::placeholders::_1))));
+inline void BindNativeEvent(
+    Window* window, INativeWindow* native_window, IEvent<T>* event,
+    void (Window::*handler)(INativeWindow*, typename IEvent<T>::EventArgs),
+    std::vector<EventRevokerGuard>& guard_pool) {
+  guard_pool.push_back(EventRevokerGuard(event->AddHandler(
+      std::bind(handler, window, native_window, std::placeholders::_1))));
 }
 }  // namespace
 
@@ -101,30 +104,34 @@ Window::Window(tag_overlapped_constructor)
       focus_control_(this),
       mouse_captured_control_(nullptr) {
   window_ = this;
-  native_window_ = IUiApplication::GetInstance()->CreateWindow(nullptr);
+  native_window_resolver_ =
+      IUiApplication::GetInstance()->CreateWindow(nullptr);
+
+  const auto native_window = native_window_resolver_->Resolve();
+
   render_object_.reset(new render::WindowRenderObject(this));
   render_object_->SetAttachedControl(this);
 
-  BindNativeEvent(this, native_window_->DestroyEvent(),
+  BindNativeEvent(this, native_window, native_window->DestroyEvent(),
                   &Window::OnNativeDestroy, event_revoker_guards_);
-  BindNativeEvent(this, native_window_->PaintEvent(), &Window::OnNativePaint,
-                  event_revoker_guards_);
-  BindNativeEvent(this, native_window_->ResizeEvent(), &Window::OnNativeResize,
-                  event_revoker_guards_);
-  BindNativeEvent(this, native_window_->FocusEvent(), &Window::OnNativeFocus,
-                  event_revoker_guards_);
-  BindNativeEvent(this, native_window_->MouseEnterLeaveEvent(),
+  BindNativeEvent(this, native_window, native_window->PaintEvent(),
+                  &Window::OnNativePaint, event_revoker_guards_);
+  BindNativeEvent(this, native_window, native_window->ResizeEvent(),
+                  &Window::OnNativeResize, event_revoker_guards_);
+  BindNativeEvent(this, native_window, native_window->FocusEvent(),
+                  &Window::OnNativeFocus, event_revoker_guards_);
+  BindNativeEvent(this, native_window, native_window->MouseEnterLeaveEvent(),
                   &Window::OnNativeMouseEnterLeave, event_revoker_guards_);
-  BindNativeEvent(this, native_window_->MouseMoveEvent(),
+  BindNativeEvent(this, native_window, native_window->MouseMoveEvent(),
                   &Window::OnNativeMouseMove, event_revoker_guards_);
-  BindNativeEvent(this, native_window_->MouseDownEvent(),
+  BindNativeEvent(this, native_window, native_window->MouseDownEvent(),
                   &Window::OnNativeMouseDown, event_revoker_guards_);
-  BindNativeEvent(this, native_window_->MouseUpEvent(),
+  BindNativeEvent(this, native_window, native_window->MouseUpEvent(),
                   &Window::OnNativeMouseUp, event_revoker_guards_);
-  BindNativeEvent(this, native_window_->KeyDownEvent(),
+  BindNativeEvent(this, native_window, native_window->KeyDownEvent(),
                   &Window::OnNativeKeyDown, event_revoker_guards_);
-  BindNativeEvent(this, native_window_->KeyUpEvent(), &Window::OnNativeKeyUp,
-                  event_revoker_guards_);
+  BindNativeEvent(this, native_window, native_window->KeyUpEvent(),
+                  &Window::OnNativeKeyUp, event_revoker_guards_);
 }
 
 Window::~Window() {
@@ -136,6 +143,10 @@ std::string_view Window::GetControlType() const { return control_type; }
 
 render::RenderObject* Window::GetRenderObject() const {
   return render_object_.get();
+}
+
+platform::native::INativeWindow* Window::GetNativeWindow() {
+  return native_window_resolver_->Resolve();
 }
 
 bool Window::RequestFocusFor(Control* control) {
@@ -194,21 +205,27 @@ Control* Window::HitTest(const Point& point) {
   return render_object_->HitTest(point)->GetAttachedControl();
 }
 
-void Window::OnNativeDestroy(std::nullptr_t) { delete this; }
+void Window::OnNativeDestroy(INativeWindow* window, std::nullptr_t) {
+  CRU_UNUSED(window)
+  delete this;
+}
 
-void Window::OnNativePaint(std::nullptr_t) {
-  auto painter = native_window_->BeginPaint();
+void Window::OnNativePaint(INativeWindow* window, std::nullptr_t) {
+  auto painter = window->BeginPaint();
   render_object_->Draw(painter.get());
   painter->EndDraw();
 }
 
-void Window::OnNativeResize(const Size& size) {
+void Window::OnNativeResize(INativeWindow* window, const Size& size) {
+  CRU_UNUSED(window)
   CRU_UNUSED(size)
 
   render_object_->GetRenderHost()->InvalidateLayout();
 }
 
-void Window::OnNativeFocus(FocusChangeType focus) {
+void Window::OnNativeFocus(INativeWindow* window, FocusChangeType focus) {
+  CRU_UNUSED(window)
+
   focus == FocusChangeType::Gain
       ? DispatchEvent(event_names::GainFocus, focus_control_,
                       &Control::GainFocusEvent, nullptr, true)
@@ -216,7 +233,10 @@ void Window::OnNativeFocus(FocusChangeType focus) {
                       &Control::LoseFocusEvent, nullptr, true);
 }
 
-void Window::OnNativeMouseEnterLeave(MouseEnterLeaveType type) {
+void Window::OnNativeMouseEnterLeave(INativeWindow* window,
+                                     MouseEnterLeaveType type) {
+  CRU_UNUSED(window)
+
   if (type == MouseEnterLeaveType::Leave) {
     DispatchEvent(event_names::MouseLeave, mouse_hover_control_,
                   &Control::MouseLeaveEvent, nullptr);
@@ -224,7 +244,9 @@ void Window::OnNativeMouseEnterLeave(MouseEnterLeaveType type) {
   }
 }
 
-void Window::OnNativeMouseMove(const Point& point) {
+void Window::OnNativeMouseMove(INativeWindow* window, const Point& point) {
+  CRU_UNUSED(window)
+
   // Find the first control that hit test succeed.
   const auto new_mouse_hover_control = HitTest(point);
   const auto old_mouse_hover_control = mouse_hover_control_;
@@ -256,7 +278,10 @@ void Window::OnNativeMouseMove(const Point& point) {
 }
 
 void Window::OnNativeMouseDown(
+    INativeWindow* window,
     const platform::native::NativeMouseButtonEventArgs& args) {
+  CRU_UNUSED(window)
+
   Control* control =
       mouse_captured_control_ ? mouse_captured_control_ : HitTest(args.point);
   DispatchEvent(event_names::MouseDown, control, &Control::MouseDownEvent,
@@ -264,19 +289,26 @@ void Window::OnNativeMouseDown(
 }
 
 void Window::OnNativeMouseUp(
+    INativeWindow* window,
     const platform::native::NativeMouseButtonEventArgs& args) {
+  CRU_UNUSED(window)
+
   Control* control =
       mouse_captured_control_ ? mouse_captured_control_ : HitTest(args.point);
   DispatchEvent(event_names::MouseUp, control, &Control::MouseUpEvent, nullptr,
                 args.point, args.button);
 }
 
-void Window::OnNativeKeyDown(int virtual_code) {
+void Window::OnNativeKeyDown(INativeWindow* window, int virtual_code) {
+  CRU_UNUSED(window)
+
   DispatchEvent(event_names::KeyDown, focus_control_, &Control::KeyDownEvent,
                 nullptr, virtual_code);
 }
 
-void Window::OnNativeKeyUp(int virtual_code) {
+void Window::OnNativeKeyUp(INativeWindow* window, int virtual_code) {
+  CRU_UNUSED(window)
+
   DispatchEvent(event_names::KeyUp, focus_control_, &Control::KeyUpEvent,
                 nullptr, virtual_code);
 }

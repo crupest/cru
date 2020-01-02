@@ -12,12 +12,12 @@ class WinCursor;
 class WindowClass;
 class WindowManager;
 class WindowRenderTarget;
+class WinNativeWindowResolver;
 
 class WinNativeWindow : public WinNativeResource, public virtual INativeWindow {
  public:
-  WinNativeWindow(WinUiApplication* application,
-                  WindowClass* window_class, DWORD window_style,
-                  WinNativeWindow* parent);
+  WinNativeWindow(WinUiApplication* application, WindowClass* window_class,
+                  DWORD window_style, WinNativeWindow* parent);
 
   CRU_DELETE_COPY(WinNativeWindow)
   CRU_DELETE_MOVE(WinNativeWindow)
@@ -25,8 +25,9 @@ class WinNativeWindow : public WinNativeResource, public virtual INativeWindow {
   ~WinNativeWindow() override;
 
  public:
-  bool IsValid() override;
-  void SetDeleteThisOnDestroy(bool value) override;
+  std::shared_ptr<INativeWindowResolver> GetResolver() override {
+    return std::static_pointer_cast<INativeWindowResolver>(resolver_);
+  }
 
   void Close() override;
 
@@ -118,7 +119,14 @@ class WinNativeWindow : public WinNativeResource, public virtual INativeWindow {
  private:
   WinUiApplication* application_;
 
-  bool delete_this_on_destroy_ = true;
+  // when delete is called first, it set this to true to indicate
+  // destroy message handler not to double delete this instance;
+  // when destroy handler is called first (by user action or method
+  // Close), it set this to true to indicate delete not call Close
+  // again.
+  bool sync_flag_ = false;
+
+  std::shared_ptr<WinNativeWindowResolver> resolver_;
 
   HWND hwnd_;
   WinNativeWindow* parent_window_;
@@ -142,5 +150,27 @@ class WinNativeWindow : public WinNativeResource, public virtual INativeWindow {
   Event<int> key_up_event_;
 
   Event<WindowNativeMessageEventArgs&> native_message_event_;
+};
+
+class WinNativeWindowResolver : public WinNativeResource,
+                                public virtual INativeWindowResolver {
+  friend WinNativeWindow::~WinNativeWindow();
+
+ public:
+  WinNativeWindowResolver(WinNativeWindow* window) : window_(window) {}
+
+  CRU_DELETE_COPY(WinNativeWindowResolver)
+  CRU_DELETE_MOVE(WinNativeWindowResolver)
+
+  ~WinNativeWindowResolver() override = default;
+
+ public:
+  INativeWindow* Resolve() override { return window_; }
+
+ private:
+  void Reset();
+
+ private:
+  WinNativeWindow* window_;
 };
 }  // namespace cru::platform::native::win

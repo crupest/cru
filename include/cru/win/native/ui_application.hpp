@@ -45,7 +45,7 @@ class WinUiApplication : public WinNativeResource,
   void CancelTimer(unsigned long id) override;
 
   std::vector<INativeWindow*> GetAllWindow() override;
-  INativeWindow* CreateWindow(INativeWindow* parent) override;
+  std::shared_ptr<INativeWindowResolver> CreateWindow(INativeWindow* parent) override;
 
   cru::platform::graph::IGraphFactory* GetGraphFactory() override;
 
