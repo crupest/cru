@@ -17,6 +17,8 @@ namespace render {
 class WindowRenderObject;
 }
 
+// TODO: Make Window able to be invalid and handle operations in invalidity
+// situation.
 class Window final : public ContentControl, public SelfResolvable<Window> {
   friend class Control;
 
@@ -43,7 +45,7 @@ class Window final : public ContentControl, public SelfResolvable<Window> {
 
   render::RenderObject* GetRenderObject() const override;
 
-  platform::native::INativeWindow* GetNativeWindow();
+  platform::native::INativeWindow* ResolveNativeWindow();
 
   // Get current control that mouse hovers on. This ignores the mouse-capture
   // control. Even when mouse is captured by another control, this function

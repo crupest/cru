@@ -38,7 +38,7 @@ int main() {
   text_block2->SetText("Hello World!");
   flex_layout->AddChild(text_block2, 1);
 
-  window->GetNativeWindow()->SetVisible(true);
+  window->ResolveNativeWindow()->SetVisible(true);
 
   return application->Run();
 }

@@ -69,6 +69,7 @@ struct INativeWindow : virtual INativeResource {
 
 // See INativeWindow for more info.
 struct INativeWindowResolver : virtual INativeResource {
+  // Think twice before you save the return value.
   virtual INativeWindow* Resolve() = 0;
 };
 }  // namespace cru::platform::native

@@ -21,7 +21,9 @@ class WindowRenderHost : public IRenderHost,
   void InvalidateLayout() override;
 
   void InvalidatePaint() override {
-    render_object_->GetWindow()->GetNativeWindow()->RequestRepaint();
+    if (const auto native_window =
+            render_object_->GetWindow()->ResolveNativeWindow())
+      native_window->RequestRepaint();
   }
 
   IEvent<AfterLayoutEventArgs>* AfterLayoutEvent() override {
@@ -61,7 +63,10 @@ WindowRenderObject::WindowRenderObject(Window* window)
 }
 
 void WindowRenderObject::Relayout() {
-  const auto client_size = window_->GetNativeWindow()->GetClientSize();
+  const auto native_window = window_->ResolveNativeWindow();
+  const auto client_size = native_window
+                               ? native_window->GetClientSize()
+                               : Size{100, 100};  // a reasonable assumed size
   Measure(client_size);
   Layout(Rect{Point{}, client_size});
 }

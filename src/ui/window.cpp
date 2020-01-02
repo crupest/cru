@@ -145,7 +145,7 @@ render::RenderObject* Window::GetRenderObject() const {
   return render_object_.get();
 }
 
-platform::native::INativeWindow* Window::GetNativeWindow() {
+platform::native::INativeWindow* Window::ResolveNativeWindow() {
   return native_window_resolver_->Resolve();
 }
 
@@ -169,6 +169,9 @@ bool Window::RequestFocusFor(Control* control) {
 Control* Window::GetFocusControl() { return focus_control_; }
 
 bool Window::CaptureMouseFor(Control* control) {
+  const auto native_window = ResolveNativeWindow();
+  if (!native_window) return false;
+
   if (control == mouse_captured_control_) return true;
 
   if (control == nullptr) {
@@ -178,7 +181,7 @@ bool Window::CaptureMouseFor(Control* control) {
     if (old_capture_control != mouse_hover_control_) {
       DispatchMouseHoverControlChangeEvent(
           old_capture_control, mouse_hover_control_,
-          GetNativeWindow()->GetMousePosition(), true, false);
+          native_window->GetMousePosition(), true, false);
     }
     UpdateCursor();
     return true;
@@ -189,7 +192,7 @@ bool Window::CaptureMouseFor(Control* control) {
   mouse_captured_control_ = control;
   DispatchMouseHoverControlChangeEvent(
       mouse_hover_control_, mouse_captured_control_,
-      GetNativeWindow()->GetMousePosition(), false, true);
+      native_window->GetMousePosition(), false, true);
   UpdateCursor();
   return true;
 }
@@ -207,7 +210,7 @@ Control* Window::HitTest(const Point& point) {
 
 void Window::OnNativeDestroy(INativeWindow* window, std::nullptr_t) {
   CRU_UNUSED(window)
-  delete this;
+  delete this;  // TODO: Finally change this.
 }
 
 void Window::OnNativePaint(INativeWindow* window, std::nullptr_t) {
@@ -335,8 +338,10 @@ void Window::DispatchMouseHoverControlChangeEvent(Control* old_control,
 }
 
 void Window::UpdateCursor() {
-  const auto capture = GetMouseCaptureControl();
-  GetNativeWindow()->SetCursor(
-      (capture ? capture : GetMouseHoverControl())->GetInheritedCursor());
+  if (const auto native_window = ResolveNativeWindow()) {
+    const auto capture = GetMouseCaptureControl();
+    native_window->SetCursor(
+        (capture ? capture : GetMouseHoverControl())->GetInheritedCursor());
+  }
 }
 }  // namespace cru::ui
