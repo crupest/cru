@@ -80,10 +80,10 @@ std::vector<Rect> DWriteTextLayout::TextRangeRect(const TextRange& text_range) {
 
   std::vector<DWRITE_HIT_TEST_METRICS> hit_test_metrics(metrics_count);
   UINT32 actual_count;
-  text_layout_->HitTestTextRange(static_cast<UINT32>(start_index),
-                                 static_cast<UINT32>(end_index - start_index),
-                                 0, 0, hit_test_metrics.data(), metrics_count,
-                                 &actual_count);
+  ThrowIfFailed(text_layout_->HitTestTextRange(
+      static_cast<UINT32>(start_index),
+      static_cast<UINT32>(end_index - start_index), 0, 0,
+      hit_test_metrics.data(), metrics_count, &actual_count));
 
   hit_test_metrics.erase(hit_test_metrics.cbegin() + actual_count,
                          hit_test_metrics.cend());
@@ -97,6 +97,36 @@ std::vector<Rect> DWriteTextLayout::TextRangeRect(const TextRange& text_range) {
                           metrics.top + metrics.height});
   }
 
+  return result;
+}
+
+Point DWriteTextLayout::TextSingleRect(int position, bool trailing) {
+  const auto index =
+      IndexUtf8ToUtf16(text_, static_cast<int>(position), w_text_);
+
+  DWRITE_HIT_TEST_METRICS metrics;
+  FLOAT left;
+  FLOAT top;
+  ThrowIfFailed(text_layout_->HitTestTextPosition(static_cast<UINT32>(index),
+                                                  static_cast<BOOL>(trailing),
+                                                  &left, &top, &metrics));
+  return Point{left, top};
+}
+
+TextHitTestResult DWriteTextLayout::HitTest(const Point& point) {
+  BOOL trailing;
+  BOOL inside;
+  DWRITE_HIT_TEST_METRICS metrics;
+
+  ThrowIfFailed(text_layout_->HitTestPoint(point.x, point.y, &trailing, &inside,
+                                           &metrics));
+
+  const auto index =
+      IndexUtf16ToUtf8(w_text_, static_cast<int>(metrics.textPosition), text_);
+  TextHitTestResult result;
+  result.position = index;
+  result.trailing = trailing != 0;
+  result.insideText = inside != 0;
   return result;
 }
 }  // namespace cru::platform::graph::win::direct
