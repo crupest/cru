@@ -6,11 +6,17 @@
 
 CruUI is a UI library.
 
-It is **under construction**. It can be built with *CMake*.
+It is **under construction**. It can be built with _CMake_.
 
 ## build
 
-Use python3 to run `tool/win_build.py` to build on Windows. Run with `-h` to see the options.
+You need to install [_vcpkg_](https://github.com/microsoft/vcpkg) and use it to install `gtest` package (the only package and is used for test). Remember to add it to PATH and set environment variable `VCPKG_INSTALLATION_ROOT` and install package with correct triplet as the target you want to build against.
+
+Then use _CMake_ to configure and build. Remember to set correct toolchain as in _vcpkg_ documents for _CMake_ to find packages.
+
+There is also a automatic python script used in CI. Use python3 to run `tool/win_build.py` to build on Windows. Run with `-h` to see options. It still requires you to manually install _vcpkg_, add it to PATH and set environment variable `VCPKG_INSTALLATION_ROOT`, _Visual Studio 2019_ and of course _python3_. It uses _Visual Studio_ generator.
+
+Check the code or fire a issue if you have any problem.
 
 ## structure of repository
 
@@ -20,20 +26,22 @@ Use python3 to run `tool/win_build.py` to build on Windows. Run with `-h` to see
 
 - `tools/` contains some codes of tools like code generators.
 
-  - `tools/cppmerge` contains a *python* script program that merges all cpp headers and sources into one **single** header and source. **Not use now**.
+  - `tools/cppmerge` contains a _python_ script program that merges all cpp headers and sources into one **single** header and source. **Not use now**.
 
   - `tools/build.py` is a python3 script to build the source code.
 
-- `snippets/` contains useful snippets file for *Visual Studio*, you can import it.
+- `snippets/` contains useful snippets file for _Visual Studio_, you can import it.
 
-- `CMakeSettings.json` is a file that helps *Visual Studio* to config CMake and setup intellisense.
+- `CMakeSettings.json` is a file that helps _Visual Studio_ to config CMake and setup intellisense.
 
 ## project structure
+
 Test and Linux module is not developed now.
 
 ![project structure](docs/project_structure.png)
 
 ## jibber jabber
+
 Time: 2019.12.13 2:51
 
 After finishing No.∞ refactor of CruUI at midnight, I would like to jibber jabber about it while waiting for my instant noodles getting "cooked" in boiled water.
@@ -44,6 +52,6 @@ I started this project because GUI is the first practical area I stepped into in
 
 Question 2: why C++?
 
-After building my web app in Typescript and C#, I finally find home in C++. It's my "mother" language as I learned it with my first programing book *C++ Primer*. C++ has no virtual machine like most current languages. What about Rust? I admit it is great but it is just too "young", which you may think is my prejudice (however I do love it as well). C++'s feature is diverse and it has no prejudice on the way you should write in. It is inclusive and contains my primary feelings.
+After building my web app in Typescript and C#, I finally find home in C++. It's my "mother" language as I learned it with my first programing book _C++ Primer_. C++ has no virtual machine like most current languages. What about Rust? I admit it is great but it is just too "young", which you may think is my prejudice (however I do love it as well). C++'s feature is diverse and it has no prejudice on the way you should write in. It is inclusive and contains my primary feelings.
 
 Oh, at the end, I have to say that this jibber-jabber is longer than I thought when I let it flow. Well, it's worth it at least, I think. I'll put it here in this project CruUI as one of my colorful memories about it.
