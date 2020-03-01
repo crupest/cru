@@ -28,15 +28,15 @@ int FindPosition(render::RenderObject* parent, render::RenderObject* child) {
 
 FlexChildLayoutData FlexLayout::GetChildLayoutData(Control* control) {
   assert(control);
-  return render_object_->GetChildLayoutData(
+  return *render_object_->GetChildLayoutData(
       FindPosition(render_object_.get(), control->GetRenderObject()));
 }
 
 void FlexLayout::SetChildLayoutData(Control* control,
                                     const FlexChildLayoutData& data) {
   assert(control);
-  render_object_->SetChildLayoutData(
-      FindPosition(render_object_.get(), control->GetRenderObject()), data);
+  *render_object_->GetChildLayoutData(
+      FindPosition(render_object_.get(), control->GetRenderObject())) = data;
 }
 
 void FlexLayout::OnAddChild(Control* child, int position) {

@@ -7,60 +7,14 @@
 #include <functional>
 
 namespace cru::ui::render {
-FlexLayoutRenderObject::FlexLayoutRenderObject() {
-  SetChildMode(ChildMode::Multiple);
-}
-
-void FlexLayoutRenderObject::Draw(platform::graph::IPainter* painter) {
-  for (const auto child : GetChildren()) {
-    auto offset = child->GetOffset();
-    platform::graph::util::WithTransform(
-        painter, platform::Matrix::Translation(offset.x, offset.y),
-        [child](auto p) { child->Draw(p); });
-  }
-}
-
-RenderObject* FlexLayoutRenderObject::HitTest(const Point& point) {
-  const auto& children = GetChildren();
-  for (auto i = children.crbegin(); i != children.crend(); ++i) {
-    auto offset = (*i)->GetOffset();
-    Point p{point.x - offset.x, point.y - offset.y};
-    const auto result = (*i)->HitTest(p);
-    if (result != nullptr) {
-      return result;
-    }
-  }
-
-  const auto margin = GetMargin();
-  const auto size = GetSize();
-  return Rect{margin.left, margin.top,
-              std::max(size.width - margin.GetHorizontalTotal(), 0.0f),
-              std::max(size.height - margin.GetVerticalTotal(), 0.0f)}
-                 .IsPointInside(point)
-             ? this
-             : nullptr;
-}  // namespace cru::ui::render
-
-void FlexLayoutRenderObject::OnAddChild(RenderObject* new_child, int position) {
-  CRU_UNUSED(new_child)
-
-  child_layout_data_.emplace(child_layout_data_.cbegin() + position);
-}
-
-void FlexLayoutRenderObject::OnRemoveChild(RenderObject* removed_child,
-                                           int position) {
-  CRU_UNUSED(removed_child)
-
-  child_layout_data_.erase(child_layout_data_.cbegin() + position);
-}
-
 Size FlexLayoutRenderObject::OnMeasureContent(const Size& available_size) {
   std::vector<int> has_basis_children;
   std::vector<int> no_basis_children;
   std::vector<int> grow_children;
   std::vector<int> shrink_chilren;
-  for (int i = 0; i < static_cast<int>(child_layout_data_.size()); i++) {
-    const auto& layout_data = child_layout_data_[i];
+  const auto child_count = GetChildCount();
+  for (int i = 0; i < child_count; i++) {
+    const auto& layout_data = *GetChildLayoutData(i);
     if (layout_data.flex_basis.has_value())
       has_basis_children.push_back(i);
     else
@@ -91,7 +45,7 @@ Size FlexLayoutRenderObject::OnMeasureContent(const Size& available_size) {
 
   for (const int i : has_basis_children) {
     const auto child = children[i];
-    const float basis = child_layout_data_[i].flex_basis.value();
+    const float basis = GetChildLayoutData(i)->flex_basis.value();
     child->Measure(create_size(basis, get_cross_length(available_size)));
     remain_main_length -= basis;
     const float child_preferred_cross_length =
@@ -112,11 +66,11 @@ Size FlexLayoutRenderObject::OnMeasureContent(const Size& available_size) {
   if (remain_main_length > 0) {
     float total_grow = 0;
     for (const int i : grow_children)
-      total_grow += child_layout_data_[i].flex_grow;
+      total_grow += GetChildLayoutData(i)->flex_grow;
 
     for (const int i : grow_children) {
       const float distributed_grow_length =
-          remain_main_length * (child_layout_data_[i].flex_grow / total_grow);
+          remain_main_length * (GetChildLayoutData(i)->flex_grow / total_grow);
       const auto child = children[i];
       const float new_main_length =
           get_main_length(child->GetPreferredSize()) + distributed_grow_length;
@@ -134,12 +88,12 @@ Size FlexLayoutRenderObject::OnMeasureContent(const Size& available_size) {
   if (remain_main_length < 0) {
     float total_shrink = 0;
     for (const int i : shrink_chilren)
-      total_shrink += child_layout_data_[i].flex_shrink;
+      total_shrink += GetChildLayoutData(i)->flex_shrink;
 
     for (const int i : shrink_chilren) {
       const float distributed_shrink_length =  // negative
           remain_main_length *
-          (child_layout_data_[i].flex_shrink / total_shrink);
+          (GetChildLayoutData(i)->flex_shrink / total_shrink);
       const auto child = children[i];
       float new_main_length = get_main_length(child->GetPreferredSize()) +
                               distributed_shrink_length;
@@ -201,7 +155,7 @@ void FlexLayoutRenderObject::OnLayoutContent(const Rect& content_rect) {
       child->Layout(Rect{
           real_anchor_x,
           calculate_anchor(
-              static_cast<int>(child_layout_data_[i].cross_alignment.value_or(
+              static_cast<int>(GetChildLayoutData(i)->cross_alignment.value_or(
                   this->item_cross_align_)),
               content_rect.top, content_rect.height, size.height),
           size.width, size.height});
@@ -232,7 +186,7 @@ void FlexLayoutRenderObject::OnLayoutContent(const Rect& content_rect) {
       child->Layout(Rect{
           real_anchor_y,
           calculate_anchor(
-              static_cast<int>(child_layout_data_[i].cross_alignment.value_or(
+              static_cast<int>(GetChildLayoutData(i)->cross_alignment.value_or(
                   this->item_cross_align_)),
               content_rect.left, content_rect.width, size.width),
           size.width, size.height});

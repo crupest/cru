@@ -2,6 +2,7 @@
 #include "cru/platform/native/window.hpp"
 #include "cru/ui/controls/button.hpp"
 #include "cru/ui/controls/flex_layout.hpp"
+#include "cru/ui/controls/stack_layout.hpp"
 #include "cru/ui/controls/text_block.hpp"
 #include "cru/ui/window.hpp"
 #include "cru/win/native/ui_application.hpp"
@@ -12,6 +13,7 @@ using cru::ui::Thickness;
 using cru::ui::Window;
 using cru::ui::controls::Button;
 using cru::ui::controls::FlexLayout;
+using cru::ui::controls::StackLayout;
 using cru::ui::controls::TextBlock;
 
 int main() {
@@ -36,7 +38,14 @@ int main() {
 
   const auto text_block2 = TextBlock::Create();
   text_block2->SetText("Hello World!");
-  flex_layout->AddChild(text_block2, 1);
+
+  const auto text_block3 = TextBlock::Create();
+  text_block3->SetText("Overlapped text");
+
+  const auto stack_layout = StackLayout::Create();
+  stack_layout->AddChild(text_block2, 0);
+  stack_layout->AddChild(text_block3, 1);
+  flex_layout->AddChild(stack_layout, 1);
 
   window->ResolveNativeWindow()->SetVisible(true);
 

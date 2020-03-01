@@ -2,7 +2,6 @@
 #include "../layout_control.hpp"
 
 #include "../render/flex_layout_render_object.hpp"
-#include "../window.hpp"
 
 #include <memory>
 
@@ -29,9 +28,7 @@ class FlexLayout : public LayoutControl {
   FlexLayout& operator=(FlexLayout&& other) = delete;
   ~FlexLayout() override = default;
 
-  std::string_view GetControlType() const final {
-    return control_type;
-  }
+  std::string_view GetControlType() const final { return control_type; }
 
   render::RenderObject* GetRenderObject() const override;
 

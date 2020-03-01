@@ -34,7 +34,16 @@ struct IRenderHost : Interface {
 
 class RenderObject : public Object {
  protected:
+  enum class ChildMode {
+    None,
+    Single,
+    Multiple,
+  };
+
   RenderObject() = default;
+  RenderObject(ChildMode child_mode) : RenderObject() {
+    SetChildMode(child_mode);
+  }
 
  public:
   RenderObject(const RenderObject& other) = delete;
@@ -52,6 +61,7 @@ class RenderObject : public Object {
   RenderObject* GetParent() const { return parent_; }
 
   const std::vector<RenderObject*>& GetChildren() const { return children_; }
+  int GetChildCount() const { return static_cast<int>(children_.size()); }
   void AddChild(RenderObject* render_object, int position);
   void RemoveChild(int position);
 
@@ -79,12 +89,6 @@ class RenderObject : public Object {
   virtual RenderObject* HitTest(const Point& point) = 0;
 
  protected:
-  enum class ChildMode {
-    None,
-    Single,
-    Multiple,
-  };
-
   void SetChildMode(ChildMode mode) { child_mode_ = mode; }
 
   void InvalidateLayout() const {

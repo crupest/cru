@@ -1,5 +1,5 @@
 #pragma once
-#include "render_object.hpp"
+#include "layout_render_object.hpp"
 
 #include <optional>
 
@@ -39,9 +39,9 @@ struct FlexChildLayoutData {
   std::optional<FlexCrossAlignment> cross_alignment = std::nullopt;
 };
 
-class FlexLayoutRenderObject : public RenderObject {
+class FlexLayoutRenderObject : public LayoutRenderObject<FlexChildLayoutData> {
  public:
-  FlexLayoutRenderObject();
+  FlexLayoutRenderObject() = default;
   FlexLayoutRenderObject(const FlexLayoutRenderObject& other) = delete;
   FlexLayoutRenderObject& operator=(const FlexLayoutRenderObject& other) =
       delete;
@@ -67,25 +67,7 @@ class FlexLayoutRenderObject : public RenderObject {
     InvalidateLayout();
   }
 
-  FlexChildLayoutData GetChildLayoutData(int position) {
-    assert(position >= 0 && position < static_cast<int>(child_layout_data_.size()));
-    return child_layout_data_[position];
-  }
-
-  void SetChildLayoutData(int position, const FlexChildLayoutData& data) {
-    assert(position >= 0 && position < static_cast<int>(child_layout_data_.size()));
-    child_layout_data_[position] = data;
-    InvalidateLayout();
-  }
-
-  void Draw(platform::graph::IPainter* painter) override;
-
-  RenderObject* HitTest(const Point& point) override;
-
  protected:
-  void OnAddChild(RenderObject* new_child, int position) override;
-  void OnRemoveChild(RenderObject* removed_child, int position) override;
-
   Size OnMeasureContent(const Size& available_size) override;
   void OnLayoutContent(const Rect& content_rect) override;
 
@@ -93,6 +75,5 @@ class FlexLayoutRenderObject : public RenderObject {
   FlexDirection direction_ = FlexDirection::Horizontal;
   FlexMainAlignment content_main_align_ = FlexMainAlignment::Start;
   FlexCrossAlignment item_cross_align_ = FlexCrossAlignment::Center;
-  std::vector<FlexChildLayoutData> child_layout_data_{};
 };
 }  // namespace cru::ui::render
