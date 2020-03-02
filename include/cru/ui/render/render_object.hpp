@@ -32,6 +32,9 @@ struct IRenderHost : Interface {
   virtual IEvent<AfterLayoutEventArgs>* AfterLayoutEvent() = 0;
 };
 
+// Render object will not destroy its children when destroyed. Control must
+// manage lifecycle of its render objects. Since control will destroy its
+// children when destroyed, render objects will be destroyed along with it.
 class RenderObject : public Object {
  protected:
   enum class ChildMode {

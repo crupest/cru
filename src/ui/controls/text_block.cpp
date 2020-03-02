@@ -7,12 +7,10 @@ namespace cru::ui::controls {
 using render::TextRenderObject;
 
 TextBlock::TextBlock() {
-  const auto predefined_resources =
-      UiManager::GetInstance()->GetPredefineResources();
+  const auto theme_resources = UiManager::GetInstance()->GetThemeResources();
   render_object_ = std::make_unique<TextRenderObject>(
-      predefined_resources->text_block_text_brush,
-      predefined_resources->text_block_font,
-      predefined_resources->text_block_selection_brush);
+      theme_resources->text_brush, theme_resources->default_font,
+      theme_resources->text_selection_brush);
   render_object_->SetAttachedControl(this);
 }
 

@@ -15,4 +15,10 @@ RenderObject* CanvasRenderObject::HitTest(const Point& point) {
   const auto padding_rect = GetPaddingRect();
   return padding_rect.IsPointInside(point) ? this : nullptr;
 }
+
+Size CanvasRenderObject::OnMeasureContent(const Size& available_size) {
+  return Size{};
+}
+
+void CanvasRenderObject::OnLayoutContent(const Rect& content_rect) {}
 }  // namespace cru::ui::render

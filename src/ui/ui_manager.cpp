@@ -18,15 +18,6 @@ std::unique_ptr<ISolidColorBrush> CreateSolidColorBrush(IGraphFactory* factory,
 }
 }  // namespace
 
-PredefineResources::PredefineResources() {
-  const auto factory = GetGraphFactory();
-
-  button_normal_border_brush = CreateSolidColorBrush(factory, colors::black);
-  text_block_selection_brush = CreateSolidColorBrush(factory, colors::skyblue);
-  text_block_text_brush = CreateSolidColorBrush(factory, colors::black);
-  text_block_font = factory->CreateFont("等线", 24.0f);
-}
-
 UiManager* UiManager::GetInstance() {
   static UiManager* instance = new UiManager();
   GetUiApplication()->AddOnQuitHandler([] {
@@ -36,8 +27,15 @@ UiManager* UiManager::GetInstance() {
   return instance;
 }
 
-UiManager::UiManager() : predefine_resources_(new PredefineResources()) {
+UiManager::UiManager() {
   const auto factory = GetGraphFactory();
+
+  theme_resource_.default_font = factory->CreateFont("等线", 24.0f);
+
+  theme_resource_.text_brush = CreateSolidColorBrush(factory, colors::black);
+  theme_resource_.text_selection_brush =
+      CreateSolidColorBrush(factory, colors::skyblue);
+
   theme_resource_.button_style.normal.border_brush =
       CreateSolidColorBrush(factory, Color::FromHex(0x00bfff));
   theme_resource_.button_style.hover.border_brush =
