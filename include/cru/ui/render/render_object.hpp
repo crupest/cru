@@ -116,6 +116,7 @@ class RenderObject : public Object {
   virtual void OnAfterLayout();
   static void NotifyAfterLayoutRecursive(RenderObject* render_object);
 
+  Rect GetPaddingRect() const;
   Rect GetContentRect() const;
 
  private:

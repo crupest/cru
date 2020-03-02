@@ -64,14 +64,8 @@ void TextRenderObject::Draw(platform::graph::IPainter* painter) {
 }
 
 RenderObject* TextRenderObject::HitTest(const Point& point) {
-  const auto margin = GetMargin();
-  const auto size = GetSize();
-  return Rect{margin.left, margin.top,
-              std::max(size.width - margin.GetHorizontalTotal(), 0.0f),
-              std::max(size.height - margin.GetVerticalTotal(), 0.0f)}
-                 .IsPointInside(point)
-             ? this
-             : nullptr;
+  const auto padding_rect = GetPaddingRect();
+  return padding_rect.IsPointInside(point) ? this : nullptr;
 }
 
 Size TextRenderObject::OnMeasureContent(const Size& available_size) {

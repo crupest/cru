@@ -121,6 +121,14 @@ void RenderObject::OnLayoutCore(const Rect& rect) {
 
 void RenderObject::OnAfterLayout() {}
 
+Rect RenderObject::GetPaddingRect() const {
+  Rect rect{Point{}, GetSize()};
+  rect = rect.Shrink(GetMargin());
+  rect.width = std::max(rect.width, 0.0f);
+  rect.height = std::max(rect.height, 0.0f);
+  return rect;
+}
+
 Rect RenderObject::GetContentRect() const {
   Rect rect{Point{}, GetSize()};
   rect = rect.Shrink(GetMargin());
