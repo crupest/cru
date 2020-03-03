@@ -20,7 +20,7 @@ namespace event_names {
 #ifdef CRU_DEBUG
 #define CRU_DEFINE_EVENT_NAME(name) constexpr const char* name = #name;
 #else
-#define CRU_DEFINE_EVENT_NAME(name) constexpr const char* name = nullptr;
+#define CRU_DEFINE_EVENT_NAME(name) constexpr const char* name = "";
 #endif
 
 CRU_DEFINE_EVENT_NAME(LoseFocus)

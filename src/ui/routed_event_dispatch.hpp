@@ -20,7 +20,7 @@ namespace cru::ui {
 // "original_sender", which is unchanged. And "args" will be perfectly forwarded
 // as the rest arguments.
 template <typename EventArgs, typename... Args>
-void DispatchEvent(const char* event_name,
+void DispatchEvent(const std::string_view& event_name,
                    Control* const original_sender,
                    event::RoutedEvent<EventArgs>* (Control::*event_ptr)(),
                    Control* const last_receiver, Args&&... args) {
