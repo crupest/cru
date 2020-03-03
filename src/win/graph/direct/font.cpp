@@ -29,4 +29,6 @@ DWriteFont::DWriteFont(DirectGraphFactory* factory,
   ThrowIfFailed(
       text_format_->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER));
 }
+
+float DWriteFont::GetFontSize() { return text_format_->GetFontSize(); }
 }  // namespace cru::platform::graph::win::direct

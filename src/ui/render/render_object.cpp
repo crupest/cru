@@ -35,6 +35,27 @@ void RenderObject::RemoveChild(const int position) {
   OnRemoveChild(removed_child, position);
 }
 
+Point RenderObject::GetTotalOffset() const {
+  Point result{};
+  const RenderObject* render_object = this;
+
+  while (render_object != nullptr) {
+    const auto o = render_object->GetOffset();
+    result.x += o.x;
+    result.y += o.y;
+    render_object = render_object->GetParent();
+  }
+  
+  return result;
+}
+
+Point RenderObject::FromRootToContent(const Point& point) const {
+  const auto offset = GetTotalOffset();
+  const auto rect = GetContentRect();
+  return Point{point.x - (offset.x + rect.left),
+               point.y - (offset.y + rect.top)};
+}
+
 void RenderObject::Measure(const Size& available_size) {
   OnMeasureCore(available_size);
 }

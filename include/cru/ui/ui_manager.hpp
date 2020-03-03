@@ -15,6 +15,7 @@ struct ThemeResources {
   std::shared_ptr<platform::graph::IFont> default_font;
   std::shared_ptr<platform::graph::IBrush> text_brush;
   std::shared_ptr<platform::graph::IBrush> text_selection_brush;
+  std::shared_ptr<platform::graph::IBrush> caret_brush;
   controls::ButtonStyle button_style;
 };
 

@@ -47,6 +47,19 @@ void TextRenderObject::SetFont(std::shared_ptr<platform::graph::IFont> font) {
   text_layout_->SetFont(std::move(font));
 }
 
+std::vector<Rect> TextRenderObject::TextRangeRect(const TextRange& text_range) {
+  return text_layout_->TextRangeRect(text_range);
+}
+
+Point TextRenderObject::TextSingleRect(int position, bool trailing) {
+  return text_layout_->TextSingleRect(position, trailing);
+}
+
+platform::graph::TextHitTestResult TextRenderObject::TextHitTest(
+    const Point& point) {
+  return text_layout_->HitTest(point);
+}
+
 void TextRenderObject::Draw(platform::graph::IPainter* painter) {
   platform::graph::util::WithTransform(
       painter,

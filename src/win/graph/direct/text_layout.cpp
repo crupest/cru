@@ -1,5 +1,6 @@
 #include "cru/win/graph/direct/text_layout.hpp"
 
+#include "cru/common/logger.hpp"
 #include "cru/platform/check.hpp"
 #include "cru/win/graph/direct/exception.hpp"
 #include "cru/win/graph/direct/factory.hpp"
@@ -92,9 +93,8 @@ std::vector<Rect> DWriteTextLayout::TextRangeRect(const TextRange& text_range) {
   result.reserve(actual_count);
 
   for (const auto& metrics : hit_test_metrics) {
-    result.push_back(Rect{metrics.left, metrics.top,
-                          metrics.left + metrics.width,
-                          metrics.top + metrics.height});
+    result.push_back(
+        Rect{metrics.left, metrics.top, metrics.width, metrics.height});
   }
 
   return result;

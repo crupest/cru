@@ -24,6 +24,8 @@ class DWriteFont : public DirectGraphResource,
     return text_format_.Get();
   }
 
+  float GetFontSize() override;
+
  private:
   Microsoft::WRL::ComPtr<IDWriteTextFormat> text_format_;
 };

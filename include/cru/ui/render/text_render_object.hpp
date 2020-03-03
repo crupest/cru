@@ -1,6 +1,8 @@
 #pragma once
 #include "render_object.hpp"
 
+#include "cru/platform/graph/text_layout.hpp"
+
 #include <memory>
 #include <string>
 
@@ -8,7 +10,6 @@
 namespace cru::platform::graph {
 struct IBrush;
 struct IFont;
-struct ITextLayout;
 }  // namespace cru::platform::graph
 
 namespace cru::ui::render {
@@ -33,6 +34,10 @@ class TextRenderObject : public RenderObject {
 
   std::shared_ptr<platform::graph::IFont> GetFont() const;
   void SetFont(std::shared_ptr<platform::graph::IFont> font);
+
+  std::vector<Rect> TextRangeRect(const TextRange& text_range);
+  Point TextSingleRect(int position, bool trailing);
+  platform::graph::TextHitTestResult TextHitTest(const Point& point);
 
   std::optional<TextRange> GetSelectionRange() const {
     return selection_range_;

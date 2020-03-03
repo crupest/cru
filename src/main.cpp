@@ -47,6 +47,10 @@ int main() {
   stack_layout->AddChild(text_block3, 1);
   flex_layout->AddChild(stack_layout, 1);
 
+  const auto text_block4 = TextBlock::Create();
+  text_block4->SetText("Hello World!!!");
+  flex_layout->AddChild(text_block4, 2);
+
   window->ResolveNativeWindow()->SetVisible(true);
 
   return application->Run();

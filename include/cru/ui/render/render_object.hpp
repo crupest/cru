@@ -70,6 +70,8 @@ class RenderObject : public Object {
 
   Point GetOffset() const { return offset_; }
   void SetOffset(const Point& offset) { offset_ = offset; }
+  Point GetTotalOffset() const;
+  Point FromRootToContent(const Point& point) const;
   Size GetSize() const { return size_; }
   void SetSize(const Size& size) { size_ = size; }
 
@@ -91,9 +93,7 @@ class RenderObject : public Object {
 
   virtual RenderObject* HitTest(const Point& point) = 0;
 
- protected:
-  void SetChildMode(ChildMode mode) { child_mode_ = mode; }
-
+ public:
   void InvalidateLayout() const {
     if (render_host_ != nullptr) render_host_->InvalidateLayout();
   }
@@ -101,6 +101,9 @@ class RenderObject : public Object {
   void InvalidatePaint() const {
     if (render_host_ != nullptr) render_host_->InvalidatePaint();
   }
+
+ protected:
+  void SetChildMode(ChildMode mode) { child_mode_ = mode; }
 
  protected:
   virtual void OnParentChanged(RenderObject* old_parent,

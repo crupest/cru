@@ -5,6 +5,7 @@
 
 namespace cru::ui::render {
 class BorderRenderObject;
+class StackLayoutRenderObject;
 class TextRenderObject;
 class CanvasRenderObject;
 }  // namespace cru::ui::render
@@ -27,6 +28,7 @@ class TextBox : public NoChildControl {
 
  private:
   std::unique_ptr<render::BorderRenderObject> border_render_object_;
+  std::unique_ptr<render::StackLayoutRenderObject> stack_layout_render_object_;
   std::unique_ptr<render::TextRenderObject> text_render_object_;
   std::unique_ptr<render::CanvasRenderObject> caret_render_object_;
 };

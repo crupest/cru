@@ -32,9 +32,12 @@ UiManager::UiManager() {
 
   theme_resource_.default_font = factory->CreateFont("等线", 24.0f);
 
-  theme_resource_.text_brush = CreateSolidColorBrush(factory, colors::black);
+  const auto black_brush = std::shared_ptr<platform::graph::ISolidColorBrush>(
+      CreateSolidColorBrush(factory, colors::black));
+  theme_resource_.text_brush = black_brush;
   theme_resource_.text_selection_brush =
       CreateSolidColorBrush(factory, colors::skyblue);
+  theme_resource_.caret_brush = black_brush;
 
   theme_resource_.button_style.normal.border_brush =
       CreateSolidColorBrush(factory, Color::FromHex(0x00bfff));

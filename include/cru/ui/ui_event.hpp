@@ -1,6 +1,8 @@
 #pragma once
 #include "base.hpp"
 
+#include "cru/common/event.hpp"
+
 #include <memory>
 #include <optional>
 #include <type_traits>
@@ -80,6 +82,7 @@ class MouseEventArgs : public UiEventArgs {
   MouseEventArgs& operator=(MouseEventArgs&& other) = default;
   ~MouseEventArgs() override = default;
 
+  // This point is relative to window client lefttop.
   Point GetPoint() const { return point_.value_or(Point{}); }
 
  private:
