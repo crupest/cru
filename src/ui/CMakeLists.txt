@@ -21,6 +21,7 @@ add_library(cru_ui STATIC
     render/border_render_object.cpp
     render/canvas_render_object.cpp
     render/flex_layout_render_object.cpp
+    render/layout_utility.cpp
     render/render_object.cpp
     render/stack_layout_render_object.cpp
     render/text_render_object.cpp
@@ -46,6 +47,7 @@ target_sources(cru_ui PUBLIC
 	${CRU_UI_INCLUDE_DIR}/render/canvas_render_object.hpp
 	${CRU_UI_INCLUDE_DIR}/render/flex_layout_render_object.hpp
 	${CRU_UI_INCLUDE_DIR}/render/layout_render_object.hpp
+	${CRU_UI_INCLUDE_DIR}/render/layout_utility.hpp
 	${CRU_UI_INCLUDE_DIR}/render/render_object.hpp
     ${CRU_UI_INCLUDE_DIR}/render/stack_layout_render_object.hpp
 	${CRU_UI_INCLUDE_DIR}/render/text_render_object.hpp

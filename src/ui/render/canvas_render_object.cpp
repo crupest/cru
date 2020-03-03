@@ -1,5 +1,7 @@
 #include "cru/ui/render/canvas_render_object.hpp"
 
+#include "cru/ui/render/layout_utility.hpp"
+
 namespace cru::ui::render {
 CanvasRenderObject::CanvasRenderObject() : RenderObject(ChildMode::None) {}
 
@@ -17,8 +19,10 @@ RenderObject* CanvasRenderObject::HitTest(const Point& point) {
 }
 
 Size CanvasRenderObject::OnMeasureContent(const Size& available_size) {
-  return Size{};
+  return Min(available_size, GetDesiredSize());
 }
 
-void CanvasRenderObject::OnLayoutContent(const Rect& content_rect) {}
+void CanvasRenderObject::OnLayoutContent(const Rect& content_rect) {
+  CRU_UNUSED(content_rect)
+}
 }  // namespace cru::ui::render
