@@ -87,12 +87,11 @@ class Logger : public Object {
 };
 
 template <typename... TArgs>
-void Debug(const std::string_view& format, TArgs&&... args) {
+void Debug([[maybe_unused]] const std::string_view& format,
+           [[maybe_unused]] TArgs&&... args) {
 #ifdef CRU_DEBUG
   Logger::GetInstance()->Log(
       LogLevel::Debug, util::Format(format, std::forward<TArgs>(args)...));
-#else
-  CRU_UNUSED(format)
 #endif
 }
 
