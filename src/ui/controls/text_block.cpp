@@ -30,6 +30,7 @@ TextBlock::TextBlock()
   caret_brush_ = theme_resources->caret_brush;
 
   service_ = std::make_unique<TextControlService>(this, this);
+  service_->SetEnabled(true);
 }
 
 TextBlock::~TextBlock() = default;

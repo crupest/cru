@@ -33,6 +33,9 @@ class TextControlService : public Object {
   ~TextControlService();
 
  public:
+  bool IsEnabled() { return enable_; }
+  void SetEnabled(bool enable);
+
   int GetCaretPosition() { return caret_position_; }
   void SetCaretPosition(int position) { caret_position_ = position; }
 
@@ -43,16 +46,30 @@ class TextControlService : public Object {
   void DrawCaret(platform::graph::IPainter* painter);
 
  private:
+  void AbortSelection();
+
   void SetupCaretTimer();
   void TearDownCaretTimer();
+
+  void SetupHandlers();
+
+  void MouseMoveHandler(event::MouseEventArgs& args);
+  void MouseDownHandler(event::MouseButtonEventArgs& args);
+  void MouseUpHandler(event::MouseButtonEventArgs& args);
+  void LoseFocusHandler(event::FocusChangeEventArgs& args);
 
  private:
   Control* control_;
   ITextControl* text_control_;
   std::vector<EventRevokerGuard> event_revoker_guards_;
 
+  bool enable_ = false;
+
   bool caret_visible_ = false;
   int caret_position_ = 0;
+#ifdef CRU_DEBUG
+  bool caret_timer_set_ = false;
+#endif
   unsigned long caret_timer_tag_;
   // this is used for blinking of caret
   bool caret_show_ = true;
