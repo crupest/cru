@@ -3,11 +3,19 @@
 #include "../matrix.hpp"
 #include "../resource.hpp"
 
-#include "fwd.hpp"
-
 #include <memory>
 
 namespace cru::platform::graph {
+// forward declarations
+struct IGraphFactory;
+struct IBrush;
+struct ISolidColorBrush;
+struct IFont;
+struct IGeometry;
+struct IGeometryBuilder;
+struct IPainter;
+struct ITextLayout;
+
 struct TextHitTestResult {
   int position;
   bool trailing;
