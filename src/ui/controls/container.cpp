@@ -9,5 +9,10 @@ Container::Container() {
   render_object_->SetBorderEnabled(false);
 }
 
-Container::~Container() {}
+Container::~Container() = default;
+
+void Container::OnChildChanged(Control* old_child, Control* new_child) {
+  render_object_->RemoveChild(0);
+  render_object_->AddChild(new_child->GetRenderObject(), 0);
+}
 }  // namespace cru::ui::controls
