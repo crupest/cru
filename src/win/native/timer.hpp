@@ -21,7 +21,7 @@ class TimerManager : public Object {
 
   ~TimerManager() override = default;
 
-  UINT_PTR CreateTimer(UINT milliseconds, bool loop, const TimerAction& action);
+  UINT_PTR CreateTimer(UINT milliseconds, bool loop, TimerAction action);
   void KillTimer(UINT_PTR id);
   std::optional<std::pair<bool, TimerAction>> GetAction(UINT_PTR id);
 

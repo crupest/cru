@@ -1,15 +1,13 @@
 #pragma once
-#include "base.hpp"
+#include "resource.hpp"
 
 #include "brush.hpp"
 #include "font.hpp"
 #include "geometry.hpp"
 #include "text_layout.hpp"
 
-#include <memory>
 #include <string>
 #include <string_view>
-#include <utility>
 
 namespace cru::platform::graph {
 // Entry point of the graph module.

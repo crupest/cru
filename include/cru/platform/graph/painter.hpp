@@ -1,10 +1,7 @@
 #pragma once
-#include "base.hpp"
+#include "resource.hpp"
 
 namespace cru::platform::graph {
-struct IBrush;
-struct IGeometry;
-struct ITextLayout;
 
 struct IPainter : virtual INativeResource {
   virtual Matrix GetTransform() = 0;

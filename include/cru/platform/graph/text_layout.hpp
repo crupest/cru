@@ -1,19 +1,10 @@
 #pragma once
 #include "resource.hpp"
 
-#include <memory>
 #include <string>
 #include <vector>
 
 namespace cru::platform::graph {
-struct IFont;
-
-struct TextHitTestResult {
-  int position;
-  bool trailing;
-  bool insideText;
-};
-
 struct ITextLayout : virtual IGraphResource {
   virtual std::string GetText() = 0;
   virtual void SetText(std::string new_text) = 0;

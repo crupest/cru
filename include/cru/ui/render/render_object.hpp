@@ -2,16 +2,13 @@
 #include "../base.hpp"
 
 #include "cru/common/event.hpp"
+#include "cru/platform/graph/base.hpp"
 
 #include <vector>
 
 // forward declarations
 namespace cru::ui {
 class Control;
-}
-
-namespace cru::platform::graph {
-struct IPainter;
 }
 
 namespace cru::ui::render {

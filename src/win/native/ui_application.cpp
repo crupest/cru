@@ -18,13 +18,7 @@ namespace cru::platform::native::win {
 WinUiApplication* WinUiApplication::instance = nullptr;
 
 WinUiApplication::WinUiApplication() {
-  if (instance) {
-    throw new std::runtime_error(
-        "Already created an instance of WinUiApplication");
-  }
-
   instance = this;
-  IUiApplication::instance = this;
 
   instance_handle_ = ::GetModuleHandleW(nullptr);
   if (!instance_handle_)
@@ -42,10 +36,7 @@ WinUiApplication::WinUiApplication() {
   cursor_manager_ = std::make_unique<WinCursorManager>();
 }
 
-WinUiApplication::~WinUiApplication() {
-  IUiApplication::instance = nullptr;
-  instance = nullptr;
-}
+WinUiApplication::~WinUiApplication() { instance = nullptr; }
 
 int WinUiApplication::Run() {
   MSG msg;
@@ -63,13 +54,13 @@ void WinUiApplication::RequestQuit(const int quit_code) {
   ::PostQuitMessage(quit_code);
 }
 
-void WinUiApplication::AddOnQuitHandler(const std::function<void()>& handler) {
-  quit_handlers_.push_back(handler);
+void WinUiApplication::AddOnQuitHandler(std::function<void()> handler) {
+  quit_handlers_.push_back(std::move(handler));
 }
 
-void WinUiApplication::InvokeLater(const std::function<void()>& action) {
+void WinUiApplication::InvokeLater(std::function<void()> action) {
   // copy the action to a safe place
-  auto p_action_copy = new std::function<void()>(action);
+  auto p_action_copy = new std::function<void()>(std::move(action));
 
   if (::PostMessageW(GetGodWindow()->GetHandle(), invoke_later_message_id,
                      reinterpret_cast<WPARAM>(p_action_copy), 0) == 0)
@@ -77,17 +68,15 @@ void WinUiApplication::InvokeLater(const std::function<void()>& action) {
 }
 
 unsigned long WinUiApplication::SetTimeout(
-    std::chrono::milliseconds milliseconds,
-    const std::function<void()>& action) {
+    std::chrono::milliseconds milliseconds, std::function<void()> action) {
   return static_cast<unsigned long>(timer_manager_->CreateTimer(
-      static_cast<UINT>(milliseconds.count()), false, action));
+      static_cast<UINT>(milliseconds.count()), false, std::move(action)));
 }
 
 unsigned long WinUiApplication::SetInterval(
-    std::chrono::milliseconds milliseconds,
-    const std::function<void()>& action) {
+    std::chrono::milliseconds milliseconds, std::function<void()> action) {
   return static_cast<unsigned long>(timer_manager_->CreateTimer(
-      static_cast<UINT>(milliseconds.count()), true, action));
+      static_cast<UINT>(milliseconds.count()), true, std::move(action)));
 }
 
 void WinUiApplication::CancelTimer(unsigned long id) {

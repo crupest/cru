@@ -63,6 +63,7 @@
     "set": "cpp",
     "sstream": "cpp",
     "xlocmon": "cpp",
-    "xloctime": "cpp"
+    "xloctime": "cpp",
+    "string_view": "cpp"
   }
 }

@@ -4,10 +4,10 @@ namespace cru::platform::native::win {
 TimerManager::TimerManager(GodWindow* god_window) { god_window_ = god_window; }
 
 UINT_PTR TimerManager::CreateTimer(const UINT milliseconds, const bool loop,
-                                   const TimerAction& action) {
+                                   TimerAction action) {
   const auto id = current_count_++;
   ::SetTimer(god_window_->GetHandle(), id, milliseconds, nullptr);
-  map_.emplace(id, std::make_pair(loop, action));
+  map_.emplace(id, std::make_pair(loop, std::move(action)));
   return id;
 }
 

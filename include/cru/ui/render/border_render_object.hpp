@@ -3,11 +3,6 @@
 
 #include <memory>
 
-namespace cru::platform::graph {
-struct IBrush;
-struct IGeometry;
-}  // namespace cru::platform::graph
-
 namespace cru::ui::render {
 struct CornerRadius {
   constexpr CornerRadius()

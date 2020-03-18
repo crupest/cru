@@ -1,16 +1,8 @@
 #pragma once
 #include "render_object.hpp"
 
-#include "cru/platform/graph/text_layout.hpp"
-
 #include <memory>
 #include <string>
-
-// forward declarations
-namespace cru::platform::graph {
-struct IBrush;
-struct IFont;
-}  // namespace cru::platform::graph
 
 namespace cru::ui::render {
 class TextRenderObject : public RenderObject {

@@ -1,8 +1,6 @@
 #pragma once
 #include "resource.hpp"
 
-#include <memory>
-
 namespace cru::platform::graph {
 struct IGeometry : virtual IGraphResource {
   virtual bool FillContains(const Point& point) = 0;

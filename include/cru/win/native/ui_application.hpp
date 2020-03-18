@@ -35,17 +35,18 @@ class WinUiApplication : public WinNativeResource,
   int Run() override;
   void RequestQuit(int quit_code) override;
 
-  void AddOnQuitHandler(const std::function<void()>& handler) override;
+  void AddOnQuitHandler(std::function<void()> handler) override;
 
-  void InvokeLater(const std::function<void()>& action) override;
+  void InvokeLater(std::function<void()> action) override;
   unsigned long SetTimeout(std::chrono::milliseconds milliseconds,
-                           const std::function<void()>& action) override;
+                           std::function<void()> action) override;
   unsigned long SetInterval(std::chrono::milliseconds milliseconds,
-                            const std::function<void()>& action) override;
+                            std::function<void()> action) override;
   void CancelTimer(unsigned long id) override;
 
   std::vector<INativeWindow*> GetAllWindow() override;
-  std::shared_ptr<INativeWindowResolver> CreateWindow(INativeWindow* parent) override;
+  std::shared_ptr<INativeWindowResolver> CreateWindow(
+      INativeWindow* parent) override;
 
   cru::platform::graph::IGraphFactory* GetGraphFactory() override;
 

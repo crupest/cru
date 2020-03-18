@@ -20,10 +20,15 @@ struct IUiApplication : public virtual INativeResource {
  public:
   static IUiApplication* GetInstance() { return instance; }
 
- protected:
+ private:
   static IUiApplication* instance;
 
+ protected:
+  IUiApplication();
+
  public:
+  ~IUiApplication() override;
+
   // Block current thread and run the message loop. Return the exit code when
   // message loop gets a quit message (possibly posted by method RequestQuit).
   virtual int Run() = 0;
@@ -31,13 +36,13 @@ struct IUiApplication : public virtual INativeResource {
   // Post a quit message with given quit code.
   virtual void RequestQuit(int quit_code) = 0;
 
-  virtual void AddOnQuitHandler(const std::function<void()>& handler) = 0;
+  virtual void AddOnQuitHandler(std::function<void()> handler) = 0;
 
-  virtual void InvokeLater(const std::function<void()>& action) = 0;
+  virtual void InvokeLater(std::function<void()> action) = 0;
   virtual unsigned long SetTimeout(std::chrono::milliseconds milliseconds,
-                                   const std::function<void()>& action) = 0;
+                                   std::function<void()> action) = 0;
   virtual unsigned long SetInterval(std::chrono::milliseconds milliseconds,
-                                    const std::function<void()>& action) = 0;
+                                    std::function<void()> action) = 0;
   virtual void CancelTimer(unsigned long id) = 0;
 
   virtual std::vector<INativeWindow*> GetAllWindow() = 0;
