@@ -28,6 +28,7 @@ using cru::platform::native::mouse_buttons::right;
 }  // namespace mouse_buttons
 
 namespace colors {
+using cru::platform::colors::transparent;
 using cru::platform::colors::black;
 using cru::platform::colors::silver;
 using cru::platform::colors::gray;

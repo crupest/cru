@@ -264,6 +264,7 @@ struct Color {
 };
 
 namespace colors {
+constexpr Color transparent = Color::FromHexAlpha(0x00000000);
 constexpr Color black = Color::FromHex(0x000000);
 constexpr Color silver = Color::FromHex(0xc0c0c0);
 constexpr Color gray = Color::FromHex(0x808080);
