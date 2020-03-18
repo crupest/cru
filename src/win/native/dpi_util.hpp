@@ -1,5 +1,5 @@
 #pragma once
-#include "cru/platform/native/basic_types.hpp"
+#include "cru/platform/native/base.hpp"
 
 // The dpi awareness needs to be implemented in the future. Currently we use 96
 // as default.

@@ -45,6 +45,7 @@ target_sources(cru_ui PUBLIC
 	${CRU_UI_INCLUDE_DIR}/controls/text_box.hpp
 	${CRU_UI_INCLUDE_DIR}/controls/text_block.hpp
 	${CRU_UI_INCLUDE_DIR}/controls/text_common.hpp
+	${CRU_UI_INCLUDE_DIR}/render/base.hpp
 	${CRU_UI_INCLUDE_DIR}/render/border_render_object.hpp
 	${CRU_UI_INCLUDE_DIR}/render/canvas_render_object.hpp
 	${CRU_UI_INCLUDE_DIR}/render/flex_layout_render_object.hpp

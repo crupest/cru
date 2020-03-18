@@ -2,23 +2,12 @@
 #include "base.hpp"
 
 #include "cru/common/event.hpp"
+#include "render/base.hpp"
 #include "ui_event.hpp"
 
-#include <functional>
-#include <memory>
 #include <string_view>
-#include <vector>
-
-namespace cru::platform::native {
-struct ICursor;
-}
 
 namespace cru::ui {
-class Window;
-namespace render {
-class RenderObject;
-}  // namespace render
-
 class Control : public Object {
   friend class Window;
 

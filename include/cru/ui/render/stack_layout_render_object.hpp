@@ -2,11 +2,6 @@
 #include "layout_render_object.hpp"
 
 namespace cru::ui::render {
-struct StackChildLayoutData {
-  Alignment horizontal = Alignment::Start;
-  Alignment vertical = Alignment::Start;
-};
-
 class StackLayoutRenderObject
     : public LayoutRenderObject<StackChildLayoutData> {
  public:

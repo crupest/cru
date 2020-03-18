@@ -1,15 +1,6 @@
 #pragma once
 #include "../no_child_control.hpp"
 
-#include <memory>
-
-namespace cru::ui::render {
-class BorderRenderObject;
-class StackLayoutRenderObject;
-class TextRenderObject;
-class CanvasRenderObject;
-}  // namespace cru::ui::render
-
 namespace cru::ui::controls {
 class TextBox : public NoChildControl {
  public:

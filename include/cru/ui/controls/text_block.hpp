@@ -3,14 +3,6 @@
 
 #include "text_common.hpp"
 
-#include <memory>
-
-namespace cru::ui::render {
-class StackLayoutRenderObject;
-class TextRenderObject;
-class CanvasRenderObject;
-}  // namespace cru::ui::render
-
 namespace cru::ui::controls {
 class TextBlock : public NoChildControl, public virtual ITextControl {
  public:

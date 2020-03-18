@@ -3,9 +3,8 @@ add_library(cru_platform_native STATIC
 	ui_application.cpp
 )
 target_sources(cru_platform_native PUBLIC
-	${CRU_PLATFORM_NATIVE_INCLUDE_DIR}/basic_types.hpp
+	${CRU_PLATFORM_NATIVE_INCLUDE_DIR}/base.hpp
 	${CRU_PLATFORM_NATIVE_INCLUDE_DIR}/cursor.hpp
-	${CRU_PLATFORM_NATIVE_INCLUDE_DIR}/event.hpp
 	${CRU_PLATFORM_NATIVE_INCLUDE_DIR}/window.hpp
 	${CRU_PLATFORM_NATIVE_INCLUDE_DIR}/ui_application.hpp
 )

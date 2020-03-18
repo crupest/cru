@@ -10,6 +10,8 @@ FlexLayout::FlexLayout() {
   render_object_->SetAttachedControl(this);
 }
 
+FlexLayout::~FlexLayout() = default;
+
 render::RenderObject* FlexLayout::GetRenderObject() const {
   return render_object_.get();
 }
@@ -37,6 +39,24 @@ void FlexLayout::SetChildLayoutData(Control* control,
   assert(control);
   *render_object_->GetChildLayoutData(
       FindPosition(render_object_.get(), control->GetRenderObject())) = data;
+}
+
+FlexMainAlignment FlexLayout::GetContentMainAlign() const {
+  return render_object_->GetContentMainAlign();
+}
+
+void FlexLayout::SetContentMainAlign(FlexMainAlignment value) {
+  if (value == GetContentMainAlign()) return;
+  render_object_->SetContentMainAlign(value);
+}
+
+FlexDirection FlexLayout::GetFlexDirection() const {
+  return render_object_->GetFlexDirection();
+}
+
+void FlexLayout::SetFlexDirection(FlexDirection direction) {
+  if (direction == GetFlexDirection()) return;
+  render_object_->SetFlexDirection(direction);
 }
 
 void FlexLayout::OnAddChild(Control* child, int position) {

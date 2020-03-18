@@ -1,10 +1,6 @@
 #pragma once
 #include "../content_control.hpp"
 
-namespace cru::ui::render {
-class BorderRenderObject;
-}
-
 namespace cru::ui::controls {
 class Container : public ContentControl {
   static constexpr std::string_view control_type = "Container";
@@ -19,9 +15,7 @@ class Container : public ContentControl {
   ~Container() override;
 
  public:
-  std::string_view GetControlType() const final {
-    return control_type;
-  }
+  std::string_view GetControlType() const final { return control_type; }
 
   render::RenderObject* GetRenderObject() const override;
 

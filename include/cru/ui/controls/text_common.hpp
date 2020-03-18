@@ -3,9 +3,6 @@
 
 #include "cru/ui/ui_event.hpp"
 
-#include <functional>
-#include <optional>
-
 namespace cru::platform::graph {
 struct IBrush;
 }

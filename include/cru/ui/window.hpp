@@ -2,21 +2,8 @@
 #include "content_control.hpp"
 
 #include "cru/common/self_resolvable.hpp"
-#include "cru/platform/native/event.hpp"
-
-#include <memory>
-#include <vector>
-
-namespace cru::platform::native {
-struct INativeWindow;
-struct INativeWindowResolver;
-}  // namespace cru::platform::native
 
 namespace cru::ui {
-namespace render {
-class WindowRenderObject;
-}
-
 // TODO: Make Window able to be invalid and handle operations in invalidity
 // situation.
 class Window final : public ContentControl, public SelfResolvable<Window> {

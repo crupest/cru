@@ -1,15 +1,7 @@
 #pragma once
-#include "../base.hpp"
+#include "base.hpp"
 
 #include "cru/common/event.hpp"
-#include "cru/platform/graph/base.hpp"
-
-#include <vector>
-
-// forward declarations
-namespace cru::ui {
-class Control;
-}
 
 namespace cru::ui::render {
 

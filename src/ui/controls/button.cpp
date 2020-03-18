@@ -58,6 +58,8 @@ Button::Button() : click_detector_(this) {
       });
 }
 
+Button::~Button() = default;
+
 render::RenderObject* Button::GetRenderObject() const {
   return render_object_.get();
 }

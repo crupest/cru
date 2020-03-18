@@ -2,14 +2,8 @@
 #include "../content_control.hpp"
 
 #include "../click_detector.hpp"
-#include "../render/border_render_object.hpp"
-#include "cru/platform/native/basic_types.hpp"
-
-#include <memory>
 
 namespace cru::ui::controls {
-using render::CornerRadius;
-
 struct ButtonStateStyle {
   std::shared_ptr<platform::graph::IBrush> border_brush;
   Thickness border_thickness;
@@ -43,7 +37,7 @@ class Button : public ContentControl {
   Button(Button&& other) = delete;
   Button& operator=(const Button& other) = delete;
   Button& operator=(Button&& other) = delete;
-  ~Button() override = default;
+  ~Button() override;
 
   std::string_view GetControlType() const final { return control_type; }
 

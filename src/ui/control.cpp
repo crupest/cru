@@ -1,6 +1,5 @@
 #include "cru/ui/control.hpp"
 
-#include "cru/platform/native/basic_types.hpp"
 #include "cru/platform/native/cursor.hpp"
 #include "cru/platform/native/ui_application.hpp"
 #include "cru/platform/native/window.hpp"

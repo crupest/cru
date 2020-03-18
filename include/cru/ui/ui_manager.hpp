@@ -3,13 +3,6 @@
 
 #include "controls/button.hpp"
 
-#include <memory>
-
-namespace cru::platform::graph {
-struct IBrush;
-struct IFont;
-}  // namespace cru::platform::graph
-
 namespace cru::ui {
 struct ThemeResources {
   std::shared_ptr<platform::graph::IFont> default_font;
@@ -31,7 +24,7 @@ class UiManager : public Object {
   UiManager(UiManager&& other) = delete;
   UiManager& operator=(const UiManager& other) = delete;
   UiManager& operator=(UiManager&& other) = delete;
-  ~UiManager() override = default;
+  ~UiManager() override;
 
   ThemeResources* GetThemeResources() { return &theme_resource_; }
 

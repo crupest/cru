@@ -1,19 +1,9 @@
 #pragma once
 #include "../resource.hpp"
-
-#include "../graph_base.hpp"
-#include "basic_types.hpp"
+#include "base.hpp"
 #include "cru/common/event.hpp"
-#include "cursor.hpp"
-#include "event.hpp"
-
-namespace cru::platform::graph {
-struct IPainter;
-}
 
 namespace cru::platform::native {
-struct INativeWindowResolver;
-
 // Represents a native window, which exposes some low-level events and
 // operations.
 //

@@ -1,20 +1,13 @@
 #pragma once
 #include "../resource.hpp"
+#include "base.hpp"
 
 #include <chrono>
 #include <functional>
 #include <memory>
 #include <vector>
 
-namespace cru::platform::graph {
-struct IGraphFactory;
-}
-
 namespace cru::platform::native {
-struct INativeWindow;
-struct INativeWindowResolver;
-struct ICursorManager;
-
 // The entry point of a ui application.
 struct IUiApplication : public virtual INativeResource {
  public:

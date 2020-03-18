@@ -1,8 +1,6 @@
 #pragma once
 #include "control.hpp"
 
-#include <optional>
-#include <vector>
 
 namespace cru::ui {
 class ClickEventArgs : Object {

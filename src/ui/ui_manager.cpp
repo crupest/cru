@@ -58,6 +58,8 @@ UiManager::UiManager() {
       theme_resource_.button_style.hover.border_radius =
           theme_resource_.button_style.press.border_radius =
               theme_resource_.button_style.press_cancel.border_radius =
-                  controls::CornerRadius({5, 5});
+                  CornerRadius({5, 5});
 }
+
+UiManager::~UiManager() = default;
 }  // namespace cru::ui

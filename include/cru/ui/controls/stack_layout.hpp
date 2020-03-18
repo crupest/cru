@@ -1,12 +1,6 @@
 #pragma once
 #include "../layout_control.hpp"
 
-#include <memory>
-
-namespace cru::ui::render {
-class StackLayoutRenderObject;
-}
-
 namespace cru::ui::controls {
 class StackLayout : public LayoutControl {
  public:

@@ -1,12 +1,6 @@
 #pragma once
 #include "render_object.hpp"
 
-#include <memory>
-
-namespace cru::ui {
-class Window;
-}
-
 namespace cru::ui::render {
 class WindowRenderObject : public RenderObject {
  public:

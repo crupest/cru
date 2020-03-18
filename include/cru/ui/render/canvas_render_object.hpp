@@ -1,26 +1,7 @@
 #pragma once
 #include "render_object.hpp"
 
-#include "cru/common/event.hpp"
-
 namespace cru::ui::render {
-class CanvasPaintEventArgs {
- public:
-  CanvasPaintEventArgs(platform::graph::IPainter* painter,
-                       const Rect& paint_rect)
-      : painter_(painter), paint_rect_(paint_rect) {}
-  CRU_DEFAULT_COPY(CanvasPaintEventArgs)
-  CRU_DEFAULT_MOVE(CanvasPaintEventArgs)
-  ~CanvasPaintEventArgs() = default;
-
-  platform::graph::IPainter* GetPainter() const { return painter_; }
-  Rect GetPaintRect() const { return paint_rect_; }
-
- private:
-  platform::graph::IPainter* painter_;
-  Rect paint_rect_;
-};
-
 // The measure logic for `CanvasRenderObject` is that you set a desired size by
 // `SetDesiredSize` (not `SetPreferredSize`) and it will compare desired size
 // and available size and use the smaller one (by `Min`).

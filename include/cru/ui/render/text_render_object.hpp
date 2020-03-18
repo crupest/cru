@@ -1,7 +1,6 @@
 #pragma once
 #include "render_object.hpp"
 
-#include <memory>
 #include <string>
 
 namespace cru::ui::render {
