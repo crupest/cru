@@ -1,5 +1,4 @@
-#include "cru/ui/controls/text_common.hpp"
-
+#pragma once
 #include "cru/common/logger.hpp"
 #include "cru/platform/graph/font.hpp"
 #include "cru/platform/graph/painter.hpp"
@@ -7,24 +6,87 @@
 #include "cru/ui/control.hpp"
 #include "cru/ui/render/canvas_render_object.hpp"
 #include "cru/ui/render/text_render_object.hpp"
-
-#include <cassert>
+#include "cru/ui/ui_event.hpp"
 
 namespace cru::ui::controls {
-using platform::graph::ITextLayout;
-
 constexpr float caret_width = 2;
 constexpr long long caret_blink_duration = 500;
 
-TextControlService::TextControlService(Control* control,
-                                       ITextControl* text_control)
-    : control_(control), text_control_(text_control) {}
+// TControl should inherits `Control` and has following methods:
+// ```
+// render::TextRenderObject* GetTextRenderObject();
+// render::CanvasRenderObject* GetCaretRenderObject();
+// platform::graph::IBrush* GetCaretBrush();
+// ```
+template <typename TControl>
+class TextControlService : public Object {
+ public:
+  TextControlService(TControl* control);
 
-TextControlService::~TextControlService() {
+  CRU_DELETE_COPY(TextControlService)
+  CRU_DELETE_MOVE(TextControlService)
+
+  ~TextControlService();
+
+ public:
+  bool IsEnabled() { return enable_; }
+  void SetEnabled(bool enable);
+
+  int GetCaretPosition() { return caret_position_; }
+  void SetCaretPosition(int position) { caret_position_ = position; }
+
+  bool IsCaretVisible() { return caret_visible_; }
+  void SetCaretVisible(bool visible);
+
+  // please set correct offset before calling this
+  void DrawCaret(platform::graph::IPainter* painter);
+
+ private:
+  void AbortSelection();
+
+  void SetupCaretTimer();
+  void TearDownCaretTimer();
+
+  void SetupHandlers();
+
+  void MouseMoveHandler(event::MouseEventArgs& args);
+  void MouseDownHandler(event::MouseButtonEventArgs& args);
+  void MouseUpHandler(event::MouseButtonEventArgs& args);
+  void LoseFocusHandler(event::FocusChangeEventArgs& args);
+
+ private:
+  TControl* control_;
+  std::vector<EventRevokerGuard> event_revoker_guards_;
+
+  bool enable_ = false;
+
+  bool caret_visible_ = false;
+  int caret_position_ = 0;
+#ifdef CRU_DEBUG
+  bool caret_timer_set_ = false;
+#endif
+  unsigned long caret_timer_tag_;
+  // this is used for blinking of caret
+  bool caret_show_ = true;
+
+  // nullopt means not selecting
+  std::optional<MouseButton> select_down_button_;
+
+  // before the char
+  int select_start_position_;
+};
+
+template <typename TControl>
+TextControlService<TControl>::TextControlService(TControl* control)
+    : control_(control) {}
+
+template <typename TControl>
+TextControlService<TControl>::~TextControlService() {
   if (enable_ && caret_visible_) TearDownCaretTimer();
 }
 
-void TextControlService::SetEnabled(bool enable) {
+template <typename TControl>
+void TextControlService<TControl>::SetEnabled(bool enable) {
   if (enable == enable_) return;
   if (enable) {
     AbortSelection();
@@ -40,7 +102,8 @@ void TextControlService::SetEnabled(bool enable) {
   }
 }
 
-void TextControlService::SetCaretVisible(bool visible) {
+template <typename TControl>
+void TextControlService<TControl>::SetCaretVisible(bool visible) {
   if (visible == caret_visible_) return;
 
   if (enable_) {
@@ -52,27 +115,31 @@ void TextControlService::SetCaretVisible(bool visible) {
   }
 }  // namespace cru::ui::controls
 
-void TextControlService::DrawCaret(platform::graph::IPainter* painter) {
+template <typename TControl>
+void TextControlService<TControl>::DrawCaret(
+    platform::graph::IPainter* painter) {
   if (caret_show_) {
-    const auto text_render_object = text_control_->GetTextRenderObject();
+    const auto text_render_object = control_->GetTextRenderObject();
     const auto point = text_render_object->TextSingleRect(
         caret_position_, false);  // Maybe cache the result???
     painter->FillRectangle(
         Rect{point,
              Size{caret_width, text_render_object->GetFont()->GetFontSize()}},
-        text_control_->GetCaretBrush());
+        control_->GetCaretBrush());
   }
 }
 
-void TextControlService::AbortSelection() {
+template <typename TControl>
+void TextControlService<TControl>::AbortSelection() {
   if (select_down_button_.has_value()) {
     control_->ReleaseMouse();
     select_down_button_ = std::nullopt;
   }
-  text_control_->GetTextRenderObject()->SetSelectionRange(std::nullopt);
+  control_->GetTextRenderObject()->SetSelectionRange(std::nullopt);
 }
 
-void TextControlService::SetupCaretTimer() {
+template <typename TControl>
+void TextControlService<TControl>::SetupCaretTimer() {
 #ifdef CRU_DEBUG
   assert(!caret_timer_set_);
   caret_timer_set_ = true;
@@ -81,11 +148,12 @@ void TextControlService::SetupCaretTimer() {
       platform::native::IUiApplication::GetInstance()->SetInterval(
           std::chrono::milliseconds(caret_blink_duration), [this] {
             this->caret_show_ = !this->caret_show_;
-            this->text_control_->GetCaretRenderObject()->InvalidatePaint();
+            this->control_->GetCaretRenderObject()->InvalidatePaint();
           });
 }
 
-void TextControlService::TearDownCaretTimer() {
+template <typename TControl>
+void TextControlService<TControl>::TearDownCaretTimer() {
 #ifdef CRU_DEBUG
   assert(!caret_timer_set_);
   caret_timer_set_ = false;
@@ -94,7 +162,8 @@ void TextControlService::TearDownCaretTimer() {
       caret_timer_tag_);
 }
 
-void TextControlService::SetupHandlers() {
+template <typename TControl>
+void TextControlService<TControl>::SetupHandlers() {
   assert(event_revoker_guards_.empty());
   event_revoker_guards_.push_back(
       EventRevokerGuard{control_->MouseMoveEvent()->Direct()->AddHandler(
@@ -113,9 +182,11 @@ void TextControlService::SetupHandlers() {
                     std::placeholders::_1))});
 }
 
-void TextControlService::MouseMoveHandler(event::MouseEventArgs& args) {
+template <typename TControl>
+void TextControlService<TControl>::MouseMoveHandler(
+    event::MouseEventArgs& args) {
   if (this->select_down_button_.has_value()) {
-    const auto text_render_object = this->text_control_->GetTextRenderObject();
+    const auto text_render_object = this->control_->GetTextRenderObject();
     const auto result = text_render_object->TextHitTest(
         text_render_object->FromRootToContent(args.GetPoint()));
     const auto position = result.position + (result.trailing ? 1 : 0);
@@ -124,22 +195,24 @@ void TextControlService::MouseMoveHandler(event::MouseEventArgs& args) {
         "TextControlService: Text selection changed on mouse move, range: {}, "
         "{}.",
         position, this->select_start_position_);
-    this->text_control_->GetTextRenderObject()->SetSelectionRange(
+    this->control_->GetTextRenderObject()->SetSelectionRange(
         TextRange::FromTwoSides(
             static_cast<unsigned>(position),
             static_cast<unsigned>(this->select_start_position_)));
-    this->text_control_->GetTextRenderObject()->InvalidatePaint();
-    this->text_control_->GetCaretRenderObject()->InvalidatePaint();
+    this->control_->GetTextRenderObject()->InvalidatePaint();
+    this->control_->GetCaretRenderObject()->InvalidatePaint();
   }
 }
 
-void TextControlService::MouseDownHandler(event::MouseButtonEventArgs& args) {
+template <typename TControl>
+void TextControlService<TControl>::MouseDownHandler(
+    event::MouseButtonEventArgs& args) {
   if (this->select_down_button_.has_value()) {
     return;
   } else {
     if (!this->control_->CaptureMouse()) return;
     if (!this->control_->RequestFocus()) return;
-    const auto text_render_object = this->text_control_->GetTextRenderObject();
+    const auto text_render_object = this->control_->GetTextRenderObject();
     this->select_down_button_ = args.GetButton();
     const auto result = text_render_object->TextHitTest(
         text_render_object->FromRootToContent(args.GetPoint()));
@@ -150,7 +223,9 @@ void TextControlService::MouseDownHandler(event::MouseButtonEventArgs& args) {
   }
 }
 
-void TextControlService::MouseUpHandler(event::MouseButtonEventArgs& args) {
+template <typename TControl>
+void TextControlService<TControl>::MouseUpHandler(
+    event::MouseButtonEventArgs& args) {
   if (this->select_down_button_.has_value() &&
       this->select_down_button_.value() == args.GetButton()) {
     this->control_->ReleaseMouse();
@@ -159,7 +234,9 @@ void TextControlService::MouseUpHandler(event::MouseButtonEventArgs& args) {
   }
 }
 
-void TextControlService::LoseFocusHandler(event::FocusChangeEventArgs& args) {
+template <typename TControl>
+void TextControlService<TControl>::LoseFocusHandler(
+    event::FocusChangeEventArgs& args) {
   if (!args.IsWindow()) this->AbortSelection();
 }
 }  // namespace cru::ui::controls

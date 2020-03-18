@@ -11,7 +11,7 @@ Container::Container() {
 
 Container::~Container() = default;
 
-void Container::OnChildChanged(Control* old_child, Control* new_child) {
+void Container::OnChildChanged(Control*, Control* new_child) {
   render_object_->RemoveChild(0);
   render_object_->AddChild(new_child->GetRenderObject(), 0);
 }

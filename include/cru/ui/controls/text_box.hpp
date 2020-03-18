@@ -22,5 +22,6 @@ class TextBox : public NoChildControl {
   std::unique_ptr<render::StackLayoutRenderObject> stack_layout_render_object_;
   std::unique_ptr<render::TextRenderObject> text_render_object_;
   std::unique_ptr<render::CanvasRenderObject> caret_render_object_;
+
 };
 }  // namespace cru::ui::controls

@@ -1,10 +1,11 @@
 #pragma once
 #include "../no_child_control.hpp"
 
-#include "text_common.hpp"
-
 namespace cru::ui::controls {
-class TextBlock : public NoChildControl, public virtual ITextControl {
+template <typename TControl>
+class TextControlService;
+
+class TextBlock : public NoChildControl {
  public:
   static constexpr std::string_view control_type = "TextBlock";
 
@@ -27,9 +28,9 @@ class TextBlock : public NoChildControl, public virtual ITextControl {
   std::string GetText() const;
   void SetText(std::string text);
 
-  render::TextRenderObject* GetTextRenderObject() override;
-  render::CanvasRenderObject* GetCaretRenderObject() override;
-  platform::graph::IBrush* GetCaretBrush() override;
+  render::TextRenderObject* GetTextRenderObject();
+  render::CanvasRenderObject* GetCaretRenderObject();
+  platform::graph::IBrush* GetCaretBrush();
 
  private:
   std::unique_ptr<render::StackLayoutRenderObject> root_render_object_;
@@ -37,6 +38,6 @@ class TextBlock : public NoChildControl, public virtual ITextControl {
   std::unique_ptr<render::CanvasRenderObject> caret_render_object_;
   std::shared_ptr<platform::graph::IBrush> caret_brush_;
 
-  std::unique_ptr<TextControlService> service_;
+  std::unique_ptr<TextControlService<TextBlock>> service_;
 };
 }  // namespace cru::ui::controls

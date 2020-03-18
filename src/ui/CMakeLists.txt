@@ -18,7 +18,7 @@ add_library(cru_ui STATIC
     controls/stack_layout.cpp
     controls/text_block.cpp
     controls/text_box.cpp
-    controls/text_common.cpp
+	controls/text_control_service.hpp
     render/border_render_object.cpp
     render/canvas_render_object.cpp
     render/flex_layout_render_object.cpp
@@ -44,7 +44,6 @@ target_sources(cru_ui PUBLIC
 	${CRU_UI_INCLUDE_DIR}/controls/stack_layout.hpp
 	${CRU_UI_INCLUDE_DIR}/controls/text_box.hpp
 	${CRU_UI_INCLUDE_DIR}/controls/text_block.hpp
-	${CRU_UI_INCLUDE_DIR}/controls/text_common.hpp
 	${CRU_UI_INCLUDE_DIR}/render/base.hpp
 	${CRU_UI_INCLUDE_DIR}/render/border_render_object.hpp
 	${CRU_UI_INCLUDE_DIR}/render/canvas_render_object.hpp

@@ -4,6 +4,7 @@
 #include "cru/ui/render/stack_layout_render_object.hpp"
 #include "cru/ui/render/text_render_object.hpp"
 #include "cru/ui/ui_manager.hpp"
+#include "text_control_service.hpp"
 
 namespace cru::ui::controls {
 using render::CanvasRenderObject;
@@ -29,7 +30,7 @@ TextBlock::TextBlock()
 
   caret_brush_ = theme_resources->caret_brush;
 
-  service_ = std::make_unique<TextControlService>(this, this);
+  service_ = std::make_unique<TextControlService<TextBlock>>(this);
   service_->SetEnabled(true);
 }
 
