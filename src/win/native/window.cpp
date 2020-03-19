@@ -8,6 +8,7 @@
 #include "cru/win/native/ui_application.hpp"
 #include "cru/win/native/window_class.hpp"
 #include "cru/win/native/window_render_target.hpp"
+#include "cru/win/string.hpp"
 #include "dpi_util.hpp"
 #include "window_d2d_painter.hpp"
 #include "window_manager.hpp"
@@ -404,7 +405,10 @@ void WinNativeWindow::OnKeyUpInternal(int virtual_code) {
   key_up_event_.Raise(virtual_code);
 }
 
-void WinNativeWindow::OnCharInternal(wchar_t c) { CRU_UNUSED(c) }
+void WinNativeWindow::OnCharInternal(wchar_t c) {
+  wchar_t s[2] = {c, 0};
+  char_event_.Raise(platform::win::ToUtf8String(s));
+}
 
 void WinNativeWindow::OnActivatedInternal() {}
 

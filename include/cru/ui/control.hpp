@@ -111,9 +111,7 @@ class Control : public Object {
   event::RoutedEvent<event::KeyEventArgs>* KeyUpEvent() {
     return &key_up_event_;
   }
-  //  event::RoutedEvent<event::CharEventArgs>* CharEvent() {
-  //    return &char_event_;
-  //  }
+  event::RoutedEvent<event::CharEventArgs>* CharEvent() { return &char_event_; }
   event::RoutedEvent<event::FocusChangeEventArgs>* GainFocusEvent() {
     return &gain_focus_event_;
   }
@@ -131,7 +129,7 @@ class Control : public Object {
 
   event::RoutedEvent<event::KeyEventArgs> key_down_event_;
   event::RoutedEvent<event::KeyEventArgs> key_up_event_;
-  //  event::RoutedEvent<event::CharEventArgs> char_event_;
+  event::RoutedEvent<event::CharEventArgs> char_event_;
 
   event::RoutedEvent<event::FocusChangeEventArgs> gain_focus_event_;
   event::RoutedEvent<event::FocusChangeEventArgs> lose_focus_event_;
@@ -141,6 +139,8 @@ class Control : public Object {
   virtual void OnParentChanged(Control* old_parent, Control* new_parent);
   virtual void OnAttachToWindow(Window* window);
   virtual void OnDetachToWindow(Window* window);
+
+  virtual void OnMouseHoverChange(bool newHover) { CRU_UNUSED(newHover) }
 
  private:
   Window* window_ = nullptr;

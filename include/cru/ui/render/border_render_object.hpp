@@ -60,6 +60,8 @@ class BorderRenderObject : public RenderObject {
     InvalidatePaint();
   }
 
+  void SetBorderStyle(const BorderStyle& style);
+
   void Draw(platform::graph::IPainter* painter) override;
 
   RenderObject* HitTest(const Point& point) override;

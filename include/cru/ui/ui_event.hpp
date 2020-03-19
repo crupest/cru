@@ -5,6 +5,7 @@
 
 #include <memory>
 #include <optional>
+#include <string>
 #include <type_traits>
 
 namespace cru::platform::graph {
@@ -195,21 +196,19 @@ class KeyEventArgs : public UiEventArgs {
   int virtual_code_;
 };
 
-/*
 class CharEventArgs : public UiEventArgs {
  public:
-  CharEventArgs(Object* sender, Object* original_sender, wchar_t c)
-      : UiEventArgs(sender, original_sender), c_(c) {}
+  CharEventArgs(Object* sender, Object* original_sender, std::string c)
+      : UiEventArgs(sender, original_sender), c_(std::move(c)) {}
   CharEventArgs(const CharEventArgs& other) = default;
   CharEventArgs(CharEventArgs&& other) = default;
   CharEventArgs& operator=(const CharEventArgs& other) = default;
   CharEventArgs& operator=(CharEventArgs&& other) = default;
   ~CharEventArgs() override = default;
 
-  wchar_t GetChar() const { return c_; }
+  std::string GetChar() const { return c_; }
 
  private:
-  wchar_t c_;
+  std::string c_;
 };
-*/
 }  // namespace cru::ui::event

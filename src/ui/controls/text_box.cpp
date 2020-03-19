@@ -36,6 +36,16 @@ TextBox::TextBox()
   stack_layout_render_object_->SetAttachedControl(this);
   text_render_object_->SetAttachedControl(this);
   caret_render_object_->SetAttachedControl(this);
+
+  GainFocusEvent()->Direct()->AddHandler([this](event::FocusChangeEventArgs&) {
+    this->service_->SetEnabled(true);
+    this->UpdateBorderStyle();
+  });
+
+  LoseFocusEvent()->Direct()->AddHandler([this](event::FocusChangeEventArgs&) {
+    this->service_->SetEnabled(false);
+    this->UpdateBorderStyle();
+  });
 }
 
 TextBox::~TextBox() {}
@@ -55,6 +65,16 @@ std::shared_ptr<platform::graph::IBrush> TextBox::GetCaretBrush() {
 const TextBoxBorderStyle& TextBox::GetBorderStyle() { return border_style_; }
 
 void TextBox::SetBorderStyle(TextBoxBorderStyle border_style) {
-  border_style_ = std::move(border_style_);
+  border_style_ = std::move(border_style);
+}
+
+void TextBox::OnMouseHoverChange(bool) { UpdateBorderStyle(); }
+
+void TextBox::UpdateBorderStyle() {
+  const auto focus = HasFocus();
+  const auto hover = IsMouseOver();
+  border_render_object_->SetBorderStyle(
+      focus ? (hover ? border_style_.focus_hover : border_style_.focus)
+            : (hover ? border_style_.hover : border_style_.normal));
 }
 }  // namespace cru::ui::controls

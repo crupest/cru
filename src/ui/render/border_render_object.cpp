@@ -39,6 +39,15 @@ void BorderRenderObject::Draw(platform::graph::IPainter* painter) {
                           foreground_brush_.get());
 }
 
+void BorderRenderObject::SetBorderStyle(const BorderStyle& style) {
+  border_brush_ = style.border_brush;
+  border_thickness_ = style.border_thickness;
+  border_radius_ = style.border_radius;
+  foreground_brush_ = style.foreground_brush;
+  background_brush_ = style.background_brush;
+  InvalidateLayout();
+}
+
 RenderObject* BorderRenderObject::HitTest(const Point& point) {
   if (const auto child = GetChild()) {
     auto offset = child->GetOffset();

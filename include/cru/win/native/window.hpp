@@ -75,6 +75,7 @@ class WinNativeWindow : public WinNativeResource, public virtual INativeWindow {
   }
   IEvent<int>* KeyDownEvent() override { return &key_down_event_; }
   IEvent<int>* KeyUpEvent() override { return &key_up_event_; }
+  IEvent<std::string>* CharEvent() override { return &char_event_; };
 
   IEvent<WindowNativeMessageEventArgs&>* NativeMessageEvent() {
     return &native_message_event_;
@@ -148,6 +149,7 @@ class WinNativeWindow : public WinNativeResource, public virtual INativeWindow {
   Event<platform::native::NativeMouseButtonEventArgs> mouse_up_event_;
   Event<int> key_down_event_;
   Event<int> key_up_event_;
+  Event<std::string> char_event_;
 
   Event<WindowNativeMessageEventArgs&> native_message_event_;
 };

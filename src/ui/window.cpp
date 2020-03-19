@@ -32,6 +32,7 @@ CRU_DEFINE_EVENT_NAME(MouseDown)
 CRU_DEFINE_EVENT_NAME(MouseUp)
 CRU_DEFINE_EVENT_NAME(KeyDown)
 CRU_DEFINE_EVENT_NAME(KeyUp)
+CRU_DEFINE_EVENT_NAME(Char)
 
 #undef CRU_DEFINE_EVENT_NAME
 }  // namespace event_names
@@ -314,6 +315,14 @@ void Window::OnNativeKeyUp(INativeWindow* window, int virtual_code) {
 
   DispatchEvent(event_names::KeyUp, focus_control_, &Control::KeyUpEvent,
                 nullptr, virtual_code);
+}
+
+void Window::OnNativeChar(platform::native::INativeWindow* window,
+                          std::string c) {
+  CRU_UNUSED(window)
+
+  DispatchEvent(event_names::Char, focus_control_, &Control::CharEvent, nullptr,
+                std::move(c));
 }
 
 void Window::DispatchMouseHoverControlChangeEvent(Control* old_control,

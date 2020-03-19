@@ -96,6 +96,7 @@ class Window final : public ContentControl, public SelfResolvable<Window> {
   void OnNativeKeyDown(platform::native::INativeWindow* window,
                        int virtual_code);
   void OnNativeKeyUp(platform::native::INativeWindow* window, int virtual_code);
+  void OnNativeChar(platform::native::INativeWindow* window, std::string c);
 
   //*************** region: event dispatcher helper ***************
 

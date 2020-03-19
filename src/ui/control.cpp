@@ -16,11 +16,15 @@ using platform::native::IUiApplication;
 using platform::native::SystemCursorType;
 
 Control::Control() {
-  MouseEnterEvent()->Direct()->AddHandler(
-      [this](event::MouseEventArgs&) { this->is_mouse_over_ = true; });
+  MouseEnterEvent()->Direct()->AddHandler([this](event::MouseEventArgs&) {
+    this->is_mouse_over_ = true;
+    this->OnMouseHoverChange(true);
+  });
 
-  MouseLeaveEvent()->Direct()->AddHandler(
-      [this](event::MouseEventArgs&) { this->is_mouse_over_ = false; });
+  MouseLeaveEvent()->Direct()->AddHandler([this](event::MouseEventArgs&) {
+    this->is_mouse_over_ = false;
+    this->OnMouseHoverChange(true);
+  });
 }
 
 void Control::_SetParent(Control* parent) {

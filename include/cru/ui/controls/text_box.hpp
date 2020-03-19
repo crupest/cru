@@ -28,6 +28,12 @@ class TextBox : public NoChildControl {
   const TextBoxBorderStyle& GetBorderStyle();
   void SetBorderStyle(TextBoxBorderStyle border_style);
 
+ protected:
+  void OnMouseHoverChange(bool newHover) override;
+
+ private:
+  void UpdateBorderStyle();
+
  private:
   std::unique_ptr<render::BorderRenderObject> border_render_object_;
   std::unique_ptr<render::StackLayoutRenderObject> stack_layout_render_object_;
