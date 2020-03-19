@@ -28,31 +28,16 @@ using cru::platform::native::mouse_buttons::right;
 }  // namespace mouse_buttons
 
 namespace colors {
-using cru::platform::colors::transparent;
-using cru::platform::colors::black;
-using cru::platform::colors::silver;
-using cru::platform::colors::gray;
-using cru::platform::colors::white;
-using cru::platform::colors::maroon;
-using cru::platform::colors::red;
-using cru::platform::colors::purple;
-using cru::platform::colors::fuchsia;
-using cru::platform::colors::green;
-using cru::platform::colors::lime;
-using cru::platform::colors::olive;
-using cru::platform::colors::yellow;
-using cru::platform::colors::navy;
-using cru::platform::colors::blue;
-using cru::platform::colors::teal;
-using cru::platform::colors::aqua;
-using cru::platform::colors::orange;
 using cru::platform::colors::aliceblue;
 using cru::platform::colors::antiquewhite;
+using cru::platform::colors::aqua;
 using cru::platform::colors::aquamarine;
 using cru::platform::colors::azure;
 using cru::platform::colors::beige;
 using cru::platform::colors::bisque;
+using cru::platform::colors::black;
 using cru::platform::colors::blanchedalmond;
+using cru::platform::colors::blue;
 using cru::platform::colors::blueviolet;
 using cru::platform::colors::brown;
 using cru::platform::colors::burlywood;
@@ -91,10 +76,13 @@ using cru::platform::colors::dodgerblue;
 using cru::platform::colors::firebrick;
 using cru::platform::colors::floralwhite;
 using cru::platform::colors::forestgreen;
+using cru::platform::colors::fuchsia;
 using cru::platform::colors::gainsboro;
 using cru::platform::colors::ghostwhite;
 using cru::platform::colors::gold;
 using cru::platform::colors::goldenrod;
+using cru::platform::colors::gray;
+using cru::platform::colors::green;
 using cru::platform::colors::greenyellow;
 using cru::platform::colors::grey;
 using cru::platform::colors::honeydew;
@@ -122,9 +110,11 @@ using cru::platform::colors::lightslategray;
 using cru::platform::colors::lightslategrey;
 using cru::platform::colors::lightsteelblue;
 using cru::platform::colors::lightyellow;
+using cru::platform::colors::lime;
 using cru::platform::colors::limegreen;
 using cru::platform::colors::linen;
 using cru::platform::colors::magenta;
+using cru::platform::colors::maroon;
 using cru::platform::colors::mediumaquamarine;
 using cru::platform::colors::mediumblue;
 using cru::platform::colors::mediumorchid;
@@ -139,8 +129,11 @@ using cru::platform::colors::mintcream;
 using cru::platform::colors::mistyrose;
 using cru::platform::colors::moccasin;
 using cru::platform::colors::navajowhite;
+using cru::platform::colors::navy;
 using cru::platform::colors::oldlace;
+using cru::platform::colors::olive;
 using cru::platform::colors::olivedrab;
+using cru::platform::colors::orange;
 using cru::platform::colors::orangered;
 using cru::platform::colors::orchid;
 using cru::platform::colors::palegoldenrod;
@@ -153,6 +146,9 @@ using cru::platform::colors::peru;
 using cru::platform::colors::pink;
 using cru::platform::colors::plum;
 using cru::platform::colors::powderblue;
+using cru::platform::colors::purple;
+using cru::platform::colors::rebeccapurple;
+using cru::platform::colors::red;
 using cru::platform::colors::rosybrown;
 using cru::platform::colors::royalblue;
 using cru::platform::colors::saddlebrown;
@@ -161,6 +157,7 @@ using cru::platform::colors::sandybrown;
 using cru::platform::colors::seagreen;
 using cru::platform::colors::seashell;
 using cru::platform::colors::sienna;
+using cru::platform::colors::silver;
 using cru::platform::colors::skyblue;
 using cru::platform::colors::slateblue;
 using cru::platform::colors::slategray;
@@ -169,14 +166,17 @@ using cru::platform::colors::snow;
 using cru::platform::colors::springgreen;
 using cru::platform::colors::steelblue;
 using cru::platform::colors::tan;
+using cru::platform::colors::teal;
 using cru::platform::colors::thistle;
 using cru::platform::colors::tomato;
+using cru::platform::colors::transparent;
 using cru::platform::colors::turquoise;
 using cru::platform::colors::violet;
 using cru::platform::colors::wheat;
+using cru::platform::colors::white;
 using cru::platform::colors::whitesmoke;
+using cru::platform::colors::yellow;
 using cru::platform::colors::yellowgreen;
-using cru::platform::colors::rebeccapurple;
 }  // namespace colors
 
 //-------------------- region: forward declaration --------------------
@@ -202,6 +202,8 @@ enum class Alignment {
 struct CornerRadius {
   constexpr CornerRadius()
       : left_top(), right_top(), left_bottom(), right_bottom() {}
+  constexpr CornerRadius(const float& value)
+      : CornerRadius(Point{value, value}) {}
   constexpr CornerRadius(const Point& value)
       : left_top(value),
         right_top(value),
@@ -230,6 +232,14 @@ inline bool operator==(const CornerRadius& left, const CornerRadius& right) {
 inline bool operator!=(const CornerRadius& left, const CornerRadius& right) {
   return !(left == right);
 }
+
+struct BorderStyle {
+  std::shared_ptr<platform::graph::IBrush> border_brush;
+  Thickness border_thickness;
+  CornerRadius border_radius;
+  std::shared_ptr<platform::graph::IBrush> foreground_brush;
+  std::shared_ptr<platform::graph::IBrush> background_brush;
+};
 
 class CanvasPaintEventArgs {
  public:

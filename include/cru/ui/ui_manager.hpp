@@ -1,7 +1,7 @@
 #pragma once
 #include "base.hpp"
 
-#include "controls/button.hpp"
+#include "controls/base.hpp"
 
 namespace cru::ui {
 struct ThemeResources {
@@ -10,6 +10,7 @@ struct ThemeResources {
   std::shared_ptr<platform::graph::IBrush> text_selection_brush;
   std::shared_ptr<platform::graph::IBrush> caret_brush;
   controls::ButtonStyle button_style;
+  controls::TextBoxBorderStyle text_box_border_style;
 };
 
 class UiManager : public Object {

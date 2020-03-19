@@ -30,7 +30,7 @@ class TextBlock : public NoChildControl {
 
   render::TextRenderObject* GetTextRenderObject();
   render::CanvasRenderObject* GetCaretRenderObject();
-  platform::graph::IBrush* GetCaretBrush();
+  std::shared_ptr<platform::graph::IBrush> GetCaretBrush();
 
  private:
   std::unique_ptr<render::StackLayoutRenderObject> root_render_object_;
