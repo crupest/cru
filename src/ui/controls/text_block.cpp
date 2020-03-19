@@ -56,7 +56,7 @@ render::CanvasRenderObject* TextBlock::GetCaretRenderObject() {
   return caret_render_object_.get();
 }
 
-platform::graph::IBrush* TextBlock::GetCaretBrush() {
-  return caret_brush_.get();
+std::shared_ptr<platform::graph::IBrush> TextBlock::GetCaretBrush() {
+  return caret_brush_;
 }
 }  // namespace cru::ui::controls

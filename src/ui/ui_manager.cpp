@@ -59,6 +59,22 @@ UiManager::UiManager() {
           theme_resource_.button_style.press.border_radius =
               theme_resource_.button_style.press_cancel.border_radius =
                   CornerRadius({5, 5});
+
+  theme_resource_.text_box_border_style.normal.border_brush =
+      CreateSolidColorBrush(factory, Color::FromHex(0xced4da));
+  theme_resource_.text_box_border_style.normal.border_radius = CornerRadius(5);
+  theme_resource_.text_box_border_style.normal.border_thickness = Thickness(1);
+
+  theme_resource_.text_box_border_style.hover =
+      theme_resource_.text_box_border_style.normal;
+
+  theme_resource_.text_box_border_style.normal.border_brush =
+      CreateSolidColorBrush(factory, Color::FromHex(0x495057));
+  theme_resource_.text_box_border_style.normal.border_radius = CornerRadius(5);
+  theme_resource_.text_box_border_style.normal.border_thickness = Thickness(1);
+
+  theme_resource_.text_box_border_style.focus_hover =
+      theme_resource_.text_box_border_style.focus;
 }
 
 UiManager::~UiManager() = default;

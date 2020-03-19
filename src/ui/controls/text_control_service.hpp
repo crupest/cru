@@ -16,7 +16,7 @@ constexpr long long caret_blink_duration = 500;
 // ```
 // render::TextRenderObject* GetTextRenderObject();
 // render::CanvasRenderObject* GetCaretRenderObject();
-// platform::graph::IBrush* GetCaretBrush();
+// std::shared_ptr<platform::graph::IBrush> GetCaretBrush();
 // ```
 template <typename TControl>
 class TextControlService : public Object {
@@ -125,7 +125,7 @@ void TextControlService<TControl>::DrawCaret(
     painter->FillRectangle(
         Rect{point,
              Size{caret_width, text_render_object->GetFont()->GetFontSize()}},
-        control_->GetCaretBrush());
+        control_->GetCaretBrush().get());
   }
 }
 

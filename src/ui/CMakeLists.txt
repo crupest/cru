@@ -38,6 +38,7 @@ target_sources(cru_ui PUBLIC
 	${CRU_UI_INCLUDE_DIR}/ui_event.hpp
 	${CRU_UI_INCLUDE_DIR}/ui_manager.hpp
 	${CRU_UI_INCLUDE_DIR}/window.hpp
+	${CRU_UI_INCLUDE_DIR}/controls/base.hpp
 	${CRU_UI_INCLUDE_DIR}/controls/button.hpp
 	${CRU_UI_INCLUDE_DIR}/controls/container.hpp
 	${CRU_UI_INCLUDE_DIR}/controls/flex_layout.hpp
