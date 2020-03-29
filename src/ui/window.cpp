@@ -289,7 +289,7 @@ void Window::OnNativeMouseDown(
   Control* control =
       mouse_captured_control_ ? mouse_captured_control_ : HitTest(args.point);
   DispatchEvent(event_names::MouseDown, control, &Control::MouseDownEvent,
-                nullptr, args.point, args.button);
+                nullptr, args.point, args.button, args.modifier);
 }
 
 void Window::OnNativeMouseUp(
@@ -300,21 +300,23 @@ void Window::OnNativeMouseUp(
   Control* control =
       mouse_captured_control_ ? mouse_captured_control_ : HitTest(args.point);
   DispatchEvent(event_names::MouseUp, control, &Control::MouseUpEvent, nullptr,
-                args.point, args.button);
+                args.point, args.button, args.modifier);
 }
 
-void Window::OnNativeKeyDown(INativeWindow* window, int virtual_code) {
+void Window::OnNativeKeyDown(INativeWindow* window,
+                             const platform::native::NativeKeyEventArgs& args) {
   CRU_UNUSED(window)
 
   DispatchEvent(event_names::KeyDown, focus_control_, &Control::KeyDownEvent,
-                nullptr, virtual_code);
+                nullptr, args.key, args.modifier);
 }
 
-void Window::OnNativeKeyUp(INativeWindow* window, int virtual_code) {
+void Window::OnNativeKeyUp(INativeWindow* window,
+                           const platform::native::NativeKeyEventArgs& args) {
   CRU_UNUSED(window)
 
   DispatchEvent(event_names::KeyUp, focus_control_, &Control::KeyUpEvent,
-                nullptr, virtual_code);
+                nullptr, args.key, args.modifier);
 }
 
 void Window::OnNativeChar(platform::native::INativeWindow* window,

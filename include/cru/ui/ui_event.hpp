@@ -2,6 +2,7 @@
 #include "base.hpp"
 
 #include "cru/common/event.hpp"
+#include "cru/platform/native/keyboard.hpp"
 
 #include <memory>
 #include <optional>
@@ -93,11 +94,17 @@ class MouseEventArgs : public UiEventArgs {
 class MouseButtonEventArgs : public MouseEventArgs {
  public:
   MouseButtonEventArgs(Object* sender, Object* original_sender,
-                       const Point& point, const MouseButton button)
-      : MouseEventArgs(sender, original_sender, point), button_(button) {}
+                       const Point& point, const MouseButton button,
+                       platform::native::KeyModifier key_modifier)
+      : MouseEventArgs(sender, original_sender, point),
+        button_(button),
+        key_modifier_(key_modifier) {}
   MouseButtonEventArgs(Object* sender, Object* original_sender,
-                       const MouseButton button)
-      : MouseEventArgs(sender, original_sender), button_(button) {}
+                       const MouseButton button,
+                       platform::native::KeyModifier key_modifier)
+      : MouseEventArgs(sender, original_sender),
+        button_(button),
+        key_modifier_(key_modifier) {}
   MouseButtonEventArgs(const MouseButtonEventArgs& other) = default;
   MouseButtonEventArgs(MouseButtonEventArgs&& other) = default;
   MouseButtonEventArgs& operator=(const MouseButtonEventArgs& other) = default;
@@ -105,9 +112,11 @@ class MouseButtonEventArgs : public MouseEventArgs {
   ~MouseButtonEventArgs() override = default;
 
   MouseButton GetButton() const { return button_; }
+  platform::native::KeyModifier GetKeyModifier() const { return key_modifier_; }
 
  private:
   MouseButton button_;
+  platform::native::KeyModifier key_modifier_;
 };
 
 class MouseWheelEventArgs : public MouseEventArgs {
@@ -182,18 +191,24 @@ class ToggleEventArgs : public UiEventArgs {
 
 class KeyEventArgs : public UiEventArgs {
  public:
-  KeyEventArgs(Object* sender, Object* original_sender, int virtual_code)
-      : UiEventArgs(sender, original_sender), virtual_code_(virtual_code) {}
+  KeyEventArgs(Object* sender, Object* original_sender,
+               platform::native::KeyCode key_code,
+               platform::native::KeyModifier key_modifier)
+      : UiEventArgs(sender, original_sender),
+        key_code_(key_code),
+        key_modifier_(key_modifier) {}
   KeyEventArgs(const KeyEventArgs& other) = default;
   KeyEventArgs(KeyEventArgs&& other) = default;
   KeyEventArgs& operator=(const KeyEventArgs& other) = default;
   KeyEventArgs& operator=(KeyEventArgs&& other) = default;
   ~KeyEventArgs() override = default;
 
-  int GetVirtualCode() const { return virtual_code_; }
+  platform::native::KeyCode GetKeyCode() const { return key_code_; }
+  platform::native::KeyModifier GetKeyModifier() const { return key_modifier_; }
 
  private:
-  int virtual_code_;
+  platform::native::KeyCode key_code_;
+  platform::native::KeyModifier key_modifier_;
 };
 
 class CharEventArgs : public UiEventArgs {

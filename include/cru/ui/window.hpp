@@ -94,8 +94,9 @@ class Window final : public ContentControl, public SelfResolvable<Window> {
       const platform::native::NativeMouseButtonEventArgs& args);
 
   void OnNativeKeyDown(platform::native::INativeWindow* window,
-                       int virtual_code);
-  void OnNativeKeyUp(platform::native::INativeWindow* window, int virtual_code);
+                       const platform::native::NativeKeyEventArgs& args);
+  void OnNativeKeyUp(platform::native::INativeWindow* window,
+                     const platform::native::NativeKeyEventArgs& args);
   void OnNativeChar(platform::native::INativeWindow* window, std::string c);
 
   //*************** region: event dispatcher helper ***************

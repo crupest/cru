@@ -19,15 +19,15 @@ struct Bitmask final {
   Bitmask operator^(Bitmask rhs) const { return Bitmask(value ^ rhs.value); }
   Bitmask operator~() const { return Bitmask(~value); }
   Bitmask& operator|=(Bitmask rhs) {
-    value |= rhs;
+    value |= rhs.value;
     return *this;
   }
   Bitmask& operator&=(Bitmask rhs) {
-    value &= rhs;
+    value &= rhs.value;
     return *this;
   }
   Bitmask& operator^=(Bitmask rhs) {
-    value ^= rhs;
+    value ^= rhs.value;
     return *this;
   }
 
