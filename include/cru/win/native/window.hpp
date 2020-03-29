@@ -110,16 +110,12 @@ class WinNativeWindow : public WinNativeResource, public virtual INativeWindow {
 
   void OnMouseMoveInternal(POINT point);
   void OnMouseLeaveInternal();
-  void OnMouseDownInternal(platform::native::MouseButton button, POINT point,
-                           platform::native::KeyModifier modifier);
-  void OnMouseUpInternal(platform::native::MouseButton button, POINT point,
-                         platform::native::KeyModifier modifier);
+  void OnMouseDownInternal(platform::native::MouseButton button, POINT point);
+  void OnMouseUpInternal(platform::native::MouseButton button, POINT point);
 
   void OnMouseWheelInternal(short delta, POINT point);
-  void OnKeyDownInternal(int virtual_code,
-                         platform::native::KeyModifier modifier);
-  void OnKeyUpInternal(int virtual_code,
-                       platform::native::KeyModifier modifier);
+  void OnKeyDownInternal(int virtual_code);
+  void OnKeyUpInternal(int virtual_code);
   void OnCharInternal(wchar_t c);
 
   void OnActivatedInternal();

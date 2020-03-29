@@ -5,6 +5,7 @@
 #include "cru/platform/check.hpp"
 #include "cru/win/native/cursor.hpp"
 #include "cru/win/native/exception.hpp"
+#include "cru/win/native/keyboard.hpp"
 #include "cru/win/native/ui_application.hpp"
 #include "cru/win/native/window_class.hpp"
 #include "cru/win/native/window_render_target.hpp"
@@ -383,13 +384,13 @@ void WinNativeWindow::OnMouseLeaveInternal() {
 void WinNativeWindow::OnMouseDownInternal(platform::native::MouseButton button,
                                           POINT point) {
   const auto dip_point = PiToDip(point);
-  mouse_down_event_.Raise({button, dip_point});
+  mouse_down_event_.Raise({button, dip_point, RetrieveKeyMofifier()});
 }
 
 void WinNativeWindow::OnMouseUpInternal(platform::native::MouseButton button,
                                         POINT point) {
   const auto dip_point = PiToDip(point);
-  mouse_up_event_.Raise({button, dip_point});
+  mouse_up_event_.Raise({button, dip_point, RetrieveKeyMofifier()});
 }
 
 void WinNativeWindow::OnMouseWheelInternal(short delta, POINT point) {
@@ -398,11 +399,13 @@ void WinNativeWindow::OnMouseWheelInternal(short delta, POINT point) {
 }
 
 void WinNativeWindow::OnKeyDownInternal(int virtual_code) {
-  key_down_event_.Raise(virtual_code);
+  key_down_event_.Raise(
+      {VirtualKeyToKeyCode(virtual_code), RetrieveKeyMofifier()});
 }
 
 void WinNativeWindow::OnKeyUpInternal(int virtual_code) {
-  key_up_event_.Raise(virtual_code);
+  key_up_event_.Raise(
+      {VirtualKeyToKeyCode(virtual_code), RetrieveKeyMofifier()});
 }
 
 void WinNativeWindow::OnCharInternal(wchar_t c) {
