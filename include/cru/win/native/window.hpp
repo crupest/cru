@@ -73,8 +73,12 @@ class WinNativeWindow : public WinNativeResource, public virtual INativeWindow {
       override {
     return &mouse_up_event_;
   }
-  IEvent<int>* KeyDownEvent() override { return &key_down_event_; }
-  IEvent<int>* KeyUpEvent() override { return &key_up_event_; }
+  IEvent<platform::native::NativeKeyEventArgs>* KeyDownEvent() override {
+    return &key_down_event_;
+  }
+  IEvent<platform::native::NativeKeyEventArgs>* KeyUpEvent() override {
+    return &key_up_event_;
+  }
   IEvent<std::string>* CharEvent() override { return &char_event_; };
 
   IEvent<WindowNativeMessageEventArgs&>* NativeMessageEvent() {
@@ -106,12 +110,16 @@ class WinNativeWindow : public WinNativeResource, public virtual INativeWindow {
 
   void OnMouseMoveInternal(POINT point);
   void OnMouseLeaveInternal();
-  void OnMouseDownInternal(platform::native::MouseButton button, POINT point);
-  void OnMouseUpInternal(platform::native::MouseButton button, POINT point);
+  void OnMouseDownInternal(platform::native::MouseButton button, POINT point,
+                           platform::native::KeyModifier modifier);
+  void OnMouseUpInternal(platform::native::MouseButton button, POINT point,
+                         platform::native::KeyModifier modifier);
 
   void OnMouseWheelInternal(short delta, POINT point);
-  void OnKeyDownInternal(int virtual_code);
-  void OnKeyUpInternal(int virtual_code);
+  void OnKeyDownInternal(int virtual_code,
+                         platform::native::KeyModifier modifier);
+  void OnKeyUpInternal(int virtual_code,
+                       platform::native::KeyModifier modifier);
   void OnCharInternal(wchar_t c);
 
   void OnActivatedInternal();
@@ -147,8 +155,8 @@ class WinNativeWindow : public WinNativeResource, public virtual INativeWindow {
   Event<Point> mouse_move_event_;
   Event<platform::native::NativeMouseButtonEventArgs> mouse_down_event_;
   Event<platform::native::NativeMouseButtonEventArgs> mouse_up_event_;
-  Event<int> key_down_event_;
-  Event<int> key_up_event_;
+  Event<platform::native::NativeKeyEventArgs> key_down_event_;
+  Event<platform::native::NativeKeyEventArgs> key_up_event_;
   Event<std::string> char_event_;
 
   Event<WindowNativeMessageEventArgs&> native_message_event_;

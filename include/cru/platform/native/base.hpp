@@ -2,6 +2,7 @@
 #include "cru/common/base.hpp"
 #include "cru/common/bitmask.hpp"
 #include "cru/platform/graph/base.hpp"
+#include "keyboard.hpp"
 
 namespace cru::platform::native {
 struct ICursor;
@@ -35,6 +36,12 @@ enum class SystemCursorType {
 struct NativeMouseButtonEventArgs {
   MouseButton button;
   Point point;
+  KeyModifier modifier;
+};
+
+struct NativeKeyEventArgs {
+  KeyCode key;
+  KeyModifier modifier;
 };
 
 enum class FocusChangeType { Gain, Lost };
