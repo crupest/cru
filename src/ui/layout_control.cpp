@@ -7,13 +7,14 @@ LayoutControl::~LayoutControl() {
   for (const auto child : children_) delete child;
 }
 
-void LayoutControl::AddChild(Control* control, const int position) {
-  Expects(control->GetParent() == nullptr);  // The control already has a parent.
+void LayoutControl::AddChild(Control* control, const Index position) {
+  Expects(control->GetParent() ==
+          nullptr);  // The control already has a parent.
   Expects(!dynamic_cast<Window*>(control));  // Can't add a window as child.
-  Expects(position >= 0 ||
-         position <=
-             static_cast<int>(
-                 this->children_.size()));  // The position is out of range.
+  Expects(position >= 0);
+  Expects(position <=
+          static_cast<Index>(
+              this->children_.size()));  // The position is out of range.
 
   children_.insert(this->children_.cbegin() + position, control);
 
@@ -23,11 +24,11 @@ void LayoutControl::AddChild(Control* control, const int position) {
   OnAddChild(control, position);
 }
 
-void LayoutControl::RemoveChild(const int position) {
-  Expects(position >= 0 &&
-         position <
-             static_cast<int>(
-                 this->children_.size()));  // The position is out of range.
+void LayoutControl::RemoveChild(const Index position) {
+  Expects(position >= 0);
+  Expects(position <
+          static_cast<Index>(
+              this->children_.size()));  // The position is out of range.
 
   const auto i = children_.cbegin() + position;
   const auto child = *i;
@@ -40,12 +41,12 @@ void LayoutControl::RemoveChild(const int position) {
   OnRemoveChild(child, position);
 }
 
-void LayoutControl::OnAddChild(Control* child, int position) {
+void LayoutControl::OnAddChild(Control* child, const Index position) {
   CRU_UNUSED(child)
   CRU_UNUSED(position)
 }
 
-void LayoutControl::OnRemoveChild(Control* child, int position) {
+void LayoutControl::OnRemoveChild(Control* child, const Index position) {
   CRU_UNUSED(child)
   CRU_UNUSED(position)
 }

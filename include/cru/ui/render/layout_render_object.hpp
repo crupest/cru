@@ -18,9 +18,9 @@ class LayoutRenderObject : public RenderObject {
 
   ~LayoutRenderObject() override = default;
 
-  ChildLayoutData* GetChildLayoutData(int position) {
+  ChildLayoutData* GetChildLayoutData(Index position) {
     Expects(position >= 0 &&
-           position < static_cast<int>(child_layout_data_.size()));
+            position < static_cast<Index>(child_layout_data_.size()));
     return &child_layout_data_[position];
   }
 
@@ -29,8 +29,8 @@ class LayoutRenderObject : public RenderObject {
   RenderObject* HitTest(const Point& point) override;
 
  protected:
-  void OnAddChild(RenderObject* new_child, int position) override;
-  void OnRemoveChild(RenderObject* removed_child, int position) override;
+  void OnAddChild(RenderObject* new_child, Index position) override;
+  void OnRemoveChild(RenderObject* removed_child, Index position) override;
 
  private:
   std::vector<ChildLayoutData> child_layout_data_{};
@@ -72,7 +72,7 @@ RenderObject* LayoutRenderObject<TChildLayoutData>::HitTest(
 
 template <typename TChildLayoutData>
 void LayoutRenderObject<TChildLayoutData>::OnAddChild(RenderObject* new_child,
-                                                      int position) {
+                                                      const Index position) {
   CRU_UNUSED(new_child)
 
   child_layout_data_.emplace(child_layout_data_.cbegin() + position);
@@ -80,7 +80,7 @@ void LayoutRenderObject<TChildLayoutData>::OnAddChild(RenderObject* new_child,
 
 template <typename TChildLayoutData>
 void LayoutRenderObject<TChildLayoutData>::OnRemoveChild(
-    RenderObject* removed_child, int position) {
+    RenderObject* removed_child, const Index position) {
   CRU_UNUSED(removed_child)
 
   child_layout_data_.erase(child_layout_data_.cbegin() + position);

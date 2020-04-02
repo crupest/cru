@@ -32,8 +32,8 @@ class FlexLayout : public LayoutControl {
   void SetChildLayoutData(Control* control, const FlexChildLayoutData& data);
 
  protected:
-  void OnAddChild(Control* child, int position) override;
-  void OnRemoveChild(Control* child, int position) override;
+  void OnAddChild(Control* child, Index position) override;
+  void OnRemoveChild(Control* child, Index position) override;
 
  private:
   std::shared_ptr<render::FlexLayoutRenderObject> render_object_;

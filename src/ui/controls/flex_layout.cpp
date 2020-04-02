@@ -59,11 +59,11 @@ void FlexLayout::SetFlexDirection(FlexDirection direction) {
   render_object_->SetFlexDirection(direction);
 }
 
-void FlexLayout::OnAddChild(Control* child, int position) {
+void FlexLayout::OnAddChild(Control* child, const Index position) {
   render_object_->AddChild(child->GetRenderObject(), position);
 }
 
-void FlexLayout::OnRemoveChild(Control* child, int position) {
+void FlexLayout::OnRemoveChild(Control* child, const Index position) {
   CRU_UNUSED(child)
 
   render_object_->RemoveChild(position);

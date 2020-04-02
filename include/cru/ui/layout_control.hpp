@@ -17,13 +17,13 @@ class LayoutControl : public Control {
     return children_;
   }
 
-  void AddChild(Control* control, int position);
+  void AddChild(Control* control, Index position);
 
-  void RemoveChild(int position);
+  void RemoveChild(Index position);
 
  protected:
-  virtual void OnAddChild(Control* child, int position);
-  virtual void OnRemoveChild(Control* child, int position);
+  virtual void OnAddChild(Control* child, Index position);
+  virtual void OnRemoveChild(Control* child, Index position);
 
  private:
   std::vector<Control*> children_;

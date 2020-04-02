@@ -42,4 +42,6 @@ struct Interface {
 [[noreturn]] inline void UnreachableCode() {
   throw std::runtime_error("Unreachable code.");
 }
+
+using Index = gsl::index;
 }  // namespace cru

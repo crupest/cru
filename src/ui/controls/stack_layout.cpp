@@ -15,11 +15,11 @@ render::RenderObject* StackLayout::GetRenderObject() const {
   return render_object_.get();
 }
 
-void StackLayout::OnAddChild(Control* child, int position) {
+void StackLayout::OnAddChild(Control* child, const Index position) {
   render_object_->AddChild(child->GetRenderObject(), position);
 }
 
-void StackLayout::OnRemoveChild(Control* child, int position) {
+void StackLayout::OnRemoveChild(Control* child, const Index position) {
   CRU_UNUSED(child)
 
   render_object_->RemoveChild(position);

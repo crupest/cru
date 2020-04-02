@@ -22,8 +22,8 @@ class StackLayout : public LayoutControl {
   render::RenderObject* GetRenderObject() const override;
 
  protected:
-  void OnAddChild(Control* child, int position) override;
-  void OnRemoveChild(Control* child, int position) override;
+  void OnAddChild(Control* child, Index position) override;
+  void OnRemoveChild(Control* child, Index position) override;
 
  private:
   std::shared_ptr<render::StackLayoutRenderObject> render_object_;

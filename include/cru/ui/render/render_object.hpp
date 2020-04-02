@@ -53,9 +53,9 @@ class RenderObject : public Object {
   RenderObject* GetParent() const { return parent_; }
 
   const std::vector<RenderObject*>& GetChildren() const { return children_; }
-  int GetChildCount() const { return static_cast<int>(children_.size()); }
-  void AddChild(RenderObject* render_object, int position);
-  void RemoveChild(int position);
+  Index GetChildCount() const { return static_cast<Index>(children_.size()); }
+  void AddChild(RenderObject* render_object, Index position);
+  void RemoveChild(Index position);
 
   Point GetOffset() const { return offset_; }
   void SetOffset(const Point& offset) { offset_ = offset; }
@@ -99,9 +99,9 @@ class RenderObject : public Object {
                                RenderObject* new_parent);
 
   // default is to invalidate both layout and paint
-  virtual void OnAddChild(RenderObject* new_child, int position);
+  virtual void OnAddChild(RenderObject* new_child, Index position);
   // default is to invalidate both layout and paint
-  virtual void OnRemoveChild(RenderObject* removed_child, int position);
+  virtual void OnRemoveChild(RenderObject* removed_child, Index position);
 
   virtual void OnMeasureCore(const Size& available_size);
   virtual void OnLayoutCore(const Rect& rect);

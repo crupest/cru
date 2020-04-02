@@ -65,6 +65,7 @@
     "xlocmon": "cpp",
     "xloctime": "cpp",
     "string_view": "cpp",
-    "cassert": "cpp"
+    "cassert": "cpp",
+    "gsl_util": "cpp"
   }
 }

@@ -5,7 +5,7 @@
 #include <algorithm>
 
 namespace cru::ui::render {
-void RenderObject::AddChild(RenderObject* render_object, const int position) {
+void RenderObject::AddChild(RenderObject* render_object, const Index position) {
   Expects(child_mode_ != ChildMode::None);
   Expects(!(child_mode_ == ChildMode::Single && children_.size() > 0));
 
@@ -14,7 +14,7 @@ void RenderObject::AddChild(RenderObject* render_object, const int position) {
   Expects(position >= 0);  // Position index is less than 0.
   Expects(
       position <=
-      static_cast<int>(children_.size()));  // Position index is out of bound.
+      static_cast<Index>(children_.size()));  // Position index is out of bound.
 
   children_.insert(children_.cbegin() + position, render_object);
   render_object->SetParent(this);
@@ -22,9 +22,9 @@ void RenderObject::AddChild(RenderObject* render_object, const int position) {
   OnAddChild(render_object, position);
 }
 
-void RenderObject::RemoveChild(const int position) {
+void RenderObject::RemoveChild(const Index position) {
   Expects(position >= 0);  // Position index is less than 0.
-  Expects(position < static_cast<int>(
+  Expects(position < static_cast<Index>(
                          children_.size()));  // Position index is out of bound.
 
   const auto i = children_.cbegin() + position;
@@ -72,7 +72,7 @@ void RenderObject::OnParentChanged(RenderObject* old_parent,
   CRU_UNUSED(new_parent)
 }
 
-void RenderObject::OnAddChild(RenderObject* new_child, int position) {
+void RenderObject::OnAddChild(RenderObject* new_child, Index position) {
   CRU_UNUSED(new_child)
   CRU_UNUSED(position)
 
@@ -80,7 +80,7 @@ void RenderObject::OnAddChild(RenderObject* new_child, int position) {
   InvalidatePaint();
 }
 
-void RenderObject::OnRemoveChild(RenderObject* removed_child, int position) {
+void RenderObject::OnRemoveChild(RenderObject* removed_child, Index position) {
   CRU_UNUSED(removed_child)
   CRU_UNUSED(position)
 
