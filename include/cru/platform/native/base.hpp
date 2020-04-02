@@ -10,6 +10,7 @@ struct ICursorManager;
 struct IUiApplication;
 struct INativeWindow;
 struct INativeWindowResolver;
+struct IInputMethodManager;
 
 struct Dpi {
   float x;

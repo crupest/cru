@@ -32,4 +32,15 @@ inline float PixelToDipX(const int pixel_x) {
 inline float PixelToDipY(const int pixel_y) {
   return DipToPixelInternal(pixel_y, GetDpi().y);
 }
+
+inline Point PiToDip(const POINT& pi_point) {
+  return Point(PixelToDipX(pi_point.x), PixelToDipY(pi_point.y));
+}
+
+inline POINT DipToPi(const Point& dip_point) {
+  POINT result;
+  result.x = DipToPixelX(dip_point.x);
+  result.y = DipToPixelY(dip_point.y);
+  return result;
+}
 }  // namespace cru::platform::native::win

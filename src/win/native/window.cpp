@@ -17,10 +17,6 @@
 #include <windowsx.h>
 
 namespace cru::platform::native::win {
-inline Point PiToDip(const POINT& pi_point) {
-  return Point(PixelToDipX(pi_point.x), PixelToDipY(pi_point.y));
-}
-
 WinNativeWindow::WinNativeWindow(WinUiApplication* application,
                                  WindowClass* window_class, DWORD window_style,
                                  WinNativeWindow* parent)

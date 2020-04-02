@@ -5,6 +5,7 @@ add_library(cru_platform_native STATIC
 target_sources(cru_platform_native PUBLIC
 	${CRU_PLATFORM_NATIVE_INCLUDE_DIR}/base.hpp
 	${CRU_PLATFORM_NATIVE_INCLUDE_DIR}/cursor.hpp
+	${CRU_PLATFORM_NATIVE_INCLUDE_DIR}/input_method.hpp
 	${CRU_PLATFORM_NATIVE_INCLUDE_DIR}/keyboard.hpp
 	${CRU_PLATFORM_NATIVE_INCLUDE_DIR}/window.hpp
 	${CRU_PLATFORM_NATIVE_INCLUDE_DIR}/ui_application.hpp

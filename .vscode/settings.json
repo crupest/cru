@@ -66,6 +66,9 @@
     "xloctime": "cpp",
     "string_view": "cpp",
     "cassert": "cpp",
-    "gsl_util": "cpp"
+    "gsl_util": "cpp",
+    "multi_span": "cpp",
+    "span": "cpp",
+    "string_span": "cpp"
   }
 }
