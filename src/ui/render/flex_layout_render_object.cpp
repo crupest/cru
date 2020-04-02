@@ -3,7 +3,6 @@
 #include "cru/platform/graph/util/painter.hpp"
 
 #include <algorithm>
-#include <cassert>
 #include <functional>
 
 namespace cru::ui::render {

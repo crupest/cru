@@ -12,8 +12,6 @@
 #include "timer.hpp"
 #include "window_manager.hpp"
 
-#include <cassert>
-
 namespace cru::platform::native::win {
 WinUiApplication* WinUiApplication::instance = nullptr;
 

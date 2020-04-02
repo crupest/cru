@@ -1,6 +1,8 @@
 #pragma once
 #include "pre_config.hpp"
 
+#include <gsl/gsl>
+
 #include <stdexcept>
 
 #define CRU_UNUSED(entity) static_cast<void>(entity);

@@ -6,7 +6,6 @@
 #include "cru/ui/render/window_render_object.hpp"
 #include "routed_event_dispatch.hpp"
 
-#include <cassert>
 #include <list>
 
 namespace cru::ui {
@@ -151,7 +150,7 @@ platform::native::INativeWindow* Window::ResolveNativeWindow() {
 }
 
 bool Window::RequestFocusFor(Control* control) {
-  assert(control != nullptr);  // The control to request focus can't be null.
+  Expects(control != nullptr);  // The control to request focus can't be null.
                                // You can set it as the window.
 
   if (focus_control_ == control) return true;

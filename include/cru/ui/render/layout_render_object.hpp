@@ -3,8 +3,6 @@
 
 #include "cru/platform/graph/util/painter.hpp"
 
-#include <cassert>
-
 namespace cru::ui::render {
 template <typename TChildLayoutData>
 class LayoutRenderObject : public RenderObject {
@@ -21,7 +19,7 @@ class LayoutRenderObject : public RenderObject {
   ~LayoutRenderObject() override = default;
 
   ChildLayoutData* GetChildLayoutData(int position) {
-    assert(position >= 0 &&
+    Expects(position >= 0 &&
            position < static_cast<int>(child_layout_data_.size()));
     return &child_layout_data_[position];
   }

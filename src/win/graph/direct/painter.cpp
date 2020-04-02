@@ -7,12 +7,11 @@
 #include "cru/win/graph/direct/geometry.hpp"
 #include "cru/win/graph/direct/text_layout.hpp"
 
-#include <cassert>
 #include <type_traits>
 
 namespace cru::platform::graph::win::direct {
 D2DPainter::D2DPainter(ID2D1RenderTarget* render_target) {
-  assert(render_target);
+  Expects(render_target);
   render_target_ = render_target;
 }
 

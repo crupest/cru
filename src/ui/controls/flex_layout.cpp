@@ -29,14 +29,14 @@ int FindPosition(render::RenderObject* parent, render::RenderObject* child) {
 }  // namespace
 
 FlexChildLayoutData FlexLayout::GetChildLayoutData(Control* control) {
-  assert(control);
+  Expects(control);
   return *render_object_->GetChildLayoutData(
       FindPosition(render_object_.get(), control->GetRenderObject()));
 }
 
 void FlexLayout::SetChildLayoutData(Control* control,
                                     const FlexChildLayoutData& data) {
-  assert(control);
+  Expects(control);
   *render_object_->GetChildLayoutData(
       FindPosition(render_object_.get(), control->GetRenderObject())) = data;
 }

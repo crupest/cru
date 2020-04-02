@@ -4,8 +4,6 @@
 #include "cru/win/graph/direct/factory.hpp"
 #include "cru/win/native/window_render_target.hpp"
 
-#include <cassert>
-
 namespace cru::platform::native::win {
 using namespace cru::platform::graph::win::direct;
 

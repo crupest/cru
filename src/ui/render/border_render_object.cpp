@@ -7,7 +7,6 @@
 #include "cru/platform/graph/util/painter.hpp"
 
 #include <algorithm>
-#include <cassert>
 
 namespace cru::ui::render {
 BorderRenderObject::BorderRenderObject() {

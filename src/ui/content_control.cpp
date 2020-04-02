@@ -2,8 +2,6 @@
 
 #include "cru/ui/window.hpp"
 
-#include <cassert>
-
 namespace cru::ui {
 ContentControl::ContentControl()
     : child_vector_{nullptr}, child_(child_vector_[0]) {}
@@ -11,7 +9,7 @@ ContentControl::ContentControl()
 ContentControl::~ContentControl() { delete child_; }
 
 void ContentControl::SetChild(Control* child) {
-  assert(!dynamic_cast<Window*>(child));  // Can't add a window as child.
+  Expects(!dynamic_cast<Window*>(child));  // Can't add a window as child.
   if (child == child_) return;
 
   const auto window = GetWindow();

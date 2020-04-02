@@ -15,7 +15,6 @@
 #include "window_manager.hpp"
 
 #include <windowsx.h>
-#include <cassert>
 
 namespace cru::platform::native::win {
 inline Point PiToDip(const POINT& pi_point) {
@@ -28,7 +27,7 @@ WinNativeWindow::WinNativeWindow(WinUiApplication* application,
     : application_(application),
       resolver_(std::make_shared<WinNativeWindowResolver>(this)),
       parent_window_(parent) {
-  assert(application);  // application can't be null.
+  Expects(application);  // application can't be null.
 
   if (parent != nullptr) {
     throw new std::runtime_error("Can't use a invalid window as parent.");
@@ -418,7 +417,7 @@ void WinNativeWindow::OnActivatedInternal() {}
 void WinNativeWindow::OnDeactivatedInternal() {}
 
 void WinNativeWindowResolver::Reset() {
-  assert(window_);  // already reset, can't reset again
+  Expects(window_);  // already reset, can't reset again
   window_ = nullptr;
 }
 }  // namespace cru::platform::native::win

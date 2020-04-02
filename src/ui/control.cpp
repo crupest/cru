@@ -7,7 +7,6 @@
 #include "cru/ui/window.hpp"
 #include "routed_event_dispatch.hpp"
 
-#include <cassert>
 #include <memory>
 
 namespace cru::ui {
@@ -38,7 +37,7 @@ void Control::_SetDescendantWindow(Window* window) {
   if (window == nullptr && window_ == nullptr) return;
 
   // You can only attach or detach window.
-  assert((window != nullptr && window_ == nullptr) ||
+  Expects((window != nullptr && window_ == nullptr) ||
          (window == nullptr && window_ != nullptr));
 
   if (window == nullptr) {

@@ -7,7 +7,6 @@
 #include "cru/win/graph/direct/geometry.hpp"
 #include "cru/win/graph/direct/text_layout.hpp"
 
-#include <cassert>
 #include <cstdlib>
 #include <utility>
 

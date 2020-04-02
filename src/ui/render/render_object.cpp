@@ -3,18 +3,18 @@
 #include "cru/common/logger.hpp"
 
 #include <algorithm>
-#include <cassert>
 
 namespace cru::ui::render {
 void RenderObject::AddChild(RenderObject* render_object, const int position) {
-  assert(child_mode_ != ChildMode::None);
-  assert(!(child_mode_ == ChildMode::Single && children_.size() > 0));
+  Expects(child_mode_ != ChildMode::None);
+  Expects(!(child_mode_ == ChildMode::Single && children_.size() > 0));
 
-  assert(render_object->GetParent() ==
-         nullptr);        // Render object already has a parent.
-  assert(position >= 0);  // Position index is less than 0.
-  assert(position <= static_cast<int>(
-                         children_.size()));  // Position index is out of bound.
+  Expects(render_object->GetParent() ==
+          nullptr);        // Render object already has a parent.
+  Expects(position >= 0);  // Position index is less than 0.
+  Expects(
+      position <=
+      static_cast<int>(children_.size()));  // Position index is out of bound.
 
   children_.insert(children_.cbegin() + position, render_object);
   render_object->SetParent(this);
@@ -23,9 +23,9 @@ void RenderObject::AddChild(RenderObject* render_object, const int position) {
 }
 
 void RenderObject::RemoveChild(const int position) {
-  assert(position >= 0);  // Position index is less than 0.
-  assert(position < static_cast<int>(
-                        children_.size()));  // Position index is out of bound.
+  Expects(position >= 0);  // Position index is less than 0.
+  Expects(position < static_cast<int>(
+                         children_.size()));  // Position index is out of bound.
 
   const auto i = children_.cbegin() + position;
   const auto removed_child = *i;
@@ -45,7 +45,7 @@ Point RenderObject::GetTotalOffset() const {
     result.y += o.y;
     render_object = render_object->GetParent();
   }
-  
+
   return result;
 }
 

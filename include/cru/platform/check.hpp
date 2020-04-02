@@ -3,7 +3,6 @@
 #include "exception.hpp"
 #include "resource.hpp"
 
-#include <cassert>
 #include <memory>
 #include <type_traits>
 
@@ -11,7 +10,7 @@ namespace cru::platform {
 template <typename TTarget>
 TTarget* CheckPlatform(INativeResource* resource,
                        const std::string_view& target_platform) {
-  assert(resource);
+  Expects(resource);
   const auto result = dynamic_cast<TTarget*>(resource);
   if (result == nullptr) {
     throw UnsupportPlatformException(util::Format(
@@ -28,7 +27,7 @@ std::shared_ptr<TTarget> CheckPlatform(
     const std::string_view& target_platform) {
   static_assert(std::is_base_of_v<INativeResource, TSource>,
                 "TSource must be a subclass of INativeResource.");
-  assert(resource);
+  Expects(resource);
   const auto result = std::dynamic_pointer_cast<TTarget>(resource);
   if (result == nullptr) {
     throw UnsupportPlatformException(util::Format(

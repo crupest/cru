@@ -141,7 +141,7 @@ void TextControlService<TControl>::AbortSelection() {
 template <typename TControl>
 void TextControlService<TControl>::SetupCaretTimer() {
 #ifdef CRU_DEBUG
-  assert(!caret_timer_set_);
+  Expects(!caret_timer_set_);
   caret_timer_set_ = true;
 #endif
   caret_timer_tag_ =
@@ -155,7 +155,7 @@ void TextControlService<TControl>::SetupCaretTimer() {
 template <typename TControl>
 void TextControlService<TControl>::TearDownCaretTimer() {
 #ifdef CRU_DEBUG
-  assert(!caret_timer_set_);
+  Expects(!caret_timer_set_);
   caret_timer_set_ = false;
 #endif
   platform::native::IUiApplication::GetInstance()->CancelTimer(
@@ -164,7 +164,7 @@ void TextControlService<TControl>::TearDownCaretTimer() {
 
 template <typename TControl>
 void TextControlService<TControl>::SetupHandlers() {
-  assert(event_revoker_guards_.empty());
+  Expects(event_revoker_guards_.empty());
   event_revoker_guards_.push_back(
       EventRevokerGuard{control_->MouseMoveEvent()->Direct()->AddHandler(
           std::bind(&TextControlService::MouseMoveHandler, this,

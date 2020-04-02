@@ -4,13 +4,11 @@
 #include "cru/win/graph/direct/factory.hpp"
 #include "dpi_util.hpp"
 
-#include <cassert>
-
 namespace cru::platform::native::win {
 using namespace cru::platform::graph::win::direct;
 WindowRenderTarget::WindowRenderTarget(DirectGraphFactory* factory, HWND hwnd)
     : factory_(factory) {
-  assert(factory);
+  Expects(factory);
 
   const auto d3d11_device = factory->GetD3D11Device();
   const auto dxgi_factory = factory->GetDxgiFactory();
@@ -56,7 +54,7 @@ void WindowRenderTarget::Present() {
 }
 
 void WindowRenderTarget::CreateTargetBitmap() {
-  assert(target_bitmap_ == nullptr);  // target bitmap must not exist.
+  Expects(target_bitmap_ == nullptr);  // target bitmap must not exist.
 
   // Direct2D needs the dxgi version of the backbuffer surface pointer.
   Microsoft::WRL::ComPtr<IDXGISurface> dxgi_back_buffer;

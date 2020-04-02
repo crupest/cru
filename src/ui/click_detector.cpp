@@ -2,12 +2,11 @@
 
 #include "cru/common/logger.hpp"
 
-#include <cassert>
 #include <optional>
 
 namespace cru::ui {
 ClickDetector::ClickDetector(Control* control) {
-  assert(control);
+  Expects(control);
   control_ = control;
 
   event_rovoker_guards_.push_back(

@@ -64,6 +64,7 @@
     "sstream": "cpp",
     "xlocmon": "cpp",
     "xloctime": "cpp",
-    "string_view": "cpp"
+    "string_view": "cpp",
+    "cassert": "cpp"
   }
 }

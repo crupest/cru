@@ -4,8 +4,6 @@
 #include "cru/win/graph/direct/exception.hpp"
 #include "cru/win/graph/direct/factory.hpp"
 
-#include <cassert>
-
 namespace cru::platform::graph::win::direct {
 D2DSolidColorBrush::D2DSolidColorBrush(DirectGraphFactory* factory)
     : DirectGraphResource(factory) {

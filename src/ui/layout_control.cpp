@@ -2,17 +2,15 @@
 
 #include "cru/ui/window.hpp"
 
-#include <cassert>
-
 namespace cru::ui {
 LayoutControl::~LayoutControl() {
   for (const auto child : children_) delete child;
 }
 
 void LayoutControl::AddChild(Control* control, const int position) {
-  assert(control->GetParent() == nullptr);  // The control already has a parent.
-  assert(!dynamic_cast<Window*>(control));  // Can't add a window as child.
-  assert(position >= 0 ||
+  Expects(control->GetParent() == nullptr);  // The control already has a parent.
+  Expects(!dynamic_cast<Window*>(control));  // Can't add a window as child.
+  Expects(position >= 0 ||
          position <=
              static_cast<int>(
                  this->children_.size()));  // The position is out of range.
@@ -26,7 +24,7 @@ void LayoutControl::AddChild(Control* control, const int position) {
 }
 
 void LayoutControl::RemoveChild(const int position) {
-  assert(position >= 0 &&
+  Expects(position >= 0 &&
          position <
              static_cast<int>(
                  this->children_.size()));  // The position is out of range.

@@ -6,7 +6,6 @@
 #include "cru/platform/graph/util/painter.hpp"
 
 #include <algorithm>
-#include <cassert>
 
 // TODO: Null Check!!!
 
@@ -15,9 +14,9 @@ TextRenderObject::TextRenderObject(
     std::shared_ptr<platform::graph::IBrush> brush,
     std::shared_ptr<platform::graph::IFont> font,
     std::shared_ptr<platform::graph::IBrush> selection_brush) {
-  assert(brush);
-  assert(font);
-  assert(selection_brush);
+  Expects(brush);
+  Expects(font);
+  Expects(selection_brush);
 
   SetChildMode(ChildMode::None);
 

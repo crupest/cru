@@ -5,7 +5,6 @@
 #include "cru/win/string.hpp"
 
 #include <array>
-#include <cassert>
 #include <utility>
 
 namespace cru::platform::graph::win::direct {

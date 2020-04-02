@@ -7,15 +7,13 @@
 #include "cru/platform/native/window.hpp"
 #include "cru/ui/window.hpp"
 
-#include <cassert>
-
 namespace cru::ui::render {
 class WindowRenderHost : public IRenderHost,
                          public SelfResolvable<WindowRenderHost> {
  public:
   WindowRenderHost(WindowRenderObject* render_object)
       : render_object_(render_object) {
-    assert(render_object != nullptr);
+    Expects(render_object != nullptr);
   }
 
   void InvalidateLayout() override;

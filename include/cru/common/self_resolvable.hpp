@@ -1,7 +1,6 @@
 #pragma once
 #include "pre_config.hpp"
 
-#include <cassert>
 #include <memory>
 #include <type_traits>
 
@@ -26,7 +25,7 @@ class ObjectResolver {
   T* Resolve() const {
     // resolver_ is null only when this has been moved.
     // You shouldn't resolve a moved resolver. So assert it.
-    assert(resolver_);
+    Expects(resolver_);
     return *resolver_;
   }
 

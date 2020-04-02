@@ -4,7 +4,6 @@
 #include "self_resolvable.hpp"
 
 #include <algorithm>
-#include <cassert>
 #include <functional>
 #include <memory>
 #include <utility>
@@ -198,7 +197,7 @@ class EventRevokerGuard {
   EventRevoker Get() {
     // revoker is only null when this is moved
     // you shouldn't use a moved instance
-    assert(revoker_);
+    Expects(revoker_);
     return *revoker_;
   }
 

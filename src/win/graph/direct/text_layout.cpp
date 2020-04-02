@@ -7,7 +7,6 @@
 #include "cru/win/graph/direct/font.hpp"
 #include "cru/win/string.hpp"
 
-#include <cassert>
 #include <utility>
 
 namespace cru::platform::graph::win::direct {
@@ -18,7 +17,7 @@ DWriteTextLayout::DWriteTextLayout(DirectGraphFactory* factory,
                                    std::shared_ptr<IFont> font,
                                    std::string text)
     : DirectGraphResource(factory), text_(std::move(text)) {
-  assert(font);
+  Expects(font);
   font_ = CheckPlatform<DWriteFont>(font, GetPlatformId());
 
   w_text_ = cru::platform::win::ToUtf16String(text_);

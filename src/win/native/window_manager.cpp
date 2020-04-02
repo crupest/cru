@@ -4,8 +4,6 @@
 #include "cru/win/native/window.hpp"
 #include "cru/win/native/window_class.hpp"
 
-#include <cassert>
-
 namespace cru::platform::native::win {
 LRESULT __stdcall GeneralWndProc(HWND hWnd, UINT Msg, WPARAM wParam,
                                  LPARAM lParam) {
@@ -31,13 +29,13 @@ WindowManager::~WindowManager() {
 }
 
 void WindowManager::RegisterWindow(HWND hwnd, WinNativeWindow* window) {
-  assert(window_map_.count(hwnd) == 0);  // The hwnd is already in the map.
+  Expects(window_map_.count(hwnd) == 0);  // The hwnd is already in the map.
   window_map_.emplace(hwnd, window);
 }
 
 void WindowManager::UnregisterWindow(HWND hwnd) {
   const auto find_result = window_map_.find(hwnd);
-  assert(find_result != window_map_.end());  // The hwnd is not in the map.
+  Expects(find_result != window_map_.end());  // The hwnd is not in the map.
   window_map_.erase(find_result);
   if (window_map_.empty()) application_->RequestQuit(0);
 }
