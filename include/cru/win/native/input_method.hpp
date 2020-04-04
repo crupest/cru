@@ -2,6 +2,7 @@
 #include "resource.hpp"
 
 #include "cru/platform/native/input_method.hpp"
+#include "window_native_message_event_args.hpp"
 
 #include <imm.h>
 
@@ -20,23 +21,33 @@ class WinInputMethodContextRef : public WinNativeResource,
 
   ::HIMC GetHandle() const { return handle_; }
 
+  bool ShouldManuallyDrawCompositionText() override { return true; }
+
   void Reset() override;
 
-  std::string GetCompositionString() override;
+  std::string GetCompositionText() override;
 
   void SetCandidateWindowPosition(const Point& point) override;
 
+  IEvent<std::nullptr_t>* CompositionStartEvent() override;
+
+  IEvent<std::nullptr_t>* CompositionEndEvent() override;
+
   IEvent<std::string>* CompositionTextChangeEvent() override;
 
-  IEvent<std::string>* CharEvent() override;
+ private:
+  void OnWindowNativeMessage(WindowNativeMessageEventArgs& args);
 
  private:
-  WinNativeWindow* window_;
+  [[maybe_unused]] WinNativeWindow* window_;
+
+  std::vector<EventRevokerGuard> event_revoker_guards_;
 
   ::HWND window_handle_;
   ::HIMC handle_;
 
+  Event<std::nullptr_t> composition_start_event_;
+  Event<std::nullptr_t> composition_end_event_;
   Event<std::string> composition_text_change_event_;
-  Event<std::string> char_event_;
 };
 }  // namespace cru::platform::native::win

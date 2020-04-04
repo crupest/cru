@@ -19,7 +19,7 @@ class WindowNativeMessageEventArgs : public Object {
   CRU_DEFAULT_MOVE(WindowNativeMessageEventArgs)
   ~WindowNativeMessageEventArgs() override = default;
 
-  WindowNativeMessage GetWindowMessage() const { return message_; }
+  const WindowNativeMessage& GetWindowMessage() const { return message_; }
 
   LRESULT GetResult() const { return result_; }
   void SetResult(LRESULT result) { result_ = result; }
@@ -27,7 +27,7 @@ class WindowNativeMessageEventArgs : public Object {
   bool IsHandled() const { return handled_; }
   void SetHandled(bool handled) { handled_ = handled; }
 
-  void HandledAndSetResult(LRESULT result) {
+  void HandleWithResult(LRESULT result) {
     handled_ = true;
     result_ = result;
   }

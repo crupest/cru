@@ -17,6 +17,11 @@ WinInputMethodContextRef::WinInputMethodContextRef(WinNativeWindow* window)
   handle_ = ::ImmGetContext(window_handle_);
 
   // TODO: Events
+
+  event_revoker_guards_.push_back(
+      EventRevokerGuard(window->NativeMessageEvent()->AddHandler(
+          std::bind(&WinInputMethodContextRef::OnWindowNativeMessage, this,
+                    std::placeholders::_1))));
 }
 
 WinInputMethodContextRef::~WinInputMethodContextRef() {
@@ -34,7 +39,7 @@ void WinInputMethodContextRef::Reset() {
   }
 }
 
-std::string WinInputMethodContextRef::GetCompositionString() {
+std::string WinInputMethodContextRef::GetCompositionText() {
   const auto length =
       ::ImmGetCompositionStringW(handle_, GCS_RESULTREADSTR, NULL, 0) +
       sizeof(wchar_t);
@@ -65,11 +70,43 @@ void WinInputMethodContextRef::SetCandidateWindowPosition(const Point& point) {
         "position.");
 }
 
+IEvent<std::nullptr_t>* WinInputMethodContextRef::CompositionStartEvent() {
+  return &composition_start_event_;
+}
+
+IEvent<std::nullptr_t>* WinInputMethodContextRef::CompositionEndEvent() {
+  return &composition_end_event_;
+};
+
 IEvent<std::string>* WinInputMethodContextRef::CompositionTextChangeEvent() {
   return &composition_text_change_event_;
 }
 
-IEvent<std::string>* WinInputMethodContextRef::CharEvent() {
-  return &char_event_;
+void WinInputMethodContextRef::OnWindowNativeMessage(
+    WindowNativeMessageEventArgs& args) {
+  const auto message = args.GetWindowMessage();
+  switch (message.msg) {
+    case WM_IME_COMPOSITION: {
+      composition_text_change_event_.Raise(this->GetCompositionText());
+      args.HandleWithResult(0);
+      break;
+    }
+    case WM_IME_STARTCOMPOSITION: {
+      composition_start_event_.Raise(nullptr);
+      args.HandleWithResult(0);
+      break;
+    }
+    case WM_IME_ENDCOMPOSITION: {
+      composition_end_event_.Raise(nullptr);
+      args.HandleWithResult(0);
+      break;
+    }
+    case WM_IME_SETCONTEXT: {
+      const auto new_l_param =
+          message.l_param & (~static_cast<LPARAM>(ISC_SHOWUICOMPOSITIONWINDOW));
+      args.HandleWithResult(::DefWindowProcW(message.hwnd, message.msg,
+                                             message.w_param, new_l_param));
+    }
+  }
 }
 }  // namespace cru::platform::native::win

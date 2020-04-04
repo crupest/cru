@@ -25,7 +25,7 @@ WindowManager::WindowManager(WinUiApplication* application) {
 }
 
 WindowManager::~WindowManager() {
-  for (const auto [key, window] : window_map_) delete window;
+  for (const auto& [key, window] : window_map_) delete window;
 }
 
 void WindowManager::RegisterWindow(HWND hwnd, WinNativeWindow* window) {
@@ -50,7 +50,7 @@ WinNativeWindow* WindowManager::FromHandle(HWND hwnd) {
 
 std::vector<WinNativeWindow*> WindowManager::GetAllWindows() const {
   std::vector<WinNativeWindow*> windows;
-  for (auto [key, value] : window_map_) windows.push_back(value);
+  for (const auto& [key, value] : window_map_) windows.push_back(value);
   return windows;
 }
 }  // namespace cru::platform::native::win
