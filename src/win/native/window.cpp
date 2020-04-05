@@ -14,6 +14,7 @@
 #include "window_d2d_painter.hpp"
 #include "window_manager.hpp"
 
+#include <imm.h>
 #include <windowsx.h>
 
 namespace cru::platform::native::win {
@@ -308,6 +309,16 @@ bool WinNativeWindow::HandleNativeWindowMessage(HWND hwnd, UINT msg,
       OnDestroyInternal();
       *result = 0;
       return true;
+    case WM_IME_SETCONTEXT:
+      l_param &= ~ISC_SHOWUICOMPOSITIONWINDOW;
+      *result = ::DefWindowProcW(hwnd, msg, w_param, l_param);
+      return true;
+    // We must block these message from DefWindowProc or it will create
+    // an ugly composition window.
+    case WM_IME_STARTCOMPOSITION:
+    case WM_IME_COMPOSITION:
+      *result = 0;
+      return true;
     default:
       return false;
   }
@@ -409,10 +420,14 @@ void WinNativeWindow::OnCharInternal(wchar_t c) {
     return;
   } else if (platform::win::IsSurrogatePairTrailing(c)) {
     wchar_t s[3] = {last_wm_char_event_wparam_, c, 0};
-    char_event_.Raise(platform::win::ToUtf8String(s));
+    auto str = platform::win::ToUtf8String(s);
+    char_event_.Raise(str);
+    log::Debug("WinNativeWindow: char event, charactor is {}", str);
   } else {
     wchar_t s[2] = {c, 0};
-    char_event_.Raise(platform::win::ToUtf8String(s));
+    auto str = platform::win::ToUtf8String(s);
+    char_event_.Raise(str);
+    log::Debug("WinNativeWindow: char event, charactor is {}", str);
   }
 }
 

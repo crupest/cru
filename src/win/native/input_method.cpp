@@ -88,24 +88,15 @@ void WinInputMethodContextRef::OnWindowNativeMessage(
   switch (message.msg) {
     case WM_IME_COMPOSITION: {
       composition_text_change_event_.Raise(this->GetCompositionText());
-      args.HandleWithResult(0);
       break;
     }
     case WM_IME_STARTCOMPOSITION: {
       composition_start_event_.Raise(nullptr);
-      args.HandleWithResult(0);
       break;
     }
     case WM_IME_ENDCOMPOSITION: {
       composition_end_event_.Raise(nullptr);
-      args.HandleWithResult(0);
       break;
-    }
-    case WM_IME_SETCONTEXT: {
-      const auto new_l_param =
-          message.l_param & (~static_cast<LPARAM>(ISC_SHOWUICOMPOSITIONWINDOW));
-      args.HandleWithResult(::DefWindowProcW(message.hwnd, message.msg,
-                                             message.w_param, new_l_param));
     }
   }
 }

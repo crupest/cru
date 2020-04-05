@@ -1,3 +1,6 @@
+// Some useful information can be found from chromium code:
+// https://chromium.googlesource.com/chromium/chromium/+/refs/heads/master/ui/base/win/ime_input.h
+
 #pragma once
 #include "resource.hpp"
 
