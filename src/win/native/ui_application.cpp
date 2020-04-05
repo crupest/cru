@@ -7,6 +7,7 @@
 #include "cru/win/native/cursor.hpp"
 #include "cru/win/native/exception.hpp"
 #include "cru/win/native/god_window.hpp"
+#include "cru/win/native/input_method.hpp"
 #include "cru/win/native/window.hpp"
 #include "god_window_message.hpp"
 #include "timer.hpp"
@@ -32,6 +33,7 @@ WinUiApplication::WinUiApplication() {
   timer_manager_ = std::make_unique<TimerManager>(god_window_.get());
   window_manager_ = std::make_unique<WindowManager>(this);
   cursor_manager_ = std::make_unique<WinCursorManager>();
+  input_method_manager_ = std::make_unique<WinInputMethodManager>(this);
 }
 
 WinUiApplication::~WinUiApplication() { instance = nullptr; }
@@ -107,5 +109,9 @@ cru::platform::graph::IGraphFactory* WinUiApplication::GetGraphFactory() {
 
 ICursorManager* WinUiApplication::GetCursorManager() {
   return cursor_manager_.get();
+}
+
+IInputMethodManager* WinUiApplication::GetInputMethodManager() {
+  return input_method_manager_.get();
 }
 }  // namespace cru::platform::native::win

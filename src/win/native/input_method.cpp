@@ -1,6 +1,7 @@
 #include "cru/win/native/input_method.hpp"
 
 #include "cru/common/logger.hpp"
+#include "cru/platform/check.hpp"
 #include "cru/win/exception.hpp"
 #include "cru/win/native/window.hpp"
 #include "cru/win/string.hpp"
@@ -99,5 +100,16 @@ void WinInputMethodContextRef::OnWindowNativeMessage(
       break;
     }
   }
+}
+
+WinInputMethodManager::WinInputMethodManager(WinUiApplication*) {}
+
+WinInputMethodManager::~WinInputMethodManager() {}
+
+std::unique_ptr<IInputMethodContextRef> WinInputMethodManager::GetContext(
+    INativeWindow* window) {
+  Expects(window);
+  const auto w = CheckPlatform<WinNativeWindow>(window, GetPlatformId());
+  return std::make_unique<WinInputMethodContextRef>(w);
 }
 }  // namespace cru::platform::native::win

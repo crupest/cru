@@ -10,10 +10,8 @@
 #include <imm.h>
 
 namespace cru::platform::native::win {
-class WinNativeWindow;
-
 class WinInputMethodContextRef : public WinNativeResource,
-                                 public IInputMethodContextRef {
+                                 public virtual IInputMethodContextRef {
  public:
   WinInputMethodContextRef(WinNativeWindow* window);
 
@@ -52,5 +50,20 @@ class WinInputMethodContextRef : public WinNativeResource,
   Event<std::nullptr_t> composition_start_event_;
   Event<std::nullptr_t> composition_end_event_;
   Event<std::string> composition_text_change_event_;
+};
+
+class WinInputMethodManager : public WinNativeResource,
+                              public virtual IInputMethodManager {
+ public:
+  WinInputMethodManager(WinUiApplication* application);
+
+  CRU_DELETE_COPY(WinInputMethodManager)
+  CRU_DELETE_MOVE(WinInputMethodManager)
+
+  ~WinInputMethodManager() override;
+
+ public:
+  std::unique_ptr<IInputMethodContextRef> GetContext(
+      INativeWindow* window) override;
 };
 }  // namespace cru::platform::native::win

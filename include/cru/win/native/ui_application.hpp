@@ -10,11 +10,6 @@ class DirectGraphFactory;
 }
 
 namespace cru::platform::native::win {
-class GodWindow;
-class TimerManager;
-class WindowManager;
-class WinCursorManager;
-
 class WinUiApplication : public WinNativeResource,
                          public virtual IUiApplication {
  public:
@@ -55,6 +50,7 @@ class WinUiApplication : public WinNativeResource,
   }
 
   ICursorManager* GetCursorManager() override;
+  IInputMethodManager* GetInputMethodManager() override;
 
   HINSTANCE GetInstanceHandle() const { return instance_handle_; }
 
@@ -73,6 +69,7 @@ class WinUiApplication : public WinNativeResource,
   std::unique_ptr<WindowManager> window_manager_;
 
   std::unique_ptr<WinCursorManager> cursor_manager_;
+  std::unique_ptr<WinInputMethodManager> input_method_manager_;
 
   std::vector<std::function<void()>> quit_handlers_;
 };

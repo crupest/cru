@@ -1,7 +1,5 @@
 #pragma once
-#include "../win_pre_config.hpp"
-
-#include "cru/common/base.hpp"
+#include "base.hpp"
 
 namespace cru::platform::graph::win::direct {
 class DirectGraphFactory;
@@ -24,7 +22,9 @@ class WindowRenderTarget : public Object {
     return factory_;
   }
 
-  ID2D1DeviceContext* GetD2D1DeviceContext() { return d2d1_device_context_.Get(); }
+  ID2D1DeviceContext* GetD2D1DeviceContext() {
+    return d2d1_device_context_.Get();
+  }
 
   // Resize the underlying buffer.
   void ResizeBuffer(int width, int height);

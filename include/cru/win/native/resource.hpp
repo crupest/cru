@@ -1,5 +1,5 @@
 #pragma once
-#include "../win_pre_config.hpp"
+#include "base.hpp"
 
 #include "cru/platform/resource.hpp"
 

@@ -1,7 +1,5 @@
 #pragma once
-#include "../win_pre_config.hpp"
-
-#include "cru/common/base.hpp"
+#include "base.hpp"
 
 #include <string>
 

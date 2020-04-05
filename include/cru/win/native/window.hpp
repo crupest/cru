@@ -7,13 +7,6 @@
 #include <memory>
 
 namespace cru::platform::native::win {
-class WinUiApplication;
-class WinCursor;
-class WindowClass;
-class WindowManager;
-class WindowRenderTarget;
-class WinNativeWindowResolver;
-
 class WinNativeWindow : public WinNativeResource, public virtual INativeWindow {
  public:
   WinNativeWindow(WinUiApplication* application, WindowClass* window_class,

@@ -45,5 +45,6 @@ struct IUiApplication : public virtual INativeResource {
   virtual cru::platform::graph::IGraphFactory* GetGraphFactory() = 0;
 
   virtual ICursorManager* GetCursorManager() = 0;
+  virtual IInputMethodManager* GetInputMethodManager() = 0;
 };
 }  // namespace cru::platform::native

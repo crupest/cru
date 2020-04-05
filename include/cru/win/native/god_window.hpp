@@ -1,14 +1,9 @@
 #pragma once
-#include "../win_pre_config.hpp"
-
-#include "cru/common/base.hpp"
+#include "base.hpp"
 
 #include <memory>
 
 namespace cru::platform::native::win {
-class WinUiApplication;
-class WindowClass;
-
 class GodWindow : public Object {
  public:
   explicit GodWindow(WinUiApplication* application);

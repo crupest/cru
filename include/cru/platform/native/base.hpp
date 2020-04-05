@@ -11,6 +11,7 @@ struct IUiApplication;
 struct INativeWindow;
 struct INativeWindowResolver;
 struct IInputMethodManager;
+struct IInputMethodContextRef;
 
 struct Dpi {
   float x;
