@@ -40,9 +40,9 @@ void WinInputMethodContextRef::Reset() {
 }
 
 std::string WinInputMethodContextRef::GetCompositionText() {
-  const auto length =
+  const auto length = gsl::narrow_cast<DWORD>(
       ::ImmGetCompositionStringW(handle_, GCS_RESULTREADSTR, NULL, 0) +
-      sizeof(wchar_t);
+      sizeof(wchar_t));
   std::vector<std::byte> data(length);
   const auto result = ::ImmGetCompositionStringW(
       handle_, GCS_RESULTREADSTR, static_cast<LPVOID>(data.data()), length);
