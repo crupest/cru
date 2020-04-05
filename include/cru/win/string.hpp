@@ -27,6 +27,14 @@ namespace cru::platform::win {
 std::string ToUtf8String(const std::wstring_view& string);
 std::wstring ToUtf16String(const std::string_view& string);
 
+inline bool IsSurrogatePairLeading(wchar_t c) {
+  return c >= 0xD800 && c <= 0xDBFF;
+}
+
+inline bool IsSurrogatePairTrailing(wchar_t c) {
+  return c >= 0xDC00 && c <= 0xDFFF;
+}
+
 using CodePoint = std::int32_t;
 constexpr CodePoint k_code_point_end = -1;
 

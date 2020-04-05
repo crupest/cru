@@ -156,6 +156,11 @@ class WinNativeWindow : public WinNativeResource, public virtual INativeWindow {
   Event<std::string> char_event_;
 
   Event<WindowNativeMessageEventArgs&> native_message_event_;
+
+  // WM_CHAR may be sent twice successively with two utf-16 code units of
+  // surrogate pair when character is from supplementary planes. This field is
+  // used to save the previous one.
+  wchar_t last_wm_char_event_wparam_;
 };
 
 class WinNativeWindowResolver : public WinNativeResource,

@@ -404,8 +404,16 @@ void WinNativeWindow::OnKeyUpInternal(int virtual_code) {
 }
 
 void WinNativeWindow::OnCharInternal(wchar_t c) {
-  wchar_t s[2] = {c, 0};
-  char_event_.Raise(platform::win::ToUtf8String(s));
+  if (platform::win::IsSurrogatePairLeading(c)) {
+    last_wm_char_event_wparam_ = c;
+    return;
+  } else if (platform::win::IsSurrogatePairTrailing(c)) {
+    wchar_t s[3] = {last_wm_char_event_wparam_, c, 0};
+    char_event_.Raise(platform::win::ToUtf8String(s));
+  } else {
+    wchar_t s[2] = {c, 0};
+    char_event_.Raise(platform::win::ToUtf8String(s));
+  }
 }
 
 void WinNativeWindow::OnActivatedInternal() {}
