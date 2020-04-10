@@ -19,7 +19,7 @@ void LayoutControl::AddChild(Control* control, const Index position) {
   children_.insert(this->children_.cbegin() + position, control);
 
   control->_SetParent(this);
-  control->_SetDescendantWindow(GetWindow());
+  control->_SetDescendantUiHost(GetUiHost());
 
   OnAddChild(control, position);
 }
@@ -36,7 +36,7 @@ void LayoutControl::RemoveChild(const Index position) {
   children_.erase(i);
 
   child->_SetParent(nullptr);
-  child->_SetDescendantWindow(nullptr);
+  child->_SetDescendantUiHost(nullptr);
 
   OnRemoveChild(child, position);
 }

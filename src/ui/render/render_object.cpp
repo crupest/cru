@@ -1,6 +1,7 @@
 #include "cru/ui/render/render_object.hpp"
 
 #include "cru/common/logger.hpp"
+#include "cru/ui/ui_host.hpp"
 
 #include <algorithm>
 
@@ -18,7 +19,7 @@ void RenderObject::AddChild(RenderObject* render_object, const Index position) {
 
   children_.insert(children_.cbegin() + position, render_object);
   render_object->SetParent(this);
-  render_object->SetRenderHostRecursive(GetRenderHost());
+  render_object->SetRenderHostRecursive(GetUiHost());
   OnAddChild(render_object, position);
 }
 
@@ -165,6 +166,14 @@ void RenderObject::SetParent(RenderObject* new_parent) {
   OnParentChanged(old_parent, new_parent);
 }
 
+void RenderObject::InvalidateLayout() {
+  if (ui_host_ != nullptr) ui_host_->InvalidateLayout();
+}
+
+void RenderObject::InvalidatePaint() {
+  if (ui_host_ != nullptr) ui_host_->InvalidatePaint();
+}
+
 void RenderObject::NotifyAfterLayoutRecursive(RenderObject* render_object) {
   render_object->OnAfterLayout();
   for (const auto o : render_object->GetChildren()) {
@@ -172,11 +181,10 @@ void RenderObject::NotifyAfterLayoutRecursive(RenderObject* render_object) {
   }
 }
 
-void RenderObject::SetRenderHostRecursive(IRenderHost* host) {
-  SetRenderHost(host);
+void RenderObject::SetRenderHostRecursive(UiHost* host) {
+  ui_host_ = host;
   for (const auto child : GetChildren()) {
     child->SetRenderHostRecursive(host);
   }
 }
-
 }  // namespace cru::ui::render

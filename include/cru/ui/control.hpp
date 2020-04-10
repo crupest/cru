@@ -9,7 +9,7 @@
 
 namespace cru::ui {
 class Control : public Object {
-  friend class Window;
+  friend UiHost;
 
  protected:
   Control();
@@ -26,8 +26,8 @@ class Control : public Object {
 
   //*************** region: tree ***************
  public:
-  // Get the window if attached, otherwise, return nullptr.
-  Window* GetWindow() const { return window_; }
+  // Get the ui host if attached, otherwise, return nullptr.
+  UiHost* GetUiHost() const { return ui_host_; }
 
   Control* GetParent() const { return parent_; }
 
@@ -37,7 +37,7 @@ class Control : public Object {
   void TraverseDescendants(const std::function<void(Control*)>& predicate);
 
   void _SetParent(Control* parent);
-  void _SetDescendantWindow(Window* window);
+  void _SetDescendantUiHost(UiHost* host);
 
  private:
   static void _TraverseDescendants(
@@ -111,7 +111,6 @@ class Control : public Object {
   event::RoutedEvent<event::KeyEventArgs>* KeyUpEvent() {
     return &key_up_event_;
   }
-  event::RoutedEvent<event::CharEventArgs>* CharEvent() { return &char_event_; }
   event::RoutedEvent<event::FocusChangeEventArgs>* GainFocusEvent() {
     return &gain_focus_event_;
   }
@@ -129,7 +128,6 @@ class Control : public Object {
 
   event::RoutedEvent<event::KeyEventArgs> key_down_event_;
   event::RoutedEvent<event::KeyEventArgs> key_up_event_;
-  event::RoutedEvent<event::CharEventArgs> char_event_;
 
   event::RoutedEvent<event::FocusChangeEventArgs> gain_focus_event_;
   event::RoutedEvent<event::FocusChangeEventArgs> lose_focus_event_;
@@ -137,13 +135,13 @@ class Control : public Object {
   //*************** region: tree ***************
  protected:
   virtual void OnParentChanged(Control* old_parent, Control* new_parent);
-  virtual void OnAttachToWindow(Window* window);
-  virtual void OnDetachToWindow(Window* window);
+  virtual void OnAttachToHost(UiHost* host);
+  virtual void OnDetachFromHost(UiHost* host);
 
   virtual void OnMouseHoverChange(bool newHover) { CRU_UNUSED(newHover) }
 
  private:
-  Window* window_ = nullptr;
+  UiHost* ui_host_ = nullptr;
   Control* parent_ = nullptr;
 
  private:

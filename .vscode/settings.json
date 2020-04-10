@@ -69,6 +69,8 @@
     "gsl_util": "cpp",
     "multi_span": "cpp",
     "span": "cpp",
-    "string_span": "cpp"
+    "string_span": "cpp",
+    "numeric": "cpp",
+    "pointers": "cpp"
   }
 }

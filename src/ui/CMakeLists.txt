@@ -9,7 +9,8 @@ add_library(cru_ui STATIC
 	control.cpp
 	helper.cpp
     layout_control.cpp
-    no_child_control.cpp
+	no_child_control.cpp
+	ui_host.cpp
     ui_manager.cpp
     window.cpp
     controls/button.cpp
@@ -36,6 +37,7 @@ target_sources(cru_ui PUBLIC
 	${CRU_UI_INCLUDE_DIR}/layout_control.hpp
 	${CRU_UI_INCLUDE_DIR}/no_child_control.hpp
 	${CRU_UI_INCLUDE_DIR}/ui_event.hpp
+	${CRU_UI_INCLUDE_DIR}/ui_host.hpp
 	${CRU_UI_INCLUDE_DIR}/ui_manager.hpp
 	${CRU_UI_INCLUDE_DIR}/window.hpp
 	${CRU_UI_INCLUDE_DIR}/controls/base.hpp

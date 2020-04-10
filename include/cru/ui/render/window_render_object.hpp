@@ -4,16 +4,12 @@
 namespace cru::ui::render {
 class WindowRenderObject : public RenderObject {
  public:
-  WindowRenderObject(Window* window);
+  WindowRenderObject(UiHost* host);
   WindowRenderObject(const WindowRenderObject& other) = delete;
   WindowRenderObject(WindowRenderObject&& other) = delete;
   WindowRenderObject& operator=(const WindowRenderObject& other) = delete;
   WindowRenderObject& operator=(WindowRenderObject&& other) = delete;
   ~WindowRenderObject() override = default;
-
-  Window* GetWindow() const { return window_; }
-
-  void Relayout();
 
   void Draw(platform::graph::IPainter* painter) override;
 
@@ -29,10 +25,6 @@ class WindowRenderObject : public RenderObject {
   }
 
  private:
-  Window* window_;
-
   EventRevokerGuard after_layout_event_guard_;
-
-  std::unique_ptr<IRenderHost> render_host_;
 };
 }  // namespace cru::ui::render

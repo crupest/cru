@@ -183,6 +183,7 @@ using cru::platform::colors::yellowgreen;
 class Window;
 class Control;
 class ClickDetector;
+class UiHost;
 
 //-------------------- region: basic types --------------------
 namespace internal {

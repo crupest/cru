@@ -4,27 +4,12 @@
 #include "cru/common/event.hpp"
 
 namespace cru::ui::render {
-
-struct AfterLayoutEventArgs {};
-
-struct IRenderHost : Interface {
-  // Mark the layout as invalid, and arrange a re-layout later.
-  // Note this method might be called more than one times in a message cycle. So
-  // implementation should merge multiple request into once.
-  virtual void InvalidateLayout() = 0;
-
-  // Mark the paint as invalid, and arrange a re-paint later.
-  // Note this method might be called more than one times in a message cycle. So
-  // implementation should merge multiple request into once.
-  virtual void InvalidatePaint() = 0;
-
-  virtual IEvent<AfterLayoutEventArgs>* AfterLayoutEvent() = 0;
-};
-
 // Render object will not destroy its children when destroyed. Control must
 // manage lifecycle of its render objects. Since control will destroy its
 // children when destroyed, render objects will be destroyed along with it.
 class RenderObject : public Object {
+  friend WindowRenderObject;
+
  protected:
   enum class ChildMode {
     None,
@@ -47,8 +32,7 @@ class RenderObject : public Object {
   Control* GetAttachedControl() const { return control_; }
   void SetAttachedControl(Control* new_control) { control_ = new_control; }
 
-  IRenderHost* GetRenderHost() const { return render_host_; }
-  void SetRenderHost(IRenderHost* render_host) { render_host_ = render_host; }
+  UiHost* GetUiHost() const { return ui_host_; }
 
   RenderObject* GetParent() const { return parent_; }
 
@@ -83,13 +67,8 @@ class RenderObject : public Object {
   virtual RenderObject* HitTest(const Point& point) = 0;
 
  public:
-  void InvalidateLayout() const {
-    if (render_host_ != nullptr) render_host_->InvalidateLayout();
-  }
-
-  void InvalidatePaint() const {
-    if (render_host_ != nullptr) render_host_->InvalidatePaint();
-  }
+  void InvalidateLayout();
+  void InvalidatePaint();
 
  protected:
   void SetChildMode(ChildMode mode) { child_mode_ = mode; }
@@ -117,11 +96,11 @@ class RenderObject : public Object {
  private:
   void SetParent(RenderObject* new_parent);
 
-  void SetRenderHostRecursive(IRenderHost* host);
+  void SetRenderHostRecursive(UiHost* host);
 
  private:
   Control* control_ = nullptr;
-  IRenderHost* render_host_ = nullptr;
+  UiHost* ui_host_ = nullptr;
 
   RenderObject* parent_ = nullptr;
   std::vector<RenderObject*> children_{};

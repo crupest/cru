@@ -2,9 +2,8 @@
 
 #include "cru/platform/native/cursor.hpp"
 #include "cru/platform/native/ui_application.hpp"
-#include "cru/platform/native/window.hpp"
 #include "cru/ui/base.hpp"
-#include "cru/ui/window.hpp"
+#include "cru/ui/ui_host.hpp"
 #include "routed_event_dispatch.hpp"
 
 #include <memory>
@@ -33,23 +32,23 @@ void Control::_SetParent(Control* parent) {
   if (old_parent != new_parent) OnParentChanged(old_parent, new_parent);
 }
 
-void Control::_SetDescendantWindow(Window* window) {
-  if (window == nullptr && window_ == nullptr) return;
-
+void Control::_SetDescendantUiHost(UiHost* host) {
   // You can only attach or detach window.
-  Expects((window != nullptr && window_ == nullptr) ||
-         (window == nullptr && window_ != nullptr));
+  Expects((host != nullptr && ui_host_ == nullptr) ||
+          (host == nullptr && ui_host_ != nullptr));
 
-  if (window == nullptr) {
-    const auto old = window_;
+  if (host == nullptr && ui_host_ == nullptr) return;
+
+  if (host == nullptr) {
+    const auto old = ui_host_;
     TraverseDescendants([old](Control* control) {
-      control->window_ = nullptr;
-      control->OnDetachToWindow(old);
+      control->ui_host_ = nullptr;
+      control->OnDetachFromHost(old);
     });
   } else
-    TraverseDescendants([window](Control* control) {
-      control->window_ = window;
-      control->OnAttachToWindow(window);
+    TraverseDescendants([host](Control* control) {
+      control->ui_host_ = host;
+      control->OnAttachToHost(host);
     });
 }
 
@@ -65,25 +64,38 @@ void Control::_TraverseDescendants(
 }
 
 bool Control::RequestFocus() {
-  auto window = GetWindow();
-  if (window == nullptr) return false;
+  auto host = GetUiHost();
+  if (host == nullptr) return false;
 
-  return window->RequestFocusFor(this);
+  return host->RequestFocusFor(this);
 }
 
 bool Control::HasFocus() {
-  auto window = GetWindow();
-  if (window == nullptr) return false;
+  auto host = GetUiHost();
+  if (host == nullptr) return false;
 
-  return window->GetFocusControl() == this;
+  return host->GetFocusControl() == this;
 }
 
-bool Control::CaptureMouse() { return GetWindow()->CaptureMouseFor(this); }
+bool Control::CaptureMouse() {
+  auto host = GetUiHost();
+  if (host == nullptr) return false;
 
-bool Control::ReleaseMouse() { return GetWindow()->CaptureMouseFor(nullptr); }
+  return host->CaptureMouseFor(this);
+}
+
+bool Control::ReleaseMouse() {
+  auto host = GetUiHost();
+  if (host == nullptr) return false;
+
+  return host->CaptureMouseFor(nullptr);
+}
 
 bool Control::IsMouseCaptured() {
-  return GetWindow()->GetMouseCaptureControl() == this;
+  auto host = GetUiHost();
+  if (host == nullptr) return false;
+
+  return host->GetMouseCaptureControl() == this;
 }
 
 std::shared_ptr<ICursor> Control::GetCursor() { return cursor_; }
@@ -101,9 +113,9 @@ std::shared_ptr<ICursor> Control::GetInheritedCursor() {
 
 void Control::SetCursor(std::shared_ptr<ICursor> cursor) {
   cursor_ = std::move(cursor);
-  const auto window = GetWindow();
-  if (window != nullptr) {
-    window->UpdateCursor();
+  const auto host = GetUiHost();
+  if (host != nullptr) {
+    host->UpdateCursor();
   }
 }
 
@@ -112,7 +124,7 @@ void Control::OnParentChanged(Control* old_parent, Control* new_parent) {
   CRU_UNUSED(new_parent)
 }
 
-void Control::OnAttachToWindow(Window* window) { CRU_UNUSED(window) }
+void Control::OnAttachToHost(UiHost* host) { CRU_UNUSED(host) }
 
-void Control::OnDetachToWindow(Window* window) { CRU_UNUSED(window) }
+void Control::OnDetachFromHost(UiHost* host) { CRU_UNUSED(host) }
 }  // namespace cru::ui
