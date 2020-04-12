@@ -28,9 +28,6 @@ class Window final : public ContentControl {
 
   render::RenderObject* GetRenderObject() const override;
 
-  bool IsRetainAfterDestroy() { return retain_after_destroy_; }
-  void SetRetainAfterDestroy(bool destroy) { retain_after_destroy_ = destroy; }
-
  protected:
   void OnChildChanged(Control* old_child, Control* new_child) override;
 
@@ -39,7 +36,5 @@ class Window final : public ContentControl {
 
   // UiHost is responsible to take care of lifetime of this.
   render::WindowRenderObject* render_object_;
-
-  bool retain_after_destroy_ = false;
 };
 }  // namespace cru::ui

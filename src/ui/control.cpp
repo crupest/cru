@@ -33,11 +33,11 @@ void Control::_SetParent(Control* parent) {
 }
 
 void Control::_SetDescendantUiHost(UiHost* host) {
+  if (host == nullptr && ui_host_ == nullptr) return;
+
   // You can only attach or detach window.
   Expects((host != nullptr && ui_host_ == nullptr) ||
           (host == nullptr && ui_host_ != nullptr));
-
-  if (host == nullptr && ui_host_ == nullptr) return;
 
   if (host == nullptr) {
     const auto old = ui_host_;

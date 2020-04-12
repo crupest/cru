@@ -101,7 +101,7 @@ UiHost::UiHost(Window* window)
       IUiApplication::GetInstance()->CreateWindow(nullptr);
 
   const auto native_window = native_window_resolver_->Resolve();
-  window->_SetDescendantUiHost(this);
+  window->ui_host_ = this;
 
   root_render_object_ = std::make_unique<render::WindowRenderObject>(this);
   root_render_object_->SetAttachedControl(window);
@@ -130,8 +130,15 @@ UiHost::UiHost(Window* window)
 }
 
 UiHost::~UiHost() {
+  deleting_ = true;
   window_control_->TraverseDescendants(
       [this](Control* control) { control->OnDetachFromHost(this); });
+  if (!native_window_destroyed_) {
+    const auto native_window = native_window_resolver_->Resolve();
+    if (native_window) {
+      native_window->Close();
+    }
+  }
 }
 
 void UiHost::InvalidatePaint() {
@@ -216,7 +223,8 @@ Control* UiHost::GetMouseCaptureControl() { return mouse_captured_control_; }
 
 void UiHost::OnNativeDestroy(INativeWindow* window, std::nullptr_t) {
   CRU_UNUSED(window)
-  delete this;  // TODO: Develop this.
+  native_window_destroyed_ = true;
+  if (!deleting_ && !retain_after_destroy_) delete window_control_;
 }
 
 void UiHost::OnNativePaint(INativeWindow* window, std::nullptr_t) {

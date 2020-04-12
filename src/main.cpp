@@ -4,6 +4,7 @@
 #include "cru/ui/controls/flex_layout.hpp"
 #include "cru/ui/controls/stack_layout.hpp"
 #include "cru/ui/controls/text_block.hpp"
+#include "cru/ui/ui_host.hpp"
 #include "cru/ui/window.hpp"
 #include "cru/win/native/ui_application.hpp"
 
@@ -51,7 +52,7 @@ int main() {
   text_block4->SetText("Hello World!!!");
   flex_layout->AddChild(text_block4, 2);
 
-  window->ResolveNativeWindow()->SetVisible(true);
+  window->GetUiHost()->GetNativeWindowResolver()->Resolve()->SetVisible(true);
 
   return application->Run();
 }

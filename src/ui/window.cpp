@@ -4,7 +4,6 @@
 #include "cru/ui/ui_host.hpp"
 
 namespace cru::ui {
-
 Window* Window::CreateOverlapped() {
   return new Window(tag_overlapped_constructor{});
 }
