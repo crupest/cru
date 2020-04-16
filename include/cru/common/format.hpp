@@ -1,104 +1,68 @@
 #pragma once
 #include "pre_config.hpp"
 
+#include <sstream>
 #include <string>
 #include <string_view>
 
 namespace cru::util {
 namespace details {
 template <typename T>
-struct TypeTag {};
+struct FormatTrait {};
 
-constexpr std::wstring_view PlaceHolder(TypeTag<std::wstring>) {
-  return std::wstring_view(L"{}");
-}
+template <>
+struct FormatTrait<std::string_view> {
+  static constexpr std::string_view placeholder = "{}";
+  using ResultType = std::string;
+  using StreamType = std::stringstream;
+};
 
-constexpr std::string_view PlaceHolder(TypeTag<std::string>) {
-  return std::string_view("{}");
-}
+template <>
+struct FormatTrait<std::wstring_view> {
+  static constexpr std::wstring_view placeholder = L"{}";
+  using ResultType = std::wstring;
+  using StreamType = std::wstringstream;
+};
 
-template <typename TString>
-void FormatInternal(TString& string) {
-  const auto find_result = string.find(PlaceHolder(TypeTag<TString>{}));
-  if (find_result != TString::npos)
+template <typename TStringView>
+void FormatInternal(typename FormatTrait<TStringView>::StreamType& stream,
+                    const TStringView& string) {
+  const auto find_result = string.find(FormatTrait<TStringView>::placeholder);
+  if (find_result != TStringView::npos)
     throw std::invalid_argument("There is more placeholders than args.");
+  stream << string;
 }
 
-template <typename TString, typename T, typename... TRest>
-void FormatInternal(TString& string, const T& arg, const TRest&... args) {
-  const auto find_result = string.find(PlaceHolder(TypeTag<TString>{}));
-  if (find_result == TString::npos)
+template <typename TStringView, typename T, typename... TRest>
+void FormatInternal(typename FormatTrait<TStringView>::StreamType& stream,
+                    const TStringView& string, const T& arg,
+                    const TRest&... args) {
+  const auto find_result = string.find(FormatTrait<TStringView>::placeholder);
+  if (find_result == TStringView::npos)
     throw std::invalid_argument("There is less placeholders than args.");
 
-  string.replace(find_result, 2, FormatToString(arg, TypeTag<TString>{}));
-  FormatInternal<TString>(string, args...);
+  stream << string.substr(0, find_result);
+  stream << arg;
+
+  FormatInternal(stream, string.substr(find_result + 2), args...);
+}
+
+template <typename TStringView, typename... T>
+auto FormatTemplate(const TStringView& format, const T&... args) ->
+    typename FormatTrait<TStringView>::ResultType {
+  typename FormatTrait<TStringView>::StreamType stream;
+  FormatInternal(stream, format, args...);
+  return stream.str();
 }
 }  // namespace details
 
 template <typename... T>
 std::wstring Format(const std::wstring_view& format, const T&... args) {
-  std::wstring result(format);
-  details::FormatInternal<std::wstring>(result, args...);
-  return result;
+  return details::FormatTemplate(format, args...);
 }
 
 template <typename... T>
 std::string Format(const std::string_view& format, const T&... args) {
-  std::string result(format);
-  details::FormatInternal<std::string>(result, args...);
-  return result;
-}
-
-#define CRU_FORMAT_NUMBER(type)                                        \
-  inline std::string FormatToString(const type number,                 \
-                                    details::TypeTag<std::string>) {   \
-    return std::to_string(number);                                     \
-  }                                                                    \
-  inline std::wstring FormatToString(const type number,                \
-                                     details::TypeTag<std::wstring>) { \
-    return std::to_wstring(number);                                    \
-  }
-
-CRU_FORMAT_NUMBER(int)
-CRU_FORMAT_NUMBER(short)
-CRU_FORMAT_NUMBER(long)
-CRU_FORMAT_NUMBER(long long)
-CRU_FORMAT_NUMBER(unsigned int)
-CRU_FORMAT_NUMBER(unsigned short)
-CRU_FORMAT_NUMBER(unsigned long)
-CRU_FORMAT_NUMBER(unsigned long long)
-CRU_FORMAT_NUMBER(float)
-CRU_FORMAT_NUMBER(double)
-
-#undef CRU_FORMAT_NUMBER
-
-inline std::wstring_view FormatToString(const std::wstring& string,
-                                        details::TypeTag<std::wstring>) {
-  return string;
-}
-
-inline std::string_view FormatToString(const std::string& string,
-                                       details::TypeTag<std::string>) {
-  return string;
-}
-
-inline std::wstring_view FormatToString(const std::wstring_view& string,
-                                        details::TypeTag<std::wstring>) {
-  return string;
-}
-
-inline std::string_view FormatToString(const std::string_view& string,
-                                       details::TypeTag<std::string>) {
-  return string;
-}
-
-inline std::wstring_view FormatToString(const wchar_t* string,
-                                        details::TypeTag<std::wstring>) {
-  return std::wstring_view(string);
-}
-
-inline std::string_view FormatToString(const char* string,
-                                       details::TypeTag<std::string>) {
-  return std::string_view(string);
+  return details::FormatTemplate(format, args...);
 }
 }  // namespace cru::util

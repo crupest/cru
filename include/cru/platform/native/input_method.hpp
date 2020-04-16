@@ -7,15 +7,18 @@
 #include <vector>
 
 namespace cru::platform::native {
-struct CompositionUnderline {
+struct CompositionClause {
   int start;
   int end;
+  bool target;
 };
+
+using CompositionClauses = std::vector<CompositionClause>;
 
 struct CompositionText {
   std::string text;
-  std::vector<CompositionUnderline> underlines;
-  int caret_position;
+  CompositionClauses clauses;
+  TextRange selection;
 };
 
 struct IInputMethodContext : virtual INativeResource {

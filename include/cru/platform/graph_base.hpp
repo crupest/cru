@@ -1,5 +1,5 @@
 #pragma once
-#include "cru/common/pre_config.hpp"
+#include "cru/common/base.hpp"
 
 #include <cstdint>
 #include <optional>
@@ -214,30 +214,18 @@ constexpr bool operator!=(const Ellipse& left, const Ellipse& right) {
 }
 
 struct TextRange final {
-  constexpr static std::optional<TextRange> FromTwoSides(unsigned first,
-                                                         unsigned second) {
-    if (first > second)
-      return std::make_optional<TextRange>(second, first - second);
-    if (first < second)
-      return std::make_optional<TextRange>(first, second - first);
-    return std::nullopt;
-  }
-
-  constexpr static std::pair<unsigned, unsigned> ToTwoSides(
-      std::optional<TextRange> text_range, unsigned default_position = 0) {
-    if (text_range.has_value())
-      return std::make_pair(
-          text_range.value().position,
-          text_range.value().position + text_range.value().count);
-    return std::make_pair(default_position, default_position);
+  constexpr static TextRange FromTwoSides(gsl::index start, gsl::index end) {
+    return TextRange(start, end - start);
   }
 
   constexpr TextRange() = default;
-  constexpr TextRange(const unsigned position, const unsigned count)
+  constexpr TextRange(const gsl::index position, const gsl::index count)
       : position(position), count(count) {}
 
-  unsigned position = 0;
-  unsigned count = 0;
+  gsl::index GetEnd() const { return position + count; }
+
+  gsl::index position = 0;
+  gsl::index count = 0;
 };
 
 struct Color {
