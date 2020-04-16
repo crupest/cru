@@ -439,4 +439,11 @@ void WinNativeWindowResolver::Reset() {
   Expects(window_);  // already reset, can't reset again
   window_ = nullptr;
 }
+
+WinNativeWindow* Resolve(gsl::not_null<INativeWindowResolver*> resolver) {
+  const auto window = resolver->Resolve();
+  return window == nullptr ? nullptr
+                           : CheckPlatform<WinNativeWindow>(
+                                 window, WinNativeResource::k_platform_id);
+}  // namespace cru::platform::native::win
 }  // namespace cru::platform::native::win

@@ -71,6 +71,7 @@
     "span": "cpp",
     "string_span": "cpp",
     "numeric": "cpp",
-    "pointers": "cpp"
+    "pointers": "cpp",
+    "gsl_assert": "cpp"
   }
 }

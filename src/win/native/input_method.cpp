@@ -10,85 +10,100 @@
 #include <vector>
 
 namespace cru::platform::native::win {
-WinInputMethodContextRef::WinInputMethodContextRef(WinNativeWindow* window)
-    : window_(window) {
-  Expects(window);
+AutoHIMC::AutoHIMC(HWND hwnd) : hwnd_(hwnd) {
+  Expects(hwnd);
+  handle_ = ::ImmGetContext(hwnd);
+}
 
-  window_handle_ = window->GetWindowHandle();
-  handle_ = ::ImmGetContext(window_handle_);
+AutoHIMC::AutoHIMC(AutoHIMC&& other)
+    : hwnd_(other.hwnd_), handle_(other.handle_) {
+  other.hwnd_ = nullptr;
+  other.handle_ = nullptr;
+}
 
-  // TODO: Events
+AutoHIMC& AutoHIMC::operator=(AutoHIMC&& other) {
+  if (this != &other) {
+    Object::operator=(std::move(other));
+    this->hwnd_ = other.hwnd_;
+    this->handle_ = other.handle_;
+    other.hwnd_ = nullptr;
+    other.handle_ = nullptr;
+  }
+  return *this;
+}
 
+AutoHIMC::~AutoHIMC() {
+  if (handle_) {
+    if (!::ImmReleaseContext(hwnd_, handle_))
+      log::Warn("AutoHIMC: Failed to release HIMC.");
+  }
+}
+
+WinInputMethodContext::WinInputMethodContext(
+    gsl::not_null<WinNativeWindow*> window)
+    : native_window_resolver_(window->GetResolver()) {
   event_revoker_guards_.push_back(
       EventRevokerGuard(window->NativeMessageEvent()->AddHandler(
-          std::bind(&WinInputMethodContextRef::OnWindowNativeMessage, this,
+          std::bind(&WinInputMethodContext::OnWindowNativeMessage, this,
                     std::placeholders::_1))));
 }
 
-WinInputMethodContextRef::~WinInputMethodContextRef() {
-  ::ImmReleaseContext(window_handle_, handle_);
+WinInputMethodContext::~WinInputMethodContext() {}
+
+void WinInputMethodContext::EnableIME() {
+  // TODO!
 }
 
-void WinInputMethodContextRef::Reset() {
-  wchar_t s[1] = {L'\0'};
-
-  if (!::ImmSetCompositionStringW(handle_, SCS_SETSTR, static_cast<LPVOID>(s),
-                                  sizeof(s), static_cast<LPVOID>(s),
-                                  sizeof(s))) {
-    log::Warn(
-        "WinInputMethodContextRef: Failed to reset input method context.");
-  }
+void WinInputMethodContext::DisableIME() {
+  // TODO!
 }
 
-std::string WinInputMethodContextRef::GetCompositionText() {
-  const auto length = gsl::narrow_cast<DWORD>(
-      ::ImmGetCompositionStringW(handle_, GCS_RESULTREADSTR, NULL, 0) +
-      sizeof(wchar_t));
-  std::vector<std::byte> data(length);
-  const auto result = ::ImmGetCompositionStringW(
-      handle_, GCS_RESULTREADSTR, static_cast<LPVOID>(data.data()), length);
-
-  if (result == IMM_ERROR_NODATA) {
-    return std::string{};
-  } else if (result == IMM_ERROR_GENERAL) {
-    throw new platform::win::Win32Error(::GetLastError(),
-                                        "Failed to get composition string.");
-  }
-
-  return platform::win::ToUtf8String(
-      std::wstring_view(reinterpret_cast<wchar_t*>(data.data())));
+void WinInputMethodContext::CompleteComposition() {
+  // TODO!
 }
 
-void WinInputMethodContextRef::SetCandidateWindowPosition(const Point& point) {
+void WinInputMethodContext::CancelComposition() {
+  // TODO!
+}
+
+const CompositionText& WinInputMethodContext::GetCompositionText() {
+  // TODO!
+}
+
+void WinInputMethodContext::SetCandidateWindowPosition(const Point& point) {
+  auto optional_himc = TryGetHIMC();
+  if (!optional_himc.has_value()) return;
+  auto himc = std::move(optional_himc).value();
+
   ::CANDIDATEFORM form;
   form.dwIndex = 1;
   form.dwStyle = CFS_CANDIDATEPOS;
   form.ptCurrentPos = DipToPi(point);
 
-  if (!::ImmSetCandidateWindow(handle_, &form))
+  if (!::ImmSetCandidateWindow(himc.Get(), &form))
     log::Debug(
-        "WinInputMethodContextRef: Failed to set input method candidate window "
+        "WinInputMethodContext: Failed to set input method candidate window "
         "position.");
 }
 
-IEvent<std::nullptr_t>* WinInputMethodContextRef::CompositionStartEvent() {
+IEvent<std::nullptr_t>* WinInputMethodContext::CompositionStartEvent() {
   return &composition_start_event_;
 }
 
-IEvent<std::nullptr_t>* WinInputMethodContextRef::CompositionEndEvent() {
+IEvent<std::nullptr_t>* WinInputMethodContext::CompositionEndEvent() {
   return &composition_end_event_;
 };
 
-IEvent<std::string>* WinInputMethodContextRef::CompositionTextChangeEvent() {
-  return &composition_text_change_event_;
+IEvent<std::nullptr_t>* WinInputMethodContext::CompositionEvent() {
+  return &composition_event_;
 }
 
-void WinInputMethodContextRef::OnWindowNativeMessage(
+void WinInputMethodContext::OnWindowNativeMessage(
     WindowNativeMessageEventArgs& args) {
   const auto message = args.GetWindowMessage();
   switch (message.msg) {
     case WM_IME_COMPOSITION: {
-      composition_text_change_event_.Raise(this->GetCompositionText());
+      composition_event_.Raise(nullptr);
       break;
     }
     case WM_IME_STARTCOMPOSITION: {
@@ -102,14 +117,21 @@ void WinInputMethodContextRef::OnWindowNativeMessage(
   }
 }
 
+std::optional<AutoHIMC> WinInputMethodContext::TryGetHIMC() {
+  const auto native_window = Resolve(native_window_resolver_.get());
+  if (native_window == nullptr) return std::nullopt;
+  const auto hwnd = native_window->GetWindowHandle();
+  return AutoHIMC{hwnd};
+}
+
 WinInputMethodManager::WinInputMethodManager(WinUiApplication*) {}
 
 WinInputMethodManager::~WinInputMethodManager() {}
 
-std::unique_ptr<IInputMethodContextRef> WinInputMethodManager::GetContext(
+std::unique_ptr<IInputMethodContext> WinInputMethodManager::GetContext(
     INativeWindow* window) {
   Expects(window);
   const auto w = CheckPlatform<WinNativeWindow>(window, GetPlatformId());
-  return std::make_unique<WinInputMethodContextRef>(w);
+  return std::make_unique<WinInputMethodContext>(w);
 }
 }  // namespace cru::platform::native::win

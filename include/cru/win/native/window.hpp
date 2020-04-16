@@ -177,4 +177,6 @@ class WinNativeWindowResolver : public WinNativeResource,
  private:
   WinNativeWindow* window_;
 };
+
+WinNativeWindow* Resolve(gsl::not_null<INativeWindowResolver*> resolver);
 }  // namespace cru::platform::native::win

@@ -1,5 +1,6 @@
 // Some useful information can be found from chromium code:
 // https://chromium.googlesource.com/chromium/chromium/+/refs/heads/master/ui/base/win/ime_input.h
+// https://chromium.googlesource.com/chromium/chromium/+/refs/heads/master/ui/base/win/ime_input.cc
 
 #pragma once
 #include "resource.hpp"
@@ -10,23 +11,47 @@
 #include <imm.h>
 
 namespace cru::platform::native::win {
-class WinInputMethodContextRef : public WinNativeResource,
-                                 public virtual IInputMethodContextRef {
+class AutoHIMC : public Object {
  public:
-  WinInputMethodContextRef(WinNativeWindow* window);
+  explicit AutoHIMC(HWND hwnd);
 
-  CRU_DELETE_COPY(WinInputMethodContextRef)
-  CRU_DELETE_MOVE(WinInputMethodContextRef)
+  CRU_DELETE_COPY(AutoHIMC)
 
-  ~WinInputMethodContextRef() override;
+  AutoHIMC(AutoHIMC&& other);
+  AutoHIMC& operator=(AutoHIMC&& other);
 
-  ::HIMC GetHandle() const { return handle_; }
+  ~AutoHIMC() override;
+
+  HWND GetHwnd() const { return hwnd_; }
+
+  HIMC Get() const { return handle_; }
+
+ private:
+  HWND hwnd_;
+  HIMC handle_;
+};
+
+class WinInputMethodContext : public WinNativeResource,
+                              public virtual IInputMethodContext {
+ public:
+  WinInputMethodContext(gsl::not_null<WinNativeWindow*> window);
+
+  CRU_DELETE_COPY(WinInputMethodContext)
+  CRU_DELETE_MOVE(WinInputMethodContext)
+
+  ~WinInputMethodContext() override;
 
   bool ShouldManuallyDrawCompositionText() override { return true; }
 
-  void Reset() override;
+  void EnableIME() override;
 
-  std::string GetCompositionText() override;
+  void DisableIME() override;
+
+  void CompleteComposition() override;
+
+  void CancelComposition() override;
+
+  const CompositionText& GetCompositionText() override;
 
   void SetCandidateWindowPosition(const Point& point) override;
 
@@ -34,22 +59,21 @@ class WinInputMethodContextRef : public WinNativeResource,
 
   IEvent<std::nullptr_t>* CompositionEndEvent() override;
 
-  IEvent<std::string>* CompositionTextChangeEvent() override;
+  IEvent<std::nullptr_t>* CompositionEvent() override;
 
  private:
   void OnWindowNativeMessage(WindowNativeMessageEventArgs& args);
 
+  std::optional<AutoHIMC> TryGetHIMC();
+
  private:
-  [[maybe_unused]] WinNativeWindow* window_;
+  std::shared_ptr<INativeWindowResolver> native_window_resolver_;
 
   std::vector<EventRevokerGuard> event_revoker_guards_;
 
-  ::HWND window_handle_;
-  ::HIMC handle_;
-
   Event<std::nullptr_t> composition_start_event_;
   Event<std::nullptr_t> composition_end_event_;
-  Event<std::string> composition_text_change_event_;
+  Event<std::nullptr_t> composition_event_;
 };
 
 class WinInputMethodManager : public WinNativeResource,
@@ -63,7 +87,7 @@ class WinInputMethodManager : public WinNativeResource,
   ~WinInputMethodManager() override;
 
  public:
-  std::unique_ptr<IInputMethodContextRef> GetContext(
+  std::unique_ptr<IInputMethodContext> GetContext(
       INativeWindow* window) override;
 };
 }  // namespace cru::platform::native::win
