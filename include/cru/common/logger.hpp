@@ -60,56 +60,33 @@ class Logger : public Object {
  public:
   void Log(LogLevel level, const std::string_view& s);
 
-  template <typename... TArgs>
-  void Debug(const std::string_view& format, TArgs&&... args) {
-#ifdef CRU_DEBUG
-    Log(LogLevel::Debug, util::Format(format, std::forward<TArgs>(args)...));
-#endif
-  }
-
-  template <typename... TArgs>
-  void Info(const std::string_view& format, TArgs&&... args) {
-    Log(LogLevel::Info, util::Format(format, std::forward<TArgs>(args)...));
-  }
-
-  template <typename... TArgs>
-  void Warn(const std::string_view& format, TArgs&&... args) {
-    Log(LogLevel::Warn, util::Format(format, std::forward<TArgs>(args)...));
-  }
-
-  template <typename... TArgs>
-  void Error(const std::string_view& format, TArgs&&... args) {
-    Log(LogLevel::Error, util::Format(format, std::forward<TArgs>(args)...));
-  }
-
  public:
   std::list<std::unique_ptr<ILogSource>> sources_;
 };
 
 template <typename... TArgs>
-void Debug([[maybe_unused]] const std::string_view& format,
-           [[maybe_unused]] TArgs&&... args) {
+void Debug([[maybe_unused]] TArgs&&... args) {
 #ifdef CRU_DEBUG
-  Logger::GetInstance()->Log(
-      LogLevel::Debug, util::Format(format, std::forward<TArgs>(args)...));
+  Logger::GetInstance()->Log(LogLevel::Debug,
+                             util::Format(std::forward<TArgs>(args)...));
 #endif
 }
 
 template <typename... TArgs>
-void Info(const std::string_view& format, TArgs&&... args) {
-  Logger::GetInstance()->Log(
-      LogLevel::Info, util::Format(format, std::forward<TArgs>(args)...));
+void Info(TArgs&&... args) {
+  Logger::GetInstance()->Log(LogLevel::Info,
+                             util::Format(std::forward<TArgs>(args)...));
 }
 
 template <typename... TArgs>
-void Warn(const std::string_view& format, TArgs&&... args) {
-  Logger::GetInstance()->Log(
-      LogLevel::Warn, util::Format(format, std::forward<TArgs>(args)...));
+void Warn(TArgs&&... args) {
+  Logger::GetInstance()->Log(LogLevel::Warn,
+                             util::Format(std::forward<TArgs>(args)...));
 }
 
 template <typename... TArgs>
-void Error(const std::string_view& format, TArgs&&... args) {
-  Logger::GetInstance()->Log(
-      LogLevel::Error, util::Format(format, std::forward<TArgs>(args)...));
+void Error(TArgs&&... args) {
+  Logger::GetInstance()->Log(LogLevel::Error,
+                             util::Format(std::forward<TArgs>(args)...));
 }
 }  // namespace cru::log
