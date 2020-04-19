@@ -3,7 +3,7 @@
 #include "base.hpp"
 #include "cru/common/event.hpp"
 
-#include <string>
+#include <string_view>
 
 namespace cru::platform::native {
 // Represents a native window, which exposes some low-level events and
@@ -57,7 +57,7 @@ struct INativeWindow : virtual INativeResource {
   virtual IEvent<NativeMouseButtonEventArgs>* MouseUpEvent() = 0;
   virtual IEvent<NativeKeyEventArgs>* KeyDownEvent() = 0;
   virtual IEvent<NativeKeyEventArgs>* KeyUpEvent() = 0;
-  virtual IEvent<std::string>* CharEvent() = 0;
+  virtual IEvent<std::string_view>* CharEvent() = 0;
 };
 
 // See INativeWindow for more info.

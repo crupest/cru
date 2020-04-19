@@ -24,9 +24,9 @@ DWriteFont::DWriteFont(DirectGraphFactory* factory,
       wff.data(), nullptr, DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STYLE_NORMAL,
       DWRITE_FONT_STRETCH_NORMAL, font_size, buffer.data(), &text_format_));
 
-  ThrowIfFailed(text_format_->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER));
+  ThrowIfFailed(text_format_->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING));
   ThrowIfFailed(
-      text_format_->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER));
+      text_format_->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_NEAR));
 }
 
 float DWriteFont::GetFontSize() { return text_format_->GetFontSize(); }

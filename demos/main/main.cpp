@@ -1,4 +1,5 @@
 #include "cru/platform/heap_debug.hpp"
+#include "cru/platform/native/ui_application.hpp"
 #include "cru/platform/native/window.hpp"
 #include "cru/ui/controls/button.hpp"
 #include "cru/ui/controls/flex_layout.hpp"
@@ -6,9 +7,8 @@
 #include "cru/ui/controls/text_block.hpp"
 #include "cru/ui/ui_host.hpp"
 #include "cru/ui/window.hpp"
-#include "cru/win/native/ui_application.hpp"
 
-using cru::platform::native::win::WinUiApplication;
+using cru::platform::native::CreateUiApplication;
 using cru::ui::Rect;
 using cru::ui::Thickness;
 using cru::ui::Window;
@@ -22,8 +22,7 @@ int main() {
   cru::platform::SetupHeapDebug();
 #endif
 
-  std::unique_ptr<WinUiApplication> application =
-      std::make_unique<WinUiApplication>();
+  auto application = CreateUiApplication();
 
   const auto window = Window::CreateOverlapped();
 

@@ -64,6 +64,8 @@ class WinInputMethodContext : public WinNativeResource,
  private:
   void OnWindowNativeMessage(WindowNativeMessageEventArgs& args);
 
+  std::string GetResultString();
+
   std::optional<AutoHIMC> TryGetHIMC();
 
  private:

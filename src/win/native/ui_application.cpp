@@ -13,6 +13,12 @@
 #include "timer.hpp"
 #include "window_manager.hpp"
 
+namespace cru::platform::native {
+std::unique_ptr<IUiApplication> CreateUiApplication() {
+  return std::make_unique<win::WinUiApplication>();
+}
+}  // namespace cru::platform::native
+
 namespace cru::platform::native::win {
 WinUiApplication* WinUiApplication::instance = nullptr;
 

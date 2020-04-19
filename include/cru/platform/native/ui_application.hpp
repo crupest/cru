@@ -47,4 +47,7 @@ struct IUiApplication : public virtual INativeResource {
   virtual ICursorManager* GetCursorManager() = 0;
   virtual IInputMethodManager* GetInputMethodManager() = 0;
 };
+
+// Bootstrap from this.
+std::unique_ptr<IUiApplication> CreateUiApplication();
 }  // namespace cru::platform::native

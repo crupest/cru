@@ -1,8 +1,10 @@
 #pragma once
 #include "../resource.hpp"
 #include "base.hpp"
+
 #include "cru/common/event.hpp"
 
+#include <iostream>
 #include <memory>
 #include <vector>
 
@@ -20,6 +22,23 @@ struct CompositionText {
   CompositionClauses clauses;
   TextRange selection;
 };
+
+inline std::ostream& operator<<(std::ostream& stream,
+                                const CompositionText& composition_text) {
+  stream << "text: " << composition_text.text << "\n"
+         << "clauses:\n";
+  for (int i = 0; i < composition_text.clauses.size(); i++) {
+    const auto& clause = composition_text.clauses[i];
+    stream << "\t" << i << ". start:" << clause.start << " end:" << clause.end;
+    if (clause.target) {
+      stream << " target";
+    }
+    stream << "\n";
+  }
+  stream << "selection: position:" << composition_text.selection.position
+         << " count:" << composition_text.selection.count;
+  return stream;
+}
 
 struct IInputMethodContext : virtual INativeResource {
   // Return true if you should draw composition text manually. Return false if

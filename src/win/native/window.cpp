@@ -290,6 +290,20 @@ bool WinNativeWindow::HandleNativeWindowMessage(HWND hwnd, UINT msg,
       OnKeyUpInternal(static_cast<int>(w_param));
       *result = 0;
       return true;
+    case WM_SYSKEYDOWN:
+      if (l_param & (1 << 29)) {
+        OnKeyDownInternal(static_cast<int>(w_param));
+        *result = 0;
+        return true;
+      }
+      return false;
+    case WM_SYSKEYUP:
+      if (l_param & (1 << 29)) {
+        OnKeyUpInternal(static_cast<int>(w_param));
+        *result = 0;
+        return true;
+      }
+      return false;
     case WM_CHAR:
       OnCharInternal(static_cast<wchar_t>(w_param));
       *result = 0;
@@ -419,13 +433,13 @@ void WinNativeWindow::OnCharInternal(wchar_t c) {
     last_wm_char_event_wparam_ = c;
     return;
   } else if (platform::win::IsSurrogatePairTrailing(c)) {
-    wchar_t s[3] = {last_wm_char_event_wparam_, c, 0};
-    auto str = platform::win::ToUtf8String(s);
+    wchar_t s[2] = {last_wm_char_event_wparam_, c};
+    auto str = platform::win::ToUtf8String({s, 2});
     char_event_.Raise(str);
     log::Debug("WinNativeWindow: char event, charactor is {}", str);
   } else {
-    wchar_t s[2] = {c, 0};
-    auto str = platform::win::ToUtf8String(s);
+    wchar_t s[1] = {c};
+    auto str = platform::win::ToUtf8String({s, 1});
     char_event_.Raise(str);
     log::Debug("WinNativeWindow: char event, charactor is {}", str);
   }

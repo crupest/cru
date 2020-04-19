@@ -84,8 +84,8 @@ CompositionClauses GetCompositionClauses(HIMC imm_context, int target_start,
   int clause_size =
       ::ImmGetCompositionString(imm_context, GCS_COMPCLAUSE, NULL, 0);
   int clause_length = clause_size / sizeof(std::uint32_t);
-  result.reserve(clause_length - 1);
   if (clause_length) {
+    result.reserve(clause_length - 1);
     std::vector<std::uint32_t> clause_data(clause_length);
     ::ImmGetCompositionString(imm_context, GCS_COMPCLAUSE, clause_data.data(),
                               clause_size);
@@ -107,8 +107,17 @@ CompositionClauses GetCompositionClauses(HIMC imm_context, int target_start,
 std::wstring GetString(HIMC imm_context) {
   LONG string_size =
       ::ImmGetCompositionString(imm_context, GCS_COMPSTR, NULL, 0);
-  std::wstring result((string_size / sizeof(wchar_t)) + 1, 0);
+  std::wstring result((string_size / sizeof(wchar_t)), 0);
   ::ImmGetCompositionString(imm_context, GCS_COMPSTR, result.data(),
+                            string_size);
+  return result;
+}
+
+std::wstring GetResultString(HIMC imm_context) {
+  LONG string_size =
+      ::ImmGetCompositionString(imm_context, GCS_RESULTSTR, NULL, 0);
+  std::wstring result((string_size / sizeof(wchar_t)), 0);
+  ::ImmGetCompositionString(imm_context, GCS_RESULTSTR, result.data(),
                             string_size);
   return result;
 }
@@ -244,6 +253,16 @@ void WinInputMethodContext::OnWindowNativeMessage(
   switch (message.msg) {
     case WM_IME_COMPOSITION: {
       composition_event_.Raise(nullptr);
+      auto composition_text = GetCompositionText();
+      log::Debug(
+          "WinInputMethodContext: WM_IME_COMPOSITION composition text:\n{}",
+          composition_text);
+      if (message.l_param & GCS_RESULTSTR) {
+        auto result_string = GetResultString();
+        log::Debug(
+            "WinInputMethodContext: WM_IME_COMPOSITION result string: {}",
+            result_string);
+      }
       break;
     }
     case WM_IME_STARTCOMPOSITION: {
@@ -255,6 +274,15 @@ void WinInputMethodContext::OnWindowNativeMessage(
       break;
     }
   }
+}
+
+std::string WinInputMethodContext::GetResultString() {
+  auto optional_himc = TryGetHIMC();
+  if (!optional_himc.has_value()) return "";
+  auto himc = *std::move(optional_himc);
+
+  auto w_result = win::GetResultString(himc.Get());
+  return platform::win::ToUtf8String(w_result);
 }
 
 std::optional<AutoHIMC> WinInputMethodContext::TryGetHIMC() {
