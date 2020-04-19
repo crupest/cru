@@ -219,7 +219,7 @@ struct TextRange final {
   }
 
   constexpr TextRange() = default;
-  constexpr TextRange(const gsl::index position, const gsl::index count)
+  constexpr TextRange(const gsl::index position, const gsl::index count = 0)
       : position(position), count(count) {}
 
   gsl::index GetEnd() const { return position + count; }

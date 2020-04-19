@@ -1,0 +1,2 @@
+add_executable(demo_input_method main.cpp)
+target_link_libraries(demo_input_method PRIVATE cru_demo_base)

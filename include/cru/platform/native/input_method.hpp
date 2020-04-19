@@ -34,7 +34,7 @@ struct IInputMethodContext : virtual INativeResource {
 
   virtual void CancelComposition() = 0;
 
-  virtual const CompositionText& GetCompositionText() = 0;
+  virtual CompositionText GetCompositionText() = 0;
 
   // Set the candidate window lefttop. Use this method to prepare typing.
   virtual void SetCandidateWindowPosition(const Point& point) = 0;

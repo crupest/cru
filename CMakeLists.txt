@@ -15,3 +15,4 @@ set(CRU_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include)
 
 add_subdirectory(src)
 add_subdirectory(test)
+add_subdirectory(demos)

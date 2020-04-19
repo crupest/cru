@@ -51,7 +51,7 @@ class WinInputMethodContext : public WinNativeResource,
 
   void CancelComposition() override;
 
-  const CompositionText& GetCompositionText() override;
+  CompositionText GetCompositionText() override;
 
   void SetCandidateWindowPosition(const Point& point) override;
 

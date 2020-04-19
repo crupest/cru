@@ -128,9 +128,17 @@ CompositionText GetCompositionInfo(HIMC imm_context) {
   auto clauses =
       GetCompositionClauses(imm_context, w_target_start, w_target_end);
 
-  int cursor = ::ImmGetCompositionString(imm_context, GCS_CURSORPOS, NULL, 0);
+  int w_cursor = ::ImmGetCompositionString(imm_context, GCS_CURSORPOS, NULL, 0);
 
-  // TODO: Finish this.
+  auto text = platform::win::ToUtf8String(w_text);
+  for (auto& clause : clauses) {
+    clause.start = platform::win::IndexUtf16ToUtf8(w_text, clause.start, text);
+    clause.end = platform::win::IndexUtf16ToUtf8(w_text, clause.end, text);
+  }
+  int cursor = platform::win::IndexUtf16ToUtf8(w_text, w_cursor, text);
+
+  return CompositionText{std::move(text), std::move(clauses),
+                         TextRange{cursor}};
 }
 
 }  // namespace
@@ -161,21 +169,45 @@ void WinInputMethodContext::DisableIME() {
   if (native_window == nullptr) return;
   const auto hwnd = native_window->GetWindowHandle();
 
+  AutoHIMC himc{hwnd};
+
+  if (!::ImmNotifyIME(himc.Get(), NI_COMPOSITIONSTR, CPS_COMPLETE, 0)) {
+    log::Warn(
+        "WinInputMethodContext: Failed to complete composition before disable "
+        "ime.");
+  }
+
   if (::ImmAssociateContextEx(hwnd, nullptr, 0) == FALSE) {
     log::Warn("WinInputMethodContext: Failed to disable ime.");
   }
 }
 
 void WinInputMethodContext::CompleteComposition() {
-  // TODO: Not implemented.
+  auto optional_himc = TryGetHIMC();
+  if (!optional_himc.has_value()) return;
+  auto himc = *std::move(optional_himc);
+
+  if (!::ImmNotifyIME(himc.Get(), NI_COMPOSITIONSTR, CPS_COMPLETE, 0)) {
+    log::Warn("WinInputMethodContext: Failed to complete composition.");
+  }
 }
 
 void WinInputMethodContext::CancelComposition() {
-  // TODO: Not implemented.
+  auto optional_himc = TryGetHIMC();
+  if (!optional_himc.has_value()) return;
+  auto himc = *std::move(optional_himc);
+
+  if (!::ImmNotifyIME(himc.Get(), NI_COMPOSITIONSTR, CPS_CANCEL, 0)) {
+    log::Warn("WinInputMethodContext: Failed to complete composition.");
+  }
 }
 
-const CompositionText& WinInputMethodContext::GetCompositionText() {
-  // TODO: Not implemented.
+CompositionText WinInputMethodContext::GetCompositionText() {
+  auto optional_himc = TryGetHIMC();
+  if (!optional_himc.has_value()) return CompositionText{};
+  auto himc = *std::move(optional_himc);
+
+  return GetCompositionInfo(himc.Get());
 }
 
 void WinInputMethodContext::SetCandidateWindowPosition(const Point& point) {
