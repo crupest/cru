@@ -27,7 +27,7 @@ inline std::ostream& operator<<(std::ostream& stream,
                                 const CompositionText& composition_text) {
   stream << "text: " << composition_text.text << "\n"
          << "clauses:\n";
-  for (int i = 0; i < composition_text.clauses.size(); i++) {
+  for (int i = 0; i < static_cast<int>(composition_text.clauses.size()); i++) {
     const auto& clause = composition_text.clauses[i];
     stream << "\t" << i << ". start:" << clause.start << " end:" << clause.end;
     if (clause.target) {
