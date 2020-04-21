@@ -72,7 +72,6 @@ class WinNativeWindow : public WinNativeResource, public virtual INativeWindow {
   IEvent<platform::native::NativeKeyEventArgs>* KeyUpEvent() override {
     return &key_up_event_;
   }
-  IEvent<std::string_view>* CharEvent() override { return &char_event_; };
 
   IEvent<WindowNativeMessageEventArgs&>* NativeMessageEvent() {
     return &native_message_event_;
@@ -109,7 +108,6 @@ class WinNativeWindow : public WinNativeResource, public virtual INativeWindow {
   void OnMouseWheelInternal(short delta, POINT point);
   void OnKeyDownInternal(int virtual_code);
   void OnKeyUpInternal(int virtual_code);
-  void OnCharInternal(wchar_t c);
 
   void OnActivatedInternal();
   void OnDeactivatedInternal();
@@ -146,14 +144,8 @@ class WinNativeWindow : public WinNativeResource, public virtual INativeWindow {
   Event<platform::native::NativeMouseButtonEventArgs> mouse_up_event_;
   Event<platform::native::NativeKeyEventArgs> key_down_event_;
   Event<platform::native::NativeKeyEventArgs> key_up_event_;
-  Event<std::string_view> char_event_;
 
   Event<WindowNativeMessageEventArgs&> native_message_event_;
-
-  // WM_CHAR may be sent twice successively with two utf-16 code units of
-  // surrogate pair when character is from supplementary planes. This field is
-  // used to save the previous one.
-  wchar_t last_wm_char_event_wparam_;
 };
 
 class WinNativeWindowResolver : public WinNativeResource,

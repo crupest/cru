@@ -247,10 +247,31 @@ IEvent<std::nullptr_t>* WinInputMethodContext::CompositionEvent() {
   return &composition_event_;
 }
 
+IEvent<std::string_view>* WinInputMethodContext::TextEvent() {
+  return &text_event_;
+}
+
 void WinInputMethodContext::OnWindowNativeMessage(
     WindowNativeMessageEventArgs& args) {
-  const auto message = args.GetWindowMessage();
+  const auto& message = args.GetWindowMessage();
   switch (message.msg) {
+    case WM_CHAR: {
+      const auto c = static_cast<wchar_t>(message.w_param);
+      if (platform::win::IsSurrogatePair(c)) {
+        // I don't think this will happen because normal key strike without ime
+        // should only trigger ascci character. If it is a charater from
+        // supplementary planes, it should be handled with ime messages.
+        log::Warn(
+            "WinInputMethodContext: A WM_CHAR message for character from "
+            "supplementary planes is ignored.");
+      } else {
+        wchar_t s[1] = {c};
+        auto str = platform::win::ToUtf8String({s, 1});
+        text_event_.Raise(str);
+      }
+      args.HandleWithResult(0);
+      break;
+    }
     case WM_IME_COMPOSITION: {
       composition_event_.Raise(nullptr);
       auto composition_text = GetCompositionText();
@@ -259,9 +280,7 @@ void WinInputMethodContext::OnWindowNativeMessage(
           composition_text);
       if (message.l_param & GCS_RESULTSTR) {
         auto result_string = GetResultString();
-        log::Debug(
-            "WinInputMethodContext: WM_IME_COMPOSITION result string: {}",
-            result_string);
+        text_event_.Raise(result_string);
       }
       break;
     }

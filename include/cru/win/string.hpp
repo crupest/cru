@@ -27,6 +27,8 @@ namespace cru::platform::win {
 std::string ToUtf8String(const std::wstring_view& string);
 std::wstring ToUtf16String(const std::string_view& string);
 
+inline bool IsSurrogatePair(wchar_t c) { return c >= 0xD800 && c <= 0xDFFF; }
+
 inline bool IsSurrogatePairLeading(wchar_t c) {
   return c >= 0xD800 && c <= 0xDBFF;
 }

@@ -66,6 +66,8 @@ struct IInputMethodContext : virtual INativeResource {
 
   // Triggered every time composition text changes.
   virtual IEvent<std::nullptr_t>* CompositionEvent() = 0;
+
+  virtual IEvent<std::string_view>* TextEvent() = 0;
 };
 
 struct IInputMethodManager : virtual INativeResource {

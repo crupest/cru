@@ -304,10 +304,6 @@ bool WinNativeWindow::HandleNativeWindowMessage(HWND hwnd, UINT msg,
         return true;
       }
       return false;
-    case WM_CHAR:
-      OnCharInternal(static_cast<wchar_t>(w_param));
-      *result = 0;
-      return true;
     case WM_SIZE:
       OnResizeInternal(LOWORD(l_param), HIWORD(l_param));
       *result = 0;
@@ -426,23 +422,6 @@ void WinNativeWindow::OnKeyDownInternal(int virtual_code) {
 void WinNativeWindow::OnKeyUpInternal(int virtual_code) {
   key_up_event_.Raise(
       {VirtualKeyToKeyCode(virtual_code), RetrieveKeyMofifier()});
-}
-
-void WinNativeWindow::OnCharInternal(wchar_t c) {
-  if (platform::win::IsSurrogatePairLeading(c)) {
-    last_wm_char_event_wparam_ = c;
-    return;
-  } else if (platform::win::IsSurrogatePairTrailing(c)) {
-    wchar_t s[2] = {last_wm_char_event_wparam_, c};
-    auto str = platform::win::ToUtf8String({s, 2});
-    char_event_.Raise(str);
-    log::Debug("WinNativeWindow: char event, charactor is {}", str);
-  } else {
-    wchar_t s[1] = {c};
-    auto str = platform::win::ToUtf8String({s, 1});
-    char_event_.Raise(str);
-    log::Debug("WinNativeWindow: char event, charactor is {}", str);
-  }
 }
 
 void WinNativeWindow::OnActivatedInternal() {}

@@ -111,7 +111,7 @@ int main() {
         }
       });
 
-  window->CharEvent()->AddHandler(
+  input_method_context->TextEvent()->AddHandler(
       [window, &committed_text](const std::string_view& c) {
         committed_text += c;
         window->RequestRepaint();

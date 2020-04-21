@@ -57,7 +57,6 @@ struct INativeWindow : virtual INativeResource {
   virtual IEvent<NativeMouseButtonEventArgs>* MouseUpEvent() = 0;
   virtual IEvent<NativeKeyEventArgs>* KeyDownEvent() = 0;
   virtual IEvent<NativeKeyEventArgs>* KeyUpEvent() = 0;
-  virtual IEvent<std::string_view>* CharEvent() = 0;
 };
 
 // See INativeWindow for more info.
