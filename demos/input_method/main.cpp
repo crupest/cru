@@ -63,6 +63,7 @@ int main() {
         font,
         committed_text +
             (optional_composition_text ? optional_composition_text->text : ""));
+    text_layout->SetMaxWidth(window_width);
 
     if (optional_composition_text) {
       const auto& composition_text = *optional_composition_text;
