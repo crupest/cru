@@ -33,6 +33,8 @@ int main() {
 
   std::shared_ptr<IFont> font = graph_factory->CreateFont("等线", 30);
 
+  float window_width = 10000;
+
   auto prompt_text_layout =
       graph_factory->CreateTextLayout(font,
                                       "Alt+F1: Enable IME\n"
@@ -40,11 +42,14 @@ int main() {
                                       "Alt+F3: Complete composition.\n"
                                       "Alt+F4: Cancel composition.");
 
-  auto no_composition_text_layout =
-      graph_factory->CreateTextLayout(font, "Not compositioning!");
-
   std::optional<CompositionText> optional_composition_text;
   std::string committed_text;
+
+  window->ResizeEvent()->AddHandler(
+      [&prompt_text_layout, &window_width](const Size& size) {
+        prompt_text_layout->SetMaxWidth(size.width);
+        window_width = size.width;
+      });
 
   window->PaintEvent()->AddHandler([&](auto) {
     auto painter = window->BeginPaint();
@@ -52,17 +57,20 @@ int main() {
 
     painter->DrawText(Point{}, prompt_text_layout.get(), brush.get());
 
-    auto anchor_y = prompt_text_layout->GetTextBounds().height;
+    const auto anchor_y = prompt_text_layout->GetTextBounds().height;
+
+    auto text_layout = graph_factory->CreateTextLayout(
+        font,
+        committed_text +
+            (optional_composition_text ? optional_composition_text->text : ""));
 
     if (optional_composition_text) {
       const auto& composition_text = *optional_composition_text;
-      auto composition_text_layout =
-          graph_factory->CreateTextLayout(font, composition_text.text);
 
       for (int i = 0; i < composition_text.clauses.size(); i++) {
         const auto& clause = composition_text.clauses[i];
-        auto rects = composition_text_layout->TextRangeRect(
-            TextRange::FromTwoSides(clause.start, clause.end));
+        auto rects = text_layout->TextRangeRect(TextRange::FromTwoSides(
+            clause.start, clause.end, committed_text.size()));
         const auto& b = clause.target
                             ? target_clause_brush
                             : (i % 2 ? odd_clause_brush : even_clause_brush);
@@ -71,22 +79,23 @@ int main() {
           painter->FillRectangle(rect, b.get());
         }
       }
-
-      painter->DrawText(Point{0, anchor_y}, composition_text_layout.get(),
-                        brush.get());
-
-      anchor_y += composition_text_layout->GetTextBounds().height;
-    } else {
-      painter->DrawText(Point{0, anchor_y}, no_composition_text_layout.get(),
-                        brush.get());
-      anchor_y += no_composition_text_layout->GetTextBounds().height;
     }
 
-    auto committed_text_layout =
-        graph_factory->CreateTextLayout(font, committed_text);
+    painter->DrawText(Point{0, anchor_y}, text_layout.get(), brush.get());
 
-    painter->DrawText(Point{0, anchor_y}, committed_text_layout.get(),
-                      brush.get());
+    if (optional_composition_text) {
+      const auto& composition_text = *optional_composition_text;
+
+      const auto cursor_pos = composition_text.selection.position +
+                              gsl::narrow_cast<int>(committed_text.size());
+
+      const auto cursor_lefttop =
+          text_layout->TextSingleRect(cursor_pos, false);
+
+      painter->FillRectangle(Rect{cursor_lefttop.x, cursor_lefttop.y + anchor_y,
+                                  3, font->GetFontSize()},
+                             brush.get());
+    }
   });
 
   window->KeyDownEvent()->AddHandler(

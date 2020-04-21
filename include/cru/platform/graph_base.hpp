@@ -218,6 +218,11 @@ struct TextRange final {
     return TextRange(start, end - start);
   }
 
+  constexpr static TextRange FromTwoSides(gsl::index start, gsl::index end,
+                                          gsl::index offset) {
+    return TextRange(start + offset, end - start);
+  }
+
   constexpr TextRange() = default;
   constexpr TextRange(const gsl::index position, const gsl::index count = 0)
       : position(position), count(count) {}

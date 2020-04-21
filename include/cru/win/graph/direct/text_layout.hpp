@@ -38,7 +38,7 @@ class DWriteTextLayout : public DirectGraphResource,
 
   Rect GetTextBounds() override;
   std::vector<Rect> TextRangeRect(const TextRange& text_range) override;
-  Point TextSingleRect(int position, bool trailing) override;
+  Point TextSingleRect(gsl::index position, bool trailing) override;
   TextHitTestResult HitTest(const Point& point) override;
 
  private:
