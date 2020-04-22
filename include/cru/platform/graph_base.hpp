@@ -229,6 +229,15 @@ struct TextRange final {
 
   gsl::index GetEnd() const { return position + count; }
 
+  TextRange Normalize() const {
+    auto result = *this;
+    if (result.count < 0) {
+      result.position += result.count;
+      result.count = -result.count;
+    }
+    return result;
+  }
+
   gsl::index position = 0;
   gsl::index count = 0;
 };

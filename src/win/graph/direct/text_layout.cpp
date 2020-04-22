@@ -66,7 +66,13 @@ Rect DWriteTextLayout::GetTextBounds() {
   return Rect{metrics.left, metrics.top, metrics.width, metrics.height};
 }
 
-std::vector<Rect> DWriteTextLayout::TextRangeRect(const TextRange& text_range) {
+std::vector<Rect> DWriteTextLayout::TextRangeRect(
+    const TextRange& text_range_arg) {
+  if (text_range_arg.count == 0) {
+    return {};
+  }
+  const auto text_range = text_range_arg.Normalize();
+
   // TODO: This can be faster with one iteration.
   const int start_index =
       IndexUtf8ToUtf16(text_, static_cast<int>(text_range.position), w_text_);

@@ -50,7 +50,7 @@ std::vector<Rect> TextRenderObject::TextRangeRect(const TextRange& text_range) {
   return text_layout_->TextRangeRect(text_range);
 }
 
-Point TextRenderObject::TextSingleRect(int position, bool trailing) {
+Point TextRenderObject::TextSingleRect(gsl::index position, bool trailing) {
   return text_layout_->TextSingleRect(position, trailing);
 }
 

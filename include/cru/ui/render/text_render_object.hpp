@@ -27,7 +27,7 @@ class TextRenderObject : public RenderObject {
   void SetFont(std::shared_ptr<platform::graph::IFont> font);
 
   std::vector<Rect> TextRangeRect(const TextRange& text_range);
-  Point TextSingleRect(int position, bool trailing);
+  Point TextSingleRect(gsl::index position, bool trailing);
   platform::graph::TextHitTestResult TextHitTest(const Point& point);
 
   std::optional<TextRange> GetSelectionRange() const {
