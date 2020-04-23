@@ -22,8 +22,6 @@ class TextBox : public NoChildControl {
   std::string_view GetControlType() const final { return control_type; }
 
   render::TextRenderObject* GetTextRenderObject();
-  render::CanvasRenderObject* GetCaretRenderObject();
-  std::shared_ptr<platform::graph::IBrush> GetCaretBrush();
 
   const TextBoxBorderStyle& GetBorderStyle();
   void SetBorderStyle(TextBoxBorderStyle border_style);
@@ -36,11 +34,8 @@ class TextBox : public NoChildControl {
 
  private:
   std::unique_ptr<render::BorderRenderObject> border_render_object_;
-  std::unique_ptr<render::StackLayoutRenderObject> stack_layout_render_object_;
   std::unique_ptr<render::TextRenderObject> text_render_object_;
-  std::unique_ptr<render::CanvasRenderObject> caret_render_object_;
 
-  std::shared_ptr<platform::graph::IBrush> caret_brush_;
   TextBoxBorderStyle border_style_;
 
   std::unique_ptr<TextControlService<TextBox>> service_;

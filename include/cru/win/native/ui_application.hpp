@@ -33,11 +33,11 @@ class WinUiApplication : public WinNativeResource,
   void AddOnQuitHandler(std::function<void()> handler) override;
 
   void InvokeLater(std::function<void()> action) override;
-  unsigned long SetTimeout(std::chrono::milliseconds milliseconds,
-                           std::function<void()> action) override;
-  unsigned long SetInterval(std::chrono::milliseconds milliseconds,
-                            std::function<void()> action) override;
-  void CancelTimer(unsigned long id) override;
+  long long SetTimeout(std::chrono::milliseconds milliseconds,
+                       std::function<void()> action) override;
+  long long SetInterval(std::chrono::milliseconds milliseconds,
+                        std::function<void()> action) override;
+  void CancelTimer(long long id) override;
 
   std::vector<INativeWindow*> GetAllWindow() override;
   std::shared_ptr<INativeWindowResolver> CreateWindow(

@@ -92,7 +92,7 @@ int main() {
                               gsl::narrow_cast<int>(committed_text.size());
 
       const auto cursor_lefttop =
-          text_layout->TextSingleRect(cursor_pos, false);
+          text_layout->TextSinglePoint(cursor_pos, false);
 
       painter->FillRectangle(Rect{cursor_lefttop.x, cursor_lefttop.y + anchor_y,
                                   3, font->GetFontSize()},

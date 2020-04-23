@@ -29,14 +29,9 @@ class TextBlock : public NoChildControl {
   void SetText(std::string text);
 
   render::TextRenderObject* GetTextRenderObject();
-  render::CanvasRenderObject* GetCaretRenderObject();
-  std::shared_ptr<platform::graph::IBrush> GetCaretBrush();
 
  private:
-  std::unique_ptr<render::StackLayoutRenderObject> root_render_object_;
   std::unique_ptr<render::TextRenderObject> text_render_object_;
-  std::unique_ptr<render::CanvasRenderObject> caret_render_object_;
-  std::shared_ptr<platform::graph::IBrush> caret_brush_;
 
   std::unique_ptr<TextControlService<TextBlock>> service_;
 };

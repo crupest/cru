@@ -17,7 +17,7 @@ struct ITextLayout : virtual IGraphResource {
 
   virtual Rect GetTextBounds() = 0;
   virtual std::vector<Rect> TextRangeRect(const TextRange& text_range) = 0;
-  virtual Point TextSingleRect(gsl::index position, bool trailing) = 0;
+  virtual Point TextSinglePoint(gsl::index position, bool trailing) = 0;
   virtual TextHitTestResult HitTest(const Point& point) = 0;
 };
 }  // namespace cru::platform::graph

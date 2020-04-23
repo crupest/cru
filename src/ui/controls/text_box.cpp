@@ -13,29 +13,22 @@ using render::CanvasRenderObject;
 using render::StackLayoutRenderObject;
 using render::TextRenderObject;
 
-TextBox::TextBox()
-    : border_render_object_(new BorderRenderObject()),
-      stack_layout_render_object_(new StackLayoutRenderObject()),
-      text_render_object_(),
-      caret_render_object_(new CanvasRenderObject()),
-      service_(new TextControlService<TextBox>(this)) {
+TextBox::TextBox() : border_render_object_(new BorderRenderObject()) {
   const auto theme_resources = UiManager::GetInstance()->GetThemeResources();
 
-  caret_brush_ = theme_resources->caret_brush;
   border_style_ = theme_resources->text_box_border_style;
 
   text_render_object_ = std::make_unique<TextRenderObject>(
       theme_resources->text_brush, theme_resources->default_font,
-      theme_resources->text_selection_brush);
+      theme_resources->text_selection_brush, theme_resources->caret_brush);
 
-  border_render_object_->AddChild(stack_layout_render_object_.get(), 0);
-  stack_layout_render_object_->AddChild(text_render_object_.get(), 0);
-  stack_layout_render_object_->AddChild(caret_render_object_.get(), 1);
+  border_render_object_->AddChild(text_render_object_.get(), 0);
 
   border_render_object_->SetAttachedControl(this);
-  stack_layout_render_object_->SetAttachedControl(this);
   text_render_object_->SetAttachedControl(this);
-  caret_render_object_->SetAttachedControl(this);
+
+  service_ = std::make_unique<TextControlService<TextBox>>(this);
+  service_->SetEnabled(true);
 
   GainFocusEvent()->Direct()->AddHandler([this](event::FocusChangeEventArgs&) {
     this->service_->SetEnabled(true);
@@ -52,14 +45,6 @@ TextBox::~TextBox() {}
 
 render::TextRenderObject* TextBox::GetTextRenderObject() {
   return text_render_object_.get();
-}
-
-render::CanvasRenderObject* TextBox::GetCaretRenderObject() {
-  return caret_render_object_.get();
-}
-
-std::shared_ptr<platform::graph::IBrush> TextBox::GetCaretBrush() {
-  return caret_brush_;
 }
 
 const TextBoxBorderStyle& TextBox::GetBorderStyle() { return border_style_; }

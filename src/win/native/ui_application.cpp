@@ -73,19 +73,20 @@ void WinUiApplication::InvokeLater(std::function<void()> action) {
     throw Win32Error(::GetLastError(), "InvokeLater failed to post message.");
 }
 
-unsigned long WinUiApplication::SetTimeout(
-    std::chrono::milliseconds milliseconds, std::function<void()> action) {
-  return static_cast<unsigned long>(timer_manager_->CreateTimer(
+long long WinUiApplication::SetTimeout(std::chrono::milliseconds milliseconds,
+                                       std::function<void()> action) {
+  return gsl::narrow<long long>(timer_manager_->CreateTimer(
       static_cast<UINT>(milliseconds.count()), false, std::move(action)));
 }
 
-unsigned long WinUiApplication::SetInterval(
-    std::chrono::milliseconds milliseconds, std::function<void()> action) {
-  return static_cast<unsigned long>(timer_manager_->CreateTimer(
+long long WinUiApplication::SetInterval(std::chrono::milliseconds milliseconds,
+                                        std::function<void()> action) {
+  return gsl::narrow<long long>(timer_manager_->CreateTimer(
       static_cast<UINT>(milliseconds.count()), true, std::move(action)));
 }
 
-void WinUiApplication::CancelTimer(unsigned long id) {
+void WinUiApplication::CancelTimer(long long id) {
+  if (id < 0) return;
   timer_manager_->KillTimer(static_cast<UINT_PTR>(id));
 }
 

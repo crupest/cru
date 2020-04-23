@@ -105,7 +105,7 @@ std::vector<Rect> DWriteTextLayout::TextRangeRect(
   return result;
 }
 
-Point DWriteTextLayout::TextSingleRect(gsl::index position, bool trailing) {
+Point DWriteTextLayout::TextSinglePoint(gsl::index position, bool trailing) {
   const auto index =
       IndexUtf8ToUtf16(text_, static_cast<int>(position), w_text_);
 

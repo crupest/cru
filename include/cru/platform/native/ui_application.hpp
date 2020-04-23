@@ -32,11 +32,16 @@ struct IUiApplication : public virtual INativeResource {
   virtual void AddOnQuitHandler(std::function<void()> handler) = 0;
 
   virtual void InvokeLater(std::function<void()> action) = 0;
-  virtual unsigned long SetTimeout(std::chrono::milliseconds milliseconds,
-                                   std::function<void()> action) = 0;
-  virtual unsigned long SetInterval(std::chrono::milliseconds milliseconds,
-                                    std::function<void()> action) = 0;
-  virtual void CancelTimer(unsigned long id) = 0;
+  // Timer id should always be positive and never the same. So it's ok to use
+  // negative value to represent no timer.
+  virtual long long SetTimeout(std::chrono::milliseconds milliseconds,
+                               std::function<void()> action) = 0;
+  virtual long long SetInterval(std::chrono::milliseconds milliseconds,
+                                std::function<void()> action) = 0;
+  // Implementation should guarantee calls on timer id already canceled have no
+  // effects and do not crash. Also canceling negative id should always result
+  // in no-op.
+  virtual void CancelTimer(long long id) = 0;
 
   virtual std::vector<INativeWindow*> GetAllWindow() = 0;
   virtual std::shared_ptr<INativeWindowResolver> CreateWindow(

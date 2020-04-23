@@ -1,4 +1,5 @@
 #pragma once
+#include "../helper.hpp"
 #include "cru/common/logger.hpp"
 #include "cru/platform/graph/font.hpp"
 #include "cru/platform/graph/painter.hpp"
@@ -15,8 +16,6 @@ constexpr long long caret_blink_duration = 500;
 // TControl should inherits `Control` and has following methods:
 // ```
 // render::TextRenderObject* GetTextRenderObject();
-// render::CanvasRenderObject* GetCaretRenderObject();
-// std::shared_ptr<platform::graph::IBrush> GetCaretBrush();
 // ```
 template <typename TControl>
 class TextControlService : public Object {
@@ -44,8 +43,8 @@ class TextControlService : public Object {
  private:
   void AbortSelection();
 
-  void SetupCaretTimer();
-  void TearDownCaretTimer();
+  void SetupCaret();
+  void TearDownCaret();
 
   void SetupHandlers();
 
@@ -62,12 +61,7 @@ class TextControlService : public Object {
 
   bool caret_visible_ = false;
   int caret_position_ = 0;
-#ifdef CRU_DEBUG
-  bool caret_timer_set_ = false;
-#endif
-  unsigned long caret_timer_tag_;
-  // this is used for blinking of caret
-  bool caret_show_ = true;
+  long long caret_timer_id_ = -1;
 
   // nullopt means not selecting
   std::optional<MouseButton> select_down_button_;
@@ -82,101 +76,86 @@ TextControlService<TControl>::TextControlService(TControl* control)
 
 template <typename TControl>
 TextControlService<TControl>::~TextControlService() {
-  if (enable_ && caret_visible_) TearDownCaretTimer();
+  const auto application = GetUiApplication();
+  // Don't call TearDownCaret, because it use text render object of control,
+  // which may be destroyed already.
+  application->CancelTimer(this->caret_timer_id_);
 }
 
 template <typename TControl>
 void TextControlService<TControl>::SetEnabled(bool enable) {
-  if (enable == enable_) return;
+  if (enable == this->enable_) return;
   if (enable) {
-    AbortSelection();
-    SetupHandlers();
-    if (caret_visible_) {
-      SetupCaretTimer();
+    this->SetupHandlers();
+    if (this->caret_visible_) {
+      this->SetupCaret();
     }
   } else {
-    event_revoker_guards_.clear();
-    if (caret_visible_) {
-      TearDownCaretTimer();
-    }
+    this->AbortSelection();
+    this->event_revoker_guards_.clear();
+    this->TearDownCaret();
   }
 }
 
 template <typename TControl>
 void TextControlService<TControl>::SetCaretVisible(bool visible) {
-  if (visible == caret_visible_) return;
+  if (visible == this->caret_visible_) return;
 
-  if (enable_) {
+  this->caret_visible_ = visible;
+
+  if (this->enable_) {
     if (visible) {
-      SetupCaretTimer();
+      this->SetupCaretTimer();
+    } else {
+      this->TearDownCaretTimer();
     }
-  } else {
-    TearDownCaretTimer();
   }
 }  // namespace cru::ui::controls
 
 template <typename TControl>
-void TextControlService<TControl>::DrawCaret(
-    platform::graph::IPainter* painter) {
-  if (caret_show_) {
-    const auto text_render_object = control_->GetTextRenderObject();
-    const auto point = text_render_object->TextSingleRect(
-        caret_position_, false);  // Maybe cache the result???
-    painter->FillRectangle(
-        Rect{point,
-             Size{caret_width, text_render_object->GetFont()->GetFontSize()}},
-        control_->GetCaretBrush().get());
-  }
-}
-
-template <typename TControl>
 void TextControlService<TControl>::AbortSelection() {
-  if (select_down_button_.has_value()) {
-    control_->ReleaseMouse();
-    select_down_button_ = std::nullopt;
+  if (this->select_down_button_.has_value()) {
+    this->control_->ReleaseMouse();
+    this->select_down_button_ = std::nullopt;
   }
-  control_->GetTextRenderObject()->SetSelectionRange(std::nullopt);
+  this->control_->GetTextRenderObject()->SetSelectionRange(std::nullopt);
 }
 
 template <typename TControl>
-void TextControlService<TControl>::SetupCaretTimer() {
-#ifdef CRU_DEBUG
-  Expects(!caret_timer_set_);
-  caret_timer_set_ = true;
-#endif
-  caret_timer_tag_ =
-      platform::native::IUiApplication::GetInstance()->SetInterval(
-          std::chrono::milliseconds(caret_blink_duration), [this] {
-            this->caret_show_ = !this->caret_show_;
-            this->control_->GetCaretRenderObject()->InvalidatePaint();
-          });
+void TextControlService<TControl>::SetupCaret() {
+  const auto application = GetUiApplication();
+
+  // Cancel first anyhow for safety.
+  application->CancelTimer(this->caret_timer_id_);
+
+  this->control_->GetTextRenderObject()->SetDrawCaret(true);
+  this->caret_timer_id_ = application->SetInterval(
+      std::chrono::milliseconds(caret_blink_duration),
+      [this] { this->control_->GetTextRenderObject()->ToggleDrawCaret(); });
 }
 
 template <typename TControl>
-void TextControlService<TControl>::TearDownCaretTimer() {
-#ifdef CRU_DEBUG
-  Expects(!caret_timer_set_);
-  caret_timer_set_ = false;
-#endif
-  platform::native::IUiApplication::GetInstance()->CancelTimer(
-      caret_timer_tag_);
+void TextControlService<TControl>::TearDownCaret() {
+  const auto application = GetUiApplication();
+  application->CancelTimer(this->caret_timer_id_);
+  this->control_->GetTextRenderObject()->SetDrawCaret(false);
 }
 
 template <typename TControl>
 void TextControlService<TControl>::SetupHandlers() {
   Expects(event_revoker_guards_.empty());
-  event_revoker_guards_.push_back(
+  this->event_revoker_guards_.push_back(
       EventRevokerGuard{control_->MouseMoveEvent()->Direct()->AddHandler(
           std::bind(&TextControlService::MouseMoveHandler, this,
                     std::placeholders::_1))});
-  event_revoker_guards_.push_back(
+  this->event_revoker_guards_.push_back(
       EventRevokerGuard{control_->MouseDownEvent()->Direct()->AddHandler(
           std::bind(&TextControlService::MouseDownHandler, this,
                     std::placeholders::_1))});
-  event_revoker_guards_.push_back(EventRevokerGuard{
+  this->event_revoker_guards_.push_back(EventRevokerGuard{
       control_->MouseUpEvent()->Direct()->AddHandler(std::bind(
           &TextControlService::MouseUpHandler, this, std::placeholders::_1))});
-  event_revoker_guards_.push_back(
+  this->event_revoker_guards_.push_back(
       EventRevokerGuard{control_->LoseFocusEvent()->Direct()->AddHandler(
           std::bind(&TextControlService::LoseFocusHandler, this,
                     std::placeholders::_1))});
@@ -199,8 +178,6 @@ void TextControlService<TControl>::MouseMoveHandler(
         TextRange::FromTwoSides(
             static_cast<unsigned>(position),
             static_cast<unsigned>(this->select_start_position_)));
-    this->control_->GetTextRenderObject()->InvalidatePaint();
-    this->control_->GetCaretRenderObject()->InvalidatePaint();
   }
 }
 
