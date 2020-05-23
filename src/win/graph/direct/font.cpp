@@ -1,8 +1,8 @@
-#include "cru/win/graph/direct/font.hpp"
+#include "cru/win/graph/direct/Font.hpp"
 
-#include "cru/win/graph/direct/exception.hpp"
-#include "cru/win/graph/direct/factory.hpp"
-#include "cru/win/string.hpp"
+#include "cru/win/graph/direct/Exception.hpp"
+#include "cru/win/graph/direct/Factory.hpp"
+#include "cru/win/String.hpp"
 
 #include <array>
 #include <utility>

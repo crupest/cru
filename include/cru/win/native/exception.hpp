@@ -1,5 +1,5 @@
 #pragma once
-#include "../exception.hpp"
+#include "../Exception.hpp"
 
 namespace cru::platform::native::win {
 using platform::win::Win32Error;

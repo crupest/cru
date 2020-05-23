@@ -1,8 +1,8 @@
 #pragma once
-#include "com_resource.hpp"
-#include "resource.hpp"
+#include "ComResource.hpp"
+#include "Resource.hpp"
 
-#include "cru/platform/graph/geometry.hpp"
+#include "cru/platform/graph/Geometry.hpp"
 
 namespace cru::platform::graph::win::direct {
 class D2DGeometryBuilder : public DirectGraphResource,

@@ -1,7 +1,7 @@
 #pragma once
-#include "cru/common/base.hpp"
-#include "cru/platform/graph/base.hpp"
-#include "cru/platform/native/base.hpp"
+#include "cru/common/Base.hpp"
+#include "cru/platform/graph/Base.hpp"
+#include "cru/platform/native/Base.hpp"
 
 #include <functional>
 #include <memory>

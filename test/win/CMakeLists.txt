@@ -1,5 +1,5 @@
 add_executable(cru_test_win_base
-	string.cpp
+	String.cpp
 )
 target_link_libraries(cru_test_win_base PRIVATE cru_win_base cru_test_base)
 

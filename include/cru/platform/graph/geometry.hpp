@@ -1,5 +1,5 @@
 #pragma once
-#include "resource.hpp"
+#include "Resource.hpp"
 
 namespace cru::platform::graph {
 struct IGeometry : virtual IGraphResource {

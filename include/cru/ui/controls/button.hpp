@@ -1,8 +1,8 @@
 #pragma once
-#include "../content_control.hpp"
-#include "base.hpp"
+#include "../ContentControl.hpp"
+#include "Base.hpp"
 
-#include "../click_detector.hpp"
+#include "../ClickDetector.hpp"
 
 namespace cru::ui::controls {
 class Button : public ContentControl {

@@ -1,7 +1,7 @@
 #pragma once
-#include "base.hpp"
+#include "Base.hpp"
 
-#include "cru/platform/resource.hpp"
+#include "cru/platform/Resource.hpp"
 
 namespace cru::platform::native::win {
 class WinNativeResource : public Object, public virtual INativeResource {

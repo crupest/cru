@@ -1,7 +1,7 @@
-#include "cru/ui/controls/container.hpp"
+#include "cru/ui/controls/Container.hpp"
 
-#include "cru/platform/graph/factory.hpp"
-#include "cru/ui/render/border_render_object.hpp"
+#include "cru/platform/graph/Factory.hpp"
+#include "cru/ui/render/BorderRenderObject.hpp"
 
 namespace cru::ui::controls {
 Container::Container() {

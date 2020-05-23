@@ -1,7 +1,7 @@
 #pragma once
-#include "resource.hpp"
+#include "Resource.hpp"
 
-#include "cru/platform/native/cursor.hpp"
+#include "cru/platform/native/Cursor.hpp"
 
 #include <memory>
 

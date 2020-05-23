@@ -1,10 +1,10 @@
-#include "cru/ui/control.hpp"
+#include "cru/ui/Control.hpp"
 
-#include "cru/platform/native/cursor.hpp"
-#include "cru/platform/native/ui_application.hpp"
-#include "cru/ui/base.hpp"
-#include "cru/ui/ui_host.hpp"
-#include "routed_event_dispatch.hpp"
+#include "cru/platform/native/Cursor.hpp"
+#include "cru/platform/native/UiApplication.hpp"
+#include "cru/ui/Base.hpp"
+#include "cru/ui/UiHost.hpp"
+#include "RoutedEventDispatch.hpp"
 
 #include <memory>
 

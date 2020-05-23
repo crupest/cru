@@ -1,8 +1,8 @@
 #pragma once
-#include "resource.hpp"
+#include "Resource.hpp"
 
-#include "cru/platform/native/window.hpp"
-#include "window_native_message_event_args.hpp"
+#include "cru/platform/native/Window.hpp"
+#include "WindowNativeMessageEventArgs.hpp"
 
 #include <memory>
 

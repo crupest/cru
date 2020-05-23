@@ -1,7 +1,7 @@
 #pragma once
-#include "../../win_pre_config.hpp"
+#include "../../WinPreConfig.hpp"
 
-#include "cru/platform/graph/resource.hpp"
+#include "cru/platform/graph/Resource.hpp"
 
 #include <string_view>
 

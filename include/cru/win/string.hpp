@@ -14,9 +14,9 @@ way.)
 */
 
 #pragma once
-#include "win_pre_config.hpp"
+#include "WinPreConfig.hpp"
 
-#include "cru/common/base.hpp"
+#include "cru/common/Base.hpp"
 
 #include <cstdint>
 #include <stdexcept>

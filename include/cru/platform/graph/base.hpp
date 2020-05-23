@@ -1,7 +1,7 @@
 #pragma once
-#include "../graph_base.hpp"
-#include "../matrix.hpp"
-#include "../resource.hpp"
+#include "../GraphBase.hpp"
+#include "../Matrix.hpp"
+#include "../Resource.hpp"
 
 #include <memory>
 

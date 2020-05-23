@@ -1,7 +1,7 @@
-#include "cru/win/native/cursor.hpp"
+#include "cru/win/native/Cursor.hpp"
 
-#include "cru/common/logger.hpp"
-#include "cru/win/native/exception.hpp"
+#include "cru/common/Logger.hpp"
+#include "cru/win/native/Exception.hpp"
 
 #include <stdexcept>
 

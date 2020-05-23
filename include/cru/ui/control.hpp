@@ -1,9 +1,9 @@
 #pragma once
-#include "base.hpp"
+#include "Base.hpp"
 
-#include "cru/common/event.hpp"
-#include "render/base.hpp"
-#include "ui_event.hpp"
+#include "cru/common/Event.hpp"
+#include "render/Base.hpp"
+#include "UiEvent.hpp"
 
 #include <string_view>
 

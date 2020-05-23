@@ -1,7 +1,7 @@
 #pragma once
-#include "base.hpp"
+#include "Base.hpp"
 
-#include "self_resolvable.hpp"
+#include "SelfResolvable.hpp"
 
 #include <algorithm>
 #include <functional>

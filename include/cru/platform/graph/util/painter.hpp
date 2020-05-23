@@ -1,5 +1,5 @@
 #pragma once
-#include "../painter.hpp"
+#include "../Painter.hpp"
 
 #include <functional>
 #include <type_traits>

@@ -1,13 +1,13 @@
-#include "cru/ui/controls/button.hpp"
+#include "cru/ui/controls/Button.hpp"
 #include <memory>
 
-#include "../helper.hpp"
-#include "cru/platform/graph/brush.hpp"
-#include "cru/platform/native/cursor.hpp"
-#include "cru/platform/native/ui_application.hpp"
-#include "cru/ui/render/border_render_object.hpp"
-#include "cru/ui/ui_manager.hpp"
-#include "cru/ui/window.hpp"
+#include "../Helper.hpp"
+#include "cru/platform/graph/Brush.hpp"
+#include "cru/platform/native/Cursor.hpp"
+#include "cru/platform/native/UiApplication.hpp"
+#include "cru/ui/render/BorderRenderObject.hpp"
+#include "cru/ui/UiManager.hpp"
+#include "cru/ui/Window.hpp"
 
 namespace cru::ui::controls {
 using cru::platform::native::SystemCursorType;

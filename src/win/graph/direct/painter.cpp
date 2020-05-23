@@ -1,11 +1,11 @@
-#include "cru/win/graph/direct/painter.hpp"
+#include "cru/win/graph/direct/Painter.hpp"
 
-#include "cru/platform/check.hpp"
-#include "cru/win/graph/direct/brush.hpp"
-#include "cru/win/graph/direct/convert_util.hpp"
-#include "cru/win/graph/direct/exception.hpp"
-#include "cru/win/graph/direct/geometry.hpp"
-#include "cru/win/graph/direct/text_layout.hpp"
+#include "cru/platform/Check.hpp"
+#include "cru/win/graph/direct/Brush.hpp"
+#include "cru/win/graph/direct/ConvertUtil.hpp"
+#include "cru/win/graph/direct/Exception.hpp"
+#include "cru/win/graph/direct/Geometry.hpp"
+#include "cru/win/graph/direct/TextLayout.hpp"
 
 #include <type_traits>
 

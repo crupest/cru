@@ -1,6 +1,6 @@
 #pragma once
-#include "exception.hpp"
-#include "resource.hpp"
+#include "Exception.hpp"
+#include "Resource.hpp"
 
 #include <fmt/format.h>
 #include <memory>

@@ -1,7 +1,7 @@
-#include "helper.hpp"
+#include "Helper.hpp"
 
-#include "cru/platform/graph/factory.hpp"
-#include "cru/platform/native/ui_application.hpp"
+#include "cru/platform/graph/Factory.hpp"
+#include "cru/platform/native/UiApplication.hpp"
 
 namespace cru::ui {
 using cru::platform::graph::IGraphFactory;

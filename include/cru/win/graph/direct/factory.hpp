@@ -1,7 +1,7 @@
 #pragma once
-#include "resource.hpp"
+#include "Resource.hpp"
 
-#include "cru/platform/graph/factory.hpp"
+#include "cru/platform/graph/Factory.hpp"
 
 namespace cru::platform::graph::win::direct {
 class DirectGraphFactory : public DirectResource, public virtual IGraphFactory {

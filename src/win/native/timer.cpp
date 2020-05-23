@@ -1,4 +1,4 @@
-#include "timer.hpp"
+#include "Timer.hpp"
 
 namespace cru::platform::native::win {
 TimerManager::TimerManager(GodWindow* god_window) { god_window_ = god_window; }

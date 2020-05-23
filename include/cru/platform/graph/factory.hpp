@@ -1,10 +1,10 @@
 #pragma once
-#include "resource.hpp"
+#include "Resource.hpp"
 
-#include "brush.hpp"
-#include "font.hpp"
-#include "geometry.hpp"
-#include "text_layout.hpp"
+#include "Brush.hpp"
+#include "Font.hpp"
+#include "Geometry.hpp"
+#include "TextLayout.hpp"
 
 #include <string>
 #include <string_view>

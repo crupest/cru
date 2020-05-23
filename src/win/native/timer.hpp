@@ -1,8 +1,8 @@
 #pragma once
-#include "cru/win/win_pre_config.hpp"
+#include "cru/win/WinPreConfig.hpp"
 
-#include "cru/common/base.hpp"
-#include "cru/win/native/god_window.hpp"
+#include "cru/common/Base.hpp"
+#include "cru/win/native/GodWindow.hpp"
 
 #include <chrono>
 #include <functional>

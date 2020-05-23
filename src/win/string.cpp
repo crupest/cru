@@ -1,6 +1,6 @@
-#include "cru/win/string.hpp"
+#include "cru/win/String.hpp"
 
-#include "cru/win/exception.hpp"
+#include "cru/win/Exception.hpp"
 
 #include <type_traits>
 

@@ -1,7 +1,7 @@
-#include "cru/ui/window.hpp"
+#include "cru/ui/Window.hpp"
 
-#include "cru/ui/render/window_render_object.hpp"
-#include "cru/ui/ui_host.hpp"
+#include "cru/ui/render/WindowRenderObject.hpp"
+#include "cru/ui/UiHost.hpp"
 
 namespace cru::ui {
 Window* Window::CreateOverlapped() {

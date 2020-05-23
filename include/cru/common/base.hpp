@@ -1,5 +1,5 @@
 #pragma once
-#include "pre_config.hpp"
+#include "PreConfig.hpp"
 
 #include <gsl/gsl>
 

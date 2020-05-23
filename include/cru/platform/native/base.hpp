@@ -1,8 +1,8 @@
 #pragma once
-#include "cru/common/base.hpp"
-#include "cru/common/bitmask.hpp"
-#include "cru/platform/graph/base.hpp"
-#include "keyboard.hpp"
+#include "cru/common/Base.hpp"
+#include "cru/common/Bitmask.hpp"
+#include "cru/platform/graph/Base.hpp"
+#include "Keyboard.hpp"
 
 namespace cru::platform::native {
 struct ICursor;

@@ -1,5 +1,5 @@
 #pragma once
-#include "../base.hpp"
+#include "../Base.hpp"
 
 namespace cru::ui::controls {
 using ButtonStateStyle = BorderStyle;

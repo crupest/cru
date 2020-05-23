@@ -1,5 +1,5 @@
 #pragma once
-#include "../../exception.hpp"
+#include "../../Exception.hpp"
 
 namespace cru::platform::graph::win::direct {
 using platform::win::HResultError;

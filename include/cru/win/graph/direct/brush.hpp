@@ -1,8 +1,8 @@
 #pragma once
-#include "com_resource.hpp"
-#include "resource.hpp"
+#include "ComResource.hpp"
+#include "Resource.hpp"
 
-#include "cru/platform/graph/brush.hpp"
+#include "cru/platform/graph/Brush.hpp"
 
 namespace cru::platform::graph::win::direct {
 struct ID2DBrush : virtual IBrush {

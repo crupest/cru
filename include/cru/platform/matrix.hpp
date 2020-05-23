@@ -1,5 +1,5 @@
 #pragma once
-#include "graph_base.hpp"
+#include "GraphBase.hpp"
 
 #include <cmath>
 

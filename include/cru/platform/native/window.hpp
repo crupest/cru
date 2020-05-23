@@ -1,7 +1,7 @@
 #pragma once
-#include "../resource.hpp"
-#include "base.hpp"
-#include "cru/common/event.hpp"
+#include "../Resource.hpp"
+#include "Base.hpp"
+#include "cru/common/Event.hpp"
 
 #include <string_view>
 

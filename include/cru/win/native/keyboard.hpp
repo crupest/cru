@@ -1,7 +1,7 @@
 #pragma once
-#include "base.hpp"
+#include "Base.hpp"
 
-#include "cru/platform/native/keyboard.hpp"
+#include "cru/platform/native/Keyboard.hpp"
 
 namespace cru::platform::native::win {
 KeyCode VirtualKeyToKeyCode(int virtual_key);

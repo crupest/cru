@@ -1,5 +1,5 @@
 #pragma once
-#include "cru/ui/base.hpp"
+#include "cru/ui/Base.hpp"
 
 namespace cru::platform {
 namespace graph {

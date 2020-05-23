@@ -1,7 +1,7 @@
 #pragma once
-#include "win_pre_config.hpp"
+#include "WinPreConfig.hpp"
 
-#include "cru/platform/exception.hpp"
+#include "cru/platform/Exception.hpp"
 
 #include <stdexcept>
 #include <string_view>

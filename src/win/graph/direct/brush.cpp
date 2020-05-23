@@ -1,8 +1,8 @@
-#include "cru/win/graph/direct/brush.hpp"
+#include "cru/win/graph/direct/Brush.hpp"
 
-#include "cru/win/graph/direct/convert_util.hpp"
-#include "cru/win/graph/direct/exception.hpp"
-#include "cru/win/graph/direct/factory.hpp"
+#include "cru/win/graph/direct/ConvertUtil.hpp"
+#include "cru/win/graph/direct/Exception.hpp"
+#include "cru/win/graph/direct/Factory.hpp"
 
 namespace cru::platform::graph::win::direct {
 D2DSolidColorBrush::D2DSolidColorBrush(DirectGraphFactory* factory)

@@ -1,8 +1,8 @@
 #pragma once
-#include "com_resource.hpp"
-#include "resource.hpp"
+#include "ComResource.hpp"
+#include "Resource.hpp"
 
-#include "cru/platform/graph/font.hpp"
+#include "cru/platform/graph/Font.hpp"
 
 #include <string_view>
 

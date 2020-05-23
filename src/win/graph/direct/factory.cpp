@@ -1,11 +1,11 @@
-#include "cru/win/graph/direct/factory.hpp"
+#include "cru/win/graph/direct/Factory.hpp"
 
-#include "cru/common/logger.hpp"
-#include "cru/win/graph/direct/brush.hpp"
-#include "cru/win/graph/direct/exception.hpp"
-#include "cru/win/graph/direct/font.hpp"
-#include "cru/win/graph/direct/geometry.hpp"
-#include "cru/win/graph/direct/text_layout.hpp"
+#include "cru/common/Logger.hpp"
+#include "cru/win/graph/direct/Brush.hpp"
+#include "cru/win/graph/direct/Exception.hpp"
+#include "cru/win/graph/direct/Font.hpp"
+#include "cru/win/graph/direct/Geometry.hpp"
+#include "cru/win/graph/direct/TextLayout.hpp"
 
 #include <cstdlib>
 #include <utility>

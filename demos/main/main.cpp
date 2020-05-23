@@ -1,13 +1,13 @@
-#include "cru/platform/heap_debug.hpp"
-#include "cru/platform/native/ui_application.hpp"
-#include "cru/platform/native/window.hpp"
-#include "cru/ui/controls/button.hpp"
-#include "cru/ui/controls/flex_layout.hpp"
-#include "cru/ui/controls/stack_layout.hpp"
-#include "cru/ui/controls/text_block.hpp"
-#include "cru/ui/controls/text_box.hpp"
-#include "cru/ui/ui_host.hpp"
-#include "cru/ui/window.hpp"
+#include "cru/platform/HeapDebug.hpp"
+#include "cru/platform/native/UiApplication.hpp"
+#include "cru/platform/native/Window.hpp"
+#include "cru/ui/UiHost.hpp"
+#include "cru/ui/Window.hpp"
+#include "cru/ui/controls/Button.hpp"
+#include "cru/ui/controls/FlexLayout.hpp"
+#include "cru/ui/controls/StackLayout.hpp"
+#include "cru/ui/controls/TextBlock.hpp"
+#include "cru/ui/controls/TextBox.hpp"
 
 using cru::platform::native::CreateUiApplication;
 using cru::ui::Rect;

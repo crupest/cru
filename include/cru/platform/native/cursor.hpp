@@ -1,6 +1,6 @@
 #pragma once
-#include "../resource.hpp"
-#include "base.hpp"
+#include "../Resource.hpp"
+#include "Base.hpp"
 
 #include <memory>
 

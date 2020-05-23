@@ -1,4 +1,4 @@
-#include "cru/common/logger.hpp"
+#include "cru/common/Logger.hpp"
 
 #include <array>
 #include <cstdlib>

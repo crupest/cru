@@ -1,5 +1,5 @@
 #pragma once
-#include "cru/common/bitmask.hpp"
+#include "cru/common/Bitmask.hpp"
 
 namespace cru::platform::native {
 // Because of the complexity of keyboard layout, I only add code in US keyboard

@@ -1,9 +1,9 @@
-#include "cru/platform/graph/factory.hpp"
-#include "cru/platform/graph/font.hpp"
-#include "cru/platform/graph/painter.hpp"
-#include "cru/platform/native/input_method.hpp"
-#include "cru/platform/native/ui_application.hpp"
-#include "cru/platform/native/window.hpp"
+#include "cru/platform/graph/Factory.hpp"
+#include "cru/platform/graph/Font.hpp"
+#include "cru/platform/graph/Painter.hpp"
+#include "cru/platform/native/InputMethod.hpp"
+#include "cru/platform/native/UiApplication.hpp"
+#include "cru/platform/native/Window.hpp"
 
 int main() {
   using namespace cru::platform;

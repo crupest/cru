@@ -1,4 +1,4 @@
-#include "cru/win/string.hpp"
+#include "cru/win/String.hpp"
 
 #include <gtest/gtest.h>
 
