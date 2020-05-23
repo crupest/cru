@@ -29,6 +29,7 @@ TextBox::TextBox() : border_render_object_(new BorderRenderObject()) {
 
   service_ = std::make_unique<TextControlService<TextBox>>(this);
   service_->SetEnabled(true);
+  service_->SetCaretVisible(true);
 
   GainFocusEvent()->Direct()->AddHandler([this](event::FocusChangeEventArgs&) {
     this->service_->SetEnabled(true);
@@ -42,6 +43,10 @@ TextBox::TextBox() : border_render_object_(new BorderRenderObject()) {
 }
 
 TextBox::~TextBox() {}
+
+render::RenderObject* TextBox::GetRenderObject() const {
+  return border_render_object_.get();
+}
 
 render::TextRenderObject* TextBox::GetTextRenderObject() {
   return text_render_object_.get();

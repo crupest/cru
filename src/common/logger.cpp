@@ -1,7 +1,5 @@
 #include "cru/common/logger.hpp"
 
-#include "cru/common/format.hpp"
-
 #include <array>
 #include <cstdlib>
 #include <ctime>
@@ -60,8 +58,8 @@ void Logger::Log(LogLevel level, const std::string_view &s) {
     std::array<char, 50> buffer;
     std::strftime(buffer.data(), 50, "%c", std::localtime(&now));
 
-    source->Write(level, util::Format("[{}] {}: {}\n", buffer.data(),
-                                      LogLevelToString(level), s));
+    source->Write(level, fmt::format("[{}] {}: {}\n", buffer.data(),
+                                     LogLevelToString(level), s));
   }
 }
 }  // namespace cru::log

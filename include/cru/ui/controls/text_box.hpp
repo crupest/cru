@@ -2,6 +2,8 @@
 #include "../no_child_control.hpp"
 #include "base.hpp"
 
+#include <memory>
+
 namespace cru::ui::controls {
 template <typename TControl>
 class TextControlService;
@@ -9,6 +11,8 @@ class TextControlService;
 class TextBox : public NoChildControl {
  public:
   static constexpr std::string_view control_type = "TextBox";
+
+  static TextBox* Create() { return new TextBox(); }
 
  protected:
   TextBox();
@@ -20,6 +24,8 @@ class TextBox : public NoChildControl {
   ~TextBox() override;
 
   std::string_view GetControlType() const final { return control_type; }
+
+  render::RenderObject* GetRenderObject() const override;
 
   render::TextRenderObject* GetTextRenderObject();
 

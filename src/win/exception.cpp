@@ -1,36 +1,32 @@
 #include "cru/win/exception.hpp"
 
-#include "cru/common/format.hpp"
+#include <fmt/format.h>
+#include <optional>
 
 namespace cru::platform::win {
-using util::Format;
 
 inline std::string HResultMakeMessage(HRESULT h_result,
-                                      const std::string_view* message) {
-  char buffer[20];
-  sprintf_s(buffer, "%#08x", h_result);
-
-  if (message)
-    return Format("HRESULT: {}.\nMessage: {}\n", buffer, *message);
+                                      std::optional<std::string_view> message) {
+  if (message.has_value())
+    return fmt::format(FMT_STRING("HRESULT: {:#08x}. Message: {}"), h_result,
+                       *message);
   else
-    return Format("HRESULT: {}.\n", buffer);
+    return fmt::format(FMT_STRING("HRESULT: {:#08x}."), h_result);
 }
 
 HResultError::HResultError(HRESULT h_result)
-    : PlatformException(HResultMakeMessage(h_result, nullptr)),
+    : PlatformException(HResultMakeMessage(h_result, std::nullopt)),
       h_result_(h_result) {}
 
 HResultError::HResultError(HRESULT h_result,
                            const std::string_view& additional_message)
-    : PlatformException(HResultMakeMessage(h_result, &additional_message)),
+    : PlatformException(HResultMakeMessage(h_result, additional_message)),
       h_result_(h_result) {}
 
 inline std::string Win32MakeMessage(DWORD error_code,
-                                    const std::string_view& message) {
-  char buffer[20];
-  sprintf_s(buffer, "%#04x", error_code);
-
-  return Format("Last error code: {}.\nMessage: {}\n", buffer, message);
+                                    std::string_view message) {
+  return fmt::format("Last error code: {:#04x}.\nMessage: {}\n", error_code,
+                     message);
 }
 
 Win32Error::Win32Error(const std::string_view& message)

@@ -1,8 +1,8 @@
 #pragma once
-
 #include "cru/common/base.hpp"
-#include "cru/common/format.hpp"
 
+#include <fmt/format.h>
+#include <fmt/ostream.h>
 #include <iostream>
 #include <list>
 #include <memory>
@@ -68,25 +68,25 @@ template <typename... TArgs>
 void Debug([[maybe_unused]] TArgs&&... args) {
 #ifdef CRU_DEBUG
   Logger::GetInstance()->Log(LogLevel::Debug,
-                             util::Format(std::forward<TArgs>(args)...));
+                             fmt::format(std::forward<TArgs>(args)...));
 #endif
 }
 
 template <typename... TArgs>
 void Info(TArgs&&... args) {
   Logger::GetInstance()->Log(LogLevel::Info,
-                             util::Format(std::forward<TArgs>(args)...));
+                             fmt::format(std::forward<TArgs>(args)...));
 }
 
 template <typename... TArgs>
 void Warn(TArgs&&... args) {
   Logger::GetInstance()->Log(LogLevel::Warn,
-                             util::Format(std::forward<TArgs>(args)...));
+                             fmt::format(std::forward<TArgs>(args)...));
 }
 
 template <typename... TArgs>
 void Error(TArgs&&... args) {
   Logger::GetInstance()->Log(LogLevel::Error,
-                             util::Format(std::forward<TArgs>(args)...));
+                             fmt::format(std::forward<TArgs>(args)...));
 }
 }  // namespace cru::log

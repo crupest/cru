@@ -1,8 +1,8 @@
 #pragma once
-#include "cru/common/format.hpp"
 #include "exception.hpp"
 #include "resource.hpp"
 
+#include <fmt/format.h>
 #include <memory>
 #include <type_traits>
 
@@ -13,7 +13,7 @@ TTarget* CheckPlatform(INativeResource* resource,
   Expects(resource);
   const auto result = dynamic_cast<TTarget*>(resource);
   if (result == nullptr) {
-    throw UnsupportPlatformException(util::Format(
+    throw UnsupportPlatformException(fmt::format(
         "Try to convert resource to target platform failed. Platform id of "
         "resource to convert: {} . Target platform id: {} .",
         resource->GetPlatformId(), target_platform));
@@ -30,7 +30,7 @@ std::shared_ptr<TTarget> CheckPlatform(
   Expects(resource);
   const auto result = std::dynamic_pointer_cast<TTarget>(resource);
   if (result == nullptr) {
-    throw UnsupportPlatformException(util::Format(
+    throw UnsupportPlatformException(fmt::format(
         "Try to convert resource to target platform failed. Platform id of "
         "resource to convert: {} . Target platform id: {} .",
         resource->GetPlatformId(), target_platform));

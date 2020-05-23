@@ -147,12 +147,6 @@ class Control : public Object {
  private:
   bool is_mouse_over_ = false;
 
-  struct {
-    bool left;
-    bool middle;
-    bool right;
-  } click_map_;
-
   std::shared_ptr<platform::native::ICursor> cursor_ = nullptr;
 };
 }  // namespace cru::ui

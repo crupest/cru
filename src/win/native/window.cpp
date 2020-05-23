@@ -1,6 +1,5 @@
 #include "cru/win/native/window.hpp"
 
-#include "cru/common/format.hpp"
 #include "cru/common/logger.hpp"
 #include "cru/platform/check.hpp"
 #include "cru/win/native/cursor.hpp"

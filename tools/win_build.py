@@ -52,7 +52,7 @@ def configure():
         'x64': 'x64'
     }
 
-    subprocess.check_call('vcpkg install gtest:{arch}-windows ms-gsl:{arch}-windows'.format(arch=args.arch),
+    subprocess.check_call('vcpkg install gtest:{arch}-windows fmt:{arch}-windows ms-gsl:{arch}-windows'.format(arch=args.arch),
                           stdout=sys.stdout, stderr=sys.stderr)
 
     # -DCMAKE_EXPORT_COMPILE_COMMANDS=ON

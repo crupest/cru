@@ -4,6 +4,8 @@
 
 #include "cru/platform/graph/painter.hpp"
 
+#include <vector>
+
 namespace cru::platform::graph::win::direct {
 class D2DPainter : public DirectResource,
                    public virtual IPainter,
@@ -35,6 +37,10 @@ class D2DPainter : public DirectResource,
   void DrawText(const Point& offset, ITextLayout* text_layout,
                 IBrush* brush) override;
 
+  void PushLayer(const Rect& bounds) override;
+
+  void PopLayer() override;
+
   void EndDraw() override final;
 
  protected:
@@ -46,6 +52,8 @@ class D2DPainter : public DirectResource,
 
  private:
   ID2D1RenderTarget* render_target_;
+
+  std::vector<Microsoft::WRL::ComPtr<ID2D1Layer>> layers_;
 
   bool is_drawing_ = true;
 };

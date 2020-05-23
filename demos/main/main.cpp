@@ -5,6 +5,7 @@
 #include "cru/ui/controls/flex_layout.hpp"
 #include "cru/ui/controls/stack_layout.hpp"
 #include "cru/ui/controls/text_block.hpp"
+#include "cru/ui/controls/text_box.hpp"
 #include "cru/ui/ui_host.hpp"
 #include "cru/ui/window.hpp"
 
@@ -16,6 +17,7 @@ using cru::ui::controls::Button;
 using cru::ui::controls::FlexLayout;
 using cru::ui::controls::StackLayout;
 using cru::ui::controls::TextBlock;
+using cru::ui::controls::TextBox;
 
 int main() {
 #ifdef CRU_DEBUG

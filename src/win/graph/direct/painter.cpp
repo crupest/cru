@@ -71,6 +71,23 @@ void D2DPainter::DrawText(const Point& offset, ITextLayout* text_layout,
                                  b->GetD2DBrushInterface());
 }
 
+void D2DPainter::PushLayer(const Rect& bounds) {
+  CheckValidation();
+
+  Microsoft::WRL::ComPtr<ID2D1Layer> layer;
+  ThrowIfFailed(render_target_->CreateLayer(&layer));
+
+  render_target_->PushLayer(D2D1::LayerParameters(Convert(bounds)),
+                            layer.Get());
+
+  layers_.push_back(std::move(layer));
+}
+
+void D2DPainter::PopLayer() {
+  render_target_->PopLayer();
+  layers_.pop_back();
+}
+
 void D2DPainter::EndDraw() {
   if (is_drawing_) {
     is_drawing_ = false;

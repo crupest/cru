@@ -10,8 +10,7 @@
 #include "cru/ui/ui_event.hpp"
 
 namespace cru::ui::controls {
-constexpr float caret_width = 2;
-constexpr long long caret_blink_duration = 500;
+constexpr int k_default_caret_blink_duration = 500;
 
 // TControl should inherits `Control` and has following methods:
 // ```
@@ -31,14 +30,11 @@ class TextControlService : public Object {
   bool IsEnabled() { return enable_; }
   void SetEnabled(bool enable);
 
-  int GetCaretPosition() { return caret_position_; }
-  void SetCaretPosition(int position) { caret_position_ = position; }
-
   bool IsCaretVisible() { return caret_visible_; }
   void SetCaretVisible(bool visible);
 
-  // please set correct offset before calling this
-  void DrawCaret(platform::graph::IPainter* painter);
+  int GetCaretBlinkDuration() { return caret_blink_duration_; }
+  void SetCaretBlinkDuration(int milliseconds);
 
  private:
   void AbortSelection();
@@ -60,8 +56,8 @@ class TextControlService : public Object {
   bool enable_ = false;
 
   bool caret_visible_ = false;
-  int caret_position_ = 0;
   long long caret_timer_id_ = -1;
+  int caret_blink_duration_ = k_default_caret_blink_duration;
 
   // nullopt means not selecting
   std::optional<MouseButton> select_down_button_;
@@ -105,12 +101,22 @@ void TextControlService<TControl>::SetCaretVisible(bool visible) {
 
   if (this->enable_) {
     if (visible) {
-      this->SetupCaretTimer();
+      this->SetupCaret();
     } else {
-      this->TearDownCaretTimer();
+      this->TearDownCaret();
     }
   }
-}  // namespace cru::ui::controls
+}
+
+template <typename TControl>
+void TextControlService<TControl>::SetCaretBlinkDuration(int milliseconds) {
+  if (this->caret_blink_duration_ == milliseconds) return;
+
+  if (this->enable_ && this->caret_visible_) {
+    this->TearDownCaret();
+    this->SetupCaret();
+  }
+}
 
 template <typename TControl>
 void TextControlService<TControl>::AbortSelection() {
@@ -130,7 +136,7 @@ void TextControlService<TControl>::SetupCaret() {
 
   this->control_->GetTextRenderObject()->SetDrawCaret(true);
   this->caret_timer_id_ = application->SetInterval(
-      std::chrono::milliseconds(caret_blink_duration),
+      std::chrono::milliseconds(this->caret_blink_duration_),
       [this] { this->control_->GetTextRenderObject()->ToggleDrawCaret(); });
 }
 
@@ -169,7 +175,6 @@ void TextControlService<TControl>::MouseMoveHandler(
     const auto result = text_render_object->TextHitTest(
         text_render_object->FromRootToContent(args.GetPoint()));
     const auto position = result.position + (result.trailing ? 1 : 0);
-    this->caret_position_ = position;
     log::Debug(
         "TextControlService: Text selection changed on mouse move, range: {}, "
         "{}.",
@@ -178,6 +183,7 @@ void TextControlService<TControl>::MouseMoveHandler(
         TextRange::FromTwoSides(
             static_cast<unsigned>(position),
             static_cast<unsigned>(this->select_start_position_)));
+    text_render_object->SetCaretPosition(position);
   }
 }
 
@@ -194,6 +200,8 @@ void TextControlService<TControl>::MouseDownHandler(
     const auto result = text_render_object->TextHitTest(
         text_render_object->FromRootToContent(args.GetPoint()));
     const auto position = result.position + (result.trailing ? 1 : 0);
+    text_render_object->SetSelectionRange(std::nullopt);
+    text_render_object->SetCaretPosition(position);
     this->select_start_position_ = position;
     log::Debug("TextControlService: Begin to select text, start position: {}.",
                position);

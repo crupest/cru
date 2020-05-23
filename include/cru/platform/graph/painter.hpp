@@ -20,6 +20,10 @@ struct IPainter : virtual INativeResource {
   virtual void DrawText(const Point& offset, ITextLayout* text_layout,
                         IBrush* brush) = 0;
 
+  virtual void PushLayer(const Rect& bounds) = 0;
+
+  virtual void PopLayer() = 0;
+
   virtual void EndDraw() = 0;
 };
 }  // namespace cru::platform::graph
