@@ -270,10 +270,8 @@ using FlexMainAlignment = Alignment;
 using FlexCrossAlignment = Alignment;
 
 struct FlexChildLayoutData {
-  // nullopt stands for looking at my content
-  std::optional<float> flex_basis = std::nullopt;
-  float flex_grow = 0;
-  float flex_shrink = 0;
+  float expand_factor = 0;
+  float shrink_factor = 1;
   // nullopt stands for looking at parent's setting
   std::optional<FlexCrossAlignment> cross_alignment = std::nullopt;
 };

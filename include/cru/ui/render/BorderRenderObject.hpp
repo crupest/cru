@@ -67,9 +67,9 @@ class BorderRenderObject : public RenderObject {
   RenderObject* HitTest(const Point& point) override;
 
  protected:
-  void OnMeasureCore(const Size& available_size) override;
-  void OnLayoutCore(const Rect& rect) override;
-  Size OnMeasureContent(const Size& available_size) override;
+  Size OnMeasureCore(const MeasureRequirement& requirement) override;
+  void OnLayoutCore(const Size& size) override;
+  Size OnMeasureContent(const MeasureRequirement& requirement) override;
   void OnLayoutContent(const Rect& content_rect) override;
 
   void OnAfterLayout() override;
@@ -85,7 +85,7 @@ class BorderRenderObject : public RenderObject {
   bool is_border_enabled_ = false;
 
   std::shared_ptr<platform::graph::IBrush> border_brush_;
-  platform::Thickness border_thickness_;
+  Thickness border_thickness_;
   CornerRadius border_radius_;
 
   std::shared_ptr<platform::graph::IBrush> foreground_brush_;

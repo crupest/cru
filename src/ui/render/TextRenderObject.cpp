@@ -4,8 +4,10 @@
 #include "cru/platform/graph/Factory.hpp"
 #include "cru/platform/graph/TextLayout.hpp"
 #include "cru/platform/graph/util/Painter.hpp"
+#include "cru/ui/render/LayoutUtility.hpp"
 
 #include <algorithm>
+#include <limits>
 
 namespace cru::ui::render {
 TextRenderObject::TextRenderObject(
@@ -158,10 +160,10 @@ RenderObject* TextRenderObject::HitTest(const Point& point) {
   return padding_rect.IsPointInside(point) ? this : nullptr;
 }
 
-Size TextRenderObject::OnMeasureContent(const Size& available_size) {
-  text_layout_->SetMaxWidth(available_size.width);
-  text_layout_->SetMaxHeight(available_size.height);
-  return text_layout_->GetTextBounds().GetSize();
+Size TextRenderObject::OnMeasureContent(const MeasureRequirement& requirement) {
+  text_layout_->SetMaxWidth(requirement.max_height.GetLength());
+  text_layout_->SetMaxHeight(requirement.max_height.GetLength());
+  return Min(text_layout_->GetTextBounds().GetSize(), requirement.GetMaxSize());
 }
 
 void TextRenderObject::OnLayoutContent(const Rect& content_rect) {

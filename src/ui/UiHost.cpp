@@ -1,12 +1,12 @@
 #include "cru/ui/UiHost.hpp"
 
+#include "RoutedEventDispatch.hpp"
 #include "cru/common/Logger.hpp"
 #include "cru/platform/graph/Painter.hpp"
 #include "cru/platform/native/UiApplication.hpp"
 #include "cru/platform/native/Window.hpp"
-#include "cru/ui/render/WindowRenderObject.hpp"
 #include "cru/ui/Window.hpp"
-#include "RoutedEventDispatch.hpp"
+#include "cru/ui/render/WindowRenderObject.hpp"
 
 namespace cru::ui {
 using platform::native::INativeWindow;
@@ -28,7 +28,6 @@ CRU_DEFINE_EVENT_NAME(MouseDown)
 CRU_DEFINE_EVENT_NAME(MouseUp)
 CRU_DEFINE_EVENT_NAME(KeyDown)
 CRU_DEFINE_EVENT_NAME(KeyUp)
-CRU_DEFINE_EVENT_NAME(Char)
 
 #undef CRU_DEFINE_EVENT_NAME
 }  // namespace event_names
@@ -93,10 +92,10 @@ inline void BindNativeEvent(
 }  // namespace
 
 UiHost::UiHost(Window* window)
-    : mouse_hover_control_(nullptr),
+    : window_control_(window),
+      mouse_hover_control_(nullptr),
       focus_control_(window),
-      mouse_captured_control_(nullptr),
-      window_control_(window) {
+      mouse_captured_control_(nullptr) {
   native_window_resolver_ =
       IUiApplication::GetInstance()->CreateWindow(nullptr);
 

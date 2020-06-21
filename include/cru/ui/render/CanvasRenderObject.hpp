@@ -28,7 +28,7 @@ class CanvasRenderObject : public RenderObject {
   IEvent<CanvasPaintEventArgs>* PaintEvent() { return &paint_event_; }
 
  protected:
-  Size OnMeasureContent(const Size& available_size) override;
+  Size OnMeasureContent(const MeasureRequirement& requirement) override;
   void OnLayoutContent(const Rect& content_rect) override;
 
  private:

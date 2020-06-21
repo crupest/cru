@@ -4,6 +4,7 @@
 
 #include "cru/platform/graph/TextLayout.hpp"
 
+#include <limits>
 #include <memory>
 
 namespace cru::platform::graph::win::direct {
@@ -47,8 +48,8 @@ class DWriteTextLayout : public DirectGraphResource,
   std::string text_;
   std::wstring w_text_;
   std::shared_ptr<DWriteFont> font_;
-  float max_width_ = 10000.0f;
-  float max_height_ = 10000.0f;
+  float max_width_ = std::numeric_limits<float>::max();
+  float max_height_ = std::numeric_limits<float>::max();
   Microsoft::WRL::ComPtr<IDWriteTextLayout> text_layout_;
 };
 }  // namespace cru::platform::graph::win::direct

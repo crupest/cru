@@ -135,7 +135,7 @@ int main() {
       });
 
   input_method_context->CompositionEndEvent()->AddHandler(
-      [window, &input_method_context, &optional_composition_text](auto) {
+      [window, &optional_composition_text](auto) {
         optional_composition_text = std::nullopt;
         window->RequestRepaint();
       });

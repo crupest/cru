@@ -31,7 +31,7 @@ class FlexLayoutRenderObject : public LayoutRenderObject<FlexChildLayoutData> {
   }
 
  protected:
-  Size OnMeasureContent(const Size& available_size) override;
+  Size OnMeasureContent(const MeasureRequirement& requirement) override;
   void OnLayoutContent(const Rect& content_rect) override;
 
  private:

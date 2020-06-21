@@ -54,6 +54,7 @@ target_sources(cru_ui PUBLIC
 	${CRU_UI_INCLUDE_DIR}/render/FlexLayoutRenderObject.hpp
 	${CRU_UI_INCLUDE_DIR}/render/LayoutRenderObject.hpp
 	${CRU_UI_INCLUDE_DIR}/render/LayoutUtility.hpp
+	${CRU_UI_INCLUDE_DIR}/render/MeasureRequirement.hpp
 	${CRU_UI_INCLUDE_DIR}/render/RenderObject.hpp
 	${CRU_UI_INCLUDE_DIR}/render/ScrollRenderObject.hpp
 	${CRU_UI_INCLUDE_DIR}/render/StackLayoutRenderObject.hpp

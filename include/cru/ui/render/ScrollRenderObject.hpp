@@ -21,8 +21,12 @@ class ScrollRenderObject : public RenderObject {
   void SetScrollOffset(const Point& offset);
 
  protected:
-  void OnAddChild(RenderObject* new_child, Index position) override;
-  void OnRemoveChild(RenderObject* removed_child, Index position) override;
+  // Logic:
+  // If available size is bigger than child's preferred size, then child's
+  // preferred size is taken.
+  // If not, all available size is taken while forming a scroll area.
+  Size OnMeasureContent(const MeasureRequirement& requirement) override;
+  void OnLayoutContent(const Rect& content_rect) override;
 
  private:
   Point scroll_offset_;

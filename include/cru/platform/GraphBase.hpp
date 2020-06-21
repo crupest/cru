@@ -2,13 +2,17 @@
 #include "cru/common/Base.hpp"
 
 #include <cstdint>
+#include <limits>
 #include <optional>
 #include <utility>
 
 namespace cru::platform {
+struct Size;
+
 struct Point final {
   constexpr Point() = default;
   constexpr Point(const float x, const float y) : x(x), y(y) {}
+  explicit constexpr Point(const Size& size);
 
   float x = 0;
   float y = 0;
@@ -34,10 +38,19 @@ struct Size final {
   constexpr Size() = default;
   constexpr Size(const float width, const float height)
       : width(width), height(height) {}
+  explicit constexpr Size(const Point& point)
+      : width(point.x), height(point.y) {}
+
+  constexpr static Size Infinate() {
+    return Size{std::numeric_limits<float>::max(),
+                std::numeric_limits<float>::max()};
+  }
 
   float width = 0;
   float height = 0;
 };
+
+constexpr Point::Point(const Size& size) : x(size.width), y(size.height) {}
 
 constexpr Size operator+(const Size& left, const Size& right) {
   return Size(left.width + right.width, left.height + right.height);
@@ -87,6 +100,15 @@ struct Thickness final {
   float right;
   float bottom;
 };
+
+constexpr Size operator+(const Size& size, const Thickness& thickness) {
+  return {size.width + thickness.left + thickness.right,
+          size.height + thickness.top + thickness.bottom};
+}
+
+constexpr Size operator+(const Thickness& thickness, const Size& size) {
+  return operator+(size, thickness);
+}
 
 constexpr bool operator==(const Thickness& left, const Thickness& right) {
   return left.left == right.left && left.top == right.top &&

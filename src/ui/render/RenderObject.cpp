@@ -57,14 +57,20 @@ Point RenderObject::FromRootToContent(const Point& point) const {
                point.y - (offset.y + rect.top)};
 }
 
-void RenderObject::Measure(const Size& available_size) {
-  OnMeasureCore(available_size);
+void RenderObject::Measure(const MeasureRequirement& requirement) {
+  measured_size_ = OnMeasureCore(requirement);
+
+  Ensures(measured_size_.width >= 0);
+  Ensures(measured_size_.height >= 0);
+  Ensures(requirement.Satisfy(measured_size_));
 }
 
 void RenderObject::Layout(const Rect& rect) {
-  SetOffset(rect.GetLeftTop());
-  SetSize(rect.GetSize());
-  OnLayoutCore(Rect{Point{}, rect.GetSize()});
+  Expects(rect.width >= 0);
+  Expects(rect.height >= 0);
+  offset_ = rect.GetLeftTop();
+  size_ = rect.GetSize();
+  OnLayoutCore(rect.GetSize());
 }
 
 void RenderObject::OnParentChanged(RenderObject* old_parent,
@@ -89,56 +95,72 @@ void RenderObject::OnRemoveChild(RenderObject* removed_child, Index position) {
   InvalidatePaint();
 }
 
-void RenderObject::OnMeasureCore(const Size& available_size) {
-  Size margin_padding_size{
+Size RenderObject::OnMeasureCore(const MeasureRequirement& requirement) {
+  const Size space_size{
       margin_.GetHorizontalTotal() + padding_.GetHorizontalTotal(),
       margin_.GetVerticalTotal() + padding_.GetVerticalTotal()};
 
-  auto coerced_margin_padding_size = margin_padding_size;
-  if (coerced_margin_padding_size.width > available_size.width) {
-    log::Warn(
-        "Measure: horizontal length of padding and margin is bigger than "
-        "available length.");
-    coerced_margin_padding_size.width = available_size.width;
-  }
-  if (coerced_margin_padding_size.height > available_size.height) {
-    log::Warn(
-        "Measure: vertical length of padding and margin is bigger than "
-        "available length.");
-    coerced_margin_padding_size.height = available_size.height;
+  auto coerced_space_size = space_size;
+
+  MeasureRequirement content_requirement = requirement;
+
+  if (!requirement.max_width.IsInfinate()) {
+    const auto max_width = requirement.max_width.GetLength();
+    if (coerced_space_size.width > max_width) {
+      log::Warn(
+          "Measure: horizontal length of padding and margin is bigger than "
+          "available length.");
+      coerced_space_size.width = max_width;
+    }
+    content_requirement.max_width = max_width - coerced_space_size.width;
   }
 
-  const auto coerced_content_available_size =
-      available_size - coerced_margin_padding_size;
-  const auto actual_content_size =
-      OnMeasureContent(coerced_content_available_size);
+  if (!requirement.max_height.IsInfinate()) {
+    const auto max_height = requirement.max_height.GetLength();
+    if (coerced_space_size.height > max_height) {
+      log::Warn(
+          "Measure: horizontal length of padding and margin is bigger than "
+          "available length.");
+      coerced_space_size.height = max_height;
+    }
+    content_requirement.max_height = max_height - coerced_space_size.height;
+  }
 
-  SetPreferredSize(coerced_margin_padding_size + actual_content_size);
+  const auto content_size = OnMeasureContent(content_requirement);
+
+  return coerced_space_size + content_size;
 }
 
-void RenderObject::OnLayoutCore(const Rect& rect) {
-  Size margin_padding_size{
-      margin_.GetHorizontalTotal() + padding_.GetHorizontalTotal(),
-      margin_.GetVerticalTotal() + padding_.GetVerticalTotal()};
-  const auto content_available_size = rect.GetSize() - margin_padding_size;
-  auto coerced_content_available_size = content_available_size;
+void RenderObject::OnLayoutCore(const Size& size) {
+  Size space_size{margin_.GetHorizontalTotal() + padding_.GetHorizontalTotal(),
+                  margin_.GetVerticalTotal() + padding_.GetVerticalTotal()};
 
-  if (coerced_content_available_size.width < 0) {
+  auto content_size = size - space_size;
+
+  if (content_size.width < 0) {
     log::Warn(
         "Layout: horizontal length of padding and margin is bigger than "
         "available length.");
-    coerced_content_available_size.width = 0;
+    content_size.width = 0;
   }
-  if (coerced_content_available_size.height < 0) {
+  if (content_size.height < 0) {
     log::Warn(
         "Layout: vertical length of padding and margin is bigger than "
         "available length.");
-    coerced_content_available_size.height = 0;
+    content_size.height = 0;
   }
 
-  OnLayoutContent(Rect{margin_.left + padding_.left, margin_.top + padding_.top,
-                       coerced_content_available_size.width,
-                       coerced_content_available_size.height});
+  Point lefttop{margin_.left + padding_.left, margin_.top + padding_.top};
+  if (lefttop.x > size.width) {
+    lefttop.x = size.width;
+  }
+  if (lefttop.y > size.height) {
+    lefttop.y = size.height;
+  }
+
+  const Rect content_rect{lefttop, content_size};
+
+  OnLayoutContent(content_rect);
 }
 
 void RenderObject::OnAfterLayout() {}

@@ -18,8 +18,9 @@ RenderObject* CanvasRenderObject::HitTest(const Point& point) {
   return padding_rect.IsPointInside(point) ? this : nullptr;
 }
 
-Size CanvasRenderObject::OnMeasureContent(const Size& available_size) {
-  return Min(available_size, GetDesiredSize());
+Size CanvasRenderObject::OnMeasureContent(
+    const MeasureRequirement& requirement) {
+  return Min(requirement.GetMaxSize(), GetDesiredSize());
 }
 
 void CanvasRenderObject::OnLayoutContent(const Rect& content_rect) {

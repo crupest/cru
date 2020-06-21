@@ -73,84 +73,97 @@ RenderObject* BorderRenderObject::HitTest(const Point& point) {
   }
 }
 
-void BorderRenderObject::OnMeasureCore(const Size& available_size) {
+Size BorderRenderObject::OnMeasureCore(const MeasureRequirement& requirement) {
+  if (!is_border_enabled_) {
+    return RenderObject::OnMeasureCore(requirement);
+  }
+
   const auto margin = GetMargin();
   const auto padding = GetPadding();
-  Size margin_border_padding_size{
-      margin.GetHorizontalTotal() + padding.GetHorizontalTotal(),
-      margin.GetVerticalTotal() + padding.GetVerticalTotal()};
+  const Size space_size{margin.GetHorizontalTotal() +
+                            padding.GetHorizontalTotal() +
+                            border_thickness_.GetHorizontalTotal(),
+                        margin.GetVerticalTotal() + padding.GetVerticalTotal() +
+                            border_thickness_.GetVerticalTotal()};
 
-  if (is_border_enabled_) {
-    margin_border_padding_size.width += border_thickness_.GetHorizontalTotal();
-    margin_border_padding_size.height += border_thickness_.GetVerticalTotal();
+  auto coerced_space_size = space_size;
+
+  MeasureRequirement content_requirement = requirement;
+
+  if (!requirement.max_width.IsInfinate()) {
+    const auto max_width = requirement.max_width.GetLength();
+    if (coerced_space_size.width > max_width) {
+      log::Warn(
+          "Measure: horizontal length of padding and margin is bigger than "
+          "available length.");
+      coerced_space_size.width = max_width;
+    }
+    content_requirement.max_width = max_width - coerced_space_size.width;
   }
 
-  auto coerced_margin_border_padding_size = margin_border_padding_size;
-  if (coerced_margin_border_padding_size.width > available_size.width) {
-    log::Warn(
-        "Measure: horizontal length of padding, border and margin is bigger "
-        "than available length.");
-    coerced_margin_border_padding_size.width = available_size.width;
-  }
-  if (coerced_margin_border_padding_size.height > available_size.height) {
-    log::Warn(
-        "Measure: vertical length of padding, border and margin is bigger "
-        "than available length.");
-    coerced_margin_border_padding_size.height = available_size.height;
+  if (!requirement.max_height.IsInfinate()) {
+    const auto max_height = requirement.max_height.GetLength();
+    if (coerced_space_size.height > max_height) {
+      log::Warn(
+          "Measure: horizontal length of padding and margin is bigger than "
+          "available length.");
+      coerced_space_size.height = max_height;
+    }
+    content_requirement.max_height = max_height - coerced_space_size.height;
   }
 
-  const auto coerced_content_available_size =
-      available_size - coerced_margin_border_padding_size;
+  const auto content_size = OnMeasureContent(content_requirement);
 
-  const auto actual_content_size =
-      OnMeasureContent(coerced_content_available_size);
+  return coerced_space_size + content_size;
+}  // namespace cru::ui::render
 
-  SetPreferredSize(coerced_margin_border_padding_size + actual_content_size);
-}
+void BorderRenderObject::OnLayoutCore(const Size& size) {
+  if (!is_border_enabled_) {
+    return RenderObject::OnLayoutCore(size);
+  }
 
-void BorderRenderObject::OnLayoutCore(const Rect& rect) {
   const auto margin = GetMargin();
   const auto padding = GetPadding();
-  Size margin_border_padding_size{
-      margin.GetHorizontalTotal() + padding.GetHorizontalTotal(),
-      margin.GetVerticalTotal() + padding.GetVerticalTotal()};
+  Size space_size{margin.GetHorizontalTotal() + padding.GetHorizontalTotal() +
+                      border_thickness_.GetHorizontalTotal(),
+                  margin.GetVerticalTotal() + padding.GetVerticalTotal() +
+                      border_thickness_.GetVerticalTotal()};
 
-  if (is_border_enabled_) {
-    margin_border_padding_size.width += border_thickness_.GetHorizontalTotal();
-    margin_border_padding_size.height += border_thickness_.GetVerticalTotal();
-  }
+  auto content_size = size - space_size;
 
-  const auto content_available_size =
-      rect.GetSize() - margin_border_padding_size;
-  auto coerced_content_available_size = content_available_size;
-
-  if (coerced_content_available_size.width < 0) {
+  if (content_size.width < 0) {
     log::Warn(
         "Layout: horizontal length of padding, border and margin is bigger "
         "than available length.");
-    coerced_content_available_size.width = 0;
+    content_size.width = 0;
   }
-  if (coerced_content_available_size.height < 0) {
+  if (content_size.height < 0) {
     log::Warn(
         "Layout: vertical length of padding, border and margin is bigger "
         "than available length.");
-    coerced_content_available_size.height = 0;
+    content_size.height = 0;
   }
 
-  OnLayoutContent(
-      Rect{margin.left + (is_border_enabled_ ? border_thickness_.left : 0) +
-               padding.left,
-           margin.top + (is_border_enabled_ ? border_thickness_.top : 0) +
-               padding.top,
-           coerced_content_available_size.width,
-           coerced_content_available_size.height});
+  Point lefttop{margin.left + padding.left + border_thickness_.left,
+                margin.top + padding.top + border_thickness_.top};
+  if (lefttop.x > size.width) {
+    lefttop.x = size.width;
+  }
+  if (lefttop.y > size.height) {
+    lefttop.y = size.height;
+  }
+
+  const Rect content_rect{lefttop, content_size};
+
+  OnLayoutContent(content_rect);
 }
 
-Size BorderRenderObject::OnMeasureContent(const Size& available_size) {
+Size BorderRenderObject::OnMeasureContent(
+    const MeasureRequirement& requirement) {
   const auto child = GetChild();
   if (child) {
-    child->Measure(available_size);
-    return child->GetPreferredSize();
+    child->Measure(requirement);
+    return child->GetMeasuredSize();
   } else {
     return Size{};
   }

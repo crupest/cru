@@ -34,9 +34,14 @@ RenderObject* WindowRenderObject::HitTest(const Point& point) {
   return Rect{Point{}, GetSize()}.IsPointInside(point) ? this : nullptr;
 }
 
-Size WindowRenderObject::OnMeasureContent(const Size& available_size) {
-  if (const auto child = GetChild()) child->Measure(available_size);
-  return available_size;
+Size WindowRenderObject::OnMeasureContent(
+    const MeasureRequirement& requirement) {
+  if (const auto child = GetChild()) {
+    child->Measure(requirement);
+    return child->GetMeasuredSize();
+  } else {
+    return Size{};
+  }
 }
 
 void WindowRenderObject::OnLayoutContent(const Rect& content_rect) {

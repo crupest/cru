@@ -11,7 +11,7 @@ class StackLayoutRenderObject
   ~StackLayoutRenderObject() = default;
 
  protected:
-  Size OnMeasureContent(const Size& available_size) override;
+  Size OnMeasureContent(const MeasureRequirement& requirement) override;
   void OnLayoutContent(const Rect& content_rect) override;
 };
 }  // namespace cru::ui::render
