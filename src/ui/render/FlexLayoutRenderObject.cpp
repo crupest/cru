@@ -69,14 +69,13 @@ Size FlexLayoutRenderObject::OnMeasureContent(
         }
       }
 
-      for (const int i : expand_children) {
+      for (const Index i : expand_children) {
         const float distributed_grow_length =
             remain_main_length *
             (GetChildLayoutData(i)->expand_factor / total_expand_factor);
         const auto child = children[i];
         const float new_main_length =
-            get_main_length(child->GetMeasuredSize()) +
-            distributed_grow_length;
+            get_main_length(child->GetMeasuredSize()) + distributed_grow_length;
         child->Measure(create_requirement(new_main_length, cross_max_length));
       }
     } else if (remain_main_length < 0) {
@@ -91,7 +90,7 @@ Size FlexLayoutRenderObject::OnMeasureContent(
         }
       }
 
-      for (const int i : shrink_children) {
+      for (const Index i : shrink_children) {
         const float distributed_shrink_length =  // negative
             remain_main_length *
             (GetChildLayoutData(i)->shrink_factor / total_shrink_factor);
