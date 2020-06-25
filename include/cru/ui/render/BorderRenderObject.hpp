@@ -74,11 +74,10 @@ class BorderRenderObject : public RenderObject {
 
   void OnAfterLayout() override;
 
- private:
-  RenderObject* GetChild() const {
-    return GetChildren().empty() ? nullptr : GetChildren()[0];
-  }
+  Rect GetPaddingRect() const override;
+  Rect GetContentRect() const override;
 
+ private:
   void RecreateGeometry();
 
  private:

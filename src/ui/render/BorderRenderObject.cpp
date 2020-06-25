@@ -27,7 +27,7 @@ void BorderRenderObject::Draw(platform::graph::IPainter* painter) {
       painter->FillGeometry(geometry_.get(), border_brush_.get());
     }
   }
-  if (const auto child = GetChild()) {
+  if (const auto child = GetSingleChild()) {
     auto offset = child->GetOffset();
     platform::graph::util::WithTransform(
         painter, platform::Matrix::Translation(offset.x, offset.y),
@@ -48,7 +48,7 @@ void BorderRenderObject::SetBorderStyle(const BorderStyle& style) {
 }
 
 RenderObject* BorderRenderObject::HitTest(const Point& point) {
-  if (const auto child = GetChild()) {
+  if (const auto child = GetSingleChild()) {
     auto offset = child->GetOffset();
     Point p{point.x - offset.x, point.y - offset.y};
     const auto result = child->HitTest(p);
@@ -90,7 +90,7 @@ Size BorderRenderObject::OnMeasureCore(const MeasureRequirement& requirement) {
 
   MeasureRequirement content_requirement = requirement;
 
-  if (!requirement.max_width.IsInfinate()) {
+  if (!requirement.max_width.IsNotSpecify()) {
     const auto max_width = requirement.max_width.GetLength();
     if (coerced_space_size.width > max_width) {
       log::Warn(
@@ -101,7 +101,7 @@ Size BorderRenderObject::OnMeasureCore(const MeasureRequirement& requirement) {
     content_requirement.max_width = max_width - coerced_space_size.width;
   }
 
-  if (!requirement.max_height.IsInfinate()) {
+  if (!requirement.max_height.IsNotSpecify()) {
     const auto max_height = requirement.max_height.GetLength();
     if (coerced_space_size.height > max_height) {
       log::Warn(
@@ -160,7 +160,7 @@ void BorderRenderObject::OnLayoutCore(const Size& size) {
 
 Size BorderRenderObject::OnMeasureContent(
     const MeasureRequirement& requirement) {
-  const auto child = GetChild();
+  const auto child = GetSingleChild();
   if (child) {
     child->Measure(requirement);
     return child->GetMeasuredSize();
@@ -170,13 +170,38 @@ Size BorderRenderObject::OnMeasureContent(
 }
 
 void BorderRenderObject::OnLayoutContent(const Rect& content_rect) {
-  const auto child = GetChild();
+  const auto child = GetSingleChild();
   if (child) {
     child->Layout(content_rect);
   }
 }
 
 void BorderRenderObject::OnAfterLayout() { RecreateGeometry(); }
+
+Rect BorderRenderObject::GetPaddingRect() const {
+  const auto size = GetSize();
+  Rect rect{Point{}, size};
+  rect = rect.Shrink(GetMargin());
+  if (is_border_enabled_) rect = rect.Shrink(border_thickness_);
+  rect.left = std::min(rect.left, size.width);
+  rect.top = std::min(rect.top, size.height);
+  rect.width = std::max(rect.width, 0.0f);
+  rect.height = std::max(rect.height, 0.0f);
+  return rect;
+}
+
+Rect BorderRenderObject::GetContentRect() const {
+  const auto size = GetSize();
+  Rect rect{Point{}, size};
+  rect = rect.Shrink(GetMargin());
+  if (is_border_enabled_) rect = rect.Shrink(border_thickness_);
+  rect = rect.Shrink(GetPadding());
+  rect.left = std::min(rect.left, size.width);
+  rect.top = std::min(rect.top, size.height);
+  rect.width = std::max(rect.width, 0.0f);
+  rect.height = std::max(rect.height, 0.0f);
+  return rect;
+}
 
 void BorderRenderObject::RecreateGeometry() {
   geometry_.reset();

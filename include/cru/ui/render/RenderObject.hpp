@@ -84,6 +84,8 @@ class RenderObject : public Object {
   void SetChildMode(ChildMode mode) { child_mode_ = mode; }
 
  protected:
+  RenderObject* GetSingleChild() const;
+
   virtual void OnParentChanged(RenderObject* old_parent,
                                RenderObject* new_parent);
 
@@ -114,8 +116,8 @@ class RenderObject : public Object {
   virtual void OnAfterLayout();
   static void NotifyAfterLayoutRecursive(RenderObject* render_object);
 
-  Rect GetPaddingRect() const;
-  Rect GetContentRect() const;
+  virtual Rect GetPaddingRect() const;
+  virtual Rect GetContentRect() const;
 
  private:
   void SetParent(RenderObject* new_parent);

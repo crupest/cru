@@ -17,8 +17,10 @@ class ScrollRenderObject : public RenderObject {
 
   RenderObject* HitTest(const Point& point) override;
 
-  Point GetScrollOffset() { return scroll_offset_; }
+  // Return the coerced scroll offset.
+  Point GetScrollOffset();
   void SetScrollOffset(const Point& offset);
+  Point GetRawScrollOffset() const { return scroll_offset_; }
 
  protected:
   // Logic:

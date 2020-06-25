@@ -2,6 +2,7 @@
 
 #include "cru/platform/graph/Painter.hpp"
 #include "cru/platform/graph/util/Painter.hpp"
+#include "cru/ui/render/LayoutUtility.hpp"
 
 #include <algorithm>
 
@@ -9,13 +10,11 @@ namespace cru::ui::render {
 namespace {
 // This method assumes margin offset is already considered.
 // It promises that it won't return negetive value.
-Point CalculateChildOffsetOfScroll(const Point& scroll_offset,
-                                   const Size& content_area_size,
-                                   const Thickness& padding,
-                                   const Size& child_size) {
+Point CoerceScroll(const Point& scroll_offset, const Size& content_size,
+                   const Size& child_size) {
   Point result(scroll_offset);
 
-  Point max_scroll(child_size - content_area_size);
+  Point max_scroll(child_size - content_size);
   max_scroll.x = std::max(max_scroll.x, 0.f);
   max_scroll.y = std::max(max_scroll.y, 0.f);
 
@@ -29,50 +28,62 @@ Point CalculateChildOffsetOfScroll(const Point& scroll_offset,
   coerce(result.x, scroll_offset.x);
   coerce(result.y, scroll_offset.y);
 
-  result.x += padding.left;
-  result.y += padding.top;
-
   return result;
 }
 }  // namespace
 
 void ScrollRenderObject::Draw(platform::graph::IPainter* painter) {
-  for (auto child : this->GetChildren()) {
+  if (const auto child = GetSingleChild()) {
     painter->PushLayer(this->GetPaddingRect());
-    const auto true_offset =
-        CalculateChildOffsetOfScroll(scroll_offset_, GetContentRect().GetSize(),
-                                     GetPadding(), child->GetSize());
+    const auto offset = child->GetOffset();
     platform::graph::util::WithTransform(
-        painter, Matrix::Translation(true_offset.x, true_offset.y),
+        painter, Matrix::Translation(offset.x, offset.y),
         [child](platform::graph::IPainter* p) { child->Draw(p); });
     painter->PopLayer();
   }
 }
 
 RenderObject* ScrollRenderObject::HitTest(const Point& point) {
+  if (const auto child = GetSingleChild()) {
+    const auto offset = child->GetOffset();
+    const auto r = child->HitTest(point - offset);
+    if (r != nullptr) return r;
+  }
+
   const auto rect = GetPaddingRect();
   return rect.IsPointInside(point) ? this : nullptr;
+}  // namespace cru::ui::render
+
+Point ScrollRenderObject::GetScrollOffset() {
+  if (const auto child = GetSingleChild())
+    return CoerceScroll(scroll_offset_, GetContentRect().GetSize(),
+                        child->GetSize());
+  else
+    return scroll_offset_;
 }
 
 void ScrollRenderObject::SetScrollOffset(const Point& offset) {
   scroll_offset_ = offset;
-  InvalidatePaint();
+  InvalidateLayout();
 }
 
 Size ScrollRenderObject::OnMeasureContent(
     const MeasureRequirement& requirement) {
-  CRU_UNUSED(requirement);
-  // TODO!
-  // const auto& children = GetChildren();
-  // if (children.empty()) return Size{};
-  // const auto child = children.front();
-  // child->Measure(MeasureRequirement::Infinate());
-  // const auto preferred_size = child->GetMeasuredSize();
-  return Size{};
+  if (const auto child = GetSingleChild()) {
+    child->Measure(MeasureRequirement::Infinate());
+    const auto preferred_size = child->GetMeasuredSize();
+    return Min(preferred_size, requirement.GetMaxSize());
+  } else {
+    return Size{};
+  }
 }  // namespace cru::ui::render
 
 void ScrollRenderObject::OnLayoutContent(const Rect& content_rect) {
-  CRU_UNUSED(content_rect);
-  // TODO!
+  if (const auto child = GetSingleChild()) {
+    const auto child_size = child->GetMeasuredSize();
+    const auto true_scroll =
+        CoerceScroll(scroll_offset_, content_rect.GetSize(), child_size);
+    child->Layout(Rect{content_rect.GetLeftTop() - true_scroll, child_size});
+  }
 }
 }  // namespace cru::ui::render

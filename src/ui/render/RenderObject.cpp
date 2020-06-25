@@ -73,6 +73,15 @@ void RenderObject::Layout(const Rect& rect) {
   OnLayoutCore(rect.GetSize());
 }
 
+RenderObject* RenderObject::GetSingleChild() const {
+  Expects(child_mode_ == ChildMode::Single);
+  const auto& children = GetChildren();
+  if (children.empty())
+    return nullptr;
+  else
+    return children.front();
+}
+
 void RenderObject::OnParentChanged(RenderObject* old_parent,
                                    RenderObject* new_parent) {
   CRU_UNUSED(old_parent)
@@ -104,7 +113,7 @@ Size RenderObject::OnMeasureCore(const MeasureRequirement& requirement) {
 
   MeasureRequirement content_requirement = requirement;
 
-  if (!requirement.max_width.IsInfinate()) {
+  if (!requirement.max_width.IsNotSpecify()) {
     const auto max_width = requirement.max_width.GetLength();
     if (coerced_space_size.width > max_width) {
       log::Warn(
@@ -115,7 +124,7 @@ Size RenderObject::OnMeasureCore(const MeasureRequirement& requirement) {
     content_requirement.max_width = max_width - coerced_space_size.width;
   }
 
-  if (!requirement.max_height.IsInfinate()) {
+  if (!requirement.max_height.IsNotSpecify()) {
     const auto max_height = requirement.max_height.GetLength();
     if (coerced_space_size.height > max_height) {
       log::Warn(
@@ -166,17 +175,23 @@ void RenderObject::OnLayoutCore(const Size& size) {
 void RenderObject::OnAfterLayout() {}
 
 Rect RenderObject::GetPaddingRect() const {
-  Rect rect{Point{}, GetSize()};
+  const auto size = GetSize();
+  Rect rect{Point{}, size};
   rect = rect.Shrink(GetMargin());
+  rect.left = std::min(rect.left, size.width);
+  rect.top = std::min(rect.top, size.height);
   rect.width = std::max(rect.width, 0.0f);
   rect.height = std::max(rect.height, 0.0f);
   return rect;
 }
 
 Rect RenderObject::GetContentRect() const {
-  Rect rect{Point{}, GetSize()};
+  const auto size = GetSize();
+  Rect rect{Point{}, size};
   rect = rect.Shrink(GetMargin());
   rect = rect.Shrink(GetPadding());
+  rect.left = std::min(rect.left, size.width);
+  rect.top = std::min(rect.top, size.height);
   rect.width = std::max(rect.width, 0.0f);
   rect.height = std::max(rect.height, 0.0f);
   return rect;

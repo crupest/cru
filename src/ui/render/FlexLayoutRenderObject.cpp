@@ -47,7 +47,7 @@ Size FlexLayoutRenderObject::OnMeasureContent(
   const auto& children = GetChildren();
   Index children_count = children.size();
 
-  if (!main_max_length.IsInfinate()) {
+  if (!main_max_length.IsNotSpecify()) {
     float remain_main_length = main_max_length.GetLength();
 
     for (Index i = 0; i < children_count; i++) {

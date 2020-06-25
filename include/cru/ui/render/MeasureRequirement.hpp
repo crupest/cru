@@ -6,11 +6,11 @@
 namespace cru::ui::render {
 class MeasureLength {
  public:
-  struct tag_infinate_t {};
-  constexpr static tag_infinate_t tag_infinate{};
+  struct tag_not_specify_t {};
+  constexpr static tag_not_specify_t tag_not_specify{};
 
   constexpr MeasureLength() : MeasureLength(0) {}
-  constexpr MeasureLength(tag_infinate_t) : length_(-1) {}
+  constexpr MeasureLength(tag_not_specify_t) : length_(-1) {}
   constexpr MeasureLength(float length) : length_(length) {
     Expects(length >= 0);
   }
@@ -25,11 +25,15 @@ class MeasureLength {
 
   ~MeasureLength() = default;
 
-  constexpr static MeasureLength Infinate() {
-    return MeasureLength{tag_infinate};
+  constexpr static MeasureLength NotSpecify() {
+    return MeasureLength{tag_not_specify};
   }
 
-  constexpr bool IsInfinate() const { return length_ < 0; }
+  // What not specify means depends on situation.
+  // For max size, it means no limit.
+  constexpr bool IsNotSpecify() const { return length_ < 0; }
+
+  // If not specify max value of float is returned.
   constexpr float GetLength() const {
     return length_ < 0 ? std::numeric_limits<float>::max() : length_;
   }
@@ -60,9 +64,9 @@ struct MeasureRequirement {
       : max_width(max_size.width), max_height(max_size.height) {}
 
   constexpr bool Satisfy(const Size& size) const {
-    if (!max_width.IsInfinate() && max_width.GetLength() < size.width)
+    if (!max_width.IsNotSpecify() && max_width.GetLength() < size.width)
       return false;
-    if (!max_height.IsInfinate() && max_height.GetLength() < size.height)
+    if (!max_height.IsNotSpecify() && max_height.GetLength() < size.height)
       return false;
     return true;
   }
@@ -72,8 +76,8 @@ struct MeasureRequirement {
   }
 
   constexpr static MeasureRequirement Infinate() {
-    return MeasureRequirement{MeasureLength::Infinate(),
-                              MeasureLength::Infinate()};
+    return MeasureRequirement{MeasureLength::NotSpecify(),
+                              MeasureLength::NotSpecify()};
   }
 };
 }  // namespace cru::ui::render
