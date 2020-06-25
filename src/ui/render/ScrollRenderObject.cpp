@@ -2,7 +2,6 @@
 
 #include "cru/platform/graph/Painter.hpp"
 #include "cru/platform/graph/util/Painter.hpp"
-#include "cru/ui/render/LayoutUtility.hpp"
 
 #include <algorithm>
 
@@ -67,23 +66,32 @@ void ScrollRenderObject::SetScrollOffset(const Point& offset) {
   InvalidateLayout();
 }
 
-Size ScrollRenderObject::OnMeasureContent(
-    const MeasureRequirement& requirement) {
-  if (const auto child = GetSingleChild()) {
-    child->Measure(MeasureRequirement::Infinate());
-    const auto preferred_size = child->GetMeasuredSize();
-    return Min(preferred_size, requirement.GetMaxSize());
-  } else {
-    return Size{};
-  }
+Size ScrollRenderObject::OnMeasureContent(const MeasureRequirement& requirement,
+                                          const MeasureSize& preferred_size) {
+  // TODO: Rewrite this.
+  CRU_UNUSED(requirement);
+  CRU_UNUSED(preferred_size);
+  throw std::runtime_error("Not implemented.");
+
+  // if (const auto child = GetSingleChild()) {
+  //   child->Measure(MeasureRequirement::Infinate());
+  //   const auto preferred_size = child->GetMeasuredSize();
+  //   return Min(preferred_size, requirement.GetMaxSize());
+  // } else {
+  //   return Size{};
+  // }
 }  // namespace cru::ui::render
 
 void ScrollRenderObject::OnLayoutContent(const Rect& content_rect) {
-  if (const auto child = GetSingleChild()) {
-    const auto child_size = child->GetMeasuredSize();
-    const auto true_scroll =
-        CoerceScroll(scroll_offset_, content_rect.GetSize(), child_size);
-    child->Layout(Rect{content_rect.GetLeftTop() - true_scroll, child_size});
-  }
+  // TODO: Rewrite this.
+  CRU_UNUSED(content_rect);
+  throw std::runtime_error("Not implemented.");
+
+  // if (const auto child = GetSingleChild()) {
+  //   const auto child_size = child->GetMeasuredSize();
+  //   const auto true_scroll =
+  //       CoerceScroll(scroll_offset_, content_rect.GetSize(), child_size);
+  //   child->Layout(Rect{content_rect.GetLeftTop() - true_scroll, child_size});
+  // }
 }
 }  // namespace cru::ui::render

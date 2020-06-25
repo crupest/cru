@@ -1,7 +1,5 @@
 #include "cru/ui/render/CanvasRenderObject.hpp"
 
-#include "cru/ui/render/LayoutUtility.hpp"
-
 namespace cru::ui::render {
 CanvasRenderObject::CanvasRenderObject() : RenderObject(ChildMode::None) {}
 
@@ -18,9 +16,10 @@ RenderObject* CanvasRenderObject::HitTest(const Point& point) {
   return padding_rect.IsPointInside(point) ? this : nullptr;
 }
 
-Size CanvasRenderObject::OnMeasureContent(
-    const MeasureRequirement& requirement) {
-  return Min(requirement.GetMaxSize(), GetDesiredSize());
+Size CanvasRenderObject::OnMeasureContent(const MeasureRequirement& requirement,
+                                          const MeasureSize& preferred_size) {
+  return requirement.Coerce(Size{preferred_size.width.GetLengthOr(100),
+                                 preferred_size.height.GetLengthOr(100)});
 }
 
 void CanvasRenderObject::OnLayoutContent(const Rect& content_rect) {

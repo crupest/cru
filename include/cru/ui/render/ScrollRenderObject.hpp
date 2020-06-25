@@ -27,7 +27,7 @@ class ScrollRenderObject : public RenderObject {
   // If available size is bigger than child's preferred size, then child's
   // preferred size is taken.
   // If not, all available size is taken while forming a scroll area.
-  Size OnMeasureContent(const MeasureRequirement& requirement) override;
+  Size OnMeasureContent(const MeasureRequirement& requirement, const MeasureSize& preferred_size) override;
   void OnLayoutContent(const Rect& content_rect) override;
 
  private:

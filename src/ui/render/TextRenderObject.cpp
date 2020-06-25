@@ -1,10 +1,10 @@
 #include "cru/ui/render/TextRenderObject.hpp"
 
 #include "../Helper.hpp"
+#include "cru/common/Logger.hpp"
 #include "cru/platform/graph/Factory.hpp"
 #include "cru/platform/graph/TextLayout.hpp"
 #include "cru/platform/graph/util/Painter.hpp"
-#include "cru/ui/render/LayoutUtility.hpp"
 
 #include <algorithm>
 #include <limits>
@@ -160,10 +160,44 @@ RenderObject* TextRenderObject::HitTest(const Point& point) {
   return padding_rect.IsPointInside(point) ? this : nullptr;
 }
 
-Size TextRenderObject::OnMeasureContent(const MeasureRequirement& requirement) {
-  text_layout_->SetMaxWidth(requirement.max_height.GetLength());
-  text_layout_->SetMaxHeight(requirement.max_height.GetLength());
-  return Min(text_layout_->GetTextBounds().GetSize(), requirement.GetMaxSize());
+Size TextRenderObject::OnMeasureContent(const MeasureRequirement& requirement,
+                                        const MeasureSize& preferred_size) {
+  float measure_width;
+  if (preferred_size.width.IsSpecified())
+    measure_width = preferred_size.width.GetLengthOrUndefined();
+  else
+    measure_width = preferred_size.width.GetLengthOrMax();
+
+  text_layout_->SetMaxWidth(measure_width);
+  text_layout_->SetMaxHeight(std::numeric_limits<float>::max());
+
+  const auto text_size = text_layout_->GetTextBounds().GetSize();
+  auto result = text_size;
+
+  if (requirement.max.width.IsSpecified() &&
+      text_size.width > requirement.max.width.GetLengthOrUndefined()) {
+    log::Warn(
+        "TextRenderObject: Text actual width exceeds the required max width.");
+    result.width = requirement.max.width.GetLengthOrUndefined();
+  } else {
+    result.width = std::max(result.width, preferred_size.width.GetLengthOr0());
+    result.width = std::max(result.width, requirement.min.width.GetLengthOr0());
+  }
+
+  if (requirement.max.height.IsSpecified() &&
+      text_size.height > requirement.max.height.GetLengthOrUndefined()) {
+    log::Warn(
+        "TextRenderObject: Text actual height exceeds the required max "
+        "height.");
+    result.width = requirement.max.width.GetLengthOrUndefined();
+  } else {
+    result.height =
+        std::max(result.height, preferred_size.height.GetLengthOr0());
+    result.width =
+        std::max(result.height, requirement.min.height.GetLengthOr0());
+  }
+
+  return result;
 }
 
 void TextRenderObject::OnLayoutContent(const Rect& content_rect) {

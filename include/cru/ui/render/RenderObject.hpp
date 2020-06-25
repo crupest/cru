@@ -10,6 +10,23 @@ namespace cru::ui::render {
 // manage lifecycle of its render objects. Since control will destroy its
 // children when destroyed, render objects will be destroyed along with it.
 //
+// About layout:
+// Render object should be able to deal with arbitrary size as the result of
+// measure and layout.
+//
+// Parent may pass calculated preferred size down. But the preferred size set on
+// child itself takes precedence.
+//
+// Each render object should obey the measure requirement to set size and report
+// a warning when that requirement can't be satisfied with probably bigger size
+// of children than that of itself and optional visual effect to indicate that.
+//
+// If size of chilren are less than min size requirement, then render object
+// should try to fill the rest area. If size of children are more than max size
+// requirement, then render object should display a warning of the layout
+// problem and use the max size of itself with children exceeding its bound.
+// (Or better you could use some visual effect to indicate that.)
+//
 // To write a custom RenderObject, override following methods:
 // public:
 //  void Draw(platform::graph::IPainter* painter) override;
@@ -59,16 +76,46 @@ class RenderObject : public Object {
   Point FromRootToContent(const Point& point) const;
 
   Thickness GetMargin() const { return margin_; }
-  void SetMargin(const Thickness& margin) { margin_ = margin; }
+  void SetMargin(const Thickness& margin) {
+    margin_ = margin;
+    InvalidateLayout();
+  }
 
   Thickness GetPadding() const { return padding_; }
-  void SetPadding(const Thickness& padding) { padding_ = padding; }
+  void SetPadding(const Thickness& padding) {
+    padding_ = padding;
+    InvalidateLayout();
+  }
 
-  Size GetMeasuredSize() const { return measured_size_; }
+  MeasureSize GetPreferredSize() const { return preferred_size_; }
+  void SetPreferredSize(const MeasureSize& preferred_size) {
+    preferred_size_ = preferred_size;
+    InvalidateLayout();
+  }
 
-  void Measure(const MeasureRequirement& requirement);
-  // Size of rect must not be negative.
-  void Layout(const Rect& rect);
+  MeasureSize GetMinSize() const { return custom_measure_requirement_.min; }
+  void SetMinSize(const MeasureSize& min_size) {
+    custom_measure_requirement_.min = min_size;
+    InvalidateLayout();
+  }
+
+  MeasureSize GetMaxSize() const { return custom_measure_requirement_.max; }
+  void SetMaxSize(const MeasureSize& max_size) {
+    custom_measure_requirement_.max = max_size;
+    InvalidateLayout();
+  }
+
+  MeasureRequirement GetCustomMeasureRequirement() const {
+    return custom_measure_requirement_;
+  }
+
+  // This will call OnMeasureCore and set the size of this render object.
+  // This can be called multiple times on children during measure to adjust for
+  // better size.
+  void Measure(const MeasureRequirement& requirement,
+               const MeasureSize& preferred_size);
+  // This will set offset of this render object and call OnLayoutCore.
+  void Layout(const Point& offset);
 
   virtual void Draw(platform::graph::IPainter* painter) = 0;
 
@@ -95,21 +142,25 @@ class RenderObject : public Object {
   virtual void OnRemoveChild(RenderObject* removed_child, Index position);
 
   // Size measure including margin and padding. Please reduce margin and padding
-  // or other custom things and pass the result content measure requirement to
-  // OnMeasureContent.
-  // Return value must not be negative and not bigger than requirement.
-  virtual Size OnMeasureCore(const MeasureRequirement& requirement);
+  // or other custom things and pass the result content measure requirement and
+  // preferred size to OnMeasureContent. Return value must not be negative and
+  // must obey requirement. Preferred size may not be in range so need to be
+  // coerced.
+  virtual Size OnMeasureCore(const MeasureRequirement& requirement,
+                             const MeasureSize& preferred_size);
 
-  // Size including margin and padding. Please reduce margin and padding or
-  // other custom things and pass the result content rect to OnLayoutContent.
-  // Parameter size are never negative.
-  virtual void OnLayoutCore(const Size& size);
+  // Please reduce margin and padding or other custom things and pass the result
+  // content rect to OnLayoutContent.
+  virtual void OnLayoutCore();
 
-  // Do not consider margin or padding in this method because they are already
-  // considered in OnMeasureCore. Returned size should never be bigger than
-  // requirement.
-  virtual Size OnMeasureContent(const MeasureRequirement& requirement) = 0;
+  // Override this function to measure content and children(Call Measure on
+  // them). Do not consider margin or padding in this method because they are
+  // already considered in OnMeasureCore. Returned size must obey requirement.
+  // Caller should guarantee preferred_size is corerced into required range.
+  virtual Size OnMeasureContent(const MeasureRequirement& requirement,
+                                const MeasureSize& preferred_size) = 0;
 
+  // Layout all content and children(Call Layout on them).
   // Lefttop of content_rect should be added when calculated children's offset.
   virtual void OnLayoutContent(const Rect& content_rect) = 0;
 
@@ -136,9 +187,10 @@ class RenderObject : public Object {
   Point offset_{};
   Size size_{};
 
+  MeasureSize preferred_size_;
+  MeasureRequirement custom_measure_requirement_;
+
   Thickness margin_{};
   Thickness padding_{};
-
-  Size measured_size_{};
 };
 }  // namespace cru::ui::render

@@ -73,9 +73,10 @@ RenderObject* BorderRenderObject::HitTest(const Point& point) {
   }
 }
 
-Size BorderRenderObject::OnMeasureCore(const MeasureRequirement& requirement) {
+Size BorderRenderObject::OnMeasureCore(const MeasureRequirement& requirement,
+                                       const MeasureSize& preferred_size) {
   if (!is_border_enabled_) {
-    return RenderObject::OnMeasureCore(requirement);
+    return RenderObject::OnMeasureCore(requirement, preferred_size);
   }
 
   const auto margin = GetMargin();
@@ -90,36 +91,51 @@ Size BorderRenderObject::OnMeasureCore(const MeasureRequirement& requirement) {
 
   MeasureRequirement content_requirement = requirement;
 
-  if (!requirement.max_width.IsNotSpecify()) {
-    const auto max_width = requirement.max_width.GetLength();
+  if (!requirement.max.width.IsNotSpecified()) {
+    const auto max_width = requirement.max.width.GetLengthOrMax();
     if (coerced_space_size.width > max_width) {
       log::Warn(
-          "Measure: horizontal length of padding and margin is bigger than "
-          "available length.");
+          "BorderRenderObject: During measure, horizontal length of padding, "
+          "border and margin is bigger than required max length.");
       coerced_space_size.width = max_width;
     }
-    content_requirement.max_width = max_width - coerced_space_size.width;
+    content_requirement.max.width = max_width - coerced_space_size.width;
   }
 
-  if (!requirement.max_height.IsNotSpecify()) {
-    const auto max_height = requirement.max_height.GetLength();
+  if (!requirement.min.width.IsNotSpecified()) {
+    const auto min_width = requirement.min.width.GetLengthOr0();
+    content_requirement.min.width = std::max(0.f, min_width - space_size.width);
+  }
+
+  if (!requirement.max.height.IsNotSpecified()) {
+    const auto max_height = requirement.max.height.GetLengthOrMax();
     if (coerced_space_size.height > max_height) {
       log::Warn(
-          "Measure: horizontal length of padding and margin is bigger than "
-          "available length.");
+          "BorderRenderObject: During measure, vertical length of padding, "
+          "border and margin is bigger than required max length.");
       coerced_space_size.height = max_height;
     }
-    content_requirement.max_height = max_height - coerced_space_size.height;
+    content_requirement.max.height = max_height - coerced_space_size.height;
   }
 
-  const auto content_size = OnMeasureContent(content_requirement);
+  if (!requirement.min.height.IsNotSpecified()) {
+    const auto min_height = requirement.min.height.GetLengthOr0();
+    content_requirement.min.height =
+        std::max(0.f, min_height - space_size.height);
+  }
+
+  MeasureSize content_preferred_size =
+      content_requirement.Coerce(preferred_size.Minus(space_size));
+
+  const auto content_size =
+      OnMeasureContent(content_requirement, content_preferred_size);
 
   return coerced_space_size + content_size;
-}  // namespace cru::ui::render
+}
 
-void BorderRenderObject::OnLayoutCore(const Size& size) {
+void BorderRenderObject::OnLayoutCore() {
   if (!is_border_enabled_) {
-    return RenderObject::OnLayoutCore(size);
+    return RenderObject::OnLayoutCore();
   }
 
   const auto margin = GetMargin();
@@ -129,18 +145,20 @@ void BorderRenderObject::OnLayoutCore(const Size& size) {
                   margin.GetVerticalTotal() + padding.GetVerticalTotal() +
                       border_thickness_.GetVerticalTotal()};
 
+  const auto size = GetSize();
+
   auto content_size = size - space_size;
 
   if (content_size.width < 0) {
     log::Warn(
-        "Layout: horizontal length of padding, border and margin is bigger "
-        "than available length.");
+        "BorderRenderObject: During layout, horizontal length of padding, "
+        "border and margin is bigger than available length.");
     content_size.width = 0;
   }
   if (content_size.height < 0) {
     log::Warn(
-        "Layout: vertical length of padding, border and margin is bigger "
-        "than available length.");
+        "BorderRenderObject: During layout, vertical length of padding, "
+        "border and margin is bigger than available length.");
     content_size.height = 0;
   }
 
@@ -158,12 +176,12 @@ void BorderRenderObject::OnLayoutCore(const Size& size) {
   OnLayoutContent(content_rect);
 }
 
-Size BorderRenderObject::OnMeasureContent(
-    const MeasureRequirement& requirement) {
+Size BorderRenderObject::OnMeasureContent(const MeasureRequirement& requirement,
+                                          const MeasureSize& preferred_size) {
   const auto child = GetSingleChild();
   if (child) {
-    child->Measure(requirement);
-    return child->GetMeasuredSize();
+    child->Measure(requirement, preferred_size);
+    return child->GetSize();
   } else {
     return Size{};
   }
@@ -172,7 +190,7 @@ Size BorderRenderObject::OnMeasureContent(
 void BorderRenderObject::OnLayoutContent(const Rect& content_rect) {
   const auto child = GetSingleChild();
   if (child) {
-    child->Layout(content_rect);
+    child->Layout(content_rect.GetLeftTop());
   }
 }
 

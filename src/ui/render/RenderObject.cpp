@@ -57,20 +57,23 @@ Point RenderObject::FromRootToContent(const Point& point) const {
                point.y - (offset.y + rect.top)};
 }
 
-void RenderObject::Measure(const MeasureRequirement& requirement) {
-  measured_size_ = OnMeasureCore(requirement);
+void RenderObject::Measure(const MeasureRequirement& requirement,
+                           const MeasureSize& preferred_size) {
+  MeasureRequirement merged_requirement =
+      MeasureRequirement::Merge(requirement, custom_measure_requirement_)
+          .Normalize();
+  MeasureSize merged_preferred_size =
+      preferred_size.OverrideBy(preferred_size_);
 
-  Ensures(measured_size_.width >= 0);
-  Ensures(measured_size_.height >= 0);
-  Ensures(requirement.Satisfy(measured_size_));
+  size_ = OnMeasureCore(merged_requirement, merged_preferred_size);
+  Ensures(size_.width >= 0);
+  Ensures(size_.height >= 0);
+  Ensures(requirement.Satisfy(size_));
 }
 
-void RenderObject::Layout(const Rect& rect) {
-  Expects(rect.width >= 0);
-  Expects(rect.height >= 0);
-  offset_ = rect.GetLeftTop();
-  size_ = rect.GetSize();
-  OnLayoutCore(rect.GetSize());
+void RenderObject::Layout(const Point& offset) {
+  offset_ = offset;
+  OnLayoutCore();
 }
 
 RenderObject* RenderObject::GetSingleChild() const {
@@ -104,7 +107,8 @@ void RenderObject::OnRemoveChild(RenderObject* removed_child, Index position) {
   InvalidatePaint();
 }
 
-Size RenderObject::OnMeasureCore(const MeasureRequirement& requirement) {
+Size RenderObject::OnMeasureCore(const MeasureRequirement& requirement,
+                                 const MeasureSize& preferred_size) {
   const Size space_size{
       margin_.GetHorizontalTotal() + padding_.GetHorizontalTotal(),
       margin_.GetVerticalTotal() + padding_.GetVerticalTotal()};
@@ -113,58 +117,74 @@ Size RenderObject::OnMeasureCore(const MeasureRequirement& requirement) {
 
   MeasureRequirement content_requirement = requirement;
 
-  if (!requirement.max_width.IsNotSpecify()) {
-    const auto max_width = requirement.max_width.GetLength();
+  if (!requirement.max.width.IsNotSpecified()) {
+    const auto max_width = requirement.max.width.GetLengthOrMax();
     if (coerced_space_size.width > max_width) {
       log::Warn(
-          "Measure: horizontal length of padding and margin is bigger than "
-          "available length.");
+          "RenderObject: During measure, horizontal length of padding and "
+          "margin is bigger than required max length.");
       coerced_space_size.width = max_width;
     }
-    content_requirement.max_width = max_width - coerced_space_size.width;
+    content_requirement.max.width = max_width - coerced_space_size.width;
   }
 
-  if (!requirement.max_height.IsNotSpecify()) {
-    const auto max_height = requirement.max_height.GetLength();
+  if (!requirement.min.width.IsNotSpecified()) {
+    const auto min_width = requirement.min.width.GetLengthOr0();
+    content_requirement.min.width = std::max(0.f, min_width - space_size.width);
+  }
+
+  if (!requirement.max.height.IsNotSpecified()) {
+    const auto max_height = requirement.max.height.GetLengthOrMax();
     if (coerced_space_size.height > max_height) {
       log::Warn(
-          "Measure: horizontal length of padding and margin is bigger than "
-          "available length.");
+          "RenderObject: During measure, vertical length of padding and "
+          "margin is bigger than required max length.");
       coerced_space_size.height = max_height;
     }
-    content_requirement.max_height = max_height - coerced_space_size.height;
+    content_requirement.max.height = max_height - coerced_space_size.height;
   }
 
-  const auto content_size = OnMeasureContent(content_requirement);
+  if (!requirement.min.height.IsNotSpecified()) {
+    const auto min_height = requirement.min.height.GetLengthOr0();
+    content_requirement.min.height =
+        std::max(0.f, min_height - space_size.height);
+  }
+
+  MeasureSize content_preferred_size =
+      content_requirement.Coerce(preferred_size.Minus(space_size));
+
+  const auto content_size =
+      OnMeasureContent(content_requirement, content_preferred_size);
 
   return coerced_space_size + content_size;
 }
 
-void RenderObject::OnLayoutCore(const Size& size) {
+void RenderObject::OnLayoutCore() {
+  Size total_size = GetSize();
   Size space_size{margin_.GetHorizontalTotal() + padding_.GetHorizontalTotal(),
                   margin_.GetVerticalTotal() + padding_.GetVerticalTotal()};
 
-  auto content_size = size - space_size;
+  auto content_size = total_size - space_size;
 
   if (content_size.width < 0) {
     log::Warn(
-        "Layout: horizontal length of padding and margin is bigger than "
-        "available length.");
+        "RenderObject: During layout, horizontal length of padding and margin "
+        "is bigger than available length.");
     content_size.width = 0;
   }
   if (content_size.height < 0) {
     log::Warn(
-        "Layout: vertical length of padding and margin is bigger than "
-        "available length.");
+        "RenderObject: During layout, vertical length of padding and margin "
+        "is bigger than available length.");
     content_size.height = 0;
   }
 
   Point lefttop{margin_.left + padding_.left, margin_.top + padding_.top};
-  if (lefttop.x > size.width) {
-    lefttop.x = size.width;
+  if (lefttop.x > total_size.width) {
+    lefttop.x = total_size.width;
   }
-  if (lefttop.y > size.height) {
-    lefttop.y = size.height;
+  if (lefttop.y > total_size.height) {
+    lefttop.y = total_size.height;
   }
 
   const Rect content_rect{lefttop, content_size};

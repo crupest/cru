@@ -4,6 +4,19 @@
 #include <string>
 
 namespace cru::ui::render {
+// Layout logic:
+// 1. If preferred width is set then it is taken to do a text measure. If not
+// set, then max width is taken to do that.
+// 2. If the actual width of text after measure exceeds the required width,
+// coerced value is returned and an error is reported. If preferred width is set
+// and actual width is smaller than that, then preferred width is used. If
+// preferred width is not set, then the same thing is applied to min width.
+// 3. If actual height of text is bigger than max height, an error is reported
+// and coerced value is returned. Or height is lifted up to be at least
+// preferred size if set or min height.
+//
+// If the result layout box is bigger than actual text box, then text is center
+// aligned.
 class TextRenderObject : public RenderObject {
  public:
   constexpr static float default_caret_width = 2;
@@ -64,7 +77,9 @@ class TextRenderObject : public RenderObject {
   RenderObject* HitTest(const Point& point) override;
 
  protected:
-  Size OnMeasureContent(const MeasureRequirement& requirement) override;
+  // See remarks of this class.
+  Size OnMeasureContent(const MeasureRequirement& requirement,
+                        const MeasureSize& preferred_size) override;
   void OnLayoutContent(const Rect& content_rect) override;
 
   void OnAfterLayout() override;

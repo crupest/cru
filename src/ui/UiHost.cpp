@@ -166,8 +166,11 @@ void UiHost::Relayout() {
   const auto client_size = native_window
                                ? native_window->GetClientSize()
                                : Size{100, 100};  // a reasonable assumed size
-  root_render_object_->Measure(client_size);
-  root_render_object_->Layout(Rect{Point{}, client_size});
+  root_render_object_->Measure(
+      render::MeasureRequirement{client_size,
+                                 render::MeasureSize::NotSpecified()},
+      render::MeasureSize::NotSpecified());
+  root_render_object_->Layout(Point{});
 }
 
 bool UiHost::RequestFocusFor(Control* control) {

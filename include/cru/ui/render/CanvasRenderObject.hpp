@@ -2,9 +2,9 @@
 #include "RenderObject.hpp"
 
 namespace cru::ui::render {
-// The measure logic for `CanvasRenderObject` is that you set a desired size by
-// `SetDesiredSize` (not `SetPreferredSize`) and it will compare desired size
-// and available size and use the smaller one (by `Min`).
+// Layout logic:
+// If no preferred size is set. Then (100, 100) is used and then coerced to
+// required range.
 class CanvasRenderObject : public RenderObject {
  public:
   CanvasRenderObject();
@@ -21,14 +21,11 @@ class CanvasRenderObject : public RenderObject {
 
   Size GetDesiredSize() const { return desired_size_; }
 
-  // Set the desired size. This is the content size excluding padding and
-  // margin.
-  void SetDesiredSize(const Size& new_size) { desired_size_ = new_size; }
-
   IEvent<CanvasPaintEventArgs>* PaintEvent() { return &paint_event_; }
 
  protected:
-  Size OnMeasureContent(const MeasureRequirement& requirement) override;
+  Size OnMeasureContent(const MeasureRequirement& requirement,
+                        const MeasureSize& preferred_size) override;
   void OnLayoutContent(const Rect& content_rect) override;
 
  private:

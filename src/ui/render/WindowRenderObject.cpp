@@ -34,17 +34,17 @@ RenderObject* WindowRenderObject::HitTest(const Point& point) {
   return Rect{Point{}, GetSize()}.IsPointInside(point) ? this : nullptr;
 }
 
-Size WindowRenderObject::OnMeasureContent(
-    const MeasureRequirement& requirement) {
+Size WindowRenderObject::OnMeasureContent(const MeasureRequirement& requirement,
+                                          const MeasureSize& preferred_size) {
   if (const auto child = GetChild()) {
-    child->Measure(requirement);
-    return child->GetMeasuredSize();
+    child->Measure(requirement, preferred_size);
+    return child->GetSize();
   } else {
     return Size{};
   }
 }
 
 void WindowRenderObject::OnLayoutContent(const Rect& content_rect) {
-  if (const auto child = GetChild()) child->Layout(content_rect);
+  if (const auto child = GetChild()) child->Layout(content_rect.GetLeftTop());
 }
 }  // namespace cru::ui::render

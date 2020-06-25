@@ -72,6 +72,10 @@
     "string_span": "cpp",
     "numeric": "cpp",
     "pointers": "cpp",
-    "gsl_assert": "cpp"
+    "gsl_assert": "cpp",
+    "cstdarg": "cpp",
+    "locale": "cpp",
+    "xlocbuf": "cpp",
+    "xlocmes": "cpp"
   }
 }
