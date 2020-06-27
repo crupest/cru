@@ -29,7 +29,7 @@ class FlexLayout : public LayoutControl {
   void SetFlexDirection(FlexDirection direction);
 
   FlexChildLayoutData GetChildLayoutData(Control* control);
-  void SetChildLayoutData(Control* control, const FlexChildLayoutData& data);
+  void SetChildLayoutData(Control* control, FlexChildLayoutData data);
 
  protected:
   void OnAddChild(Control* child, Index position) override;

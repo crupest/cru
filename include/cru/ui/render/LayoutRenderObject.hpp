@@ -22,10 +22,17 @@ class LayoutRenderObject : public RenderObject {
     return this->child_layout_data_;
   }
 
-  ChildLayoutData* GetChildLayoutData(Index position) {
+  void SetChildLayoutData(Index position, ChildLayoutData data) {
     Expects(position >= 0 &&
-            position < static_cast<Index>(child_layout_data_.size()));
-    return &child_layout_data_[position];
+            position < static_cast<Index>(this->child_layout_data_.size()));
+    this->child_layout_data_[position] = std::move(data);
+    this->InvalidateLayout();
+  }
+
+  const ChildLayoutData& GetChildLayoutData(Index position) const {
+    Expects(position >= 0 &&
+            position < static_cast<Index>(this->child_layout_data_.size()));
+    return this->child_layout_data_[position];
   }
 
   void Draw(platform::graph::IPainter* painter) override;

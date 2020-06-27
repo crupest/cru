@@ -17,28 +17,29 @@ render::RenderObject* FlexLayout::GetRenderObject() const {
 }
 
 namespace {
-int FindPosition(render::RenderObject* parent, render::RenderObject* child) {
+Index FindPosition(render::RenderObject* parent, render::RenderObject* child) {
   const auto& render_objects = parent->GetChildren();
   const auto find_result =
       std::find(render_objects.cbegin(), render_objects.cend(), child);
   if (find_result == render_objects.cend()) {
     throw std::logic_error("Control is not a child of FlexLayout.");
   }
-  return static_cast<int>(find_result - render_objects.cbegin());
+  return static_cast<Index>(find_result - render_objects.cbegin());
 }
 }  // namespace
 
 FlexChildLayoutData FlexLayout::GetChildLayoutData(Control* control) {
   Expects(control);
-  return *render_object_->GetChildLayoutData(
+  return render_object_->GetChildLayoutData(
       FindPosition(render_object_.get(), control->GetRenderObject()));
 }
 
 void FlexLayout::SetChildLayoutData(Control* control,
-                                    const FlexChildLayoutData& data) {
+                                    FlexChildLayoutData data) {
   Expects(control);
-  *render_object_->GetChildLayoutData(
-      FindPosition(render_object_.get(), control->GetRenderObject())) = data;
+  render_object_->SetChildLayoutData(
+      FindPosition(render_object_.get(), control->GetRenderObject()),
+      std::move(data));
 }
 
 FlexMainAlignment FlexLayout::GetContentMainAlign() const {
