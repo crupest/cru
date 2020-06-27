@@ -109,9 +109,13 @@ class RenderObject : public Object {
     return custom_measure_requirement_;
   }
 
-  // This will call OnMeasureCore and set the size of this render object.
-  // This can be called multiple times on children during measure to adjust for
-  // better size.
+  // This method will merge requirement passed by argument and requirement of
+  // the render object using MeasureRequirement::Merge and then call
+  // MeasureRequirement::Normalize on it. And it will use preferred size of the
+  // render object to override the one passed by argument. Then pass the two to
+  // OnMeasureCore and use the return value of it to set the size of this render
+  // object. This can be called multiple times on children during measure to
+  // adjust for better size.
   void Measure(const MeasureRequirement& requirement,
                const MeasureSize& preferred_size);
   // This will set offset of this render object and call OnLayoutCore.
@@ -144,8 +148,9 @@ class RenderObject : public Object {
   // Size measure including margin and padding. Please reduce margin and padding
   // or other custom things and pass the result content measure requirement and
   // preferred size to OnMeasureContent. Return value must not be negative and
-  // must obey requirement. Preferred size may not be in range so need to be
-  // coerced.
+  // must obey requirement.
+  // Note: Implementation should coerce the preferred size into the requirement
+  // when pass them to OnMeasureContent.
   virtual Size OnMeasureCore(const MeasureRequirement& requirement,
                              const MeasureSize& preferred_size);
 
