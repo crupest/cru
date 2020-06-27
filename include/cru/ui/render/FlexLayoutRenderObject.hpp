@@ -2,7 +2,7 @@
 #include "LayoutRenderObject.hpp"
 
 namespace cru::ui::render {
-// Layout logic (v0.1):
+// Measure Logic (v0.1):
 // 1. Layout all children with unspecified(infinate) max main axis length. If
 // max cross axis length of parent is specified, then it is passed to children.
 //
@@ -23,8 +23,12 @@ namespace cru::ui::render {
 //    used as target length.
 //
 //    2.2.3. If any child has a positive expand factor and max main axis length
-//    is set, then expand is performed and max main axis length is used as
+//    is specified, then expand is performed and max main axis length is used as
 //    target length.
+//
+//    2.2.4. If any child has a positive expand factor and max main axis length
+//    is not specified but min main axis length is specified, then expand is
+//    performed and min main axis length is used as target length.
 //
 // 3. If shrink or expand is needed, then
 //
@@ -62,8 +66,11 @@ namespace cru::ui::render {
 //  3.2. Expand:
 //    The same as shrink after you exchange related things.
 //
-// 4. If final total main axis length does not satisfy requirement, then report
-// an error. And use the coerced size.
+// 4. If final total main axis length exceeeds the max main axis length (if
+// specified), then report an error. And result main axis length is the coerced
+// length. If final total main axis length is smaller than min main axis length
+// (if specified), then coerce the length to the min value but not report error
+// and just fill the rest space with blank.
 //
 // 5. Result cross axis length is the max cross axis length of all children. If
 // min cross axis length is specified and result length is smaller than it, then
