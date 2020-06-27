@@ -1,128 +1,328 @@
 #include "cru/ui/render/FlexLayoutRenderObject.hpp"
 
+#include "cru/common/Logger.hpp"
 #include "cru/platform/graph/util/Painter.hpp"
 
 #include <algorithm>
 #include <functional>
+#include <type_traits>
 
 namespace cru::ui::render {
+
+struct tag_horizontal_t {};
+struct tag_vertical_t {};
+
+template <typename TSize>
+constexpr auto GetMain(const TSize& size, tag_horizontal_t) {
+  return size.width;
+}
+
+template <typename TSize>
+constexpr auto GetCross(const TSize& size, tag_horizontal_t) {
+  return size.height;
+}
+
+template <typename TSize>
+constexpr auto GetMain(const TSize& size, tag_vertical_t) {
+  return size.height;
+}
+
+template <typename TSize>
+constexpr auto GetCross(const TSize& size, tag_vertical_t) {
+  return size.width;
+}
+
+template <typename TSize>
+constexpr auto& GetMain(TSize& size, tag_horizontal_t) {
+  return size.width;
+}
+
+template <typename TSize>
+constexpr auto& GetCross(TSize& size, tag_horizontal_t) {
+  return size.height;
+}
+
+template <typename TSize>
+constexpr auto& GetMain(TSize& size, tag_vertical_t) {
+  return size.height;
+}
+
+template <typename TSize>
+constexpr auto& GetCross(TSize& size, tag_vertical_t) {
+  return size.width;
+}
+
+template <typename TSize>
+constexpr TSize CreateTSize(decltype(std::declval<TSize>().width) main,
+                            decltype(std::declval<TSize>().height) cross,
+                            tag_horizontal_t) {
+  return TSize{main, cross};
+}
+
+template <typename TSize>
+constexpr TSize CreateTSize(decltype(std::declval<TSize>().width) main,
+                            decltype(std::declval<TSize>().height) cross,
+                            tag_vertical_t) {
+  return TSize{main, cross};
+}
+
+enum class FlexLayoutAdjustType { None, Expand, Shrink };
+
+namespace {
+void Remove(std::vector<Index>& v, const std::vector<Index>& to_remove_v) {
+  Index current = 0;
+  for (auto to_remove : to_remove_v) {
+    while (v[current] != to_remove) {
+      current++;
+    }
+    v.erase(v.cbegin() + current);
+  }
+}
+
+template <typename direction_tag_t,
+          typename = std::enable_if_t<
+              std::is_same_v<direction_tag_t, tag_horizontal_t> ||
+              std::is_same_v<direction_tag_t, tag_vertical_t>>>
+Size FlexLayoutMeasureContentImpl(
+    const MeasureRequirement& requirement, const MeasureSize& preferred_size,
+    const std::vector<RenderObject*>& children,
+    const std::vector<FlexChildLayoutData>& layout_data) {
+  Expects(children.size() == layout_data.size());
+
+  direction_tag_t direction_tag;
+
+  const Index child_count = children.size();
+
+  MeasureLength preferred_main_length = GetMain(preferred_size, direction_tag);
+  MeasureLength preferred_cross_length =
+      GetCross(preferred_size, direction_tag);
+  MeasureLength max_main_length = GetMain(requirement.max, direction_tag);
+  MeasureLength max_cross_length = GetCross(requirement.max, direction_tag);
+  MeasureLength min_main_length = GetMain(requirement.min, direction_tag);
+  MeasureLength min_cross_length = GetCross(requirement.min, direction_tag);
+
+  // step 1.
+  for (auto child : children) {
+    child->Measure(MeasureRequirement{CreateTSize<MeasureSize>(
+                                          MeasureLength::NotSpecified(),
+                                          max_cross_length, direction_tag),
+                                      MeasureSize::NotSpecified()},
+                   MeasureSize::NotSpecified());
+  }
+
+  float total_length = 0.f;
+  for (auto child : children) {
+    total_length += GetMain(child->GetSize(), direction_tag);
+  }
+
+  // step 2.
+  FlexLayoutAdjustType adjust_type = FlexLayoutAdjustType::None;
+  float target_length =
+      -1.f;  // Use a strange value to indicate error. This value should be
+             // assigned before usage. Or program has a bug.
+
+  if (preferred_main_length.IsSpecified()) {
+    const float preferred_main_length_value =
+        preferred_main_length.GetLengthOrUndefined();
+    target_length = preferred_main_length_value;
+    if (total_length > preferred_main_length_value) {
+      adjust_type = FlexLayoutAdjustType::Shrink;
+    } else if (total_length < preferred_main_length_value) {
+      adjust_type = FlexLayoutAdjustType::Expand;
+    }
+  } else {
+    if (max_main_length.IsSpecified()) {
+      const float max_main_length_value =
+          max_main_length.GetLengthOrUndefined();
+      if (max_main_length_value < total_length) {
+        adjust_type = FlexLayoutAdjustType::Shrink;
+        target_length = max_main_length_value;
+      } else if (max_main_length_value > total_length) {
+        for (auto data : layout_data) {
+          if (data.expand_factor > 0) {
+            adjust_type = FlexLayoutAdjustType::Expand;
+            target_length = max_main_length_value;
+            break;
+          }
+        }
+      }
+    }
+    // Do not use else here.
+    if (adjust_type != FlexLayoutAdjustType::None &&
+        min_main_length.IsSpecified() &&
+        min_main_length.GetLengthOrUndefined() > total_length) {
+      adjust_type = FlexLayoutAdjustType::Expand;
+      target_length = min_main_length.GetLengthOrUndefined();
+    }
+  }
+
+  // step 3.
+  if (adjust_type == FlexLayoutAdjustType::Shrink) {
+    std::vector<Index> shrink_list;
+
+    for (Index i = 0; i < child_count; i++) {
+      if (layout_data[i].shrink_factor > 0) {
+        shrink_list.push_back(i);
+      }
+    }
+
+    while (!shrink_list.empty()) {
+      const float total_shrink_length = total_length - target_length;
+
+      float total_shrink_factor = 0.f;
+      std::vector<Index> to_remove;
+
+      for (Index i : shrink_list) {
+        total_shrink_factor += layout_data[i].shrink_factor;
+      }
+
+      for (Index i : shrink_list) {
+        const auto child = children[i];
+        const float shrink_length = layout_data[i].shrink_factor /
+                                    total_shrink_factor * total_shrink_length;
+        float new_measure_length =
+            GetMain(child->GetSize(), direction_tag) - shrink_length;
+
+        MeasureLength child_min_main_length =
+            GetMain(child->GetMinSize(), direction_tag);
+
+        if (child_min_main_length.IsSpecified() &&
+            new_measure_length < child_min_main_length.GetLengthOrUndefined()) {
+          new_measure_length = child_min_main_length.GetLengthOrUndefined();
+        } else if (new_measure_length < 0.f) {
+          new_measure_length = 0.f;
+        }
+
+        child->Measure(MeasureRequirement{CreateTSize<MeasureSize>(
+                                              new_measure_length,
+                                              max_cross_length, direction_tag),
+                                          MeasureSize::NotSpecified()},
+                       CreateTSize<MeasureSize>(new_measure_length,
+                                                MeasureLength::NotSpecified(),
+                                                direction_tag));
+
+        const Size new_size = child->GetSize();
+        const float new_main_length = GetMain(new_size, direction_tag);
+        if (new_main_length == 0.f ||
+            (child_min_main_length.IsSpecified() &&
+             new_main_length == child_min_main_length.GetLengthOrUndefined())) {
+          to_remove.push_back(i);
+        }
+      }
+
+      total_length = 0.f;
+      for (auto child : children) {
+        total_length += GetMain(child->GetSize(), direction_tag);
+      }
+
+      if (total_length <= target_length) break;
+
+      Remove(shrink_list, to_remove);
+    }
+  } else if (adjust_type == FlexLayoutAdjustType::Expand) {
+    std::vector<Index> expand_list;
+
+    for (Index i = 0; i < child_count; i++) {
+      if (layout_data[i].expand_factor > 0) {
+        expand_list.push_back(i);
+      }
+    }
+
+    while (!expand_list.empty()) {
+      const float total_expand_length = target_length - total_length;
+
+      float total_expand_factor = 0.f;
+      std::vector<Index> to_remove;
+
+      for (Index i : expand_list) {
+        total_expand_factor += layout_data[i].expand_factor;
+      }
+
+      for (Index i : expand_list) {
+        const auto child = children[i];
+        const float expand_length = layout_data[i].expand_factor /
+                                    total_expand_factor * total_expand_length;
+        float new_measure_length =
+            GetMain(child->GetSize(), direction_tag) + expand_length;
+
+        MeasureLength child_max_main_length =
+            GetMain(child->GetMaxSize(), direction_tag);
+
+        if (child_max_main_length.IsSpecified() &&
+            new_measure_length > child_max_main_length.GetLengthOrUndefined()) {
+          new_measure_length = child_max_main_length.GetLengthOrUndefined();
+        }
+
+        child->Measure(
+            MeasureRequirement{
+                CreateTSize<MeasureSize>(MeasureLength::NotSpecified(),
+                                         max_cross_length, direction_tag),
+                CreateTSize<MeasureSize>(new_measure_length,
+                                         MeasureLength::NotSpecified(),
+                                         direction_tag)},
+            CreateTSize<MeasureSize>(new_measure_length,
+                                     MeasureLength::NotSpecified(),
+                                     direction_tag));
+
+        const Size new_size = child->GetSize();
+        const float new_main_length = GetMain(new_size, direction_tag);
+        if (child_max_main_length.IsSpecified() &&
+            new_main_length == child_max_main_length.GetLengthOrUndefined()) {
+          to_remove.push_back(i);
+        }
+      }
+
+      total_length = 0.f;
+      for (auto child : children) {
+        total_length += GetMain(child->GetSize(), direction_tag);
+      }
+
+      if (total_length >= target_length) break;
+
+      Remove(expand_list, to_remove);
+    }
+  }
+
+  float child_max_cross_length = 0.f;
+
+  for (auto child : children) {
+    const float cross_length = GetCross(child->GetSize(), direction_tag);
+    if (cross_length > child_max_cross_length) {
+      child_max_cross_length = cross_length;
+    }
+  }
+
+  if (max_main_length.IsSpecified() &&
+      total_length > max_main_length.GetLengthOrUndefined()) {
+    log::Warn(
+        "FlexLayoutRenderObject: Children's main axis length exceeds required "
+        "max length.");
+    total_length = max_main_length.GetLengthOrUndefined();
+  } else if (min_main_length.IsSpecified() &&
+             total_length < min_main_length.GetLengthOrUndefined()) {
+    total_length = min_main_length.GetLengthOrUndefined();
+  }
+
+  if (min_main_length.IsSpecified() &&
+      child_max_cross_length < min_main_length.GetLengthOrUndefined()) {
+    child_max_cross_length = min_main_length.GetLengthOrUndefined();
+  }
+
+  return CreateTSize<Size>(total_length, child_max_cross_length, direction_tag);
+}
+}  // namespace
+
 Size FlexLayoutRenderObject::OnMeasureContent(
     const MeasureRequirement& requirement, const MeasureSize& preferred_size) {
-  // TODO: Rewrite this.
-  CRU_UNUSED(requirement);
-  CRU_UNUSED(preferred_size);
-  throw std::runtime_error("Not implemented.");
-
-  // const bool horizontal = (direction_ == FlexDirection::Horizontal ||
-  //                          direction_ == FlexDirection::HorizontalReverse);
-
-  // const auto main_max_length =
-  //     horizontal ? requirement.max_width : requirement.max_height;
-  // const auto cross_max_length =
-  //     horizontal ? requirement.max_height : requirement.max_width;
-
-  // std::function<float(const Size&)> get_main_length;
-  // std::function<float(const Size&)> get_cross_length;
-  // std::function<void(Size&, const Size&)> calculate_result_size;
-  // std::function<MeasureRequirement(MeasureLength main, MeasureLength cross)>
-  //     create_requirement;
-
-  // if (horizontal) {
-  //   get_main_length = [](const Size& size) { return size.width; };
-  //   get_cross_length = [](const Size& size) { return size.height; };
-  //   calculate_result_size = [](Size& result, const Size& child_size) {
-  //     result.width += child_size.width;
-  //     result.height = std::max(result.height, child_size.height);
-  //   };
-  //   create_requirement = [](MeasureLength main, MeasureLength cross) {
-  //     return MeasureRequirement{main, cross};
-  //   };
-  // } else {
-  //   get_main_length = [](const Size& size) { return size.height; };
-  //   get_cross_length = [](const Size& size) { return size.width; };
-  //   calculate_result_size = [](Size& result, const Size& child_size) {
-  //     result.height += child_size.height;
-  //     result.width = std::max(result.width, child_size.width);
-  //   };
-  //   create_requirement = [](MeasureLength main, MeasureLength cross) {
-  //     return MeasureRequirement{cross, main};
-  //   };
-  // }
-
-  // const auto& children = GetChildren();
-  // Index children_count = children.size();
-
-  // if (!main_max_length.IsNotSpecify()) {
-  //   float remain_main_length = main_max_length.GetLengthOrMax();
-
-  //   for (Index i = 0; i < children_count; i++) {
-  //     const auto child = children[i];
-  //     child->Measure(create_requirement(remain_main_length,
-  //     cross_max_length)); const auto measure_result =
-  //     child->GetMeasuredSize(); remain_main_length -=
-  //     get_main_length(measure_result);
-  //   }
-
-  //   if (remain_main_length > 0) {
-  //     std::vector<Index> expand_children;
-  //     float total_expand_factor = 0;
-
-  //     for (Index i = 0; i < children_count; i++) {
-  //       const auto factor = GetChildLayoutData(i)->expand_factor;
-  //       if (factor > 0) {
-  //         expand_children.push_back(i);
-  //         total_expand_factor += factor;
-  //       }
-  //     }
-
-  //     for (const Index i : expand_children) {
-  //       const float distributed_grow_length =
-  //           remain_main_length *
-  //           (GetChildLayoutData(i)->expand_factor / total_expand_factor);
-  //       const auto child = children[i];
-  //       const float new_main_length =
-  //           get_main_length(child->GetMeasuredSize()) +
-  //           distributed_grow_length;
-  //       child->Measure(create_requirement(new_main_length,
-  //       cross_max_length));
-  //     }
-  //   } else if (remain_main_length < 0) {
-  //     std::vector<Index> shrink_children;
-  //     float total_shrink_factor = 0;
-
-  //     for (Index i = 0; i < children_count; i++) {
-  //       const auto factor = GetChildLayoutData(i)->shrink_factor;
-  //       if (factor > 0) {
-  //         shrink_children.push_back(i);
-  //         total_shrink_factor += factor;
-  //       }
-  //     }
-
-  //     for (const Index i : shrink_children) {
-  //       const float distributed_shrink_length =  // negative
-  //           remain_main_length *
-  //           (GetChildLayoutData(i)->shrink_factor / total_shrink_factor);
-  //       const auto child = children[i];
-  //       float new_main_length = get_main_length(child->GetMeasuredSize()) +
-  //                               distributed_shrink_length;
-  //       new_main_length = new_main_length > 0 ? new_main_length : 0;
-  //       child->Measure(create_requirement(new_main_length,
-  //       cross_max_length));
-  //     }
-  //   }
-  // } else {
-  //   for (Index i = 0; i < children_count; i++) {
-  //     const auto child = children[i];
-  //     child->Measure(requirement);
-  //   }
-  // }
-
-  // Size result;
-  // for (auto child : children) {
-  //   calculate_result_size(result, child->GetMeasuredSize());
-  // }
-
-  // return result;
+  const bool horizontal = (direction_ == FlexDirection::Horizontal ||
+                           direction_ == FlexDirection::HorizontalReverse);
+  if (horizontal) {
+    return FlexLayoutMeasureContentImpl<tag_horizontal_t>(
+        requirement, preferred_size, GetChildren(), GetChildLayoutDataList());
+  } else {
+    return FlexLayoutMeasureContentImpl<tag_vertical_t>(
+        requirement, preferred_size, GetChildren(), GetChildLayoutDataList());
+  }
 }
 
 void FlexLayoutRenderObject::OnLayoutContent(const Rect& content_rect) {

@@ -18,6 +18,10 @@ class LayoutRenderObject : public RenderObject {
 
   ~LayoutRenderObject() override = default;
 
+  const std::vector<ChildLayoutData>& GetChildLayoutDataList() const {
+    return this->child_layout_data_;
+  }
+
   ChildLayoutData* GetChildLayoutData(Index position) {
     Expects(position >= 0 &&
             position < static_cast<Index>(child_layout_data_.size()));

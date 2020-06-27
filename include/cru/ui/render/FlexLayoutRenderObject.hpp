@@ -6,7 +6,7 @@ namespace cru::ui::render {
 // 1. Layout all children with unspecified(infinate) max main axis length. If
 // max cross axis length of parent is specified, then it is passed to children.
 //
-// 2. Add up main axis length of children to get total length.
+// 2. Add up main axis length of children to get total main length.
 //
 //  2.1. If preferred main axis length of parent is specified, then compare
 //  total length with it. If bigger, shrink is performed. If smaller, expand is
@@ -18,17 +18,13 @@ namespace cru::ui::render {
 //    than max main axis length, shrink is performed and max main axis length is
 //    used as target length.
 //
-//    2.2.2. If min main axis length is specified and total length is smaller
+//    2.2.2. Or if max main axis length is specified and total length is smaller
+//    than max main axis length and any child has a positive expand factor, then
+//    expand is performed and max main axis length is used as target length.
+//
+//    2.2.3. Or if min main axis length is specified and total length is smaller
 //    than min main axis length, expand is performed and min main axis length is
 //    used as target length.
-//
-//    2.2.3. If any child has a positive expand factor and max main axis length
-//    is specified, then expand is performed and max main axis length is used as
-//    target length.
-//
-//    2.2.4. If any child has a positive expand factor and max main axis length
-//    is not specified but min main axis length is specified, then expand is
-//    performed and min main axis length is used as target length.
 //
 // 3. If shrink or expand is needed, then
 //
@@ -36,9 +32,9 @@ namespace cru::ui::render {
 //
 //    3.1.1. Find out all shrink_factor > 0 children to form a adjusting list.
 //
-//    3.1.2. Add up all main axis length of children and minus target length to
-//    get the total shrink length. Add up all shrink_factor in adjusting list to
-//    get total shrink factor.
+//    3.1.2. Use total main length minus target length to get the total shrink
+//    length. Add up all shrink_factor in adjusting list to get total shrink
+//    factor.
 //
 //    3.1.3. Iterate all children in adjusting list:
 //
@@ -54,17 +50,21 @@ namespace cru::ui::render {
 //      3.1.3.3. Or if new measure length is less than 0, then it is coerced to
 //      0.
 //
-//      3.1.3.4. Call measure with max main axis length set to new measure
-//      length. Cross axis length requirement is the same as step 1.
+//      3.1.3.4. Call measure with max and preferred main axis length set to new
+//      measure length. Cross axis length requirement is the same as step 1.
 //
 //      3.1.3.5. After measure, if it has min main axis length specified and
 //      actual main axis length is equal to it or its actual main axis length is
 //      0, then remove it from adjusting list.
 //
-//    3.1.4. If adjusting list is not empty, go to step 2).
+//    3.1.4. Add up main axis length of children to update total main length. If
+//    total main length is less than or equal to target length, goto step 4.
+//
+//    3.1.4. If adjusting list is not empty, go to step 3.1.2.
 //
 //  3.2. Expand:
-//    The same as shrink after you exchange related things.
+//    The same as shrink after you exchange related things except some minor
+//    things like do not do special things on 0.
 //
 // 4. If final total main axis length exceeeds the max main axis length (if
 // specified), then report an error. And result main axis length is the coerced
