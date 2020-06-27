@@ -326,88 +326,81 @@ Size FlexLayoutRenderObject::OnMeasureContent(
 }
 
 void FlexLayoutRenderObject::OnLayoutContent(const Rect& content_rect) {
-  // TODO: Rewrite this.
-  CRU_UNUSED(content_rect);
-  throw std::runtime_error("Not implemented.");
+  auto calculate_cross_anchor = [](FlexCrossAlignment alignment,
+                                   float start_point, float content_length,
+                                   float child_length) -> float {
+    switch (alignment) {
+      case FlexCrossAlignment::Start:
+        return start_point;
+      case FlexCrossAlignment::Center:
+        return start_point + (content_length - child_length) / 2.0f;
+      case FlexCrossAlignment::End:
+        return start_point + content_length - child_length;
+      default:
+        return start_point;
+    }
+  };
 
-  // auto calculate_anchor = [](int alignment, float start_point,
-  //                            float total_length,
-  //                            float content_length) -> float {
-  //   switch (alignment) {
-  //     case internal::align_start:
-  //       return start_point;
-  //     case internal::align_center:
-  //       return start_point + (total_length - content_length) / 2.0f;
-  //     case internal::align_end:
-  //       return start_point + total_length - content_length;
-  //     default:
-  //       return start_point;
-  //   }
-  // };
+  const auto& children = GetChildren();
+  const Index child_count = children.size();
 
-  // const auto& children = GetChildren();
-  // if (direction_ == FlexDirection::Horizontal ||
-  //     direction_ == FlexDirection::HorizontalReverse) {
-  //   float actual_content_width = 0;
-  //   for (const auto child : children) {
-  //     actual_content_width += child->GetMeasuredSize().width;
-  //   }
+  if (direction_ == FlexDirection::Horizontal) {
+    float current_main_offset = 0;
+    for (Index i = 0; i < child_count; i++) {
+      const auto child = children[i];
+      const auto size = child->GetSize();
+      const auto cross_align =
+          GetChildLayoutDataList()[i].cross_alignment.value_or(
+              GetItemCrossAlign());
+      child->Layout(
+          Point{content_rect.left + current_main_offset,
+                calculate_cross_anchor(cross_align, content_rect.top,
+                                       content_rect.height, size.height)});
+      current_main_offset += size.width;
+    }
 
-  //   const float content_anchor_x =
-  //       calculate_anchor(static_cast<int>(content_main_align_), 0,
-  //                        content_rect.width, actual_content_width);
-
-  //   float anchor_x = 0;
-  //   for (int i = 0; i < static_cast<int>(children.size()); i++) {
-  //     const auto child = children[i];
-  //     const auto size = child->GetMeasuredSize();
-
-  //     float real_anchor_x = anchor_x + content_anchor_x;
-  //     if (direction_ == FlexDirection::Horizontal)
-  //       real_anchor_x = content_rect.left + real_anchor_x;
-  //     else
-  //       real_anchor_x = content_rect.GetRight() - real_anchor_x;
-  //     child->Layout(Rect{
-  //         real_anchor_x,
-  //         calculate_anchor(
-  //             static_cast<int>(GetChildLayoutData(i)->cross_alignment.value_or(
-  //                 this->item_cross_align_)),
-  //             content_rect.top, content_rect.height, size.height),
-  //         size.width, size.height});
-
-  //     anchor_x += size.width;
-  //   }
-  // } else {
-  //   float actual_content_height = 0;
-  //   for (const auto child : children) {
-  //     actual_content_height = child->GetMeasuredSize().height;
-  //   }
-
-  //   const float content_anchor_y =
-  //       calculate_anchor(static_cast<int>(content_main_align_), 0,
-  //                        content_rect.height, actual_content_height);
-
-  //   float anchor_y = 0;
-  //   for (int i = 0; i < static_cast<int>(children.size()); i++) {
-  //     const auto child = children[i];
-  //     const auto size = child->GetMeasuredSize();
-
-  //     float real_anchor_y = anchor_y + content_anchor_y;
-  //     if (direction_ == FlexDirection::Vertical) {
-  //       real_anchor_y = content_rect.top + real_anchor_y;
-  //     } else {
-  //       real_anchor_y = content_rect.GetBottom() - real_anchor_y;
-  //     }
-  //     child->Layout(Rect{
-  //         real_anchor_y,
-  //         calculate_anchor(
-  //             static_cast<int>(GetChildLayoutData(i)->cross_alignment.value_or(
-  //                 this->item_cross_align_)),
-  //             content_rect.left, content_rect.width, size.width),
-  //         size.width, size.height});
-
-  //     anchor_y += size.height;
-  //   }
-  // }
+  } else if (direction_ == FlexDirection::HorizontalReverse) {
+    float current_main_offset = 0;
+    for (Index i = 0; i < child_count; i++) {
+      const auto child = children[i];
+      const auto size = child->GetSize();
+      const auto cross_align =
+          GetChildLayoutDataList()[i].cross_alignment.value_or(
+              GetItemCrossAlign());
+      child->Layout(
+          Point{content_rect.GetRight() - current_main_offset,
+                calculate_cross_anchor(cross_align, content_rect.top,
+                                       content_rect.height, size.height)});
+      current_main_offset += size.width;
+    }
+  } else if (direction_ == FlexDirection::Vertical) {
+    float current_main_offset = 0;
+    for (Index i = 0; i < child_count; i++) {
+      const auto child = children[i];
+      const auto size = child->GetSize();
+      const auto cross_align =
+          GetChildLayoutDataList()[i].cross_alignment.value_or(
+              GetItemCrossAlign());
+      child->Layout(
+          Point{content_rect.top + current_main_offset,
+                calculate_cross_anchor(cross_align, content_rect.left,
+                                       content_rect.width, size.width)});
+      current_main_offset += size.height;
+    }
+  } else {
+    float current_main_offset = 0;
+    for (Index i = 0; i < child_count; i++) {
+      const auto child = children[i];
+      const auto size = child->GetSize();
+      const auto cross_align =
+          GetChildLayoutDataList()[i].cross_alignment.value_or(
+              GetItemCrossAlign());
+      child->Layout(
+          Point{content_rect.GetBottom() - current_main_offset,
+                calculate_cross_anchor(cross_align, content_rect.left,
+                                       content_rect.width, size.width)});
+      current_main_offset += size.height;
+    }
+  }
 }
 }  // namespace cru::ui::render

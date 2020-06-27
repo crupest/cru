@@ -190,14 +190,12 @@ namespace internal {
 constexpr int align_start = 0;
 constexpr int align_end = align_start + 1;
 constexpr int align_center = align_end + 1;
-constexpr int align_stretch = align_center + 1;
 }  // namespace internal
 
 enum class Alignment {
   Start = internal::align_start,
   End = internal::align_end,
   Center = internal::align_center,
-  Stretch = internal::align_stretch
 };
 
 struct CornerRadius {
