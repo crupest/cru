@@ -2,6 +2,8 @@
 #include "LayoutRenderObject.hpp"
 
 namespace cru::ui::render {
+// Measure Logic:
+// 
 class StackLayoutRenderObject
     : public LayoutRenderObject<StackChildLayoutData> {
  public:
@@ -11,7 +13,8 @@ class StackLayoutRenderObject
   ~StackLayoutRenderObject() = default;
 
  protected:
-  Size OnMeasureContent(const MeasureRequirement& requirement, const MeasureSize& preferred_size) override;
+  Size OnMeasureContent(const MeasureRequirement& requirement,
+                        const MeasureSize& preferred_size) override;
   void OnLayoutContent(const Rect& content_rect) override;
 };
 }  // namespace cru::ui::render

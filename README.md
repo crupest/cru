@@ -10,7 +10,13 @@ It is **under construction**. It can be built with _CMake_.
 
 ## build
 
-You need to install [_vcpkg_](https://github.com/microsoft/vcpkg) and use it to install `gtest` package (the only package and is used for test). Remember to add it to PATH and set environment variable `VCPKG_INSTALLATION_ROOT` and install package with correct triplet as the target you want to build against.
+You need to install [_vcpkg_](https://github.com/microsoft/vcpkg) and use it to install following packages:
+
+- `ms-gsl`
+- `fmt`
+- `gtest`
+
+Remember to add vcpkg to PATH and set environment variable `VCPKG_INSTALLATION_ROOT` and install package with correct triplet as the target you want to build against.
 
 Then use _CMake_ to configure and build. Remember to set correct toolchain as in _vcpkg_ documents for _CMake_ to find packages.
 
@@ -24,13 +30,23 @@ Check the code or fire a issue if you have any problem.
 
 - `src/` contains the main codes including headers and sources.
 
+- `test/` contains unit tests. Only targets in this directories need `gtest`.
+
+- `demo/` contains sources of demo excutable targets. They are mostly used for integrated tests but can also be used for demonstration.
+
+- `docs` contains docs-related things.
+
 - `tools/` contains some codes of tools like code generators.
 
   - `tools/cppmerge` contains a _python_ script program that merges all cpp headers and sources into one **single** header and source. **Not use now**.
 
+  - `migrate-1/` contains _python_ scripts that migrate all header and source files into CamelCase. **Not use after migration**.
+
   - `tools/build.py` is a python3 script to build the source code.
 
-- `snippets/` contains useful snippets file for _Visual Studio_, you can import it.
+- `snippets/` contains useful snippets file for _Visual Studio_, you can import it. **No longer use any more**, because now I develop CruUI in VS Code.
+
+- `drafts/` contains draft codes during refactor etc. They are not in main source but I think might be used in the future.
 
 - `CMakeSettings.json` is a file that helps _Visual Studio_ to config CMake and setup intellisense.
 
