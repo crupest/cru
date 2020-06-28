@@ -12,16 +12,6 @@ WindowRenderObject::WindowRenderObject(UiHost* host) {
       [this](auto) { NotifyAfterLayoutRecursive(this); }));
 }
 
-void WindowRenderObject::Draw(platform::graph::IPainter* painter) {
-  painter->Clear(colors::white);
-  if (const auto child = GetChild()) {
-    auto offset = child->GetOffset();
-    platform::graph::util::WithTransform(
-        painter, platform::Matrix::Translation(offset.x, offset.y),
-        [child](platform::graph::IPainter* p) { child->Draw(p); });
-  }
-}
-
 RenderObject* WindowRenderObject::HitTest(const Point& point) {
   if (const auto child = GetChild()) {
     auto offset = child->GetOffset();

@@ -118,46 +118,40 @@ void TextRenderObject::SetCaretWidth(const float width) {
   }
 }
 
-void TextRenderObject::Draw(platform::graph::IPainter* painter) {
-  platform::graph::util::WithTransform(
-      painter,
-      platform::Matrix::Translation(GetMargin().left + GetPadding().left,
-                                    GetMargin().top + GetPadding().top),
-      [this](platform::graph::IPainter* p) {
-        if (this->selection_range_.has_value()) {
-          const auto&& rects =
-              text_layout_->TextRangeRect(this->selection_range_.value());
-          for (const auto& rect : rects)
-            p->FillRectangle(rect, this->GetSelectionBrush().get());
-        }
-
-        p->DrawText(Point{}, text_layout_.get(), brush_.get());
-
-        if (this->draw_caret_ && this->caret_width_ != 0.0f) {
-          auto caret_pos = this->caret_position_;
-          gsl::index text_size = this->GetText().size();
-          if (caret_pos < 0) {
-            caret_pos = 0;
-          } else if (caret_pos > text_size) {
-            caret_pos = text_size;
-          }
-
-          const auto caret_top_center =
-              this->text_layout_->TextSinglePoint(caret_pos, false);
-
-          const auto font_height = this->font_->GetFontSize();
-          const auto caret_width = this->caret_width_;
-
-          p->FillRectangle(Rect{caret_top_center.x - caret_width / 2.0f,
-                                caret_top_center.y, caret_width, font_height},
-                           this->caret_brush_.get());
-        }
-      });
-}
-
 RenderObject* TextRenderObject::HitTest(const Point& point) {
   const auto padding_rect = GetPaddingRect();
   return padding_rect.IsPointInside(point) ? this : nullptr;
+}
+
+void TextRenderObject::OnDrawContent(platform::graph::IPainter* painter) {
+  if (this->selection_range_.has_value()) {
+    const auto&& rects =
+        text_layout_->TextRangeRect(this->selection_range_.value());
+    for (const auto& rect : rects)
+      painter->FillRectangle(rect, this->GetSelectionBrush().get());
+  }
+
+  painter->DrawText(Point{}, text_layout_.get(), brush_.get());
+
+  if (this->draw_caret_ && this->caret_width_ != 0.0f) {
+    auto caret_pos = this->caret_position_;
+    gsl::index text_size = this->GetText().size();
+    if (caret_pos < 0) {
+      caret_pos = 0;
+    } else if (caret_pos > text_size) {
+      caret_pos = text_size;
+    }
+
+    const auto caret_top_center =
+        this->text_layout_->TextSinglePoint(caret_pos, false);
+
+    const auto font_height = this->font_->GetFontSize();
+    const auto caret_width = this->caret_width_;
+
+    painter->FillRectangle(Rect{caret_top_center.x - caret_width / 2.0f,
+                                caret_top_center.y, caret_width, font_height},
+                           this->caret_brush_.get());
+  }
 }
 
 Size TextRenderObject::OnMeasureContent(const MeasureRequirement& requirement,

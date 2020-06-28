@@ -231,6 +231,7 @@ void UiHost::OnNativeDestroy(INativeWindow* window, std::nullptr_t) {
 
 void UiHost::OnNativePaint(INativeWindow* window, std::nullptr_t) {
   auto painter = window->BeginPaint();
+  painter->Clear(colors::white);
   root_render_object_->Draw(painter.get());
   painter->EndDraw();
 }

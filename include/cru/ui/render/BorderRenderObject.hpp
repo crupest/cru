@@ -62,11 +62,11 @@ class BorderRenderObject : public RenderObject {
 
   void SetBorderStyle(const BorderStyle& style);
 
-  void Draw(platform::graph::IPainter* painter) override;
-
   RenderObject* HitTest(const Point& point) override;
 
  protected:
+  void OnDrawCore(platform::graph::IPainter* painter) override;
+
   Size OnMeasureCore(const MeasureRequirement& requirement,
                      const MeasureSize& preferred_size) override;
   void OnLayoutCore() override;

@@ -15,8 +15,6 @@ class CanvasRenderObject : public RenderObject {
   ~CanvasRenderObject();
 
  public:
-  void Draw(platform::graph::IPainter* painter) override;
-
   RenderObject* HitTest(const Point& point) override;
 
   Size GetDesiredSize() const { return desired_size_; }
@@ -24,6 +22,8 @@ class CanvasRenderObject : public RenderObject {
   IEvent<CanvasPaintEventArgs>* PaintEvent() { return &paint_event_; }
 
  protected:
+  void OnDrawContent(platform::graph::IPainter* painter) override;
+
   Size OnMeasureContent(const MeasureRequirement& requirement,
                         const MeasureSize& preferred_size) override;
   void OnLayoutContent(const Rect& content_rect) override;

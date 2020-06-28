@@ -13,8 +13,6 @@ class ScrollRenderObject : public RenderObject {
 
   ~ScrollRenderObject() override = default;
 
-  void Draw(platform::graph::IPainter* painter) override;
-
   RenderObject* HitTest(const Point& point) override;
 
   // Return the coerced scroll offset.
@@ -23,11 +21,14 @@ class ScrollRenderObject : public RenderObject {
   Point GetRawScrollOffset() const { return scroll_offset_; }
 
  protected:
+  void OnDrawCore(platform::graph::IPainter* painter) override;
+
   // Logic:
   // If available size is bigger than child's preferred size, then child's
   // preferred size is taken.
   // If not, all available size is taken while forming a scroll area.
-  Size OnMeasureContent(const MeasureRequirement& requirement, const MeasureSize& preferred_size) override;
+  Size OnMeasureContent(const MeasureRequirement& requirement,
+                        const MeasureSize& preferred_size) override;
   void OnLayoutContent(const Rect& content_rect) override;
 
  private:

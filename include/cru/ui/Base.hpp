@@ -243,18 +243,18 @@ struct BorderStyle {
 class CanvasPaintEventArgs {
  public:
   CanvasPaintEventArgs(platform::graph::IPainter* painter,
-                       const Rect& paint_rect)
-      : painter_(painter), paint_rect_(paint_rect) {}
+                       const Size& paint_size)
+      : painter_(painter), paint_size_(paint_size) {}
   CRU_DEFAULT_COPY(CanvasPaintEventArgs)
   CRU_DEFAULT_MOVE(CanvasPaintEventArgs)
   ~CanvasPaintEventArgs() = default;
 
   platform::graph::IPainter* GetPainter() const { return painter_; }
-  Rect GetPaintRect() const { return paint_rect_; }
+  Size GetPaintSize() const { return paint_size_; }
 
  private:
   platform::graph::IPainter* painter_;
-  Rect paint_rect_;
+  Size paint_size_;
 };
 
 enum class FlexDirection {

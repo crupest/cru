@@ -35,8 +35,6 @@ class LayoutRenderObject : public RenderObject {
     return this->child_layout_data_[position];
   }
 
-  void Draw(platform::graph::IPainter* painter) override;
-
   RenderObject* HitTest(const Point& point) override;
 
  protected:
@@ -46,17 +44,6 @@ class LayoutRenderObject : public RenderObject {
  private:
   std::vector<ChildLayoutData> child_layout_data_{};
 };
-
-template <typename TChildLayoutData>
-void LayoutRenderObject<TChildLayoutData>::Draw(
-    platform::graph::IPainter* painter) {
-  for (const auto child : GetChildren()) {
-    auto offset = child->GetOffset();
-    platform::graph::util::WithTransform(
-        painter, platform::Matrix::Translation(offset.x, offset.y),
-        [child](auto p) { child->Draw(p); });
-  }
-}
 
 template <typename TChildLayoutData>
 RenderObject* LayoutRenderObject<TChildLayoutData>::HitTest(

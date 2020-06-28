@@ -5,15 +5,15 @@ CanvasRenderObject::CanvasRenderObject() : RenderObject(ChildMode::None) {}
 
 CanvasRenderObject::~CanvasRenderObject() = default;
 
-void CanvasRenderObject::Draw(platform::graph::IPainter* painter) {
-  const auto rect = GetContentRect();
-  CanvasPaintEventArgs args{painter, rect};
-  paint_event_.Raise(args);
-}
-
 RenderObject* CanvasRenderObject::HitTest(const Point& point) {
   const auto padding_rect = GetPaddingRect();
   return padding_rect.IsPointInside(point) ? this : nullptr;
+}
+
+void CanvasRenderObject::OnDrawContent(platform::graph::IPainter* painter) {
+  const auto rect = GetContentRect();
+  CanvasPaintEventArgs args{painter, rect.GetSize()};
+  paint_event_.Raise(args);
 }
 
 Size CanvasRenderObject::OnMeasureContent(const MeasureRequirement& requirement,

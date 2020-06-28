@@ -11,8 +11,6 @@ class WindowRenderObject : public RenderObject {
   WindowRenderObject& operator=(WindowRenderObject&& other) = delete;
   ~WindowRenderObject() override = default;
 
-  void Draw(platform::graph::IPainter* painter) override;
-
   RenderObject* HitTest(const Point& point) override;
 
  protected:

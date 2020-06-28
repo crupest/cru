@@ -31,17 +31,6 @@ Point CoerceScroll(const Point& scroll_offset, const Size& content_size,
 }
 }  // namespace
 
-void ScrollRenderObject::Draw(platform::graph::IPainter* painter) {
-  if (const auto child = GetSingleChild()) {
-    painter->PushLayer(this->GetPaddingRect());
-    const auto offset = child->GetOffset();
-    platform::graph::util::WithTransform(
-        painter, Matrix::Translation(offset.x, offset.y),
-        [child](platform::graph::IPainter* p) { child->Draw(p); });
-    painter->PopLayer();
-  }
-}
-
 RenderObject* ScrollRenderObject::HitTest(const Point& point) {
   if (const auto child = GetSingleChild()) {
     const auto offset = child->GetOffset();
@@ -52,6 +41,18 @@ RenderObject* ScrollRenderObject::HitTest(const Point& point) {
   const auto rect = GetPaddingRect();
   return rect.IsPointInside(point) ? this : nullptr;
 }  // namespace cru::ui::render
+
+void ScrollRenderObject::OnDrawCore(platform::graph::IPainter* painter) {
+  DefaultDrawContent(painter);
+  if (const auto child = GetSingleChild()) {
+    painter->PushLayer(this->GetPaddingRect());
+    const auto offset = child->GetOffset();
+    platform::graph::util::WithTransform(
+        painter, Matrix::Translation(offset.x, offset.y),
+        [child](platform::graph::IPainter* p) { child->Draw(p); });
+    painter->PopLayer();
+  }
+}
 
 Point ScrollRenderObject::GetScrollOffset() {
   if (const auto child = GetSingleChild())

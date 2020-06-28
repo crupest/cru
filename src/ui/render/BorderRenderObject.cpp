@@ -16,28 +16,6 @@ BorderRenderObject::BorderRenderObject() {
 
 BorderRenderObject::~BorderRenderObject() {}
 
-void BorderRenderObject::Draw(platform::graph::IPainter* painter) {
-  if (background_brush_ != nullptr)
-    painter->FillGeometry(border_inner_geometry_.get(),
-                          background_brush_.get());
-  if (is_border_enabled_) {
-    if (border_brush_ == nullptr) {
-      log::Warn("Border is enabled but brush is null");
-    } else {
-      painter->FillGeometry(geometry_.get(), border_brush_.get());
-    }
-  }
-  if (const auto child = GetSingleChild()) {
-    auto offset = child->GetOffset();
-    platform::graph::util::WithTransform(
-        painter, platform::Matrix::Translation(offset.x, offset.y),
-        [child](auto p) { child->Draw(p); });
-  }
-  if (foreground_brush_ != nullptr)
-    painter->FillGeometry(border_inner_geometry_.get(),
-                          foreground_brush_.get());
-}
-
 void BorderRenderObject::SetBorderStyle(const BorderStyle& style) {
   border_brush_ = style.border_brush;
   border_thickness_ = style.border_thickness;
@@ -71,6 +49,27 @@ RenderObject* BorderRenderObject::HitTest(const Point& point) {
                ? this
                : nullptr;
   }
+}
+
+void BorderRenderObject::OnDrawCore(platform::graph::IPainter* painter) {
+  if (background_brush_ != nullptr)
+    painter->FillGeometry(border_inner_geometry_.get(),
+                          background_brush_.get());
+  if (is_border_enabled_) {
+    if (border_brush_ == nullptr) {
+      log::Warn("Border is enabled but brush is null");
+    } else {
+      painter->FillGeometry(geometry_.get(), border_brush_.get());
+    }
+  }
+
+  DefaultDrawContent(painter);
+
+  if (foreground_brush_ != nullptr)
+    painter->FillGeometry(border_inner_geometry_.get(),
+                          foreground_brush_.get());
+
+  DefaultDrawChildren(painter);
 }
 
 Size BorderRenderObject::OnMeasureCore(const MeasureRequirement& requirement,

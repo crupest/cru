@@ -72,11 +72,11 @@ class TextRenderObject : public RenderObject {
   float GetCaretWidth() const { return caret_width_; }
   void SetCaretWidth(float width);
 
-  void Draw(platform::graph::IPainter* painter) override;
-
   RenderObject* HitTest(const Point& point) override;
 
  protected:
+  void OnDrawContent(platform::graph::IPainter* painter) override;
+
   // See remarks of this class.
   Size OnMeasureContent(const MeasureRequirement& requirement,
                         const MeasureSize& preferred_size) override;
