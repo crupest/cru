@@ -3,7 +3,24 @@
 
 namespace cru::ui::render {
 // Measure Logic:
-// 
+// Following rules are applied both horizontally and vertically.
+//
+// 1. Measure each children with min size not specified and max size as
+// following rules:
+//
+//    1.1. If parent's preferred size is set and it is not less than child's min
+//    size, then it is used as child's max size.
+//
+//    1.2. Or if parent's max size is set, then it is used as child's max size.
+//    If it is less than child's min size, then log an warning about that.
+//
+// 2. Result size is children's max size.
+//
+// 3. If preferred size is specified and result size is smaller than it, coerce
+// result size to preferred size.
+//
+// 4. If result size is smaller than min size (if specified), coerce result size
+// to min size.
 class StackLayoutRenderObject
     : public LayoutRenderObject<StackChildLayoutData> {
  public:

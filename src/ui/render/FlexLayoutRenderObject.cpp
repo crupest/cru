@@ -2,6 +2,7 @@
 
 #include "cru/common/Logger.hpp"
 #include "cru/platform/graph/util/Painter.hpp"
+#include "cru/ui/render/LayoutHelper.hpp"
 
 #include <algorithm>
 #include <functional>
@@ -101,11 +102,25 @@ Size FlexLayoutMeasureContentImpl(
   MeasureLength min_main_length = GetMain(requirement.min, direction_tag);
   MeasureLength min_cross_length = GetCross(requirement.min, direction_tag);
 
-  // step 1.
+  std::vector<MeasureLength> child_cross_measure_requirement;
+  child_cross_measure_requirement.reserve(children.size());
+
   for (auto child : children) {
+    child_cross_measure_requirement.push_back(
+        StackLayoutCalculateChildMaxLength(
+            preferred_cross_length, max_cross_length,
+            GetCross(child->GetMinSize(), direction_tag),
+            "StackLayoutRenderObject: Child's min cross size is bigger than "
+            "parent's max cross size."));
+  }
+
+  // step 1.
+  for (Index i = 0; i < child_count; i++) {
+    const auto child = children[i];
     child->Measure(MeasureRequirement{CreateTSize<MeasureSize>(
                                           MeasureLength::NotSpecified(),
-                                          max_cross_length, direction_tag),
+                                          child_cross_measure_requirement[i],
+                                          direction_tag),
                                       MeasureSize::NotSpecified()},
                    MeasureSize::NotSpecified());
   }
@@ -193,13 +208,15 @@ Size FlexLayoutMeasureContentImpl(
           new_measure_length = 0.f;
         }
 
-        child->Measure(MeasureRequirement{CreateTSize<MeasureSize>(
-                                              new_measure_length,
-                                              max_cross_length, direction_tag),
-                                          MeasureSize::NotSpecified()},
-                       CreateTSize<MeasureSize>(new_measure_length,
-                                                MeasureLength::NotSpecified(),
-                                                direction_tag));
+        child->Measure(
+            MeasureRequirement{
+                CreateTSize<MeasureSize>(new_measure_length,
+                                         child_cross_measure_requirement[i],
+                                         direction_tag),
+                MeasureSize::NotSpecified()},
+            CreateTSize<MeasureSize>(new_measure_length,
+                                     MeasureLength::NotSpecified(),
+                                     direction_tag));
 
         const Size new_size = child->GetSize();
         const float new_main_length = GetMain(new_size, direction_tag);
@@ -256,7 +273,8 @@ Size FlexLayoutMeasureContentImpl(
         child->Measure(
             MeasureRequirement{
                 CreateTSize<MeasureSize>(MeasureLength::NotSpecified(),
-                                         max_cross_length, direction_tag),
+                                         child_cross_measure_requirement[i],
+                                         direction_tag),
                 CreateTSize<MeasureSize>(new_measure_length,
                                          MeasureLength::NotSpecified(),
                                          direction_tag)},
@@ -303,10 +321,10 @@ Size FlexLayoutMeasureContentImpl(
     total_length = min_main_length.GetLengthOrUndefined();
   }
 
-  if (min_main_length.IsSpecified() &&
-      child_max_cross_length < min_main_length.GetLengthOrUndefined()) {
-    child_max_cross_length = min_main_length.GetLengthOrUndefined();
-  }
+  child_max_cross_length =
+      std::max(preferred_cross_length.GetLengthOr0(), child_max_cross_length);
+  child_max_cross_length =
+      std::max(min_cross_length.GetLengthOr0(), child_max_cross_length);
 
   return CreateTSize<Size>(total_length, child_max_cross_length, direction_tag);
 }
@@ -326,21 +344,6 @@ Size FlexLayoutRenderObject::OnMeasureContent(
 }
 
 void FlexLayoutRenderObject::OnLayoutContent(const Rect& content_rect) {
-  auto calculate_cross_anchor = [](FlexCrossAlignment alignment,
-                                   float start_point, float content_length,
-                                   float child_length) -> float {
-    switch (alignment) {
-      case FlexCrossAlignment::Start:
-        return start_point;
-      case FlexCrossAlignment::Center:
-        return start_point + (content_length - child_length) / 2.0f;
-      case FlexCrossAlignment::End:
-        return start_point + content_length - child_length;
-      default:
-        return start_point;
-    }
-  };
-
   const auto& children = GetChildren();
   const Index child_count = children.size();
 
@@ -354,8 +357,8 @@ void FlexLayoutRenderObject::OnLayoutContent(const Rect& content_rect) {
               GetItemCrossAlign());
       child->Layout(
           Point{content_rect.left + current_main_offset,
-                calculate_cross_anchor(cross_align, content_rect.top,
-                                       content_rect.height, size.height)});
+                CalculateAnchorByAlignment(cross_align, content_rect.top,
+                                           content_rect.height, size.height)});
       current_main_offset += size.width;
     }
 
@@ -369,8 +372,8 @@ void FlexLayoutRenderObject::OnLayoutContent(const Rect& content_rect) {
               GetItemCrossAlign());
       child->Layout(
           Point{content_rect.GetRight() - current_main_offset,
-                calculate_cross_anchor(cross_align, content_rect.top,
-                                       content_rect.height, size.height)});
+                CalculateAnchorByAlignment(cross_align, content_rect.top,
+                                           content_rect.height, size.height)});
       current_main_offset += size.width;
     }
   } else if (direction_ == FlexDirection::Vertical) {
@@ -383,8 +386,8 @@ void FlexLayoutRenderObject::OnLayoutContent(const Rect& content_rect) {
               GetItemCrossAlign());
       child->Layout(
           Point{content_rect.top + current_main_offset,
-                calculate_cross_anchor(cross_align, content_rect.left,
-                                       content_rect.width, size.width)});
+                CalculateAnchorByAlignment(cross_align, content_rect.left,
+                                           content_rect.width, size.width)});
       current_main_offset += size.height;
     }
   } else {
@@ -397,8 +400,8 @@ void FlexLayoutRenderObject::OnLayoutContent(const Rect& content_rect) {
               GetItemCrossAlign());
       child->Layout(
           Point{content_rect.GetBottom() - current_main_offset,
-                calculate_cross_anchor(cross_align, content_rect.left,
-                                       content_rect.width, size.width)});
+                CalculateAnchorByAlignment(cross_align, content_rect.left,
+                                           content_rect.width, size.width)});
       current_main_offset += size.height;
     }
   }

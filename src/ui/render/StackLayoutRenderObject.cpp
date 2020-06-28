@@ -1,60 +1,53 @@
 #include "cru/ui/render/StackLayoutRenderObject.hpp"
 
+#include "cru/common/Logger.hpp"
+#include "cru/ui/render/LayoutHelper.hpp"
+
 #include <algorithm>
 
 namespace cru::ui::render {
 Size StackLayoutRenderObject::OnMeasureContent(
     const MeasureRequirement& requirement, const MeasureSize& preferred_size) {
-  // TODO: Rewrite this.
-  CRU_UNUSED(requirement);
-  CRU_UNUSED(preferred_size);
-  throw std::runtime_error("Not implemented.");
+  Size max_size;
+  for (const auto child : GetChildren()) {
+    child->Measure(
+        MeasureRequirement{
+            MeasureSize{StackLayoutCalculateChildMaxLength(
+                            preferred_size.width, requirement.max.width,
+                            child->GetMinSize().width,
+                            "StackLayoutRenderObject: Child's min width is "
+                            "bigger than parent's max width."),
+                        StackLayoutCalculateChildMaxLength(
+                            preferred_size.height, requirement.max.height,
+                            child->GetMinSize().height,
+                            "StackLayoutRenderObject: Child's min height is "
+                            "bigger than parent's max height.")},
+            MeasureSize::NotSpecified()},
+        MeasureSize::NotSpecified());
+    const auto size = child->GetSize();
+    max_size.width = std::max(max_size.width, size.width);
+    max_size.height = std::max(max_size.height, size.height);
+  }
 
-  // throw std::runtime_error("Not implemented.");
-  // auto size = Size{};
-  // for (const auto child : GetChildren()) {
-  //   child->Measure(requirement);
-  //   const auto& measure_result = child->GetMeasuredSize();
-  //   size.width = std::max(size.width, measure_result.width);
-  //   size.height = std::max(size.height, measure_result.height);
-  // }
-  // return size;
+  max_size = Max(preferred_size.GetSizeOr0(), max_size);
+  max_size = Max(requirement.min.GetSizeOr0(), max_size);
+
+  return max_size;
 }
 
 void StackLayoutRenderObject::OnLayoutContent(const Rect& content_rect) {
-  // TODO: Rewrite this.
-  CRU_UNUSED(content_rect);
-  throw std::runtime_error("Not implemented.");
+  const auto count = GetChildCount();
+  const auto& children = GetChildren();
 
-  // auto calculate_anchor = [](int alignment, float start_point,
-  //                            float total_length,
-  //                            float content_length) -> float {
-  //   switch (alignment) {
-  //     case internal::align_start:
-  //       return start_point;
-  //     case internal::align_center:
-  //       return start_point + (total_length - content_length) / 2.0f;
-  //     case internal::align_end:
-  //       return start_point + total_length - content_length;
-  //     default:
-  //       return start_point;
-  //   }
-  // };
-
-  // const auto count = GetChildCount();
-  // const auto& children = GetChildren();
-
-  // for (int i = 0; i < count; i++) {
-  //   const auto layout_data = GetChildLayoutData(i);
-  //   const auto child = children[i];
-  //   const auto& size = child->GetMeasuredSize();
-  //   child->Layout(
-  //       Rect{calculate_anchor(static_cast<int>(layout_data->horizontal),
-  //                             rect.left, rect.width, size.width),
-  //            calculate_anchor(static_cast<int>(layout_data->vertical),
-  //            rect.top,
-  //                             rect.height, size.height),
-  //            size.width, size.height});
-  // }
+  for (int i = 0; i < count; i++) {
+    const auto child = children[i];
+    const auto& layout_data = GetChildLayoutData(i);
+    const auto& size = child->GetSize();
+    child->Layout(Point{
+        CalculateAnchorByAlignment(layout_data.horizontal, content_rect.left,
+                                   content_rect.width, size.width),
+        CalculateAnchorByAlignment(layout_data.vertical, content_rect.top,
+                                   content_rect.height, size.height)});
+  }
 }
 }  // namespace cru::ui::render

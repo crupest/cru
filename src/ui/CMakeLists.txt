@@ -23,6 +23,7 @@ add_library(cru_ui STATIC
 	render/BorderRenderObject.cpp
 	render/CanvasRenderObject.cpp
 	render/FlexLayoutRenderObject.cpp
+	render/LayoutHelper.cpp
 	render/RenderObject.cpp
 	render/ScrollRenderObject.cpp
 	render/StackLayoutRenderObject.cpp
@@ -51,6 +52,7 @@ target_sources(cru_ui PUBLIC
 	${CRU_UI_INCLUDE_DIR}/render/BorderRenderObject.hpp
 	${CRU_UI_INCLUDE_DIR}/render/CanvasRenderObject.hpp
 	${CRU_UI_INCLUDE_DIR}/render/FlexLayoutRenderObject.hpp
+	${CRU_UI_INCLUDE_DIR}/render/LayoutHelper.hpp
 	${CRU_UI_INCLUDE_DIR}/render/LayoutRenderObject.hpp
 	${CRU_UI_INCLUDE_DIR}/render/MeasureRequirement.hpp
 	${CRU_UI_INCLUDE_DIR}/render/RenderObject.hpp

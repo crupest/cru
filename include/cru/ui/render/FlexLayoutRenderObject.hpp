@@ -3,8 +3,9 @@
 
 namespace cru::ui::render {
 // Measure Logic (v0.1):
-// 1. Layout all children with unspecified(infinate) max main axis length. If
-// max cross axis length of parent is specified, then it is passed to children.
+// Cross axis measure logic is the same as stack layout.
+//
+// 1. Layout all children with unspecified(infinate) max main axis length.
 //
 // 2. Add up main axis length of children to get total main length.
 //
@@ -71,10 +72,6 @@ namespace cru::ui::render {
 // length. If final total main axis length is smaller than min main axis length
 // (if specified), then coerce the length to the min value but not report error
 // and just fill the rest space with blank.
-//
-// 5. Result cross axis length is the max cross axis length of all children. If
-// min cross axis length is specified and result length is smaller than it, then
-// result length is coerced to it.
 //
 class FlexLayoutRenderObject : public LayoutRenderObject<FlexChildLayoutData> {
  public:
