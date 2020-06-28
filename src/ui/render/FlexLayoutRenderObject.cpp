@@ -148,7 +148,7 @@ Size FlexLayoutMeasureContentImpl(
       }
     }
     // Do not use else here.
-    if (adjust_type != FlexLayoutAdjustType::None &&
+    if (adjust_type == FlexLayoutAdjustType::None &&
         min_main_length.IsSpecified() &&
         min_main_length.GetLengthOrUndefined() > total_length) {
       adjust_type = FlexLayoutAdjustType::Expand;
