@@ -160,7 +160,7 @@ Size TextRenderObject::OnMeasureContent(const MeasureRequirement& requirement,
   if (preferred_size.width.IsSpecified())
     measure_width = preferred_size.width.GetLengthOrUndefined();
   else
-    measure_width = preferred_size.width.GetLengthOrMax();
+    measure_width = requirement.max.width.GetLengthOrMax();
 
   text_layout_->SetMaxWidth(measure_width);
   text_layout_->SetMaxHeight(std::numeric_limits<float>::max());
