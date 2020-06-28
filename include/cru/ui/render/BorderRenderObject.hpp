@@ -3,6 +3,8 @@
 
 namespace cru::ui::render {
 class BorderRenderObject : public RenderObject {
+  CRU_DEFINE_CLASS_LOG_TAG("cru::ui::render::BorderRenderObject")
+
  public:
   BorderRenderObject();
   BorderRenderObject(const BorderRenderObject& other) = delete;

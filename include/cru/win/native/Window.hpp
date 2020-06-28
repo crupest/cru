@@ -1,13 +1,15 @@
 #pragma once
 #include "Resource.hpp"
 
-#include "cru/platform/native/Window.hpp"
 #include "WindowNativeMessageEventArgs.hpp"
+#include "cru/platform/native/Window.hpp"
 
 #include <memory>
 
 namespace cru::platform::native::win {
 class WinNativeWindow : public WinNativeResource, public virtual INativeWindow {
+  CRU_DEFINE_CLASS_LOG_TAG("cru::platform::native::win::WinNativeWindow")
+
  public:
   WinNativeWindow(WinUiApplication* application, WindowClass* window_class,
                   DWORD window_style, WinNativeWindow* parent);

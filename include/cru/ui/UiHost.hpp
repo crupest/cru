@@ -32,6 +32,8 @@ struct AfterLayoutEventArgs {};
 // 4. Delete Window when deleting_ is false and IsRetainAfterDestroy is false in
 // OnNativeDestroy.
 class UiHost : public Object, public SelfResolvable<UiHost> {
+  CRU_DEFINE_CLASS_LOG_TAG("cru::ui::UiHost")
+
  public:
   // This will create root window render object and attach it to window.
   // It will also create and manage a native window.

@@ -14,14 +14,14 @@ Size StackLayoutRenderObject::OnMeasureContent(
         MeasureRequirement{
             MeasureSize{StackLayoutCalculateChildMaxLength(
                             preferred_size.width, requirement.max.width,
-                            child->GetMinSize().width,
-                            "StackLayoutRenderObject: Child's min width is "
-                            "bigger than parent's max width."),
+                            child->GetMinSize().width, log_tag,
+                            "(Measure) Child's min width is bigger than "
+                            "parent's max width."),
                         StackLayoutCalculateChildMaxLength(
                             preferred_size.height, requirement.max.height,
-                            child->GetMinSize().height,
-                            "StackLayoutRenderObject: Child's min height is "
-                            "bigger than parent's max height.")},
+                            child->GetMinSize().height, log_tag,
+                            "(Measure) Child's min height is bigger than "
+                            "parent's max height.")},
             MeasureSize::NotSpecified()},
         MeasureSize::NotSpecified());
     const auto size = child->GetSize();

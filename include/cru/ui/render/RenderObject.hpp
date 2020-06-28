@@ -37,6 +37,8 @@ namespace cru::ui::render {
 class RenderObject : public Object {
   friend WindowRenderObject;
 
+  CRU_DEFINE_CLASS_LOG_TAG("cru::ui::render::RenderObject")
+
  protected:
   enum class ChildMode {
     None,

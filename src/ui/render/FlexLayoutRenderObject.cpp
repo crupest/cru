@@ -87,7 +87,8 @@ template <typename direction_tag_t,
 Size FlexLayoutMeasureContentImpl(
     const MeasureRequirement& requirement, const MeasureSize& preferred_size,
     const std::vector<RenderObject*>& children,
-    const std::vector<FlexChildLayoutData>& layout_data) {
+    const std::vector<FlexChildLayoutData>& layout_data,
+    std::string_view log_tag) {
   Expects(children.size() == layout_data.size());
 
   direction_tag_t direction_tag;
@@ -109,9 +110,9 @@ Size FlexLayoutMeasureContentImpl(
     child_cross_measure_requirement.push_back(
         StackLayoutCalculateChildMaxLength(
             preferred_cross_length, max_cross_length,
-            GetCross(child->GetMinSize(), direction_tag),
-            "StackLayoutRenderObject: Child's min cross size is bigger than "
-            "parent's max cross size."));
+            GetCross(child->GetMinSize(), direction_tag), log_tag,
+            "(Measure) Child's min cross size is bigger than parent's max "
+            "cross size."));
   }
 
   // step 1.
@@ -312,9 +313,9 @@ Size FlexLayoutMeasureContentImpl(
 
   if (max_main_length.IsSpecified() &&
       total_length > max_main_length.GetLengthOrUndefined()) {
-    log::Warn(
-        "FlexLayoutRenderObject: Children's main axis length exceeds required "
-        "max length.");
+    log::TagWarn(
+        log_tag,
+        "(Measure) Children's main axis length exceeds required max length.");
     total_length = max_main_length.GetLengthOrUndefined();
   } else if (min_main_length.IsSpecified() &&
              total_length < min_main_length.GetLengthOrUndefined()) {
@@ -336,10 +337,12 @@ Size FlexLayoutRenderObject::OnMeasureContent(
                            direction_ == FlexDirection::HorizontalReverse);
   if (horizontal) {
     return FlexLayoutMeasureContentImpl<tag_horizontal_t>(
-        requirement, preferred_size, GetChildren(), GetChildLayoutDataList());
+        requirement, preferred_size, GetChildren(), GetChildLayoutDataList(),
+        log_tag);
   } else {
     return FlexLayoutMeasureContentImpl<tag_vertical_t>(
-        requirement, preferred_size, GetChildren(), GetChildLayoutDataList());
+        requirement, preferred_size, GetChildren(), GetChildLayoutDataList(),
+        log_tag);
   }
 }
 

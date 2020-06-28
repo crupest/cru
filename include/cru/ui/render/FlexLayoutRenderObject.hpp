@@ -74,6 +74,8 @@ namespace cru::ui::render {
 // and just fill the rest space with blank.
 //
 class FlexLayoutRenderObject : public LayoutRenderObject<FlexChildLayoutData> {
+  CRU_DEFINE_CLASS_LOG_TAG("cru::ui::render::FlexLayoutRenderObject")
+
  public:
   FlexLayoutRenderObject() = default;
   FlexLayoutRenderObject(const FlexLayoutRenderObject& other) = delete;

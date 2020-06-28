@@ -5,13 +5,15 @@
 #pragma once
 #include "Resource.hpp"
 
-#include "cru/platform/native/InputMethod.hpp"
 #include "WindowNativeMessageEventArgs.hpp"
+#include "cru/platform/native/InputMethod.hpp"
 
 #include <imm.h>
 
 namespace cru::platform::native::win {
 class AutoHIMC : public Object {
+  CRU_DEFINE_CLASS_LOG_TAG("cru::platform::native::win::AutoHIMC")
+
  public:
   explicit AutoHIMC(HWND hwnd);
 
@@ -33,6 +35,8 @@ class AutoHIMC : public Object {
 
 class WinInputMethodContext : public WinNativeResource,
                               public virtual IInputMethodContext {
+  CRU_DEFINE_CLASS_LOG_TAG("cru::platform::native::win::WinInputMethodContext")
+
  public:
   WinInputMethodContext(gsl::not_null<WinNativeWindow*> window);
 

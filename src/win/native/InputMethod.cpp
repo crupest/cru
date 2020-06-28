@@ -1,11 +1,11 @@
 #include "cru/win/native/InputMethod.hpp"
 
+#include "DpiUtil.hpp"
 #include "cru/common/Logger.hpp"
 #include "cru/platform/Check.hpp"
 #include "cru/win/Exception.hpp"
-#include "cru/win/native/Window.hpp"
 #include "cru/win/String.hpp"
-#include "DpiUtil.hpp"
+#include "cru/win/native/Window.hpp"
 
 #include <vector>
 
@@ -35,7 +35,7 @@ AutoHIMC& AutoHIMC::operator=(AutoHIMC&& other) {
 AutoHIMC::~AutoHIMC() {
   if (handle_) {
     if (!::ImmReleaseContext(hwnd_, handle_))
-      log::Warn("AutoHIMC: Failed to release HIMC.");
+      log::TagWarn(log_tag, "Failed to release HIMC.");
   }
 }
 
@@ -169,7 +169,7 @@ void WinInputMethodContext::EnableIME() {
   const auto hwnd = native_window->GetWindowHandle();
 
   if (::ImmAssociateContextEx(hwnd, nullptr, IACE_DEFAULT) == FALSE) {
-    log::Warn("WinInputMethodContext: Failed to enable ime.");
+    log::TagWarn(log_tag, "Failed to enable ime.");
   }
 }
 
@@ -181,13 +181,11 @@ void WinInputMethodContext::DisableIME() {
   AutoHIMC himc{hwnd};
 
   if (!::ImmNotifyIME(himc.Get(), NI_COMPOSITIONSTR, CPS_COMPLETE, 0)) {
-    log::Warn(
-        "WinInputMethodContext: Failed to complete composition before disable "
-        "ime.");
+    log::TagWarn(log_tag, "Failed to complete composition before disable ime.");
   }
 
   if (::ImmAssociateContextEx(hwnd, nullptr, 0) == FALSE) {
-    log::Warn("WinInputMethodContext: Failed to disable ime.");
+    log::TagWarn(log_tag, "Failed to disable ime.");
   }
 }
 
@@ -197,7 +195,7 @@ void WinInputMethodContext::CompleteComposition() {
   auto himc = *std::move(optional_himc);
 
   if (!::ImmNotifyIME(himc.Get(), NI_COMPOSITIONSTR, CPS_COMPLETE, 0)) {
-    log::Warn("WinInputMethodContext: Failed to complete composition.");
+    log::TagWarn(log_tag, "Failed to complete composition.");
   }
 }
 
@@ -207,7 +205,7 @@ void WinInputMethodContext::CancelComposition() {
   auto himc = *std::move(optional_himc);
 
   if (!::ImmNotifyIME(himc.Get(), NI_COMPOSITIONSTR, CPS_CANCEL, 0)) {
-    log::Warn("WinInputMethodContext: Failed to complete composition.");
+    log::TagWarn(log_tag, "Failed to complete composition.");
   }
 }
 
@@ -230,9 +228,8 @@ void WinInputMethodContext::SetCandidateWindowPosition(const Point& point) {
   form.ptCurrentPos = DipToPi(point);
 
   if (!::ImmSetCandidateWindow(himc.Get(), &form))
-    log::Debug(
-        "WinInputMethodContext: Failed to set input method candidate window "
-        "position.");
+    log::TagDebug(log_tag,
+                  "Failed to set input method candidate window position.");
 }
 
 IEvent<std::nullptr_t>* WinInputMethodContext::CompositionStartEvent() {
@@ -261,9 +258,9 @@ void WinInputMethodContext::OnWindowNativeMessage(
         // I don't think this will happen because normal key strike without ime
         // should only trigger ascci character. If it is a charater from
         // supplementary planes, it should be handled with ime messages.
-        log::Warn(
-            "WinInputMethodContext: A WM_CHAR message for character from "
-            "supplementary planes is ignored.");
+        log::TagWarn(log_tag,
+                     "A WM_CHAR message for character from supplementary "
+                     "planes is ignored.");
       } else {
         wchar_t s[1] = {c};
         auto str = platform::win::ToUtf8String({s, 1});
@@ -275,9 +272,8 @@ void WinInputMethodContext::OnWindowNativeMessage(
     case WM_IME_COMPOSITION: {
       composition_event_.Raise(nullptr);
       auto composition_text = GetCompositionText();
-      log::Debug(
-          "WinInputMethodContext: WM_IME_COMPOSITION composition text:\n{}",
-          composition_text);
+      log::TagDebug(log_tag, "WM_IME_COMPOSITION composition text:\n{}",
+                    composition_text);
       if (message.l_param & GCS_RESULTSTR) {
         auto result_string = GetResultString();
         text_event_.Raise(result_string);

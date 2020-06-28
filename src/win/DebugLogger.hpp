@@ -14,7 +14,7 @@ class WinDebugLoggerSource : public ::cru::log::ILogSource {
 
   ~WinDebugLoggerSource() = default;
 
-  void Write(::cru::log::LogLevel level, const std::string_view& s) override {
+  void Write(::cru::log::LogLevel level, std::string_view s) override {
     CRU_UNUSED(level)
 
     const std::wstring&& ws = ToUtf16String(s);

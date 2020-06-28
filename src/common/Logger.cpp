@@ -42,12 +42,12 @@ std::string_view LogLevelToString(LogLevel level) {
     case LogLevel::Error:
       return "ERROR";
     default:
-      std::abort();
+      std::terminate();
   }
 }
 }  // namespace
 
-void Logger::Log(LogLevel level, const std::string_view &s) {
+void Logger::Log(LogLevel level, std::string_view s) {
 #ifndef CRU_DEBUG
   if (level == LogLevel::Debug) {
     return;
@@ -60,6 +60,22 @@ void Logger::Log(LogLevel level, const std::string_view &s) {
 
     source->Write(level, fmt::format("[{}] {}: {}\n", buffer.data(),
                                      LogLevelToString(level), s));
+  }
+}
+
+void Logger::Log(LogLevel level, std::string_view tag, std::string_view s) {
+#ifndef CRU_DEBUG
+  if (level == LogLevel::Debug) {
+    return;
+  }
+#endif
+  for (const auto &source : sources_) {
+    auto now = std::time(nullptr);
+    std::array<char, 50> buffer;
+    std::strftime(buffer.data(), 50, "%c", std::localtime(&now));
+
+    source->Write(level, fmt::format("[{}] {} {}: {}\n", buffer.data(),
+                                     LogLevelToString(level), tag, s));
   }
 }
 }  // namespace cru::log

@@ -44,7 +44,8 @@ ClickDetector::ClickDetector(Control* control) {
             if (this->enable_ && (button & this->trigger_button_) &&
                 this->state_ == ClickState::Hover) {
               if (!this->control_->CaptureMouse()) {
-                log::Debug("Failed to capture mouse when begin click.");
+                log::TagDebug(log_tag,
+                              "Failed to capture mouse when begin click.");
                 return;
               }
               this->down_point_ = args.GetPoint();
@@ -120,7 +121,8 @@ void ClickDetector::SetState(ClickState state) {
         UnreachableCode();
     }
   };
-  log::Debug("Click state changed, new state: {}.", to_string(state));
+  log::TagDebug(log_tag, "Click state changed, new state: {}.",
+                to_string(state));
 #endif
 
   state_ = state;

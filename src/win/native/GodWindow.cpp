@@ -1,11 +1,11 @@
 #include "cru/win/native/GodWindow.hpp"
 
+#include "GodWindowMessage.hpp"
+#include "Timer.hpp"
 #include "cru/common/Logger.hpp"
 #include "cru/win/native/Exception.hpp"
 #include "cru/win/native/UiApplication.hpp"
 #include "cru/win/native/WindowClass.hpp"
-#include "GodWindowMessage.hpp"
-#include "Timer.hpp"
 
 namespace cru::platform::native::win {
 constexpr auto god_window_class_name = L"GodWindowClass";
@@ -45,7 +45,7 @@ GodWindow::GodWindow(WinUiApplication* application) {
 GodWindow::~GodWindow() {
   if (!::DestroyWindow(hwnd_)) {
     // Although this could be "safely" ignore.
-    log::Warn("Failed to destroy god window.");
+    log::TagWarn(log_tag, "Failed to destroy god window.");
   }
 }
 

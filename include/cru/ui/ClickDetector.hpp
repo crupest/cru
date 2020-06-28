@@ -1,7 +1,6 @@
 #pragma once
 #include "Control.hpp"
 
-
 namespace cru::ui {
 class ClickEventArgs : Object {
  public:
@@ -37,6 +36,8 @@ enum class ClickState {
 };
 
 class ClickDetector : public Object {
+  CRU_DEFINE_CLASS_LOG_TAG("cru::ui::ClickDetector")
+
  public:
   explicit ClickDetector(Control* control);
 

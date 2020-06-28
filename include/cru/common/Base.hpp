@@ -44,4 +44,8 @@ struct Interface {
 }
 
 using Index = gsl::index;
+
+#define CRU_DEFINE_CLASS_LOG_TAG(tag) \
+ private:                             \
+  constexpr static std::string_view log_tag = tag;
 }  // namespace cru

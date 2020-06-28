@@ -146,14 +146,13 @@ void UiHost::InvalidatePaint() {
 }
 
 void UiHost::InvalidateLayout() {
+  log::TagDebug(log_tag, "A relayout is requested.");
   if (!need_layout_) {
     platform::native::IUiApplication::GetInstance()->InvokeLater(
         [resolver = this->CreateResolver()] {
           if (const auto host = resolver.Resolve()) {
             host->Relayout();
             host->need_layout_ = false;
-            host->after_layout_event_.Raise(AfterLayoutEventArgs{});
-            log::Debug("A relayout finished.");
             host->InvalidatePaint();
           }
         });
@@ -171,6 +170,8 @@ void UiHost::Relayout() {
                                  render::MeasureSize::NotSpecified()},
       render::MeasureSize::NotSpecified());
   root_render_object_->Layout(Point{});
+  after_layout_event_.Raise(AfterLayoutEventArgs{});
+  log::TagDebug(log_tag, "A relayout is finished.");
 }
 
 bool UiHost::RequestFocusFor(Control* control) {

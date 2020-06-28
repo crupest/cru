@@ -170,8 +170,8 @@ Size TextRenderObject::OnMeasureContent(const MeasureRequirement& requirement,
 
   if (requirement.max.width.IsSpecified() &&
       text_size.width > requirement.max.width.GetLengthOrUndefined()) {
-    log::Warn(
-        "TextRenderObject: Text actual width exceeds the required max width.");
+    log::TagWarn(log_tag,
+                 "(Measure) Text actual width exceeds the required max width.");
     result.width = requirement.max.width.GetLengthOrUndefined();
   } else {
     result.width = std::max(result.width, preferred_size.width.GetLengthOr0());
@@ -180,9 +180,9 @@ Size TextRenderObject::OnMeasureContent(const MeasureRequirement& requirement,
 
   if (requirement.max.height.IsSpecified() &&
       text_size.height > requirement.max.height.GetLengthOrUndefined()) {
-    log::Warn(
-        "TextRenderObject: Text actual height exceeds the required max "
-        "height.");
+    log::TagWarn(
+        log_tag,
+        "(Measure) Text actual height exceeds the required max height.");
     result.height = requirement.max.height.GetLengthOrUndefined();
   } else {
     result.height =

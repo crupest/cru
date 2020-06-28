@@ -5,9 +5,9 @@
 #include "cru/platform/graph/Painter.hpp"
 #include "cru/platform/native/UiApplication.hpp"
 #include "cru/ui/Control.hpp"
+#include "cru/ui/UiEvent.hpp"
 #include "cru/ui/render/CanvasRenderObject.hpp"
 #include "cru/ui/render/TextRenderObject.hpp"
-#include "cru/ui/UiEvent.hpp"
 
 namespace cru::ui::controls {
 constexpr int k_default_caret_blink_duration = 500;
@@ -18,6 +18,8 @@ constexpr int k_default_caret_blink_duration = 500;
 // ```
 template <typename TControl>
 class TextControlService : public Object {
+  CRU_DEFINE_CLASS_LOG_TAG("cru::ui::controls::TextControlService")
+
  public:
   TextControlService(TControl* control);
 
@@ -175,10 +177,9 @@ void TextControlService<TControl>::MouseMoveHandler(
     const auto result = text_render_object->TextHitTest(
         text_render_object->FromRootToContent(args.GetPoint()));
     const auto position = result.position + (result.trailing ? 1 : 0);
-    log::Debug(
-        "TextControlService: Text selection changed on mouse move, range: {}, "
-        "{}.",
-        position, this->select_start_position_);
+    log::TagDebug(log_tag,
+                  "Text selection changed on mouse move, range: {}, {}.",
+                  position, this->select_start_position_);
     this->control_->GetTextRenderObject()->SetSelectionRange(
         TextRange::FromTwoSides(
             static_cast<unsigned>(position),
@@ -203,8 +204,8 @@ void TextControlService<TControl>::MouseDownHandler(
     text_render_object->SetSelectionRange(std::nullopt);
     text_render_object->SetCaretPosition(position);
     this->select_start_position_ = position;
-    log::Debug("TextControlService: Begin to select text, start position: {}.",
-               position);
+    log::TagDebug(log_tag, "Begin to select text, start position: {}.",
+                  position);
   }
 }
 
@@ -215,7 +216,7 @@ void TextControlService<TControl>::MouseUpHandler(
       this->select_down_button_.value() == args.GetButton()) {
     this->control_->ReleaseMouse();
     this->select_down_button_ = std::nullopt;
-    log::Debug("TextControlService: End selecting text.");
+    log::TagDebug(log_tag, "End selecting text.");
   }
 }
 

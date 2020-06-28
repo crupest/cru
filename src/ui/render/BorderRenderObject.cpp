@@ -57,7 +57,7 @@ void BorderRenderObject::OnDrawCore(platform::graph::IPainter* painter) {
                           background_brush_.get());
   if (is_border_enabled_) {
     if (border_brush_ == nullptr) {
-      log::Warn("Border is enabled but brush is null");
+      log::TagWarn(log_tag, "Border is enabled but border brush is null.");
     } else {
       painter->FillGeometry(geometry_.get(), border_brush_.get());
     }
@@ -93,9 +93,9 @@ Size BorderRenderObject::OnMeasureCore(const MeasureRequirement& requirement,
   if (!requirement.max.width.IsNotSpecified()) {
     const auto max_width = requirement.max.width.GetLengthOrMax();
     if (coerced_space_size.width > max_width) {
-      log::Warn(
-          "BorderRenderObject: During measure, horizontal length of padding, "
-          "border and margin is bigger than required max length.");
+      log::TagWarn(log_tag,
+                   "(Measure) Horizontal length of padding, border and margin "
+                   "is bigger than required max length.");
       coerced_space_size.width = max_width;
     }
     content_requirement.max.width = max_width - coerced_space_size.width;
@@ -109,9 +109,9 @@ Size BorderRenderObject::OnMeasureCore(const MeasureRequirement& requirement,
   if (!requirement.max.height.IsNotSpecified()) {
     const auto max_height = requirement.max.height.GetLengthOrMax();
     if (coerced_space_size.height > max_height) {
-      log::Warn(
-          "BorderRenderObject: During measure, vertical length of padding, "
-          "border and margin is bigger than required max length.");
+      log::TagWarn(log_tag,
+                   "(Measure) Vertical length of padding, border and margin is "
+                   "bigger than required max length.");
       coerced_space_size.height = max_height;
     }
     content_requirement.max.height = max_height - coerced_space_size.height;
@@ -149,15 +149,9 @@ void BorderRenderObject::OnLayoutCore() {
   auto content_size = size - space_size;
 
   if (content_size.width < 0) {
-    log::Warn(
-        "BorderRenderObject: During layout, horizontal length of padding, "
-        "border and margin is bigger than available length.");
     content_size.width = 0;
   }
   if (content_size.height < 0) {
-    log::Warn(
-        "BorderRenderObject: During layout, vertical length of padding, "
-        "border and margin is bigger than available length.");
     content_size.height = 0;
   }
 

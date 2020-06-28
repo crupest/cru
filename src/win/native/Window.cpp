@@ -1,17 +1,17 @@
 #include "cru/win/native/Window.hpp"
 
+#include "DpiUtil.hpp"
+#include "WindowD2DPainter.hpp"
+#include "WindowManager.hpp"
 #include "cru/common/Logger.hpp"
 #include "cru/platform/Check.hpp"
+#include "cru/win/String.hpp"
 #include "cru/win/native/Cursor.hpp"
 #include "cru/win/native/Exception.hpp"
 #include "cru/win/native/Keyboard.hpp"
 #include "cru/win/native/UiApplication.hpp"
 #include "cru/win/native/WindowClass.hpp"
 #include "cru/win/native/WindowRenderTarget.hpp"
-#include "cru/win/String.hpp"
-#include "DpiUtil.hpp"
-#include "WindowD2DPainter.hpp"
-#include "WindowManager.hpp"
 
 #include <imm.h>
 #include <windowsx.h>
@@ -124,7 +124,7 @@ bool WinNativeWindow::ReleaseMouse() {
 }
 
 void WinNativeWindow::RequestRepaint() {
-  log::Debug("A repaint is requested.");
+  log::TagDebug(log_tag, "A repaint is requested.");
   if (!::InvalidateRect(hwnd_, nullptr, FALSE))
     throw Win32Error(::GetLastError(), "Failed to invalidate window.");
   if (!::UpdateWindow(hwnd_))
@@ -144,19 +144,20 @@ void WinNativeWindow::SetCursor(std::shared_ptr<ICursor> cursor) {
 
   if (!::SetClassLongPtrW(hwnd_, GCLP_HCURSOR,
                           reinterpret_cast<LONG_PTR>(cursor_->GetHandle()))) {
-    log::Warn(
-        "Failed to set cursor because failed to set class long. Last error "
-        "code: {}.",
-        ::GetLastError());
+    log::TagWarn(log_tag,
+                 "Failed to set cursor because failed to set class long. Last "
+                 "error code: {}.",
+                 ::GetLastError());
     return;
   }
 
   if (!IsVisible()) return;
 
   auto lg = [](const std::string_view& reason) {
-    log::Warn(
-        "Failed to set cursor because {} when window is visible. (We need "
-        "to update cursor if it is inside the window.) Last error code: {}.",
+    log::TagWarn(
+        log_tag,
+        "Failed to set cursor because {} when window is visible. (We need to "
+        "update cursor if it is inside the window.) Last error code: {}.",
         reason, ::GetLastError());
   };
 
@@ -353,6 +354,7 @@ void WinNativeWindow::OnDestroyInternal() {
 void WinNativeWindow::OnPaintInternal() {
   paint_event_.Raise(nullptr);
   ValidateRect(hwnd_, nullptr);
+  log::TagDebug(log_tag, "A repaint is finished.");
 }
 
 void WinNativeWindow::OnResizeInternal(const int new_width,
