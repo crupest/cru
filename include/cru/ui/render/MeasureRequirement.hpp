@@ -91,7 +91,7 @@ class MeasureLength final {
       else
         return right;
     } else {
-      if (left.IsNotSpecified())
+      if (right.IsNotSpecified())
         return left;
       else
         return std::min(left.length_, right.length_);

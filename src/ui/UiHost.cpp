@@ -365,6 +365,7 @@ void UiHost::UpdateCursor() {
 }
 
 Control* UiHost::HitTest(const Point& point) {
-  return root_render_object_->HitTest(point)->GetAttachedControl();
+  const auto render_object = root_render_object_->HitTest(point);
+  return render_object ? render_object->GetAttachedControl() : nullptr;
 }
 }  // namespace cru::ui

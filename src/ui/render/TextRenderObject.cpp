@@ -189,11 +189,11 @@ Size TextRenderObject::OnMeasureContent(const MeasureRequirement& requirement,
     log::Warn(
         "TextRenderObject: Text actual height exceeds the required max "
         "height.");
-    result.width = requirement.max.width.GetLengthOrUndefined();
+    result.height = requirement.max.height.GetLengthOrUndefined();
   } else {
     result.height =
         std::max(result.height, preferred_size.height.GetLengthOr0());
-    result.width =
+    result.height =
         std::max(result.height, requirement.min.height.GetLengthOr0());
   }
 
