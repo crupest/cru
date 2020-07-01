@@ -8,6 +8,8 @@ import sys
 parser = argparse.ArgumentParser()
 parser.add_argument('command', choices=[
                     'configure', 'build', 'test'], nargs='?', default='test', help='specify command to execute')
+parser.add_argument('--skip-install-packages', action="store_true",
+                    help='skip using vcpkg to install package')
 parser.add_argument('-a', '--arch', choices=['x86', 'x64'],
                     default='x64', help='specify target cpu architecture')
 parser.add_argument('-c', '--config', choices=['Debug', 'Release'],
@@ -46,14 +48,16 @@ def init_vc_environment(arch):
         os.environ[k] = v
 
 
+def install_packages():
+    subprocess.check_call('vcpkg install gtest:{arch}-windows fmt:{arch}-windows ms-gsl:{arch}-windows'.format(arch=args.arch),
+                          stdout=sys.stdout, stderr=sys.stderr)
+
+
 def configure():
     generater_vs_arch_map = {
         'x86': 'Win32',
         'x64': 'x64'
     }
-
-    subprocess.check_call('vcpkg install gtest:{arch}-windows fmt:{arch}-windows ms-gsl:{arch}-windows'.format(arch=args.arch),
-                          stdout=sys.stdout, stderr=sys.stderr)
 
     # -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
     subprocess.check_call('cmake -S . -B {build_dir} -G "Visual Studio 16 2019" -A {arch} -T host=x64 -DCMAKE_TOOLCHAIN_FILE={toolchain}'
@@ -74,7 +78,11 @@ def test():
 
 os.chdir(project_root)
 
+if not args.skip_install_packages:
+    install_packages()
+
 configure()
+
 if args.command == 'build' or args.command == 'test':
     build()
     if args.command == 'test':

@@ -1,7 +1,5 @@
 # CruUI
 
-[![Build Status](https://dev.azure.com/crupest/CruUI/_apis/build/status/crupest.CruUI?branchName=master)](https://dev.azure.com/crupest/CruUI/_build/latest?definitionId=6&branchName=master)
-
 ## overview
 
 CruUI is a UI library.

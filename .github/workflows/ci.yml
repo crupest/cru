@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+    paths-ignore:
+      - "docs/**"
+      - "drafts/**"
+      - "**/README.md"
+  pull_request:
+    branches: [master]
+    paths-ignore:
+      - "docs/**"
+      - "drafts/**"
+      - "**/README.md"
+
+jobs:
+  build:
+    name: Build
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        buildConfiguration: [Debug, Release]
+        architecture: [x86, x64]
+        include:
+          - architecture: x86
+            triplet: x86-windows
+          - architecture: x64
+            triplet: x64-windows
+      fail-fast: true
+
+    env:
+      vcpkgPackages: "gtest fmt ms-gsl"
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Restore artifacts, or run vcpkg, build and cache artifacts
+        uses: lukka/run-vcpkg@add_triplet_to_cachekey
+        id: runvcpkg
+        with:
+          vcpkgArguments: "${{ matrix.vcpkgPackages }}"
+          vcpkgTriplet: "${{ matrix.triplet }}"
+          vcpkgDirectory: "${{ runner.workspace }}/b/vcpkg"
+      - name: Prints outputs of run-vcpkg task
+        run: echo "'${{ steps.runvcpkg.outputs.RUNVCPKG_VCPKG_ROOT_OUT }}' '${{  steps.runvcpkg.outputs.RUNVCPKG_VCPKG_TRIPLET_OUT }}' "
+
+      - name: Run build script
+        run: python tools\win_build.py -a ${{ matrix.architecture }} -c ${{ matrix.buildConfiguration }} --skip-install-packages
