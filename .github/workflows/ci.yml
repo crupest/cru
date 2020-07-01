@@ -43,8 +43,6 @@ jobs:
         with:
           vcpkgArguments: "${{ env.vcpkgPackages }}"
           vcpkgTriplet: "${{ matrix.triplet }}"
-      - name: Prints outputs of run-vcpkg task
-        run: echo "'${{ steps.runvcpkg.outputs.RUNVCPKG_VCPKG_ROOT_OUT }}' '${{  steps.runvcpkg.outputs.RUNVCPKG_VCPKG_TRIPLET_OUT }}' "
 
       - name: Run build script
         run: python tools\win_build.py -a ${{ matrix.architecture }} -c ${{ matrix.buildConfiguration }} --skip-install-packages
