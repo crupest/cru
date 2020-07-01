@@ -39,7 +39,7 @@ jobs:
         uses: lukka/run-vcpkg@add_triplet_to_cachekey
         id: runvcpkg
         with:
-          vcpkgArguments: "${{ matrix.vcpkgPackages }}"
+          vcpkgArguments: "${{ env.vcpkgPackages }}"
           vcpkgTriplet: "${{ matrix.triplet }}"
           vcpkgDirectory: "${{ runner.workspace }}/b/vcpkg"
       - name: Prints outputs of run-vcpkg task
