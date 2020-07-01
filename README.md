@@ -1,5 +1,7 @@
 # CruUI
 
+![CI](https://github.com/crupest/CruUI/workflows/CI/badge.svg)
+
 ## overview
 
 CruUI is a UI library.
@@ -8,17 +10,19 @@ It is **under construction**. It can be built with _CMake_.
 
 ## build
 
-You need to install [_vcpkg_](https://github.com/microsoft/vcpkg) and use it to install following packages:
+CruUI uses [_vcpkg_](https://github.com/microsoft/vcpkg) to manage dependencies. Vcpkg is already checked out as a submodule in `vcpkg` directory at root of the project.
+
+You need to bootstrap vcpkg and then use it to install following packages:
 
 - `ms-gsl`
 - `fmt`
 - `gtest`
 
-Remember to add vcpkg to PATH and set environment variable `VCPKG_INSTALLATION_ROOT` and install package with correct triplet as the target you want to build against.
+Remember to install package with correct _triplet_ as the target you want to build against.
 
 Then use _CMake_ to configure and build. Remember to set correct toolchain as in _vcpkg_ documents for _CMake_ to find packages.
 
-There is also a automatic python script used in CI. Use python3 to run `tool/win_build.py` to build on Windows. Run with `-h` to see options. It still requires you to manually install _vcpkg_, add it to PATH and set environment variable `VCPKG_INSTALLATION_ROOT`, _Visual Studio 2019_ and of course _python3_. It uses _Visual Studio_ generator.
+There is also a automatic python script used in CI. Use python3 to run `tool/win_build.py` to build on Windows. Run with `-h` to see options. For convenience to avoid environment setup it uses _Visual Studio_ generator.
 
 Check the code or fire a issue if you have any problem.
 
