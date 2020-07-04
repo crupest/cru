@@ -4,6 +4,14 @@
 #include "cru/platform/graph/util/Painter.hpp"
 
 namespace cru::ui::render {
+// Measure logic:
+// Measure child with unspecified min and max size.
+// If parent's preferred size is specified, then it is used as measure result.
+// Or child's size is coerced into requirement and then used as result.
+// If no child, then use the preferred size if set or min size if set or 0.
+// Layout logic:
+// If child is smaller than content area, layout at lefttop.
+// Or layout by scroll state.
 class ScrollRenderObject : public RenderObject {
  public:
   ScrollRenderObject() : RenderObject(ChildMode::Single) {}

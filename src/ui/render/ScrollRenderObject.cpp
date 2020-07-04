@@ -69,30 +69,34 @@ void ScrollRenderObject::SetScrollOffset(const Point& offset) {
 
 Size ScrollRenderObject::OnMeasureContent(const MeasureRequirement& requirement,
                                           const MeasureSize& preferred_size) {
-  // TODO: Rewrite this.
-  CRU_UNUSED(requirement);
-  CRU_UNUSED(preferred_size);
-  throw std::runtime_error("Not implemented.");
+  if (const auto child = GetSingleChild()) {
+    child->Measure(MeasureRequirement{MeasureSize::NotSpecified(),
+                                      MeasureSize::NotSpecified()},
+                   MeasureSize::NotSpecified());
 
-  // if (const auto child = GetSingleChild()) {
-  //   child->Measure(MeasureRequirement::Infinate());
-  //   const auto preferred_size = child->GetMeasuredSize();
-  //   return Min(preferred_size, requirement.GetMaxSize());
-  // } else {
-  //   return Size{};
-  // }
+    Size result = requirement.Coerce(child->GetSize());
+    if (preferred_size.width.IsSpecified()) {
+      result.width = preferred_size.width.GetLengthOrUndefined();
+    }
+    if (preferred_size.height.IsSpecified()) {
+      result.height = preferred_size.height.GetLengthOrUndefined();
+    }
+    return result;
+  } else {
+    Size result{preferred_size.width.IsSpecified()
+                    ? preferred_size.width.GetLengthOrUndefined()
+                    : requirement.min.width.GetLengthOr0(),
+                preferred_size.height.IsSpecified()
+                    ? preferred_size.height.GetLengthOrUndefined()
+                    : requirement.min.height.GetLengthOr0()};
+    return result;
+  }
 }  // namespace cru::ui::render
 
 void ScrollRenderObject::OnLayoutContent(const Rect& content_rect) {
-  // TODO: Rewrite this.
-  CRU_UNUSED(content_rect);
-  throw std::runtime_error("Not implemented.");
-
-  // if (const auto child = GetSingleChild()) {
-  //   const auto child_size = child->GetMeasuredSize();
-  //   const auto true_scroll =
-  //       CoerceScroll(scroll_offset_, content_rect.GetSize(), child_size);
-  //   child->Layout(Rect{content_rect.GetLeftTop() - true_scroll, child_size});
-  // }
+  if (const auto child = GetSingleChild()) {
+    const auto child_size = child->GetSize();
+    child->Layout(content_rect.GetLeftTop() - GetScrollOffset());
+  }
 }
 }  // namespace cru::ui::render
