@@ -26,6 +26,12 @@ TEST(WinString, Utf16Iterator) {
   ASSERT_EQ(i.Next(), 0x1F923);
   ASSERT_EQ(i.Next(), 0x0021);
   ASSERT_EQ(i.Next(), k_invalid_code_point);
+  ASSERT_EQ(i.Previous(), 0x0021);
+  ASSERT_EQ(i.Previous(), 0x1F923);
+  ASSERT_EQ(i.Previous(), 0x4F60);
+  ASSERT_EQ(i.Previous(), 0x03C0);
+  ASSERT_EQ(i.Previous(), 0x0061);
+  ASSERT_EQ(i.Previous(), k_invalid_code_point);
 }
 
 // TEST(WinString, IndexUtf8ToUtf16) {

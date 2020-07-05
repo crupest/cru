@@ -16,7 +16,7 @@ CodePoint Utf16Iterator::Previous() {
 
   if (cu0 < 0xd800u || cu0 >= 0xe000u) {  // 1-length code point
     return static_cast<CodePoint>(cu0);
-  } else if (cu0 < 0xdc00u || cu0 > 0xdfffu) {  // 2-length code point
+  } else if (cu0 >= 0xdc00u || cu0 <= 0xdfffu) {  // 2-length code point
     if (position_ <= 0) {
       throw TextEncodeException(
           "Unexpected end when reading first code unit of surrogate pair "
@@ -25,7 +25,7 @@ CodePoint Utf16Iterator::Previous() {
     const auto cu1 = static_cast<std::uint16_t>(string_[--position_]);
 
 #ifdef CRU_DEBUG
-    if (cu1 <= 0xdbffu) {
+    if (cu1 < 0xd800u || cu1 > 0xdbffu) {
       throw TextEncodeException(
           "Unexpected bad-range first code unit of surrogate pair during "
           "backward.");
