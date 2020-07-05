@@ -1,10 +1,10 @@
 #include "cru/ui/controls/TextBlock.hpp"
 
+#include "TextControlService.hpp"
+#include "cru/ui/UiManager.hpp"
 #include "cru/ui/render/CanvasRenderObject.hpp"
 #include "cru/ui/render/StackLayoutRenderObject.hpp"
 #include "cru/ui/render/TextRenderObject.hpp"
-#include "cru/ui/UiManager.hpp"
-#include "TextControlService.hpp"
 
 namespace cru::ui::controls {
 using render::CanvasRenderObject;
@@ -38,7 +38,7 @@ void TextBlock::SetText(std::string text) {
   text_render_object_->SetText(std::move(text));
 }
 
-render::TextRenderObject* TextBlock::GetTextRenderObject() {
+gsl::not_null<render::TextRenderObject*> TextBlock::GetTextRenderObject() {
   return text_render_object_.get();
 }
 }  // namespace cru::ui::controls

@@ -1,19 +1,23 @@
 #include "cru/ui/controls/TextBox.hpp"
 
+#include "TextControlService.hpp"
+#include "cru/ui/UiManager.hpp"
 #include "cru/ui/render/BorderRenderObject.hpp"
 #include "cru/ui/render/CanvasRenderObject.hpp"
+#include "cru/ui/render/ScrollRenderObject.hpp"
 #include "cru/ui/render/StackLayoutRenderObject.hpp"
 #include "cru/ui/render/TextRenderObject.hpp"
-#include "cru/ui/UiManager.hpp"
-#include "TextControlService.hpp"
 
 namespace cru::ui::controls {
 using render::BorderRenderObject;
 using render::CanvasRenderObject;
+using render::ScrollRenderObject;
 using render::StackLayoutRenderObject;
 using render::TextRenderObject;
 
-TextBox::TextBox() : border_render_object_(new BorderRenderObject()) {
+TextBox::TextBox()
+    : border_render_object_(new BorderRenderObject()),
+      scroll_render_object_(new ScrollRenderObject()) {
   const auto theme_resources = UiManager::GetInstance()->GetThemeResources();
 
   border_style_ = theme_resources->text_box_border_style;
@@ -22,9 +26,11 @@ TextBox::TextBox() : border_render_object_(new BorderRenderObject()) {
       theme_resources->text_brush, theme_resources->default_font,
       theme_resources->text_selection_brush, theme_resources->caret_brush);
 
-  border_render_object_->AddChild(text_render_object_.get(), 0);
+  border_render_object_->AddChild(scroll_render_object_.get(), 0);
+  scroll_render_object_->AddChild(text_render_object_.get(), 0);
 
   border_render_object_->SetAttachedControl(this);
+  scroll_render_object_->SetAttachedControl(this);
   text_render_object_->SetAttachedControl(this);
 
   service_ = std::make_unique<TextControlService<TextBox>>(this);
@@ -48,8 +54,12 @@ render::RenderObject* TextBox::GetRenderObject() const {
   return border_render_object_.get();
 }
 
-render::TextRenderObject* TextBox::GetTextRenderObject() {
+gsl::not_null<render::TextRenderObject*> TextBox::GetTextRenderObject() {
   return text_render_object_.get();
+}
+
+render::ScrollRenderObject* TextBox::GetScrollRenderObject() {
+  return scroll_render_object_.get();
 }
 
 const TextBoxBorderStyle& TextBox::GetBorderStyle() { return border_style_; }

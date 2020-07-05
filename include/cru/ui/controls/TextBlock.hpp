@@ -28,7 +28,8 @@ class TextBlock : public NoChildControl {
   std::string GetText() const;
   void SetText(std::string text);
 
-  render::TextRenderObject* GetTextRenderObject();
+  gsl::not_null<render::TextRenderObject*> GetTextRenderObject();
+  render::ScrollRenderObject* GetScrollRenderObject() { return nullptr; }
 
  private:
   std::unique_ptr<render::TextRenderObject> text_render_object_;

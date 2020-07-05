@@ -27,7 +27,8 @@ class TextBox : public NoChildControl {
 
   render::RenderObject* GetRenderObject() const override;
 
-  render::TextRenderObject* GetTextRenderObject();
+  gsl::not_null<render::TextRenderObject*> GetTextRenderObject();
+  render::ScrollRenderObject* GetScrollRenderObject();
 
   const TextBoxBorderStyle& GetBorderStyle();
   void SetBorderStyle(TextBoxBorderStyle border_style);
@@ -40,6 +41,7 @@ class TextBox : public NoChildControl {
 
  private:
   std::unique_ptr<render::BorderRenderObject> border_render_object_;
+  std::unique_ptr<render::ScrollRenderObject> scroll_render_object_;
   std::unique_ptr<render::TextRenderObject> text_render_object_;
 
   TextBoxBorderStyle border_style_;

@@ -52,7 +52,9 @@ class RoutedEvent {
   static_assert(!std::is_reference_v<TEventArgs>,
                 "TEventArgs must not be reference.");
 
-  using EventArgs = TEventArgs;
+  using RawEventArgs = TEventArgs;
+  using IEventType = IEvent<TEventArgs&>;
+  using EventArgs = typename IEventType::EventArgs;
 
   RoutedEvent() = default;
   RoutedEvent(const RoutedEvent& other) = delete;

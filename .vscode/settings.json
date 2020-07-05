@@ -76,7 +76,17 @@
     "cstdarg": "cpp",
     "locale": "cpp",
     "xlocbuf": "cpp",
-    "xlocmes": "cpp"
+    "xlocmes": "cpp",
+    "codecvt": "cpp",
+    "deque": "cpp",
+    "filesystem": "cpp",
+    "fstream": "cpp",
+    "future": "cpp",
+    "random": "cpp",
+    "regex": "cpp",
+    "stack": "cpp",
+    "unordered_set": "cpp",
+    "variant": "cpp"
   },
   "cmake.configureSettings": {
     "CMAKE_TOOLCHAIN_FILE": "${workspaceFolder}/vcpkg/scripts/buildsystems/vcpkg.cmake",

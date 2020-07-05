@@ -6,6 +6,7 @@ class RenderObject;
 class BorderRenderObject;
 class CanvasRenderObject;
 class FlexLayoutRenderObject;
+class ScrollRenderObject;
 class StackLayoutRenderObject;
 class TextRenderObject;
 class WindowRenderObject;
