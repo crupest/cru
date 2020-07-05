@@ -7,7 +7,7 @@
 
 namespace cru::platform::native::win {
 class WinCursor : public WinNativeResource, public virtual ICursor {
-  CRU_DEFINE_CLASS_LOG_TAG("cru::platform::native::win::WinCursor")
+  CRU_DEFINE_CLASS_LOG_TAG(u"cru::platform::native::win::WinCursor")
 
  public:
   WinCursor(HCURSOR handle, bool auto_destroy);

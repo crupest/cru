@@ -16,10 +16,10 @@ struct IGraphFactory : virtual INativeResource {
 
   virtual std::unique_ptr<IGeometryBuilder> CreateGeometryBuilder() = 0;
 
-  virtual std::unique_ptr<IFont> CreateFont(const std::string_view& font_family,
+  virtual std::unique_ptr<IFont> CreateFont(std::u16string font_family,
                                             float font_size) = 0;
 
   virtual std::unique_ptr<ITextLayout> CreateTextLayout(
-      std::shared_ptr<IFont> font, std::string text) = 0;
+      std::shared_ptr<IFont> font, std::u16string text) = 0;
 };
 }  // namespace cru::platform::graph

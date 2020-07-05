@@ -2,9 +2,9 @@
 
 #include "DpiUtil.hpp"
 #include "cru/common/Logger.hpp"
+#include "cru/common/StringUtil.hpp"
 #include "cru/platform/Check.hpp"
 #include "cru/win/Exception.hpp"
-#include "cru/win/String.hpp"
 #include "cru/win/native/Window.hpp"
 
 #include <vector>
@@ -35,7 +35,7 @@ AutoHIMC& AutoHIMC::operator=(AutoHIMC&& other) {
 AutoHIMC::~AutoHIMC() {
   if (handle_) {
     if (!::ImmReleaseContext(hwnd_, handle_))
-      log::TagWarn(log_tag, "Failed to release HIMC.");
+      log::TagWarn(log_tag, u"Failed to release HIMC.");
   }
 }
 
@@ -104,19 +104,19 @@ CompositionClauses GetCompositionClauses(HIMC imm_context, int target_start,
   return result;
 }
 
-std::wstring GetString(HIMC imm_context) {
+std::u16string GetString(HIMC imm_context) {
   LONG string_size =
       ::ImmGetCompositionString(imm_context, GCS_COMPSTR, NULL, 0);
-  std::wstring result((string_size / sizeof(wchar_t)), 0);
+  std::u16string result((string_size / sizeof(char16_t)), 0);
   ::ImmGetCompositionString(imm_context, GCS_COMPSTR, result.data(),
                             string_size);
   return result;
 }
 
-std::wstring GetResultString(HIMC imm_context) {
+std::u16string GetResultString(HIMC imm_context) {
   LONG string_size =
       ::ImmGetCompositionString(imm_context, GCS_RESULTSTR, NULL, 0);
-  std::wstring result((string_size / sizeof(wchar_t)), 0);
+  std::u16string result((string_size / sizeof(char16_t)), 0);
   ::ImmGetCompositionString(imm_context, GCS_RESULTSTR, result.data(),
                             string_size);
   return result;
@@ -126,25 +126,17 @@ CompositionText GetCompositionInfo(HIMC imm_context) {
   // We only care about GCS_COMPATTR, GCS_COMPCLAUSE and GCS_CURSORPOS, and
   // convert them into underlines and selection range respectively.
 
-  auto w_text = GetString(imm_context);
+  auto text = GetString(imm_context);
 
-  int w_length = static_cast<int>(w_text.length());
+  int length = static_cast<int>(text.length());
   // Find out the range selected by the user.
-  int w_target_start = w_length;
-  int w_target_end = w_length;
-  GetCompositionTargetRange(imm_context, &w_target_start, &w_target_end);
+  int target_start = length;
+  int target_end = length;
+  GetCompositionTargetRange(imm_context, &target_start, &target_end);
 
-  auto clauses =
-      GetCompositionClauses(imm_context, w_target_start, w_target_end);
+  auto clauses = GetCompositionClauses(imm_context, target_start, target_end);
 
-  int w_cursor = ::ImmGetCompositionString(imm_context, GCS_CURSORPOS, NULL, 0);
-
-  auto text = platform::win::ToUtf8String(w_text);
-  for (auto& clause : clauses) {
-    clause.start = platform::win::IndexUtf16ToUtf8(w_text, clause.start, text);
-    clause.end = platform::win::IndexUtf16ToUtf8(w_text, clause.end, text);
-  }
-  int cursor = platform::win::IndexUtf16ToUtf8(w_text, w_cursor, text);
+  int cursor = ::ImmGetCompositionString(imm_context, GCS_CURSORPOS, NULL, 0);
 
   return CompositionText{std::move(text), std::move(clauses),
                          TextRange{cursor}};
@@ -169,7 +161,7 @@ void WinInputMethodContext::EnableIME() {
   const auto hwnd = native_window->GetWindowHandle();
 
   if (::ImmAssociateContextEx(hwnd, nullptr, IACE_DEFAULT) == FALSE) {
-    log::TagWarn(log_tag, "Failed to enable ime.");
+    log::TagWarn(log_tag, u"Failed to enable ime.");
   }
 }
 
@@ -181,11 +173,12 @@ void WinInputMethodContext::DisableIME() {
   AutoHIMC himc{hwnd};
 
   if (!::ImmNotifyIME(himc.Get(), NI_COMPOSITIONSTR, CPS_COMPLETE, 0)) {
-    log::TagWarn(log_tag, "Failed to complete composition before disable ime.");
+    log::TagWarn(log_tag,
+                 u"Failed to complete composition before disable ime.");
   }
 
   if (::ImmAssociateContextEx(hwnd, nullptr, 0) == FALSE) {
-    log::TagWarn(log_tag, "Failed to disable ime.");
+    log::TagWarn(log_tag, u"Failed to disable ime.");
   }
 }
 
@@ -195,7 +188,7 @@ void WinInputMethodContext::CompleteComposition() {
   auto himc = *std::move(optional_himc);
 
   if (!::ImmNotifyIME(himc.Get(), NI_COMPOSITIONSTR, CPS_COMPLETE, 0)) {
-    log::TagWarn(log_tag, "Failed to complete composition.");
+    log::TagWarn(log_tag, u"Failed to complete composition.");
   }
 }
 
@@ -205,7 +198,7 @@ void WinInputMethodContext::CancelComposition() {
   auto himc = *std::move(optional_himc);
 
   if (!::ImmNotifyIME(himc.Get(), NI_COMPOSITIONSTR, CPS_CANCEL, 0)) {
-    log::TagWarn(log_tag, "Failed to complete composition.");
+    log::TagWarn(log_tag, u"Failed to complete composition.");
   }
 }
 
@@ -229,7 +222,7 @@ void WinInputMethodContext::SetCandidateWindowPosition(const Point& point) {
 
   if (!::ImmSetCandidateWindow(himc.Get(), &form))
     log::TagDebug(log_tag,
-                  "Failed to set input method candidate window position.");
+                  u"Failed to set input method candidate window position.");
 }
 
 IEvent<std::nullptr_t>* WinInputMethodContext::CompositionStartEvent() {
@@ -244,7 +237,7 @@ IEvent<std::nullptr_t>* WinInputMethodContext::CompositionEvent() {
   return &composition_event_;
 }
 
-IEvent<std::string_view>* WinInputMethodContext::TextEvent() {
+IEvent<std::u16string_view>* WinInputMethodContext::TextEvent() {
   return &text_event_;
 }
 
@@ -253,18 +246,17 @@ void WinInputMethodContext::OnWindowNativeMessage(
   const auto& message = args.GetWindowMessage();
   switch (message.msg) {
     case WM_CHAR: {
-      const auto c = static_cast<wchar_t>(message.w_param);
-      if (platform::win::IsSurrogatePair(c)) {
+      const auto c = static_cast<char16_t>(message.w_param);
+      if (IsSurrogatePair(c)) {
         // I don't think this will happen because normal key strike without ime
         // should only trigger ascci character. If it is a charater from
         // supplementary planes, it should be handled with ime messages.
         log::TagWarn(log_tag,
-                     "A WM_CHAR message for character from supplementary "
-                     "planes is ignored.");
+                     u"A WM_CHAR message for character from supplementary "
+                     u"planes is ignored.");
       } else {
-        wchar_t s[1] = {c};
-        auto str = platform::win::ToUtf8String({s, 1});
-        text_event_.Raise(str);
+        char16_t s[1] = {c};
+        text_event_.Raise({s, 1});
       }
       args.HandleWithResult(0);
       break;
@@ -272,8 +264,6 @@ void WinInputMethodContext::OnWindowNativeMessage(
     case WM_IME_COMPOSITION: {
       composition_event_.Raise(nullptr);
       auto composition_text = GetCompositionText();
-      log::TagDebug(log_tag, "WM_IME_COMPOSITION composition text:\n{}",
-                    composition_text);
       if (message.l_param & GCS_RESULTSTR) {
         auto result_string = GetResultString();
         text_event_.Raise(result_string);
@@ -291,13 +281,13 @@ void WinInputMethodContext::OnWindowNativeMessage(
   }
 }
 
-std::string WinInputMethodContext::GetResultString() {
+std::u16string WinInputMethodContext::GetResultString() {
   auto optional_himc = TryGetHIMC();
-  if (!optional_himc.has_value()) return "";
+  if (!optional_himc.has_value()) return u"";
   auto himc = *std::move(optional_himc);
 
-  auto w_result = win::GetResultString(himc.Get());
-  return platform::win::ToUtf8String(w_result);
+  auto result = win::GetResultString(himc.Get());
+  return result;
 }
 
 std::optional<AutoHIMC> WinInputMethodContext::TryGetHIMC() {

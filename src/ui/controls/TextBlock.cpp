@@ -30,11 +30,11 @@ render::RenderObject* TextBlock::GetRenderObject() const {
   return text_render_object_.get();
 }
 
-std::string TextBlock::GetText() const {
+std::u16string TextBlock::GetText() const {
   return text_render_object_->GetText();
 }
 
-void TextBlock::SetText(std::string text) {
+void TextBlock::SetText(std::u16string text) {
   text_render_object_->SetText(std::move(text));
 }
 

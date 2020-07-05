@@ -22,7 +22,7 @@ class Control : public Object {
   ~Control() override = default;
 
  public:
-  virtual std::string_view GetControlType() const = 0;
+  virtual std::u16string_view GetControlType() const = 0;
 
   //*************** region: tree ***************
  public:

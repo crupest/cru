@@ -1,7 +1,6 @@
 #include "cru/win/WinPreConfig.hpp"
 
 #include "cru/common/Logger.hpp"
-#include "cru/win/String.hpp"
 
 namespace cru::platform::win {
 
@@ -14,11 +13,10 @@ class WinDebugLoggerSource : public ::cru::log::ILogSource {
 
   ~WinDebugLoggerSource() = default;
 
-  void Write(::cru::log::LogLevel level, std::string_view s) override {
+  void Write(::cru::log::LogLevel level, const std::u16string& s) override {
     CRU_UNUSED(level)
 
-    const std::wstring&& ws = ToUtf16String(s);
-    ::OutputDebugStringW(ws.data());
+    ::OutputDebugStringW(reinterpret_cast<const wchar_t*>(s.c_str()));
   }
 };
 }  // namespace cru::platform::win

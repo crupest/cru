@@ -11,7 +11,7 @@ class DWriteFont : public DirectGraphResource,
                    public virtual IFont,
                    public virtual IComResource<IDWriteTextFormat> {
  public:
-  DWriteFont(DirectGraphFactory* factory, const std::string_view& font_family,
+  DWriteFont(DirectGraphFactory* factory, std::u16string font_family,
              float font_size);
 
   CRU_DELETE_COPY(DWriteFont)
@@ -27,6 +27,7 @@ class DWriteFont : public DirectGraphResource,
   float GetFontSize() override;
 
  private:
+  std::u16string font_family_;
   Microsoft::WRL::ComPtr<IDWriteTextFormat> text_format_;
 };
 }  // namespace cru::platform::graph::win::direct

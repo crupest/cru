@@ -31,19 +31,19 @@ int main() {
   auto target_clause_brush = graph_factory->CreateSolidColorBrush();
   target_clause_brush->SetColor(colors::blue);
 
-  std::shared_ptr<IFont> font = graph_factory->CreateFont("等线", 30);
+  std::shared_ptr<IFont> font = graph_factory->CreateFont(u"等线", 30);
 
   float window_width = 10000;
 
   auto prompt_text_layout =
       graph_factory->CreateTextLayout(font,
-                                      "Alt+F1: Enable IME\n"
-                                      "Alt+F2: Disable IME\n"
-                                      "Alt+F3: Complete composition.\n"
-                                      "Alt+F4: Cancel composition.");
+                                      u"Alt+F1: Enable IME\n"
+                                      u"Alt+F2: Disable IME\n"
+                                      u"Alt+F3: Complete composition.\n"
+                                      u"Alt+F4: Cancel composition.");
 
   std::optional<CompositionText> optional_composition_text;
-  std::string committed_text;
+  std::u16string committed_text;
 
   window->ResizeEvent()->AddHandler(
       [&prompt_text_layout, &window_width](const Size& size) {
@@ -60,9 +60,9 @@ int main() {
     const auto anchor_y = prompt_text_layout->GetTextBounds().height;
 
     auto text_layout = graph_factory->CreateTextLayout(
-        font,
-        committed_text +
-            (optional_composition_text ? optional_composition_text->text : ""));
+        font, committed_text + (optional_composition_text
+                                    ? optional_composition_text->text
+                                    : u""));
     text_layout->SetMaxWidth(window_width);
 
     if (optional_composition_text) {
@@ -123,7 +123,7 @@ int main() {
       });
 
   input_method_context->TextEvent()->AddHandler(
-      [window, &committed_text](const std::string_view& c) {
+      [window, &committed_text](const std::u16string_view& c) {
         committed_text += c;
         window->RequestRepaint();
       });

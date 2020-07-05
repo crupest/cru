@@ -19,7 +19,7 @@ constexpr int k_default_caret_blink_duration = 500;
 // ```
 template <typename TControl>
 class TextControlService : public Object {
-  CRU_DEFINE_CLASS_LOG_TAG("cru::ui::controls::TextControlService")
+  CRU_DEFINE_CLASS_LOG_TAG(u"cru::ui::controls::TextControlService")
 
  public:
   TextControlService(gsl::not_null<TControl*> control) : control_(control) {}
@@ -126,22 +126,21 @@ class TextControlService : public Object {
     const auto text_render_object = this->GetTextRenderObject();
     text_render_object->SetSelectionRange(TextRange{start, 0});
     text_render_object->SetCaretPosition(start);
-    log::TagDebug(log_tag, "Text selection started, position: {}.", position);
+    log::TagDebug(log_tag, u"Text selection started, position: {}.", start);
   }
 
   void UpdateSelection(Index new_end) {
-    if (!old_selection.has_value()) return;
-
     const auto text_render_object = this->GetTextRenderObject();
     const auto old_selection = text_render_object->GetSelectionRange();
+    if (!old_selection.has_value()) return;
     const auto old_start = old_selection->GetStart();
     this->GetTextRenderObject()->SetSelectionRange(
         TextRange::FromTwoSides(old_start, new_end));
     text_render_object->SetCaretPosition(new_end);
-    log::TagDebug(log_tag, "Text selection updated, range: {}, {}.", old_start,
+    log::TagDebug(log_tag, u"Text selection updated, range: {}, {}.", old_start,
                   new_end);
     if (const auto scroll_render_object = this->GetScrollRenderObject()) {
-      //TODO: Implement this.      
+      // TODO: Implement this.
     }
   }
 
@@ -194,9 +193,9 @@ class TextControlService : public Object {
     }
   }
 
-  void KeyDownHandler(event::KeyEventArgs& args) {}
+  void KeyDownHandler(event::KeyEventArgs& args) { CRU_UNUSED(args); }
 
-  void KeyUpHandler(event::KeyEventArgs& args) {}
+  void KeyUpHandler(event::KeyEventArgs& args) { CRU_UNUSED(args); }
 
   void LoseFocusHandler(event::FocusChangeEventArgs& args) {
     if (!args.IsWindow()) this->AbortSelection();

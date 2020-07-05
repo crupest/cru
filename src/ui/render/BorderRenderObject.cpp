@@ -57,7 +57,7 @@ void BorderRenderObject::OnDrawCore(platform::graph::IPainter* painter) {
                           background_brush_.get());
   if (is_border_enabled_) {
     if (border_brush_ == nullptr) {
-      log::TagWarn(log_tag, "Border is enabled but border brush is null.");
+      log::TagWarn(log_tag, u"Border is enabled but border brush is null.");
     } else {
       painter->FillGeometry(geometry_.get(), border_brush_.get());
     }
@@ -94,8 +94,8 @@ Size BorderRenderObject::OnMeasureCore(const MeasureRequirement& requirement,
     const auto max_width = requirement.max.width.GetLengthOrMax();
     if (coerced_space_size.width > max_width) {
       log::TagWarn(log_tag,
-                   "(Measure) Horizontal length of padding, border and margin "
-                   "is bigger than required max length.");
+                   u"(Measure) Horizontal length of padding, border and margin "
+                   u"is bigger than required max length.");
       coerced_space_size.width = max_width;
     }
     content_requirement.max.width = max_width - coerced_space_size.width;
@@ -110,8 +110,8 @@ Size BorderRenderObject::OnMeasureCore(const MeasureRequirement& requirement,
     const auto max_height = requirement.max.height.GetLengthOrMax();
     if (coerced_space_size.height > max_height) {
       log::TagWarn(log_tag,
-                   "(Measure) Vertical length of padding, border and margin is "
-                   "bigger than required max length.");
+                   u"(Measure) Vertical length of padding, border and margin is "
+                   u"bigger than required max length.");
       coerced_space_size.height = max_height;
     }
     content_requirement.max.height = max_height - coerced_space_size.height;

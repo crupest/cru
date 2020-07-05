@@ -6,7 +6,7 @@
 namespace cru::platform::native::win {
 class WinNativeResource : public Object, public virtual INativeResource {
  public:
-  static constexpr std::string_view k_platform_id = "Windows";
+  static constexpr std::u16string_view k_platform_id = u"Windows";
 
  protected:
   WinNativeResource() = default;
@@ -18,6 +18,6 @@ class WinNativeResource : public Object, public virtual INativeResource {
   ~WinNativeResource() override = default;
 
  public:
-  std::string_view GetPlatformId() const final { return k_platform_id; }
+  std::u16string_view GetPlatformId() const final { return k_platform_id; }
 };
 }  // namespace cru::platform::native::win

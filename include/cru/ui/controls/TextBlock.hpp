@@ -7,7 +7,7 @@ class TextControlService;
 
 class TextBlock : public NoChildControl {
  public:
-  static constexpr std::string_view control_type = "TextBlock";
+  static constexpr std::u16string_view control_type = u"TextBlock";
 
   static TextBlock* Create() { return new TextBlock(); }
 
@@ -21,12 +21,12 @@ class TextBlock : public NoChildControl {
   TextBlock& operator=(TextBlock&& other) = delete;
   ~TextBlock() override;
 
-  std::string_view GetControlType() const final { return control_type; }
+  std::u16string_view GetControlType() const final { return control_type; }
 
   render::RenderObject* GetRenderObject() const override;
 
-  std::string GetText() const;
-  void SetText(std::string text);
+  std::u16string GetText() const;
+  void SetText(std::u16string text);
 
   gsl::not_null<render::TextRenderObject*> GetTextRenderObject();
   render::ScrollRenderObject* GetScrollRenderObject() { return nullptr; }

@@ -152,8 +152,8 @@ Size RenderObject::OnMeasureCore(const MeasureRequirement& requirement,
     const auto max_width = requirement.max.width.GetLengthOrMax();
     if (coerced_space_size.width > max_width) {
       log::TagWarn(log_tag,
-                   "(Measure) Horizontal length of padding and margin is "
-                   "bigger than required max length.");
+                   u"(Measure) Horizontal length of padding and margin is "
+                   u"bigger than required max length.");
       coerced_space_size.width = max_width;
     }
     content_requirement.max.width = max_width - coerced_space_size.width;
@@ -168,8 +168,8 @@ Size RenderObject::OnMeasureCore(const MeasureRequirement& requirement,
     const auto max_height = requirement.max.height.GetLengthOrMax();
     if (coerced_space_size.height > max_height) {
       log::TagWarn(log_tag,
-                   "(Measure) Vertical length of padding and margin is bigger "
-                   "than required max length.");
+                   u"(Measure) Vertical length of padding and margin is bigger "
+                   u"than required max length.");
       coerced_space_size.height = max_height;
     }
     content_requirement.max.height = max_height - coerced_space_size.height;

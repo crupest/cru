@@ -23,7 +23,7 @@ namespace cru::ui::render {
 // to min size.
 class StackLayoutRenderObject
     : public LayoutRenderObject<StackChildLayoutData> {
-  CRU_DEFINE_CLASS_LOG_TAG("cru::ui::render:StackLayoutRenderObject")
+  CRU_DEFINE_CLASS_LOG_TAG(u"cru::ui::render:StackLayoutRenderObject")
 
  public:
   StackLayoutRenderObject() = default;

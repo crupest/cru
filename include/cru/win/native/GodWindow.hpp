@@ -5,7 +5,7 @@
 
 namespace cru::platform::native::win {
 class GodWindow : public Object {
-  CRU_DEFINE_CLASS_LOG_TAG("cru::platform::native::win::GodWindow")
+  CRU_DEFINE_CLASS_LOG_TAG(u"cru::platform::native::win::GodWindow")
 
  public:
   explicit GodWindow(WinUiApplication* application);

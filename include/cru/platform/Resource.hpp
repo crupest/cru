@@ -5,6 +5,6 @@
 
 namespace cru::platform {
 struct INativeResource : virtual Interface {
-  virtual std::string_view GetPlatformId() const = 0;
+  virtual std::u16string_view GetPlatformId() const = 0;
 };
 }  // namespace cru::platform

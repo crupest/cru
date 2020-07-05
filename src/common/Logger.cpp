@@ -10,7 +10,6 @@ namespace cru::log {
 namespace {
 Logger *CreateLogger() {
   const auto logger = new Logger();
-  logger->AddSource(std::make_unique<StdioLogSource>());
   return logger;
 }
 }  // namespace
@@ -31,39 +30,43 @@ void Logger::RemoveSource(ILogSource *source) {
 }
 
 namespace {
-std::string_view LogLevelToString(LogLevel level) {
+std::u16string_view LogLevelToString(LogLevel level) {
   switch (level) {
     case LogLevel::Debug:
-      return "DEBUG";
+      return u"DEBUG";
     case LogLevel::Info:
-      return "INFO";
+      return u"INFO";
     case LogLevel::Warn:
-      return "WARN";
+      return u"WARN";
     case LogLevel::Error:
-      return "ERROR";
+      return u"ERROR";
     default:
       std::terminate();
   }
 }
+
+std::u16string GetLogTime() {
+  auto time = std::time(nullptr);
+  auto calendar = std::localtime(&time);
+  return fmt::format(u"{}:{}:{}", calendar->tm_hour, calendar->tm_min,
+                     calendar->tm_sec);
+}
 }  // namespace
 
-void Logger::Log(LogLevel level, std::string_view s) {
+void Logger::Log(LogLevel level, std::u16string_view s) {
 #ifndef CRU_DEBUG
   if (level == LogLevel::Debug) {
     return;
   }
 #endif
   for (const auto &source : sources_) {
-    auto now = std::time(nullptr);
-    std::array<char, 50> buffer;
-    std::strftime(buffer.data(), 50, "%c", std::localtime(&now));
-
-    source->Write(level, fmt::format("[{}] {}: {}\n", buffer.data(),
+    source->Write(level, fmt::format(u"[{}] {}: {}\n", GetLogTime(),
                                      LogLevelToString(level), s));
   }
 }
 
-void Logger::Log(LogLevel level, std::string_view tag, std::string_view s) {
+void Logger::Log(LogLevel level, std::u16string_view tag,
+                 std::u16string_view s) {
 #ifndef CRU_DEBUG
   if (level == LogLevel::Debug) {
     return;
@@ -71,10 +74,7 @@ void Logger::Log(LogLevel level, std::string_view tag, std::string_view s) {
 #endif
   for (const auto &source : sources_) {
     auto now = std::time(nullptr);
-    std::array<char, 50> buffer;
-    std::strftime(buffer.data(), 50, "%c", std::localtime(&now));
-
-    source->Write(level, fmt::format("[{}] {} {}: {}\n", buffer.data(),
+    source->Write(level, fmt::format(u"[{}] {} {}: {}\n", GetLogTime(),
                                      LogLevelToString(level), tag, s));
   }
 }

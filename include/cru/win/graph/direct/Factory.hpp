@@ -38,11 +38,11 @@ class DirectGraphFactory : public DirectResource, public virtual IGraphFactory {
 
   std::unique_ptr<IGeometryBuilder> CreateGeometryBuilder() override;
 
-  std::unique_ptr<IFont> CreateFont(const std::string_view& font_family,
+  std::unique_ptr<IFont> CreateFont(std::u16string font_family,
                                     float font_size) override;
 
   std::unique_ptr<ITextLayout> CreateTextLayout(std::shared_ptr<IFont> font,
-                                                std::string text) override;
+                                                std::u16string text) override;
 
  private:
   Microsoft::WRL::ComPtr<ID3D11Device> d3d11_device_;

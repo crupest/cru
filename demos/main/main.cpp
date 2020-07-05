@@ -34,15 +34,15 @@ int main() {
 
   const auto button = Button::Create();
   const auto text_block1 = TextBlock::Create();
-  text_block1->SetText("Hello World!");
+  text_block1->SetText(u"Hello World!");
   button->SetChild(text_block1);
   flex_layout->AddChild(button, 0);
 
   const auto text_block2 = TextBlock::Create();
-  text_block2->SetText("Hello World!");
+  text_block2->SetText(u"Hello World!");
 
   const auto text_block3 = TextBlock::Create();
-  text_block3->SetText("Overlapped text");
+  text_block3->SetText(u"Overlapped text");
 
   const auto stack_layout = StackLayout::Create();
   stack_layout->AddChild(text_block2, 0);
@@ -50,7 +50,7 @@ int main() {
   flex_layout->AddChild(stack_layout, 1);
 
   const auto text_block4 = TextBlock::Create();
-  text_block4->SetText("Hello World!!!");
+  text_block4->SetText(u"Hello World!!!");
   flex_layout->AddChild(text_block4, 2);
 
   window->GetUiHost()->GetNativeWindowResolver()->Resolve()->SetVisible(true);

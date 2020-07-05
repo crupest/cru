@@ -45,7 +45,7 @@ GodWindow::GodWindow(WinUiApplication* application) {
 GodWindow::~GodWindow() {
   if (!::DestroyWindow(hwnd_)) {
     // Although this could be "safely" ignore.
-    log::TagWarn(log_tag, "Failed to destroy god window.");
+    log::TagWarn(log_tag, u"Failed to destroy god window.");
   }
 }
 

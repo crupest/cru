@@ -6,7 +6,7 @@ class Window final : public ContentControl {
   friend UiHost;
 
  public:
-  static constexpr std::string_view control_type = "Window";
+  static constexpr std::u16string_view control_type = u"Window";
 
  public:
   static Window* CreateOverlapped();
@@ -24,7 +24,7 @@ class Window final : public ContentControl {
   ~Window() override;
 
  public:
-  std::string_view GetControlType() const final;
+  std::u16string_view GetControlType() const final;
 
   render::RenderObject* GetRenderObject() const override;
 

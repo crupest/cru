@@ -8,7 +8,7 @@
 
 namespace cru::platform::native::win {
 class WinNativeWindow : public WinNativeResource, public virtual INativeWindow {
-  CRU_DEFINE_CLASS_LOG_TAG("cru::platform::native::win::WinNativeWindow")
+  CRU_DEFINE_CLASS_LOG_TAG(u"cru::platform::native::win::WinNativeWindow")
 
  public:
   WinNativeWindow(WinUiApplication* application, WindowClass* window_class,

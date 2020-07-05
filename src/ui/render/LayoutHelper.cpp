@@ -19,8 +19,8 @@ float CalculateAnchorByAlignment(Alignment alignment, float start_point,
 
 MeasureLength StackLayoutCalculateChildMaxLength(
     MeasureLength parent_preferred_size, MeasureLength parent_max_size,
-    MeasureLength child_min_size, std::string_view log_tag,
-    std::string_view exceeds_message) {
+    MeasureLength child_min_size, std::u16string_view log_tag,
+    std::u16string_view exceeds_message) {
   if (parent_max_size.GetLengthOrMax() < child_min_size.GetLengthOr0()) {
     log::TagWarn(log_tag, exceeds_message);
     return parent_max_size;

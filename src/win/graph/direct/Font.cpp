@@ -2,15 +2,14 @@
 
 #include "cru/win/graph/direct/Exception.hpp"
 #include "cru/win/graph/direct/Factory.hpp"
-#include "cru/win/String.hpp"
 
 #include <array>
 #include <utility>
 
 namespace cru::platform::graph::win::direct {
-DWriteFont::DWriteFont(DirectGraphFactory* factory,
-                       const std::string_view& font_family, float font_size)
-    : DirectGraphResource(factory) {
+DWriteFont::DWriteFont(DirectGraphFactory* factory, std::u16string font_family,
+                       float font_size)
+    : DirectGraphResource(factory), font_family_(std::move(font_family)) {
   // Get locale
   std::array<wchar_t, LOCALE_NAME_MAX_LENGTH> buffer;
   if (!::GetUserDefaultLocaleName(buffer.data(),
@@ -18,10 +17,9 @@ DWriteFont::DWriteFont(DirectGraphFactory* factory,
     throw platform::win::Win32Error(
         ::GetLastError(), "Failed to get locale when create dwrite font.");
 
-  const std::wstring&& wff = cru::platform::win::ToUtf16String(font_family);
-
   ThrowIfFailed(factory->GetDWriteFactory()->CreateTextFormat(
-      wff.data(), nullptr, DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STYLE_NORMAL,
+      reinterpret_cast<const wchar_t*>(font_family_.c_str()), nullptr,
+      DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STYLE_NORMAL,
       DWRITE_FONT_STRETCH_NORMAL, font_size, buffer.data(), &text_format_));
 
   ThrowIfFailed(text_format_->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING));

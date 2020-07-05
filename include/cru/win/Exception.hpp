@@ -10,7 +10,7 @@ namespace cru::platform::win {
 class HResultError : public platform::PlatformException {
  public:
   explicit HResultError(HRESULT h_result);
-  explicit HResultError(HRESULT h_result, const std::string_view& message);
+  explicit HResultError(HRESULT h_result, std::string_view message);
 
   CRU_DEFAULT_COPY(HResultError)
   CRU_DEFAULT_MOVE(HResultError)
@@ -27,8 +27,7 @@ inline void ThrowIfFailed(const HRESULT h_result) {
   if (FAILED(h_result)) throw HResultError(h_result);
 }
 
-inline void ThrowIfFailed(const HRESULT h_result,
-                          const std::string_view& message) {
+inline void ThrowIfFailed(const HRESULT h_result, std::string_view message) {
   if (FAILED(h_result)) throw HResultError(h_result, message);
 }
 
@@ -36,8 +35,8 @@ class Win32Error : public platform::PlatformException {
  public:
   // ::GetLastError is automatically called to get the error code.
   // The same as Win32Error(::GetLastError(), message)
-  explicit Win32Error(const std::string_view& message);
-  Win32Error(DWORD error_code, const std::string_view& message);
+  explicit Win32Error(std::string_view message);
+  Win32Error(DWORD error_code, std::string_view message);
 
   CRU_DEFAULT_COPY(Win32Error)
   CRU_DEFAULT_MOVE(Win32Error)

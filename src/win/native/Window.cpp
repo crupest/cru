@@ -5,7 +5,6 @@
 #include "WindowManager.hpp"
 #include "cru/common/Logger.hpp"
 #include "cru/platform/Check.hpp"
-#include "cru/win/String.hpp"
 #include "cru/win/native/Cursor.hpp"
 #include "cru/win/native/Exception.hpp"
 #include "cru/win/native/Keyboard.hpp"
@@ -124,7 +123,7 @@ bool WinNativeWindow::ReleaseMouse() {
 }
 
 void WinNativeWindow::RequestRepaint() {
-  log::TagDebug(log_tag, "A repaint is requested.");
+  log::TagDebug(log_tag, u"A repaint is requested.");
   if (!::InvalidateRect(hwnd_, nullptr, FALSE))
     throw Win32Error(::GetLastError(), "Failed to invalidate window.");
   if (!::UpdateWindow(hwnd_))
@@ -145,43 +144,43 @@ void WinNativeWindow::SetCursor(std::shared_ptr<ICursor> cursor) {
   if (!::SetClassLongPtrW(hwnd_, GCLP_HCURSOR,
                           reinterpret_cast<LONG_PTR>(cursor_->GetHandle()))) {
     log::TagWarn(log_tag,
-                 "Failed to set cursor because failed to set class long. Last "
-                 "error code: {}.",
+                 u"Failed to set cursor because failed to set class long. Last "
+                 u"error code: {}.",
                  ::GetLastError());
     return;
   }
 
   if (!IsVisible()) return;
 
-  auto lg = [](const std::string_view& reason) {
+  auto lg = [](const std::u16string_view& reason) {
     log::TagWarn(
         log_tag,
-        "Failed to set cursor because {} when window is visible. (We need to "
-        "update cursor if it is inside the window.) Last error code: {}.",
+        u"Failed to set cursor because {} when window is visible. (We need to "
+        u"update cursor if it is inside the window.) Last error code: {}.",
         reason, ::GetLastError());
   };
 
   ::POINT point;
   if (!::GetCursorPos(&point)) {
-    lg("failed to get cursor pos");
+    lg(u"failed to get cursor pos");
     return;
   }
 
   ::RECT rect;
   if (!::GetClientRect(hwnd_, &rect)) {
-    lg("failed to get window's client rect");
+    lg(u"failed to get window's client rect");
     return;
   }
 
   ::POINT lefttop{rect.left, rect.top};
   ::POINT rightbottom{rect.right, rect.bottom};
   if (!::ClientToScreen(hwnd_, &lefttop)) {
-    lg("failed to call ClientToScreen on lefttop");
+    lg(u"failed to call ClientToScreen on lefttop");
     return;
   }
 
   if (!::ClientToScreen(hwnd_, &rightbottom)) {
-    lg("failed to call ClientToScreen on rightbottom");
+    lg(u"failed to call ClientToScreen on rightbottom");
     return;
   }
 
@@ -354,7 +353,7 @@ void WinNativeWindow::OnDestroyInternal() {
 void WinNativeWindow::OnPaintInternal() {
   paint_event_.Raise(nullptr);
   ValidateRect(hwnd_, nullptr);
-  log::TagDebug(log_tag, "A repaint is finished.");
+  log::TagDebug(log_tag, u"A repaint is finished.");
 }
 
 void WinNativeWindow::OnResizeInternal(const int new_width,

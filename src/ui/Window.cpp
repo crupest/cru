@@ -17,7 +17,7 @@ Window::~Window() {
   managed_ui_host_.reset();
 }
 
-std::string_view Window::GetControlType() const { return control_type; }
+std::u16string_view Window::GetControlType() const { return control_type; }
 
 render::RenderObject* Window::GetRenderObject() const { return render_object_; }
 

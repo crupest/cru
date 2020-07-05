@@ -88,7 +88,7 @@ Size FlexLayoutMeasureContentImpl(
     const MeasureRequirement& requirement, const MeasureSize& preferred_size,
     const std::vector<RenderObject*>& children,
     const std::vector<FlexChildLayoutData>& layout_data,
-    std::string_view log_tag) {
+    std::u16string_view log_tag) {
   Expects(children.size() == layout_data.size());
 
   direction_tag_t direction_tag;
@@ -111,8 +111,8 @@ Size FlexLayoutMeasureContentImpl(
         StackLayoutCalculateChildMaxLength(
             preferred_cross_length, max_cross_length,
             GetCross(child->GetMinSize(), direction_tag), log_tag,
-            "(Measure) Child's min cross size is bigger than parent's max "
-            "cross size."));
+            u"(Measure) Child's min cross size is bigger than parent's max "
+            u"cross size."));
   }
 
   // step 1.
@@ -315,7 +315,7 @@ Size FlexLayoutMeasureContentImpl(
       total_length > max_main_length.GetLengthOrUndefined()) {
     log::TagWarn(
         log_tag,
-        "(Measure) Children's main axis length exceeds required max length.");
+        u"(Measure) Children's main axis length exceeds required max length.");
     total_length = max_main_length.GetLengthOrUndefined();
   } else if (min_main_length.IsSpecified() &&
              total_length < min_main_length.GetLengthOrUndefined()) {

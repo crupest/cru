@@ -19,8 +19,8 @@ void InitializeCom() {
   }
   if (hresult == S_FALSE) {
     log::Debug(
-        "Try to call CoInitializeEx, but it seems COM is already "
-        "initialized.");
+        u"Try to call CoInitializeEx, but it seems COM is already "
+        u"initialized.");
   }
 }
 
@@ -95,12 +95,12 @@ std::unique_ptr<IGeometryBuilder> DirectGraphFactory::CreateGeometryBuilder() {
 }
 
 std::unique_ptr<IFont> DirectGraphFactory::CreateFont(
-    const std::string_view& font_family, float font_size) {
-  return std::make_unique<DWriteFont>(this, font_family, font_size);
+    std::u16string font_family, float font_size) {
+  return std::make_unique<DWriteFont>(this, std::move(font_family), font_size);
 }
 
 std::unique_ptr<ITextLayout> DirectGraphFactory::CreateTextLayout(
-    std::shared_ptr<IFont> font, std::string text) {
+    std::shared_ptr<IFont> font, std::u16string text) {
   return std::make_unique<DWriteTextLayout>(this, std::move(font),
                                             std::move(text));
 }

@@ -14,9 +14,11 @@ using platform::native::IUiApplication;
 
 namespace event_names {
 #ifdef CRU_DEBUG
-#define CRU_DEFINE_EVENT_NAME(name) constexpr const char* name = #name;
+// clang-format off
+#define CRU_DEFINE_EVENT_NAME(name) constexpr const char16_t* name = u#name;
+// clang-format on
 #else
-#define CRU_DEFINE_EVENT_NAME(name) constexpr const char* name = "";
+#define CRU_DEFINE_EVENT_NAME(name) constexpr const char16_t* name = u"";
 #endif
 
 CRU_DEFINE_EVENT_NAME(LoseFocus)
@@ -146,7 +148,7 @@ void UiHost::InvalidatePaint() {
 }
 
 void UiHost::InvalidateLayout() {
-  log::TagDebug(log_tag, "A relayout is requested.");
+  log::TagDebug(log_tag, u"A relayout is requested.");
   if (!need_layout_) {
     platform::native::IUiApplication::GetInstance()->InvokeLater(
         [resolver = this->CreateResolver()] {
@@ -171,7 +173,7 @@ void UiHost::Relayout() {
       render::MeasureSize::NotSpecified());
   root_render_object_->Layout(Point{});
   after_layout_event_.Raise(AfterLayoutEventArgs{});
-  log::TagDebug(log_tag, "A relayout is finished.");
+  log::TagDebug(log_tag, u"A relayout is finished.");
 }
 
 bool UiHost::RequestFocusFor(Control* control) {
@@ -368,6 +370,11 @@ void UiHost::UpdateCursor() {
 
 Control* UiHost::HitTest(const Point& point) {
   const auto render_object = root_render_object_->HitTest(point);
-  return render_object ? render_object->GetAttachedControl() : nullptr;
+  if (render_object) {
+    const auto control = render_object->GetAttachedControl();
+    Ensures(control);
+    return control;
+  }
+  return window_control_;
 }
 }  // namespace cru::ui

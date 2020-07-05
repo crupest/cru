@@ -10,7 +10,7 @@ class DirectGraphFactory;
 
 class DirectResource : public Object, public virtual INativeResource {
  public:
-  static constexpr std::string_view k_platform_id = "Windows Direct";
+  static constexpr std::u16string_view k_platform_id = u"Windows Direct";
 
  protected:
   DirectResource() = default;
@@ -22,7 +22,7 @@ class DirectResource : public Object, public virtual INativeResource {
   ~DirectResource() override = default;
 
  public:
-  std::string_view GetPlatformId() const final { return k_platform_id; }
+  std::u16string_view GetPlatformId() const final { return k_platform_id; }
 };
 
 class DirectGraphResource : public DirectResource,

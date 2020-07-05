@@ -7,7 +7,7 @@
 namespace cru::ui::controls {
 class Button : public ContentControl {
  public:
-  static constexpr std::string_view control_type = "Button";
+  static constexpr std::u16string_view control_type = u"Button";
 
   static Button* Create() { return new Button(); }
 
@@ -21,7 +21,7 @@ class Button : public ContentControl {
   Button& operator=(Button&& other) = delete;
   ~Button() override;
 
-  std::string_view GetControlType() const final { return control_type; }
+  std::u16string_view GetControlType() const final { return control_type; }
 
   render::RenderObject* GetRenderObject() const override;
 

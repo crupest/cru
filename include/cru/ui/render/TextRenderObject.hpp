@@ -18,7 +18,7 @@ namespace cru::ui::render {
 // If the result layout box is bigger than actual text box, then text is center
 // aligned.
 class TextRenderObject : public RenderObject {
-  CRU_DEFINE_CLASS_LOG_TAG("cru::ui::render::TextRenderObject")
+  CRU_DEFINE_CLASS_LOG_TAG(u"cru::ui::render::TextRenderObject")
 
  public:
   constexpr static float default_caret_width = 2;
@@ -34,8 +34,8 @@ class TextRenderObject : public RenderObject {
   TextRenderObject& operator=(TextRenderObject&& other) = delete;
   ~TextRenderObject() override;
 
-  std::string GetText() const;
-  void SetText(std::string new_text);
+  std::u16string GetText() const;
+  void SetText(std::u16string new_text);
 
   std::shared_ptr<platform::graph::IBrush> GetBrush() const { return brush_; }
   void SetBrush(std::shared_ptr<platform::graph::IBrush> new_brush);

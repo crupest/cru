@@ -12,7 +12,7 @@
 
 namespace cru::platform::native::win {
 class AutoHIMC : public Object {
-  CRU_DEFINE_CLASS_LOG_TAG("cru::platform::native::win::AutoHIMC")
+  CRU_DEFINE_CLASS_LOG_TAG(u"cru::platform::native::win::AutoHIMC")
 
  public:
   explicit AutoHIMC(HWND hwnd);
@@ -35,7 +35,7 @@ class AutoHIMC : public Object {
 
 class WinInputMethodContext : public WinNativeResource,
                               public virtual IInputMethodContext {
-  CRU_DEFINE_CLASS_LOG_TAG("cru::platform::native::win::WinInputMethodContext")
+  CRU_DEFINE_CLASS_LOG_TAG(u"cru::platform::native::win::WinInputMethodContext")
 
  public:
   WinInputMethodContext(gsl::not_null<WinNativeWindow*> window);
@@ -65,12 +65,12 @@ class WinInputMethodContext : public WinNativeResource,
 
   IEvent<std::nullptr_t>* CompositionEvent() override;
 
-  IEvent<std::string_view>* TextEvent() override;
+  IEvent<std::u16string_view>* TextEvent() override;
 
  private:
   void OnWindowNativeMessage(WindowNativeMessageEventArgs& args);
 
-  std::string GetResultString();
+  std::u16string GetResultString();
 
   std::optional<AutoHIMC> TryGetHIMC();
 
@@ -82,7 +82,7 @@ class WinInputMethodContext : public WinNativeResource,
   Event<std::nullptr_t> composition_start_event_;
   Event<std::nullptr_t> composition_end_event_;
   Event<std::nullptr_t> composition_event_;
-  Event<std::string_view> text_event_;
+  Event<std::u16string_view> text_event_;
 };
 
 class WinInputMethodManager : public WinNativeResource,

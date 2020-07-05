@@ -45,7 +45,7 @@ ClickDetector::ClickDetector(Control* control) {
                 this->state_ == ClickState::Hover) {
               if (!this->control_->CaptureMouse()) {
                 log::TagDebug(log_tag,
-                              "Failed to capture mouse when begin click.");
+                              u"Failed to capture mouse when begin click.");
                 return;
               }
               this->down_point_ = args.GetPoint();
@@ -107,21 +107,21 @@ void ClickDetector::SetTriggerButton(MouseButton trigger_button) {
 
 void ClickDetector::SetState(ClickState state) {
 #ifdef CRU_DEBUG
-  auto to_string = [](ClickState state) -> std::string_view {
+  auto to_string = [](ClickState state) -> std::u16string_view {
     switch (state) {
       case ClickState::None:
-        return "None";
+        return u"None";
       case ClickState::Hover:
-        return "Hover";
+        return u"Hover";
       case ClickState::Press:
-        return "Press";
+        return u"Press";
       case ClickState::PressInactive:
-        return "PressInvactive";
+        return u"PressInvactive";
       default:
         UnreachableCode();
     }
   };
-  log::TagDebug(log_tag, "Click state changed, new state: {}.",
+  log::TagDebug(log_tag, u"Click state changed, new state: {}.",
                 to_string(state));
 #endif
 

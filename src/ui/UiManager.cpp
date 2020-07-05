@@ -30,7 +30,7 @@ UiManager* UiManager::GetInstance() {
 UiManager::UiManager() {
   const auto factory = GetGraphFactory();
 
-  theme_resource_.default_font = factory->CreateFont("等线", 24.0f);
+  theme_resource_.default_font = factory->CreateFont(u"等线", 24.0f);
 
   const auto black_brush = std::shared_ptr<platform::graph::ISolidColorBrush>(
       CreateSolidColorBrush(factory, colors::black));

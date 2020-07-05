@@ -10,7 +10,7 @@ class TextControlService;
 
 class TextBox : public NoChildControl {
  public:
-  static constexpr std::string_view control_type = "TextBox";
+  static constexpr std::u16string_view control_type = u"TextBox";
 
   static TextBox* Create() { return new TextBox(); }
 
@@ -23,7 +23,7 @@ class TextBox : public NoChildControl {
 
   ~TextBox() override;
 
-  std::string_view GetControlType() const final { return control_type; }
+  std::u16string_view GetControlType() const final { return control_type; }
 
   render::RenderObject* GetRenderObject() const override;
 

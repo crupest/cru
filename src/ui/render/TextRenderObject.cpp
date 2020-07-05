@@ -28,16 +28,16 @@ TextRenderObject::TextRenderObject(
   caret_brush.swap(caret_brush_);
 
   const auto graph_factory = GetGraphFactory();
-  text_layout_ = graph_factory->CreateTextLayout(font_, "");
+  text_layout_ = graph_factory->CreateTextLayout(font_, u"");
 }
 
 TextRenderObject::~TextRenderObject() = default;
 
-std::string TextRenderObject::GetText() const {
+std::u16string TextRenderObject::GetText() const {
   return text_layout_->GetText();
 }
 
-void TextRenderObject::SetText(std::string new_text) {
+void TextRenderObject::SetText(std::u16string new_text) {
   text_layout_->SetText(std::move(new_text));
 }
 
@@ -171,7 +171,7 @@ Size TextRenderObject::OnMeasureContent(const MeasureRequirement& requirement,
   if (requirement.max.width.IsSpecified() &&
       text_size.width > requirement.max.width.GetLengthOrUndefined()) {
     log::TagWarn(log_tag,
-                 "(Measure) Text actual width exceeds the required max width.");
+                 u"(Measure) Text actual width exceeds the required max width.");
     result.width = requirement.max.width.GetLengthOrUndefined();
   } else {
     result.width = std::max(result.width, preferred_size.width.GetLengthOr0());
@@ -182,7 +182,7 @@ Size TextRenderObject::OnMeasureContent(const MeasureRequirement& requirement,
       text_size.height > requirement.max.height.GetLengthOrUndefined()) {
     log::TagWarn(
         log_tag,
-        "(Measure) Text actual height exceeds the required max height.");
+        u"(Measure) Text actual height exceeds the required max height.");
     result.height = requirement.max.height.GetLengthOrUndefined();
   } else {
     result.height =

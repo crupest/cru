@@ -212,7 +212,7 @@ class KeyEventArgs : public UiEventArgs {
 
 class CharEventArgs : public UiEventArgs {
  public:
-  CharEventArgs(Object* sender, Object* original_sender, std::string c)
+  CharEventArgs(Object* sender, Object* original_sender, std::u16string c)
       : UiEventArgs(sender, original_sender), c_(std::move(c)) {}
   CharEventArgs(const CharEventArgs& other) = default;
   CharEventArgs(CharEventArgs&& other) = default;
@@ -220,9 +220,9 @@ class CharEventArgs : public UiEventArgs {
   CharEventArgs& operator=(CharEventArgs&& other) = default;
   ~CharEventArgs() override = default;
 
-  std::string GetChar() const { return c_; }
+  std::u16string GetChar() const { return c_; }
 
  private:
-  std::string c_;
+  std::u16string c_;
 };
 }  // namespace cru::ui::event
