@@ -13,10 +13,6 @@ namespace cru::platform::graph {
 struct IPainter;
 }
 
-namespace cru::ui {
-class Control;
-}
-
 namespace cru::ui::event {
 class UiEventArgs : public Object {
  public:
@@ -88,6 +84,7 @@ class MouseEventArgs : public UiEventArgs {
 
   // This point is relative to window client lefttop.
   Point GetPoint() const { return point_.value_or(Point{}); }
+  Point GetPointToContent(render::RenderObject* render_target) const;
 
  private:
   std::optional<Point> point_;

@@ -78,11 +78,12 @@ class TextControlService : public Object {
     }
   }
 
-  std::optional<TextRange> GetSelection() {
-    return this->control_->GetTextRenderObject()->GetSelectionRange();
+  gsl::not_null<render::TextRenderObject*> GetTextRenderObject() {
+    return this->control_->GetTextRenderObject();
   }
-  void SetSelection(std::optional<TextRange> selection) {
-    this->control_->GetTextRenderObject()->SetSelectionRange(selection);
+
+  render::ScrollRenderObject* GetScrollRenderObject() {
+    return this->control_->GetScrollRenderObject();
   }
 
  private:
@@ -91,7 +92,7 @@ class TextControlService : public Object {
       this->control_->ReleaseMouse();
       this->select_down_button_ = std::nullopt;
     }
-    this->control_->GetTextRenderObject()->SetSelectionRange(std::nullopt);
+    this->GetTextRenderObject()->SetSelectionRange(std::nullopt);
   }
 
   void SetupCaret() {
@@ -100,16 +101,16 @@ class TextControlService : public Object {
     // Cancel first anyhow for safety.
     application->CancelTimer(this->caret_timer_id_);
 
-    this->control_->GetTextRenderObject()->SetDrawCaret(true);
+    this->GetTextRenderObject()->SetDrawCaret(true);
     this->caret_timer_id_ = application->SetInterval(
         std::chrono::milliseconds(this->caret_blink_duration_),
-        [this] { this->control_->GetTextRenderObject()->ToggleDrawCaret(); });
+        [this] { this->GetTextRenderObject()->ToggleDrawCaret(); });
   }
 
   void TearDownCaret() {
     const auto application = GetUiApplication();
     application->CancelTimer(this->caret_timer_id_);
-    this->control_->GetTextRenderObject()->SetDrawCaret(false);
+    this->GetTextRenderObject()->SetDrawCaret(false);
   }
 
   template <typename TArgs>
@@ -121,6 +122,29 @@ class TextControlService : public Object {
             std::bind(handler, this, std::placeholders::_1))});
   }
 
+  void StartSelection(Index start) {
+    const auto text_render_object = this->GetTextRenderObject();
+    text_render_object->SetSelectionRange(TextRange{start, 0});
+    text_render_object->SetCaretPosition(start);
+    log::TagDebug(log_tag, "Text selection started, position: {}.", position);
+  }
+
+  void UpdateSelection(Index new_end) {
+    if (!old_selection.has_value()) return;
+
+    const auto text_render_object = this->GetTextRenderObject();
+    const auto old_selection = text_render_object->GetSelectionRange();
+    const auto old_start = old_selection->GetStart();
+    this->GetTextRenderObject()->SetSelectionRange(
+        TextRange::FromTwoSides(old_start, new_end));
+    text_render_object->SetCaretPosition(new_end);
+    log::TagDebug(log_tag, "Text selection updated, range: {}, {}.", old_start,
+                  new_end);
+    if (const auto scroll_render_object = this->GetScrollRenderObject()) {
+      //TODO: Implement this.      
+    }
+  }
+
   void SetupHandlers() {
     Expects(event_revoker_guards_.empty());
 
@@ -130,22 +154,20 @@ class TextControlService : public Object {
                     &TextControlService::MouseDownHandler);
     SetupOneHandler(&Control::MouseUpEvent,
                     &TextControlService::MouseUpHandler);
+    SetupOneHandler(&Control::KeyDownEvent,
+                    &TextControlService::KeyDownHandler);
+    SetupOneHandler(&Control::KeyUpEvent, &TextControlService::KeyUpHandler);
     SetupOneHandler(&Control::LoseFocusEvent,
                     &TextControlService::LoseFocusHandler);
   }
 
   void MouseMoveHandler(event::MouseEventArgs& args) {
     if (this->select_down_button_.has_value()) {
-      const auto text_render_object = this->control_->GetTextRenderObject();
+      const auto text_render_object = this->GetTextRenderObject();
       const auto result = text_render_object->TextHitTest(
-          text_render_object->FromRootToContent(args.GetPoint()));
+          args.GetPointToContent(text_render_object));
       const auto position = result.position + (result.trailing ? 1 : 0);
-      log::TagDebug(log_tag,
-                    "Text selection changed on mouse move, range: {}, {}.",
-                    position, this->select_start_position_);
-      this->control_->GetTextRenderObject()->SetSelectionRange(
-          TextRange::FromTwoSides(position, this->select_start_position_));
-      text_render_object->SetCaretPosition(position);
+      UpdateSelection(position);
     }
   }
 
@@ -155,16 +177,12 @@ class TextControlService : public Object {
     } else {
       if (!this->control_->CaptureMouse()) return;
       if (!this->control_->RequestFocus()) return;
-      const auto text_render_object = this->control_->GetTextRenderObject();
+      const auto text_render_object = this->GetTextRenderObject();
       this->select_down_button_ = args.GetButton();
       const auto result = text_render_object->TextHitTest(
-          text_render_object->FromRootToContent(args.GetPoint()));
+          args.GetPointToContent(text_render_object));
       const auto position = result.position + (result.trailing ? 1 : 0);
-      text_render_object->SetSelectionRange(std::nullopt);
-      text_render_object->SetCaretPosition(position);
-      this->select_start_position_ = position;
-      log::TagDebug(log_tag, "Begin to select text, start position: {}.",
-                    position);
+      StartSelection(position);
     }
   }
 
@@ -173,9 +191,12 @@ class TextControlService : public Object {
         this->select_down_button_.value() == args.GetButton()) {
       this->control_->ReleaseMouse();
       this->select_down_button_ = std::nullopt;
-      log::TagDebug(log_tag, "End selecting text.");
     }
   }
+
+  void KeyDownHandler(event::KeyEventArgs& args) {}
+
+  void KeyUpHandler(event::KeyEventArgs& args) {}
 
   void LoseFocusHandler(event::FocusChangeEventArgs& args) {
     if (!args.IsWindow()) this->AbortSelection();
@@ -193,8 +214,5 @@ class TextControlService : public Object {
 
   // nullopt means not selecting
   std::optional<MouseButton> select_down_button_;
-
-  // before the char
-  int select_start_position_;
 };
 }  // namespace cru::ui::controls

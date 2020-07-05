@@ -185,6 +185,10 @@ class Control;
 class ClickDetector;
 class UiHost;
 
+namespace render {
+class RenderObject;
+}
+
 //-------------------- region: basic types --------------------
 namespace internal {
 constexpr int align_start = 0;

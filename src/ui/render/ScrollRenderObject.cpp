@@ -67,6 +67,11 @@ void ScrollRenderObject::SetScrollOffset(const Point& offset) {
   InvalidateLayout();
 }
 
+void ScrollToContain(const Rect& rect) {
+  // TODO: Implement this.
+  throw std::runtime_error("Not implemented.");
+}
+
 Size ScrollRenderObject::OnMeasureContent(const MeasureRequirement& requirement,
                                           const MeasureSize& preferred_size) {
   if (const auto child = GetSingleChild()) {

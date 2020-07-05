@@ -16,7 +16,7 @@ way.)
 #pragma once
 #include "WinPreConfig.hpp"
 
-#include "cru/common/Base.hpp"
+#include "cru/common/StringUtil.hpp"
 
 #include <cstdint>
 #include <stdexcept>
@@ -36,38 +36,6 @@ inline bool IsSurrogatePairLeading(wchar_t c) {
 inline bool IsSurrogatePairTrailing(wchar_t c) {
   return c >= 0xDC00 && c <= 0xDFFF;
 }
-
-using CodePoint = std::int32_t;
-constexpr CodePoint k_code_point_end = -1;
-
-class TextEncodeException : public std::runtime_error {
- public:
-  using runtime_error::runtime_error;
-};
-
-class Utf8Iterator : public Object {
- public:
-  Utf8Iterator(const std::string_view& string) : string_(string) {}
-
-  CRU_DEFAULT_COPY(Utf8Iterator)
-  CRU_DEFAULT_MOVE(Utf8Iterator)
-
-  ~Utf8Iterator() = default;
-
- public:
-  void SetToHead() { position_ = 0; }
-
-  // Advance current position and get next code point. Return k_code_point_end
-  // if there is no next code unit(point). Throw TextEncodeException if decoding
-  // fails.
-  CodePoint Next();
-
-  int CurrentPosition() const { return this->position_; }
-
- private:
-  std::string_view string_;
-  int position_ = 0;
-};
 
 class Utf16Iterator : public Object {
   static_assert(
@@ -91,17 +59,17 @@ class Utf16Iterator : public Object {
   // fails.
   CodePoint Next();
 
-  int CurrentPosition() const { return this->position_; }
+  Index CurrentPosition() const { return this->position_; }
 
  private:
   std::wstring_view string_;
-  int position_ = 0;
+  Index position_ = 0;
 };
 
-int IndexUtf8ToUtf16(const std::string_view& utf8_string, int utf8_index,
-                     const std::wstring_view& utf16_string);
+Index IndexUtf8ToUtf16(const std::string_view& utf8_string, Index utf8_index,
+                       const std::wstring_view& utf16_string);
 
-int IndexUtf16ToUtf8(const std::wstring_view& utf16_string, int utf16_index,
-                     const std::string_view& utf8_string);
+Index IndexUtf16ToUtf8(const std::wstring_view& utf16_string, Index utf16_index,
+                       const std::string_view& utf8_string);
 
 }  // namespace cru::platform::win

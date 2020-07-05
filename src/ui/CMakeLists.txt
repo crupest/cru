@@ -10,6 +10,7 @@ add_library(cru_ui STATIC
 	Helper.cpp
 	LayoutControl.cpp
 	NoChildControl.cpp
+	UiEvent.cpp
 	UiHost.cpp
 	UiManager.cpp
 	Window.cpp
