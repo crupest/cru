@@ -23,6 +23,24 @@ struct CompositionText {
   TextRange selection;
 };
 
+// inline std::basic_ostream<char16_t>& operator<<(
+//     std::basic_ostream<char16_t>& stream,
+//     const CompositionText& composition_text) {
+//   stream << u"text: " << composition_text.text << u"\n" << u"clauses:\n";
+//   for (int i = 0; i < static_cast<int>(composition_text.clauses.size()); i++) {
+//     const auto& clause = composition_text.clauses[i];
+//     stream << u"\t" << i << u". start:" << clause.start << u" end:"
+//            << clause.end;
+//     if (clause.target) {
+//       stream << u" target";
+//     }
+//     stream << u"\n";
+//   }
+//   stream << u"selection: position:" << composition_text.selection.position
+//          << u" count:" << composition_text.selection.count;
+//   return stream;
+// }
+
 struct IInputMethodContext : virtual INativeResource {
   // Return true if you should draw composition text manually. Return false if
   // system will take care of that for you.

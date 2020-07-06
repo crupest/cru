@@ -247,7 +247,7 @@ void WinInputMethodContext::OnWindowNativeMessage(
   switch (message.msg) {
     case WM_CHAR: {
       const auto c = static_cast<char16_t>(message.w_param);
-      if (IsSurrogatePair(c)) {
+      if (IsUtf16SurrogatePairCodeUnit(c)) {
         // I don't think this will happen because normal key strike without ime
         // should only trigger ascci character. If it is a charater from
         // supplementary planes, it should be handled with ime messages.
@@ -264,6 +264,8 @@ void WinInputMethodContext::OnWindowNativeMessage(
     case WM_IME_COMPOSITION: {
       composition_event_.Raise(nullptr);
       auto composition_text = GetCompositionText();
+      // log::TagDebug(log_tag, u"WM_IME_COMPOSITION composition text:\n{}",
+      //               composition_text);
       if (message.l_param & GCS_RESULTSTR) {
         auto result_string = GetResultString();
         text_event_.Raise(result_string);
