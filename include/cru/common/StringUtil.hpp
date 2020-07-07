@@ -124,33 +124,4 @@ void Utf16EncodeCodePointAppend(CodePoint code_point, std::u16string& str);
 
 std::string ToUtf8(std::u16string_view s);
 std::u16string ToUtf16(std::string_view s);
-
-// class Utf8Iterator : public Object {
-//  public:
-//   explicit Utf8Iterator(const std::string_view& string) : string_(string) {}
-//   Utf8Iterator(const std::string_view& string, Index position)
-//       : string_(string), position_(position) {}
-
-//   CRU_DEFAULT_COPY(Utf8Iterator)
-//   CRU_DEFAULT_MOVE(Utf8Iterator)
-
-//   ~Utf8Iterator() = default;
-
-//  public:
-//   void SetToHead() { position_ = 0; }
-//   void SetPosition(Index position) { position_ = position; }
-
-//   // Advance current position and get next code point. Return
-//   k_invalid_code_point
-//   // if there is no next code unit(point). Throw TextEncodeException if
-//   decoding
-//   // fails.
-//   CodePoint Next();
-
-//   Index CurrentPosition() const { return this->position_; }
-
-//  private:
-//   std::string_view string_;
-//   Index position_ = 0;
-// };
 }  // namespace cru
