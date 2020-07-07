@@ -1,14 +1,11 @@
 #include "cru/common/StringUtil.hpp"
 
-#include <codecvt>
-
 namespace cru {
 namespace {
-
-template <typename UInt, int number_of_bit>
-inline std::enable_if_t<std::is_unsigned_v<UInt>, CodePoint> ExtractBits(
+template <typename UInt, int number_of_bit, typename ReturnType>
+inline std::enable_if_t<std::is_unsigned_v<UInt>, ReturnType> ExtractBits(
     UInt n) {
-  return static_cast<CodePoint>(n & ((1u << number_of_bit) - 1));
+  return static_cast<ReturnType>(n & ((1u << number_of_bit) - 1));
 }
 }  // namespace
 
@@ -34,7 +31,7 @@ CodePoint Utf8NextCodePoint(std::string_view str, Index current,
             "multi-byte code point.");
       }
 
-      return ExtractBits<std::uint8_t, 6>(str[current++]);
+      return ExtractBits<std::uint8_t, 6, CodePoint>(str[current++]);
     };
 
     if ((1u << 7) & cu0) {
@@ -47,19 +44,22 @@ CodePoint Utf8NextCodePoint(std::string_view str, Index current,
                   "code point.");
             }
 
-            const CodePoint s0 = ExtractBits<std::uint8_t, 3>(cu0) << (6 * 3);
+            const CodePoint s0 = ExtractBits<std::uint8_t, 3, CodePoint>(cu0)
+                                 << (6 * 3);
             const CodePoint s1 = read_next_folowing_code() << (6 * 2);
             const CodePoint s2 = read_next_folowing_code() << 6;
             const CodePoint s3 = read_next_folowing_code();
             result = s0 + s1 + s2 + s3;
           } else {  // 3-length code point
-            const CodePoint s0 = ExtractBits<std::uint8_t, 4>(cu0) << (6 * 2);
+            const CodePoint s0 = ExtractBits<std::uint8_t, 4, CodePoint>(cu0)
+                                 << (6 * 2);
             const CodePoint s1 = read_next_folowing_code() << 6;
             const CodePoint s2 = read_next_folowing_code();
             result = s0 + s1 + s2;
           }
         } else {  // 2-length code point
-          const CodePoint s0 = ExtractBits<std::uint8_t, 5>(cu0) << 6;
+          const CodePoint s0 = ExtractBits<std::uint8_t, 5, CodePoint>(cu0)
+                               << 6;
           const CodePoint s1 = read_next_folowing_code();
           result = s0 + s1;
         }
@@ -99,8 +99,8 @@ CodePoint Utf16NextCodePoint(std::u16string_view str, Index current,
             "Unexpected bad-range second code unit of surrogate pair.");
       }
 
-      const auto s0 = ExtractBits<std::uint16_t, 10>(cu0) << 10;
-      const auto s1 = ExtractBits<std::uint16_t, 10>(cu1);
+      const auto s0 = ExtractBits<std::uint16_t, 10, CodePoint>(cu0) << 10;
+      const auto s1 = ExtractBits<std::uint16_t, 10, CodePoint>(cu1);
 
       result = s0 + s1 + 0x10000;
 
@@ -136,8 +136,8 @@ CodePoint Utf16PreviousCodePoint(std::u16string_view str, Index current,
             "Unexpected bad-range first code unit of surrogate pair.");
       }
 
-      const auto s0 = ExtractBits<std::uint16_t, 10>(cu1) << 10;
-      const auto s1 = ExtractBits<std::uint16_t, 10>(cu0);
+      const auto s0 = ExtractBits<std::uint16_t, 10, CodePoint>(cu1) << 10;
+      const auto s1 = ExtractBits<std::uint16_t, 10, CodePoint>(cu0);
 
       result = s0 + s1 + 0x10000;
 
@@ -151,10 +151,73 @@ CodePoint Utf16PreviousCodePoint(std::u16string_view str, Index current,
   return result;
 }
 
-std::string ToUtf8(const std::u16string& s) {
-  // TODO: Implement this by myself. Remember to remove deprecation warning
-  // suppress macro.
-  return std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t>{}
-      .to_bytes(s);
+void Utf8EncodeCodePointAppend(CodePoint code_point, std::string& str) {
+  auto write_continue_byte = [&str](std::uint8_t byte6) {
+    str.push_back((1u << 7) + (((1u << 6) - 1) & byte6));
+  };
+
+  if (code_point >= 0 && code_point <= 0x007F) {
+    str.push_back(static_cast<char>(code_point));
+  } else if (code_point >= 0x0080 && code_point <= 0x07FF) {
+    std::uint32_t unsigned_code_point = code_point;
+    str.push_back(static_cast<char>(ExtractBits<std::uint32_t, 5, std::uint8_t>(
+                                        (unsigned_code_point >> 6)) +
+                                    0b11000000));
+    write_continue_byte(
+        ExtractBits<std::uint32_t, 6, std::uint8_t>(unsigned_code_point));
+  } else if (code_point >= 0x0800 && code_point <= 0xFFFF) {
+    std::uint32_t unsigned_code_point = code_point;
+    str.push_back(static_cast<char>(ExtractBits<std::uint32_t, 4, std::uint8_t>(
+                                        (unsigned_code_point >> (6 * 2))) +
+                                    0b11100000));
+    write_continue_byte(
+        ExtractBits<std::uint32_t, 6, std::uint8_t>(unsigned_code_point >> 6));
+    write_continue_byte(
+        ExtractBits<std::uint32_t, 6, std::uint8_t>(unsigned_code_point));
+  } else if (code_point >= 0x10000 && code_point <= 0x10FFFF) {
+    std::uint32_t unsigned_code_point = code_point;
+    str.push_back(static_cast<char>(ExtractBits<std::uint32_t, 3, std::uint8_t>(
+                                        (unsigned_code_point >> (6 * 3))) +
+                                    0b11110000));
+    write_continue_byte(ExtractBits<std::uint32_t, 6, std::uint8_t>(
+        unsigned_code_point >> (6 * 2)));
+    write_continue_byte(
+        ExtractBits<std::uint32_t, 6, std::uint8_t>(unsigned_code_point >> 6));
+    write_continue_byte(
+        ExtractBits<std::uint32_t, 6, std::uint8_t>(unsigned_code_point));
+  } else {
+    throw TextEncodeException("Code point out of range.");
+  }
+}
+
+void Utf16EncodeCodePointAppend(CodePoint code_point, std::u16string& str) {
+  if (code_point >= 0 && code_point <= 0xD7FF ||
+      code_point >= 0xE000 && code_point <= 0xFFFF) {
+    str.push_back(static_cast<char16_t>(code_point));
+  } else if (code_point >= 0x10000 && code_point <= 0x10FFFF) {
+    std::uint32_t u = code_point - 0x10000;
+    str.push_back(static_cast<char16_t>(
+        ExtractBits<std::uint32_t, 10, std::uint32_t>(u >> 10) + 0xD800u));
+    str.push_back(static_cast<char16_t>(
+        ExtractBits<std::uint32_t, 10, std::uint32_t>(u) + 0xDC00u));
+  } else {
+    throw TextEncodeException("Code point out of range.");
+  }
+}
+
+std::string ToUtf8(std::u16string_view s) {
+  std::string result;
+  for (CodePoint cp : Utf16CodePointIterator{s}) {
+    Utf8EncodeCodePointAppend(cp, result);
+  }
+  return result;
+}
+
+std::u16string ToUtf16(std::string_view s) {
+  std::u16string result;
+  for (CodePoint cp : Utf8CodePointIterator{s}) {
+    Utf16EncodeCodePointAppend(cp, result);
+  }
+  return result;
 }
 }  // namespace cru

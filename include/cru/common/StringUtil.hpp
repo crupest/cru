@@ -119,10 +119,11 @@ using Utf8CodePointIterator =
 using Utf16CodePointIterator =
     CodePointIterator<std::u16string_view, &Utf16NextCodePoint>;
 
-std::string ToUtf8(const std::u16string& s);
-inline std::string ToUtf8(std::u16string_view s) {
-  return ToUtf8(std::u16string{s});
-}
+void Utf8EncodeCodePointAppend(CodePoint code_point, std::string& str);
+void Utf16EncodeCodePointAppend(CodePoint code_point, std::u16string& str);
+
+std::string ToUtf8(std::u16string_view s);
+std::u16string ToUtf16(std::string_view s);
 
 // class Utf8Iterator : public Object {
 //  public:

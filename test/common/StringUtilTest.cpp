@@ -41,7 +41,7 @@ TEST(StringUtil, Utf16PreviousCodePoint) {
   ASSERT_EQ(Utf16PreviousCodePoint(text, current, &current), 0x0061);
   ASSERT_EQ(Utf16PreviousCodePoint(text, current, &current),
             k_invalid_code_point);
-  ASSERT_EQ(current, 0u);
+  ASSERT_EQ(current, 0);
 }
 
 TEST(StringUtil, Utf8CodePointIterator) {
@@ -72,6 +72,22 @@ TEST(StringUtil, Utf16CodePointIterator) {
                                                    0x1F923, 0x0021};
 
   ASSERT_EQ(code_points, expected_code_points);
+}
+
+TEST(StringUtil, ToUtf8) {
+  using cru::ToUtf8;
+  std::u16string_view utf16_text = u"aπ你🤣!";
+  std::string_view utf8_text = "aπ你🤣!";
+
+  ASSERT_EQ(ToUtf8(utf16_text), utf8_text);
+}
+
+TEST(StringUtil, ToUtf16) {
+  using cru::ToUtf16;
+  std::u16string_view utf16_text = u"aπ你🤣!";
+  std::string_view utf8_text = "aπ你🤣!";
+
+  ASSERT_EQ(ToUtf16(utf8_text), utf16_text);
 }
 
 // TEST(WinString, IndexUtf8ToUtf16) {
