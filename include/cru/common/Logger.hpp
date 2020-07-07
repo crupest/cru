@@ -2,7 +2,6 @@
 #include "cru/common/Base.hpp"
 
 #include <fmt/format.h>
-#include <fmt/ostream.h>
 #include <iostream>
 #include <list>
 #include <memory>
