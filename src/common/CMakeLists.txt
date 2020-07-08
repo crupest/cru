@@ -7,6 +7,7 @@ target_sources(cru_base PUBLIC
 	${CRU_BASE_INCLUDE_DIR}/Base.hpp
 	${CRU_BASE_INCLUDE_DIR}/Bitmask.hpp
 	${CRU_BASE_INCLUDE_DIR}/Event.hpp
+	${CRU_BASE_INCLUDE_DIR}/FormatOStream.hpp
 	${CRU_BASE_INCLUDE_DIR}/Logger.hpp
 	${CRU_BASE_INCLUDE_DIR}/PreConfig.hpp
 	${CRU_BASE_INCLUDE_DIR}/SelfResolvable.hpp

@@ -4,7 +4,7 @@
 
 #include "cru/common/Event.hpp"
 
-#include <iostream>
+#include <fmt/format.h>
 #include <memory>
 #include <vector>
 
@@ -22,24 +22,6 @@ struct CompositionText {
   CompositionClauses clauses;
   TextRange selection;
 };
-
-// inline std::basic_ostream<char16_t>& operator<<(
-//     std::basic_ostream<char16_t>& stream,
-//     const CompositionText& composition_text) {
-//   stream << u"text: " << composition_text.text << u"\n" << u"clauses:\n";
-//   for (int i = 0; i < static_cast<int>(composition_text.clauses.size()); i++) {
-//     const auto& clause = composition_text.clauses[i];
-//     stream << u"\t" << i << u". start:" << clause.start << u" end:"
-//            << clause.end;
-//     if (clause.target) {
-//       stream << u" target";
-//     }
-//     stream << u"\n";
-//   }
-//   stream << u"selection: position:" << composition_text.selection.position
-//          << u" count:" << composition_text.selection.count;
-//   return stream;
-// }
 
 struct IInputMethodContext : virtual INativeResource {
   // Return true if you should draw composition text manually. Return false if
@@ -76,3 +58,29 @@ struct IInputMethodManager : virtual INativeResource {
       INativeWindow* window) = 0;
 };
 }  // namespace cru::platform::native
+
+template <>
+struct fmt::formatter<cru::platform::native::CompositionText, char16_t>
+    : fmt::formatter<std::u16string_view, char16_t> {
+  auto parse(fmt::basic_format_parse_context<char16_t>& ctx) {
+    return fmt::formatter<std::u16string_view, char16_t>::parse(ctx);
+  }
+
+  template <typename FormatContext>
+  auto format(const cru::platform::native::CompositionText& ct,
+              FormatContext& ctx) {
+    auto output = ctx.out();
+    output = format_to(output, u"text: {}\n", ct.text);
+    output = format_to(output, u"clauses:\n");
+    for (gsl::index i = 0; i < static_cast<gsl::index>(ct.clauses.size());
+         i++) {
+      const auto& clause = ct.clauses[i];
+      output =
+          format_to(output, u"\t{}. start: {} end: {}{}\n", i, clause.start,
+                    clause.end, clause.target ? u" target" : u"");
+    }
+    output = format_to(output, u"selection: position: {} count: {}",
+                       ct.selection.position, ct.selection.count);
+    return output;
+  }
+};
