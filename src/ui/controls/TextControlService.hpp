@@ -7,6 +7,7 @@
 #include "cru/ui/Control.hpp"
 #include "cru/ui/UiEvent.hpp"
 #include "cru/ui/render/CanvasRenderObject.hpp"
+#include "cru/ui/render/ScrollRenderObject.hpp"
 #include "cru/ui/render/TextRenderObject.hpp"
 
 namespace cru::ui::controls {
@@ -140,7 +141,8 @@ class TextControlService : public Object {
     log::TagDebug(log_tag, u"Text selection updated, range: {}, {}.", old_start,
                   new_end);
     if (const auto scroll_render_object = this->GetScrollRenderObject()) {
-      // TODO: Implement this.
+      const auto caret_rect = text_render_object->GetCaretRect();
+      scroll_render_object->ScrollToContain(caret_rect, Thickness{5.f});
     }
   }
 

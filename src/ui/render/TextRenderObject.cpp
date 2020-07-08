@@ -118,6 +118,37 @@ void TextRenderObject::SetCaretWidth(const float width) {
   }
 }
 
+Rect TextRenderObject::GetCaretRectInContent() {
+  auto caret_pos = this->caret_position_;
+  gsl::index text_size = this->GetText().size();
+  if (caret_pos < 0) {
+    caret_pos = 0;
+  } else if (caret_pos > text_size) {
+    caret_pos = text_size;
+  }
+
+  const auto caret_top_center =
+      this->text_layout_->TextSinglePoint(caret_pos, false);
+
+  const auto font_height = this->font_->GetFontSize();
+  const auto caret_width = this->caret_width_;
+
+  auto rect = Rect{caret_top_center.x - caret_width / 2.0f, caret_top_center.y,
+                   caret_width, font_height};
+
+  return rect;
+}
+
+Rect TextRenderObject::GetCaretRect() {
+  auto rect = GetCaretRectInContent();
+  const auto content_rect = GetContentRect();
+
+  rect.left += content_rect.left;
+  rect.top += content_rect.top;
+
+  return rect;
+}
+
 RenderObject* TextRenderObject::HitTest(const Point& point) {
   const auto padding_rect = GetPaddingRect();
   return padding_rect.IsPointInside(point) ? this : nullptr;
@@ -134,23 +165,7 @@ void TextRenderObject::OnDrawContent(platform::graph::IPainter* painter) {
   painter->DrawText(Point{}, text_layout_.get(), brush_.get());
 
   if (this->draw_caret_ && this->caret_width_ != 0.0f) {
-    auto caret_pos = this->caret_position_;
-    gsl::index text_size = this->GetText().size();
-    if (caret_pos < 0) {
-      caret_pos = 0;
-    } else if (caret_pos > text_size) {
-      caret_pos = text_size;
-    }
-
-    const auto caret_top_center =
-        this->text_layout_->TextSinglePoint(caret_pos, false);
-
-    const auto font_height = this->font_->GetFontSize();
-    const auto caret_width = this->caret_width_;
-
-    painter->FillRectangle(Rect{caret_top_center.x - caret_width / 2.0f,
-                                caret_top_center.y, caret_width, font_height},
-                           this->caret_brush_.get());
+    painter->FillRectangle(GetCaretRectInContent(), this->caret_brush_.get());
   }
 }
 
@@ -170,8 +185,9 @@ Size TextRenderObject::OnMeasureContent(const MeasureRequirement& requirement,
 
   if (requirement.max.width.IsSpecified() &&
       text_size.width > requirement.max.width.GetLengthOrUndefined()) {
-    log::TagWarn(log_tag,
-                 u"(Measure) Text actual width exceeds the required max width.");
+    log::TagWarn(
+        log_tag,
+        u"(Measure) Text actual width exceeds the required max width.");
     result.width = requirement.max.width.GetLengthOrUndefined();
   } else {
     result.width = std::max(result.width, preferred_size.width.GetLengthOr0());

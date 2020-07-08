@@ -67,9 +67,11 @@ void ScrollRenderObject::SetScrollOffset(const Point& offset) {
   InvalidateLayout();
 }
 
-void ScrollToContain(const Rect& rect) {
+void ScrollRenderObject::ScrollToContain(const Rect& rect,
+                                         const Thickness& margin) {
   // TODO: Implement this.
   CRU_UNUSED(rect);
+  CRU_UNUSED(margin);
   throw std::runtime_error("Not implemented.");
 }
 

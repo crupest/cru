@@ -29,7 +29,7 @@ class ScrollRenderObject : public RenderObject {
   Point GetRawScrollOffset() const { return scroll_offset_; }
 
   // Rect lefttop relative to content rect.
-  void ScrollToContain(const Rect& rect);
+  void ScrollToContain(const Rect& rect, const Thickness& margin = Thickness{});
 
  protected:
   void OnDrawCore(platform::graph::IPainter* painter) override;

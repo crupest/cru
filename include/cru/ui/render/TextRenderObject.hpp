@@ -66,6 +66,11 @@ class TextRenderObject : public RenderObject {
   gsl::index GetCaretPosition() const { return caret_position_; }
   void SetCaretPosition(gsl::index position);
 
+  // Lefttop relative to content lefttop.
+  Rect GetCaretRectInContent();
+  // Lefttop relative to render object lefttop.
+  Rect GetCaretRect();
+
   std::shared_ptr<platform::graph::IBrush> GetCaretBrush() const {
     return caret_brush_;
   }
