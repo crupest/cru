@@ -67,12 +67,47 @@ void ScrollRenderObject::SetScrollOffset(const Point& offset) {
   InvalidateLayout();
 }
 
+void ScrollRenderObject::SetScrollOffset(std::optional<float> x,
+                                         std::optional<float> y) {
+  bool dirty = false;
+
+  if (x.has_value()) {
+    dirty = true;
+    scroll_offset_.x = *x;
+  }
+
+  if (y.has_value()) {
+    dirty = true;
+    scroll_offset_.y = *y;
+  }
+
+  if (dirty) InvalidateLayout();
+}
+
 void ScrollRenderObject::ScrollToContain(const Rect& rect,
                                          const Thickness& margin) {
-  // TODO: Implement this.
-  CRU_UNUSED(rect);
-  CRU_UNUSED(margin);
-  throw std::runtime_error("Not implemented.");
+  std::optional<float> new_scroll_x;
+  std::optional<float> new_scroll_y;
+
+  Rect real_rect = rect.Expand(margin);
+
+  Rect view_rect = GetViewRect();
+
+  // horizontal
+  if (real_rect.left < view_rect.left) {
+    new_scroll_x = real_rect.left;
+  } else if (real_rect.GetRight() > view_rect.GetRight()) {
+    new_scroll_x = real_rect.GetRight() - view_rect.width;
+  }
+
+  // vertical
+  if (real_rect.top < view_rect.top) {
+    new_scroll_y = real_rect.top;
+  } else if (real_rect.GetBottom() > view_rect.GetBottom()) {
+    new_scroll_y = real_rect.GetBottom() - view_rect.height;
+  }
+
+  SetScrollOffset(new_scroll_x, new_scroll_y);
 }
 
 Size ScrollRenderObject::OnMeasureContent(const MeasureRequirement& requirement,

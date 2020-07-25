@@ -3,6 +3,8 @@
 
 #include "cru/platform/graph/util/Painter.hpp"
 
+#include <optional>
+
 namespace cru::ui::render {
 // Measure logic:
 // Measure child with unspecified min and max size.
@@ -26,9 +28,19 @@ class ScrollRenderObject : public RenderObject {
   // Return the coerced scroll offset.
   Point GetScrollOffset();
   void SetScrollOffset(const Point& offset);
+  void SetScrollOffset(std::optional<float> x, std::optional<float> y);
   Point GetRawScrollOffset() const { return scroll_offset_; }
 
+  // Return the viewable area rect.
+  // Lefttop is scroll offset. Size is content size.
+  // If size exceeds view area, left and top is more important when calculate
+  // new scroll offset.
+  Rect GetViewRect() {
+    return Rect{GetScrollOffset(), GetContentRect().GetSize()};
+  }
+
   // Rect lefttop relative to content rect.
+  // Param margin is just for convenience and it will just add to the rect.
   void ScrollToContain(const Rect& rect, const Thickness& margin = Thickness{});
 
  protected:

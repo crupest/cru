@@ -161,6 +161,12 @@ struct Rect final {
 
   constexpr Size GetSize() const { return Size(width, height); }
 
+  constexpr Rect Expand(const Thickness& thickness) const {
+    return Rect(left - thickness.left, top - thickness.top,
+                width + thickness.GetHorizontalTotal(),
+                height + thickness.GetVerticalTotal());
+  }
+
   constexpr Rect Shrink(const Thickness& thickness) const {
     return Rect(left + thickness.left, top + thickness.top,
                 width - thickness.GetHorizontalTotal(),
