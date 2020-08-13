@@ -2,39 +2,39 @@
   "configurations": [
     {
       "name": "x86-Debug",
-      "generator": "Visual Studio 16 2019",
       "inheritEnvironments": [ "msvc_x86_x64" ],
       "configurationType": "Debug",
-      "cmakeCommandArgs": "-T host=x64",
       "buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\build\\${name}",
-      "installRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\install\\${name}"
+      "installRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\install\\${name}",
+      "cmakeToolchain": "${workspaceRoot}\\vcpkg\\scripts\\buildsystems\\vcpkg.cmake",
+      "variables": []
     },
     {
-      "name": "x86-Realse",
-      "generator": "Visual Studio 16 2019",
+      "name": "x86-Release",
       "inheritEnvironments": [ "msvc_x86_x64" ],
       "configurationType": "Release",
-      "cmakeCommandArgs": "-T host=x64",
       "buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\build\\${name}",
-      "installRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\install\\${name}"
+      "installRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\install\\${name}",
+      "cmakeToolchain": "${workspaceRoot}\\vcpkg\\scripts\\buildsystems\\vcpkg.cmake",
+      "variables": []
     },
     {
       "name": "x64-Debug",
-      "generator": "Visual Studio 16 2019 Win64",
       "inheritEnvironments": [ "msvc_x64_x64" ],
       "configurationType": "Debug",
-      "cmakeCommandArgs": "-T host=x64",
       "buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\build\\${name}",
-      "installRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\install\\${name}"
+      "installRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\install\\${name}",
+      "cmakeToolchain": "${workspaceRoot}\\vcpkg\\scripts\\buildsystems\\vcpkg.cmake",
+      "variables": []
     },
     {
       "name": "x64-Release",
-      "generator": "Visual Studio 16 2019 Win64",
       "inheritEnvironments": [ "msvc_x64_x64" ],
       "configurationType": "Release",
-      "cmakeCommandArgs": "-T host=x64",
       "buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\build\\${name}",
-      "installRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\install\\${name}"
+      "installRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\install\\${name}",
+      "cmakeToolchain": "${workspaceRoot}\\vcpkg\\scripts\\buildsystems\\vcpkg.cmake",
+      "variables": []
     }
   ]
 }
