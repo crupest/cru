@@ -87,6 +87,29 @@ class TextControlService : public Object {
     return this->control_->GetScrollRenderObject();
   }
 
+  gsl::index GetCaretPosition() {
+    return this->GetTextRenderObject()->GetCaretPosition();
+  }
+
+  void SetCaretPosition(gsl::index position, bool clear_selection = true) {
+    this->GetTextRenderObject()->SetCaretPosition(position);
+    if (clear_selection) {
+      this->GetTextRenderObject()->SetSelectionRange(std::nullopt);
+    }
+  }
+
+  std::optional<TextRange> GetSelection() {
+    return this->GetTextRenderObject()->GetSelectionRange();
+  }
+
+  void SetSelection(std::optional<TextRange> selection,
+                    bool set_caret_to_end = true) {
+    this->GetTextRenderObject()->SetSelectionRange(selection);
+    if (selection && set_caret_to_end) {
+      this->GetTextRenderObject()->SetCaretPosition(selection->GetEnd());
+    }
+  }
+
  private:
   void AbortSelection() {
     if (this->select_down_button_.has_value()) {
