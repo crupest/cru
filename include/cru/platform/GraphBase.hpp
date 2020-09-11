@@ -258,6 +258,8 @@ struct TextRange final {
   gsl::index GetStart() const { return position; }
   gsl::index GetEnd() const { return position + count; }
 
+  void SetEnd(gsl::index new_end) { count = new_end - position; }
+
   TextRange Normalize() const {
     auto result = *this;
     if (result.count < 0) {

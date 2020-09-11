@@ -26,6 +26,8 @@ DWriteTextLayout::~DWriteTextLayout() = default;
 
 std::u16string DWriteTextLayout::GetText() { return text_; }
 
+std::u16string_view DWriteTextLayout::GetTextView() { return text_; }
+
 void DWriteTextLayout::SetText(std::u16string new_text) {
   text_.swap(new_text);
   ThrowIfFailed(GetDirectFactory()->GetDWriteFactory()->CreateTextLayout(

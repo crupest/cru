@@ -29,6 +29,7 @@ class DWriteTextLayout : public DirectGraphResource,
 
  public:
   std::u16string GetText() override;
+  std::u16string_view GetTextView() override;
   void SetText(std::u16string new_text) override;
 
   std::shared_ptr<IFont> GetFont() override;

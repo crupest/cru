@@ -35,7 +35,7 @@ struct Bitmask final {
   bool operator!=(Bitmask rhs) const { return this->value != rhs.value; }
 
   explicit operator TUnderlying() const { return value; }
-  explicit operator bool() const { return value != 0; }
+  operator bool() const { return value != 0; }
 
   TUnderlying value;
 };

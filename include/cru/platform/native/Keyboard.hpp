@@ -112,9 +112,9 @@ struct TagKeyModifier {};
 
 using KeyModifier = Bitmask<details::TagKeyModifier>;
 
-namespace key_modifiers {
-constexpr KeyModifier shift{0b1};
-constexpr KeyModifier ctrl{0b10};
-constexpr KeyModifier alt{0b100};
-}  // namespace key_modifiers
+struct KeyModifiers {
+  static constexpr KeyModifier shift{0b1};
+  static constexpr KeyModifier ctrl{0b10};
+  static constexpr KeyModifier alt{0b100};
+};
 }  // namespace cru::platform::native

@@ -7,6 +7,7 @@
 namespace cru::platform::graph {
 struct ITextLayout : virtual IGraphResource {
   virtual std::u16string GetText() = 0;
+  virtual std::u16string_view GetTextView() = 0;
   virtual void SetText(std::u16string new_text) = 0;
 
   virtual std::shared_ptr<IFont> GetFont() = 0;

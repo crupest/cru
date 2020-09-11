@@ -1,6 +1,7 @@
 #pragma once
 #include "../Helper.hpp"
 #include "cru/common/Logger.hpp"
+#include "cru/common/StringUtil.hpp"
 #include "cru/platform/graph/Font.hpp"
 #include "cru/platform/graph/Painter.hpp"
 #include "cru/platform/native/UiApplication.hpp"
@@ -40,6 +41,7 @@ class TextControlService : public Object {
 
   void SetEnabled(bool enable) {
     if (enable == this->enable_) return;
+    this->enable_ = enable;
     if (enable) {
       this->SetupHandlers();
       if (this->caret_visible_) {
@@ -51,6 +53,10 @@ class TextControlService : public Object {
       this->TearDownCaret();
     }
   }
+
+  bool IsEditable() { return this->editable_; }
+
+  void SetEditable(bool editable) { this->editable_ = editable; }
 
   bool IsCaretVisible() { return caret_visible_; }
 
@@ -218,7 +224,62 @@ class TextControlService : public Object {
     }
   }
 
-  void KeyDownHandler(event::KeyEventArgs& args) { CRU_UNUSED(args); }
+  void KeyDownHandler(event::KeyEventArgs& args) {
+    const auto key_code = args.GetKeyCode();
+    using cru::platform::native::KeyCode;
+    using cru::platform::native::KeyModifiers;
+
+    switch (key_code) {
+      case KeyCode::Left: {
+        const auto key_modifier = args.GetKeyModifier();
+        const bool shift = key_modifier & KeyModifiers::shift;
+        auto text = this->GetTextRenderObject()->GetTextView();
+        if (shift) {
+          auto selection = this->GetSelection();
+          if (selection) {
+            gsl::index new_position;
+            Utf16PreviousCodePoint(text, selection->GetEnd(), &new_position);
+            selection->SetEnd(new_position);
+            this->SetSelection(selection);
+          } else {
+            const auto caret = this->GetCaretPosition();
+            gsl::index new_position;
+            Utf16PreviousCodePoint(text, caret, &new_position);
+            this->SetSelection(TextRange::FromTwoSides(caret, new_position));
+          }
+        } else {
+          const auto caret = this->GetCaretPosition();
+          gsl::index new_position;
+          Utf16PreviousCodePoint(text, caret, &new_position);
+          this->SetCaretPosition(new_position);
+        }
+      } break;
+      case KeyCode::Right: {
+        const auto key_modifier = args.GetKeyModifier();
+        const bool shift = key_modifier & KeyModifiers::shift;
+        auto text = this->GetTextRenderObject()->GetTextView();
+        if (shift) {
+          auto selection = this->GetSelection();
+          if (selection) {
+            gsl::index new_position;
+            Utf16NextCodePoint(text, selection->GetEnd(), &new_position);
+            selection->SetEnd(new_position);
+            this->SetSelection(selection);
+          } else {
+            const auto caret = this->GetCaretPosition();
+            gsl::index new_position;
+            Utf16PreviousCodePoint(text, caret, &new_position);
+            this->SetSelection(TextRange::FromTwoSides(caret, new_position));
+          }
+        } else {
+          const auto caret = this->GetCaretPosition();
+          gsl::index new_position;
+          Utf16NextCodePoint(text, caret, &new_position);
+          this->SetCaretPosition(new_position);
+        }
+      }
+    }
+  }
 
   void KeyUpHandler(event::KeyEventArgs& args) { CRU_UNUSED(args); }
 
@@ -231,6 +292,7 @@ class TextControlService : public Object {
   std::vector<EventRevokerGuard> event_revoker_guards_;
 
   bool enable_ = false;
+  bool editable_ = false;
 
   bool caret_visible_ = false;
   long long caret_timer_id_ = -1;

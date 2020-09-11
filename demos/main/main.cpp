@@ -53,6 +53,9 @@ int main() {
   text_block4->SetText(u"Hello World!!!");
   flex_layout->AddChild(text_block4, 2);
 
+  const auto text_box = TextBox::Create();
+  flex_layout->AddChild(text_box, 3);
+
   window->GetUiHost()->GetNativeWindowResolver()->Resolve()->SetVisible(true);
 
   return application->Run();

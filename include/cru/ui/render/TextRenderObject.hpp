@@ -35,6 +35,7 @@ class TextRenderObject : public RenderObject {
   ~TextRenderObject() override;
 
   std::u16string GetText() const;
+  std::u16string_view GetTextView() const;
   void SetText(std::u16string new_text);
 
   std::shared_ptr<platform::graph::IBrush> GetBrush() const { return brush_; }
