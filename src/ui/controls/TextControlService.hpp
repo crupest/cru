@@ -122,19 +122,25 @@ class TextControlService : public Object {
   TextRange GetSelection() { return selection_; }
 
   void SetSelection(gsl::index caret_position) {
-    this->selection_ = TextRange{caret_position, 0};
-    CoerceSelection();
-    SyncTextRenderObject();
+    this->SetSelection(TextRange{caret_position, 0});
   }
 
-  void SetSelection(TextRange selection) {
+  void SetSelection(TextRange selection, bool scroll_to_caret = true) {
     this->selection_ = selection;
     CoerceSelection();
     SyncTextRenderObject();
+    if (scroll_to_caret) {
+      if (const auto scroll_render_object = this->GetScrollRenderObject()) {
+        const auto caret_rect = this->GetTextRenderObject()->GetCaretRect();
+        // TODO: Wait a tick for layout completed.
+        this->GetScrollRenderObject()->ScrollToContain(caret_rect,
+                                                       Thickness{5.f});
+      }
+    }
   }
 
   void DeleteSelectedText() {
-    auto selection = GetSelection();
+    auto selection = GetSelection().Normalize();
     if (selection.count == 0) return;
     this->text_.erase(this->text_.cbegin() + selection.GetStart(),
                       this->text_.cbegin() + selection.GetEnd());
@@ -212,11 +218,6 @@ class TextControlService : public Object {
     this->SetSelection(selection);
     log::TagDebug(log_tag, u"Text selection updated, range: {}, {}.",
                   selection.GetStart(), selection.GetEnd());
-    if (const auto scroll_render_object = this->GetScrollRenderObject()) {
-      const auto caret_rect = this->GetTextRenderObject()->GetCaretRect();
-      this->GetScrollRenderObject()->ScrollToContain(caret_rect,
-                                                     Thickness{5.f});
-    }
   }
 
   void SetupHandlers() {
@@ -277,6 +278,38 @@ class TextControlService : public Object {
     using cru::platform::native::KeyModifiers;
 
     switch (key_code) {
+      case KeyCode::Backspace: {
+        if (!IsEditable()) return;
+        const auto selection = GetSelection();
+        if (selection.count == 0) {
+          const auto text = this->GetTextView();
+          const auto caret_position = GetCaretPosition();
+          if (caret_position == 0) return;
+          gsl::index new_position;
+          Utf16PreviousCodePoint(text, caret_position, &new_position);
+          text_.erase(text_.cbegin() + new_position,
+                      text_.cbegin() + caret_position);
+          SetSelection(new_position);
+        } else {
+          this->DeleteSelectedText();
+        }
+      } break;
+      case KeyCode::Delete: {
+        if (!IsEditable()) return;
+        const auto selection = GetSelection();
+        if (selection.count == 0) {
+          const auto text = this->GetTextView();
+          const auto caret_position = GetCaretPosition();
+          if (caret_position == static_cast<gsl::index>(text.size())) return;
+          gsl::index new_position;
+          Utf16NextCodePoint(text, caret_position, &new_position);
+          text_.erase(text_.cbegin() + caret_position,
+                      text_.cbegin() + new_position);
+          SyncTextRenderObject();
+        } else {
+          this->DeleteSelectedText();
+        }
+      } break;
       case KeyCode::Left: {
         const auto key_modifier = args.GetKeyModifier();
         const bool shift = key_modifier & KeyModifiers::shift;
@@ -310,7 +343,7 @@ class TextControlService : public Object {
           Utf16NextCodePoint(text, caret, &new_position);
           this->SetSelection(new_position);
         }
-      }
+      } break;
     }
   }
 
@@ -331,6 +364,7 @@ class TextControlService : public Object {
       input_method_context_->CompositionEndEvent()->AddHandler(sync);
       input_method_context_->TextEvent()->AddHandler(
           [this](const std::u16string_view& text) {
+            if (text == u"\b") return;
             this->text_.insert(GetCaretPosition(), text);
             this->SetSelection(GetCaretPosition() + text.size());
           });
@@ -340,6 +374,7 @@ class TextControlService : public Object {
   void LoseFocusHandler(event::FocusChangeEventArgs& args) {
     if (!args.IsWindow()) this->AbortSelection();
     input_method_context_.reset();
+    SyncTextRenderObject();
   }
 
  private:
