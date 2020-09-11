@@ -1,10 +1,10 @@
 #include "cru/ui/UiManager.hpp"
 
+#include "Helper.hpp"
 #include "cru/platform/graph/Brush.hpp"
 #include "cru/platform/graph/Factory.hpp"
 #include "cru/platform/graph/Font.hpp"
 #include "cru/platform/native/UiApplication.hpp"
-#include "Helper.hpp"
 
 namespace cru::ui {
 using namespace cru::platform::graph;
@@ -68,10 +68,10 @@ UiManager::UiManager() {
   theme_resource_.text_box_border_style.hover =
       theme_resource_.text_box_border_style.normal;
 
-  theme_resource_.text_box_border_style.normal.border_brush =
+  theme_resource_.text_box_border_style.focus.border_brush =
       CreateSolidColorBrush(factory, Color::FromHex(0x495057));
-  theme_resource_.text_box_border_style.normal.border_radius = CornerRadius(5);
-  theme_resource_.text_box_border_style.normal.border_thickness = Thickness(1);
+  theme_resource_.text_box_border_style.focus.border_radius = CornerRadius(5);
+  theme_resource_.text_box_border_style.focus.border_thickness = Thickness(1);
 
   theme_resource_.text_box_border_style.focus_hover =
       theme_resource_.text_box_border_style.focus;

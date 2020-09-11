@@ -182,10 +182,12 @@ bool UiHost::RequestFocusFor(Control* control) {
 
   if (focus_control_ == control) return true;
 
-  DispatchEvent(event_names::LoseFocus, focus_control_,
-                &Control::LoseFocusEvent, nullptr, false);
+  const auto old_focus_control = focus_control_;
 
   focus_control_ = control;
+
+  DispatchEvent(event_names::LoseFocus, old_focus_control,
+                &Control::LoseFocusEvent, nullptr, false);
 
   DispatchEvent(event_names::GainFocus, control, &Control::GainFocusEvent,
                 nullptr, false);

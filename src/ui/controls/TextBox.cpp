@@ -32,20 +32,23 @@ TextBox::TextBox()
   border_render_object_->SetAttachedControl(this);
   scroll_render_object_->SetAttachedControl(this);
   text_render_object_->SetAttachedControl(this);
-  text_render_object_->SetMinSize(Size{50, 20});
+  text_render_object_->SetMinSize(Size{100, 24});
 
   service_ = std::make_unique<TextControlService<TextBox>>(this);
   service_->SetEnabled(true);
   service_->SetCaretVisible(true);
   service_->SetEditable(true);
 
+  border_render_object_->SetBorderEnabled(true);
+  border_render_object_->SetBorderStyle(border_style_.normal);
+
   GainFocusEvent()->Direct()->AddHandler([this](event::FocusChangeEventArgs&) {
-    this->service_->SetEnabled(true);
+    this->service_->SetCaretVisible(true);
     this->UpdateBorderStyle();
   });
 
   LoseFocusEvent()->Direct()->AddHandler([this](event::FocusChangeEventArgs&) {
-    this->service_->SetEnabled(false);
+    this->service_->SetCaretVisible(false);
     this->UpdateBorderStyle();
   });
 }

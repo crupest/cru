@@ -202,6 +202,7 @@ class TextControlService : public Object {
   }
 
   void MouseDownHandler(event::MouseButtonEventArgs& args) {
+    this->control_->RequestFocus();
     if (this->select_down_button_.has_value()) {
       return;
     } else {
