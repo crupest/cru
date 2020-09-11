@@ -102,7 +102,7 @@ int main() {
 
   window->KeyDownEvent()->AddHandler(
       [&input_method_context](const NativeKeyEventArgs& args) {
-        if (args.modifier & key_modifiers::alt) {
+        if (args.modifier & KeyModifiers::alt) {
           switch (args.key) {
             case KeyCode::F1:
               input_method_context->EnableIME();

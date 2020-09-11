@@ -4,9 +4,12 @@
 #include "cru/common/StringUtil.hpp"
 #include "cru/platform/graph/Font.hpp"
 #include "cru/platform/graph/Painter.hpp"
+#include "cru/platform/native/InputMethod.hpp"
 #include "cru/platform/native/UiApplication.hpp"
+#include "cru/platform/native/Window.hpp"
 #include "cru/ui/Control.hpp"
 #include "cru/ui/UiEvent.hpp"
+#include "cru/ui/UiHost.hpp"
 #include "cru/ui/render/CanvasRenderObject.hpp"
 #include "cru/ui/render/ScrollRenderObject.hpp"
 #include "cru/ui/render/TextRenderObject.hpp"
@@ -56,7 +59,28 @@ class TextControlService : public Object {
 
   bool IsEditable() { return this->editable_; }
 
-  void SetEditable(bool editable) { this->editable_ = editable; }
+  void SetEditable(bool editable) {
+    this->editable_ = editable;
+    this->input_method_context_.reset();
+  }
+
+  std::u16string GetText() { return this->text_; }
+  std::u16string_view GetTextView() { return this->text_; }
+  void SetText(std::u16string text, bool stop_composition = false) {
+    this->text_ = std::move(text);
+    if (stop_composition && this->input_method_context_) {
+      this->input_method_context_->CancelComposition();
+    }
+    CoerceSelection();
+    SyncTextRenderObject();
+  }
+
+  std::optional<platform::native::CompositionText> GetCompositionInfo() {
+    if (this->input_method_context_ == nullptr) return std::nullopt;
+    auto composition_info = this->input_method_context_->GetCompositionText();
+    if (composition_info.text.empty()) return std::nullopt;
+    return composition_info;
+  }
 
   bool IsCaretVisible() { return caret_visible_; }
 
@@ -93,30 +117,35 @@ class TextControlService : public Object {
     return this->control_->GetScrollRenderObject();
   }
 
-  gsl::index GetCaretPosition() {
-    return this->GetTextRenderObject()->GetCaretPosition();
+  gsl::index GetCaretPosition() { return selection_.GetEnd(); }
+
+  TextRange GetSelection() { return selection_; }
+
+  void SetSelection(gsl::index caret_position) {
+    this->selection_ = TextRange{caret_position, 0};
+    CoerceSelection();
+    SyncTextRenderObject();
   }
 
-  void SetCaretPosition(gsl::index position, bool clear_selection = true) {
-    this->GetTextRenderObject()->SetCaretPosition(position);
-    if (clear_selection) {
-      this->GetTextRenderObject()->SetSelectionRange(std::nullopt);
-    }
+  void SetSelection(TextRange selection) {
+    this->selection_ = selection;
+    CoerceSelection();
+    SyncTextRenderObject();
   }
 
-  std::optional<TextRange> GetSelection() {
-    return this->GetTextRenderObject()->GetSelectionRange();
-  }
-
-  void SetSelection(std::optional<TextRange> selection,
-                    bool set_caret_to_end = true) {
-    this->GetTextRenderObject()->SetSelectionRange(selection);
-    if (selection && set_caret_to_end) {
-      this->GetTextRenderObject()->SetCaretPosition(selection->GetEnd());
-    }
+  void DeleteSelectedText() {
+    auto selection = GetSelection();
+    if (selection.count == 0) return;
+    this->text_.erase(this->text_.cbegin() + selection.GetStart(),
+                      this->text_.cbegin() + selection.GetEnd());
+    SetSelection(selection.GetStart());
   }
 
  private:
+  void CoerceSelection() {
+    this->selection_ = this->selection_.CoerceInto(0, text_.size());
+  }
+
   void AbortSelection() {
     if (this->select_down_button_.has_value()) {
       this->control_->ReleaseMouse();
@@ -143,6 +172,26 @@ class TextControlService : public Object {
     this->GetTextRenderObject()->SetDrawCaret(false);
   }
 
+  void SyncTextRenderObject() {
+    const auto text_render_object = this->GetTextRenderObject();
+    const auto composition_info = this->GetCompositionInfo();
+    if (composition_info) {
+      const auto caret_position = GetCaretPosition();
+      auto text = this->text_;
+      text.insert(caret_position, composition_info->text);
+      text_render_object->SetText(text);
+      text_render_object->SetCaretPosition(
+          caret_position + composition_info->selection.GetEnd());
+      auto selection = composition_info->selection;
+      selection.position += caret_position;
+      text_render_object->SetSelectionRange(selection);
+    } else {
+      text_render_object->SetText(this->text_);
+      text_render_object->SetCaretPosition(this->GetCaretPosition());
+      text_render_object->SetSelectionRange(this->GetSelection());
+    }
+  }
+
   template <typename TArgs>
   void SetupOneHandler(event::RoutedEvent<TArgs>* (TControl::*event)(),
                        void (TextControlService::*handler)(
@@ -153,25 +202,20 @@ class TextControlService : public Object {
   }
 
   void StartSelection(Index start) {
-    const auto text_render_object = this->GetTextRenderObject();
-    text_render_object->SetSelectionRange(TextRange{start, 0});
-    text_render_object->SetCaretPosition(start);
+    SetSelection(start);
     log::TagDebug(log_tag, u"Text selection started, position: {}.", start);
   }
 
   void UpdateSelection(Index new_end) {
-    const auto text_render_object = this->GetTextRenderObject();
-    const auto old_selection = text_render_object->GetSelectionRange();
-    if (!old_selection.has_value()) return;
-    const auto old_start = old_selection->GetStart();
-    this->GetTextRenderObject()->SetSelectionRange(
-        TextRange::FromTwoSides(old_start, new_end));
-    text_render_object->SetCaretPosition(new_end);
-    log::TagDebug(log_tag, u"Text selection updated, range: {}, {}.", old_start,
-                  new_end);
+    auto selection = GetSelection();
+    selection.AdjustEnd(new_end);
+    this->SetSelection(selection);
+    log::TagDebug(log_tag, u"Text selection updated, range: {}, {}.",
+                  selection.GetStart(), selection.GetEnd());
     if (const auto scroll_render_object = this->GetScrollRenderObject()) {
-      const auto caret_rect = text_render_object->GetCaretRect();
-      scroll_render_object->ScrollToContain(caret_rect, Thickness{5.f});
+      const auto caret_rect = this->GetTextRenderObject()->GetCaretRect();
+      this->GetScrollRenderObject()->ScrollToContain(caret_rect,
+                                                     Thickness{5.f});
     }
   }
 
@@ -187,6 +231,8 @@ class TextControlService : public Object {
     SetupOneHandler(&Control::KeyDownEvent,
                     &TextControlService::KeyDownHandler);
     SetupOneHandler(&Control::KeyUpEvent, &TextControlService::KeyUpHandler);
+    SetupOneHandler(&Control::GainFocusEvent,
+                    &TextControlService::GainFocusHandler);
     SetupOneHandler(&Control::LoseFocusEvent,
                     &TextControlService::LoseFocusHandler);
   }
@@ -234,49 +280,35 @@ class TextControlService : public Object {
       case KeyCode::Left: {
         const auto key_modifier = args.GetKeyModifier();
         const bool shift = key_modifier & KeyModifiers::shift;
-        auto text = this->GetTextRenderObject()->GetTextView();
+        auto text = this->GetTextView();
         if (shift) {
           auto selection = this->GetSelection();
-          if (selection) {
-            gsl::index new_position;
-            Utf16PreviousCodePoint(text, selection->GetEnd(), &new_position);
-            selection->SetEnd(new_position);
-            this->SetSelection(selection);
-          } else {
-            const auto caret = this->GetCaretPosition();
-            gsl::index new_position;
-            Utf16PreviousCodePoint(text, caret, &new_position);
-            this->SetSelection(TextRange::FromTwoSides(caret, new_position));
-          }
+          gsl::index new_position;
+          Utf16PreviousCodePoint(text, selection.GetEnd(), &new_position);
+          selection.AdjustEnd(new_position);
+          this->SetSelection(selection);
         } else {
           const auto caret = this->GetCaretPosition();
           gsl::index new_position;
           Utf16PreviousCodePoint(text, caret, &new_position);
-          this->SetCaretPosition(new_position);
+          this->SetSelection(new_position);
         }
       } break;
       case KeyCode::Right: {
         const auto key_modifier = args.GetKeyModifier();
         const bool shift = key_modifier & KeyModifiers::shift;
-        auto text = this->GetTextRenderObject()->GetTextView();
+        auto text = this->GetTextView();
         if (shift) {
           auto selection = this->GetSelection();
-          if (selection) {
-            gsl::index new_position;
-            Utf16NextCodePoint(text, selection->GetEnd(), &new_position);
-            selection->SetEnd(new_position);
-            this->SetSelection(selection);
-          } else {
-            const auto caret = this->GetCaretPosition();
-            gsl::index new_position;
-            Utf16PreviousCodePoint(text, caret, &new_position);
-            this->SetSelection(TextRange::FromTwoSides(caret, new_position));
-          }
+          gsl::index new_position;
+          Utf16NextCodePoint(text, selection.GetEnd(), &new_position);
+          selection.AdjustEnd(new_position);
+          this->SetSelection(selection);
         } else {
           const auto caret = this->GetCaretPosition();
           gsl::index new_position;
           Utf16NextCodePoint(text, caret, &new_position);
-          this->SetCaretPosition(new_position);
+          this->SetSelection(new_position);
         }
       }
     }
@@ -284,13 +316,38 @@ class TextControlService : public Object {
 
   void KeyUpHandler(event::KeyEventArgs& args) { CRU_UNUSED(args); }
 
+  void GainFocusHandler(event::FocusChangeEventArgs& args) {
+    CRU_UNUSED(args);
+    if (editable_) {
+      UiHost* ui_host = this->control_->GetUiHost();
+      auto window = ui_host->GetNativeWindowResolver()->Resolve();
+      if (window == nullptr) return;
+      input_method_context_ =
+          GetUiApplication()->GetInputMethodManager()->GetContext(window);
+      auto sync = [this](std::nullptr_t) { this->SyncTextRenderObject(); };
+      input_method_context_->CompositionStartEvent()->AddHandler(
+          [this](std::nullptr_t) { this->DeleteSelectedText(); });
+      input_method_context_->CompositionEvent()->AddHandler(sync);
+      input_method_context_->CompositionEndEvent()->AddHandler(sync);
+      input_method_context_->TextEvent()->AddHandler(
+          [this](const std::u16string_view& text) {
+            this->text_.insert(GetCaretPosition(), text);
+            this->SetSelection(GetCaretPosition() + text.size());
+          });
+    }
+  }
+
   void LoseFocusHandler(event::FocusChangeEventArgs& args) {
     if (!args.IsWindow()) this->AbortSelection();
+    input_method_context_.reset();
   }
 
  private:
   gsl::not_null<TControl*> control_;
   std::vector<EventRevokerGuard> event_revoker_guards_;
+
+  std::u16string text_;
+  TextRange selection_;
 
   bool enable_ = false;
   bool editable_ = false;
@@ -301,5 +358,7 @@ class TextControlService : public Object {
 
   // nullopt means not selecting
   std::optional<MouseButton> select_down_button_;
-};
+
+  std::unique_ptr<platform::native::IInputMethodContext> input_method_context_;
+};  // namespace cru::ui::controls
 }  // namespace cru::ui::controls

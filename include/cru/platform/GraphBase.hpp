@@ -258,7 +258,7 @@ struct TextRange final {
   gsl::index GetStart() const { return position; }
   gsl::index GetEnd() const { return position + count; }
 
-  void SetEnd(gsl::index new_end) { count = new_end - position; }
+  void AdjustEnd(gsl::index new_end) { count = new_end - position; }
 
   TextRange Normalize() const {
     auto result = *this;
@@ -267,6 +267,13 @@ struct TextRange final {
       result.count = -result.count;
     }
     return result;
+  }
+
+  TextRange CoerceInto(gsl::index min, gsl::index max) const {
+    auto coerce = [min, max](gsl::index index) {
+      return index > max ? max : (index < min ? min : index);
+    };
+    return TextRange::FromTwoSides(coerce(GetStart()), coerce(GetEnd()));
   }
 
   gsl::index position = 0;
