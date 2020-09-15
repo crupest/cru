@@ -30,12 +30,10 @@ render::RenderObject* TextBlock::GetRenderObject() const {
   return text_render_object_.get();
 }
 
-std::u16string TextBlock::GetText() const {
-  return text_render_object_->GetText();
-}
+std::u16string TextBlock::GetText() const { return service_->GetText(); }
 
 void TextBlock::SetText(std::u16string text) {
-  text_render_object_->SetText(std::move(text));
+  service_->SetText(std::move(text));
 }
 
 gsl::not_null<render::TextRenderObject*> TextBlock::GetTextRenderObject() {

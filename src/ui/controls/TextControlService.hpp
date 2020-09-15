@@ -357,6 +357,7 @@ class TextControlService : public Object {
       if (window == nullptr) return;
       input_method_context_ =
           GetUiApplication()->GetInputMethodManager()->GetContext(window);
+      input_method_context_->EnableIME();
       auto sync = [this](std::nullptr_t) { this->SyncTextRenderObject(); };
       input_method_context_->CompositionStartEvent()->AddHandler(
           [this](std::nullptr_t) { this->DeleteSelectedText(); });
@@ -373,7 +374,10 @@ class TextControlService : public Object {
 
   void LoseFocusHandler(event::FocusChangeEventArgs& args) {
     if (!args.IsWindow()) this->AbortSelection();
-    input_method_context_.reset();
+    if (input_method_context_) {
+      input_method_context_->DisableIME();
+      input_method_context_.reset();
+    }
     SyncTextRenderObject();
   }
 

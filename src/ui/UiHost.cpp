@@ -3,6 +3,7 @@
 #include "RoutedEventDispatch.hpp"
 #include "cru/common/Logger.hpp"
 #include "cru/platform/graph/Painter.hpp"
+#include "cru/platform/native/InputMethod.hpp"
 #include "cru/platform/native/UiApplication.hpp"
 #include "cru/platform/native/Window.hpp"
 #include "cru/ui/Window.hpp"
@@ -98,10 +99,15 @@ UiHost::UiHost(Window* window)
       mouse_hover_control_(nullptr),
       focus_control_(window),
       mouse_captured_control_(nullptr) {
-  native_window_resolver_ =
-      IUiApplication::GetInstance()->CreateWindow(nullptr);
+  const auto ui_application = IUiApplication::GetInstance();
+  native_window_resolver_ = ui_application->CreateWindow(nullptr);
 
   const auto native_window = native_window_resolver_->Resolve();
+
+  auto input_method_context =
+      ui_application->GetInputMethodManager()->GetContext(native_window);
+  input_method_context->DisableIME();
+
   window->ui_host_ = this;
 
   root_render_object_ = std::make_unique<render::WindowRenderObject>(this);
