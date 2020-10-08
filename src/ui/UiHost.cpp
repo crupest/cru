@@ -16,7 +16,7 @@ using platform::native::IUiApplication;
 namespace event_names {
 #ifdef CRU_DEBUG
 // clang-format off
-#define CRU_DEFINE_EVENT_NAME(name) constexpr const char16_t* name = u#name;
+#define CRU_DEFINE_EVENT_NAME(name) constexpr const char16_t* name = CRU_MAKE_UNICODE_LITERAL(name);
 // clang-format on
 #else
 #define CRU_DEFINE_EVENT_NAME(name) constexpr const char16_t* name = u"";

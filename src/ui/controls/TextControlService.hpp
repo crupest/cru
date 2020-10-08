@@ -199,7 +199,7 @@ class TextControlService : public Object {
   }
 
   template <typename TArgs>
-  void SetupOneHandler(event::RoutedEvent<TArgs>* (TControl::*event)(),
+  void SetupOneHandler(event::RoutedEvent<TArgs>* (Control::*event)(),
                        void (TextControlService::*handler)(
                            typename event::RoutedEvent<TArgs>::EventArgs)) {
     this->event_revoker_guards_.push_back(

@@ -591,3 +591,5 @@ flycheck_*.el
 
 compile_flags.txt
 .clangd
+.kdev4
+CruUI.kdev4
