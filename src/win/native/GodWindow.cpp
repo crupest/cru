@@ -14,14 +14,14 @@ LRESULT CALLBACK GodWndProc(HWND hWnd, UINT uMsg, WPARAM wParam,
 
   if (app) {
     LRESULT result;
-    const auto handled = app->GetGodWindow()->HandleGodWindowMessage(
-        hWnd, uMsg, wParam, lParam, &result);
-    if (handled)
-      return result;
-    else
-      return DefWindowProcW(hWnd, uMsg, wParam, lParam);
-  } else
-    return DefWindowProcW(hWnd, uMsg, wParam, lParam);
+    auto god_window = app->GetGodWindow();
+    if (god_window != nullptr) {
+      const auto handled = god_window->HandleGodWindowMessage(
+          hWnd, uMsg, wParam, lParam, &result);
+      if (handled) return result;
+    }
+  }
+  return DefWindowProcW(hWnd, uMsg, wParam, lParam);
 }
 
 GodWindow::GodWindow(WinUiApplication* application) {
