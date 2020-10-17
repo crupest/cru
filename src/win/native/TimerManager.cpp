@@ -53,8 +53,8 @@ void TimerManager::CreateNativeTimer(TimerInfo* info) {
 }
 
 void TimerManager::KillNativeTimer(TimerInfo* info) {
-  if (info->id == 0) return;
-  ::KillTimer(god_window_->GetHandle(), info->id);
+  if (info->native_timer_id == 0) return;
+  ::KillTimer(god_window_->GetHandle(), info->native_timer_id);
   info->native_timer_id = 0;
 }
 
