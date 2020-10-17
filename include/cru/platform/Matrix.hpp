@@ -56,8 +56,8 @@ struct Matrix {
 
   static Matrix Rotation(float angle) {
     float r = AngleToRadian(angle);
-    float s = std::sinf(r);
-    float c = std::cosf(r);
+    float s = std::sin(r);
+    float c = std::cos(r);
 
     return Matrix{c, s, -s, c, 0.0f, 0.0f};
   }
