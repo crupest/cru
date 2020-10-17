@@ -1,7 +1,5 @@
 #include "cru/win/native/GodWindow.hpp"
 
-#include "GodWindowMessage.hpp"
-#include "Timer.hpp"
 #include "cru/common/Logger.hpp"
 #include "cru/win/native/Exception.hpp"
 #include "cru/win/native/UiApplication.hpp"
@@ -51,32 +49,15 @@ GodWindow::~GodWindow() {
 
 bool GodWindow::HandleGodWindowMessage(HWND hwnd, UINT msg, WPARAM w_param,
                                        LPARAM l_param, LRESULT* result) {
-  CRU_UNUSED(hwnd)
-  CRU_UNUSED(l_param)
+  WindowNativeMessageEventArgs args(
+      WindowNativeMessage{hwnd, msg, w_param, l_param});
+  message_event_.Raise(args);
 
-  switch (msg) {
-    case invoke_later_message_id: {
-      const auto p_action = reinterpret_cast<std::function<void()>*>(w_param);
-      (*p_action)();
-      delete p_action;
-      *result = 0;
-      return true;
-    }
-    case WM_TIMER: {
-      const auto id = static_cast<UINT_PTR>(w_param);
-      const auto action = application_->GetTimerManager()->GetAction(id);
-      if (action.has_value()) {
-        (action.value().second)();
-        if (!action.value().first)
-          application_->GetTimerManager()->KillTimer(id);
-        result = 0;
-        return true;
-      }
-      break;
-    }
-    default:
-      return false;
+  if (args.IsHandled()) {
+    *result = args.GetResult();
+    return true;
   }
+
   return false;
 }
 }  // namespace cru::platform::native::win

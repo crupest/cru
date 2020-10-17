@@ -156,7 +156,7 @@ void UiHost::InvalidatePaint() {
 void UiHost::InvalidateLayout() {
   log::TagDebug(log_tag, u"A relayout is requested.");
   if (!need_layout_) {
-    platform::native::IUiApplication::GetInstance()->InvokeLater(
+    platform::native::IUiApplication::GetInstance()->SetImmediate(
         [resolver = this->CreateResolver()] {
           if (const auto host = resolver.Resolve()) {
             host->Relayout();

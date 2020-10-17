@@ -32,7 +32,7 @@ class WinUiApplication : public WinNativeResource,
 
   void AddOnQuitHandler(std::function<void()> handler) override;
 
-  void InvokeLater(std::function<void()> action) override;
+  long long SetImmediate(std::function<void()> action) override;
   long long SetTimeout(std::chrono::milliseconds milliseconds,
                        std::function<void()> action) override;
   long long SetInterval(std::chrono::milliseconds milliseconds,

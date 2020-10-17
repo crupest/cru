@@ -1,6 +1,8 @@
 #include "cru/win/native/UiApplication.hpp"
 
 #include "../DebugLogger.hpp"
+#include "TimerManager.hpp"
+#include "WindowManager.hpp"
 #include "cru/common/Logger.hpp"
 #include "cru/platform/Check.hpp"
 #include "cru/win/graph/direct/Factory.hpp"
@@ -9,9 +11,6 @@
 #include "cru/win/native/GodWindow.hpp"
 #include "cru/win/native/InputMethod.hpp"
 #include "cru/win/native/Window.hpp"
-#include "GodWindowMessage.hpp"
-#include "Timer.hpp"
-#include "WindowManager.hpp"
 
 namespace cru::platform::native {
 std::unique_ptr<IUiApplication> CreateUiApplication() {
@@ -64,30 +63,27 @@ void WinUiApplication::AddOnQuitHandler(std::function<void()> handler) {
   quit_handlers_.push_back(std::move(handler));
 }
 
-void WinUiApplication::InvokeLater(std::function<void()> action) {
-  // copy the action to a safe place
-  auto p_action_copy = new std::function<void()>(std::move(action));
-
-  if (::PostMessageW(GetGodWindow()->GetHandle(), invoke_later_message_id,
-                     reinterpret_cast<WPARAM>(p_action_copy), 0) == 0)
-    throw Win32Error(::GetLastError(), "InvokeLater failed to post message.");
+long long WinUiApplication::SetImmediate(std::function<void()> action) {
+  return this->timer_manager_->SetTimer(TimerType::Immediate, 0,
+                                        std::move(action));
 }
 
 long long WinUiApplication::SetTimeout(std::chrono::milliseconds milliseconds,
                                        std::function<void()> action) {
-  return gsl::narrow<long long>(timer_manager_->CreateTimer(
-      static_cast<UINT>(milliseconds.count()), false, std::move(action)));
+  return this->timer_manager_->SetTimer(TimerType::Timeout,
+                                        gsl::narrow<int>(milliseconds.count()),
+                                        std::move(action));
 }
 
 long long WinUiApplication::SetInterval(std::chrono::milliseconds milliseconds,
                                         std::function<void()> action) {
-  return gsl::narrow<long long>(timer_manager_->CreateTimer(
-      static_cast<UINT>(milliseconds.count()), true, std::move(action)));
+  return this->timer_manager_->SetTimer(TimerType::Interval,
+                                        gsl::narrow<int>(milliseconds.count()),
+                                        std::move(action));
 }
 
 void WinUiApplication::CancelTimer(long long id) {
-  if (id < 0) return;
-  timer_manager_->KillTimer(static_cast<UINT_PTR>(id));
+  timer_manager_->CancelTimer(id);
 }
 
 std::vector<INativeWindow*> WinUiApplication::GetAllWindow() {

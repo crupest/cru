@@ -5,6 +5,7 @@
 
 #include <algorithm>
 #include <functional>
+#include <initializer_list>
 #include <memory>
 #include <utility>
 #include <vector>
@@ -183,6 +184,7 @@ struct EventRevokerDestroyer {
 };
 }  // namespace details
 
+// A guard class for event revoker. Automatically revoke it when destroyed.
 class EventRevokerGuard {
  public:
   EventRevokerGuard() = default;
@@ -201,7 +203,7 @@ class EventRevokerGuard {
     return *revoker_;
   }
 
-  void Release() { revoker_.release(); }
+  EventRevoker Release() { return std::move(*revoker_.release()); }
 
   void Reset(EventRevoker&& revoker) {
     revoker_.reset(new EventRevoker(std::move(revoker)));
@@ -209,5 +211,28 @@ class EventRevokerGuard {
 
  private:
   std::unique_ptr<EventRevoker, details::EventRevokerDestroyer> revoker_;
-};  // namespace cru
+};
+
+class EventRevokerListGuard {
+ public:
+  EventRevokerListGuard() = default;
+  EventRevokerListGuard(const EventRevokerListGuard& other) = delete;
+  EventRevokerListGuard(EventRevokerListGuard&& other) = default;
+  EventRevokerListGuard& operator=(const EventRevokerListGuard& other) = delete;
+  EventRevokerListGuard& operator=(EventRevokerListGuard&& other) = default;
+  ~EventRevokerListGuard() = default;
+
+ public:
+  void Add(EventRevoker&& revoker) {
+    event_revoker_guard_list_.push_back(EventRevokerGuard(std::move(revoker)));
+  }
+
+  EventRevokerListGuard& operator+=(EventRevoker&& revoker) {
+    this->Add(std::move(revoker));
+    return *this;
+  }
+
+ private:
+  std::vector<EventRevokerGuard> event_revoker_guard_list_;
+};
 }  // namespace cru

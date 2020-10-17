@@ -2,8 +2,7 @@ set(CRU_WIN_NATIVE_INCLUDE_DIR ${CRU_INCLUDE_DIR}/cru/win/native)
 
 add_library(cru_win_native STATIC
 	DpiUtil.hpp
-	GodWindowMessage.hpp
-	Timer.hpp
+	TimerManager.hpp
 	WindowD2DPainter.hpp
 	WindowManager.hpp
 
@@ -11,7 +10,7 @@ add_library(cru_win_native STATIC
 	GodWindow.cpp
 	InputMethod.cpp
 	Keyboard.cpp
-	Timer.cpp
+	TimerManager.cpp
 	UiApplication.cpp
 	Window.cpp
 	WindowClass.cpp
