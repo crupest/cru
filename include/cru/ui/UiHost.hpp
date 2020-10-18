@@ -59,6 +59,11 @@ class UiHost : public Object, public SelfResolvable<UiHost> {
     return &after_layout_event_;
   }
 
+  // If true, preferred size of root render object is set to window size when
+  // measure. Default is true.
+  bool IsLayoutPreferToFillWindow() const;
+  void SetLayoutPreferToFillWindow(bool value);
+
   void Relayout();
 
   // Get current control that mouse hovers on. This ignores the mouse-capture
@@ -168,5 +173,7 @@ class UiHost : public Object, public SelfResolvable<UiHost> {
   Control* focus_control_;  // "focus_control_" can't be nullptr
 
   Control* mouse_captured_control_;
+
+  bool layout_prefer_to_fill_window_ = true;
 };
 }  // namespace cru::ui

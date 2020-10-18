@@ -7,6 +7,7 @@
 #include "cru/platform/native/UiApplication.hpp"
 #include "cru/platform/native/Window.hpp"
 #include "cru/ui/Window.hpp"
+#include "cru/ui/render/MeasureRequirement.hpp"
 #include "cru/ui/render/WindowRenderObject.hpp"
 
 namespace cru::ui {
@@ -168,14 +169,27 @@ void UiHost::InvalidateLayout() {
   }
 }
 
+bool UiHost::IsLayoutPreferToFillWindow() const {
+  return layout_prefer_to_fill_window_;
+}
+
+void UiHost::SetLayoutPreferToFillWindow(bool value) {
+  if (value == layout_prefer_to_fill_window_) return;
+  layout_prefer_to_fill_window_ = value;
+  InvalidateLayout();
+}
+
 void UiHost::Relayout() {
   const auto native_window = native_window_resolver_->Resolve();
   const auto client_size = native_window
                                ? native_window->GetClientSize()
                                : Size{100, 100};  // a reasonable assumed size
+
   root_render_object_->Measure(
       render::MeasureRequirement{client_size,
-                                 render::MeasureSize::NotSpecified()},
+                                 IsLayoutPreferToFillWindow()
+                                     ? render::MeasureSize(client_size)
+                                     : render::MeasureSize::NotSpecified()},
       render::MeasureSize::NotSpecified());
   root_render_object_->Layout(Point{});
   after_layout_event_.Raise(AfterLayoutEventArgs{});
