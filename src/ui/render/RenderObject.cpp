@@ -88,6 +88,10 @@ void RenderObject::Measure(const MeasureRequirement& requirement,
 }
 
 void RenderObject::Layout(const Point& offset) {
+#if CRUUI_DEBUG_LAYOUT
+  log::Debug(u"{} Layout :\noffset: {}", this->GetDebugPathInTree(),
+             offset.ToDebugString());
+#endif
   offset_ = offset;
   OnLayoutCore();
 }

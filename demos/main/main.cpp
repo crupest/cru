@@ -6,7 +6,6 @@
 #include "cru/ui/Window.hpp"
 #include "cru/ui/controls/Button.hpp"
 #include "cru/ui/controls/FlexLayout.hpp"
-#include "cru/ui/controls/StackLayout.hpp"
 #include "cru/ui/controls/TextBlock.hpp"
 #include "cru/ui/controls/TextBox.hpp"
 
@@ -27,9 +26,11 @@ int main() {
   const auto window = Window::CreateOverlapped();
 
   const auto flex_layout = FlexLayout::Create();
+  flex_layout->SetFlexDirection(cru::ui::FlexDirection::Vertical);
+  flex_layout->SetContentMainAlign(cru::ui::FlexCrossAlignment::Center);
+  flex_layout->SetItemCrossAlign(cru::ui::FlexCrossAlignment::Center);
 
   window->SetChild(flex_layout);
-  flex_layout->SetFlexDirection(cru::ui::FlexDirection::Vertical);
 
   const auto text_block = TextBlock::Create();
   text_block->SetText(u"Hello World from CruUI!");

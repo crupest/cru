@@ -28,6 +28,9 @@ class FlexLayout : public LayoutControl {
   FlexDirection GetFlexDirection() const;
   void SetFlexDirection(FlexDirection direction);
 
+  FlexCrossAlignment GetItemCrossAlign() const;
+  void SetItemCrossAlign(FlexCrossAlignment alignment);
+
   FlexChildLayoutData GetChildLayoutData(Control* control);
   void SetChildLayoutData(Control* control, FlexChildLayoutData data);
 

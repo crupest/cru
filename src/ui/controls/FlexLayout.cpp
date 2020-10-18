@@ -60,6 +60,15 @@ void FlexLayout::SetFlexDirection(FlexDirection direction) {
   render_object_->SetFlexDirection(direction);
 }
 
+FlexCrossAlignment FlexLayout::GetItemCrossAlign() const {
+  return render_object_->GetItemCrossAlign();
+}
+
+void FlexLayout::SetItemCrossAlign(FlexCrossAlignment alignment) {
+  if (alignment == GetItemCrossAlign()) return;
+  render_object_->SetItemCrossAlign(alignment);
+}
+
 void FlexLayout::OnAddChild(Control* child, const Index position) {
   render_object_->AddChild(child->GetRenderObject(), position);
 }

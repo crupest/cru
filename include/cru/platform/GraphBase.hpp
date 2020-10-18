@@ -18,6 +18,10 @@ struct Point final {
   constexpr Point(const float x, const float y) : x(x), y(y) {}
   explicit constexpr Point(const Size& size);
 
+  std::u16string ToDebugString() const {
+    return fmt::format(u"({}, {})", ToUtf16String(x), ToUtf16String(y));
+  }
+
   float x = 0;
   float y = 0;
 };

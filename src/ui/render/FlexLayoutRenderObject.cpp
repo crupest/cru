@@ -391,10 +391,11 @@ void FlexLayoutRenderObject::OnLayoutContent(const Rect& content_rect) {
       const auto cross_align =
           GetChildLayoutDataList()[i].cross_alignment.value_or(
               GetItemCrossAlign());
-      child->Layout(
-          Point{content_rect.top + current_main_offset,
-                CalculateAnchorByAlignment(cross_align, content_rect.left,
-                                           content_rect.width, size.width)});
+      child->Layout(Point{
+          CalculateAnchorByAlignment(cross_align, content_rect.left,
+                                     content_rect.width, size.width),
+          content_rect.top + current_main_offset,
+      });
       current_main_offset += size.height;
     }
   } else {
@@ -406,9 +407,9 @@ void FlexLayoutRenderObject::OnLayoutContent(const Rect& content_rect) {
           GetChildLayoutDataList()[i].cross_alignment.value_or(
               GetItemCrossAlign());
       child->Layout(
-          Point{content_rect.GetBottom() - current_main_offset,
-                CalculateAnchorByAlignment(cross_align, content_rect.left,
-                                           content_rect.width, size.width)});
+          Point{CalculateAnchorByAlignment(cross_align, content_rect.left,
+                                           content_rect.width, size.width),
+                content_rect.GetBottom() - current_main_offset});
       current_main_offset += size.height;
     }
   }
