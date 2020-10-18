@@ -5,6 +5,9 @@
 #include "cru/ui/UiHost.hpp"
 
 #include <algorithm>
+#include <string>
+#include <string_view>
+#include <vector>
 
 namespace cru::ui::render {
 void RenderObject::AddChild(RenderObject* render_object, const Index position) {
@@ -66,7 +69,19 @@ void RenderObject::Measure(const MeasureRequirement& requirement,
   MeasureSize merged_preferred_size =
       preferred_size.OverrideBy(preferred_size_);
 
+#if CRUUI_DEBUG_LAYOUT
+  log::Debug(u"{} Measure begins :\nrequirement: {}\npreferred size: {}",
+             this->GetDebugPathInTree(), requirement.ToDebugString(),
+             preferred_size.ToDebugString());
+#endif
+
   size_ = OnMeasureCore(merged_requirement, merged_preferred_size);
+
+#if CRUUI_DEBUG_LAYOUT
+  log::Debug(u"{} Measure ends :\nresult size: {}", this->GetDebugPathInTree(),
+             size_.ToDebugString());
+#endif
+
   Ensures(size_.width >= 0);
   Ensures(size_.height >= 0);
   Ensures(requirement.Satisfy(size_));
@@ -254,6 +269,27 @@ void RenderObject::InvalidateLayout() {
 
 void RenderObject::InvalidatePaint() {
   if (ui_host_ != nullptr) ui_host_->InvalidatePaint();
+}
+
+constexpr std::u16string_view kUnamedName(u"UNNAMED");
+
+std::u16string_view RenderObject::GetName() const { return kUnamedName; }
+
+std::u16string RenderObject::GetDebugPathInTree() const {
+  std::vector<std::u16string_view> chain;
+  const RenderObject* parent = this;
+  while (parent != nullptr) {
+    chain.push_back(parent->GetName());
+    parent = parent->GetParent();
+  }
+
+  std::u16string result(chain.back());
+  for (auto iter = chain.crbegin() + 1; iter != chain.crend(); ++iter) {
+    result += u" -> ";
+    result += *iter;
+  }
+
+  return result;
 }
 
 void RenderObject::NotifyAfterLayoutRecursive(RenderObject* render_object) {

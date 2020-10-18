@@ -2,6 +2,7 @@ set(CRU_WIN_BASE_INCLUDE_DIR ${CRU_INCLUDE_DIR}/cru/win/)
 
 add_library(cru_win_base STATIC
 	DebugLogger.hpp
+	StdOutLogger.hpp
 
 	Exception.cpp
 	HeapDebug.cpp

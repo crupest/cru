@@ -10,6 +10,10 @@
 
 namespace cru::ui::render {
 
+std::u16string_view FlexLayoutRenderObject::GetName() const {
+  return u"FlexLayoutRenderObject";
+}
+
 struct tag_horizontal_t {};
 struct tag_vertical_t {};
 
@@ -64,7 +68,7 @@ template <typename TSize>
 constexpr TSize CreateTSize(decltype(std::declval<TSize>().width) main,
                             decltype(std::declval<TSize>().height) cross,
                             tag_vertical_t) {
-  return TSize{main, cross};
+  return TSize{cross, main};
 }
 
 enum class FlexLayoutAdjustType { None, Expand, Shrink };

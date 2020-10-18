@@ -73,7 +73,6 @@ void Logger::Log(LogLevel level, std::u16string_view tag,
   }
 #endif
   for (const auto &source : sources_) {
-    auto now = std::time(nullptr);
     source->Write(level, fmt::format(u"[{}] {} {}: {}\n", GetLogTime(),
                                      LogLevelToString(level), tag, s));
   }

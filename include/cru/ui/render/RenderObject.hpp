@@ -4,6 +4,9 @@
 #include "MeasureRequirement.hpp"
 #include "cru/common/Event.hpp"
 
+#include <string>
+#include <string_view>
+
 namespace cru::ui::render {
 
 // Render object will not destroy its children when destroyed. Control must
@@ -132,6 +135,10 @@ class RenderObject : public Object {
  public:
   void InvalidateLayout();
   void InvalidatePaint();
+
+ public:
+  virtual std::u16string_view GetName() const;
+  std::u16string GetDebugPathInTree() const;
 
  protected:
   void SetChildMode(ChildMode mode) { child_mode_ = mode; }

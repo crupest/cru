@@ -1,9 +1,13 @@
 #pragma once
 #include "cru/common/Base.hpp"
 
+#include "cru/common/Format.hpp"
+
+#include <fmt/core.h>
 #include <cstdint>
 #include <limits>
 #include <optional>
+#include <string>
 #include <utility>
 
 namespace cru::platform {
@@ -44,6 +48,11 @@ struct Size final {
   constexpr static Size Infinate() {
     return Size{std::numeric_limits<float>::max(),
                 std::numeric_limits<float>::max()};
+  }
+
+  std::u16string ToDebugString() const {
+    return fmt::format(u"({}, {})", ToUtf16String(width),
+                       ToUtf16String(height));
   }
 
   float width = 0;

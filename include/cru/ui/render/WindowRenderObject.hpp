@@ -1,6 +1,8 @@
 #pragma once
 #include "RenderObject.hpp"
 
+#include <string_view>
+
 namespace cru::ui::render {
 class WindowRenderObject : public RenderObject {
  public:
@@ -12,6 +14,9 @@ class WindowRenderObject : public RenderObject {
   ~WindowRenderObject() override = default;
 
   RenderObject* HitTest(const Point& point) override;
+
+ public:
+  std::u16string_view GetName() const override;
 
  protected:
   Size OnMeasureContent(const MeasureRequirement& requirement,

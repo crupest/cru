@@ -1,6 +1,7 @@
 #include "cru/win/native/UiApplication.hpp"
 
 #include "../DebugLogger.hpp"
+#include "../StdOutLogger.hpp"
 #include "TimerManager.hpp"
 #include "WindowManager.hpp"
 #include "cru/common/Logger.hpp"
@@ -30,6 +31,8 @@ WinUiApplication::WinUiApplication() {
 
   log::Logger::GetInstance()->AddSource(
       std::make_unique<::cru::platform::win::WinDebugLoggerSource>());
+  log::Logger::GetInstance()->AddSource(
+      std::make_unique<::cru::platform::win::WinStdOutLoggerSource>());
 
   graph_factory_ =
       std::make_unique<cru::platform::graph::win::direct::DirectGraphFactory>();

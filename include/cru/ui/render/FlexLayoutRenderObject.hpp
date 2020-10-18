@@ -1,6 +1,8 @@
 #pragma once
 #include "LayoutRenderObject.hpp"
 
+#include <string_view>
+
 namespace cru::ui::render {
 // Measure Logic (v0.1):
 // Cross axis measure logic is the same as stack layout.
@@ -84,6 +86,8 @@ class FlexLayoutRenderObject : public LayoutRenderObject<FlexChildLayoutData> {
   FlexLayoutRenderObject(FlexLayoutRenderObject&& other) = delete;
   FlexLayoutRenderObject& operator=(FlexLayoutRenderObject&& other) = delete;
   ~FlexLayoutRenderObject() override = default;
+
+  std::u16string_view GetName() const override;
 
   FlexDirection GetFlexDirection() const { return direction_; }
   void SetFlexDirection(FlexDirection direction) {

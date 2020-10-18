@@ -8,6 +8,9 @@
 #include <optional>
 #include <vector>
 
+// Change 0 to 1 to enable debug layout log.
+#define CRUUI_DEBUG_LAYOUT 0
+
 namespace cru::ui {
 //-------------------- region: import --------------------
 using cru::platform::Color;

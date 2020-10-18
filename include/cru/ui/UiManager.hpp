@@ -3,8 +3,12 @@
 
 #include "controls/Base.hpp"
 
+#include <memory>
+#include <string>
+
 namespace cru::ui {
 struct ThemeResources {
+  std::u16string default_font_family;
   std::shared_ptr<platform::graph::IFont> default_font;
   std::shared_ptr<platform::graph::IBrush> text_brush;
   std::shared_ptr<platform::graph::IBrush> text_selection_brush;

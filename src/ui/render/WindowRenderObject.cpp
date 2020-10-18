@@ -24,6 +24,10 @@ RenderObject* WindowRenderObject::HitTest(const Point& point) {
   return Rect{Point{}, GetSize()}.IsPointInside(point) ? this : nullptr;
 }
 
+std::u16string_view WindowRenderObject::GetName() const {
+  return u"WindowRenderObject";
+}
+
 Size WindowRenderObject::OnMeasureContent(const MeasureRequirement& requirement,
                                           const MeasureSize& preferred_size) {
   if (const auto child = GetChild()) {
