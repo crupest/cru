@@ -10,6 +10,7 @@ add_library(cru_ui STATIC
 	Helper.cpp
 	LayoutControl.cpp
 	NoChildControl.cpp
+	ShortcutHub.cpp
 	UiEvent.cpp
 	UiHost.cpp
 	UiManager.cpp
@@ -36,8 +37,10 @@ target_sources(cru_ui PUBLIC
 	${CRU_UI_INCLUDE_DIR}/ClickDetector.hpp
 	${CRU_UI_INCLUDE_DIR}/ContentControl.hpp
 	${CRU_UI_INCLUDE_DIR}/Control.hpp
+	${CRU_UI_INCLUDE_DIR}/DebugFlags.hpp
 	${CRU_UI_INCLUDE_DIR}/LayoutControl.hpp
 	${CRU_UI_INCLUDE_DIR}/NoChildControl.hpp
+	${CRU_UI_INCLUDE_DIR}/ShortcutHub.hpp
 	${CRU_UI_INCLUDE_DIR}/UiEvent.hpp
 	${CRU_UI_INCLUDE_DIR}/UiHost.hpp
 	${CRU_UI_INCLUDE_DIR}/UiManager.hpp

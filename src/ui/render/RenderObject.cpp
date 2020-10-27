@@ -2,6 +2,7 @@
 
 #include "cru/common/Logger.hpp"
 #include "cru/platform/graph/util/Painter.hpp"
+#include "cru/ui/DebugFlags.hpp"
 #include "cru/ui/UiHost.hpp"
 
 #include <algorithm>
@@ -69,18 +70,18 @@ void RenderObject::Measure(const MeasureRequirement& requirement,
   MeasureSize merged_preferred_size =
       preferred_size.OverrideBy(preferred_size_);
 
-#if CRUUI_DEBUG_LAYOUT
-  log::Debug(u"{} Measure begins :\nrequirement: {}\npreferred size: {}",
-             this->GetDebugPathInTree(), requirement.ToDebugString(),
-             preferred_size.ToDebugString());
-#endif
+  if constexpr (cru::ui::debug_flags::layout) {
+    log::Debug(u"{} Measure begins :\nrequirement: {}\npreferred size: {}",
+               this->GetDebugPathInTree(), requirement.ToDebugString(),
+               preferred_size.ToDebugString());
+  }
 
   size_ = OnMeasureCore(merged_requirement, merged_preferred_size);
 
-#if CRUUI_DEBUG_LAYOUT
-  log::Debug(u"{} Measure ends :\nresult size: {}", this->GetDebugPathInTree(),
-             size_.ToDebugString());
-#endif
+  if constexpr (cru::ui::debug_flags::layout) {
+    log::Debug(u"{} Measure ends :\nresult size: {}",
+               this->GetDebugPathInTree(), size_.ToDebugString());
+  }
 
   Ensures(size_.width >= 0);
   Ensures(size_.height >= 0);
@@ -88,10 +89,10 @@ void RenderObject::Measure(const MeasureRequirement& requirement,
 }
 
 void RenderObject::Layout(const Point& offset) {
-#if CRUUI_DEBUG_LAYOUT
-  log::Debug(u"{} Layout :\noffset: {}", this->GetDebugPathInTree(),
-             offset.ToDebugString());
-#endif
+  if constexpr (cru::ui::debug_flags::layout) {
+    log::Debug(u"{} Layout :\noffset: {}", this->GetDebugPathInTree(),
+               offset.ToDebugString());
+  }
   offset_ = offset;
   OnLayoutCore();
 }
