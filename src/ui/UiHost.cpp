@@ -45,10 +45,11 @@ bool IsAncestor(Control* control, Control* ancestor) {
   return false;
 }
 
-std::list<Control*> GetAncestorList(Control* control) {
-  std::list<Control*> l;
+// Ancestor at last.
+std::vector<Control*> GetAncestorList(Control* control) {
+  std::vector<Control*> l;
   while (control != nullptr) {
-    l.push_front(control);
+    l.push_back(control);
     control = control->GetParent();
   }
   return l;
@@ -61,25 +62,25 @@ Control* FindLowestCommonAncestor(Control* left, Control* right) {
   auto&& right_list = GetAncestorList(right);
 
   // the root is different
-  if (left_list.front() != right_list.front()) return nullptr;
+  if (left_list.back() != right_list.back()) return nullptr;
 
   // find the last same control or the last control (one is ancestor of the
   // other)
-  auto left_i = left_list.cbegin();
-  auto right_i = right_list.cbegin();
+  auto left_iter = left_list.crbegin();
+  auto right_iter = right_list.crbegin();
 
   while (true) {
-    if (left_i == left_list.cend()) {
-      return *(--left_i);
+    if (left_iter == left_list.crend()) {
+      return left_list.front();
     }
-    if (right_i == right_list.cend()) {
-      return *(--right_i);
+    if (right_iter == right_list.crend()) {
+      return right_list.front();
     }
-    if (*left_i != *right_i) {
-      return *(--left_i);
+    if (*left_iter != *right_iter) {
+      return *(--left_iter);
     }
-    ++left_i;
-    ++right_i;
+    ++left_iter;
+    ++right_iter;
   }
 }
 }  // namespace
