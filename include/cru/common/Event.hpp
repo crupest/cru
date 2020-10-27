@@ -232,6 +232,10 @@ class EventRevokerListGuard {
     return *this;
   }
 
+  void Clear() { event_revoker_guard_list_.clear(); }
+
+  bool IsEmpty() const { return event_revoker_guard_list_.empty(); }
+
  private:
   std::vector<EventRevokerGuard> event_revoker_guard_list_;
 };

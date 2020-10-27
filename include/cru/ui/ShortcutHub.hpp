@@ -1,12 +1,17 @@
 #pragma once
 #include "Base.hpp"
 
+#include "cru/common/Base.hpp"
+#include "cru/common/Event.hpp"
 #include "cru/platform/native/Keyboard.hpp"
 
+#include <cstddef>
 #include <functional>
+#include <memory>
 #include <optional>
 #include <string>
 #include <string_view>
+#include <unordered_map>
 #include <vector>
 
 namespace cru::ui {
@@ -42,8 +47,23 @@ class ShortcutKeyBind {
   platform::native::KeyCode key_;
   platform::native::KeyModifier modifier_;
 };
+}  // namespace cru::ui
 
+namespace std {
+template <>
+struct hash<cru::ui::ShortcutKeyBind> {
+  std::size_t operator()(const cru::ui::ShortcutKeyBind& value) const {
+    std::size_t result = 0;
+    cru::hash_combine(result, value.GetKey());
+    cru::hash_combine(result, value.GetModifier());
+    return result;
+  }
+};
+}  // namespace std
+
+namespace cru::ui {
 struct ShortcutInfo {
+  int id;
   std::u16string name;
   ShortcutKeyBind key_bind;
   std::function<bool()> handler;
@@ -51,15 +71,16 @@ struct ShortcutInfo {
 
 class ShortcutHub : public Object {
  public:
-  ShortcutHub();
+  ShortcutHub() = default;
 
   CRU_DELETE_COPY(ShortcutHub)
   CRU_DELETE_MOVE(ShortcutHub)
 
-  ~ShortcutHub() override;
+  ~ShortcutHub() override = default;
 
   // Handler return true if it consumes the shortcut. Or return false if it does
-  // not handle the shortcut. Name is just for debug.
+  // not handle the shortcut. Name is just for debug. Return an id used for
+  // unregistering.
   int RegisterShortcut(std::u16string name, ShortcutKeyBind bind,
                        std::function<bool()> handler);
 
@@ -67,12 +88,19 @@ class ShortcutHub : public Object {
 
   std::vector<ShortcutInfo> GetAllShortcuts() const;
   std::optional<ShortcutInfo> GetShortcut(int id) const;
-  std::vector<ShortcutInfo> GetShortcutByKeyBind(
+  const std::vector<ShortcutInfo>& GetShortcutByKeyBind(
       const ShortcutKeyBind& key_bind) const;
 
   void Install(Control* control);
   void Uninstall();
 
  private:
+  std::unordered_map<ShortcutKeyBind, std::vector<ShortcutInfo>> map_;
+
+  const std::vector<ShortcutInfo> empty_list_;
+
+  int current_id_ = 1;
+
+  EventRevokerListGuard event_guard_;
 };
 }  // namespace cru::ui
