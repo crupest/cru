@@ -54,8 +54,8 @@ template <>
 struct hash<cru::ui::ShortcutKeyBind> {
   std::size_t operator()(const cru::ui::ShortcutKeyBind& value) const {
     std::size_t result = 0;
-    cru::hash_combine(result, value.GetKey());
-    cru::hash_combine(result, value.GetModifier());
+    cru::hash_combine(result, static_cast<int>(value.GetKey()));
+    cru::hash_combine(result, static_cast<int>(value.GetModifier()));
     return result;
   }
 };
