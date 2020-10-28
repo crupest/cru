@@ -61,7 +61,7 @@ class TextControlService : public Object {
 
   void SetEditable(bool editable) {
     this->editable_ = editable;
-    this->input_method_context_.reset();
+    if (!editable) CancelComposition();
   }
 
   std::u16string GetText() { return this->text_; }
@@ -69,8 +69,8 @@ class TextControlService : public Object {
   void SetText(std::u16string text, bool stop_composition = false) {
     this->text_ = std::move(text);
     CoerceSelection();
-    if (stop_composition && this->input_method_context_) {
-      this->input_method_context_->CancelComposition();
+    if (stop_composition) {
+      CancelComposition();
     }
     SyncTextRenderObject();
   }
@@ -83,8 +83,8 @@ class TextControlService : public Object {
     }
     this->text_.insert(this->text_.cbegin() + position, text.begin(),
                        text.end());
-    if (stop_composition && this->input_method_context_) {
-      this->input_method_context_->CancelComposition();
+    if (stop_composition) {
+      CancelComposition();
     }
     SyncTextRenderObject();
   }
@@ -129,15 +129,30 @@ class TextControlService : public Object {
     this->text_.erase(this->text_.cbegin() + range.GetStart(),
                       this->text_.cbegin() + range.GetEnd());
     this->CoerceSelection();
-    if (stop_composition && this->input_method_context_) {
-      this->input_method_context_->CancelComposition();
+    if (stop_composition) {
+      CancelComposition();
     }
     this->SyncTextRenderObject();
   }
 
+  platform::native::IInputMethodContext* GetInputMethodContext() {
+    WindowHost* host = this->control_->GetWindowHost();
+    if (!host) return nullptr;
+    platform::native::INativeWindow* native_window = host->GetNativeWindow();
+    if (!native_window) return nullptr;
+    return native_window->GetInputMethodContext();
+  }
+
+  void CancelComposition() {
+    auto input_method_context = GetInputMethodContext();
+    if (input_method_context == nullptr) return;
+    input_method_context->CancelComposition();
+  }
+
   std::optional<platform::native::CompositionText> GetCompositionInfo() {
-    if (this->input_method_context_ == nullptr) return std::nullopt;
-    auto composition_info = this->input_method_context_->GetCompositionText();
+    auto input_method_context = GetInputMethodContext();
+    if (input_method_context == nullptr) return std::nullopt;
+    auto composition_info = input_method_context->GetCompositionText();
     if (composition_info.text.empty()) return std::nullopt;
     return composition_info;
   }
@@ -319,12 +334,11 @@ class TextControlService : public Object {
   }
 
   void MouseDownHandler(event::MouseButtonEventArgs& args) {
-    this->control_->RequestFocus();
     if (this->select_down_button_.has_value()) {
       return;
     } else {
+      this->control_->SetFocus();
       if (!this->control_->CaptureMouse()) return;
-      if (!this->control_->RequestFocus()) return;
       const auto text_render_object = this->GetTextRenderObject();
       this->select_down_button_ = args.GetButton();
       const auto result = text_render_object->TextHitTest(
@@ -408,33 +422,35 @@ class TextControlService : public Object {
   void GainFocusHandler(event::FocusChangeEventArgs& args) {
     CRU_UNUSED(args);
     if (editable_) {
-      WindowHost* ui_host = this->control_->GetWindowHost();
-      auto window = ui_host->GetNativeWindowResolver()->Resolve();
-      if (window == nullptr) return;
-      input_method_context_ =
-          GetUiApplication()->GetInputMethodManager()->GetContext(window);
-      input_method_context_->EnableIME();
+      auto input_method_context = GetInputMethodContext();
+      if (input_method_context == nullptr) return;
+      input_method_context->EnableIME();
       auto sync = [this](std::nullptr_t) {
         this->SyncTextRenderObject();
         ScrollToCaret();
       };
-      input_method_context_->CompositionStartEvent()->AddHandler(
-          [this](std::nullptr_t) { this->DeleteSelectedText(); });
-      input_method_context_->CompositionEvent()->AddHandler(sync);
-      input_method_context_->CompositionEndEvent()->AddHandler(sync);
-      input_method_context_->TextEvent()->AddHandler(
-          [this](const std::u16string_view& text) {
-            if (text == u"\b") return;
-            this->ReplaceSelectedText(text);
-          });
+      input_method_context_event_guard_ +=
+          input_method_context->CompositionStartEvent()->AddHandler(
+              [this](std::nullptr_t) { this->DeleteSelectedText(); });
+      input_method_context_event_guard_ +=
+          input_method_context->CompositionEvent()->AddHandler(sync);
+      input_method_context_event_guard_ +=
+          input_method_context->CompositionEndEvent()->AddHandler(sync);
+      input_method_context_event_guard_ +=
+          input_method_context->TextEvent()->AddHandler(
+              [this](const std::u16string_view& text) {
+                if (text == u"\b") return;
+                this->ReplaceSelectedText(text);
+              });
     }
   }
 
   void LoseFocusHandler(event::FocusChangeEventArgs& args) {
     if (!args.IsWindow()) this->AbortSelection();
-    if (input_method_context_) {
-      input_method_context_->DisableIME();
-      input_method_context_.reset();
+    input_method_context_event_guard_.Clear();
+    auto input_method_context = GetInputMethodContext();
+    if (input_method_context) {
+      input_method_context->DisableIME();
     }
     SyncTextRenderObject();
   }
@@ -442,6 +458,7 @@ class TextControlService : public Object {
  private:
   gsl::not_null<TControl*> control_;
   EventRevokerListGuard event_guard_;
+  EventRevokerListGuard input_method_context_event_guard_;
 
   std::u16string text_;
   TextRange selection_;
@@ -457,7 +474,5 @@ class TextControlService : public Object {
 
   // nullopt means not selecting
   std::optional<MouseButton> select_down_button_;
-
-  std::unique_ptr<platform::native::IInputMethodContext> input_method_context_;
 };  // namespace cru::ui::controls
 }  // namespace cru::ui::controls

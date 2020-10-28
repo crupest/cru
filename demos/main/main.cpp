@@ -2,8 +2,8 @@
 #include "cru/platform/native/UiApplication.hpp"
 #include "cru/platform/native/Window.hpp"
 #include "cru/ui/Base.hpp"
-#include "cru/ui/WindowHost.hpp"
 #include "cru/ui/Window.hpp"
+#include "cru/ui/WindowHost.hpp"
 #include "cru/ui/controls/Button.hpp"
 #include "cru/ui/controls/FlexLayout.hpp"
 #include "cru/ui/controls/TextBlock.hpp"
@@ -30,7 +30,7 @@ int main() {
   flex_layout->SetContentMainAlign(cru::ui::FlexCrossAlignment::Center);
   flex_layout->SetItemCrossAlign(cru::ui::FlexCrossAlignment::Center);
 
-  window->SetChild(flex_layout);
+  window->AddChild(flex_layout, 0);
 
   const auto text_block = TextBlock::Create();
   text_block->SetText(u"Hello World from CruUI!");
@@ -45,7 +45,7 @@ int main() {
   const auto text_box = TextBox::Create();
   flex_layout->AddChild(text_box, 2);
 
-  window->GetWindowHost()->GetNativeWindowResolver()->Resolve()->SetVisible(true);
+  window->GetWindowHost()->GetNativeWindow()->SetVisible(true);
 
   return application->Run();
 }

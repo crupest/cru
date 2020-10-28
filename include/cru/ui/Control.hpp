@@ -1,9 +1,9 @@
 #pragma once
 #include "Base.hpp"
 
+#include "UiEvent.hpp"
 #include "cru/common/Event.hpp"
 #include "render/Base.hpp"
-#include "UiEvent.hpp"
 
 #include <string_view>
 
@@ -19,38 +19,30 @@ class Control : public Object {
   Control(Control&& other) = delete;
   Control& operator=(const Control& other) = delete;
   Control& operator=(Control&& other) = delete;
-  ~Control() override = default;
+  ~Control() override;
 
  public:
   virtual std::u16string_view GetControlType() const = 0;
 
   //*************** region: tree ***************
  public:
-  // Get the ui host if attached, otherwise, return nullptr.
-  WindowHost* GetWindowHost() const { return ui_host_; }
+  WindowHost* GetWindowHost() const;
 
   Control* GetParent() const { return parent_; }
 
-  virtual const std::vector<Control*>& GetChildren() const = 0;
+  const std::vector<Control*>& GetChildren() const { return children_; }
 
   // Traverse the tree rooted the control including itself.
   void TraverseDescendants(const std::function<void(Control*)>& predicate);
-
-  void _SetParent(Control* parent);
-  void _SetDescendantWindowHost(WindowHost* host);
-
- private:
-  static void _TraverseDescendants(
-      Control* control, const std::function<void(Control*)>& predicate);
 
  public:
   virtual render::RenderObject* GetRenderObject() const = 0;
 
   //*************** region: focus ***************
  public:
-  bool RequestFocus();
-
   bool HasFocus();
+
+  void SetFocus();
 
   //*************** region: mouse ***************
  public:
@@ -134,15 +126,22 @@ class Control : public Object {
 
   //*************** region: tree ***************
  protected:
+  void AddChild(Control* control, Index position);
+  void RemoveChild(Index position);
+  virtual void OnAddChild(Control* child, Index position);
+  virtual void OnRemoveChild(Control* child, Index position);
   virtual void OnParentChanged(Control* old_parent, Control* new_parent);
   virtual void OnAttachToHost(WindowHost* host);
   virtual void OnDetachFromHost(WindowHost* host);
 
+ protected:
   virtual void OnMouseHoverChange(bool newHover) { CRU_UNUSED(newHover) }
 
  private:
-  WindowHost* ui_host_ = nullptr;
   Control* parent_ = nullptr;
+  std::vector<Control*> children_;
+
+  WindowHost* window_host_ = nullptr;
 
  private:
   bool is_mouse_over_ = false;

@@ -43,7 +43,6 @@ WinUiApplication::WinUiApplication() {
   timer_manager_ = std::make_unique<TimerManager>(god_window_.get());
   window_manager_ = std::make_unique<WindowManager>(this);
   cursor_manager_ = std::make_unique<WinCursorManager>();
-  input_method_manager_ = std::make_unique<WinInputMethodManager>(this);
 }
 
 WinUiApplication::~WinUiApplication() { instance = nullptr; }
@@ -115,9 +114,5 @@ cru::platform::graph::IGraphFactory* WinUiApplication::GetGraphFactory() {
 
 ICursorManager* WinUiApplication::GetCursorManager() {
   return cursor_manager_.get();
-}
-
-IInputMethodManager* WinUiApplication::GetInputMethodManager() {
-  return input_method_manager_.get();
 }
 }  // namespace cru::platform::native::win

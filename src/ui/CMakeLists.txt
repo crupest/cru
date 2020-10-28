@@ -30,7 +30,6 @@ add_library(cru_ui STATIC
 	render/ScrollRenderObject.cpp
 	render/StackLayoutRenderObject.cpp
 	render/TextRenderObject.cpp
-	render/WindowRenderObject.cpp
 )
 target_sources(cru_ui PUBLIC
 	${CRU_UI_INCLUDE_DIR}/Base.hpp
@@ -63,6 +62,5 @@ target_sources(cru_ui PUBLIC
 	${CRU_UI_INCLUDE_DIR}/render/ScrollRenderObject.hpp
 	${CRU_UI_INCLUDE_DIR}/render/StackLayoutRenderObject.hpp
 	${CRU_UI_INCLUDE_DIR}/render/TextRenderObject.hpp
-	${CRU_UI_INCLUDE_DIR}/render/WindowRenderObject.hpp
 )
 target_link_libraries(cru_ui PUBLIC cru_platform_native)

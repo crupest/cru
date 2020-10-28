@@ -3,9 +3,6 @@
 
 namespace cru::ui {
 class NoChildControl : public Control {
- private:
-  static const std::vector<Control*> empty_control_vector;
-
  protected:
   NoChildControl() = default;
 
@@ -16,9 +13,8 @@ class NoChildControl : public Control {
   NoChildControl& operator=(NoChildControl&& other) = delete;
   ~NoChildControl() override = default;
 
- protected:
-  const std::vector<Control*>& GetChildren() const override final {
-    return empty_control_vector;
-  }
+ private:
+  using Control::AddChild;
+  using Control::RemoveChild;
 };
 }  // namespace cru::ui

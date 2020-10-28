@@ -1,20 +1,22 @@
 #pragma once
-#include <functional>
 #include "Base.hpp"
 
 #include "cru/common/Event.hpp"
-#include "cru/common/SelfResolvable.hpp"
+#include "cru/platform/native/UiApplication.hpp"
+#include "cru/platform/native/Window.hpp"
 #include "render/Base.hpp"
+
+#include <functional>
 
 namespace cru::ui {
 struct AfterLayoutEventArgs {};
-class WindowHost : public Object, public SelfResolvable<WindowHost> {
+
+// The bridge between control tree and native window.
+class WindowHost : public Object {
   CRU_DEFINE_CLASS_LOG_TAG(u"cru::ui::WindowHost")
 
  public:
-  // This will create root window render object and attach it to window.
-  // It will also create and manage a native window.
-  WindowHost(Window* window);
+  WindowHost(Control* root_control);
 
   CRU_DELETE_COPY(WindowHost)
   CRU_DELETE_MOVE(WindowHost)
@@ -22,6 +24,8 @@ class WindowHost : public Object, public SelfResolvable<WindowHost> {
   ~WindowHost() override;
 
  public:
+  platform::native::INativeWindow* GetNativeWindow() { return native_window_; }
+
   // Mark the layout as invalid, and arrange a re-layout later.
   // This method could be called more than one times in a message cycle. But
   // layout only takes place once.
@@ -36,12 +40,17 @@ class WindowHost : public Object, public SelfResolvable<WindowHost> {
     return &after_layout_event_;
   }
 
+  void Relayout();
+  void Relayout(const Size& available_size);
+
+  // Is layout is invalid, wait for relayout and then run the action. Otherwist
+  // run it right now.
+  void RunAfterLayoutStable(std::function<void()> action);
+
   // If true, preferred size of root render object is set to window size when
   // measure. Default is true.
   bool IsLayoutPreferToFillWindow() const;
   void SetLayoutPreferToFillWindow(bool value);
-
-  void Relayout();
 
   // Get current control that mouse hovers on. This ignores the mouse-capture
   // control. Even when mouse is captured by another control, this function
@@ -51,11 +60,9 @@ class WindowHost : public Object, public SelfResolvable<WindowHost> {
 
   //*************** region: focus ***************
 
-  // Request focus for specified control.
-  bool RequestFocusFor(Control* control);
-
-  // Get the control that has focus.
   Control* GetFocusControl();
+
+  void SetFocusControl(Control* control);
 
   //*************** region: focus ***************
 
@@ -77,19 +84,6 @@ class WindowHost : public Object, public SelfResolvable<WindowHost> {
   Control* HitTest(const Point& point);
 
   void UpdateCursor();
-
-  std::shared_ptr<platform::native::INativeWindowResolver>
-  GetNativeWindowResolver() {
-    return native_window_resolver_;
-  }
-
-  bool IsRetainAfterDestroy() { return retain_after_destroy_; }
-
-  void SetRetainAfterDestroy(bool destroy) { retain_after_destroy_ = destroy; }
-
-  // Is layout is invalid, wait for relayout and then run the action. Otherwist
-  // run it right now.
-  void RunAfterLayoutStable(std::function<void()> action);
 
  private:
   //*************** region: native messages ***************
@@ -126,33 +120,21 @@ class WindowHost : public Object, public SelfResolvable<WindowHost> {
                                             bool no_enter);
 
  private:
-  bool need_layout_ = false;
+  Control* root_control_;
+  render::RenderObject* root_render_object_;
 
+  platform::native::INativeWindow* native_window_;
+
+  bool need_layout_ = false;
+  platform::native::TimerAutoCanceler relayout_timer_canceler_;
   Event<AfterLayoutEventArgs> after_layout_event_;
   std::vector<std::function<void()> > after_layout_stable_action_;
 
-  std::shared_ptr<platform::native::INativeWindowResolver>
-      native_window_resolver_;
-
-  // See remarks of WindowHost.
-  bool retain_after_destroy_ = false;
-  // See remarks of WindowHost.
-  bool deleting_ = false;
-
-  // We need this because calling Resolve on resolver in handler of destroy
-  // event is bad and will always get the dying window. But we need to label the
-  // window as destroyed so the destructor will not destroy native window
-  // repeatedly. See remarks of WindowHost.
-  bool native_window_destroyed_ = false;
-
   std::vector<EventRevokerGuard> event_revoker_guards_;
 
-  Window* window_control_;
-  std::unique_ptr<render::WindowRenderObject> root_render_object_;
+  Control* mouse_hover_control_ = nullptr;
 
-  Control* mouse_hover_control_;
-
-  Control* focus_control_;  // "focus_control_" can't be nullptr
+  Control* focus_control_;
 
   Control* mouse_captured_control_;
 

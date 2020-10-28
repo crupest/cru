@@ -3,25 +3,19 @@
 #include "cru/ui/Window.hpp"
 
 namespace cru::ui {
-ContentControl::ContentControl()
-    : child_vector_{nullptr}, child_(child_vector_[0]) {}
-
-ContentControl::~ContentControl() { delete child_; }
+Control* ContentControl::GetChild() const {
+  if (GetChildren().empty()) return nullptr;
+  return GetChildren()[0];
+}
 
 void ContentControl::SetChild(Control* child) {
-  Expects(!dynamic_cast<Window*>(child));  // Can't add a window as child.
-  if (child == child_) return;
-
-  const auto host = GetWindowHost();
-  const auto old_child = child_;
-  child_ = child;
-  if (old_child) {
-    old_child->_SetParent(nullptr);
-    old_child->_SetDescendantWindowHost(nullptr);
+  Control* old_child = nullptr;
+  if (!GetChildren().empty()) {
+    old_child = GetChildren()[0];
+    this->RemoveChild(0);
   }
   if (child) {
-    child->_SetParent(this);
-    child->_SetDescendantWindowHost(host);
+    this->AddChild(child, 0);
   }
   OnChildChanged(old_child, child);
 }

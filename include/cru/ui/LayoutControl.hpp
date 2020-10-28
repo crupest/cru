@@ -11,21 +11,9 @@ class LayoutControl : public Control {
   LayoutControl(LayoutControl&& other) = delete;
   LayoutControl& operator=(const LayoutControl& other) = delete;
   LayoutControl& operator=(LayoutControl&& other) = delete;
-  ~LayoutControl() override;
+  ~LayoutControl() override = default;
 
-  const std::vector<Control*>& GetChildren() const override final {
-    return children_;
-  }
-
-  void AddChild(Control* control, Index position);
-
-  void RemoveChild(Index position);
-
- protected:
-  virtual void OnAddChild(Control* child, Index position);
-  virtual void OnRemoveChild(Control* child, Index position);
-
- private:
-  std::vector<Control*> children_;
+  using Control::AddChild;
+  using Control::RemoveChild;
 };
 }  // namespace cru::ui

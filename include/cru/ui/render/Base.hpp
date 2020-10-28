@@ -9,5 +9,4 @@ class FlexLayoutRenderObject;
 class ScrollRenderObject;
 class StackLayoutRenderObject;
 class TextRenderObject;
-class WindowRenderObject;
 }  // namespace cru::ui::render

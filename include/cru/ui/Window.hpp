@@ -1,10 +1,8 @@
 #pragma once
-#include "ContentControl.hpp"
+#include "LayoutControl.hpp"
 
 namespace cru::ui {
-class Window final : public ContentControl {
-  friend WindowHost;
-
+class Window final : public LayoutControl {
  public:
   static constexpr std::u16string_view control_type = u"Window";
 
@@ -12,9 +10,7 @@ class Window final : public ContentControl {
   static Window* CreateOverlapped();
 
  private:
-  struct tag_overlapped_constructor {};
-
-  explicit Window(tag_overlapped_constructor);
+  Window();
 
  public:
   Window(const Window& other) = delete;
@@ -29,12 +25,12 @@ class Window final : public ContentControl {
   render::RenderObject* GetRenderObject() const override;
 
  protected:
-  void OnChildChanged(Control* old_child, Control* new_child) override;
+  void OnAddChild(Control* child, Index position) override;
+  void OnRemoveChild(Control* child, Index position) override;
 
  private:
-  std::unique_ptr<WindowHost> managed_ui_host_;
+  std::unique_ptr<WindowHost> window_host_;
 
-  // WindowHost is responsible to take care of lifetime of this.
-  render::WindowRenderObject* render_object_;
+  std::unique_ptr<render::StackLayoutRenderObject> render_object_;
 };
 }  // namespace cru::ui

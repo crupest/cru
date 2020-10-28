@@ -1,28 +1,31 @@
 #include "cru/ui/Window.hpp"
 
-#include "cru/ui/render/WindowRenderObject.hpp"
+#include "cru/common/Base.hpp"
 #include "cru/ui/WindowHost.hpp"
+#include "cru/ui/render/Base.hpp"
+#include "cru/ui/render/StackLayoutRenderObject.hpp"
 
 namespace cru::ui {
-Window* Window::CreateOverlapped() {
-  return new Window(tag_overlapped_constructor{});
+Window* Window::CreateOverlapped() { return new Window(); }
+
+Window::Window() : render_object_(new render::StackLayoutRenderObject()) {
+  window_host_ = std::make_unique<WindowHost>(this);
 }
 
-Window::Window(tag_overlapped_constructor) {
-  managed_ui_host_ = std::make_unique<WindowHost>(this);
-}
-
-Window::~Window() {
-  // explicit destroy ui host first.
-  managed_ui_host_.reset();
-}
+Window::~Window() {}
 
 std::u16string_view Window::GetControlType() const { return control_type; }
 
-render::RenderObject* Window::GetRenderObject() const { return render_object_; }
+render::RenderObject* Window::GetRenderObject() const {
+  return render_object_.get();
+}
 
-void Window::OnChildChanged(Control* old_child, Control* new_child) {
-  if (old_child) render_object_->RemoveChild(0);
-  if (new_child) render_object_->AddChild(new_child->GetRenderObject(), 0);
+void Window::OnAddChild(Control* child, Index position) {
+  render_object_->AddChild(child->GetRenderObject(), position);
+}
+
+void Window::OnRemoveChild(Control* child, Index position) {
+  CRU_UNUSED(child);
+  render_object_->RemoveChild(position);
 }
 }  // namespace cru::ui

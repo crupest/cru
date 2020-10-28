@@ -55,6 +55,7 @@ WinNativeWindow::WinNativeWindow(WinUiApplication* application,
   window_render_target_->SetDpi(dpi_, dpi_);
 
   input_method_context_ = std::make_unique<WinInputMethodContext>(this);
+  input_method_context_->DisableIME();
 }
 
 WinNativeWindow::~WinNativeWindow() {

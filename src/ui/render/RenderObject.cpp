@@ -24,7 +24,7 @@ void RenderObject::AddChild(RenderObject* render_object, const Index position) {
 
   children_.insert(children_.cbegin() + position, render_object);
   render_object->SetParent(this);
-  render_object->SetRenderHostRecursive(GetWindowHost());
+  render_object->SetWindowHostRecursive(GetWindowHost());
   OnAddChild(render_object, position);
 }
 
@@ -37,7 +37,7 @@ void RenderObject::RemoveChild(const Index position) {
   const auto removed_child = *i;
   children_.erase(i);
   removed_child->SetParent(nullptr);
-  removed_child->SetRenderHostRecursive(nullptr);
+  removed_child->SetWindowHostRecursive(nullptr);
   OnRemoveChild(removed_child, position);
 }
 
@@ -269,11 +269,11 @@ void RenderObject::SetParent(RenderObject* new_parent) {
 }
 
 void RenderObject::InvalidateLayout() {
-  if (ui_host_ != nullptr) ui_host_->InvalidateLayout();
+  if (window_host_ != nullptr) window_host_->InvalidateLayout();
 }
 
 void RenderObject::InvalidatePaint() {
-  if (ui_host_ != nullptr) ui_host_->InvalidatePaint();
+  if (window_host_ != nullptr) window_host_->InvalidatePaint();
 }
 
 constexpr std::u16string_view kUnamedName(u"UNNAMED");
@@ -297,17 +297,16 @@ std::u16string RenderObject::GetDebugPathInTree() const {
   return result;
 }
 
-void RenderObject::NotifyAfterLayoutRecursive(RenderObject* render_object) {
-  render_object->OnAfterLayout();
-  for (const auto o : render_object->GetChildren()) {
-    NotifyAfterLayoutRecursive(o);
+void RenderObject::SetWindowHostRecursive(WindowHost* host) {
+  if (window_host_ != nullptr) {
+    detach_from_host_event_.Raise(nullptr);
   }
-}
-
-void RenderObject::SetRenderHostRecursive(WindowHost* host) {
-  ui_host_ = host;
+  window_host_ = host;
+  if (host != nullptr) {
+    attach_to_host_event_.Raise(nullptr);
+  }
   for (const auto child : GetChildren()) {
-    child->SetRenderHostRecursive(host);
+    child->SetWindowHostRecursive(host);
   }
 }
 }  // namespace cru::ui::render

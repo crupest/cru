@@ -14,12 +14,9 @@ int main() {
 
   auto graph_factory = application->GetGraphFactory();
 
-  auto window_resolver = application->CreateWindow(nullptr);
+  auto window = application->CreateWindow(nullptr);
 
-  auto window = window_resolver->Resolve();
-
-  auto input_method_context =
-      application->GetInputMethodManager()->GetContext(window);
+  auto input_method_context = window->GetInputMethodContext();
 
   auto brush = graph_factory->CreateSolidColorBrush();
   brush->SetColor(colors::black);

@@ -4,26 +4,23 @@
 namespace cru::ui {
 class ContentControl : public Control {
  protected:
-  ContentControl();
+  ContentControl() = default;
 
  public:
   ContentControl(const ContentControl& other) = delete;
   ContentControl(ContentControl&& other) = delete;
   ContentControl& operator=(const ContentControl& other) = delete;
   ContentControl& operator=(ContentControl&& other) = delete;
-  ~ContentControl() override;
+  ~ContentControl() override = default;
 
-  const std::vector<Control*>& GetChildren() const override final {
-    return child_vector_;
-  }
-  Control* GetChild() const { return child_; }
+  Control* GetChild() const;
   void SetChild(Control* child);
 
  protected:
   virtual void OnChildChanged(Control* old_child, Control* new_child);
 
  private:
-  std::vector<Control*> child_vector_;
-  Control*& child_;
+  using Control::AddChild;
+  using Control::RemoveChild;
 };
 }  // namespace cru::ui
