@@ -1,4 +1,5 @@
 #pragma once
+#include <string>
 #include "../Helper.hpp"
 #include "cru/common/Logger.hpp"
 #include "cru/common/StringUtil.hpp"
@@ -7,6 +8,7 @@
 #include "cru/platform/native/InputMethod.hpp"
 #include "cru/platform/native/UiApplication.hpp"
 #include "cru/platform/native/Window.hpp"
+#include "cru/ui/Base.hpp"
 #include "cru/ui/Control.hpp"
 #include "cru/ui/ShortcutHub.hpp"
 #include "cru/ui/UiEvent.hpp"
@@ -14,6 +16,7 @@
 #include "cru/ui/render/CanvasRenderObject.hpp"
 #include "cru/ui/render/ScrollRenderObject.hpp"
 #include "cru/ui/render/TextRenderObject.hpp"
+#include "gsl/gsl_util"
 
 namespace cru::ui::controls {
 constexpr int k_default_caret_blink_duration = 500;
@@ -64,11 +67,71 @@ class TextControlService : public Object {
   std::u16string_view GetTextView() { return this->text_; }
   void SetText(std::u16string text, bool stop_composition = false) {
     this->text_ = std::move(text);
+    CoerceSelection();
     if (stop_composition && this->input_method_context_) {
       this->input_method_context_->CancelComposition();
     }
-    CoerceSelection();
     SyncTextRenderObject();
+  }
+
+  void InsertText(gsl::index position, std::u16string_view text,
+                  bool stop_composition = false) {
+    if (!Utf16IsValidInsertPosition(this->text_, position)) {
+      log::TagError(log_tag, u"Invalid text insert position.");
+      return;
+    }
+    this->text_.insert(this->text_.cbegin() + position, text.begin(),
+                       text.end());
+    if (stop_composition && this->input_method_context_) {
+      this->input_method_context_->CancelComposition();
+    }
+    SyncTextRenderObject();
+  }
+
+  void DeleteChar(gsl::index position, bool stop_composition = false) {
+    if (!Utf16IsValidInsertPosition(this->text_, position)) {
+      log::TagError(log_tag, u"Invalid text delete position.");
+      return;
+    }
+    if (position == static_cast<gsl::index>(this->text_.size())) return;
+    Index next;
+    Utf16NextCodePoint(this->text_, position, &next);
+    this->DeleteText(TextRange::FromTwoSides(position, next), stop_composition);
+  }
+
+  // Return the position of deleted character.
+  gsl::index DeleteCharPrevious(gsl::index position,
+                                bool stop_composition = false) {
+    if (!Utf16IsValidInsertPosition(this->text_, position)) {
+      log::TagError(log_tag, u"Invalid text delete position.");
+      return 0;
+    }
+    if (position == 0) return 0;
+    Index previous;
+    Utf16PreviousCodePoint(this->text_, position, &previous);
+    this->DeleteText(TextRange::FromTwoSides(previous, position),
+                     stop_composition);
+    return previous;
+  }
+
+  void DeleteText(TextRange range, bool stop_composition = false) {
+    if (range.count == 0) return;
+    range = range.Normalize();
+    if (!Utf16IsValidInsertPosition(this->text_, range.GetStart())) {
+      log::TagError(log_tag, u"Invalid text delete start position.");
+      return;
+    }
+    if (!Utf16IsValidInsertPosition(this->text_, range.GetStart())) {
+      log::TagError(log_tag, u"Invalid text delete end position.");
+      return;
+    }
+    this->text_.erase(this->text_.cbegin() + range.GetStart(),
+                      this->text_.cbegin() + range.GetEnd());
+    this->CoerceSelection();
+    if (stop_composition && this->input_method_context_) {
+      this->input_method_context_->CancelComposition();
+    }
+    this->SyncTextRenderObject();
   }
 
   std::optional<platform::native::CompositionText> GetCompositionInfo() {
@@ -126,21 +189,33 @@ class TextControlService : public Object {
     CoerceSelection();
     SyncTextRenderObject();
     if (scroll_to_caret) {
-      if (const auto scroll_render_object = this->GetScrollRenderObject()) {
-        const auto caret_rect = this->GetTextRenderObject()->GetCaretRect();
-        // TODO: Wait a tick for layout completed.
-        this->GetScrollRenderObject()->ScrollToContain(caret_rect,
-                                                       Thickness{5.f});
-      }
+      this->ScrollToCaret();
     }
   }
 
   void DeleteSelectedText() {
-    auto selection = GetSelection().Normalize();
-    if (selection.count == 0) return;
-    this->text_.erase(this->text_.cbegin() + selection.GetStart(),
-                      this->text_.cbegin() + selection.GetEnd());
-    SetSelection(selection.GetStart());
+    this->DeleteText(GetSelection());
+    SetSelection(GetSelection().GetStart());
+  }
+
+  // If some text is selected, then they are deleted first. Then insert text
+  // into caret position.
+  void ReplaceSelectedText(std::u16string_view text) {
+    DeleteSelectedText();
+    InsertText(GetSelection().GetStart(), text);
+    SetSelection(GetSelection().GetStart() + text.size());
+  }
+
+  void ScrollToCaret(bool next_tick = true) {
+    if (next_tick) {
+      scroll_to_caret_timer_canceler_.Reset(
+          GetUiApplication()->GetInstance()->SetImmediate(
+              [this]() { this->ScrollToCaret(false); }));
+    } else {
+      const auto caret_rect = this->GetTextRenderObject()->GetCaretRect();
+      this->GetScrollRenderObject()->ScrollToContain(caret_rect,
+                                                     Thickness{5.f});
+    }
   }
 
  private:
@@ -278,14 +353,7 @@ class TextControlService : public Object {
         if (!IsEditable()) return;
         const auto selection = GetSelection();
         if (selection.count == 0) {
-          const auto text = this->GetTextView();
-          const auto caret_position = GetCaretPosition();
-          if (caret_position == 0) return;
-          gsl::index new_position;
-          Utf16PreviousCodePoint(text, caret_position, &new_position);
-          text_.erase(text_.cbegin() + new_position,
-                      text_.cbegin() + caret_position);
-          SetSelection(new_position);
+          SetSelection(DeleteCharPrevious(GetCaretPosition()));
         } else {
           this->DeleteSelectedText();
         }
@@ -294,14 +362,7 @@ class TextControlService : public Object {
         if (!IsEditable()) return;
         const auto selection = GetSelection();
         if (selection.count == 0) {
-          const auto text = this->GetTextView();
-          const auto caret_position = GetCaretPosition();
-          if (caret_position == static_cast<gsl::index>(text.size())) return;
-          gsl::index new_position;
-          Utf16NextCodePoint(text, caret_position, &new_position);
-          text_.erase(text_.cbegin() + caret_position,
-                      text_.cbegin() + new_position);
-          SyncTextRenderObject();
+          DeleteChar(GetCaretPosition());
         } else {
           this->DeleteSelectedText();
         }
@@ -362,8 +423,7 @@ class TextControlService : public Object {
       input_method_context_->TextEvent()->AddHandler(
           [this](const std::u16string_view& text) {
             if (text == u"\b") return;
-            this->text_.insert(GetCaretPosition(), text);
-            this->SetSelection(GetCaretPosition() + text.size());
+            this->ReplaceSelectedText(text);
           });
     }
   }
@@ -392,6 +452,8 @@ class TextControlService : public Object {
   int caret_blink_duration_ = k_default_caret_blink_duration;
 
   ShortcutHub shortcut_hub_;
+
+  platform::native::TimerAutoCanceler scroll_to_caret_timer_canceler_;
 
   // nullopt means not selecting
   std::optional<MouseButton> select_down_button_;

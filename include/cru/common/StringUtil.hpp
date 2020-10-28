@@ -1,4 +1,5 @@
 #pragma once
+#include <string>
 #include "Base.hpp"
 
 namespace cru {
@@ -124,4 +125,7 @@ void Utf16EncodeCodePointAppend(CodePoint code_point, std::u16string& str);
 
 std::string ToUtf8(std::u16string_view s);
 std::u16string ToUtf16(std::string_view s);
+
+// If given s is not a valid utf16 string, return value is UD.
+bool Utf16IsValidInsertPosition(std::u16string_view s, gsl::index position);
 }  // namespace cru

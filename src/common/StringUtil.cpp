@@ -1,4 +1,5 @@
 #include "cru/common/StringUtil.hpp"
+#include "gsl/gsl_util"
 
 namespace cru {
 namespace {
@@ -191,8 +192,8 @@ void Utf8EncodeCodePointAppend(CodePoint code_point, std::string& str) {
 }
 
 void Utf16EncodeCodePointAppend(CodePoint code_point, std::u16string& str) {
-  if (code_point >= 0 && code_point <= 0xD7FF ||
-      code_point >= 0xE000 && code_point <= 0xFFFF) {
+  if ((code_point >= 0 && code_point <= 0xD7FF) ||
+      (code_point >= 0xE000 && code_point <= 0xFFFF)) {
     str.push_back(static_cast<char16_t>(code_point));
   } else if (code_point >= 0x10000 && code_point <= 0x10FFFF) {
     std::uint32_t u = code_point - 0x10000;
@@ -219,5 +220,13 @@ std::u16string ToUtf16(std::string_view s) {
     Utf16EncodeCodePointAppend(cp, result);
   }
   return result;
+}
+
+bool Utf16IsValidInsertPosition(std::u16string_view s, gsl::index position) {
+  if (position < 0) return false;
+  if (position > static_cast<gsl::index>(s.size())) return false;
+  if (position == 0) return true;
+  if (position == static_cast<gsl::index>(s.size())) return true;
+  return !IsUtf16SurrogatePairTrailing(s[position]);
 }
 }  // namespace cru
