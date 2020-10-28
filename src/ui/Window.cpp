@@ -9,6 +9,7 @@ namespace cru::ui {
 Window* Window::CreateOverlapped() { return new Window(); }
 
 Window::Window() : render_object_(new render::StackLayoutRenderObject()) {
+  render_object_->SetAttachedControl(this);
   window_host_ = std::make_unique<WindowHost>(this);
 }
 

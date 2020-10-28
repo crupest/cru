@@ -120,10 +120,10 @@ class WindowHost : public Object {
                                             bool no_enter);
 
  private:
-  Control* root_control_;
-  render::RenderObject* root_render_object_;
+  Control* root_control_ = nullptr;
+  render::RenderObject* root_render_object_ = nullptr;
 
-  platform::native::INativeWindow* native_window_;
+  platform::native::INativeWindow* native_window_ = nullptr;
 
   bool need_layout_ = false;
   platform::native::TimerAutoCanceler relayout_timer_canceler_;
@@ -136,7 +136,7 @@ class WindowHost : public Object {
 
   Control* focus_control_;
 
-  Control* mouse_captured_control_;
+  Control* mouse_captured_control_ = nullptr;
 
   bool layout_prefer_to_fill_window_ = true;
 };

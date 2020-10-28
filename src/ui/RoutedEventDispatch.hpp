@@ -4,7 +4,7 @@
 #include "cru/common/Logger.hpp"
 #include "cru/ui/DebugFlags.hpp"
 
-#include <list>
+#include <vector>
 
 namespace cru::ui {
 // Dispatch the event.
@@ -36,7 +36,7 @@ void DispatchEvent(const std::u16string_view& event_name,
     return;
   }
 
-  std::list<Control*> receive_list;
+  std::vector<Control*> receive_list;
 
   auto parent = original_sender;
   while (parent != last_receiver) {

@@ -99,7 +99,8 @@ inline void BindNativeEvent(
 }
 }  // namespace
 
-WindowHost::WindowHost(Control* root_control) : root_control_(root_control) {
+WindowHost::WindowHost(Control* root_control)
+    : root_control_(root_control), focus_control_(root_control) {
   const auto ui_application = IUiApplication::GetInstance();
   auto native_window = ui_application->CreateWindow(nullptr);
   native_window_ = native_window;
