@@ -1,5 +1,6 @@
 set(CRU_PLATFORM_NATIVE_INCLUDE_DIR ${CRU_INCLUDE_DIR}/cru/platform/native)
 add_library(cru_platform_native STATIC
+	Keyboard.cpp
 	UiApplication.cpp
 )
 target_sources(cru_platform_native PUBLIC

@@ -1,4 +1,5 @@
 #pragma once
+#include <string_view>
 #include "cru/common/Bitmask.hpp"
 
 namespace cru::platform::native {
@@ -117,4 +118,8 @@ struct KeyModifiers {
   static constexpr KeyModifier ctrl{0b10};
   static constexpr KeyModifier alt{0b100};
 };
+
+std::u16string_view ToString(KeyCode key_code);
+std::u16string ToString(KeyModifier key_modifier,
+                        std::u16string_view separator = u"+");
 }  // namespace cru::platform::native

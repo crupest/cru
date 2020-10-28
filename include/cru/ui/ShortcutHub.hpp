@@ -4,6 +4,7 @@
 #include "cru/common/Base.hpp"
 #include "cru/common/Event.hpp"
 #include "cru/platform/native/Keyboard.hpp"
+#include "cru/ui/UiEvent.hpp"
 
 #include <cstddef>
 #include <functional>
@@ -41,6 +42,14 @@ class ShortcutKeyBind {
 
   bool operator!=(const ShortcutKeyBind& other) const {
     return !this->operator==(other);
+  }
+
+  std::u16string ToString() {
+    std::u16string result = u"(";
+    result += platform::native::ToString(modifier_);
+    result += u")";
+    result += platform::native::ToString(key_);
+    return result;
   }
 
  private:
@@ -93,6 +102,9 @@ class ShortcutHub : public Object {
 
   void Install(Control* control);
   void Uninstall();
+
+ private:
+  void OnKeyDown(event::KeyEventArgs& event);
 
  private:
   std::unordered_map<ShortcutKeyBind, std::vector<ShortcutInfo>> map_;
