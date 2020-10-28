@@ -1,6 +1,7 @@
 #pragma once
 #include "../Resource.hpp"
 #include "Base.hpp"
+#include "cru/common/Base.hpp"
 
 #include <chrono>
 #include <functional>
@@ -51,6 +52,60 @@ struct IUiApplication : public virtual INativeResource {
 
   virtual ICursorManager* GetCursorManager() = 0;
   virtual IInputMethodManager* GetInputMethodManager() = 0;
+};
+
+class TimerAutoCanceler {
+ public:
+  TimerAutoCanceler() : id_(0) {}
+  explicit TimerAutoCanceler(long long id) : id_(id) {}
+
+  CRU_DELETE_COPY(TimerAutoCanceler)
+
+  TimerAutoCanceler(TimerAutoCanceler&& other) : id_(other.id_) {
+    other.id_ = 0;
+  }
+
+  TimerAutoCanceler& operator=(TimerAutoCanceler&& other) {
+    Reset(other.id_);
+    other.id_ = 0;
+    return *this;
+  }
+
+  ~TimerAutoCanceler() { Reset(); }
+
+  long long Release() {
+    auto temp = id_;
+    id_ = 0;
+    return temp;
+  }
+
+  void Reset(long long id = 0) {
+    if (id_ > 0) IUiApplication::GetInstance()->CancelTimer(id_);
+    id_ = id;
+  }
+
+ private:
+  long long id_;
+};
+
+class TimerListAutoCanceler {
+ public:
+  TimerListAutoCanceler() = default;
+  CRU_DELETE_COPY(TimerListAutoCanceler)
+  CRU_DEFAULT_MOVE(TimerListAutoCanceler)
+  ~TimerListAutoCanceler() = default;
+
+  TimerListAutoCanceler& operator+=(long long id) {
+    list_.push_back(TimerAutoCanceler(id));
+    return *this;
+  }
+
+  void Clear() { list_.clear(); }
+
+  bool IsEmpty() const { return list_.empty(); }
+
+ private:
+  std::vector<TimerAutoCanceler> list_;
 };
 
 // Bootstrap from this.

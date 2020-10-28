@@ -12,6 +12,7 @@
 #include <optional>
 #include <string>
 #include <string_view>
+#include <type_traits>
 #include <unordered_map>
 #include <vector>
 
@@ -71,6 +72,15 @@ struct hash<cru::ui::ShortcutKeyBind> {
 }  // namespace std
 
 namespace cru::ui {
+struct Shortcut {
+  // Just for debug.
+  std::u16string name;
+  ShortcutKeyBind key_bind;
+  // Return true if it consumes the shortcut. Or return false if it does not
+  // handle the shortcut.
+  std::function<bool()> handler;
+};
+
 struct ShortcutInfo {
   int id;
   std::u16string name;
@@ -87,11 +97,13 @@ class ShortcutHub : public Object {
 
   ~ShortcutHub() override = default;
 
-  // Handler return true if it consumes the shortcut. Or return false if it does
-  // not handle the shortcut. Name is just for debug. Return an id used for
-  // unregistering.
   int RegisterShortcut(std::u16string name, ShortcutKeyBind bind,
-                       std::function<bool()> handler);
+                       std::function<bool()> handler) {
+    return RegisterShortcut({std::move(name), bind, std::move(handler)});
+  }
+
+  // Return an id used for unregistering.
+  int RegisterShortcut(Shortcut shortcut);
 
   void UnregisterShortcut(int id);
 

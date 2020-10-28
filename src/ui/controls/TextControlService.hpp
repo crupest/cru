@@ -8,6 +8,7 @@
 #include "cru/platform/native/UiApplication.hpp"
 #include "cru/platform/native/Window.hpp"
 #include "cru/ui/Control.hpp"
+#include "cru/ui/ShortcutHub.hpp"
 #include "cru/ui/UiEvent.hpp"
 #include "cru/ui/UiHost.hpp"
 #include "cru/ui/render/CanvasRenderObject.hpp"
@@ -32,12 +33,7 @@ class TextControlService : public Object {
   CRU_DELETE_COPY(TextControlService)
   CRU_DELETE_MOVE(TextControlService)
 
-  ~TextControlService() override {
-    const auto application = GetUiApplication();
-    // Don't call TearDownCaret, because it use text render object of control,
-    // which may be destroyed already.
-    application->CancelTimer(this->caret_timer_id_);
-  }
+  ~TextControlService() = default;
 
  public:
   bool IsEnabled() { return enable_; }
@@ -46,13 +42,13 @@ class TextControlService : public Object {
     if (enable == this->enable_) return;
     this->enable_ = enable;
     if (enable) {
-      this->SetupHandlers();
+      this->SetUpHandlers();
       if (this->caret_visible_) {
         this->SetupCaret();
       }
     } else {
       this->AbortSelection();
-      this->event_revoker_guards_.clear();
+      this->TearDownHandlers();
       this->TearDownCaret();
     }
   }
@@ -162,19 +158,14 @@ class TextControlService : public Object {
 
   void SetupCaret() {
     const auto application = GetUiApplication();
-
-    // Cancel first anyhow for safety.
-    application->CancelTimer(this->caret_timer_id_);
-
     this->GetTextRenderObject()->SetDrawCaret(true);
-    this->caret_timer_id_ = application->SetInterval(
+    this->caret_timer_canceler_.Reset(application->SetInterval(
         std::chrono::milliseconds(this->caret_blink_duration_),
-        [this] { this->GetTextRenderObject()->ToggleDrawCaret(); });
+        [this] { this->GetTextRenderObject()->ToggleDrawCaret(); }));
   }
 
   void TearDownCaret() {
-    const auto application = GetUiApplication();
-    application->CancelTimer(this->caret_timer_id_);
+    this->caret_timer_canceler_.Reset();
     this->GetTextRenderObject()->SetDrawCaret(false);
   }
 
@@ -198,15 +189,6 @@ class TextControlService : public Object {
     }
   }
 
-  template <typename TArgs>
-  void SetupOneHandler(event::RoutedEvent<TArgs>* (Control::*event)(),
-                       void (TextControlService::*handler)(
-                           typename event::RoutedEvent<TArgs>::EventArgs)) {
-    this->event_revoker_guards_.push_back(
-        EventRevokerGuard{(this->control_->*event)()->Direct()->AddHandler(
-            std::bind(handler, this, std::placeholders::_1))});
-  }
-
   void StartSelection(Index start) {
     SetSelection(start);
     log::TagDebug(log_tag, u"Text selection started, position: {}.", start);
@@ -220,8 +202,16 @@ class TextControlService : public Object {
                   selection.GetStart(), selection.GetEnd());
   }
 
-  void SetupHandlers() {
-    Expects(event_revoker_guards_.empty());
+  template <typename TArgs>
+  void SetupOneHandler(event::RoutedEvent<TArgs>* (Control::*event)(),
+                       void (TextControlService::*handler)(
+                           typename event::RoutedEvent<TArgs>::EventArgs)) {
+    this->event_guard_ += (this->control_->*event)()->Direct()->AddHandler(
+        std::bind(handler, this, std::placeholders::_1));
+  }
+
+  void SetUpHandlers() {
+    Expects(event_guard_.IsEmpty());
 
     SetupOneHandler(&Control::MouseMoveEvent,
                     &TextControlService::MouseMoveHandler);
@@ -231,11 +221,17 @@ class TextControlService : public Object {
                     &TextControlService::MouseUpHandler);
     SetupOneHandler(&Control::KeyDownEvent,
                     &TextControlService::KeyDownHandler);
-    SetupOneHandler(&Control::KeyUpEvent, &TextControlService::KeyUpHandler);
     SetupOneHandler(&Control::GainFocusEvent,
                     &TextControlService::GainFocusHandler);
     SetupOneHandler(&Control::LoseFocusEvent,
                     &TextControlService::LoseFocusHandler);
+
+    shortcut_hub_.Install(control_);
+  }
+
+  void TearDownHandlers() {
+    event_guard_.Clear();
+    shortcut_hub_.Uninstall();
   }
 
   void MouseMoveHandler(event::MouseEventArgs& args) {
@@ -344,10 +340,10 @@ class TextControlService : public Object {
           this->SetSelection(new_position);
         }
       } break;
+      default:
+        break;
     }
   }
-
-  void KeyUpHandler(event::KeyEventArgs& args) { CRU_UNUSED(args); }
 
   void GainFocusHandler(event::FocusChangeEventArgs& args) {
     CRU_UNUSED(args);
@@ -383,7 +379,7 @@ class TextControlService : public Object {
 
  private:
   gsl::not_null<TControl*> control_;
-  std::vector<EventRevokerGuard> event_revoker_guards_;
+  EventRevokerListGuard event_guard_;
 
   std::u16string text_;
   TextRange selection_;
@@ -392,8 +388,10 @@ class TextControlService : public Object {
   bool editable_ = false;
 
   bool caret_visible_ = false;
-  long long caret_timer_id_ = -1;
+  platform::native::TimerAutoCanceler caret_timer_canceler_;
   int caret_blink_duration_ = k_default_caret_blink_duration;
+
+  ShortcutHub shortcut_hub_;
 
   // nullopt means not selecting
   std::optional<MouseButton> select_down_button_;
