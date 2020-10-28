@@ -223,11 +223,13 @@ class TextControlService : public Object {
   }
 
   void ScrollToCaret() {
-    this->control_->GetWindowHost()->RunAfterLayoutStable([this]() {
-      const auto caret_rect = this->GetTextRenderObject()->GetCaretRect();
-      this->GetScrollRenderObject()->ScrollToContain(caret_rect,
-                                                     Thickness{5.f});
-    });
+    if (const auto scroll_render_object = this->GetScrollRenderObject()) {
+      this->control_->GetWindowHost()->RunAfterLayoutStable(
+          [this, scroll_render_object]() {
+            const auto caret_rect = this->GetTextRenderObject()->GetCaretRect();
+            scroll_render_object->ScrollToContain(caret_rect, Thickness{5.f});
+          });
+    }
   }
 
  private:
