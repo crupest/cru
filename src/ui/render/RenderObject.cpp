@@ -3,7 +3,7 @@
 #include "cru/common/Logger.hpp"
 #include "cru/platform/graph/util/Painter.hpp"
 #include "cru/ui/DebugFlags.hpp"
-#include "cru/ui/UiHost.hpp"
+#include "cru/ui/WindowHost.hpp"
 
 #include <algorithm>
 #include <string>
@@ -24,7 +24,7 @@ void RenderObject::AddChild(RenderObject* render_object, const Index position) {
 
   children_.insert(children_.cbegin() + position, render_object);
   render_object->SetParent(this);
-  render_object->SetRenderHostRecursive(GetUiHost());
+  render_object->SetRenderHostRecursive(GetWindowHost());
   OnAddChild(render_object, position);
 }
 
@@ -304,7 +304,7 @@ void RenderObject::NotifyAfterLayoutRecursive(RenderObject* render_object) {
   }
 }
 
-void RenderObject::SetRenderHostRecursive(UiHost* host) {
+void RenderObject::SetRenderHostRecursive(WindowHost* host) {
   ui_host_ = host;
   for (const auto child : GetChildren()) {
     child->SetRenderHostRecursive(host);

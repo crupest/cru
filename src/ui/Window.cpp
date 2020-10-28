@@ -1,7 +1,7 @@
 #include "cru/ui/Window.hpp"
 
 #include "cru/ui/render/WindowRenderObject.hpp"
-#include "cru/ui/UiHost.hpp"
+#include "cru/ui/WindowHost.hpp"
 
 namespace cru::ui {
 Window* Window::CreateOverlapped() {
@@ -9,7 +9,7 @@ Window* Window::CreateOverlapped() {
 }
 
 Window::Window(tag_overlapped_constructor) {
-  managed_ui_host_ = std::make_unique<UiHost>(this);
+  managed_ui_host_ = std::make_unique<WindowHost>(this);
 }
 
 Window::~Window() {

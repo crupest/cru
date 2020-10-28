@@ -1,4 +1,4 @@
-#include "cru/ui/UiHost.hpp"
+#include "cru/ui/WindowHost.hpp"
 
 #include "RoutedEventDispatch.hpp"
 #include "cru/common/Logger.hpp"
@@ -89,15 +89,15 @@ Control* FindLowestCommonAncestor(Control* left, Control* right) {
 namespace {
 template <typename T>
 inline void BindNativeEvent(
-    UiHost* host, INativeWindow* native_window, IEvent<T>* event,
-    void (UiHost::*handler)(INativeWindow*, typename IEvent<T>::EventArgs),
+    WindowHost* host, INativeWindow* native_window, IEvent<T>* event,
+    void (WindowHost::*handler)(INativeWindow*, typename IEvent<T>::EventArgs),
     std::vector<EventRevokerGuard>& guard_pool) {
   guard_pool.push_back(EventRevokerGuard(event->AddHandler(
       std::bind(handler, host, native_window, std::placeholders::_1))));
 }
 }  // namespace
 
-UiHost::UiHost(Window* window)
+WindowHost::WindowHost(Window* window)
     : window_control_(window),
       mouse_hover_control_(nullptr),
       focus_control_(window),
@@ -118,28 +118,28 @@ UiHost::UiHost(Window* window)
   window->render_object_ = root_render_object_.get();
 
   BindNativeEvent(this, native_window, native_window->DestroyEvent(),
-                  &UiHost::OnNativeDestroy, event_revoker_guards_);
+                  &WindowHost::OnNativeDestroy, event_revoker_guards_);
   BindNativeEvent(this, native_window, native_window->PaintEvent(),
-                  &UiHost::OnNativePaint, event_revoker_guards_);
+                  &WindowHost::OnNativePaint, event_revoker_guards_);
   BindNativeEvent(this, native_window, native_window->ResizeEvent(),
-                  &UiHost::OnNativeResize, event_revoker_guards_);
+                  &WindowHost::OnNativeResize, event_revoker_guards_);
   BindNativeEvent(this, native_window, native_window->FocusEvent(),
-                  &UiHost::OnNativeFocus, event_revoker_guards_);
+                  &WindowHost::OnNativeFocus, event_revoker_guards_);
   BindNativeEvent(this, native_window, native_window->MouseEnterLeaveEvent(),
-                  &UiHost::OnNativeMouseEnterLeave, event_revoker_guards_);
+                  &WindowHost::OnNativeMouseEnterLeave, event_revoker_guards_);
   BindNativeEvent(this, native_window, native_window->MouseMoveEvent(),
-                  &UiHost::OnNativeMouseMove, event_revoker_guards_);
+                  &WindowHost::OnNativeMouseMove, event_revoker_guards_);
   BindNativeEvent(this, native_window, native_window->MouseDownEvent(),
-                  &UiHost::OnNativeMouseDown, event_revoker_guards_);
+                  &WindowHost::OnNativeMouseDown, event_revoker_guards_);
   BindNativeEvent(this, native_window, native_window->MouseUpEvent(),
-                  &UiHost::OnNativeMouseUp, event_revoker_guards_);
+                  &WindowHost::OnNativeMouseUp, event_revoker_guards_);
   BindNativeEvent(this, native_window, native_window->KeyDownEvent(),
-                  &UiHost::OnNativeKeyDown, event_revoker_guards_);
+                  &WindowHost::OnNativeKeyDown, event_revoker_guards_);
   BindNativeEvent(this, native_window, native_window->KeyUpEvent(),
-                  &UiHost::OnNativeKeyUp, event_revoker_guards_);
+                  &WindowHost::OnNativeKeyUp, event_revoker_guards_);
 }
 
-UiHost::~UiHost() {
+WindowHost::~WindowHost() {
   deleting_ = true;
   window_control_->TraverseDescendants(
       [this](Control* control) { control->OnDetachFromHost(this); });
@@ -151,12 +151,12 @@ UiHost::~UiHost() {
   }
 }
 
-void UiHost::InvalidatePaint() {
+void WindowHost::InvalidatePaint() {
   if (const auto native_window = native_window_resolver_->Resolve())
     native_window->RequestRepaint();
 }
 
-void UiHost::InvalidateLayout() {
+void WindowHost::InvalidateLayout() {
   if constexpr (debug_flags::layout)
     log::TagDebug(log_tag, u"A relayout is requested.");
   if (!need_layout_) {
@@ -172,17 +172,17 @@ void UiHost::InvalidateLayout() {
   }
 }
 
-bool UiHost::IsLayoutPreferToFillWindow() const {
+bool WindowHost::IsLayoutPreferToFillWindow() const {
   return layout_prefer_to_fill_window_;
 }
 
-void UiHost::SetLayoutPreferToFillWindow(bool value) {
+void WindowHost::SetLayoutPreferToFillWindow(bool value) {
   if (value == layout_prefer_to_fill_window_) return;
   layout_prefer_to_fill_window_ = value;
   InvalidateLayout();
 }
 
-void UiHost::Relayout() {
+void WindowHost::Relayout() {
   const auto native_window = native_window_resolver_->Resolve();
   const auto client_size = native_window
                                ? native_window->GetClientSize()
@@ -202,7 +202,7 @@ void UiHost::Relayout() {
     log::TagDebug(log_tag, u"A relayout is finished.");
 }
 
-bool UiHost::RequestFocusFor(Control* control) {
+bool WindowHost::RequestFocusFor(Control* control) {
   Expects(control != nullptr);  // The control to request focus can't be null.
                                 // You can set it as the window.
 
@@ -221,9 +221,9 @@ bool UiHost::RequestFocusFor(Control* control) {
   return true;
 }
 
-Control* UiHost::GetFocusControl() { return focus_control_; }
+Control* WindowHost::GetFocusControl() { return focus_control_; }
 
-bool UiHost::CaptureMouseFor(Control* control) {
+bool WindowHost::CaptureMouseFor(Control* control) {
   const auto native_window = native_window_resolver_->Resolve();
   if (!native_window) return false;
 
@@ -252,9 +252,11 @@ bool UiHost::CaptureMouseFor(Control* control) {
   return true;
 }
 
-Control* UiHost::GetMouseCaptureControl() { return mouse_captured_control_; }
+Control* WindowHost::GetMouseCaptureControl() {
+  return mouse_captured_control_;
+}
 
-void UiHost::RunAfterLayoutStable(std::function<void()> action) {
+void WindowHost::RunAfterLayoutStable(std::function<void()> action) {
   if (need_layout_) {
     after_layout_stable_action_.push_back(std::move(action));
   } else {
@@ -262,28 +264,28 @@ void UiHost::RunAfterLayoutStable(std::function<void()> action) {
   }
 }
 
-void UiHost::OnNativeDestroy(INativeWindow* window, std::nullptr_t) {
+void WindowHost::OnNativeDestroy(INativeWindow* window, std::nullptr_t) {
   CRU_UNUSED(window)
   native_window_destroyed_ = true;
   if (!deleting_ && !retain_after_destroy_) delete window_control_;
 }
 
-void UiHost::OnNativePaint(INativeWindow* window, std::nullptr_t) {
+void WindowHost::OnNativePaint(INativeWindow* window, std::nullptr_t) {
   auto painter = window->BeginPaint();
   painter->Clear(colors::white);
   root_render_object_->Draw(painter.get());
   painter->EndDraw();
 }
 
-void UiHost::OnNativeResize(INativeWindow* window, const Size& size) {
+void WindowHost::OnNativeResize(INativeWindow* window, const Size& size) {
   CRU_UNUSED(window)
   CRU_UNUSED(size)
 
   InvalidateLayout();
 }
 
-void UiHost::OnNativeFocus(INativeWindow* window,
-                           platform::native::FocusChangeType focus) {
+void WindowHost::OnNativeFocus(INativeWindow* window,
+                               platform::native::FocusChangeType focus) {
   CRU_UNUSED(window)
 
   focus == platform::native::FocusChangeType::Gain
@@ -293,7 +295,7 @@ void UiHost::OnNativeFocus(INativeWindow* window,
                       &Control::LoseFocusEvent, nullptr, true);
 }
 
-void UiHost::OnNativeMouseEnterLeave(
+void WindowHost::OnNativeMouseEnterLeave(
     INativeWindow* window, platform::native::MouseEnterLeaveType type) {
   CRU_UNUSED(window)
 
@@ -304,7 +306,7 @@ void UiHost::OnNativeMouseEnterLeave(
   }
 }
 
-void UiHost::OnNativeMouseMove(INativeWindow* window, const Point& point) {
+void WindowHost::OnNativeMouseMove(INativeWindow* window, const Point& point) {
   CRU_UNUSED(window)
 
   // Find the first control that hit test succeed.
@@ -337,7 +339,7 @@ void UiHost::OnNativeMouseMove(INativeWindow* window, const Point& point) {
   UpdateCursor();
 }
 
-void UiHost::OnNativeMouseDown(
+void WindowHost::OnNativeMouseDown(
     INativeWindow* window,
     const platform::native::NativeMouseButtonEventArgs& args) {
   CRU_UNUSED(window)
@@ -348,7 +350,7 @@ void UiHost::OnNativeMouseDown(
                 nullptr, args.point, args.button, args.modifier);
 }
 
-void UiHost::OnNativeMouseUp(
+void WindowHost::OnNativeMouseUp(
     INativeWindow* window,
     const platform::native::NativeMouseButtonEventArgs& args) {
   CRU_UNUSED(window)
@@ -359,27 +361,27 @@ void UiHost::OnNativeMouseUp(
                 args.point, args.button, args.modifier);
 }
 
-void UiHost::OnNativeKeyDown(INativeWindow* window,
-                             const platform::native::NativeKeyEventArgs& args) {
+void WindowHost::OnNativeKeyDown(
+    INativeWindow* window, const platform::native::NativeKeyEventArgs& args) {
   CRU_UNUSED(window)
 
   DispatchEvent(event_names::KeyDown, focus_control_, &Control::KeyDownEvent,
                 nullptr, args.key, args.modifier);
 }
 
-void UiHost::OnNativeKeyUp(INativeWindow* window,
-                           const platform::native::NativeKeyEventArgs& args) {
+void WindowHost::OnNativeKeyUp(
+    INativeWindow* window, const platform::native::NativeKeyEventArgs& args) {
   CRU_UNUSED(window)
 
   DispatchEvent(event_names::KeyUp, focus_control_, &Control::KeyUpEvent,
                 nullptr, args.key, args.modifier);
 }
 
-void UiHost::DispatchMouseHoverControlChangeEvent(Control* old_control,
-                                                  Control* new_control,
-                                                  const Point& point,
-                                                  bool no_leave,
-                                                  bool no_enter) {
+void WindowHost::DispatchMouseHoverControlChangeEvent(Control* old_control,
+                                                      Control* new_control,
+                                                      const Point& point,
+                                                      bool no_leave,
+                                                      bool no_enter) {
   if (new_control != old_control)  // if the mouse-hover-on control changed
   {
     const auto lowest_common_ancestor =
@@ -396,7 +398,7 @@ void UiHost::DispatchMouseHoverControlChangeEvent(Control* old_control,
   }
 }
 
-void UiHost::UpdateCursor() {
+void WindowHost::UpdateCursor() {
   if (const auto native_window = native_window_resolver_->Resolve()) {
     const auto capture = GetMouseCaptureControl();
     native_window->SetCursor(
@@ -404,7 +406,7 @@ void UiHost::UpdateCursor() {
   }
 }
 
-Control* UiHost::HitTest(const Point& point) {
+Control* WindowHost::HitTest(const Point& point) {
   const auto render_object = root_render_object_->HitTest(point);
   if (render_object) {
     const auto control = render_object->GetAttachedControl();

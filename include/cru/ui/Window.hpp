@@ -3,7 +3,7 @@
 
 namespace cru::ui {
 class Window final : public ContentControl {
-  friend UiHost;
+  friend WindowHost;
 
  public:
   static constexpr std::u16string_view control_type = u"Window";
@@ -32,9 +32,9 @@ class Window final : public ContentControl {
   void OnChildChanged(Control* old_child, Control* new_child) override;
 
  private:
-  std::unique_ptr<UiHost> managed_ui_host_;
+  std::unique_ptr<WindowHost> managed_ui_host_;
 
-  // UiHost is responsible to take care of lifetime of this.
+  // WindowHost is responsible to take care of lifetime of this.
   render::WindowRenderObject* render_object_;
 };
 }  // namespace cru::ui

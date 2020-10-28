@@ -29,7 +29,7 @@ namespace colors = cru::platform::colors;
 class Window;
 class Control;
 class ClickDetector;
-class UiHost;
+class WindowHost;
 
 namespace render {
 class RenderObject;

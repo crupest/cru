@@ -3,7 +3,7 @@
 #include "cru/platform/native/Cursor.hpp"
 #include "cru/platform/native/UiApplication.hpp"
 #include "cru/ui/Base.hpp"
-#include "cru/ui/UiHost.hpp"
+#include "cru/ui/WindowHost.hpp"
 #include "RoutedEventDispatch.hpp"
 
 #include <memory>
@@ -32,7 +32,7 @@ void Control::_SetParent(Control* parent) {
   if (old_parent != new_parent) OnParentChanged(old_parent, new_parent);
 }
 
-void Control::_SetDescendantUiHost(UiHost* host) {
+void Control::_SetDescendantWindowHost(WindowHost* host) {
   if (host == nullptr && ui_host_ == nullptr) return;
 
   // You can only attach or detach window.
@@ -64,35 +64,35 @@ void Control::_TraverseDescendants(
 }
 
 bool Control::RequestFocus() {
-  auto host = GetUiHost();
+  auto host = GetWindowHost();
   if (host == nullptr) return false;
 
   return host->RequestFocusFor(this);
 }
 
 bool Control::HasFocus() {
-  auto host = GetUiHost();
+  auto host = GetWindowHost();
   if (host == nullptr) return false;
 
   return host->GetFocusControl() == this;
 }
 
 bool Control::CaptureMouse() {
-  auto host = GetUiHost();
+  auto host = GetWindowHost();
   if (host == nullptr) return false;
 
   return host->CaptureMouseFor(this);
 }
 
 bool Control::ReleaseMouse() {
-  auto host = GetUiHost();
+  auto host = GetWindowHost();
   if (host == nullptr) return false;
 
   return host->CaptureMouseFor(nullptr);
 }
 
 bool Control::IsMouseCaptured() {
-  auto host = GetUiHost();
+  auto host = GetWindowHost();
   if (host == nullptr) return false;
 
   return host->GetMouseCaptureControl() == this;
@@ -113,7 +113,7 @@ std::shared_ptr<ICursor> Control::GetInheritedCursor() {
 
 void Control::SetCursor(std::shared_ptr<ICursor> cursor) {
   cursor_ = std::move(cursor);
-  const auto host = GetUiHost();
+  const auto host = GetWindowHost();
   if (host != nullptr) {
     host->UpdateCursor();
   }
@@ -124,7 +124,7 @@ void Control::OnParentChanged(Control* old_parent, Control* new_parent) {
   CRU_UNUSED(new_parent)
 }
 
-void Control::OnAttachToHost(UiHost* host) { CRU_UNUSED(host) }
+void Control::OnAttachToHost(WindowHost* host) { CRU_UNUSED(host) }
 
-void Control::OnDetachFromHost(UiHost* host) { CRU_UNUSED(host) }
+void Control::OnDetachFromHost(WindowHost* host) { CRU_UNUSED(host) }
 }  // namespace cru::ui

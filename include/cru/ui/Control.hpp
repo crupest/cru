@@ -9,7 +9,7 @@
 
 namespace cru::ui {
 class Control : public Object {
-  friend UiHost;
+  friend WindowHost;
 
  protected:
   Control();
@@ -27,7 +27,7 @@ class Control : public Object {
   //*************** region: tree ***************
  public:
   // Get the ui host if attached, otherwise, return nullptr.
-  UiHost* GetUiHost() const { return ui_host_; }
+  WindowHost* GetWindowHost() const { return ui_host_; }
 
   Control* GetParent() const { return parent_; }
 
@@ -37,7 +37,7 @@ class Control : public Object {
   void TraverseDescendants(const std::function<void(Control*)>& predicate);
 
   void _SetParent(Control* parent);
-  void _SetDescendantUiHost(UiHost* host);
+  void _SetDescendantWindowHost(WindowHost* host);
 
  private:
   static void _TraverseDescendants(
@@ -135,13 +135,13 @@ class Control : public Object {
   //*************** region: tree ***************
  protected:
   virtual void OnParentChanged(Control* old_parent, Control* new_parent);
-  virtual void OnAttachToHost(UiHost* host);
-  virtual void OnDetachFromHost(UiHost* host);
+  virtual void OnAttachToHost(WindowHost* host);
+  virtual void OnDetachFromHost(WindowHost* host);
 
   virtual void OnMouseHoverChange(bool newHover) { CRU_UNUSED(newHover) }
 
  private:
-  UiHost* ui_host_ = nullptr;
+  WindowHost* ui_host_ = nullptr;
   Control* parent_ = nullptr;
 
  private:

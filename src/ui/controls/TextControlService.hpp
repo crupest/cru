@@ -12,7 +12,7 @@
 #include "cru/ui/DebugFlags.hpp"
 #include "cru/ui/ShortcutHub.hpp"
 #include "cru/ui/UiEvent.hpp"
-#include "cru/ui/UiHost.hpp"
+#include "cru/ui/WindowHost.hpp"
 #include "cru/ui/render/CanvasRenderObject.hpp"
 #include "cru/ui/render/ScrollRenderObject.hpp"
 #include "cru/ui/render/TextRenderObject.hpp"
@@ -208,7 +208,7 @@ class TextControlService : public Object {
   }
 
   void ScrollToCaret() {
-    this->control_->GetUiHost()->RunAfterLayoutStable([this]() {
+    this->control_->GetWindowHost()->RunAfterLayoutStable([this]() {
       const auto caret_rect = this->GetTextRenderObject()->GetCaretRect();
       this->GetScrollRenderObject()->ScrollToContain(caret_rect,
                                                      Thickness{5.f});
@@ -408,7 +408,7 @@ class TextControlService : public Object {
   void GainFocusHandler(event::FocusChangeEventArgs& args) {
     CRU_UNUSED(args);
     if (editable_) {
-      UiHost* ui_host = this->control_->GetUiHost();
+      WindowHost* ui_host = this->control_->GetWindowHost();
       auto window = ui_host->GetNativeWindowResolver()->Resolve();
       if (window == nullptr) return;
       input_method_context_ =

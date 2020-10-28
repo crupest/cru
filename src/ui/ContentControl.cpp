@@ -12,16 +12,16 @@ void ContentControl::SetChild(Control* child) {
   Expects(!dynamic_cast<Window*>(child));  // Can't add a window as child.
   if (child == child_) return;
 
-  const auto host = GetUiHost();
+  const auto host = GetWindowHost();
   const auto old_child = child_;
   child_ = child;
   if (old_child) {
     old_child->_SetParent(nullptr);
-    old_child->_SetDescendantUiHost(nullptr);
+    old_child->_SetDescendantWindowHost(nullptr);
   }
   if (child) {
     child->_SetParent(this);
-    child->_SetDescendantUiHost(host);
+    child->_SetDescendantWindowHost(host);
   }
   OnChildChanged(old_child, child);
 }

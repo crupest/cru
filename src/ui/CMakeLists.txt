@@ -12,9 +12,9 @@ add_library(cru_ui STATIC
 	NoChildControl.cpp
 	ShortcutHub.cpp
 	UiEvent.cpp
-	UiHost.cpp
 	UiManager.cpp
 	Window.cpp
+	WindowHost.cpp
 	controls/Button.cpp
 	controls/Container.cpp
 	controls/FlexLayout.cpp
@@ -42,9 +42,9 @@ target_sources(cru_ui PUBLIC
 	${CRU_UI_INCLUDE_DIR}/NoChildControl.hpp
 	${CRU_UI_INCLUDE_DIR}/ShortcutHub.hpp
 	${CRU_UI_INCLUDE_DIR}/UiEvent.hpp
-	${CRU_UI_INCLUDE_DIR}/UiHost.hpp
 	${CRU_UI_INCLUDE_DIR}/UiManager.hpp
 	${CRU_UI_INCLUDE_DIR}/Window.hpp
+	${CRU_UI_INCLUDE_DIR}/WindowHost.hpp
 	${CRU_UI_INCLUDE_DIR}/controls/Base.hpp
 	${CRU_UI_INCLUDE_DIR}/controls/Button.hpp
 	${CRU_UI_INCLUDE_DIR}/controls/Container.hpp

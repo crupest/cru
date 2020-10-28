@@ -6,7 +6,7 @@
 namespace cru::ui::render {
 class WindowRenderObject : public RenderObject {
  public:
-  WindowRenderObject(UiHost* host);
+  WindowRenderObject(WindowHost* host);
   WindowRenderObject(const WindowRenderObject& other) = delete;
   WindowRenderObject(WindowRenderObject&& other) = delete;
   WindowRenderObject& operator=(const WindowRenderObject& other) = delete;

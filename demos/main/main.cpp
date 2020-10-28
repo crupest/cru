@@ -2,7 +2,7 @@
 #include "cru/platform/native/UiApplication.hpp"
 #include "cru/platform/native/Window.hpp"
 #include "cru/ui/Base.hpp"
-#include "cru/ui/UiHost.hpp"
+#include "cru/ui/WindowHost.hpp"
 #include "cru/ui/Window.hpp"
 #include "cru/ui/controls/Button.hpp"
 #include "cru/ui/controls/FlexLayout.hpp"
@@ -45,7 +45,7 @@ int main() {
   const auto text_box = TextBox::Create();
   flex_layout->AddChild(text_box, 2);
 
-  window->GetUiHost()->GetNativeWindowResolver()->Resolve()->SetVisible(true);
+  window->GetWindowHost()->GetNativeWindowResolver()->Resolve()->SetVisible(true);
 
   return application->Run();
 }

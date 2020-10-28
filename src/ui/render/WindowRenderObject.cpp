@@ -2,10 +2,10 @@
 
 #include "../Helper.hpp"
 #include "cru/platform/graph/util/Painter.hpp"
-#include "cru/ui/UiHost.hpp"
+#include "cru/ui/WindowHost.hpp"
 
 namespace cru::ui::render {
-WindowRenderObject::WindowRenderObject(UiHost* host) {
+WindowRenderObject::WindowRenderObject(WindowHost* host) {
   SetChildMode(ChildMode::Single);
   ui_host_ = host;
   after_layout_event_guard_.Reset(host->AfterLayoutEvent()->AddHandler(

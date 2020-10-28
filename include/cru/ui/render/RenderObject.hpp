@@ -64,7 +64,7 @@ class RenderObject : public Object {
   Control* GetAttachedControl() const { return control_; }
   void SetAttachedControl(Control* new_control) { control_ = new_control; }
 
-  UiHost* GetUiHost() const { return ui_host_; }
+  WindowHost* GetWindowHost() const { return ui_host_; }
 
   RenderObject* GetParent() const { return parent_; }
 
@@ -198,11 +198,11 @@ class RenderObject : public Object {
  private:
   void SetParent(RenderObject* new_parent);
 
-  void SetRenderHostRecursive(UiHost* host);
+  void SetRenderHostRecursive(WindowHost* host);
 
  private:
   Control* control_ = nullptr;
-  UiHost* ui_host_ = nullptr;
+  WindowHost* ui_host_ = nullptr;
 
   RenderObject* parent_ = nullptr;
   std::vector<RenderObject*> children_{};
