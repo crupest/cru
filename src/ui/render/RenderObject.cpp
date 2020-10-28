@@ -41,6 +41,12 @@ void RenderObject::RemoveChild(const Index position) {
   OnRemoveChild(removed_child, position);
 }
 
+void RenderObject::TraverseDescendants(
+    const std::function<void(RenderObject*)>& action) {
+  action(this);
+  for (auto child : children_) child->TraverseDescendants(action);
+}
+
 Point RenderObject::GetTotalOffset() const {
   Point result{};
   const RenderObject* render_object = this;

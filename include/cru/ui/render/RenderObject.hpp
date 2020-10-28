@@ -74,6 +74,8 @@ class RenderObject : public Object {
   void AddChild(RenderObject* render_object, Index position);
   void RemoveChild(Index position);
 
+  void TraverseDescendants(const std::function<void(RenderObject*)>& action);
+
   // Offset from parent's lefttop to lefttop of this render object. Margin is
   // accounted for.
   Point GetOffset() const { return offset_; }

@@ -184,8 +184,12 @@ void WindowHost::Relayout(const Size& available_size) {
       render::MeasureSize::NotSpecified());
   root_render_object_->Layout(Point{});
   for (auto& action : after_layout_stable_action_) action();
-  after_layout_stable_action_.clear();
   after_layout_event_.Raise(AfterLayoutEventArgs{});
+  root_render_object_->TraverseDescendants(
+      [](render::RenderObject* render_object) {
+        render_object->OnAfterLayout();
+      });
+  after_layout_stable_action_.clear();
   if constexpr (debug_flags::layout)
     log::TagDebug(log_tag, u"A relayout is finished.");
 }
