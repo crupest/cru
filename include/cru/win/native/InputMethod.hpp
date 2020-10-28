@@ -72,31 +72,16 @@ class WinInputMethodContext : public WinNativeResource,
 
   std::u16string GetResultString();
 
-  std::optional<AutoHIMC> TryGetHIMC();
+  AutoHIMC GetHIMC();
 
  private:
-  std::shared_ptr<INativeWindowResolver> native_window_resolver_;
+  WinNativeWindow* native_window_;
 
-  std::vector<EventRevokerGuard> event_revoker_guards_;
+  EventRevokerListGuard event_guard_;
 
   Event<std::nullptr_t> composition_start_event_;
   Event<std::nullptr_t> composition_end_event_;
   Event<std::nullptr_t> composition_event_;
   Event<std::u16string_view> text_event_;
-};
-
-class WinInputMethodManager : public WinNativeResource,
-                              public virtual IInputMethodManager {
- public:
-  WinInputMethodManager(WinUiApplication* application);
-
-  CRU_DELETE_COPY(WinInputMethodManager)
-  CRU_DELETE_MOVE(WinInputMethodManager)
-
-  ~WinInputMethodManager() override;
-
- public:
-  std::unique_ptr<IInputMethodContext> GetContext(
-      INativeWindow* window) override;
 };
 }  // namespace cru::platform::native::win

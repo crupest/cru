@@ -100,15 +100,13 @@ std::vector<INativeWindow*> WinUiApplication::GetAllWindow() {
   return result;
 }
 
-std::shared_ptr<INativeWindowResolver> WinUiApplication::CreateWindow(
-    INativeWindow* parent) {
+INativeWindow* WinUiApplication::CreateWindow(INativeWindow* parent) {
   WinNativeWindow* p = nullptr;
   if (parent != nullptr) {
     p = CheckPlatform<WinNativeWindow>(parent, GetPlatformId());
   }
-  return (new WinNativeWindow(this, window_manager_->GetGeneralWindowClass(),
-                              WS_OVERLAPPEDWINDOW, p))
-      ->GetResolver();
+  return new WinNativeWindow(this, window_manager_->GetGeneralWindowClass(),
+                             WS_OVERLAPPEDWINDOW, p);
 }
 
 cru::platform::graph::IGraphFactory* WinUiApplication::GetGraphFactory() {

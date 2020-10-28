@@ -1,5 +1,4 @@
 #pragma once
-#include "../Resource.hpp"
 #include "Base.hpp"
 
 #include "cru/common/Event.hpp"
@@ -51,11 +50,6 @@ struct IInputMethodContext : virtual INativeResource {
   virtual IEvent<std::nullptr_t>* CompositionEvent() = 0;
 
   virtual IEvent<std::u16string_view>* TextEvent() = 0;
-};
-
-struct IInputMethodManager : virtual INativeResource {
-  virtual std::unique_ptr<IInputMethodContext> GetContext(
-      INativeWindow* window) = 0;
 };
 }  // namespace cru::platform::native
 

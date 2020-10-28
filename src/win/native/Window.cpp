@@ -3,23 +3,24 @@
 #include "WindowManager.hpp"
 #include "cru/common/Logger.hpp"
 #include "cru/platform/Check.hpp"
+#include "cru/platform/native/Base.hpp"
 #include "cru/win/graph/direct/WindowPainter.hpp"
 #include "cru/win/native/Cursor.hpp"
 #include "cru/win/native/Exception.hpp"
+#include "cru/win/native/InputMethod.hpp"
 #include "cru/win/native/Keyboard.hpp"
 #include "cru/win/native/UiApplication.hpp"
 #include "cru/win/native/WindowClass.hpp"
 
 #include <imm.h>
 #include <windowsx.h>
+#include <memory>
 
 namespace cru::platform::native::win {
 WinNativeWindow::WinNativeWindow(WinUiApplication* application,
                                  WindowClass* window_class, DWORD window_style,
                                  WinNativeWindow* parent)
-    : application_(application),
-      resolver_(std::make_shared<WinNativeWindowResolver>(this)),
-      parent_window_(parent) {
+    : application_(application), parent_window_(parent) {
   Expects(application);  // application can't be null.
 
   if (parent != nullptr) {
@@ -52,6 +53,8 @@ WinNativeWindow::WinNativeWindow(WinUiApplication* application,
       std::make_unique<graph::win::direct::D2DWindowRenderTarget>(
           application->GetDirectFactory(), hwnd_);
   window_render_target_->SetDpi(dpi_, dpi_);
+
+  input_method_context_ = std::make_unique<WinInputMethodContext>(this);
 }
 
 WinNativeWindow::~WinNativeWindow() {
@@ -59,7 +62,6 @@ WinNativeWindow::~WinNativeWindow() {
     sync_flag_ = true;
     Close();
   }
-  resolver_->Reset();
 }
 
 void WinNativeWindow::Close() { ::DestroyWindow(hwnd_); }
@@ -195,6 +197,10 @@ void WinNativeWindow::SetCursor(std::shared_ptr<ICursor> cursor) {
       point.x <= rightbottom.x && point.y <= rightbottom.y) {
     ::SetCursor(cursor_->GetHandle());
   }
+}
+
+IInputMethodContext* WinNativeWindow::GetInputMethodContext() {
+  return static_cast<IInputMethodContext*>(input_method_context_.get());
 }
 
 bool WinNativeWindow::HandleNativeWindowMessage(HWND hwnd, UINT msg,
@@ -443,16 +449,4 @@ void WinNativeWindow::OnKeyUpInternal(int virtual_code) {
 void WinNativeWindow::OnActivatedInternal() {}
 
 void WinNativeWindow::OnDeactivatedInternal() {}
-
-void WinNativeWindowResolver::Reset() {
-  Expects(window_);  // already reset, can't reset again
-  window_ = nullptr;
-}
-
-WinNativeWindow* Resolve(gsl::not_null<INativeWindowResolver*> resolver) {
-  const auto window = resolver->Resolve();
-  return window == nullptr ? nullptr
-                           : CheckPlatform<WinNativeWindow>(
-                                 window, WinNativeResource::k_platform_id);
-}  // namespace cru::platform::native::win
 }  // namespace cru::platform::native::win

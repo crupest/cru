@@ -1,6 +1,6 @@
 #pragma once
-#include "../Resource.hpp"
 #include "Base.hpp"
+
 #include "cru/common/Event.hpp"
 
 #include <string_view>
@@ -8,14 +8,7 @@
 namespace cru::platform::native {
 // Represents a native window, which exposes some low-level events and
 // operations.
-//
-// Usually you save an INativeWindowResolver after creating a window. Because
-// window may be destroyed when user do certain actions like click the close
-// button. Then the INativeWindow instance is destroyed and
-// INativeWindowResolver::Resolve return nullptr to indicate the fact.
 struct INativeWindow : virtual INativeResource {
-  virtual std::shared_ptr<INativeWindowResolver> GetResolver() = 0;
-
   virtual void Close() = 0;
 
   virtual INativeWindow* GetParent() = 0;
@@ -47,6 +40,7 @@ struct INativeWindow : virtual INativeResource {
   // Remember to call EndDraw on return value and destroy it.
   virtual std::unique_ptr<graph::IPainter> BeginPaint() = 0;
 
+  // Don't use this instance after receive this event.
   virtual IEvent<std::nullptr_t>* DestroyEvent() = 0;
   virtual IEvent<std::nullptr_t>* PaintEvent() = 0;
   virtual IEvent<Size>* ResizeEvent() = 0;
@@ -57,11 +51,7 @@ struct INativeWindow : virtual INativeResource {
   virtual IEvent<NativeMouseButtonEventArgs>* MouseUpEvent() = 0;
   virtual IEvent<NativeKeyEventArgs>* KeyDownEvent() = 0;
   virtual IEvent<NativeKeyEventArgs>* KeyUpEvent() = 0;
-};
 
-// See INativeWindow for more info.
-struct INativeWindowResolver : virtual INativeResource {
-  // Think twice before you save the return value.
-  virtual INativeWindow* Resolve() = 0;
+  virtual IInputMethodContext* GetInputMethodContext() = 0;
 };
 }  // namespace cru::platform::native

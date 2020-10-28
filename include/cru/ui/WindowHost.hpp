@@ -8,30 +8,6 @@
 
 namespace cru::ui {
 struct AfterLayoutEventArgs {};
-
-// The host of all controls and render objects.
-//
-// 3 situations on destroy:
-// 1. Native window destroyed, IsRetainAfterDestroy: false:
-// OnNativeDestroy(set native_window_destroyed_ to true, call ~Window due to
-// deleting_ is false and IsRetainAfterDestroy is false) -> ~Window ->
-// ~WindowHost(not destroy native window repeatedly due to native_window_destroyed_
-// is true)
-// 2. Native window destroyed, IsRetainAfterDestroy: true:
-// OnNativeDestroy(set native_window_destroyed_ to true, not call ~Window
-// because deleting_ is false and IsRetainAfterDestroy is true)
-// then, ~Window -> ~WindowHost(not destroy native window repeatedly due to
-// native_window_destroyed_ is true)
-// 3. Native window not destroyed, ~Window is called:
-// ~Window -> ~WindowHost(set deleting_ to true, destroy native window
-// due to native_window_destroyed is false) -> OnNativeDestroy(not call ~Window
-// due to deleting_ is true and IsRetainAfterDestroy is whatever)
-// In conclusion:
-// 1. Set native_window_destroyed_ to true at the beginning of OnNativeDestroy.
-// 2. Set deleting_ to true at the beginning of ~WindowHost.
-// 3. Destroy native window when native_window_destroy_ is false in ~Window.
-// 4. Delete Window when deleting_ is false and IsRetainAfterDestroy is false in
-// OnNativeDestroy.
 class WindowHost : public Object, public SelfResolvable<WindowHost> {
   CRU_DEFINE_CLASS_LOG_TAG(u"cru::ui::WindowHost")
 

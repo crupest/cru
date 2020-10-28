@@ -3,6 +3,7 @@
 
 #include "WindowNativeMessageEventArgs.hpp"
 #include "cru/platform/GraphBase.hpp"
+#include "cru/platform/native/Base.hpp"
 #include "cru/platform/native/Window.hpp"
 #include "cru/win/graph/direct/WindowRenderTarget.hpp"
 
@@ -22,10 +23,6 @@ class WinNativeWindow : public WinNativeResource, public virtual INativeWindow {
   ~WinNativeWindow() override;
 
  public:
-  std::shared_ptr<INativeWindowResolver> GetResolver() override {
-    return std::static_pointer_cast<INativeWindowResolver>(resolver_);
-  }
-
   void Close() override;
 
   WinNativeWindow* GetParent() override { return parent_window_; }
@@ -80,6 +77,8 @@ class WinNativeWindow : public WinNativeResource, public virtual INativeWindow {
   IEvent<WindowNativeMessageEventArgs&>* NativeMessageEvent() {
     return &native_message_event_;
   }
+
+  IInputMethodContext* GetInputMethodContext() override;
 
   // Get the handle of the window. Return null if window is invalid.
   HWND GetWindowHandle() const { return hwnd_; }
@@ -148,8 +147,6 @@ class WinNativeWindow : public WinNativeResource, public virtual INativeWindow {
   // again.
   bool sync_flag_ = false;
 
-  std::shared_ptr<WinNativeWindowResolver> resolver_;
-
   HWND hwnd_;
   WinNativeWindow* parent_window_;
 
@@ -162,6 +159,8 @@ class WinNativeWindow : public WinNativeResource, public virtual INativeWindow {
       window_render_target_;
 
   std::shared_ptr<WinCursor> cursor_;
+
+  std::unique_ptr<WinInputMethodContext> input_method_context_;
 
   Event<std::nullptr_t> destroy_event_;
   Event<std::nullptr_t> paint_event_;
@@ -176,28 +175,4 @@ class WinNativeWindow : public WinNativeResource, public virtual INativeWindow {
 
   Event<WindowNativeMessageEventArgs&> native_message_event_;
 };
-
-class WinNativeWindowResolver : public WinNativeResource,
-                                public virtual INativeWindowResolver {
-  friend WinNativeWindow::~WinNativeWindow();
-
- public:
-  WinNativeWindowResolver(WinNativeWindow* window) : window_(window) {}
-
-  CRU_DELETE_COPY(WinNativeWindowResolver)
-  CRU_DELETE_MOVE(WinNativeWindowResolver)
-
-  ~WinNativeWindowResolver() override = default;
-
- public:
-  INativeWindow* Resolve() override { return window_; }
-
- private:
-  void Reset();
-
- private:
-  WinNativeWindow* window_;
-};
-
-WinNativeWindow* Resolve(gsl::not_null<INativeWindowResolver*> resolver);
 }  // namespace cru::platform::native::win

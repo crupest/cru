@@ -1,6 +1,7 @@
 #pragma once
 #include "Resource.hpp"
 
+#include "cru/platform/native/Base.hpp"
 #include "cru/platform/native/UiApplication.hpp"
 
 #include <memory>
@@ -40,8 +41,7 @@ class WinUiApplication : public WinNativeResource,
   void CancelTimer(long long id) override;
 
   std::vector<INativeWindow*> GetAllWindow() override;
-  std::shared_ptr<INativeWindowResolver> CreateWindow(
-      INativeWindow* parent) override;
+  INativeWindow* CreateWindow(INativeWindow* parent) override;
 
   cru::platform::graph::IGraphFactory* GetGraphFactory() override;
 
@@ -50,7 +50,6 @@ class WinUiApplication : public WinNativeResource,
   }
 
   ICursorManager* GetCursorManager() override;
-  IInputMethodManager* GetInputMethodManager() override;
 
   HINSTANCE GetInstanceHandle() const { return instance_handle_; }
 
@@ -69,7 +68,6 @@ class WinUiApplication : public WinNativeResource,
   std::unique_ptr<WindowManager> window_manager_;
 
   std::unique_ptr<WinCursorManager> cursor_manager_;
-  std::unique_ptr<WinInputMethodManager> input_method_manager_;
 
   std::vector<std::function<void()>> quit_handlers_;
 };

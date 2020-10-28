@@ -145,30 +145,23 @@ CompositionText GetCompositionInfo(HIMC imm_context) {
 
 WinInputMethodContext::WinInputMethodContext(
     gsl::not_null<WinNativeWindow*> window)
-    : native_window_resolver_(window->GetResolver()) {
-  event_revoker_guards_.push_back(
-      EventRevokerGuard(window->NativeMessageEvent()->AddHandler(
-          std::bind(&WinInputMethodContext::OnWindowNativeMessage, this,
-                    std::placeholders::_1))));
+    : native_window_(window) {
+  event_guard_ += window->NativeMessageEvent()->AddHandler(
+      std::bind(&WinInputMethodContext::OnWindowNativeMessage, this,
+                std::placeholders::_1));
 }
 
 WinInputMethodContext::~WinInputMethodContext() {}
 
 void WinInputMethodContext::EnableIME() {
-  const auto native_window = Resolve(native_window_resolver_.get());
-  if (native_window == nullptr) return;
-  const auto hwnd = native_window->GetWindowHandle();
-
+  const auto hwnd = native_window_->GetWindowHandle();
   if (::ImmAssociateContextEx(hwnd, nullptr, IACE_DEFAULT) == FALSE) {
     log::TagWarn(log_tag, u"Failed to enable ime.");
   }
 }
 
 void WinInputMethodContext::DisableIME() {
-  const auto native_window = Resolve(native_window_resolver_.get());
-  if (native_window == nullptr) return;
-  const auto hwnd = native_window->GetWindowHandle();
-
+  const auto hwnd = native_window_->GetWindowHandle();
   AutoHIMC himc{hwnd};
 
   if (!::ImmNotifyIME(himc.Get(), NI_COMPOSITIONSTR, CPS_COMPLETE, 0)) {
@@ -182,46 +175,32 @@ void WinInputMethodContext::DisableIME() {
 }
 
 void WinInputMethodContext::CompleteComposition() {
-  auto optional_himc = TryGetHIMC();
-  if (!optional_himc.has_value()) return;
-  auto himc = *std::move(optional_himc);
-
+  auto himc = GetHIMC();
   if (!::ImmNotifyIME(himc.Get(), NI_COMPOSITIONSTR, CPS_COMPLETE, 0)) {
     log::TagWarn(log_tag, u"Failed to complete composition.");
   }
 }
 
 void WinInputMethodContext::CancelComposition() {
-  auto optional_himc = TryGetHIMC();
-  if (!optional_himc.has_value()) return;
-  auto himc = *std::move(optional_himc);
-
+  auto himc = GetHIMC();
   if (!::ImmNotifyIME(himc.Get(), NI_COMPOSITIONSTR, CPS_CANCEL, 0)) {
     log::TagWarn(log_tag, u"Failed to complete composition.");
   }
 }
 
 CompositionText WinInputMethodContext::GetCompositionText() {
-  auto optional_himc = TryGetHIMC();
-  if (!optional_himc.has_value()) return CompositionText{};
-  auto himc = *std::move(optional_himc);
-
+  auto himc = GetHIMC();
   return GetCompositionInfo(himc.Get());
 }
 
 void WinInputMethodContext::SetCandidateWindowPosition(const Point& point) {
-  auto optional_himc = TryGetHIMC();
-  if (!optional_himc.has_value()) return;
-  auto himc = *std::move(optional_himc);
+  auto himc = GetHIMC();
 
   ::CANDIDATEFORM form;
   form.dwIndex = 1;
   form.dwStyle = CFS_CANDIDATEPOS;
 
-  auto window =
-      dynamic_cast<WinNativeWindow*>(this->native_window_resolver_->Resolve());
-  form.ptCurrentPos =
-      window == nullptr ? POINT{0, 0} : window->DipToPixel(point);
+  form.ptCurrentPos = native_window_->DipToPixel(point);
 
   if (!::ImmSetCandidateWindow(himc.Get(), &form))
     log::TagDebug(log_tag,
@@ -287,29 +266,13 @@ void WinInputMethodContext::OnWindowNativeMessage(
 }
 
 std::u16string WinInputMethodContext::GetResultString() {
-  auto optional_himc = TryGetHIMC();
-  if (!optional_himc.has_value()) return u"";
-  auto himc = *std::move(optional_himc);
-
+  auto himc = GetHIMC();
   auto result = win::GetResultString(himc.Get());
   return result;
 }
 
-std::optional<AutoHIMC> WinInputMethodContext::TryGetHIMC() {
-  const auto native_window = Resolve(native_window_resolver_.get());
-  if (native_window == nullptr) return std::nullopt;
-  const auto hwnd = native_window->GetWindowHandle();
+AutoHIMC WinInputMethodContext::GetHIMC() {
+  const auto hwnd = native_window_->GetWindowHandle();
   return AutoHIMC{hwnd};
-}
-
-WinInputMethodManager::WinInputMethodManager(WinUiApplication*) {}
-
-WinInputMethodManager::~WinInputMethodManager() {}
-
-std::unique_ptr<IInputMethodContext> WinInputMethodManager::GetContext(
-    INativeWindow* window) {
-  Expects(window);
-  const auto w = CheckPlatform<WinNativeWindow>(window, GetPlatformId());
-  return std::make_unique<WinInputMethodContext>(w);
 }
 }  // namespace cru::platform::native::win

@@ -1,7 +1,5 @@
 #pragma once
-#include "../Resource.hpp"
 #include "Base.hpp"
-#include "cru/common/Base.hpp"
 
 #include <chrono>
 #include <functional>
@@ -45,13 +43,11 @@ struct IUiApplication : public virtual INativeResource {
   virtual void CancelTimer(long long id) = 0;
 
   virtual std::vector<INativeWindow*> GetAllWindow() = 0;
-  virtual std::shared_ptr<INativeWindowResolver> CreateWindow(
-      INativeWindow* parent) = 0;
+  virtual INativeWindow* CreateWindow(INativeWindow* parent) = 0;
 
   virtual cru::platform::graph::IGraphFactory* GetGraphFactory() = 0;
 
   virtual ICursorManager* GetCursorManager() = 0;
-  virtual IInputMethodManager* GetInputMethodManager() = 0;
 };
 
 class TimerAutoCanceler {

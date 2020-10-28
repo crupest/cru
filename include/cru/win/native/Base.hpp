@@ -11,8 +11,6 @@ class WinCursorManager;
 class WindowClass;
 class WindowManager;
 class WinNativeWindow;
-class WinNativeWindowResolver;
 class WinUiApplication;
-class WinInputMethodManager;
-class WinInputMethodContextRef;
+class WinInputMethodContext;
 }  // namespace cru::platform::native::win

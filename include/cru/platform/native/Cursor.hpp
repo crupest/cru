@@ -1,5 +1,4 @@
 #pragma once
-#include "../Resource.hpp"
 #include "Base.hpp"
 
 #include <memory>

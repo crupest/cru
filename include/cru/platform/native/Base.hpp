@@ -1,22 +1,17 @@
 #pragma once
+#include "Keyboard.hpp"
 #include "cru/common/Base.hpp"
 #include "cru/common/Bitmask.hpp"
 #include "cru/platform/graph/Base.hpp"
-#include "Keyboard.hpp"
+
+#include "../Resource.hpp"
 
 namespace cru::platform::native {
 struct ICursor;
 struct ICursorManager;
 struct IUiApplication;
 struct INativeWindow;
-struct INativeWindowResolver;
-struct IInputMethodManager;
 struct IInputMethodContext;
-
-struct Dpi {
-  float x;
-  float y;
-};
 
 namespace details {
 struct TagMouseButton {};

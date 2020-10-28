@@ -1,6 +1,8 @@
 #pragma once
-#include <string_view>
 #include "cru/common/Bitmask.hpp"
+
+#include <string>
+#include <string_view>
 
 namespace cru::platform::native {
 // Because of the complexity of keyboard layout, I only add code in US keyboard
