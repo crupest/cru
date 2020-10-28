@@ -218,7 +218,11 @@ void WinInputMethodContext::SetCandidateWindowPosition(const Point& point) {
   ::CANDIDATEFORM form;
   form.dwIndex = 1;
   form.dwStyle = CFS_CANDIDATEPOS;
-  form.ptCurrentPos = DipToPi(point);
+
+  auto window =
+      dynamic_cast<WinNativeWindow*>(this->native_window_resolver_->Resolve());
+  form.ptCurrentPos =
+      window == nullptr ? POINT{0, 0} : window->DipToPixel(point);
 
   if (!::ImmSetCandidateWindow(himc.Get(), &form))
     log::TagDebug(log_tag,

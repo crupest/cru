@@ -2,6 +2,7 @@
 #include "Resource.hpp"
 
 #include "WindowNativeMessageEventArgs.hpp"
+#include "cru/platform/GraphBase.hpp"
 #include "cru/platform/native/Window.hpp"
 
 #include <memory>
@@ -89,6 +90,28 @@ class WinNativeWindow : public WinNativeResource, public virtual INativeWindow {
     return window_render_target_.get();
   }
 
+  //*************** region: dpi ***************
+  float GetDpi() const { return dpi_; }
+
+  inline int DipToPixel(const float dip) {
+    return static_cast<int>(dip * GetDpi() / 96.0f);
+  }
+
+  inline POINT DipToPixel(const Point& dip_point) {
+    POINT result;
+    result.x = DipToPixel(dip_point.x);
+    result.y = DipToPixel(dip_point.y);
+    return result;
+  }
+
+  inline float PixelToDip(const int pixel) {
+    return static_cast<float>(pixel) * 96.0f / GetDpi();
+  }
+
+  inline Point PixelToDip(const POINT& pi_point) {
+    return Point(PixelToDip(pi_point.x), PixelToDip(pi_point.y));
+  }
+
  private:
   // Get the client rect in pixel.
   RECT GetClientRectPixel();
@@ -128,6 +151,8 @@ class WinNativeWindow : public WinNativeResource, public virtual INativeWindow {
 
   HWND hwnd_;
   WinNativeWindow* parent_window_;
+
+  float dpi_;
 
   bool has_focus_ = false;
   bool is_mouse_in_ = false;

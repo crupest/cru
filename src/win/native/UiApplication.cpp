@@ -29,6 +29,8 @@ WinUiApplication::WinUiApplication() {
   if (!instance_handle_)
     throw Win32Error("Failed to get module(instance) handle.");
 
+  ::SetThreadDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE);
+
   log::Logger::GetInstance()->AddSource(
       std::make_unique<::cru::platform::win::WinDebugLoggerSource>());
   log::Logger::GetInstance()->AddSource(

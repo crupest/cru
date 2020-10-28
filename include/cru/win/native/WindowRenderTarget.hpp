@@ -10,7 +10,7 @@ namespace cru::platform::native::win {
 class WindowRenderTarget : public Object {
  public:
   WindowRenderTarget(graph::win::direct::DirectGraphFactory* factory,
-                     HWND hwnd);
+                     WinNativeWindow* window);
 
   CRU_DELETE_COPY(WindowRenderTarget)
   CRU_DELETE_MOVE(WindowRenderTarget)
@@ -39,6 +39,7 @@ class WindowRenderTarget : public Object {
   void CreateTargetBitmap();
 
  private:
+  WinNativeWindow* window_;
   graph::win::direct::DirectGraphFactory* factory_;
   Microsoft::WRL::ComPtr<ID2D1DeviceContext> d2d1_device_context_;
   Microsoft::WRL::ComPtr<IDXGISwapChain1> dxgi_swap_chain_;

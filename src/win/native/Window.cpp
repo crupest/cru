@@ -39,13 +39,19 @@ WinNativeWindow::WinNativeWindow(WinUiApplication* application,
   if (hwnd_ == nullptr)
     throw Win32Error(::GetLastError(), "Failed to create window.");
 
+  auto dpi = ::GetDpiForWindow(hwnd_);
+  if (dpi == 0)
+    throw Win32Error(::GetLastError(), "Failed to get dpi of window.");
+  dpi_ = static_cast<float>(dpi);
+  log::Debug(u"Dpi of window is {}.", dpi_);
+
   window_manager->RegisterWindow(hwnd_, this);
 
   SetCursor(application->GetCursorManager()->GetSystemCursor(
       cru::platform::native::SystemCursorType::Arrow));
 
   window_render_target_ = std::make_unique<WindowRenderTarget>(
-      application->GetDirectFactory(), hwnd_);
+      application->GetDirectFactory(), this);
 }
 
 WinNativeWindow::~WinNativeWindow() {
@@ -65,7 +71,7 @@ void WinNativeWindow::SetVisible(bool is_visible) {
 }
 Size WinNativeWindow::GetClientSize() {
   const auto pixel_rect = GetClientRectPixel();
-  return Size(PixelToDipX(pixel_rect.right), PixelToDipY(pixel_rect.bottom));
+  return Size(PixelToDip(pixel_rect.right), PixelToDip(pixel_rect.bottom));
 }
 
 void WinNativeWindow::SetClientSize(const Size& size) {
@@ -77,8 +83,8 @@ void WinNativeWindow::SetClientSize(const Size& size) {
   RECT rect;
   rect.left = 0;
   rect.top = 0;
-  rect.right = DipToPixelX(size.width);
-  rect.bottom = DipToPixelY(size.height);
+  rect.right = DipToPixel(size.width);
+  rect.bottom = DipToPixel(size.height);
   if (!AdjustWindowRectEx(&rect, window_style, FALSE, window_ex_style))
     throw Win32Error(::GetLastError(), "Failed to invoke AdjustWindowRectEx.");
 
@@ -92,14 +98,14 @@ Rect WinNativeWindow::GetWindowRect() {
   if (!::GetWindowRect(hwnd_, &rect))
     throw Win32Error(::GetLastError(), "Failed to invoke GetWindowRect.");
 
-  return Rect::FromVertices(PixelToDipX(rect.left), PixelToDipY(rect.top),
-                            PixelToDipX(rect.right), PixelToDipY(rect.bottom));
+  return Rect::FromVertices(PixelToDip(rect.left), PixelToDip(rect.top),
+                            PixelToDip(rect.right), PixelToDip(rect.bottom));
 }
 
 void WinNativeWindow::SetWindowRect(const Rect& rect) {
-  if (!SetWindowPos(hwnd_, nullptr, DipToPixelX(rect.left),
-                    DipToPixelY(rect.top), DipToPixelX(rect.GetRight()),
-                    DipToPixelY(rect.GetBottom()), SWP_NOZORDER))
+  if (!SetWindowPos(hwnd_, nullptr, DipToPixel(rect.left), DipToPixel(rect.top),
+                    DipToPixel(rect.GetRight()), DipToPixel(rect.GetBottom()),
+                    SWP_NOZORDER))
     throw Win32Error(::GetLastError(), "Failed to invoke SetWindowPos.");
 }
 
@@ -109,7 +115,7 @@ Point WinNativeWindow::GetMousePosition() {
     throw Win32Error(::GetLastError(), "Failed to get cursor position.");
   if (!::ScreenToClient(hwnd_, &p))
     throw Win32Error(::GetLastError(), "Failed to call ScreenToClient.");
-  return PiToDip(p);
+  return PixelToDip(p);
 }
 
 bool WinNativeWindow::CaptureMouse() {
@@ -360,7 +366,7 @@ void WinNativeWindow::OnResizeInternal(const int new_width,
                                        const int new_height) {
   if (!(new_width == 0 && new_height == 0)) {
     window_render_target_->ResizeBuffer(new_width, new_height);
-    resize_event_.Raise(Size{PixelToDipX(new_width), PixelToDipY(new_height)});
+    resize_event_.Raise(Size{PixelToDip(new_width), PixelToDip(new_height)});
   }
 }
 
@@ -389,7 +395,7 @@ void WinNativeWindow::OnMouseMoveInternal(const POINT point) {
     mouse_enter_leave_event_.Raise(MouseEnterLeaveType::Enter);
   }
 
-  mouse_move_event_.Raise(PiToDip(point));
+  mouse_move_event_.Raise(PixelToDip(point));
 }
 
 void WinNativeWindow::OnMouseLeaveInternal() {
@@ -399,13 +405,13 @@ void WinNativeWindow::OnMouseLeaveInternal() {
 
 void WinNativeWindow::OnMouseDownInternal(platform::native::MouseButton button,
                                           POINT point) {
-  const auto dip_point = PiToDip(point);
+  const auto dip_point = PixelToDip(point);
   mouse_down_event_.Raise({button, dip_point, RetrieveKeyMofifier()});
 }
 
 void WinNativeWindow::OnMouseUpInternal(platform::native::MouseButton button,
                                         POINT point) {
-  const auto dip_point = PiToDip(point);
+  const auto dip_point = PixelToDip(point);
   mouse_up_event_.Raise({button, dip_point, RetrieveKeyMofifier()});
 }
 

@@ -1,19 +1,24 @@
 #include "cru/win/native/WindowRenderTarget.hpp"
 
+#include "DpiUtil.hpp"
 #include "cru/win/graph/direct/Exception.hpp"
 #include "cru/win/graph/direct/Factory.hpp"
-#include "DpiUtil.hpp"
+#include "cru/win/native/Window.hpp"
 
 namespace cru::platform::native::win {
 using namespace cru::platform::graph::win::direct;
-WindowRenderTarget::WindowRenderTarget(DirectGraphFactory* factory, HWND hwnd)
-    : factory_(factory) {
+WindowRenderTarget::WindowRenderTarget(DirectGraphFactory* factory,
+                                       WinNativeWindow* window)
+    : window_(window), factory_(factory) {
   Expects(factory);
 
   const auto d3d11_device = factory->GetD3D11Device();
   const auto dxgi_factory = factory->GetDxgiFactory();
 
   d2d1_device_context_ = factory->CreateD2D1DeviceContext();
+  d2d1_device_context_->SetUnitMode(D2D1_UNIT_MODE_DIPS);
+  auto dpi = window_->GetDpi();
+  d2d1_device_context_->SetDpi(dpi, dpi);
 
   // Allocate a descriptor.
   DXGI_SWAP_CHAIN_DESC1 swap_chain_desc;
@@ -34,8 +39,8 @@ WindowRenderTarget::WindowRenderTarget(DirectGraphFactory* factory, HWND hwnd)
 
   // Get the final swap chain for this window from the DXGI factory.
   ThrowIfFailed(dxgi_factory->CreateSwapChainForHwnd(
-      d3d11_device, hwnd, &swap_chain_desc, nullptr, nullptr,
-      &dxgi_swap_chain_));
+      d3d11_device, window->GetWindowHandle(), &swap_chain_desc, nullptr,
+      nullptr, &dxgi_swap_chain_));
 
   CreateTargetBitmap();
 }
@@ -61,12 +66,12 @@ void WindowRenderTarget::CreateTargetBitmap() {
   ThrowIfFailed(
       dxgi_swap_chain_->GetBuffer(0, IID_PPV_ARGS(&dxgi_back_buffer)));
 
-  const auto dpi = GetDpi();  // TODO! DPI awareness.
+  auto dpi = window_->GetDpi();
 
   auto bitmap_properties = D2D1::BitmapProperties1(
       D2D1_BITMAP_OPTIONS_TARGET | D2D1_BITMAP_OPTIONS_CANNOT_DRAW,
       D2D1::PixelFormat(DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_IGNORE),
-      dpi.x, dpi.y);
+      dpi, dpi);
 
   // Get a D2D surface from the DXGI back buffer to use as the D2D render
   // target.
