@@ -1,5 +1,4 @@
 #pragma once
-#include <string>
 #include "../Helper.hpp"
 #include "cru/common/Logger.hpp"
 #include "cru/common/StringUtil.hpp"
@@ -10,13 +9,15 @@
 #include "cru/platform/native/Window.hpp"
 #include "cru/ui/Base.hpp"
 #include "cru/ui/Control.hpp"
+#include "cru/ui/DebugFlags.hpp"
 #include "cru/ui/ShortcutHub.hpp"
 #include "cru/ui/UiEvent.hpp"
 #include "cru/ui/UiHost.hpp"
 #include "cru/ui/render/CanvasRenderObject.hpp"
 #include "cru/ui/render/ScrollRenderObject.hpp"
 #include "cru/ui/render/TextRenderObject.hpp"
-#include "gsl/gsl_util"
+
+#include <string>
 
 namespace cru::ui::controls {
 constexpr int k_default_caret_blink_duration = 500;
@@ -262,15 +263,17 @@ class TextControlService : public Object {
 
   void StartSelection(Index start) {
     SetSelection(start);
-    log::TagDebug(log_tag, u"Text selection started, position: {}.", start);
+    if constexpr (debug_flags::text_service)
+      log::TagDebug(log_tag, u"Text selection started, position: {}.", start);
   }
 
   void UpdateSelection(Index new_end) {
     auto selection = GetSelection();
     selection.AdjustEnd(new_end);
     this->SetSelection(selection);
-    log::TagDebug(log_tag, u"Text selection updated, range: {}, {}.",
-                  selection.GetStart(), selection.GetEnd());
+    if constexpr (debug_flags::text_service)
+      log::TagDebug(log_tag, u"Text selection updated, range: {}, {}.",
+                    selection.GetStart(), selection.GetEnd());
   }
 
   template <typename TArgs>

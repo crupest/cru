@@ -6,6 +6,7 @@
 #include "cru/platform/native/InputMethod.hpp"
 #include "cru/platform/native/UiApplication.hpp"
 #include "cru/platform/native/Window.hpp"
+#include "cru/ui/DebugFlags.hpp"
 #include "cru/ui/Window.hpp"
 #include "cru/ui/render/MeasureRequirement.hpp"
 #include "cru/ui/render/WindowRenderObject.hpp"
@@ -156,7 +157,8 @@ void UiHost::InvalidatePaint() {
 }
 
 void UiHost::InvalidateLayout() {
-  log::TagDebug(log_tag, u"A relayout is requested.");
+  if constexpr (debug_flags::layout)
+    log::TagDebug(log_tag, u"A relayout is requested.");
   if (!need_layout_) {
     platform::native::IUiApplication::GetInstance()->SetImmediate(
         [resolver = this->CreateResolver()] {
@@ -196,7 +198,8 @@ void UiHost::Relayout() {
   for (auto& action : after_layout_stable_action_) action();
   after_layout_stable_action_.clear();
   after_layout_event_.Raise(AfterLayoutEventArgs{});
-  log::TagDebug(log_tag, u"A relayout is finished.");
+  if constexpr (debug_flags::layout)
+    log::TagDebug(log_tag, u"A relayout is finished.");
 }
 
 bool UiHost::RequestFocusFor(Control* control) {

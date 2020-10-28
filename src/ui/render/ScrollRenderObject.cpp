@@ -138,7 +138,6 @@ Size ScrollRenderObject::OnMeasureContent(const MeasureRequirement& requirement,
 
 void ScrollRenderObject::OnLayoutContent(const Rect& content_rect) {
   if (const auto child = GetSingleChild()) {
-    const auto child_size = child->GetSize();
     child->Layout(content_rect.GetLeftTop() - GetScrollOffset());
   }
 }

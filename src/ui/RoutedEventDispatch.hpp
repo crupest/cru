@@ -2,6 +2,7 @@
 #include "cru/ui/Control.hpp"
 
 #include "cru/common/Logger.hpp"
+#include "cru/ui/DebugFlags.hpp"
 
 #include <list>
 
@@ -24,25 +25,14 @@ void DispatchEvent(const std::u16string_view& event_name,
                    Control* const original_sender,
                    event::RoutedEvent<EventArgs>* (Control::*event_ptr)(),
                    Control* const last_receiver, Args&&... args) {
-#ifndef CRU_DEBUG
   CRU_UNUSED(event_name)
-#endif
-
-#ifdef CRU_DEBUG
-  bool do_log = true;
-  if (event_name == u"MouseMove") do_log = false;
-#endif
 
   if (original_sender == last_receiver) {
-    /*
-    #ifdef CRU_DEBUG
-        if (do_log)
-          log::Debug(
-              "Routed event {} no need to dispatch (original_sender == "
-              "last_receiver). Original sender is {}.",
-              event_name, original_sender->GetControlType());
-    #endif
-    */
+    if constexpr (debug_flags::routed_event)
+      log::Debug(
+          "Routed event {} no need to dispatch (original_sender == "
+          "last_receiver). Original sender is {}.",
+          event_name, original_sender->GetControlType());
     return;
   }
 
@@ -54,8 +44,7 @@ void DispatchEvent(const std::u16string_view& event_name,
     parent = parent->GetParent();
   }
 
-#ifdef CRU_DEBUG
-  if (do_log) {
+  if constexpr (debug_flags::routed_event) {
     std::u16string log = u"Dispatch routed event ";
     log += event_name;
     log += u". Path (parent first): ";
@@ -68,31 +57,24 @@ void DispatchEvent(const std::u16string_view& event_name,
     log += (*i)->GetControlType();
     log::Debug(log);
   }
-#endif
 
   auto handled = false;
 
-#ifdef CRU_DEBUG
   int count = 0;
-#endif
 
   // tunnel
   for (auto i = receive_list.crbegin(); i != receive_list.crend(); ++i) {
-#ifdef CRU_DEBUG
     count++;
-#endif
     EventArgs event_args(*i, original_sender, std::forward<Args>(args)...);
     static_cast<Event<EventArgs&>*>(((*i)->*event_ptr)()->Tunnel())
         ->Raise(event_args);
     if (event_args.IsHandled()) {
       handled = true;
-#ifdef CRU_DEBUG
-      if (do_log)
+      if constexpr (debug_flags::routed_event)
         log::Debug(
             u"Routed event is short-circuit in TUNNEL at {}-st control (count "
             u"from parent).",
             count);
-#endif
       break;
     }
   }
@@ -100,20 +82,16 @@ void DispatchEvent(const std::u16string_view& event_name,
   // bubble
   if (!handled) {
     for (auto i : receive_list) {
-#ifdef CRU_DEBUG
       count--;
-#endif
       EventArgs event_args(i, original_sender, std::forward<Args>(args)...);
       static_cast<Event<EventArgs&>*>((i->*event_ptr)()->Bubble())
           ->Raise(event_args);
       if (event_args.IsHandled()) {
-#ifdef CRU_DEBUG
-        if (do_log)
+        if constexpr (debug_flags::routed_event)
           log::Debug(
               u"Routed event is short-circuit in BUBBLE at {}-st control "
               u"(count from parent).",
               count);
-#endif
         break;
       }
     }
@@ -126,8 +104,7 @@ void DispatchEvent(const std::u16string_view& event_name,
         ->Raise(event_args);
   }
 
-#ifdef CRU_DEBUG
-  if (do_log) log::Debug(u"Routed event dispatch finished.");
-#endif
+  if constexpr (debug_flags::routed_event)
+    log::Debug(u"Routed event dispatch finished.");
 }
 }  // namespace cru::ui
