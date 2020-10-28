@@ -43,6 +43,7 @@ std::u16string_view TextRenderObject::GetTextView() const {
 
 void TextRenderObject::SetText(std::u16string new_text) {
   text_layout_->SetText(std::move(new_text));
+  InvalidateLayout();
 }
 
 void TextRenderObject::SetBrush(

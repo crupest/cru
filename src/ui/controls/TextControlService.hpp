@@ -411,7 +411,10 @@ class TextControlService : public Object {
       input_method_context_ =
           GetUiApplication()->GetInputMethodManager()->GetContext(window);
       input_method_context_->EnableIME();
-      auto sync = [this](std::nullptr_t) { this->SyncTextRenderObject(); };
+      auto sync = [this](std::nullptr_t) {
+        this->SyncTextRenderObject();
+        ScrollToCaret();
+      };
       input_method_context_->CompositionStartEvent()->AddHandler(
           [this](std::nullptr_t) { this->DeleteSelectedText(); });
       input_method_context_->CompositionEvent()->AddHandler(sync);
