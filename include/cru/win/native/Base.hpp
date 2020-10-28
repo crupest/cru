@@ -10,7 +10,6 @@ class WinCursor;
 class WinCursorManager;
 class WindowClass;
 class WindowManager;
-class WindowRenderTarget;
 class WinNativeWindow;
 class WinNativeWindowResolver;
 class WinUiApplication;

@@ -1,16 +1,14 @@
 #include "cru/win/native/Window.hpp"
 
-#include "DpiUtil.hpp"
-#include "WindowD2DPainter.hpp"
 #include "WindowManager.hpp"
 #include "cru/common/Logger.hpp"
 #include "cru/platform/Check.hpp"
+#include "cru/win/graph/direct/WindowPainter.hpp"
 #include "cru/win/native/Cursor.hpp"
 #include "cru/win/native/Exception.hpp"
 #include "cru/win/native/Keyboard.hpp"
 #include "cru/win/native/UiApplication.hpp"
 #include "cru/win/native/WindowClass.hpp"
-#include "cru/win/native/WindowRenderTarget.hpp"
 
 #include <imm.h>
 #include <windowsx.h>
@@ -50,8 +48,10 @@ WinNativeWindow::WinNativeWindow(WinUiApplication* application,
   SetCursor(application->GetCursorManager()->GetSystemCursor(
       cru::platform::native::SystemCursorType::Arrow));
 
-  window_render_target_ = std::make_unique<WindowRenderTarget>(
-      application->GetDirectFactory(), this);
+  window_render_target_ =
+      std::make_unique<graph::win::direct::D2DWindowRenderTarget>(
+          application->GetDirectFactory(), hwnd_);
+  window_render_target_->SetDpi(dpi_, dpi_);
 }
 
 WinNativeWindow::~WinNativeWindow() {
@@ -137,7 +137,8 @@ void WinNativeWindow::RequestRepaint() {
 }
 
 std::unique_ptr<graph::IPainter> WinNativeWindow::BeginPaint() {
-  return std::make_unique<WindowD2DPainter>(window_render_target_.get());
+  return std::make_unique<graph::win::direct::D2DWindowPainter>(
+      window_render_target_.get());
 }
 
 void WinNativeWindow::SetCursor(std::shared_ptr<ICursor> cursor) {
@@ -334,6 +335,15 @@ bool WinNativeWindow::HandleNativeWindowMessage(HWND hwnd, UINT msg,
     case WM_IME_COMPOSITION:
       *result = 0;
       return true;
+    case WM_DPICHANGED: {
+      dpi_ = static_cast<float>(LOWORD(w_param));
+      const RECT* suggest_rect = reinterpret_cast<const RECT*>(l_param);
+      window_render_target_->SetDpi(dpi_, dpi_);
+      SetWindowPos(hwnd_, NULL, suggest_rect->left, suggest_rect->top,
+                   suggest_rect->right - suggest_rect->left,
+                   suggest_rect->bottom - suggest_rect->top,
+                   SWP_NOZORDER | SWP_NOACTIVATE);
+    }
     default:
       return false;
   }

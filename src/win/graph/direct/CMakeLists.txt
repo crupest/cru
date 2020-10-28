@@ -8,6 +8,8 @@ add_library(cru_win_graph_direct STATIC
 	Painter.cpp
 	Resource.cpp
 	TextLayout.cpp
+	WindowPainter.cpp
+	WindowRenderTarget.cpp
 )
 target_sources(cru_win_graph_direct PUBLIC
 	${CRU_WIN_GRAPH_DIRECT_INCLUDE_DIR}/Brush.hpp
@@ -20,6 +22,8 @@ target_sources(cru_win_graph_direct PUBLIC
 	${CRU_WIN_GRAPH_DIRECT_INCLUDE_DIR}/Painter.hpp
 	${CRU_WIN_GRAPH_DIRECT_INCLUDE_DIR}/Resource.hpp
 	${CRU_WIN_GRAPH_DIRECT_INCLUDE_DIR}/TextLayout.hpp
+	${CRU_WIN_GRAPH_DIRECT_INCLUDE_DIR}/WindowPainter.hpp
+	${CRU_WIN_GRAPH_DIRECT_INCLUDE_DIR}/WindowRenderTarget.hpp
 )
 target_link_libraries(cru_win_graph_direct PUBLIC D3D11 D2d1 DWrite)
 target_link_libraries(cru_win_graph_direct PUBLIC cru_win_base cru_platform_graph)

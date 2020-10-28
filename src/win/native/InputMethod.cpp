@@ -1,6 +1,5 @@
 #include "cru/win/native/InputMethod.hpp"
 
-#include "DpiUtil.hpp"
 #include "cru/common/Logger.hpp"
 #include "cru/common/StringUtil.hpp"
 #include "cru/platform/Check.hpp"

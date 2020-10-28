@@ -4,6 +4,7 @@
 #include "WindowNativeMessageEventArgs.hpp"
 #include "cru/platform/GraphBase.hpp"
 #include "cru/platform/native/Window.hpp"
+#include "cru/win/graph/direct/WindowRenderTarget.hpp"
 
 #include <memory>
 
@@ -86,7 +87,7 @@ class WinNativeWindow : public WinNativeResource, public virtual INativeWindow {
   bool HandleNativeWindowMessage(HWND hwnd, UINT msg, WPARAM w_param,
                                  LPARAM l_param, LRESULT* result);
 
-  WindowRenderTarget* GetWindowRenderTarget() const {
+  graph::win::direct::D2DWindowRenderTarget* GetWindowRenderTarget() const {
     return window_render_target_.get();
   }
 
@@ -157,7 +158,8 @@ class WinNativeWindow : public WinNativeResource, public virtual INativeWindow {
   bool has_focus_ = false;
   bool is_mouse_in_ = false;
 
-  std::unique_ptr<WindowRenderTarget> window_render_target_;
+  std::unique_ptr<graph::win::direct::D2DWindowRenderTarget>
+      window_render_target_;
 
   std::shared_ptr<WinCursor> cursor_;
 
