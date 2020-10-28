@@ -193,6 +193,8 @@ void UiHost::Relayout() {
                                      : render::MeasureSize::NotSpecified()},
       render::MeasureSize::NotSpecified());
   root_render_object_->Layout(Point{});
+  for (auto& action : after_layout_stable_action_) action();
+  after_layout_stable_action_.clear();
   after_layout_event_.Raise(AfterLayoutEventArgs{});
   log::TagDebug(log_tag, u"A relayout is finished.");
 }
@@ -248,6 +250,14 @@ bool UiHost::CaptureMouseFor(Control* control) {
 }
 
 Control* UiHost::GetMouseCaptureControl() { return mouse_captured_control_; }
+
+void UiHost::RunAfterLayoutStable(std::function<void()> action) {
+  if (need_layout_) {
+    after_layout_stable_action_.push_back(std::move(action));
+  } else {
+    action();
+  }
+}
 
 void UiHost::OnNativeDestroy(INativeWindow* window, std::nullptr_t) {
   CRU_UNUSED(window)

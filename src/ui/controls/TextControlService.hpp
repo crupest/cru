@@ -206,16 +206,12 @@ class TextControlService : public Object {
     SetSelection(GetSelection().GetStart() + text.size());
   }
 
-  void ScrollToCaret(bool next_tick = true) {
-    if (next_tick) {
-      scroll_to_caret_timer_canceler_.Reset(
-          GetUiApplication()->GetInstance()->SetImmediate(
-              [this]() { this->ScrollToCaret(false); }));
-    } else {
+  void ScrollToCaret() {
+    this->control_->GetUiHost()->RunAfterLayoutStable([this]() {
       const auto caret_rect = this->GetTextRenderObject()->GetCaretRect();
       this->GetScrollRenderObject()->ScrollToContain(caret_rect,
                                                      Thickness{5.f});
-    }
+    });
   }
 
  private:
@@ -452,8 +448,6 @@ class TextControlService : public Object {
   int caret_blink_duration_ = k_default_caret_blink_duration;
 
   ShortcutHub shortcut_hub_;
-
-  platform::native::TimerAutoCanceler scroll_to_caret_timer_canceler_;
 
   // nullopt means not selecting
   std::optional<MouseButton> select_down_button_;

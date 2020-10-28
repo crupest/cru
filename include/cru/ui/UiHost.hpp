@@ -1,4 +1,5 @@
 #pragma once
+#include <functional>
 #include "Base.hpp"
 
 #include "cru/common/Event.hpp"
@@ -110,6 +111,10 @@ class UiHost : public Object, public SelfResolvable<UiHost> {
 
   void SetRetainAfterDestroy(bool destroy) { retain_after_destroy_ = destroy; }
 
+  // Is layout is invalid, wait for relayout and then run the action. Otherwist
+  // run it right now.
+  void RunAfterLayoutStable(std::function<void()> action);
+
  private:
   //*************** region: native messages ***************
   void OnNativeDestroy(platform::native::INativeWindow* window, std::nullptr_t);
@@ -148,6 +153,7 @@ class UiHost : public Object, public SelfResolvable<UiHost> {
   bool need_layout_ = false;
 
   Event<AfterLayoutEventArgs> after_layout_event_;
+  std::vector<std::function<void()> > after_layout_stable_action_;
 
   std::shared_ptr<platform::native::INativeWindowResolver>
       native_window_resolver_;
