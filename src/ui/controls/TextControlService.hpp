@@ -196,7 +196,7 @@ class TextControlService : public Object {
 
   void DeleteSelectedText() {
     this->DeleteText(GetSelection());
-    SetSelection(GetSelection().GetStart());
+    SetSelection(GetSelection().Normalize().GetStart());
   }
 
   // If some text is selected, then they are deleted first. Then insert text
