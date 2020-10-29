@@ -3,6 +3,7 @@
 #include "cru/common/Logger.hpp"
 #include "cru/common/StringUtil.hpp"
 #include "cru/platform/Check.hpp"
+#include "cru/platform/gui/DebugFlags.hpp"
 #include "cru/win/Exception.hpp"
 #include "cru/win/gui/Window.hpp"
 
@@ -246,8 +247,10 @@ void WinInputMethodContext::OnWindowNativeMessage(
     case WM_IME_COMPOSITION: {
       composition_event_.Raise(nullptr);
       auto composition_text = GetCompositionText();
-      log::TagDebug(log_tag, u"WM_IME_COMPOSITION composition text:\n{}",
-                    composition_text);
+      if constexpr (DebugFlags::input_method) {
+        log::TagDebug(log_tag, u"WM_IME_COMPOSITION composition text:\n{}",
+                      composition_text);
+      }
       if (message.l_param & GCS_RESULTSTR) {
         auto result_string = GetResultString();
         text_event_.Raise(result_string);

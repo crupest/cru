@@ -4,6 +4,7 @@
 #include "cru/common/Logger.hpp"
 #include "cru/platform/Check.hpp"
 #include "cru/platform/gui/Base.hpp"
+#include "cru/platform/gui/DebugFlags.hpp"
 #include "cru/win/graphics/direct/WindowPainter.hpp"
 #include "cru/win/gui/Cursor.hpp"
 #include "cru/win/gui/Exception.hpp"
@@ -132,7 +133,9 @@ bool WinNativeWindow::ReleaseMouse() {
 }
 
 void WinNativeWindow::RequestRepaint() {
-  log::TagDebug(log_tag, u"A repaint is requested.");
+  if constexpr (DebugFlags::paint) {
+    log::TagDebug(log_tag, u"A repaint is requested.");
+  }
   if (!::InvalidateRect(hwnd_, nullptr, FALSE))
     throw Win32Error(::GetLastError(), "Failed to invalidate window.");
   if (!::UpdateWindow(hwnd_))
@@ -376,7 +379,9 @@ void WinNativeWindow::OnDestroyInternal() {
 void WinNativeWindow::OnPaintInternal() {
   paint_event_.Raise(nullptr);
   ValidateRect(hwnd_, nullptr);
-  log::TagDebug(log_tag, u"A repaint is finished.");
+  if constexpr (DebugFlags::paint) {
+    log::TagDebug(log_tag, u"A repaint is finished.");
+  }
 }
 
 void WinNativeWindow::OnResizeInternal(const int new_width,
