@@ -258,10 +258,16 @@ void WinInputMethodContext::OnWindowNativeMessage(
       break;
     }
     case WM_IME_STARTCOMPOSITION: {
+      if constexpr (DebugFlags::input_method) {
+        log::TagDebug(log_tag, u"WM_IME_STARTCOMPOSITION received.");
+      }
       composition_start_event_.Raise(nullptr);
       break;
     }
     case WM_IME_ENDCOMPOSITION: {
+      if constexpr (DebugFlags::input_method) {
+        log::TagDebug(log_tag, u"WM_IME_ENDCOMPOSITION received.");
+      }
       composition_end_event_.Raise(nullptr);
       break;
     }
