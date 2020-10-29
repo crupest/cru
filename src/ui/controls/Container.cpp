@@ -1,6 +1,6 @@
 #include "cru/ui/controls/Container.hpp"
 
-#include "cru/platform/graph/Factory.hpp"
+#include "cru/platform/graphics/Factory.hpp"
 #include "cru/ui/render/BorderRenderObject.hpp"
 
 namespace cru::ui::controls {

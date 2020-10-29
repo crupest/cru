@@ -1,6 +1,6 @@
 #include "cru/platform/HeapDebug.hpp"
-#include "cru/platform/native/UiApplication.hpp"
-#include "cru/platform/native/Window.hpp"
+#include "cru/platform/gui/UiApplication.hpp"
+#include "cru/platform/gui/Window.hpp"
 #include "cru/ui/Base.hpp"
 #include "cru/ui/Window.hpp"
 #include "cru/ui/WindowHost.hpp"
@@ -9,7 +9,7 @@
 #include "cru/ui/controls/TextBlock.hpp"
 #include "cru/ui/controls/TextBox.hpp"
 
-using cru::platform::native::CreateUiApplication;
+using cru::platform::gui::CreateUiApplication;
 using cru::ui::Window;
 using cru::ui::controls::Button;
 using cru::ui::controls::FlexLayout;

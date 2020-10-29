@@ -2,15 +2,15 @@
 #include <memory>
 
 #include "../Helper.hpp"
-#include "cru/platform/graph/Brush.hpp"
-#include "cru/platform/native/Cursor.hpp"
-#include "cru/platform/native/UiApplication.hpp"
+#include "cru/platform/graphics/Brush.hpp"
+#include "cru/platform/gui/Cursor.hpp"
+#include "cru/platform/gui/UiApplication.hpp"
 #include "cru/ui/render/BorderRenderObject.hpp"
 #include "cru/ui/UiManager.hpp"
 #include "cru/ui/Window.hpp"
 
 namespace cru::ui::controls {
-using cru::platform::native::SystemCursorType;
+using cru::platform::gui::SystemCursorType;
 
 namespace {
 void Set(render::BorderRenderObject* o, const ButtonStateStyle& s) {
@@ -21,7 +21,7 @@ void Set(render::BorderRenderObject* o, const ButtonStateStyle& s) {
   o->SetBackgroundBrush(s.background_brush);
 }
 
-std::shared_ptr<platform::native::ICursor> GetSystemCursor(
+std::shared_ptr<platform::gui::ICursor> GetSystemCursor(
     SystemCursorType type) {
   return GetUiApplication()->GetCursorManager()->GetSystemCursor(type);
 }

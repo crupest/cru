@@ -2,11 +2,11 @@
 #include "../Helper.hpp"
 #include "cru/common/Logger.hpp"
 #include "cru/common/StringUtil.hpp"
-#include "cru/platform/graph/Font.hpp"
-#include "cru/platform/graph/Painter.hpp"
-#include "cru/platform/native/InputMethod.hpp"
-#include "cru/platform/native/UiApplication.hpp"
-#include "cru/platform/native/Window.hpp"
+#include "cru/platform/graphics/Font.hpp"
+#include "cru/platform/graphics/Painter.hpp"
+#include "cru/platform/gui/InputMethod.hpp"
+#include "cru/platform/gui/UiApplication.hpp"
+#include "cru/platform/gui/Window.hpp"
 #include "cru/ui/Base.hpp"
 #include "cru/ui/Control.hpp"
 #include "cru/ui/DebugFlags.hpp"
@@ -135,10 +135,10 @@ class TextControlService : public Object {
     this->SyncTextRenderObject();
   }
 
-  platform::native::IInputMethodContext* GetInputMethodContext() {
+  platform::gui::IInputMethodContext* GetInputMethodContext() {
     WindowHost* host = this->control_->GetWindowHost();
     if (!host) return nullptr;
-    platform::native::INativeWindow* native_window = host->GetNativeWindow();
+    platform::gui::INativeWindow* native_window = host->GetNativeWindow();
     if (!native_window) return nullptr;
     return native_window->GetInputMethodContext();
   }
@@ -149,7 +149,7 @@ class TextControlService : public Object {
     input_method_context->CancelComposition();
   }
 
-  std::optional<platform::native::CompositionText> GetCompositionInfo() {
+  std::optional<platform::gui::CompositionText> GetCompositionInfo() {
     auto input_method_context = GetInputMethodContext();
     if (input_method_context == nullptr) return std::nullopt;
     auto composition_info = input_method_context->GetCompositionText();
@@ -360,8 +360,8 @@ class TextControlService : public Object {
 
   void KeyDownHandler(event::KeyEventArgs& args) {
     const auto key_code = args.GetKeyCode();
-    using cru::platform::native::KeyCode;
-    using cru::platform::native::KeyModifiers;
+    using cru::platform::gui::KeyCode;
+    using cru::platform::gui::KeyModifiers;
 
     switch (key_code) {
       case KeyCode::Backspace: {
@@ -469,7 +469,7 @@ class TextControlService : public Object {
   bool editable_ = false;
 
   bool caret_visible_ = false;
-  platform::native::TimerAutoCanceler caret_timer_canceler_;
+  platform::gui::TimerAutoCanceler caret_timer_canceler_;
   int caret_blink_duration_ = k_default_caret_blink_duration;
 
   ShortcutHub shortcut_hub_;

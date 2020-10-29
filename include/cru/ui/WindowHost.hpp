@@ -2,8 +2,8 @@
 #include "Base.hpp"
 
 #include "cru/common/Event.hpp"
-#include "cru/platform/native/UiApplication.hpp"
-#include "cru/platform/native/Window.hpp"
+#include "cru/platform/gui/UiApplication.hpp"
+#include "cru/platform/gui/Window.hpp"
 #include "render/Base.hpp"
 
 #include <functional>
@@ -24,7 +24,7 @@ class WindowHost : public Object {
   ~WindowHost() override;
 
  public:
-  platform::native::INativeWindow* GetNativeWindow() { return native_window_; }
+  platform::gui::INativeWindow* GetNativeWindow() { return native_window_; }
 
   // Mark the layout as invalid, and arrange a re-layout later.
   // This method could be called more than one times in a message cycle. But
@@ -87,30 +87,30 @@ class WindowHost : public Object {
 
  private:
   //*************** region: native messages ***************
-  void OnNativeDestroy(platform::native::INativeWindow* window, std::nullptr_t);
-  void OnNativePaint(platform::native::INativeWindow* window, std::nullptr_t);
-  void OnNativeResize(platform::native::INativeWindow* window,
+  void OnNativeDestroy(platform::gui::INativeWindow* window, std::nullptr_t);
+  void OnNativePaint(platform::gui::INativeWindow* window, std::nullptr_t);
+  void OnNativeResize(platform::gui::INativeWindow* window,
                       const Size& size);
 
-  void OnNativeFocus(platform::native::INativeWindow* window,
-                     cru::platform::native::FocusChangeType focus);
+  void OnNativeFocus(platform::gui::INativeWindow* window,
+                     cru::platform::gui::FocusChangeType focus);
 
   void OnNativeMouseEnterLeave(
-      platform::native::INativeWindow* window,
-      cru::platform::native::MouseEnterLeaveType enter);
-  void OnNativeMouseMove(platform::native::INativeWindow* window,
+      platform::gui::INativeWindow* window,
+      cru::platform::gui::MouseEnterLeaveType enter);
+  void OnNativeMouseMove(platform::gui::INativeWindow* window,
                          const Point& point);
   void OnNativeMouseDown(
-      platform::native::INativeWindow* window,
-      const platform::native::NativeMouseButtonEventArgs& args);
+      platform::gui::INativeWindow* window,
+      const platform::gui::NativeMouseButtonEventArgs& args);
   void OnNativeMouseUp(
-      platform::native::INativeWindow* window,
-      const platform::native::NativeMouseButtonEventArgs& args);
+      platform::gui::INativeWindow* window,
+      const platform::gui::NativeMouseButtonEventArgs& args);
 
-  void OnNativeKeyDown(platform::native::INativeWindow* window,
-                       const platform::native::NativeKeyEventArgs& args);
-  void OnNativeKeyUp(platform::native::INativeWindow* window,
-                     const platform::native::NativeKeyEventArgs& args);
+  void OnNativeKeyDown(platform::gui::INativeWindow* window,
+                       const platform::gui::NativeKeyEventArgs& args);
+  void OnNativeKeyUp(platform::gui::INativeWindow* window,
+                     const platform::gui::NativeKeyEventArgs& args);
 
   //*************** region: event dispatcher helper ***************
 
@@ -123,10 +123,10 @@ class WindowHost : public Object {
   Control* root_control_ = nullptr;
   render::RenderObject* root_render_object_ = nullptr;
 
-  platform::native::INativeWindow* native_window_ = nullptr;
+  platform::gui::INativeWindow* native_window_ = nullptr;
 
   bool need_layout_ = false;
-  platform::native::TimerAutoCanceler relayout_timer_canceler_;
+  platform::gui::TimerAutoCanceler relayout_timer_canceler_;
   Event<AfterLayoutEventArgs> after_layout_event_;
   std::vector<std::function<void()> > after_layout_stable_action_;
 

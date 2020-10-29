@@ -1,13 +1,13 @@
 #include "cru/ui/UiManager.hpp"
 
 #include "Helper.hpp"
-#include "cru/platform/graph/Brush.hpp"
-#include "cru/platform/graph/Factory.hpp"
-#include "cru/platform/graph/Font.hpp"
-#include "cru/platform/native/UiApplication.hpp"
+#include "cru/platform/graphics/Brush.hpp"
+#include "cru/platform/graphics/Factory.hpp"
+#include "cru/platform/graphics/Font.hpp"
+#include "cru/platform/gui/UiApplication.hpp"
 
 namespace cru::ui {
-using namespace cru::platform::graph;
+using namespace cru::platform::graphics;
 
 namespace {
 std::unique_ptr<ISolidColorBrush> CreateSolidColorBrush(IGraphFactory* factory,
@@ -35,7 +35,7 @@ UiManager::UiManager() {
   theme_resource_.default_font =
       factory->CreateFont(theme_resource_.default_font_family, 24.0f);
 
-  const auto black_brush = std::shared_ptr<platform::graph::ISolidColorBrush>(
+  const auto black_brush = std::shared_ptr<platform::graphics::ISolidColorBrush>(
       CreateSolidColorBrush(factory, colors::black));
   theme_resource_.text_brush = black_brush;
   theme_resource_.text_selection_brush =

@@ -9,10 +9,10 @@
 namespace cru::ui {
 struct ThemeResources {
   std::u16string default_font_family;
-  std::shared_ptr<platform::graph::IFont> default_font;
-  std::shared_ptr<platform::graph::IBrush> text_brush;
-  std::shared_ptr<platform::graph::IBrush> text_selection_brush;
-  std::shared_ptr<platform::graph::IBrush> caret_brush;
+  std::shared_ptr<platform::graphics::IFont> default_font;
+  std::shared_ptr<platform::graphics::IBrush> text_brush;
+  std::shared_ptr<platform::graphics::IBrush> text_selection_brush;
+  std::shared_ptr<platform::graphics::IBrush> caret_brush;
   controls::ButtonStyle button_style;
   controls::TextBoxBorderStyle text_box_border_style;
 };

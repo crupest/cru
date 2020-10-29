@@ -1,7 +1,7 @@
 #include "cru/ui/render/RenderObject.hpp"
 
 #include "cru/common/Logger.hpp"
-#include "cru/platform/graph/util/Painter.hpp"
+#include "cru/platform/graphics/util/Painter.hpp"
 #include "cru/ui/DebugFlags.hpp"
 #include "cru/ui/WindowHost.hpp"
 
@@ -103,7 +103,7 @@ void RenderObject::Layout(const Point& offset) {
   OnLayoutCore();
 }
 
-void RenderObject::Draw(platform::graph::IPainter* painter) {
+void RenderObject::Draw(platform::graphics::IPainter* painter) {
   OnDrawCore(painter);
 }
 
@@ -138,29 +138,29 @@ void RenderObject::OnRemoveChild(RenderObject* removed_child, Index position) {
   InvalidatePaint();
 }
 
-void RenderObject::DefaultDrawChildren(platform::graph::IPainter* painter) {
+void RenderObject::DefaultDrawChildren(platform::graphics::IPainter* painter) {
   for (const auto child : GetChildren()) {
     auto offset = child->GetOffset();
-    platform::graph::util::WithTransform(
+    platform::graphics::util::WithTransform(
         painter, platform::Matrix::Translation(offset.x, offset.y),
         [child](auto p) { child->Draw(p); });
   }
 }
 
-void RenderObject::DefaultDrawContent(platform::graph::IPainter* painter) {
+void RenderObject::DefaultDrawContent(platform::graphics::IPainter* painter) {
   const auto content_rect = GetContentRect();
 
-  platform::graph::util::WithTransform(
+  platform::graphics::util::WithTransform(
       painter, Matrix::Translation(content_rect.left, content_rect.top),
       [this](auto p) { this->OnDrawContent(p); });
 }
 
-void RenderObject::OnDrawCore(platform::graph::IPainter* painter) {
+void RenderObject::OnDrawCore(platform::graphics::IPainter* painter) {
   DefaultDrawContent(painter);
   DefaultDrawChildren(painter);
 }
 
-void RenderObject::OnDrawContent(platform::graph::IPainter* painter) {
+void RenderObject::OnDrawContent(platform::graphics::IPainter* painter) {
   CRU_UNUSED(painter);
 }
 

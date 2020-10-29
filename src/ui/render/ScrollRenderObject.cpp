@@ -1,7 +1,7 @@
 #include "cru/ui/render/ScrollRenderObject.hpp"
 
-#include "cru/platform/graph/Painter.hpp"
-#include "cru/platform/graph/util/Painter.hpp"
+#include "cru/platform/graphics/Painter.hpp"
+#include "cru/platform/graphics/util/Painter.hpp"
 
 #include <algorithm>
 
@@ -42,14 +42,14 @@ RenderObject* ScrollRenderObject::HitTest(const Point& point) {
   return rect.IsPointInside(point) ? this : nullptr;
 }  // namespace cru::ui::render
 
-void ScrollRenderObject::OnDrawCore(platform::graph::IPainter* painter) {
+void ScrollRenderObject::OnDrawCore(platform::graphics::IPainter* painter) {
   DefaultDrawContent(painter);
   if (const auto child = GetSingleChild()) {
     painter->PushLayer(this->GetPaddingRect());
     const auto offset = child->GetOffset();
-    platform::graph::util::WithTransform(
+    platform::graphics::util::WithTransform(
         painter, Matrix::Translation(offset.x, offset.y),
-        [child](platform::graph::IPainter* p) { child->Draw(p); });
+        [child](platform::graphics::IPainter* p) { child->Draw(p); });
     painter->PopLayer();
   }
 }

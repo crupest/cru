@@ -2,14 +2,14 @@
 #include "Base.hpp"
 
 #include "cru/common/Event.hpp"
-#include "cru/platform/native/Keyboard.hpp"
+#include "cru/platform/gui/Keyboard.hpp"
 
 #include <memory>
 #include <optional>
 #include <string>
 #include <type_traits>
 
-namespace cru::platform::graph {
+namespace cru::platform::graphics {
 struct IPainter;
 }
 
@@ -94,13 +94,13 @@ class MouseButtonEventArgs : public MouseEventArgs {
  public:
   MouseButtonEventArgs(Object* sender, Object* original_sender,
                        const Point& point, const MouseButton button,
-                       platform::native::KeyModifier key_modifier)
+                       platform::gui::KeyModifier key_modifier)
       : MouseEventArgs(sender, original_sender, point),
         button_(button),
         key_modifier_(key_modifier) {}
   MouseButtonEventArgs(Object* sender, Object* original_sender,
                        const MouseButton button,
-                       platform::native::KeyModifier key_modifier)
+                       platform::gui::KeyModifier key_modifier)
       : MouseEventArgs(sender, original_sender),
         button_(button),
         key_modifier_(key_modifier) {}
@@ -111,11 +111,11 @@ class MouseButtonEventArgs : public MouseEventArgs {
   ~MouseButtonEventArgs() override = default;
 
   MouseButton GetButton() const { return button_; }
-  platform::native::KeyModifier GetKeyModifier() const { return key_modifier_; }
+  platform::gui::KeyModifier GetKeyModifier() const { return key_modifier_; }
 
  private:
   MouseButton button_;
-  platform::native::KeyModifier key_modifier_;
+  platform::gui::KeyModifier key_modifier_;
 };
 
 class MouseWheelEventArgs : public MouseEventArgs {
@@ -138,7 +138,7 @@ class MouseWheelEventArgs : public MouseEventArgs {
 class PaintEventArgs : public UiEventArgs {
  public:
   PaintEventArgs(Object* sender, Object* original_sender,
-                 platform::graph::IPainter* painter)
+                 platform::graphics::IPainter* painter)
       : UiEventArgs(sender, original_sender), painter_(painter) {}
   PaintEventArgs(const PaintEventArgs& other) = default;
   PaintEventArgs(PaintEventArgs&& other) = default;
@@ -146,10 +146,10 @@ class PaintEventArgs : public UiEventArgs {
   PaintEventArgs& operator=(PaintEventArgs&& other) = default;
   ~PaintEventArgs() = default;
 
-  platform::graph::IPainter* GetPainter() const { return painter_; }
+  platform::graphics::IPainter* GetPainter() const { return painter_; }
 
  private:
-  platform::graph::IPainter* painter_;
+  platform::graphics::IPainter* painter_;
 };
 
 class FocusChangeEventArgs : public UiEventArgs {
@@ -191,8 +191,8 @@ class ToggleEventArgs : public UiEventArgs {
 class KeyEventArgs : public UiEventArgs {
  public:
   KeyEventArgs(Object* sender, Object* original_sender,
-               platform::native::KeyCode key_code,
-               platform::native::KeyModifier key_modifier)
+               platform::gui::KeyCode key_code,
+               platform::gui::KeyModifier key_modifier)
       : UiEventArgs(sender, original_sender),
         key_code_(key_code),
         key_modifier_(key_modifier) {}
@@ -202,12 +202,12 @@ class KeyEventArgs : public UiEventArgs {
   KeyEventArgs& operator=(KeyEventArgs&& other) = default;
   ~KeyEventArgs() override = default;
 
-  platform::native::KeyCode GetKeyCode() const { return key_code_; }
-  platform::native::KeyModifier GetKeyModifier() const { return key_modifier_; }
+  platform::gui::KeyCode GetKeyCode() const { return key_code_; }
+  platform::gui::KeyModifier GetKeyModifier() const { return key_modifier_; }
 
  private:
-  platform::native::KeyCode key_code_;
-  platform::native::KeyModifier key_modifier_;
+  platform::gui::KeyCode key_code_;
+  platform::gui::KeyModifier key_modifier_;
 };
 
 class CharEventArgs : public UiEventArgs {

@@ -2,8 +2,8 @@
 
 #include "RoutedEventDispatch.hpp"
 #include "cru/common/Base.hpp"
-#include "cru/platform/native/Cursor.hpp"
-#include "cru/platform/native/UiApplication.hpp"
+#include "cru/platform/gui/Cursor.hpp"
+#include "cru/platform/gui/UiApplication.hpp"
 #include "cru/ui/Base.hpp"
 #include "cru/ui/WindowHost.hpp"
 #include "cru/ui/render/RenderObject.hpp"
@@ -11,9 +11,9 @@
 #include <memory>
 
 namespace cru::ui {
-using platform::native::ICursor;
-using platform::native::IUiApplication;
-using platform::native::SystemCursorType;
+using platform::gui::ICursor;
+using platform::gui::IUiApplication;
+using platform::gui::SystemCursorType;
 
 Control::Control() {
   MouseEnterEvent()->Direct()->AddHandler([this](event::MouseEventArgs&) {

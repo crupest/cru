@@ -22,7 +22,7 @@ class CanvasRenderObject : public RenderObject {
   IEvent<CanvasPaintEventArgs>* PaintEvent() { return &paint_event_; }
 
  protected:
-  void OnDrawContent(platform::graph::IPainter* painter) override;
+  void OnDrawContent(platform::graphics::IPainter* painter) override;
 
   Size OnMeasureContent(const MeasureRequirement& requirement,
                         const MeasureSize& preferred_size) override;

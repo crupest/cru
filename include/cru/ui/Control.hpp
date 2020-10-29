@@ -58,13 +58,13 @@ class Control : public Object {
   // Cursor is inherited from parent recursively if not set.
  public:
   // null for not set
-  std::shared_ptr<platform::native::ICursor> GetCursor();
+  std::shared_ptr<platform::gui::ICursor> GetCursor();
 
   // will not return nullptr
-  std::shared_ptr<platform::native::ICursor> GetInheritedCursor();
+  std::shared_ptr<platform::gui::ICursor> GetInheritedCursor();
 
   // null to unset
-  void SetCursor(std::shared_ptr<platform::native::ICursor> cursor);
+  void SetCursor(std::shared_ptr<platform::gui::ICursor> cursor);
 
   //*************** region: events ***************
  public:
@@ -146,6 +146,6 @@ class Control : public Object {
  private:
   bool is_mouse_over_ = false;
 
-  std::shared_ptr<platform::native::ICursor> cursor_ = nullptr;
+  std::shared_ptr<platform::gui::ICursor> cursor_ = nullptr;
 };
 }  // namespace cru::ui

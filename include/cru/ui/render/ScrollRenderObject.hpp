@@ -1,7 +1,7 @@
 #pragma once
 #include "RenderObject.hpp"
 
-#include "cru/platform/graph/util/Painter.hpp"
+#include "cru/platform/graphics/util/Painter.hpp"
 
 #include <optional>
 
@@ -44,7 +44,7 @@ class ScrollRenderObject : public RenderObject {
   void ScrollToContain(const Rect& rect, const Thickness& margin = Thickness{});
 
  protected:
-  void OnDrawCore(platform::graph::IPainter* painter) override;
+  void OnDrawCore(platform::graphics::IPainter* painter) override;
 
   // Logic:
   // If available size is bigger than child's preferred size, then child's

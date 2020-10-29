@@ -2,9 +2,9 @@
 
 #include "../Helper.hpp"
 #include "cru/common/Logger.hpp"
-#include "cru/platform/graph/Factory.hpp"
-#include "cru/platform/graph/Geometry.hpp"
-#include "cru/platform/graph/util/Painter.hpp"
+#include "cru/platform/graphics/Factory.hpp"
+#include "cru/platform/graphics/Geometry.hpp"
+#include "cru/platform/graphics/util/Painter.hpp"
 
 #include <algorithm>
 
@@ -51,7 +51,7 @@ RenderObject* BorderRenderObject::HitTest(const Point& point) {
   }
 }
 
-void BorderRenderObject::OnDrawCore(platform::graph::IPainter* painter) {
+void BorderRenderObject::OnDrawCore(platform::graphics::IPainter* painter) {
   if (background_brush_ != nullptr)
     painter->FillGeometry(border_inner_geometry_.get(),
                           background_brush_.get());
@@ -235,7 +235,7 @@ void BorderRenderObject::RecreateGeometry() {
                             r.left_bottom - Point{t.left, t.bottom},
                             r.right_bottom - Point{t.right, t.bottom});
 
-  auto f = [](platform::graph::IGeometryBuilder* builder, const Rect& rect,
+  auto f = [](platform::graphics::IGeometryBuilder* builder, const Rect& rect,
               const CornerRadius& corner) {
     builder->BeginFigure(Point(rect.left + corner.left_top.x, rect.top));
     builder->LineTo(Point(rect.GetRight() - corner.right_top.x, rect.top));
@@ -263,7 +263,7 @@ void BorderRenderObject::RecreateGeometry() {
                         size.width - margin.GetHorizontalTotal(),
                         size.height - margin.GetVerticalTotal()};
   const auto graph_factory = GetGraphFactory();
-  std::unique_ptr<platform::graph::IGeometryBuilder> builder{
+  std::unique_ptr<platform::graphics::IGeometryBuilder> builder{
       graph_factory->CreateGeometryBuilder()};
   f(builder.get(), outer_rect, outer_radius);
   border_outer_geometry_ = builder->Build();

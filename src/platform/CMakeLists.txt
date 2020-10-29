@@ -10,5 +10,5 @@ target_sources(cru_platform_base INTERFACE
 )
 target_link_libraries(cru_platform_base INTERFACE cru_base)
 
-add_subdirectory(graph)
-add_subdirectory(native)
+add_subdirectory(graphics)
+add_subdirectory(gui)

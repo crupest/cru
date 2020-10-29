@@ -63,4 +63,4 @@ target_sources(cru_ui PUBLIC
 	${CRU_UI_INCLUDE_DIR}/render/StackLayoutRenderObject.hpp
 	${CRU_UI_INCLUDE_DIR}/render/TextRenderObject.hpp
 )
-target_link_libraries(cru_ui PUBLIC cru_platform_native)
+target_link_libraries(cru_ui PUBLIC cru_platform_gui)

@@ -33,7 +33,7 @@ namespace cru::ui::render {
 //
 // To write a custom RenderObject, override following methods:
 // public:
-//  void Draw(platform::graph::IPainter* painter) override;
+//  void Draw(platform::graphics::IPainter* painter) override;
 //  RenderObject* HitTest(const Point& point) override;
 // protected:
 //  Size OnMeasureContent(const MeasureRequirement& requirement) override;
@@ -129,7 +129,7 @@ class RenderObject : public Object {
   // This will set offset of this render object and call OnLayoutCore.
   void Layout(const Point& offset);
 
-  void Draw(platform::graph::IPainter* painter);
+  void Draw(platform::graphics::IPainter* painter);
 
   // Param point must be relative the lefttop of render object including margin.
   // Add offset before pass point to children.
@@ -163,15 +163,15 @@ class RenderObject : public Object {
   virtual void OnRemoveChild(RenderObject* removed_child, Index position);
 
   // Draw all children with offset.
-  void DefaultDrawChildren(platform::graph::IPainter* painter);
+  void DefaultDrawChildren(platform::graphics::IPainter* painter);
 
   // Draw all children with translation of content rect lefttop.
-  void DefaultDrawContent(platform::graph::IPainter* painter);
+  void DefaultDrawContent(platform::graphics::IPainter* painter);
 
   // Call DefaultDrawContent. Then call DefaultDrawChildren.
-  virtual void OnDrawCore(platform::graph::IPainter* painter);
+  virtual void OnDrawCore(platform::graphics::IPainter* painter);
 
-  virtual void OnDrawContent(platform::graph::IPainter* painter);
+  virtual void OnDrawContent(platform::graphics::IPainter* painter);
 
   // Size measure including margin and padding. Please reduce margin and padding
   // or other custom things and pass the result content measure requirement and

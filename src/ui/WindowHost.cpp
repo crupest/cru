@@ -2,10 +2,10 @@
 
 #include "RoutedEventDispatch.hpp"
 #include "cru/common/Logger.hpp"
-#include "cru/platform/graph/Painter.hpp"
-#include "cru/platform/native/InputMethod.hpp"
-#include "cru/platform/native/UiApplication.hpp"
-#include "cru/platform/native/Window.hpp"
+#include "cru/platform/graphics/Painter.hpp"
+#include "cru/platform/gui/InputMethod.hpp"
+#include "cru/platform/gui/UiApplication.hpp"
+#include "cru/platform/gui/Window.hpp"
 #include "cru/ui/DebugFlags.hpp"
 #include "cru/ui/Window.hpp"
 #include "cru/ui/render/MeasureRequirement.hpp"
@@ -14,8 +14,8 @@
 #include <cstddef>
 
 namespace cru::ui {
-using platform::native::INativeWindow;
-using platform::native::IUiApplication;
+using platform::gui::INativeWindow;
+using platform::gui::IUiApplication;
 
 namespace event_names {
 #ifdef CRU_DEBUG
@@ -149,7 +149,7 @@ void WindowHost::InvalidateLayout() {
   if constexpr (debug_flags::layout)
     log::TagDebug(log_tag, u"A relayout is requested.");
   if (!need_layout_) {
-    platform::native::IUiApplication::GetInstance()->SetImmediate([this] {
+    platform::gui::IUiApplication::GetInstance()->SetImmediate([this] {
       Relayout();
       need_layout_ = false;
       InvalidatePaint();
@@ -272,10 +272,10 @@ void WindowHost::OnNativeResize(INativeWindow* window, const Size& size) {
 }
 
 void WindowHost::OnNativeFocus(INativeWindow* window,
-                               platform::native::FocusChangeType focus) {
+                               platform::gui::FocusChangeType focus) {
   CRU_UNUSED(window)
 
-  focus == platform::native::FocusChangeType::Gain
+  focus == platform::gui::FocusChangeType::Gain
       ? DispatchEvent(event_names::GainFocus, focus_control_,
                       &Control::GainFocusEvent, nullptr, true)
       : DispatchEvent(event_names::LoseFocus, focus_control_,
@@ -283,10 +283,10 @@ void WindowHost::OnNativeFocus(INativeWindow* window,
 }
 
 void WindowHost::OnNativeMouseEnterLeave(
-    INativeWindow* window, platform::native::MouseEnterLeaveType type) {
+    INativeWindow* window, platform::gui::MouseEnterLeaveType type) {
   CRU_UNUSED(window)
 
-  if (type == platform::native::MouseEnterLeaveType::Leave) {
+  if (type == platform::gui::MouseEnterLeaveType::Leave) {
     DispatchEvent(event_names::MouseLeave, mouse_hover_control_,
                   &Control::MouseLeaveEvent, nullptr);
     mouse_hover_control_ = nullptr;
@@ -328,7 +328,7 @@ void WindowHost::OnNativeMouseMove(INativeWindow* window, const Point& point) {
 
 void WindowHost::OnNativeMouseDown(
     INativeWindow* window,
-    const platform::native::NativeMouseButtonEventArgs& args) {
+    const platform::gui::NativeMouseButtonEventArgs& args) {
   CRU_UNUSED(window)
 
   Control* control =
@@ -339,7 +339,7 @@ void WindowHost::OnNativeMouseDown(
 
 void WindowHost::OnNativeMouseUp(
     INativeWindow* window,
-    const platform::native::NativeMouseButtonEventArgs& args) {
+    const platform::gui::NativeMouseButtonEventArgs& args) {
   CRU_UNUSED(window)
 
   Control* control =
@@ -349,7 +349,7 @@ void WindowHost::OnNativeMouseUp(
 }
 
 void WindowHost::OnNativeKeyDown(
-    INativeWindow* window, const platform::native::NativeKeyEventArgs& args) {
+    INativeWindow* window, const platform::gui::NativeKeyEventArgs& args) {
   CRU_UNUSED(window)
 
   DispatchEvent(event_names::KeyDown, focus_control_, &Control::KeyDownEvent,
@@ -357,7 +357,7 @@ void WindowHost::OnNativeKeyDown(
 }
 
 void WindowHost::OnNativeKeyUp(
-    INativeWindow* window, const platform::native::NativeKeyEventArgs& args) {
+    INativeWindow* window, const platform::gui::NativeKeyEventArgs& args) {
   CRU_UNUSED(window)
 
   DispatchEvent(event_names::KeyUp, focus_control_, &Control::KeyUpEvent,

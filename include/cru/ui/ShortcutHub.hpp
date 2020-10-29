@@ -3,7 +3,7 @@
 
 #include "cru/common/Base.hpp"
 #include "cru/common/Event.hpp"
-#include "cru/platform/native/Keyboard.hpp"
+#include "cru/platform/gui/Keyboard.hpp"
 #include "cru/ui/UiEvent.hpp"
 
 #include <cstddef>
@@ -20,8 +20,8 @@ namespace cru::ui {
 
 class ShortcutKeyBind {
  public:
-  ShortcutKeyBind(platform::native::KeyCode key,
-                  platform::native::KeyModifier modifier)
+  ShortcutKeyBind(platform::gui::KeyCode key,
+                  platform::gui::KeyModifier modifier)
       : key_(key), modifier_(modifier) {}
 
   CRU_DEFAULT_COPY(ShortcutKeyBind)
@@ -29,11 +29,11 @@ class ShortcutKeyBind {
 
   ~ShortcutKeyBind() = default;
 
-  platform::native::KeyCode GetKey() const { return key_; }
-  platform::native::KeyModifier GetModifier() const { return modifier_; }
+  platform::gui::KeyCode GetKey() const { return key_; }
+  platform::gui::KeyModifier GetModifier() const { return modifier_; }
 
-  bool Is(platform::native::KeyCode key,
-          platform::native::KeyModifier modifier) const {
+  bool Is(platform::gui::KeyCode key,
+          platform::gui::KeyModifier modifier) const {
     return key == key_ && modifier == modifier_;
   }
 
@@ -47,15 +47,15 @@ class ShortcutKeyBind {
 
   std::u16string ToString() {
     std::u16string result = u"(";
-    result += platform::native::ToString(modifier_);
+    result += platform::gui::ToString(modifier_);
     result += u")";
-    result += platform::native::ToString(key_);
+    result += platform::gui::ToString(key_);
     return result;
   }
 
  private:
-  platform::native::KeyCode key_;
-  platform::native::KeyModifier modifier_;
+  platform::gui::KeyCode key_;
+  platform::gui::KeyModifier modifier_;
 };
 }  // namespace cru::ui
 
