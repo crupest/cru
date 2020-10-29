@@ -146,16 +146,8 @@ void WindowHost::InvalidatePaint() {
 }
 
 void WindowHost::InvalidateLayout() {
-  if constexpr (debug_flags::layout)
-    log::TagDebug(log_tag, u"A relayout is requested.");
-  if (!need_layout_) {
-    platform::gui::IUiApplication::GetInstance()->SetImmediate([this] {
-      Relayout();
-      need_layout_ = false;
-      InvalidatePaint();
-    });
-    need_layout_ = true;
-  }
+  need_layout_ = true;
+  this->InvalidatePaint();
 }
 
 bool WindowHost::IsLayoutPreferToFillWindow() const {
@@ -253,11 +245,14 @@ void WindowHost::RunAfterLayoutStable(std::function<void()> action) {
 
 void WindowHost::OnNativeDestroy(INativeWindow* window, std::nullptr_t) {
   CRU_UNUSED(window)
-  this->relayout_timer_canceler_.Reset();
   this->native_window_ = nullptr;
 }
 
 void WindowHost::OnNativePaint(INativeWindow* window, std::nullptr_t) {
+  if (need_layout_) {
+    Relayout();
+    need_layout_ = false;
+  }
   auto painter = window->BeginPaint();
   painter->Clear(colors::white);
   root_render_object_->Draw(painter.get());
@@ -356,8 +351,8 @@ void WindowHost::OnNativeKeyDown(
                 nullptr, args.key, args.modifier);
 }
 
-void WindowHost::OnNativeKeyUp(
-    INativeWindow* window, const platform::gui::NativeKeyEventArgs& args) {
+void WindowHost::OnNativeKeyUp(INativeWindow* window,
+                               const platform::gui::NativeKeyEventArgs& args) {
   CRU_UNUSED(window)
 
   DispatchEvent(event_names::KeyUp, focus_control_, &Control::KeyUpEvent,

@@ -126,7 +126,6 @@ class WindowHost : public Object {
   platform::gui::INativeWindow* native_window_ = nullptr;
 
   bool need_layout_ = false;
-  platform::gui::TimerAutoCanceler relayout_timer_canceler_;
   Event<AfterLayoutEventArgs> after_layout_event_;
   std::vector<std::function<void()> > after_layout_stable_action_;
 
