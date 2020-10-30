@@ -1,11 +1,10 @@
 #include "cru/ui/Control.hpp"
 
-#include "RoutedEventDispatch.hpp"
 #include "cru/common/Base.hpp"
 #include "cru/platform/gui/Cursor.hpp"
 #include "cru/platform/gui/UiApplication.hpp"
 #include "cru/ui/Base.hpp"
-#include "cru/ui/WindowHost.hpp"
+#include "cru/ui/host/WindowHost.hpp"
 #include "cru/ui/render/RenderObject.hpp"
 
 #include <memory>
@@ -31,7 +30,7 @@ Control::~Control() {
   for (const auto child : children_) delete child;
 }
 
-WindowHost* Control::GetWindowHost() const { return window_host_; }
+host::WindowHost* Control::GetWindowHost() const { return window_host_; }
 
 void Control::TraverseDescendants(
     const std::function<void(Control*)>& predicate) {
@@ -152,7 +151,7 @@ void Control::OnParentChanged(Control* old_parent, Control* new_parent) {
   CRU_UNUSED(new_parent)
 }
 
-void Control::OnAttachToHost(WindowHost* host) { CRU_UNUSED(host) }
+void Control::OnAttachToHost(host::WindowHost* host) { CRU_UNUSED(host) }
 
-void Control::OnDetachFromHost(WindowHost* host) { CRU_UNUSED(host) }
+void Control::OnDetachFromHost(host::WindowHost* host) { CRU_UNUSED(host) }
 }  // namespace cru::ui

@@ -9,7 +9,7 @@
 
 namespace cru::ui {
 class Control : public Object {
-  friend WindowHost;
+  friend host::WindowHost;
 
  protected:
   Control();
@@ -26,7 +26,7 @@ class Control : public Object {
 
   //*************** region: tree ***************
  public:
-  WindowHost* GetWindowHost() const;
+  host::WindowHost* GetWindowHost() const;
 
   Control* GetParent() const { return parent_; }
 
@@ -131,8 +131,8 @@ class Control : public Object {
   virtual void OnAddChild(Control* child, Index position);
   virtual void OnRemoveChild(Control* child, Index position);
   virtual void OnParentChanged(Control* old_parent, Control* new_parent);
-  virtual void OnAttachToHost(WindowHost* host);
-  virtual void OnDetachFromHost(WindowHost* host);
+  virtual void OnAttachToHost(host::WindowHost* host);
+  virtual void OnDetachFromHost(host::WindowHost* host);
 
  protected:
   virtual void OnMouseHoverChange(bool newHover) { CRU_UNUSED(newHover) }
@@ -141,7 +141,7 @@ class Control : public Object {
   Control* parent_ = nullptr;
   std::vector<Control*> children_;
 
-  WindowHost* window_host_ = nullptr;
+  host::WindowHost* window_host_ = nullptr;
 
  private:
   bool is_mouse_over_ = false;

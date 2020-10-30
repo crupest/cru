@@ -3,7 +3,7 @@
 #include "cru/platform/gui/Window.hpp"
 #include "cru/ui/Base.hpp"
 #include "cru/ui/Window.hpp"
-#include "cru/ui/WindowHost.hpp"
+#include "cru/ui/host/WindowHost.hpp"
 #include "cru/ui/controls/Button.hpp"
 #include "cru/ui/controls/FlexLayout.hpp"
 #include "cru/ui/controls/TextBlock.hpp"

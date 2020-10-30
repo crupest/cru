@@ -39,7 +39,7 @@ namespace cru::ui::render {
 //  Size OnMeasureContent(const MeasureRequirement& requirement) override;
 //  void OnLayoutContent(const Rect& content_rect) override;
 class RenderObject : public Object {
-  friend WindowHost;
+  friend host::WindowHost;
 
   CRU_DEFINE_CLASS_LOG_TAG(u"cru::ui::render::RenderObject")
 
@@ -65,7 +65,7 @@ class RenderObject : public Object {
   Control* GetAttachedControl() const { return control_; }
   void SetAttachedControl(Control* new_control) { control_ = new_control; }
 
-  WindowHost* GetWindowHost() const { return window_host_; }
+  host::WindowHost* GetWindowHost() const { return window_host_; }
 
   RenderObject* GetParent() const { return parent_; }
 
@@ -135,7 +135,7 @@ class RenderObject : public Object {
   // Add offset before pass point to children.
   virtual RenderObject* HitTest(const Point& point) = 0;
 
-  IEvent<WindowHost*>* AttachToHostEvent() { return &attach_to_host_event_; }
+  IEvent<host::WindowHost*>* AttachToHostEvent() { return &attach_to_host_event_; }
   IEvent<std::nullptr_t>* DetachFromHostEvent() {
     return &detach_from_host_event_;
   }
@@ -205,11 +205,11 @@ class RenderObject : public Object {
  private:
   void SetParent(RenderObject* new_parent);
 
-  void SetWindowHostRecursive(WindowHost* host);
+  void SetWindowHostRecursive(host::WindowHost* host);
 
  private:
   Control* control_ = nullptr;
-  WindowHost* window_host_ = nullptr;
+  host::WindowHost* window_host_ = nullptr;
 
   RenderObject* parent_ = nullptr;
   std::vector<RenderObject*> children_{};
@@ -225,7 +225,7 @@ class RenderObject : public Object {
   Thickness margin_{};
   Thickness padding_{};
 
-  Event<WindowHost*> attach_to_host_event_;
+  Event<host::WindowHost*> attach_to_host_event_;
   Event<std::nullptr_t> detach_from_host_event_;
 };
 }  // namespace cru::ui::render

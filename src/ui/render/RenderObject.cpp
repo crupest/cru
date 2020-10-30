@@ -3,7 +3,7 @@
 #include "cru/common/Logger.hpp"
 #include "cru/platform/graphics/util/Painter.hpp"
 #include "cru/ui/DebugFlags.hpp"
-#include "cru/ui/WindowHost.hpp"
+#include "cru/ui/host/WindowHost.hpp"
 
 #include <algorithm>
 #include <string>
@@ -303,7 +303,7 @@ std::u16string RenderObject::GetDebugPathInTree() const {
   return result;
 }
 
-void RenderObject::SetWindowHostRecursive(WindowHost* host) {
+void RenderObject::SetWindowHostRecursive(host::WindowHost* host) {
   if (window_host_ != nullptr) {
     detach_from_host_event_.Raise(nullptr);
   }

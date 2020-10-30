@@ -1,7 +1,7 @@
 #include "cru/ui/Window.hpp"
 
 #include "cru/common/Base.hpp"
-#include "cru/ui/WindowHost.hpp"
+#include "cru/ui/host/WindowHost.hpp"
 #include "cru/ui/render/Base.hpp"
 #include "cru/ui/render/StackLayoutRenderObject.hpp"
 
@@ -10,7 +10,7 @@ Window* Window::CreateOverlapped() { return new Window(); }
 
 Window::Window() : render_object_(new render::StackLayoutRenderObject()) {
   render_object_->SetAttachedControl(this);
-  window_host_ = std::make_unique<WindowHost>(this);
+  window_host_ = std::make_unique<host::WindowHost>(this);
 }
 
 Window::~Window() {}

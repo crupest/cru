@@ -29,7 +29,7 @@ class Window final : public LayoutControl {
   void OnRemoveChild(Control* child, Index position) override;
 
  private:
-  std::unique_ptr<WindowHost> window_host_;
+  std::unique_ptr<host::WindowHost> window_host_;
 
   std::unique_ptr<render::StackLayoutRenderObject> render_object_;
 };

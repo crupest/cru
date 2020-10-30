@@ -12,7 +12,7 @@
 #include "cru/ui/DebugFlags.hpp"
 #include "cru/ui/ShortcutHub.hpp"
 #include "cru/ui/UiEvent.hpp"
-#include "cru/ui/WindowHost.hpp"
+#include "cru/ui/host/WindowHost.hpp"
 #include "cru/ui/render/CanvasRenderObject.hpp"
 #include "cru/ui/render/ScrollRenderObject.hpp"
 #include "cru/ui/render/TextRenderObject.hpp"
@@ -136,7 +136,7 @@ class TextControlService : public Object {
   }
 
   platform::gui::IInputMethodContext* GetInputMethodContext() {
-    WindowHost* host = this->control_->GetWindowHost();
+    host::WindowHost* host = this->control_->GetWindowHost();
     if (!host) return nullptr;
     platform::gui::INativeWindow* native_window = host->GetNativeWindow();
     if (!native_window) return nullptr;

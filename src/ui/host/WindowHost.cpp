@@ -1,4 +1,4 @@
-#include "cru/ui/WindowHost.hpp"
+#include "cru/ui/host/WindowHost.hpp"
 
 #include "RoutedEventDispatch.hpp"
 #include "cru/common/Logger.hpp"
@@ -13,7 +13,7 @@
 
 #include <cstddef>
 
-namespace cru::ui {
+namespace cru::ui::host {
 using platform::gui::INativeWindow;
 using platform::gui::IUiApplication;
 

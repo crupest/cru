@@ -1,19 +1,19 @@
 #pragma once
-#include "Base.hpp"
+#include "../Base.hpp"
 
 #include "cru/common/Event.hpp"
 #include "cru/platform/gui/UiApplication.hpp"
 #include "cru/platform/gui/Window.hpp"
-#include "render/Base.hpp"
+#include "../render/Base.hpp"
 
 #include <functional>
 
-namespace cru::ui {
+namespace cru::ui::host {
 struct AfterLayoutEventArgs {};
 
 // The bridge between control tree and native window.
 class WindowHost : public Object {
-  CRU_DEFINE_CLASS_LOG_TAG(u"cru::ui::WindowHost")
+  CRU_DEFINE_CLASS_LOG_TAG(u"cru::ui::host::WindowHost")
 
  public:
   WindowHost(Control* root_control);

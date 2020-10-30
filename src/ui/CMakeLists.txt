@@ -2,7 +2,7 @@ set(CRU_UI_INCLUDE_DIR ${CRU_INCLUDE_DIR}/cru/ui)
 
 add_library(cru_ui STATIC
 	Helper.hpp
-	RoutedEventDispatch.hpp
+	host/RoutedEventDispatch.hpp
 
 	ClickDetector.cpp
 	ContentControl.cpp
@@ -14,7 +14,6 @@ add_library(cru_ui STATIC
 	UiEvent.cpp
 	UiManager.cpp
 	Window.cpp
-	WindowHost.cpp
 	controls/Button.cpp
 	controls/Container.cpp
 	controls/FlexLayout.cpp
@@ -22,6 +21,7 @@ add_library(cru_ui STATIC
 	controls/TextBlock.cpp
 	controls/TextBox.cpp
 	controls/TextControlService.hpp
+	host/WindowHost.cpp
 	render/BorderRenderObject.cpp
 	render/CanvasRenderObject.cpp
 	render/FlexLayoutRenderObject.cpp
@@ -43,7 +43,6 @@ target_sources(cru_ui PUBLIC
 	${CRU_UI_INCLUDE_DIR}/UiEvent.hpp
 	${CRU_UI_INCLUDE_DIR}/UiManager.hpp
 	${CRU_UI_INCLUDE_DIR}/Window.hpp
-	${CRU_UI_INCLUDE_DIR}/WindowHost.hpp
 	${CRU_UI_INCLUDE_DIR}/controls/Base.hpp
 	${CRU_UI_INCLUDE_DIR}/controls/Button.hpp
 	${CRU_UI_INCLUDE_DIR}/controls/Container.hpp
@@ -51,6 +50,7 @@ target_sources(cru_ui PUBLIC
 	${CRU_UI_INCLUDE_DIR}/controls/StackLayout.hpp
 	${CRU_UI_INCLUDE_DIR}/controls/TextBox.hpp
 	${CRU_UI_INCLUDE_DIR}/controls/TextBlock.hpp
+	${CRU_UI_INCLUDE_DIR}/host/WindowHost.hpp
 	${CRU_UI_INCLUDE_DIR}/render/Base.hpp
 	${CRU_UI_INCLUDE_DIR}/render/BorderRenderObject.hpp
 	${CRU_UI_INCLUDE_DIR}/render/CanvasRenderObject.hpp
