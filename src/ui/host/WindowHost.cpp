@@ -1,6 +1,7 @@
 #include "cru/ui/host/WindowHost.hpp"
 
 #include "RoutedEventDispatch.hpp"
+#include "cru/common/Base.hpp"
 #include "cru/common/Logger.hpp"
 #include "cru/platform/graphics/Painter.hpp"
 #include "cru/platform/gui/InputMethod.hpp"
@@ -8,10 +9,12 @@
 #include "cru/platform/gui/Window.hpp"
 #include "cru/ui/DebugFlags.hpp"
 #include "cru/ui/Window.hpp"
+#include "cru/ui/host/LayoutPaintCycler.hpp"
 #include "cru/ui/render/MeasureRequirement.hpp"
 #include "cru/ui/render/RenderObject.hpp"
 
 #include <cstddef>
+#include <memory>
 
 namespace cru::ui::host {
 using platform::gui::INativeWindow;
@@ -113,6 +116,8 @@ WindowHost::WindowHost(Control* root_control)
   root_render_object_ = root_control->GetRenderObject();
   root_render_object_->SetWindowHostRecursive(this);
 
+  this->layout_paint_cycler_ = std::make_unique<LayoutPaintCycler>(this);
+
   BindNativeEvent(this, native_window, native_window->DestroyEvent(),
                   &WindowHost::OnNativeDestroy, event_revoker_guards_);
   BindNativeEvent(this, native_window, native_window->PaintEvent(),
@@ -141,13 +146,10 @@ WindowHost::~WindowHost() {
   }
 }
 
-void WindowHost::InvalidatePaint() {
-  if (native_window_) native_window_->RequestRepaint();
-}
+void WindowHost::InvalidatePaint() { layout_paint_cycler_->InvalidatePaint(); }
 
 void WindowHost::InvalidateLayout() {
-  need_layout_ = true;
-  this->InvalidatePaint();
+  layout_paint_cycler_->InvalidateLayout();
 }
 
 bool WindowHost::IsLayoutPreferToFillWindow() const {
@@ -184,6 +186,13 @@ void WindowHost::Relayout(const Size& available_size) {
   after_layout_stable_action_.clear();
   if constexpr (debug_flags::layout)
     log::TagDebug(log_tag, u"A relayout is finished.");
+}
+
+void WindowHost::Repaint() {
+  auto painter = native_window_->BeginPaint();
+  painter->Clear(colors::white);
+  root_render_object_->Draw(painter.get());
+  painter->EndDraw();
 }
 
 Control* WindowHost::GetFocusControl() { return focus_control_; }
@@ -236,7 +245,7 @@ Control* WindowHost::GetMouseCaptureControl() {
 }
 
 void WindowHost::RunAfterLayoutStable(std::function<void()> action) {
-  if (need_layout_) {
+  if (layout_paint_cycler_->IsLayoutDirty()) {
     after_layout_stable_action_.push_back(std::move(action));
   } else {
     action();
@@ -249,14 +258,8 @@ void WindowHost::OnNativeDestroy(INativeWindow* window, std::nullptr_t) {
 }
 
 void WindowHost::OnNativePaint(INativeWindow* window, std::nullptr_t) {
-  if (need_layout_) {
-    Relayout();
-    need_layout_ = false;
-  }
-  auto painter = window->BeginPaint();
-  painter->Clear(colors::white);
-  root_render_object_->Draw(painter.get());
-  painter->EndDraw();
+  CRU_UNUSED(window)
+  layout_paint_cycler_->InvalidatePaint();
 }
 
 void WindowHost::OnNativeResize(INativeWindow* window, const Size& size) {
@@ -397,4 +400,4 @@ Control* WindowHost::HitTest(const Point& point) {
   }
   return root_control_;
 }
-}  // namespace cru::ui
+}  // namespace cru::ui::host

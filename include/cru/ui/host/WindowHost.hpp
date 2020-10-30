@@ -7,8 +7,11 @@
 #include "../render/Base.hpp"
 
 #include <functional>
+#include <memory>
 
 namespace cru::ui::host {
+class LayoutPaintCycler;
+
 struct AfterLayoutEventArgs {};
 
 // The bridge between control tree and native window.
@@ -42,6 +45,8 @@ class WindowHost : public Object {
 
   void Relayout();
   void Relayout(const Size& available_size);
+
+  void Repaint();
 
   // Is layout is invalid, wait for relayout and then run the action. Otherwist
   // run it right now.
@@ -125,7 +130,8 @@ class WindowHost : public Object {
 
   platform::gui::INativeWindow* native_window_ = nullptr;
 
-  bool need_layout_ = false;
+  std::unique_ptr<LayoutPaintCycler> layout_paint_cycler_;
+
   Event<AfterLayoutEventArgs> after_layout_event_;
   std::vector<std::function<void()> > after_layout_stable_action_;
 

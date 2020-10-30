@@ -21,6 +21,7 @@ add_library(cru_ui STATIC
 	controls/TextBlock.cpp
 	controls/TextBox.cpp
 	controls/TextControlService.hpp
+	host/LayoutPaintCycler.cpp
 	host/WindowHost.cpp
 	render/BorderRenderObject.cpp
 	render/CanvasRenderObject.cpp
@@ -50,6 +51,7 @@ target_sources(cru_ui PUBLIC
 	${CRU_UI_INCLUDE_DIR}/controls/StackLayout.hpp
 	${CRU_UI_INCLUDE_DIR}/controls/TextBox.hpp
 	${CRU_UI_INCLUDE_DIR}/controls/TextBlock.hpp
+	${CRU_UI_INCLUDE_DIR}/host/LayoutPaintCycler.hpp
 	${CRU_UI_INCLUDE_DIR}/host/WindowHost.hpp
 	${CRU_UI_INCLUDE_DIR}/render/Base.hpp
 	${CRU_UI_INCLUDE_DIR}/render/BorderRenderObject.hpp

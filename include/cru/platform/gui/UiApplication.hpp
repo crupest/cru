@@ -67,6 +67,10 @@ class TimerAutoCanceler {
     return *this;
   }
 
+  TimerAutoCanceler& operator=(long long other) {
+    return this->operator=(TimerAutoCanceler(other));
+  }
+
   ~TimerAutoCanceler() { Reset(); }
 
   long long Release() {
