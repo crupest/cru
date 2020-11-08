@@ -14,12 +14,22 @@ class LayoutPaintCycler;
 
 struct AfterLayoutEventArgs {};
 
+struct CreateWindowParams {
+  CreateWindowParams(platform::gui::INativeWindow* parent = nullptr,
+                     platform::gui::CreateWindowFlag flag = {})
+      : parent(parent), flag(flag) {}
+
+  platform::gui::INativeWindow* parent;
+  platform::gui::CreateWindowFlag flag;
+};
+
 // The bridge between control tree and native window.
 class WindowHost : public Object {
   CRU_DEFINE_CLASS_LOG_TAG(u"cru::ui::host::WindowHost")
 
  public:
-  WindowHost(controls::Control* root_control);
+  WindowHost(controls::Control* root_control,
+             CreateWindowParams create_window_params = {});
 
   CRU_DELETE_COPY(WindowHost)
   CRU_DELETE_MOVE(WindowHost)

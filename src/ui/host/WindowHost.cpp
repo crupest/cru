@@ -103,10 +103,12 @@ inline void BindNativeEvent(
 }
 }  // namespace
 
-WindowHost::WindowHost(controls::Control* root_control)
+WindowHost::WindowHost(controls::Control* root_control,
+                       CreateWindowParams create_window_params)
     : root_control_(root_control), focus_control_(root_control) {
   const auto ui_application = IUiApplication::GetInstance();
-  auto native_window = ui_application->CreateWindow(nullptr);
+  auto native_window = ui_application->CreateWindow(create_window_params.parent,
+                                                    create_window_params.flag);
   native_window_ = native_window;
 
   root_control_->TraverseDescendants([this](controls::Control* control) {
@@ -141,11 +143,7 @@ WindowHost::WindowHost(controls::Control* root_control)
                   &WindowHost::OnNativeKeyUp, event_revoker_guards_);
 }
 
-WindowHost::~WindowHost() {
-  if (native_window_) {
-    native_window_->Close();
-  }
-}
+WindowHost::~WindowHost() {}
 
 void WindowHost::InvalidatePaint() { layout_paint_cycler_->InvalidatePaint(); }
 
