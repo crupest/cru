@@ -1,10 +1,9 @@
 #pragma once
-#include "Base.hpp"
+#include "../Base.hpp"
 
-#include "cru/common/Base.hpp"
+#include "../events/UiEvent.hpp"
 #include "cru/common/Event.hpp"
 #include "cru/platform/gui/Keyboard.hpp"
-#include "cru/ui/UiEvent.hpp"
 
 #include <cstddef>
 #include <functional>
@@ -16,7 +15,7 @@
 #include <unordered_map>
 #include <vector>
 
-namespace cru::ui {
+namespace cru::ui::helper {
 
 class ShortcutKeyBind {
  public:
@@ -57,12 +56,12 @@ class ShortcutKeyBind {
   platform::gui::KeyCode key_;
   platform::gui::KeyModifier modifier_;
 };
-}  // namespace cru::ui
+}  // namespace cru::ui::helper
 
 namespace std {
 template <>
-struct hash<cru::ui::ShortcutKeyBind> {
-  std::size_t operator()(const cru::ui::ShortcutKeyBind& value) const {
+struct hash<cru::ui::helper::ShortcutKeyBind> {
+  std::size_t operator()(const cru::ui::helper::ShortcutKeyBind& value) const {
     std::size_t result = 0;
     cru::hash_combine(result, static_cast<int>(value.GetKey()));
     cru::hash_combine(result, static_cast<int>(value.GetModifier()));
@@ -71,7 +70,7 @@ struct hash<cru::ui::ShortcutKeyBind> {
 };
 }  // namespace std
 
-namespace cru::ui {
+namespace cru::ui::helper {
 struct Shortcut {
   // Just for debug.
   std::u16string name;
@@ -112,7 +111,7 @@ class ShortcutHub : public Object {
   const std::vector<ShortcutInfo>& GetShortcutByKeyBind(
       const ShortcutKeyBind& key_bind) const;
 
-  void Install(Control* control);
+  void Install(controls::Control* control);
   void Uninstall();
 
  private:
@@ -127,4 +126,4 @@ class ShortcutHub : public Object {
 
   EventRevokerListGuard event_guard_;
 };
-}  // namespace cru::ui
+}  // namespace cru::ui::helper

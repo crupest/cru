@@ -1,10 +1,10 @@
 #pragma once
 #include "../Base.hpp"
 
+#include "../render/Base.hpp"
 #include "cru/common/Event.hpp"
 #include "cru/platform/gui/UiApplication.hpp"
 #include "cru/platform/gui/Window.hpp"
-#include "../render/Base.hpp"
 
 #include <functional>
 #include <memory>
@@ -19,7 +19,7 @@ class WindowHost : public Object {
   CRU_DEFINE_CLASS_LOG_TAG(u"cru::ui::host::WindowHost")
 
  public:
-  WindowHost(Control* root_control);
+  WindowHost(controls::Control* root_control);
 
   CRU_DELETE_COPY(WindowHost)
   CRU_DELETE_MOVE(WindowHost)
@@ -61,13 +61,15 @@ class WindowHost : public Object {
   // control. Even when mouse is captured by another control, this function
   // return the control under cursor. You can use `GetMouseCaptureControl` to
   // get more info.
-  Control* GetMouseHoverControl() const { return mouse_hover_control_; }
+  controls::Control* GetMouseHoverControl() const {
+    return mouse_hover_control_;
+  }
 
   //*************** region: focus ***************
 
-  Control* GetFocusControl();
+  controls::Control* GetFocusControl();
 
-  void SetFocusControl(Control* control);
+  void SetFocusControl(controls::Control* control);
 
   //*************** region: focus ***************
 
@@ -81,12 +83,12 @@ class WindowHost : public Object {
   // and capture is released, mouse enter event will be sent to the mouse-hover
   // control. If mouse is not on the capturing control and capture is set, mouse
   // leave event will be sent to the mouse-hover control.
-  bool CaptureMouseFor(Control* control);
+  bool CaptureMouseFor(controls::Control* control);
 
   // Return null if not captured.
-  Control* GetMouseCaptureControl();
+  controls::Control* GetMouseCaptureControl();
 
-  Control* HitTest(const Point& point);
+  controls::Control* HitTest(const Point& point);
 
   void UpdateCursor();
 
@@ -94,23 +96,19 @@ class WindowHost : public Object {
   //*************** region: native messages ***************
   void OnNativeDestroy(platform::gui::INativeWindow* window, std::nullptr_t);
   void OnNativePaint(platform::gui::INativeWindow* window, std::nullptr_t);
-  void OnNativeResize(platform::gui::INativeWindow* window,
-                      const Size& size);
+  void OnNativeResize(platform::gui::INativeWindow* window, const Size& size);
 
   void OnNativeFocus(platform::gui::INativeWindow* window,
                      cru::platform::gui::FocusChangeType focus);
 
-  void OnNativeMouseEnterLeave(
-      platform::gui::INativeWindow* window,
-      cru::platform::gui::MouseEnterLeaveType enter);
+  void OnNativeMouseEnterLeave(platform::gui::INativeWindow* window,
+                               cru::platform::gui::MouseEnterLeaveType enter);
   void OnNativeMouseMove(platform::gui::INativeWindow* window,
                          const Point& point);
-  void OnNativeMouseDown(
-      platform::gui::INativeWindow* window,
-      const platform::gui::NativeMouseButtonEventArgs& args);
-  void OnNativeMouseUp(
-      platform::gui::INativeWindow* window,
-      const platform::gui::NativeMouseButtonEventArgs& args);
+  void OnNativeMouseDown(platform::gui::INativeWindow* window,
+                         const platform::gui::NativeMouseButtonEventArgs& args);
+  void OnNativeMouseUp(platform::gui::INativeWindow* window,
+                       const platform::gui::NativeMouseButtonEventArgs& args);
 
   void OnNativeKeyDown(platform::gui::INativeWindow* window,
                        const platform::gui::NativeKeyEventArgs& args);
@@ -119,13 +117,13 @@ class WindowHost : public Object {
 
   //*************** region: event dispatcher helper ***************
 
-  void DispatchMouseHoverControlChangeEvent(Control* old_control,
-                                            Control* new_control,
+  void DispatchMouseHoverControlChangeEvent(controls::Control* old_control,
+                                            controls::Control* new_control,
                                             const Point& point, bool no_leave,
                                             bool no_enter);
 
  private:
-  Control* root_control_ = nullptr;
+  controls::Control* root_control_ = nullptr;
   render::RenderObject* root_render_object_ = nullptr;
 
   platform::gui::INativeWindow* native_window_ = nullptr;
@@ -137,12 +135,12 @@ class WindowHost : public Object {
 
   std::vector<EventRevokerGuard> event_revoker_guards_;
 
-  Control* mouse_hover_control_ = nullptr;
+  controls::Control* mouse_hover_control_ = nullptr;
 
-  Control* focus_control_;
+  controls::Control* focus_control_;
 
-  Control* mouse_captured_control_ = nullptr;
+  controls::Control* mouse_captured_control_ = nullptr;
 
   bool layout_prefer_to_fill_window_ = true;
 };
-}  // namespace cru::ui
+}  // namespace cru::ui::host

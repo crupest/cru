@@ -1,8 +1,7 @@
 #pragma once
-#include "cru/ui/Control.hpp"
-
 #include "cru/common/Logger.hpp"
 #include "cru/ui/DebugFlags.hpp"
+#include "cru/ui/controls/Control.hpp"
 
 #include <vector>
 
@@ -21,10 +20,11 @@ namespace cru::ui {
 // "original_sender", which is unchanged. And "args" will be perfectly forwarded
 // as the rest arguments.
 template <typename EventArgs, typename... Args>
-void DispatchEvent(const std::u16string_view& event_name,
-                   Control* const original_sender,
-                   event::RoutedEvent<EventArgs>* (Control::*event_ptr)(),
-                   Control* const last_receiver, Args&&... args) {
+void DispatchEvent(
+    const std::u16string_view& event_name,
+    controls::Control* const original_sender,
+    event::RoutedEvent<EventArgs>* (controls::Control::*event_ptr)(),
+    controls::Control* const last_receiver, Args&&... args) {
   CRU_UNUSED(event_name)
 
   if (original_sender == last_receiver) {
@@ -36,7 +36,7 @@ void DispatchEvent(const std::u16string_view& event_name,
     return;
   }
 
-  std::vector<Control*> receive_list;
+  std::vector<controls::Control*> receive_list;
 
   auto parent = original_sender;
   while (parent != last_receiver) {

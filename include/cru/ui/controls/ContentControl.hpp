@@ -1,7 +1,7 @@
 #pragma once
 #include "Control.hpp"
 
-namespace cru::ui {
+namespace cru::ui::controls {
 class ContentControl : public Control {
  protected:
   ContentControl() = default;
@@ -23,4 +23,4 @@ class ContentControl : public Control {
   using Control::AddChild;
   using Control::RemoveChild;
 };
-}  // namespace cru::ui
+}  // namespace cru::ui::controls

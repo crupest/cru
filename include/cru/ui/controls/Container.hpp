@@ -1,5 +1,5 @@
 #pragma once
-#include "../ContentControl.hpp"
+#include "ContentControl.hpp"
 
 namespace cru::ui::controls {
 class Container : public ContentControl {

@@ -1,4 +1,4 @@
-#include "cru/ui/UiEvent.hpp"
+#include "cru/ui/events/UiEvent.hpp"
 
 #include "cru/ui/render/RenderObject.hpp"
 

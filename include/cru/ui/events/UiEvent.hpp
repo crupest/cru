@@ -1,5 +1,5 @@
 #pragma once
-#include "Base.hpp"
+#include "../Base.hpp"
 
 #include "cru/common/Event.hpp"
 #include "cru/platform/gui/Keyboard.hpp"

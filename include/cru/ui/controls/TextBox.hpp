@@ -1,6 +1,5 @@
 #pragma once
-#include "../NoChildControl.hpp"
-#include "Base.hpp"
+#include "NoChildControl.hpp"
 
 #include <memory>
 

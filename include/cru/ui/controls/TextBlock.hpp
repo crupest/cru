@@ -1,5 +1,5 @@
 #pragma once
-#include "../NoChildControl.hpp"
+#include "NoChildControl.hpp"
 
 namespace cru::ui::controls {
 template <typename TControl>

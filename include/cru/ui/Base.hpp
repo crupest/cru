@@ -26,9 +26,11 @@ namespace mouse_buttons = cru::platform::gui::mouse_buttons;
 namespace colors = cru::platform::colors;
 
 //-------------------- region: forward declaration --------------------
+
+namespace controls {
 class Window;
 class Control;
-class ClickDetector;
+}  // namespace controls
 
 namespace host {
 class WindowHost;

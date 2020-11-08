@@ -1,4 +1,4 @@
-#include "cru/ui/Control.hpp"
+#include "cru/ui/controls/Control.hpp"
 
 #include "cru/common/Base.hpp"
 #include "cru/platform/gui/Cursor.hpp"
@@ -9,7 +9,7 @@
 
 #include <memory>
 
-namespace cru::ui {
+namespace cru::ui::controls {
 using platform::gui::ICursor;
 using platform::gui::IUiApplication;
 using platform::gui::SystemCursorType;
@@ -154,4 +154,4 @@ void Control::OnParentChanged(Control* old_parent, Control* new_parent) {
 void Control::OnAttachToHost(host::WindowHost* host) { CRU_UNUSED(host) }
 
 void Control::OnDetachFromHost(host::WindowHost* host) { CRU_UNUSED(host) }
-}  // namespace cru::ui
+}  // namespace cru::ui::controls

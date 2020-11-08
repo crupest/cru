@@ -1,13 +1,13 @@
 #pragma once
 #include "Base.hpp"
 
-#include "UiEvent.hpp"
+#include "../events/UiEvent.hpp"
+#include "../render/Base.hpp"
 #include "cru/common/Event.hpp"
-#include "render/Base.hpp"
 
 #include <string_view>
 
-namespace cru::ui {
+namespace cru::ui::controls {
 class Control : public Object {
   friend host::WindowHost;
 
@@ -148,4 +148,4 @@ class Control : public Object {
 
   std::shared_ptr<platform::gui::ICursor> cursor_ = nullptr;
 };
-}  // namespace cru::ui
+}  // namespace cru::ui::controls

@@ -1,8 +1,7 @@
 #pragma once
-#include "../ContentControl.hpp"
-#include "Base.hpp"
+#include "ContentControl.hpp"
 
-#include "../ClickDetector.hpp"
+#include "../helper/ClickDetector.hpp"
 
 namespace cru::ui::controls {
 class Button : public ContentControl {
@@ -37,6 +36,6 @@ class Button : public ContentControl {
 
   ButtonStyle style_;
 
-  ClickDetector click_detector_;
+  helper::ClickDetector click_detector_;
 };
 }  // namespace cru::ui::controls

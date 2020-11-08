@@ -1,7 +1,7 @@
 #pragma once
 #include "LayoutControl.hpp"
 
-namespace cru::ui {
+namespace cru::ui::controls {
 class Window final : public LayoutControl {
  public:
   static constexpr std::u16string_view control_type = u"Window";

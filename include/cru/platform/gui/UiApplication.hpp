@@ -1,12 +1,24 @@
 #pragma once
 #include "Base.hpp"
 
+#include "cru/common/Bitmask.hpp"
+
 #include <chrono>
 #include <functional>
 #include <memory>
 #include <vector>
 
 namespace cru::platform::gui {
+namespace details {
+struct CreateWindowFlagTag;
+}
+
+using CreateWindowFlag = Bitmask<details::CreateWindowFlagTag>;
+
+struct CreateWindowFlags {
+  static constexpr CreateWindowFlag NoCaptionAndBorder{0b1};
+};
+
 // The entry point of a ui application.
 struct IUiApplication : public virtual INativeResource {
  public:
@@ -43,7 +55,12 @@ struct IUiApplication : public virtual INativeResource {
   virtual void CancelTimer(long long id) = 0;
 
   virtual std::vector<INativeWindow*> GetAllWindow() = 0;
-  virtual INativeWindow* CreateWindow(INativeWindow* parent) = 0;
+
+  INativeWindow* CreateWindow(INativeWindow* parent) {
+    return this->CreateWindow(parent, CreateWindowFlag(0));
+  };
+  virtual INativeWindow* CreateWindow(INativeWindow* parent,
+                                      CreateWindowFlag flags) = 0;
 
   virtual cru::platform::graphics::IGraphFactory* GetGraphFactory() = 0;
 

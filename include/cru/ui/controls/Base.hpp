@@ -2,7 +2,7 @@
 #include "../Base.hpp"
 
 namespace cru::ui::controls {
-using ButtonStateStyle = BorderStyle;
+using ButtonStateStyle = ui::BorderStyle;
 
 struct ButtonStyle {
   // corresponds to ClickState::None
@@ -16,9 +16,9 @@ struct ButtonStyle {
 };
 
 struct TextBoxBorderStyle {
-  BorderStyle normal;
-  BorderStyle hover;
-  BorderStyle focus;
-  BorderStyle focus_hover;
+  ui::BorderStyle normal;
+  ui::BorderStyle hover;
+  ui::BorderStyle focus;
+  ui::BorderStyle focus_hover;
 };
 }  // namespace cru::ui::controls

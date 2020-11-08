@@ -1,7 +1,7 @@
 #pragma once
 #include "Control.hpp"
 
-namespace cru::ui {
+namespace cru::ui::controls {
 class LayoutControl : public Control {
  protected:
   LayoutControl() = default;

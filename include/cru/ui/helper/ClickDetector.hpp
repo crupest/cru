@@ -1,10 +1,10 @@
 #pragma once
-#include "Control.hpp"
+#include "../controls/Control.hpp"
 
-namespace cru::ui {
+namespace cru::ui::helper {
 class ClickEventArgs : Object {
  public:
-  ClickEventArgs(Control* sender, const Point& down_point,
+  ClickEventArgs(controls::Control* sender, const Point& down_point,
                  const Point& up_point, MouseButton button)
       : sender_(sender),
         down_point_(down_point),
@@ -16,13 +16,13 @@ class ClickEventArgs : Object {
 
   ~ClickEventArgs() override = default;
 
-  Control* GetSender() const { return sender_; }
+  controls::Control* GetSender() const { return sender_; }
   Point GetDownPoint() const { return down_point_; }
   Point GetUpPoint() const { return up_point_; }
   MouseButton GetButton() const { return button_; }
 
  private:
-  Control* sender_;
+  controls::Control* sender_;
   Point down_point_;
   Point up_point_;
   MouseButton button_;
@@ -39,14 +39,14 @@ class ClickDetector : public Object {
   CRU_DEFINE_CLASS_LOG_TAG(u"cru::ui::ClickDetector")
 
  public:
-  explicit ClickDetector(Control* control);
+  explicit ClickDetector(controls::Control* control);
 
   CRU_DELETE_COPY(ClickDetector)
   CRU_DELETE_MOVE(ClickDetector)
 
   ~ClickDetector() override = default;
 
-  Control* GetControl() const { return control_; }
+  controls::Control* GetControl() const { return control_; }
 
   ClickState GetState() const { return state_; }
 
@@ -69,7 +69,7 @@ class ClickDetector : public Object {
   void SetState(ClickState state);
 
  private:
-  Control* control_;
+  controls::Control* control_;
 
   ClickState state_;
 
@@ -84,4 +84,4 @@ class ClickDetector : public Object {
   Point down_point_;
   MouseButton button_;
 };
-}  // namespace cru::ui
+}  // namespace cru::ui::helper

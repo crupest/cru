@@ -4,23 +4,23 @@ add_library(cru_ui STATIC
 	Helper.hpp
 	host/RoutedEventDispatch.hpp
 
-	ClickDetector.cpp
-	ContentControl.cpp
-	Control.cpp
 	Helper.cpp
-	LayoutControl.cpp
-	NoChildControl.cpp
-	ShortcutHub.cpp
-	UiEvent.cpp
 	UiManager.cpp
-	Window.cpp
 	controls/Button.cpp
 	controls/Container.cpp
+	controls/ContentControl.cpp
+	controls/Control.cpp
 	controls/FlexLayout.cpp
+	controls/LayoutControl.cpp
+	controls/NoChildControl.cpp
 	controls/StackLayout.cpp
 	controls/TextBlock.cpp
 	controls/TextBox.cpp
 	controls/TextControlService.hpp
+	controls/Window.cpp
+	events/UiEvent.cpp
+	helper/ClickDetector.cpp
+	helper/ShortcutHub.cpp
 	host/LayoutPaintCycler.cpp
 	host/WindowHost.cpp
 	render/BorderRenderObject.cpp
@@ -34,23 +34,23 @@ add_library(cru_ui STATIC
 )
 target_sources(cru_ui PUBLIC
 	${CRU_UI_INCLUDE_DIR}/Base.hpp
-	${CRU_UI_INCLUDE_DIR}/ClickDetector.hpp
-	${CRU_UI_INCLUDE_DIR}/ContentControl.hpp
-	${CRU_UI_INCLUDE_DIR}/Control.hpp
 	${CRU_UI_INCLUDE_DIR}/DebugFlags.hpp
-	${CRU_UI_INCLUDE_DIR}/LayoutControl.hpp
-	${CRU_UI_INCLUDE_DIR}/NoChildControl.hpp
-	${CRU_UI_INCLUDE_DIR}/ShortcutHub.hpp
-	${CRU_UI_INCLUDE_DIR}/UiEvent.hpp
 	${CRU_UI_INCLUDE_DIR}/UiManager.hpp
-	${CRU_UI_INCLUDE_DIR}/Window.hpp
 	${CRU_UI_INCLUDE_DIR}/controls/Base.hpp
 	${CRU_UI_INCLUDE_DIR}/controls/Button.hpp
 	${CRU_UI_INCLUDE_DIR}/controls/Container.hpp
+	${CRU_UI_INCLUDE_DIR}/controls/ContentControl.hpp
+	${CRU_UI_INCLUDE_DIR}/controls/Control.hpp
 	${CRU_UI_INCLUDE_DIR}/controls/FlexLayout.hpp
+	${CRU_UI_INCLUDE_DIR}/controls/LayoutControl.hpp
+	${CRU_UI_INCLUDE_DIR}/controls/NoChildControl.hpp
 	${CRU_UI_INCLUDE_DIR}/controls/StackLayout.hpp
 	${CRU_UI_INCLUDE_DIR}/controls/TextBox.hpp
 	${CRU_UI_INCLUDE_DIR}/controls/TextBlock.hpp
+	${CRU_UI_INCLUDE_DIR}/controls/Window.hpp
+	${CRU_UI_INCLUDE_DIR}/events/UiEvent.hpp
+	${CRU_UI_INCLUDE_DIR}/helper/ClickDetector.hpp
+	${CRU_UI_INCLUDE_DIR}/helper/ShortcutHub.hpp
 	${CRU_UI_INCLUDE_DIR}/host/LayoutPaintCycler.hpp
 	${CRU_UI_INCLUDE_DIR}/host/WindowHost.hpp
 	${CRU_UI_INCLUDE_DIR}/render/Base.hpp

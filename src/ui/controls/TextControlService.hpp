@@ -8,10 +8,10 @@
 #include "cru/platform/gui/UiApplication.hpp"
 #include "cru/platform/gui/Window.hpp"
 #include "cru/ui/Base.hpp"
-#include "cru/ui/Control.hpp"
 #include "cru/ui/DebugFlags.hpp"
-#include "cru/ui/ShortcutHub.hpp"
-#include "cru/ui/UiEvent.hpp"
+#include "cru/ui/controls/Control.hpp"
+#include "cru/ui/events/UiEvent.hpp"
+#include "cru/ui/helper/ShortcutHub.hpp"
 #include "cru/ui/host/WindowHost.hpp"
 #include "cru/ui/render/CanvasRenderObject.hpp"
 #include "cru/ui/render/ScrollRenderObject.hpp"
@@ -472,7 +472,7 @@ class TextControlService : public Object {
   platform::gui::TimerAutoCanceler caret_timer_canceler_;
   int caret_blink_duration_ = k_default_caret_blink_duration;
 
-  ShortcutHub shortcut_hub_;
+  helper::ShortcutHub shortcut_hub_;
 
   // nullopt means not selecting
   std::optional<MouseButton> select_down_button_;

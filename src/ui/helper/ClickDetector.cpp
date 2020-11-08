@@ -1,11 +1,11 @@
-#include "cru/ui/ClickDetector.hpp"
+#include "cru/ui/helper/ClickDetector.hpp"
 
 #include "cru/common/Logger.hpp"
 
 #include <optional>
 
-namespace cru::ui {
-ClickDetector::ClickDetector(Control* control) {
+namespace cru::ui::helper {
+ClickDetector::ClickDetector(controls::Control* control) {
   Expects(control);
   control_ = control;
 
@@ -128,4 +128,4 @@ void ClickDetector::SetState(ClickState state) {
   state_ = state;
   state_change_event_.Raise(state);
 }
-}  // namespace cru::ui
+}  // namespace cru::ui::helper

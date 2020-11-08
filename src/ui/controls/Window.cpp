@@ -1,11 +1,11 @@
-#include "cru/ui/Window.hpp"
+#include "cru/ui/controls/Window.hpp"
 
 #include "cru/common/Base.hpp"
 #include "cru/ui/host/WindowHost.hpp"
 #include "cru/ui/render/Base.hpp"
 #include "cru/ui/render/StackLayoutRenderObject.hpp"
 
-namespace cru::ui {
+namespace cru::ui::controls {
 Window* Window::CreateOverlapped() { return new Window(); }
 
 Window::Window() : render_object_(new render::StackLayoutRenderObject()) {
@@ -29,4 +29,4 @@ void Window::OnRemoveChild(Control* child, Index position) {
   CRU_UNUSED(child);
   render_object_->RemoveChild(position);
 }
-}  // namespace cru::ui
+}  // namespace cru::ui::controls

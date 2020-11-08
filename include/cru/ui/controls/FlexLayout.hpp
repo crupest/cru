@@ -1,5 +1,5 @@
 #pragma once
-#include "../LayoutControl.hpp"
+#include "LayoutControl.hpp"
 
 namespace cru::ui::controls {
 class FlexLayout : public LayoutControl {

@@ -1,8 +1,6 @@
-#include "cru/ui/ContentControl.hpp"
+#include "cru/ui/controls/ContentControl.hpp"
 
-#include "cru/ui/Window.hpp"
-
-namespace cru::ui {
+namespace cru::ui::controls {
 Control* ContentControl::GetChild() const {
   if (GetChildren().empty()) return nullptr;
   return GetChildren()[0];
@@ -24,4 +22,4 @@ void ContentControl::OnChildChanged(Control* old_child, Control* new_child) {
   CRU_UNUSED(old_child)
   CRU_UNUSED(new_child)
 }
-}  // namespace cru::ui
+}  // namespace cru::ui::controls

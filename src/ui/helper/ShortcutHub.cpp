@@ -1,15 +1,15 @@
-#include "cru/ui/ShortcutHub.hpp"
+#include "cru/ui/helper/ShortcutHub.hpp"
 
 #include "cru/common/Logger.hpp"
-#include "cru/ui/Control.hpp"
 #include "cru/ui/DebugFlags.hpp"
+#include "cru/ui/controls/Control.hpp"
 
 #include <algorithm>
 #include <functional>
 #include <iterator>
 #include <optional>
 
-namespace cru::ui {
+namespace cru::ui::helper {
 int ShortcutHub::RegisterShortcut(Shortcut shortcut) {
   const int id = current_id_++;
   map_[shortcut.key_bind].push_back({id, std::move(shortcut.name),
@@ -62,7 +62,7 @@ const std::vector<ShortcutInfo>& ShortcutHub::GetShortcutByKeyBind(
   return empty_list_;
 }
 
-void ShortcutHub::Install(Control* control) {
+void ShortcutHub::Install(controls::Control* control) {
   if (!event_guard_.IsEmpty()) {
     log::Error(u"Shortcut hub is already installed. Failed to install.");
     return;
@@ -117,4 +117,4 @@ void ShortcutHub::OnKeyDown(event::KeyEventArgs& event) {
     }
   }
 }
-}  // namespace cru::ui
+}  // namespace cru::ui::helper

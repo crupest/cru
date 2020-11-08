@@ -36,8 +36,8 @@ WinUiApplication::WinUiApplication() {
   log::Logger::GetInstance()->AddSource(
       std::make_unique<::cru::platform::win::WinStdOutLoggerSource>());
 
-  graph_factory_ =
-      std::make_unique<cru::platform::graphics::win::direct::DirectGraphFactory>();
+  graph_factory_ = std::make_unique<
+      cru::platform::graphics::win::direct::DirectGraphFactory>();
 
   god_window_ = std::make_unique<GodWindow>(this);
   timer_manager_ = std::make_unique<TimerManager>(god_window_.get());
@@ -99,13 +99,17 @@ std::vector<INativeWindow*> WinUiApplication::GetAllWindow() {
   return result;
 }
 
-INativeWindow* WinUiApplication::CreateWindow(INativeWindow* parent) {
+INativeWindow* WinUiApplication::CreateWindow(INativeWindow* parent,
+                                              CreateWindowFlag flag) {
   WinNativeWindow* p = nullptr;
   if (parent != nullptr) {
     p = CheckPlatform<WinNativeWindow>(parent, GetPlatformId());
   }
   return new WinNativeWindow(this, window_manager_->GetGeneralWindowClass(),
-                             WS_OVERLAPPEDWINDOW, p);
+                             flag & CreateWindowFlags::NoCaptionAndBorder
+                                 ? WS_POPUP
+                                 : WS_OVERLAPPEDWINDOW,
+                             p);
 }
 
 cru::platform::graphics::IGraphFactory* WinUiApplication::GetGraphFactory() {

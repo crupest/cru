@@ -62,8 +62,10 @@ class RenderObject : public Object {
   RenderObject& operator=(RenderObject&& other) = delete;
   ~RenderObject() override = default;
 
-  Control* GetAttachedControl() const { return control_; }
-  void SetAttachedControl(Control* new_control) { control_ = new_control; }
+  controls::Control* GetAttachedControl() const { return control_; }
+  void SetAttachedControl(controls::Control* new_control) {
+    control_ = new_control;
+  }
 
   host::WindowHost* GetWindowHost() const { return window_host_; }
 
@@ -135,7 +137,9 @@ class RenderObject : public Object {
   // Add offset before pass point to children.
   virtual RenderObject* HitTest(const Point& point) = 0;
 
-  IEvent<host::WindowHost*>* AttachToHostEvent() { return &attach_to_host_event_; }
+  IEvent<host::WindowHost*>* AttachToHostEvent() {
+    return &attach_to_host_event_;
+  }
   IEvent<std::nullptr_t>* DetachFromHostEvent() {
     return &detach_from_host_event_;
   }
@@ -208,7 +212,7 @@ class RenderObject : public Object {
   void SetWindowHostRecursive(host::WindowHost* host);
 
  private:
-  Control* control_ = nullptr;
+  controls::Control* control_ = nullptr;
   host::WindowHost* window_host_ = nullptr;
 
   RenderObject* parent_ = nullptr;
