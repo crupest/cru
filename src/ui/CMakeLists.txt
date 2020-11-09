@@ -14,6 +14,7 @@ add_library(cru_ui STATIC
 	controls/LayoutControl.cpp
 	controls/NoChildControl.cpp
 	controls/Popup.cpp
+	controls/RootControl.cpp
 	controls/StackLayout.cpp
 	controls/TextBlock.cpp
 	controls/TextBox.cpp
@@ -46,6 +47,7 @@ target_sources(cru_ui PUBLIC
 	${CRU_UI_INCLUDE_DIR}/controls/LayoutControl.hpp
 	${CRU_UI_INCLUDE_DIR}/controls/NoChildControl.hpp
 	${CRU_UI_INCLUDE_DIR}/controls/Popup.hpp
+	${CRU_UI_INCLUDE_DIR}/controls/RootControl.hpp
 	${CRU_UI_INCLUDE_DIR}/controls/StackLayout.hpp
 	${CRU_UI_INCLUDE_DIR}/controls/TextBox.hpp
 	${CRU_UI_INCLUDE_DIR}/controls/TextBlock.hpp

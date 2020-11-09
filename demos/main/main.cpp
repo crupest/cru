@@ -23,7 +23,7 @@ int main() {
 
   auto application = CreateUiApplication();
 
-  const auto window = Window::CreateOverlapped();
+  const auto window = Window::Create();
 
   const auto flex_layout = FlexLayout::Create();
   flex_layout->SetFlexDirection(cru::ui::FlexDirection::Vertical);

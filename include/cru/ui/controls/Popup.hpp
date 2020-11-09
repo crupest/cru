@@ -1,10 +1,13 @@
 #pragma once
-#include "LayoutControl.hpp"
+#include "RootControl.hpp"
+
+#include "cru/ui/Base.hpp"
+#include "cru/platform/gui/Base.hpp"
 
 #include <memory>
 
 namespace cru::ui::controls {
-class Popup : public LayoutControl {
+class Popup : public RootControl {
  public:
   explicit Popup(Control* attached_control = nullptr);
 
@@ -13,11 +16,9 @@ class Popup : public LayoutControl {
 
   ~Popup() override;
 
- private:
-  std::unique_ptr<host::WindowHost> window_host_;
-
-  std::unique_ptr<render::StackLayoutRenderObject> render_object_;
-
-  Control* attached_control_;
+ protected:
+  gsl::not_null<platform::gui::INativeWindow*> CreateNativeWindow(
+      gsl::not_null<host::WindowHost*> host,
+      platform::gui::INativeWindow* parent) override;
 };
 }  // namespace cru::ui::controls

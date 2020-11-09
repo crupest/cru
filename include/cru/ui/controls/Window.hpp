@@ -1,36 +1,32 @@
 #pragma once
-#include "LayoutControl.hpp"
+#include "cru/platform/gui/Base.hpp"
+#include "cru/ui/controls/RootControl.hpp"
+
+#include "cru/common/Base.hpp"
 
 namespace cru::ui::controls {
-class Window final : public LayoutControl {
+class Window final : public RootControl {
  public:
   static constexpr std::u16string_view control_type = u"Window";
 
  public:
-  static Window* CreateOverlapped();
+  static Window* Create(Control* attached_control = nullptr);
 
  private:
-  Window();
+  explicit Window(Control* attached_control);
 
  public:
-  Window(const Window& other) = delete;
-  Window(Window&& other) = delete;
-  Window& operator=(const Window& other) = delete;
-  Window& operator=(Window&& other) = delete;
+  CRU_DELETE_COPY(Window)
+  CRU_DELETE_MOVE(Window)
+
   ~Window() override;
 
  public:
-  std::u16string_view GetControlType() const final;
+  std::u16string_view GetControlType() const final { return control_type; }
 
-  render::RenderObject* GetRenderObject() const override;
-
-  // If create is false and native window is not create, it will not be created
-  // and shown.
-  void Show(bool create = true);
-
- private:
-  std::unique_ptr<host::WindowHost> window_host_;
-
-  std::unique_ptr<render::StackLayoutRenderObject> render_object_;
+ protected:
+  gsl::not_null<platform::gui::INativeWindow*> CreateNativeWindow(
+      gsl::not_null<host::WindowHost*> host,
+      platform::gui::INativeWindow* parent) override;
 };
 }  // namespace cru::ui::controls
