@@ -223,10 +223,12 @@ void WindowHost::SetFocusControl(controls::Control* control) {
 
 bool WindowHost::CaptureMouseFor(controls::Control* control) {
   if (!native_window_) return false;
+  if (!native_window_->CaptureMouse()) return false;
 
   if (control == mouse_captured_control_) return true;
 
   if (control == nullptr) {
+    native_window_->ReleaseMouse();
     const auto old_capture_control = mouse_captured_control_;
     mouse_captured_control_ =
         nullptr;  // update this in case this is used in event handlers
