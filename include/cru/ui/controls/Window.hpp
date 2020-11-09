@@ -24,13 +24,13 @@ class Window final : public LayoutControl {
 
   render::RenderObject* GetRenderObject() const override;
 
- protected:
-  void OnAddChild(Control* child, Index position) override;
-  void OnRemoveChild(Control* child, Index position) override;
+  // If create is false and native window is not create, it will not be created
+  // and shown.
+  void Show(bool create = true);
 
  private:
   std::unique_ptr<host::WindowHost> window_host_;
 
   std::unique_ptr<render::StackLayoutRenderObject> render_object_;
 };
-}  // namespace cru::ui
+}  // namespace cru::ui::controls

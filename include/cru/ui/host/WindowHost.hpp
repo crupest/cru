@@ -28,8 +28,7 @@ class WindowHost : public Object {
   CRU_DEFINE_CLASS_LOG_TAG(u"cru::ui::host::WindowHost")
 
  public:
-  WindowHost(controls::Control* root_control,
-             CreateWindowParams create_window_params = {});
+  WindowHost(controls::Control* root_control);
 
   CRU_DELETE_COPY(WindowHost)
   CRU_DELETE_MOVE(WindowHost)
@@ -38,6 +37,10 @@ class WindowHost : public Object {
 
  public:
   platform::gui::INativeWindow* GetNativeWindow() { return native_window_; }
+
+  // Do nothing if native window is already created.
+  gsl::not_null<platform::gui::INativeWindow*> CreateNativeWindow(
+      CreateWindowParams create_window_params = {});
 
   // Mark the layout as invalid, and arrange a re-layout later.
   // This method could be called more than one times in a message cycle. But
@@ -102,6 +105,10 @@ class WindowHost : public Object {
 
   void UpdateCursor();
 
+  IEvent<platform::gui::INativeWindow*>* NativeWindowChangeEvent() {
+    return &native_window_change_event_;
+  }
+
  private:
   //*************** region: native messages ***************
   void OnNativeDestroy(platform::gui::INativeWindow* window, std::nullptr_t);
@@ -152,5 +159,7 @@ class WindowHost : public Object {
   controls::Control* mouse_captured_control_ = nullptr;
 
   bool layout_prefer_to_fill_window_ = true;
+
+  Event<platform::gui::INativeWindow*> native_window_change_event_;
 };
 }  // namespace cru::ui::host

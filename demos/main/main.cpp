@@ -45,7 +45,7 @@ int main() {
   const auto text_box = TextBox::Create();
   flex_layout->AddChild(text_box, 2);
 
-  window->GetWindowHost()->GetNativeWindow()->SetVisible(true);
+  window->Show();
 
   return application->Run();
 }

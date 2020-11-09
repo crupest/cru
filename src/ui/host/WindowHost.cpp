@@ -103,14 +103,8 @@ inline void BindNativeEvent(
 }
 }  // namespace
 
-WindowHost::WindowHost(controls::Control* root_control,
-                       CreateWindowParams create_window_params)
+WindowHost::WindowHost(controls::Control* root_control)
     : root_control_(root_control), focus_control_(root_control) {
-  const auto ui_application = IUiApplication::GetInstance();
-  auto native_window = ui_application->CreateWindow(create_window_params.parent,
-                                                    create_window_params.flag);
-  native_window_ = native_window;
-
   root_control_->TraverseDescendants([this](controls::Control* control) {
     control->window_host_ = this;
     control->OnAttachToHost(this);
@@ -120,6 +114,20 @@ WindowHost::WindowHost(controls::Control* root_control,
   root_render_object_->SetWindowHostRecursive(this);
 
   this->layout_paint_cycler_ = std::make_unique<LayoutPaintCycler>(this);
+}
+
+WindowHost::~WindowHost() {}
+
+gsl::not_null<platform::gui::INativeWindow*> WindowHost::CreateNativeWindow(
+    CreateWindowParams create_window_params) {
+  if (native_window_ != nullptr) return native_window_;
+
+  const auto ui_application = IUiApplication::GetInstance();
+
+  auto native_window = ui_application->CreateWindow(create_window_params.parent,
+                                                    create_window_params.flag);
+
+  native_window_ = native_window;
 
   BindNativeEvent(this, native_window, native_window->DestroyEvent(),
                   &WindowHost::OnNativeDestroy, event_revoker_guards_);
@@ -141,9 +149,11 @@ WindowHost::WindowHost(controls::Control* root_control,
                   &WindowHost::OnNativeKeyDown, event_revoker_guards_);
   BindNativeEvent(this, native_window, native_window->KeyUpEvent(),
                   &WindowHost::OnNativeKeyUp, event_revoker_guards_);
-}
 
-WindowHost::~WindowHost() {}
+  native_window_change_event_.Raise(native_window);
+
+  return native_window_;
+}
 
 void WindowHost::InvalidatePaint() { layout_paint_cycler_->InvalidatePaint(); }
 
@@ -254,6 +264,9 @@ void WindowHost::RunAfterLayoutStable(std::function<void()> action) {
 void WindowHost::OnNativeDestroy(INativeWindow* window, std::nullptr_t) {
   CRU_UNUSED(window)
   this->native_window_ = nullptr;
+  event_revoker_guards_.clear();
+
+  native_window_change_event_.Raise(nullptr);
 }
 
 void WindowHost::OnNativePaint(INativeWindow* window, std::nullptr_t) {

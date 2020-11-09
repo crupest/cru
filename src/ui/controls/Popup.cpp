@@ -9,11 +9,10 @@
 namespace cru::ui::controls {
 Popup::Popup(Control* attached_control) : attached_control_(attached_control) {
   render_object_ = std::make_unique<render::StackLayoutRenderObject>();
+  render_object_->SetAttachedControl(this);
   SetContainerRenderObject(render_object_.get());
 
-  window_host_ = std::make_unique<host::WindowHost>(
-      this, host::CreateWindowParams(
-                nullptr, platform::gui::CreateWindowFlags::NoCaptionAndBorder));
+  window_host_ = std::make_unique<host::WindowHost>(this);
 }
 
 Popup::~Popup() = default;
