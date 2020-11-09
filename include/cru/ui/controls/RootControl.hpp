@@ -18,9 +18,16 @@ class RootControl : public LayoutControl {
  public:
   render::RenderObject* GetRenderObject() const override;
 
+  void EnsureWindowCreated();
+
   // If create is false and native window is not create, it will not be created
   // and shown.
   void Show(bool create = true);
+
+  // If native window does not exist, nothing will be done. It will not save it
+  // and use it when creating window. So call this after ensuring window
+  // created.
+  void SetRect(const Rect& rect);
 
  protected:
   virtual gsl::not_null<platform::gui::INativeWindow*> CreateNativeWindow(

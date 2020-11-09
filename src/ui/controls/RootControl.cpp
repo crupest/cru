@@ -24,6 +24,15 @@ render::RenderObject* RootControl::GetRenderObject() const {
   return render_object_.get();
 }
 
+void RootControl::EnsureWindowCreated() { this->GetNativeWindow(true); }
+
+void RootControl::SetRect(const Rect& rect) {
+  auto native_window = GetNativeWindow(false);
+  if (!native_window) return;
+
+  native_window->SetWindowRect(rect);
+}
+
 void RootControl::Show(bool create) {
   platform::gui::INativeWindow* native_window = GetNativeWindow(create);
   if (!native_window) return;
