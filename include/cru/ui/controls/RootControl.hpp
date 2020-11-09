@@ -24,6 +24,7 @@ class RootControl : public LayoutControl {
   // and shown.
   void Show(bool create = true);
 
+  Rect GetRect();
   void SetRect(const Rect& rect);
 
  protected:
