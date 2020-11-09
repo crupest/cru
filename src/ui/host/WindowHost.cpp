@@ -150,6 +150,10 @@ gsl::not_null<platform::gui::INativeWindow*> WindowHost::CreateNativeWindow(
   BindNativeEvent(this, native_window, native_window->KeyUpEvent(),
                   &WindowHost::OnNativeKeyUp, event_revoker_guards_);
 
+  if (saved_rect_) {
+    native_window->SetWindowRect(saved_rect_.value());
+  }
+
   native_window_change_event_.Raise(native_window);
 
   return native_window_;
@@ -263,8 +267,25 @@ void WindowHost::RunAfterLayoutStable(std::function<void()> action) {
   }
 }
 
+Rect WindowHost::GetWindowRect() {
+  if (native_window_) return native_window_->GetWindowRect();
+  return saved_rect_.value_or(Rect{});
+}
+
+void WindowHost::SetSavedWindowRect(std::optional<Rect> rect) {
+  saved_rect_ = std::move(rect);
+}
+
+void WindowHost::SetWindowRect(const Rect& rect) {
+  SetSavedWindowRect(rect);
+  if (native_window_) native_window_->SetWindowRect(rect);
+}
+
 void WindowHost::OnNativeDestroy(INativeWindow* window, std::nullptr_t) {
   CRU_UNUSED(window)
+
+  saved_rect_ = this->native_window_->GetWindowRect();
+
   this->native_window_ = nullptr;
   event_revoker_guards_.clear();
 

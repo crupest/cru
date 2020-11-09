@@ -24,9 +24,6 @@ class RootControl : public LayoutControl {
   // and shown.
   void Show(bool create = true);
 
-  // If native window does not exist, nothing will be done. It will not save it
-  // and use it when creating window. So call this after ensuring window
-  // created.
   void SetRect(const Rect& rect);
 
  protected:

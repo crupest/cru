@@ -8,6 +8,7 @@
 
 #include <functional>
 #include <memory>
+#include <optional>
 
 namespace cru::ui::host {
 class LayoutPaintCycler;
@@ -109,6 +110,14 @@ class WindowHost : public Object {
     return &native_window_change_event_;
   }
 
+  // If window exist, return window actual size. Otherwise if saved rect exists,
+  // return it. Otherwise return 0.
+  Rect GetWindowRect();
+
+  void SetSavedWindowRect(std::optional<Rect> rect);
+
+  void SetWindowRect(const Rect& rect);
+
  private:
   //*************** region: native messages ***************
   void OnNativeDestroy(platform::gui::INativeWindow* window, std::nullptr_t);
@@ -161,5 +170,7 @@ class WindowHost : public Object {
   bool layout_prefer_to_fill_window_ = true;
 
   Event<platform::gui::INativeWindow*> native_window_change_event_;
+
+  std::optional<Rect> saved_rect_;
 };
 }  // namespace cru::ui::host
