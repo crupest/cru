@@ -31,6 +31,8 @@ Button::Button() : click_detector_(this) {
 
   render_object_ = std::make_unique<render::BorderRenderObject>();
   render_object_->SetAttachedControl(this);
+  SetContainerRenderObject(render_object_.get());
+
   Set(render_object_.get(), style_.normal);
   render_object_->SetBorderEnabled(true);
 
@@ -62,11 +64,4 @@ Button::~Button() = default;
 render::RenderObject* Button::GetRenderObject() const {
   return render_object_.get();
 }
-
-void Button::OnChildChanged(Control* old_child, Control* new_child) {
-  if (old_child != nullptr) render_object_->RemoveChild(0);
-  if (new_child != nullptr)
-    render_object_->AddChild(new_child->GetRenderObject(), 0);
-}
-
 }  // namespace cru::ui::controls

@@ -34,10 +34,6 @@ class FlexLayout : public LayoutControl {
   FlexChildLayoutData GetChildLayoutData(Control* control);
   void SetChildLayoutData(Control* control, FlexChildLayoutData data);
 
- protected:
-  void OnAddChild(Control* child, Index position) override;
-  void OnRemoveChild(Control* child, Index position) override;
-
  private:
   std::shared_ptr<render::FlexLayoutRenderObject> render_object_;
 };

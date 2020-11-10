@@ -1,6 +1,8 @@
 #pragma once
 #include "Control.hpp"
 
+#include "cru/ui/render/RenderObject.hpp"
+
 namespace cru::ui::controls {
 class ContentControl : public Control {
  protected:
@@ -19,8 +21,18 @@ class ContentControl : public Control {
  protected:
   virtual void OnChildChanged(Control* old_child, Control* new_child);
 
+  render::RenderObject* GetContainerRenderObject() const {
+    return container_render_object_;
+  }
+  void SetContainerRenderObject(render::RenderObject* ro) {
+    container_render_object_ = ro;
+  }
+
  private:
   using Control::AddChild;
   using Control::RemoveChild;
+
+ private:
+  render::RenderObject* container_render_object_ = nullptr;
 };
 }  // namespace cru::ui::controls

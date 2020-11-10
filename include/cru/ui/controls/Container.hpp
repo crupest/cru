@@ -19,9 +19,6 @@ class Container : public ContentControl {
 
   render::RenderObject* GetRenderObject() const override;
 
- protected:
-  void OnChildChanged(Control* old_child, Control* new_child) override;
-
  private:
   std::unique_ptr<render::BorderRenderObject> render_object_;
 };
