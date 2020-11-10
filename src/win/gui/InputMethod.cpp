@@ -198,7 +198,7 @@ void WinInputMethodContext::SetCandidateWindowPosition(const Point& point) {
   auto himc = GetHIMC();
 
   ::CANDIDATEFORM form;
-  form.dwIndex = 1;
+  form.dwIndex = 0;
   form.dwStyle = CFS_CANDIDATEPOS;
 
   form.ptCurrentPos = native_window_->DipToPixel(point);

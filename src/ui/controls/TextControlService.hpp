@@ -298,6 +298,24 @@ class TextControlService : public Object {
                     selection.GetStart(), selection.GetEnd());
   }
 
+  void UpdateInputMethodPosition() {
+    if (auto input_method_context = this->GetInputMethodContext()) {
+      Point right_bottom =
+          this->GetTextRenderObject()->GetTotalOffset() +
+          this->GetTextRenderObject()->GetCaretRect().GetRightBottom();
+      right_bottom.x += 5;
+      right_bottom.y += 5;
+
+      if constexpr (debug_flags::text_service) {
+        log::TagDebug(log_tag,
+                      u"Calculate input method candidate window position: {}.",
+                      right_bottom.ToDebugString());
+      }
+
+      input_method_context->SetCandidateWindowPosition(right_bottom);
+    }
+  }
+
   template <typename TArgs>
   void SetupOneHandler(event::RoutedEvent<TArgs>* (Control::*event)(),
                        void (TextControlService::*handler)(
@@ -449,6 +467,12 @@ class TextControlService : public Object {
                 if (text == u"\b") return;
                 this->ReplaceSelectedText(text);
               });
+
+      host::WindowHost* window_host = control_->GetWindowHost();
+      if (window_host)
+        input_method_context_event_guard_ +=
+            window_host->AfterLayoutEvent()->AddHandler(
+                [this](auto) { this->UpdateInputMethodPosition(); });
     }
   }
 
@@ -481,5 +505,5 @@ class TextControlService : public Object {
 
   // nullopt means not selecting
   std::optional<MouseButton> select_down_button_;
-};  // namespace cru::ui::controls
+};
 }  // namespace cru::ui::controls

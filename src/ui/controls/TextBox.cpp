@@ -10,9 +10,7 @@
 
 namespace cru::ui::controls {
 using render::BorderRenderObject;
-using render::CanvasRenderObject;
 using render::ScrollRenderObject;
-using render::StackLayoutRenderObject;
 using render::TextRenderObject;
 
 TextBox::TextBox()

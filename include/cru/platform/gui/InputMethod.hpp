@@ -37,7 +37,8 @@ struct IInputMethodContext : virtual INativeResource {
 
   virtual CompositionText GetCompositionText() = 0;
 
-  // Set the candidate window lefttop. Use this method to prepare typing.
+  // Set the candidate window lefttop. Relative to window lefttop. Use this
+  // method to prepare typing.
   virtual void SetCandidateWindowPosition(const Point& point) = 0;
 
   // Triggered when user starts composition.

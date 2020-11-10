@@ -29,7 +29,7 @@ void LayoutPaintCycler::OnCycle() {
       host_->Repaint();
     }
   }
-  layout_dirty_ = true;
-  paint_dirty_ = true;
+  layout_dirty_ = false;
+  paint_dirty_ = false;
 }
 }  // namespace cru::ui::host

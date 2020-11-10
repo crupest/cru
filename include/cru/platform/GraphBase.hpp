@@ -22,6 +22,12 @@ struct Point final {
     return fmt::format(u"({}, {})", ToUtf16String(x), ToUtf16String(y));
   }
 
+  constexpr Point& operator+=(const Point& other) {
+    this->x += other.x;
+    this->y += other.y;
+    return *this;
+  }
+
   float x = 0;
   float y = 0;
 };
