@@ -21,8 +21,10 @@ add_library(cru_ui STATIC
 	controls/TextControlService.hpp
 	controls/Window.cpp
 	events/UiEvent.cpp
+	helper/BorderStyle.cpp
 	helper/ClickDetector.cpp
 	helper/ShortcutHub.cpp
+	helper/Styler.cpp
 	host/LayoutPaintCycler.cpp
 	host/WindowHost.cpp
 	render/BorderRenderObject.cpp
@@ -53,8 +55,10 @@ target_sources(cru_ui PUBLIC
 	${CRU_UI_INCLUDE_DIR}/controls/TextBlock.hpp
 	${CRU_UI_INCLUDE_DIR}/controls/Window.hpp
 	${CRU_UI_INCLUDE_DIR}/events/UiEvent.hpp
+	${CRU_UI_INCLUDE_DIR}/helper/BorderStyle.hpp
 	${CRU_UI_INCLUDE_DIR}/helper/ClickDetector.hpp
 	${CRU_UI_INCLUDE_DIR}/helper/ShortcutHub.hpp
+	${CRU_UI_INCLUDE_DIR}/helper/Styler.hpp
 	${CRU_UI_INCLUDE_DIR}/host/LayoutPaintCycler.hpp
 	${CRU_UI_INCLUDE_DIR}/host/WindowHost.hpp
 	${CRU_UI_INCLUDE_DIR}/render/Base.hpp
