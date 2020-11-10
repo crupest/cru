@@ -4,6 +4,7 @@
 #include "cru/common/StringUtil.hpp"
 #include "cru/platform/graphics/Font.hpp"
 #include "cru/platform/graphics/Painter.hpp"
+#include "cru/platform/gui/Cursor.hpp"
 #include "cru/platform/gui/InputMethod.hpp"
 #include "cru/platform/gui/UiApplication.hpp"
 #include "cru/platform/gui/Window.hpp"
@@ -50,10 +51,14 @@ class TextControlService : public Object {
       if (this->caret_visible_) {
         this->SetupCaret();
       }
+      this->control_->SetCursor(
+          GetUiApplication()->GetCursorManager()->GetSystemCursor(
+              platform::gui::SystemCursorType::IBeam));
     } else {
       this->AbortSelection();
       this->TearDownHandlers();
       this->TearDownCaret();
+      this->control_->SetCursor(nullptr);
     }
   }
 

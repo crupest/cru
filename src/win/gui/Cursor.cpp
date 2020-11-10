@@ -35,7 +35,8 @@ WinCursor* LoadWinCursor(const wchar_t* name) {
 
 WinCursorManager::WinCursorManager()
     : sys_arrow_(LoadWinCursor(IDC_ARROW)),
-      sys_hand_(LoadWinCursor(IDC_HAND)) {}
+      sys_hand_(LoadWinCursor(IDC_HAND)),
+      sys_ibeam_(LoadWinCursor(IDC_IBEAM)) {}
 
 std::shared_ptr<WinCursor> WinCursorManager::GetSystemWinCursor(
     SystemCursorType type) {
@@ -44,6 +45,8 @@ std::shared_ptr<WinCursor> WinCursorManager::GetSystemWinCursor(
       return sys_arrow_;
     case SystemCursorType::Hand:
       return sys_hand_;
+    case SystemCursorType::IBeam:
+      return sys_ibeam_;
     default:
       throw std::runtime_error("Unknown system cursor value.");
   }

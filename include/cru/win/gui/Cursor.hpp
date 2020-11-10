@@ -45,5 +45,6 @@ class WinCursorManager : public WinNativeResource,
  private:
   std::shared_ptr<WinCursor> sys_arrow_;
   std::shared_ptr<WinCursor> sys_hand_;
+  std::shared_ptr<WinCursor> sys_ibeam_;
 };
 }  // namespace cru::platform::gui::win

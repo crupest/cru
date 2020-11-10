@@ -4,6 +4,8 @@
 #include <memory>
 
 namespace cru::platform::gui {
+enum class SystemCursorType { Arrow, Hand, IBeam };
+
 struct ICursor : virtual INativeResource {};
 
 struct ICursorManager : virtual INativeResource {

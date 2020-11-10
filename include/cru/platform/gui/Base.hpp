@@ -25,11 +25,6 @@ constexpr MouseButton middle{0b10};
 constexpr MouseButton right{0b100};
 }  // namespace mouse_buttons
 
-enum class SystemCursorType {
-  Arrow,
-  Hand,
-};
-
 struct NativeMouseButtonEventArgs {
   MouseButton button;
   Point point;
