@@ -32,12 +32,10 @@ int main() {
 
   window->AddChild(flex_layout, 0);
 
-  const auto text_block = TextBlock::Create();
-  text_block->SetText(u"Hello World from CruUI!");
+  const auto text_block = TextBlock::Create(u"Hello World from CruUI!", true);
   flex_layout->AddChild(text_block, 0);
 
-  const auto button_text_block = TextBlock::Create();
-  button_text_block->SetText(u"OK");
+  const auto button_text_block = TextBlock::Create(u"OK");
   const auto button = Button::Create();
   button->SetChild(button_text_block);
   flex_layout->AddChild(button, 1);

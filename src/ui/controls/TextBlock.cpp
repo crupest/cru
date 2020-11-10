@@ -7,9 +7,16 @@
 #include "cru/ui/render/TextRenderObject.hpp"
 
 namespace cru::ui::controls {
-using render::CanvasRenderObject;
-using render::StackLayoutRenderObject;
 using render::TextRenderObject;
+
+TextBlock* TextBlock::Create() { return new TextBlock(); }
+
+TextBlock* TextBlock::Create(std::u16string text, bool selectable) {
+  auto c = new TextBlock();
+  c->SetText(text);
+  c->SetSelectable(selectable);
+  return c;
+}
 
 TextBlock::TextBlock() {
   const auto theme_resources = UiManager::GetInstance()->GetThemeResources();
@@ -21,7 +28,9 @@ TextBlock::TextBlock() {
   text_render_object_->SetAttachedControl(this);
 
   service_ = std::make_unique<TextControlService<TextBlock>>(this);
-  service_->SetEnabled(true);
+
+  service_->SetEnabled(false);
+  service_->SetEditable(false);
 }
 
 TextBlock::~TextBlock() = default;
@@ -35,6 +44,10 @@ std::u16string TextBlock::GetText() const { return service_->GetText(); }
 void TextBlock::SetText(std::u16string text) {
   service_->SetText(std::move(text));
 }
+
+bool TextBlock::IsSelectable() const { return service_->IsEnabled(); }
+
+void TextBlock::SetSelectable(bool value) { service_->SetEnabled(value); }
 
 gsl::not_null<render::TextRenderObject*> TextBlock::GetTextRenderObject() {
   return text_render_object_.get();

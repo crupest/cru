@@ -9,7 +9,8 @@ class TextBlock : public NoChildControl {
  public:
   static constexpr std::u16string_view control_type = u"TextBlock";
 
-  static TextBlock* Create() { return new TextBlock(); }
+  static TextBlock* Create();
+  static TextBlock* Create(std::u16string text, bool selectable = false);
 
  protected:
   TextBlock();
@@ -27,6 +28,9 @@ class TextBlock : public NoChildControl {
 
   std::u16string GetText() const;
   void SetText(std::u16string text);
+
+  bool IsSelectable() const;
+  void SetSelectable(bool value);
 
   gsl::not_null<render::TextRenderObject*> GetTextRenderObject();
   render::ScrollRenderObject* GetScrollRenderObject() { return nullptr; }
