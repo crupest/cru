@@ -2,9 +2,11 @@
 #include "ContentControl.hpp"
 
 #include "../helper/ClickDetector.hpp"
+#include "IClickableControl.hpp"
+#include "cru/common/Event.hpp"
 
 namespace cru::ui::controls {
-class Button : public ContentControl {
+class Button : public ContentControl, public virtual IClickableControl {
  public:
   static constexpr std::u16string_view control_type = u"Button";
 
@@ -25,6 +27,14 @@ class Button : public ContentControl {
   render::RenderObject* GetRenderObject() const override;
 
  public:
+  helper::ClickState GetClickState() override {
+    return click_detector_.GetState();
+  }
+
+  IEvent<helper::ClickState>* ClickStateChangeEvent() override {
+    return click_detector_.StateChangeEvent();
+  }
+
   const ButtonStyle& GetStyle() const { return style_; }
   void SetStyle(ButtonStyle style);
 

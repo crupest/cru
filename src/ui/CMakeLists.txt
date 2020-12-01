@@ -24,7 +24,6 @@ add_library(cru_ui STATIC
 	helper/BorderStyle.cpp
 	helper/ClickDetector.cpp
 	helper/ShortcutHub.cpp
-	helper/Styler.cpp
 	host/LayoutPaintCycler.cpp
 	host/WindowHost.cpp
 	render/BorderRenderObject.cpp
@@ -35,6 +34,7 @@ add_library(cru_ui STATIC
 	render/ScrollRenderObject.cpp
 	render/StackLayoutRenderObject.cpp
 	render/TextRenderObject.cpp
+	style/Trigger.cpp
 )
 target_sources(cru_ui PUBLIC
 	${CRU_UI_INCLUDE_DIR}/Base.hpp
@@ -58,7 +58,6 @@ target_sources(cru_ui PUBLIC
 	${CRU_UI_INCLUDE_DIR}/helper/BorderStyle.hpp
 	${CRU_UI_INCLUDE_DIR}/helper/ClickDetector.hpp
 	${CRU_UI_INCLUDE_DIR}/helper/ShortcutHub.hpp
-	${CRU_UI_INCLUDE_DIR}/helper/Styler.hpp
 	${CRU_UI_INCLUDE_DIR}/host/LayoutPaintCycler.hpp
 	${CRU_UI_INCLUDE_DIR}/host/WindowHost.hpp
 	${CRU_UI_INCLUDE_DIR}/render/Base.hpp
@@ -72,5 +71,6 @@ target_sources(cru_ui PUBLIC
 	${CRU_UI_INCLUDE_DIR}/render/ScrollRenderObject.hpp
 	${CRU_UI_INCLUDE_DIR}/render/StackLayoutRenderObject.hpp
 	${CRU_UI_INCLUDE_DIR}/render/TextRenderObject.hpp
+	${CRU_UI_INCLUDE_DIR}/style/Trigger.hpp
 )
 target_link_libraries(cru_ui PUBLIC cru_platform_gui)
