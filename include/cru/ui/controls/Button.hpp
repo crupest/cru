@@ -2,11 +2,15 @@
 #include "ContentControl.hpp"
 
 #include "../helper/ClickDetector.hpp"
+#include "IBorderControl.hpp"
 #include "IClickableControl.hpp"
 #include "cru/common/Event.hpp"
+#include "cru/ui/style/ApplyBorderStyleInfo.hpp"
 
 namespace cru::ui::controls {
-class Button : public ContentControl, public virtual IClickableControl {
+class Button : public ContentControl,
+               public virtual IClickableControl,
+               public virtual IBorderControl {
  public:
   static constexpr std::u16string_view control_type = u"Button";
 
@@ -34,6 +38,8 @@ class Button : public ContentControl, public virtual IClickableControl {
   IEvent<helper::ClickState>* ClickStateChangeEvent() override {
     return click_detector_.StateChangeEvent();
   }
+
+  void ApplyBorderStyle(const style::ApplyBorderStyleInfo& style) override;
 
   const ButtonStyle& GetStyle() const { return style_; }
   void SetStyle(ButtonStyle style);

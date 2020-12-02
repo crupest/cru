@@ -35,6 +35,7 @@ add_library(cru_ui STATIC
 	render/StackLayoutRenderObject.cpp
 	render/TextRenderObject.cpp
 	style/Condition.cpp
+	style/Styler.cpp
 )
 target_sources(cru_ui PUBLIC
 	${CRU_UI_INCLUDE_DIR}/Base.hpp
@@ -46,6 +47,8 @@ target_sources(cru_ui PUBLIC
 	${CRU_UI_INCLUDE_DIR}/controls/ContentControl.hpp
 	${CRU_UI_INCLUDE_DIR}/controls/Control.hpp
 	${CRU_UI_INCLUDE_DIR}/controls/FlexLayout.hpp
+	${CRU_UI_INCLUDE_DIR}/controls/IBorderControl.hpp
+	${CRU_UI_INCLUDE_DIR}/controls/IClickableControl.hpp
 	${CRU_UI_INCLUDE_DIR}/controls/LayoutControl.hpp
 	${CRU_UI_INCLUDE_DIR}/controls/NoChildControl.hpp
 	${CRU_UI_INCLUDE_DIR}/controls/Popup.hpp
@@ -71,6 +74,8 @@ target_sources(cru_ui PUBLIC
 	${CRU_UI_INCLUDE_DIR}/render/ScrollRenderObject.hpp
 	${CRU_UI_INCLUDE_DIR}/render/StackLayoutRenderObject.hpp
 	${CRU_UI_INCLUDE_DIR}/render/TextRenderObject.hpp
+	${CRU_UI_INCLUDE_DIR}/style/ApplyBorderStyleInfo.hpp
 	${CRU_UI_INCLUDE_DIR}/style/Condition.hpp
+	${CRU_UI_INCLUDE_DIR}/style/Styler.hpp
 )
 target_link_libraries(cru_ui PUBLIC cru_platform_gui)

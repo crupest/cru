@@ -64,4 +64,8 @@ Button::~Button() = default;
 render::RenderObject* Button::GetRenderObject() const {
   return render_object_.get();
 }
+
+void Button::ApplyBorderStyle(const style::ApplyBorderStyleInfo& style) {
+  render_object_->ApplyBorderStyle(style);
+}
 }  // namespace cru::ui::controls

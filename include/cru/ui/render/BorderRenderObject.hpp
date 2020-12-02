@@ -1,5 +1,7 @@
 #pragma once
+#include "../style/ApplyBorderStyleInfo.hpp"
 #include "RenderObject.hpp"
+#include "cru/ui/Base.hpp"
 
 namespace cru::ui::render {
 class BorderRenderObject : public RenderObject {
@@ -63,6 +65,8 @@ class BorderRenderObject : public RenderObject {
   }
 
   void SetBorderStyle(const BorderStyle& style);
+
+  void ApplyBorderStyle(const style::ApplyBorderStyleInfo& style);
 
   RenderObject* HitTest(const Point& point) override;
 

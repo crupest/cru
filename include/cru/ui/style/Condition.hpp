@@ -10,10 +10,8 @@
 #include <vector>
 
 namespace cru::ui::style {
-class Condition {
+class Condition : public Object {
  public:
-  virtual ~Condition() = default;
-
   virtual std::vector<IBaseEvent*> ChangeOn(
       controls::Control* control) const = 0;
   virtual bool Judge(controls::Control* control) const = 0;
