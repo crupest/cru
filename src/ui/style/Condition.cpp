@@ -1,4 +1,5 @@
 #include "cru/ui/style/Condition.hpp"
+#include <memory>
 
 #include "cru/common/Event.hpp"
 #include "cru/ui/controls/Control.hpp"
@@ -6,8 +7,11 @@
 #include "cru/ui/helper/ClickDetector.hpp"
 
 namespace cru::ui::style {
-CompoundCondition::CompoundCondition(std::vector<Condition*> conditions)
-    : conditions_(std::move(conditions)) {}
+CompoundCondition::CompoundCondition(
+    std::vector<std::unique_ptr<Condition>> conditions)
+    : conditions_(std::move(conditions)) {
+  for (const auto& p : conditions_) readonly_conditions_.push_back(p.get());
+}
 
 std::vector<IBaseEvent*> CompoundCondition::ChangeOn(
     controls::Control* control) const {
@@ -19,6 +23,15 @@ std::vector<IBaseEvent*> CompoundCondition::ChangeOn(
     }
   }
 
+  return result;
+}
+
+std::vector<std::unique_ptr<Condition>> CompoundCondition::CloneConditions()
+    const {
+  std::vector<std::unique_ptr<Condition>> result;
+  for (auto condition : GetConditions()) {
+    result.push_back(condition->Clone());
+  }
   return result;
 }
 

@@ -5,6 +5,7 @@
 #include "cru/ui/controls/IClickableControl.hpp"
 #include "cru/ui/helper/ClickDetector.hpp"
 
+#include <memory>
 #include <type_traits>
 #include <utility>
 #include <vector>
@@ -15,18 +16,26 @@ class Condition : public Object {
   virtual std::vector<IBaseEvent*> ChangeOn(
       controls::Control* control) const = 0;
   virtual bool Judge(controls::Control* control) const = 0;
+
+  virtual std::unique_ptr<Condition> Clone() const = 0;
 };
 
 class CompoundCondition : public Condition {
  public:
-  explicit CompoundCondition(std::vector<Condition*> conditions);
+  explicit CompoundCondition(
+      std::vector<std::unique_ptr<Condition>> conditions);
 
-  const std::vector<Condition*>& GetConditions() const { return conditions_; }
+  const std::vector<Condition*>& GetConditions() const {
+    return readonly_conditions_;
+  }
+
+  std::vector<std::unique_ptr<Condition>> CloneConditions() const;
 
   std::vector<IBaseEvent*> ChangeOn(controls::Control* control) const override;
 
  private:
-  std::vector<Condition*> conditions_;
+  std::vector<std::unique_ptr<Condition>> conditions_;
+  std::vector<Condition*> readonly_conditions_;
 };
 
 class AndCondition : public CompoundCondition {
@@ -34,6 +43,10 @@ class AndCondition : public CompoundCondition {
   using CompoundCondition::CompoundCondition;
 
   bool Judge(controls::Control* control) const override;
+
+  std::unique_ptr<Condition> Clone() const override {
+    return std::make_unique<AndCondition>(CloneConditions());
+  }
 };
 
 class OrCondition : public CompoundCondition {
@@ -41,6 +54,10 @@ class OrCondition : public CompoundCondition {
   using CompoundCondition::CompoundCondition;
 
   bool Judge(controls::Control* control) const override;
+
+  std::unique_ptr<Condition> Clone() const override {
+    return std::make_unique<OrCondition>(CloneConditions());
+  }
 };
 
 class FocusCondition : public Condition {
@@ -49,6 +66,10 @@ class FocusCondition : public Condition {
 
   std::vector<IBaseEvent*> ChangeOn(controls::Control* control) const override;
   bool Judge(controls::Control* control) const override;
+
+  std::unique_ptr<Condition> Clone() const override {
+    return std::make_unique<FocusCondition>(has_focus_);
+  }
 
  private:
   bool has_focus_;
@@ -60,6 +81,10 @@ class ClickStateCondition : public Condition {
 
   std::vector<IBaseEvent*> ChangeOn(controls::Control* control) const override;
   bool Judge(controls::Control* control) const override;
+
+  std::unique_ptr<Condition> Clone() const override {
+    return std::make_unique<ClickStateCondition>(click_state_);
+  }
 
  private:
   helper::ClickState click_state_;
