@@ -8,12 +8,16 @@
 #include <initializer_list>
 #include <memory>
 #include <utility>
+#include <variant>
 #include <vector>
 
 namespace cru {
 class EventRevoker;
 
 namespace details {
+template <class>
+inline constexpr bool always_false_v = false;
+
 // Base class of all Event<T...>.
 // It erases event args types and provides a
 // unified form to create event revoker and
@@ -25,10 +29,8 @@ class EventBase : public SelfResolvable<EventBase> {
   using EventHandlerToken = long;
 
   EventBase() {}
-  EventBase(const EventBase& other) = delete;
-  EventBase(EventBase&& other) = delete;
-  EventBase& operator=(const EventBase& other) = delete;
-  EventBase& operator=(EventBase&& other) = delete;
+  CRU_DELETE_COPY(EventBase)
+  CRU_DEFAULT_MOVE(EventBase)
   virtual ~EventBase() = default;
 
   // Remove the handler with the given token. If the token
@@ -85,59 +87,73 @@ using DeducedEventArgs = std::conditional_t<
     std::is_lvalue_reference_v<TRaw>, TRaw,
     std::conditional_t<std::is_scalar_v<TRaw>, TRaw, const TRaw&>>;
 
+struct IBaseEvent {
+ protected:
+  IBaseEvent() = default;
+  CRU_DELETE_COPY(IBaseEvent)
+  CRU_DEFAULT_MOVE(IBaseEvent)
+  ~IBaseEvent() = default;  // Note that user can't destroy a Event via IEvent.
+                            // So destructor should be protected.
+
+  using SpyOnlyHandler = std::function<void()>;
+
+ public:
+  virtual EventRevoker AddHandler(SpyOnlyHandler handler) = 0;
+};
+
 // Provides an interface of event.
 // IEvent only allow to add handler but not to raise the event. You may
 // want to create an Event object and expose IEvent only so users won't
 // be able to emit the event.
 template <typename TEventArgs>
-struct IEvent {
+struct IEvent : virtual IBaseEvent {
  public:
   using EventArgs = DeducedEventArgs<TEventArgs>;
   using EventHandler = std::function<void(EventArgs)>;
+  using HandlerVariant = std::variant<SpyOnlyHandler, EventHandler>;
 
  protected:
   IEvent() = default;
-  IEvent(const IEvent& other) = delete;
-  IEvent(IEvent&& other) = delete;
-  IEvent& operator=(const IEvent& other) = delete;
-  IEvent& operator=(IEvent&& other) = delete;
+  CRU_DELETE_COPY(IEvent)
+  CRU_DEFAULT_MOVE(IEvent)
   ~IEvent() = default;  // Note that user can't destroy a Event via IEvent. So
                         // destructor should be protected.
 
  public:
-  virtual EventRevoker AddHandler(const EventHandler& handler) = 0;
-  virtual EventRevoker AddHandler(EventHandler&& handler) = 0;
+  virtual EventRevoker AddHandler(EventHandler handler) = 0;
 };
 
 // A non-copyable non-movable Event class.
 // It stores a list of event handlers.
 template <typename TEventArgs>
 class Event : public details::EventBase, public IEvent<TEventArgs> {
+  using typename IBaseEvent::SpyOnlyHandler;
   using typename IEvent<TEventArgs>::EventHandler;
+  using typename IEvent<TEventArgs>::HandlerVariant;
 
  private:
   struct HandlerData {
     HandlerData(EventHandlerToken token, EventHandler handler)
         : token(token), handler(handler) {}
+    HandlerData(EventHandlerToken token, SpyOnlyHandler handler)
+        : token(token), handler(handler) {}
     EventHandlerToken token;
-    EventHandler handler;
+    HandlerVariant handler;
   };
 
  public:
   Event() = default;
-  Event(const Event&) = delete;
-  Event& operator=(const Event&) = delete;
-  Event(Event&&) = delete;
-  Event& operator=(Event&&) = delete;
+  CRU_DELETE_COPY(Event)
+  CRU_DEFAULT_MOVE(Event)
   ~Event() = default;
 
-  EventRevoker AddHandler(const EventHandler& handler) override {
+  EventRevoker AddHandler(SpyOnlyHandler handler) override {
     const auto token = current_token_++;
-    this->handler_data_list_.emplace_back(token, handler);
+    this->handler_data_list_.emplace_back(token, std::move(handler));
     return CreateRevoker(token);
   }
 
-  EventRevoker AddHandler(EventHandler&& handler) override {
+  EventRevoker AddHandler(EventHandler handler) override {
     const auto token = current_token_++;
     this->handler_data_list_.emplace_back(token, std::move(handler));
     return CreateRevoker(token);
@@ -150,13 +166,25 @@ class Event : public details::EventBase, public IEvent<TEventArgs> {
   // is called, so even if you delete a handler during this period, all handlers
   // in the snapshot will be executed.
   void Raise(typename IEvent<TEventArgs>::EventArgs args) {
-    std::vector<EventHandler> handlers;
+    std::vector<HandlerVariant> handlers;
     handlers.reserve(this->handler_data_list_.size());
     for (const auto& data : this->handler_data_list_) {
       handlers.push_back(data.handler);
     }
-    for (const auto& handler : handlers) {
-      handler(args);
+    for (const auto& handler_variant : handlers) {
+      std::visit(
+          [&args](auto&& handler) {
+            using T = std::decay_t<decltype(handler)>;
+            if constexpr (std::is_same_v<T, SpyOnlyHandler>) {
+              handler();
+            } else if constexpr (std::is_same_v<T, EventHandler>) {
+              handler(args);
+            } else {
+              static_assert(details::always_false_v<T>,
+                            "non-exhaustive visitor!");
+            }
+          },
+          handler_variant);
     }
   }
 

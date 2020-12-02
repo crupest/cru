@@ -39,9 +39,27 @@ class SelfResolvable {
   SelfResolvable() : resolver_(new T*(static_cast<T*>(this))) {}
   SelfResolvable(const SelfResolvable&) = delete;
   SelfResolvable& operator=(const SelfResolvable&) = delete;
-  SelfResolvable(SelfResolvable&&) = delete;
-  SelfResolvable& operator=(SelfResolvable&&) = delete;
-  virtual ~SelfResolvable() { (*resolver_) = nullptr; }
+
+  // Resolvers to old object will resolve to new object.
+  SelfResolvable(SelfResolvable&& other)
+      : resolver_(std::move(other.resolver_)) {
+    (*resolver_) = static_cast<T*>(this);
+  }
+
+  // Old resolvers for this object will resolve to nullptr.
+  // Other's resolvers will now resolve to this.
+  SelfResolvable& operator=(SelfResolvable&& other) {
+    if (this != &other) {
+      (*resolver_) = nullptr;
+      resolver_ = std::move(other.resolver_);
+      (*resolver_) = static_cast<T*>(this);
+    }
+    return *this;
+  }
+
+  virtual ~SelfResolvable() {
+    if (resolver_ != nullptr) (*resolver_) = nullptr;
+  }
 
   ObjectResolver<T> CreateResolver() { return ObjectResolver<T>(resolver_); }
 
