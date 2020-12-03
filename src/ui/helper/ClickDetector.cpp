@@ -1,6 +1,7 @@
 #include "cru/ui/helper/ClickDetector.hpp"
 
 #include "cru/common/Logger.hpp"
+#include "cru/ui/DebugFlags.hpp"
 
 #include <optional>
 
@@ -44,8 +45,10 @@ ClickDetector::ClickDetector(controls::Control* control) {
             if (this->enable_ && (button & this->trigger_button_) &&
                 this->state_ == ClickState::Hover) {
               if (!this->control_->CaptureMouse()) {
-                log::TagDebug(log_tag,
-                              u"Failed to capture mouse when begin click.");
+                if constexpr (debug_flags::click_detector) {
+                  log::TagDebug(log_tag,
+                                u"Failed to capture mouse when begin click.");
+                }
                 return;
               }
               this->down_point_ = args.GetPoint();
@@ -106,24 +109,24 @@ void ClickDetector::SetTriggerButton(MouseButton trigger_button) {
 }
 
 void ClickDetector::SetState(ClickState state) {
-#ifdef CRU_DEBUG
-  auto to_string = [](ClickState state) -> std::u16string_view {
-    switch (state) {
-      case ClickState::None:
-        return u"None";
-      case ClickState::Hover:
-        return u"Hover";
-      case ClickState::Press:
-        return u"Press";
-      case ClickState::PressInactive:
-        return u"PressInvactive";
-      default:
-        UnreachableCode();
-    }
-  };
-  log::TagDebug(log_tag, u"Click state changed, new state: {}.",
-                to_string(state));
-#endif
+  if constexpr (debug_flags::click_detector) {
+    auto to_string = [](ClickState state) -> std::u16string_view {
+      switch (state) {
+        case ClickState::None:
+          return u"None";
+        case ClickState::Hover:
+          return u"Hover";
+        case ClickState::Press:
+          return u"Press";
+        case ClickState::PressInactive:
+          return u"PressInvactive";
+        default:
+          UnreachableCode();
+      }
+    };
+    log::TagDebug(log_tag, u"Click state changed, new state: {}.",
+                  to_string(state));
+  }
 
   state_ = state;
   state_change_event_.Raise(state);
