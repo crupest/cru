@@ -6,6 +6,7 @@
 #include "cru/ui/Base.hpp"
 #include "cru/ui/host/WindowHost.hpp"
 #include "cru/ui/render/RenderObject.hpp"
+#include "cru/ui/style/StyleRuleSet.hpp"
 
 #include <memory>
 
@@ -15,6 +16,8 @@ using platform::gui::IUiApplication;
 using platform::gui::SystemCursorType;
 
 Control::Control() {
+  style_rule_set_ = std::make_unique<style::StyleRuleSet>(this);
+
   MouseEnterEvent()->Direct()->AddHandler([this](event::MouseEventArgs&) {
     this->is_mouse_over_ = true;
     this->OnMouseHoverChange(true);
@@ -92,6 +95,10 @@ void Control::SetCursor(std::shared_ptr<ICursor> cursor) {
   if (host != nullptr) {
     host->UpdateCursor();
   }
+}
+
+style::StyleRuleSet* Control::GetStyleRuleSet() {
+  return style_rule_set_.get();
 }
 
 void Control::AddChild(Control* control, const Index position) {

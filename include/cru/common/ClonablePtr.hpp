@@ -8,13 +8,16 @@
 namespace cru {
 template <typename TClonable>
 class ClonablePtr {
+  template <typename T>
+  friend class ClonablePtr;
+
  public:
   using element_type = typename std::unique_ptr<TClonable>::element_type;
   using pointer = typename std::unique_ptr<TClonable>::pointer;
 
   ClonablePtr() = default;
   ClonablePtr(std::nullptr_t) noexcept : ptr_(nullptr) {}
-  ClonablePtr(pointer p) noexcept : ptr_(p) {}
+  explicit ClonablePtr(pointer p) noexcept : ptr_(p) {}
   ClonablePtr(std::unique_ptr<element_type>&& p) noexcept
       : ptr_(std::move(p)) {}
   template <typename O,
@@ -52,7 +55,7 @@ class ClonablePtr {
   }
   ClonablePtr& operator=(const ClonablePtr& other) {
     if (this != &other) {
-      ptr_ = std::unique_ptr<element_type>(other.ptr->Clone());
+      ptr_ = std::unique_ptr<element_type>(other.ptr_->Clone());
     }
     return *this;
   }

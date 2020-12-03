@@ -21,6 +21,21 @@ class Condition : public Object {
   virtual Condition* Clone() const = 0;
 };
 
+class NoCondition : public Condition {
+ public:
+  static ClonablePtr<NoCondition> Create() {
+    return ClonablePtr<NoCondition>(new NoCondition);
+  };
+
+  std::vector<IBaseEvent*> ChangeOn(controls::Control*) const override {
+    return {};
+  }
+
+  bool Judge(controls::Control*) const override { return true; }
+
+  NoCondition* Clone() const override { return new NoCondition; }
+};
+
 class CompoundCondition : public Condition {
  public:
   explicit CompoundCondition(std::vector<ClonablePtr<Condition>> conditions);
@@ -51,6 +66,10 @@ class OrCondition : public CompoundCondition {
 
 class FocusCondition : public Condition {
  public:
+  static ClonablePtr<FocusCondition> Create(bool has_focus) {
+    return ClonablePtr<FocusCondition>(new FocusCondition(has_focus));
+  }
+
   explicit FocusCondition(bool has_focus);
 
   std::vector<IBaseEvent*> ChangeOn(controls::Control* control) const override;
@@ -64,8 +83,31 @@ class FocusCondition : public Condition {
   bool has_focus_;
 };
 
+class HoverCondition : public Condition {
+ public:
+  static ClonablePtr<HoverCondition> Create(bool hover) {
+    return ClonablePtr<HoverCondition>(new HoverCondition(hover));
+  }
+
+  explicit HoverCondition(bool hover) : hover_(hover) {}
+
+  std::vector<IBaseEvent*> ChangeOn(controls::Control* control) const override;
+  bool Judge(controls::Control* control) const override;
+
+  HoverCondition* Clone() const override { return new HoverCondition(hover_); }
+
+ private:
+  bool hover_;
+};
+
 class ClickStateCondition : public Condition {
  public:
+  static ClonablePtr<ClickStateCondition> Create(
+      helper::ClickState click_state) {
+    return ClonablePtr<ClickStateCondition>(
+        new ClickStateCondition(click_state));
+  }
+
   explicit ClickStateCondition(helper::ClickState click_state);
 
   std::vector<IBaseEvent*> ChangeOn(controls::Control* control) const override;

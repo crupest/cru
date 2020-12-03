@@ -1,5 +1,6 @@
 #pragma once
 #include "NoChildControl.hpp"
+#include "IBorderControl.hpp"
 
 #include <memory>
 
@@ -7,7 +8,7 @@ namespace cru::ui::controls {
 template <typename TControl>
 class TextControlService;
 
-class TextBox : public NoChildControl {
+class TextBox : public NoChildControl, public IBorderControl {
  public:
   static constexpr std::u16string_view control_type = u"TextBox";
 
@@ -29,21 +30,12 @@ class TextBox : public NoChildControl {
   gsl::not_null<render::TextRenderObject*> GetTextRenderObject();
   render::ScrollRenderObject* GetScrollRenderObject();
 
-  const TextBoxBorderStyle& GetBorderStyle();
-  void SetBorderStyle(TextBoxBorderStyle border_style);
-
- protected:
-  void OnMouseHoverChange(bool newHover) override;
-
- private:
-  void UpdateBorderStyle();
+  void ApplyBorderStyle(const style::ApplyBorderStyleInfo& style) override;
 
  private:
   std::unique_ptr<render::BorderRenderObject> border_render_object_;
   std::unique_ptr<render::ScrollRenderObject> scroll_render_object_;
   std::unique_ptr<render::TextRenderObject> text_render_object_;
-
-  TextBoxBorderStyle border_style_;
 
   std::unique_ptr<TextControlService<TextBox>> service_;
 };

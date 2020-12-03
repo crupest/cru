@@ -40,6 +40,10 @@ namespace render {
 class RenderObject;
 }
 
+namespace style {
+class StyleRuleSet;
+}
+
 //-------------------- region: basic types --------------------
 namespace internal {
 constexpr int align_start = 0;
@@ -86,14 +90,6 @@ inline bool operator==(const CornerRadius& left, const CornerRadius& right) {
 inline bool operator!=(const CornerRadius& left, const CornerRadius& right) {
   return !(left == right);
 }
-
-struct BorderStyle {
-  std::shared_ptr<platform::graphics::IBrush> border_brush;
-  Thickness border_thickness;
-  CornerRadius border_radius;
-  std::shared_ptr<platform::graphics::IBrush> foreground_brush;
-  std::shared_ptr<platform::graphics::IBrush> background_brush;
-};
 
 class CanvasPaintEventArgs {
  public:

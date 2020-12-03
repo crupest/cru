@@ -18,8 +18,6 @@ TextBox::TextBox()
       scroll_render_object_(new ScrollRenderObject()) {
   const auto theme_resources = UiManager::GetInstance()->GetThemeResources();
 
-  border_style_ = theme_resources->text_box_border_style;
-
   text_render_object_ = std::make_unique<TextRenderObject>(
       theme_resources->text_brush, theme_resources->default_font,
       theme_resources->text_selection_brush, theme_resources->caret_brush);
@@ -38,17 +36,8 @@ TextBox::TextBox()
   service_->SetEditable(true);
 
   border_render_object_->SetBorderEnabled(true);
-  border_render_object_->SetBorderStyle(border_style_.normal);
 
-  GainFocusEvent()->Direct()->AddHandler([this](event::FocusChangeEventArgs&) {
-    this->service_->SetCaretVisible(true);
-    this->UpdateBorderStyle();
-  });
-
-  LoseFocusEvent()->Direct()->AddHandler([this](event::FocusChangeEventArgs&) {
-    this->service_->SetCaretVisible(false);
-    this->UpdateBorderStyle();
-  });
+  GetStyleRuleSet()->Set(theme_resources->text_box_style);
 }
 
 TextBox::~TextBox() {}
@@ -65,19 +54,7 @@ render::ScrollRenderObject* TextBox::GetScrollRenderObject() {
   return scroll_render_object_.get();
 }
 
-const TextBoxBorderStyle& TextBox::GetBorderStyle() { return border_style_; }
-
-void TextBox::SetBorderStyle(TextBoxBorderStyle border_style) {
-  border_style_ = std::move(border_style);
-}
-
-void TextBox::OnMouseHoverChange(bool) { UpdateBorderStyle(); }
-
-void TextBox::UpdateBorderStyle() {
-  const auto focus = HasFocus();
-  const auto hover = IsMouseOver();
-  border_render_object_->SetBorderStyle(
-      focus ? (hover ? border_style_.focus_hover : border_style_.focus)
-            : (hover ? border_style_.hover : border_style_.normal));
+void TextBox::ApplyBorderStyle(const style::ApplyBorderStyleInfo& style) {
+  border_render_object_->ApplyBorderStyle(style);
 }
 }  // namespace cru::ui::controls

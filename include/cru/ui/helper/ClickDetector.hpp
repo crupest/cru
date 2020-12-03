@@ -71,7 +71,7 @@ class ClickDetector : public Object {
  private:
   controls::Control* control_;
 
-  ClickState state_;
+  ClickState state_ = ClickState::None;
 
   bool enable_ = true;
   MouseButton trigger_button_ = mouse_buttons::left | mouse_buttons::right;

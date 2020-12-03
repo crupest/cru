@@ -66,6 +66,9 @@ class Control : public Object {
   // null to unset
   void SetCursor(std::shared_ptr<platform::gui::ICursor> cursor);
 
+ public:
+  style::StyleRuleSet* GetStyleRuleSet();
+
   //*************** region: events ***************
  public:
   // Raised when mouse enter the control. Even when the control itself captures
@@ -147,5 +150,7 @@ class Control : public Object {
   bool is_mouse_over_ = false;
 
   std::shared_ptr<platform::gui::ICursor> cursor_ = nullptr;
+
+  std::unique_ptr<style::StyleRuleSet> style_rule_set_;
 };
 }  // namespace cru::ui::controls

@@ -98,7 +98,7 @@ struct IBaseEvent {
   using SpyOnlyHandler = std::function<void()>;
 
  public:
-  virtual EventRevoker AddHandler(SpyOnlyHandler handler) = 0;
+  virtual EventRevoker AddSpyOnlyHandler(SpyOnlyHandler handler) = 0;
 };
 
 // Provides an interface of event.
@@ -147,7 +147,7 @@ class Event : public details::EventBase, public IEvent<TEventArgs> {
   CRU_DEFAULT_MOVE(Event)
   ~Event() = default;
 
-  EventRevoker AddHandler(SpyOnlyHandler handler) override {
+  EventRevoker AddSpyOnlyHandler(SpyOnlyHandler handler) override {
     const auto token = current_token_++;
     this->handler_data_list_.emplace_back(token, std::move(handler));
     return CreateRevoker(token);

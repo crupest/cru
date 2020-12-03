@@ -64,8 +64,6 @@ class BorderRenderObject : public RenderObject {
     InvalidatePaint();
   }
 
-  void SetBorderStyle(const BorderStyle& style);
-
   void ApplyBorderStyle(const style::ApplyBorderStyleInfo& style);
 
   RenderObject* HitTest(const Point& point) override;

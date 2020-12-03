@@ -51,6 +51,16 @@ bool FocusCondition::Judge(controls::Control* control) const {
   return control->HasFocus() == has_focus_;
 }
 
+std::vector<IBaseEvent*> HoverCondition::ChangeOn(
+    controls::Control* control) const {
+  return {control->MouseEnterEvent()->Direct(),
+          control->MouseLeaveEvent()->Direct()};
+}
+
+bool HoverCondition::Judge(controls::Control* control) const {
+  return control->IsMouseOver() == hover_;
+}
+
 ClickStateCondition::ClickStateCondition(helper::ClickState click_state)
     : click_state_(click_state) {}
 

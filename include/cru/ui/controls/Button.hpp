@@ -41,13 +41,8 @@ class Button : public ContentControl,
 
   void ApplyBorderStyle(const style::ApplyBorderStyleInfo& style) override;
 
-  const ButtonStyle& GetStyle() const { return style_; }
-  void SetStyle(ButtonStyle style);
-
  private:
   std::unique_ptr<render::BorderRenderObject> render_object_{};
-
-  ButtonStyle style_;
 
   helper::ClickDetector click_detector_;
 };
