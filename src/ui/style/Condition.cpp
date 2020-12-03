@@ -1,6 +1,7 @@
 #include "cru/ui/style/Condition.hpp"
 #include <memory>
 
+#include "cru/common/ClonablePtr.hpp"
 #include "cru/common/Event.hpp"
 #include "cru/ui/controls/Control.hpp"
 #include "cru/ui/controls/IClickableControl.hpp"
@@ -8,16 +9,14 @@
 
 namespace cru::ui::style {
 CompoundCondition::CompoundCondition(
-    std::vector<std::unique_ptr<Condition>> conditions)
-    : conditions_(std::move(conditions)) {
-  for (const auto& p : conditions_) readonly_conditions_.push_back(p.get());
-}
+    std::vector<ClonablePtr<Condition>> conditions)
+    : conditions_(std::move(conditions)) {}
 
 std::vector<IBaseEvent*> CompoundCondition::ChangeOn(
     controls::Control* control) const {
   std::vector<IBaseEvent*> result;
 
-  for (auto condition : GetConditions()) {
+  for (auto condition : conditions_) {
     for (auto e : condition->ChangeOn(control)) {
       result.push_back(e);
     }
@@ -26,24 +25,15 @@ std::vector<IBaseEvent*> CompoundCondition::ChangeOn(
   return result;
 }
 
-std::vector<std::unique_ptr<Condition>> CompoundCondition::CloneConditions()
-    const {
-  std::vector<std::unique_ptr<Condition>> result;
-  for (auto condition : GetConditions()) {
-    result.push_back(condition->Clone());
-  }
-  return result;
-}
-
 bool AndCondition::Judge(controls::Control* control) const {
-  for (auto condition : GetConditions()) {
+  for (auto condition : conditions_) {
     if (!condition->Judge(control)) return false;
   }
   return true;
 }
 
 bool OrCondition::Judge(controls::Control* control) const {
-  for (auto condition : GetConditions()) {
+  for (auto condition : conditions_) {
     if (condition->Judge(control)) return true;
   }
   return false;

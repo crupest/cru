@@ -37,6 +37,7 @@ add_library(cru_ui STATIC
 	style/Condition.cpp
 	style/Styler.cpp
 	style/StyleRule.cpp
+	style/StyleRuleSet.cpp
 )
 target_sources(cru_ui PUBLIC
 	${CRU_UI_INCLUDE_DIR}/Base.hpp
@@ -79,5 +80,6 @@ target_sources(cru_ui PUBLIC
 	${CRU_UI_INCLUDE_DIR}/style/Condition.hpp
 	${CRU_UI_INCLUDE_DIR}/style/Styler.hpp
 	${CRU_UI_INCLUDE_DIR}/style/StyleRule.hpp
+	${CRU_UI_INCLUDE_DIR}/style/StyleRuleSet.hpp
 )
 target_link_libraries(cru_ui PUBLIC cru_platform_gui)

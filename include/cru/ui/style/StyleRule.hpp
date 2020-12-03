@@ -2,6 +2,7 @@
 #include "Condition.hpp"
 #include "Styler.hpp"
 #include "cru/common/Base.hpp"
+#include "cru/common/ClonablePtr.hpp"
 #include "cru/ui/Base.hpp"
 
 #include <memory>
@@ -11,23 +12,10 @@
 namespace cru::ui::style {
 class StyleRule : public Object {
  public:
-  StyleRule(std::unique_ptr<Condition> condition,
-            std::unique_ptr<Styler> styler, std::u16string name = {});
+  StyleRule(ClonablePtr<Condition> condition, ClonablePtr<Styler> styler,
+            std::u16string name = {});
 
-  StyleRule(const StyleRule& other)
-      : condition_(other.condition_->Clone()),
-        styler_(other.styler_->Clone()),
-        name_(other.name_) {}
-
-  StyleRule& operator=(const StyleRule& other) {
-    if (this != &other) {
-      condition_ = other.condition_->Clone();
-      styler_ = other.styler_->Clone();
-      name_ = other.name_;
-    }
-    return *this;
-  }
-
+  CRU_DEFAULT_COPY(StyleRule)
   CRU_DEFAULT_MOVE(StyleRule)
 
   ~StyleRule() override = default;
@@ -37,21 +25,21 @@ class StyleRule : public Object {
   Condition* GetCondition() const { return condition_.get(); }
   Styler* GetStyler() const { return styler_.get(); }
 
-  StyleRule WithNewCondition(std::unique_ptr<Condition> condition,
+  StyleRule WithNewCondition(ClonablePtr<Condition> condition,
                              std::u16string name = {}) const {
-    return StyleRule{std::move(condition), styler_->Clone(), std::move(name)};
+    return StyleRule{std::move(condition), styler_, std::move(name)};
   }
 
-  StyleRule WithNewStyler(std::unique_ptr<Styler> styler,
+  StyleRule WithNewStyler(ClonablePtr<Styler> styler,
                           std::u16string name = {}) const {
-    return StyleRule{condition_->Clone(), std::move(styler), std::move(name)};
+    return StyleRule{condition_, std::move(styler), std::move(name)};
   }
 
   bool CheckAndApply(controls::Control* control) const;
 
  private:
-  std::unique_ptr<Condition> condition_;
-  std::unique_ptr<Styler> styler_;
+  ClonablePtr<Condition> condition_;
+  ClonablePtr<Styler> styler_;
   std::u16string name_;
 };
 }  // namespace cru::ui::style

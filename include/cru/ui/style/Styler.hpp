@@ -10,7 +10,7 @@ class Styler : public Object {
  public:
   virtual void Apply(controls::Control* control) const;
 
-  virtual std::unique_ptr<Styler> Clone() const = 0;
+  virtual Styler* Clone() const = 0;
 };
 
 class BorderStyler : public Styler {
@@ -19,9 +19,7 @@ class BorderStyler : public Styler {
 
   void Apply(controls::Control* control) const override;
 
-  std::unique_ptr<Styler> Clone() const override {
-    return std::make_unique<BorderStyler>(style_);
-  }
+  BorderStyler* Clone() const override { return new BorderStyler(style_); }
 
  private:
   ApplyBorderStyleInfo style_;
