@@ -473,6 +473,7 @@ class TextControlService : public Object {
         input_method_context_event_guard_ +=
             window_host->AfterLayoutEvent()->AddHandler(
                 [this](auto) { this->UpdateInputMethodPosition(); });
+      SetCaretVisible(true);
     }
   }
 
@@ -483,6 +484,7 @@ class TextControlService : public Object {
     if (input_method_context) {
       input_method_context->DisableIME();
     }
+    SetCaretVisible(false);
     SyncTextRenderObject();
   }
 

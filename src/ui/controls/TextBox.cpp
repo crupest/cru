@@ -32,7 +32,6 @@ TextBox::TextBox()
 
   service_ = std::make_unique<TextControlService<TextBox>>(this);
   service_->SetEnabled(true);
-  service_->SetCaretVisible(true);
   service_->SetEditable(true);
 
   border_render_object_->SetBorderEnabled(true);
