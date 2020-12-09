@@ -16,7 +16,9 @@ using platform::gui::IUiApplication;
 using platform::gui::SystemCursorType;
 
 Control::Control() {
-  style_rule_set_ = std::make_unique<style::StyleRuleSet>(this);
+  style_rule_set_ = std::make_unique<style::StyleRuleSet>();
+  style_rule_set_bind_ =
+      std::make_unique<style::StyleRuleSetBind>(this, style_rule_set_.get());
 
   MouseEnterEvent()->Direct()->AddHandler([this](event::MouseEventArgs&) {
     this->is_mouse_over_ = true;

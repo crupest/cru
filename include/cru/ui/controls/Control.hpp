@@ -152,5 +152,6 @@ class Control : public Object {
   std::shared_ptr<platform::gui::ICursor> cursor_ = nullptr;
 
   std::unique_ptr<style::StyleRuleSet> style_rule_set_;
+  std::unique_ptr<style::StyleRuleSetBind> style_rule_set_bind_;
 };
 }  // namespace cru::ui::controls

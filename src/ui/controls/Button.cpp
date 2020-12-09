@@ -42,8 +42,8 @@ Button::Button() : click_detector_(this) {
         }
       });
 
-  GetStyleRuleSet()->Set(
-      UiManager::GetInstance()->GetThemeResources()->button_style);
+  GetStyleRuleSet()->SetParent(
+      &UiManager::GetInstance()->GetThemeResources()->button_style);
 }
 
 Button::~Button() = default;

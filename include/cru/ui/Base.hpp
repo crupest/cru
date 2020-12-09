@@ -42,6 +42,7 @@ class RenderObject;
 
 namespace style {
 class StyleRuleSet;
+class StyleRuleSetBind;
 }
 
 //-------------------- region: basic types --------------------

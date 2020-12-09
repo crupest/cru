@@ -233,6 +233,8 @@ class EventRevokerGuard {
 
   EventRevoker Release() { return std::move(*revoker_.release()); }
 
+  void Reset() { revoker_.reset(); }
+
   void Reset(EventRevoker&& revoker) {
     revoker_.reset(new EventRevoker(std::move(revoker)));
   }

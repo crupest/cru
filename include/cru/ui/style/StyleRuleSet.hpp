@@ -2,13 +2,14 @@
 #include "StyleRule.hpp"
 #include "cru/common/Base.hpp"
 #include "cru/common/Event.hpp"
-#include "gsl/gsl_assert"
+
+#include <cstddef>
 
 namespace cru::ui::style {
 class StyleRuleSet : public Object {
  public:
-  StyleRuleSet() : control_(nullptr) {}
-  explicit StyleRuleSet(controls::Control* control) : control_(control) {}
+  StyleRuleSet() = default;
+  explicit StyleRuleSet(StyleRuleSet* parent);
 
   CRU_DELETE_COPY(StyleRuleSet)
   CRU_DELETE_MOVE(StyleRuleSet)
@@ -16,6 +17,9 @@ class StyleRuleSet : public Object {
   ~StyleRuleSet() override = default;
 
  public:
+  StyleRuleSet* GetParent() const { return parent_; }
+  void SetParent(StyleRuleSet* parent);
+
   gsl::index GetSize() const { return static_cast<gsl::index>(rules_.size()); }
   const std::vector<StyleRule>& GetRules() const { return rules_; }
 
@@ -41,14 +45,42 @@ class StyleRuleSet : public Object {
 
   const StyleRule& operator[](gsl::index index) const { return rules_[index]; }
 
+  // Triggered whenever a change happened to this (rule add or remove, parent
+  // change ...). Subscribe to this and update style change listeners and style.
+  IEvent<std::nullptr_t>* ChangeEvent() { return &change_event_; }
+
  private:
+  void RaiseChangeEvent() { change_event_.Raise(nullptr); }
+
+ private:
+  Event<std::nullptr_t> change_event_;
+
+  StyleRuleSet* parent_ = nullptr;
+  EventRevokerGuard parent_change_event_guard_;
+
+  std::vector<StyleRule> rules_;
+};
+
+class StyleRuleSetBind {
+ public:
+  StyleRuleSetBind(controls::Control* control, StyleRuleSet* ruleset);
+
+  CRU_DELETE_COPY(StyleRuleSetBind)
+  CRU_DELETE_MOVE(StyleRuleSetBind)
+
+  ~StyleRuleSetBind() = default;
+
+ private:
+  void UpdateRuleSetChainCache();
   void UpdateChangeListener();
   void UpdateStyle();
 
  private:
   controls::Control* control_;
+  StyleRuleSet* ruleset_;
 
-  std::vector<StyleRule> rules_;
+  // child first, parent last.
+  std::vector<StyleRuleSet*> ruleset_chain_cache_;
 
   EventRevokerListGuard guard_;
 };
