@@ -6,6 +6,8 @@ add_library(cru_ui STATIC
 
 	Helper.cpp
 	UiManager.cpp
+	components/Component.cpp
+	components/Menu.cpp
 	controls/Button.cpp
 	controls/Container.cpp
 	controls/ContentControl.cpp
@@ -43,6 +45,8 @@ target_sources(cru_ui PUBLIC
 	${CRU_UI_INCLUDE_DIR}/Base.hpp
 	${CRU_UI_INCLUDE_DIR}/DebugFlags.hpp
 	${CRU_UI_INCLUDE_DIR}/UiManager.hpp
+	${CRU_UI_INCLUDE_DIR}/components/Component.hpp
+	${CRU_UI_INCLUDE_DIR}/components/Menu.hpp
 	${CRU_UI_INCLUDE_DIR}/controls/Base.hpp
 	${CRU_UI_INCLUDE_DIR}/controls/Button.hpp
 	${CRU_UI_INCLUDE_DIR}/controls/Container.hpp
