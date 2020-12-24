@@ -1,10 +1,13 @@
 #include "cru/ui/UiManager.hpp"
+#include <optional>
 
 #include "Helper.hpp"
+#include "cru/platform/GraphBase.hpp"
 #include "cru/platform/graphics/Brush.hpp"
 #include "cru/platform/graphics/Factory.hpp"
 #include "cru/platform/graphics/Font.hpp"
 #include "cru/platform/gui/UiApplication.hpp"
+#include "cru/ui/Base.hpp"
 #include "cru/ui/style/ApplyBorderStyleInfo.hpp"
 #include "cru/ui/style/Condition.hpp"
 #include "cru/ui/style/Styler.hpp"
@@ -49,50 +52,52 @@ UiManager::UiManager() {
   theme_resource_.caret_brush = black_brush;
 
   theme_resource_.button_style.AddStyleRule(
+      {NoCondition::Create(),
+       BorderStyler::Create(ApplyBorderStyleInfo{std::nullopt, Thickness(3),
+                                                 CornerRadius(5), std::nullopt,
+                                                 std::nullopt}),
+       u"DefaultButton"});
+  theme_resource_.button_style.AddStyleRule(
       {ClickStateCondition::Create(ClickState::None),
        BorderStyler::Create(ApplyBorderStyleInfo{
-           CreateSolidColorBrush(factory, Color::FromHex(0x00bfff)),
-           Thickness(3), CornerRadius(5), nullptr, nullptr}),
+           CreateSolidColorBrush(factory, Color::FromHex(0x00bfff))}),
        u"DefaultButtonNormal"});
   theme_resource_.button_style.AddStyleRule(
       {ClickStateCondition::Create(ClickState::Hover),
        BorderStyler::Create(ApplyBorderStyleInfo{
-           CreateSolidColorBrush(factory, Color::FromHex(0x47d1ff)),
-           Thickness(3), CornerRadius(5), nullptr, nullptr}),
+           CreateSolidColorBrush(factory, Color::FromHex(0x47d1ff))}),
        u"DefaultButtonHover"});
   theme_resource_.button_style.AddStyleRule(
       {ClickStateCondition::Create(ClickState::Press),
        BorderStyler::Create(ApplyBorderStyleInfo{
-           CreateSolidColorBrush(factory, Color::FromHex(0x91e4ff)),
-           Thickness(3), CornerRadius(5), nullptr, nullptr}),
+           CreateSolidColorBrush(factory, Color::FromHex(0x91e4ff))}),
        u"DefaultButtonPress"});
   theme_resource_.button_style.AddStyleRule(
       {ClickStateCondition::Create(ClickState::PressInactive),
        BorderStyler::Create(ApplyBorderStyleInfo{
-           CreateSolidColorBrush(factory, Color::FromHex(0x91e4ff)),
-           Thickness(3), CornerRadius(5), nullptr, nullptr}),
+           CreateSolidColorBrush(factory, Color::FromHex(0x91e4ff))}),
        u"DefaultButtonPressInactive"});
 
   theme_resource_.text_box_style.AddStyleRule(
+      {NoCondition::Create(),
+       BorderStyler::Create(
+           ApplyBorderStyleInfo{std::nullopt, Thickness{1}, CornerRadius{5}}),
+       u"DefaultTextBox"});
+  theme_resource_.text_box_style.AddStyleRule(
       {HoverCondition::Create(false),
        BorderStyler::Create(ApplyBorderStyleInfo{
-           CreateSolidColorBrush(factory, Color::FromHex(0xced4da)),
-           Thickness(1), CornerRadius(5), nullptr, nullptr}),
+           CreateSolidColorBrush(factory, Color::FromHex(0xced4da))}),
        u"DefaultTextBoxNormal"});
-
   theme_resource_.text_box_style.AddStyleRule(
       {HoverCondition::Create(true),
        BorderStyler::Create(ApplyBorderStyleInfo{
-           CreateSolidColorBrush(factory, Color::FromHex(0xced4da)),
-           Thickness(1), CornerRadius(5), nullptr, nullptr}),
+           CreateSolidColorBrush(factory, Color::FromHex(0xced4da))}),
        u"DefaultTextBoxHover"});
-
   theme_resource_.text_box_style.AddStyleRule(
       {FocusCondition::Create(true),
        BorderStyler::Create(ApplyBorderStyleInfo{
-           CreateSolidColorBrush(factory, Color::FromHex(0x495057)),
-           Thickness(1), CornerRadius(5), nullptr, nullptr}),
-       u"DefaultTextBoxHover"});
+           CreateSolidColorBrush(factory, Color::FromHex(0x495057))}),
+       u"DefaultTextBoxFocus"});
 }
 
 UiManager::~UiManager() = default;

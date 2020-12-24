@@ -6,6 +6,7 @@
 #include "cru/platform/graphics/Geometry.hpp"
 #include "cru/platform/graphics/util/Painter.hpp"
 #include "cru/ui/style/ApplyBorderStyleInfo.hpp"
+#include "gsl/gsl_assert"
 
 #include <algorithm>
 
@@ -19,11 +20,11 @@ BorderRenderObject::~BorderRenderObject() {}
 
 void BorderRenderObject::ApplyBorderStyle(
     const style::ApplyBorderStyleInfo& style) {
-  if (style.border_brush != nullptr) border_brush_ = style.border_brush;
+  if (style.border_brush) border_brush_ = *style.border_brush;
   if (style.border_thickness) border_thickness_ = *style.border_thickness;
   if (style.border_radius) border_radius_ = *style.border_radius;
-  if (style.foreground_brush) foreground_brush_ = style.foreground_brush;
-  if (style.background_brush) background_brush_ = style.background_brush;
+  if (style.foreground_brush) foreground_brush_ = *style.foreground_brush;
+  if (style.background_brush) background_brush_ = *style.background_brush;
   InvalidateLayout();
 }
 
