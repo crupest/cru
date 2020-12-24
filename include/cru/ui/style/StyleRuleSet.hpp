@@ -41,7 +41,7 @@ class StyleRuleSet : public Object {
 
   void Clear() { RemoveStyleRule(0, GetSize()); }
 
-  void Set(const StyleRuleSet& other);
+  void Set(const StyleRuleSet& other, bool set_parent = false);
 
   const StyleRule& operator[](gsl::index index) const { return rules_[index]; }
 

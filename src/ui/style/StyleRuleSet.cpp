@@ -36,8 +36,9 @@ void StyleRuleSet::RemoveStyleRule(gsl::index index, gsl::index count) {
   RaiseChangeEvent();
 }
 
-void StyleRuleSet::Set(const StyleRuleSet& other) {
+void StyleRuleSet::Set(const StyleRuleSet& other, bool set_parent) {
   rules_ = other.rules_;
+  if (set_parent) parent_ = other.parent_;
 
   RaiseChangeEvent();
 }
