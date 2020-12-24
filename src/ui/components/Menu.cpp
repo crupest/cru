@@ -1,7 +1,9 @@
 #include "cru/ui/components/Menu.hpp"
+#include "cru/ui/UiManager.hpp"
 #include "cru/ui/controls/Button.hpp"
 #include "cru/ui/controls/FlexLayout.hpp"
 #include "cru/ui/controls/TextBlock.hpp"
+#include "cru/ui/style/StyleRuleSet.hpp"
 
 #include <string>
 
@@ -10,6 +12,8 @@ MenuItem::MenuItem() {
   container_ = controls::Button::Create();
   text_ = controls::TextBlock::Create();
   container_->SetChild(text_);
+  container_->GetStyleRuleSet()->SetParent(
+      &UiManager::GetInstance()->GetThemeResources()->menu_item_style);
 }
 
 MenuItem::MenuItem(std::u16string text) : MenuItem() {

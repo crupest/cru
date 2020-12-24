@@ -98,6 +98,12 @@ UiManager::UiManager() {
        BorderStyler::Create(ApplyBorderStyleInfo{
            CreateSolidColorBrush(factory, Color::FromHex(0x495057))}),
        u"DefaultTextBoxFocus"});
+
+  theme_resource_.menu_item_style.AddStyleRule(
+      {NoCondition::Create(),
+       BorderStyler::Create(
+           ApplyBorderStyleInfo{std::nullopt, Thickness{0}, CornerRadius{0}}),
+       u"DefaultMenuItem"});
 }
 
 UiManager::~UiManager() = default;
