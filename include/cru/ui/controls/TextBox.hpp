@@ -1,6 +1,8 @@
 #pragma once
 #include "NoChildControl.hpp"
+
 #include "IBorderControl.hpp"
+#include "TextHostControlService.hpp"
 
 #include <memory>
 
@@ -8,7 +10,9 @@ namespace cru::ui::controls {
 template <typename TControl>
 class TextControlService;
 
-class TextBox : public NoChildControl, public IBorderControl {
+class TextBox : public NoChildControl,
+                public virtual IBorderControl,
+                public virtual ITextHostControl {
  public:
   static constexpr std::u16string_view control_type = u"TextBox";
 
@@ -27,8 +31,8 @@ class TextBox : public NoChildControl, public IBorderControl {
 
   render::RenderObject* GetRenderObject() const override;
 
-  gsl::not_null<render::TextRenderObject*> GetTextRenderObject();
-  render::ScrollRenderObject* GetScrollRenderObject();
+  gsl::not_null<render::TextRenderObject*> GetTextRenderObject() override;
+  render::ScrollRenderObject* GetScrollRenderObject() override;
 
   void ApplyBorderStyle(const style::ApplyBorderStyleInfo& style) override;
 
@@ -37,6 +41,6 @@ class TextBox : public NoChildControl, public IBorderControl {
   std::unique_ptr<render::ScrollRenderObject> scroll_render_object_;
   std::unique_ptr<render::TextRenderObject> text_render_object_;
 
-  std::unique_ptr<TextControlService<TextBox>> service_;
+  std::unique_ptr<TextHostControlService> service_;
 };
 }  // namespace cru::ui::controls

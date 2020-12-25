@@ -1,6 +1,5 @@
 #include "cru/ui/controls/TextBlock.hpp"
 
-#include "TextControlService.hpp"
 #include "cru/ui/UiManager.hpp"
 #include "cru/ui/render/CanvasRenderObject.hpp"
 #include "cru/ui/render/StackLayoutRenderObject.hpp"
@@ -27,7 +26,7 @@ TextBlock::TextBlock() {
 
   text_render_object_->SetAttachedControl(this);
 
-  service_ = std::make_unique<TextControlService<TextBlock>>(this);
+  service_ = std::make_unique<TextHostControlService>(this);
 
   service_->SetEnabled(false);
   service_->SetEditable(false);

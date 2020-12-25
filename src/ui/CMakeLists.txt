@@ -20,7 +20,7 @@ add_library(cru_ui STATIC
 	controls/StackLayout.cpp
 	controls/TextBlock.cpp
 	controls/TextBox.cpp
-	controls/TextControlService.hpp
+	controls/TextHostControlService.cpp
 	controls/Window.cpp
 	events/UiEvent.cpp
 	helper/BorderStyle.cpp
@@ -60,8 +60,9 @@ target_sources(cru_ui PUBLIC
 	${CRU_UI_INCLUDE_DIR}/controls/Popup.hpp
 	${CRU_UI_INCLUDE_DIR}/controls/RootControl.hpp
 	${CRU_UI_INCLUDE_DIR}/controls/StackLayout.hpp
-	${CRU_UI_INCLUDE_DIR}/controls/TextBox.hpp
 	${CRU_UI_INCLUDE_DIR}/controls/TextBlock.hpp
+	${CRU_UI_INCLUDE_DIR}/controls/TextBox.hpp
+	${CRU_UI_INCLUDE_DIR}/controls/TextHostControlService.hpp
 	${CRU_UI_INCLUDE_DIR}/controls/Window.hpp
 	${CRU_UI_INCLUDE_DIR}/events/UiEvent.hpp
 	${CRU_UI_INCLUDE_DIR}/helper/ClickDetector.hpp

@@ -1,6 +1,5 @@
 #include "cru/ui/controls/TextBox.hpp"
 
-#include "TextControlService.hpp"
 #include "cru/ui/UiManager.hpp"
 #include "cru/ui/render/BorderRenderObject.hpp"
 #include "cru/ui/render/CanvasRenderObject.hpp"
@@ -30,7 +29,7 @@ TextBox::TextBox()
   text_render_object_->SetAttachedControl(this);
   text_render_object_->SetMinSize(Size{100, 24});
 
-  service_ = std::make_unique<TextControlService<TextBox>>(this);
+  service_ = std::make_unique<TextHostControlService>(this);
   service_->SetEnabled(true);
   service_->SetEditable(true);
 
