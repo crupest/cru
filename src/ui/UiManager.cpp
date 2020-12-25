@@ -6,6 +6,7 @@
 #include "cru/platform/graphics/Brush.hpp"
 #include "cru/platform/graphics/Factory.hpp"
 #include "cru/platform/graphics/Font.hpp"
+#include "cru/platform/gui/Cursor.hpp"
 #include "cru/platform/gui/UiApplication.hpp"
 #include "cru/ui/Base.hpp"
 #include "cru/ui/style/ApplyBorderStyleInfo.hpp"
@@ -59,23 +60,31 @@ UiManager::UiManager() {
        u"DefaultButton"});
   theme_resource_.button_style.AddStyleRule(
       {ClickStateCondition::Create(ClickState::None),
-       BorderStyler::Create(ApplyBorderStyleInfo{
-           CreateSolidColorBrush(factory, Color::FromHex(0x00bfff))}),
+       CompoundStyler::Create(
+           BorderStyler::Create(ApplyBorderStyleInfo{
+               CreateSolidColorBrush(factory, Color::FromHex(0x00bfff))}),
+           CursorStyler::Create(platform::gui::SystemCursorType::Arrow)),
        u"DefaultButtonNormal"});
   theme_resource_.button_style.AddStyleRule(
       {ClickStateCondition::Create(ClickState::Hover),
-       BorderStyler::Create(ApplyBorderStyleInfo{
-           CreateSolidColorBrush(factory, Color::FromHex(0x47d1ff))}),
+       CompoundStyler::Create(
+           BorderStyler::Create(ApplyBorderStyleInfo{
+               CreateSolidColorBrush(factory, Color::FromHex(0x47d1ff))}),
+           CursorStyler::Create(platform::gui::SystemCursorType::Hand)),
        u"DefaultButtonHover"});
   theme_resource_.button_style.AddStyleRule(
       {ClickStateCondition::Create(ClickState::Press),
-       BorderStyler::Create(ApplyBorderStyleInfo{
-           CreateSolidColorBrush(factory, Color::FromHex(0x91e4ff))}),
+       CompoundStyler::Create(
+           BorderStyler::Create(ApplyBorderStyleInfo{
+               CreateSolidColorBrush(factory, Color::FromHex(0x91e4ff))}),
+           CursorStyler::Create(platform::gui::SystemCursorType::Hand)),
        u"DefaultButtonPress"});
   theme_resource_.button_style.AddStyleRule(
       {ClickStateCondition::Create(ClickState::PressInactive),
-       BorderStyler::Create(ApplyBorderStyleInfo{
-           CreateSolidColorBrush(factory, Color::FromHex(0x91e4ff))}),
+       CompoundStyler::Create(
+           BorderStyler::Create(ApplyBorderStyleInfo{
+               CreateSolidColorBrush(factory, Color::FromHex(0x91e4ff))}),
+           CursorStyler::Create(platform::gui::SystemCursorType::Arrow)),
        u"DefaultButtonPressInactive"});
 
   theme_resource_.text_box_style.AddStyleRule(
