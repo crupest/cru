@@ -3,23 +3,15 @@
 #include "../Helper.hpp"
 #include "cru/common/Logger.hpp"
 #include "cru/common/StringUtil.hpp"
-#include "cru/platform/graphics/Font.hpp"
-#include "cru/platform/graphics/Painter.hpp"
 #include "cru/platform/gui/Cursor.hpp"
 #include "cru/platform/gui/InputMethod.hpp"
 #include "cru/platform/gui/UiApplication.hpp"
 #include "cru/platform/gui/Window.hpp"
-#include "cru/ui/Base.hpp"
 #include "cru/ui/DebugFlags.hpp"
-#include "cru/ui/controls/Control.hpp"
-#include "cru/ui/events/UiEvent.hpp"
 #include "cru/ui/helper/ShortcutHub.hpp"
 #include "cru/ui/host/WindowHost.hpp"
-#include "cru/ui/render/CanvasRenderObject.hpp"
 #include "cru/ui/render/ScrollRenderObject.hpp"
 #include "cru/ui/render/TextRenderObject.hpp"
-#include "gsl/gsl_assert"
-#include "gsl/pointers"
 
 namespace cru::ui::controls {
 TextHostControlService::TextHostControlService(gsl::not_null<Control*> control)
