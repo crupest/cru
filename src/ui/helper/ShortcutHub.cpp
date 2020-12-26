@@ -85,6 +85,8 @@ void ShortcutHub::OnKeyDown(event::KeyEventArgs& event) {
   ShortcutKeyBind key_bind(event.GetKeyCode(), event.GetKeyModifier());
   const auto& shortcut_list = this->GetShortcutByKeyBind(key_bind);
 
+  bool handled = false;
+
   if constexpr (debug_flags::shortcut) {
     if (shortcut_list.empty()) {
       log::Debug(u"No shortcut for key bind {}.", key_bind.ToString());
@@ -100,12 +102,13 @@ void ShortcutHub::OnKeyDown(event::KeyEventArgs& event) {
         log::Debug(u"Handle {} handled it.", shortcut.name);
       }
 
+      handled = true;
       event.SetHandled();
 
       break;
     } else {
       if constexpr (debug_flags::shortcut) {
-        log::Debug(u"Handle {} disdn't handle it.", shortcut.name);
+        log::Debug(u"Handle {} didn't handle it.", shortcut.name);
       }
     }
   }
@@ -115,6 +118,14 @@ void ShortcutHub::OnKeyDown(event::KeyEventArgs& event) {
       log::Debug(u"End handling shortcut for key bind {}.",
                  key_bind.ToString());
     }
+  }
+
+  if (!handled) {
+    if constexpr (debug_flags::shortcut) {
+      log::Debug(u"Raise fallback event for unhandled shortcut of key bind {}.",
+                 key_bind.ToString());
+    }
+    fallback_event_.Raise(event);
   }
 }
 }  // namespace cru::ui::helper

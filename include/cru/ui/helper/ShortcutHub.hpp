@@ -19,8 +19,9 @@ namespace cru::ui::helper {
 
 class ShortcutKeyBind {
  public:
-  ShortcutKeyBind(platform::gui::KeyCode key,
-                  platform::gui::KeyModifier modifier)
+  ShortcutKeyBind(
+      platform::gui::KeyCode key,
+      platform::gui::KeyModifier modifier = platform::gui::KeyModifiers::none)
       : key_(key), modifier_(modifier) {}
 
   CRU_DEFAULT_COPY(ShortcutKeyBind)
@@ -111,6 +112,8 @@ class ShortcutHub : public Object {
   const std::vector<ShortcutInfo>& GetShortcutByKeyBind(
       const ShortcutKeyBind& key_bind) const;
 
+  IEvent<event::KeyEventArgs&>* FallbackKeyEvent() { return &fallback_event_; }
+
   void Install(controls::Control* control);
   void Uninstall();
 
@@ -123,6 +126,8 @@ class ShortcutHub : public Object {
   const std::vector<ShortcutInfo> empty_list_;
 
   int current_id_ = 1;
+
+  Event<event::KeyEventArgs&> fallback_event_;
 
   EventRevokerListGuard event_guard_;
 };

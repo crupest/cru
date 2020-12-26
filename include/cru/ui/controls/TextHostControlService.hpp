@@ -70,8 +70,10 @@ class TextHostControlService : public Object {
   void SetSelection(gsl::index caret_position);
   void SetSelection(TextRange selection, bool scroll_to_caret = true);
 
-  void DeleteSelectedText();
+  void ChangeSelectionEnd(gsl::index new_end);
+  void AbortSelection();
 
+  void DeleteSelectedText();
   // If some text is selected, then they are deleted first. Then insert text
   // into caret position.
   void ReplaceSelectedText(std::u16string_view text);
@@ -92,10 +94,6 @@ class TextHostControlService : public Object {
 
   void SyncTextRenderObject();
 
-  void StartSelection(Index start);
-  void UpdateSelection(Index new_end);
-  void AbortSelection();
-
   void UpdateInputMethodPosition();
 
   template <typename TArgs>
@@ -106,15 +104,13 @@ class TextHostControlService : public Object {
         std::bind(handler, this, std::placeholders::_1));
   }
 
-  void SetUpHandlers();
-  void TearDownHandlers();
-
   void MouseMoveHandler(event::MouseEventArgs& args);
   void MouseDownHandler(event::MouseButtonEventArgs& args);
   void MouseUpHandler(event::MouseButtonEventArgs& args);
-  void KeyDownHandler(event::KeyEventArgs& args);
   void GainFocusHandler(event::FocusChangeEventArgs& args);
   void LoseFocusHandler(event::FocusChangeEventArgs& args);
+
+  void SetUpShortcuts();
 
  private:
   gsl::not_null<Control*> control_;
@@ -136,6 +132,6 @@ class TextHostControlService : public Object {
   helper::ShortcutHub shortcut_hub_;
 
   // true if left mouse is down and selecting
-  bool mouse_move_selecting_;
+  bool mouse_move_selecting_ = false;
 };
 }  // namespace cru::ui::controls

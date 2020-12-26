@@ -116,6 +116,7 @@ struct TagKeyModifier {};
 using KeyModifier = Bitmask<details::TagKeyModifier>;
 
 struct KeyModifiers {
+  static constexpr KeyModifier none{0};
   static constexpr KeyModifier shift{0b1};
   static constexpr KeyModifier ctrl{0b10};
   static constexpr KeyModifier alt{0b100};
