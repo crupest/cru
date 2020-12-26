@@ -1,4 +1,5 @@
 #include "cru/common/StringUtil.hpp"
+#include "cru/common/Base.hpp"
 #include "gsl/gsl_util"
 
 namespace cru {
@@ -228,5 +229,59 @@ bool Utf16IsValidInsertPosition(std::u16string_view s, gsl::index position) {
   if (position == 0) return true;
   if (position == static_cast<gsl::index>(s.size())) return true;
   return !IsUtf16SurrogatePairTrailing(s[position]);
+}
+
+gsl::index Utf16BackwardUntil(std::u16string_view str, gsl::index position,
+                              const std::function<bool(CodePoint)>& predicate) {
+  if (position <= 0) return position;
+  while (true) {
+    gsl::index p = position;
+    auto c = Utf16PreviousCodePoint(str, p, &position);
+    if (predicate(c)) return p;
+    if (c == k_invalid_code_point) return p;
+  }
+  UnreachableCode();
+}
+
+gsl::index Utf16ForwardUntil(std::u16string_view str, gsl::index position,
+                             const std::function<bool(CodePoint)>& predicate) {
+  if (position >= static_cast<gsl::index>(str.size())) return position;
+  while (true) {
+    gsl::index p = position;
+    auto c = Utf16NextCodePoint(str, p, &position);
+    if (predicate(c)) return p;
+    if (c == k_invalid_code_point) return p;
+  }
+  UnreachableCode();
+}
+
+inline bool IsSpace(CodePoint c) { return c == 0x20; }
+
+gsl::index Utf16PreviousWord(std::u16string_view str, gsl::index position,
+                             bool* is_space) {
+  if (position <= 0) return position;
+  auto c = Utf16PreviousCodePoint(str, position, nullptr);
+  if (IsSpace(c)) {  // TODO: Currently only test against 0x20(space).
+    if (is_space) *is_space = true;
+    return Utf16BackwardUntil(str, position,
+                              [](CodePoint c) { return !IsSpace(c); });
+  } else {
+    if (is_space) *is_space = false;
+    return Utf16BackwardUntil(str, position, IsSpace);
+  }
+}
+
+gsl::index Utf16NextWord(std::u16string_view str, gsl::index position,
+                         bool* is_space) {
+  if (position >= static_cast<gsl::index>(str.size())) return position;
+  auto c = Utf16NextCodePoint(str, position, nullptr);
+  if (IsSpace(c)) {  // TODO: Currently only test against 0x20(space).
+    if (is_space) *is_space = true;
+    return Utf16ForwardUntil(str, position,
+                             [](CodePoint c) { return !IsSpace(c); });
+  } else {
+    if (is_space) *is_space = false;
+    return Utf16ForwardUntil(str, position, IsSpace);
+  }
 }
 }  // namespace cru

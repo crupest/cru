@@ -419,6 +419,14 @@ void TextHostControlService::SetUpShortcuts() {
         return true;
       });
 
+  shortcut_hub_.RegisterShortcut(
+      u"CtrlLeft", {KeyCode::Left, KeyModifiers::ctrl}, [this] {
+        auto text = this->GetTextView();
+        auto caret = this->GetCaretPosition();
+        this->SetSelection(Utf16PreviousWord(text, caret));
+        return true;
+      });
+
   shortcut_hub_.RegisterShortcut(u"Right", KeyCode::Right, [this] {
     auto text = this->GetTextView();
     const auto caret = this->GetCaretPosition();
@@ -436,6 +444,14 @@ void TextHostControlService::SetUpShortcuts() {
         Utf16NextCodePoint(text, selection.GetEnd(), &new_position);
         selection.ChangeEnd(new_position);
         this->SetSelection(selection);
+        return true;
+      });
+
+  shortcut_hub_.RegisterShortcut(
+      u"CtrlRight", {KeyCode::Right, KeyModifiers::ctrl}, [this] {
+        auto text = this->GetTextView();
+        auto caret = this->GetCaretPosition();
+        this->SetSelection(Utf16NextWord(text, caret));
         return true;
       });
 }

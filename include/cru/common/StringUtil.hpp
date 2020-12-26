@@ -1,6 +1,9 @@
 #pragma once
-#include <string>
 #include "Base.hpp"
+
+#include <functional>
+#include <string>
+#include <string_view>
 
 namespace cru {
 using CodePoint = std::int32_t;
@@ -128,4 +131,18 @@ std::u16string ToUtf16(std::string_view s);
 
 // If given s is not a valid utf16 string, return value is UD.
 bool Utf16IsValidInsertPosition(std::u16string_view s, gsl::index position);
+
+// Return position after the character making predicate returns true or 0 if no
+// character doing so.
+gsl::index Utf16BackwardUntil(std::u16string_view str, gsl::index position,
+                              const std::function<bool(CodePoint)>& predicate);
+// Return position before the character making predicate returns true or
+// str.size() if no character doing so.
+gsl::index Utf16ForwardUntil(std::u16string_view str, gsl::index position,
+                             const std::function<bool(CodePoint)>& predicate);
+
+gsl::index Utf16PreviousWord(std::u16string_view str, gsl::index position,
+                             bool* is_space = nullptr);
+gsl::index Utf16NextWord(std::u16string_view str, gsl::index position,
+                         bool* is_space = nullptr);
 }  // namespace cru
