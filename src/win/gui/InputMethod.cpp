@@ -165,10 +165,7 @@ void WinInputMethodContext::DisableIME() {
   const auto hwnd = native_window_->GetWindowHandle();
   AutoHIMC himc{hwnd};
 
-  if (!::ImmNotifyIME(himc.Get(), NI_COMPOSITIONSTR, CPS_COMPLETE, 0)) {
-    log::TagWarn(log_tag,
-                 u"Failed to complete composition before disable ime.");
-  }
+  ::ImmNotifyIME(himc.Get(), NI_COMPOSITIONSTR, CPS_COMPLETE, 0);
 
   if (::ImmAssociateContextEx(hwnd, nullptr, 0) == FALSE) {
     log::TagWarn(log_tag, u"Failed to disable ime.");
