@@ -255,7 +255,7 @@ gsl::index Utf16ForwardUntil(std::u16string_view str, gsl::index position,
   UnreachableCode();
 }
 
-inline bool IsSpace(CodePoint c) { return c == 0x20; }
+inline bool IsSpace(CodePoint c) { return c == 0x20 || c == 0xA; }
 
 gsl::index Utf16PreviousWord(std::u16string_view str, gsl::index position,
                              bool* is_space) {

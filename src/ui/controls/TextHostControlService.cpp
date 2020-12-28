@@ -346,7 +346,6 @@ void TextHostControlService::GainFocusHandler(
     input_method_context_event_guard_ +=
         input_method_context->TextEvent()->AddHandler(
             [this](const std::u16string_view& text) {
-              if (text == u"\b") return;
               this->ReplaceSelectedText(text);
             });
 

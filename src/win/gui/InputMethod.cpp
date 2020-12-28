@@ -226,7 +226,7 @@ void WinInputMethodContext::OnWindowNativeMessage(
   const auto& message = args.GetWindowMessage();
   switch (message.msg) {
     case WM_CHAR: {
-      const auto c = static_cast<char16_t>(message.w_param);
+      auto c = static_cast<char16_t>(message.w_param);
       if (IsUtf16SurrogatePairCodeUnit(c)) {
         // I don't think this will happen because normal key strike without ime
         // should only trigger ascci character. If it is a charater from
@@ -235,8 +235,12 @@ void WinInputMethodContext::OnWindowNativeMessage(
                      u"A WM_CHAR message for character from supplementary "
                      u"planes is ignored.");
       } else {
-        char16_t s[1] = {c};
-        text_event_.Raise({s, 1});
+        if (c != '\b') {            // ignore backspace
+          if (c == '\r') c = '\n';  // Change \r to \n
+
+          char16_t s[1] = {c};
+          text_event_.Raise({s, 1});
+        }
       }
       args.HandleWithResult(0);
       break;
