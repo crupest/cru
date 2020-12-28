@@ -401,23 +401,20 @@ void TextHostControlService::SetUpShortcuts() {
 
   shortcut_hub_.RegisterShortcut(u"Left", KeyCode::Left, [this] {
     auto text = this->GetTextView();
-    const auto caret = this->GetCaretPosition();
-    gsl::index new_position;
-    Utf16PreviousCodePoint(text, caret, &new_position);
-    this->SetSelection(new_position);
+    auto caret = this->GetCaretPosition();
+    Utf16PreviousCodePoint(text, caret, &caret);
+    this->SetSelection(caret);
     return true;
   });
 
-  shortcut_hub_.RegisterShortcut(
-      u"ShiftLeft", {KeyCode::Left, KeyModifiers::shift}, [this] {
-        auto text = this->GetTextView();
-        auto selection = this->GetSelection();
-        gsl::index new_position;
-        Utf16PreviousCodePoint(text, selection.GetEnd(), &new_position);
-        selection.ChangeEnd(new_position);
-        this->SetSelection(selection);
-        return true;
-      });
+  shortcut_hub_.RegisterShortcut(u"ShiftLeft",
+                                 {KeyCode::Left, KeyModifiers::shift}, [this] {
+                                   auto text = this->GetTextView();
+                                   auto caret = this->GetCaretPosition();
+                                   Utf16PreviousCodePoint(text, caret, &caret);
+                                   this->ChangeSelectionEnd(caret);
+                                   return true;
+                                 });
 
   shortcut_hub_.RegisterShortcut(
       u"CtrlLeft", {KeyCode::Left, KeyModifiers::ctrl}, [this] {
@@ -427,31 +424,46 @@ void TextHostControlService::SetUpShortcuts() {
         return true;
       });
 
+  shortcut_hub_.RegisterShortcut(
+      u"CtrlShiftLeft",
+      {KeyCode::Left, KeyModifiers::ctrl | KeyModifiers::shift}, [this] {
+        auto text = this->GetTextView();
+        auto caret = this->GetCaretPosition();
+        this->ChangeSelectionEnd(Utf16PreviousWord(text, caret));
+        return true;
+      });
+
   shortcut_hub_.RegisterShortcut(u"Right", KeyCode::Right, [this] {
     auto text = this->GetTextView();
-    const auto caret = this->GetCaretPosition();
-    gsl::index new_position;
-    Utf16NextCodePoint(text, caret, &new_position);
-    this->SetSelection(new_position);
+    auto caret = this->GetCaretPosition();
+    Utf16NextCodePoint(text, caret, &caret);
+    this->SetSelection(caret);
     return true;
   });
 
-  shortcut_hub_.RegisterShortcut(
-      u"ShiftRight", {KeyCode::Right, KeyModifiers::shift}, [this] {
-        auto text = this->GetTextView();
-        auto selection = this->GetSelection();
-        gsl::index new_position;
-        Utf16NextCodePoint(text, selection.GetEnd(), &new_position);
-        selection.ChangeEnd(new_position);
-        this->SetSelection(selection);
-        return true;
-      });
+  shortcut_hub_.RegisterShortcut(u"ShiftRight",
+                                 {KeyCode::Right, KeyModifiers::shift}, [this] {
+                                   auto text = this->GetTextView();
+                                   auto caret = this->GetCaretPosition();
+                                   Utf16NextCodePoint(text, caret, &caret);
+                                   this->ChangeSelectionEnd(caret);
+                                   return true;
+                                 });
 
   shortcut_hub_.RegisterShortcut(
       u"CtrlRight", {KeyCode::Right, KeyModifiers::ctrl}, [this] {
         auto text = this->GetTextView();
         auto caret = this->GetCaretPosition();
         this->SetSelection(Utf16NextWord(text, caret));
+        return true;
+      });
+
+  shortcut_hub_.RegisterShortcut(
+      u"CtrlShiftRight",
+      {KeyCode::Right, KeyModifiers::ctrl | KeyModifiers::shift}, [this] {
+        auto text = this->GetTextView();
+        auto caret = this->GetCaretPosition();
+        this->ChangeSelectionEnd(Utf16NextWord(text, caret));
         return true;
       });
 }
