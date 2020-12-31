@@ -24,8 +24,8 @@ Point CoerceScroll(const Point& scroll_offset, const Size& content_size,
       n = max;
   };
 
-  coerce(result.x, scroll_offset.x);
-  coerce(result.y, scroll_offset.y);
+  coerce(result.x, max_scroll.x);
+  coerce(result.y, max_scroll.y);
 
   return result;
 }
