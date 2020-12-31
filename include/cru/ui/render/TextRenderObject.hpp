@@ -38,7 +38,9 @@ class TextRenderObject : public RenderObject {
   std::u16string_view GetTextView() const;
   void SetText(std::u16string new_text);
 
-  std::shared_ptr<platform::graphics::IBrush> GetBrush() const { return brush_; }
+  std::shared_ptr<platform::graphics::IBrush> GetBrush() const {
+    return brush_;
+  }
   void SetBrush(std::shared_ptr<platform::graphics::IBrush> new_brush);
 
   std::shared_ptr<platform::graphics::IFont> GetFont() const;
@@ -80,6 +82,11 @@ class TextRenderObject : public RenderObject {
   float GetCaretWidth() const { return caret_width_; }
   void SetCaretWidth(float width);
 
+  bool IsMeasureIncludingTrailingSpace() const {
+    return is_measure_including_trailing_space_;
+  }
+  void SetMeasureIncludingTrailingSpace(bool including);
+
   RenderObject* HitTest(const Point& point) override;
 
  protected:
@@ -104,5 +111,7 @@ class TextRenderObject : public RenderObject {
   gsl::index caret_position_ = 0;
   std::shared_ptr<platform::graphics::IBrush> caret_brush_;
   float caret_width_ = default_caret_width;
+
+  bool is_measure_including_trailing_space_ = false;
 };
 }  // namespace cru::ui::render

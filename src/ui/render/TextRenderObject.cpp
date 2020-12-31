@@ -57,7 +57,8 @@ std::shared_ptr<platform::graphics::IFont> TextRenderObject::GetFont() const {
   return text_layout_->GetFont();
 }
 
-void TextRenderObject::SetFont(std::shared_ptr<platform::graphics::IFont> font) {
+void TextRenderObject::SetFont(
+    std::shared_ptr<platform::graphics::IFont> font) {
   Expects(font);
   text_layout_->SetFont(std::move(font));
 }
@@ -154,6 +155,12 @@ Rect TextRenderObject::GetCaretRect() {
   return rect;
 }
 
+void TextRenderObject::SetMeasureIncludingTrailingSpace(bool including) {
+  if (is_measure_including_trailing_space_ == including) return;
+  is_measure_including_trailing_space_ = including;
+  InvalidateLayout();
+}
+
 RenderObject* TextRenderObject::HitTest(const Point& point) {
   const auto padding_rect = GetPaddingRect();
   return padding_rect.IsPointInside(point) ? this : nullptr;
@@ -185,7 +192,9 @@ Size TextRenderObject::OnMeasureContent(const MeasureRequirement& requirement,
   text_layout_->SetMaxWidth(measure_width);
   text_layout_->SetMaxHeight(std::numeric_limits<float>::max());
 
-  const auto text_size = text_layout_->GetTextBounds().GetSize();
+  const auto text_size =
+      text_layout_->GetTextBounds(is_measure_including_trailing_space_)
+          .GetSize();
   auto result = text_size;
 
   if (requirement.max.width.IsSpecified() &&

@@ -58,10 +58,13 @@ void DWriteTextLayout::SetMaxHeight(float max_height) {
   ThrowIfFailed(text_layout_->SetMaxHeight(max_height_));
 }
 
-Rect DWriteTextLayout::GetTextBounds() {
+Rect DWriteTextLayout::GetTextBounds(bool includingTrailingSpace) {
   DWRITE_TEXT_METRICS metrics;
   ThrowIfFailed(text_layout_->GetMetrics(&metrics));
-  return Rect{metrics.left, metrics.top, metrics.width, metrics.height};
+  return Rect{metrics.left, metrics.top,
+              includingTrailingSpace ? metrics.widthIncludingTrailingWhitespace
+                                     : metrics.width,
+              metrics.height};
 }
 
 std::vector<Rect> DWriteTextLayout::TextRangeRect(

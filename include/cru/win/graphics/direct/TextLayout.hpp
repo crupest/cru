@@ -38,7 +38,7 @@ class DWriteTextLayout : public DirectGraphResource,
   void SetMaxWidth(float max_width) override;
   void SetMaxHeight(float max_height) override;
 
-  Rect GetTextBounds() override;
+  Rect GetTextBounds(bool includingTrailingSpace = false) override;
   // Return empty vector if text_range.count is 0. Text range could be in
   // reverse direction, it should be normalized first in implementation.
   std::vector<Rect> TextRangeRect(const TextRange& text_range) override;
