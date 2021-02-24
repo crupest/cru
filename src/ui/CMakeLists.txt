@@ -33,6 +33,7 @@ add_library(cru_ui STATIC
 	render/FlexLayoutRenderObject.cpp
 	render/LayoutHelper.cpp
 	render/RenderObject.cpp
+	render/ScrollBarDelegate.cpp
 	render/ScrollRenderObject.cpp
 	render/StackLayoutRenderObject.cpp
 	render/TextRenderObject.cpp
@@ -77,6 +78,7 @@ target_sources(cru_ui PUBLIC
 	${CRU_UI_INCLUDE_DIR}/render/LayoutRenderObject.hpp
 	${CRU_UI_INCLUDE_DIR}/render/MeasureRequirement.hpp
 	${CRU_UI_INCLUDE_DIR}/render/RenderObject.hpp
+	${CRU_UI_INCLUDE_DIR}/render/ScrollBarDelegate.hpp
 	${CRU_UI_INCLUDE_DIR}/render/ScrollRenderObject.hpp
 	${CRU_UI_INCLUDE_DIR}/render/StackLayoutRenderObject.hpp
 	${CRU_UI_INCLUDE_DIR}/render/TextRenderObject.hpp

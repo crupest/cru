@@ -2,8 +2,11 @@
 
 #include "cru/platform/graphics/Painter.hpp"
 #include "cru/platform/graphics/util/Painter.hpp"
+#include "cru/ui/controls/Control.hpp"
+#include "cru/ui/render/ScrollBarDelegate.hpp"
 
 #include <algorithm>
+#include <memory>
 
 namespace cru::ui::render {
 namespace {
@@ -31,6 +34,10 @@ Point CoerceScroll(const Point& scroll_offset, const Size& content_size,
 }
 }  // namespace
 
+ScrollRenderObject::ScrollRenderObject() : RenderObject(ChildMode::Single) {
+  scroll_bar_delegate_ = std::make_unique<ScrollBarDelegate>(this);
+}
+
 RenderObject* ScrollRenderObject::HitTest(const Point& point) {
   if (const auto child = GetSingleChild()) {
     const auto offset = child->GetOffset();
@@ -52,6 +59,7 @@ void ScrollRenderObject::OnDrawCore(platform::graphics::IPainter* painter) {
         [child](platform::graphics::IPainter* p) { child->Draw(p); });
     painter->PopLayer();
   }
+  scroll_bar_delegate_->DrawScrollBar(painter);
 }
 
 Point ScrollRenderObject::GetScrollOffset() {
@@ -139,6 +147,14 @@ Size ScrollRenderObject::OnMeasureContent(const MeasureRequirement& requirement,
 void ScrollRenderObject::OnLayoutContent(const Rect& content_rect) {
   if (const auto child = GetSingleChild()) {
     child->Layout(content_rect.GetLeftTop() - GetScrollOffset());
+  }
+}
+
+void ScrollRenderObject::OnAttachedControlChanged(controls::Control* control) {
+  if (control) {
+    scroll_bar_delegate_->InstallHandlers(control);
+  } else {
+    scroll_bar_delegate_->UninstallHandlers();
   }
 }
 }  // namespace cru::ui::render

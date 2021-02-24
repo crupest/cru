@@ -2,7 +2,9 @@
 #include "RenderObject.hpp"
 
 #include "cru/platform/graphics/util/Painter.hpp"
+#include "cru/ui/render/ScrollBarDelegate.hpp"
 
+#include <memory>
 #include <optional>
 
 namespace cru::ui::render {
@@ -16,7 +18,7 @@ namespace cru::ui::render {
 // Or layout by scroll state.
 class ScrollRenderObject : public RenderObject {
  public:
-  ScrollRenderObject() : RenderObject(ChildMode::Single) {}
+  ScrollRenderObject();
 
   CRU_DELETE_COPY(ScrollRenderObject)
   CRU_DELETE_MOVE(ScrollRenderObject)
@@ -54,7 +56,11 @@ class ScrollRenderObject : public RenderObject {
                         const MeasureSize& preferred_size) override;
   void OnLayoutContent(const Rect& content_rect) override;
 
+  void OnAttachedControlChanged(controls::Control* control) override;
+
  private:
   Point scroll_offset_;
+
+  std::unique_ptr<ScrollBarDelegate> scroll_bar_delegate_;
 };
 }  // namespace cru::ui::render

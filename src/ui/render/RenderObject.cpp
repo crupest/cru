@@ -11,6 +11,11 @@
 #include <vector>
 
 namespace cru::ui::render {
+void RenderObject::SetAttachedControl(controls::Control* new_control) {
+  control_ = new_control;
+  OnAttachedControlChanged(new_control);
+}
+
 void RenderObject::AddChild(RenderObject* render_object, const Index position) {
   Expects(child_mode_ != ChildMode::None);
   Expects(!(child_mode_ == ChildMode::Single && children_.size() > 0));
@@ -39,6 +44,15 @@ void RenderObject::RemoveChild(const Index position) {
   removed_child->SetParent(nullptr);
   removed_child->SetWindowHostRecursive(nullptr);
   OnRemoveChild(removed_child, position);
+}
+
+RenderObject* RenderObject::GetFirstChild() const {
+  const auto& children = GetChildren();
+  if (children.empty()) {
+    return nullptr;
+  } else {
+    return children.front();
+  }
 }
 
 void RenderObject::TraverseDescendants(

@@ -2,6 +2,7 @@
 #include "Base.hpp"
 
 #include "MeasureRequirement.hpp"
+#include "cru/common/Base.hpp"
 #include "cru/common/Event.hpp"
 #include "cru/ui/Base.hpp"
 
@@ -63,9 +64,7 @@ class RenderObject : public Object {
   ~RenderObject() override = default;
 
   controls::Control* GetAttachedControl() const { return control_; }
-  void SetAttachedControl(controls::Control* new_control) {
-    control_ = new_control;
-  }
+  void SetAttachedControl(controls::Control* new_control);
 
   host::WindowHost* GetWindowHost() const { return window_host_; }
 
@@ -76,6 +75,7 @@ class RenderObject : public Object {
   void AddChild(RenderObject* render_object, Index position);
   void RemoveChild(Index position);
 
+  RenderObject* GetFirstChild() const;
   void TraverseDescendants(const std::function<void(RenderObject*)>& action);
 
   // Offset from parent's lefttop to lefttop of this render object. Margin is
@@ -130,6 +130,9 @@ class RenderObject : public Object {
                const MeasureSize& preferred_size);
   // This will set offset of this render object and call OnLayoutCore.
   void Layout(const Point& offset);
+
+  virtual Rect GetPaddingRect() const;
+  virtual Rect GetContentRect() const;
 
   void Draw(platform::graphics::IPainter* painter);
 
@@ -201,10 +204,11 @@ class RenderObject : public Object {
   // Lefttop of content_rect should be added when calculated children's offset.
   virtual void OnLayoutContent(const Rect& content_rect) = 0;
 
-  virtual void OnAfterLayout();
+  virtual void OnAttachedControlChanged(controls::Control* control) {
+    CRU_UNUSED(control)
+  }
 
-  virtual Rect GetPaddingRect() const;
-  virtual Rect GetContentRect() const;
+  virtual void OnAfterLayout();
 
  private:
   void SetParent(RenderObject* new_parent);

@@ -316,6 +316,12 @@ struct Color {
                  (hex >> 24) & mask);
   }
 
+  constexpr Color WithAlpha(std::uint8_t new_alpha) const {
+    auto result = *this;
+    result.alpha = new_alpha;
+    return result;
+  }
+
   std::uint8_t red;
   std::uint8_t green;
   std::uint8_t blue;
