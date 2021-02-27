@@ -46,8 +46,16 @@ ScrollBar::ScrollBar(gsl::not_null<ScrollRenderObject*> render_object,
 }
 
 void ScrollBar::SetEnabled(bool value) {
-  CRU_UNUSED(value)
-  // TODO: Implement this.
+  if (value == is_enabled_) return;
+  if (!value) {
+    SetExpanded(false);
+    if (move_thumb_start_) {
+      if (const auto control = this->render_object_->GetAttachedControl()) {
+        control->ReleaseMouse();
+      }
+      move_thumb_start_ = std::nullopt;
+    }
+  }
 }
 
 void ScrollBar::SetExpanded(bool value) {
