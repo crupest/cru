@@ -1,4 +1,4 @@
-#include "cru/ui/render/ScrollBarDelegate.hpp"
+#include "cru/ui/render/ScrollBar.hpp"
 
 #include "../Helper.hpp"
 #include "cru/common/Base.hpp"
@@ -125,12 +125,10 @@ ScrollBarDelegate::ScrollBarDelegate(
     : render_object_(render_object),
       horizontal_bar_(render_object),
       vertical_bar_(render_object) {
-  horizontal_bar_.ScrollAttemptEvent()->AddHandler([this](float offset) {
-    this->scroll_attempt_event_.Raise({offset, 0});
-  });
-  vertical_bar_.ScrollAttemptEvent()->AddHandler([this](float offset) {
-    this->scroll_attempt_event_.Raise({0, offset});
-  });
+  horizontal_bar_.ScrollAttemptEvent()->AddHandler(
+      [this](auto scroll) { this->scroll_attempt_event_.Raise(scroll); });
+  vertical_bar_.ScrollAttemptEvent()->AddHandler(
+      [this](auto scroll) { this->scroll_attempt_event_.Raise(scroll); });
 }
 
 void ScrollBarDelegate::DrawScrollBar(platform::graphics::IPainter* painter) {

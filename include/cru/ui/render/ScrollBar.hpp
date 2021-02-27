@@ -5,6 +5,7 @@
 #include "cru/platform/graphics/Base.hpp"
 #include "cru/platform/graphics/Painter.hpp"
 #include "cru/platform/gui/UiApplication.hpp"
+#include "cru/ui/Base.hpp"
 #include "cru/ui/controls/Control.hpp"
 
 #include <gsl/pointers>
@@ -13,6 +14,14 @@
 
 namespace cru::ui::render {
 class ScrollRenderObject;
+
+enum class ScrollKind { Absolute, Page, Line };
+
+struct Scroll {
+  Direction direction;
+  ScrollKind kind;
+  float offset;
+};
 
 enum class ScrollBarAreaKind {
   UpArrow,    // Line up
@@ -39,7 +48,7 @@ class ScrollBar : public Object {
 
   virtual std::optional<ScrollBarAreaKind> HitTest(const Point& point) = 0;
 
-  IEvent<float>* ScrollAttemptEvent() { return &scroll_attempt_event_; }
+  IEvent<Scroll>* ScrollAttemptEvent() { return &scroll_attempt_event_; }
 
   void InstallHandlers(controls::Control* control);
   void UninstallHandlers() { InstallHandlers(nullptr); }
@@ -62,7 +71,7 @@ class ScrollBar : public Object {
 
   EventRevokerListGuard event_guard_;
 
-  Event<float> scroll_attempt_event_;
+  Event<Scroll> scroll_attempt_event_;
 };
 
 class HorizontalScrollBar : public ScrollBar {
@@ -98,11 +107,6 @@ class VerticalScrollBar : public ScrollBar {
   void OnDraw(platform::graphics::IPainter* painter, bool expand) override;
 };
 
-struct ScrollBarScrollAttemptArgs {
-  float x_offset;
-  float y_offset;
-};
-
 // A delegate to draw scrollbar and register related events.
 class ScrollBarDelegate : public Object {
  public:
@@ -122,9 +126,7 @@ class ScrollBarDelegate : public Object {
   bool IsVerticalBarEnabled() const { return horizontal_bar_.IsEnabled(); }
   void SetVerticalBarEnabled(bool value) { horizontal_bar_.SetEnabled(value); }
 
-  IEvent<ScrollBarScrollAttemptArgs>* ScrollAttemptEvent() {
-    return &scroll_attempt_event_;
-  }
+  IEvent<Scroll>* ScrollAttemptEvent() { return &scroll_attempt_event_; }
 
   void DrawScrollBar(platform::graphics::IPainter* painter);
 
@@ -137,6 +139,6 @@ class ScrollBarDelegate : public Object {
   HorizontalScrollBar horizontal_bar_;
   VerticalScrollBar vertical_bar_;
 
-  Event<ScrollBarScrollAttemptArgs> scroll_attempt_event_;
+  Event<Scroll> scroll_attempt_event_;
 };
 }  // namespace cru::ui::render

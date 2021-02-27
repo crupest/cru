@@ -43,9 +43,11 @@ class RenderObject;
 namespace style {
 class StyleRuleSet;
 class StyleRuleSetBind;
-}
+}  // namespace style
 
 //-------------------- region: basic types --------------------
+enum class Direction { Horizontal, Vertical };
+
 namespace internal {
 constexpr int align_start = 0;
 constexpr int align_end = align_start + 1;

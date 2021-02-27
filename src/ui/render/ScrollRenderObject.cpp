@@ -3,7 +3,7 @@
 #include "cru/platform/graphics/Painter.hpp"
 #include "cru/platform/graphics/util/Painter.hpp"
 #include "cru/ui/controls/Control.hpp"
-#include "cru/ui/render/ScrollBarDelegate.hpp"
+#include "cru/ui/render/ScrollBar.hpp"
 
 #include <algorithm>
 #include <memory>
