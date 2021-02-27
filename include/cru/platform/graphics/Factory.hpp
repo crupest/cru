@@ -21,5 +21,11 @@ struct IGraphFactory : virtual INativeResource {
 
   virtual std::unique_ptr<ITextLayout> CreateTextLayout(
       std::shared_ptr<IFont> font, std::u16string text) = 0;
+
+  std::unique_ptr<ISolidColorBrush> CreateSolidColorBrush(const Color& color) {
+    std::unique_ptr<ISolidColorBrush> brush = CreateSolidColorBrush();
+    brush->SetColor(color);
+    return brush;
+  }
 };
-}  // namespace cru::platform::graph
+}  // namespace cru::platform::graphics

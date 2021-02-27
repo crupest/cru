@@ -2,6 +2,7 @@
 #include "RenderObject.hpp"
 
 #include "cru/platform/graphics/util/Painter.hpp"
+#include "cru/ui/Base.hpp"
 #include "cru/ui/render/ScrollBar.hpp"
 
 #include <memory>
@@ -29,8 +30,22 @@ class ScrollRenderObject : public RenderObject {
 
   // Return the coerced scroll offset.
   Point GetScrollOffset();
+  float GetScrollOffset(Direction direction) {
+    return direction == Direction::Horizontal ? GetScrollOffset().x
+                                              : GetScrollOffset().y;
+  }
   void SetScrollOffset(const Point& offset);
   void SetScrollOffset(std::optional<float> x, std::optional<float> y);
+  void SetScrollOffset(Direction direction, std::optional<float> value) {
+    if (direction == Direction::Horizontal) {
+      SetScrollOffset(value, std::nullopt);
+    } else {
+      SetScrollOffset(std::nullopt, value);
+    }
+  }
+
+  void Scroll(const Scroll& scroll);
+
   Point GetRawScrollOffset() const { return scroll_offset_; }
 
   // Return the viewable area rect.

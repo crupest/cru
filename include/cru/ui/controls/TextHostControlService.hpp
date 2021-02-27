@@ -100,7 +100,7 @@ class TextHostControlService : public Object {
   void SetupOneHandler(event::RoutedEvent<TArgs>* (Control::*event)(),
                        void (TextHostControlService::*handler)(
                            typename event::RoutedEvent<TArgs>::EventArgs)) {
-    this->event_guard_ += (this->control_->*event)()->Direct()->AddHandler(
+    this->event_guard_ += (this->control_->*event)()->Bubble()->AddHandler(
         std::bind(handler, this, std::placeholders::_1));
   }
 

@@ -2,13 +2,17 @@
 
 #include "cru/platform/graphics/Painter.hpp"
 #include "cru/platform/graphics/util/Painter.hpp"
+#include "cru/ui/Base.hpp"
 #include "cru/ui/controls/Control.hpp"
 #include "cru/ui/render/ScrollBar.hpp"
 
 #include <algorithm>
 #include <memory>
+#include <optional>
 
 namespace cru::ui::render {
+constexpr float kLineHeight = 16;
+
 namespace {
 // This method assumes margin offset is already considered.
 // It promises that it won't return negetive value.
@@ -36,6 +40,35 @@ Point CoerceScroll(const Point& scroll_offset, const Size& content_size,
 
 ScrollRenderObject::ScrollRenderObject() : RenderObject(ChildMode::Single) {
   scroll_bar_delegate_ = std::make_unique<ScrollBarDelegate>(this);
+  scroll_bar_delegate_->ScrollAttemptEvent()->AddHandler(
+      [this](const struct Scroll& scroll) { this->Scroll(scroll); });
+}
+
+void ScrollRenderObject::Scroll(const struct Scroll& scroll) {
+  auto direction = scroll.direction;
+
+  switch (scroll.kind) {
+    case ScrollKind::Absolute:
+      SetScrollOffset(direction, scroll.value);
+      break;
+    case ScrollKind::Relative:
+      SetScrollOffset(direction,
+                      GetScrollOffset(scroll.direction) + scroll.value);
+      break;
+    case ScrollKind::Page:
+      SetScrollOffset(direction, GetScrollOffset(direction) +
+                                     (direction == Direction::Horizontal
+                                          ? GetViewRect().width
+                                          : GetViewRect().height) *
+                                         scroll.value);
+      break;
+    case ScrollKind::Line:
+      SetScrollOffset(direction,
+                      GetScrollOffset(direction) + kLineHeight * scroll.value);
+      break;
+    default:
+      break;
+  }
 }
 
 RenderObject* ScrollRenderObject::HitTest(const Point& point) {
