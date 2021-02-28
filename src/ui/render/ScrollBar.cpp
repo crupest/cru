@@ -6,6 +6,7 @@
 #include "cru/platform/graphics/Factory.hpp"
 #include "cru/platform/graphics/Painter.hpp"
 #include "cru/platform/gui/Base.hpp"
+#include "cru/platform/gui/Cursor.hpp"
 #include "cru/ui/Base.hpp"
 #include "cru/ui/events/UiEvent.hpp"
 #include "cru/ui/render/ScrollRenderObject.hpp"
@@ -44,6 +45,8 @@ ScrollBar::ScrollBar(gsl::not_null<ScrollRenderObject*> render_object,
   expanded_arrow_background_brush_ =
       graphics_factory->CreateSolidColorBrush(colors::black);
 }
+
+ScrollBar::~ScrollBar() { RestoreCursor(); }
 
 void ScrollBar::SetEnabled(bool value) {
   if (value == is_enabled_) return;
@@ -150,17 +153,36 @@ void ScrollBar::InstallHandlers(controls::Control* control) {
                 return true;
               }
 
-              if (IsEnabled() && !IsExpanded()) {
-                auto trigger_expand_area = GetCollapsedTriggerExpandAreaRect();
-                if (trigger_expand_area &&
-                    trigger_expand_area->IsPointInside(
-                        event.GetPoint(this->render_object_))) {
-                  SetExpanded(true);
-                  event.SetHandled();
-                  return true;
+              if (IsEnabled()) {
+                if (IsExpanded()) {
+                  auto hit_test_result =
+                      ExpandedHitTest(event.GetPoint(this->render_object_));
+                  if (hit_test_result) {
+                    SetCursor();
+                  } else {
+                    RestoreCursor();
+                  }
+                } else {
+                  auto trigger_expand_area =
+                      GetCollapsedTriggerExpandAreaRect();
+                  if (trigger_expand_area &&
+                      trigger_expand_area->IsPointInside(
+                          event.GetPoint(this->render_object_))) {
+                    SetExpanded(true);
+                    SetCursor();
+                    event.SetHandled();
+                    return true;
+                  }
                 }
               }
 
+              return false;
+            });
+
+    event_guard_ +=
+        control->MouseLeaveEvent()->Bubble()->PrependShortCircuitHandler(
+            [this](event::MouseEventArgs&) {
+              if (IsExpanded() && !move_thumb_start_) RestoreCursor();
               return false;
             });
   }
@@ -222,6 +244,26 @@ void ScrollBar::OnDraw(platform::graphics::IPainter* painter,
       painter->FillRectangle(*optional_rect,
                              GetCollapsedThumbBrush().get().get());
     }
+  }
+}
+
+void ScrollBar::SetCursor() {
+  if (!old_cursor_) {
+    if (const auto control = render_object_->GetAttachedControl()) {
+      old_cursor_ = control->GetCursor();
+      control->SetCursor(
+          GetUiApplication()->GetCursorManager()->GetSystemCursor(
+              platform::gui::SystemCursorType::Arrow));
+    }
+  }
+}
+
+void ScrollBar::RestoreCursor() {
+  if (old_cursor_) {
+    if (const auto control = render_object_->GetAttachedControl()) {
+      control->SetCursor(*old_cursor_);
+    }
+    old_cursor_ = std::nullopt;
   }
 }
 

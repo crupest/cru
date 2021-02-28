@@ -4,6 +4,7 @@
 #include "cru/common/Event.hpp"
 #include "cru/platform/graphics/Base.hpp"
 #include "cru/platform/graphics/Painter.hpp"
+#include "cru/platform/gui/Cursor.hpp"
 #include "cru/platform/gui/UiApplication.hpp"
 #include "cru/ui/Base.hpp"
 #include "cru/ui/controls/Control.hpp"
@@ -40,7 +41,7 @@ class ScrollBar : public Object {
   CRU_DELETE_COPY(ScrollBar)
   CRU_DELETE_MOVE(ScrollBar)
 
-  ~ScrollBar() override = default;
+  ~ScrollBar() override;
 
  public:
   Direction GetDirection() const { return direction_; }
@@ -89,6 +90,10 @@ class ScrollBar : public Object {
   virtual float CalculateNewScrollPosition(const Rect& thumb_original_rect,
                                            const Point& mouse_offset) = 0;
 
+ private:
+  void SetCursor();
+  void RestoreCursor();
+
  protected:
   gsl::not_null<ScrollRenderObject*> render_object_;
 
@@ -111,6 +116,8 @@ class ScrollBar : public Object {
   EventRevokerListGuard event_guard_;
 
   Event<Scroll> scroll_attempt_event_;
+
+  std::optional<std::shared_ptr<platform::gui::ICursor>> old_cursor_;
 };
 
 class HorizontalScrollBar : public ScrollBar {
