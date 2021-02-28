@@ -85,7 +85,7 @@ RenderObject* ScrollRenderObject::HitTest(const Point& point) {
 void ScrollRenderObject::OnDrawCore(platform::graphics::IPainter* painter) {
   DefaultDrawContent(painter);
   if (const auto child = GetSingleChild()) {
-    painter->PushLayer(this->GetPaddingRect());
+    painter->PushLayer(this->GetContentRect());
     const auto offset = child->GetOffset();
     platform::graphics::util::WithTransform(
         painter, Matrix::Translation(offset.x, offset.y),

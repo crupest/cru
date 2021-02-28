@@ -193,7 +193,7 @@ ScrollBar::GetExpandedArrowBrush() const {
 gsl::not_null<std::shared_ptr<platform::graphics::IBrush>>
 ScrollBar::GetExpandedArrowBackgroundBrush() const {
   // TODO: Read theme resource.
-  return expanded_arrow_brush_;
+  return expanded_arrow_background_brush_;
 }
 
 void ScrollBar::OnDraw(platform::graphics::IPainter* painter,
@@ -357,8 +357,8 @@ float HorizontalScrollBar::CalculateNewScrollPosition(
   new_thumb_start =
       std::clamp(new_thumb_start, scroll_area_start, thumb_head_end);
 
-  auto offset = new_thumb_start / (scroll_area_end - scroll_area_start) *
-                child_size.width;
+  auto offset = (new_thumb_start - scroll_area_start) /
+                (scroll_area_end - scroll_area_start) * child_size.width;
 
   return offset;
 }
@@ -482,8 +482,8 @@ float VerticalScrollBar::CalculateNewScrollPosition(
   new_thumb_start =
       std::clamp(new_thumb_start, scroll_area_start, thumb_head_end);
 
-  auto offset = new_thumb_start / (scroll_area_end - scroll_area_start) *
-                child_size.height;
+  auto offset = (new_thumb_start - scroll_area_start) /
+                (scroll_area_end - scroll_area_start) * child_size.width;
 
   return offset;
 }
