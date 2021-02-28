@@ -110,7 +110,7 @@ struct IEvent : virtual IBaseEvent {
  public:
   using EventArgs = DeducedEventArgs<TEventArgs>;
   using EventHandler = std::function<void(EventArgs)>;
-  using HandlerVariant = std::variant<SpyOnlyHandler, EventHandler>;
+  using ShortCircuitHandler = std::function<bool(EventArgs)>;
 
  protected:
   IEvent() = default;
@@ -121,24 +121,27 @@ struct IEvent : virtual IBaseEvent {
 
  public:
   virtual EventRevoker AddHandler(EventHandler handler) = 0;
+  virtual EventRevoker AddShortCircuitHandler(ShortCircuitHandler handler) = 0;
+  virtual EventRevoker PrependShortCircuitHandler(
+      ShortCircuitHandler handler) = 0;
 };
 
 // A non-copyable non-movable Event class.
 // It stores a list of event handlers.
 template <typename TEventArgs>
 class Event : public details::EventBase, public IEvent<TEventArgs> {
+  using typename IEvent<TEventArgs>::EventArgs;
+
   using typename IBaseEvent::SpyOnlyHandler;
   using typename IEvent<TEventArgs>::EventHandler;
-  using typename IEvent<TEventArgs>::HandlerVariant;
+  using typename IEvent<TEventArgs>::ShortCircuitHandler;
 
  private:
   struct HandlerData {
-    HandlerData(EventHandlerToken token, EventHandler handler)
-        : token(token), handler(handler) {}
-    HandlerData(EventHandlerToken token, SpyOnlyHandler handler)
-        : token(token), handler(handler) {}
+    HandlerData(EventHandlerToken token, ShortCircuitHandler handler)
+        : token(token), handler(std::move(handler)) {}
     EventHandlerToken token;
-    HandlerVariant handler;
+    ShortCircuitHandler handler;
   };
 
  public:
@@ -148,43 +151,50 @@ class Event : public details::EventBase, public IEvent<TEventArgs> {
   ~Event() = default;
 
   EventRevoker AddSpyOnlyHandler(SpyOnlyHandler handler) override {
+    return AddShortCircuitHandler([handler = std::move(handler)](EventArgs) {
+      handler();
+      return false;
+    });
+  }
+
+  EventRevoker AddHandler(EventHandler handler) override {
+    return AddShortCircuitHandler(
+        [handler = std::move(handler)](EventArgs args) {
+          handler(args);
+          return false;
+        });
+  }
+
+  // Handler return true to short circuit following handlers.
+  EventRevoker AddShortCircuitHandler(ShortCircuitHandler handler) override {
     const auto token = current_token_++;
     this->handler_data_list_.emplace_back(token, std::move(handler));
     return CreateRevoker(token);
   }
 
-  EventRevoker AddHandler(EventHandler handler) override {
+  // Handler return true to short circuit following handlers.
+  EventRevoker PrependShortCircuitHandler(
+      ShortCircuitHandler handler) override {
     const auto token = current_token_++;
-    this->handler_data_list_.emplace_back(token, std::move(handler));
+    this->handler_data_list_.emplace(this->handler_data_list_.cbegin(), token,
+                                     std::move(handler));
     return CreateRevoker(token);
   }
 
   // This method will make a copy of all handlers. Because user might delete a
-  // handler in a handler, which may lead to seg fault as the handler is deleted
-  // while being executed.
-  // Thanks to this behavior, all handlers will be taken a snapshot when Raise
-  // is called, so even if you delete a handler during this period, all handlers
-  // in the snapshot will be executed.
-  void Raise(typename IEvent<TEventArgs>::EventArgs args) {
-    std::vector<HandlerVariant> handlers;
+  // handler in a handler, which may lead to seg fault as the handler is
+  // deleted while being executed. Thanks to this behavior, all handlers will
+  // be taken a snapshot when Raise is called, so even if you delete a handler
+  // during this period, all handlers in the snapshot will be executed.
+  void Raise(EventArgs args) {
+    std::vector<ShortCircuitHandler> handlers;
     handlers.reserve(this->handler_data_list_.size());
     for (const auto& data : this->handler_data_list_) {
       handlers.push_back(data.handler);
     }
-    for (const auto& handler_variant : handlers) {
-      std::visit(
-          [&args](auto&& handler) {
-            using T = std::decay_t<decltype(handler)>;
-            if constexpr (std::is_same_v<T, SpyOnlyHandler>) {
-              handler();
-            } else if constexpr (std::is_same_v<T, EventHandler>) {
-              handler(args);
-            } else {
-              static_assert(details::always_false_v<T>,
-                            "non-exhaustive visitor!");
-            }
-          },
-          handler_variant);
+    for (const auto& handler : handlers) {
+      auto short_circuit = handler(args);
+      if (short_circuit) return;
     }
   }
 

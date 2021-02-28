@@ -73,82 +73,96 @@ void ScrollBar::Draw(platform::graphics::IPainter* painter) {
 void ScrollBar::InstallHandlers(controls::Control* control) {
   event_guard_.Clear();
   if (control != nullptr) {
-    event_guard_ += control->MouseDownEvent()->Bubble()->AddHandler(
-        [control, this](event::MouseButtonEventArgs& event) {
-          if (event.GetButton() == mouse_buttons::left && IsEnabled() &&
-              IsExpanded()) {
-            auto hit_test_result =
-                ExpandedHitTest(event.GetPoint(render_object_));
-            if (!hit_test_result) return;
+    event_guard_ +=
+        control->MouseDownEvent()->Bubble()->PrependShortCircuitHandler(
+            [control, this](event::MouseButtonEventArgs& event) {
+              if (event.GetButton() == mouse_buttons::left && IsEnabled() &&
+                  IsExpanded()) {
+                auto hit_test_result =
+                    ExpandedHitTest(event.GetPoint(render_object_));
+                if (!hit_test_result) return false;
 
-            switch (*hit_test_result) {
-              case ScrollBarAreaKind::UpArrow:
-                this->scroll_attempt_event_.Raise(
-                    {GetDirection(), ScrollKind::Line, -1});
-                event.SetHandled();
-                break;
-              case ScrollBarAreaKind::DownArrow:
-                this->scroll_attempt_event_.Raise(
-                    {GetDirection(), ScrollKind::Line, 1});
-                event.SetHandled();
-                break;
-              case ScrollBarAreaKind::UpSlot:
-                this->scroll_attempt_event_.Raise(
-                    {GetDirection(), ScrollKind::Page, -1});
-                event.SetHandled();
-                break;
-              case ScrollBarAreaKind::DownSlot:
-                this->scroll_attempt_event_.Raise(
-                    {GetDirection(), ScrollKind::Page, 1});
-                event.SetHandled();
-                break;
-              case ScrollBarAreaKind::Thumb: {
-                auto thumb_rect = GetExpandedAreaRect(ScrollBarAreaKind::Thumb);
-                assert(thumb_rect);
+                switch (*hit_test_result) {
+                  case ScrollBarAreaKind::UpArrow:
+                    this->scroll_attempt_event_.Raise(
+                        {GetDirection(), ScrollKind::Line, -1});
+                    event.SetHandled();
+                    return true;
+                  case ScrollBarAreaKind::DownArrow:
+                    this->scroll_attempt_event_.Raise(
+                        {GetDirection(), ScrollKind::Line, 1});
+                    event.SetHandled();
+                    return true;
+                  case ScrollBarAreaKind::UpSlot:
+                    this->scroll_attempt_event_.Raise(
+                        {GetDirection(), ScrollKind::Page, -1});
+                    event.SetHandled();
+                    return true;
+                  case ScrollBarAreaKind::DownSlot:
+                    this->scroll_attempt_event_.Raise(
+                        {GetDirection(), ScrollKind::Page, 1});
+                    event.SetHandled();
+                    return true;
+                  case ScrollBarAreaKind::Thumb: {
+                    auto thumb_rect =
+                        GetExpandedAreaRect(ScrollBarAreaKind::Thumb);
+                    assert(thumb_rect);
 
-                if (!control->CaptureMouse()) break;
-                move_thumb_thumb_original_rect_ = *thumb_rect;
-                move_thumb_start_ = event.GetPoint();
-                event.SetHandled();
-                break;
+                    if (!control->CaptureMouse()) break;
+                    move_thumb_thumb_original_rect_ = *thumb_rect;
+                    move_thumb_start_ = event.GetPoint();
+                    event.SetHandled();
+                    return true;
+                  }
+                  default:
+                    break;
+                }
               }
-              default:
-                break;
-            }
-          }
-        });
 
-    event_guard_ += control->MouseUpEvent()->Bubble()->AddHandler(
-        [control, this](event::MouseButtonEventArgs& event) {
-          if (event.GetButton() == mouse_buttons::left && move_thumb_start_) {
-            move_thumb_start_ = std::nullopt;
-            control->ReleaseMouse();
-            event.SetHandled();
-          }
-        });
+              return false;
+            });
 
-    event_guard_ += control->MouseMoveEvent()->Bubble()->AddHandler(
-        [this](event::MouseEventArgs& event) {
-          if (move_thumb_start_) {
-            auto new_scroll_position = CalculateNewScrollPosition(
-                move_thumb_thumb_original_rect_,
-                event.GetPoint() - *move_thumb_start_);
+    event_guard_ +=
+        control->MouseUpEvent()->Bubble()->PrependShortCircuitHandler(
+            [control, this](event::MouseButtonEventArgs& event) {
+              if (event.GetButton() == mouse_buttons::left &&
+                  move_thumb_start_) {
+                move_thumb_start_ = std::nullopt;
+                control->ReleaseMouse();
+                event.SetHandled();
+                return true;
+              }
+              return false;
+            });
 
-            this->scroll_attempt_event_.Raise(
-                {GetDirection(), ScrollKind::Absolute, new_scroll_position});
-            event.SetHandled();
-            return;
-          }
+    event_guard_ +=
+        control->MouseMoveEvent()->Bubble()->PrependShortCircuitHandler(
+            [this](event::MouseEventArgs& event) {
+              if (move_thumb_start_) {
+                auto new_scroll_position = CalculateNewScrollPosition(
+                    move_thumb_thumb_original_rect_,
+                    event.GetPoint() - *move_thumb_start_);
 
-          if (IsEnabled() && !IsExpanded()) {
-            auto trigger_expand_area = GetCollapsedTriggerExpandAreaRect();
-            if (trigger_expand_area &&
-                trigger_expand_area->IsPointInside(
-                    event.GetPoint(this->render_object_)))
-              SetExpanded(true);
-            event.SetHandled();
-          }
-        });
+                this->scroll_attempt_event_.Raise({GetDirection(),
+                                                   ScrollKind::Absolute,
+                                                   new_scroll_position});
+                event.SetHandled();
+                return true;
+              }
+
+              if (IsEnabled() && !IsExpanded()) {
+                auto trigger_expand_area = GetCollapsedTriggerExpandAreaRect();
+                if (trigger_expand_area &&
+                    trigger_expand_area->IsPointInside(
+                        event.GetPoint(this->render_object_))) {
+                  SetExpanded(true);
+                  event.SetHandled();
+                  return true;
+                }
+              }
+
+              return false;
+            });
   }
 }
 
