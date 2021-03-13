@@ -32,6 +32,14 @@ void D2DPainter::Clear(const Color& color) {
   render_target_->Clear(Convert(color));
 }
 
+void D2DPainter::DrawLine(const Point& start, const Point& end, IBrush* brush,
+                          float width) {
+  CheckValidation();
+  const auto b = CheckPlatform<ID2DBrush>(brush, GetPlatformId());
+  render_target_->DrawLine(Convert(start), Convert(end),
+                           b->GetD2DBrushInterface(), width);
+}
+
 void D2DPainter::StrokeRectangle(const Rect& rectangle, IBrush* brush,
                                  float width) {
   CheckValidation();

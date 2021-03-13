@@ -9,6 +9,8 @@ struct IPainter : virtual INativeResource {
 
   virtual void Clear(const Color& color) = 0;
 
+  virtual void DrawLine(const Point& start, const Point& end, IBrush* brush,
+                        float width) = 0;
   virtual void StrokeRectangle(const Rect& rectangle, IBrush* brush,
                                float width) = 0;
   virtual void FillRectangle(const Rect& rectangle, IBrush* brush) = 0;
@@ -26,4 +28,4 @@ struct IPainter : virtual INativeResource {
 
   virtual void EndDraw() = 0;
 };
-}  // namespace cru::platform::graph
+}  // namespace cru::platform::graphics

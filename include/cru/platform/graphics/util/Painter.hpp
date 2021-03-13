@@ -10,7 +10,7 @@ void WithTransform(IPainter* painter, const Matrix& matrix, const Fn& action) {
   static_assert(std::is_invocable_v<decltype(action), IPainter*>,
                 "Action must can be be invoked with painter.");
   const auto old = painter->GetTransform();
-  painter->SetTransform(old * matrix);
+  painter->SetTransform(matrix * old);
   action(painter);
   painter->SetTransform(old);
 }

@@ -50,10 +50,15 @@ struct Matrix {
     return Matrix{1.0f, 0.0f, 0.0f, 1.0f, x, y};
   }
 
+  static Matrix Translation(const Point& point) {
+    return Translation(point.x, point.y);
+  }
+
   static Matrix Scale(float sx, float sy) {
     return Matrix{sx, 0.0f, 0.0f, sy, 0.0f, 0.0f};
   }
 
+  // Clockwise.
   static Matrix Rotation(float angle) {
     float r = AngleToRadian(angle);
     float s = std::sin(r);

@@ -3,6 +3,7 @@
 #include "cru/common/Base.hpp"
 #include "cru/common/Event.hpp"
 #include "cru/platform/graphics/Base.hpp"
+#include "cru/platform/graphics/Geometry.hpp"
 #include "cru/platform/graphics/Painter.hpp"
 #include "cru/platform/gui/Cursor.hpp"
 #include "cru/platform/gui/UiApplication.hpp"
@@ -101,6 +102,8 @@ class ScrollBar : public Object {
 
  protected:
   gsl::not_null<ScrollRenderObject*> render_object_;
+
+  std::unique_ptr<platform::graphics::IGeometry> arrow_geometry_;
 
  private:
   Direction direction_;

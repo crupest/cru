@@ -27,6 +27,8 @@ class D2DPainter : public DirectResource,
 
   void Clear(const Color& color) override;
 
+  void DrawLine(const Point& start, const Point& end, IBrush* brush,
+                float width) override;
   void StrokeRectangle(const Rect& rectangle, IBrush* brush,
                        float width) override;
   void FillRectangle(const Rect& rectangle, IBrush* brush) override;

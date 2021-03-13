@@ -4,7 +4,9 @@
 #include "cru/common/Base.hpp"
 #include "cru/platform/GraphBase.hpp"
 #include "cru/platform/graphics/Factory.hpp"
+#include "cru/platform/graphics/Geometry.hpp"
 #include "cru/platform/graphics/Painter.hpp"
+#include "cru/platform/graphics/util/Painter.hpp"
 #include "cru/platform/gui/Base.hpp"
 #include "cru/platform/gui/Cursor.hpp"
 #include "cru/ui/Base.hpp"
@@ -16,6 +18,7 @@
 #include <cassert>
 #include <chrono>
 #include <gsl/pointers>
+#include <memory>
 #include <optional>
 #include <stdexcept>
 
@@ -24,12 +27,24 @@ using namespace std::chrono_literals;
 constexpr float kScrollBarCollapseThumbWidth = 2;
 constexpr float kScrollBarCollapsedTriggerExpandAreaWidth = 5;
 constexpr float kScrollBarExpandWidth = 10;
+constexpr float kScrollBarArrowHeight = 3.5;
 constexpr auto kScrollBarAutoCollapseDelay = 1500ms;
 
 constexpr std::array<ScrollBarAreaKind, 5> kScrollBarAreaKindList{
     ScrollBarAreaKind::UpArrow, ScrollBarAreaKind::DownArrow,
     ScrollBarAreaKind::UpSlot, ScrollBarAreaKind::DownSlot,
     ScrollBarAreaKind::Thumb};
+
+namespace {
+std::unique_ptr<platform::graphics::IGeometry> CreateScrollBarArrowGeometry() {
+  auto geometry_builder = GetGraphFactory()->CreateGeometryBuilder();
+  geometry_builder->BeginFigure({-kScrollBarArrowHeight / 2, 0});
+  geometry_builder->LineTo({kScrollBarArrowHeight / 2, kScrollBarArrowHeight});
+  geometry_builder->LineTo({kScrollBarArrowHeight / 2, -kScrollBarArrowHeight});
+  geometry_builder->CloseFigure(true);
+  return geometry_builder->Build();
+}
+}  // namespace
 
 ScrollBar::ScrollBar(gsl::not_null<ScrollRenderObject*> render_object,
                      Direction direction)
@@ -43,10 +58,11 @@ ScrollBar::ScrollBar(gsl::not_null<ScrollRenderObject*> render_object,
   expanded_thumb_brush_ = graphics_factory->CreateSolidColorBrush(colors::gray);
   expanded_slot_brush_ =
       graphics_factory->CreateSolidColorBrush(colors::seashell);
-  expanded_arrow_brush_ =
-      graphics_factory->CreateSolidColorBrush(colors::white);
+  expanded_arrow_brush_ = graphics_factory->CreateSolidColorBrush(colors::gray);
   expanded_arrow_background_brush_ =
-      graphics_factory->CreateSolidColorBrush(colors::black);
+      graphics_factory->CreateSolidColorBrush(colors::seashell);
+
+  arrow_geometry_ = CreateScrollBarArrowGeometry();
 }
 
 ScrollBar::~ScrollBar() { RestoreCursor(); }
@@ -250,7 +266,7 @@ void ScrollBar::OnDraw(platform::graphics::IPainter* painter,
     if (up_arrow) this->DrawUpArrow(painter, *up_arrow);
 
     auto down_arrow = GetExpandedAreaRect(ScrollBarAreaKind::DownArrow);
-    if (down_arrow) this->DrawUpArrow(painter, *down_arrow);
+    if (down_arrow) this->DrawDownArrow(painter, *down_arrow);
   } else {
     auto optional_rect = GetCollapsedThumbRect();
     if (optional_rect) {
@@ -313,14 +329,26 @@ HorizontalScrollBar::HorizontalScrollBar(
 
 void HorizontalScrollBar::DrawUpArrow(platform::graphics::IPainter* painter,
                                       const Rect& area) {
-  // TODO: Do what you must!
   painter->FillRectangle(area, GetExpandedArrowBackgroundBrush().get().get());
+
+  platform::graphics::util::WithTransform(
+      painter, Matrix::Translation(area.GetCenter()),
+      [this](platform::graphics::IPainter* painter) {
+        painter->FillGeometry(arrow_geometry_.get(),
+                              GetExpandedArrowBrush().get().get());
+      });
 }
 
 void HorizontalScrollBar::DrawDownArrow(platform::graphics::IPainter* painter,
                                         const Rect& area) {
-  // TODO: Do what you must!
   painter->FillRectangle(area, GetExpandedArrowBackgroundBrush().get().get());
+
+  platform::graphics::util::WithTransform(
+      painter, Matrix::Rotation(180) * Matrix::Translation(area.GetCenter()),
+      [this](platform::graphics::IPainter* painter) {
+        painter->FillGeometry(arrow_geometry_.get(),
+                              GetExpandedArrowBrush().get().get());
+      });
 }
 
 bool HorizontalScrollBar::IsShowBar() {
@@ -440,14 +468,26 @@ VerticalScrollBar::VerticalScrollBar(
 
 void VerticalScrollBar::DrawUpArrow(platform::graphics::IPainter* painter,
                                     const Rect& area) {
-  // TODO: Do what you must!
   painter->FillRectangle(area, GetExpandedArrowBackgroundBrush().get().get());
+
+  platform::graphics::util::WithTransform(
+      painter, Matrix::Rotation(90) * Matrix::Translation(area.GetCenter()),
+      [this](platform::graphics::IPainter* painter) {
+        painter->FillGeometry(arrow_geometry_.get(),
+                              GetExpandedArrowBrush().get().get());
+      });
 }
 
 void VerticalScrollBar::DrawDownArrow(platform::graphics::IPainter* painter,
                                       const Rect& area) {
-  // TODO: Do what you must!
   painter->FillRectangle(area, GetExpandedArrowBackgroundBrush().get().get());
+
+  platform::graphics::util::WithTransform(
+      painter, Matrix::Rotation(270) * Matrix::Translation(area.GetCenter()),
+      [this](platform::graphics::IPainter* painter) {
+        painter->FillGeometry(arrow_geometry_.get(),
+                              GetExpandedArrowBrush().get().get());
+      });
 }
 
 bool VerticalScrollBar::IsShowBar() {
