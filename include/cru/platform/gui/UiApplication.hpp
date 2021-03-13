@@ -79,6 +79,9 @@ class TimerAutoCanceler {
   }
 
   TimerAutoCanceler& operator=(TimerAutoCanceler&& other) {
+    if (&other == this) {
+      return *this;
+    }
     Reset(other.id_);
     other.id_ = 0;
     return *this;
@@ -100,6 +103,8 @@ class TimerAutoCanceler {
     if (id_ > 0) IUiApplication::GetInstance()->CancelTimer(id_);
     id_ = id;
   }
+
+  explicit operator bool() const { return id_; }
 
  private:
   long long id_;

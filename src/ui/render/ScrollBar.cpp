@@ -14,14 +14,17 @@
 
 #include <algorithm>
 #include <cassert>
+#include <chrono>
 #include <gsl/pointers>
 #include <optional>
 #include <stdexcept>
 
 namespace cru::ui::render {
+using namespace std::chrono_literals;
 constexpr float kScrollBarCollapseThumbWidth = 2;
 constexpr float kScrollBarCollapsedTriggerExpandAreaWidth = 5;
 constexpr float kScrollBarExpandWidth = 10;
+constexpr auto kScrollBarAutoCollapseDelay = 1500ms;
 
 constexpr std::array<ScrollBarAreaKind, 5> kScrollBarAreaKindList{
     ScrollBarAreaKind::UpArrow, ScrollBarAreaKind::DownArrow,
@@ -131,6 +134,13 @@ void ScrollBar::InstallHandlers(controls::Control* control) {
               if (event.GetButton() == mouse_buttons::left &&
                   move_thumb_start_) {
                 move_thumb_start_ = std::nullopt;
+
+                auto hit_test_result =
+                    ExpandedHitTest(event.GetPoint(this->render_object_));
+                if (!hit_test_result) {
+                  OnMouseLeave();
+                }
+
                 control->ReleaseMouse();
                 event.SetHandled();
                 return true;
@@ -159,8 +169,9 @@ void ScrollBar::InstallHandlers(controls::Control* control) {
                       ExpandedHitTest(event.GetPoint(this->render_object_));
                   if (hit_test_result) {
                     SetCursor();
+                    StopAutoCollapseTimer();
                   } else {
-                    RestoreCursor();
+                    OnMouseLeave();
                   }
                 } else {
                   auto trigger_expand_area =
@@ -182,7 +193,9 @@ void ScrollBar::InstallHandlers(controls::Control* control) {
     event_guard_ +=
         control->MouseLeaveEvent()->Bubble()->PrependShortCircuitHandler(
             [this](event::MouseEventArgs&) {
-              if (IsExpanded() && !move_thumb_start_) RestoreCursor();
+              if (IsExpanded() && !move_thumb_start_) {
+                OnMouseLeave();
+              }
               return false;
             });
   }
@@ -265,6 +278,22 @@ void ScrollBar::RestoreCursor() {
     }
     old_cursor_ = std::nullopt;
   }
+}
+
+void ScrollBar::BeginAutoCollapseTimer() {
+  if (!auto_collapse_timer_canceler_ && IsExpanded()) {
+    auto_collapse_timer_canceler_ = GetUiApplication()->SetTimeout(
+        kScrollBarAutoCollapseDelay, [this] { this->SetExpanded(false); });
+  }
+}
+
+void ScrollBar::StopAutoCollapseTimer() {
+  auto_collapse_timer_canceler_.Reset();
+}
+
+void ScrollBar::OnMouseLeave() {
+  RestoreCursor();
+  BeginAutoCollapseTimer();
 }
 
 std::optional<ScrollBarAreaKind> ScrollBar::ExpandedHitTest(

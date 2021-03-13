@@ -94,6 +94,11 @@ class ScrollBar : public Object {
   void SetCursor();
   void RestoreCursor();
 
+  void BeginAutoCollapseTimer();
+  void StopAutoCollapseTimer();
+
+  void OnMouseLeave();
+
  protected:
   gsl::not_null<ScrollRenderObject*> render_object_;
 
@@ -118,6 +123,8 @@ class ScrollBar : public Object {
   Event<Scroll> scroll_attempt_event_;
 
   std::optional<std::shared_ptr<platform::gui::ICursor>> old_cursor_;
+
+  platform::gui::TimerAutoCanceler auto_collapse_timer_canceler_;
 };
 
 class HorizontalScrollBar : public ScrollBar {
