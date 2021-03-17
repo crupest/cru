@@ -2,37 +2,27 @@
 
 #include "cru/common/Logger.hpp"
 #include "cru/ui/render/LayoutHelper.hpp"
+#include "cru/ui/render/MeasureRequirement.hpp"
 
 #include <algorithm>
 
 namespace cru::ui::render {
 Size StackLayoutRenderObject::OnMeasureContent(
     const MeasureRequirement& requirement, const MeasureSize& preferred_size) {
-  Size max_size;
+  Size child_max_size;
   for (const auto child : GetChildren()) {
     child->Measure(
-        MeasureRequirement{
-            MeasureSize{StackLayoutCalculateChildMaxLength(
-                            preferred_size.width, requirement.max.width,
-                            child->GetMinSize().width, log_tag,
-                            u"(Measure) Child's min width is bigger than "
-                            u"parent's max width."),
-                        StackLayoutCalculateChildMaxLength(
-                            preferred_size.height, requirement.max.height,
-                            child->GetMinSize().height, log_tag,
-                            u"(Measure) Child's min height is bigger than "
-                            u"parent's max height.")},
-            MeasureSize::NotSpecified()},
+        MeasureRequirement(requirement.max, MeasureSize::NotSpecified()),
         MeasureSize::NotSpecified());
     const auto size = child->GetSize();
-    max_size.width = std::max(max_size.width, size.width);
-    max_size.height = std::max(max_size.height, size.height);
+    child_max_size.width = std::max(child_max_size.width, size.width);
+    child_max_size.height = std::max(child_max_size.height, size.height);
   }
 
-  max_size = Max(preferred_size.GetSizeOr0(), max_size);
-  max_size = Max(requirement.min.GetSizeOr0(), max_size);
+  child_max_size = Max(preferred_size.GetSizeOr0(), child_max_size);
+  child_max_size = Max(requirement.min.GetSizeOr0(), child_max_size);
 
-  return max_size;
+  return child_max_size;
 }
 
 void StackLayoutRenderObject::OnLayoutContent(const Rect& content_rect) {

@@ -31,6 +31,10 @@ class StackLayoutRenderObject
   CRU_DELETE_MOVE(StackLayoutRenderObject)
   ~StackLayoutRenderObject() = default;
 
+  std::u16string_view GetName() const override {
+    return u"StackLayoutRenderObject";
+  }
+
  protected:
   Size OnMeasureContent(const MeasureRequirement& requirement,
                         const MeasureSize& preferred_size) override;

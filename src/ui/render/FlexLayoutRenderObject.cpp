@@ -107,25 +107,12 @@ Size FlexLayoutMeasureContentImpl(
   MeasureLength min_main_length = GetMain(requirement.min, direction_tag);
   MeasureLength min_cross_length = GetCross(requirement.min, direction_tag);
 
-  std::vector<MeasureLength> child_cross_measure_requirement;
-  child_cross_measure_requirement.reserve(children.size());
-
-  for (auto child : children) {
-    child_cross_measure_requirement.push_back(
-        StackLayoutCalculateChildMaxLength(
-            preferred_cross_length, max_cross_length,
-            GetCross(child->GetMinSize(), direction_tag), log_tag,
-            u"(Measure) Child's min cross size is bigger than parent's max "
-            u"cross size."));
-  }
-
   // step 1.
   for (Index i = 0; i < child_count; i++) {
     const auto child = children[i];
     child->Measure(MeasureRequirement{CreateTSize<MeasureSize>(
                                           MeasureLength::NotSpecified(),
-                                          child_cross_measure_requirement[i],
-                                          direction_tag),
+                                          max_cross_length, direction_tag),
                                       MeasureSize::NotSpecified()},
                    MeasureSize::NotSpecified());
   }
@@ -213,21 +200,17 @@ Size FlexLayoutMeasureContentImpl(
           new_measure_length = 0.f;
         }
 
-        child->Measure(
-            MeasureRequirement{
-                CreateTSize<MeasureSize>(new_measure_length,
-                                         child_cross_measure_requirement[i],
-                                         direction_tag),
-                MeasureSize::NotSpecified()},
-            CreateTSize<MeasureSize>(new_measure_length,
-                                     MeasureLength::NotSpecified(),
-                                     direction_tag));
+        child->Measure(MeasureRequirement{CreateTSize<MeasureSize>(
+                                              new_measure_length,
+                                              max_cross_length, direction_tag),
+                                          MeasureSize::NotSpecified()},
+                       CreateTSize<MeasureSize>(new_measure_length,
+                                                MeasureLength::NotSpecified(),
+                                                direction_tag));
 
         const Size new_size = child->GetSize();
         const float new_main_length = GetMain(new_size, direction_tag);
-        if (new_main_length == 0.f ||
-            (child_min_main_length.IsSpecified() &&
-             new_main_length == child_min_main_length.GetLengthOrUndefined())) {
+        if (new_main_length > new_measure_length) {
           to_remove.push_back(i);
         }
       }
@@ -278,8 +261,7 @@ Size FlexLayoutMeasureContentImpl(
         child->Measure(
             MeasureRequirement{
                 CreateTSize<MeasureSize>(MeasureLength::NotSpecified(),
-                                         child_cross_measure_requirement[i],
-                                         direction_tag),
+                                         max_cross_length, direction_tag),
                 CreateTSize<MeasureSize>(new_measure_length,
                                          MeasureLength::NotSpecified(),
                                          direction_tag)},
@@ -289,8 +271,7 @@ Size FlexLayoutMeasureContentImpl(
 
         const Size new_size = child->GetSize();
         const float new_main_length = GetMain(new_size, direction_tag);
-        if (child_max_main_length.IsSpecified() &&
-            new_main_length == child_max_main_length.GetLengthOrUndefined()) {
+        if (new_main_length < new_measure_length) {
           to_remove.push_back(i);
         }
       }

@@ -129,6 +129,11 @@ constexpr Size operator+(const Thickness& thickness, const Size& size) {
   return operator+(size, thickness);
 }
 
+constexpr Thickness operator+(const Thickness& left, const Thickness& right) {
+  return {left.left + right.left, left.top + right.top,
+          left.right + right.right, left.bottom + right.bottom};
+}
+
 constexpr bool operator==(const Thickness& left, const Thickness& right) {
   return left.left == right.left && left.top == right.top &&
          left.right == right.right && left.bottom == right.bottom;

@@ -1,7 +1,9 @@
 #include "cru/ui/render/RenderObject.hpp"
 
 #include "cru/common/Logger.hpp"
+#include "cru/platform/GraphBase.hpp"
 #include "cru/platform/graphics/util/Painter.hpp"
+#include "cru/ui/Base.hpp"
 #include "cru/ui/DebugFlags.hpp"
 #include "cru/ui/host/WindowHost.hpp"
 
@@ -105,16 +107,19 @@ void RenderObject::Measure(const MeasureRequirement& requirement,
 
   Ensures(size_.width >= 0);
   Ensures(size_.height >= 0);
-  Ensures(requirement.Satisfy(size_));
 }
 
 void RenderObject::Layout(const Point& offset) {
   if constexpr (cru::ui::debug_flags::layout) {
-    log::Debug(u"{} Layout :\noffset: {}", this->GetDebugPathInTree(),
-               offset.ToDebugString());
+    log::Debug(u"{} Layout :\noffset: {} size: {}", this->GetDebugPathInTree(),
+               offset.ToDebugString(), GetSize().ToDebugString());
   }
   offset_ = offset;
   OnLayoutCore();
+}
+
+Thickness RenderObject::GetOuterSpaceThickness() const {
+  return margin_ + padding_;
 }
 
 void RenderObject::Draw(platform::graphics::IPainter* painter) {
@@ -180,46 +185,14 @@ void RenderObject::OnDrawContent(platform::graphics::IPainter* painter) {
 
 Size RenderObject::OnMeasureCore(const MeasureRequirement& requirement,
                                  const MeasureSize& preferred_size) {
-  const Size space_size{
-      margin_.GetHorizontalTotal() + padding_.GetHorizontalTotal(),
-      margin_.GetVerticalTotal() + padding_.GetVerticalTotal()};
-
-  auto coerced_space_size = space_size;
+  const Thickness outer_space = GetOuterSpaceThickness();
+  const Size space_size{outer_space.GetHorizontalTotal(),
+                        outer_space.GetVerticalTotal()};
 
   MeasureRequirement content_requirement = requirement;
 
-  if (!requirement.max.width.IsNotSpecified()) {
-    const auto max_width = requirement.max.width.GetLengthOrMax();
-    if (coerced_space_size.width > max_width) {
-      log::TagWarn(log_tag,
-                   u"(Measure) Horizontal length of padding and margin is "
-                   u"bigger than required max length.");
-      coerced_space_size.width = max_width;
-    }
-    content_requirement.max.width = max_width - coerced_space_size.width;
-  }
-
-  if (!requirement.min.width.IsNotSpecified()) {
-    const auto min_width = requirement.min.width.GetLengthOr0();
-    content_requirement.min.width = std::max(0.f, min_width - space_size.width);
-  }
-
-  if (!requirement.max.height.IsNotSpecified()) {
-    const auto max_height = requirement.max.height.GetLengthOrMax();
-    if (coerced_space_size.height > max_height) {
-      log::TagWarn(log_tag,
-                   u"(Measure) Vertical length of padding and margin is bigger "
-                   u"than required max length.");
-      coerced_space_size.height = max_height;
-    }
-    content_requirement.max.height = max_height - coerced_space_size.height;
-  }
-
-  if (!requirement.min.height.IsNotSpecified()) {
-    const auto min_height = requirement.min.height.GetLengthOr0();
-    content_requirement.min.height =
-        std::max(0.f, min_height - space_size.height);
-  }
+  content_requirement.max = content_requirement.max.Minus(space_size);
+  content_requirement.min = content_requirement.min.Minus(space_size);
 
   MeasureSize content_preferred_size =
       content_requirement.Coerce(preferred_size.Minus(space_size));
@@ -227,13 +200,14 @@ Size RenderObject::OnMeasureCore(const MeasureRequirement& requirement,
   const auto content_size =
       OnMeasureContent(content_requirement, content_preferred_size);
 
-  return coerced_space_size + content_size;
+  return space_size + content_size;
 }
 
 void RenderObject::OnLayoutCore() {
   Size total_size = GetSize();
-  Size space_size{margin_.GetHorizontalTotal() + padding_.GetHorizontalTotal(),
-                  margin_.GetVerticalTotal() + padding_.GetVerticalTotal()};
+  const Thickness outer_space = GetOuterSpaceThickness();
+  const Size space_size{outer_space.GetHorizontalTotal(),
+                        outer_space.GetVerticalTotal()};
 
   auto content_size = total_size - space_size;
 
@@ -244,7 +218,7 @@ void RenderObject::OnLayoutCore() {
     content_size.height = 0;
   }
 
-  Point lefttop{margin_.left + padding_.left, margin_.top + padding_.top};
+  Point lefttop{outer_space.left, outer_space.top};
   if (lefttop.x > total_size.width) {
     lefttop.x = total_size.width;
   }

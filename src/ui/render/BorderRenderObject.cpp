@@ -5,6 +5,7 @@
 #include "cru/platform/graphics/Factory.hpp"
 #include "cru/platform/graphics/Geometry.hpp"
 #include "cru/platform/graphics/util/Painter.hpp"
+#include "cru/ui/Base.hpp"
 #include "cru/ui/style/ApplyBorderStyleInfo.hpp"
 #include "gsl/gsl_assert"
 
@@ -75,104 +76,6 @@ void BorderRenderObject::OnDrawCore(platform::graphics::IPainter* painter) {
   DefaultDrawChildren(painter);
 }
 
-Size BorderRenderObject::OnMeasureCore(const MeasureRequirement& requirement,
-                                       const MeasureSize& preferred_size) {
-  if (!is_border_enabled_) {
-    return RenderObject::OnMeasureCore(requirement, preferred_size);
-  }
-
-  const auto margin = GetMargin();
-  const auto padding = GetPadding();
-  const Size space_size{margin.GetHorizontalTotal() +
-                            padding.GetHorizontalTotal() +
-                            border_thickness_.GetHorizontalTotal(),
-                        margin.GetVerticalTotal() + padding.GetVerticalTotal() +
-                            border_thickness_.GetVerticalTotal()};
-
-  auto coerced_space_size = space_size;
-
-  MeasureRequirement content_requirement = requirement;
-
-  if (!requirement.max.width.IsNotSpecified()) {
-    const auto max_width = requirement.max.width.GetLengthOrMax();
-    if (coerced_space_size.width > max_width) {
-      log::TagWarn(log_tag,
-                   u"(Measure) Horizontal length of padding, border and margin "
-                   u"is bigger than required max length.");
-      coerced_space_size.width = max_width;
-    }
-    content_requirement.max.width = max_width - coerced_space_size.width;
-  }
-
-  if (!requirement.min.width.IsNotSpecified()) {
-    const auto min_width = requirement.min.width.GetLengthOr0();
-    content_requirement.min.width = std::max(0.f, min_width - space_size.width);
-  }
-
-  if (!requirement.max.height.IsNotSpecified()) {
-    const auto max_height = requirement.max.height.GetLengthOrMax();
-    if (coerced_space_size.height > max_height) {
-      log::TagWarn(
-          log_tag,
-          u"(Measure) Vertical length of padding, border and margin is "
-          u"bigger than required max length.");
-      coerced_space_size.height = max_height;
-    }
-    content_requirement.max.height = max_height - coerced_space_size.height;
-  }
-
-  if (!requirement.min.height.IsNotSpecified()) {
-    const auto min_height = requirement.min.height.GetLengthOr0();
-    content_requirement.min.height =
-        std::max(0.f, min_height - space_size.height);
-  }
-
-  MeasureSize content_preferred_size =
-      content_requirement.Coerce(preferred_size.Minus(space_size));
-
-  const auto content_size =
-      OnMeasureContent(content_requirement, content_preferred_size);
-
-  return coerced_space_size + content_size;
-}
-
-void BorderRenderObject::OnLayoutCore() {
-  if (!is_border_enabled_) {
-    return RenderObject::OnLayoutCore();
-  }
-
-  const auto margin = GetMargin();
-  const auto padding = GetPadding();
-  Size space_size{margin.GetHorizontalTotal() + padding.GetHorizontalTotal() +
-                      border_thickness_.GetHorizontalTotal(),
-                  margin.GetVerticalTotal() + padding.GetVerticalTotal() +
-                      border_thickness_.GetVerticalTotal()};
-
-  const auto size = GetSize();
-
-  auto content_size = size - space_size;
-
-  if (content_size.width < 0) {
-    content_size.width = 0;
-  }
-  if (content_size.height < 0) {
-    content_size.height = 0;
-  }
-
-  Point lefttop{margin.left + padding.left + border_thickness_.left,
-                margin.top + padding.top + border_thickness_.top};
-  if (lefttop.x > size.width) {
-    lefttop.x = size.width;
-  }
-  if (lefttop.y > size.height) {
-    lefttop.y = size.height;
-  }
-
-  const Rect content_rect{lefttop, content_size};
-
-  OnLayoutContent(content_rect);
-}
-
 Size BorderRenderObject::OnMeasureContent(const MeasureRequirement& requirement,
                                           const MeasureSize& preferred_size) {
   const auto child = GetSingleChild();
@@ -192,6 +95,12 @@ void BorderRenderObject::OnLayoutContent(const Rect& content_rect) {
 }
 
 void BorderRenderObject::OnAfterLayout() { RecreateGeometry(); }
+
+Thickness BorderRenderObject::GetOuterSpaceThickness() const {
+  return is_border_enabled_
+             ? RenderObject::GetOuterSpaceThickness() + GetBorderThickness()
+             : RenderObject::GetOuterSpaceThickness();
+}
 
 Rect BorderRenderObject::GetPaddingRect() const {
   const auto size = GetSize();

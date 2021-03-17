@@ -1,6 +1,8 @@
 #pragma once
+#include <string_view>
 #include "../style/ApplyBorderStyleInfo.hpp"
 #include "RenderObject.hpp"
+#include "cru/platform/GraphBase.hpp"
 #include "cru/ui/Base.hpp"
 
 namespace cru::ui::render {
@@ -28,7 +30,7 @@ class BorderRenderObject : public RenderObject {
     InvalidatePaint();
   }
 
-  Thickness GetBorderThickness() { return border_thickness_; }
+  Thickness GetBorderThickness() const { return border_thickness_; }
 
   void SetBorderThickness(const Thickness thickness) {
     if (thickness == border_thickness_) return;
@@ -68,20 +70,20 @@ class BorderRenderObject : public RenderObject {
 
   RenderObject* HitTest(const Point& point) override;
 
+  Thickness GetOuterSpaceThickness() const override;
+  Rect GetPaddingRect() const override;
+  Rect GetContentRect() const override;
+
+  std::u16string_view GetName() const override { return u"BorderRenderObject"; }
+
  protected:
   void OnDrawCore(platform::graphics::IPainter* painter) override;
 
-  Size OnMeasureCore(const MeasureRequirement& requirement,
-                     const MeasureSize& preferred_size) override;
-  void OnLayoutCore() override;
   Size OnMeasureContent(const MeasureRequirement& requirement,
                         const MeasureSize& preferred_size) override;
   void OnLayoutContent(const Rect& content_rect) override;
 
   void OnAfterLayout() override;
-
-  Rect GetPaddingRect() const override;
-  Rect GetContentRect() const override;
 
  private:
   void RecreateGeometry();

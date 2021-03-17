@@ -60,6 +60,8 @@ class ScrollRenderObject : public RenderObject {
   // Param margin is just for convenience and it will just add to the rect.
   void ScrollToContain(const Rect& rect, const Thickness& margin = Thickness{});
 
+  std::u16string_view GetName() const override { return u"ScrollRenderObject"; }
+
  protected:
   void OnDrawCore(platform::graphics::IPainter* painter) override;
 

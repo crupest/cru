@@ -89,6 +89,8 @@ class TextRenderObject : public RenderObject {
 
   RenderObject* HitTest(const Point& point) override;
 
+  std::u16string_view GetName() const override { return u"TextRenderObject"; }
+
  protected:
   void OnDrawContent(platform::graphics::IPainter* painter) override;
 

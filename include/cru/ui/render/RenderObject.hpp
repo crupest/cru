@@ -4,6 +4,7 @@
 #include "MeasureRequirement.hpp"
 #include "cru/common/Base.hpp"
 #include "cru/common/Event.hpp"
+#include "cru/platform/GraphBase.hpp"
 #include "cru/ui/Base.hpp"
 
 #include <cstddef>
@@ -131,6 +132,7 @@ class RenderObject : public Object {
   // This will set offset of this render object and call OnLayoutCore.
   void Layout(const Point& offset);
 
+  virtual Thickness GetOuterSpaceThickness() const;
   virtual Rect GetPaddingRect() const;
   virtual Rect GetContentRect() const;
 
