@@ -29,14 +29,6 @@ class StyleRuleSet : public Object {
 
   void AddStyleRule(StyleRule rule, gsl::index index);
 
-  template <typename Iter>
-  void AddStyleRuleRange(Iter start, Iter end, gsl::index index) {
-    Expects(index >= 0 && index <= GetSize());
-    rules_.insert(rules_.cbegin() + index, std::move(start), std::move(end));
-    UpdateChangeListener();
-    UpdateStyle();
-  }
-
   void RemoveStyleRule(gsl::index index, gsl::index count = 1);
 
   void Clear() { RemoveStyleRule(0, GetSize()); }
