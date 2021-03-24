@@ -1,9 +1,13 @@
 #pragma once
 #include "cru/common/Base.hpp"
 
+#include "cru/common/Format.hpp"
+
+#include <fmt/core.h>
 #include <cstdint>
 #include <limits>
 #include <optional>
+#include <string>
 #include <utility>
 
 namespace cru::platform {
@@ -13,6 +17,16 @@ struct Point final {
   constexpr Point() = default;
   constexpr Point(const float x, const float y) : x(x), y(y) {}
   explicit constexpr Point(const Size& size);
+
+  std::u16string ToDebugString() const {
+    return fmt::format(u"({}, {})", ToUtf16String(x), ToUtf16String(y));
+  }
+
+  constexpr Point& operator+=(const Point& other) {
+    this->x += other.x;
+    this->y += other.y;
+    return *this;
+  }
 
   float x = 0;
   float y = 0;
@@ -44,6 +58,11 @@ struct Size final {
   constexpr static Size Infinate() {
     return Size{std::numeric_limits<float>::max(),
                 std::numeric_limits<float>::max()};
+  }
+
+  std::u16string ToDebugString() const {
+    return fmt::format(u"({}, {})", ToUtf16String(width),
+                       ToUtf16String(height));
   }
 
   float width = 0;
@@ -258,7 +277,7 @@ struct TextRange final {
   gsl::index GetStart() const { return position; }
   gsl::index GetEnd() const { return position + count; }
 
-  void AdjustEnd(gsl::index new_end) { count = new_end - position; }
+  void ChangeEnd(gsl::index new_end) { count = new_end - position; }
 
   TextRange Normalize() const {
     auto result = *this;
@@ -295,6 +314,12 @@ struct Color {
     const std::uint32_t mask = 0b11111111;
     return Color((hex >> 16) & mask, (hex >> 8) & mask, hex & mask,
                  (hex >> 24) & mask);
+  }
+
+  constexpr Color WithAlpha(std::uint8_t new_alpha) const {
+    auto result = *this;
+    result.alpha = new_alpha;
+    return result;
   }
 
   std::uint8_t red;

@@ -1,0 +1,6 @@
+add_executable(cru_win_graphics_direct_test
+	ConvertTest.cpp
+)
+target_link_libraries(cru_win_graphics_direct_test PRIVATE cru_win_graphics_direct cru_test_base)
+
+gtest_discover_tests(cru_win_graphics_direct_test)

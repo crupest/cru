@@ -1,5 +1,5 @@
 #pragma once
-#include "../LayoutControl.hpp"
+#include "LayoutControl.hpp"
 
 namespace cru::ui::controls {
 class StackLayout : public LayoutControl {
@@ -20,10 +20,6 @@ class StackLayout : public LayoutControl {
   std::u16string_view GetControlType() const final { return control_type; }
 
   render::RenderObject* GetRenderObject() const override;
-
- protected:
-  void OnAddChild(Control* child, Index position) override;
-  void OnRemoveChild(Control* child, Index position) override;
 
  private:
   std::shared_ptr<render::StackLayoutRenderObject> render_object_;

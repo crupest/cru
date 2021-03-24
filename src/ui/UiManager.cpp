@@ -1,13 +1,22 @@
 #include "cru/ui/UiManager.hpp"
+#include <optional>
 
 #include "Helper.hpp"
-#include "cru/platform/graph/Brush.hpp"
-#include "cru/platform/graph/Factory.hpp"
-#include "cru/platform/graph/Font.hpp"
-#include "cru/platform/native/UiApplication.hpp"
+#include "cru/platform/GraphBase.hpp"
+#include "cru/platform/graphics/Brush.hpp"
+#include "cru/platform/graphics/Factory.hpp"
+#include "cru/platform/graphics/Font.hpp"
+#include "cru/platform/gui/Cursor.hpp"
+#include "cru/platform/gui/UiApplication.hpp"
+#include "cru/ui/Base.hpp"
+#include "cru/ui/style/ApplyBorderStyleInfo.hpp"
+#include "cru/ui/style/Condition.hpp"
+#include "cru/ui/style/Styler.hpp"
 
 namespace cru::ui {
-using namespace cru::platform::graph;
+using namespace cru::platform::graphics;
+using namespace cru::ui::style;
+using namespace cru::ui::helper;
 
 namespace {
 std::unique_ptr<ISolidColorBrush> CreateSolidColorBrush(IGraphFactory* factory,
@@ -30,51 +39,80 @@ UiManager* UiManager::GetInstance() {
 UiManager::UiManager() {
   const auto factory = GetGraphFactory();
 
-  theme_resource_.default_font = factory->CreateFont(u"等线", 24.0f);
+  theme_resource_.default_font_family = u"等线";
 
-  const auto black_brush = std::shared_ptr<platform::graph::ISolidColorBrush>(
-      CreateSolidColorBrush(factory, colors::black));
+  theme_resource_.default_font =
+      factory->CreateFont(theme_resource_.default_font_family, 24.0f);
+
+  const auto black_brush =
+      std::shared_ptr<platform::graphics::ISolidColorBrush>(
+          CreateSolidColorBrush(factory, colors::black));
   theme_resource_.text_brush = black_brush;
   theme_resource_.text_selection_brush =
       CreateSolidColorBrush(factory, colors::skyblue);
   theme_resource_.caret_brush = black_brush;
 
-  theme_resource_.button_style.normal.border_brush =
-      CreateSolidColorBrush(factory, Color::FromHex(0x00bfff));
-  theme_resource_.button_style.hover.border_brush =
-      CreateSolidColorBrush(factory, Color::FromHex(0x47d1ff));
-  theme_resource_.button_style.press.border_brush =
-      CreateSolidColorBrush(factory, Color::FromHex(0x91e4ff));
-  theme_resource_.button_style.press_cancel.border_brush =
-      CreateSolidColorBrush(factory, Color::FromHex(0x91e4ff));
+  theme_resource_.button_style.AddStyleRule(
+      {NoCondition::Create(),
+       BorderStyler::Create(ApplyBorderStyleInfo{std::nullopt, Thickness(3),
+                                                 CornerRadius(5), std::nullopt,
+                                                 std::nullopt}),
+       u"DefaultButton"});
+  theme_resource_.button_style.AddStyleRule(
+      {ClickStateCondition::Create(ClickState::None),
+       CompoundStyler::Create(
+           BorderStyler::Create(ApplyBorderStyleInfo{
+               CreateSolidColorBrush(factory, Color::FromHex(0x00bfff))}),
+           CursorStyler::Create(platform::gui::SystemCursorType::Arrow)),
+       u"DefaultButtonNormal"});
+  theme_resource_.button_style.AddStyleRule(
+      {ClickStateCondition::Create(ClickState::Hover),
+       CompoundStyler::Create(
+           BorderStyler::Create(ApplyBorderStyleInfo{
+               CreateSolidColorBrush(factory, Color::FromHex(0x47d1ff))}),
+           CursorStyler::Create(platform::gui::SystemCursorType::Hand)),
+       u"DefaultButtonHover"});
+  theme_resource_.button_style.AddStyleRule(
+      {ClickStateCondition::Create(ClickState::Press),
+       CompoundStyler::Create(
+           BorderStyler::Create(ApplyBorderStyleInfo{
+               CreateSolidColorBrush(factory, Color::FromHex(0x91e4ff))}),
+           CursorStyler::Create(platform::gui::SystemCursorType::Hand)),
+       u"DefaultButtonPress"});
+  theme_resource_.button_style.AddStyleRule(
+      {ClickStateCondition::Create(ClickState::PressInactive),
+       CompoundStyler::Create(
+           BorderStyler::Create(ApplyBorderStyleInfo{
+               CreateSolidColorBrush(factory, Color::FromHex(0x91e4ff))}),
+           CursorStyler::Create(platform::gui::SystemCursorType::Arrow)),
+       u"DefaultButtonPressInactive"});
 
-  theme_resource_.button_style.normal.border_thickness =
-      theme_resource_.button_style.hover.border_thickness =
-          theme_resource_.button_style.press.border_thickness =
-              theme_resource_.button_style.press_cancel.border_thickness =
-                  Thickness(3);
+  theme_resource_.text_box_style.AddStyleRule(
+      {NoCondition::Create(),
+       BorderStyler::Create(
+           ApplyBorderStyleInfo{std::nullopt, Thickness{1}, CornerRadius{5}}),
+       u"DefaultTextBox"});
+  theme_resource_.text_box_style.AddStyleRule(
+      {HoverCondition::Create(false),
+       BorderStyler::Create(ApplyBorderStyleInfo{
+           CreateSolidColorBrush(factory, Color::FromHex(0xced4da))}),
+       u"DefaultTextBoxNormal"});
+  theme_resource_.text_box_style.AddStyleRule(
+      {HoverCondition::Create(true),
+       BorderStyler::Create(ApplyBorderStyleInfo{
+           CreateSolidColorBrush(factory, Color::FromHex(0xced4da))}),
+       u"DefaultTextBoxHover"});
+  theme_resource_.text_box_style.AddStyleRule(
+      {FocusCondition::Create(true),
+       BorderStyler::Create(ApplyBorderStyleInfo{
+           CreateSolidColorBrush(factory, Color::FromHex(0x495057))}),
+       u"DefaultTextBoxFocus"});
 
-  theme_resource_.button_style.normal.border_radius =
-      theme_resource_.button_style.hover.border_radius =
-          theme_resource_.button_style.press.border_radius =
-              theme_resource_.button_style.press_cancel.border_radius =
-                  CornerRadius({5, 5});
-
-  theme_resource_.text_box_border_style.normal.border_brush =
-      CreateSolidColorBrush(factory, Color::FromHex(0xced4da));
-  theme_resource_.text_box_border_style.normal.border_radius = CornerRadius(5);
-  theme_resource_.text_box_border_style.normal.border_thickness = Thickness(1);
-
-  theme_resource_.text_box_border_style.hover =
-      theme_resource_.text_box_border_style.normal;
-
-  theme_resource_.text_box_border_style.focus.border_brush =
-      CreateSolidColorBrush(factory, Color::FromHex(0x495057));
-  theme_resource_.text_box_border_style.focus.border_radius = CornerRadius(5);
-  theme_resource_.text_box_border_style.focus.border_thickness = Thickness(1);
-
-  theme_resource_.text_box_border_style.focus_hover =
-      theme_resource_.text_box_border_style.focus;
+  theme_resource_.menu_item_style.AddStyleRule(
+      {NoCondition::Create(),
+       BorderStyler::Create(
+           ApplyBorderStyleInfo{std::nullopt, Thickness{0}, CornerRadius{0}}),
+       u"DefaultMenuItem"});
 }
 
 UiManager::~UiManager() = default;

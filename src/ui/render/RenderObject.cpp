@@ -1,12 +1,21 @@
 #include "cru/ui/render/RenderObject.hpp"
 
 #include "cru/common/Logger.hpp"
-#include "cru/platform/graph/util/Painter.hpp"
-#include "cru/ui/UiHost.hpp"
+#include "cru/platform/graphics/util/Painter.hpp"
+#include "cru/ui/DebugFlags.hpp"
+#include "cru/ui/host/WindowHost.hpp"
 
 #include <algorithm>
+#include <string>
+#include <string_view>
+#include <vector>
 
 namespace cru::ui::render {
+void RenderObject::SetAttachedControl(controls::Control* new_control) {
+  control_ = new_control;
+  OnAttachedControlChanged(new_control);
+}
+
 void RenderObject::AddChild(RenderObject* render_object, const Index position) {
   Expects(child_mode_ != ChildMode::None);
   Expects(!(child_mode_ == ChildMode::Single && children_.size() > 0));
@@ -20,7 +29,7 @@ void RenderObject::AddChild(RenderObject* render_object, const Index position) {
 
   children_.insert(children_.cbegin() + position, render_object);
   render_object->SetParent(this);
-  render_object->SetRenderHostRecursive(GetUiHost());
+  render_object->SetWindowHostRecursive(GetWindowHost());
   OnAddChild(render_object, position);
 }
 
@@ -33,8 +42,23 @@ void RenderObject::RemoveChild(const Index position) {
   const auto removed_child = *i;
   children_.erase(i);
   removed_child->SetParent(nullptr);
-  removed_child->SetRenderHostRecursive(nullptr);
+  removed_child->SetWindowHostRecursive(nullptr);
   OnRemoveChild(removed_child, position);
+}
+
+RenderObject* RenderObject::GetFirstChild() const {
+  const auto& children = GetChildren();
+  if (children.empty()) {
+    return nullptr;
+  } else {
+    return children.front();
+  }
+}
+
+void RenderObject::TraverseDescendants(
+    const std::function<void(RenderObject*)>& action) {
+  action(this);
+  for (auto child : children_) child->TraverseDescendants(action);
 }
 
 Point RenderObject::GetTotalOffset() const {
@@ -66,18 +90,34 @@ void RenderObject::Measure(const MeasureRequirement& requirement,
   MeasureSize merged_preferred_size =
       preferred_size.OverrideBy(preferred_size_);
 
+  if constexpr (cru::ui::debug_flags::layout) {
+    log::Debug(u"{} Measure begins :\nrequirement: {}\npreferred size: {}",
+               this->GetDebugPathInTree(), requirement.ToDebugString(),
+               preferred_size.ToDebugString());
+  }
+
   size_ = OnMeasureCore(merged_requirement, merged_preferred_size);
+
+  if constexpr (cru::ui::debug_flags::layout) {
+    log::Debug(u"{} Measure ends :\nresult size: {}",
+               this->GetDebugPathInTree(), size_.ToDebugString());
+  }
+
   Ensures(size_.width >= 0);
   Ensures(size_.height >= 0);
   Ensures(requirement.Satisfy(size_));
 }
 
 void RenderObject::Layout(const Point& offset) {
+  if constexpr (cru::ui::debug_flags::layout) {
+    log::Debug(u"{} Layout :\noffset: {}", this->GetDebugPathInTree(),
+               offset.ToDebugString());
+  }
   offset_ = offset;
   OnLayoutCore();
 }
 
-void RenderObject::Draw(platform::graph::IPainter* painter) {
+void RenderObject::Draw(platform::graphics::IPainter* painter) {
   OnDrawCore(painter);
 }
 
@@ -112,29 +152,29 @@ void RenderObject::OnRemoveChild(RenderObject* removed_child, Index position) {
   InvalidatePaint();
 }
 
-void RenderObject::DefaultDrawChildren(platform::graph::IPainter* painter) {
+void RenderObject::DefaultDrawChildren(platform::graphics::IPainter* painter) {
   for (const auto child : GetChildren()) {
     auto offset = child->GetOffset();
-    platform::graph::util::WithTransform(
+    platform::graphics::util::WithTransform(
         painter, platform::Matrix::Translation(offset.x, offset.y),
         [child](auto p) { child->Draw(p); });
   }
 }
 
-void RenderObject::DefaultDrawContent(platform::graph::IPainter* painter) {
+void RenderObject::DefaultDrawContent(platform::graphics::IPainter* painter) {
   const auto content_rect = GetContentRect();
 
-  platform::graph::util::WithTransform(
+  platform::graphics::util::WithTransform(
       painter, Matrix::Translation(content_rect.left, content_rect.top),
       [this](auto p) { this->OnDrawContent(p); });
 }
 
-void RenderObject::OnDrawCore(platform::graph::IPainter* painter) {
+void RenderObject::OnDrawCore(platform::graphics::IPainter* painter) {
   DefaultDrawContent(painter);
   DefaultDrawChildren(painter);
 }
 
-void RenderObject::OnDrawContent(platform::graph::IPainter* painter) {
+void RenderObject::OnDrawContent(platform::graphics::IPainter* painter) {
   CRU_UNUSED(painter);
 }
 
@@ -249,24 +289,44 @@ void RenderObject::SetParent(RenderObject* new_parent) {
 }
 
 void RenderObject::InvalidateLayout() {
-  if (ui_host_ != nullptr) ui_host_->InvalidateLayout();
+  if (window_host_ != nullptr) window_host_->InvalidateLayout();
 }
 
 void RenderObject::InvalidatePaint() {
-  if (ui_host_ != nullptr) ui_host_->InvalidatePaint();
+  if (window_host_ != nullptr) window_host_->InvalidatePaint();
 }
 
-void RenderObject::NotifyAfterLayoutRecursive(RenderObject* render_object) {
-  render_object->OnAfterLayout();
-  for (const auto o : render_object->GetChildren()) {
-    NotifyAfterLayoutRecursive(o);
+constexpr std::u16string_view kUnamedName(u"UNNAMED");
+
+std::u16string_view RenderObject::GetName() const { return kUnamedName; }
+
+std::u16string RenderObject::GetDebugPathInTree() const {
+  std::vector<std::u16string_view> chain;
+  const RenderObject* parent = this;
+  while (parent != nullptr) {
+    chain.push_back(parent->GetName());
+    parent = parent->GetParent();
   }
+
+  std::u16string result(chain.back());
+  for (auto iter = chain.crbegin() + 1; iter != chain.crend(); ++iter) {
+    result += u" -> ";
+    result += *iter;
+  }
+
+  return result;
 }
 
-void RenderObject::SetRenderHostRecursive(UiHost* host) {
-  ui_host_ = host;
+void RenderObject::SetWindowHostRecursive(host::WindowHost* host) {
+  if (window_host_ != nullptr) {
+    detach_from_host_event_.Raise(nullptr);
+  }
+  window_host_ = host;
+  if (host != nullptr) {
+    attach_to_host_event_.Raise(nullptr);
+  }
   for (const auto child : GetChildren()) {
-    child->SetRenderHostRecursive(host);
+    child->SetWindowHostRecursive(host);
   }
 }
 }  // namespace cru::ui::render

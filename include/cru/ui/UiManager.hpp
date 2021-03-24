@@ -2,15 +2,22 @@
 #include "Base.hpp"
 
 #include "controls/Base.hpp"
+#include "style/StyleRuleSet.hpp"
+
+#include <memory>
+#include <string>
 
 namespace cru::ui {
 struct ThemeResources {
-  std::shared_ptr<platform::graph::IFont> default_font;
-  std::shared_ptr<platform::graph::IBrush> text_brush;
-  std::shared_ptr<platform::graph::IBrush> text_selection_brush;
-  std::shared_ptr<platform::graph::IBrush> caret_brush;
-  controls::ButtonStyle button_style;
-  controls::TextBoxBorderStyle text_box_border_style;
+  std::u16string default_font_family;
+  std::shared_ptr<platform::graphics::IFont> default_font;
+  std::shared_ptr<platform::graphics::IBrush> text_brush;
+  std::shared_ptr<platform::graphics::IBrush> text_selection_brush;
+  std::shared_ptr<platform::graphics::IBrush> caret_brush;
+  style::StyleRuleSet button_style;
+  style::StyleRuleSet text_box_style;
+
+  style::StyleRuleSet menu_item_style;
 };
 
 class UiManager : public Object {

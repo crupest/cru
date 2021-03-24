@@ -1,8 +1,11 @@
 #pragma once
 #include "RenderObject.hpp"
 
-#include "cru/platform/graph/util/Painter.hpp"
+#include "cru/platform/graphics/util/Painter.hpp"
+#include "cru/ui/Base.hpp"
+#include "cru/ui/render/ScrollBar.hpp"
 
+#include <memory>
 #include <optional>
 
 namespace cru::ui::render {
@@ -16,7 +19,7 @@ namespace cru::ui::render {
 // Or layout by scroll state.
 class ScrollRenderObject : public RenderObject {
  public:
-  ScrollRenderObject() : RenderObject(ChildMode::Single) {}
+  ScrollRenderObject();
 
   CRU_DELETE_COPY(ScrollRenderObject)
   CRU_DELETE_MOVE(ScrollRenderObject)
@@ -27,8 +30,22 @@ class ScrollRenderObject : public RenderObject {
 
   // Return the coerced scroll offset.
   Point GetScrollOffset();
+  float GetScrollOffset(Direction direction) {
+    return direction == Direction::Horizontal ? GetScrollOffset().x
+                                              : GetScrollOffset().y;
+  }
   void SetScrollOffset(const Point& offset);
   void SetScrollOffset(std::optional<float> x, std::optional<float> y);
+  void SetScrollOffset(Direction direction, std::optional<float> value) {
+    if (direction == Direction::Horizontal) {
+      SetScrollOffset(value, std::nullopt);
+    } else {
+      SetScrollOffset(std::nullopt, value);
+    }
+  }
+
+  void Scroll(const Scroll& scroll);
+
   Point GetRawScrollOffset() const { return scroll_offset_; }
 
   // Return the viewable area rect.
@@ -44,7 +61,7 @@ class ScrollRenderObject : public RenderObject {
   void ScrollToContain(const Rect& rect, const Thickness& margin = Thickness{});
 
  protected:
-  void OnDrawCore(platform::graph::IPainter* painter) override;
+  void OnDrawCore(platform::graphics::IPainter* painter) override;
 
   // Logic:
   // If available size is bigger than child's preferred size, then child's
@@ -54,7 +71,11 @@ class ScrollRenderObject : public RenderObject {
                         const MeasureSize& preferred_size) override;
   void OnLayoutContent(const Rect& content_rect) override;
 
+  void OnAttachedControlChanged(controls::Control* control) override;
+
  private:
   Point scroll_offset_;
+
+  std::unique_ptr<ScrollBarDelegate> scroll_bar_delegate_;
 };
 }  // namespace cru::ui::render

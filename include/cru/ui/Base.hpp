@@ -1,7 +1,7 @@
 #pragma once
 #include "cru/common/Base.hpp"
-#include "cru/platform/graph/Base.hpp"
-#include "cru/platform/native/Base.hpp"
+#include "cru/platform/graphics/Base.hpp"
+#include "cru/platform/gui/Base.hpp"
 
 #include <functional>
 #include <memory>
@@ -19,23 +19,35 @@ using cru::platform::RoundedRect;
 using cru::platform::Size;
 using cru::platform::TextRange;
 using cru::platform::Thickness;
-using cru::platform::native::MouseButton;
+using cru::platform::gui::MouseButton;
 
-namespace mouse_buttons = cru::platform::native::mouse_buttons;
+namespace mouse_buttons = cru::platform::gui::mouse_buttons;
 
 namespace colors = cru::platform::colors;
 
 //-------------------- region: forward declaration --------------------
+
+namespace controls {
 class Window;
 class Control;
-class ClickDetector;
-class UiHost;
+}  // namespace controls
+
+namespace host {
+class WindowHost;
+}
 
 namespace render {
 class RenderObject;
 }
 
+namespace style {
+class StyleRuleSet;
+class StyleRuleSetBind;
+}  // namespace style
+
 //-------------------- region: basic types --------------------
+enum class Direction { Horizontal, Vertical };
+
 namespace internal {
 constexpr int align_start = 0;
 constexpr int align_end = align_start + 1;
@@ -82,28 +94,20 @@ inline bool operator!=(const CornerRadius& left, const CornerRadius& right) {
   return !(left == right);
 }
 
-struct BorderStyle {
-  std::shared_ptr<platform::graph::IBrush> border_brush;
-  Thickness border_thickness;
-  CornerRadius border_radius;
-  std::shared_ptr<platform::graph::IBrush> foreground_brush;
-  std::shared_ptr<platform::graph::IBrush> background_brush;
-};
-
 class CanvasPaintEventArgs {
  public:
-  CanvasPaintEventArgs(platform::graph::IPainter* painter,
+  CanvasPaintEventArgs(platform::graphics::IPainter* painter,
                        const Size& paint_size)
       : painter_(painter), paint_size_(paint_size) {}
   CRU_DEFAULT_COPY(CanvasPaintEventArgs)
   CRU_DEFAULT_MOVE(CanvasPaintEventArgs)
   ~CanvasPaintEventArgs() = default;
 
-  platform::graph::IPainter* GetPainter() const { return painter_; }
+  platform::graphics::IPainter* GetPainter() const { return painter_; }
   Size GetPaintSize() const { return paint_size_; }
 
  private:
-  platform::graph::IPainter* painter_;
+  platform::graphics::IPainter* painter_;
   Size paint_size_;
 };
 

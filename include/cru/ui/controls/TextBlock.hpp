@@ -1,15 +1,15 @@
 #pragma once
-#include "../NoChildControl.hpp"
+#include "NoChildControl.hpp"
+
+#include "TextHostControlService.hpp"
 
 namespace cru::ui::controls {
-template <typename TControl>
-class TextControlService;
-
-class TextBlock : public NoChildControl {
+class TextBlock : public NoChildControl, public virtual ITextHostControl {
  public:
   static constexpr std::u16string_view control_type = u"TextBlock";
 
-  static TextBlock* Create() { return new TextBlock(); }
+  static TextBlock* Create();
+  static TextBlock* Create(std::u16string text, bool selectable = false);
 
  protected:
   TextBlock();
@@ -28,12 +28,17 @@ class TextBlock : public NoChildControl {
   std::u16string GetText() const;
   void SetText(std::u16string text);
 
-  gsl::not_null<render::TextRenderObject*> GetTextRenderObject();
-  render::ScrollRenderObject* GetScrollRenderObject() { return nullptr; }
+  bool IsSelectable() const;
+  void SetSelectable(bool value);
+
+  gsl::not_null<render::TextRenderObject*> GetTextRenderObject() override;
+  render::ScrollRenderObject* GetScrollRenderObject() override {
+    return nullptr;
+  }
 
  private:
   std::unique_ptr<render::TextRenderObject> text_render_object_;
 
-  std::unique_ptr<TextControlService<TextBlock>> service_;
+  std::unique_ptr<TextHostControlService> service_;
 };
 }  // namespace cru::ui::controls

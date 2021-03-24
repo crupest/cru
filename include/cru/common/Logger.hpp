@@ -40,6 +40,7 @@ class Logger : public Object {
   std::list<std::unique_ptr<ILogSource>> sources_;
 };
 
+// TODO: Remove argument evaluation in Debug.
 template <typename... TArgs>
 void Debug([[maybe_unused]] TArgs&&... args) {
 #ifdef CRU_DEBUG
@@ -66,6 +67,7 @@ void Error(TArgs&&... args) {
                              fmt::format(std::forward<TArgs>(args)...));
 }
 
+// TODO: Remove argument evaluation in Debug.
 template <typename... TArgs>
 void TagDebug([[maybe_unused]] std::u16string_view tag,
               [[maybe_unused]] TArgs&&... args) {

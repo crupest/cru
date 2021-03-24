@@ -2,9 +2,11 @@
 
 #include "../Helper.hpp"
 #include "cru/common/Logger.hpp"
-#include "cru/platform/graph/Factory.hpp"
-#include "cru/platform/graph/Geometry.hpp"
-#include "cru/platform/graph/util/Painter.hpp"
+#include "cru/platform/graphics/Factory.hpp"
+#include "cru/platform/graphics/Geometry.hpp"
+#include "cru/platform/graphics/util/Painter.hpp"
+#include "cru/ui/style/ApplyBorderStyleInfo.hpp"
+#include "gsl/gsl_assert"
 
 #include <algorithm>
 
@@ -16,12 +18,13 @@ BorderRenderObject::BorderRenderObject() {
 
 BorderRenderObject::~BorderRenderObject() {}
 
-void BorderRenderObject::SetBorderStyle(const BorderStyle& style) {
-  border_brush_ = style.border_brush;
-  border_thickness_ = style.border_thickness;
-  border_radius_ = style.border_radius;
-  foreground_brush_ = style.foreground_brush;
-  background_brush_ = style.background_brush;
+void BorderRenderObject::ApplyBorderStyle(
+    const style::ApplyBorderStyleInfo& style) {
+  if (style.border_brush) border_brush_ = *style.border_brush;
+  if (style.border_thickness) border_thickness_ = *style.border_thickness;
+  if (style.border_radius) border_radius_ = *style.border_radius;
+  if (style.foreground_brush) foreground_brush_ = *style.foreground_brush;
+  if (style.background_brush) background_brush_ = *style.background_brush;
   InvalidateLayout();
 }
 
@@ -51,7 +54,7 @@ RenderObject* BorderRenderObject::HitTest(const Point& point) {
   }
 }
 
-void BorderRenderObject::OnDrawCore(platform::graph::IPainter* painter) {
+void BorderRenderObject::OnDrawCore(platform::graphics::IPainter* painter) {
   if (background_brush_ != nullptr)
     painter->FillGeometry(border_inner_geometry_.get(),
                           background_brush_.get());
@@ -109,9 +112,10 @@ Size BorderRenderObject::OnMeasureCore(const MeasureRequirement& requirement,
   if (!requirement.max.height.IsNotSpecified()) {
     const auto max_height = requirement.max.height.GetLengthOrMax();
     if (coerced_space_size.height > max_height) {
-      log::TagWarn(log_tag,
-                   u"(Measure) Vertical length of padding, border and margin is "
-                   u"bigger than required max length.");
+      log::TagWarn(
+          log_tag,
+          u"(Measure) Vertical length of padding, border and margin is "
+          u"bigger than required max length.");
       coerced_space_size.height = max_height;
     }
     content_requirement.max.height = max_height - coerced_space_size.height;
@@ -235,7 +239,7 @@ void BorderRenderObject::RecreateGeometry() {
                             r.left_bottom - Point{t.left, t.bottom},
                             r.right_bottom - Point{t.right, t.bottom});
 
-  auto f = [](platform::graph::IGeometryBuilder* builder, const Rect& rect,
+  auto f = [](platform::graphics::IGeometryBuilder* builder, const Rect& rect,
               const CornerRadius& corner) {
     builder->BeginFigure(Point(rect.left + corner.left_top.x, rect.top));
     builder->LineTo(Point(rect.GetRight() - corner.right_top.x, rect.top));
@@ -263,7 +267,7 @@ void BorderRenderObject::RecreateGeometry() {
                         size.width - margin.GetHorizontalTotal(),
                         size.height - margin.GetVerticalTotal()};
   const auto graph_factory = GetGraphFactory();
-  std::unique_ptr<platform::graph::IGeometryBuilder> builder{
+  std::unique_ptr<platform::graphics::IGeometryBuilder> builder{
       graph_factory->CreateGeometryBuilder()};
   f(builder.get(), outer_rect, outer_radius);
   border_outer_geometry_ = builder->Build();

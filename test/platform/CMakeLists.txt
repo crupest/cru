@@ -1,0 +1,6 @@
+add_executable(cru_platform_base_test
+	MatrixTest.cpp
+)
+target_link_libraries(cru_platform_base_test PRIVATE cru_platform_base cru_test_base)
+
+gtest_discover_tests(cru_platform_base_test)

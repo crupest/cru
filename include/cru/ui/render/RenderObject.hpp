@@ -2,10 +2,15 @@
 #include "Base.hpp"
 
 #include "MeasureRequirement.hpp"
+#include "cru/common/Base.hpp"
 #include "cru/common/Event.hpp"
+#include "cru/ui/Base.hpp"
+
+#include <cstddef>
+#include <string>
+#include <string_view>
 
 namespace cru::ui::render {
-
 // Render object will not destroy its children when destroyed. Control must
 // manage lifecycle of its render objects. Since control will destroy its
 // children when destroyed, render objects will be destroyed along with it.
@@ -29,13 +34,13 @@ namespace cru::ui::render {
 //
 // To write a custom RenderObject, override following methods:
 // public:
-//  void Draw(platform::graph::IPainter* painter) override;
+//  void Draw(platform::graphics::IPainter* painter) override;
 //  RenderObject* HitTest(const Point& point) override;
 // protected:
 //  Size OnMeasureContent(const MeasureRequirement& requirement) override;
 //  void OnLayoutContent(const Rect& content_rect) override;
 class RenderObject : public Object {
-  friend WindowRenderObject;
+  friend host::WindowHost;
 
   CRU_DEFINE_CLASS_LOG_TAG(u"cru::ui::render::RenderObject")
 
@@ -58,10 +63,10 @@ class RenderObject : public Object {
   RenderObject& operator=(RenderObject&& other) = delete;
   ~RenderObject() override = default;
 
-  Control* GetAttachedControl() const { return control_; }
-  void SetAttachedControl(Control* new_control) { control_ = new_control; }
+  controls::Control* GetAttachedControl() const { return control_; }
+  void SetAttachedControl(controls::Control* new_control);
 
-  UiHost* GetUiHost() const { return ui_host_; }
+  host::WindowHost* GetWindowHost() const { return window_host_; }
 
   RenderObject* GetParent() const { return parent_; }
 
@@ -69,6 +74,9 @@ class RenderObject : public Object {
   Index GetChildCount() const { return static_cast<Index>(children_.size()); }
   void AddChild(RenderObject* render_object, Index position);
   void RemoveChild(Index position);
+
+  RenderObject* GetFirstChild() const;
+  void TraverseDescendants(const std::function<void(RenderObject*)>& action);
 
   // Offset from parent's lefttop to lefttop of this render object. Margin is
   // accounted for.
@@ -123,15 +131,29 @@ class RenderObject : public Object {
   // This will set offset of this render object and call OnLayoutCore.
   void Layout(const Point& offset);
 
-  void Draw(platform::graph::IPainter* painter);
+  virtual Rect GetPaddingRect() const;
+  virtual Rect GetContentRect() const;
+
+  void Draw(platform::graphics::IPainter* painter);
 
   // Param point must be relative the lefttop of render object including margin.
   // Add offset before pass point to children.
   virtual RenderObject* HitTest(const Point& point) = 0;
 
+  IEvent<host::WindowHost*>* AttachToHostEvent() {
+    return &attach_to_host_event_;
+  }
+  IEvent<std::nullptr_t>* DetachFromHostEvent() {
+    return &detach_from_host_event_;
+  }
+
  public:
   void InvalidateLayout();
   void InvalidatePaint();
+
+ public:
+  virtual std::u16string_view GetName() const;
+  std::u16string GetDebugPathInTree() const;
 
  protected:
   void SetChildMode(ChildMode mode) { child_mode_ = mode; }
@@ -148,15 +170,15 @@ class RenderObject : public Object {
   virtual void OnRemoveChild(RenderObject* removed_child, Index position);
 
   // Draw all children with offset.
-  void DefaultDrawChildren(platform::graph::IPainter* painter);
+  void DefaultDrawChildren(platform::graphics::IPainter* painter);
 
   // Draw all children with translation of content rect lefttop.
-  void DefaultDrawContent(platform::graph::IPainter* painter);
+  void DefaultDrawContent(platform::graphics::IPainter* painter);
 
   // Call DefaultDrawContent. Then call DefaultDrawChildren.
-  virtual void OnDrawCore(platform::graph::IPainter* painter);
+  virtual void OnDrawCore(platform::graphics::IPainter* painter);
 
-  virtual void OnDrawContent(platform::graph::IPainter* painter);
+  virtual void OnDrawContent(platform::graphics::IPainter* painter);
 
   // Size measure including margin and padding. Please reduce margin and padding
   // or other custom things and pass the result content measure requirement and
@@ -182,20 +204,20 @@ class RenderObject : public Object {
   // Lefttop of content_rect should be added when calculated children's offset.
   virtual void OnLayoutContent(const Rect& content_rect) = 0;
 
-  virtual void OnAfterLayout();
-  static void NotifyAfterLayoutRecursive(RenderObject* render_object);
+  virtual void OnAttachedControlChanged(controls::Control* control) {
+    CRU_UNUSED(control)
+  }
 
-  virtual Rect GetPaddingRect() const;
-  virtual Rect GetContentRect() const;
+  virtual void OnAfterLayout();
 
  private:
   void SetParent(RenderObject* new_parent);
 
-  void SetRenderHostRecursive(UiHost* host);
+  void SetWindowHostRecursive(host::WindowHost* host);
 
  private:
-  Control* control_ = nullptr;
-  UiHost* ui_host_ = nullptr;
+  controls::Control* control_ = nullptr;
+  host::WindowHost* window_host_ = nullptr;
 
   RenderObject* parent_ = nullptr;
   std::vector<RenderObject*> children_{};
@@ -210,5 +232,8 @@ class RenderObject : public Object {
 
   Thickness margin_{};
   Thickness padding_{};
+
+  Event<host::WindowHost*> attach_to_host_event_;
+  Event<std::nullptr_t> detach_from_host_event_;
 };
 }  // namespace cru::ui::render

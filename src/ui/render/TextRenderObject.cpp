@@ -2,19 +2,19 @@
 
 #include "../Helper.hpp"
 #include "cru/common/Logger.hpp"
-#include "cru/platform/graph/Factory.hpp"
-#include "cru/platform/graph/TextLayout.hpp"
-#include "cru/platform/graph/util/Painter.hpp"
+#include "cru/platform/graphics/Factory.hpp"
+#include "cru/platform/graphics/TextLayout.hpp"
+#include "cru/platform/graphics/util/Painter.hpp"
 
 #include <algorithm>
 #include <limits>
 
 namespace cru::ui::render {
 TextRenderObject::TextRenderObject(
-    std::shared_ptr<platform::graph::IBrush> brush,
-    std::shared_ptr<platform::graph::IFont> font,
-    std::shared_ptr<platform::graph::IBrush> selection_brush,
-    std::shared_ptr<platform::graph::IBrush> caret_brush) {
+    std::shared_ptr<platform::graphics::IBrush> brush,
+    std::shared_ptr<platform::graphics::IFont> font,
+    std::shared_ptr<platform::graphics::IBrush> selection_brush,
+    std::shared_ptr<platform::graphics::IBrush> caret_brush) {
   Expects(brush);
   Expects(font);
   Expects(selection_brush);
@@ -43,20 +43,22 @@ std::u16string_view TextRenderObject::GetTextView() const {
 
 void TextRenderObject::SetText(std::u16string new_text) {
   text_layout_->SetText(std::move(new_text));
+  InvalidateLayout();
 }
 
 void TextRenderObject::SetBrush(
-    std::shared_ptr<platform::graph::IBrush> new_brush) {
+    std::shared_ptr<platform::graphics::IBrush> new_brush) {
   Expects(new_brush);
   new_brush.swap(brush_);
   InvalidatePaint();
 }
 
-std::shared_ptr<platform::graph::IFont> TextRenderObject::GetFont() const {
+std::shared_ptr<platform::graphics::IFont> TextRenderObject::GetFont() const {
   return text_layout_->GetFont();
 }
 
-void TextRenderObject::SetFont(std::shared_ptr<platform::graph::IFont> font) {
+void TextRenderObject::SetFont(
+    std::shared_ptr<platform::graphics::IFont> font) {
   Expects(font);
   text_layout_->SetFont(std::move(font));
 }
@@ -69,7 +71,7 @@ Point TextRenderObject::TextSinglePoint(gsl::index position, bool trailing) {
   return text_layout_->TextSinglePoint(position, trailing);
 }
 
-platform::graph::TextHitTestResult TextRenderObject::TextHitTest(
+platform::graphics::TextHitTestResult TextRenderObject::TextHitTest(
     const Point& point) {
   return text_layout_->HitTest(point);
 }
@@ -80,7 +82,7 @@ void TextRenderObject::SetSelectionRange(std::optional<TextRange> new_range) {
 }
 
 void TextRenderObject::SetSelectionBrush(
-    std::shared_ptr<platform::graph::IBrush> new_brush) {
+    std::shared_ptr<platform::graphics::IBrush> new_brush) {
   Expects(new_brush);
   new_brush.swap(selection_brush_);
   if (selection_range_ && selection_range_->count) {
@@ -105,7 +107,7 @@ void TextRenderObject::SetCaretPosition(gsl::index position) {
 }
 
 void TextRenderObject::GetCaretBrush(
-    std::shared_ptr<platform::graph::IBrush> brush) {
+    std::shared_ptr<platform::graphics::IBrush> brush) {
   Expects(brush);
   brush.swap(caret_brush_);
   if (draw_caret_) {
@@ -153,12 +155,18 @@ Rect TextRenderObject::GetCaretRect() {
   return rect;
 }
 
+void TextRenderObject::SetMeasureIncludingTrailingSpace(bool including) {
+  if (is_measure_including_trailing_space_ == including) return;
+  is_measure_including_trailing_space_ = including;
+  InvalidateLayout();
+}
+
 RenderObject* TextRenderObject::HitTest(const Point& point) {
   const auto padding_rect = GetPaddingRect();
   return padding_rect.IsPointInside(point) ? this : nullptr;
 }
 
-void TextRenderObject::OnDrawContent(platform::graph::IPainter* painter) {
+void TextRenderObject::OnDrawContent(platform::graphics::IPainter* painter) {
   if (this->selection_range_.has_value()) {
     const auto&& rects =
         text_layout_->TextRangeRect(this->selection_range_.value());
@@ -184,7 +192,9 @@ Size TextRenderObject::OnMeasureContent(const MeasureRequirement& requirement,
   text_layout_->SetMaxWidth(measure_width);
   text_layout_->SetMaxHeight(std::numeric_limits<float>::max());
 
-  const auto text_size = text_layout_->GetTextBounds().GetSize();
+  const auto text_size =
+      text_layout_->GetTextBounds(is_measure_including_trailing_space_)
+          .GetSize();
   auto result = text_size;
 
   if (requirement.max.width.IsSpecified() &&

@@ -1,7 +1,7 @@
 #include "cru/ui/render/FlexLayoutRenderObject.hpp"
 
 #include "cru/common/Logger.hpp"
-#include "cru/platform/graph/util/Painter.hpp"
+#include "cru/platform/graphics/util/Painter.hpp"
 #include "cru/ui/render/LayoutHelper.hpp"
 
 #include <algorithm>
@@ -9,6 +9,10 @@
 #include <type_traits>
 
 namespace cru::ui::render {
+
+std::u16string_view FlexLayoutRenderObject::GetName() const {
+  return u"FlexLayoutRenderObject";
+}
 
 struct tag_horizontal_t {};
 struct tag_vertical_t {};
@@ -64,7 +68,7 @@ template <typename TSize>
 constexpr TSize CreateTSize(decltype(std::declval<TSize>().width) main,
                             decltype(std::declval<TSize>().height) cross,
                             tag_vertical_t) {
-  return TSize{main, cross};
+  return TSize{cross, main};
 }
 
 enum class FlexLayoutAdjustType { None, Expand, Shrink };
@@ -387,10 +391,11 @@ void FlexLayoutRenderObject::OnLayoutContent(const Rect& content_rect) {
       const auto cross_align =
           GetChildLayoutDataList()[i].cross_alignment.value_or(
               GetItemCrossAlign());
-      child->Layout(
-          Point{content_rect.top + current_main_offset,
-                CalculateAnchorByAlignment(cross_align, content_rect.left,
-                                           content_rect.width, size.width)});
+      child->Layout(Point{
+          CalculateAnchorByAlignment(cross_align, content_rect.left,
+                                     content_rect.width, size.width),
+          content_rect.top + current_main_offset,
+      });
       current_main_offset += size.height;
     }
   } else {
@@ -402,9 +407,9 @@ void FlexLayoutRenderObject::OnLayoutContent(const Rect& content_rect) {
           GetChildLayoutDataList()[i].cross_alignment.value_or(
               GetItemCrossAlign());
       child->Layout(
-          Point{content_rect.GetBottom() - current_main_offset,
-                CalculateAnchorByAlignment(cross_align, content_rect.left,
-                                           content_rect.width, size.width)});
+          Point{CalculateAnchorByAlignment(cross_align, content_rect.left,
+                                           content_rect.width, size.width),
+                content_rect.GetBottom() - current_main_offset});
       current_main_offset += size.height;
     }
   }

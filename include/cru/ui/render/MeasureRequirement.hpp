@@ -1,8 +1,12 @@
 #pragma once
 #include "Base.hpp"
 
+#include "cru/common/Format.hpp"
+
+#include <fmt/core.h>
 #include <algorithm>
 #include <limits>
+#include <string>
 
 namespace cru::ui::render {
 constexpr Size Min(const Size& left, const Size& right) {
@@ -112,6 +116,11 @@ class MeasureLength final {
     }
   }
 
+  std::u16string ToDebugString() const {
+    return IsSpecified() ? ToUtf16String(GetLengthOrUndefined())
+                         : u"UNSPECIFIED";
+  }
+
  private:
   // -1 for not specify
   float length_;
@@ -160,6 +169,11 @@ struct MeasureSize {
     };
   }
 
+  std::u16string ToDebugString() const {
+    return fmt::format(u"({}, {})", width.ToDebugString(),
+                       height.ToDebugString());
+  }
+
   constexpr static MeasureSize NotSpecified() {
     return MeasureSize{MeasureLength::NotSpecified(),
                        MeasureLength::NotSpecified()};
@@ -187,10 +201,11 @@ struct MeasureRequirement {
       : max(max), min(min) {}
 
   constexpr bool Satisfy(const Size& size) const {
-    return max.width.GetLengthOrMax() >= size.width &&
-           max.height.GetLengthOrMax() >= size.height &&
-           min.width.GetLengthOr0() <= size.width &&
-           min.height.GetLengthOr0() <= size.height;
+    auto normalized = Normalize();
+    return normalized.max.width.GetLengthOrMax() >= size.width &&
+           normalized.max.height.GetLengthOrMax() >= size.height &&
+           normalized.min.width.GetLengthOr0() <= size.width &&
+           normalized.min.height.GetLengthOr0() <= size.height;
   }
 
   constexpr MeasureRequirement Normalize() const {
@@ -223,6 +238,11 @@ struct MeasureRequirement {
                                max.height.GetLengthOrMax());
 
     return result;
+  }
+
+  std::u16string ToDebugString() const {
+    return fmt::format(u"{{min: {}, max: {}}}", min.ToDebugString(),
+                       max.ToDebugString());
   }
 
   constexpr static MeasureRequirement Merge(const MeasureRequirement& left,

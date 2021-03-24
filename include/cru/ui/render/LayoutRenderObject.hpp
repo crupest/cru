@@ -1,7 +1,7 @@
 #pragma once
 #include "RenderObject.hpp"
 
-#include "cru/platform/graph/util/Painter.hpp"
+#include "cru/platform/graphics/util/Painter.hpp"
 
 namespace cru::ui::render {
 template <typename TChildLayoutData>

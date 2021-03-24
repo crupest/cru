@@ -1,8 +1,8 @@
 #pragma once
 #include "PreConfig.hpp"
 
+#include <exception>
 #include <gsl/gsl>
-
 #include <stdexcept>
 
 #define CRU_UNUSED(entity) static_cast<void>(entity);
@@ -42,11 +42,16 @@ struct Interface {
   virtual ~Interface() = default;
 };
 
-[[noreturn]] inline void UnreachableCode() {
-  throw std::runtime_error("Unreachable code.");
-}
+[[noreturn]] inline void UnreachableCode() { std::terminate(); }
 
 using Index = gsl::index;
+
+// https://www.boost.org/doc/libs/1_54_0/doc/html/hash/reference.html#boost.hash_combine
+template <class T>
+inline void hash_combine(std::size_t& s, const T& v) {
+  std::hash<T> h;
+  s ^= h(v) + 0x9e3779b9 + (s << 6) + (s >> 2);
+}
 
 #define CRU_DEFINE_CLASS_LOG_TAG(tag) \
  private:                             \

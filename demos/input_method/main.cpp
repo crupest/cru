@@ -1,25 +1,22 @@
-#include "cru/platform/graph/Factory.hpp"
-#include "cru/platform/graph/Font.hpp"
-#include "cru/platform/graph/Painter.hpp"
-#include "cru/platform/native/InputMethod.hpp"
-#include "cru/platform/native/UiApplication.hpp"
-#include "cru/platform/native/Window.hpp"
+#include "cru/platform/graphics/Factory.hpp"
+#include "cru/platform/graphics/Font.hpp"
+#include "cru/platform/graphics/Painter.hpp"
+#include "cru/platform/gui/InputMethod.hpp"
+#include "cru/platform/gui/UiApplication.hpp"
+#include "cru/platform/gui/Window.hpp"
 
 int main() {
   using namespace cru::platform;
-  using namespace cru::platform::graph;
-  using namespace cru::platform::native;
+  using namespace cru::platform::graphics;
+  using namespace cru::platform::gui;
 
   auto application = CreateUiApplication();
 
   auto graph_factory = application->GetGraphFactory();
 
-  auto window_resolver = application->CreateWindow(nullptr);
+  auto window = application->CreateWindow(nullptr);
 
-  auto window = window_resolver->Resolve();
-
-  auto input_method_context =
-      application->GetInputMethodManager()->GetContext(window);
+  auto input_method_context = window->GetInputMethodContext();
 
   auto brush = graph_factory->CreateSolidColorBrush();
   brush->SetColor(colors::black);

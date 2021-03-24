@@ -1,5 +1,5 @@
 #pragma once
-#include "../LayoutControl.hpp"
+#include "LayoutControl.hpp"
 
 namespace cru::ui::controls {
 class FlexLayout : public LayoutControl {
@@ -28,12 +28,11 @@ class FlexLayout : public LayoutControl {
   FlexDirection GetFlexDirection() const;
   void SetFlexDirection(FlexDirection direction);
 
+  FlexCrossAlignment GetItemCrossAlign() const;
+  void SetItemCrossAlign(FlexCrossAlignment alignment);
+
   FlexChildLayoutData GetChildLayoutData(Control* control);
   void SetChildLayoutData(Control* control, FlexChildLayoutData data);
-
- protected:
-  void OnAddChild(Control* child, Index position) override;
-  void OnRemoveChild(Control* child, Index position) override;
 
  private:
   std::shared_ptr<render::FlexLayoutRenderObject> render_object_;

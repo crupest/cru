@@ -1,5 +1,5 @@
 #pragma once
-#include "../ContentControl.hpp"
+#include "ContentControl.hpp"
 
 namespace cru::ui::controls {
 class Container : public ContentControl {
@@ -18,9 +18,6 @@ class Container : public ContentControl {
   std::u16string_view GetControlType() const final { return control_type; }
 
   render::RenderObject* GetRenderObject() const override;
-
- protected:
-  void OnChildChanged(Control* old_child, Control* new_child) override;
 
  private:
   std::unique_ptr<render::BorderRenderObject> render_object_;

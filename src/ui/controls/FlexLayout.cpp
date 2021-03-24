@@ -8,6 +8,7 @@ using render::FlexLayoutRenderObject;
 FlexLayout::FlexLayout() {
   render_object_.reset(new FlexLayoutRenderObject());
   render_object_->SetAttachedControl(this);
+  SetContainerRenderObject(render_object_.get());
 }
 
 FlexLayout::~FlexLayout() = default;
@@ -60,13 +61,12 @@ void FlexLayout::SetFlexDirection(FlexDirection direction) {
   render_object_->SetFlexDirection(direction);
 }
 
-void FlexLayout::OnAddChild(Control* child, const Index position) {
-  render_object_->AddChild(child->GetRenderObject(), position);
+FlexCrossAlignment FlexLayout::GetItemCrossAlign() const {
+  return render_object_->GetItemCrossAlign();
 }
 
-void FlexLayout::OnRemoveChild(Control* child, const Index position) {
-  CRU_UNUSED(child)
-
-  render_object_->RemoveChild(position);
+void FlexLayout::SetItemCrossAlign(FlexCrossAlignment alignment) {
+  if (alignment == GetItemCrossAlign()) return;
+  render_object_->SetItemCrossAlign(alignment);
 }
 }  // namespace cru::ui::controls

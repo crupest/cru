@@ -1,11 +1,18 @@
 #include "cru/ui/render/ScrollRenderObject.hpp"
 
-#include "cru/platform/graph/Painter.hpp"
-#include "cru/platform/graph/util/Painter.hpp"
+#include "cru/platform/graphics/Painter.hpp"
+#include "cru/platform/graphics/util/Painter.hpp"
+#include "cru/ui/Base.hpp"
+#include "cru/ui/controls/Control.hpp"
+#include "cru/ui/render/ScrollBar.hpp"
 
 #include <algorithm>
+#include <memory>
+#include <optional>
 
 namespace cru::ui::render {
+constexpr float kLineHeight = 16;
+
 namespace {
 // This method assumes margin offset is already considered.
 // It promises that it won't return negetive value.
@@ -24,12 +31,45 @@ Point CoerceScroll(const Point& scroll_offset, const Size& content_size,
       n = max;
   };
 
-  coerce(result.x, scroll_offset.x);
-  coerce(result.y, scroll_offset.y);
+  coerce(result.x, max_scroll.x);
+  coerce(result.y, max_scroll.y);
 
   return result;
 }
 }  // namespace
+
+ScrollRenderObject::ScrollRenderObject() : RenderObject(ChildMode::Single) {
+  scroll_bar_delegate_ = std::make_unique<ScrollBarDelegate>(this);
+  scroll_bar_delegate_->ScrollAttemptEvent()->AddHandler(
+      [this](const struct Scroll& scroll) { this->Scroll(scroll); });
+}
+
+void ScrollRenderObject::Scroll(const struct Scroll& scroll) {
+  auto direction = scroll.direction;
+
+  switch (scroll.kind) {
+    case ScrollKind::Absolute:
+      SetScrollOffset(direction, scroll.value);
+      break;
+    case ScrollKind::Relative:
+      SetScrollOffset(direction,
+                      GetScrollOffset(scroll.direction) + scroll.value);
+      break;
+    case ScrollKind::Page:
+      SetScrollOffset(direction, GetScrollOffset(direction) +
+                                     (direction == Direction::Horizontal
+                                          ? GetViewRect().width
+                                          : GetViewRect().height) *
+                                         scroll.value);
+      break;
+    case ScrollKind::Line:
+      SetScrollOffset(direction,
+                      GetScrollOffset(direction) + kLineHeight * scroll.value);
+      break;
+    default:
+      break;
+  }
+}
 
 RenderObject* ScrollRenderObject::HitTest(const Point& point) {
   if (const auto child = GetSingleChild()) {
@@ -42,16 +82,17 @@ RenderObject* ScrollRenderObject::HitTest(const Point& point) {
   return rect.IsPointInside(point) ? this : nullptr;
 }  // namespace cru::ui::render
 
-void ScrollRenderObject::OnDrawCore(platform::graph::IPainter* painter) {
+void ScrollRenderObject::OnDrawCore(platform::graphics::IPainter* painter) {
   DefaultDrawContent(painter);
   if (const auto child = GetSingleChild()) {
-    painter->PushLayer(this->GetPaddingRect());
+    painter->PushLayer(this->GetContentRect());
     const auto offset = child->GetOffset();
-    platform::graph::util::WithTransform(
+    platform::graphics::util::WithTransform(
         painter, Matrix::Translation(offset.x, offset.y),
-        [child](platform::graph::IPainter* p) { child->Draw(p); });
+        [child](platform::graphics::IPainter* p) { child->Draw(p); });
     painter->PopLayer();
   }
+  scroll_bar_delegate_->DrawScrollBar(painter);
 }
 
 Point ScrollRenderObject::GetScrollOffset() {
@@ -138,8 +179,15 @@ Size ScrollRenderObject::OnMeasureContent(const MeasureRequirement& requirement,
 
 void ScrollRenderObject::OnLayoutContent(const Rect& content_rect) {
   if (const auto child = GetSingleChild()) {
-    const auto child_size = child->GetSize();
     child->Layout(content_rect.GetLeftTop() - GetScrollOffset());
+  }
+}
+
+void ScrollRenderObject::OnAttachedControlChanged(controls::Control* control) {
+  if (control) {
+    scroll_bar_delegate_->InstallHandlers(control);
+  } else {
+    scroll_bar_delegate_->UninstallHandlers();
   }
 }
 }  // namespace cru::ui::render

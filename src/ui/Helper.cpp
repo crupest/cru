@@ -1,11 +1,11 @@
 #include "Helper.hpp"
 
-#include "cru/platform/graph/Factory.hpp"
-#include "cru/platform/native/UiApplication.hpp"
+#include "cru/platform/graphics/Factory.hpp"
+#include "cru/platform/gui/UiApplication.hpp"
 
 namespace cru::ui {
-using cru::platform::graph::IGraphFactory;
-using cru::platform::native::IUiApplication;
+using cru::platform::graphics::IGraphFactory;
+using cru::platform::gui::IUiApplication;
 
 IGraphFactory* GetGraphFactory() {
   return IUiApplication::GetInstance()->GetGraphFactory();

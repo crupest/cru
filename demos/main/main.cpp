@@ -1,23 +1,20 @@
 #include "cru/platform/HeapDebug.hpp"
-#include "cru/platform/native/UiApplication.hpp"
-#include "cru/platform/native/Window.hpp"
-#include "cru/ui/UiHost.hpp"
-#include "cru/ui/Window.hpp"
+#include "cru/platform/gui/UiApplication.hpp"
+#include "cru/platform/gui/Window.hpp"
+#include "cru/ui/Base.hpp"
 #include "cru/ui/controls/Button.hpp"
 #include "cru/ui/controls/FlexLayout.hpp"
-#include "cru/ui/controls/StackLayout.hpp"
 #include "cru/ui/controls/TextBlock.hpp"
 #include "cru/ui/controls/TextBox.hpp"
+#include "cru/ui/controls/Window.hpp"
+#include "cru/ui/host/WindowHost.hpp"
 
-using cru::platform::native::CreateUiApplication;
-using cru::ui::Rect;
-using cru::ui::Thickness;
-using cru::ui::Window;
+using cru::platform::gui::CreateUiApplication;
 using cru::ui::controls::Button;
 using cru::ui::controls::FlexLayout;
-using cru::ui::controls::StackLayout;
 using cru::ui::controls::TextBlock;
 using cru::ui::controls::TextBox;
+using cru::ui::controls::Window;
 
 int main() {
 #ifdef CRU_DEBUG
@@ -26,37 +23,27 @@ int main() {
 
   auto application = CreateUiApplication();
 
-  const auto window = Window::CreateOverlapped();
+  const auto window = Window::Create();
 
   const auto flex_layout = FlexLayout::Create();
+  flex_layout->SetFlexDirection(cru::ui::FlexDirection::Vertical);
+  flex_layout->SetContentMainAlign(cru::ui::FlexCrossAlignment::Center);
+  flex_layout->SetItemCrossAlign(cru::ui::FlexCrossAlignment::Center);
 
-  window->SetChild(flex_layout);
+  window->AddChild(flex_layout, 0);
 
+  const auto text_block = TextBlock::Create(u"Hello World from CruUI!", true);
+  flex_layout->AddChild(text_block, 0);
+
+  const auto button_text_block = TextBlock::Create(u"OK");
   const auto button = Button::Create();
-  const auto text_block1 = TextBlock::Create();
-  text_block1->SetText(u"Hello World!");
-  button->SetChild(text_block1);
-  flex_layout->AddChild(button, 0);
-
-  const auto text_block2 = TextBlock::Create();
-  text_block2->SetText(u"Hello World!");
-
-  const auto text_block3 = TextBlock::Create();
-  text_block3->SetText(u"Overlapped text");
-
-  const auto stack_layout = StackLayout::Create();
-  stack_layout->AddChild(text_block2, 0);
-  stack_layout->AddChild(text_block3, 1);
-  flex_layout->AddChild(stack_layout, 1);
-
-  const auto text_block4 = TextBlock::Create();
-  text_block4->SetText(u"Hello World!!!");
-  flex_layout->AddChild(text_block4, 2);
+  button->SetChild(button_text_block);
+  flex_layout->AddChild(button, 1);
 
   const auto text_box = TextBox::Create();
-  flex_layout->AddChild(text_box, 3);
+  flex_layout->AddChild(text_box, 2);
 
-  window->GetUiHost()->GetNativeWindowResolver()->Resolve()->SetVisible(true);
+  window->Show();
 
   return application->Run();
 }

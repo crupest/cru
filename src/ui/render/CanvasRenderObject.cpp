@@ -10,7 +10,7 @@ RenderObject* CanvasRenderObject::HitTest(const Point& point) {
   return padding_rect.IsPointInside(point) ? this : nullptr;
 }
 
-void CanvasRenderObject::OnDrawContent(platform::graph::IPainter* painter) {
+void CanvasRenderObject::OnDrawContent(platform::graphics::IPainter* painter) {
   const auto rect = GetContentRect();
   CanvasPaintEventArgs args{painter, rect.GetSize()};
   paint_event_.Raise(args);
