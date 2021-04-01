@@ -88,9 +88,6 @@
     "unordered_set": "cpp",
     "variant": "cpp"
   },
-  "cmake.configureSettings": {
-    "CMAKE_TOOLCHAIN_FILE": "${workspaceFolder}/vcpkg/scripts/buildsystems/vcpkg.cmake",
-  },
   "cmake.generator": "Ninja",
   "cmake.configureOnOpen": true,
 }
