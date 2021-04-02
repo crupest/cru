@@ -2,10 +2,15 @@
 #include "Base.hpp"
 
 #include "controls/Base.hpp"
+#include "cru/platform/graphics/Brush.hpp"
+#include "cru/ui/helper/ClickDetector.hpp"
+#include "render/ScrollBar.hpp"
 #include "style/StyleRuleSet.hpp"
 
+#include <gsl/pointers>
 #include <memory>
 #include <string>
+#include <unordered_map>
 
 namespace cru::ui {
 struct ThemeResources {
@@ -18,6 +23,13 @@ struct ThemeResources {
   style::StyleRuleSet text_box_style;
 
   style::StyleRuleSet menu_item_style;
+
+  std::shared_ptr<platform::graphics::IBrush> scroll_bar_colllapsed_thumb_brush;
+  std::unordered_map<
+      render::ScrollBarBrushUsageKind,
+      std::unordered_map<helper::ClickState,
+                         std::shared_ptr<platform::graphics::IBrush>>>
+      scroll_bar_brushes;
 };
 
 class UiManager : public Object {

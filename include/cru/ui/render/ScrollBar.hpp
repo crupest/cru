@@ -3,16 +3,19 @@
 #include "cru/common/Base.hpp"
 #include "cru/common/Event.hpp"
 #include "cru/platform/graphics/Base.hpp"
+#include "cru/platform/graphics/Brush.hpp"
 #include "cru/platform/graphics/Geometry.hpp"
 #include "cru/platform/graphics/Painter.hpp"
 #include "cru/platform/gui/Cursor.hpp"
 #include "cru/platform/gui/UiApplication.hpp"
 #include "cru/ui/Base.hpp"
 #include "cru/ui/controls/Control.hpp"
+#include "cru/ui/helper/ClickDetector.hpp"
 
 #include <gsl/pointers>
 #include <memory>
 #include <optional>
+#include <unordered_map>
 
 namespace cru::ui::render {
 class ScrollRenderObject;
@@ -33,6 +36,8 @@ enum class ScrollBarAreaKind {
   DownSlot,   // Page down
   Thumb
 };
+
+enum class ScrollBarBrushUsageKind { Arrow, ArrowBackground, Slot, Thumb };
 
 class ScrollBar : public Object {
  public:
@@ -61,23 +66,27 @@ class ScrollBar : public Object {
   void UninstallHandlers() { InstallHandlers(nullptr); }
 
   gsl::not_null<std::shared_ptr<platform::graphics::IBrush>>
-  GetCollapsedThumbBrush() const;
-  gsl::not_null<std::shared_ptr<platform::graphics::IBrush>>
-  GetExpandedThumbBrush() const;
-  gsl::not_null<std::shared_ptr<platform::graphics::IBrush>>
-  GetExpandedSlotBrush() const;
-  gsl::not_null<std::shared_ptr<platform::graphics::IBrush>>
-  GetExpandedArrowBrush() const;
-  gsl::not_null<std::shared_ptr<platform::graphics::IBrush>>
-  GetExpandedArrowBackgroundBrush() const;
+  GetCollapsedThumbBrush();
+  // Brush could be nullptr to use the theme brush.
+  void SetCollapsedThumbBrush(
+      std::shared_ptr<platform::graphics::IBrush> brush);
+  gsl::not_null<std::shared_ptr<platform::graphics::IBrush>> GetBrush(
+      ScrollBarBrushUsageKind kind, helper::ClickState click_state);
+  // Brush could be nullptr to use the theme brush.
+  void SetBrush(ScrollBarBrushUsageKind kind, helper::ClickState click_state,
+                std::shared_ptr<platform::graphics::IBrush> brush);
 
  protected:
   void OnDraw(platform::graphics::IPainter* painter, bool expand);
 
-  virtual void DrawUpArrow(platform::graphics::IPainter* painter,
-                           const Rect& area) = 0;
-  virtual void DrawDownArrow(platform::graphics::IPainter* painter,
-                             const Rect& area) = 0;
+  virtual void DrawUpArrow(
+      platform::graphics::IPainter* painter, const Rect& area,
+      gsl::not_null<platform::graphics::IBrush*> arrow_brush,
+      gsl::not_null<platform::graphics::IBrush*> background_brush) = 0;
+  virtual void DrawDownArrow(
+      platform::graphics::IPainter* painter, const Rect& area,
+      gsl::not_null<platform::graphics::IBrush*> arrow_brush,
+      gsl::not_null<platform::graphics::IBrush*> background_brush) = 0;
 
   std::optional<ScrollBarAreaKind> ExpandedHitTest(const Point& point);
 
@@ -113,10 +122,11 @@ class ScrollBar : public Object {
   bool is_expanded_ = false;
 
   std::shared_ptr<platform::graphics::IBrush> collapsed_thumb_brush_;
-  std::shared_ptr<platform::graphics::IBrush> expanded_thumb_brush_;
-  std::shared_ptr<platform::graphics::IBrush> expanded_slot_brush_;
-  std::shared_ptr<platform::graphics::IBrush> expanded_arrow_brush_;
-  std::shared_ptr<platform::graphics::IBrush> expanded_arrow_background_brush_;
+  std::unordered_map<
+      ScrollBarBrushUsageKind,
+      std::unordered_map<helper::ClickState,
+                         std::shared_ptr<platform::graphics::IBrush>>>
+      brushes_;
 
   Rect move_thumb_thumb_original_rect_;
   std::optional<Point> move_thumb_start_;
@@ -141,10 +151,14 @@ class HorizontalScrollBar : public ScrollBar {
   ~HorizontalScrollBar() override = default;
 
  protected:
-  void DrawUpArrow(platform::graphics::IPainter* painter,
-                   const Rect& area) override;
-  void DrawDownArrow(platform::graphics::IPainter* painter,
-                     const Rect& area) override;
+  void DrawUpArrow(
+      platform::graphics::IPainter* painter, const Rect& area,
+      gsl::not_null<platform::graphics::IBrush*> arrow_brush,
+      gsl::not_null<platform::graphics::IBrush*> background_brush) override;
+  void DrawDownArrow(
+      platform::graphics::IPainter* painter, const Rect& area,
+      gsl::not_null<platform::graphics::IBrush*> arrow_brush,
+      gsl::not_null<platform::graphics::IBrush*> background_brush) override;
 
   bool IsShowBar() override;
 
@@ -166,10 +180,14 @@ class VerticalScrollBar : public ScrollBar {
   ~VerticalScrollBar() override = default;
 
  protected:
-  void DrawUpArrow(platform::graphics::IPainter* painter,
-                   const Rect& area) override;
-  void DrawDownArrow(platform::graphics::IPainter* painter,
-                     const Rect& area) override;
+  void DrawUpArrow(
+      platform::graphics::IPainter* painter, const Rect& area,
+      gsl::not_null<platform::graphics::IBrush*> arrow_brush,
+      gsl::not_null<platform::graphics::IBrush*> background_brush) override;
+  void DrawDownArrow(
+      platform::graphics::IPainter* painter, const Rect& area,
+      gsl::not_null<platform::graphics::IBrush*> arrow_brush,
+      gsl::not_null<platform::graphics::IBrush*> background_brush) override;
 
   bool IsShowBar() override;
 
