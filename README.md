@@ -10,17 +10,7 @@ It is **under construction**. It can be built with _CMake_.
 
 ## build
 
-CruUI uses [_vcpkg_](https://github.com/microsoft/vcpkg) to manage dependencies. Vcpkg is already checked out as a submodule in `vcpkg` directory at root of the project.
-
-You need to bootstrap vcpkg and then use it to install following packages:
-
-- `ms-gsl`
-- `fmt`
-- `gtest`
-
-Remember to install package with correct _triplet_ as the target you want to build against.
-
-Then use _CMake_ to configure and build. Remember to set correct toolchain as in _vcpkg_ documents for _CMake_ to find packages.
+CruUI uses [_vcpkg_](https://github.com/microsoft/vcpkg) with _manifests mode_ to manage dependencies. You must setup vcpkg and `VCPKG_INSTALLATION_ROOT` environment variable.
 
 There is also a automatic python script used in CI. Use python3 to run `tool/win_build.py` to build on Windows. Run with `-h` to see options. For convenience to avoid environment setup it uses _Visual Studio_ generator.
 
