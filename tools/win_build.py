@@ -64,8 +64,8 @@ os.chdir(project_root)
 
 configure()
 if args.command == 'configure':
-    return
+    exit(0)
 build()
 if args.command == 'build':
-    return
+    exit(0)
 test()
