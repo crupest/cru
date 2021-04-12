@@ -8,8 +8,6 @@ import sys
 parser = argparse.ArgumentParser()
 parser.add_argument('command', choices=[
                     'configure', 'build', 'test'], nargs='?', default='test', help='specify command to execute')
-parser.add_argument('--skip-install-packages', action="store_true",
-                    help='skip using vcpkg to install package')
 parser.add_argument('-a', '--arch', choices=['x86', 'x64'],
                     default='x64', help='specify target cpu architecture')
 parser.add_argument('-c', '--config', choices=['Debug', 'Release'],
@@ -38,11 +36,6 @@ work_dir = os.path.join(project_root, args.work_dir)
 #             continue
 #         os.environ[k] = v
 
-def install_packages():
-    subprocess.check_call(
-        'vcpkg install', stdout=sys.stdout, stderr=sys.stderr)
-
-
 def configure():
     generater_vs_arch_map = {
         'x86': 'Win32',
@@ -69,12 +62,10 @@ def test():
 
 os.chdir(project_root)
 
-if not args.skip_install_packages:
-    install_packages()
-
 configure()
-
-if args.command == 'build' or args.command == 'test':
-    build()
-    if args.command == 'test':
-        test()
+if args.command == 'configure':
+    return
+build()
+if args.command == 'build':
+    return
+test()

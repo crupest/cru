@@ -25,7 +25,6 @@ jobs:
       matrix:
         buildConfiguration: [Debug, Release]
         architecture: [x86, x64]
-      fail-fast: true
 
     steps:
       - uses: actions/checkout@v2
