@@ -14,6 +14,9 @@ on:
       - "drafts/**"
       - "**/README.md"
 
+env:
+  VCPKG_FEATURE_FLAGS: manifests
+
 jobs:
   build:
     name: Build
@@ -22,27 +25,16 @@ jobs:
       matrix:
         buildConfiguration: [Debug, Release]
         architecture: [x86, x64]
-        include:
-          - architecture: x86
-            triplet: x86-windows
-          - architecture: x64
-            triplet: x64-windows
       fail-fast: true
-
-    env:
-      vcpkgPackages: "gtest fmt ms-gsl"
 
     steps:
       - uses: actions/checkout@v2
-        with:
-          submodules: true
 
-      - name: Restore artifacts, or run vcpkg, build and cache artifacts
-        uses: lukka/run-vcpkg@v6
-        id: runvcpkg
+      - name: Restore Cache
+        uses: actions/cache@v2
         with:
-          vcpkgArguments: "${{ env.vcpkgPackages }}"
-          vcpkgTriplet: "${{ matrix.triplet }}"
+          path: vcpkg_installed
+          key: vcpkg-${{ runner.os }}
 
       - name: Run build script
-        run: python tools\win_build.py -a ${{ matrix.architecture }} -c ${{ matrix.buildConfiguration }} --skip-install-packages
+        run: python tools\win_build.py -a ${{ matrix.architecture }} -c ${{ matrix.buildConfiguration }}

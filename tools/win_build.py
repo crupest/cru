@@ -22,11 +22,6 @@ args = parser.parse_args()
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 work_dir = os.path.join(project_root, args.work_dir)
 
-vcpkg_root = os.path.join(project_root, 'vcpkg')
-
-cmake_toolchain_path = os.path.join(
-    vcpkg_root, 'scripts/buildsystems/vcpkg.cmake')
-
 # this is not used when generator is Visual Studio
 
 
@@ -44,8 +39,8 @@ cmake_toolchain_path = os.path.join(
 #         os.environ[k] = v
 
 def install_packages():
-    subprocess.check_call('vcpkg\\vcpkg.exe install gtest:{arch}-windows fmt:{arch}-windows ms-gsl:{arch}-windows'.format(arch=args.arch),
-                          stdout=sys.stdout, stderr=sys.stderr)
+    subprocess.check_call(
+        'vcpkg install', stdout=sys.stdout, stderr=sys.stderr)
 
 
 def configure():
@@ -55,13 +50,14 @@ def configure():
     }
 
     # -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
-    subprocess.check_call('cmake -S . -B {build_dir} -G "Visual Studio 16 2019" -A {arch} -T host=x64 -DCMAKE_TOOLCHAIN_FILE={toolchain}'
-                          .format(build_dir=work_dir, arch=generater_vs_arch_map[args.arch], toolchain=cmake_toolchain_path),
+    subprocess.check_call('cmake -S . -B {build_dir} -G "Visual Studio 16 2019" -A {arch} -T host=x64'
+                          .format(build_dir=work_dir, arch=generater_vs_arch_map[args.arch]),
                           stdout=sys.stdout, stderr=sys.stderr)
 
 
 def build():
-    subprocess.check_call('cmake --build {build_dir} --target ALL_BUILD --config {config}'.format(build_dir=work_dir, config=args.config),
+    subprocess.check_call('cmake --build {build_dir} --target ALL_BUILD --config {config}'
+                          .format(build_dir=work_dir, config=args.config),
                           stdout=sys.stdout, stderr=sys.stderr)
 
 

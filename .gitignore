@@ -593,3 +593,4 @@ compile_flags.txt
 .clangd
 .kdev4
 CruUI.kdev4
+vcpkg_installed
