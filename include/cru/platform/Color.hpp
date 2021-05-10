@@ -20,8 +20,8 @@ struct Color {
 
   constexpr static Color FromHexAlpha(std::uint32_t hex) {
     const std::uint32_t mask = 0b11111111;
-    return Color((hex >> 16) & mask, (hex >> 8) & mask, hex & mask,
-                 (hex >> 24) & mask);
+    return Color((hex >> 24) & mask, (hex >> 16) & mask, (hex >> 8) & mask,
+                 hex & mask);
   }
 
   constexpr Color WithAlpha(std::uint8_t new_alpha) const {

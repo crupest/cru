@@ -19,10 +19,10 @@ std::string Color::ToUtf8String() const {
   };
 
   std::string result = "#";
-  result.append(to_two_hex_digit(alpha));
   result.append(to_two_hex_digit(red));
   result.append(to_two_hex_digit(green));
   result.append(to_two_hex_digit(blue));
+  result.append(to_two_hex_digit(alpha));
   return result;
 }
 
@@ -36,10 +36,10 @@ std::u16string Color::ToString() const {
   };
 
   std::u16string result = u"#";
-  result.append(to_two_hex_digit(alpha));
   result.append(to_two_hex_digit(red));
   result.append(to_two_hex_digit(green));
   result.append(to_two_hex_digit(blue));
+  result.append(to_two_hex_digit(alpha));
   return result;
 }
 
@@ -86,14 +86,14 @@ std::optional<Color> Color::Parse(std::u16string_view string,
                  gsl::narrow_cast<std::uint8_t>(*b));
   } else if (string_size == 9) {
     if (string[0] != u'#') return std::nullopt;
-    auto a = get_num_for_two_digit(string.substr(1, 2));
-    if (!a) return std::nullopt;
-    auto r = get_num_for_two_digit(string.substr(3, 2));
+    auto r = get_num_for_two_digit(string.substr(1, 2));
     if (!r) return std::nullopt;
-    auto g = get_num_for_two_digit(string.substr(5, 2));
+    auto g = get_num_for_two_digit(string.substr(3, 2));
     if (!g) return std::nullopt;
-    auto b = get_num_for_two_digit(string.substr(7, 2));
+    auto b = get_num_for_two_digit(string.substr(5, 2));
     if (!b) return std::nullopt;
+    auto a = get_num_for_two_digit(string.substr(7, 2));
+    if (!a) return std::nullopt;
     return Color(
         gsl::narrow_cast<std::uint8_t>(*r), gsl::narrow_cast<std::uint8_t>(*g),
         gsl::narrow_cast<std::uint8_t>(*b), gsl::narrow_cast<std::uint8_t>(*a));
