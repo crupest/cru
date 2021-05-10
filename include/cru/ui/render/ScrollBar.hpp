@@ -104,6 +104,9 @@ class ScrollBar : public Object {
   virtual float CalculateNewScrollPosition(const Rect& thumb_original_rect,
                                            const Point& mouse_offset) = 0;
 
+  virtual bool CanScrollUp() = 0;
+  virtual bool CanScrollDown() = 0;
+
  private:
   void SetCursor();
   void RestoreCursor();
@@ -112,6 +115,8 @@ class ScrollBar : public Object {
   void StopAutoCollapseTimer();
 
   void OnMouseLeave();
+
+  ScrollBarBrushStateKind GetState(ScrollBarAreaKind area);
 
  protected:
   gsl::not_null<ScrollRenderObject*> render_object_;
@@ -134,6 +139,9 @@ class ScrollBar : public Object {
 
   Rect move_thumb_thumb_original_rect_;
   std::optional<Point> move_thumb_start_;
+
+  std::optional<ScrollBarAreaKind> mouse_hover_;
+  std::optional<ScrollBarAreaKind> mouse_press_;
 
   EventRevokerListGuard event_guard_;
 
@@ -172,6 +180,9 @@ class HorizontalScrollBar : public ScrollBar {
 
   float CalculateNewScrollPosition(const Rect& thumb_original_rect,
                                    const Point& mouse_offset) override;
+
+  bool CanScrollUp() override;
+  bool CanScrollDown() override;
 };
 
 class VerticalScrollBar : public ScrollBar {
@@ -201,6 +212,9 @@ class VerticalScrollBar : public ScrollBar {
 
   float CalculateNewScrollPosition(const Rect& thumb_original_rect,
                                    const Point& mouse_offset) override;
+
+  bool CanScrollUp() override;
+  bool CanScrollDown() override;
 };
 
 // A delegate to draw scrollbar and register related events.

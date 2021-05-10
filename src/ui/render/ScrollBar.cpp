@@ -130,6 +130,8 @@ void ScrollBar::InstallHandlers(controls::Control* control) {
                     ExpandedHitTest(event.GetPoint(render_object_));
                 if (!hit_test_result) return false;
 
+                mouse_press_ = hit_test_result;
+
                 switch (*hit_test_result) {
                   case ScrollBarAreaKind::UpArrow:
                     this->scroll_attempt_event_.Raise(
@@ -173,6 +175,7 @@ void ScrollBar::InstallHandlers(controls::Control* control) {
     event_guard_ +=
         control->MouseUpEvent()->Bubble()->PrependShortCircuitHandler(
             [control, this](event::MouseButtonEventArgs& event) {
+              mouse_press_ = std::nullopt;
               if (event.GetButton() == mouse_buttons::left &&
                   move_thumb_start_) {
                 move_thumb_start_ = std::nullopt;
@@ -209,6 +212,7 @@ void ScrollBar::InstallHandlers(controls::Control* control) {
                 if (IsExpanded()) {
                   auto hit_test_result =
                       ExpandedHitTest(event.GetPoint(this->render_object_));
+                  mouse_hover_ = hit_test_result;
                   if (hit_test_result) {
                     SetCursor();
                     StopAutoCollapseTimer();
@@ -278,43 +282,48 @@ void ScrollBar::OnDraw(platform::graphics::IPainter* painter,
                        bool is_expanded) {
   if (is_expanded) {
     auto thumb_rect = GetExpandedAreaRect(ScrollBarAreaKind::Thumb);
-    if (thumb_rect)
-      painter->FillRectangle(*thumb_rect,
-                             GetBrush(ScrollBarBrushUsageKind::Thumb,
-                                      ScrollBarBrushStateKind::Normal)
-                                 .get()
-                                 .get());
-
-    auto slot_brush =
-        GetBrush(ScrollBarBrushUsageKind::Slot, ScrollBarBrushStateKind::Normal)
-            .get()
-            .get();
+    if (thumb_rect) {
+      auto thumb_state = GetState(ScrollBarAreaKind::Thumb);
+      painter->FillRectangle(
+          *thumb_rect,
+          GetBrush(ScrollBarBrushUsageKind::Thumb, thumb_state).get().get());
+    }
 
     auto up_slot_rect = GetExpandedAreaRect(ScrollBarAreaKind::UpSlot);
-    if (up_slot_rect) painter->FillRectangle(*up_slot_rect, slot_brush);
+    auto up_slot_state = GetState(ScrollBarAreaKind::UpSlot);
+    if (up_slot_rect)
+      painter->FillRectangle(
+          *up_slot_rect,
+          GetBrush(ScrollBarBrushUsageKind::Slot, up_slot_state).get().get());
 
     auto down_slot_rect = GetExpandedAreaRect(ScrollBarAreaKind::DownSlot);
-    if (down_slot_rect) painter->FillRectangle(*down_slot_rect, slot_brush);
+    auto down_slot_state = GetState(ScrollBarAreaKind::DownSlot);
+    if (down_slot_rect)
+      painter->FillRectangle(
+          *down_slot_rect,
+          GetBrush(ScrollBarBrushUsageKind::Slot, down_slot_state).get().get());
 
-    auto arrow_brush = GetBrush(ScrollBarBrushUsageKind::Arrow,
-                                ScrollBarBrushStateKind::Normal)
-                           .get()
-                           .get();
-    auto arrow_background_brush =
-        GetBrush(ScrollBarBrushUsageKind::ArrowBackground,
-                 ScrollBarBrushStateKind::Normal)
-            .get()
-            .get();
+    auto up_arrow_rect = GetExpandedAreaRect(ScrollBarAreaKind::UpArrow);
+    auto up_arrow_state = GetState(ScrollBarAreaKind::UpArrow);
+    if (up_arrow_rect)
+      this->DrawUpArrow(
+          painter, *up_arrow_rect,
+          GetBrush(ScrollBarBrushUsageKind::Arrow, up_arrow_state).get().get(),
+          GetBrush(ScrollBarBrushUsageKind::ArrowBackground, up_arrow_state)
+              .get()
+              .get());
 
-    auto up_arrow = GetExpandedAreaRect(ScrollBarAreaKind::UpArrow);
-    if (up_arrow)
-      this->DrawUpArrow(painter, *up_arrow, arrow_brush,
-                        arrow_background_brush);
-
-    auto down_arrow = GetExpandedAreaRect(ScrollBarAreaKind::DownArrow);
-    if (down_arrow)
-      this->DrawDownArrow(painter, *down_arrow, arrow_brush,
-                          arrow_background_brush);
+    auto down_arrow_rect = GetExpandedAreaRect(ScrollBarAreaKind::DownArrow);
+    auto down_arrow_state = GetState(ScrollBarAreaKind::DownArrow);
+    if (down_arrow_rect)
+      this->DrawDownArrow(
+          painter, *down_arrow_rect,
+          GetBrush(ScrollBarBrushUsageKind::Arrow, down_arrow_state)
+              .get()
+              .get(),
+          GetBrush(ScrollBarBrushUsageKind::ArrowBackground, down_arrow_state)
+              .get()
+              .get());
   } else {
     auto optional_rect = GetCollapsedThumbRect();
     if (optional_rect) {
@@ -369,6 +378,26 @@ std::optional<ScrollBarAreaKind> ScrollBar::ExpandedHitTest(
     }
   }
   return std::nullopt;
+}
+
+ScrollBarBrushStateKind ScrollBar::GetState(ScrollBarAreaKind area) {
+  if (area == ScrollBarAreaKind::UpArrow) {
+    if (!CanScrollUp()) return ScrollBarBrushStateKind::Disable;
+  }
+
+  if (area == ScrollBarAreaKind::DownArrow) {
+    if (!CanScrollDown()) return ScrollBarBrushStateKind::Disable;
+  }
+
+  if (mouse_hover_ == area) {
+    if (mouse_press_ == area) {
+      return ScrollBarBrushStateKind::Press;
+    } else {
+      return ScrollBarBrushStateKind::Hover;
+    }
+  } else {
+    return ScrollBarBrushStateKind::Normal;
+  }
 }
 
 HorizontalScrollBar::HorizontalScrollBar(
@@ -512,6 +541,16 @@ float HorizontalScrollBar::CalculateNewScrollPosition(
   return offset;
 }
 
+bool HorizontalScrollBar::CanScrollUp() {
+  return render_object_->GetScrollOffset().x > 0.0;
+}
+
+bool HorizontalScrollBar::CanScrollDown() {
+  return render_object_->GetScrollOffset().x <
+         render_object_->GetFirstChild()->GetSize().width -
+             render_object_->GetViewRect().width;
+}
+
 VerticalScrollBar::VerticalScrollBar(
     gsl::not_null<ScrollRenderObject*> render_object)
     : ScrollBar(render_object, Direction::Vertical) {}
@@ -649,6 +688,16 @@ float VerticalScrollBar::CalculateNewScrollPosition(
                 (scroll_area_end - scroll_area_start) * child_size.width;
 
   return offset;
+}
+
+bool VerticalScrollBar::CanScrollUp() {
+  return render_object_->GetScrollOffset().y > 0.0;
+}
+
+bool VerticalScrollBar::CanScrollDown() {
+  return render_object_->GetScrollOffset().y <
+         render_object_->GetFirstChild()->GetSize().height -
+             render_object_->GetViewRect().height;
 }
 
 ScrollBarDelegate::ScrollBarDelegate(
