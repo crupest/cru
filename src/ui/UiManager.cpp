@@ -115,42 +115,6 @@ UiManager::UiManager() {
        BorderStyler::Create(
            ApplyBorderStyleInfo{std::nullopt, Thickness{0}, CornerRadius{0}}),
        u"DefaultMenuItem"});
-
-  theme_resource_.scroll_bar_colllapsed_thumb_brush =
-      factory->CreateSolidColorBrush(colors::gray.WithAlpha(128));
-  theme_resource_.scroll_bar_brushes[render::ScrollBarBrushUsageKind::Arrow] = {
-      {helper::ClickState::None, factory->CreateSolidColorBrush(colors::black)},
-      {helper::ClickState::Hover,
-       factory->CreateSolidColorBrush(colors::black)},
-      {helper::ClickState::Press,
-       factory->CreateSolidColorBrush(colors::black)},
-      {helper::ClickState::PressInactive,
-       factory->CreateSolidColorBrush(colors::black)}};
-  theme_resource_
-      .scroll_bar_brushes[render::ScrollBarBrushUsageKind::ArrowBackground] = {
-      {helper::ClickState::None,
-       factory->CreateSolidColorBrush(colors::seashell)},
-      {helper::ClickState::Hover,
-       factory->CreateSolidColorBrush(colors::seashell)},
-      {helper::ClickState::Press,
-       factory->CreateSolidColorBrush(colors::seashell)},
-      {helper::ClickState::PressInactive,
-       factory->CreateSolidColorBrush(colors::seashell)}};
-  theme_resource_.scroll_bar_brushes[render::ScrollBarBrushUsageKind::Slot] = {
-      {helper::ClickState::None,
-       factory->CreateSolidColorBrush(colors::seashell)},
-      {helper::ClickState::Hover,
-       factory->CreateSolidColorBrush(colors::seashell)},
-      {helper::ClickState::Press,
-       factory->CreateSolidColorBrush(colors::seashell)},
-      {helper::ClickState::PressInactive,
-       factory->CreateSolidColorBrush(colors::seashell)}};
-  theme_resource_.scroll_bar_brushes[render::ScrollBarBrushUsageKind::Thumb] = {
-      {helper::ClickState::None, factory->CreateSolidColorBrush(colors::gray)},
-      {helper::ClickState::Hover, factory->CreateSolidColorBrush(colors::gray)},
-      {helper::ClickState::Press, factory->CreateSolidColorBrush(colors::gray)},
-      {helper::ClickState::PressInactive,
-       factory->CreateSolidColorBrush(colors::gray)}};
 }
 
 UiManager::~UiManager() = default;

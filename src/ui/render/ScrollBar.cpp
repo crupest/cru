@@ -10,6 +10,7 @@
 #include "cru/platform/gui/Base.hpp"
 #include "cru/platform/gui/Cursor.hpp"
 #include "cru/ui/Base.hpp"
+#include "cru/ui/ThemeManager.hpp"
 #include "cru/ui/UiManager.hpp"
 #include "cru/ui/events/UiEvent.hpp"
 #include "cru/ui/helper/ClickDetector.hpp"
@@ -22,6 +23,7 @@
 #include <memory>
 #include <optional>
 #include <stdexcept>
+#include <string>
 
 namespace cru::ui::render {
 using namespace std::chrono_literals;
@@ -35,6 +37,42 @@ constexpr std::array<ScrollBarAreaKind, 5> kScrollBarAreaKindList{
     ScrollBarAreaKind::UpArrow, ScrollBarAreaKind::DownArrow,
     ScrollBarAreaKind::UpSlot, ScrollBarAreaKind::DownSlot,
     ScrollBarAreaKind::Thumb};
+
+std::u16string GenerateScrollBarThemeColorKey(ScrollBarBrushUsageKind usage,
+                                              ScrollBarBrushStateKind state) {
+  std::u16string result = u"scrollbar.";
+  switch (usage) {
+    case ScrollBarBrushUsageKind::Arrow:
+      result.append(u"arrow");
+      break;
+    case ScrollBarBrushUsageKind::ArrowBackground:
+      result.append(u"arrow-background");
+      break;
+    case ScrollBarBrushUsageKind::Slot:
+      result.append(u"slot");
+      break;
+    case ScrollBarBrushUsageKind::Thumb:
+      result.append(u"thumb");
+      break;
+  }
+  result.push_back(u'.');
+  switch (state) {
+    case ScrollBarBrushStateKind::Normal:
+      result.append(u"normal");
+      break;
+    case ScrollBarBrushStateKind::Hover:
+      result.append(u"hover");
+      break;
+    case ScrollBarBrushStateKind::Press:
+      result.append(u"press");
+      break;
+    case ScrollBarBrushStateKind::Disable:
+      result.append(u"disable");
+      break;
+  }
+  result.append(u".color");
+  return result;
+}
 
 namespace {
 std::unique_ptr<platform::graphics::IGeometry> CreateScrollBarArrowGeometry() {
@@ -207,10 +245,9 @@ void ScrollBar::InstallHandlers(controls::Control* control) {
 
 gsl::not_null<std::shared_ptr<platform::graphics::IBrush>>
 ScrollBar::GetCollapsedThumbBrush() {
-  return collapsed_thumb_brush_ ? collapsed_thumb_brush_
-                                : UiManager::GetInstance()
-                                      ->GetThemeResources()
-                                      ->scroll_bar_colllapsed_thumb_brush;
+  return collapsed_thumb_brush_ ? gsl::not_null(collapsed_thumb_brush_)
+                                : ThemeManager::GetInstance()->GetBrush(
+                                      u"scrollbar.collapse-thumb.color");
 }
 
 void ScrollBar::SetCollapsedThumbBrush(
@@ -221,21 +258,19 @@ void ScrollBar::SetCollapsedThumbBrush(
 }
 
 gsl::not_null<std::shared_ptr<platform::graphics::IBrush>> ScrollBar::GetBrush(
-    ScrollBarBrushUsageKind kind, helper::ClickState click_state) {
-  auto b = brushes_[kind][click_state];
-  return b ? b
-           : UiManager::GetInstance()
-                 ->GetThemeResources()
-                 ->scroll_bar_brushes.at(kind)
-                 .at(click_state);
+    ScrollBarBrushUsageKind usage, ScrollBarBrushStateKind state) {
+  auto b = brushes_[usage][state];
+  return b ? gsl::not_null(b)
+           : ThemeManager::GetInstance()->GetBrush(
+                 GenerateScrollBarThemeColorKey(usage, state));
 }
 
 // Brush could be nullptr to use the theme brush.
-void ScrollBar::SetBrush(ScrollBarBrushUsageKind kind,
-                         helper::ClickState click_state,
+void ScrollBar::SetBrush(ScrollBarBrushUsageKind usage,
+                         ScrollBarBrushStateKind state,
                          std::shared_ptr<platform::graphics::IBrush> brush) {
-  if (brushes_[kind][click_state] == brush) return;
-  brushes_[kind][click_state] = std::move(brush);
+  if (brushes_[usage][state] == brush) return;
+  brushes_[usage][state] = std::move(brush);
   render_object_->InvalidatePaint();
 }
 
@@ -244,14 +279,14 @@ void ScrollBar::OnDraw(platform::graphics::IPainter* painter,
   if (is_expanded) {
     auto thumb_rect = GetExpandedAreaRect(ScrollBarAreaKind::Thumb);
     if (thumb_rect)
-      painter->FillRectangle(
-          *thumb_rect,
-          GetBrush(ScrollBarBrushUsageKind::Thumb, helper::ClickState::None)
-              .get()
-              .get());
+      painter->FillRectangle(*thumb_rect,
+                             GetBrush(ScrollBarBrushUsageKind::Thumb,
+                                      ScrollBarBrushStateKind::Normal)
+                                 .get()
+                                 .get());
 
     auto slot_brush =
-        GetBrush(ScrollBarBrushUsageKind::Slot, helper::ClickState::None)
+        GetBrush(ScrollBarBrushUsageKind::Slot, ScrollBarBrushStateKind::Normal)
             .get()
             .get();
 
@@ -261,13 +296,13 @@ void ScrollBar::OnDraw(platform::graphics::IPainter* painter,
     auto down_slot_rect = GetExpandedAreaRect(ScrollBarAreaKind::DownSlot);
     if (down_slot_rect) painter->FillRectangle(*down_slot_rect, slot_brush);
 
-    auto arrow_brush =
-        GetBrush(ScrollBarBrushUsageKind::Arrow, helper::ClickState::None)
-            .get()
-            .get();
+    auto arrow_brush = GetBrush(ScrollBarBrushUsageKind::Arrow,
+                                ScrollBarBrushStateKind::Normal)
+                           .get()
+                           .get();
     auto arrow_background_brush =
         GetBrush(ScrollBarBrushUsageKind::ArrowBackground,
-                 helper::ClickState::None)
+                 ScrollBarBrushStateKind::Normal)
             .get()
             .get();
 

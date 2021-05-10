@@ -145,4 +145,9 @@ gsl::index Utf16PreviousWord(std::u16string_view str, gsl::index position,
                              bool* is_space = nullptr);
 gsl::index Utf16NextWord(std::u16string_view str, gsl::index position,
                          bool* is_space = nullptr);
+
+char16_t ToLower(char16_t c);
+char16_t ToUpper(char16_t c);
+std::u16string ToLower(std::u16string_view s);
+std::u16string ToUpper(std::u16string_view s);
 }  // namespace cru

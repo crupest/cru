@@ -38,6 +38,10 @@ enum class ScrollBarAreaKind {
 };
 
 enum class ScrollBarBrushUsageKind { Arrow, ArrowBackground, Slot, Thumb };
+enum class ScrollBarBrushStateKind { Normal, Hover, Press, Disable };
+
+std::u16string GenerateScrollBarThemeColorKey(ScrollBarBrushUsageKind usage,
+                                              ScrollBarBrushStateKind state);
 
 class ScrollBar : public Object {
  public:
@@ -71,9 +75,9 @@ class ScrollBar : public Object {
   void SetCollapsedThumbBrush(
       std::shared_ptr<platform::graphics::IBrush> brush);
   gsl::not_null<std::shared_ptr<platform::graphics::IBrush>> GetBrush(
-      ScrollBarBrushUsageKind kind, helper::ClickState click_state);
+      ScrollBarBrushUsageKind usage, ScrollBarBrushStateKind state);
   // Brush could be nullptr to use the theme brush.
-  void SetBrush(ScrollBarBrushUsageKind kind, helper::ClickState click_state,
+  void SetBrush(ScrollBarBrushUsageKind usage, ScrollBarBrushStateKind state,
                 std::shared_ptr<platform::graphics::IBrush> brush);
 
  protected:
@@ -124,7 +128,7 @@ class ScrollBar : public Object {
   std::shared_ptr<platform::graphics::IBrush> collapsed_thumb_brush_;
   std::unordered_map<
       ScrollBarBrushUsageKind,
-      std::unordered_map<helper::ClickState,
+      std::unordered_map<ScrollBarBrushStateKind,
                          std::shared_ptr<platform::graphics::IBrush>>>
       brushes_;
 

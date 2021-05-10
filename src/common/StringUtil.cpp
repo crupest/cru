@@ -284,4 +284,30 @@ gsl::index Utf16NextWord(std::u16string_view str, gsl::index position,
     return Utf16ForwardUntil(str, position, IsSpace);
   }
 }
+
+char16_t ToLower(char16_t c) {
+  if (c >= u'A' && c <= u'Z') {
+    return c - u'A' + u'a';
+  }
+  return c;
+}
+
+char16_t ToUpper(char16_t c) {
+  if (c >= u'a' && c <= u'z') {
+    return c - u'a' + u'A';
+  }
+  return c;
+}
+
+std::u16string ToLower(std::u16string_view s) {
+  std::u16string result;
+  for (auto c : s) result.push_back(ToLower(c));
+  return result;
+}
+
+std::u16string ToUpper(std::u16string_view s) {
+  std::u16string result;
+  for (auto c : s) result.push_back(ToUpper(c));
+  return result;
+}
 }  // namespace cru

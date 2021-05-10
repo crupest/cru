@@ -1,12 +1,48 @@
 #include "cru/platform/Color.hpp"
 
 #include <cstdint>
+#include <gsl/gsl>
 #include <optional>
 #include <stdexcept>
+#include <string>
 #include <string_view>
-#include "gsl/gsl_util"
+#include "fmt/core.h"
 
 namespace cru::platform {
+std::string Color::ToUtf8String() const {
+  auto to_hex = [](std::uint8_t v) -> char {
+    return v >= 10 ? v - 10 + 'a' : v + '0';
+  };
+
+  auto to_two_hex_digit = [to_hex](std::uint8_t v) -> std::string {
+    return {to_hex(v /= 16), to_hex(v %= 16)};
+  };
+
+  std::string result = "#";
+  result.append(to_two_hex_digit(alpha));
+  result.append(to_two_hex_digit(red));
+  result.append(to_two_hex_digit(green));
+  result.append(to_two_hex_digit(blue));
+  return result;
+}
+
+std::u16string Color::ToString() const {
+  auto to_hex = [](std::uint8_t v) -> char16_t {
+    return v >= 10 ? v - 10 + u'a' : v + u'0';
+  };
+
+  auto to_two_hex_digit = [to_hex](std::uint8_t v) -> std::u16string {
+    return {to_hex(v /= 16), to_hex(v %= 16)};
+  };
+
+  std::u16string result = u"#";
+  result.append(to_two_hex_digit(alpha));
+  result.append(to_two_hex_digit(red));
+  result.append(to_two_hex_digit(green));
+  result.append(to_two_hex_digit(blue));
+  return result;
+}
+
 std::optional<Color> Color::Parse(std::u16string_view string,
                                   bool parse_predefined_color) {
   if (parse_predefined_color) {

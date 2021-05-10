@@ -30,6 +30,9 @@ struct Color {
     return result;
   }
 
+  std::string ToUtf8String() const;
+  std::u16string ToString() const;
+
   std::uint8_t red;
   std::uint8_t green;
   std::uint8_t blue;
