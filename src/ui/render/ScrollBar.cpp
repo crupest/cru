@@ -27,10 +27,10 @@
 
 namespace cru::ui::render {
 using namespace std::chrono_literals;
-constexpr float kScrollBarCollapseThumbWidth = 2;
-constexpr float kScrollBarCollapsedTriggerExpandAreaWidth = 5;
-constexpr float kScrollBarExpandWidth = 10;
-constexpr float kScrollBarArrowHeight = 3.5;
+constexpr float kScrollBarCollapseThumbWidth = 3;
+constexpr float kScrollBarCollapsedTriggerExpandAreaWidth = 7;
+constexpr float kScrollBarExpandWidth = 14;
+constexpr float kScrollBarArrowHeight = 4;
 constexpr auto kScrollBarAutoCollapseDelay = 1500ms;
 
 constexpr std::array<ScrollBarAreaKind, 5> kScrollBarAreaKindList{
@@ -130,7 +130,10 @@ void ScrollBar::InstallHandlers(controls::Control* control) {
                     ExpandedHitTest(event.GetPoint(render_object_));
                 if (!hit_test_result) return false;
 
-                mouse_press_ = hit_test_result;
+                if (mouse_press_ != hit_test_result) {
+                  mouse_press_ = hit_test_result;
+                  render_object_->InvalidatePaint();
+                }
 
                 switch (*hit_test_result) {
                   case ScrollBarAreaKind::UpArrow:
@@ -175,7 +178,11 @@ void ScrollBar::InstallHandlers(controls::Control* control) {
     event_guard_ +=
         control->MouseUpEvent()->Bubble()->PrependShortCircuitHandler(
             [control, this](event::MouseButtonEventArgs& event) {
-              mouse_press_ = std::nullopt;
+              if (mouse_press_ != std::nullopt) {
+                mouse_press_ = std::nullopt;
+                render_object_->InvalidatePaint();
+              }
+
               if (event.GetButton() == mouse_buttons::left &&
                   move_thumb_start_) {
                 move_thumb_start_ = std::nullopt;
@@ -212,7 +219,10 @@ void ScrollBar::InstallHandlers(controls::Control* control) {
                 if (IsExpanded()) {
                   auto hit_test_result =
                       ExpandedHitTest(event.GetPoint(this->render_object_));
-                  mouse_hover_ = hit_test_result;
+                  if (mouse_hover_ != hit_test_result) {
+                    mouse_hover_ = hit_test_result;
+                    render_object_->InvalidatePaint();
+                  }
                   if (hit_test_result) {
                     SetCursor();
                     StopAutoCollapseTimer();
@@ -240,6 +250,10 @@ void ScrollBar::InstallHandlers(controls::Control* control) {
         control->MouseLeaveEvent()->Bubble()->PrependShortCircuitHandler(
             [this](event::MouseEventArgs&) {
               if (IsExpanded() && !move_thumb_start_) {
+                if (mouse_hover_ != std::nullopt) {
+                  mouse_hover_ = std::nullopt;
+                  render_object_->InvalidatePaint();
+                }
                 OnMouseLeave();
               }
               return false;
@@ -685,7 +699,7 @@ float VerticalScrollBar::CalculateNewScrollPosition(
       std::clamp(new_thumb_start, scroll_area_start, thumb_head_end);
 
   auto offset = (new_thumb_start - scroll_area_start) /
-                (scroll_area_end - scroll_area_start) * child_size.width;
+                (scroll_area_end - scroll_area_start) * child_size.height;
 
   return offset;
 }
