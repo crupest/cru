@@ -5,6 +5,7 @@ add_library(cru_ui STATIC
 	host/RoutedEventDispatch.hpp
 
 	Helper.cpp
+	ThemeManager.cpp
 	UiManager.cpp
 	components/Component.cpp
 	components/Menu.cpp
@@ -45,6 +46,7 @@ add_library(cru_ui STATIC
 target_sources(cru_ui PUBLIC
 	${CRU_UI_INCLUDE_DIR}/Base.hpp
 	${CRU_UI_INCLUDE_DIR}/DebugFlags.hpp
+	${CRU_UI_INCLUDE_DIR}/ThemeManager.hpp
 	${CRU_UI_INCLUDE_DIR}/UiManager.hpp
 	${CRU_UI_INCLUDE_DIR}/components/Component.hpp
 	${CRU_UI_INCLUDE_DIR}/components/Menu.hpp

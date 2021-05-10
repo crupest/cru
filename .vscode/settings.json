@@ -88,6 +88,5 @@
     "unordered_set": "cpp",
     "variant": "cpp"
   },
-  "cmake.generator": "Ninja",
-  "cmake.configureOnOpen": true,
+  "cmake.generator": "Ninja"
 }

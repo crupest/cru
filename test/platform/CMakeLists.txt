@@ -1,4 +1,5 @@
 add_executable(cru_platform_base_test
+	ColorTest.cpp
 	MatrixTest.cpp
 )
 target_link_libraries(cru_platform_base_test PRIVATE cru_platform_base cru_test_base)
