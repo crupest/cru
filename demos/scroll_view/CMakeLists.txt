@@ -1,0 +1,2 @@
+add_executable(demo_scroll_view main.cpp)
+target_link_libraries(demo_scroll_view PRIVATE cru_demo_base cru_ui)
