@@ -122,7 +122,7 @@ void ScrollBar::InstallHandlers(controls::Control* control) {
   event_guard_.Clear();
   if (control != nullptr) {
     event_guard_ +=
-        control->MouseDownEvent()->Bubble()->PrependShortCircuitHandler(
+        control->MouseDownEvent()->Tunnel()->PrependShortCircuitHandler(
             [control, this](event::MouseButtonEventArgs& event) {
               if (event.GetButton() == mouse_buttons::left && IsEnabled() &&
                   IsExpanded()) {
@@ -176,7 +176,7 @@ void ScrollBar::InstallHandlers(controls::Control* control) {
             });
 
     event_guard_ +=
-        control->MouseUpEvent()->Bubble()->PrependShortCircuitHandler(
+        control->MouseUpEvent()->Tunnel()->PrependShortCircuitHandler(
             [control, this](event::MouseButtonEventArgs& event) {
               if (mouse_press_ != std::nullopt) {
                 mouse_press_ = std::nullopt;
@@ -201,7 +201,7 @@ void ScrollBar::InstallHandlers(controls::Control* control) {
             });
 
     event_guard_ +=
-        control->MouseMoveEvent()->Bubble()->PrependShortCircuitHandler(
+        control->MouseMoveEvent()->Tunnel()->PrependShortCircuitHandler(
             [this](event::MouseEventArgs& event) {
               if (move_thumb_start_) {
                 auto new_scroll_position = CalculateNewScrollPosition(
@@ -247,7 +247,7 @@ void ScrollBar::InstallHandlers(controls::Control* control) {
             });
 
     event_guard_ +=
-        control->MouseLeaveEvent()->Bubble()->PrependShortCircuitHandler(
+        control->MouseLeaveEvent()->Tunnel()->PrependShortCircuitHandler(
             [this](event::MouseEventArgs&) {
               if (IsExpanded() && !move_thumb_start_) {
                 if (mouse_hover_ != std::nullopt) {
@@ -556,13 +556,11 @@ float HorizontalScrollBar::CalculateNewScrollPosition(
 }
 
 bool HorizontalScrollBar::CanScrollUp() {
-  return render_object_->GetScrollOffset().x > 0.0;
+  return render_object_->HorizontalCanScrollUp();
 }
 
 bool HorizontalScrollBar::CanScrollDown() {
-  return render_object_->GetScrollOffset().x <
-         render_object_->GetFirstChild()->GetSize().width -
-             render_object_->GetViewRect().width;
+  return render_object_->HorizontalCanScrollDown();
 }
 
 VerticalScrollBar::VerticalScrollBar(
@@ -705,13 +703,11 @@ float VerticalScrollBar::CalculateNewScrollPosition(
 }
 
 bool VerticalScrollBar::CanScrollUp() {
-  return render_object_->GetScrollOffset().y > 0.0;
+  return render_object_->VerticalCanScrollUp();
 }
 
 bool VerticalScrollBar::CanScrollDown() {
-  return render_object_->GetScrollOffset().y <
-         render_object_->GetFirstChild()->GetSize().height -
-             render_object_->GetViewRect().height;
+  return render_object_->VerticalCanScrollDown();
 }
 
 ScrollBarDelegate::ScrollBarDelegate(

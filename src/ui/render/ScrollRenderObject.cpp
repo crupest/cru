@@ -41,10 +41,10 @@ Point CoerceScroll(const Point& scroll_offset, const Size& content_size,
 ScrollRenderObject::ScrollRenderObject() : RenderObject(ChildMode::Single) {
   scroll_bar_delegate_ = std::make_unique<ScrollBarDelegate>(this);
   scroll_bar_delegate_->ScrollAttemptEvent()->AddHandler(
-      [this](const struct Scroll& scroll) { this->Scroll(scroll); });
+      [this](const struct Scroll& scroll) { this->ApplyScroll(scroll); });
 }
 
-void ScrollRenderObject::Scroll(const struct Scroll& scroll) {
+void ScrollRenderObject::ApplyScroll(const struct Scroll& scroll) {
   auto direction = scroll.direction;
 
   switch (scroll.kind) {
@@ -151,6 +151,17 @@ void ScrollRenderObject::ScrollToContain(const Rect& rect,
   SetScrollOffset(new_scroll_x, new_scroll_y);
 }
 
+void ScrollRenderObject::SetMouseWheelScrollEnabled(bool enable) {
+  if (enable == is_mouse_wheel_enabled_) return;
+  if (const auto control = GetAttachedControl()) {
+    if (enable) {
+      InstallMouseWheelHandler(control);
+    } else {
+      InstallMouseWheelHandler(nullptr);
+    }
+  }
+}
+
 Size ScrollRenderObject::OnMeasureContent(const MeasureRequirement& requirement,
                                           const MeasureSize& preferred_size) {
   if (const auto child = GetSingleChild()) {
@@ -186,8 +197,63 @@ void ScrollRenderObject::OnLayoutContent(const Rect& content_rect) {
 void ScrollRenderObject::OnAttachedControlChanged(controls::Control* control) {
   if (control) {
     scroll_bar_delegate_->InstallHandlers(control);
+    if (is_mouse_wheel_enabled_) {
+      InstallMouseWheelHandler(control);
+    }
   } else {
+    InstallMouseWheelHandler(nullptr);
     scroll_bar_delegate_->UninstallHandlers();
   }
+}
+
+void ScrollRenderObject::InstallMouseWheelHandler(controls::Control* control) {
+  guard_.Clear();
+
+  if (control != nullptr) {
+    guard_ += control->MouseWheelEvent()->Bubble()->PrependShortCircuitHandler(
+        [this](event::MouseWheelEventArgs& args) {
+          const auto delta = args.GetDelta();
+          if (delta > 0) {
+            if (VerticalCanScrollDown()) {
+              ApplyScroll(
+                  Scroll{Direction::Vertical, ScrollKind::Relative, delta});
+              return true;
+            } else if (HorizontalCanScrollDown()) {
+              ApplyScroll(
+                  Scroll{Direction::Horizontal, ScrollKind::Relative, delta});
+              return true;
+            }
+          } else if (delta < 0) {
+            if (VerticalCanScrollUp()) {
+              ApplyScroll(
+                  Scroll{Direction::Vertical, ScrollKind::Relative, delta});
+              return true;
+            } else if (HorizontalCanScrollUp()) {
+              ApplyScroll(
+                  Scroll{Direction::Horizontal, ScrollKind::Relative, delta});
+              return true;
+            }
+          }
+          return false;
+        });
+  }
+}
+
+bool ScrollRenderObject::HorizontalCanScrollUp() {
+  return GetScrollOffset().x > 0.0;
+}
+
+bool ScrollRenderObject::HorizontalCanScrollDown() {
+  return GetScrollOffset().x <
+         GetFirstChild()->GetSize().width - GetViewRect().width;
+}
+
+bool ScrollRenderObject::VerticalCanScrollUp() {
+  return GetScrollOffset().y > 0.0;
+}
+
+bool ScrollRenderObject::VerticalCanScrollDown() {
+  return GetScrollOffset().y <
+         GetFirstChild()->GetSize().height - GetViewRect().height;
 }
 }  // namespace cru::ui::render

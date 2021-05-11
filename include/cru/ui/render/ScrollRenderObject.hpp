@@ -1,6 +1,7 @@
 #pragma once
 #include "RenderObject.hpp"
 
+#include "cru/common/Event.hpp"
 #include "cru/platform/graphics/util/Painter.hpp"
 #include "cru/ui/Base.hpp"
 #include "cru/ui/render/ScrollBar.hpp"
@@ -44,7 +45,7 @@ class ScrollRenderObject : public RenderObject {
     }
   }
 
-  void Scroll(const Scroll& scroll);
+  void ApplyScroll(const Scroll& scroll);
 
   Point GetRawScrollOffset() const { return scroll_offset_; }
 
@@ -62,6 +63,14 @@ class ScrollRenderObject : public RenderObject {
 
   std::u16string_view GetName() const override { return u"ScrollRenderObject"; }
 
+  bool IsMouseWheelScrollEnabled() const { return is_mouse_wheel_enabled_; }
+  void SetMouseWheelScrollEnabled(bool enable);
+
+  bool HorizontalCanScrollUp();
+  bool HorizontalCanScrollDown();
+  bool VerticalCanScrollUp();
+  bool VerticalCanScrollDown();
+
  protected:
   void OnDrawCore(platform::graphics::IPainter* painter) override;
 
@@ -75,9 +84,15 @@ class ScrollRenderObject : public RenderObject {
 
   void OnAttachedControlChanged(controls::Control* control) override;
 
+  void InstallMouseWheelHandler(controls::Control* control);
+
  private:
   Point scroll_offset_;
 
   std::unique_ptr<ScrollBarDelegate> scroll_bar_delegate_;
+
+  bool is_mouse_wheel_enabled_ = true;
+
+  EventRevokerListGuard guard_;
 };
 }  // namespace cru::ui::render
