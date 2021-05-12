@@ -14,6 +14,7 @@
 #include "cru/ui/UiManager.hpp"
 #include "cru/ui/events/UiEvent.hpp"
 #include "cru/ui/helper/ClickDetector.hpp"
+#include "cru/ui/host/WindowHost.hpp"
 #include "cru/ui/render/ScrollRenderObject.hpp"
 
 #include <algorithm>
@@ -348,22 +349,24 @@ void ScrollBar::OnDraw(platform::graphics::IPainter* painter,
 }
 
 void ScrollBar::SetCursor() {
-  if (!old_cursor_) {
-    if (const auto control = render_object_->GetAttachedControl()) {
-      old_cursor_ = control->GetCursor();
-      control->SetCursor(
+  if (const auto control = render_object_->GetAttachedControl()) {
+    if (const auto window_host = control->GetWindowHost()) {
+      window_host->SetOverrideCursor(
           GetUiApplication()->GetCursorManager()->GetSystemCursor(
               platform::gui::SystemCursorType::Arrow));
+      cursor_overrided_ = true;
     }
   }
 }
 
 void ScrollBar::RestoreCursor() {
-  if (old_cursor_) {
+  if (cursor_overrided_) {
     if (const auto control = render_object_->GetAttachedControl()) {
-      control->SetCursor(*old_cursor_);
+      if (const auto window_host = control->GetWindowHost()) {
+        window_host->SetOverrideCursor(nullptr);
+      }
     }
-    old_cursor_ = std::nullopt;
+    cursor_overrided_ = false;
   }
 }
 

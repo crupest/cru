@@ -422,9 +422,13 @@ void WindowHost::DispatchMouseHoverControlChangeEvent(
 
 void WindowHost::UpdateCursor() {
   if (native_window_) {
-    const auto capture = GetMouseCaptureControl();
-    native_window_->SetCursor(
-        (capture ? capture : GetMouseHoverControl())->GetInheritedCursor());
+    if (override_cursor_) {
+      native_window_->SetCursor(override_cursor_);
+    } else {
+      const auto capture = GetMouseCaptureControl();
+      native_window_->SetCursor(
+          (capture ? capture : GetMouseHoverControl())->GetInheritedCursor());
+    }
   }
 }
 
@@ -436,5 +440,16 @@ controls::Control* WindowHost::HitTest(const Point& point) {
     return control;
   }
   return root_control_;
+}
+
+std::shared_ptr<platform::gui::ICursor> WindowHost::GetOverrideCursor() {
+  return override_cursor_;
+}
+
+void WindowHost::SetOverrideCursor(
+    std::shared_ptr<platform::gui::ICursor> cursor) {
+  if (cursor == override_cursor_) return;
+  override_cursor_ = cursor;
+  UpdateCursor();
 }
 }  // namespace cru::ui::host

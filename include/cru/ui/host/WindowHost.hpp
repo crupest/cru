@@ -3,6 +3,7 @@
 
 #include "../render/Base.hpp"
 #include "cru/common/Event.hpp"
+#include "cru/platform/gui/Cursor.hpp"
 #include "cru/platform/gui/UiApplication.hpp"
 #include "cru/platform/gui/Window.hpp"
 
@@ -118,6 +119,9 @@ class WindowHost : public Object {
 
   void SetWindowRect(const Rect& rect);
 
+  std::shared_ptr<platform::gui::ICursor> GetOverrideCursor();
+  void SetOverrideCursor(std::shared_ptr<platform::gui::ICursor> cursor);
+
  private:
   //*************** region: native messages ***************
   void OnNativeDestroy(platform::gui::INativeWindow* window, std::nullptr_t);
@@ -172,5 +176,7 @@ class WindowHost : public Object {
   Event<platform::gui::INativeWindow*> native_window_change_event_;
 
   std::optional<Rect> saved_rect_;
+
+  std::shared_ptr<platform::gui::ICursor> override_cursor_;
 };
 }  // namespace cru::ui::host

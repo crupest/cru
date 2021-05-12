@@ -147,7 +147,7 @@ class ScrollBar : public Object {
 
   Event<Scroll> scroll_attempt_event_;
 
-  std::optional<std::shared_ptr<platform::gui::ICursor>> old_cursor_;
+  bool cursor_overrided_ = false;
 
   platform::gui::TimerAutoCanceler auto_collapse_timer_canceler_;
 };
