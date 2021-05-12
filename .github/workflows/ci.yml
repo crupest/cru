@@ -32,7 +32,7 @@ jobs:
       - name: Restore Cache
         uses: actions/cache@v2
         with:
-          path: vcpkg_installed
+          path: ~/AppData/Local/vcpkg/archives
           key: vcpkg-${{ runner.os }}
 
       - name: Run build script
