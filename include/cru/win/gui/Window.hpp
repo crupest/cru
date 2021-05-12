@@ -59,14 +59,16 @@ class WinNativeWindow : public WinNativeResource, public virtual INativeWindow {
     return &mouse_enter_leave_event_;
   }
   IEvent<Point>* MouseMoveEvent() override { return &mouse_move_event_; }
-  IEvent<platform::gui::NativeMouseButtonEventArgs>* MouseDownEvent()
-      override {
+  IEvent<platform::gui::NativeMouseButtonEventArgs>* MouseDownEvent() override {
     return &mouse_down_event_;
   }
-  IEvent<platform::gui::NativeMouseButtonEventArgs>* MouseUpEvent()
-      override {
+  IEvent<platform::gui::NativeMouseButtonEventArgs>* MouseUpEvent() override {
     return &mouse_up_event_;
   }
+  IEvent<NativeMouseWheelEventArgs>* MouseWheelEvent() override {
+    return &mouse_wheel_event_;
+  }
+
   IEvent<platform::gui::NativeKeyEventArgs>* KeyDownEvent() override {
     return &key_down_event_;
   }
@@ -170,6 +172,7 @@ class WinNativeWindow : public WinNativeResource, public virtual INativeWindow {
   Event<Point> mouse_move_event_;
   Event<platform::gui::NativeMouseButtonEventArgs> mouse_down_event_;
   Event<platform::gui::NativeMouseButtonEventArgs> mouse_up_event_;
+  Event<platform::gui::NativeMouseWheelEventArgs> mouse_wheel_event_;
   Event<platform::gui::NativeKeyEventArgs> key_down_event_;
   Event<platform::gui::NativeKeyEventArgs> key_up_event_;
 

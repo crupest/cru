@@ -31,6 +31,13 @@ struct NativeMouseButtonEventArgs {
   KeyModifier modifier;
 };
 
+struct NativeMouseWheelEventArgs {
+  // Positive means down. Negative means up. 
+  float delta;
+  Point point;
+  KeyModifier modifier;
+};
+
 struct NativeKeyEventArgs {
   KeyCode key;
   KeyModifier modifier;

@@ -49,6 +49,7 @@ struct INativeWindow : virtual INativeResource {
   virtual IEvent<Point>* MouseMoveEvent() = 0;
   virtual IEvent<NativeMouseButtonEventArgs>* MouseDownEvent() = 0;
   virtual IEvent<NativeMouseButtonEventArgs>* MouseUpEvent() = 0;
+  virtual IEvent<NativeMouseWheelEventArgs>* MouseWheelEvent() = 0;
   virtual IEvent<NativeKeyEventArgs>* KeyDownEvent() = 0;
   virtual IEvent<NativeKeyEventArgs>* KeyUpEvent() = 0;
 

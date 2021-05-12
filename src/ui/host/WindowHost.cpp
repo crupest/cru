@@ -36,6 +36,7 @@ CRU_DEFINE_EVENT_NAME(MouseLeave)
 CRU_DEFINE_EVENT_NAME(MouseMove)
 CRU_DEFINE_EVENT_NAME(MouseDown)
 CRU_DEFINE_EVENT_NAME(MouseUp)
+CRU_DEFINE_EVENT_NAME(MouseWheel)
 CRU_DEFINE_EVENT_NAME(KeyDown)
 CRU_DEFINE_EVENT_NAME(KeyUp)
 
@@ -145,6 +146,8 @@ gsl::not_null<platform::gui::INativeWindow*> WindowHost::CreateNativeWindow(
                   &WindowHost::OnNativeMouseDown, event_revoker_guards_);
   BindNativeEvent(this, native_window, native_window->MouseUpEvent(),
                   &WindowHost::OnNativeMouseUp, event_revoker_guards_);
+  BindNativeEvent(this, native_window, native_window->MouseWheelEvent(),
+                  &WindowHost::OnNativeMouseWheel, event_revoker_guards_);
   BindNativeEvent(this, native_window, native_window->KeyDownEvent(),
                   &WindowHost::OnNativeKeyDown, event_revoker_guards_);
   BindNativeEvent(this, native_window, native_window->KeyUpEvent(),
@@ -381,6 +384,18 @@ void WindowHost::OnNativeMouseUp(
       mouse_captured_control_ ? mouse_captured_control_ : HitTest(args.point);
   DispatchEvent(event_names::MouseUp, control, &controls::Control::MouseUpEvent,
                 nullptr, args.point, args.button, args.modifier);
+}
+
+void WindowHost::OnNativeMouseWheel(
+    platform::gui::INativeWindow* window,
+    const platform::gui::NativeMouseWheelEventArgs& args) {
+  CRU_UNUSED(window)
+
+  controls::Control* control =
+      mouse_captured_control_ ? mouse_captured_control_ : HitTest(args.point);
+  DispatchEvent(event_names::MouseWheel, control,
+                &controls::Control::MouseWheelEvent, nullptr, args.point,
+                args.delta, args.modifier);
 }
 
 void WindowHost::OnNativeKeyDown(

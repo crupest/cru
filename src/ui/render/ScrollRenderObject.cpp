@@ -212,7 +212,10 @@ void ScrollRenderObject::InstallMouseWheelHandler(controls::Control* control) {
   if (control != nullptr) {
     guard_ += control->MouseWheelEvent()->Bubble()->PrependShortCircuitHandler(
         [this](event::MouseWheelEventArgs& args) {
-          const auto delta = args.GetDelta();
+          auto delta = args.GetDelta();
+
+          delta *= 24;
+
           if (delta > 0) {
             if (VerticalCanScrollDown()) {
               ApplyScroll(

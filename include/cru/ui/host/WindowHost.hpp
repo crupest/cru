@@ -139,6 +139,8 @@ class WindowHost : public Object {
                          const platform::gui::NativeMouseButtonEventArgs& args);
   void OnNativeMouseUp(platform::gui::INativeWindow* window,
                        const platform::gui::NativeMouseButtonEventArgs& args);
+  void OnNativeMouseWheel(platform::gui::INativeWindow* window,
+                          const platform::gui::NativeMouseWheelEventArgs& args);
 
   void OnNativeKeyDown(platform::gui::INativeWindow* window,
                        const platform::gui::NativeKeyEventArgs& args);

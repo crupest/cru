@@ -438,8 +438,9 @@ void WinNativeWindow::OnMouseUpInternal(platform::gui::MouseButton button,
 }
 
 void WinNativeWindow::OnMouseWheelInternal(short delta, POINT point) {
-  CRU_UNUSED(delta)
-  CRU_UNUSED(point)
+  const auto dip_point = PixelToDip(point);
+  const float d = -((float)delta / 120.f);
+  mouse_wheel_event_.Raise({d, dip_point, RetrieveKeyMofifier()});
 }
 
 void WinNativeWindow::OnKeyDownInternal(int virtual_code) {
