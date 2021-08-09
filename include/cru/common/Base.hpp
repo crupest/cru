@@ -1,9 +1,19 @@
 #pragma once
 #include "PreConfig.hpp"
 
-#include <exception>
+#ifdef CRU_PLATFORM_WINDOWS
+#ifdef CRU_BASE_EXPORT_API
+#define CRU_BASE_API __declspec(dllexport)
+#else
+#define CRU_BASE_API __declspec(dllimport)
+#endif
+#else
+#define CRU_BASE_API
+#endif
+
 #include <gsl/gsl>
 #include <stdexcept>
+#include <string>
 
 #define CRU_UNUSED(entity) static_cast<void>(entity);
 
@@ -27,7 +37,7 @@
   classname& operator=(classname&&) = delete;
 
 namespace cru {
-class Object {
+class CRU_BASE_API Object {
  public:
   Object() = default;
   CRU_DEFAULT_COPY(Object)
@@ -35,7 +45,7 @@ class Object {
   virtual ~Object() = default;
 };
 
-struct Interface {
+struct CRU_BASE_API Interface {
   Interface() = default;
   CRU_DELETE_COPY(Interface)
   CRU_DELETE_MOVE(Interface)
@@ -56,4 +66,21 @@ inline void hash_combine(std::size_t& s, const T& v) {
 #define CRU_DEFINE_CLASS_LOG_TAG(tag) \
  private:                             \
   constexpr static std::u16string_view log_tag = tag;
+
+class CRU_BASE_API Exception {
+ public:
+  Exception() = default;
+  Exception(std::u16string message) : message_(std::move(message)) {}
+
+  CRU_DEFAULT_COPY(Exception)
+  CRU_DEFAULT_MOVE(Exception)
+
+  virtual ~Exception() = default;
+
+ public:
+  std::u16string GetMessage() const { return message_; }
+
+ private:
+  std::u16string message_;
+};
 }  // namespace cru

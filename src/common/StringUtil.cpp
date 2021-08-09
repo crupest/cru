@@ -23,13 +23,13 @@ CodePoint Utf8NextCodePoint(std::string_view str, Index current,
     auto read_next_folowing_code = [&str, &current]() -> CodePoint {
       if (current == static_cast<Index>(str.length()))
         throw TextEncodeException(
-            "Unexpected end when read continuing byte of multi-byte code "
+            u"Unexpected end when read continuing byte of multi-byte code "
             "point.");
 
       const auto u = static_cast<std::uint8_t>(str[current]);
       if (!(u & (1u << 7)) || (u & (1u << 6))) {
         throw TextEncodeException(
-            "Unexpected bad-format (not 0b10xxxxxx) continuing byte of "
+            u"Unexpected bad-format (not 0b10xxxxxx) continuing byte of "
             "multi-byte code point.");
       }
 
@@ -42,7 +42,7 @@ CodePoint Utf8NextCodePoint(std::string_view str, Index current,
           if ((1u << 4) & cu0) {  // 4-length code point
             if (cu0 & (1u << 3)) {
               throw TextEncodeException(
-                  "Unexpected bad-format begin byte (not 0b11110xxx) of 4-byte"
+                  u"Unexpected bad-format begin byte (not 0b11110xxx) of 4-byte"
                   "code point.");
             }
 
@@ -67,7 +67,7 @@ CodePoint Utf8NextCodePoint(std::string_view str, Index current,
         }
       } else {
         throw TextEncodeException(
-            "Unexpected bad-format (0b10xxxxxx) begin byte of a code point.");
+            u"Unexpected bad-format (0b10xxxxxx) begin byte of a code point.");
       }
     } else {
       result = static_cast<CodePoint>(cu0);
@@ -92,13 +92,13 @@ CodePoint Utf16NextCodePoint(std::u16string_view str, Index current,
     } else if (IsUtf16SurrogatePairLeading(cu0)) {  // 2-length code point
       if (current >= static_cast<Index>(str.length())) {
         throw TextEncodeException(
-            "Unexpected end when reading second code unit of surrogate pair.");
+            u"Unexpected end when reading second code unit of surrogate pair.");
       }
       const auto cu1 = str[current++];
 
       if (!IsUtf16SurrogatePairTrailing(cu1)) {
         throw TextEncodeException(
-            "Unexpected bad-range second code unit of surrogate pair.");
+            u"Unexpected bad-range second code unit of surrogate pair.");
       }
 
       const auto s0 = ExtractBits<std::uint16_t, 10, CodePoint>(cu0) << 10;
@@ -108,7 +108,7 @@ CodePoint Utf16NextCodePoint(std::u16string_view str, Index current,
 
     } else {
       throw TextEncodeException(
-          "Unexpected bad-range first code unit of surrogate pair.");
+          u"Unexpected bad-range first code unit of surrogate pair.");
     }
   }
 
@@ -129,13 +129,13 @@ CodePoint Utf16PreviousCodePoint(std::u16string_view str, Index current,
     } else if (IsUtf16SurrogatePairTrailing(cu0)) {  // 2-length code point
       if (current <= 0) {
         throw TextEncodeException(
-            "Unexpected end when reading first code unit of surrogate pair.");
+            u"Unexpected end when reading first code unit of surrogate pair.");
       }
       const auto cu1 = str[--current];
 
       if (!IsUtf16SurrogatePairLeading(cu1)) {
         throw TextEncodeException(
-            "Unexpected bad-range first code unit of surrogate pair.");
+            u"Unexpected bad-range first code unit of surrogate pair.");
       }
 
       const auto s0 = ExtractBits<std::uint16_t, 10, CodePoint>(cu1) << 10;
@@ -145,13 +145,16 @@ CodePoint Utf16PreviousCodePoint(std::u16string_view str, Index current,
 
     } else {
       throw TextEncodeException(
-          "Unexpected bad-range second code unit of surrogate pair.");
+          u"Unexpected bad-range second code unit of surrogate pair.");
     }
   }
 
   if (previous_position != nullptr) *previous_position = current;
   return result;
 }
+
+template class CodePointIterator<std::string_view, &Utf8NextCodePoint>;
+template class CodePointIterator<std::u16string_view, &Utf16NextCodePoint>;
 
 void Utf8EncodeCodePointAppend(CodePoint code_point, std::string& str) {
   auto write_continue_byte = [&str](std::uint8_t byte6) {
@@ -188,7 +191,7 @@ void Utf8EncodeCodePointAppend(CodePoint code_point, std::string& str) {
     write_continue_byte(
         ExtractBits<std::uint32_t, 6, std::uint8_t>(unsigned_code_point));
   } else {
-    throw TextEncodeException("Code point out of range.");
+    throw TextEncodeException(u"Code point out of range.");
   }
 }
 
@@ -203,7 +206,7 @@ void Utf16EncodeCodePointAppend(CodePoint code_point, std::u16string& str) {
     str.push_back(static_cast<char16_t>(
         ExtractBits<std::uint32_t, 10, std::uint32_t>(u) + 0xDC00u));
   } else {
-    throw TextEncodeException("Code point out of range.");
+    throw TextEncodeException(u"Code point out of range.");
   }
 }
 

@@ -10,13 +10,13 @@ namespace cru::log {
 
 enum class LogLevel { Debug, Info, Warn, Error };
 
-struct ILogSource : virtual Interface {
+struct CRU_BASE_API ILogSource : virtual Interface {
   // Write the string s. LogLevel is just a helper. It has no effect on the
   // content to write.
   virtual void Write(LogLevel level, const std::u16string& s) = 0;
 };
 
-class Logger : public Object {
+class CRU_BASE_API Logger : public Object {
  public:
   static Logger* GetInstance();
 
@@ -36,7 +36,7 @@ class Logger : public Object {
   void Log(LogLevel level, std::u16string_view s);
   void Log(LogLevel level, std::u16string_view tag, std::u16string_view s);
 
- public:
+ private:
   std::list<std::unique_ptr<ILogSource>> sources_;
 };
 
