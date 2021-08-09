@@ -34,7 +34,7 @@ jobs:
       - name: Run build script
         shell: pwsh
         run: |
-          & ./tools/Use-VC.ps1
+          . ./tools/Use-VC.ps1
           Use-VC
           mkdir build && cd build
           cmake .. -G Ninja -DCMAKE_BUILD_TYPE:STRING=Debug
