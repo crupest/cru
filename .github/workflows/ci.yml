@@ -21,10 +21,6 @@ jobs:
   build:
     name: Build
     runs-on: windows-latest
-    strategy:
-      matrix:
-        buildConfiguration: [Debug, Release]
-        architecture: [x86, x64]
 
     steps:
       - uses: actions/checkout@v2
@@ -36,4 +32,10 @@ jobs:
           key: vcpkg-${{ runner.os }}
 
       - name: Run build script
-        run: python tools\win_build.py -a ${{ matrix.architecture }} -c ${{ matrix.buildConfiguration }}
+        shell: powershell
+        run: |
+          & ./tools/Use-VC.ps1
+          Use-VC
+          mkdir build && cd build
+          cmake .. -G Ninja -DCMAKE_BUILD_TYPE:STRING=Debug
+          ninja all
