@@ -14,9 +14,6 @@ on:
       - "drafts/**"
       - "**/README.md"
 
-env:
-  VCPKG_FEATURE_FLAGS: manifests
-
 jobs:
   build:
     name: Build
