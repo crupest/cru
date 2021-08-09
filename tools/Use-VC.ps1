@@ -12,9 +12,7 @@ function Use-VC {
         $p = 'amd64'
     }
 
-    $vs = $(vswhere.exe -format value -property installationPath)
-
-    cmd /c "$vs\VC\Auxiliary\Build\vcvars64.bat $p & set" |
+    cmd /c "$(vswhere.exe -format value -property installationPath)\VC\Auxiliary\Build\vcvars64.bat $p & set" |
     ForEach-Object {
         if ($_ -match '=') {
             $v = $_ -split '='
