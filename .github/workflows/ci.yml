@@ -32,7 +32,7 @@ jobs:
           key: vcpkg-${{ runner.os }}
 
       - name: Run build script
-        shell: powershell
+        shell: pwsh
         run: |
           & ./tools/Use-VC.ps1
           Use-VC
