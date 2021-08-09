@@ -118,11 +118,6 @@ class CodePointIterator {
   mutable Index next_position_cache_;
 };
 
-extern template CRU_BASE_API class CodePointIterator<std::string_view,
-                                                     &Utf8NextCodePoint>;
-extern template CRU_BASE_API class CodePointIterator<std::u16string_view,
-                                                     &Utf16NextCodePoint>;
-
 using Utf8CodePointIterator =
     CodePointIterator<std::string_view, &Utf8NextCodePoint>;
 

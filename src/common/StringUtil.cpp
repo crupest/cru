@@ -153,9 +153,6 @@ CodePoint Utf16PreviousCodePoint(std::u16string_view str, Index current,
   return result;
 }
 
-template class CodePointIterator<std::string_view, &Utf8NextCodePoint>;
-template class CodePointIterator<std::u16string_view, &Utf16NextCodePoint>;
-
 void Utf8EncodeCodePointAppend(CodePoint code_point, std::string& str) {
   auto write_continue_byte = [&str](std::uint8_t byte6) {
     str.push_back((1u << 7) + (((1u << 6) - 1) & byte6));
