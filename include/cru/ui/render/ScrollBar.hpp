@@ -7,10 +7,12 @@
 #include "cru/platform/graphics/Geometry.hpp"
 #include "cru/platform/graphics/Painter.hpp"
 #include "cru/platform/gui/Cursor.hpp"
+#include "cru/platform/gui/TimerHelper.hpp"
 #include "cru/platform/gui/UiApplication.hpp"
 #include "cru/ui/Base.hpp"
 #include "cru/ui/controls/Control.hpp"
 #include "cru/ui/helper/ClickDetector.hpp"
+
 
 #include <gsl/pointers>
 #include <memory>

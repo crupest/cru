@@ -8,9 +8,9 @@
 namespace cru::platform::graphics::win::direct {
 class DirectGraphFactory;
 
-class DirectResource : public Object, public virtual INativeResource {
+class DirectResource : public Object, public virtual IPlatformResource {
  public:
-  static constexpr std::u16string_view k_platform_id = u"Windows Direct";
+  static String kPlatformId;
 
  protected:
   DirectResource() = default;
@@ -22,7 +22,7 @@ class DirectResource : public Object, public virtual INativeResource {
   ~DirectResource() override = default;
 
  public:
-  std::u16string_view GetPlatformId() const final { return k_platform_id; }
+  String GetPlatformId() const final { return kPlatformId; }
 };
 
 class DirectGraphResource : public DirectResource,

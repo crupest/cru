@@ -1,3 +1,4 @@
+#include "cru/platform/bootstrap/Bootstrap.hpp"
 #include "cru/platform/graphics/Factory.hpp"
 #include "cru/platform/graphics/Font.hpp"
 #include "cru/platform/graphics/Painter.hpp"
@@ -10,7 +11,7 @@ int main() {
   using namespace cru::platform::graphics;
   using namespace cru::platform::gui;
 
-  auto application = CreateUiApplication();
+  IUiApplication* application = boostrap::CreateUiApplication();
 
   auto graph_factory = application->GetGraphFactory();
 

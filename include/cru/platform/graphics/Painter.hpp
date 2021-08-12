@@ -3,7 +3,7 @@
 
 namespace cru::platform::graphics {
 
-struct IPainter : virtual INativeResource {
+struct IPainter : virtual IPlatformResource {
   virtual Matrix GetTransform() = 0;
   virtual void SetTransform(const Matrix& matrix) = 0;
 

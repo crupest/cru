@@ -2,9 +2,11 @@
 #include "Base.hpp"
 
 #include "cru/platform/gui/InputMethod.hpp"
+#include "cru/platform/gui/TimerHelper.hpp"
 #include "cru/platform/gui/UiApplication.hpp"
 #include "cru/ui/controls/Control.hpp"
 #include "cru/ui/helper/ShortcutHub.hpp"
+
 
 #include <functional>
 #include <string>

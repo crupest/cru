@@ -1,8 +1,14 @@
 #include "cru/common/String.hpp"
+#include "cru/common/StringUtil.hpp"
 
 #include <cstring>
+#include <string_view>
 
 namespace cru {
+String String::FromUtf8(const char* str, Index size) {
+  return String{cru::ToUtf16(std::string_view(str, size))};
+}
+
 std::uint16_t String::kEmptyBuffer[1] = {0};
 
 template <typename C>
@@ -136,6 +142,10 @@ String::iterator String::erase(const_iterator start, const_iterator end) {
   this->buffer_[new_size] = 0;
 
   return s;
+}
+
+std::string String::ToUtf8() const {
+  return cru::ToUtf8(std::u16string_view(Char16CStr(), size()));
 }
 
 }  // namespace cru

@@ -22,7 +22,7 @@ struct CompositionText {
   TextRange selection;
 };
 
-struct IInputMethodContext : virtual INativeResource {
+struct IInputMethodContext : virtual IPlatformResource {
   // Return true if you should draw composition text manually. Return false if
   // system will take care of that for you.
   virtual bool ShouldManuallyDrawCompositionText() = 0;

@@ -1,5 +1,6 @@
 #pragma once
 #include "Base.hpp"
+#include "Exception.hpp"
 
 #include <functional>
 #include <string>

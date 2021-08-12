@@ -1,14 +1,16 @@
+#include "cru/platform/bootstrap/Bootstrap.hpp"
 #include "cru/platform/gui/UiApplication.hpp"
 #include "cru/ui/controls/ScrollView.hpp"
 #include "cru/ui/controls/TextBlock.hpp"
 #include "cru/ui/controls/Window.hpp"
 
+using cru::platform::gui::IUiApplication;
 using cru::ui::controls::ScrollView;
 using cru::ui::controls::TextBlock;
 using cru::ui::controls::Window;
 
 int main() {
-  auto application = cru::platform::gui::CreateUiApplication();
+  IUiApplication* application = cru::platform::boostrap::CreateUiApplication();
 
   auto window = Window::Create();
 

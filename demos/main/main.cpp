@@ -1,4 +1,5 @@
 #include "cru/platform/HeapDebug.hpp"
+#include "cru/platform/bootstrap/Bootstrap.hpp"
 #include "cru/platform/gui/UiApplication.hpp"
 #include "cru/platform/gui/Window.hpp"
 #include "cru/ui/Base.hpp"
@@ -9,7 +10,7 @@
 #include "cru/ui/controls/Window.hpp"
 #include "cru/ui/host/WindowHost.hpp"
 
-using cru::platform::gui::CreateUiApplication;
+using cru::platform::gui::IUiApplication;
 using cru::ui::controls::Button;
 using cru::ui::controls::FlexLayout;
 using cru::ui::controls::TextBlock;
@@ -21,7 +22,7 @@ int main() {
   cru::platform::SetupHeapDebug();
 #endif
 
-  auto application = CreateUiApplication();
+  IUiApplication* application = cru::platform::boostrap::CreateUiApplication();
 
   const auto window = Window::Create();
 

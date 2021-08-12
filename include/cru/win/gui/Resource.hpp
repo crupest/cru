@@ -4,9 +4,9 @@
 #include "cru/platform/Resource.hpp"
 
 namespace cru::platform::gui::win {
-class WinNativeResource : public Object, public virtual INativeResource {
+class WinNativeResource : public Object, public virtual IPlatformResource {
  public:
-  static constexpr std::u16string_view k_platform_id = u"Windows";
+  static String kPlatformId;
 
  protected:
   WinNativeResource() = default;
@@ -18,6 +18,6 @@ class WinNativeResource : public Object, public virtual INativeResource {
   ~WinNativeResource() override = default;
 
  public:
-  std::u16string_view GetPlatformId() const final { return k_platform_id; }
+  String GetPlatformId() const final { return kPlatformId; }
 };
 }  // namespace cru::platform::gui::win

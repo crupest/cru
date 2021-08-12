@@ -1,6 +1,7 @@
 #pragma once
 #include "../Base.hpp"
 
+#include "cru/platform/gui/TimerHelper.hpp"
 #include "cru/platform/gui/UiApplication.hpp"
 
 #include <chrono>

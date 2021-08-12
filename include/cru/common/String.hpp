@@ -9,21 +9,24 @@
 namespace cru {
 class CRU_BASE_API String {
  public:
-  static String fromUtf8(const char* str, Index size);
+  static String FromUtf8(std::string_view str) {
+    return FromUtf8(str.data(), str.size());
+  }
+  static String FromUtf8(const char* str, Index size);
 
-  static String fromUtf16(const std::uint16_t* str) { return String(str); }
-  static String fromUtf16(const std::uint16_t* str, Index size) {
+  static String FromUtf16(const std::uint16_t* str) { return String(str); }
+  static String FromUtf16(const std::uint16_t* str, Index size) {
     return String(str, size);
   }
 
-  static String fromUtf16(const char16_t* str) { return String(str); }
-  static String fromUtf16(const char16_t* str, Index size) {
+  static String FromUtf16(const char16_t* str) { return String(str); }
+  static String FromUtf16(const char16_t* str, Index size) {
     return String(str, size);
   }
 
 #ifdef CRU_PLATFORM_WINDOWS
-  static String fromUtf16(wchar_t* str) { return String(str); }
-  static String fromUtf16(wchar_t* str, Index size) {
+  static String FromUtf16(wchar_t* str) { return String(str); }
+  static String FromUtf16(wchar_t* str, Index size) {
     return String(str, size);
   }
 #endif
@@ -49,10 +52,12 @@ class CRU_BASE_API String {
 
   String(const char16_t* str);
   String(const char16_t* str, Index size);
+  String(const std::u16string& str) : String(str.data(), str.size()) {}
 
 #ifdef CRU_PLATFORM_WINDOWS
   String(const wchar_t* str);
   String(const wchar_t* str, Index size);
+  String(const std::wstring& str) : String(str.data(), str.size()) {}
 #endif
 
   String(const String& other);
@@ -120,6 +125,19 @@ class CRU_BASE_API String {
   void append(std::uint16_t* str, Index size) {
     this->insert(cend(), str, size);
   }
+
+ public:
+  const char16_t* Char16CStr() const {
+    return reinterpret_cast<const char16_t*>(c_str());
+  }
+
+#ifdef CRU_PLATFORM_WINDOWS
+  const wchar_t* WinCStr() const {
+    return reinterpret_cast<const wchar_t*>(c_str());
+  }
+#endif
+
+  std::string ToUtf8() const;
 
  private:
   static std::uint16_t kEmptyBuffer[1];

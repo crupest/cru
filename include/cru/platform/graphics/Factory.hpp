@@ -11,7 +11,7 @@
 
 namespace cru::platform::graphics {
 // Entry point of the graph module.
-struct IGraphFactory : virtual INativeResource {
+struct IGraphFactory : virtual IPlatformResource {
   virtual std::unique_ptr<ISolidColorBrush> CreateSolidColorBrush() = 0;
 
   virtual std::unique_ptr<IGeometryBuilder> CreateGeometryBuilder() = 0;

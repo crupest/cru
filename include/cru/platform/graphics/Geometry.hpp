@@ -17,4 +17,4 @@ struct IGeometryBuilder : virtual IGraphResource {
 
   virtual std::unique_ptr<IGeometry> Build() = 0;
 };
-}  // namespace cru::platform::graph
+}  // namespace cru::platform::graphics

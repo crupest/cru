@@ -4,7 +4,7 @@
 namespace cru::platform::graphics {
 struct IGraphFactory;
 
-struct IGraphResource : virtual INativeResource {
+struct IGraphResource : virtual IPlatformResource {
   virtual IGraphFactory* GetGraphFactory() = 0;
 };
-}  // namespace cru::platform::graph
+}  // namespace cru::platform::graphics

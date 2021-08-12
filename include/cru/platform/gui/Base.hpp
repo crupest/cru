@@ -1,10 +1,19 @@
 #pragma once
-#include "Keyboard.hpp"
 #include "cru/common/Base.hpp"
 #include "cru/common/Bitmask.hpp"
 #include "cru/platform/graphics/Base.hpp"
 
 #include "../Resource.hpp"
+
+#ifdef CRU_PLATFORM_WINDOWS
+#ifdef CRU_PLATFORM_GUI_EXPORT_API
+#define CRU_PLATFORM_GUI_API __declspec(dllexport)
+#else
+#define CRU_PLATFORM_GUI_API __declspec(dllimport)
+#endif
+#else
+#define CRU_PLATFORM_GUI_API
+#endif
 
 namespace cru::platform::gui {
 struct ICursor;
@@ -24,26 +33,4 @@ constexpr MouseButton left{0b1};
 constexpr MouseButton middle{0b10};
 constexpr MouseButton right{0b100};
 }  // namespace mouse_buttons
-
-struct NativeMouseButtonEventArgs {
-  MouseButton button;
-  Point point;
-  KeyModifier modifier;
-};
-
-struct NativeMouseWheelEventArgs {
-  // Positive means down. Negative means up. 
-  float delta;
-  Point point;
-  KeyModifier modifier;
-};
-
-struct NativeKeyEventArgs {
-  KeyCode key;
-  KeyModifier modifier;
-};
-
-enum class FocusChangeType { Gain, Lost };
-
-enum class MouseEnterLeaveType { Enter, Leave };
 }  // namespace cru::platform::gui

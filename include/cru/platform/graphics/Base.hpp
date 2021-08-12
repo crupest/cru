@@ -21,4 +21,4 @@ struct TextHitTestResult {
   bool trailing;
   bool insideText;
 };
-}  // namespace cru::platform::graph
+}  // namespace cru::platform::graphics

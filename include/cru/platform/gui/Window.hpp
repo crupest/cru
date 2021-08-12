@@ -1,14 +1,38 @@
 #pragma once
 #include "Base.hpp"
 
+#include "Keyboard.hpp"
+
 #include "cru/common/Event.hpp"
 
 #include <string_view>
 
 namespace cru::platform::gui {
+enum class FocusChangeType { Gain, Lost };
+
+enum class MouseEnterLeaveType { Enter, Leave };
+
+struct NativeMouseButtonEventArgs {
+  MouseButton button;
+  Point point;
+  KeyModifier modifier;
+};
+
+struct NativeMouseWheelEventArgs {
+  // Positive means down. Negative means up.
+  float delta;
+  Point point;
+  KeyModifier modifier;
+};
+
+struct NativeKeyEventArgs {
+  KeyCode key;
+  KeyModifier modifier;
+};
+
 // Represents a native window, which exposes some low-level events and
 // operations.
-struct INativeWindow : virtual INativeResource {
+struct INativeWindow : virtual IPlatformResource {
   virtual void Close() = 0;
 
   virtual INativeWindow* GetParent() = 0;

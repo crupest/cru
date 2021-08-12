@@ -13,7 +13,7 @@ D2DGeometryBuilder::D2DGeometryBuilder(DirectGraphFactory* factory)
 
 void D2DGeometryBuilder::CheckValidation() {
   if (!IsValid())
-    throw ReuseException("The geometry builder is already disposed.");
+    throw ReuseException(L"The geometry builder is already disposed.");
 }
 
 void D2DGeometryBuilder::BeginFigure(const Point& point) {

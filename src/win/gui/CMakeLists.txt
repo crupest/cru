@@ -8,6 +8,7 @@ add_library(cru_win_gui STATIC
 	GodWindow.cpp
 	InputMethod.cpp
 	Keyboard.cpp
+	Resource.cpp
 	TimerManager.cpp
 	UiApplication.cpp
 	Window.cpp

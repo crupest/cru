@@ -1,8 +1,6 @@
 add_library(cru_demo_base INTERFACE)
 
-if(WIN32)
-	target_link_libraries(cru_demo_base INTERFACE cru_win_gui)
-endif()
+target_link_libraries(cru_demo_base INTERFACE cru_platform_boostrap)
 
 if(WIN32) # Currently only enable tests on Windows.
 	add_subdirectory(main)

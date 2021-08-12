@@ -1,5 +1,7 @@
 #pragma once
-#include "boost/functional/hash.hpp"
+#include "cru/platform/Base.hpp"
+
+#include <boost/functional/hash.hpp>
 
 #include <cstdint>
 #include <optional>
@@ -7,7 +9,7 @@
 #include <unordered_map>
 
 namespace cru::platform {
-struct Color {
+struct CRU_PLATFORM_API Color {
   constexpr Color() : Color(0, 0, 0, 255) {}
   constexpr Color(std::uint8_t red, std::uint8_t green, std::uint8_t blue,
                   std::uint8_t alpha = 255)
