@@ -139,6 +139,8 @@ class CRU_BASE_API String {
 
   std::string ToUtf8() const;
 
+  int Compare(const String& other) const;
+
  private:
   static std::uint16_t kEmptyBuffer[1];
 
@@ -147,4 +149,7 @@ class CRU_BASE_API String {
   Index size_ = 0;      // not including trailing '\0'
   Index capacity_ = 0;  // always 1 smaller than real buffer size
 };
+
+CRU_DEFINE_COMPARE_OPERATORS(String)
+
 }  // namespace cru

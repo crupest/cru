@@ -148,4 +148,35 @@ std::string String::ToUtf8() const {
   return cru::ToUtf8(std::u16string_view(Char16CStr(), size()));
 }
 
+namespace {
+inline int Compare(std::uint16_t left, std::uint16_t right) {
+  if (left < right) return -1;
+  if (left > right) return 1;
+  return 0;
+}
+}  // namespace
+
+int String::Compare(const String& other) const {
+  const_iterator i1 = cbegin();
+  const_iterator i2 = other.cbegin();
+
+  const_iterator end1 = cend();
+  const_iterator end2 = other.cend();
+
+  while (i1 != end1 && i2 != end2) {
+    int r = cru::Compare(*i1, *i2);
+    if (r != 0) return r;
+  }
+
+  if (i1 == end1) {
+    if (i2 == end1) {
+      return 0;
+    } else {
+      return -1;
+    }
+  } else {
+    return 1;
+  }
+}
+
 }  // namespace cru
