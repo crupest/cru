@@ -9,6 +9,6 @@ if(WIN32) # Currently only enable tests on Windows.
 	add_subdirectory(input_method)
 endif()
 
-if(UNIX)
+if(UNIX AND NOT APPLE)
 	add_subdirectory(xcb)
 endif()

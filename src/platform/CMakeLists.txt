@@ -18,4 +18,7 @@ target_compile_definitions(cru_platform_base PRIVATE CRU_PLATFORM_EXPORT_API)
 
 add_subdirectory(graphics)
 add_subdirectory(gui)
-add_subdirectory(bootstrap)
+
+if(WIN32)
+	add_subdirectory(bootstrap)
+endif()

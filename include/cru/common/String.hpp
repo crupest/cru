@@ -1,6 +1,5 @@
 #pragma once
 
-#include <vcruntime.h>
 #include "Base.hpp"
 
 #include <cstdint>
