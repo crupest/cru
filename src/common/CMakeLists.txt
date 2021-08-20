@@ -22,8 +22,10 @@ target_compile_definitions(cru_base PRIVATE CRU_BASE_EXPORT_API)
 
 if (WIN32)
 	target_compile_definitions(cru_base PUBLIC CRU_PLATFORM_WINDOWS)
+elseif(APPLE)
+	target_compile_definitions(cru_base PUBLIC CRU_PLATFORM_OSX)
 else()
-	target_compile_definitions(cru_base PUBLIC CRU_PLATFORM_UNIX)
+	target_compile_definitions(cru_base PUBLIC CRU_PLATFORM_LINUX)
 endif()
 
 find_package(Microsoft.GSL CONFIG REQUIRED)

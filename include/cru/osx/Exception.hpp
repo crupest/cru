@@ -2,8 +2,8 @@
 #include "cru/platform/Exception.hpp"
 
 namespace cru::platform::osx {
-  class OsxException : PlatformException {
-    public:
-    using PlatformException::PlatformException;
-  };
-}
+class OsxException : public PlatformException {
+ public:
+  using PlatformException::PlatformException;
+};
+}  // namespace cru::platform::osx
