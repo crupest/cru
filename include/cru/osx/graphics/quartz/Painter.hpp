@@ -8,7 +8,7 @@ namespace cru::platform::graphics::osx::quartz {
 class QuartzCGContextPainter : public OsxQuartzResource,
                                public virtual IPainter {
  public:
-  explicit QuartzCGContextPainter(CGContext* cg_context)
+  explicit QuartzCGContextPainter(CGContextRef cg_context)
       : cg_context_(cg_context) {}
 
  public:
@@ -36,6 +36,6 @@ class QuartzCGContextPainter : public OsxQuartzResource,
   void EndDraw() override;
 
  private:
-  CGContext* cg_context_;
+  CGContextRef cg_context_;
 };
 }  // namespace cru::platform::graphics::osx::quartz
