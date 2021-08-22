@@ -32,6 +32,11 @@ struct CRU_PLATFORM_API Color {
     return result;
   }
 
+  float GetFloatRed() const { return static_cast<float>(red) / 255.f; }
+  float GetFloatGreen() const { return static_cast<float>(green) / 255.f; }
+  float GetFloatBlue() const { return static_cast<float>(blue) / 255.f; }
+  float GetFloatAlpha() const { return static_cast<float>(alpha) / 255.f; }
+
   std::string ToUtf8String() const;
   std::u16string ToString() const;
 

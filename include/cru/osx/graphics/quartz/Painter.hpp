@@ -1,5 +1,7 @@
 #pragma once
 #include "Resource.hpp"
+#include "cru/common/Base.hpp"
+#include "cru/platform/graphics/Base.hpp"
 #include "cru/platform/graphics/Painter.hpp"
 
 #include <CoreGraphics/CoreGraphics.h>
@@ -8,8 +10,14 @@ namespace cru::platform::graphics::osx::quartz {
 class QuartzCGContextPainter : public OsxQuartzResource,
                                public virtual IPainter {
  public:
-  explicit QuartzCGContextPainter(CGContextRef cg_context)
-      : cg_context_(cg_context) {}
+  explicit QuartzCGContextPainter(IGraphFactory* graphics_factory,
+                                  CGContextRef cg_context)
+      : OsxQuartzResource(graphics_factory), cg_context_(cg_context) {}
+
+  CRU_DELETE_COPY(QuartzCGContextPainter)
+  CRU_DELETE_MOVE(QuartzCGContextPainter)
+
+  ~QuartzCGContextPainter() override = default;
 
  public:
   Matrix GetTransform() override;
