@@ -6,6 +6,8 @@
 
 #include <CoreGraphics/CoreGraphics.h>
 
+#include <functional>
+
 namespace cru::platform::graphics::osx::quartz {
 class QuartzBrush : public OsxQuartzResource, public virtual IBrush {
  public:
@@ -14,6 +16,9 @@ class QuartzBrush : public OsxQuartzResource, public virtual IBrush {
   CRU_DELETE_COPY(QuartzBrush)
   CRU_DELETE_MOVE(QuartzBrush)
   ~QuartzBrush() override = default;
+
+ public:
+  virtual void Select(CGContextRef context) = 0;
 };
 
 class QuartzSolidColorBrush : public QuartzBrush,
@@ -30,6 +35,8 @@ class QuartzSolidColorBrush : public QuartzBrush,
   void SetColor(const Color& color) override;
 
   CGColorRef GetCGColorRef() const { return cg_color_; }
+
+  void Select(CGContextRef context) override;
 
  private:
   Color color_;
