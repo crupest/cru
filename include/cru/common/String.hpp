@@ -73,6 +73,7 @@ class CRU_BASE_API String {
   Index length() const { return this->size(); }
   Index capacity() const { return this->capacity_; }
   std::uint16_t* data() { return this->buffer_; }
+  const std::uint16_t* data() const { return this->buffer_; }
 
   void reserve(Index new_capacity);
 

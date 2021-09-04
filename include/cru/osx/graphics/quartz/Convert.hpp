@@ -4,6 +4,9 @@
 #include <CoreGraphics/CoreGraphics.h>
 
 namespace cru::platform::graphics::osx::quartz {
+CFStringRef Convert(const String& string);
+String Convert(CFStringRef string);
+
 CGAffineTransform Convert(const Matrix& matrix);
 Matrix Convert(const CGAffineTransform& matrix);
 
