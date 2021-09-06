@@ -1,10 +1,11 @@
 #pragma once
-#include <memory>
 #include "Resource.hpp"
 
 #include "Font.hpp"
 #include "cru/common/Base.hpp"
 #include "cru/platform/graphics/TextLayout.hpp"
+
+#include <memory>
 
 namespace cru::platform::graphics::osx::quartz {
 class OsxCTTextLayout : public OsxQuartzResource, public virtual ITextLayout {
@@ -18,9 +19,8 @@ class OsxCTTextLayout : public OsxQuartzResource, public virtual ITextLayout {
   ~OsxCTTextLayout() override;
 
  public:
-  std::u16string GetText() override;
-  std::u16string_view GetTextView() override;
-  void SetText(std::u16string new_text) override;
+  String GetText() override { return text_; }
+  void SetText(String new_text) override;
 
   std::shared_ptr<IFont> GetFont() override;
   void SetFont(std::shared_ptr<IFont> font) override;
@@ -33,8 +33,17 @@ class OsxCTTextLayout : public OsxQuartzResource, public virtual ITextLayout {
   Point TextSinglePoint(Index position, bool trailing) override;
   TextHitTestResult HitTest(const Point& point) override;
 
+private:
+  void RecreateFrame();
+
  private:
+  float max_width_;
+  float max_height_;
+
   std::shared_ptr<OsxCTFont> font_;
+
+  String text_;
+  CFStringRef cf_text_;
 
   CTFramesetterRef ct_framesetter_;
   CTFrameRef ct_frame_;
