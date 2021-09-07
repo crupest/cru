@@ -1,6 +1,7 @@
 #include "cru/osx/graphics/quartz/TextLayout.hpp"
 #include "cru/osx/graphics/quartz/Convert.hpp"
 #include "cru/osx/graphics/quartz/Resource.hpp"
+#include "cru/platform/Check.hpp"
 
 namespace cru::platform::graphics::osx::quartz {
 OsxCTTextLayout::OsxCTTextLayout(IGraphFactory* graphics_factory,
@@ -16,11 +17,46 @@ OsxCTTextLayout::OsxCTTextLayout(IGraphFactory* graphics_factory,
   RecreateFrame();
 }
 
+void OsxCTTextLayout::SetFont(std::shared_ptr<IFont> font) {
+  font_ = CheckPlatform<OsxCTFont>(font, GetPlatformId());
+  CFRelease(ct_framesetter_);
+  CFRelease(ct_frame_);
+  RecreateFrame();
+}
+
 void OsxCTTextLayout::SetText(String new_text) {
   text_ = std::move(new_text);
   CFRelease(cf_text_);
   cf_text_ = Convert(text_);
+  CFRelease(ct_framesetter_);
+  CFRelease(ct_frame_);
   RecreateFrame();
+}
+
+void OsxCTTextLayout::SetMaxWidth(float max_width) {
+  max_width_ = max_width;
+  CFRelease(ct_framesetter_);
+  CFRelease(ct_frame_);
+  RecreateFrame();
+}
+
+void OsxCTTextLayout::SetMaxHeight(float max_height) {
+  max_height_ = max_height;
+  CFRelease(ct_framesetter_);
+  CFRelease(ct_frame_);
+  RecreateFrame();
+}
+
+Rect OsxCTTextLayout::GetTextBounds(bool includingTrailingSpace) {
+  auto lines = CTFrameGetLines(ct_frame_);
+
+  const auto line_count = CFArrayGetCount(lines);
+
+  for (int i = 0; i < line_count; i++) {
+    auto line = CFArrayGetValueAtIndex(lines, i);
+
+    // TODO: To be continued!
+  }
 }
 
 void OsxCTTextLayout::RecreateFrame() {
