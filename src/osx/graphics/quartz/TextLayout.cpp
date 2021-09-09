@@ -95,15 +95,51 @@ std::vector<Rect> OsxCTTextLayout::TextRangeRect(const TextRange& text_range) {
       auto line_rect = CTLineGetImageBounds(line, nullptr);
       line_rect.origin.x += line_origin.x;
       line_rect.origin.y += line_origin.y;
-      float start_offset = CTLineGetOffsetForStringIndex(line, range.GetStart(), nullptr);
-      float end_offset = CTLineGetOffsetForStringIndex(line, range.GetEnd(), nullptr);
+      float start_offset =
+          CTLineGetOffsetForStringIndex(line, range.GetStart(), nullptr);
+      float end_offset =
+          CTLineGetOffsetForStringIndex(line, range.GetEnd(), nullptr);
       line_rect.origin.x += start_offset;
       line_rect.size.width = end_offset - start_offset;
       results.push_back(Convert(line_rect));
     }
   }
 
-    return results;
+  return results;
+}
+
+Point OsxCTTextLayout::TextSinglePoint(Index position, bool trailing) {
+  position = text_.IndexFromCodeUnitToCodePoint(position);
+  for (int i = 0; i < line_count_; i++) {
+    auto line = lines_[i];
+    const auto& line_origin = line_origins_[i];
+
+    Range range = Convert(CTLineGetStringRange(line));
+    if (range.GetStart() <= position && position < range.GetEnd()) {
+      auto offset = CTLineGetOffsetForStringIndex(line, position, nullptr);
+      return Point(line_origin.x + offset, line_origin.y);
+    }
+  }
+
+  return Convert(CTLineGetImageBounds(lines_.back(), nullptr)).GetRightTop();
+}
+
+TextHitTestResult OsxCTTextLayout::HitTest(const Point& point) {
+  for (int i = 0; i < line_count_; i++) {
+    auto line = lines_[i];
+    const auto& line_origin = line_origins_[i];
+
+    auto bounds = Convert(CTLineGetImageBounds(line, nullptr));
+    bounds.left += line_origin.x;
+    bounds.top += line_origin.y;
+    if (bounds.IsPointInside(point)) {
+      int position = CTLineGetStringIndexForPosition(
+          line, CGPointMake(point.x - line_origin.x, point.y - line_origin.y));
+      return TextHitTestResult{position, false, true};
+    }
+  }
+
+  return TextHitTestResult{0, false, false};
 }
 
 void OsxCTTextLayout::RecreateFrame() {
@@ -134,4 +170,5 @@ void OsxCTTextLayout::RecreateFrame() {
     lines_[i] = static_cast<CTLineRef>(CFArrayGetValueAtIndex(lines, i));
   }
 }
+
 }  // namespace cru::platform::graphics::osx::quartz
