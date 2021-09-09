@@ -47,5 +47,9 @@ private:
 
   CTFramesetterRef ct_framesetter_;
   CTFrameRef ct_frame_;
+  int line_count_;
+  std::vector<CGPoint> line_origins_;
+  std::vector<CTLineRef> lines_;
+  std::vector<std::vector<float>> line_caret_offsets_;
 };
 }  // namespace cru::platform::graphics::osx::quartz

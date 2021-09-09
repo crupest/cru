@@ -41,4 +41,12 @@ Rect Convert(const CGRect& rect) {
               static_cast<float>(rect.size.width),
               static_cast<float>(rect.size.height)};
 }
+
+CFRange Convert(const Range& range) {
+  return CFRangeMake(range.position, range.count);
+}
+
+Range Convert(const CFRange& range) {
+  return Range(range.location, range.length);
+}
 }  // namespace cru::platform::graphics::osx::quartz

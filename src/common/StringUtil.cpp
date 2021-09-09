@@ -1,6 +1,6 @@
 #include "cru/common/StringUtil.hpp"
 #include "cru/common/Base.hpp"
-#include "gsl/gsl_util"
+#include "cru/common/Exception.hpp"
 
 namespace cru {
 namespace {

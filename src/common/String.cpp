@@ -148,6 +148,38 @@ std::string String::ToUtf8() const {
   return cru::ToUtf8(std::u16string_view(Char16CStr(), size()));
 }
 
+Index String::IndexFromCodeUnitToCodePoint(Index code_unit_index) const {
+  auto iter = CodePointIterator();
+  Index result = 0;
+  while (iter.GetPosition() <= code_unit_index && !iter.IsPastEnd()) {
+    ++iter;
+    ++result;
+  }
+  return result - 1;
+}
+
+Index String::IndexFromCodePointToCodeUnit(Index code_point_index) const {
+  auto iter = CodePointIterator();
+  Index cpi = 0;
+  while (cpi < code_point_index && !iter.IsPastEnd()) {
+    ++iter;
+    ++cpi;
+  }
+  return iter.GetPosition();
+}
+
+Range String::RangeFromCodeUnitToCodePoint(Range code_unit_range) const {
+  return Range::FromTwoSides(
+      IndexFromCodeUnitToCodePoint(code_unit_range.GetStart()),
+      IndexFromCodeUnitToCodePoint(code_unit_range.GetEnd()));
+}
+
+Range String::RangeFromCodePointToCodeUnit(Range code_point_range) const {
+  return Range::FromTwoSides(
+      IndexFromCodePointToCodeUnit(code_point_range.GetStart()),
+      IndexFromCodePointToCodeUnit(code_point_range.GetEnd()));
+}
+
 namespace {
 inline int Compare(std::uint16_t left, std::uint16_t right) {
   if (left < right) return -1;

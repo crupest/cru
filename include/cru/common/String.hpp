@@ -1,6 +1,8 @@
 #pragma once
-
 #include "Base.hpp"
+
+#include "StringUtil.hpp"
+#include "Range.hpp"
 
 #include <cstdint>
 #include <iterator>
@@ -127,6 +129,16 @@ class CRU_BASE_API String {
   }
 
  public:
+  Utf16CodePointIterator CodePointIterator() const {
+    return Utf16CodePointIterator(
+        std::u16string_view(reinterpret_cast<char16_t*>(buffer_), size_));
+  }
+
+  Index IndexFromCodeUnitToCodePoint(Index code_unit_index) const;
+  Index IndexFromCodePointToCodeUnit(Index code_point_index) const;
+  Range RangeFromCodeUnitToCodePoint(Range code_unit_range) const;
+  Range RangeFromCodePointToCodeUnit(Range code_point_range) const;
+
   const char16_t* Char16CStr() const {
     return reinterpret_cast<const char16_t*>(c_str());
   }

@@ -3,6 +3,9 @@
 #include "cru/osx/graphics/quartz/Resource.hpp"
 #include "cru/platform/Check.hpp"
 
+#include <algorithm>
+#include <limits>
+
 namespace cru::platform::graphics::osx::quartz {
 OsxCTTextLayout::OsxCTTextLayout(IGraphFactory* graphics_factory,
                                  std::shared_ptr<OsxCTFont> font,
@@ -48,15 +51,59 @@ void OsxCTTextLayout::SetMaxHeight(float max_height) {
 }
 
 Rect OsxCTTextLayout::GetTextBounds(bool includingTrailingSpace) {
-  auto lines = CTFrameGetLines(ct_frame_);
+  float left = std::numeric_limits<float>::max();
+  float top = std::numeric_limits<float>::max();
+  float right = 0;
+  float bottom = 0;
 
-  const auto line_count = CFArrayGetCount(lines);
+  for (int i = 0; i < line_count_; i++) {
+    auto line = static_cast<CTLineRef>(lines_[i]);
+    const auto& line_origin = line_origins_[i];
 
-  for (int i = 0; i < line_count; i++) {
-    auto line = CFArrayGetValueAtIndex(lines, i);
+    CGRect line_rect = CTLineGetImageBounds(line, nullptr);
+    if (includingTrailingSpace) {
+      float trailingWidth = CTLineGetTrailingWhitespaceWidth(line);
+      line_rect.size.width += trailingWidth;
+    }
 
-    // TODO: To be continued!
+    line_rect.origin.x += line_origin.x;
+    line_rect.origin.y += line_origin.y;
+
+    left = std::min<float>(line_rect.origin.x, left);
+    top = std::min<float>(line_rect.origin.y, top);
+    right = std::max<float>(line_rect.origin.x + line_rect.size.width, right);
+    bottom =
+        std::max<float>(line_rect.origin.y + line_rect.size.height, bottom);
   }
+
+  return Rect::FromVertices(left, top, right, bottom);
+}
+
+std::vector<Rect> OsxCTTextLayout::TextRangeRect(const TextRange& text_range) {
+  const auto r = text_.RangeFromCodeUnitToCodePoint(text_range).Normalize();
+
+  std::vector<Rect> results;
+
+  for (int i = 0; i < line_count_; i++) {
+    auto line = lines_[i];
+    const auto& line_origin = line_origins_[i];
+
+    Range range = Convert(CTLineGetStringRange(line));
+    range = range.CoerceInto(r.GetStart(), r.GetEnd());
+
+    if (range.count) {
+      auto line_rect = CTLineGetImageBounds(line, nullptr);
+      line_rect.origin.x += line_origin.x;
+      line_rect.origin.y += line_origin.y;
+      float start_offset = CTLineGetOffsetForStringIndex(line, range.GetStart(), nullptr);
+      float end_offset = CTLineGetOffsetForStringIndex(line, range.GetEnd(), nullptr);
+      line_rect.origin.x += start_offset;
+      line_rect.size.width = end_offset - start_offset;
+      results.push_back(Convert(line_rect));
+    }
+  }
+
+    return results;
 }
 
 void OsxCTTextLayout::RecreateFrame() {
@@ -77,5 +124,14 @@ void OsxCTTextLayout::RecreateFrame() {
 
   CFRelease(attributed_string);
   CGPathRelease(path);
+
+  const auto lines = CTFrameGetLines(ct_frame_);
+  line_count_ = CFArrayGetCount(lines);
+  lines_.resize(line_count_);
+  line_origins_.resize(line_count_);
+  CTFrameGetLineOrigins(ct_frame_, CFRangeMake(0, 0), line_origins_.data());
+  for (int i = 0; i < line_count_; i++) {
+    lines_[i] = static_cast<CTLineRef>(CFArrayGetValueAtIndex(lines, i));
+  }
 }
 }  // namespace cru::platform::graphics::osx::quartz

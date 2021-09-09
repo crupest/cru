@@ -18,4 +18,9 @@ class CRU_BASE_API Exception {
  private:
   String message_;
 };
+
+class CRU_BASE_API TextEncodeException : public Exception {
+ public:
+  using Exception::Exception;
+};
 }  // namespace cru

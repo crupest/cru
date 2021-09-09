@@ -12,6 +12,7 @@ target_sources(cru_base PUBLIC
 	${CRU_BASE_INCLUDE_DIR}/Format.hpp
 	${CRU_BASE_INCLUDE_DIR}/Logger.hpp
 	${CRU_BASE_INCLUDE_DIR}/PreConfig.hpp
+	${CRU_BASE_INCLUDE_DIR}/Range.hpp
 	${CRU_BASE_INCLUDE_DIR}/SelfResolvable.hpp
 	${CRU_BASE_INCLUDE_DIR}/String.hpp
 	${CRU_BASE_INCLUDE_DIR}/StringUtil.hpp

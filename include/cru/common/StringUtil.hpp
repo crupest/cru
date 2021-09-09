@@ -1,6 +1,5 @@
 #pragma once
 #include "Base.hpp"
-#include "Exception.hpp"
 
 #include <functional>
 #include <string>
@@ -9,11 +8,6 @@
 namespace cru {
 using CodePoint = std::int32_t;
 constexpr CodePoint k_invalid_code_point = -1;
-
-class CRU_BASE_API TextEncodeException : public Exception {
- public:
-  using Exception::Exception;
-};
 
 inline bool IsUtf16SurrogatePairCodeUnit(char16_t c) {
   return c >= 0xD800 && c <= 0xDFFF;
