@@ -77,6 +77,7 @@ class CRU_BASE_API String {
   std::uint16_t* data() { return this->buffer_; }
   const std::uint16_t* data() const { return this->buffer_; }
 
+  void resize(Index new_size);
   void reserve(Index new_capacity);
 
   std::uint16_t& front() { return this->operator[](0); }

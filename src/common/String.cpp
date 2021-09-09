@@ -101,6 +101,29 @@ String::~String() {
   }
 }
 
+void String::resize(Index new_size) {
+  Expects(new_size >= 0);
+
+  if (new_size == size_) return;
+
+  if (new_size == 0) {
+    delete[] buffer_;
+    buffer_ = kEmptyBuffer;
+    size_ = 0;
+    capacity_ = 0;
+  }
+
+  if (new_size < size_) {
+    size_ = new_size;
+    buffer_[size_] = 0;
+  } else {
+    reserve(new_size);
+    std::memset(buffer_ + size_, 0, sizeof(std::uint16_t) * (new_size - size_));
+    buffer_[new_size] = 0;
+    size_ = new_size;
+  }
+}
+
 void String::reserve(Index new_capacity) {
   if (new_capacity <= this->capacity_) return;
   if (new_capacity > 0) {
@@ -133,6 +156,11 @@ String::iterator String::insert(const_iterator pos, std::uint16_t* str,
 
 String::iterator String::erase(const_iterator start, const_iterator end) {
   Index new_size = size_ - (end - start);
+
+  if (new_size == 0) {
+    resize(0);
+    return this->end();
+  }
 
   auto s = const_cast<iterator>(start);
   auto e = const_cast<iterator>(end);
