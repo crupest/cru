@@ -7,7 +7,7 @@ class Grammar;
 // Base class of Terminal and Nonterminal.
 class Symbol : public Object {
  public:
-  Symbol(Grammar* grammar, String name);
+  explicit Symbol(Grammar* grammar, String name);
 
   CRU_DELETE_COPY(Symbol)
   CRU_DELETE_MOVE(Symbol)
