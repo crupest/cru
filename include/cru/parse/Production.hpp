@@ -20,11 +20,18 @@ class Production : public Object {
  public:
   Grammar* GetGrammar() const { return grammar_; }
 
+  String GetName() const { return name_; }
+  void SetName(String name) { name_ = std::move(name); }
+
   Nonterminal* GetLeft() const { return left_; }
   void SetLeft(Nonterminal* left);
 
   const std::vector<Symbol*>& GetRight() const { return right_; }
   void SetRight(std::vector<Symbol*> right);
+
+  bool IsLeftRecursion() const {
+    return !right_.empty() && left_ == right_.front();
+  }
 
  private:
   Grammar* grammar_;

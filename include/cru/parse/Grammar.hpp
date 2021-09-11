@@ -35,6 +35,11 @@ class Grammar : public Object {
     return productions_;
   }
 
+  Grammar* Clone() const;
+
+ public:  // Algorithms
+  void EliminateLeftRecursions();
+
  private:
   Nonterminal* start_symbol_;
   std::vector<Terminal*> terminals_;
