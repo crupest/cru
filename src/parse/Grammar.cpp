@@ -121,5 +121,76 @@ Grammar::GenerateLeftProductionMap() const {
   return result;
 }
 
-void Grammar::EliminateLeftRecursions() {}
+void Grammar::EliminateLeftRecursions() {
+  // TODO: Use a better name.
+
+  auto nonterminals = nonterminals_;
+  for (int i = 0; i < nonterminals.size(); i++) {
+    auto ni = nonterminals[i];
+
+    for (int j = 0; j < i; j++) {
+      auto nj = nonterminals[j];
+      std::vector<Production*> j_productions;
+      std::copy_if(
+          productions_.cbegin(), productions_.cend(),
+          std::back_inserter(j_productions),
+          [nj](Production* production) { return production->GetLeft() == nj; });
+
+      auto productions = productions_;
+      for (auto production : productions) {
+        if (production->GetLeft() == ni &&
+            production->GetRight().front() == nj) {
+          const std::vector<Symbol*> right(production->GetRight().cbegin() + 1,
+                                           production->GetRight().cend());
+          RemoveProduction(production);
+
+          for (auto jp : j_productions) {
+            auto new_right = right;
+            new_right.insert(new_right.cbegin(), jp->GetRight().cbegin(),
+                             jp->GetRight().cend());
+            CreateProduction(String{}, ni, std::move(new_right));
+          }
+        }
+      }
+    }
+
+    std::vector<Production*> i_r_ps;
+    std::vector<Production*> i_nr_ps;
+
+    for (auto p : productions_) {
+      if (p->GetLeft() == ni) {
+        if (p->GetRight().front() == ni) {
+          i_r_ps.push_back(p);
+        } else {
+          i_nr_ps.push_back(p);
+        }
+      }
+    }
+
+    auto ni_h = CreateNonterminal(u"");
+
+    for (auto p : i_nr_ps) {
+      auto right = p->GetRight();
+      right.push_back(ni_h);
+      CreateProduction(u"", ni, std::move(right));
+    }
+
+    for (auto p : i_r_ps) {
+      auto right = p->GetRight();
+      right.erase(right.cbegin());
+      right.push_back(ni_h);
+      CreateProduction(u"", ni_h, std::move(right));
+    }
+
+    CreateProduction(u"", ni_h, std::vector<Symbol*>{});
+
+    for (auto p : i_r_ps) {
+      RemoveProduction(p);
+    }
+
+    for (auto p : i_nr_ps) {
+      RemoveProduction(p);
+    }
+  }
+}
 }  // namespace cru::parse

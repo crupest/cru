@@ -42,6 +42,8 @@ class Grammar : public Object {
   std::unordered_map<Nonterminal*, std::vector<Production*>>
   GenerateLeftProductionMap() const;
 
+  // Algorithm 4.19.
+  // Require grammar has no cycles or empty-productions.
   void EliminateLeftRecursions();
 
  private:
