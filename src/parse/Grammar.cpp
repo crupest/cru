@@ -8,7 +8,15 @@
 namespace cru::parse {
 Grammar::Grammar() {}
 
-Grammar::~Grammar() {}
+Grammar::~Grammar() {
+  for (auto symbol : symbols_) {
+    delete symbol;
+  }
+
+  for (auto production : productions_) {
+    delete production;
+  }
+}
 
 Terminal* Grammar::CreateTerminal(String name) {
   auto terminal = new Terminal(this, std::move(name));
@@ -85,6 +93,8 @@ Grammar* Grammar::Clone() const {
     auto new_nonterminal = g->CreateNonterminal(old_nonterminal->GetName());
     symbol_map.emplace(old_nonterminal, new_nonterminal);
   }
+
+  g->SetStartSymbol(static_cast<Nonterminal*>(symbol_map[start_symbol_]));
 
   for (auto old_production : productions_) {
     std::vector<Symbol*> new_right;
