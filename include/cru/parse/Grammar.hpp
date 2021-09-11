@@ -21,6 +21,9 @@ class Grammar : public Object {
   Production* CreateProduction(String name, Nonterminal* left,
                                std::vector<Symbol*> right);
 
+  bool RemoveSymbol(Symbol* symbol);
+  bool RemoveProduction(Production* production);
+
  public:  // Getters
   Nonterminal* GetStartSymbol() const { return start_symbol_; }
   const std::vector<Terminal*>& GetTerminals() const { return terminals_; }
