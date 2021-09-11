@@ -112,4 +112,14 @@ Grammar* Grammar::Clone() const {
   return g;
 }
 
+std::unordered_map<Nonterminal*, std::vector<Production*>>
+Grammar::GenerateLeftProductionMap() const {
+  std::unordered_map<Nonterminal*, std::vector<Production*>> result;
+  for (auto p : productions_) {
+    result[p->GetLeft()].push_back(p);
+  }
+  return result;
+}
+
+void Grammar::EliminateLeftRecursions() {}
 }  // namespace cru::parse

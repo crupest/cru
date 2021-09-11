@@ -1,6 +1,7 @@
 #pragma once
 #include "Production.hpp"
 
+#include <unordered_map>
 #include <vector>
 
 namespace cru::parse {
@@ -38,6 +39,9 @@ class Grammar : public Object {
   Grammar* Clone() const;
 
  public:  // Algorithms
+  std::unordered_map<Nonterminal*, std::vector<Production*>>
+  GenerateLeftProductionMap() const;
+
   void EliminateLeftRecursions();
 
  private:
