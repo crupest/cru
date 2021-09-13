@@ -1,8 +1,8 @@
 #pragma once
 #include "Base.hpp"
 
-#include "StringUtil.hpp"
 #include "Range.hpp"
+#include "StringUtil.hpp"
 
 #include <cstdint>
 #include <iterator>
@@ -119,14 +119,27 @@ class CRU_BASE_API String {
   iterator insert(const_iterator pos, std::uint16_t value) {
     return this->insert(pos, &value, 1);
   }
-  iterator insert(const_iterator pos, std::uint16_t* str, Index size);
+  iterator insert(const_iterator pos, const std::uint16_t* str, Index size);
   iterator erase(const_iterator pos) { return this->erase(pos, pos + 1); }
   iterator erase(const_iterator start, const_iterator end);
   void push_back(std::uint16_t value) { this->append(value); }
   void pop_back() { this->erase(cend() - 1); }
   void append(std::uint16_t value) { this->insert(cend(), value); }
-  void append(std::uint16_t* str, Index size) {
+  void append(const std::uint16_t* str, Index size) {
     this->insert(cend(), str, size);
+  }
+  void append(const String& other) { append(other.data(), other.size()); }
+
+ public:
+  String& operator+=(const String& other) {
+    append(other);
+    return *this;
+  }
+
+  String operator+(const String& other) const {
+    String result(*this);
+    result += other;
+    return result;
   }
 
  public:

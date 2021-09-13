@@ -148,7 +148,7 @@ void Grammar::EliminateLeftRecursions() {
             auto new_right = right;
             new_right.insert(new_right.cbegin(), jp->GetRight().cbegin(),
                              jp->GetRight().cend());
-            CreateProduction(String{}, ni, std::move(new_right));
+            CreateProduction(u"", ni, std::move(new_right));
           }
         }
       }

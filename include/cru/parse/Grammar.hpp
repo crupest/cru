@@ -46,6 +46,9 @@ class Grammar : public Object {
   // Require grammar has no cycles or empty-productions.
   void EliminateLeftRecursions();
 
+  // Algorithm 4.21
+  void LeftFactor();
+
  private:
   Nonterminal* start_symbol_;
   std::vector<Terminal*> terminals_;
