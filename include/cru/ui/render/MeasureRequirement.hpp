@@ -1,9 +1,8 @@
 #pragma once
 #include "Base.hpp"
 
-#include "cru/common/Format.hpp"
+#include "cru/common/String.hpp"
 
-#include <fmt/core.h>
 #include <algorithm>
 #include <limits>
 #include <string>
@@ -169,9 +168,8 @@ struct MeasureSize {
     };
   }
 
-  std::u16string ToDebugString() const {
-    return fmt::format(u"({}, {})", width.ToDebugString(),
-                       height.ToDebugString());
+  String ToDebugString() const {
+    return Format(u"({}, {})", width.ToDebugString(), height.ToDebugString());
   }
 
   constexpr static MeasureSize NotSpecified() {
@@ -240,9 +238,9 @@ struct MeasureRequirement {
     return result;
   }
 
-  std::u16string ToDebugString() const {
-    return fmt::format(u"{{min: {}, max: {}}}", min.ToDebugString(),
-                       max.ToDebugString());
+  String ToDebugString() const {
+    return Format(u"{{min: {}, max: {}}}", min.ToDebugString(),
+                  max.ToDebugString());
   }
 
   constexpr static MeasureRequirement Merge(const MeasureRequirement& left,

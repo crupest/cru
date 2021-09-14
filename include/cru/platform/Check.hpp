@@ -2,9 +2,8 @@
 #include "Exception.hpp"
 #include "Resource.hpp"
 
-#include "cru/common/StringUtil.hpp"
+#include "cru/common/String.hpp"
 
-#include <fmt/format.h>
 #include <memory>
 #include <type_traits>
 
@@ -15,10 +14,10 @@ TTarget* CheckPlatform(IPlatformResource* resource,
   Expects(resource);
   const auto result = dynamic_cast<TTarget*>(resource);
   if (result == nullptr) {
-    throw UnsupportPlatformException(String::FromUtf8(fmt::format(
-        "Try to convert resource to target platform failed. Platform id of "
+    throw UnsupportPlatformException(Format(
+        u"Try to convert resource to target platform failed. Platform id of "
         "resource to convert: {} . Target platform id: {} .",
-        resource->GetPlatformId().ToUtf8(), target_platform.ToUtf8())));
+        resource->GetPlatformId(), target_platform));
   }
   return result;
 }
@@ -31,10 +30,10 @@ std::shared_ptr<TTarget> CheckPlatform(const std::shared_ptr<TSource>& resource,
   Expects(resource);
   const auto result = std::dynamic_pointer_cast<TTarget>(resource);
   if (result == nullptr) {
-    throw UnsupportPlatformException(String::FromUtf8(fmt::format(
-        "Try to convert resource to target platform failed. Platform id of "
+    throw UnsupportPlatformException(Format(
+        u"Try to convert resource to target platform failed. Platform id of "
         "resource to convert: {} . Target platform id: {} .",
-        resource->GetPlatformId().ToUtf8(), target_platform.ToUtf8())));
+        resource->GetPlatformId(), target_platform));
   }
   return result;
 }

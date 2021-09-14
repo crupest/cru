@@ -4,8 +4,14 @@
 #include "Range.hpp"
 #include "StringUtil.hpp"
 
-#include <cstdint>
+#include <algorithm>
+#include <array>
+#include <charconv>
 #include <iterator>
+#include <stdexcept>
+#include <system_error>
+#include <type_traits>
+#include <vector>
 
 namespace cru {
 class CRU_BASE_API String {
@@ -23,6 +29,11 @@ class CRU_BASE_API String {
   static String FromUtf16(const char16_t* str) { return String(str); }
   static String FromUtf16(const char16_t* str, Index size) {
     return String(str, size);
+  }
+
+  // Never use this if you don't know what this mean!
+  static String FromBuffer(std::uint16_t* buffer, Index size, Index capacity) {
+    return String{from_buffer_tag{}, buffer, size, capacity};
   }
 
 #ifdef CRU_PLATFORM_WINDOWS
@@ -68,6 +79,10 @@ class CRU_BASE_API String {
   String& operator=(String&& other) noexcept;
 
   ~String();
+
+ private:
+  struct from_buffer_tag {};
+  String(from_buffer_tag, std::uint16_t* buffer, Index size, Index capacity);
 
  public:
   bool empty() const { return this->size_ == 0; }
@@ -136,12 +151,6 @@ class CRU_BASE_API String {
     return *this;
   }
 
-  String operator+(const String& other) const {
-    String result(*this);
-    result += other;
-    return result;
-  }
-
  public:
   Utf16CodePointIterator CodePointIterator() const {
     return Utf16CodePointIterator(
@@ -163,6 +172,9 @@ class CRU_BASE_API String {
   }
 #endif
 
+  template <typename... T>
+  String Format(T&&... args) const;
+
   std::string ToUtf8() const;
 
   int Compare(const String& other) const;
@@ -178,4 +190,76 @@ class CRU_BASE_API String {
 
 CRU_DEFINE_COMPARE_OPERATORS(String)
 
+inline String operator+(const String& left, const String& right) {
+  String result(left);
+  result += right;
+  return result;
+}
+
+template <typename T, typename = std::enable_if_t<std::is_arithmetic_v<T>>>
+String ToString(T value) {
+  std::array<char, 50> buffer;
+  auto result =
+      std::to_chars(buffer.data(), buffer.data() + buffer.size(), value);
+
+  auto size = result.ptr - buffer.data();
+  auto b = new std::uint16_t[size + 1];
+  b[size] = 0;
+  std::copy(buffer.data(), result.ptr, b);
+  return String::FromBuffer(b, size, size);
+
+  if (result.ec == std::errc{}) {
+  } else {
+    throw std::invalid_argument("Failed to convert value to chars.");
+  }
+}
+
+inline String ToString(String value) { return std::move(value); }
+
+namespace details {
+enum class FormatTokenType { PlaceHolder, Text };
+
+struct FormatToken {
+  FormatTokenType type;
+  String data;
+};
+
+std::vector<FormatToken> ParseToFormatTokenList(const String& str);
+
+void FormatAppendFromFormatTokenList(
+    String& current, const std::vector<FormatToken>& format_token_list,
+    Index index);
+
+template <typename TA, typename... T>
+void FormatAppendFromFormatTokenList(
+    String& current, const std::vector<FormatToken>& format_token_list,
+    Index index, TA&& args0, T&&... args) {
+  for (Index i = index; i < format_token_list.size(); i++) {
+    const auto& token = format_token_list[i];
+    if (token.type == FormatTokenType::PlaceHolder) {
+      current += ToString(std::forward<TA>(args0));
+      FormatAppendFromFormatTokenList(current, format_token_list, i + 1,
+                                      std::forward<T>(args)...);
+    } else {
+      current += token.data;
+    }
+  }
+}
+}  // namespace details
+
+template <typename... T>
+String Format(const String& format, T&&... args) {
+  String result;
+
+  details::FormatAppendFromFormatTokenList(
+      result, details::ParseToFormatTokenList(format), 0,
+      std::forward<T>(args)...);
+
+  return result;
+}
+
+template <typename... T>
+String String::Format(T&&... args) const {
+  return cru::Format(*this, std::forward<T>(args)...);
+}
 }  // namespace cru

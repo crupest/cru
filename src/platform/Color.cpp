@@ -6,7 +6,6 @@
 #include <stdexcept>
 #include <string>
 #include <string_view>
-#include "fmt/core.h"
 
 namespace cru::platform {
 std::string Color::ToUtf8String() const {

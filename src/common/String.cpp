@@ -101,6 +101,10 @@ String::~String() {
   }
 }
 
+String::String(from_buffer_tag, std::uint16_t* buffer, Index size,
+               Index capacity)
+    : buffer_(buffer), size_(size), capacity_(capacity) {}
+
 void String::resize(Index new_size) {
   Expects(new_size >= 0);
 
@@ -137,7 +141,7 @@ void String::reserve(Index new_capacity) {
   }
 }
 
-String::iterator String::insert(const_iterator pos, std::uint16_t* str,
+String::iterator String::insert(const_iterator pos, const std::uint16_t* str,
                                 Index size) {
   Index new_size = size_ + size;
   if (new_size > capacity_) {
@@ -238,5 +242,55 @@ int String::Compare(const String& other) const {
     return 1;
   }
 }
+
+namespace details {
+std::vector<FormatToken> ParseToFormatTokenList(const String& str) {
+  std::vector<FormatToken> result;
+
+  auto push_char = [&result](std::uint16_t c) {
+    if (result.empty() || result.back().type == FormatTokenType::PlaceHolder) {
+      result.push_back(FormatToken{FormatTokenType::Text, String{}});
+    }
+    result.back().data.append(c);
+  };
+
+  bool last_is_left_bracket = false;
+  for (auto c : str) {
+    if (c == u'{') {
+      if (last_is_left_bracket) {
+        push_char(u'{');
+        last_is_left_bracket = false;
+      } else {
+        last_is_left_bracket = true;
+      }
+    } else if (c == u'}') {
+      if (last_is_left_bracket) {
+        result.push_back(FormatToken{FormatTokenType::PlaceHolder, String{}});
+      }
+      last_is_left_bracket = false;
+    } else {
+      if (last_is_left_bracket) {
+        push_char(u'{');
+      }
+      push_char(c);
+      last_is_left_bracket = false;
+    }
+  }
+  return result;
+}
+
+void FormatAppendFromFormatTokenList(
+    String& current, const std::vector<FormatToken>& format_token_list,
+    Index index) {
+  for (Index i = index; i < format_token_list.size(); i++) {
+    const auto& token = format_token_list[i];
+    if (token.type == FormatTokenType::PlaceHolder) {
+      current += u"{}";
+    } else {
+      current += token.data;
+    }
+  }
+}
+}  // namespace details
 
 }  // namespace cru

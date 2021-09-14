@@ -5,7 +5,7 @@ namespace cru {
 class CRU_BASE_API Exception {
  public:
   Exception() = default;
-  Exception(String message) : message_(std::move(message)) {}
+  explicit Exception(String message) : message_(std::move(message)) {}
 
   CRU_DEFAULT_COPY(Exception)
   CRU_DEFAULT_MOVE(Exception)

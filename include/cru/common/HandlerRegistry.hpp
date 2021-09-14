@@ -59,6 +59,7 @@ class HandlerRegistry final {
   int AddHandler(std::function<T> handler) {
     auto id = current_id_++;
     handler_list_.push_back({id, std::move(handler)});
+    return id;
   }
 
   void RemoveHandler(int id) {

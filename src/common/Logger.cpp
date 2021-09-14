@@ -30,7 +30,7 @@ void Logger::RemoveSource(ILogSource *source) {
 }
 
 namespace {
-std::u16string_view LogLevelToString(LogLevel level) {
+String LogLevelToString(LogLevel level) {
   switch (level) {
     case LogLevel::Debug:
       return u"DEBUG";
@@ -45,36 +45,35 @@ std::u16string_view LogLevelToString(LogLevel level) {
   }
 }
 
-std::u16string GetLogTime() {
+String GetLogTime() {
   auto time = std::time(nullptr);
   auto calendar = std::localtime(&time);
-  return fmt::format(u"{}:{}:{}", calendar->tm_hour, calendar->tm_min,
-                     calendar->tm_sec);
+  return Format(u"{}:{}:{}", calendar->tm_hour, calendar->tm_min,
+                calendar->tm_sec);
 }
 }  // namespace
 
-void Logger::Log(LogLevel level, std::u16string_view s) {
+void Logger::Log(LogLevel level, const String &message) {
 #ifndef CRU_DEBUG
   if (level == LogLevel::Debug) {
     return;
   }
 #endif
   for (const auto &source : sources_) {
-    source->Write(level, fmt::format(u"[{}] {}: {}\n", GetLogTime(),
-                                     LogLevelToString(level), s));
+    source->Write(level, Format(u"[{}] {}: {}\n", GetLogTime(),
+                                LogLevelToString(level), message));
   }
 }
 
-void Logger::Log(LogLevel level, std::u16string_view tag,
-                 std::u16string_view s) {
+void Logger::Log(LogLevel level, const String &tag, const String &message) {
 #ifndef CRU_DEBUG
   if (level == LogLevel::Debug) {
     return;
   }
 #endif
   for (const auto &source : sources_) {
-    source->Write(level, fmt::format(u"[{}] {} {}: {}\n", GetLogTime(),
-                                     LogLevelToString(level), tag, s));
+    source->Write(level, Format(u"[{}] {} {}: {}\n", GetLogTime(),
+                                LogLevelToString(level), tag, message));
   }
 }
 }  // namespace cru::log

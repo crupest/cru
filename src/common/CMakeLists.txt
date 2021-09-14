@@ -30,5 +30,4 @@ else()
 endif()
 
 find_package(Microsoft.GSL CONFIG REQUIRED)
-find_package(fmt CONFIG REQUIRED)
-target_link_libraries(cru_base PUBLIC Microsoft.GSL::GSL fmt::fmt)
+target_link_libraries(cru_base PUBLIC Microsoft.GSL::GSL)

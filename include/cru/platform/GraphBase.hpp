@@ -4,8 +4,8 @@
 #include "Color.hpp"
 #include "cru/common/Format.hpp"
 #include "cru/common/Range.hpp"
+#include "cru/common/String.hpp"
 
-#include <fmt/core.h>
 #include <cstdint>
 #include <limits>
 #include <optional>
@@ -20,8 +20,8 @@ struct Point final {
   constexpr Point(const float x, const float y) : x(x), y(y) {}
   explicit constexpr Point(const Size& size);
 
-  std::u16string ToDebugString() const {
-    return fmt::format(u"({}, {})", ToUtf16String(x), ToUtf16String(y));
+  String ToDebugString() const {
+    return Format(u"({}, {})", ToUtf16String(x), ToUtf16String(y));
   }
 
   constexpr Point& operator+=(const Point& other) {
@@ -62,9 +62,8 @@ struct Size final {
                 std::numeric_limits<float>::max()};
   }
 
-  std::u16string ToDebugString() const {
-    return fmt::format(u"({}, {})", ToUtf16String(width),
-                       ToUtf16String(height));
+  String ToDebugString() const {
+    return Format(u"({}, {})", ToUtf16String(width), ToUtf16String(height));
   }
 
   float width = 0;

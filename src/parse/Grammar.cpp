@@ -122,8 +122,6 @@ Grammar::GenerateLeftProductionMap() const {
 }
 
 void Grammar::EliminateLeftRecursions() {
-  // TODO: Use a better name.
-
   auto nonterminals = nonterminals_;
   for (int i = 0; i < nonterminals.size(); i++) {
     auto ni = nonterminals[i];
@@ -148,6 +146,7 @@ void Grammar::EliminateLeftRecursions() {
             auto new_right = right;
             new_right.insert(new_right.cbegin(), jp->GetRight().cbegin(),
                              jp->GetRight().cend());
+            // TODO: What should this name be.
             CreateProduction(u"", ni, std::move(new_right));
           }
         }
@@ -167,22 +166,29 @@ void Grammar::EliminateLeftRecursions() {
       }
     }
 
-    auto ni_h = CreateNonterminal(u"");
+    auto ni_h = CreateNonterminal(ni->GetName() +
+                                  u" (Eliminate Left Recursion Helper)");
 
     for (auto p : i_nr_ps) {
       auto right = p->GetRight();
       right.push_back(ni_h);
-      CreateProduction(u"", ni, std::move(right));
+      CreateProduction(p->GetName() + u" (Eliminate Left Recursion Of " +
+                           ni->GetName() + u")",
+                       ni, std::move(right));
     }
 
     for (auto p : i_r_ps) {
       auto right = p->GetRight();
       right.erase(right.cbegin());
       right.push_back(ni_h);
-      CreateProduction(u"", ni_h, std::move(right));
+      CreateProduction(p->GetName() + u" (Eliminate Left Recursion Of " +
+                           ni->GetName() + u")",
+                       ni_h, std::move(right));
     }
 
-    CreateProduction(u"", ni_h, std::vector<Symbol*>{});
+    CreateProduction(u"Empty Production (Eliminate Left Recursion Of " +
+                         ni->GetName() + u")",
+                     ni_h, std::vector<Symbol*>{});
 
     for (auto p : i_r_ps) {
       RemoveProduction(p);
@@ -193,4 +199,6 @@ void Grammar::EliminateLeftRecursions() {
     }
   }
 }
+
+void Grammar::LeftFactor() {}
 }  // namespace cru::parse
