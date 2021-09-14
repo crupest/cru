@@ -1,6 +1,7 @@
 #include "cru/common/String.hpp"
 #include "cru/common/StringUtil.hpp"
 
+#include <algorithm>
 #include <cstring>
 #include <string_view>
 
@@ -143,6 +144,13 @@ void String::reserve(Index new_capacity) {
 
 String::iterator String::insert(const_iterator pos, const std::uint16_t* str,
                                 Index size) {
+  std::vector<std::uint16_t> backup_buffer;
+  if (str >= buffer_ && str < buffer_ + size_) {
+    backup_buffer.resize(size);
+    std::copy(str, str + size, backup_buffer.begin());
+    str = backup_buffer.data();
+  }
+
   Index new_size = size_ + size;
   if (new_size > capacity_) {
     this->reserve(this->capacity_ * 2);
@@ -150,10 +158,12 @@ String::iterator String::insert(const_iterator pos, const std::uint16_t* str,
 
   auto p = const_cast<iterator>(pos);
 
-  std::memmove(p + size, pos, (cend() - pos) * sizeof(std::uint16_t));
+  std::memmove(p + size, p, (cend() - pos) * sizeof(std::uint16_t));
   std::memcpy(p, str, size * sizeof(std::uint16_t));
 
   buffer_[new_size] = 0;
+
+  size_ = new_size;
 
   return p + size;
 }
@@ -230,10 +240,12 @@ int String::Compare(const String& other) const {
   while (i1 != end1 && i2 != end2) {
     int r = cru::Compare(*i1, *i2);
     if (r != 0) return r;
+    i1++;
+    i2++;
   }
 
   if (i1 == end1) {
-    if (i2 == end1) {
+    if (i2 == end2) {
       return 0;
     } else {
       return -1;
