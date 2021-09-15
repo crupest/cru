@@ -41,16 +41,15 @@ String::String(const wchar_t* str, Index size)
 #endif
 
 String::String(const String& other) {
-  if (other.buffer_ == kEmptyBuffer) return;
+  if (other.size_ == 0) return;
   this->buffer_ = new std::uint16_t[other.size_ + 1];
-  std::memcpy(this->buffer_, other.buffer_, other.size_ * sizeof(wchar_t));
+  std::memcpy(this->buffer_, other.buffer_, other.size_ * sizeof(value_type));
   this->buffer_[other.size_] = 0;
   this->size_ = other.size_;
   this->capacity_ = other.size_;
 }
 
 String::String(String&& other) noexcept {
-  if (other.buffer_ == kEmptyBuffer) return;
   this->buffer_ = other.buffer_;
   this->size_ = other.size_;
   this->capacity_ = other.capacity_;
@@ -71,7 +70,8 @@ String& String::operator=(const String& other) {
       this->capacity_ = 0;
     } else {
       this->buffer_ = new std::uint16_t[other.size_ + 1];
-      std::memcpy(this->buffer_, other.buffer_, other.size_ * sizeof(wchar_t));
+      std::memcpy(this->buffer_, other.buffer_,
+                  other.size_ * sizeof(value_type));
       this->buffer_[other.size_] = 0;
       this->size_ = other.size_;
       this->capacity_ = other.size_;
@@ -111,13 +111,6 @@ void String::resize(Index new_size) {
 
   if (new_size == size_) return;
 
-  if (new_size == 0) {
-    delete[] buffer_;
-    buffer_ = kEmptyBuffer;
-    size_ = 0;
-    capacity_ = 0;
-  }
-
   if (new_size < size_) {
     size_ = new_size;
     buffer_[size_] = 0;
@@ -138,6 +131,7 @@ void String::reserve(Index new_capacity) {
       delete[] this->buffer_;
     }
     new_buffer[this->size_] = 0;
+    this->buffer_ = new_buffer;
     this->capacity_ = new_capacity;
   }
 }
@@ -151,30 +145,33 @@ String::iterator String::insert(const_iterator pos, const std::uint16_t* str,
     str = backup_buffer.data();
   }
 
+  Index index = pos - cbegin();
   Index new_size = size_ + size;
   if (new_size > capacity_) {
-    this->reserve(this->capacity_ * 2);
+    auto new_capacity = capacity_;
+    if (new_capacity == 0) {
+      new_capacity = new_size;
+    } else {
+      while (new_capacity < new_size) {
+        new_capacity *= 2;
+      }
+    }
+
+    this->reserve(new_capacity);
   }
 
-  auto p = const_cast<iterator>(pos);
-
-  std::memmove(p + size, p, (cend() - pos) * sizeof(std::uint16_t));
-  std::memcpy(p, str, size * sizeof(std::uint16_t));
+  std::memmove(begin() + index + size, begin() + index,
+               (size_ - index) * sizeof(value_type));
+  std::memcpy(begin() + index, str, size * sizeof(value_type));
 
   buffer_[new_size] = 0;
-
   size_ = new_size;
 
-  return p + size;
+  return begin() + new_size;
 }
 
 String::iterator String::erase(const_iterator start, const_iterator end) {
   Index new_size = size_ - (end - start);
-
-  if (new_size == 0) {
-    resize(0);
-    return this->end();
-  }
 
   auto s = const_cast<iterator>(start);
   auto e = const_cast<iterator>(end);

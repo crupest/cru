@@ -240,6 +240,7 @@ void FormatAppendFromFormatTokenList(
       current += ToString(std::forward<TA>(args0));
       FormatAppendFromFormatTokenList(current, format_token_list, i + 1,
                                       std::forward<T>(args)...);
+      return;
     } else {
       current += token.data;
     }
