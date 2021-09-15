@@ -2,9 +2,9 @@
 #include "Base.hpp"
 
 namespace cru::platform::graphics {
-struct IGraphFactory;
+struct IGraphicsFactory;
 
-struct IGraphResource : virtual IPlatformResource {
-  virtual IGraphFactory* GetGraphFactory() = 0;
+struct IGraphicsResource : virtual IPlatformResource {
+  virtual IGraphicsFactory* GetGraphicsFactory() = 0;
 };
 }  // namespace cru::platform::graphics

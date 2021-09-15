@@ -4,7 +4,7 @@
 #include "cru/osx/graphics/quartz/Resource.hpp"
 
 namespace cru::platform::graphics::osx::quartz {
-OsxCTFont::OsxCTFont(IGraphFactory* graphics_factory, const String& name,
+OsxCTFont::OsxCTFont(IGraphicsFactory* graphics_factory, const String& name,
                      float size)
     : OsxQuartzResource(graphics_factory) {
   CFStringRef n = Convert(name);

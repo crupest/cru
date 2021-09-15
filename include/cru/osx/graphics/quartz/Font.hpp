@@ -8,7 +8,7 @@
 namespace cru::platform::graphics::osx::quartz {
 class OsxCTFont : public OsxQuartzResource, public virtual IFont {
  public:
-  OsxCTFont(IGraphFactory* graphics_factory, const String& name, float size);
+  OsxCTFont(IGraphicsFactory* graphics_factory, const String& name, float size);
 
   CRU_DELETE_COPY(OsxCTFont)
   CRU_DELETE_MOVE(OsxCTFont)

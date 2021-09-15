@@ -8,7 +8,7 @@
 
 namespace cru::platform::graphics {
 // forward declarations
-struct IGraphFactory;
+struct IGraphicsFactory;
 struct IBrush;
 struct ISolidColorBrush;
 struct IFont;

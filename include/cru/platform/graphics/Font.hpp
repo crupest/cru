@@ -2,7 +2,7 @@
 #include "Resource.hpp"
 
 namespace cru::platform::graphics {
-struct IFont : virtual IGraphResource {
+struct IFont : virtual IGraphicsResource {
   virtual float GetFontSize() = 0;
 };
 }  // namespace cru::platform::graphics

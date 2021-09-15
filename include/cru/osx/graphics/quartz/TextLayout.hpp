@@ -10,7 +10,7 @@
 namespace cru::platform::graphics::osx::quartz {
 class OsxCTTextLayout : public OsxQuartzResource, public virtual ITextLayout {
  public:
-  OsxCTTextLayout(IGraphFactory* graphics_factory,
+  OsxCTTextLayout(IGraphicsFactory* graphics_factory,
                   std::shared_ptr<OsxCTFont> font, const String& str);
 
   CRU_DELETE_COPY(OsxCTTextLayout)

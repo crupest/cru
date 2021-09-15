@@ -11,7 +11,7 @@
 namespace cru::platform::graphics::osx::quartz {
 class QuartzBrush : public OsxQuartzResource, public virtual IBrush {
  public:
-  QuartzBrush(IGraphFactory* graphics_factory)
+  QuartzBrush(IGraphicsFactory* graphics_factory)
       : OsxQuartzResource(graphics_factory) {}
   CRU_DELETE_COPY(QuartzBrush)
   CRU_DELETE_MOVE(QuartzBrush)
@@ -24,7 +24,7 @@ class QuartzBrush : public OsxQuartzResource, public virtual IBrush {
 class QuartzSolidColorBrush : public QuartzBrush,
                               public virtual ISolidColorBrush {
  public:
-  QuartzSolidColorBrush(IGraphFactory* graphics_factory, const Color& color);
+  QuartzSolidColorBrush(IGraphicsFactory* graphics_factory, const Color& color);
 
   CRU_DELETE_COPY(QuartzSolidColorBrush)
   CRU_DELETE_MOVE(QuartzSolidColorBrush)

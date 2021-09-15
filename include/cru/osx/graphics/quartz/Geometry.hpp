@@ -9,7 +9,7 @@
 namespace cru::platform::graphics::osx::quartz {
 class QuartzGeometry : public OsxQuartzResource, public virtual IGeometry {
  public:
-  QuartzGeometry(IGraphFactory *graphics_factory, CGPathRef cg_path);
+  QuartzGeometry(IGraphicsFactory *graphics_factory, CGPathRef cg_path);
 
   CRU_DELETE_COPY(QuartzGeometry)
   CRU_DELETE_MOVE(QuartzGeometry)
@@ -27,7 +27,7 @@ class QuartzGeometry : public OsxQuartzResource, public virtual IGeometry {
 class QuartzGeometryBuilder : public OsxQuartzResource,
                               public virtual IGeometryBuilder {
  public:
-  explicit QuartzGeometryBuilder(IGraphFactory *graphics_factory);
+  explicit QuartzGeometryBuilder(IGraphicsFactory *graphics_factory);
 
   CRU_DELETE_COPY(QuartzGeometryBuilder)
   CRU_DELETE_MOVE(QuartzGeometryBuilder)

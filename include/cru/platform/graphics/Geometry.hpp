@@ -2,13 +2,13 @@
 #include "Resource.hpp"
 
 namespace cru::platform::graphics {
-struct IGeometry : virtual IGraphResource {
+struct IGeometry : virtual IGraphicsResource {
   virtual bool FillContains(const Point& point) = 0;
 };
 
 // After called Build, calling every method will throw a
 
-struct IGeometryBuilder : virtual IGraphResource {
+struct IGeometryBuilder : virtual IGraphicsResource {
   virtual void BeginFigure(const Point& point) = 0;
   virtual void LineTo(const Point& point) = 0;
   virtual void QuadraticBezierTo(const Point& control_point,

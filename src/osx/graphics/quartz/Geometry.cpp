@@ -3,7 +3,7 @@
 #include <memory>
 
 namespace cru::platform::graphics::osx::quartz {
-QuartzGeometry::QuartzGeometry(IGraphFactory *graphics_factory,
+QuartzGeometry::QuartzGeometry(IGraphicsFactory *graphics_factory,
                                CGPathRef cg_path)
     : OsxQuartzResource(graphics_factory), cg_path_(cg_path) {}
 
@@ -14,7 +14,7 @@ bool QuartzGeometry::FillContains(const Point &point) {
                              kCGPathFill);
 }
 
-QuartzGeometryBuilder::QuartzGeometryBuilder(IGraphFactory *graphics_factory)
+QuartzGeometryBuilder::QuartzGeometryBuilder(IGraphicsFactory *graphics_factory)
     : OsxQuartzResource(graphics_factory) {
   cg_mutable_path_ = CGPathCreateMutable();
 }
@@ -42,7 +42,7 @@ void QuartzGeometryBuilder::QuadraticBezierTo(const Point &control_point,
 }
 
 std::unique_ptr<IGeometry> QuartzGeometryBuilder::Build() {
-  return std::make_unique<QuartzGeometry>(GetGraphFactory(),
+  return std::make_unique<QuartzGeometry>(GetGraphicsFactory(),
                                           CGPathCreateCopy(cg_mutable_path_));
 }
 }  // namespace cru::platform::graphics::osx::quartz

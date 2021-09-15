@@ -1,7 +1,7 @@
 #include "cru/osx/graphics/quartz/Brush.hpp"
 
 namespace cru::platform::graphics::osx::quartz {
-QuartzSolidColorBrush::QuartzSolidColorBrush(IGraphFactory* graphics_factory,
+QuartzSolidColorBrush::QuartzSolidColorBrush(IGraphicsFactory* graphics_factory,
                                              const Color& color)
     : QuartzBrush(graphics_factory), color_(color) {
   cg_color_ =

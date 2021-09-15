@@ -5,9 +5,9 @@
 
 namespace cru::platform::graphics::osx::quartz {
 class OsxQuartzResource : public platform::osx::OsxResource,
-                          public virtual IGraphResource {
+                          public virtual IGraphicsResource {
  public:
-  explicit OsxQuartzResource(IGraphFactory* graphics_factory)
+  explicit OsxQuartzResource(IGraphicsFactory* graphics_factory)
       : graphics_factory_(graphics_factory) {}
 
   CRU_DELETE_COPY(OsxQuartzResource)
@@ -17,9 +17,9 @@ class OsxQuartzResource : public platform::osx::OsxResource,
  public:
   String GetPlatformId() const override { return u"OSX Quartz"; }
 
-  IGraphFactory* GetGraphFactory() override;
+  IGraphicsFactory* GetGraphicsFactory() override;
 
  private:
-  IGraphFactory* graphics_factory_;
+  IGraphicsFactory* graphics_factory_;
 };
 }  // namespace cru::platform::graphics::osx::quartz

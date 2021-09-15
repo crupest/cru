@@ -2,7 +2,7 @@
 #include "Resource.hpp"
 
 namespace cru::platform::graphics {
-struct IBrush : virtual IGraphResource {};
+struct IBrush : virtual IGraphicsResource {};
 
 struct ISolidColorBrush : virtual IBrush {
   virtual Color GetColor() = 0;

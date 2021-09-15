@@ -5,7 +5,7 @@
 #include <vector>
 
 namespace cru::platform::graphics {
-struct ITextLayout : virtual IGraphResource {
+struct ITextLayout : virtual IGraphicsResource {
   virtual String GetText() = 0;
   virtual void SetText(String new_text) = 0;
 

@@ -4,10 +4,10 @@
 #include "cru/platform/gui/UiApplication.hpp"
 
 namespace cru::ui {
-using cru::platform::graphics::IGraphFactory;
+using cru::platform::graphics::IGraphicsFactory;
 using cru::platform::gui::IUiApplication;
 
-IGraphFactory* GetGraphFactory() {
+IGraphicsFactory* GetGraphFactory() {
   return IUiApplication::GetInstance()->GetGraphFactory();
 }
 

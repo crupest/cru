@@ -10,7 +10,7 @@ namespace cru::platform::graphics::osx::quartz {
 class QuartzCGContextPainter : public OsxQuartzResource,
                                public virtual IPainter {
  public:
-  explicit QuartzCGContextPainter(IGraphFactory* graphics_factory,
+  explicit QuartzCGContextPainter(IGraphicsFactory* graphics_factory,
                                   CGContextRef cg_context)
       : OsxQuartzResource(graphics_factory), cg_context_(cg_context) {}
 

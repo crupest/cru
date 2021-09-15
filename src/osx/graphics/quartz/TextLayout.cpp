@@ -7,7 +7,7 @@
 #include <limits>
 
 namespace cru::platform::graphics::osx::quartz {
-OsxCTTextLayout::OsxCTTextLayout(IGraphFactory* graphics_factory,
+OsxCTTextLayout::OsxCTTextLayout(IGraphicsFactory* graphics_factory,
                                  std::shared_ptr<OsxCTFont> font,
                                  const String& str)
     : OsxQuartzResource(graphics_factory),
