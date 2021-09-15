@@ -8,24 +8,7 @@
 #include <string_view>
 
 namespace cru::platform {
-std::string Color::ToUtf8String() const {
-  auto to_hex = [](std::uint8_t v) -> char {
-    return v >= 10 ? v - 10 + 'a' : v + '0';
-  };
-
-  auto to_two_hex_digit = [to_hex](std::uint8_t v) -> std::string {
-    return {to_hex(v /= 16), to_hex(v %= 16)};
-  };
-
-  std::string result = "#";
-  result.append(to_two_hex_digit(red));
-  result.append(to_two_hex_digit(green));
-  result.append(to_two_hex_digit(blue));
-  result.append(to_two_hex_digit(alpha));
-  return result;
-}
-
-std::u16string Color::ToString() const {
+String Color::ToString() const {
   auto to_hex = [](std::uint8_t v) -> char16_t {
     return v >= 10 ? v - 10 + u'a' : v + u'0';
   };
@@ -42,7 +25,7 @@ std::u16string Color::ToString() const {
   return result;
 }
 
-std::optional<Color> Color::Parse(std::u16string_view string,
+std::optional<Color> Color::Parse(StringView string,
                                   bool parse_predefined_color) {
   if (parse_predefined_color) {
     auto optional_predefined_color = GetPredefinedColorByName(string);
@@ -58,8 +41,7 @@ std::optional<Color> Color::Parse(std::u16string_view string,
     return std::nullopt;
   };
 
-  auto get_num_for_two_digit =
-      [get_num](std::u16string_view str) -> std::optional<int> {
+  auto get_num_for_two_digit = [get_num](StringView str) -> std::optional<int> {
     int num = 0;
     auto d1 = get_num(str[0]);
     if (!d1) return std::nullopt;
@@ -102,7 +84,7 @@ std::optional<Color> Color::Parse(std::u16string_view string,
 }
 
 namespace details {
-const std::unordered_map<std::u16string_view, Color> predefined_name_color_map{
+const std::unordered_map<StringView, Color> predefined_name_color_map{
     {u"transparent", colors::transparent},
     {u"black", colors::black},
     {u"silver", colors::silver},
@@ -255,7 +237,7 @@ const std::unordered_map<std::u16string_view, Color> predefined_name_color_map{
 };
 }  // namespace details
 
-std::optional<Color> GetPredefinedColorByName(std::u16string_view name) {
+std::optional<Color> GetPredefinedColorByName(StringView name) {
   auto result = details::predefined_name_color_map.find(name);
   if (result != details::predefined_name_color_map.cend()) {
     return result->second;

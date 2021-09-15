@@ -8,12 +8,15 @@
 #include <array>
 #include <charconv>
 #include <iterator>
+#include <limits>
 #include <stdexcept>
 #include <system_error>
 #include <type_traits>
 #include <vector>
 
 namespace cru {
+class StringView;
+
 class CRU_BASE_API String {
  public:
   static String FromUtf8(std::string_view str) {
@@ -135,6 +138,7 @@ class CRU_BASE_API String {
     return this->insert(pos, &value, 1);
   }
   iterator insert(const_iterator pos, const std::uint16_t* str, Index size);
+  iterator insert(const_iterator pos, StringView str);
   iterator erase(const_iterator pos) { return this->erase(pos, pos + 1); }
   iterator erase(const_iterator start, const_iterator end);
   void push_back(std::uint16_t value) { this->append(value); }
@@ -144,6 +148,7 @@ class CRU_BASE_API String {
     this->insert(cend(), str, size);
   }
   void append(const String& other) { append(other.data(), other.size()); }
+  inline void append(StringView str);
 
  public:
   String& operator+=(const String& other) {
@@ -224,9 +229,9 @@ struct FormatToken {
   String data;
 };
 
-std::vector<FormatToken> ParseToFormatTokenList(const String& str);
+std::vector<FormatToken> CRU_BASE_API ParseToFormatTokenList(const String& str);
 
-void FormatAppendFromFormatTokenList(
+void CRU_BASE_API FormatAppendFromFormatTokenList(
     String& current, const std::vector<FormatToken>& format_token_list,
     Index index);
 
@@ -263,4 +268,99 @@ template <typename... T>
 String String::Format(T&&... args) const {
   return cru::Format(*this, std::forward<T>(args)...);
 }
+
+class CRU_BASE_API StringView {
+ public:
+  using value_type = std::uint16_t;
+  using size_type = Index;
+  using difference_type = Index;
+  using reference = std::uint16_t&;
+  using const_reference = const std::uint16_t&;
+  using pointer = std::uint16_t*;
+  using const_pointer = const std::uint16_t*;
+  using iterator = const std::uint16_t*;
+  using const_iterator = const std::uint16_t*;
+  using reverse_iterator = std::reverse_iterator<iterator>;
+  using const_reverse_iterator = std::reverse_iterator<const_iterator>;
+
+  StringView() = default;
+
+  StringView(const std::uint16_t* ptr);
+  StringView(const std::uint16_t* ptr, Index size) : ptr_(ptr), size_(size) {}
+
+  StringView(const char16_t* ptr)
+      : StringView(reinterpret_cast<const std::uint16_t*>(ptr)) {}
+  StringView(const char16_t* ptr, Index size)
+      : StringView(reinterpret_cast<const std::uint16_t*>(ptr), size) {}
+
+  StringView(const String& str) : StringView(str.data(), str.size()) {}
+
+  CRU_DEFAULT_COPY(StringView)
+  CRU_DEFAULT_MOVE(StringView) ~StringView() = default;
+
+  Index size() const { return size_; }
+  const std::uint16_t* data() const { return ptr_; }
+
+ public:
+  iterator begin() { return this->ptr_; }
+  const_iterator begin() const { return this->ptr_; }
+  const_iterator cbegin() const { return this->ptr_; }
+
+  iterator end() { return this->ptr_ + this->size_; }
+  const_iterator end() const { return this->ptr_ + this->size_; }
+  const_iterator cend() const { return this->ptr_ + this->size_; }
+
+  reverse_iterator rbegin() { return reverse_iterator{begin()}; }
+  const_reverse_iterator rbegin() const {
+    return const_reverse_iterator{begin()};
+  }
+  const_reverse_iterator crbegin() const {
+    return const_reverse_iterator{cbegin()};
+  }
+
+  reverse_iterator rend() { return reverse_iterator{end()}; }
+  const_reverse_iterator rend() const { return const_reverse_iterator{end()}; }
+  const_reverse_iterator crend() const {
+    return const_reverse_iterator{cend()};
+  }
+
+  StringView substr(Index pos);
+  StringView substr(Index pos, Index size);
+
+  int Compare(const StringView& other) const;
+
+  String ToString() const { return String(ptr_, size_); }
+
+  std::uint16_t operator[](Index index) const { return ptr_[index]; }
+
+ private:
+  const std::uint16_t* ptr_;
+  Index size_;
+};
+
+CRU_DEFINE_COMPARE_OPERATORS(StringView)
+
+inline String::iterator String::insert(const_iterator pos, StringView str) {
+  return insert(pos, str.data(), str.size());
+}
+
+inline void String::append(StringView str) {
+  this->append(str.data(), str.size());
+}
 }  // namespace cru
+
+template <>
+struct std::hash<cru::String> {
+  std::size_t operator()(const cru::String& value) const {
+    return std::hash<std::u16string_view>{}(std::u16string_view(
+        reinterpret_cast<const char16_t*>(value.data()), value.size()));
+  }
+};
+
+template <>
+struct std::hash<cru::StringView> {
+  std::size_t operator()(const cru::StringView& value) const {
+    return std::hash<std::u16string_view>{}(std::u16string_view(
+        reinterpret_cast<const char16_t*>(value.data()), value.size()));
+  }
+};

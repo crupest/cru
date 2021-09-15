@@ -1,6 +1,8 @@
 #pragma once
 #include "cru/platform/Base.hpp"
 
+#include "cru/common/String.hpp"
+
 #include <boost/functional/hash.hpp>
 
 #include <cstdint>
@@ -37,15 +39,14 @@ struct CRU_PLATFORM_API Color {
   float GetFloatBlue() const { return static_cast<float>(blue) / 255.f; }
   float GetFloatAlpha() const { return static_cast<float>(alpha) / 255.f; }
 
-  std::string ToUtf8String() const;
-  std::u16string ToString() const;
+  String ToString() const;
 
   std::uint8_t red;
   std::uint8_t green;
   std::uint8_t blue;
   std::uint8_t alpha;
 
-  static std::optional<Color> Parse(std::u16string_view string,
+  static std::optional<Color> Parse(StringView string,
                                     bool parse_predefined_color = true);
 };
 
@@ -252,9 +253,8 @@ struct std::hash<cru::platform::Color> {
 
 namespace cru::platform {
 namespace details {
-extern const std::unordered_map<std::u16string_view, Color>
-    predefined_name_color_map;
+extern const std::unordered_map<StringView, Color> predefined_name_color_map;
 }  // namespace details
 
-std::optional<Color> GetPredefinedColorByName(std::u16string_view name);
+std::optional<Color> GetPredefinedColorByName(StringView name);
 }  // namespace cru::platform

@@ -1,8 +1,11 @@
 #include "cru/common/String.hpp"
 #include "cru/common/StringUtil.hpp"
 
+#include <gsl/gsl>
+
 #include <algorithm>
 #include <cstring>
+#include <functional>
 #include <string_view>
 
 namespace cru {
@@ -301,5 +304,43 @@ void FormatAppendFromFormatTokenList(
   }
 }
 }  // namespace details
+
+StringView::StringView(const std::uint16_t* ptr)
+    : ptr_(ptr), size_(GetStrSize(ptr)) {}
+
+int StringView::Compare(const StringView& other) const {
+  const_iterator i1 = cbegin();
+  const_iterator i2 = other.cbegin();
+
+  const_iterator end1 = cend();
+  const_iterator end2 = other.cend();
+
+  while (i1 != end1 && i2 != end2) {
+    int r = cru::Compare(*i1, *i2);
+    if (r != 0) return r;
+    i1++;
+    i2++;
+  }
+
+  if (i1 == end1) {
+    if (i2 == end2) {
+      return 0;
+    } else {
+      return -1;
+    }
+  } else {
+    return 1;
+  }
+}
+
+StringView StringView::substr(Index pos) {
+  Expects(pos >= 0 && pos < size_);
+  return StringView(ptr_ + pos, size_ - pos);
+}
+
+StringView StringView::substr(Index pos, Index size) {
+  Expects(pos >= 0 && pos < size_);
+  return StringView(ptr_ + pos, std::min(size, size_ - pos));
+}
 
 }  // namespace cru

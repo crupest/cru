@@ -1,8 +1,6 @@
 #pragma once
 #include "cru/common/Base.hpp"
 
-#include "Color.hpp"
-#include "cru/common/Format.hpp"
 #include "cru/common/Range.hpp"
 #include "cru/common/String.hpp"
 
@@ -19,10 +17,6 @@ struct Point final {
   constexpr Point() = default;
   constexpr Point(const float x, const float y) : x(x), y(y) {}
   explicit constexpr Point(const Size& size);
-
-  String ToDebugString() const {
-    return Format(u"({}, {})", ToUtf16String(x), ToUtf16String(y));
-  }
 
   constexpr Point& operator+=(const Point& other) {
     this->x += other.x;
@@ -50,6 +44,10 @@ constexpr bool operator!=(const Point& left, const Point& right) {
   return !(left == right);
 }
 
+inline String ToString(const Point& point) {
+  return Format(u"(x: {}, y: {})", point.x, point.y);
+}
+
 struct Size final {
   constexpr Size() = default;
   constexpr Size(const float width, const float height)
@@ -60,10 +58,6 @@ struct Size final {
   constexpr static Size Infinate() {
     return Size{std::numeric_limits<float>::max(),
                 std::numeric_limits<float>::max()};
-  }
-
-  String ToDebugString() const {
-    return Format(u"({}, {})", ToUtf16String(width), ToUtf16String(height));
   }
 
   float width = 0;
@@ -86,6 +80,10 @@ constexpr bool operator==(const Size& left, const Size& right) {
 
 constexpr bool operator!=(const Size& left, const Size& right) {
   return !(left == right);
+}
+
+inline String ToString(const Size& size) {
+  return Format(u"(width: {}, height: {})", size.width, size.height);
 }
 
 struct Thickness final {
