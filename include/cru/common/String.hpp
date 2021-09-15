@@ -12,6 +12,7 @@
 #include <limits>
 #include <stdexcept>
 #include <string>
+#include <string_view>
 #include <system_error>
 #include <type_traits>
 #include <vector>
@@ -20,34 +21,6 @@ namespace cru {
 class StringView;
 
 class CRU_BASE_API String {
- public:
-  static String FromUtf8(std::string_view str) {
-    return FromUtf8(str.data(), str.size());
-  }
-  static String FromUtf8(const char* str, Index size);
-
-  static String FromUtf16(const std::uint16_t* str) { return String(str); }
-  static String FromUtf16(const std::uint16_t* str, Index size) {
-    return String(str, size);
-  }
-
-  static String FromUtf16(const char16_t* str) { return String(str); }
-  static String FromUtf16(const char16_t* str, Index size) {
-    return String(str, size);
-  }
-
-  // Never use this if you don't know what this mean!
-  static String FromBuffer(std::uint16_t* buffer, Index size, Index capacity) {
-    return String{from_buffer_tag{}, buffer, size, capacity};
-  }
-
-#ifdef CRU_PLATFORM_WINDOWS
-  static String FromUtf16(wchar_t* str) { return String(str); }
-  static String FromUtf16(wchar_t* str, Index size) {
-    return String(str, size);
-  }
-#endif
-
  public:
   using value_type = std::uint16_t;
   using size_type = Index;
@@ -62,17 +35,45 @@ class CRU_BASE_API String {
   using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
  public:
+  static String FromUtf8(const char* str);
+  static String FromUtf8(const char* str, Index size);
+  static String FromUtf8(std::string_view str) {
+    return FromUtf8(str.data(), str.size());
+  }
+
+  static String FromUtf16(const char16_t* str) {
+    return String(reinterpret_cast<const_pointer>(str));
+  }
+  static String FromUtf16(const char16_t* str, Index size) {
+    return String(reinterpret_cast<const_pointer>(str), size);
+  }
+  static String FromUtf16(std::u16string_view str) {
+    return FromUtf16(str.data(), str.size());
+  }
+
+  static inline String From(StringView str);
+
+  // Never use this if you don't know what this mean!
+  static String FromBuffer(std::uint16_t* buffer, Index size, Index capacity) {
+    return String{from_buffer_tag{}, buffer, size, capacity};
+  }
+
+#ifdef CRU_PLATFORM_WINDOWS
+  static String FromUtf16(wchar_t* str) { return String(str); }
+  static String FromUtf16(wchar_t* str, Index size) {
+    return String(str, size);
+  }
+#endif
+
+ public:
   String() = default;
 
-  explicit String(const std::uint16_t* str);
-  String(const std::uint16_t* str, Index size);
-
-  explicit String(const char16_t* str);
-  String(const char16_t* str, Index size);
-  String(const std::u16string_view& str) : String(str.data(), str.size()) {}
+  explicit String(const_pointer str);
+  String(const_pointer str, size_type size);
 
   template <Index size>
-  constexpr String(const char16_t (&str)[size]) : String(str, size) {}
+  String(const char16_t (&str)[size])
+      : String(reinterpret_cast<const_pointer>(str), size) {}
 
   template <typename Iter>
   String(Iter start, Iter end) {
@@ -81,8 +82,7 @@ class CRU_BASE_API String {
     }
   }
 
-  String(const std::initializer_list<std::uint16_t>& l)
-      : String(l.begin(), l.end()) {}
+  String(std::initializer_list<value_type> l) : String(l.begin(), l.end()) {}
 
 #ifdef CRU_PLATFORM_WINDOWS
   String(const wchar_t* str);
@@ -112,6 +112,7 @@ class CRU_BASE_API String {
 
   void resize(Index new_size);
   void reserve(Index new_capacity);
+  void shrink_to_fit();
 
   std::uint16_t& front() { return this->operator[](0); }
   const std::uint16_t& front() const { return this->operator[](0); }
@@ -369,6 +370,8 @@ inline String::iterator String::insert(const_iterator pos, StringView str) {
 inline void String::append(StringView str) {
   this->append(str.data(), str.size());
 }
+
+inline String String::From(StringView str) { return str.ToString(); }
 }  // namespace cru
 
 template <>

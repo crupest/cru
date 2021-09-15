@@ -9,8 +9,12 @@
 #include <string_view>
 
 namespace cru {
+String String::FromUtf8(const char* str) {
+  return FromUtf16(cru::ToUtf16(std::string_view(str)));
+}
+
 String String::FromUtf8(const char* str, Index size) {
-  return String{cru::ToUtf16(std::string_view(str, size))};
+  return FromUtf16(cru::ToUtf16(std::string_view(str, size)));
 }
 
 std::uint16_t String::kEmptyBuffer[1] = {0};
@@ -25,6 +29,7 @@ Index GetStrSize(const C* str) {
 }
 
 String::String(const std::uint16_t* str) : String(str, GetStrSize(str)) {}
+
 String::String(const std::uint16_t* str, Index size) {
   this->buffer_ = new std::uint16_t[size + 1];
   std::memcpy(this->buffer_, str, size * sizeof(char16_t));
@@ -32,10 +37,6 @@ String::String(const std::uint16_t* str, Index size) {
   this->size_ = size;
   this->capacity_ = size;
 }
-
-String::String(const char16_t* str) : String(str, GetStrSize(str)) {}
-String::String(const char16_t* str, Index size)
-    : String(reinterpret_cast<const std::uint16_t*>(str), size) {}
 
 #ifdef CRU_PLATFORM_WINDOWS
 String::String(const wchar_t* str) : String(str, GetStrSize(str)) {}
@@ -125,7 +126,24 @@ void String::resize(Index new_size) {
   }
 }
 
+void String::shrink_to_fit() {
+  if (capacity_ == size_) return;
+  if (size_ == 0) {
+    delete[] buffer_;
+    buffer_ = kEmptyBuffer;
+    size_ = 0;
+    capacity_ = 0;
+  } else {
+    auto new_buffer = new value_type[size_ + 1];
+    std::memcpy(new_buffer, buffer_, sizeof(value_type) * size_);
+    delete[] buffer_;
+    buffer_ = new_buffer;
+    capacity_ = size_;
+  }
+}
+
 void String::reserve(Index new_capacity) {
+  Expects(new_capacity >= 0);
   if (new_capacity <= this->capacity_) return;
   if (new_capacity > 0) {
     std::uint16_t* new_buffer = new std::uint16_t[new_capacity + 1];
@@ -141,6 +159,8 @@ void String::reserve(Index new_capacity) {
 
 String::iterator String::insert(const_iterator pos, const std::uint16_t* str,
                                 Index size) {
+  Expects(pos >= cbegin() && pos <= cend());
+
   std::vector<std::uint16_t> backup_buffer;
   if (str >= buffer_ && str < buffer_ + size_) {
     backup_buffer.resize(size);
@@ -174,6 +194,8 @@ String::iterator String::insert(const_iterator pos, const std::uint16_t* str,
 }
 
 String::iterator String::erase(const_iterator start, const_iterator end) {
+  Expects(buffer_ <= start && start <= end && end <= buffer_ + size_);
+
   Index new_size = size_ - (end - start);
 
   auto s = const_cast<iterator>(start);
