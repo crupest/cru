@@ -222,6 +222,11 @@ Range String::RangeFromCodePointToCodeUnit(Range code_point_range) const {
       IndexFromCodePointToCodeUnit(code_point_range.GetEnd()));
 }
 
+String& String::operator+=(const String& other) {
+  append(other);
+  return *this;
+}
+
 namespace {
 inline int Compare(std::uint16_t left, std::uint16_t right) {
   if (left < right) return -1;
@@ -305,9 +310,6 @@ void FormatAppendFromFormatTokenList(
 }
 }  // namespace details
 
-StringView::StringView(const std::uint16_t* ptr)
-    : ptr_(ptr), size_(GetStrSize(ptr)) {}
-
 int StringView::Compare(const StringView& other) const {
   const_iterator i1 = cbegin();
   const_iterator i2 = other.cbegin();
@@ -340,6 +342,7 @@ StringView StringView::substr(Index pos) {
 
 StringView StringView::substr(Index pos, Index size) {
   Expects(pos >= 0 && pos < size_);
+
   return StringView(ptr_ + pos, std::min(size, size_ - pos));
 }
 

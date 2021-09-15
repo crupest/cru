@@ -16,7 +16,7 @@ struct CompositionClause {
 using CompositionClauses = std::vector<CompositionClause>;
 
 struct CompositionText {
-  std::u16string text;
+  String text;
   CompositionClauses clauses;
   TextRange selection;
 };
@@ -49,7 +49,7 @@ struct IInputMethodContext : virtual IPlatformResource {
   // Triggered every time composition text changes.
   virtual IEvent<std::nullptr_t>* CompositionEvent() = 0;
 
-  virtual IEvent<std::u16string_view>* TextEvent() = 0;
+  virtual IEvent<StringView>* TextEvent() = 0;
 };
 }  // namespace cru::platform::gui
 

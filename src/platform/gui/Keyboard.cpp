@@ -5,8 +5,7 @@
 #include <string_view>
 
 namespace cru::platform::gui {
-constexpr std::array<std::u16string_view,
-                     static_cast<int>(KeyCode::NumPad9) + 1>
+const std::array<StringView, static_cast<int>(KeyCode::NumPad9) + 1>
     key_code_string_list{u"Unknown",
                          u"LeftButton",
                          u"MiddleButton",
@@ -106,13 +105,13 @@ constexpr std::array<std::u16string_view,
                          u"NumPad8",
                          u"NumPad9"};
 
-std::u16string_view ToString(KeyCode key_code) {
+String ToString(KeyCode key_code) {
   if (static_cast<int>(key_code) < 0 ||
       static_cast<int>(key_code) >=
           static_cast<int>(key_code_string_list.size()))
     return u"UNKNOWN_KEYCODENAME";
 
-  return key_code_string_list[static_cast<int>(key_code)];
+  return key_code_string_list[static_cast<int>(key_code)].ToString();
 }
 
 std::u16string ToString(KeyModifier key_modifier,

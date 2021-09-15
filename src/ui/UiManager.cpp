@@ -2,7 +2,6 @@
 #include <optional>
 
 #include "Helper.hpp"
-#include "cru/platform/GraphBase.hpp"
 #include "cru/platform/graphics/Brush.hpp"
 #include "cru/platform/graphics/Factory.hpp"
 #include "cru/platform/graphics/Font.hpp"

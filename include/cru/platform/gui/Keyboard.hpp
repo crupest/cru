@@ -123,7 +123,7 @@ struct KeyModifiers {
   static constexpr KeyModifier alt{0b100};
 };
 
-CRU_PLATFORM_GUI_API std::u16string_view ToString(KeyCode key_code);
-CRU_PLATFORM_GUI_API std::u16string ToString(
-    KeyModifier key_modifier, std::u16string_view separator = u"+");
+CRU_PLATFORM_GUI_API String ToString(KeyCode key_code);
+CRU_PLATFORM_GUI_API String ToString(KeyModifier key_modifier,
+                                     StringView separator = u"+");
 }  // namespace cru::platform::gui

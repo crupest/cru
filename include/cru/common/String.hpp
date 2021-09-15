@@ -7,9 +7,11 @@
 #include <algorithm>
 #include <array>
 #include <charconv>
+#include <initializer_list>
 #include <iterator>
 #include <limits>
 #include <stdexcept>
+#include <string>
 #include <system_error>
 #include <type_traits>
 #include <vector>
@@ -62,12 +64,25 @@ class CRU_BASE_API String {
  public:
   String() = default;
 
-  String(const std::uint16_t* str);
+  explicit String(const std::uint16_t* str);
   String(const std::uint16_t* str, Index size);
 
-  String(const char16_t* str);
+  explicit String(const char16_t* str);
   String(const char16_t* str, Index size);
-  String(const std::u16string& str) : String(str.data(), str.size()) {}
+  String(const std::u16string_view& str) : String(str.data(), str.size()) {}
+
+  template <Index size>
+  constexpr String(const char16_t (&str)[size]) : String(str, size) {}
+
+  template <typename Iter>
+  String(Iter start, Iter end) {
+    for (; start != end; start++) {
+      append(*start);
+    }
+  }
+
+  String(const std::initializer_list<std::uint16_t>& l)
+      : String(l.begin(), l.end()) {}
 
 #ifdef CRU_PLATFORM_WINDOWS
   String(const wchar_t* str);
@@ -147,14 +162,10 @@ class CRU_BASE_API String {
   void append(const std::uint16_t* str, Index size) {
     this->insert(cend(), str, size);
   }
-  void append(const String& other) { append(other.data(), other.size()); }
   inline void append(StringView str);
 
  public:
-  String& operator+=(const String& other) {
-    append(other);
-    return *this;
-  }
+  String& operator+=(const String& other);
 
  public:
   Utf16CodePointIterator CodePointIterator() const {
@@ -201,8 +212,12 @@ inline String operator+(const String& left, const String& right) {
   return result;
 }
 
-template <typename T, typename = std::enable_if_t<std::is_arithmetic_v<T>>>
-String ToString(T value) {
+inline String ToString(bool value) {
+  return value ? String(u"true") : String(u"false");
+}
+
+template <typename T>
+std::enable_if_t<std::is_integral_v<T>, String> ToString(T value) {
   std::array<char, 50> buffer;
   auto result =
       std::to_chars(buffer.data(), buffer.data() + buffer.size(), value);
@@ -217,6 +232,12 @@ String ToString(T value) {
   } else {
     throw std::invalid_argument("Failed to convert value to chars.");
   }
+}
+
+template <typename T>
+std::enable_if_t<std::is_floating_point_v<T>, String> ToString(T value) {
+  auto str = std::to_string(value);
+  return String(str.cbegin(), str.cend());
 }
 
 inline String ToString(String value) { return std::move(value); }
@@ -285,18 +306,19 @@ class CRU_BASE_API StringView {
 
   StringView() = default;
 
-  StringView(const std::uint16_t* ptr);
-  StringView(const std::uint16_t* ptr, Index size) : ptr_(ptr), size_(size) {}
+  constexpr StringView(const std::uint16_t* ptr, Index size)
+      : ptr_(ptr), size_(size) {}
 
-  StringView(const char16_t* ptr)
-      : StringView(reinterpret_cast<const std::uint16_t*>(ptr)) {}
+  template <Index size>
+  StringView(const char16_t (&array)[size]) : StringView(array, size) {}
   StringView(const char16_t* ptr, Index size)
-      : StringView(reinterpret_cast<const std::uint16_t*>(ptr), size) {}
+      : ptr_(reinterpret_cast<const std::uint16_t*>(ptr)), size_(size) {}
 
   StringView(const String& str) : StringView(str.data(), str.size()) {}
 
   CRU_DEFAULT_COPY(StringView)
-  CRU_DEFAULT_MOVE(StringView) ~StringView() = default;
+  CRU_DEFAULT_MOVE(StringView)
+  ~StringView() = default;
 
   Index size() const { return size_; }
   const std::uint16_t* data() const { return ptr_; }

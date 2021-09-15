@@ -115,9 +115,8 @@ class MeasureLength final {
     }
   }
 
-  std::u16string ToDebugString() const {
-    return IsSpecified() ? ToUtf16String(GetLengthOrUndefined())
-                         : u"UNSPECIFIED";
+  String ToDebugString() const {
+    return IsSpecified() ? ToString(GetLengthOrUndefined()) : u"UNSPECIFIED";
   }
 
  private:

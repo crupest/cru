@@ -1,5 +1,6 @@
 #pragma once
-#include "../GraphBase.hpp"
+#include "../Color.hpp"
+#include "../GraphicsBase.hpp"
 #include "../Matrix.hpp"
 #include "../Resource.hpp"
 

@@ -4,7 +4,6 @@
 #include "MeasureRequirement.hpp"
 #include "cru/common/Base.hpp"
 #include "cru/common/Event.hpp"
-#include "cru/platform/GraphBase.hpp"
 #include "cru/ui/Base.hpp"
 
 #include <cstddef>

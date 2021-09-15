@@ -13,11 +13,11 @@ String Color::ToString() const {
     return v >= 10 ? v - 10 + u'a' : v + u'0';
   };
 
-  auto to_two_hex_digit = [to_hex](std::uint8_t v) -> std::u16string {
+  auto to_two_hex_digit = [to_hex](std::uint8_t v) -> String {
     return {to_hex(v /= 16), to_hex(v %= 16)};
   };
 
-  std::u16string result = u"#";
+  String result = u"#";
   result.append(to_two_hex_digit(red));
   result.append(to_two_hex_digit(green));
   result.append(to_two_hex_digit(blue));
