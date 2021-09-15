@@ -77,7 +77,7 @@ class HandlerRegistry final {
   }
 
   HandlerRegistryIterator<T> end() const {
-    return HandlerRegistryIterator<T>(handler_list_.begin());
+    return HandlerRegistryIterator<T>(handler_list_.end());
   }
 
  private:
