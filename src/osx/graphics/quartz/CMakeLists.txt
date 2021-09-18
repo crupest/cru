@@ -20,6 +20,9 @@ target_sources(cru_osx_graphics_quartz PUBLIC
 	${CRU_OSX_GRAPHICS_NATIVE_INCLUDE_DIR}/Resource.hpp
 	${CRU_OSX_GRAPHICS_NATIVE_INCLUDE_DIR}/TextLayout.hpp
 )
-target_link_libraries(cru_osx_graphics_quartz PUBLIC quartz)
-target_link_libraries(cru_osx_graphics_quartz PUBLIC cru_osx_base cru_platform_graphics)
 
+find_library(CORE_GRAPHICS CoreGraphics REQUIRED)
+find_library(CORE_TEXT CoreText REQUIRED)
+
+target_link_libraries(cru_osx_graphics_quartz PUBLIC ${CORE_GRAPHICS} ${CORE_TEXT})
+target_link_libraries(cru_osx_graphics_quartz PUBLIC cru_osx_base cru_platform_graphics)

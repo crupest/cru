@@ -13,3 +13,4 @@ target_sources(cru_osx_base PUBLIC
 target_link_libraries(cru_osx_base PUBLIC cru_platform_base)
 
 add_subdirectory(graphics)
+add_subdirectory(gui)
