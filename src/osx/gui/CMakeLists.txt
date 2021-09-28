@@ -2,8 +2,8 @@ set(CRU_OSX_GUI_INCLUDE_DIR ${CRU_INCLUDE_DIR}/cru/osx/gui)
 
 add_library(cru_osx_gui SHARED
 	Resource.cpp
-	UiApplication.cpp
-	Window.cpp
+	UiApplication.mm
+	Window.mm
 )
 
 target_sources(cru_osx_gui PUBLIC
