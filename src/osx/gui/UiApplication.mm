@@ -1,7 +1,13 @@
 #include "cru/osx/gui/UiApplication.hpp"
 
+#include "cru/osx/graphics/quartz/Factory.hpp"
+
 #include <AppKit/NSApplication.h>
+#include <Foundation/NSRunLoop.h>
+
 #include <algorithm>
+#include <memory>
+#include <unordered_map>
 
 @interface AppDelegate : NSObject <NSApplicationDelegate>
 - (id)init:(cru::platform::gui::osx::details::OsxUiApplicationPrivate*)p;
@@ -32,6 +38,12 @@ class OsxUiApplicationPrivate {
   OsxUiApplication* osx_ui_application_;
   AppDelegate* app_delegate_;
   std::vector<std::function<void()>> quit_handlers_;
+
+  long long current_timer_id_ = 1;
+  std::unordered_map<long long, std::function<void()>> next_tick_;
+  std::unordered_map<long long, NSTimer*> timers_;
+
+  std::unique_ptr<platform::graphics::osx::quartz::QuartzGraphicsFactory> quartz_graphics_factory_;
 };
 
 void OsxUiApplicationPrivate::CallQuitHandlers() {
@@ -41,7 +53,11 @@ void OsxUiApplicationPrivate::CallQuitHandlers() {
 }
 }
 
-OsxUiApplication::OsxUiApplication() : OsxGuiResource(this) {}
+OsxUiApplication::OsxUiApplication()
+    : OsxGuiResource(this), p_(new details::OsxUiApplicationPrivate(this)) {
+  [NSApp setDelegate:p_->app_delegate_];
+  p_->quartz_graphics_factory_ = std::make_unique<graphics::osx::quartz::QuartzGraphicsFactory>();
+}
 
 OsxUiApplication::~OsxUiApplication() {}
 
@@ -58,6 +74,54 @@ void OsxUiApplication::AddOnQuitHandler(std::function<void()> handler) {
   p_->quit_handlers_.push_back(std::move(handler));
 }
 
+long long OsxUiApplication::SetImmediate(std::function<void()> action) {
+  const long long id = p_->current_timer_id_++;
+  p_->next_tick_.emplace(id, std::move(action));
+
+  [[NSRunLoop mainRunLoop] performBlock:^{
+    const auto i = p_->next_tick_.find(id);
+    if (i != p_->next_tick_.cend()) {
+      i->second();
+    }
+    p_->next_tick_.erase(i);
+  }];
+
+  return id;
+}
+
+long long OsxUiApplication::SetTimeout(std::chrono::milliseconds milliseconds,
+                                       std::function<void()> action) {
+  long long id = p_->current_timer_id_++;
+  p_->timers_.emplace(id, [NSTimer scheduledTimerWithTimeInterval:milliseconds.count() / 1000.0
+                                                          repeats:false
+                                                            block:^(NSTimer* timer) {
+                                                              action();
+                                                              p_->timers_.erase(id);
+                                                            }]);
+
+  return id;
+}
+
+long long OsxUiApplication::SetInterval(std::chrono::milliseconds milliseconds,
+                                        std::function<void()> action) {
+  long long id = p_->current_timer_id_++;
+  p_->timers_.emplace(id, [NSTimer scheduledTimerWithTimeInterval:milliseconds.count() / 1000.0
+                                                          repeats:true
+                                                            block:^(NSTimer* timer) {
+                                                              action();
+                                                            }]);
+
+  return id;
+}
+
+void OsxUiApplication::CancelTimer(long long id) {
+  p_->next_tick_.erase(id);
+  auto i = p_->timers_.find(id);
+  if (i != p_->timers_.cend()) {
+    [i->second invalidate];
+    p_->timers_.erase(i);
+  }
+}
 }
 
 @implementation AppDelegate

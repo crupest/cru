@@ -39,7 +39,7 @@ class OsxUiApplication : public OsxGuiResource, public virtual IUiApplication {
   INativeWindow* CreateWindow(INativeWindow* parent,
                               CreateWindowFlag flags) override;
 
-  cru::platform::graphics::IGraphicsFactory* GetGraphFactory() override;
+  cru::platform::graphics::IGraphicsFactory* GetGraphicsFactory() override;
 
   ICursorManager* GetCursorManager() override;
 

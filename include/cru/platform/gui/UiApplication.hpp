@@ -62,7 +62,7 @@ struct CRU_PLATFORM_GUI_API IUiApplication : public virtual IPlatformResource {
   virtual INativeWindow* CreateWindow(INativeWindow* parent,
                                       CreateWindowFlag flags) = 0;
 
-  virtual cru::platform::graphics::IGraphicsFactory* GetGraphFactory() = 0;
+  virtual cru::platform::graphics::IGraphicsFactory* GetGraphicsFactory() = 0;
 
   virtual ICursorManager* GetCursorManager() = 0;
 };
