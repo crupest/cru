@@ -182,6 +182,11 @@ struct Rect final {
     return Point(left + width / 2.0f, top + height / 2.0f);
   }
 
+  constexpr void SetSize(const Size& size) {
+    width = size.width;
+    height = size.height;
+  }
+
   constexpr Size GetSize() const { return Size(width, height); }
 
   constexpr Rect Expand(const Thickness& thickness) const {

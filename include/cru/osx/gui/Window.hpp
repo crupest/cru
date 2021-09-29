@@ -1,5 +1,6 @@
 #pragma once
 #include "Resource.hpp"
+#include "cru/platform/gui/Base.hpp"
 #include "cru/platform/gui/Window.hpp"
 
 #include <memory>
@@ -15,7 +16,8 @@ class OsxWindow : public OsxGuiResource, public INativeWindow {
   friend details::OsxWindowPrivate;
 
  public:
-  explicit OsxWindow(OsxUiApplication* ui_application);
+  OsxWindow(OsxUiApplication* ui_application, INativeWindow* parent,
+            bool frame);
 
   CRU_DELETE_COPY(OsxWindow)
   CRU_DELETE_MOVE(OsxWindow)
@@ -60,6 +62,9 @@ class OsxWindow : public OsxGuiResource, public INativeWindow {
   IEvent<NativeKeyEventArgs>* KeyUpEvent() override;
 
   IInputMethodContext* GetInputMethodContext() override;
+
+ private:
+  void CreateWindow();
 
  private:
   std::unique_ptr<details::OsxWindowPrivate> p_;
