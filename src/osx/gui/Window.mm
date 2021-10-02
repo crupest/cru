@@ -1,9 +1,11 @@
 #include "cru/osx/gui/Window.hpp"
 
+#include "cru/osx/graphics/quartz/Painter.hpp"
 #include "cru/osx/gui/UiApplication.hpp"
-#include "cru/platform/gui/Base.hpp"
 
+#include <AppKit/NSGraphicsContext.h>
 #include <AppKit/NSWindow.h>
+#include <memory>
 
 namespace cru::platform::gui::osx {
 namespace details {
@@ -110,6 +112,16 @@ void OsxWindow::SetWindowRect(const Rect& rect) {
     auto r = [NSWindow contentRectForFrameRect:rr styleMask:CalcWindowStyleMask(p_->frame_)];
     p_->content_rect_ = Rect(r.origin.x, r.origin.y, r.size.width, r.size.height);
   }
+}
+
+std::unique_ptr<graphics::IPainter> OsxWindow::BeginPaint() {
+  NSGraphicsContext* ns_graphics_context =
+      [NSGraphicsContext graphicsContextWithWindow:p_->window_];
+
+  CGContextRef cg_context = [ns_graphics_context CGContext];
+
+  return std::make_unique<cru::platform::graphics::osx::quartz::QuartzCGContextPainter>(
+      GetUiApplication()->GetGraphicsFactory(), cg_context, true, GetClientSize());
 }
 
 void OsxWindow::CreateWindow() {

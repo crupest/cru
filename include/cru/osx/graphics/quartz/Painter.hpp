@@ -11,8 +11,12 @@ class QuartzCGContextPainter : public OsxQuartzResource,
                                public virtual IPainter {
  public:
   explicit QuartzCGContextPainter(IGraphicsFactory* graphics_factory,
-                                  CGContextRef cg_context)
-      : OsxQuartzResource(graphics_factory), cg_context_(cg_context) {}
+                                  CGContextRef cg_context, bool auto_release,
+                                  const Size& size)
+      : OsxQuartzResource(graphics_factory),
+        cg_context_(cg_context),
+        auto_release_(auto_release),
+        size_(size) {}
 
   CRU_DELETE_COPY(QuartzCGContextPainter)
   CRU_DELETE_MOVE(QuartzCGContextPainter)
@@ -44,6 +48,13 @@ class QuartzCGContextPainter : public OsxQuartzResource,
   void EndDraw() override;
 
  private:
+  void Validate();
+
+ private:
   CGContextRef cg_context_;
+
+  bool auto_release_;
+
+  Size size_;
 };
 }  // namespace cru::platform::graphics::osx::quartz

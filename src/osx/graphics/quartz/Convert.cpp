@@ -13,14 +13,19 @@ String Convert(CFStringRef string) {
                                                 kCFStringEncodingUTF16, 0);
   auto l = CFDataGetLength(d);
 
-  auto s = String::FromUtf16(
-      reinterpret_cast<const std::uint16_t*>(CFDataGetBytePtr(d)),
-      CFDataGetLength(d) / 2);
+  auto s = String(reinterpret_cast<const std::uint16_t*>(CFDataGetBytePtr(d)),
+                  CFDataGetLength(d) / 2);
 
   CFRelease(d);
 
   return s;
 }
+
+CGPoint Convert(const Point& point) { return CGPoint{point.x, point.y}; }
+Point Convert(const CGPoint& point) { return Point(point.x, point.y); }
+
+CGSize Convert(const Size& size) { return CGSize{size.width, size.height}; }
+Size Convert(const CGSize& size) { return Size(size.width, size.height); }
 
 CGAffineTransform Convert(const Matrix& matrix) {
   return CGAffineTransformMake(matrix.m11, matrix.m12, matrix.m21, matrix.m22,
