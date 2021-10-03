@@ -22,6 +22,8 @@
 
 namespace cru::platform::gui::osx {
 namespace details {
+
+
 class OsxWindowPrivate {
   friend OsxWindow;
 
@@ -214,6 +216,16 @@ void OsxWindow::CreateWindow() {
                                 Point(event.locationInWindow.x, event.locationInWindow.y),
                                 key_modifer});
                             break;
+                          case NSEventTypeScrollWheel:
+                            this->mouse_wheel_event_.Raise(NativeMouseWheelEventArgs{
+                                static_cast<float>(event.scrollingDeltaY),
+                                Point(event.locationInWindow.x, event.locationInWindow.y),
+                                key_modifer});
+                            break;
+                          case NSEventTypeKeyDown:
+
+                          case NSEventTypeKeyUp:
+
                           default:
                             break;
                         }

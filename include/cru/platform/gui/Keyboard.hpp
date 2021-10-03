@@ -107,7 +107,10 @@ enum class KeyCode {
   NumPad6,
   NumPad7,
   NumPad8,
-  NumPad9
+  NumPad9,
+  LeftCommand,
+  RightCommand,
+  Return
 };
 
 namespace details {
