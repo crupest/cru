@@ -1,6 +1,7 @@
 #include "cru/osx/gui/Window.hpp"
 
 #include "cru/osx/graphics/quartz/Painter.hpp"
+#include "cru/osx/gui/Keyboard.hpp"
 #include "cru/osx/gui/UiApplication.hpp"
 #include "cru/platform/gui/Base.hpp"
 #include "cru/platform/gui/Keyboard.hpp"
@@ -22,7 +23,6 @@
 
 namespace cru::platform::gui::osx {
 namespace details {
-
 
 class OsxWindowPrivate {
   friend OsxWindow;
@@ -223,9 +223,13 @@ void OsxWindow::CreateWindow() {
                                 key_modifer});
                             break;
                           case NSEventTypeKeyDown:
-
+                            this->key_down_event_.Raise(NativeKeyEventArgs{
+                                KeyCodeFromOsxToCru(event.keyCode), key_modifer});
+                            break;
                           case NSEventTypeKeyUp:
-
+                            this->key_up_event_.Raise(NativeKeyEventArgs{
+                                KeyCodeFromOsxToCru(event.keyCode), key_modifer});
+                            break;
                           default:
                             break;
                         }
