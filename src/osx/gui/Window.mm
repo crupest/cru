@@ -7,6 +7,13 @@
 #include <AppKit/NSWindow.h>
 #include <memory>
 
+@interface WindowDelegate : NSObject <NSWindowDelegate>
+- (void)windowWillClose:(NSNotification*)notification;
+- (void)windowDidExpose:(NSNotification*)notification;
+- (void)windowDidUpdate:(NSNotification*)notification;
+- (void)windowDidResize:(NSNotification*)notification;
+@end
+
 namespace cru::platform::gui::osx {
 namespace details {
 class OsxWindowPrivate {
@@ -20,6 +27,12 @@ class OsxWindowPrivate {
 
   ~OsxWindowPrivate() = default;
 
+ public:
+  void OnWindowWillClose();
+  void OnWindowDidExpose();
+  void OnWindowDidUpdate();
+  void OnWindowDidResize();
+
  private:
   OsxWindow* osx_window_;
 
@@ -30,6 +43,13 @@ class OsxWindowPrivate {
 
   NSWindow* window_;
 };
+
+void OsxWindowPrivate::OnWindowWillClose() { osx_window_->destroy_event_.Raise(nullptr); }
+void OsxWindowPrivate::OnWindowDidExpose() { [window_ update]; }
+void OsxWindowPrivate::OnWindowDidUpdate() { osx_window_->paint_event_.Raise(nullptr); }
+void OsxWindowPrivate::OnWindowDidResize() {
+  osx_window_->resize_event_.Raise(osx_window_->GetClientSize());
+}
 }
 
 namespace {
