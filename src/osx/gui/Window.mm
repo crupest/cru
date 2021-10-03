@@ -2,12 +2,18 @@
 
 #include "cru/osx/graphics/quartz/Painter.hpp"
 #include "cru/osx/gui/UiApplication.hpp"
+#include "cru/platform/gui/Base.hpp"
+#include "cru/platform/gui/Keyboard.hpp"
+#include "cru/platform/gui/Window.hpp"
 
 #include <AppKit/NSGraphicsContext.h>
 #include <AppKit/NSWindow.h>
+
+#include <limits>
 #include <memory>
 
 @interface WindowDelegate : NSObject <NSWindowDelegate>
+- (id)init:(cru::platform::gui::osx::details::OsxWindowPrivate*)p;
 - (void)windowWillClose:(NSNotification*)notification;
 - (void)windowDidExpose:(NSNotification*)notification;
 - (void)windowDidUpdate:(NSNotification*)notification;
@@ -20,7 +26,9 @@ class OsxWindowPrivate {
   friend OsxWindow;
 
  public:
-  explicit OsxWindowPrivate(OsxWindow* osx_window) : osx_window_(osx_window) {}
+  explicit OsxWindowPrivate(OsxWindow* osx_window) : osx_window_(osx_window) {
+    window_delegate_ = [[WindowDelegate alloc] init:this];
+  }
 
   CRU_DELETE_COPY(OsxWindowPrivate)
   CRU_DELETE_MOVE(OsxWindowPrivate)
@@ -42,6 +50,7 @@ class OsxWindowPrivate {
   Rect content_rect_;
 
   NSWindow* window_;
+  WindowDelegate* window_delegate_;
 };
 
 void OsxWindowPrivate::OnWindowWillClose() { osx_window_->destroy_event_.Raise(nullptr); }
@@ -154,5 +163,86 @@ void OsxWindow::CreateWindow() {
                                             styleMask:style_mask
                                               backing:NSBackingStoreBuffered
                                                 defer:false];
+
+  [p_->window_ setDelegate:p_->window_delegate_];
+
+  [p_->window_
+      trackEventsMatchingMask:NSEventMaskAny
+                      timeout:std::numeric_limits<double>::max()
+                         mode:NSRunLoopCommonModes
+                      handler:^(NSEvent* _Nullable event, BOOL* _Nonnull stop) {
+                        KeyModifier key_modifer;
+                        if (event.modifierFlags & NSEventModifierFlagControl)
+                          key_modifer |= KeyModifiers::ctrl;
+                        if (event.modifierFlags & NSEventModifierFlagOption)
+                          key_modifer |= KeyModifiers::alt;
+                        if (event.modifierFlags & NSEventModifierFlagShift)
+                          key_modifer |= KeyModifiers::shift;
+
+                        switch (event.type) {
+                          case NSEventTypeMouseEntered:
+                            this->mouse_enter_leave_event_.Raise(MouseEnterLeaveType::Enter);
+                            break;
+                          case NSEventTypeMouseExited:
+                            this->mouse_enter_leave_event_.Raise(MouseEnterLeaveType::Leave);
+                            break;
+                          case NSEventTypeMouseMoved:
+                            this->mouse_move_event_.Raise(
+                                Point(event.locationInWindow.x, event.locationInWindow.y));
+                            break;
+                          case NSEventTypeLeftMouseDown:
+                            this->mouse_down_event_.Raise(NativeMouseButtonEventArgs{
+                                mouse_buttons::left,
+                                Point(event.locationInWindow.x, event.locationInWindow.y),
+                                key_modifer});
+                            break;
+                          case NSEventTypeLeftMouseUp:
+                            this->mouse_up_event_.Raise(NativeMouseButtonEventArgs{
+                                mouse_buttons::left,
+                                Point(event.locationInWindow.x, event.locationInWindow.y),
+                                key_modifer});
+                            break;
+                          case NSEventTypeRightMouseDown:
+                            this->mouse_down_event_.Raise(NativeMouseButtonEventArgs{
+                                mouse_buttons::right,
+                                Point(event.locationInWindow.x, event.locationInWindow.y),
+                                key_modifer});
+                            break;
+                          case NSEventTypeRightMouseUp:
+                            this->mouse_up_event_.Raise(NativeMouseButtonEventArgs{
+                                mouse_buttons::right,
+                                Point(event.locationInWindow.x, event.locationInWindow.y),
+                                key_modifer});
+                            break;
+                          default:
+                            break;
+                        }
+                        *stop = false;
+                      }];
 }
 }
+
+@implementation WindowDelegate
+cru::platform::gui::osx::details::OsxWindowPrivate* p_;
+
+- (id)init:(cru::platform::gui::osx::details::OsxWindowPrivate*)p {
+  p_ = p;
+  return self;
+}
+
+- (void)windowWillClose:(NSNotification*)notification {
+  p_->OnWindowWillClose();
+}
+
+- (void)windowDidExpose:(NSNotification*)notification {
+  p_->OnWindowDidExpose();
+}
+
+- (void)windowDidUpdate:(NSNotification*)notification {
+  p_->OnWindowDidUpdate();
+}
+
+- (void)windowDidResize:(NSNotification*)notification {
+  p_->OnWindowDidResize();
+}
+@end
