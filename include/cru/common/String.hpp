@@ -372,6 +372,8 @@ inline void String::append(StringView str) {
 }
 
 inline String String::From(StringView str) { return str.ToString(); }
+
+inline String ToString(StringView value) { return value.ToString(); }
 }  // namespace cru
 
 template <>

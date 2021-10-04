@@ -15,4 +15,6 @@ OsxCTFont::OsxCTFont(IGraphicsFactory* graphics_factory, const String& name,
 }
 
 OsxCTFont::~OsxCTFont() { CFRelease(ct_font_); }
+
+float OsxCTFont::GetFontSize() { return CTFontGetSize(ct_font_); }
 }  // namespace cru::platform::graphics::osx::quartz

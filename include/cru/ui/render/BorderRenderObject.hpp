@@ -2,7 +2,7 @@
 #include <string_view>
 #include "../style/ApplyBorderStyleInfo.hpp"
 #include "RenderObject.hpp"
-#include "cru/platform/GraphBase.hpp"
+#include "cru/platform/GraphicsBase.hpp"
 #include "cru/ui/Base.hpp"
 
 namespace cru::ui::render {

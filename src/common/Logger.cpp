@@ -53,7 +53,7 @@ String GetLogTime() {
 }
 }  // namespace
 
-void Logger::Log(LogLevel level, const String &message) {
+void Logger::Log(LogLevel level, StringView message) {
 #ifndef CRU_DEBUG
   if (level == LogLevel::Debug) {
     return;
@@ -65,7 +65,7 @@ void Logger::Log(LogLevel level, const String &message) {
   }
 }
 
-void Logger::Log(LogLevel level, const String &tag, const String &message) {
+void Logger::Log(LogLevel level, StringView tag, StringView message) {
 #ifndef CRU_DEBUG
   if (level == LogLevel::Debug) {
     return;

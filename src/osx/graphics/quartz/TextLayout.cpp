@@ -20,6 +20,8 @@ OsxCTTextLayout::OsxCTTextLayout(IGraphicsFactory* graphics_factory,
   RecreateFrame();
 }
 
+OsxCTTextLayout::~OsxCTTextLayout() {}
+
 void OsxCTTextLayout::SetFont(std::shared_ptr<IFont> font) {
   font_ = CheckPlatform<OsxCTFont>(font, GetPlatformId());
   CFRelease(ct_framesetter_);

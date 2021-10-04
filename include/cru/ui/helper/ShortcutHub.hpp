@@ -45,8 +45,8 @@ class ShortcutKeyBind {
     return !this->operator==(other);
   }
 
-  std::u16string ToString() {
-    std::u16string result = u"(";
+  String ToString() {
+    String result = u"(";
     result += platform::gui::ToString(modifier_);
     result += u")";
     result += platform::gui::ToString(key_);

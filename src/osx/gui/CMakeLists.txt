@@ -14,4 +14,6 @@ target_sources(cru_osx_gui PUBLIC
 	${CRU_OSX_GUI_INCLUDE_DIR}/Window.hpp
 )
 
-target_link_libraries(cru_osx_gui PUBLIC cru_platform_gui cru_osx_graphics_quartz)
+find_library(APPKIT AppKit REQUIRED)
+
+target_link_libraries(cru_osx_gui PUBLIC cru_platform_gui cru_osx_graphics_quartz ${APPKIT})

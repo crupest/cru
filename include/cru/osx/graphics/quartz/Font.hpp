@@ -17,6 +17,8 @@ class OsxCTFont : public OsxQuartzResource, public virtual IFont {
 
   CTFontRef GetCTFont() const { return ct_font_; }
 
+  float GetFontSize() override;
+
  private:
   CTFontRef ct_font_;
 };

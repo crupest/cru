@@ -8,7 +8,7 @@ using cru::platform::graphics::IGraphicsFactory;
 using cru::platform::gui::IUiApplication;
 
 IGraphicsFactory* GetGraphFactory() {
-  return IUiApplication::GetInstance()->GetGraphFactory();
+  return IUiApplication::GetInstance()->GetGraphicsFactory();
 }
 
 IUiApplication* GetUiApplication() { return IUiApplication::GetInstance(); }

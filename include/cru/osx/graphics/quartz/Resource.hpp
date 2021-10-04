@@ -17,7 +17,7 @@ class OsxQuartzResource : public platform::osx::OsxResource,
  public:
   String GetPlatformId() const override { return u"OSX Quartz"; }
 
-  IGraphicsFactory* GetGraphicsFactory() override;
+  IGraphicsFactory* GetGraphicsFactory() override { return graphics_factory_; }
 
  private:
   IGraphicsFactory* graphics_factory_;
