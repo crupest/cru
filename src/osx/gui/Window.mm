@@ -1,24 +1,30 @@
 #include "cru/osx/gui/Window.hpp"
 
+#include "cru/common/Range.hpp"
+#include "cru/osx/graphics/quartz/Convert.hpp"
 #include "cru/osx/graphics/quartz/Painter.hpp"
 #include "cru/osx/gui/Keyboard.hpp"
 #include "cru/osx/gui/UiApplication.hpp"
 #include "cru/platform/gui/Base.hpp"
+#include "cru/platform/gui/InputMethod.hpp"
 #include "cru/platform/gui/Keyboard.hpp"
 #include "cru/platform/gui/Window.hpp"
 
 #include <AppKit/NSGraphicsContext.h>
+#include <AppKit/NSTextInputContext.h>
 #include <AppKit/NSWindow.h>
+#include <Foundation/NSAttributedString.h>
+#include <Foundation/NSString.h>
 
 #include <limits>
 #include <memory>
 
 @interface WindowDelegate : NSObject <NSWindowDelegate>
 - (id)init:(cru::platform::gui::osx::details::OsxWindowPrivate*)p;
-- (void)windowWillClose:(NSNotification*)notification;
-- (void)windowDidExpose:(NSNotification*)notification;
-- (void)windowDidUpdate:(NSNotification*)notification;
-- (void)windowDidResize:(NSNotification*)notification;
+@end
+
+@interface InputClient : NSObject <NSTextInputClient>
+- (id)init:(cru::platform::gui::osx::details::OsxInputMethodContextPrivate*)p;
 @end
 
 namespace cru::platform::gui::osx {
@@ -236,6 +242,88 @@ void OsxWindow::CreateWindow() {
                         *stop = false;
                       }];
 }
+
+namespace details {
+class OsxInputMethodContextPrivate {
+  friend OsxInputMethodContext;
+
+ public:
+  explicit OsxInputMethodContextPrivate(OsxInputMethodContext* input_method_context);
+
+  CRU_DELETE_COPY(OsxInputMethodContextPrivate)
+  CRU_DELETE_MOVE(OsxInputMethodContextPrivate)
+
+  ~OsxInputMethodContextPrivate() = default;
+
+  void SetCompositionText(CompositionText composition_text) {
+    composition_text_ = std::move(composition_text);
+  }
+
+  void RaiseCompositionStartEvent();
+  void RaiseCompositionEndEvent();
+  void RaiseCompositionEvent();
+  void RaiseTextEvent(StringView text);
+
+  void SetCandidateWindowPosition(const Point& p) { candidate_window_point_ = p; }
+
+ private:
+  CompositionText composition_text_;
+
+  OsxInputMethodContext* input_method_context_;
+
+  // On Osx, this is the text lefttop point on screen.
+  Point candidate_window_point_;
+
+  Event<std::nullptr_t> composition_start_event_;
+  Event<std::nullptr_t> composition_event_;
+  Event<std::nullptr_t> composition_end_event_;
+  Event<StringView> text_event_;
+};
+
+void OsxInputMethodContextPrivate::RaiseCompositionStartEvent() {
+  composition_start_event_.Raise(nullptr);
+}
+void OsxInputMethodContextPrivate::RaiseCompositionEndEvent() {
+  composition_end_event_.Raise(nullptr);
+}
+void OsxInputMethodContextPrivate::RaiseCompositionEvent() { composition_event_.Raise(nullptr); }
+
+void OsxInputMethodContextPrivate::RaiseTextEvent(StringView text) { text_event_.Raise(text); }
+}
+
+void OsxInputMethodContext::EnableIME() { [[NSTextInputContext currentInputContext] deactivate]; }
+
+void OsxInputMethodContext::DisableIME() { [[NSTextInputContext currentInputContext] activate]; }
+
+bool OsxInputMethodContext::ShouldManuallyDrawCompositionText() { return true; }
+
+void OsxInputMethodContext::CompleteComposition() {
+  // TODO: Implement this.
+}
+
+void OsxInputMethodContext::CancelComposition() {
+  [[NSTextInputContext currentInputContext] discardMarkedText];
+}
+
+CompositionText OsxInputMethodContext::GetCompositionText() { return p_->composition_text_; }
+
+void OsxInputMethodContext::SetCandidateWindowPosition(const Point& point) {
+  p_->SetCandidateWindowPosition(point);
+}
+
+IEvent<std::nullptr_t>* OsxInputMethodContext::CompositionStartEvent() {
+  return &p_->composition_start_event_;
+}
+
+IEvent<std::nullptr_t>* OsxInputMethodContext::CompositionEndEvent() {
+  return &p_->composition_end_event_;
+}
+
+IEvent<std::nullptr_t>* OsxInputMethodContext::CompositionEvent() {
+  return &p_->composition_event_;
+}
+
+IEvent<StringView>* OsxInputMethodContext::TextEvent() { return &p_->text_event_; }
 }
 
 @implementation WindowDelegate
@@ -260,5 +348,82 @@ cru::platform::gui::osx::details::OsxWindowPrivate* p_;
 
 - (void)windowDidResize:(NSNotification*)notification {
   p_->OnWindowDidResize();
+}
+@end
+
+@implementation InputClient
+cru::platform::gui::osx::details::OsxInputMethodContextPrivate* _p;
+NSMutableAttributedString* _text;
+
+- (id)init:(cru::platform::gui::osx::details::OsxInputMethodContextPrivate*)p {
+  _p = p;
+  return self;
+}
+
+- (BOOL)hasMarkedText {
+  return _text != nil;
+}
+
+- (NSRange)markedRange {
+  return _text == nil ? NSRange{NSNotFound, 0} : NSRange{0, [_text length]};
+}
+
+- (NSRange)selectedRange {
+  return NSRange{NSNotFound, 0};
+}
+
+- (void)setMarkedText:(id)string
+        selectedRange:(NSRange)selectedRange
+     replacementRange:(NSRange)replacementRange {
+  if (_text == nil) {
+    _text = [[NSMutableAttributedString alloc] init];
+    _p->RaiseCompositionStartEvent();
+  }
+
+  [_text deleteCharactersInRange:replacementRange];
+  [_text insertAttributedString:[[NSAttributedString alloc] initWithString:(NSString*)string]
+                        atIndex:replacementRange.location];
+
+  cru::platform::gui::CompositionText composition_text;
+  composition_text.text =
+      cru::platform::graphics::osx::quartz::Convert((CFStringRef)[_text string]);
+  _p->SetCompositionText(composition_text);
+  _p->RaiseCompositionEvent();
+}
+
+- (void)unmarkText {
+  _text = nil;
+  _p->RaiseCompositionEndEvent();
+}
+
+- (NSArray<NSAttributedStringKey>*)validAttributesForMarkedText {
+  return @[
+    (NSString*)kCTUnderlineColorAttributeName, (NSString*)kCTUnderlineStyleAttributeName,
+    (NSString*)kCTForegroundColorAttributeName, (NSString*)kCTBackgroundColorAttributeName
+  ];
+}
+
+- (NSAttributedString*)attributedSubstringForProposedRange:(NSRange)range
+                                               actualRange:(NSRangePointer)actualRange {
+  return [_text attributedSubstringFromRange:range];
+}
+
+- (void)insertText:(id)string replacementRange:(NSRange)replacementRange {
+  _text = nil;
+  cru::String s = cru::platform::graphics::osx::quartz::Convert((CFStringRef)string);
+  _p->RaiseCompositionEndEvent();
+  _p->RaiseTextEvent(s);
+}
+
+- (NSUInteger)characterIndexForPoint:(NSPoint)point {
+  // TODO: Implement this.
+}
+
+- (NSRect)firstRectForCharacterRange:(NSRange)range actualRange:(NSRangePointer)actualRange {
+  // TODO: Implement this.
+}
+
+- (void)doCommandBySelector:(SEL)selector {
+  // TODO: Call with window.
 }
 @end

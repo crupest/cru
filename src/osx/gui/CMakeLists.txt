@@ -8,6 +8,7 @@ add_library(cru_osx_gui SHARED
 )
 
 target_sources(cru_osx_gui PUBLIC
+	${CRU_OSX_GUI_INCLUDE_DIR}/InputMethod.hpp
 	${CRU_OSX_GUI_INCLUDE_DIR}/Keyboard.hpp
 	${CRU_OSX_GUI_INCLUDE_DIR}/Resource.hpp
 	${CRU_OSX_GUI_INCLUDE_DIR}/UiApplication.hpp
