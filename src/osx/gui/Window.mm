@@ -1,7 +1,7 @@
 #include "cru/osx/gui/Window.hpp"
 
 #include "cru/common/Range.hpp"
-#include "cru/osx/graphics/quartz/Convert.hpp"
+#include "cru/osx/Convert.hpp"
 #include "cru/osx/graphics/quartz/Painter.hpp"
 #include "cru/osx/gui/Keyboard.hpp"
 #include "cru/osx/gui/UiApplication.hpp"
@@ -18,6 +18,8 @@
 
 #include <limits>
 #include <memory>
+
+using cru::platform::osx::Convert;
 
 @interface WindowDelegate : NSObject <NSWindowDelegate>
 - (id)init:(cru::platform::gui::osx::details::OsxWindowPrivate*)p;
@@ -264,10 +266,16 @@ class OsxInputMethodContextPrivate {
   void RaiseCompositionEvent();
   void RaiseTextEvent(StringView text);
 
+  Point GetCandidateWindowPosition() const { return candidate_window_point_; }
   void SetCandidateWindowPosition(const Point& p) { candidate_window_point_ = p; }
+
+  Range GetSelectionRange() const { return selection_range_; }
+  void SetSelectionRange(Range selection_range) { selection_range_ = selection_range; }
 
  private:
   CompositionText composition_text_;
+
+  Range selection_range_;
 
   OsxInputMethodContext* input_method_context_;
 
@@ -369,7 +377,7 @@ NSMutableAttributedString* _text;
 }
 
 - (NSRange)selectedRange {
-  return NSRange{NSNotFound, 0};
+  return NSMakeRange(_p->GetSelectionRange().position, _p->GetSelectionRange().count);
 }
 
 - (void)setMarkedText:(id)string
@@ -385,8 +393,9 @@ NSMutableAttributedString* _text;
                         atIndex:replacementRange.location];
 
   cru::platform::gui::CompositionText composition_text;
-  composition_text.text =
-      cru::platform::graphics::osx::quartz::Convert((CFStringRef)[_text string]);
+  composition_text.text = Convert((CFStringRef)[_text string]);
+  composition_text.selection.position = replacementRange.location + selectedRange.location;
+  composition_text.selection.count = selectedRange.length;
   _p->SetCompositionText(composition_text);
   _p->RaiseCompositionEvent();
 }
@@ -410,17 +419,22 @@ NSMutableAttributedString* _text;
 
 - (void)insertText:(id)string replacementRange:(NSRange)replacementRange {
   _text = nil;
-  cru::String s = cru::platform::graphics::osx::quartz::Convert((CFStringRef)string);
+  cru::String s = Convert((CFStringRef)string);
   _p->RaiseCompositionEndEvent();
   _p->RaiseTextEvent(s);
 }
 
 - (NSUInteger)characterIndexForPoint:(NSPoint)point {
-  // TODO: Implement this.
+  return NSNotFound;
 }
 
 - (NSRect)firstRectForCharacterRange:(NSRange)range actualRange:(NSRangePointer)actualRange {
-  // TODO: Implement this.
+  NSRect result;
+  result.origin.x = _p->GetCandidateWindowPosition().x;
+  result.origin.y = _p->GetCandidateWindowPosition().y;
+  result.size.height = 16;
+  result.size.width = 0;
+  return result;
 }
 
 - (void)doCommandBySelector:(SEL)selector {
