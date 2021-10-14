@@ -92,6 +92,8 @@ OsxWindow::~OsxWindow() {
   if (p_->window_) {
     [p_->window_ close];
   }
+
+  dynamic_cast<OsxUiApplication*>(GetUiApplication())->UnregisterWindow(this);
 }
 
 void OsxWindow::Close() {

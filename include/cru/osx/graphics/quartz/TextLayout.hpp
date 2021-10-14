@@ -22,7 +22,7 @@ class OsxCTTextLayout : public OsxQuartzResource, public virtual ITextLayout {
   String GetText() override { return text_; }
   void SetText(String new_text) override;
 
-  std::shared_ptr<IFont> GetFont() override;
+  std::shared_ptr<IFont> GetFont() override { return font_; }
   void SetFont(std::shared_ptr<IFont> font) override;
 
   void SetMaxWidth(float max_width) override;
@@ -33,7 +33,7 @@ class OsxCTTextLayout : public OsxQuartzResource, public virtual ITextLayout {
   Point TextSinglePoint(Index position, bool trailing) override;
   TextHitTestResult HitTest(const Point& point) override;
 
-private:
+ private:
   void RecreateFrame();
 
  private:

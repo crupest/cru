@@ -1,4 +1,5 @@
 #include "cru/osx/graphics/quartz/TextLayout.hpp"
+#include "cru/osx/Convert.hpp"
 #include "cru/osx/graphics/quartz/Convert.hpp"
 #include "cru/osx/graphics/quartz/Resource.hpp"
 #include "cru/platform/Check.hpp"
@@ -7,6 +8,8 @@
 #include <limits>
 
 namespace cru::platform::graphics::osx::quartz {
+using cru::platform::osx::Convert;
+
 OsxCTTextLayout::OsxCTTextLayout(IGraphicsFactory* graphics_factory,
                                  std::shared_ptr<OsxCTFont> font,
                                  const String& str)

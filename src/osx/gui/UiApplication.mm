@@ -1,13 +1,18 @@
 #include "cru/osx/gui/UiApplication.hpp"
 
 #include "cru/osx/graphics/quartz/Factory.hpp"
+#include "cru/osx/gui/Window.hpp"
+#include "cru/platform/gui/UiApplication.hpp"
+#include "cru/platform/gui/Window.hpp"
 
 #include <AppKit/NSApplication.h>
 #include <Foundation/NSRunLoop.h>
 
 #include <algorithm>
+#include <iterator>
 #include <memory>
 #include <unordered_map>
+#include <vector>
 
 @interface AppDelegate : NSObject <NSApplicationDelegate>
 - (id)init:(cru::platform::gui::osx::details::OsxUiApplicationPrivate*)p;
@@ -42,6 +47,8 @@ class OsxUiApplicationPrivate {
   long long current_timer_id_ = 1;
   std::unordered_map<long long, std::function<void()>> next_tick_;
   std::unordered_map<long long, NSTimer*> timers_;
+
+  std::vector<OsxWindow*> windows_;
 
   std::unique_ptr<platform::graphics::osx::quartz::QuartzGraphicsFactory> quartz_graphics_factory_;
 };
@@ -121,6 +128,25 @@ void OsxUiApplication::CancelTimer(long long id) {
     [i->second invalidate];
     p_->timers_.erase(i);
   }
+}
+
+std::vector<INativeWindow*> OsxUiApplication::GetAllWindow() {
+  std::vector<INativeWindow*> result;
+  std::transform(p_->windows_.cbegin(), p_->windows_.cend(), std::back_inserter(result),
+                 [](OsxWindow* w) { return static_cast<INativeWindow*>(w); });
+  return result;
+}
+
+INativeWindow* OsxUiApplication::CreateWindow(INativeWindow* parent, CreateWindowFlag flags) {
+  auto window = new OsxWindow(this, parent, !(flags & CreateWindowFlags::NoCaptionAndBorder));
+  p_->windows_.push_back(window);
+  return window;
+}
+
+void OsxUiApplication::UnregisterWindow(OsxWindow* window) {
+  p_->windows_.erase(
+      std::remove(p_->windows_.begin(), p_->windows_.end(), static_cast<INativeWindow*>(window)),
+      p_->windows_.cend());
 }
 }
 

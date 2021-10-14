@@ -1,6 +1,6 @@
 #include "cru/osx/Convert.hpp"
 
-namespace cru::cru::platform::osx {
+namespace cru::platform::osx {
 CFStringRef Convert(const String& string) {
   return CFStringCreateWithBytes(
       nullptr, reinterpret_cast<const UInt8*>(string.data()),
@@ -12,7 +12,7 @@ String Convert(CFStringRef string) {
                                                 kCFStringEncodingUTF16, 0);
   auto l = CFDataGetLength(d);
 
-  auto s = String(reinterpret_cast<const std::uint16_t*>(CFDataGetBytePtr(d)),
+  auto s = String(reinterpret_cast<const char16_t*>(CFDataGetBytePtr(d)),
                   CFDataGetLength(d) / 2);
 
   CFRelease(d);

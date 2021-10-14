@@ -6,12 +6,15 @@
 #include <memory>
 
 namespace cru::platform::gui::osx {
+class OsxWindow;
+
 namespace details {
 class OsxUiApplicationPrivate;
 }
 
 class OsxUiApplication : public OsxGuiResource, public virtual IUiApplication {
   friend details::OsxUiApplicationPrivate;
+  friend OsxWindow;
 
  public:
   OsxUiApplication();
@@ -44,6 +47,8 @@ class OsxUiApplication : public OsxGuiResource, public virtual IUiApplication {
   ICursorManager* GetCursorManager() override;
 
  private:
+  void UnregisterWindow(OsxWindow* window);
+
   std::unique_ptr<details::OsxUiApplicationPrivate> p_;
 };
 }  // namespace cru::platform::gui::osx

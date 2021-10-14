@@ -22,15 +22,15 @@ class StringView;
 
 class CRU_BASE_API String {
  public:
-  using value_type = std::uint16_t;
+  using value_type = char16_t;
   using size_type = Index;
   using difference_type = Index;
-  using reference = std::uint16_t&;
-  using const_reference = const std::uint16_t&;
-  using pointer = std::uint16_t*;
-  using const_pointer = const std::uint16_t*;
-  using iterator = std::uint16_t*;
-  using const_iterator = const std::uint16_t*;
+  using reference = value_type&;
+  using const_reference = const value_type&;
+  using pointer = value_type*;
+  using const_pointer = const value_type*;
+  using iterator = value_type*;
+  using const_iterator = const value_type*;
   using reverse_iterator = std::reverse_iterator<iterator>;
   using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
@@ -41,11 +41,9 @@ class CRU_BASE_API String {
     return FromUtf8(str.data(), str.size());
   }
 
-  static String FromUtf16(const char16_t* str) {
-    return String(reinterpret_cast<const_pointer>(str));
-  }
+  static String FromUtf16(const char16_t* str) { return String(str); }
   static String FromUtf16(const char16_t* str, Index size) {
-    return String(reinterpret_cast<const_pointer>(str), size);
+    return String(str, size);
   }
   static String FromUtf16(std::u16string_view str) {
     return FromUtf16(str.data(), str.size());
@@ -54,7 +52,7 @@ class CRU_BASE_API String {
   static inline String From(StringView str);
 
   // Never use this if you don't know what this mean!
-  static String FromBuffer(std::uint16_t* buffer, Index size, Index capacity) {
+  static String FromBuffer(pointer buffer, Index size, Index capacity) {
     return String{from_buffer_tag{}, buffer, size, capacity};
   }
 
@@ -100,30 +98,30 @@ class CRU_BASE_API String {
 
  private:
   struct from_buffer_tag {};
-  String(from_buffer_tag, std::uint16_t* buffer, Index size, Index capacity);
+  String(from_buffer_tag, pointer buffer, Index size, Index capacity);
 
  public:
   bool empty() const { return this->size_ == 0; }
   Index size() const { return this->size_; }
   Index length() const { return this->size(); }
   Index capacity() const { return this->capacity_; }
-  std::uint16_t* data() { return this->buffer_; }
-  const std::uint16_t* data() const { return this->buffer_; }
+  pointer data() { return this->buffer_; }
+  const_pointer data() const { return this->buffer_; }
 
   void resize(Index new_size);
   void reserve(Index new_capacity);
   void shrink_to_fit();
 
-  std::uint16_t& front() { return this->operator[](0); }
-  const std::uint16_t& front() const { return this->operator[](0); }
+  reference front() { return this->operator[](0); }
+  const_reference front() const { return this->operator[](0); }
 
-  std::uint16_t& back() { return this->operator[](size_ - 1); }
-  const std::uint16_t& back() const { return this->operator[](size_ - 1); }
+  reference back() { return this->operator[](size_ - 1); }
+  const_reference back() const { return this->operator[](size_ - 1); }
 
-  const std::uint16_t* c_str() const { return buffer_; }
+  const_pointer c_str() const { return buffer_; }
 
-  std::uint16_t& operator[](Index index) { return buffer_[index]; }
-  const std::uint16_t& operator[](Index index) const { return buffer_[index]; }
+  reference operator[](Index index) { return buffer_[index]; }
+  const_reference operator[](Index index) const { return buffer_[index]; }
 
  public:
   iterator begin() { return this->buffer_; }
@@ -150,17 +148,17 @@ class CRU_BASE_API String {
 
  public:
   void clear();
-  iterator insert(const_iterator pos, std::uint16_t value) {
+  iterator insert(const_iterator pos, value_type value) {
     return this->insert(pos, &value, 1);
   }
-  iterator insert(const_iterator pos, const std::uint16_t* str, Index size);
+  iterator insert(const_iterator pos, const_iterator str, Index size);
   iterator insert(const_iterator pos, StringView str);
   iterator erase(const_iterator pos) { return this->erase(pos, pos + 1); }
   iterator erase(const_iterator start, const_iterator end);
-  void push_back(std::uint16_t value) { this->append(value); }
+  void push_back(value_type value) { this->append(value); }
   void pop_back() { this->erase(cend() - 1); }
-  void append(std::uint16_t value) { this->insert(cend(), value); }
-  void append(const std::uint16_t* str, Index size) {
+  void append(value_type value) { this->insert(cend(), value); }
+  void append(const_iterator str, Index size) {
     this->insert(cend(), str, size);
   }
   inline void append(StringView str);
@@ -179,10 +177,6 @@ class CRU_BASE_API String {
   Range RangeFromCodeUnitToCodePoint(Range code_unit_range) const;
   Range RangeFromCodePointToCodeUnit(Range code_point_range) const;
 
-  const char16_t* Char16CStr() const {
-    return reinterpret_cast<const char16_t*>(c_str());
-  }
-
 #ifdef CRU_PLATFORM_WINDOWS
   const wchar_t* WinCStr() const {
     return reinterpret_cast<const wchar_t*>(c_str());
@@ -197,10 +191,10 @@ class CRU_BASE_API String {
   int Compare(const String& other) const;
 
  private:
-  static std::uint16_t kEmptyBuffer[1];
+  static char16_t kEmptyBuffer[1];
 
  private:
-  std::uint16_t* buffer_ = kEmptyBuffer;
+  char16_t* buffer_ = kEmptyBuffer;
   Index size_ = 0;      // not including trailing '\0'
   Index capacity_ = 0;  // always 1 smaller than real buffer size
 };
@@ -224,7 +218,7 @@ std::enable_if_t<std::is_integral_v<T>, String> ToString(T value) {
       std::to_chars(buffer.data(), buffer.data() + buffer.size(), value);
 
   auto size = result.ptr - buffer.data();
-  auto b = new std::uint16_t[size + 1];
+  auto b = new char16_t[size + 1];
   b[size] = 0;
   std::copy(buffer.data(), result.ptr, b);
   return String::FromBuffer(b, size, size);
@@ -293,36 +287,36 @@ String String::Format(T&&... args) const {
 
 class CRU_BASE_API StringView {
  public:
-  using value_type = std::uint16_t;
+  using value_type = char16_t;
   using size_type = Index;
   using difference_type = Index;
-  using reference = std::uint16_t&;
-  using const_reference = const std::uint16_t&;
-  using pointer = std::uint16_t*;
-  using const_pointer = const std::uint16_t*;
-  using iterator = const std::uint16_t*;
-  using const_iterator = const std::uint16_t*;
+  using reference = value_type&;
+  using const_reference = const value_type&;
+  using pointer = value_type*;
+  using const_pointer = const value_type*;
+  using iterator = const value_type*;
+  using const_iterator = const value_type*;
   using reverse_iterator = std::reverse_iterator<iterator>;
   using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
   StringView() = default;
 
-  constexpr StringView(const std::uint16_t* ptr, Index size)
+  constexpr StringView(const_pointer ptr, Index size)
       : ptr_(ptr), size_(size) {}
 
   template <Index size>
-  StringView(const char16_t (&array)[size]) : StringView(array, size) {}
-  StringView(const char16_t* ptr, Index size)
-      : ptr_(reinterpret_cast<const std::uint16_t*>(ptr)), size_(size) {}
+  constexpr StringView(const value_type (&array)[size])
+      : StringView(array, size) {}
 
   StringView(const String& str) : StringView(str.data(), str.size()) {}
 
   CRU_DEFAULT_COPY(StringView)
   CRU_DEFAULT_MOVE(StringView)
+
   ~StringView() = default;
 
   Index size() const { return size_; }
-  const std::uint16_t* data() const { return ptr_; }
+  const value_type* data() const { return ptr_; }
 
  public:
   iterator begin() { return this->ptr_; }
@@ -354,10 +348,10 @@ class CRU_BASE_API StringView {
 
   String ToString() const { return String(ptr_, size_); }
 
-  std::uint16_t operator[](Index index) const { return ptr_[index]; }
+  value_type operator[](Index index) const { return ptr_[index]; }
 
  private:
-  const std::uint16_t* ptr_;
+  const char16_t* ptr_;
   Index size_;
 };
 

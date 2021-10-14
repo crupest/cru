@@ -17,7 +17,7 @@ String String::FromUtf8(const char* str, Index size) {
   return FromUtf16(cru::ToUtf16(std::string_view(str, size)));
 }
 
-std::uint16_t String::kEmptyBuffer[1] = {0};
+char16_t String::kEmptyBuffer[1] = {0};
 
 template <typename C>
 Index GetStrSize(const C* str) {
@@ -28,10 +28,10 @@ Index GetStrSize(const C* str) {
   return i;
 }
 
-String::String(const std::uint16_t* str) : String(str, GetStrSize(str)) {}
+String::String(const_pointer str) : String(str, GetStrSize(str)) {}
 
-String::String(const std::uint16_t* str, Index size) {
-  this->buffer_ = new std::uint16_t[size + 1];
+String::String(const_pointer str, Index size) {
+  this->buffer_ = new value_type[size + 1];
   std::memcpy(this->buffer_, str, size * sizeof(char16_t));
   this->buffer_[size] = 0;
   this->size_ = size;
@@ -46,7 +46,7 @@ String::String(const wchar_t* str, Index size)
 
 String::String(const String& other) {
   if (other.size_ == 0) return;
-  this->buffer_ = new std::uint16_t[other.size_ + 1];
+  this->buffer_ = new value_type[other.size_ + 1];
   std::memcpy(this->buffer_, other.buffer_, other.size_ * sizeof(value_type));
   this->buffer_[other.size_] = 0;
   this->size_ = other.size_;
@@ -73,7 +73,7 @@ String& String::operator=(const String& other) {
       this->size_ = 0;
       this->capacity_ = 0;
     } else {
-      this->buffer_ = new std::uint16_t[other.size_ + 1];
+      this->buffer_ = new value_type[other.size_ + 1];
       std::memcpy(this->buffer_, other.buffer_,
                   other.size_ * sizeof(value_type));
       this->buffer_[other.size_] = 0;
@@ -106,8 +106,7 @@ String::~String() {
   }
 }
 
-String::String(from_buffer_tag, std::uint16_t* buffer, Index size,
-               Index capacity)
+String::String(from_buffer_tag, pointer buffer, Index size, Index capacity)
     : buffer_(buffer), size_(size), capacity_(capacity) {}
 
 void String::resize(Index new_size) {
@@ -120,7 +119,7 @@ void String::resize(Index new_size) {
     buffer_[size_] = 0;
   } else {
     reserve(new_size);
-    std::memset(buffer_ + size_, 0, sizeof(std::uint16_t) * (new_size - size_));
+    std::memset(buffer_ + size_, 0, sizeof(value_type) * (new_size - size_));
     buffer_[new_size] = 0;
     size_ = new_size;
   }
@@ -146,9 +145,9 @@ void String::reserve(Index new_capacity) {
   Expects(new_capacity >= 0);
   if (new_capacity <= this->capacity_) return;
   if (new_capacity > 0) {
-    std::uint16_t* new_buffer = new std::uint16_t[new_capacity + 1];
+    pointer new_buffer = new value_type[new_capacity + 1];
     if (this->buffer_ != kEmptyBuffer) {
-      memcpy(new_buffer, this->buffer_, this->size_ * sizeof(std::uint16_t));
+      memcpy(new_buffer, this->buffer_, this->size_ * sizeof(value_type));
       delete[] this->buffer_;
     }
     new_buffer[this->size_] = 0;
@@ -157,11 +156,11 @@ void String::reserve(Index new_capacity) {
   }
 }
 
-String::iterator String::insert(const_iterator pos, const std::uint16_t* str,
+String::iterator String::insert(const_iterator pos, const_iterator str,
                                 Index size) {
   Expects(pos >= cbegin() && pos <= cend());
 
-  std::vector<std::uint16_t> backup_buffer;
+  std::vector<value_type> backup_buffer;
   if (str >= buffer_ && str < buffer_ + size_) {
     backup_buffer.resize(size);
     std::copy(str, str + size, backup_buffer.begin());
@@ -201,7 +200,7 @@ String::iterator String::erase(const_iterator start, const_iterator end) {
   auto s = const_cast<iterator>(start);
   auto e = const_cast<iterator>(end);
 
-  std::memmove(e, s, (cend() - end) * sizeof(std::uint16_t));
+  std::memmove(e, s, (cend() - end) * sizeof(value_type));
   this->size_ = new_size;
   this->buffer_[new_size] = 0;
 
@@ -209,7 +208,7 @@ String::iterator String::erase(const_iterator start, const_iterator end) {
 }
 
 std::string String::ToUtf8() const {
-  return cru::ToUtf8(std::u16string_view(Char16CStr(), size()));
+  return cru::ToUtf8(std::u16string_view(data(), size()));
 }
 
 Index String::IndexFromCodeUnitToCodePoint(Index code_unit_index) const {
@@ -250,7 +249,7 @@ String& String::operator+=(const String& other) {
 }
 
 namespace {
-inline int Compare(std::uint16_t left, std::uint16_t right) {
+inline int Compare(char16_t left, char16_t right) {
   if (left < right) return -1;
   if (left > right) return 1;
   return 0;
@@ -286,7 +285,7 @@ namespace details {
 std::vector<FormatToken> ParseToFormatTokenList(const String& str) {
   std::vector<FormatToken> result;
 
-  auto push_char = [&result](std::uint16_t c) {
+  auto push_char = [&result](char16_t c) {
     if (result.empty() || result.back().type == FormatTokenType::PlaceHolder) {
       result.push_back(FormatToken{FormatTokenType::Text, String{}});
     }
