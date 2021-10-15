@@ -11,7 +11,7 @@
 #define CRU_PLATFORM_BOOTSTRAP_API
 #endif
 
-namespace cru::platform::boostrap {
+namespace cru::platform::bootstrap {
 CRU_PLATFORM_BOOTSTRAP_API cru::platform::gui::IUiApplication*
 CreateUiApplication();
 }

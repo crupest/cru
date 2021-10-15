@@ -1,11 +1,16 @@
 #include "cru/osx/gui/Window.hpp"
 
+#include "CursorPrivate.h"
 #include "cru/common/Range.hpp"
 #include "cru/osx/Convert.hpp"
 #include "cru/osx/graphics/quartz/Painter.hpp"
+#include "cru/osx/gui/Cursor.hpp"
 #include "cru/osx/gui/Keyboard.hpp"
+#include "cru/osx/gui/Resource.hpp"
 #include "cru/osx/gui/UiApplication.hpp"
+#include "cru/platform/Check.hpp"
 #include "cru/platform/gui/Base.hpp"
+#include "cru/platform/gui/Cursor.hpp"
 #include "cru/platform/gui/InputMethod.hpp"
 #include "cru/platform/gui/Keyboard.hpp"
 #include "cru/platform/gui/Window.hpp"
@@ -34,6 +39,7 @@ namespace details {
 
 class OsxWindowPrivate {
   friend OsxWindow;
+  friend OsxInputMethodContextPrivate;
 
  public:
   explicit OsxWindowPrivate(OsxWindow* osx_window) : osx_window_(osx_window) {
@@ -52,6 +58,9 @@ class OsxWindowPrivate {
   void OnWindowDidResize();
 
  private:
+  void UpdateCursor();
+
+ private:
   OsxWindow* osx_window_;
 
   INativeWindow* parent_;
@@ -61,6 +70,12 @@ class OsxWindowPrivate {
 
   NSWindow* window_;
   WindowDelegate* window_delegate_;
+
+  bool mouse_in_ = false;
+
+  std::shared_ptr<OsxCursor> cursor_ = nullptr;
+
+  std::unique_ptr<OsxInputMethodContext> input_method_context_;
 };
 
 void OsxWindowPrivate::OnWindowWillClose() { osx_window_->destroy_event_.Raise(nullptr); }
@@ -68,6 +83,16 @@ void OsxWindowPrivate::OnWindowDidExpose() { [window_ update]; }
 void OsxWindowPrivate::OnWindowDidUpdate() { osx_window_->paint_event_.Raise(nullptr); }
 void OsxWindowPrivate::OnWindowDidResize() {
   osx_window_->resize_event_.Raise(osx_window_->GetClientSize());
+}
+
+void OsxWindowPrivate::UpdateCursor() {
+  auto cursor = cursor_ == nullptr
+                    ? std::dynamic_pointer_cast<OsxCursor>(
+                          osx_window_->GetUiApplication()->GetCursorManager()->GetSystemCursor(
+                              SystemCursorType::Arrow))
+                    : cursor_;
+
+  [cursor->p_->ns_cursor_ set];
 }
 }
 
@@ -86,6 +111,8 @@ OsxWindow::OsxWindow(OsxUiApplication* ui_application, INativeWindow* parent, bo
 
   p_->frame_ = frame;
   p_->content_rect_ = {100, 100, 400, 200};
+
+  p_->input_method_context_ = std::make_unique<OsxInputMethodContext>(this);
 }
 
 OsxWindow::~OsxWindow() {
@@ -155,6 +182,8 @@ void OsxWindow::SetWindowRect(const Rect& rect) {
   }
 }
 
+void OsxWindow::RequestRepaint() { [p_->window_ update]; }
+
 std::unique_ptr<graphics::IPainter> OsxWindow::BeginPaint() {
   NSGraphicsContext* ns_graphics_context =
       [NSGraphicsContext graphicsContextWithWindow:p_->window_];
@@ -194,9 +223,12 @@ void OsxWindow::CreateWindow() {
                         switch (event.type) {
                           case NSEventTypeMouseEntered:
                             this->mouse_enter_leave_event_.Raise(MouseEnterLeaveType::Enter);
+                            p_->mouse_in_ = true;
+                            p_->UpdateCursor();
                             break;
                           case NSEventTypeMouseExited:
                             this->mouse_enter_leave_event_.Raise(MouseEnterLeaveType::Leave);
+                            p_->mouse_in_ = false;
                             break;
                           case NSEventTypeMouseMoved:
                             this->mouse_move_event_.Raise(
@@ -247,17 +279,35 @@ void OsxWindow::CreateWindow() {
                       }];
 }
 
+Point OsxWindow::GetMousePosition() {
+  auto p = [p_->window_ mouseLocationOutsideOfEventStream];
+  return Point(p.x, p.y);
+}
+
+bool OsxWindow::CaptureMouse() { return true; }
+
+bool OsxWindow::ReleaseMouse() { return true; }
+
+void OsxWindow::SetCursor(std::shared_ptr<ICursor> cursor) {
+  p_->cursor_ = CheckPlatform<OsxCursor>(cursor, GetPlatformId());
+  if (p_->mouse_in_) {
+    p_->UpdateCursor();
+  }
+}
+
+IInputMethodContext* OsxWindow::GetInputMethodContext() { return p_->input_method_context_.get(); }
+
 namespace details {
 class OsxInputMethodContextPrivate {
   friend OsxInputMethodContext;
 
  public:
-  explicit OsxInputMethodContextPrivate(OsxInputMethodContext* input_method_context);
+  OsxInputMethodContextPrivate(OsxInputMethodContext* input_method_context, OsxWindow* window);
 
   CRU_DELETE_COPY(OsxInputMethodContextPrivate)
   CRU_DELETE_MOVE(OsxInputMethodContextPrivate)
 
-  ~OsxInputMethodContextPrivate() = default;
+  ~OsxInputMethodContextPrivate();
 
   void SetCompositionText(CompositionText composition_text) {
     composition_text_ = std::move(composition_text);
@@ -274,7 +324,11 @@ class OsxInputMethodContextPrivate {
   Range GetSelectionRange() const { return selection_range_; }
   void SetSelectionRange(Range selection_range) { selection_range_ = selection_range; }
 
+  void PerformSel(SEL sel);
+
  private:
+  OsxWindow* window_;
+
   CompositionText composition_text_;
 
   Range selection_range_;
@@ -290,6 +344,14 @@ class OsxInputMethodContextPrivate {
   Event<StringView> text_event_;
 };
 
+OsxInputMethodContextPrivate::OsxInputMethodContextPrivate(
+    OsxInputMethodContext* input_method_context, OsxWindow* window) {
+  input_method_context_ = input_method_context;
+  window_ = window;
+}
+
+OsxInputMethodContextPrivate::~OsxInputMethodContextPrivate() {}
+
 void OsxInputMethodContextPrivate::RaiseCompositionStartEvent() {
   composition_start_event_.Raise(nullptr);
 }
@@ -299,7 +361,19 @@ void OsxInputMethodContextPrivate::RaiseCompositionEndEvent() {
 void OsxInputMethodContextPrivate::RaiseCompositionEvent() { composition_event_.Raise(nullptr); }
 
 void OsxInputMethodContextPrivate::RaiseTextEvent(StringView text) { text_event_.Raise(text); }
+
+void OsxInputMethodContextPrivate::PerformSel(SEL sel) {
+  [window_->p_->window_ performSelector:sel];
 }
+
+}
+
+OsxInputMethodContext::OsxInputMethodContext(OsxWindow* window)
+    : OsxGuiResource(window->GetUiApplication()) {
+  p_ = std::make_unique<details::OsxInputMethodContextPrivate>(this, window);
+}
+
+OsxInputMethodContext::~OsxInputMethodContext() {}
 
 void OsxInputMethodContext::EnableIME() { [[NSTextInputContext currentInputContext] deactivate]; }
 
@@ -336,34 +410,36 @@ IEvent<std::nullptr_t>* OsxInputMethodContext::CompositionEvent() {
 IEvent<StringView>* OsxInputMethodContext::TextEvent() { return &p_->text_event_; }
 }
 
-@implementation WindowDelegate
-cru::platform::gui::osx::details::OsxWindowPrivate* p_;
+@implementation WindowDelegate {
+  cru::platform::gui::osx::details::OsxWindowPrivate* _p;
+}
 
 - (id)init:(cru::platform::gui::osx::details::OsxWindowPrivate*)p {
-  p_ = p;
+  _p = p;
   return self;
 }
 
 - (void)windowWillClose:(NSNotification*)notification {
-  p_->OnWindowWillClose();
+  _p->OnWindowWillClose();
 }
 
 - (void)windowDidExpose:(NSNotification*)notification {
-  p_->OnWindowDidExpose();
+  _p->OnWindowDidExpose();
 }
 
 - (void)windowDidUpdate:(NSNotification*)notification {
-  p_->OnWindowDidUpdate();
+  _p->OnWindowDidUpdate();
 }
 
 - (void)windowDidResize:(NSNotification*)notification {
-  p_->OnWindowDidResize();
+  _p->OnWindowDidResize();
 }
 @end
 
-@implementation InputClient
-cru::platform::gui::osx::details::OsxInputMethodContextPrivate* _p;
-NSMutableAttributedString* _text;
+@implementation InputClient {
+  cru::platform::gui::osx::details::OsxInputMethodContextPrivate* _p;
+  NSMutableAttributedString* _text;
+}
 
 - (id)init:(cru::platform::gui::osx::details::OsxInputMethodContextPrivate*)p {
   _p = p;
@@ -440,6 +516,6 @@ NSMutableAttributedString* _text;
 }
 
 - (void)doCommandBySelector:(SEL)selector {
-  // TODO: Call with window.
+  _p->PerformSel(selector);
 }
 @end

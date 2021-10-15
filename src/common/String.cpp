@@ -243,7 +243,7 @@ Range String::RangeFromCodePointToCodeUnit(Range code_point_range) const {
       IndexFromCodePointToCodeUnit(code_point_range.GetEnd()));
 }
 
-String& String::operator+=(const String& other) {
+String& String::operator+=(StringView other) {
   append(other);
   return *this;
 }

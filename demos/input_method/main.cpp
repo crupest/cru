@@ -7,41 +7,42 @@
 #include "cru/platform/gui/Window.hpp"
 
 int main() {
+  using namespace cru;
   using namespace cru::platform;
   using namespace cru::platform::graphics;
   using namespace cru::platform::gui;
 
-  IUiApplication* application = boostrap::CreateUiApplication();
+  IUiApplication* application = bootstrap::CreateUiApplication();
 
-  auto graph_factory = application->GetGraphFactory();
+  auto graphics_factory = application->GetGraphicsFactory();
 
   auto window = application->CreateWindow(nullptr);
 
   auto input_method_context = window->GetInputMethodContext();
 
-  auto brush = graph_factory->CreateSolidColorBrush();
+  auto brush = graphics_factory->CreateSolidColorBrush();
   brush->SetColor(colors::black);
 
-  auto odd_clause_brush = graph_factory->CreateSolidColorBrush();
+  auto odd_clause_brush = graphics_factory->CreateSolidColorBrush();
   odd_clause_brush->SetColor(colors::yellow);
-  auto even_clause_brush = graph_factory->CreateSolidColorBrush();
+  auto even_clause_brush = graphics_factory->CreateSolidColorBrush();
   even_clause_brush->SetColor(colors::green);
-  auto target_clause_brush = graph_factory->CreateSolidColorBrush();
+  auto target_clause_brush = graphics_factory->CreateSolidColorBrush();
   target_clause_brush->SetColor(colors::blue);
 
-  std::shared_ptr<IFont> font = graph_factory->CreateFont(u"等线", 30);
+  std::shared_ptr<IFont> font = graphics_factory->CreateFont(u"等线", 30);
 
   float window_width = 10000;
 
   auto prompt_text_layout =
-      graph_factory->CreateTextLayout(font,
+      graphics_factory->CreateTextLayout(font,
                                       u"Alt+F1: Enable IME\n"
                                       u"Alt+F2: Disable IME\n"
                                       u"Alt+F3: Complete composition.\n"
                                       u"Alt+F4: Cancel composition.");
 
   std::optional<CompositionText> optional_composition_text;
-  std::u16string committed_text;
+  String committed_text;
 
   window->ResizeEvent()->AddHandler(
       [&prompt_text_layout, &window_width](const Size& size) {
@@ -57,7 +58,7 @@ int main() {
 
     const auto anchor_y = prompt_text_layout->GetTextBounds().height;
 
-    auto text_layout = graph_factory->CreateTextLayout(
+    auto text_layout = graphics_factory->CreateTextLayout(
         font, committed_text + (optional_composition_text
                                     ? optional_composition_text->text
                                     : u""));
@@ -121,7 +122,7 @@ int main() {
       });
 
   input_method_context->TextEvent()->AddHandler(
-      [window, &committed_text](const std::u16string_view& c) {
+      [window, &committed_text](const StringView& c) {
         committed_text += c;
         window->RequestRepaint();
       });

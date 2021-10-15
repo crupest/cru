@@ -133,6 +133,6 @@ class OsxInputMethodContext : public OsxGuiResource,
   IEvent<StringView>* TextEvent() override;
 
  private:
-  details::OsxInputMethodContextPrivate* p_;
+  std::unique_ptr<details::OsxInputMethodContextPrivate> p_;
 };
 }  // namespace cru::platform::gui::osx

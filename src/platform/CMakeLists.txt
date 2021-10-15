@@ -21,4 +21,6 @@ add_subdirectory(gui)
 
 if(WIN32)
 	add_subdirectory(bootstrap)
+elseif(APPLE)
+	add_subdirectory(bootstrap)
 endif()

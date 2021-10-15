@@ -1,7 +1,9 @@
 #include "cru/osx/gui/UiApplication.hpp"
 
 #include "cru/osx/graphics/quartz/Factory.hpp"
+#include "cru/osx/gui/Cursor.hpp"
 #include "cru/osx/gui/Window.hpp"
+#include "cru/platform/graphics/Factory.hpp"
 #include "cru/platform/gui/UiApplication.hpp"
 #include "cru/platform/gui/Window.hpp"
 
@@ -50,6 +52,8 @@ class OsxUiApplicationPrivate {
 
   std::vector<OsxWindow*> windows_;
 
+  std::unique_ptr<OsxCursorManager> cursor_manager_;
+
   std::unique_ptr<platform::graphics::osx::quartz::QuartzGraphicsFactory> quartz_graphics_factory_;
 };
 
@@ -64,6 +68,7 @@ OsxUiApplication::OsxUiApplication()
     : OsxGuiResource(this), p_(new details::OsxUiApplicationPrivate(this)) {
   [NSApp setDelegate:p_->app_delegate_];
   p_->quartz_graphics_factory_ = std::make_unique<graphics::osx::quartz::QuartzGraphicsFactory>();
+  p_->cursor_manager_ = std::make_unique<OsxCursorManager>(this);
 }
 
 OsxUiApplication::~OsxUiApplication() {}
@@ -143,6 +148,12 @@ INativeWindow* OsxUiApplication::CreateWindow(INativeWindow* parent, CreateWindo
   return window;
 }
 
+ICursorManager* OsxUiApplication::GetCursorManager() { return p_->cursor_manager_.get(); }
+
+graphics::IGraphicsFactory* OsxUiApplication::GetGraphicsFactory() {
+  return p_->quartz_graphics_factory_.get();
+}
+
 void OsxUiApplication::UnregisterWindow(OsxWindow* window) {
   p_->windows_.erase(
       std::remove(p_->windows_.begin(), p_->windows_.end(), static_cast<INativeWindow*>(window)),
@@ -150,8 +161,9 @@ void OsxUiApplication::UnregisterWindow(OsxWindow* window) {
 }
 }
 
-@implementation AppDelegate
-cru::platform::gui::osx::details::OsxUiApplicationPrivate* _p;
+@implementation AppDelegate {
+  cru::platform::gui::osx::details::OsxUiApplicationPrivate* _p;
+}
 
 - (id)init:(cru::platform::gui::osx::details::OsxUiApplicationPrivate*)p {
   _p = p;
