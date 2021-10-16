@@ -1,3 +1,4 @@
+#include "cru/platform/Color.hpp"
 #include "cru/platform/bootstrap/Bootstrap.hpp"
 #include "cru/platform/graphics/Factory.hpp"
 #include "cru/platform/graphics/Font.hpp"
@@ -36,10 +37,10 @@ int main() {
 
   auto prompt_text_layout =
       graphics_factory->CreateTextLayout(font,
-                                      u"Alt+F1: Enable IME\n"
-                                      u"Alt+F2: Disable IME\n"
-                                      u"Alt+F3: Complete composition.\n"
-                                      u"Alt+F4: Cancel composition.");
+                                         u"Alt+F1: Enable IME\n"
+                                         u"Alt+F2: Disable IME\n"
+                                         u"Alt+F3: Complete composition.\n"
+                                         u"Alt+F4: Cancel composition.");
 
   std::optional<CompositionText> optional_composition_text;
   String committed_text;
@@ -52,7 +53,7 @@ int main() {
 
   window->PaintEvent()->AddHandler([&](auto) {
     auto painter = window->BeginPaint();
-    painter->Clear(colors::white);
+    painter->Clear(colors::blue);
 
     painter->DrawText(Point{}, prompt_text_layout.get(), brush.get());
 

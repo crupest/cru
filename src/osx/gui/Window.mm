@@ -117,8 +117,8 @@ void OsxWindowPrivate::OnWindowWillClose() {
   graphics_context_ = nil;
 }
 
-void OsxWindowPrivate::OnWindowDidExpose() { [window_ update]; }
-void OsxWindowPrivate::OnWindowDidUpdate() { osx_window_->paint_event_.Raise(nullptr); }
+void OsxWindowPrivate::OnWindowDidExpose() { osx_window_->RequestRepaint(); }
+void OsxWindowPrivate::OnWindowDidUpdate() {}
 void OsxWindowPrivate::OnWindowDidResize() {
   osx_window_->resize_event_.Raise(osx_window_->GetClientSize());
 
@@ -126,6 +126,8 @@ void OsxWindowPrivate::OnWindowDidResize() {
                                         styleMask:CalcWindowStyleMask(frame_)];
 
   content_rect_ = cru::platform::graphics::osx::quartz::Convert(rect);
+
+  osx_window_->RequestRepaint();
 }
 
 void OsxWindowPrivate::OnMouseEnterLeave(MouseEnterLeaveType type) {
@@ -248,7 +250,9 @@ void OsxWindow::SetWindowRect(const Rect& rect) {
   }
 }
 
-void OsxWindow::RequestRepaint() { [p_->window_ update]; }
+void OsxWindow::RequestRepaint() {
+  GetUiApplication()->SetImmediate([this] { paint_event_.Raise(nullptr); });
+}
 
 std::unique_ptr<graphics::IPainter> OsxWindow::BeginPaint() {
   CGContextRef cg_context = [p_->graphics_context_ CGContext];

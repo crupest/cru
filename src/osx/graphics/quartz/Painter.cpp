@@ -8,6 +8,7 @@
 
 namespace cru::platform::graphics::osx::quartz {
 QuartzCGContextPainter::~QuartzCGContextPainter() {
+  EndDraw();
   if (auto_release_) {
     CGContextRelease(cg_context_);
     cg_context_ = nullptr;
@@ -108,7 +109,12 @@ void QuartzCGContextPainter::PopLayer() {
   // TODO: Implement this.
 }
 
-void QuartzCGContextPainter::EndDraw() { CGContextFlush(cg_context_); }
+void QuartzCGContextPainter::EndDraw() {
+  if (cg_context_) {
+    CGContextFlush(cg_context_);
+    CGContextSynchronize(cg_context_);
+  }
+}
 
 void QuartzCGContextPainter::Validate() {
   if (cg_context_ == nullptr)
