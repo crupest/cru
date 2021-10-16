@@ -3,6 +3,7 @@
 #include "CursorPrivate.h"
 #include "cru/common/Range.hpp"
 #include "cru/osx/Convert.hpp"
+#include "cru/osx/graphics/quartz/Convert.hpp"
 #include "cru/osx/graphics/quartz/Painter.hpp"
 #include "cru/osx/gui/Cursor.hpp"
 #include "cru/osx/gui/Keyboard.hpp"
@@ -30,21 +31,44 @@ using cru::platform::osx::Convert;
 - (id)init:(cru::platform::gui::osx::details::OsxWindowPrivate*)p;
 @end
 
+@interface Window : NSWindow
+- (instancetype)init:(cru::platform::gui::osx::details::OsxWindowPrivate*)p
+         contentRect:(NSRect)contentRect
+               style:(NSWindowStyleMask)style;
+
+- (void)mouseMoved:(NSEvent*)event;
+- (void)mouseEntered:(NSEvent*)event;
+- (void)mouseExited:(NSEvent*)event;
+- (void)mouseDown:(NSEvent*)event;
+- (void)mouseUp:(NSEvent*)event;
+- (void)rightMouseDown:(NSEvent*)event;
+- (void)rightMouseUp:(NSEvent*)event;
+- (void)scrollWheel:(NSEvent*)event;
+- (void)keyDown:(NSEvent*)event;
+- (void)keyUp:(NSEvent*)event;
+@end
+
 @interface InputClient : NSObject <NSTextInputClient>
 - (id)init:(cru::platform::gui::osx::details::OsxInputMethodContextPrivate*)p;
 @end
 
 namespace cru::platform::gui::osx {
-namespace details {
 
+namespace {
+inline NSWindowStyleMask CalcWindowStyleMask(bool frame) {
+  return frame ? NSWindowStyleMaskTitled | NSWindowStyleMaskClosable |
+                     NSWindowStyleMaskMiniaturizable | NSWindowStyleMaskResizable
+               : NSWindowStyleMaskBorderless;
+}
+}
+
+namespace details {
 class OsxWindowPrivate {
   friend OsxWindow;
   friend OsxInputMethodContextPrivate;
 
  public:
-  explicit OsxWindowPrivate(OsxWindow* osx_window) : osx_window_(osx_window) {
-    window_delegate_ = [[WindowDelegate alloc] init:this];
-  }
+  explicit OsxWindowPrivate(OsxWindow* osx_window) : osx_window_(osx_window) {}
 
   CRU_DELETE_COPY(OsxWindowPrivate)
   CRU_DELETE_MOVE(OsxWindowPrivate)
@@ -52,6 +76,14 @@ class OsxWindowPrivate {
   ~OsxWindowPrivate() = default;
 
  public:
+  void OnMouseEnterLeave(MouseEnterLeaveType type);
+  void OnMouseMove(Point p);
+  void OnMouseDown(MouseButton button, Point p, KeyModifier key_modifier);
+  void OnMouseUp(MouseButton button, Point p, KeyModifier key_modifier);
+  void OnMouseWheel(float delta, Point p, KeyModifier key_modifier);
+  void OnKeyDown(KeyCode key, KeyModifier key_modifier);
+  void OnKeyUp(KeyCode key, KeyModifier key_modifier);
+
   void OnWindowWillClose();
   void OnWindowDidExpose();
   void OnWindowDidUpdate();
@@ -70,6 +102,7 @@ class OsxWindowPrivate {
 
   NSWindow* window_;
   WindowDelegate* window_delegate_;
+  NSGraphicsContext* graphics_context_;
 
   bool mouse_in_ = false;
 
@@ -78,11 +111,53 @@ class OsxWindowPrivate {
   std::unique_ptr<OsxInputMethodContext> input_method_context_;
 };
 
-void OsxWindowPrivate::OnWindowWillClose() { osx_window_->destroy_event_.Raise(nullptr); }
+void OsxWindowPrivate::OnWindowWillClose() {
+  osx_window_->destroy_event_.Raise(nullptr);
+  window_ = nil;
+  graphics_context_ = nil;
+}
+
 void OsxWindowPrivate::OnWindowDidExpose() { [window_ update]; }
 void OsxWindowPrivate::OnWindowDidUpdate() { osx_window_->paint_event_.Raise(nullptr); }
 void OsxWindowPrivate::OnWindowDidResize() {
   osx_window_->resize_event_.Raise(osx_window_->GetClientSize());
+
+  NSRect rect = [NSWindow contentRectForFrameRect:[window_ frame]
+                                        styleMask:CalcWindowStyleMask(frame_)];
+
+  content_rect_ = cru::platform::graphics::osx::quartz::Convert(rect);
+}
+
+void OsxWindowPrivate::OnMouseEnterLeave(MouseEnterLeaveType type) {
+  osx_window_->mouse_enter_leave_event_.Raise(type);
+  if (type == MouseEnterLeaveType::Enter) {
+    mouse_in_ = true;
+    UpdateCursor();
+  } else {
+    mouse_in_ = false;
+  }
+}
+
+void OsxWindowPrivate::OnMouseMove(Point p) { osx_window_->mouse_move_event_.Raise(p); }
+
+void OsxWindowPrivate::OnMouseDown(MouseButton button, Point p, KeyModifier key_modifier) {
+  osx_window_->mouse_down_event_.Raise({button, p, key_modifier});
+}
+
+void OsxWindowPrivate::OnMouseUp(MouseButton button, Point p, KeyModifier key_modifier) {
+  osx_window_->mouse_up_event_.Raise({button, p, key_modifier});
+}
+
+void OsxWindowPrivate::OnMouseWheel(float delta, Point p, KeyModifier key_modifier) {
+  osx_window_->mouse_wheel_event_.Raise({delta, p, key_modifier});
+}
+
+void OsxWindowPrivate::OnKeyDown(KeyCode key, KeyModifier key_modifier) {
+  osx_window_->key_down_event_.Raise({key, key_modifier});
+}
+
+void OsxWindowPrivate::OnKeyUp(KeyCode key, KeyModifier key_modifier) {
+  osx_window_->key_up_event_.Raise({key, key_modifier});
 }
 
 void OsxWindowPrivate::UpdateCursor() {
@@ -96,17 +171,10 @@ void OsxWindowPrivate::UpdateCursor() {
 }
 }
 
-namespace {
-inline NSWindowStyleMask CalcWindowStyleMask(bool frame) {
-  return frame ? NSWindowStyleMaskTitled | NSWindowStyleMaskClosable |
-                     NSWindowStyleMaskMiniaturizable | NSWindowStyleMaskResizable
-               : NSWindowStyleMaskBorderless;
-}
-
-}
-
 OsxWindow::OsxWindow(OsxUiApplication* ui_application, INativeWindow* parent, bool frame)
     : OsxGuiResource(ui_application), p_(new details::OsxWindowPrivate(this)) {
+  p_->window_delegate_ = [[WindowDelegate alloc] init:p_.get()];
+
   p_->parent_ = parent;
 
   p_->frame_ = frame;
@@ -116,10 +184,7 @@ OsxWindow::OsxWindow(OsxUiApplication* ui_application, INativeWindow* parent, bo
 }
 
 OsxWindow::~OsxWindow() {
-  if (p_->window_) {
-    [p_->window_ close];
-  }
-
+  Close();
   dynamic_cast<OsxUiApplication*>(GetUiApplication())->UnregisterWindow(this);
 }
 
@@ -146,6 +211,7 @@ void OsxWindow::SetVisible(bool is_visible) {
   } else {
     if (is_visible) {
       CreateWindow();
+      [p_->window_ orderFront:p_->window_];
     }
   }
 }
@@ -185,98 +251,23 @@ void OsxWindow::SetWindowRect(const Rect& rect) {
 void OsxWindow::RequestRepaint() { [p_->window_ update]; }
 
 std::unique_ptr<graphics::IPainter> OsxWindow::BeginPaint() {
-  NSGraphicsContext* ns_graphics_context =
-      [NSGraphicsContext graphicsContextWithWindow:p_->window_];
-
-  CGContextRef cg_context = [ns_graphics_context CGContext];
+  CGContextRef cg_context = [p_->graphics_context_ CGContext];
 
   return std::make_unique<cru::platform::graphics::osx::quartz::QuartzCGContextPainter>(
-      GetUiApplication()->GetGraphicsFactory(), cg_context, true, GetClientSize());
+      GetUiApplication()->GetGraphicsFactory(), cg_context, false, GetClientSize());
 }
 
 void OsxWindow::CreateWindow() {
-  NSRect content_rect{p_->content_rect_.left, p_->content_rect_.top, p_->content_rect_.width,
-                      p_->content_rect_.height};
+  NSRect content_rect = CGRectMake(p_->content_rect_.left, p_->content_rect_.top,
+                                   p_->content_rect_.width, p_->content_rect_.height);
 
   NSWindowStyleMask style_mask = CalcWindowStyleMask(p_->frame_);
 
-  p_->window_ = [[NSWindow alloc] initWithContentRect:content_rect
-                                            styleMask:style_mask
-                                              backing:NSBackingStoreBuffered
-                                                defer:false];
+  p_->window_ = [[Window alloc] init:p_.get() contentRect:content_rect style:style_mask];
 
   [p_->window_ setDelegate:p_->window_delegate_];
 
-  [p_->window_
-      trackEventsMatchingMask:NSEventMaskAny
-                      timeout:std::numeric_limits<double>::max()
-                         mode:NSRunLoopCommonModes
-                      handler:^(NSEvent* _Nullable event, BOOL* _Nonnull stop) {
-                        KeyModifier key_modifer;
-                        if (event.modifierFlags & NSEventModifierFlagControl)
-                          key_modifer |= KeyModifiers::ctrl;
-                        if (event.modifierFlags & NSEventModifierFlagOption)
-                          key_modifer |= KeyModifiers::alt;
-                        if (event.modifierFlags & NSEventModifierFlagShift)
-                          key_modifer |= KeyModifiers::shift;
-
-                        switch (event.type) {
-                          case NSEventTypeMouseEntered:
-                            this->mouse_enter_leave_event_.Raise(MouseEnterLeaveType::Enter);
-                            p_->mouse_in_ = true;
-                            p_->UpdateCursor();
-                            break;
-                          case NSEventTypeMouseExited:
-                            this->mouse_enter_leave_event_.Raise(MouseEnterLeaveType::Leave);
-                            p_->mouse_in_ = false;
-                            break;
-                          case NSEventTypeMouseMoved:
-                            this->mouse_move_event_.Raise(
-                                Point(event.locationInWindow.x, event.locationInWindow.y));
-                            break;
-                          case NSEventTypeLeftMouseDown:
-                            this->mouse_down_event_.Raise(NativeMouseButtonEventArgs{
-                                mouse_buttons::left,
-                                Point(event.locationInWindow.x, event.locationInWindow.y),
-                                key_modifer});
-                            break;
-                          case NSEventTypeLeftMouseUp:
-                            this->mouse_up_event_.Raise(NativeMouseButtonEventArgs{
-                                mouse_buttons::left,
-                                Point(event.locationInWindow.x, event.locationInWindow.y),
-                                key_modifer});
-                            break;
-                          case NSEventTypeRightMouseDown:
-                            this->mouse_down_event_.Raise(NativeMouseButtonEventArgs{
-                                mouse_buttons::right,
-                                Point(event.locationInWindow.x, event.locationInWindow.y),
-                                key_modifer});
-                            break;
-                          case NSEventTypeRightMouseUp:
-                            this->mouse_up_event_.Raise(NativeMouseButtonEventArgs{
-                                mouse_buttons::right,
-                                Point(event.locationInWindow.x, event.locationInWindow.y),
-                                key_modifer});
-                            break;
-                          case NSEventTypeScrollWheel:
-                            this->mouse_wheel_event_.Raise(NativeMouseWheelEventArgs{
-                                static_cast<float>(event.scrollingDeltaY),
-                                Point(event.locationInWindow.x, event.locationInWindow.y),
-                                key_modifer});
-                            break;
-                          case NSEventTypeKeyDown:
-                            this->key_down_event_.Raise(NativeKeyEventArgs{
-                                KeyCodeFromOsxToCru(event.keyCode), key_modifer});
-                            break;
-                          case NSEventTypeKeyUp:
-                            this->key_up_event_.Raise(NativeKeyEventArgs{
-                                KeyCodeFromOsxToCru(event.keyCode), key_modifer});
-                            break;
-                          default:
-                            break;
-                        }
-                        *stop = false;
-                      }];
+  p_->graphics_context_ = [NSGraphicsContext graphicsContextWithWindow:p_->window_];
 }
 
 Point OsxWindow::GetMousePosition() {
@@ -409,6 +400,125 @@ IEvent<std::nullptr_t>* OsxInputMethodContext::CompositionEvent() {
 
 IEvent<StringView>* OsxInputMethodContext::TextEvent() { return &p_->text_event_; }
 }
+
+@implementation Window {
+  cru::platform::gui::osx::details::OsxWindowPrivate* _p;
+}
+
+- (instancetype)init:(cru::platform::gui::osx::details::OsxWindowPrivate*)p
+         contentRect:(NSRect)contentRect
+               style:(NSWindowStyleMask)style {
+  [super initWithContentRect:contentRect
+                   styleMask:style
+                     backing:NSBackingStoreBuffered
+                       defer:false];
+  _p = p;
+  return self;
+}
+
+- (void)mouseMoved:(NSEvent*)event {
+  _p->OnMouseMove(cru::platform::Point(event.locationInWindow.x, event.locationInWindow.y));
+}
+
+- (void)mouseEntered:(NSEvent*)event {
+  _p->OnMouseEnterLeave(cru::platform::gui::MouseEnterLeaveType::Enter);
+}
+
+- (void)mouseExited:(NSEvent*)event {
+  _p->OnMouseEnterLeave(cru::platform::gui::MouseEnterLeaveType::Leave);
+}
+
+- (void)mouseDown:(NSEvent*)event {
+  cru::platform::gui::KeyModifier key_modifier;
+  if (event.modifierFlags & NSEventModifierFlagControl)
+    key_modifier |= cru::platform::gui::KeyModifiers::ctrl;
+  if (event.modifierFlags & NSEventModifierFlagOption)
+    key_modifier |= cru::platform::gui::KeyModifiers::alt;
+  if (event.modifierFlags & NSEventModifierFlagShift)
+    key_modifier |= cru::platform::gui::KeyModifiers::shift;
+  cru::platform::Point p(event.locationInWindow.x, event.locationInWindow.y);
+
+  _p->OnMouseDown(cru::platform::gui::mouse_buttons::left, p, key_modifier);
+}
+
+- (void)mouseUp:(NSEvent*)event {
+  cru::platform::gui::KeyModifier key_modifier;
+  if (event.modifierFlags & NSEventModifierFlagControl)
+    key_modifier |= cru::platform::gui::KeyModifiers::ctrl;
+  if (event.modifierFlags & NSEventModifierFlagOption)
+    key_modifier |= cru::platform::gui::KeyModifiers::alt;
+  if (event.modifierFlags & NSEventModifierFlagShift)
+    key_modifier |= cru::platform::gui::KeyModifiers::shift;
+  cru::platform::Point p(event.locationInWindow.x, event.locationInWindow.y);
+
+  _p->OnMouseUp(cru::platform::gui::mouse_buttons::left, p, key_modifier);
+}
+
+- (void)rightMouseDown:(NSEvent*)event {
+  cru::platform::gui::KeyModifier key_modifier;
+  if (event.modifierFlags & NSEventModifierFlagControl)
+    key_modifier |= cru::platform::gui::KeyModifiers::ctrl;
+  if (event.modifierFlags & NSEventModifierFlagOption)
+    key_modifier |= cru::platform::gui::KeyModifiers::alt;
+  if (event.modifierFlags & NSEventModifierFlagShift)
+    key_modifier |= cru::platform::gui::KeyModifiers::shift;
+  cru::platform::Point p(event.locationInWindow.x, event.locationInWindow.y);
+
+  _p->OnMouseDown(cru::platform::gui::mouse_buttons::right, p, key_modifier);
+}
+
+- (void)rightMouseUp:(NSEvent*)event {
+  cru::platform::gui::KeyModifier key_modifier;
+  if (event.modifierFlags & NSEventModifierFlagControl)
+    key_modifier |= cru::platform::gui::KeyModifiers::ctrl;
+  if (event.modifierFlags & NSEventModifierFlagOption)
+    key_modifier |= cru::platform::gui::KeyModifiers::alt;
+  if (event.modifierFlags & NSEventModifierFlagShift)
+    key_modifier |= cru::platform::gui::KeyModifiers::shift;
+  cru::platform::Point p(event.locationInWindow.x, event.locationInWindow.y);
+
+  _p->OnMouseUp(cru::platform::gui::mouse_buttons::right, p, key_modifier);
+}
+
+- (void)scrollWheel:(NSEvent*)event {
+  cru::platform::gui::KeyModifier key_modifier;
+  if (event.modifierFlags & NSEventModifierFlagControl)
+    key_modifier |= cru::platform::gui::KeyModifiers::ctrl;
+  if (event.modifierFlags & NSEventModifierFlagOption)
+    key_modifier |= cru::platform::gui::KeyModifiers::alt;
+  if (event.modifierFlags & NSEventModifierFlagShift)
+    key_modifier |= cru::platform::gui::KeyModifiers::shift;
+  cru::platform::Point p(event.locationInWindow.x, event.locationInWindow.y);
+
+  _p->OnMouseWheel(static_cast<float>(event.scrollingDeltaY), p, key_modifier);
+}
+
+- (void)keyDown:(NSEvent*)event {
+  cru::platform::gui::KeyModifier key_modifier;
+  if (event.modifierFlags & NSEventModifierFlagControl)
+    key_modifier |= cru::platform::gui::KeyModifiers::ctrl;
+  if (event.modifierFlags & NSEventModifierFlagOption)
+    key_modifier |= cru::platform::gui::KeyModifiers::alt;
+  if (event.modifierFlags & NSEventModifierFlagShift)
+    key_modifier |= cru::platform::gui::KeyModifiers::shift;
+  auto c = cru::platform::gui::osx::KeyCodeFromOsxToCru(event.keyCode);
+
+  _p->OnKeyDown(c, key_modifier);
+}
+
+- (void)keyUp:(NSEvent*)event {
+  cru::platform::gui::KeyModifier key_modifier;
+  if (event.modifierFlags & NSEventModifierFlagControl)
+    key_modifier |= cru::platform::gui::KeyModifiers::ctrl;
+  if (event.modifierFlags & NSEventModifierFlagOption)
+    key_modifier |= cru::platform::gui::KeyModifiers::alt;
+  if (event.modifierFlags & NSEventModifierFlagShift)
+    key_modifier |= cru::platform::gui::KeyModifiers::shift;
+  auto c = cru::platform::gui::osx::KeyCodeFromOsxToCru(event.keyCode);
+
+  _p->OnKeyUp(c, key_modifier);
+}
+@end
 
 @implementation WindowDelegate {
   cru::platform::gui::osx::details::OsxWindowPrivate* _p;

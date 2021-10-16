@@ -21,7 +21,7 @@ class QuartzCGContextPainter : public OsxQuartzResource,
   CRU_DELETE_COPY(QuartzCGContextPainter)
   CRU_DELETE_MOVE(QuartzCGContextPainter)
 
-  ~QuartzCGContextPainter() override = default;
+  ~QuartzCGContextPainter() override;
 
  public:
   Matrix GetTransform() override;

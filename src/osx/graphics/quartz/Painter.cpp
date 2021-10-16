@@ -7,6 +7,13 @@
 #include "cru/platform/Exception.hpp"
 
 namespace cru::platform::graphics::osx::quartz {
+QuartzCGContextPainter::~QuartzCGContextPainter() {
+  if (auto_release_) {
+    CGContextRelease(cg_context_);
+    cg_context_ = nullptr;
+  }
+}
+
 Matrix QuartzCGContextPainter::GetTransform() {
   return Convert(CGContextGetCTM(cg_context_));
 }
@@ -101,11 +108,7 @@ void QuartzCGContextPainter::PopLayer() {
   // TODO: Implement this.
 }
 
-void QuartzCGContextPainter::EndDraw() {
-  CGContextRelease(cg_context_);
-  CGContextFlush(cg_context_);
-  cg_context_ = nullptr;
-}
+void QuartzCGContextPainter::EndDraw() { CGContextFlush(cg_context_); }
 
 void QuartzCGContextPainter::Validate() {
   if (cg_context_ == nullptr)
