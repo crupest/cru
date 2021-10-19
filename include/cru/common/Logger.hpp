@@ -94,4 +94,20 @@ void TagError(StringView tag, TArgs&&... args) {
   Logger::GetInstance()->Log(LogLevel::Error, tag,
                              Format(std::forward<TArgs>(args)...));
 }
+
+class StdioLogSource : public Object, public virtual ILogSource {
+ public:
+  explicit StdioLogSource(bool use_lock = false);
+
+  CRU_DELETE_COPY(StdioLogSource)
+  CRU_DELETE_MOVE(StdioLogSource)
+
+  ~StdioLogSource() override;
+
+ public:
+  void Write(LogLevel level, StringView s) override;
+
+ private:
+  bool use_lock_;
+};
 }  // namespace cru::log

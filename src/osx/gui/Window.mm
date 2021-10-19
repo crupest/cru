@@ -1,6 +1,7 @@
 #include "cru/osx/gui/Window.hpp"
 
 #include "CursorPrivate.h"
+#include "cru/common/Logger.hpp"
 #include "cru/common/Range.hpp"
 #include "cru/osx/Convert.hpp"
 #include "cru/osx/graphics/quartz/Convert.hpp"
@@ -14,6 +15,7 @@
 #include "cru/platform/gui/Cursor.hpp"
 #include "cru/platform/gui/InputMethod.hpp"
 #include "cru/platform/gui/Keyboard.hpp"
+#include "cru/platform/gui/TimerHelper.hpp"
 #include "cru/platform/gui/Window.hpp"
 
 #include <AppKit/NSGraphicsContext.h>
@@ -22,16 +24,17 @@
 #include <Foundation/NSAttributedString.h>
 #include <Foundation/NSString.h>
 
+#include <gsl/gsl_assert>
 #include <limits>
 #include <memory>
 
 using cru::platform::osx::Convert;
 
-@interface WindowDelegate : NSObject <NSWindowDelegate>
+@interface CruWindowDelegate : NSObject <NSWindowDelegate>
 - (id)init:(cru::platform::gui::osx::details::OsxWindowPrivate*)p;
 @end
 
-@interface Window : NSWindow
+@interface CruWindow : NSWindow
 - (instancetype)init:(cru::platform::gui::osx::details::OsxWindowPrivate*)p
          contentRect:(NSRect)contentRect
                style:(NSWindowStyleMask)style;
@@ -48,7 +51,12 @@ using cru::platform::osx::Convert;
 - (void)keyUp:(NSEvent*)event;
 @end
 
-@interface InputClient : NSObject <NSTextInputClient>
+@interface CruView : NSView
+- (instancetype)init:(cru::platform::gui::osx::details::OsxWindowPrivate*)p
+               frame:(cru::platform::Rect)frame;
+@end
+
+@interface CruInputClient : NSObject <NSTextInputClient>
 - (id)init:(cru::platform::gui::osx::details::OsxInputMethodContextPrivate*)p;
 @end
 
@@ -89,6 +97,8 @@ class OsxWindowPrivate {
   void OnWindowDidUpdate();
   void OnWindowDidResize();
 
+  CGLayerRef GetDrawLayer() { return draw_layer_; }
+
  private:
   void UpdateCursor();
 
@@ -101,31 +111,37 @@ class OsxWindowPrivate {
   Rect content_rect_;
 
   NSWindow* window_;
-  WindowDelegate* window_delegate_;
-  NSGraphicsContext* graphics_context_;
+  CruWindowDelegate* window_delegate_;
+
+  CGLayerRef draw_layer_;
 
   bool mouse_in_ = false;
 
   std::shared_ptr<OsxCursor> cursor_ = nullptr;
 
   std::unique_ptr<OsxInputMethodContext> input_method_context_;
+
+  TimerAutoCanceler draw_timer_;
 };
 
 void OsxWindowPrivate::OnWindowWillClose() {
   osx_window_->destroy_event_.Raise(nullptr);
   window_ = nil;
-  graphics_context_ = nil;
+  CGLayerRelease(draw_layer_);
 }
 
 void OsxWindowPrivate::OnWindowDidExpose() { osx_window_->RequestRepaint(); }
 void OsxWindowPrivate::OnWindowDidUpdate() {}
 void OsxWindowPrivate::OnWindowDidResize() {
-  osx_window_->resize_event_.Raise(osx_window_->GetClientSize());
-
   NSRect rect = [NSWindow contentRectForFrameRect:[window_ frame]
                                         styleMask:CalcWindowStyleMask(frame_)];
-
   content_rect_ = cru::platform::graphics::osx::quartz::Convert(rect);
+
+  osx_window_->resize_event_.Raise(osx_window_->GetClientSize());
+
+  CGLayerRelease(draw_layer_);
+  draw_layer_ = CGLayerCreateWithContext(nullptr, rect.size, nullptr);
+  Ensures(draw_layer_);
 
   osx_window_->RequestRepaint();
 }
@@ -175,7 +191,7 @@ void OsxWindowPrivate::UpdateCursor() {
 
 OsxWindow::OsxWindow(OsxUiApplication* ui_application, INativeWindow* parent, bool frame)
     : OsxGuiResource(ui_application), p_(new details::OsxWindowPrivate(this)) {
-  p_->window_delegate_ = [[WindowDelegate alloc] init:p_.get()];
+  p_->window_delegate_ = [[CruWindowDelegate alloc] init:p_.get()];
 
   p_->parent_ = parent;
 
@@ -251,14 +267,23 @@ void OsxWindow::SetWindowRect(const Rect& rect) {
 }
 
 void OsxWindow::RequestRepaint() {
-  GetUiApplication()->SetImmediate([this] { paint_event_.Raise(nullptr); });
+  if (!p_->draw_timer_) {
+    p_->draw_timer_ = GetUiApplication()->SetImmediate([this] {
+      this->paint_event_.Raise(nullptr);
+      this->p_->draw_timer_.Release();
+    });
+  }
 }
 
 std::unique_ptr<graphics::IPainter> OsxWindow::BeginPaint() {
-  CGContextRef cg_context = [p_->graphics_context_ CGContext];
+  CGContextRef cg_context = CGLayerGetContext(p_->draw_layer_);
 
   return std::make_unique<cru::platform::graphics::osx::quartz::QuartzCGContextPainter>(
-      GetUiApplication()->GetGraphicsFactory(), cg_context, false, GetClientSize());
+      GetUiApplication()->GetGraphicsFactory(), cg_context, false, GetClientSize(),
+      [this](graphics::osx::quartz::QuartzCGContextPainter*) {
+        log::Debug(u"Finish painting and invalidate view.");
+        [[p_->window_ contentView] setNeedsDisplay:YES];
+      });
 }
 
 void OsxWindow::CreateWindow() {
@@ -267,11 +292,20 @@ void OsxWindow::CreateWindow() {
 
   NSWindowStyleMask style_mask = CalcWindowStyleMask(p_->frame_);
 
-  p_->window_ = [[Window alloc] init:p_.get() contentRect:content_rect style:style_mask];
+  p_->window_ = [[CruWindow alloc] init:p_.get() contentRect:content_rect style:style_mask];
 
   [p_->window_ setDelegate:p_->window_delegate_];
 
-  p_->graphics_context_ = [NSGraphicsContext graphicsContextWithWindow:p_->window_];
+  NSView* content_view = [[CruView alloc] init:p_.get()
+                                         frame:Rect(Point{}, p_->content_rect_.GetSize())];
+
+  [p_->window_ setContentView:content_view];
+
+  p_->draw_layer_ = CGLayerCreateWithContext(
+      nullptr, cru::platform::graphics::osx::quartz::Convert(p_->content_rect_.GetSize()), nullptr);
+  Ensures(p_->draw_layer_);
+
+  RequestRepaint();
 }
 
 Point OsxWindow::GetMousePosition() {
@@ -405,7 +439,7 @@ IEvent<std::nullptr_t>* OsxInputMethodContext::CompositionEvent() {
 IEvent<StringView>* OsxInputMethodContext::TextEvent() { return &p_->text_event_; }
 }
 
-@implementation Window {
+@implementation CruWindow {
   cru::platform::gui::osx::details::OsxWindowPrivate* _p;
 }
 
@@ -524,7 +558,29 @@ IEvent<StringView>* OsxInputMethodContext::TextEvent() { return &p_->text_event_
 }
 @end
 
-@implementation WindowDelegate {
+@implementation CruView {
+  cru::platform::gui::osx::details::OsxWindowPrivate* _p;
+}
+
+- (instancetype)init:(cru::platform::gui::osx::details::OsxWindowPrivate*)p
+               frame:(cru::platform::Rect)frame {
+  [super initWithFrame:cru::platform::graphics::osx::quartz::Convert(frame)];
+  _p = p;
+
+  return self;
+}
+
+- (void)drawRect:(NSRect)dirtyRect {
+  cru::log::TagDebug(u"CruView", u"Begin to draw layer in view.");
+  auto cg_context = [[NSGraphicsContext currentContext] CGContext];
+  auto layer = _p->GetDrawLayer();
+  Ensures(layer);
+  CGContextDrawLayerAtPoint(cg_context, CGPointMake(0, 0), layer);
+}
+
+@end
+
+@implementation CruWindowDelegate {
   cru::platform::gui::osx::details::OsxWindowPrivate* _p;
 }
 
@@ -550,7 +606,7 @@ IEvent<StringView>* OsxInputMethodContext::TextEvent() { return &p_->text_event_
 }
 @end
 
-@implementation InputClient {
+@implementation CruInputClient {
   cru::platform::gui::osx::details::OsxInputMethodContextPrivate* _p;
   NSMutableAttributedString* _text;
 }

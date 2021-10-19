@@ -3,7 +3,9 @@
 #include <array>
 #include <cstdlib>
 #include <ctime>
+#include <iostream>
 #include <memory>
+#include <mutex>
 #include <string_view>
 
 namespace cru::log {
@@ -74,6 +76,33 @@ void Logger::Log(LogLevel level, StringView tag, StringView message) {
   for (const auto &source : sources_) {
     source->Write(level, Format(u"[{}] {} {}: {}\n", GetLogTime(),
                                 LogLevelToString(level), tag, message));
+  }
+}
+
+namespace {
+std::mutex stdio_lock;
+
+void WriteStdio(LogLevel level, StringView s) {
+  std::string m = s.ToString().ToUtf8();
+
+  if (level == LogLevel::Error) {
+    std::cerr << m;
+  } else {
+    std::cout << m;
+  }
+}
+}  // namespace
+
+StdioLogSource::StdioLogSource(bool use_lock) : use_lock_(use_lock) {}
+
+StdioLogSource::~StdioLogSource() {}
+
+void StdioLogSource::Write(LogLevel level, StringView s) {
+  if (use_lock_) {
+    std::lock_guard<std::mutex> guard(stdio_lock);
+    WriteStdio(level, s);
+  } else {
+    WriteStdio(level, s);
   }
 }
 }  // namespace cru::log

@@ -257,4 +257,9 @@ extern const std::unordered_map<StringView, Color> predefined_name_color_map;
 }  // namespace details
 
 std::optional<Color> GetPredefinedColorByName(StringView name);
+
+inline String ToString(const Color& color) {
+  return cru::Format(u"rgba({}, {}, {}, {})", color.red, color.green,
+                     color.blue, color.alpha);
+}
 }  // namespace cru::platform

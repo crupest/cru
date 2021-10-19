@@ -33,6 +33,8 @@ class OsxCTTextLayout : public OsxQuartzResource, public virtual ITextLayout {
   Point TextSinglePoint(Index position, bool trailing) override;
   TextHitTestResult HitTest(const Point& point) override;
 
+  CTFrameRef GetCTFrameRef() const { return ct_frame_; }
+
  private:
   void RecreateFrame();
 

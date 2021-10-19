@@ -1,14 +1,32 @@
 #include "cru/osx/graphics/quartz/Painter.hpp"
 
+#include "cru/common/Logger.hpp"
 #include "cru/osx/graphics/quartz/Brush.hpp"
 #include "cru/osx/graphics/quartz/Convert.hpp"
 #include "cru/osx/graphics/quartz/Geometry.hpp"
+#include "cru/osx/graphics/quartz/TextLayout.hpp"
 #include "cru/platform/Check.hpp"
 #include "cru/platform/Exception.hpp"
+#include "cru/platform/graphics/util/Painter.hpp"
 
 namespace cru::platform::graphics::osx::quartz {
+QuartzCGContextPainter::QuartzCGContextPainter(
+    IGraphicsFactory* graphics_factory, CGContextRef cg_context,
+    bool auto_release, const Size& size,
+    std::function<void(QuartzCGContextPainter*)> on_end_draw)
+    : OsxQuartzResource(graphics_factory),
+      cg_context_(cg_context),
+      auto_release_(auto_release),
+      size_(size),
+      on_end_draw_(std::move(on_end_draw)) {
+  Expects(cg_context);
+  log::TagDebug(log_tag,
+                u"Created with CGContext: {}, Auto Release: {},  Size: {}.",
+                cg_context, auto_release, size_);
+}
+
 QuartzCGContextPainter::~QuartzCGContextPainter() {
-  EndDraw();
+  DoEndDraw();
   if (auto_release_) {
     CGContextRelease(cg_context_);
     cg_context_ = nullptr;
@@ -29,13 +47,12 @@ void QuartzCGContextPainter::SetTransform(const Matrix& matrix) {
 void QuartzCGContextPainter::Clear(const Color& color) {
   Validate();
 
-  CGColorRef c =
-      CGColorCreateGenericRGB(color.GetFloatRed(), color.GetFloatGreen(),
-                              color.GetFloatBlue(), color.GetFloatAlpha());
-  CGContextSetFillColorWithColor(cg_context_, c);
-  CGColorRelease(c);
-
+  CGContextSetRGBFillColor(cg_context_, color.GetFloatRed(),
+                           color.GetFloatGreen(), color.GetFloatBlue(),
+                           color.GetFloatAlpha());
   CGContextFillRect(cg_context_, Convert(Rect{Point{}, size_}));
+
+  log::TagDebug(log_tag, u"Clear with color {}, size {}.", color, size_);
 }
 
 void QuartzCGContextPainter::DrawLine(const Point& start, const Point& end,
@@ -98,7 +115,15 @@ void QuartzCGContextPainter::FillGeometry(IGeometry* geometry, IBrush* brush) {
 
 void QuartzCGContextPainter::DrawText(const Point& offset,
                                       ITextLayout* text_layout, IBrush* brush) {
-  // TODO: Implement this.
+  Validate();
+
+  auto tl = CheckPlatform<OsxCTTextLayout>(text_layout, GetPlatformId());
+  auto b = CheckPlatform<QuartzBrush>(brush, GetPlatformId());
+
+  util::WithTransform(this, Matrix::Translation(offset),
+                      [this, tl, b](IPainter*) {
+                        CTFrameDraw(tl->GetCTFrameRef(), cg_context_);
+                      });
 }
 
 void QuartzCGContextPainter::PushLayer(const Rect& bounds) {
@@ -109,10 +134,16 @@ void QuartzCGContextPainter::PopLayer() {
   // TODO: Implement this.
 }
 
-void QuartzCGContextPainter::EndDraw() {
+void QuartzCGContextPainter::EndDraw() { DoEndDraw(); }
+
+void QuartzCGContextPainter::DoEndDraw() {
   if (cg_context_) {
+    on_end_draw_(this);
+
     CGContextFlush(cg_context_);
     CGContextSynchronize(cg_context_);
+
+    log::TagDebug(log_tag, u"End draw and flush.");
   }
 }
 

@@ -6,17 +6,19 @@
 
 #include <CoreGraphics/CoreGraphics.h>
 
+#include <functional>
+
 namespace cru::platform::graphics::osx::quartz {
 class QuartzCGContextPainter : public OsxQuartzResource,
                                public virtual IPainter {
+  CRU_DEFINE_CLASS_LOG_TAG(
+      u"cru::platform::graphics::osx::quartz::QuartzCGContextPainter")
+
  public:
-  explicit QuartzCGContextPainter(IGraphicsFactory* graphics_factory,
-                                  CGContextRef cg_context, bool auto_release,
-                                  const Size& size)
-      : OsxQuartzResource(graphics_factory),
-        cg_context_(cg_context),
-        auto_release_(auto_release),
-        size_(size) {}
+  explicit QuartzCGContextPainter(
+      IGraphicsFactory* graphics_factory, CGContextRef cg_context,
+      bool auto_release, const Size& size,
+      std::function<void(QuartzCGContextPainter*)> on_end_draw);
 
   CRU_DELETE_COPY(QuartzCGContextPainter)
   CRU_DELETE_MOVE(QuartzCGContextPainter)
@@ -48,6 +50,8 @@ class QuartzCGContextPainter : public OsxQuartzResource,
   void EndDraw() override;
 
  private:
+  void DoEndDraw();
+
   void Validate();
 
  private:
@@ -56,5 +60,7 @@ class QuartzCGContextPainter : public OsxQuartzResource,
   bool auto_release_;
 
   Size size_;
+
+  std::function<void(QuartzCGContextPainter*)> on_end_draw_;
 };
 }  // namespace cru::platform::graphics::osx::quartz

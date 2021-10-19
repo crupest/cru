@@ -1,5 +1,6 @@
 #include "cru/osx/gui/UiApplication.hpp"
 
+#include "cru/common/Logger.hpp"
 #include "cru/osx/graphics/quartz/Factory.hpp"
 #include "cru/osx/gui/Cursor.hpp"
 #include "cru/osx/gui/Window.hpp"
@@ -66,6 +67,9 @@ void OsxUiApplicationPrivate::CallQuitHandlers() {
 
 OsxUiApplication::OsxUiApplication()
     : OsxGuiResource(this), p_(new details::OsxUiApplicationPrivate(this)) {
+  // Add stdio logger.
+  log::Logger::GetInstance()->AddSource(std::make_unique<log::StdioLogSource>());
+
   [NSApp setDelegate:p_->app_delegate_];
   p_->quartz_graphics_factory_ = std::make_unique<graphics::osx::quartz::QuartzGraphicsFactory>();
   p_->cursor_manager_ = std::make_unique<OsxCursorManager>(this);
