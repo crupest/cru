@@ -138,12 +138,11 @@ void QuartzCGContextPainter::EndDraw() { DoEndDraw(); }
 
 void QuartzCGContextPainter::DoEndDraw() {
   if (cg_context_) {
-    on_end_draw_(this);
-
     CGContextFlush(cg_context_);
     CGContextSynchronize(cg_context_);
-
     log::TagDebug(log_tag, u"End draw and flush.");
+
+    on_end_draw_(this);
   }
 }
 
