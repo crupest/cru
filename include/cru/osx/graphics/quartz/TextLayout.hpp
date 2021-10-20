@@ -51,6 +51,7 @@ class OsxCTTextLayout : public OsxQuartzResource, public virtual ITextLayout {
   CFMutableAttributedStringRef cf_attributed_text_;
 
   CTFramesetterRef ct_framesetter_ = nullptr;
+  float suggest_height_;
   CTFrameRef ct_frame_ = nullptr;
   int line_count_;
   std::vector<CGPoint> line_origins_;

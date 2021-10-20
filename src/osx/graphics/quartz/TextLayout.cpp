@@ -198,9 +198,18 @@ void OsxCTTextLayout::RecreateFrame() {
       CTFramesetterCreateWithAttributedString(cf_attributed_text_);
   Ensures(ct_framesetter_);
 
+  CFRange fit_range;
+
+  suggest_height_ =
+      CTFramesetterSuggestFrameSizeWithConstraints(
+          ct_framesetter_,
+          CFRangeMake(0, CFAttributedStringGetLength(cf_attributed_text_)),
+          nullptr, CGSizeMake(max_width_, max_height_), &fit_range)
+          .height;
+
   auto path = CGPathCreateMutable();
   Ensures(path);
-  CGPathAddRect(path, nullptr, CGRectMake(0, 0, max_width_, max_height_));
+  CGPathAddRect(path, nullptr, CGRectMake(0, 0, max_width_, suggest_height_));
 
   CFMutableDictionaryRef dictionary =
       CFDictionaryCreateMutable(nullptr, 0, &kCFTypeDictionaryKeyCallBacks,
@@ -228,7 +237,7 @@ void OsxCTTextLayout::RecreateFrame() {
 
 CTFrameRef OsxCTTextLayout::CreateFrameWithColor(const Color& color) {
   auto path = CGPathCreateMutable();
-  CGPathAddRect(path, nullptr, CGRectMake(0, 0, max_width_, max_height_));
+  CGPathAddRect(path, nullptr, CGRectMake(0, 0, max_width_, suggest_height_));
 
   CGColorRef cg_color =
       CGColorCreateGenericRGB(color.GetFloatRed(), color.GetFloatGreen(),
@@ -241,11 +250,10 @@ CTFrameRef OsxCTTextLayout::CreateFrameWithColor(const Color& color) {
   auto frame = CTFramesetterCreateFrame(
       ct_framesetter_,
       CFRangeMake(0, CFAttributedStringGetLength(cf_attributed_text_)), path,
-      dictionary);
+      nullptr);
   Ensures(frame);
 
   CGPathRelease(path);
-  CFRelease(dictionary);
 
   return frame;
 }
