@@ -48,7 +48,7 @@ class OsxCTTextLayout : public OsxQuartzResource, public virtual ITextLayout {
   std::shared_ptr<OsxCTFont> font_;
 
   String text_;
-  CFAttributedStringRef cf_attributed_text_;
+  CFMutableAttributedStringRef cf_attributed_text_;
 
   CTFramesetterRef ct_framesetter_ = nullptr;
   CTFrameRef ct_frame_ = nullptr;

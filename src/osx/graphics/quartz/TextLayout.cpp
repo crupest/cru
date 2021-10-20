@@ -14,8 +14,8 @@ OsxCTTextLayout::OsxCTTextLayout(IGraphicsFactory* graphics_factory,
                                  std::shared_ptr<OsxCTFont> font,
                                  const String& str)
     : OsxQuartzResource(graphics_factory),
-      max_width_(0.f),
-      max_height_(0.f),
+      max_width_(std::numeric_limits<float>::max()),
+      max_height_(std::numeric_limits<float>::max()),
       font_(std::move(font)),
       text_(str) {
   Expects(font_);
@@ -27,7 +27,8 @@ OsxCTTextLayout::OsxCTTextLayout(IGraphicsFactory* graphics_factory,
   Ensures(s);
   Ensures(attributes);
 
-  cf_attributed_text_ = CFAttributedStringCreate(nullptr, s, attributes);
+  cf_attributed_text_ = CFAttributedStringCreateMutable(nullptr, 0);
+  CFAttributedStringReplaceString(cf_attributed_text_, CFRangeMake(0, 0), s);
   Ensures(cf_attributed_text_);
 
   CFRelease(attributes);
@@ -58,9 +59,22 @@ void OsxCTTextLayout::SetText(String new_text) {
   Ensures(s);
   Ensures(attributes);
 
-  cf_attributed_text_ = CFAttributedStringCreate(nullptr, s, attributes);
+  cf_attributed_text_ = CFAttributedStringCreateMutable(nullptr, 0);
+  CFAttributedStringReplaceString(cf_attributed_text_, CFRangeMake(0, 0), s);
   Ensures(cf_attributed_text_);
 
+  CFAttributedStringSetAttribute(
+      cf_attributed_text_,
+      CFRangeMake(0, CFAttributedStringGetLength(cf_attributed_text_)),
+      kCTFontAttributeName, font_->GetCTFont());
+
+  CGColorRef cg_color = CGColorCreateGenericRGB(0, 0, 0, 1);
+  CFAttributedStringSetAttribute(
+      cf_attributed_text_,
+      CFRangeMake(0, CFAttributedStringGetLength(cf_attributed_text_)),
+      kCTForegroundColorAttributeName, cg_color);
+
+  CGColorRelease(cg_color);
   CFRelease(attributes);
   CFRelease(s);
 
@@ -84,7 +98,7 @@ Rect OsxCTTextLayout::GetTextBounds(bool includingTrailingSpace) {
   float bottom = 0;
 
   for (int i = 0; i < line_count_; i++) {
-    auto line = static_cast<CTLineRef>(lines_[i]);
+    auto line = lines_[i];
     const auto& line_origin = line_origins_[i];
 
     CGRect line_rect = CTLineGetImageBounds(line, nullptr);
@@ -216,15 +230,13 @@ CTFrameRef OsxCTTextLayout::CreateFrameWithColor(const Color& color) {
   auto path = CGPathCreateMutable();
   CGPathAddRect(path, nullptr, CGRectMake(0, 0, max_width_, max_height_));
 
-  CFMutableDictionaryRef dictionary =
-      CFDictionaryCreateMutable(nullptr, 0, &kCFTypeDictionaryKeyCallBacks,
-                                &kCFTypeDictionaryValueCallBacks);
-  CFDictionaryAddValue(dictionary, kCTFontAttributeName, font_->GetCTFont());
-
   CGColorRef cg_color =
       CGColorCreateGenericRGB(color.GetFloatRed(), color.GetFloatGreen(),
                               color.GetFloatBlue(), color.GetFloatAlpha());
-  CFDictionaryAddValue(dictionary, kCTForegroundColorAttributeName, cg_color);
+  CFAttributedStringSetAttribute(
+      cf_attributed_text_,
+      CFRangeMake(0, CFAttributedStringGetLength(cf_attributed_text_)),
+      kCTForegroundColorAttributeName, cg_color);
 
   auto frame = CTFramesetterCreateFrame(
       ct_framesetter_,
