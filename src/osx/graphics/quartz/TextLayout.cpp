@@ -18,40 +18,62 @@ OsxCTTextLayout::OsxCTTextLayout(IGraphicsFactory* graphics_factory,
       max_height_(0.f),
       font_(std::move(font)),
       text_(str) {
-  cf_text_ = Convert(str);
+  Expects(font_);
+
+  CFStringRef s = Convert(text_);
+  CFDictionaryRef attributes =
+      CFDictionaryCreateMutable(nullptr, 0, nullptr, nullptr);
+
+  Ensures(s);
+  Ensures(attributes);
+
+  cf_attributed_text_ = CFAttributedStringCreate(nullptr, s, attributes);
+  Ensures(cf_attributed_text_);
+
+  CFRelease(attributes);
+  CFRelease(s);
 
   RecreateFrame();
 }
 
-OsxCTTextLayout::~OsxCTTextLayout() {}
+OsxCTTextLayout::~OsxCTTextLayout() {
+  ReleaseResource();
+  CFRelease(cf_attributed_text_);
+}
 
 void OsxCTTextLayout::SetFont(std::shared_ptr<IFont> font) {
   font_ = CheckPlatform<OsxCTFont>(font, GetPlatformId());
-  CFRelease(ct_framesetter_);
-  CFRelease(ct_frame_);
   RecreateFrame();
 }
 
 void OsxCTTextLayout::SetText(String new_text) {
   text_ = std::move(new_text);
-  CFRelease(cf_text_);
-  cf_text_ = Convert(text_);
-  CFRelease(ct_framesetter_);
-  CFRelease(ct_frame_);
+
+  CFRelease(cf_attributed_text_);
+
+  CFStringRef s = Convert(text_);
+  CFDictionaryRef attributes =
+      CFDictionaryCreateMutable(nullptr, 0, nullptr, nullptr);
+
+  Ensures(s);
+  Ensures(attributes);
+
+  cf_attributed_text_ = CFAttributedStringCreate(nullptr, s, attributes);
+  Ensures(cf_attributed_text_);
+
+  CFRelease(attributes);
+  CFRelease(s);
+
   RecreateFrame();
 }
 
 void OsxCTTextLayout::SetMaxWidth(float max_width) {
   max_width_ = max_width;
-  CFRelease(ct_framesetter_);
-  CFRelease(ct_frame_);
   RecreateFrame();
 }
 
 void OsxCTTextLayout::SetMaxHeight(float max_height) {
   max_height_ = max_height;
-  CFRelease(ct_framesetter_);
-  CFRelease(ct_frame_);
   RecreateFrame();
 }
 
@@ -147,24 +169,38 @@ TextHitTestResult OsxCTTextLayout::HitTest(const Point& point) {
   return TextHitTestResult{0, false, false};
 }
 
+void OsxCTTextLayout::ReleaseResource() {
+  line_count_ = 0;
+  line_origins_.clear();
+  lines_.clear();
+  if (ct_framesetter_) CFRelease(ct_framesetter_);
+  if (ct_frame_) CFRelease(ct_frame_);
+}
+
 void OsxCTTextLayout::RecreateFrame() {
-  auto attributed_string = CFAttributedStringCreateMutable(nullptr, 0);
-  CFAttributedStringReplaceString(attributed_string, CFRangeMake(0, 0),
-                                  cf_text_);
-  CFAttributedStringSetAttribute(attributed_string,
-                                 CFRangeMake(0, CFStringGetLength(cf_text_)),
-                                 kCTFontAttributeName, font_->GetCTFont());
-  ct_framesetter_ = CTFramesetterCreateWithAttributedString(attributed_string);
+  ReleaseResource();
+
+  ct_framesetter_ =
+      CTFramesetterCreateWithAttributedString(cf_attributed_text_);
+  Ensures(ct_framesetter_);
 
   auto path = CGPathCreateMutable();
+  Ensures(path);
   CGPathAddRect(path, nullptr, CGRectMake(0, 0, max_width_, max_height_));
 
-  ct_frame_ = CTFramesetterCreateFrame(
-      ct_framesetter_, CFRangeMake(0, CFStringGetLength(cf_text_)), path,
-      nullptr);
+  CFMutableDictionaryRef dictionary =
+      CFDictionaryCreateMutable(nullptr, 0, &kCFTypeDictionaryKeyCallBacks,
+                                &kCFTypeDictionaryValueCallBacks);
+  CFDictionaryAddValue(dictionary, kCTFontAttributeName, font_->GetCTFont());
 
-  CFRelease(attributed_string);
+  ct_frame_ = CTFramesetterCreateFrame(
+      ct_framesetter_,
+      CFRangeMake(0, CFAttributedStringGetLength(cf_attributed_text_)), path,
+      dictionary);
+  Ensures(ct_frame_);
+
   CGPathRelease(path);
+  CFRelease(dictionary);
 
   const auto lines = CTFrameGetLines(ct_frame_);
   line_count_ = CFArrayGetCount(lines);
@@ -176,4 +212,29 @@ void OsxCTTextLayout::RecreateFrame() {
   }
 }
 
+CTFrameRef OsxCTTextLayout::CreateFrameWithColor(const Color& color) {
+  auto path = CGPathCreateMutable();
+  CGPathAddRect(path, nullptr, CGRectMake(0, 0, max_width_, max_height_));
+
+  CFMutableDictionaryRef dictionary =
+      CFDictionaryCreateMutable(nullptr, 0, &kCFTypeDictionaryKeyCallBacks,
+                                &kCFTypeDictionaryValueCallBacks);
+  CFDictionaryAddValue(dictionary, kCTFontAttributeName, font_->GetCTFont());
+
+  CGColorRef cg_color =
+      CGColorCreateGenericRGB(color.GetFloatRed(), color.GetFloatGreen(),
+                              color.GetFloatBlue(), color.GetFloatAlpha());
+  CFDictionaryAddValue(dictionary, kCTForegroundColorAttributeName, cg_color);
+
+  auto frame = CTFramesetterCreateFrame(
+      ct_framesetter_,
+      CFRangeMake(0, CFAttributedStringGetLength(cf_attributed_text_)), path,
+      dictionary);
+  Ensures(frame);
+
+  CGPathRelease(path);
+  CFRelease(dictionary);
+
+  return frame;
+}
 }  // namespace cru::platform::graphics::osx::quartz

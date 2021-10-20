@@ -13,6 +13,7 @@ OsxCTFont::OsxCTFont(IGraphicsFactory* graphics_factory, const String& name,
   CFStringRef n = Convert(name);
 
   ct_font_ = CTFontCreateWithName(n, size, nullptr);
+  Ensures(ct_font_);
 
   CFRelease(n);
 }

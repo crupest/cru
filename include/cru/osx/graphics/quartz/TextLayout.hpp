@@ -35,7 +35,10 @@ class OsxCTTextLayout : public OsxQuartzResource, public virtual ITextLayout {
 
   CTFrameRef GetCTFrameRef() const { return ct_frame_; }
 
+  CTFrameRef CreateFrameWithColor(const Color& color);
+
  private:
+  void ReleaseResource();
   void RecreateFrame();
 
  private:
@@ -45,10 +48,10 @@ class OsxCTTextLayout : public OsxQuartzResource, public virtual ITextLayout {
   std::shared_ptr<OsxCTFont> font_;
 
   String text_;
-  CFStringRef cf_text_;
+  CFAttributedStringRef cf_attributed_text_;
 
-  CTFramesetterRef ct_framesetter_;
-  CTFrameRef ct_frame_;
+  CTFramesetterRef ct_framesetter_ = nullptr;
+  CTFrameRef ct_frame_ = nullptr;
   int line_count_;
   std::vector<CGPoint> line_origins_;
   std::vector<CTLineRef> lines_;

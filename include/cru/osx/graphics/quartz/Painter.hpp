@@ -62,5 +62,7 @@ class QuartzCGContextPainter : public OsxQuartzResource,
   Size size_;
 
   std::function<void(QuartzCGContextPainter*)> on_end_draw_;
+
+  std::vector<Rect> clip_stack_;
 };
 }  // namespace cru::platform::graphics::osx::quartz

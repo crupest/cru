@@ -6,6 +6,7 @@
 #include "cru/osx/graphics/quartz/Geometry.hpp"
 #include "cru/osx/graphics/quartz/TextLayout.hpp"
 #include "cru/platform/Check.hpp"
+#include "cru/platform/Color.hpp"
 #include "cru/platform/Exception.hpp"
 #include "cru/platform/graphics/util/Painter.hpp"
 
@@ -118,20 +119,38 @@ void QuartzCGContextPainter::DrawText(const Point& offset,
   Validate();
 
   auto tl = CheckPlatform<OsxCTTextLayout>(text_layout, GetPlatformId());
-  auto b = CheckPlatform<QuartzBrush>(brush, GetPlatformId());
+
+  Color color;
+
+  if (auto b = dynamic_cast<QuartzSolidColorBrush*>(brush)) {
+    color = b->GetColor();
+  } else {
+    color = colors::black;
+  }
 
   util::WithTransform(this, Matrix::Translation(offset),
-                      [this, tl, b](IPainter*) {
-                        CTFrameDraw(tl->GetCTFrameRef(), cg_context_);
+                      [this, tl, color](IPainter*) {
+                        auto frame = tl->CreateFrameWithColor(color);
+                        Ensures(frame);
+                        CTFrameDraw(frame, cg_context_);
+                        CFRelease(frame);
                       });
 }
 
 void QuartzCGContextPainter::PushLayer(const Rect& bounds) {
-  // TODO: Implement this.
+  Validate();
+  clip_stack_.push_back(bounds);
+  CGContextClipToRect(cg_context_, Convert(bounds));
 }
 
 void QuartzCGContextPainter::PopLayer() {
-  // TODO: Implement this.
+  Validate();
+  clip_stack_.pop_back();
+  if (clip_stack_.empty()) {
+    CGContextResetClip(cg_context_);
+  } else {
+    CGContextClipToRect(cg_context_, Convert(clip_stack_.back()));
+  }
 }
 
 void QuartzCGContextPainter::EndDraw() { DoEndDraw(); }

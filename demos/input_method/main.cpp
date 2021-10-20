@@ -31,7 +31,7 @@ int main() {
   auto target_clause_brush = graphics_factory->CreateSolidColorBrush();
   target_clause_brush->SetColor(colors::blue);
 
-  std::shared_ptr<IFont> font = graphics_factory->CreateFont(u"等线", 30);
+  std::shared_ptr<IFont> font = graphics_factory->CreateFont(u"Serif", 30);
 
   float window_width = 10000;
 
@@ -53,7 +53,7 @@ int main() {
 
   window->PaintEvent()->AddHandler([&](auto) {
     auto painter = window->BeginPaint();
-    painter->Clear(colors::blue);
+    painter->Clear(colors::white);
 
     painter->DrawText(Point{}, prompt_text_layout.get(), brush.get());
 
