@@ -37,10 +37,10 @@ int main() {
 
   auto prompt_text_layout =
       graphics_factory->CreateTextLayout(font,
-                                         u"Alt+F1: Enable IME\n"
-                                         u"Alt+F2: Disable IME\n"
-                                         u"Alt+F3: Complete composition.\n"
-                                         u"Alt+F4: Cancel composition.");
+                                         u"Ctrl+1: Enable IME\n"
+                                         u"Ctrl+2: Disable IME\n"
+                                         u"Ctrl+3: Complete composition.\n"
+                                         u"Ctrl+4: Cancel composition.");
 
   std::optional<CompositionText> optional_composition_text;
   String committed_text;
@@ -102,18 +102,18 @@ int main() {
 
   window->KeyDownEvent()->AddHandler(
       [&input_method_context](const NativeKeyEventArgs& args) {
-        if (args.modifier & KeyModifiers::alt) {
+        if (args.modifier & KeyModifiers::ctrl) {
           switch (args.key) {
-            case KeyCode::F1:
+            case KeyCode::N1:
               input_method_context->EnableIME();
               break;
-            case KeyCode::F2:
+            case KeyCode::N2:
               input_method_context->DisableIME();
               break;
-            case KeyCode::F3:
+            case KeyCode::N3:
               input_method_context->CompleteComposition();
               break;
-            case KeyCode::F4:
+            case KeyCode::N4:
               input_method_context->CancelComposition();
               break;
             default:

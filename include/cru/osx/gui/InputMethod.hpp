@@ -12,6 +12,7 @@ class OsxInputMethodContextPrivate;
 
 class OsxInputMethodContext : public OsxGuiResource,
                               public virtual IInputMethodContext {
+  friend OsxWindow;
   friend details::OsxInputMethodContextPrivate;
 
  public:

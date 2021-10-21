@@ -7,8 +7,6 @@
 #include "cru/osx/Convert.hpp"
 #include "cru/osx/gui/Window.hpp"
 
-using cru::platform::osx::Convert;
-
 namespace cru::platform::gui::osx {
 namespace details {
 OsxInputMethodContextPrivate::OsxInputMethodContextPrivate(
@@ -34,14 +32,12 @@ void OsxInputMethodContextPrivate::PerformSel(SEL sel) {
 }
 
 void OsxInputMethodContextPrivate::Activate() {
-  if (!window_->p_->GetNSWindow()) return;
   auto input_context = [[window_->p_->GetNSWindow() contentView] inputContext];
   Ensures(input_context);
   [input_context activate];
 }
 
 void OsxInputMethodContextPrivate::Deactivate() {
-  if (!window_->p_->GetNSWindow()) return;
   auto input_context = [[window_->p_->GetNSWindow() contentView] inputContext];
   Ensures(input_context);
   [input_context deactivate];
@@ -95,87 +91,3 @@ IEvent<std::nullptr_t>* OsxInputMethodContext::CompositionEvent() {
 
 IEvent<StringView>* OsxInputMethodContext::TextEvent() { return &p_->text_event_; }
 }
-
-@implementation CruInputClient {
-  cru::platform::gui::osx::details::OsxInputMethodContextPrivate* _p;
-  NSMutableAttributedString* _text;
-}
-
-- (id)init:(cru::platform::gui::osx::details::OsxInputMethodContextPrivate*)p {
-  _p = p;
-  return self;
-}
-
-- (BOOL)hasMarkedText {
-  return _text != nil;
-}
-
-- (NSRange)markedRange {
-  return _text == nil ? NSRange{NSNotFound, 0} : NSRange{0, [_text length]};
-}
-
-- (NSRange)selectedRange {
-  return NSMakeRange(_p->GetSelectionRange().position, _p->GetSelectionRange().count);
-}
-
-- (void)setMarkedText:(id)string
-        selectedRange:(NSRange)selectedRange
-     replacementRange:(NSRange)replacementRange {
-  if (_text == nil) {
-    _text = [[NSMutableAttributedString alloc] init];
-    _p->RaiseCompositionStartEvent();
-  }
-
-  [_text deleteCharactersInRange:replacementRange];
-  [_text insertAttributedString:[[NSAttributedString alloc] initWithString:(NSString*)string]
-                        atIndex:replacementRange.location];
-
-  cru::platform::gui::CompositionText composition_text;
-  composition_text.text = Convert((CFStringRef)[_text string]);
-  composition_text.selection.position = replacementRange.location + selectedRange.location;
-  composition_text.selection.count = selectedRange.length;
-  _p->SetCompositionText(composition_text);
-  _p->RaiseCompositionEvent();
-}
-
-- (void)unmarkText {
-  _text = nil;
-  _p->RaiseCompositionEndEvent();
-}
-
-- (NSArray<NSAttributedStringKey>*)validAttributesForMarkedText {
-  return @[
-    (NSString*)kCTUnderlineColorAttributeName, (NSString*)kCTUnderlineStyleAttributeName,
-    (NSString*)kCTForegroundColorAttributeName, (NSString*)kCTBackgroundColorAttributeName
-  ];
-}
-
-- (NSAttributedString*)attributedSubstringForProposedRange:(NSRange)range
-                                               actualRange:(NSRangePointer)actualRange {
-  return [_text attributedSubstringFromRange:range];
-}
-
-- (void)insertText:(id)string replacementRange:(NSRange)replacementRange {
-  _text = nil;
-  cru::String s = Convert((CFStringRef)string);
-  _p->RaiseCompositionEndEvent();
-  _p->RaiseTextEvent(s);
-}
-
-- (NSUInteger)characterIndexForPoint:(NSPoint)point {
-  return NSNotFound;
-}
-
-- (NSRect)firstRectForCharacterRange:(NSRange)range actualRange:(NSRangePointer)actualRange {
-  NSRect result;
-  result.origin.x = _p->GetCandidateWindowPosition().x;
-  result.origin.y = _p->GetCandidateWindowPosition().y;
-  result.size.height = 16;
-  result.size.width = 0;
-  return result;
-}
-
-- (void)doCommandBySelector:(SEL)selector {
-  _p->PerformSel(selector);
-}
-@end

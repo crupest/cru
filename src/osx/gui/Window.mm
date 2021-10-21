@@ -2,6 +2,7 @@
 #include "WindowPrivate.h"
 
 #include "CursorPrivate.h"
+#include "InputMethodPrivate.h"
 #include "cru/common/Logger.hpp"
 #include "cru/common/Range.hpp"
 #include "cru/osx/Convert.hpp"
@@ -30,6 +31,7 @@
 #include <limits>
 #include <memory>
 
+using cru::platform::osx::Convert;
 using cru::platform::graphics::osx::quartz::Convert;
 
 namespace cru::platform::gui::osx {
@@ -225,6 +227,7 @@ void OsxWindow::CreateWindow() {
   [p_->window_ setDelegate:p_->window_delegate_];
 
   NSView* content_view = [[CruView alloc] init:p_.get()
+                               input_context_p:p_->input_method_context_->p_.get()
                                          frame:Rect(Point{}, p_->content_rect_.GetSize())];
 
   [p_->window_ setContentView:content_view];
@@ -290,16 +293,54 @@ IInputMethodContext* OsxWindow::GetInputMethodContext() { return p_->input_metho
 - (BOOL)canBecomeKeyWindow {
   return YES;
 }
+
+- (void)keyDown:(NSEvent*)event {
+  cru::log::TagDebug(u"CruWindow", u"Recieved key down.");
+
+  cru::platform::gui::KeyModifier key_modifier;
+  if (event.modifierFlags & NSEventModifierFlagControl)
+    key_modifier |= cru::platform::gui::KeyModifiers::ctrl;
+  if (event.modifierFlags & NSEventModifierFlagOption)
+    key_modifier |= cru::platform::gui::KeyModifiers::alt;
+  if (event.modifierFlags & NSEventModifierFlagShift)
+    key_modifier |= cru::platform::gui::KeyModifiers::shift;
+  auto c = cru::platform::gui::osx::KeyCodeFromOsxToCru(event.keyCode);
+
+  _p->OnKeyDown(c, key_modifier);
+
+  [super keyDown:event];
+}
+
+- (void)keyUp:(NSEvent*)event {
+  cru::log::TagDebug(u"CruWindow", u"Recieved key up.");
+
+  cru::platform::gui::KeyModifier key_modifier;
+  if (event.modifierFlags & NSEventModifierFlagControl)
+    key_modifier |= cru::platform::gui::KeyModifiers::ctrl;
+  if (event.modifierFlags & NSEventModifierFlagOption)
+    key_modifier |= cru::platform::gui::KeyModifiers::alt;
+  if (event.modifierFlags & NSEventModifierFlagShift)
+    key_modifier |= cru::platform::gui::KeyModifiers::shift;
+  auto c = cru::platform::gui::osx::KeyCodeFromOsxToCru(event.keyCode);
+
+  _p->OnKeyUp(c, key_modifier);
+  [super keyUp:event];
+}
 @end
 
 @implementation CruView {
   cru::platform::gui::osx::details::OsxWindowPrivate* _p;
+  cru::platform::gui::osx::details::OsxInputMethodContextPrivate* _input_context_p;
+  NSMutableAttributedString* _input_context_text;
 }
 
 - (instancetype)init:(cru::platform::gui::osx::details::OsxWindowPrivate*)p
+     input_context_p:
+         (cru::platform::gui::osx::details::OsxInputMethodContextPrivate*)input_context_p
                frame:(cru::platform::Rect)frame {
   [super initWithFrame:cru::platform::graphics::osx::quartz::Convert(frame)];
   _p = p;
+  _input_context_p = input_context_p;
 
   auto tracking_area = [[NSTrackingArea alloc]
       initWithRect:Convert(frame)
@@ -418,38 +459,80 @@ IInputMethodContext* OsxWindow::GetInputMethodContext() { return p_->input_metho
   _p->OnMouseWheel(static_cast<float>(event.scrollingDeltaY), p, key_modifier);
 }
 
-- (void)keyDown:(NSEvent*)event {
-  cru::log::TagDebug(u"CruView", u"Recieved key down.");
-
-  cru::platform::gui::KeyModifier key_modifier;
-  if (event.modifierFlags & NSEventModifierFlagControl)
-    key_modifier |= cru::platform::gui::KeyModifiers::ctrl;
-  if (event.modifierFlags & NSEventModifierFlagOption)
-    key_modifier |= cru::platform::gui::KeyModifiers::alt;
-  if (event.modifierFlags & NSEventModifierFlagShift)
-    key_modifier |= cru::platform::gui::KeyModifiers::shift;
-  auto c = cru::platform::gui::osx::KeyCodeFromOsxToCru(event.keyCode);
-
-  _p->OnKeyDown(c, key_modifier);
-
-  [super keyDown:event];
+- (BOOL)hasMarkedText {
+  return _input_context_text != nil;
 }
 
-- (void)keyUp:(NSEvent*)event {
-  cru::log::TagDebug(u"CruView", u"Recieved key up.");
+- (NSRange)markedRange {
+  return _input_context_text == nil ? NSRange{NSNotFound, 0}
+                                    : NSRange{0, [_input_context_text length]};
+}
 
-  cru::platform::gui::KeyModifier key_modifier;
-  if (event.modifierFlags & NSEventModifierFlagControl)
-    key_modifier |= cru::platform::gui::KeyModifiers::ctrl;
-  if (event.modifierFlags & NSEventModifierFlagOption)
-    key_modifier |= cru::platform::gui::KeyModifiers::alt;
-  if (event.modifierFlags & NSEventModifierFlagShift)
-    key_modifier |= cru::platform::gui::KeyModifiers::shift;
-  auto c = cru::platform::gui::osx::KeyCodeFromOsxToCru(event.keyCode);
+- (NSRange)selectedRange {
+  return NSMakeRange(_input_context_p->GetSelectionRange().position,
+                     _input_context_p->GetSelectionRange().count);
+}
 
-  _p->OnKeyUp(c, key_modifier);
+- (void)setMarkedText:(id)string
+        selectedRange:(NSRange)selectedRange
+     replacementRange:(NSRange)replacementRange {
+  if (_input_context_text == nil) {
+    _input_context_text = [[NSMutableAttributedString alloc] init];
+    _input_context_p->RaiseCompositionStartEvent();
+  }
 
-  [super keyUp:event];
+  [_input_context_text deleteCharactersInRange:replacementRange];
+  [_input_context_text
+      insertAttributedString:[[NSAttributedString alloc] initWithString:(NSString*)string]
+                     atIndex:replacementRange.location];
+
+  cru::platform::gui::CompositionText composition_text;
+  composition_text.text = Convert((CFStringRef)[_input_context_text string]);
+  composition_text.selection.position = replacementRange.location + selectedRange.location;
+  composition_text.selection.count = selectedRange.length;
+  _input_context_p->SetCompositionText(composition_text);
+  _input_context_p->RaiseCompositionEvent();
+}
+
+- (void)unmarkText {
+  _input_context_text = nil;
+  _input_context_p->RaiseCompositionEndEvent();
+}
+
+- (NSArray<NSAttributedStringKey>*)validAttributesForMarkedText {
+  return @[
+    (NSString*)kCTUnderlineColorAttributeName, (NSString*)kCTUnderlineStyleAttributeName,
+    (NSString*)kCTForegroundColorAttributeName, (NSString*)kCTBackgroundColorAttributeName
+  ];
+}
+
+- (NSAttributedString*)attributedSubstringForProposedRange:(NSRange)range
+                                               actualRange:(NSRangePointer)actualRange {
+  return [_input_context_text attributedSubstringFromRange:range];
+}
+
+- (void)insertText:(id)string replacementRange:(NSRange)replacementRange {
+  _input_context_text = nil;
+  cru::String s = Convert((CFStringRef)string);
+  _input_context_p->RaiseCompositionEndEvent();
+  _input_context_p->RaiseTextEvent(s);
+}
+
+- (NSUInteger)characterIndexForPoint:(NSPoint)point {
+  return NSNotFound;
+}
+
+- (NSRect)firstRectForCharacterRange:(NSRange)range actualRange:(NSRangePointer)actualRange {
+  NSRect result;
+  result.origin.x = _input_context_p->GetCandidateWindowPosition().x;
+  result.origin.y = _input_context_p->GetCandidateWindowPosition().y;
+  result.size.height = 16;
+  result.size.width = 0;
+  return result;
+}
+
+- (void)doCommandBySelector:(SEL)selector {
+  _input_context_p->PerformSel(selector);
 }
 @end
 

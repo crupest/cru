@@ -17,8 +17,10 @@
                style:(NSWindowStyleMask)style;
 @end
 
-@interface CruView : NSView
+@interface CruView : NSView <NSTextInputClient>
 - (instancetype)init:(cru::platform::gui::osx::details::OsxWindowPrivate*)p
+     input_context_p:
+         (cru::platform::gui::osx::details::OsxInputMethodContextPrivate*)input_context_p
                frame:(cru::platform::Rect)frame;
 @end
 
