@@ -46,6 +46,8 @@ class OsxInputMethodContext : public OsxGuiResource,
 
   IEvent<StringView>* TextEvent() override;
 
+  bool IsEnabled();
+
  private:
   std::unique_ptr<details::OsxInputMethodContextPrivate> p_;
 };

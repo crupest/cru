@@ -57,6 +57,8 @@ class OsxInputMethodContextPrivate {
   Event<std::nullptr_t> composition_event_;
   Event<std::nullptr_t> composition_end_event_;
   Event<StringView> text_event_;
+
+  bool is_enabled_ = false;
 };
 }  // namespace details
 }  // namespace cru::platform::gui::osx

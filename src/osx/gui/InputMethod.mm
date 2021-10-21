@@ -28,19 +28,14 @@ void OsxInputMethodContextPrivate::RaiseCompositionEvent() { composition_event_.
 void OsxInputMethodContextPrivate::RaiseTextEvent(StringView text) { text_event_.Raise(text); }
 
 void OsxInputMethodContextPrivate::PerformSel(SEL sel) {
-  [window_->p_->GetNSWindow() performSelector:sel];
+  // [window_->p_->GetNSWindow() performSelector:sel];
 }
 
-void OsxInputMethodContextPrivate::Activate() {
-  auto input_context = [[window_->p_->GetNSWindow() contentView] inputContext];
-  Ensures(input_context);
-  [input_context activate];
-}
+void OsxInputMethodContextPrivate::Activate() { is_enabled_ = true; }
 
 void OsxInputMethodContextPrivate::Deactivate() {
-  auto input_context = [[window_->p_->GetNSWindow() contentView] inputContext];
-  Ensures(input_context);
-  [input_context deactivate];
+  input_method_context_->CompleteComposition();
+  is_enabled_ = false;
 }
 }
 
@@ -90,4 +85,6 @@ IEvent<std::nullptr_t>* OsxInputMethodContext::CompositionEvent() {
 }
 
 IEvent<StringView>* OsxInputMethodContext::TextEvent() { return &p_->text_event_; }
+
+bool OsxInputMethodContext::IsEnabled() { return p_->is_enabled_; }
 }

@@ -57,6 +57,7 @@ class OsxWindowPrivate {
 
   CGLayerRef GetDrawLayer() { return draw_layer_; }
 
+  OsxWindow* GetWindow() { return osx_window_; }
   NSWindow* GetNSWindow() { return window_; }
 
  private:

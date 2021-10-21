@@ -293,39 +293,6 @@ IInputMethodContext* OsxWindow::GetInputMethodContext() { return p_->input_metho
 - (BOOL)canBecomeKeyWindow {
   return YES;
 }
-
-- (void)keyDown:(NSEvent*)event {
-  cru::log::TagDebug(u"CruWindow", u"Recieved key down.");
-
-  cru::platform::gui::KeyModifier key_modifier;
-  if (event.modifierFlags & NSEventModifierFlagControl)
-    key_modifier |= cru::platform::gui::KeyModifiers::ctrl;
-  if (event.modifierFlags & NSEventModifierFlagOption)
-    key_modifier |= cru::platform::gui::KeyModifiers::alt;
-  if (event.modifierFlags & NSEventModifierFlagShift)
-    key_modifier |= cru::platform::gui::KeyModifiers::shift;
-  auto c = cru::platform::gui::osx::KeyCodeFromOsxToCru(event.keyCode);
-
-  _p->OnKeyDown(c, key_modifier);
-
-  [super keyDown:event];
-}
-
-- (void)keyUp:(NSEvent*)event {
-  cru::log::TagDebug(u"CruWindow", u"Recieved key up.");
-
-  cru::platform::gui::KeyModifier key_modifier;
-  if (event.modifierFlags & NSEventModifierFlagControl)
-    key_modifier |= cru::platform::gui::KeyModifiers::ctrl;
-  if (event.modifierFlags & NSEventModifierFlagOption)
-    key_modifier |= cru::platform::gui::KeyModifiers::alt;
-  if (event.modifierFlags & NSEventModifierFlagShift)
-    key_modifier |= cru::platform::gui::KeyModifiers::shift;
-  auto c = cru::platform::gui::osx::KeyCodeFromOsxToCru(event.keyCode);
-
-  _p->OnKeyUp(c, key_modifier);
-  [super keyUp:event];
-}
 @end
 
 @implementation CruView {
@@ -457,6 +424,48 @@ IInputMethodContext* OsxWindow::GetInputMethodContext() { return p_->input_metho
   cru::platform::Point p(event.locationInWindow.x, event.locationInWindow.y);
 
   _p->OnMouseWheel(static_cast<float>(event.scrollingDeltaY), p, key_modifier);
+}
+
+- (void)keyDown:(NSEvent*)event {
+  cru::log::TagDebug(u"CruWindow", u"Recieved key down.");
+
+  cru::platform::gui::KeyModifier key_modifier;
+  if (event.modifierFlags & NSEventModifierFlagControl)
+    key_modifier |= cru::platform::gui::KeyModifiers::ctrl;
+  if (event.modifierFlags & NSEventModifierFlagOption)
+    key_modifier |= cru::platform::gui::KeyModifiers::alt;
+  if (event.modifierFlags & NSEventModifierFlagShift)
+    key_modifier |= cru::platform::gui::KeyModifiers::shift;
+  auto c = cru::platform::gui::osx::KeyCodeFromOsxToCru(event.keyCode);
+
+  _p->OnKeyDown(c, key_modifier);
+
+  if (dynamic_cast<cru::platform::gui::osx::OsxInputMethodContext*>(
+          _p->GetWindow()->GetInputMethodContext())
+          ->IsEnabled()) {
+    [[self inputContext] handleEvent:event];
+  }
+}
+
+- (void)keyUp:(NSEvent*)event {
+  cru::log::TagDebug(u"CruWindow", u"Recieved key up.");
+
+  cru::platform::gui::KeyModifier key_modifier;
+  if (event.modifierFlags & NSEventModifierFlagControl)
+    key_modifier |= cru::platform::gui::KeyModifiers::ctrl;
+  if (event.modifierFlags & NSEventModifierFlagOption)
+    key_modifier |= cru::platform::gui::KeyModifiers::alt;
+  if (event.modifierFlags & NSEventModifierFlagShift)
+    key_modifier |= cru::platform::gui::KeyModifiers::shift;
+  auto c = cru::platform::gui::osx::KeyCodeFromOsxToCru(event.keyCode);
+
+  _p->OnKeyUp(c, key_modifier);
+
+  if (dynamic_cast<cru::platform::gui::osx::OsxInputMethodContext*>(
+          _p->GetWindow()->GetInputMethodContext())
+          ->IsEnabled()) {
+    [[self inputContext] handleEvent:event];
+  }
 }
 
 - (BOOL)hasMarkedText {
