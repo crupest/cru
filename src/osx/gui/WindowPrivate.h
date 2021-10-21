@@ -68,8 +68,8 @@ class OsxWindowPrivate {
   bool frame_;
   Rect content_rect_;
 
-  NSWindow* window_;
-  CruWindowDelegate* window_delegate_;
+  NSWindow* window_ = nil;
+  CruWindowDelegate* window_delegate_ = nil;
 
   CGLayerRef draw_layer_;
 

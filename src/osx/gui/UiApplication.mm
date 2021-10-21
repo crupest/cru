@@ -17,7 +17,7 @@
 #include <unordered_map>
 #include <vector>
 
-@interface AppDelegate : NSObject <NSApplicationDelegate>
+@interface CruAppDelegate : NSObject <NSApplicationDelegate>
 - (id)init:(cru::platform::gui::osx::details::OsxUiApplicationPrivate*)p;
 - (NSApplicationTerminateReply)applicationShouldTerminate:(NSApplication*)sender;
 - (void)applicationWillTerminate:(NSNotification*)notification;
@@ -32,7 +32,7 @@ class OsxUiApplicationPrivate {
  public:
   explicit OsxUiApplicationPrivate(OsxUiApplication* osx_ui_application)
       : osx_ui_application_(osx_ui_application) {
-    app_delegate_ = [[AppDelegate alloc] init:this];
+    app_delegate_ = [[CruAppDelegate alloc] init:this];
   }
 
   CRU_DELETE_COPY(OsxUiApplicationPrivate)
@@ -44,7 +44,7 @@ class OsxUiApplicationPrivate {
 
  private:
   OsxUiApplication* osx_ui_application_;
-  AppDelegate* app_delegate_;
+  CruAppDelegate* app_delegate_;
   std::vector<std::function<void()>> quit_handlers_;
 
   long long current_timer_id_ = 1;
@@ -67,6 +67,8 @@ void OsxUiApplicationPrivate::CallQuitHandlers() {
 
 OsxUiApplication::OsxUiApplication()
     : OsxGuiResource(this), p_(new details::OsxUiApplicationPrivate(this)) {
+  [NSApplication sharedApplication];
+
   // Add stdio logger.
   log::Logger::GetInstance()->AddSource(std::make_unique<log::StdioLogSource>());
 
@@ -165,7 +167,7 @@ void OsxUiApplication::UnregisterWindow(OsxWindow* window) {
 }
 }
 
-@implementation AppDelegate {
+@implementation CruAppDelegate {
   cru::platform::gui::osx::details::OsxUiApplicationPrivate* _p;
 }
 

@@ -149,14 +149,14 @@ bool OsxWindow::IsVisible() {
 void OsxWindow::SetVisible(bool is_visible) {
   if (p_->window_) {
     if (is_visible) {
-      [p_->window_ orderFront:p_->window_];
+      [p_->window_ orderFront:nil];
     } else {
-      [p_->window_ orderOut:p_->window_];
+      [p_->window_ orderOut:nil];
     }
   } else {
     if (is_visible) {
       CreateWindow();
-      [p_->window_ orderFront:p_->window_];
+      [p_->window_ orderFront:nil];
     }
   }
 }
@@ -220,6 +220,7 @@ void OsxWindow::CreateWindow() {
   NSWindowStyleMask style_mask = CalcWindowStyleMask(p_->frame_);
 
   p_->window_ = [[CruWindow alloc] init:p_.get() contentRect:content_rect style:style_mask];
+  Ensures(p_->window_);
 
   [p_->window_ setDelegate:p_->window_delegate_];
 
@@ -281,10 +282,13 @@ IInputMethodContext* OsxWindow::GetInputMethodContext() { return p_->input_metho
                        defer:false];
   _p = p;
 
-  [self setIgnoresMouseEvents:FALSE];
   [self setAcceptsMouseMovedEvents:YES];
 
   return self;
+}
+
+- (BOOL)canBecomeKeyWindow {
+  return YES;
 }
 @end
 
@@ -340,6 +344,7 @@ IInputMethodContext* OsxWindow::GetInputMethodContext() { return p_->input_metho
 
 - (void)mouseDown:(NSEvent*)event {
   // cru::log::TagDebug(u"CruView", u"Recieved mouse down.");
+  [[self window] makeKeyWindow];
 
   cru::platform::gui::KeyModifier key_modifier;
   if (event.modifierFlags & NSEventModifierFlagControl)

@@ -3,6 +3,7 @@
 #import <AppKit/AppKit.h>
 #include "InputMethodPrivate.h"
 #include "WindowPrivate.h"
+#include "cru/common/Logger.hpp"
 #include "cru/osx/Convert.hpp"
 #include "cru/osx/gui/Window.hpp"
 
@@ -54,9 +55,15 @@ OsxInputMethodContext::OsxInputMethodContext(OsxWindow* window)
 
 OsxInputMethodContext::~OsxInputMethodContext() {}
 
-void OsxInputMethodContext::EnableIME() { p_->Activate(); }
+void OsxInputMethodContext::EnableIME() {
+  log::Debug(u"Enable IME.");
+  p_->Activate();
+}
 
-void OsxInputMethodContext::DisableIME() { p_->Deactivate(); }
+void OsxInputMethodContext::DisableIME() {
+  log::Debug(u"Disable IME.");
+  p_->Deactivate();
+}
 
 bool OsxInputMethodContext::ShouldManuallyDrawCompositionText() { return true; }
 
