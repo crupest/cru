@@ -1,6 +1,7 @@
 #pragma once
 #include "cru/osx/gui/Window.hpp"
 
+#include "cru/common/Event.hpp"
 #include "cru/osx/gui/Cursor.hpp"
 #include "cru/platform/gui/TimerHelper.hpp"
 
@@ -90,6 +91,18 @@ class OsxWindowPrivate {
   std::unique_ptr<OsxInputMethodContext> input_method_context_;
 
   TimerAutoCanceler draw_timer_;
+
+  Event<std::nullptr_t> destroy_event_;
+  Event<std::nullptr_t> paint_event_;
+  Event<Size> resize_event_;
+  Event<FocusChangeType> focus_event_;
+  Event<MouseEnterLeaveType> mouse_enter_leave_event_;
+  Event<Point> mouse_move_event_;
+  Event<NativeMouseButtonEventArgs> mouse_down_event_;
+  Event<NativeMouseButtonEventArgs> mouse_up_event_;
+  Event<NativeMouseWheelEventArgs> mouse_wheel_event_;
+  Event<NativeKeyEventArgs> key_down_event_;
+  Event<NativeKeyEventArgs> key_up_event_;
 };
 }  // namespace details
 }  // namespace cru::platform::gui::osx
