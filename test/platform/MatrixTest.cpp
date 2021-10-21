@@ -1,4 +1,4 @@
-#include "cru/platform/GraphBase.hpp"
+#include "cru/platform/GraphicsBase.hpp"
 #include "cru/platform/Matrix.hpp"
 
 #include <gtest/gtest.h>

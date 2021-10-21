@@ -59,8 +59,7 @@ void TextHostControlService::SetEditable(bool editable) {
   if (!editable) CancelComposition();
 }
 
-void TextHostControlService::SetText(std::u16string text,
-                                     bool stop_composition) {
+void TextHostControlService::SetText(String text, bool stop_composition) {
   this->text_ = std::move(text);
   CoerceSelection();
   if (stop_composition) {
@@ -259,7 +258,7 @@ void TextHostControlService::SyncTextRenderObject() {
   if (composition_info) {
     const auto caret_position = GetCaretPosition();
     auto text = this->text_;
-    text.insert(caret_position, composition_info->text);
+    text.insert(text.cbegin() + caret_position, composition_info->text);
     text_render_object->SetText(text);
     text_render_object->SetCaretPosition(caret_position +
                                          composition_info->selection.GetEnd());
@@ -284,7 +283,7 @@ void TextHostControlService::UpdateInputMethodPosition() {
     if constexpr (debug_flags::text_service) {
       log::TagDebug(log_tag,
                     u"Calculate input method candidate window position: {}.",
-                    right_bottom.ToDebugString());
+                    right_bottom);
     }
 
     input_method_context->SetCandidateWindowPosition(right_bottom);

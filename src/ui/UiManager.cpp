@@ -20,8 +20,8 @@ using namespace cru::ui::style;
 using namespace cru::ui::helper;
 
 namespace {
-std::unique_ptr<ISolidColorBrush> CreateSolidColorBrush(IGraphicsFactory* factory,
-                                                        const Color& color) {
+std::unique_ptr<ISolidColorBrush> CreateSolidColorBrush(
+    IGraphicsFactory* factory, const Color& color) {
   auto brush = factory->CreateSolidColorBrush();
   brush->SetColor(color);
   return brush;

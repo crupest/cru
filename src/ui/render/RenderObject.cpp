@@ -1,7 +1,7 @@
 #include "cru/ui/render/RenderObject.hpp"
 
 #include "cru/common/Logger.hpp"
-#include "cru/platform/GraphBase.hpp"
+#include "cru/platform/GraphicsBase.hpp"
 #include "cru/platform/graphics/util/Painter.hpp"
 #include "cru/ui/Base.hpp"
 #include "cru/ui/DebugFlags.hpp"
@@ -102,7 +102,7 @@ void RenderObject::Measure(const MeasureRequirement& requirement,
 
   if constexpr (cru::ui::debug_flags::layout) {
     log::Debug(u"{} Measure ends :\nresult size: {}",
-               this->GetDebugPathInTree(), size_.ToDebugString());
+               this->GetDebugPathInTree(), size_);
   }
 
   Ensures(size_.width >= 0);
@@ -112,7 +112,7 @@ void RenderObject::Measure(const MeasureRequirement& requirement,
 void RenderObject::Layout(const Point& offset) {
   if constexpr (cru::ui::debug_flags::layout) {
     log::Debug(u"{} Layout :\noffset: {} size: {}", this->GetDebugPathInTree(),
-               offset.ToDebugString(), GetSize().ToDebugString());
+               offset, GetSize());
   }
   offset_ = offset;
   OnLayoutCore();

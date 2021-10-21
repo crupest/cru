@@ -34,13 +34,9 @@ class TextRenderObject : public RenderObject {
   TextRenderObject& operator=(TextRenderObject&& other) = delete;
   ~TextRenderObject() override;
 
-  std::u16string GetText() const;
-  std::u16string_view GetTextView() const;
-  void SetText(std::u16string new_text);
+  String GetText() const;
+  void SetText(String new_text);
 
-  std::shared_ptr<platform::graphics::IBrush> GetBrush() const {
-    return brush_;
-  }
   void SetBrush(std::shared_ptr<platform::graphics::IBrush> new_brush);
 
   std::shared_ptr<platform::graphics::IFont> GetFont() const;

@@ -33,15 +33,9 @@ TextRenderObject::TextRenderObject(
 
 TextRenderObject::~TextRenderObject() = default;
 
-std::u16string TextRenderObject::GetText() const {
-  return text_layout_->GetText();
-}
+String TextRenderObject::GetText() const { return text_layout_->GetText(); }
 
-std::u16string_view TextRenderObject::GetTextView() const {
-  return text_layout_->GetTextView();
-}
-
-void TextRenderObject::SetText(std::u16string new_text) {
+void TextRenderObject::SetText(String new_text) {
   text_layout_->SetText(std::move(new_text));
   InvalidateLayout();
 }

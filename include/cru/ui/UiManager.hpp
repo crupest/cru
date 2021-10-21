@@ -13,7 +13,7 @@
 
 namespace cru::ui {
 struct ThemeResources {
-  std::u16string default_font_family;
+  String default_font_family;
   std::shared_ptr<platform::graphics::IFont> default_font;
   std::shared_ptr<platform::graphics::IBrush> text_brush;
   std::shared_ptr<platform::graphics::IBrush> text_selection_brush;

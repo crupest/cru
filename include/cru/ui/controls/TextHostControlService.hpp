@@ -7,7 +7,6 @@
 #include "cru/ui/controls/Control.hpp"
 #include "cru/ui/helper/ShortcutHub.hpp"
 
-
 #include <functional>
 #include <string>
 
@@ -43,9 +42,8 @@ class TextHostControlService : public Object {
   bool IsEditable() { return this->editable_; }
   void SetEditable(bool editable);
 
-  std::u16string GetText() { return this->text_; }
-  std::u16string_view GetTextView() { return this->text_; }
-  void SetText(std::u16string text, bool stop_composition = false);
+  String GetText() { return this->text_; }
+  void SetText(String text, bool stop_composition = false);
 
   void InsertText(gsl::index position, std::u16string_view text,
                   bool stop_composition = false);
@@ -121,7 +119,7 @@ class TextHostControlService : public Object {
   EventRevokerListGuard event_guard_;
   EventRevokerListGuard input_method_context_event_guard_;
 
-  std::u16string text_;
+  String text_;
   TextRange selection_;
 
   bool enable_ = false;

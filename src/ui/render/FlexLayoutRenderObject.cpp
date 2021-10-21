@@ -91,8 +91,7 @@ template <typename direction_tag_t,
 Size FlexLayoutMeasureContentImpl(
     const MeasureRequirement& requirement, const MeasureSize& preferred_size,
     const std::vector<RenderObject*>& children,
-    const std::vector<FlexChildLayoutData>& layout_data,
-    std::u16string_view log_tag) {
+    const std::vector<FlexChildLayoutData>& layout_data, StringView log_tag) {
   Expects(children.size() == layout_data.size());
 
   direction_tag_t direction_tag;

@@ -2,7 +2,7 @@
 
 #include "../Helper.hpp"
 #include "cru/common/Base.hpp"
-#include "cru/platform/GraphBase.hpp"
+#include "cru/platform/GraphicsBase.hpp"
 #include "cru/platform/graphics/Factory.hpp"
 #include "cru/platform/graphics/Geometry.hpp"
 #include "cru/platform/graphics/Painter.hpp"

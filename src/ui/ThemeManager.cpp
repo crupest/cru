@@ -16,7 +16,7 @@ ThemeManager::ThemeManager() { Init(); }
 
 void ThemeManager::Init() {
   theme_tree_.put("scrollbar.collapse-thumb.color",
-                  colors::gray.WithAlpha(128).ToUtf8String());
+                  colors::gray.WithAlpha(128).ToString().ToUtf8());
   theme_tree_.put("scrollbar.arrow.normal.color", "#505050");
   theme_tree_.put("scrollbar.arrow.hover.color", "#505050");
   theme_tree_.put("scrollbar.arrow.press.color", "#ffffff");
@@ -43,11 +43,12 @@ ThemeManager::GetBrush(std::u16string key) {
     return cached_brush_iter->second;
   }
 
-  auto color_string = ToUtf16(theme_tree_.get<std::string>(ToUtf8(key)));
+  auto color_string =
+      String::FromUtf8(theme_tree_.get<std::string>(ToUtf8(key)));
   auto color = Color::Parse(color_string);
   if (!color) throw BadThemeResourceException("Value is not a valid color.");
   std::shared_ptr<platform::graphics::IBrush> brush =
-      GetUiApplication()->GetGraphFactory()->CreateSolidColorBrush(*color);
+      GetUiApplication()->GetGraphicsFactory()->CreateSolidColorBrush(*color);
   brushes_[k] = brush;
   return brush;
 }
