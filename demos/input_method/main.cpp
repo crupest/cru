@@ -21,6 +21,8 @@ int main() {
 
   auto input_method_context = window->GetInputMethodContext();
 
+  input_method_context->EnableIME();
+
   auto brush = graphics_factory->CreateSolidColorBrush();
   brush->SetColor(colors::black);
 
