@@ -15,17 +15,6 @@
 - (instancetype)init:(cru::platform::gui::osx::details::OsxWindowPrivate*)p
          contentRect:(NSRect)contentRect
                style:(NSWindowStyleMask)style;
-
-- (void)mouseMoved:(NSEvent*)event;
-- (void)mouseEntered:(NSEvent*)event;
-- (void)mouseExited:(NSEvent*)event;
-- (void)mouseDown:(NSEvent*)event;
-- (void)mouseUp:(NSEvent*)event;
-- (void)rightMouseDown:(NSEvent*)event;
-- (void)rightMouseUp:(NSEvent*)event;
-- (void)scrollWheel:(NSEvent*)event;
-- (void)keyDown:(NSEvent*)event;
-- (void)keyUp:(NSEvent*)event;
 @end
 
 @interface CruView : NSView

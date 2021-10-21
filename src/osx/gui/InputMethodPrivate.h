@@ -37,6 +37,9 @@ class OsxInputMethodContextPrivate {
 
   void PerformSel(SEL sel);
 
+  void Activate();
+  void Deactivate();
+
  private:
   OsxWindow* window_;
 

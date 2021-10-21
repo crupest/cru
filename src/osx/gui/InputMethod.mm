@@ -32,6 +32,19 @@ void OsxInputMethodContextPrivate::PerformSel(SEL sel) {
   [window_->p_->GetNSWindow() performSelector:sel];
 }
 
+void OsxInputMethodContextPrivate::Activate() {
+  if (!window_->p_->GetNSWindow()) return;
+  auto input_context = [[window_->p_->GetNSWindow() contentView] inputContext];
+  Ensures(input_context);
+  [input_context activate];
+}
+
+void OsxInputMethodContextPrivate::Deactivate() {
+  if (!window_->p_->GetNSWindow()) return;
+  auto input_context = [[window_->p_->GetNSWindow() contentView] inputContext];
+  Ensures(input_context);
+  [input_context deactivate];
+}
 }
 
 OsxInputMethodContext::OsxInputMethodContext(OsxWindow* window)
@@ -41,9 +54,9 @@ OsxInputMethodContext::OsxInputMethodContext(OsxWindow* window)
 
 OsxInputMethodContext::~OsxInputMethodContext() {}
 
-void OsxInputMethodContext::EnableIME() { [[NSTextInputContext currentInputContext] activate]; }
+void OsxInputMethodContext::EnableIME() { p_->Activate(); }
 
-void OsxInputMethodContext::DisableIME() { [[NSTextInputContext currentInputContext] deactivate]; }
+void OsxInputMethodContext::DisableIME() { p_->Deactivate(); }
 
 bool OsxInputMethodContext::ShouldManuallyDrawCompositionText() { return true; }
 

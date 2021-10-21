@@ -269,110 +269,10 @@ IInputMethodContext* OsxWindow::GetInputMethodContext() { return p_->input_metho
                      backing:NSBackingStoreBuffered
                        defer:false];
   _p = p;
+
+  [self setAcceptsMouseMovedEvents:YES];
+
   return self;
-}
-
-- (void)mouseMoved:(NSEvent*)event {
-  _p->OnMouseMove(cru::platform::Point(event.locationInWindow.x, event.locationInWindow.y));
-}
-
-- (void)mouseEntered:(NSEvent*)event {
-  _p->OnMouseEnterLeave(cru::platform::gui::MouseEnterLeaveType::Enter);
-}
-
-- (void)mouseExited:(NSEvent*)event {
-  _p->OnMouseEnterLeave(cru::platform::gui::MouseEnterLeaveType::Leave);
-}
-
-- (void)mouseDown:(NSEvent*)event {
-  cru::platform::gui::KeyModifier key_modifier;
-  if (event.modifierFlags & NSEventModifierFlagControl)
-    key_modifier |= cru::platform::gui::KeyModifiers::ctrl;
-  if (event.modifierFlags & NSEventModifierFlagOption)
-    key_modifier |= cru::platform::gui::KeyModifiers::alt;
-  if (event.modifierFlags & NSEventModifierFlagShift)
-    key_modifier |= cru::platform::gui::KeyModifiers::shift;
-  cru::platform::Point p(event.locationInWindow.x, event.locationInWindow.y);
-
-  _p->OnMouseDown(cru::platform::gui::mouse_buttons::left, p, key_modifier);
-}
-
-- (void)mouseUp:(NSEvent*)event {
-  cru::platform::gui::KeyModifier key_modifier;
-  if (event.modifierFlags & NSEventModifierFlagControl)
-    key_modifier |= cru::platform::gui::KeyModifiers::ctrl;
-  if (event.modifierFlags & NSEventModifierFlagOption)
-    key_modifier |= cru::platform::gui::KeyModifiers::alt;
-  if (event.modifierFlags & NSEventModifierFlagShift)
-    key_modifier |= cru::platform::gui::KeyModifiers::shift;
-  cru::platform::Point p(event.locationInWindow.x, event.locationInWindow.y);
-
-  _p->OnMouseUp(cru::platform::gui::mouse_buttons::left, p, key_modifier);
-}
-
-- (void)rightMouseDown:(NSEvent*)event {
-  cru::platform::gui::KeyModifier key_modifier;
-  if (event.modifierFlags & NSEventModifierFlagControl)
-    key_modifier |= cru::platform::gui::KeyModifiers::ctrl;
-  if (event.modifierFlags & NSEventModifierFlagOption)
-    key_modifier |= cru::platform::gui::KeyModifiers::alt;
-  if (event.modifierFlags & NSEventModifierFlagShift)
-    key_modifier |= cru::platform::gui::KeyModifiers::shift;
-  cru::platform::Point p(event.locationInWindow.x, event.locationInWindow.y);
-
-  _p->OnMouseDown(cru::platform::gui::mouse_buttons::right, p, key_modifier);
-}
-
-- (void)rightMouseUp:(NSEvent*)event {
-  cru::platform::gui::KeyModifier key_modifier;
-  if (event.modifierFlags & NSEventModifierFlagControl)
-    key_modifier |= cru::platform::gui::KeyModifiers::ctrl;
-  if (event.modifierFlags & NSEventModifierFlagOption)
-    key_modifier |= cru::platform::gui::KeyModifiers::alt;
-  if (event.modifierFlags & NSEventModifierFlagShift)
-    key_modifier |= cru::platform::gui::KeyModifiers::shift;
-  cru::platform::Point p(event.locationInWindow.x, event.locationInWindow.y);
-
-  _p->OnMouseUp(cru::platform::gui::mouse_buttons::right, p, key_modifier);
-}
-
-- (void)scrollWheel:(NSEvent*)event {
-  cru::platform::gui::KeyModifier key_modifier;
-  if (event.modifierFlags & NSEventModifierFlagControl)
-    key_modifier |= cru::platform::gui::KeyModifiers::ctrl;
-  if (event.modifierFlags & NSEventModifierFlagOption)
-    key_modifier |= cru::platform::gui::KeyModifiers::alt;
-  if (event.modifierFlags & NSEventModifierFlagShift)
-    key_modifier |= cru::platform::gui::KeyModifiers::shift;
-  cru::platform::Point p(event.locationInWindow.x, event.locationInWindow.y);
-
-  _p->OnMouseWheel(static_cast<float>(event.scrollingDeltaY), p, key_modifier);
-}
-
-- (void)keyDown:(NSEvent*)event {
-  cru::platform::gui::KeyModifier key_modifier;
-  if (event.modifierFlags & NSEventModifierFlagControl)
-    key_modifier |= cru::platform::gui::KeyModifiers::ctrl;
-  if (event.modifierFlags & NSEventModifierFlagOption)
-    key_modifier |= cru::platform::gui::KeyModifiers::alt;
-  if (event.modifierFlags & NSEventModifierFlagShift)
-    key_modifier |= cru::platform::gui::KeyModifiers::shift;
-  auto c = cru::platform::gui::osx::KeyCodeFromOsxToCru(event.keyCode);
-
-  _p->OnKeyDown(c, key_modifier);
-}
-
-- (void)keyUp:(NSEvent*)event {
-  cru::platform::gui::KeyModifier key_modifier;
-  if (event.modifierFlags & NSEventModifierFlagControl)
-    key_modifier |= cru::platform::gui::KeyModifiers::ctrl;
-  if (event.modifierFlags & NSEventModifierFlagOption)
-    key_modifier |= cru::platform::gui::KeyModifiers::alt;
-  if (event.modifierFlags & NSEventModifierFlagShift)
-    key_modifier |= cru::platform::gui::KeyModifiers::shift;
-  auto c = cru::platform::gui::osx::KeyCodeFromOsxToCru(event.keyCode);
-
-  _p->OnKeyUp(c, key_modifier);
 }
 @end
 
@@ -396,6 +296,149 @@ IInputMethodContext* OsxWindow::GetInputMethodContext() { return p_->input_metho
   CGContextDrawLayerAtPoint(cg_context, CGPointMake(0, 0), layer);
 }
 
+- (BOOL)acceptsFirstResponder {
+  return YES;
+}
+
+- (BOOL)canBecomeKeyView {
+  return YES;
+}
+
+- (void)mouseMoved:(NSEvent*)event {
+  cru::log::TagDebug(u"CruView", u"Recieved mouse move.");
+  _p->OnMouseMove(cru::platform::Point(event.locationInWindow.x, event.locationInWindow.y));
+  [super mouseMoved:event];
+}
+
+- (void)mouseEntered:(NSEvent*)event {
+  cru::log::TagDebug(u"CruView", u"Recieved mouse enter.");
+  _p->OnMouseEnterLeave(cru::platform::gui::MouseEnterLeaveType::Enter);
+  [super mouseEntered:event];
+}
+
+- (void)mouseExited:(NSEvent*)event {
+  cru::log::TagDebug(u"CruView", u"Recieved mouse exit.");
+  _p->OnMouseEnterLeave(cru::platform::gui::MouseEnterLeaveType::Leave);
+  [super mouseExited:event];
+}
+
+- (void)mouseDown:(NSEvent*)event {
+  cru::log::TagDebug(u"CruView", u"Recieved mouse down.");
+
+  cru::platform::gui::KeyModifier key_modifier;
+  if (event.modifierFlags & NSEventModifierFlagControl)
+    key_modifier |= cru::platform::gui::KeyModifiers::ctrl;
+  if (event.modifierFlags & NSEventModifierFlagOption)
+    key_modifier |= cru::platform::gui::KeyModifiers::alt;
+  if (event.modifierFlags & NSEventModifierFlagShift)
+    key_modifier |= cru::platform::gui::KeyModifiers::shift;
+  cru::platform::Point p(event.locationInWindow.x, event.locationInWindow.y);
+
+  _p->OnMouseDown(cru::platform::gui::mouse_buttons::left, p, key_modifier);
+  [super mouseDown:event];
+}
+
+- (void)mouseUp:(NSEvent*)event {
+  cru::log::TagDebug(u"CruView", u"Recieved mouse up.");
+
+  cru::platform::gui::KeyModifier key_modifier;
+  if (event.modifierFlags & NSEventModifierFlagControl)
+    key_modifier |= cru::platform::gui::KeyModifiers::ctrl;
+  if (event.modifierFlags & NSEventModifierFlagOption)
+    key_modifier |= cru::platform::gui::KeyModifiers::alt;
+  if (event.modifierFlags & NSEventModifierFlagShift)
+    key_modifier |= cru::platform::gui::KeyModifiers::shift;
+  cru::platform::Point p(event.locationInWindow.x, event.locationInWindow.y);
+
+  _p->OnMouseUp(cru::platform::gui::mouse_buttons::left, p, key_modifier);
+
+  [super mouseUp:event];
+}
+
+- (void)rightMouseDown:(NSEvent*)event {
+  cru::log::TagDebug(u"CruView", u"Recieved right mouse down.");
+
+  cru::platform::gui::KeyModifier key_modifier;
+  if (event.modifierFlags & NSEventModifierFlagControl)
+    key_modifier |= cru::platform::gui::KeyModifiers::ctrl;
+  if (event.modifierFlags & NSEventModifierFlagOption)
+    key_modifier |= cru::platform::gui::KeyModifiers::alt;
+  if (event.modifierFlags & NSEventModifierFlagShift)
+    key_modifier |= cru::platform::gui::KeyModifiers::shift;
+  cru::platform::Point p(event.locationInWindow.x, event.locationInWindow.y);
+
+  _p->OnMouseDown(cru::platform::gui::mouse_buttons::right, p, key_modifier);
+
+  [super rightMouseDown:event];
+}
+
+- (void)rightMouseUp:(NSEvent*)event {
+  cru::log::TagDebug(u"CruView", u"Recieved right mouse up.");
+
+  cru::platform::gui::KeyModifier key_modifier;
+  if (event.modifierFlags & NSEventModifierFlagControl)
+    key_modifier |= cru::platform::gui::KeyModifiers::ctrl;
+  if (event.modifierFlags & NSEventModifierFlagOption)
+    key_modifier |= cru::platform::gui::KeyModifiers::alt;
+  if (event.modifierFlags & NSEventModifierFlagShift)
+    key_modifier |= cru::platform::gui::KeyModifiers::shift;
+  cru::platform::Point p(event.locationInWindow.x, event.locationInWindow.y);
+
+  _p->OnMouseUp(cru::platform::gui::mouse_buttons::right, p, key_modifier);
+
+  [super rightMouseUp:event];
+}
+
+- (void)scrollWheel:(NSEvent*)event {
+  cru::log::TagDebug(u"CruView", u"Recieved mouse wheel.");
+
+  cru::platform::gui::KeyModifier key_modifier;
+  if (event.modifierFlags & NSEventModifierFlagControl)
+    key_modifier |= cru::platform::gui::KeyModifiers::ctrl;
+  if (event.modifierFlags & NSEventModifierFlagOption)
+    key_modifier |= cru::platform::gui::KeyModifiers::alt;
+  if (event.modifierFlags & NSEventModifierFlagShift)
+    key_modifier |= cru::platform::gui::KeyModifiers::shift;
+  cru::platform::Point p(event.locationInWindow.x, event.locationInWindow.y);
+
+  _p->OnMouseWheel(static_cast<float>(event.scrollingDeltaY), p, key_modifier);
+
+  [super scrollWheel:event];
+}
+
+- (void)keyDown:(NSEvent*)event {
+  cru::log::TagDebug(u"CruView", u"Recieved key down.");
+
+  cru::platform::gui::KeyModifier key_modifier;
+  if (event.modifierFlags & NSEventModifierFlagControl)
+    key_modifier |= cru::platform::gui::KeyModifiers::ctrl;
+  if (event.modifierFlags & NSEventModifierFlagOption)
+    key_modifier |= cru::platform::gui::KeyModifiers::alt;
+  if (event.modifierFlags & NSEventModifierFlagShift)
+    key_modifier |= cru::platform::gui::KeyModifiers::shift;
+  auto c = cru::platform::gui::osx::KeyCodeFromOsxToCru(event.keyCode);
+
+  _p->OnKeyDown(c, key_modifier);
+
+  [super keyDown:event];
+}
+
+- (void)keyUp:(NSEvent*)event {
+  cru::log::TagDebug(u"CruView", u"Recieved key up.");
+
+  cru::platform::gui::KeyModifier key_modifier;
+  if (event.modifierFlags & NSEventModifierFlagControl)
+    key_modifier |= cru::platform::gui::KeyModifiers::ctrl;
+  if (event.modifierFlags & NSEventModifierFlagOption)
+    key_modifier |= cru::platform::gui::KeyModifiers::alt;
+  if (event.modifierFlags & NSEventModifierFlagShift)
+    key_modifier |= cru::platform::gui::KeyModifiers::shift;
+  auto c = cru::platform::gui::osx::KeyCodeFromOsxToCru(event.keyCode);
+
+  _p->OnKeyUp(c, key_modifier);
+
+  [super keyUp:event];
+}
 @end
 
 @implementation CruWindowDelegate {
