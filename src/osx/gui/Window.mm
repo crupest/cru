@@ -30,6 +30,8 @@
 #include <limits>
 #include <memory>
 
+using cru::platform::graphics::osx::quartz::Convert;
+
 namespace cru::platform::gui::osx {
 namespace {
 inline NSWindowStyleMask CalcWindowStyleMask(bool frame) {
@@ -52,6 +54,15 @@ void OsxWindowPrivate::OnWindowDidResize() {
   NSRect rect = [NSWindow contentRectForFrameRect:[window_ frame]
                                         styleMask:CalcWindowStyleMask(frame_)];
   content_rect_ = cru::platform::graphics::osx::quartz::Convert(rect);
+
+  auto view = [window_ contentView];
+  [view removeTrackingArea:[view trackingAreas][0]];
+  auto tracking_area = [[NSTrackingArea alloc]
+      initWithRect:CGRectMake(0, 0, content_rect_.width, content_rect_.height)
+           options:(NSTrackingMouseEnteredAndExited | NSTrackingMouseMoved | NSTrackingActiveAlways)
+             owner:view
+          userInfo:nil];
+  [view addTrackingArea:tracking_area];
 
   CGLayerRelease(draw_layer_);
   draw_layer_ = CGLayerCreateWithContext(nullptr, rect.size, nullptr);
@@ -270,6 +281,7 @@ IInputMethodContext* OsxWindow::GetInputMethodContext() { return p_->input_metho
                        defer:false];
   _p = p;
 
+  [self setIgnoresMouseEvents:FALSE];
   [self setAcceptsMouseMovedEvents:YES];
 
   return self;
@@ -284,6 +296,13 @@ IInputMethodContext* OsxWindow::GetInputMethodContext() { return p_->input_metho
                frame:(cru::platform::Rect)frame {
   [super initWithFrame:cru::platform::graphics::osx::quartz::Convert(frame)];
   _p = p;
+
+  auto tracking_area = [[NSTrackingArea alloc]
+      initWithRect:Convert(frame)
+           options:(NSTrackingMouseEnteredAndExited | NSTrackingMouseMoved | NSTrackingActiveAlways)
+             owner:self
+          userInfo:nil];
+  [self addTrackingArea:tracking_area];
 
   return self;
 }
@@ -305,25 +324,22 @@ IInputMethodContext* OsxWindow::GetInputMethodContext() { return p_->input_metho
 }
 
 - (void)mouseMoved:(NSEvent*)event {
-  cru::log::TagDebug(u"CruView", u"Recieved mouse move.");
+  // cru::log::TagDebug(u"CruView", u"Recieved mouse move.");
   _p->OnMouseMove(cru::platform::Point(event.locationInWindow.x, event.locationInWindow.y));
-  [super mouseMoved:event];
 }
 
 - (void)mouseEntered:(NSEvent*)event {
-  cru::log::TagDebug(u"CruView", u"Recieved mouse enter.");
+  // cru::log::TagDebug(u"CruView", u"Recieved mouse enter.");
   _p->OnMouseEnterLeave(cru::platform::gui::MouseEnterLeaveType::Enter);
-  [super mouseEntered:event];
 }
 
 - (void)mouseExited:(NSEvent*)event {
-  cru::log::TagDebug(u"CruView", u"Recieved mouse exit.");
+  // cru::log::TagDebug(u"CruView", u"Recieved mouse exit.");
   _p->OnMouseEnterLeave(cru::platform::gui::MouseEnterLeaveType::Leave);
-  [super mouseExited:event];
 }
 
 - (void)mouseDown:(NSEvent*)event {
-  cru::log::TagDebug(u"CruView", u"Recieved mouse down.");
+  // cru::log::TagDebug(u"CruView", u"Recieved mouse down.");
 
   cru::platform::gui::KeyModifier key_modifier;
   if (event.modifierFlags & NSEventModifierFlagControl)
@@ -335,11 +351,10 @@ IInputMethodContext* OsxWindow::GetInputMethodContext() { return p_->input_metho
   cru::platform::Point p(event.locationInWindow.x, event.locationInWindow.y);
 
   _p->OnMouseDown(cru::platform::gui::mouse_buttons::left, p, key_modifier);
-  [super mouseDown:event];
 }
 
 - (void)mouseUp:(NSEvent*)event {
-  cru::log::TagDebug(u"CruView", u"Recieved mouse up.");
+  // cru::log::TagDebug(u"CruView", u"Recieved mouse up.");
 
   cru::platform::gui::KeyModifier key_modifier;
   if (event.modifierFlags & NSEventModifierFlagControl)
@@ -351,12 +366,10 @@ IInputMethodContext* OsxWindow::GetInputMethodContext() { return p_->input_metho
   cru::platform::Point p(event.locationInWindow.x, event.locationInWindow.y);
 
   _p->OnMouseUp(cru::platform::gui::mouse_buttons::left, p, key_modifier);
-
-  [super mouseUp:event];
 }
 
 - (void)rightMouseDown:(NSEvent*)event {
-  cru::log::TagDebug(u"CruView", u"Recieved right mouse down.");
+  // cru::log::TagDebug(u"CruView", u"Recieved right mouse down.");
 
   cru::platform::gui::KeyModifier key_modifier;
   if (event.modifierFlags & NSEventModifierFlagControl)
@@ -368,12 +381,10 @@ IInputMethodContext* OsxWindow::GetInputMethodContext() { return p_->input_metho
   cru::platform::Point p(event.locationInWindow.x, event.locationInWindow.y);
 
   _p->OnMouseDown(cru::platform::gui::mouse_buttons::right, p, key_modifier);
-
-  [super rightMouseDown:event];
 }
 
 - (void)rightMouseUp:(NSEvent*)event {
-  cru::log::TagDebug(u"CruView", u"Recieved right mouse up.");
+  // cru::log::TagDebug(u"CruView", u"Recieved right mouse up.");
 
   cru::platform::gui::KeyModifier key_modifier;
   if (event.modifierFlags & NSEventModifierFlagControl)
@@ -385,12 +396,10 @@ IInputMethodContext* OsxWindow::GetInputMethodContext() { return p_->input_metho
   cru::platform::Point p(event.locationInWindow.x, event.locationInWindow.y);
 
   _p->OnMouseUp(cru::platform::gui::mouse_buttons::right, p, key_modifier);
-
-  [super rightMouseUp:event];
 }
 
 - (void)scrollWheel:(NSEvent*)event {
-  cru::log::TagDebug(u"CruView", u"Recieved mouse wheel.");
+  // cru::log::TagDebug(u"CruView", u"Recieved mouse wheel.");
 
   cru::platform::gui::KeyModifier key_modifier;
   if (event.modifierFlags & NSEventModifierFlagControl)
@@ -402,8 +411,6 @@ IInputMethodContext* OsxWindow::GetInputMethodContext() { return p_->input_metho
   cru::platform::Point p(event.locationInWindow.x, event.locationInWindow.y);
 
   _p->OnMouseWheel(static_cast<float>(event.scrollingDeltaY), p, key_modifier);
-
-  [super scrollWheel:event];
 }
 
 - (void)keyDown:(NSEvent*)event {
