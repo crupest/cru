@@ -21,9 +21,9 @@ QuartzCGContextPainter::QuartzCGContextPainter(
       size_(size),
       on_end_draw_(std::move(on_end_draw)) {
   Expects(cg_context);
-  log::TagDebug(log_tag,
-                u"Created with CGContext: {}, Auto Release: {},  Size: {}.",
-                cg_context, auto_release, size_);
+  // log::TagDebug(log_tag,
+  //               u"Created with CGContext: {}, Auto Release: {},  Size: {}.",
+  //               cg_context, auto_release, size_);
 }
 
 QuartzCGContextPainter::~QuartzCGContextPainter() {
@@ -53,7 +53,7 @@ void QuartzCGContextPainter::Clear(const Color& color) {
                            color.GetFloatAlpha());
   CGContextFillRect(cg_context_, Convert(Rect{Point{}, size_}));
 
-  log::TagDebug(log_tag, u"Clear with color {}, size {}.", color, size_);
+  // log::TagDebug(log_tag, u"Clear with color {}, size {}.", color, size_);
 }
 
 void QuartzCGContextPainter::DrawLine(const Point& start, const Point& end,
@@ -159,7 +159,7 @@ void QuartzCGContextPainter::DoEndDraw() {
   if (cg_context_) {
     CGContextFlush(cg_context_);
     CGContextSynchronize(cg_context_);
-    log::TagDebug(log_tag, u"End draw and flush.");
+    // log::TagDebug(log_tag, u"End draw and flush.");
 
     on_end_draw_(this);
   }

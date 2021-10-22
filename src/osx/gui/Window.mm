@@ -210,7 +210,7 @@ std::unique_ptr<graphics::IPainter> OsxWindow::BeginPaint() {
   return std::make_unique<cru::platform::graphics::osx::quartz::QuartzCGContextPainter>(
       GetUiApplication()->GetGraphicsFactory(), cg_context, false, GetClientSize(),
       [this](graphics::osx::quartz::QuartzCGContextPainter*) {
-        log::Debug(u"Finish painting and invalidate view.");
+        // log::Debug(u"Finish painting and invalidate view.");
         [[p_->window_ contentView] setNeedsDisplay:YES];
       });
 }
@@ -320,7 +320,7 @@ IInputMethodContext* OsxWindow::GetInputMethodContext() { return p_->input_metho
 }
 
 - (void)drawRect:(NSRect)dirtyRect {
-  cru::log::TagDebug(u"CruView", u"Begin to draw layer in view.");
+  // cru::log::TagDebug(u"CruView", u"Begin to draw layer in view.");
   auto cg_context = [[NSGraphicsContext currentContext] CGContext];
   auto layer = _p->GetDrawLayer();
   Ensures(layer);
@@ -427,7 +427,7 @@ IInputMethodContext* OsxWindow::GetInputMethodContext() { return p_->input_metho
 }
 
 - (void)keyDown:(NSEvent*)event {
-  cru::log::TagDebug(u"CruWindow", u"Recieved key down.");
+  cru::log::TagDebug(u"CruView", u"Recieved key down.");
 
   cru::platform::gui::KeyModifier key_modifier;
   if (event.modifierFlags & NSEventModifierFlagControl)
@@ -448,7 +448,7 @@ IInputMethodContext* OsxWindow::GetInputMethodContext() { return p_->input_metho
 }
 
 - (void)keyUp:(NSEvent*)event {
-  cru::log::TagDebug(u"CruWindow", u"Recieved key up.");
+  cru::log::TagDebug(u"CruView", u"Recieved key up.");
 
   cru::platform::gui::KeyModifier key_modifier;
   if (event.modifierFlags & NSEventModifierFlagControl)
@@ -460,12 +460,6 @@ IInputMethodContext* OsxWindow::GetInputMethodContext() { return p_->input_metho
   auto c = cru::platform::gui::osx::KeyCodeFromOsxToCru(event.keyCode);
 
   _p->OnKeyUp(c, key_modifier);
-
-  if (dynamic_cast<cru::platform::gui::osx::OsxInputMethodContext*>(
-          _p->GetWindow()->GetInputMethodContext())
-          ->IsEnabled()) {
-    [[self inputContext] handleEvent:event];
-  }
 }
 
 - (BOOL)hasMarkedText {
@@ -485,15 +479,30 @@ IInputMethodContext* OsxWindow::GetInputMethodContext() { return p_->input_metho
 - (void)setMarkedText:(id)string
         selectedRange:(NSRange)selectedRange
      replacementRange:(NSRange)replacementRange {
+  CFStringRef s;
+  if ([string isKindOfClass:[NSString class]]) {
+    s = (CFStringRef)string;
+  } else {
+    auto as = (CFAttributedStringRef)string;
+    s = CFAttributedStringGetString(as);
+  }
+
+  cru::log::TagDebug(
+      u"CruView",
+      u"Received setMarkedText string: {}, selected range: ({}, {}), replacement range: ({}, {}).",
+      Convert(s), selectedRange.location, selectedRange.length, replacementRange.location,
+      replacementRange.length);
+
   if (_input_context_text == nil) {
     _input_context_text = [[NSMutableAttributedString alloc] init];
     _input_context_p->RaiseCompositionStartEvent();
   }
 
-  [_input_context_text deleteCharactersInRange:replacementRange];
+  if (replacementRange.location == NSNotFound) replacementRange.location = 0;
+
   [_input_context_text
-      insertAttributedString:[[NSAttributedString alloc] initWithString:(NSString*)string]
-                     atIndex:replacementRange.location];
+      replaceCharactersInRange:NSMakeRange(0, [_input_context_text length])
+          withAttributedString:[[NSAttributedString alloc] initWithString:(NSString*)s]];
 
   cru::platform::gui::CompositionText composition_text;
   composition_text.text = Convert((CFStringRef)[_input_context_text string]);
@@ -517,14 +526,30 @@ IInputMethodContext* OsxWindow::GetInputMethodContext() { return p_->input_metho
 
 - (NSAttributedString*)attributedSubstringForProposedRange:(NSRange)range
                                                actualRange:(NSRangePointer)actualRange {
-  return [_input_context_text attributedSubstringFromRange:range];
+  cru::Range r(range.location, range.length);
+
+  r = r.CoerceInto(0, [_input_context_text length]);
+
+  return [_input_context_text attributedSubstringFromRange:NSMakeRange(r.position, r.count)];
 }
 
 - (void)insertText:(id)string replacementRange:(NSRange)replacementRange {
+  CFStringRef s;
+  if ([string isKindOfClass:[NSString class]]) {
+    s = (CFStringRef)string;
+  } else {
+    auto as = (CFAttributedStringRef)string;
+    s = CFAttributedStringGetString(as);
+  }
+
   _input_context_text = nil;
-  cru::String s = Convert((CFStringRef)string);
+  cru::String ss = Convert(s);
+
+  cru::log::TagDebug(u"CruView", u"Finish composition: {}, replacement range: ({}, {})", ss,
+                     replacementRange.location, replacementRange.length);
+
   _input_context_p->RaiseCompositionEndEvent();
-  _input_context_p->RaiseTextEvent(s);
+  _input_context_p->RaiseTextEvent(ss);
 }
 
 - (NSUInteger)characterIndexForPoint:(NSPoint)point {
