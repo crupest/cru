@@ -12,7 +12,12 @@ OsxCTFont::OsxCTFont(IGraphicsFactory* graphics_factory, const String& name,
     : OsxQuartzResource(graphics_factory) {
   CFStringRef n = Convert(name);
 
-  ct_font_ = CTFontCreateWithName(n, size, nullptr);
+  if (name.empty()) {
+    ct_font_ =
+        CTFontCreateUIFontForLanguage(kCTFontUIFontSystem, size, nullptr);
+  } else {
+    ct_font_ = CTFontCreateWithName(n, size, nullptr);
+  }
   Ensures(ct_font_);
 
   CFRelease(n);

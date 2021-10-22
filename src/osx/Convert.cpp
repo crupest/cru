@@ -1,4 +1,7 @@
 #include "cru/osx/Convert.hpp"
+#include <string>
+
+#include "cru/common/StringUtil.hpp"
 
 namespace cru::platform::osx {
 CFStringRef Convert(const String& string) {
@@ -8,16 +11,17 @@ CFStringRef Convert(const String& string) {
 }
 
 String Convert(CFStringRef string) {
-  auto d = CFStringCreateExternalRepresentation(nullptr, string,
-                                                kCFStringEncodingUTF16, 0);
-  auto l = CFDataGetLength(d);
+  auto length = CFStringGetLength(string);
 
-  auto s = String(reinterpret_cast<const char16_t*>(CFDataGetBytePtr(d)),
-                  CFDataGetLength(d) / 2);
+  String result;
 
-  CFRelease(d);
+  for (int i = 0; i < length; i++) {
+    std::u16string s;
+    Utf16EncodeCodePointAppend(CFStringGetCharacterAtIndex(string, i), s);
+    result.append(s.data(), s.size());
+  }
 
-  return s;
+  return result;
 }
 
 CFRange Convert(const Range& range) {
@@ -27,4 +31,4 @@ CFRange Convert(const Range& range) {
 Range Convert(const CFRange& range) {
   return Range(range.location, range.length);
 }
-}  // namespace cru::cru::platform::osx
+}  // namespace cru::platform::osx

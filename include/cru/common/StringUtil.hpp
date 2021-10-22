@@ -110,7 +110,7 @@ class CodePointIterator {
  private:
   StringType string_;
   Index position_;
-  mutable Index next_position_cache_;
+  mutable Index next_position_cache_ = 0;
 };
 
 using Utf8CodePointIterator =

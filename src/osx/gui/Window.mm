@@ -487,11 +487,13 @@ IInputMethodContext* OsxWindow::GetInputMethodContext() { return p_->input_metho
     s = CFAttributedStringGetString(as);
   }
 
-  cru::log::TagDebug(
-      u"CruView",
-      u"Received setMarkedText string: {}, selected range: ({}, {}), replacement range: ({}, {}).",
-      Convert(s), selectedRange.location, selectedRange.length, replacementRange.location,
-      replacementRange.length);
+  auto ss = Convert(s);
+
+  cru::log::TagDebug(u"CruView",
+                     u"Received setMarkedText string: {}, selected range: ({}, {}), "
+                     u"replacement range: ({}, {}).",
+                     ss, selectedRange.location, selectedRange.length, replacementRange.location,
+                     replacementRange.length);
 
   if (_input_context_text == nil) {
     _input_context_text = [[NSMutableAttributedString alloc] init];
@@ -506,8 +508,10 @@ IInputMethodContext* OsxWindow::GetInputMethodContext() { return p_->input_metho
 
   cru::platform::gui::CompositionText composition_text;
   composition_text.text = Convert((CFStringRef)[_input_context_text string]);
-  composition_text.selection.position = replacementRange.location + selectedRange.location;
-  composition_text.selection.count = selectedRange.length;
+  composition_text.selection.position = ss.IndexFromCodePointToCodeUnit(selectedRange.location);
+  composition_text.selection.count =
+      ss.IndexFromCodePointToCodeUnit(selectedRange.location + selectedRange.length) -
+      composition_text.selection.position;
   _input_context_p->SetCompositionText(composition_text);
   _input_context_p->RaiseCompositionEvent();
 }

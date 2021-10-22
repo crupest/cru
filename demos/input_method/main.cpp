@@ -31,7 +31,7 @@ int main() {
   auto target_clause_brush = graphics_factory->CreateSolidColorBrush();
   target_clause_brush->SetColor(colors::blue);
 
-  std::shared_ptr<IFont> font = graphics_factory->CreateFont(u"Serif", 30);
+  std::shared_ptr<IFont> font = graphics_factory->CreateFont(String{}, 30);
 
   float window_width = 10000;
 

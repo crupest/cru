@@ -21,17 +21,13 @@ OsxCTTextLayout::OsxCTTextLayout(IGraphicsFactory* graphics_factory,
   Expects(font_);
 
   CFStringRef s = Convert(text_);
-  CFDictionaryRef attributes =
-      CFDictionaryCreateMutable(nullptr, 0, nullptr, nullptr);
-
-  Ensures(s);
-  Ensures(attributes);
-
   cf_attributed_text_ = CFAttributedStringCreateMutable(nullptr, 0);
   CFAttributedStringReplaceString(cf_attributed_text_, CFRangeMake(0, 0), s);
   Ensures(cf_attributed_text_);
-
-  CFRelease(attributes);
+  CFAttributedStringSetAttribute(
+      cf_attributed_text_,
+      CFRangeMake(0, CFAttributedStringGetLength(cf_attributed_text_)),
+      kCTFontAttributeName, font_->GetCTFont());
   CFRelease(s);
 
   RecreateFrame();
@@ -53,29 +49,13 @@ void OsxCTTextLayout::SetText(String new_text) {
   CFRelease(cf_attributed_text_);
 
   CFStringRef s = Convert(text_);
-  CFDictionaryRef attributes =
-      CFDictionaryCreateMutable(nullptr, 0, nullptr, nullptr);
-
-  Ensures(s);
-  Ensures(attributes);
-
   cf_attributed_text_ = CFAttributedStringCreateMutable(nullptr, 0);
   CFAttributedStringReplaceString(cf_attributed_text_, CFRangeMake(0, 0), s);
   Ensures(cf_attributed_text_);
-
   CFAttributedStringSetAttribute(
       cf_attributed_text_,
       CFRangeMake(0, CFAttributedStringGetLength(cf_attributed_text_)),
       kCTFontAttributeName, font_->GetCTFont());
-
-  CGColorRef cg_color = CGColorCreateGenericRGB(0, 0, 0, 1);
-  CFAttributedStringSetAttribute(
-      cf_attributed_text_,
-      CFRangeMake(0, CFAttributedStringGetLength(cf_attributed_text_)),
-      kCTForegroundColorAttributeName, cg_color);
-
-  CGColorRelease(cg_color);
-  CFRelease(attributes);
   CFRelease(s);
 
   RecreateFrame();
@@ -159,6 +139,10 @@ Point OsxCTTextLayout::TextSinglePoint(Index position, bool trailing) {
     if (range.GetStart() <= position && position < range.GetEnd()) {
       auto offset = CTLineGetOffsetForStringIndex(line, position, nullptr);
       return Point(line_origin.x + offset, line_origin.y);
+    } else if (position == range.GetEnd()) {
+      return Point(
+          line_origin.x + CTLineGetImageBounds(line, nullptr).size.width,
+          line_origin.y);
     }
   }
 
@@ -211,19 +195,13 @@ void OsxCTTextLayout::RecreateFrame() {
   Ensures(path);
   CGPathAddRect(path, nullptr, CGRectMake(0, 0, max_width_, suggest_height_));
 
-  CFMutableDictionaryRef dictionary =
-      CFDictionaryCreateMutable(nullptr, 0, &kCFTypeDictionaryKeyCallBacks,
-                                &kCFTypeDictionaryValueCallBacks);
-  CFDictionaryAddValue(dictionary, kCTFontAttributeName, font_->GetCTFont());
-
   ct_frame_ = CTFramesetterCreateFrame(
       ct_framesetter_,
       CFRangeMake(0, CFAttributedStringGetLength(cf_attributed_text_)), path,
-      dictionary);
+      nullptr);
   Ensures(ct_frame_);
 
   CGPathRelease(path);
-  CFRelease(dictionary);
 
   const auto lines = CTFrameGetLines(ct_frame_);
   line_count_ = CFArrayGetCount(lines);

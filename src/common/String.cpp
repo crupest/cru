@@ -214,11 +214,11 @@ std::string String::ToUtf8() const {
 Index String::IndexFromCodeUnitToCodePoint(Index code_unit_index) const {
   auto iter = CodePointIterator();
   Index result = 0;
-  while (iter.GetPosition() <= code_unit_index && !iter.IsPastEnd()) {
+  while (iter.GetPosition() < code_unit_index && !iter.IsPastEnd()) {
     ++iter;
     ++result;
   }
-  return result - 1;
+  return result;
 }
 
 Index String::IndexFromCodePointToCodeUnit(Index code_point_index) const {
