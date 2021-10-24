@@ -29,6 +29,8 @@ class QuartzCGContextPainter : public OsxQuartzResource,
   Matrix GetTransform() override;
   void SetTransform(const Matrix& matrix) override;
 
+  void ConcatTransform(const Matrix& matrix) override;
+
   void Clear(const Color& color) override;
 
   void DrawLine(const Point& start, const Point& end, IBrush* brush,
@@ -49,6 +51,10 @@ class QuartzCGContextPainter : public OsxQuartzResource,
 
   void EndDraw() override;
 
+  void PushState() override;
+
+  void PopState() override;
+
  private:
   void DoEndDraw();
 
@@ -60,6 +66,8 @@ class QuartzCGContextPainter : public OsxQuartzResource,
   bool auto_release_;
 
   Size size_;
+
+  Matrix transform_;
 
   std::function<void(QuartzCGContextPainter*)> on_end_draw_;
 

@@ -2,6 +2,7 @@
 #include "GraphicsBase.hpp"
 
 #include <cmath>
+#include <optional>
 
 namespace cru::platform {
 struct Matrix {
@@ -78,6 +79,18 @@ struct Matrix {
                   a.m21 * b.m12 + a.m22 * b.m22,
                   a.m31 * b.m11 + a.m32 * b.m21 + b.m31,
                   a.m31 * b.m12 + a.m32 * b.m22 + b.m32};
+  }
+
+  std::optional<Matrix> Inverted() const {
+    if (m11 * m22 == m12 * m21) return std::nullopt;
+    Matrix result;
+    result.m11 = m22 / (m11 * m22 - m12 * m21);
+    result.m12 = m12 / (m12 * m21 - m11 * m22);
+    result.m21 = m21 / (m12 * m21 - m11 * m22);
+    result.m22 = m11 / (m11 * m22 - m12 * m21);
+    result.m31 = (m21 * m32 - m22 * m31) / (m11 * m22 - m12 * m21);
+    result.m32 = (m31 * m12 - m11 * m32) / (m11 * m22 - m12 * m21);
+    return result;
   }
 
  private:

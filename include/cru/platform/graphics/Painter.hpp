@@ -7,6 +7,8 @@ struct IPainter : virtual IPlatformResource {
   virtual Matrix GetTransform() = 0;
   virtual void SetTransform(const Matrix& matrix) = 0;
 
+  virtual void ConcatTransform(const Matrix& matrix) = 0;
+
   virtual void Clear(const Color& color) = 0;
 
   virtual void DrawLine(const Point& start, const Point& end, IBrush* brush,
@@ -25,6 +27,10 @@ struct IPainter : virtual IPlatformResource {
   virtual void PushLayer(const Rect& bounds) = 0;
 
   virtual void PopLayer() = 0;
+
+  virtual void PushState() = 0;
+
+  virtual void PopState() = 0;
 
   virtual void EndDraw() = 0;
 };

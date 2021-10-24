@@ -10,8 +10,9 @@ void WithTransform(IPainter* painter, const Matrix& matrix, const Fn& action) {
   static_assert(std::is_invocable_v<decltype(action), IPainter*>,
                 "Action must can be be invoked with painter.");
   const auto old = painter->GetTransform();
-  painter->SetTransform(matrix * old);
+  painter->PushState();
+  painter->ConcatTransform(matrix);
   action(painter);
-  painter->SetTransform(old);
+  painter->PopState();
 }
 }  // namespace cru::platform::graphics::util

@@ -1,7 +1,8 @@
 #include "cru/osx/Convert.hpp"
-#include <string>
 
 #include "cru/common/StringUtil.hpp"
+
+#include <string>
 
 namespace cru::platform::osx {
 CFStringRef Convert(const String& string) {

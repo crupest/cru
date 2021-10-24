@@ -21,6 +21,13 @@ QuartzCGContextPainter::QuartzCGContextPainter(
       size_(size),
       on_end_draw_(std::move(on_end_draw)) {
   Expects(cg_context);
+
+  CGContextConcatCTM(cg_context_,
+                     CGAffineTransformInvert(CGContextGetCTM(cg_context_)));
+
+  transform_ = Matrix::Scale(1, -1) * Matrix::Translation(0, size.height);
+  CGContextConcatCTM(cg_context_, Convert(transform_));
+
   // log::TagDebug(log_tag,
   //               u"Created with CGContext: {}, Auto Release: {},  Size: {}.",
   //               cg_context, auto_release, size_);
@@ -34,15 +41,17 @@ QuartzCGContextPainter::~QuartzCGContextPainter() {
   }
 }
 
-Matrix QuartzCGContextPainter::GetTransform() {
-  return Convert(CGContextGetCTM(cg_context_));
-}
+Matrix QuartzCGContextPainter::GetTransform() { return transform_; }
 
 void QuartzCGContextPainter::SetTransform(const Matrix& matrix) {
-  auto old = CGContextGetCTM(cg_context_);
-  old = CGAffineTransformInvert(old);
-  CGContextConcatCTM(cg_context_, old);
+  CGContextConcatCTM(cg_context_, Convert(*transform_.Inverted()));
   CGContextConcatCTM(cg_context_, Convert(matrix));
+  transform_ = matrix;
+}
+
+void QuartzCGContextPainter::ConcatTransform(const Matrix& matrix) {
+  CGContextConcatCTM(cg_context_, Convert(matrix));
+  transform_ = matrix * transform_;
 }
 
 void QuartzCGContextPainter::Clear(const Color& color) {
@@ -128,13 +137,28 @@ void QuartzCGContextPainter::DrawText(const Point& offset,
     color = colors::black;
   }
 
-  util::WithTransform(this, Matrix::Translation(offset),
-                      [this, tl, color](IPainter*) {
-                        auto frame = tl->CreateFrameWithColor(color);
-                        Ensures(frame);
-                        CTFrameDraw(frame, cg_context_);
-                        CFRelease(frame);
-                      });
+  auto bounds = tl->GetTextBounds();
+
+  bounds.width += bounds.left;
+  bounds.height += bounds.top;
+  bounds.left = bounds.top = 0;
+
+  Matrix transform =
+      Matrix::Translation(-bounds.width / 2, -bounds.height / 2) *
+      Matrix::Scale(1, -1) *
+      Matrix::Translation(bounds.width / 2, bounds.height / 2);
+
+  CGContextSaveGState(cg_context_);
+
+  CGContextConcatCTM(cg_context_, Convert(transform * Matrix::Translation(
+                                                          offset.x, offset.y)));
+
+  auto frame = tl->CreateFrameWithColor(color);
+  Ensures(frame);
+  CTFrameDraw(frame, cg_context_);
+  CFRelease(frame);
+
+  CGContextRestoreGState(cg_context_);
 }
 
 void QuartzCGContextPainter::PushLayer(const Rect& bounds) {
@@ -151,6 +175,16 @@ void QuartzCGContextPainter::PopLayer() {
   } else {
     CGContextClipToRect(cg_context_, Convert(clip_stack_.back()));
   }
+}
+
+void QuartzCGContextPainter::PushState() {
+  Validate();
+  CGContextSaveGState(cg_context_);
+}
+
+void QuartzCGContextPainter::PopState() {
+  Validate();
+  CGContextRestoreGState(cg_context_);
 }
 
 void QuartzCGContextPainter::EndDraw() { DoEndDraw(); }
