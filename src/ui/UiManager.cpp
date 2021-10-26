@@ -40,7 +40,7 @@ UiManager* UiManager::GetInstance() {
 UiManager::UiManager() {
   const auto factory = GetGraphicsFactory();
 
-  theme_resource_.default_font_family = u"等线";
+  theme_resource_.default_font_family = u"";
 
   theme_resource_.default_font =
       factory->CreateFont(theme_resource_.default_font_family, 24.0f);

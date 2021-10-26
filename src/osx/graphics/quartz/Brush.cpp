@@ -7,6 +7,7 @@ QuartzSolidColorBrush::QuartzSolidColorBrush(IGraphicsFactory* graphics_factory,
   cg_color_ =
       CGColorCreateGenericRGB(color.GetFloatRed(), color.GetFloatGreen(),
                               color.GetFloatBlue(), color.GetFloatAlpha());
+  Ensures(cg_color_);
 }
 
 QuartzSolidColorBrush::~QuartzSolidColorBrush() { CGColorRelease(cg_color_); }
@@ -17,9 +18,12 @@ void QuartzSolidColorBrush::SetColor(const Color& color) {
   cg_color_ =
       CGColorCreateGenericRGB(color.GetFloatRed(), color.GetFloatGreen(),
                               color.GetFloatBlue(), color.GetFloatAlpha());
+  Ensures(cg_color_);
 }
 
 void QuartzSolidColorBrush::Select(CGContextRef context) {
+  Expects(context);
+  Expects(cg_color_);
   CGContextSetStrokeColorWithColor(context, cg_color_);
   CGContextSetFillColorWithColor(context, cg_color_);
 }
