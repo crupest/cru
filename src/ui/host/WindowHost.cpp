@@ -205,6 +205,7 @@ void WindowHost::Relayout(const Size& available_size) {
 }
 
 void WindowHost::Repaint() {
+  if (native_window_ == nullptr) return;
   auto painter = native_window_->BeginPaint();
   painter->Clear(colors::white);
   root_render_object_->Draw(painter.get());

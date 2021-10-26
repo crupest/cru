@@ -54,6 +54,8 @@ class OsxWindowPrivate {
   void OnWindowDidExpose();
   void OnWindowDidUpdate();
   void OnWindowDidResize();
+  void OnBecomeKeyWindow();
+  void OnResignKeyWindow();
 
   CGLayerRef GetDrawLayer() { return draw_layer_; }
 
@@ -62,6 +64,8 @@ class OsxWindowPrivate {
 
  private:
   void UpdateCursor();
+
+  Point TransformMousePoint(const Point& point);
 
  private:
   OsxWindow* osx_window_;

@@ -75,6 +75,10 @@ void OsxWindowPrivate::OnWindowDidResize() {
   osx_window_->RequestRepaint();
 }
 
+void OsxWindowPrivate::OnBecomeKeyWindow() { focus_event_.Raise(FocusChangeType::Gain); }
+
+void OsxWindowPrivate::OnResignKeyWindow() { focus_event_.Raise(FocusChangeType::Lost); }
+
 void OsxWindowPrivate::OnMouseEnterLeave(MouseEnterLeaveType type) {
   mouse_enter_leave_event_.Raise(type);
   if (type == MouseEnterLeaveType::Enter) {
@@ -85,18 +89,18 @@ void OsxWindowPrivate::OnMouseEnterLeave(MouseEnterLeaveType type) {
   }
 }
 
-void OsxWindowPrivate::OnMouseMove(Point p) { mouse_move_event_.Raise(p); }
+void OsxWindowPrivate::OnMouseMove(Point p) { mouse_move_event_.Raise(TransformMousePoint(p)); }
 
 void OsxWindowPrivate::OnMouseDown(MouseButton button, Point p, KeyModifier key_modifier) {
-  mouse_down_event_.Raise({button, p, key_modifier});
+  mouse_down_event_.Raise({button, TransformMousePoint(p), key_modifier});
 }
 
 void OsxWindowPrivate::OnMouseUp(MouseButton button, Point p, KeyModifier key_modifier) {
-  mouse_up_event_.Raise({button, p, key_modifier});
+  mouse_up_event_.Raise({button, TransformMousePoint(p), key_modifier});
 }
 
 void OsxWindowPrivate::OnMouseWheel(float delta, Point p, KeyModifier key_modifier) {
-  mouse_wheel_event_.Raise({delta, p, key_modifier});
+  mouse_wheel_event_.Raise({delta, TransformMousePoint(p), key_modifier});
 }
 
 void OsxWindowPrivate::OnKeyDown(KeyCode key, KeyModifier key_modifier) {
@@ -116,6 +120,13 @@ void OsxWindowPrivate::UpdateCursor() {
 
   [cursor->p_->ns_cursor_ set];
 }
+
+Point OsxWindowPrivate::TransformMousePoint(const Point& point) {
+  Point r = point;
+  r.y = content_rect_.height - r.y;
+  return r;
+}
+
 }
 
 OsxWindow::OsxWindow(OsxUiApplication* ui_application, INativeWindow* parent, bool frame)
@@ -340,6 +351,16 @@ IInputMethodContext* OsxWindow::GetInputMethodContext() { return p_->input_metho
   _p->OnMouseMove(cru::platform::Point(event.locationInWindow.x, event.locationInWindow.y));
 }
 
+- (void)mouseDragged:(NSEvent*)event {
+  // cru::log::TagDebug(u"CruView", u"Recieved mouse move.");
+  _p->OnMouseMove(cru::platform::Point(event.locationInWindow.x, event.locationInWindow.y));
+}
+
+- (void)rightMouseDragged:(NSEvent*)event {
+  // cru::log::TagDebug(u"CruView", u"Recieved mouse move.");
+  _p->OnMouseMove(cru::platform::Point(event.locationInWindow.x, event.locationInWindow.y));
+}
+
 - (void)mouseEntered:(NSEvent*)event {
   // cru::log::TagDebug(u"CruView", u"Recieved mouse enter.");
   _p->OnMouseEnterLeave(cru::platform::gui::MouseEnterLeaveType::Enter);
@@ -427,7 +448,7 @@ IInputMethodContext* OsxWindow::GetInputMethodContext() { return p_->input_metho
 }
 
 - (void)keyDown:(NSEvent*)event {
-  cru::log::TagDebug(u"CruView", u"Recieved key down.");
+  // cru::log::TagDebug(u"CruView", u"Recieved key down.");
 
   cru::platform::gui::KeyModifier key_modifier;
   if (event.modifierFlags & NSEventModifierFlagControl)
@@ -448,7 +469,7 @@ IInputMethodContext* OsxWindow::GetInputMethodContext() { return p_->input_metho
 }
 
 - (void)keyUp:(NSEvent*)event {
-  cru::log::TagDebug(u"CruView", u"Recieved key up.");
+  // cru::log::TagDebug(u"CruView", u"Recieved key up.");
 
   cru::platform::gui::KeyModifier key_modifier;
   if (event.modifierFlags & NSEventModifierFlagControl)
@@ -547,11 +568,13 @@ IInputMethodContext* OsxWindow::GetInputMethodContext() { return p_->input_metho
   }
 
   _input_context_text = nil;
+  _input_context_p->SetCompositionText(cru::platform::gui::CompositionText());
   cru::String ss = Convert(s);
 
   cru::log::TagDebug(u"CruView", u"Finish composition: {}, replacement range: ({}, {})", ss,
                      replacementRange.location, replacementRange.length);
 
+  _input_context_p->RaiseCompositionEvent();
   _input_context_p->RaiseCompositionEndEvent();
   _input_context_p->RaiseTextEvent(ss);
 }
@@ -597,5 +620,13 @@ IInputMethodContext* OsxWindow::GetInputMethodContext() { return p_->input_metho
 
 - (void)windowDidResize:(NSNotification*)notification {
   _p->OnWindowDidResize();
+}
+
+- (void)windowDidBecomeKey:(NSNotification*)notification {
+  _p->OnBecomeKeyWindow();
+}
+
+- (void)windowDidResignKey:(NSNotification*)notification {
+  _p->OnResignKeyWindow();
 }
 @end

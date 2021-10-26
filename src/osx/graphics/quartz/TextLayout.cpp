@@ -146,6 +146,8 @@ Point OsxCTTextLayout::TextSinglePoint(Index position, bool trailing) {
     }
   }
 
+  if (lines_.empty()) return Point{};
+
   return Convert(CTLineGetImageBounds(lines_.back(), nullptr)).GetRightTop();
 }
 
