@@ -20,11 +20,7 @@ void QuartzSolidColorBrush::SetColor(const Color& color) {
 }
 
 void QuartzSolidColorBrush::Select(CGContextRef context) {
-  CGContextSaveGState(context);
-
   CGContextSetStrokeColorWithColor(context, cg_color_);
   CGContextSetFillColorWithColor(context, cg_color_);
-
-  CGContextRestoreGState(context);
 }
 }  // namespace cru::platform::graphics::osx::quartz

@@ -38,6 +38,10 @@ class QuartzCGContextPainter : public OsxQuartzResource,
   void StrokeRectangle(const Rect& rectangle, IBrush* brush,
                        float width) override;
   void FillRectangle(const Rect& rectangle, IBrush* brush) override;
+  void StrokeEllipse(const Rect& outline_rect, IBrush* brush,
+                     float width) override;
+  void FillEllipse(const Rect& outline_rect, IBrush* brush,
+                   float width) override;
 
   void StrokeGeometry(IGeometry* geometry, IBrush* brush, float width) override;
   void FillGeometry(IGeometry* geometry, IBrush* brush) override;
@@ -56,6 +60,8 @@ class QuartzCGContextPainter : public OsxQuartzResource,
   void PopState() override;
 
  private:
+  void SetLineWidth(float width);
+
   void DoEndDraw();
 
   void Validate();

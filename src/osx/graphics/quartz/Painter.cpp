@@ -8,7 +8,6 @@
 #include "cru/platform/Check.hpp"
 #include "cru/platform/Color.hpp"
 #include "cru/platform/Exception.hpp"
-#include "cru/platform/graphics/util/Painter.hpp"
 
 namespace cru::platform::graphics::osx::quartz {
 QuartzCGContextPainter::QuartzCGContextPainter(
@@ -75,7 +74,8 @@ void QuartzCGContextPainter::DrawLine(const Point& start, const Point& end,
 
   QuartzBrush* b = CheckPlatform<QuartzBrush>(brush, GetPlatformId());
   b->Select(cg_context_);
-  CGContextSetLineWidth(cg_context_, width);
+  SetLineWidth(width);
+
   CGContextStrokePath(cg_context_);
 }
 
@@ -97,6 +97,26 @@ void QuartzCGContextPainter::FillRectangle(const Rect& rectangle,
   CGContextFillRect(cg_context_, Convert(rectangle));
 }
 
+void QuartzCGContextPainter::StrokeEllipse(const Rect& outline_rect,
+                                           IBrush* brush, float width) {
+  Validate();
+
+  QuartzBrush* b = CheckPlatform<QuartzBrush>(brush, GetPlatformId());
+  b->Select(cg_context_);
+  SetLineWidth(width);
+
+  CGContextStrokeEllipseInRect(cg_context_, Convert(outline_rect));
+}
+
+void QuartzCGContextPainter::FillEllipse(const Rect& outline_rect,
+                                         IBrush* brush, float width) {
+  Validate();
+
+  QuartzBrush* b = CheckPlatform<QuartzBrush>(brush, GetPlatformId());
+  b->Select(cg_context_);
+  CGContextFillEllipseInRect(cg_context_, Convert(outline_rect));
+}
+
 void QuartzCGContextPainter::StrokeGeometry(IGeometry* geometry, IBrush* brush,
                                             float width) {
   Validate();
@@ -105,7 +125,8 @@ void QuartzCGContextPainter::StrokeGeometry(IGeometry* geometry, IBrush* brush,
   QuartzBrush* b = CheckPlatform<QuartzBrush>(brush, GetPlatformId());
 
   b->Select(cg_context_);
-  CGContextSetLineWidth(cg_context_, width);
+  SetLineWidth(width);
+
   CGContextBeginPath(cg_context_);
   CGContextAddPath(cg_context_, g->GetCGPath());
   CGContextStrokePath(cg_context_);
@@ -188,6 +209,12 @@ void QuartzCGContextPainter::PopState() {
 }
 
 void QuartzCGContextPainter::EndDraw() { DoEndDraw(); }
+
+void QuartzCGContextPainter::SetLineWidth(float width) {
+  if (cg_context_) {
+    CGContextSetLineWidth(cg_context_, width);
+  }
+}
 
 void QuartzCGContextPainter::DoEndDraw() {
   if (cg_context_) {

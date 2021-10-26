@@ -16,6 +16,10 @@ struct IPainter : virtual IPlatformResource {
   virtual void StrokeRectangle(const Rect& rectangle, IBrush* brush,
                                float width) = 0;
   virtual void FillRectangle(const Rect& rectangle, IBrush* brush) = 0;
+  virtual void StrokeEllipse(const Rect& outline_rect, IBrush* brush,
+                             float width) = 0;
+  virtual void FillEllipse(const Rect& outline_rect, IBrush* brush,
+                           float width) = 0;
 
   virtual void StrokeGeometry(IGeometry* geometry, IBrush* brush,
                               float width) = 0;
