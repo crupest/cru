@@ -80,7 +80,7 @@ class CRU_BASE_API String {
     }
   }
 
-  String(std::initializer_list<value_type> l) : String(l.begin(), l.end()) {}
+  String(std::initializer_list<value_type> l);
 
 #ifdef CRU_PLATFORM_WINDOWS
   String(const wchar_t* str);

@@ -1,4 +1,5 @@
 #include "cru/osx/graphics/quartz/Brush.hpp"
+#include "cru/common/String.hpp"
 
 namespace cru::platform::graphics::osx::quartz {
 QuartzSolidColorBrush::QuartzSolidColorBrush(IGraphicsFactory* graphics_factory,
@@ -26,5 +27,9 @@ void QuartzSolidColorBrush::Select(CGContextRef context) {
   Expects(cg_color_);
   CGContextSetStrokeColorWithColor(context, cg_color_);
   CGContextSetFillColorWithColor(context, cg_color_);
+}
+
+String QuartzSolidColorBrush::GetDebugString() {
+  return Format(u"QuartzSolidColorBrush(Color: {})", color_);
 }
 }  // namespace cru::platform::graphics::osx::quartz

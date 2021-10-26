@@ -235,4 +235,10 @@ CTFrameRef OsxCTTextLayout::CreateFrameWithColor(const Color& color) {
 
   return frame;
 }
+
+String OsxCTTextLayout::GetDebugString() {
+  return Format(u"OsxCTTextLayout(text: {}, size: ({}, {}))", text_, max_width_,
+                max_height_);
+}
+
 }  // namespace cru::platform::graphics::osx::quartz

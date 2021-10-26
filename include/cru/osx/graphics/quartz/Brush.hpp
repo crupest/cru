@@ -38,6 +38,8 @@ class QuartzSolidColorBrush : public QuartzBrush,
 
   void Select(CGContextRef context) override;
 
+  String GetDebugString() override;
+
  private:
   Color color_;
   CGColorRef cg_color_;

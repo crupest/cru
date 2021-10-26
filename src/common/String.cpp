@@ -38,6 +38,9 @@ String::String(const_pointer str, Index size) {
   this->capacity_ = size;
 }
 
+String::String(std::initializer_list<char16_t> l)
+    : String(l.begin(), l.size()) {}
+
 #ifdef CRU_PLATFORM_WINDOWS
 String::String(const wchar_t* str) : String(str, GetStrSize(str)) {}
 String::String(const wchar_t* str, Index size)

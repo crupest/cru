@@ -37,6 +37,8 @@ class OsxCTTextLayout : public OsxQuartzResource, public virtual ITextLayout {
 
   CTFrameRef CreateFrameWithColor(const Color& color);
 
+  String GetDebugString() override;
+
  private:
   void ReleaseResource();
   void RecreateFrame();

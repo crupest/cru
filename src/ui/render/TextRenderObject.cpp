@@ -5,6 +5,7 @@
 #include "cru/platform/graphics/Factory.hpp"
 #include "cru/platform/graphics/TextLayout.hpp"
 #include "cru/platform/graphics/util/Painter.hpp"
+#include "cru/ui/DebugFlags.hpp"
 
 #include <algorithm>
 #include <limits>
@@ -161,6 +162,15 @@ RenderObject* TextRenderObject::HitTest(const Point& point) {
 }
 
 void TextRenderObject::OnDrawContent(platform::graphics::IPainter* painter) {
+  if constexpr (debug_flags::draw) {
+    log::TagDebug(log_tag,
+                  u"Begin to paint, total_offset: {}, size: {}, text_layout: "
+                  u"{}, brush: {}.",
+                  this->GetTotalOffset(), this->GetSize(),
+                  this->text_layout_->GetDebugString(),
+                  this->brush_->GetDebugString());
+  }
+
   if (this->selection_range_.has_value()) {
     const auto&& rects =
         text_layout_->TextRangeRect(this->selection_range_.value());
@@ -186,9 +196,9 @@ Size TextRenderObject::OnMeasureContent(const MeasureRequirement& requirement,
   text_layout_->SetMaxWidth(measure_width);
   text_layout_->SetMaxHeight(std::numeric_limits<float>::max());
 
-  const auto text_size =
+  const Size text_size(
       text_layout_->GetTextBounds(is_measure_including_trailing_space_)
-          .GetSize();
+          .GetRightBottom());
   auto result = text_size;
 
   result.width = std::max(result.width, preferred_size.width.GetLengthOr0());
@@ -205,10 +215,5 @@ void TextRenderObject::OnLayoutContent(const Rect& content_rect) {
   CRU_UNUSED(content_rect)
 }
 
-void TextRenderObject::OnAfterLayout() {
-  const auto&& size = GetContentRect().GetSize();
-  text_layout_->SetMaxWidth(size.width);
-  text_layout_->SetMaxHeight(size.height);
-}
-
+void TextRenderObject::OnAfterLayout() {}
 }  // namespace cru::ui::render
