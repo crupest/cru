@@ -38,7 +38,7 @@ UiManager* UiManager::GetInstance() {
 }
 
 UiManager::UiManager() {
-  const auto factory = GetGraphFactory();
+  const auto factory = GetGraphicsFactory();
 
   theme_resource_.default_font_family = u"等线";
 

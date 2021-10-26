@@ -8,7 +8,6 @@
 #include "cru/ui/helper/ShortcutHub.hpp"
 
 #include <functional>
-#include <string>
 
 namespace cru::ui::render {
 class TextRenderObject;
@@ -43,9 +42,10 @@ class TextHostControlService : public Object {
   void SetEditable(bool editable);
 
   String GetText() { return this->text_; }
+  StringView GetTextView() { return this->text_; }
   void SetText(String text, bool stop_composition = false);
 
-  void InsertText(gsl::index position, std::u16string_view text,
+  void InsertText(gsl::index position, StringView text,
                   bool stop_composition = false);
   void DeleteChar(gsl::index position, bool stop_composition = false);
 
@@ -76,7 +76,7 @@ class TextHostControlService : public Object {
   void DeleteSelectedText();
   // If some text is selected, then they are deleted first. Then insert text
   // into caret position.
-  void ReplaceSelectedText(std::u16string_view text);
+  void ReplaceSelectedText(StringView text);
 
   void ScrollToCaret();
 

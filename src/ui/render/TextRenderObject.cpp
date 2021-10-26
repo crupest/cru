@@ -27,7 +27,7 @@ TextRenderObject::TextRenderObject(
   selection_brush.swap(selection_brush_);
   caret_brush.swap(caret_brush_);
 
-  const auto graph_factory = GetGraphFactory();
+  const auto graph_factory = GetGraphicsFactory();
   text_layout_ = graph_factory->CreateTextLayout(font_, u"");
 }
 

@@ -175,7 +175,7 @@ void BorderRenderObject::RecreateGeometry() {
   const Rect outer_rect{margin.left, margin.top,
                         size.width - margin.GetHorizontalTotal(),
                         size.height - margin.GetVerticalTotal()};
-  const auto graph_factory = GetGraphFactory();
+  const auto graph_factory = GetGraphicsFactory();
   std::unique_ptr<platform::graphics::IGeometryBuilder> builder{
       graph_factory->CreateGeometryBuilder()};
   f(builder.get(), outer_rect, outer_radius);

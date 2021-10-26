@@ -10,7 +10,7 @@ using cru::ui::controls::TextBlock;
 using cru::ui::controls::Window;
 
 int main() {
-  IUiApplication* application = cru::platform::boostrap::CreateUiApplication();
+  IUiApplication* application = cru::platform::bootstrap::CreateUiApplication();
 
   auto window = Window::Create();
 

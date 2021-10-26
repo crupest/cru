@@ -8,6 +8,9 @@ if(WIN32) # Currently only enable tests on Windows.
 
 	add_subdirectory(input_method)
 elseif(APPLE)
+	add_subdirectory(main)
+	add_subdirectory(scroll_view)
+
 	add_subdirectory(input_method)
 elseif(UNIX)
 	add_subdirectory(xcb)

@@ -9,7 +9,7 @@ class TextBlock : public NoChildControl, public virtual ITextHostControl {
   static constexpr std::u16string_view control_type = u"TextBlock";
 
   static TextBlock* Create();
-  static TextBlock* Create(std::u16string text, bool selectable = false);
+  static TextBlock* Create(String text, bool selectable = false);
 
  protected:
   TextBlock();
@@ -25,8 +25,8 @@ class TextBlock : public NoChildControl, public virtual ITextHostControl {
 
   render::RenderObject* GetRenderObject() const override;
 
-  std::u16string GetText() const;
-  void SetText(std::u16string text);
+  String GetText() const;
+  void SetText(String text);
 
   bool IsSelectable() const;
   void SetSelectable(bool value);

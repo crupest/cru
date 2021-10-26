@@ -7,7 +7,7 @@ namespace cru::ui {
 using cru::platform::graphics::IGraphicsFactory;
 using cru::platform::gui::IUiApplication;
 
-IGraphicsFactory* GetGraphFactory() {
+IGraphicsFactory* GetGraphicsFactory() {
   return IUiApplication::GetInstance()->GetGraphicsFactory();
 }
 

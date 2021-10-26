@@ -5,8 +5,8 @@ else()
 	add_executable(demo_input_method MACOSX_BUNDLE main.cpp)
 	set_target_properties(demo_input_method PROPERTIES
 		BUNDLE TRUE
-    	MACOSX_BUNDLE_GUI_IDENTIFIER life.crupest.cru.demo_input_method
-    	MACOSX_BUNDLE_BUNDLE_NAME demo_input_method
+    	MACOSX_BUNDLE_GUI_IDENTIFIER life.crupest.cru.demo-input-method
+    	MACOSX_BUNDLE_BUNDLE_NAME demo-input-method
 	)
 endif()
 

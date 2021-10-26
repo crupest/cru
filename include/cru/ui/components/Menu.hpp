@@ -13,7 +13,7 @@ namespace cru::ui::components {
 class MenuItem : public Component {
  public:
   MenuItem();
-  explicit MenuItem(std::u16string text);
+  explicit MenuItem(String text);
 
   CRU_DELETE_COPY(MenuItem)
   CRU_DELETE_MOVE(MenuItem)
@@ -23,7 +23,7 @@ class MenuItem : public Component {
  public:
   controls::Control* GetRootControl() override { return container_; }
 
-  void SetText(std::u16string text);
+  void SetText(String text);
 
  private:
   controls::Button* container_;
@@ -48,10 +48,10 @@ class Menu : public Component {
   void AddItem(Component* component, gsl::index index);
   Component* RemoveItem(gsl::index index);
 
-  void AddTextItem(std::u16string text) {
+  void AddTextItem(String text) {
     AddTextItem(std::move(text), GetItemCount());
   }
-  void AddTextItem(std::u16string text, gsl::index index);
+  void AddTextItem(String text, gsl::index index);
 
  private:
   controls::FlexLayout* container_;

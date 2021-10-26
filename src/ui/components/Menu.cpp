@@ -16,9 +16,7 @@ MenuItem::MenuItem() {
       &UiManager::GetInstance()->GetThemeResources()->menu_item_style);
 }
 
-MenuItem::MenuItem(std::u16string text) : MenuItem() {
-  SetText(std::move(text));
-}
+MenuItem::MenuItem(String text) : MenuItem() { SetText(std::move(text)); }
 
 MenuItem::~MenuItem() {
   if (!container_->GetWindowHost()) {
@@ -27,7 +25,7 @@ MenuItem::~MenuItem() {
   }
 }
 
-void MenuItem::SetText(std::u16string text) { text_->SetText(std::move(text)); }
+void MenuItem::SetText(String text) { text_->SetText(std::move(text)); }
 
 Menu::Menu() { container_ = controls::FlexLayout::Create(); }
 

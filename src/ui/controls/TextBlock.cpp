@@ -10,7 +10,7 @@ using render::TextRenderObject;
 
 TextBlock* TextBlock::Create() { return new TextBlock(); }
 
-TextBlock* TextBlock::Create(std::u16string text, bool selectable) {
+TextBlock* TextBlock::Create(String text, bool selectable) {
   auto c = new TextBlock();
   c->SetText(text);
   c->SetSelectable(selectable);
@@ -38,11 +38,9 @@ render::RenderObject* TextBlock::GetRenderObject() const {
   return text_render_object_.get();
 }
 
-std::u16string TextBlock::GetText() const { return service_->GetText(); }
+String TextBlock::GetText() const { return service_->GetText(); }
 
-void TextBlock::SetText(std::u16string text) {
-  service_->SetText(std::move(text));
-}
+void TextBlock::SetText(String text) { service_->SetText(std::move(text)); }
 
 bool TextBlock::IsSelectable() const { return service_->IsEnabled(); }
 

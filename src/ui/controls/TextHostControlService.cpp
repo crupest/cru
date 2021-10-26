@@ -68,14 +68,13 @@ void TextHostControlService::SetText(String text, bool stop_composition) {
   SyncTextRenderObject();
 }
 
-void TextHostControlService::InsertText(gsl::index position,
-                                        std::u16string_view text,
+void TextHostControlService::InsertText(gsl::index position, StringView text,
                                         bool stop_composition) {
   if (!Utf16IsValidInsertPosition(this->text_, position)) {
     log::TagError(log_tag, u"Invalid text insert position.");
     return;
   }
-  this->text_.insert(this->text_.cbegin() + position, text.begin(), text.end());
+  this->text_.insert(this->text_.cbegin() + position, text);
   if (stop_composition) {
     CancelComposition();
   }
@@ -224,7 +223,7 @@ void TextHostControlService::AbortSelection() {
   SetSelection(GetCaretPosition());
 }
 
-void TextHostControlService::ReplaceSelectedText(std::u16string_view text) {
+void TextHostControlService::ReplaceSelectedText(StringView text) {
   DeleteSelectedText();
   InsertText(GetSelection().GetStart(), text);
   SetSelection(GetSelection().GetStart() + text.size());
@@ -344,9 +343,7 @@ void TextHostControlService::GainFocusHandler(
         input_method_context->CompositionEndEvent()->AddHandler(sync);
     input_method_context_event_guard_ +=
         input_method_context->TextEvent()->AddHandler(
-            [this](const std::u16string_view& text) {
-              this->ReplaceSelectedText(text);
-            });
+            [this](StringView text) { this->ReplaceSelectedText(text); });
 
     host::WindowHost* window_host = control_->GetWindowHost();
     if (window_host)

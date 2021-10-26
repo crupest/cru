@@ -166,6 +166,10 @@ class CRU_BASE_API String {
  public:
   String& operator+=(StringView other);
 
+  operator std::u16string_view() const {
+    return std::u16string_view(data(), size());
+  }
+
  public:
   Utf16CodePointIterator CodePointIterator() const {
     return Utf16CodePointIterator(
@@ -263,6 +267,10 @@ class CRU_BASE_API StringView {
   String ToString() const { return String(ptr_, size_); }
 
   value_type operator[](Index index) const { return ptr_[index]; }
+
+  operator std::u16string_view() const {
+    return std::u16string_view(data(), size());
+  }
 
  private:
   const char16_t* ptr_;

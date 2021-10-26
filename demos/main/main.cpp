@@ -18,11 +18,7 @@ using cru::ui::controls::TextBox;
 using cru::ui::controls::Window;
 
 int main() {
-#ifdef CRU_DEBUG
-  cru::platform::SetupHeapDebug();
-#endif
-
-  IUiApplication* application = cru::platform::boostrap::CreateUiApplication();
+  IUiApplication* application = cru::platform::bootstrap::CreateUiApplication();
 
   const auto window = Window::Create();
 
