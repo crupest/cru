@@ -66,13 +66,17 @@ KeyCode KeyCodeFromOsxToCru(unsigned short n) {
     CRU_DEFINE_KEYCODE_MAP(kVK_RightOption, KeyCode::RightAlt)
     CRU_DEFINE_KEYCODE_MAP(kVK_Command, KeyCode::LeftCommand)
     CRU_DEFINE_KEYCODE_MAP(kVK_RightCommand, KeyCode::RightCommand)
-    CRU_DEFINE_KEYCODE_MAP(kVK_ForwardDelete, KeyCode::Backspace)
+    CRU_DEFINE_KEYCODE_MAP(kVK_Delete, KeyCode::Backspace)
     CRU_DEFINE_KEYCODE_MAP(kVK_Return, KeyCode::Return)
-    CRU_DEFINE_KEYCODE_MAP(kVK_Delete, KeyCode::Delete)
+    CRU_DEFINE_KEYCODE_MAP(kVK_ForwardDelete, KeyCode::Delete)
     CRU_DEFINE_KEYCODE_MAP(kVK_Home, KeyCode::Home)
     CRU_DEFINE_KEYCODE_MAP(kVK_End, KeyCode::End)
     CRU_DEFINE_KEYCODE_MAP(kVK_PageUp, KeyCode::PageUp)
     CRU_DEFINE_KEYCODE_MAP(kVK_PageDown, KeyCode::PageDown)
+    CRU_DEFINE_KEYCODE_MAP(kVK_LeftArrow, KeyCode::Left)
+    CRU_DEFINE_KEYCODE_MAP(kVK_RightArrow, KeyCode::Right)
+    CRU_DEFINE_KEYCODE_MAP(kVK_UpArrow, KeyCode::Up)
+    CRU_DEFINE_KEYCODE_MAP(kVK_DownArrow, KeyCode::Down)
     CRU_DEFINE_KEYCODE_MAP(kVK_ANSI_Keypad0, KeyCode::NumPad0)
     CRU_DEFINE_KEYCODE_MAP(kVK_ANSI_Keypad1, KeyCode::NumPad1)
     CRU_DEFINE_KEYCODE_MAP(kVK_ANSI_Keypad2, KeyCode::NumPad2)
@@ -89,7 +93,7 @@ KeyCode KeyCodeFromOsxToCru(unsigned short n) {
 
 #undef CRU_DEFINE_KEYCODE_MAP
 }
-unsigned short KeyCodeFromOsxToCru(KeyCode k) {
+unsigned short KeyCodeFromCruToOsx(KeyCode k) {
   switch (k) {
 #define CRU_DEFINE_KEYCODE_MAP(cru, osx) \
   case cru:                              \
@@ -152,13 +156,17 @@ unsigned short KeyCodeFromOsxToCru(KeyCode k) {
     CRU_DEFINE_KEYCODE_MAP(KeyCode::RightAlt, kVK_RightOption)
     CRU_DEFINE_KEYCODE_MAP(KeyCode::LeftCommand, kVK_Command)
     CRU_DEFINE_KEYCODE_MAP(KeyCode::RightCommand, kVK_RightCommand)
-    CRU_DEFINE_KEYCODE_MAP(KeyCode::Backspace, kVK_ForwardDelete)
+    CRU_DEFINE_KEYCODE_MAP(KeyCode::Backspace, kVK_Delete)
     CRU_DEFINE_KEYCODE_MAP(KeyCode::Return, kVK_Return)
-    CRU_DEFINE_KEYCODE_MAP(KeyCode::Delete, kVK_Delete)
+    CRU_DEFINE_KEYCODE_MAP(KeyCode::Delete, kVK_ForwardDelete)
     CRU_DEFINE_KEYCODE_MAP(KeyCode::Home, kVK_Home)
     CRU_DEFINE_KEYCODE_MAP(KeyCode::End, kVK_End)
     CRU_DEFINE_KEYCODE_MAP(KeyCode::PageUp, kVK_PageUp)
     CRU_DEFINE_KEYCODE_MAP(KeyCode::PageDown, kVK_PageDown)
+    CRU_DEFINE_KEYCODE_MAP(KeyCode::Left, kVK_LeftArrow)
+    CRU_DEFINE_KEYCODE_MAP(KeyCode::Right, kVK_RightArrow)
+    CRU_DEFINE_KEYCODE_MAP(KeyCode::Up, kVK_UpArrow)
+    CRU_DEFINE_KEYCODE_MAP(KeyCode::Down, kVK_DownArrow)
     CRU_DEFINE_KEYCODE_MAP(KeyCode::NumPad0, kVK_ANSI_Keypad0)
     CRU_DEFINE_KEYCODE_MAP(KeyCode::NumPad1, kVK_ANSI_Keypad1)
     CRU_DEFINE_KEYCODE_MAP(KeyCode::NumPad2, kVK_ANSI_Keypad2)

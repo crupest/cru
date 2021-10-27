@@ -3,5 +3,5 @@
 
 namespace cru::platform::gui::osx {
 KeyCode KeyCodeFromOsxToCru(unsigned short n);
-unsigned short KeyCodeFromOsxToCru(KeyCode k);
+unsigned short KeyCodeFromCruToOsx(KeyCode k);
 }  // namespace cru::platform::gui::osx
