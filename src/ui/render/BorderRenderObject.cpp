@@ -6,8 +6,8 @@
 #include "cru/platform/graphics/Geometry.hpp"
 #include "cru/platform/graphics/util/Painter.hpp"
 #include "cru/ui/Base.hpp"
+#include "cru/ui/DebugFlags.hpp"
 #include "cru/ui/style/ApplyBorderStyleInfo.hpp"
-#include "gsl/gsl_assert"
 
 #include <algorithm>
 
@@ -56,9 +56,19 @@ RenderObject* BorderRenderObject::HitTest(const Point& point) {
 }
 
 void BorderRenderObject::OnDrawCore(platform::graphics::IPainter* painter) {
+  if constexpr (debug_flags::draw) {
+    log::TagDebug(
+        log_tag, u"BorderRenderObject draw, background: {}, foreground: {}.",
+        background_brush_ == nullptr ? u"NONE"
+                                     : background_brush_->GetDebugString(),
+        foreground_brush_ == nullptr ? u"NONE"
+                                     : foreground_brush_->GetDebugString());
+  }
+
   if (background_brush_ != nullptr)
     painter->FillGeometry(border_inner_geometry_.get(),
                           background_brush_.get());
+
   if (is_border_enabled_) {
     if (border_brush_ == nullptr) {
       log::TagWarn(log_tag, u"Border is enabled but border brush is null.");

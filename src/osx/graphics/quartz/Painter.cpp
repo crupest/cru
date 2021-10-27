@@ -141,7 +141,7 @@ void QuartzCGContextPainter::FillGeometry(IGeometry* geometry, IBrush* brush) {
   b->Select(cg_context_);
   CGContextBeginPath(cg_context_);
   CGContextAddPath(cg_context_, g->GetCGPath());
-  CGContextFillPath(cg_context_);
+  CGContextEOFillPath(cg_context_);
 }
 
 void QuartzCGContextPainter::DrawText(const Point& offset,
