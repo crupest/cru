@@ -171,6 +171,8 @@ class CRU_BASE_API String {
   }
 
  public:
+  void AppendCodePoint(CodePoint code_point);
+
   Utf16CodePointIterator CodePointIterator() const {
     return Utf16CodePointIterator(
         std::u16string_view(reinterpret_cast<char16_t*>(buffer_), size_));

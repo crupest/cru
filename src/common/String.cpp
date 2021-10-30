@@ -1,4 +1,5 @@
 #include "cru/common/String.hpp"
+#include "cru/common/Exception.hpp"
 #include "cru/common/StringUtil.hpp"
 
 #include <gsl/gsl>
@@ -212,6 +213,13 @@ String::iterator String::erase(const_iterator start, const_iterator end) {
 
 std::string String::ToUtf8() const {
   return cru::ToUtf8(std::u16string_view(data(), size()));
+}
+
+void String::AppendCodePoint(CodePoint code_point) {
+  if (!Utf16EncodeCodePointAppendWithFunc(
+          code_point, [this](char16_t c) { this->push_back(c); })) {
+    throw TextEncodeException(u"Code point out of range.");
+  }
 }
 
 Index String::IndexFromCodeUnitToCodePoint(Index code_unit_index) const {

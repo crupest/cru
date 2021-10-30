@@ -17,9 +17,7 @@ String Convert(CFStringRef string) {
   String result;
 
   for (int i = 0; i < length; i++) {
-    std::u16string s;
-    Utf16EncodeCodePointAppend(CFStringGetCharacterAtIndex(string, i), s);
-    result.append(s.data(), s.size());
+    result.AppendCodePoint(CFStringGetCharacterAtIndex(string, i));
   }
 
   return result;
