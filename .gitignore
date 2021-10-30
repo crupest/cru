@@ -594,3 +594,5 @@ compile_flags.txt
 .kdev4
 CruUI.kdev4
 vcpkg_installed
+
+.DS_Store
