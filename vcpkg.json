@@ -1,11 +1,6 @@
 {
   "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg/master/scripts/vcpkg.schema.json",
-  "name": "cruui",
+  "name": "cru",
   "version": "0.0.1",
-  "dependencies": [
-    "ms-gsl",
-    "gtest",
-    "boost-property-tree",
-    "boost-functional"
-  ]
+  "dependencies": ["ms-gsl", "gtest", "boost"]
 }
