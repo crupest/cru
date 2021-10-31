@@ -94,9 +94,10 @@ int main() {
       const auto cursor_lefttop =
           text_layout->TextSinglePoint(cursor_pos, false);
 
-      painter->FillRectangle(Rect{cursor_lefttop.x, cursor_lefttop.y + anchor_y,
-                                  3, font->GetFontSize()},
-                             brush.get());
+      painter->FillRectangle(
+          Rect{cursor_lefttop.left, cursor_lefttop.top + anchor_y, 3,
+               cursor_lefttop.height},
+          brush.get());
     }
   });
 

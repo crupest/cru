@@ -206,6 +206,19 @@ struct Rect final {
            point.y < GetBottom();
   }
 
+  constexpr Rect Normalize() const {
+    Rect result = *this;
+    if (result.width < 0) {
+      result.left += result.width;
+      result.width = -result.width;
+    }
+    if (result.height < 0) {
+      result.top += result.height;
+      result.height = -result.height;
+    }
+    return result;
+  }
+
   float left = 0.0f;
   float top = 0.0f;
   float width = 0.0f;

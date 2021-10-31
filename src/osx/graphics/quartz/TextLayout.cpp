@@ -72,83 +72,21 @@ void OsxCTTextLayout::SetMaxHeight(float max_height) {
 }
 
 Rect OsxCTTextLayout::GetTextBounds(bool includingTrailingSpace) {
-  float left = std::numeric_limits<float>::max();
-  float top = std::numeric_limits<float>::max();
-  float right = 0;
-  float bottom = 0;
-
-  for (int i = 0; i < line_count_; i++) {
-    auto line = lines_[i];
-    const auto& line_origin = line_origins_[i];
-
-    CGRect line_rect = CTLineGetImageBounds(line, nullptr);
-    if (includingTrailingSpace) {
-      float trailingWidth = CTLineGetTrailingWhitespaceWidth(line);
-      line_rect.size.width += trailingWidth;
-    }
-
-    line_rect.origin.x += line_origin.x;
-    line_rect.origin.y += line_origin.y;
-
-    left = std::min<float>(line_rect.origin.x, left);
-    top = std::min<float>(line_rect.origin.y, top);
-    right = std::max<float>(line_rect.origin.x + line_rect.size.width, right);
-    bottom =
-        std::max<float>(line_rect.origin.y + line_rect.size.height, bottom);
-  }
-
-  return Rect::FromVertices(left, top, right, bottom);
+  return transform_.TransformRect(DoGetTextBounds(includingTrailingSpace));
 }
 
 std::vector<Rect> OsxCTTextLayout::TextRangeRect(const TextRange& text_range) {
-  const auto r = text_.RangeFromCodeUnitToCodePoint(text_range).Normalize();
+  std::vector<Rect> results = DoTextRangeRect(text_range);
 
-  std::vector<Rect> results;
-
-  for (int i = 0; i < line_count_; i++) {
-    auto line = lines_[i];
-    const auto& line_origin = line_origins_[i];
-
-    Range range = Convert(CTLineGetStringRange(line));
-    range = range.CoerceInto(r.GetStart(), r.GetEnd());
-
-    if (range.count) {
-      auto line_rect = CTLineGetImageBounds(line, nullptr);
-      line_rect.origin.x += line_origin.x;
-      line_rect.origin.y += line_origin.y;
-      float start_offset =
-          CTLineGetOffsetForStringIndex(line, range.GetStart(), nullptr);
-      float end_offset =
-          CTLineGetOffsetForStringIndex(line, range.GetEnd(), nullptr);
-      line_rect.origin.x += start_offset;
-      line_rect.size.width = end_offset - start_offset;
-      results.push_back(Convert(line_rect));
-    }
+  for (auto& rect : results) {
+    rect = transform_.TransformRect(rect);
   }
 
   return results;
 }
 
-Point OsxCTTextLayout::TextSinglePoint(Index position, bool trailing) {
-  position = text_.IndexFromCodeUnitToCodePoint(position);
-  for (int i = 0; i < line_count_; i++) {
-    auto line = lines_[i];
-    const auto& line_origin = line_origins_[i];
-
-    Range range = Convert(CTLineGetStringRange(line));
-    if (range.GetStart() <= position && position < range.GetEnd()) {
-      auto offset = CTLineGetOffsetForStringIndex(line, position, nullptr);
-      return Point(line_origin.x + offset, line_origin.y);
-    } else if (position == range.GetEnd()) {
-      return Point(
-          line_origin.x + CTLineGetImageBounds(line, nullptr).size.width,
-          line_origin.y);
-    }
-  }
-
-  if (lines_.empty()) return Point{};
-
-  return Convert(CTLineGetImageBounds(lines_.back(), nullptr)).GetRightTop();
+Rect OsxCTTextLayout::TextSinglePoint(Index position, bool trailing) {
+  return transform_.TransformRect(DoTextSinglePoint(position, trailing));
 }
 
 TextHitTestResult OsxCTTextLayout::HitTest(const Point& point) {
@@ -213,6 +151,13 @@ void OsxCTTextLayout::RecreateFrame() {
   for (int i = 0; i < line_count_; i++) {
     lines_[i] = static_cast<CTLineRef>(CFArrayGetValueAtIndex(lines, i));
   }
+
+  auto bounds = DoGetTextBounds(false);
+
+  transform_ =
+      Matrix::Translation(-bounds.GetRight() / 2, -bounds.GetBottom() / 2) *
+      Matrix::Scale(1, -1) *
+      Matrix::Translation(bounds.GetRight() / 2, bounds.GetBottom() / 2);
 }
 
 CTFrameRef OsxCTTextLayout::CreateFrameWithColor(const Color& color) {
@@ -241,6 +186,96 @@ CTFrameRef OsxCTTextLayout::CreateFrameWithColor(const Color& color) {
 String OsxCTTextLayout::GetDebugString() {
   return Format(u"OsxCTTextLayout(text: {}, size: ({}, {}))", text_, max_width_,
                 max_height_);
+}
+
+Rect OsxCTTextLayout::DoGetTextBounds(bool includingTrailingSpace) {
+  if (text_.empty()) return Rect{};
+
+  float left = std::numeric_limits<float>::max();
+  float top = std::numeric_limits<float>::max();
+  float right = 0;
+  float bottom = 0;
+
+  for (int i = 0; i < line_count_; i++) {
+    auto line = lines_[i];
+    const auto& line_origin = line_origins_[i];
+
+    CGRect line_rect = CTLineGetImageBounds(line, nullptr);
+    if (includingTrailingSpace) {
+      float trailingWidth = CTLineGetTrailingWhitespaceWidth(line);
+      line_rect.size.width += trailingWidth;
+    }
+
+    line_rect.origin.x += line_origin.x;
+    line_rect.origin.y += line_origin.y;
+
+    left = std::min<float>(line_rect.origin.x, left);
+    top = std::min<float>(line_rect.origin.y, top);
+    right = std::max<float>(line_rect.origin.x + line_rect.size.width, right);
+    bottom =
+        std::max<float>(line_rect.origin.y + line_rect.size.height, bottom);
+  }
+
+  return Rect::FromVertices(left, top, right, bottom);
+}
+
+std::vector<Rect> OsxCTTextLayout::DoTextRangeRect(
+    const TextRange& text_range) {
+  const auto r = text_.RangeFromCodeUnitToCodePoint(text_range).Normalize();
+
+  std::vector<Rect> results;
+
+  for (int i = 0; i < line_count_; i++) {
+    auto line = lines_[i];
+    const auto& line_origin = line_origins_[i];
+
+    Range range = Convert(CTLineGetStringRange(line));
+    range = range.CoerceInto(r.GetStart(), r.GetEnd());
+
+    if (range.count) {
+      auto line_rect = CTLineGetImageBounds(line, nullptr);
+      line_rect.origin.x += line_origin.x;
+      line_rect.origin.y += line_origin.y;
+      float start_offset =
+          CTLineGetOffsetForStringIndex(line, range.GetStart(), nullptr);
+      float end_offset =
+          CTLineGetOffsetForStringIndex(line, range.GetEnd(), nullptr);
+      line_rect.origin.x += start_offset;
+      line_rect.size.width = end_offset - start_offset;
+      results.push_back(Convert(line_rect));
+    }
+  }
+
+  return results;
+}
+
+Rect OsxCTTextLayout::DoTextSinglePoint(Index position, bool trailing) {
+  if (lines_.empty()) return Rect{0, 0, 0, font_->GetFontSize()};
+
+  position = text_.IndexFromCodeUnitToCodePoint(position);
+  for (int i = 0; i < line_count_; i++) {
+    auto line = lines_[i];
+    const auto& line_origin = line_origins_[i];
+
+    auto rect = Convert(CTLineGetImageBounds(line, nullptr));
+    rect.left += line_origin.x;
+    rect.top += line_origin.y;
+
+    Range range = Convert(CTLineGetStringRange(line));
+    if (range.GetStart() <= position && position < range.GetEnd()) {
+      auto offset = CTLineGetOffsetForStringIndex(line, position, nullptr);
+      return Rect(rect.left + offset, rect.top, 0, rect.height);
+    } else if (position == range.GetEnd()) {
+      return Rect(rect.GetRight(), rect.top, 0, rect.height);
+    }
+  }
+
+  // TODO: Complete logic here.
+
+  auto rect = Convert(CTLineGetImageBounds(lines_.back(), nullptr));
+  rect.left = rect.GetRight();
+  rect.width = 0;
+  return rect;
 }
 
 }  // namespace cru::platform::graphics::osx::quartz

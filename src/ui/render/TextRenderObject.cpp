@@ -62,7 +62,7 @@ std::vector<Rect> TextRenderObject::TextRangeRect(const TextRange& text_range) {
   return text_layout_->TextRangeRect(text_range);
 }
 
-Point TextRenderObject::TextSinglePoint(gsl::index position, bool trailing) {
+Rect TextRenderObject::TextSinglePoint(gsl::index position, bool trailing) {
   return text_layout_->TextSinglePoint(position, trailing);
 }
 
@@ -134,8 +134,8 @@ Rect TextRenderObject::GetCaretRectInContent() {
   const auto font_height = this->font_->GetFontSize();
   const auto caret_width = this->caret_width_;
 
-  auto rect = Rect{caret_top_center.x - caret_width / 2.0f, caret_top_center.y,
-                   caret_width, font_height};
+  auto rect = Rect{caret_top_center.left - caret_width / 2.0f,
+                   caret_top_center.top, caret_width, caret_top_center.height};
 
   return rect;
 }

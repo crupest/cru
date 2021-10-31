@@ -158,16 +158,7 @@ void QuartzCGContextPainter::DrawText(const Point& offset,
     color = colors::black;
   }
 
-  auto bounds = tl->GetTextBounds();
-
-  bounds.width += bounds.left;
-  bounds.height += bounds.top;
-  bounds.left = bounds.top = 0;
-
-  Matrix transform =
-      Matrix::Translation(-bounds.width / 2, -bounds.height / 2) *
-      Matrix::Scale(1, -1) *
-      Matrix::Translation(bounds.width / 2, bounds.height / 2);
+  Matrix transform = tl->GetTransform();
 
   CGContextSaveGState(cg_context_);
 

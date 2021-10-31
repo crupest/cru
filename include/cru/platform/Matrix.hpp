@@ -43,6 +43,15 @@ struct Matrix {
                  point.x * m12 + point.y * m22 + m32};
   }
 
+  Rect TransformRect(const Rect& rect, bool normalize = true) const {
+    Point lefttop = TransformPoint(rect.GetLeftTop()),
+          rightbottom = TransformPoint(rect.GetRightBottom());
+    auto result =
+        Rect::FromVertices(lefttop.x, lefttop.y, rightbottom.x, rightbottom.y);
+    if (normalize) result = result.Normalize();
+    return result;
+  }
+
   static Matrix Identity() {
     return Matrix{1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f};
   }

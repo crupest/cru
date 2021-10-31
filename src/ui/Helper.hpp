@@ -6,7 +6,6 @@ namespace graphics {
 struct IGraphicsFactory;
 }
 namespace native {
-struct ICursor;
 struct IUiApplication;
 }  // namespace native
 }  // namespace cru::platform

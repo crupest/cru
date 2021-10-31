@@ -30,18 +30,24 @@ class OsxCTTextLayout : public OsxQuartzResource, public virtual ITextLayout {
 
   Rect GetTextBounds(bool includingTrailingSpace = false) override;
   std::vector<Rect> TextRangeRect(const TextRange& text_range) override;
-  Point TextSinglePoint(Index position, bool trailing) override;
+  Rect TextSinglePoint(Index position, bool trailing) override;
   TextHitTestResult HitTest(const Point& point) override;
 
   CTFrameRef GetCTFrameRef() const { return ct_frame_; }
 
   CTFrameRef CreateFrameWithColor(const Color& color);
 
+  Matrix GetTransform() { return transform_; }
+
   String GetDebugString() override;
 
  private:
   void ReleaseResource();
   void RecreateFrame();
+
+  Rect DoGetTextBounds(bool includingTrailingSpace = false);
+  std::vector<Rect> DoTextRangeRect(const TextRange& text_range);
+  Rect DoTextSinglePoint(Index position, bool trailing);
 
  private:
   float max_width_;
@@ -58,5 +64,7 @@ class OsxCTTextLayout : public OsxQuartzResource, public virtual ITextLayout {
   int line_count_;
   std::vector<CGPoint> line_origins_;
   std::vector<CTLineRef> lines_;
+
+  Matrix transform_;
 };
 }  // namespace cru::platform::graphics::osx::quartz

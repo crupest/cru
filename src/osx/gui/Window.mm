@@ -27,7 +27,6 @@
 #include <Foundation/NSAttributedString.h>
 #include <Foundation/NSString.h>
 
-#include <gsl/gsl_assert>
 #include <limits>
 #include <memory>
 #include <unordered_set>
@@ -496,11 +495,11 @@ const std::unordered_set<KeyCode> bypass_codes{
 
   auto ss = Convert(s);
 
-  cru::log::TagDebug(u"CruView",
-                     u"Received setMarkedText string: {}, selected range: ({}, {}), "
-                     u"replacement range: ({}, {}).",
-                     ss, selectedRange.location, selectedRange.length, replacementRange.location,
-                     replacementRange.length);
+  // cru::log::TagDebug(u"CruView",
+  //                    u"Received setMarkedText string: {}, selected range: ({}, {}), "
+  //                    u"replacement range: ({}, {}).",
+  //                    ss, selectedRange.location, selectedRange.length, replacementRange.location,
+  //                    replacementRange.length);
 
   if (_input_context_text == nil) {
     _input_context_text = [[NSMutableAttributedString alloc] init];
@@ -557,8 +556,8 @@ const std::unordered_set<KeyCode> bypass_codes{
   _input_context_p->SetCompositionText(cru::platform::gui::CompositionText());
   cru::String ss = Convert(s);
 
-  cru::log::TagDebug(u"CruView", u"Finish composition: {}, replacement range: ({}, {})", ss,
-                     replacementRange.location, replacementRange.length);
+  // cru::log::TagDebug(u"CruView", u"Finish composition: {}, replacement range: ({}, {})", ss,
+  //                    replacementRange.location, replacementRange.length);
 
   _input_context_p->RaiseCompositionEvent();
   _input_context_p->RaiseCompositionEndEvent();

@@ -17,7 +17,8 @@ struct ITextLayout : virtual IGraphicsResource {
 
   virtual Rect GetTextBounds(bool includingTrailingSpace = false) = 0;
   virtual std::vector<Rect> TextRangeRect(const TextRange& text_range) = 0;
-  virtual Point TextSinglePoint(Index position, bool trailing) = 0;
+  // Width is always 0, height is line height.
+  virtual Rect TextSinglePoint(Index position, bool trailing) = 0;
   virtual TextHitTestResult HitTest(const Point& point) = 0;
 };
 }  // namespace cru::platform::graphics
