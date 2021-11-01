@@ -18,8 +18,8 @@ struct IPainter;
 struct ITextLayout;
 
 struct TextHitTestResult {
-  int position;
+  gsl::index position;
   bool trailing;
-  bool insideText;
+  bool inside_text;
 };
 }  // namespace cru::platform::graphics

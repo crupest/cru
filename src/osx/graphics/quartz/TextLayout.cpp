@@ -3,6 +3,7 @@
 #include "cru/osx/graphics/quartz/Convert.hpp"
 #include "cru/osx/graphics/quartz/Resource.hpp"
 #include "cru/platform/Check.hpp"
+#include "cru/platform/graphics/Base.hpp"
 
 #include <algorithm>
 #include <limits>
@@ -94,13 +95,39 @@ TextHitTestResult OsxCTTextLayout::HitTest(const Point& point) {
     auto line = lines_[i];
     const auto& line_origin = line_origins_[i];
 
+    auto range =
+        text_.RangeFromCodePointToCodeUnit(Convert(CTLineGetStringRange(line)));
+
     auto bounds = Convert(CTLineGetImageBounds(line, nullptr));
     bounds.left += line_origin.x;
     bounds.top += line_origin.y;
-    if (bounds.IsPointInside(point)) {
-      int position = CTLineGetStringIndexForPosition(
-          line, CGPointMake(point.x - line_origin.x, point.y - line_origin.y));
-      return TextHitTestResult{position, false, true};
+
+    bounds = transform_.TransformRect(bounds);
+
+    bool force_inside = false;
+    if (i == 0 && point.y < bounds.top) {
+      force_inside = true;
+    }
+
+    if (i == line_count_ - 1 && point.y >= bounds.GetBottom()) {
+      force_inside = true;
+    }
+
+    if (point.y >= bounds.top && point.y < bounds.GetBottom() || force_inside) {
+      auto p = point;
+      p.y = bounds.top;
+
+      if (p.x < bounds.left) {
+        return TextHitTestResult{range.position, false, false};
+      } else if (p.x > bounds.GetRight()) {
+        return TextHitTestResult{range.GetEnd(), false, false};
+      } else {
+        int position = CTLineGetStringIndexForPosition(
+            line, CGPointMake(p.x - line_origin.x, p.y - line_origin.y));
+        return TextHitTestResult{
+            text_.IndexFromCodePointToCodeUnit(position) + range.position,
+            false, true};
+      }
     }
   }
 
