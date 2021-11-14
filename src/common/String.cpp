@@ -376,4 +376,17 @@ StringView StringView::substr(Index pos, Index size) {
   return StringView(ptr_ + pos, std::min(size, size_ - pos));
 }
 
+std::string StringView::ToUtf8() const { return cru::ToUtf8(ptr_, size_); }
+
+String ToLower(StringView s) {
+  String result;
+  for (auto c : s) result.push_back(ToLower(c));
+  return result;
+}
+
+String ToUpper(StringView s) {
+  String result;
+  for (auto c : s) result.push_back(ToUpper(c));
+  return result;
+}
 }  // namespace cru

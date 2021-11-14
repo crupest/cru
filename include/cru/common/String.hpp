@@ -273,6 +273,8 @@ class CRU_BASE_API StringView {
     return std::u16string_view(data(), size());
   }
 
+  std::string ToUtf8() const;
+
  private:
   const char16_t* ptr_;
   Index size_;
@@ -402,6 +404,9 @@ inline Index Utf16NextWord(StringView str, Index position,
                            bool* is_space = nullptr) {
   return Utf16NextWord(str.data(), str.size(), position, is_space);
 }
+
+String CRU_BASE_API ToLower(StringView s);
+String CRU_BASE_API ToUpper(StringView s);
 }  // namespace cru
 
 template <>

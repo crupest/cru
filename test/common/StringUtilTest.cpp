@@ -8,12 +8,18 @@ TEST(StringUtil, Utf8NextCodePoint) {
   using cru::Utf8NextCodePoint;
   std::string_view text = "aπ你🤣!";
   gsl::index current = 0;
-  ASSERT_EQ(Utf8NextCodePoint(text, current, &current), 0x0061);
-  ASSERT_EQ(Utf8NextCodePoint(text, current, &current), 0x03C0);
-  ASSERT_EQ(Utf8NextCodePoint(text, current, &current), 0x4F60);
-  ASSERT_EQ(Utf8NextCodePoint(text, current, &current), 0x1F923);
-  ASSERT_EQ(Utf8NextCodePoint(text, current, &current), 0x0021);
-  ASSERT_EQ(Utf8NextCodePoint(text, current, &current), k_invalid_code_point);
+  ASSERT_EQ(Utf8NextCodePoint(text.data(), text.size(), current, &current),
+            0x0061);
+  ASSERT_EQ(Utf8NextCodePoint(text.data(), text.size(), current, &current),
+            0x03C0);
+  ASSERT_EQ(Utf8NextCodePoint(text.data(), text.size(), current, &current),
+            0x4F60);
+  ASSERT_EQ(Utf8NextCodePoint(text.data(), text.size(), current, &current),
+            0x1F923);
+  ASSERT_EQ(Utf8NextCodePoint(text.data(), text.size(), current, &current),
+            0x0021);
+  ASSERT_EQ(Utf8NextCodePoint(text.data(), text.size(), current, &current),
+            k_invalid_code_point);
   ASSERT_EQ(current, static_cast<gsl::index>(text.size()));
 }
 
@@ -21,12 +27,18 @@ TEST(StringUtil, Utf16NextCodePoint) {
   using cru::Utf16NextCodePoint;
   std::u16string_view text = u"aπ你🤣!";
   gsl::index current = 0;
-  ASSERT_EQ(Utf16NextCodePoint(text, current, &current), 0x0061);
-  ASSERT_EQ(Utf16NextCodePoint(text, current, &current), 0x03C0);
-  ASSERT_EQ(Utf16NextCodePoint(text, current, &current), 0x4F60);
-  ASSERT_EQ(Utf16NextCodePoint(text, current, &current), 0x1F923);
-  ASSERT_EQ(Utf16NextCodePoint(text, current, &current), 0x0021);
-  ASSERT_EQ(Utf16NextCodePoint(text, current, &current), k_invalid_code_point);
+  ASSERT_EQ(Utf16NextCodePoint(text.data(), text.size(), current, &current),
+            0x0061);
+  ASSERT_EQ(Utf16NextCodePoint(text.data(), text.size(), current, &current),
+            0x03C0);
+  ASSERT_EQ(Utf16NextCodePoint(text.data(), text.size(), current, &current),
+            0x4F60);
+  ASSERT_EQ(Utf16NextCodePoint(text.data(), text.size(), current, &current),
+            0x1F923);
+  ASSERT_EQ(Utf16NextCodePoint(text.data(), text.size(), current, &current),
+            0x0021);
+  ASSERT_EQ(Utf16NextCodePoint(text.data(), text.size(), current, &current),
+            k_invalid_code_point);
   ASSERT_EQ(current, static_cast<gsl::index>(text.size()));
 }
 
@@ -34,12 +46,17 @@ TEST(StringUtil, Utf16PreviousCodePoint) {
   using cru::Utf16PreviousCodePoint;
   std::u16string_view text = u"aπ你🤣!";
   gsl::index current = text.size();
-  ASSERT_EQ(Utf16PreviousCodePoint(text, current, &current), 0x0021);
-  ASSERT_EQ(Utf16PreviousCodePoint(text, current, &current), 0x1F923);
-  ASSERT_EQ(Utf16PreviousCodePoint(text, current, &current), 0x4F60);
-  ASSERT_EQ(Utf16PreviousCodePoint(text, current, &current), 0x03C0);
-  ASSERT_EQ(Utf16PreviousCodePoint(text, current, &current), 0x0061);
-  ASSERT_EQ(Utf16PreviousCodePoint(text, current, &current),
+  ASSERT_EQ(Utf16PreviousCodePoint(text.data(), text.size(), current, &current),
+            0x0021);
+  ASSERT_EQ(Utf16PreviousCodePoint(text.data(), text.size(), current, &current),
+            0x1F923);
+  ASSERT_EQ(Utf16PreviousCodePoint(text.data(), text.size(), current, &current),
+            0x4F60);
+  ASSERT_EQ(Utf16PreviousCodePoint(text.data(), text.size(), current, &current),
+            0x03C0);
+  ASSERT_EQ(Utf16PreviousCodePoint(text.data(), text.size(), current, &current),
+            0x0061);
+  ASSERT_EQ(Utf16PreviousCodePoint(text.data(), text.size(), current, &current),
             k_invalid_code_point);
   ASSERT_EQ(current, 0);
 }
@@ -49,7 +66,7 @@ TEST(StringUtil, Utf8CodePointIterator) {
   std::string_view text = "aπ你🤣!";
   std::vector<cru::CodePoint> code_points;
 
-  for (auto cp : Utf8CodePointIterator{text}) {
+  for (auto cp : Utf8CodePointIterator(text.data(), text.size())) {
     code_points.push_back(cp);
   }
 
@@ -64,7 +81,7 @@ TEST(StringUtil, Utf16CodePointIterator) {
   std::u16string_view text = u"aπ你🤣!";
   std::vector<cru::CodePoint> code_points;
 
-  for (auto cp : Utf16CodePointIterator{text}) {
+  for (auto cp : Utf16CodePointIterator(text.data(), text.size())) {
     code_points.push_back(cp);
   }
 
@@ -79,7 +96,7 @@ TEST(StringUtil, ToUtf8) {
   std::u16string_view utf16_text = u"aπ你🤣!";
   std::string_view utf8_text = "aπ你🤣!";
 
-  ASSERT_EQ(ToUtf8(utf16_text), utf8_text);
+  ASSERT_EQ(ToUtf8(utf16_text.data(), utf16_text.size()), utf8_text);
 }
 
 TEST(StringUtil, ToUtf16) {
@@ -87,7 +104,7 @@ TEST(StringUtil, ToUtf16) {
   std::u16string_view utf16_text = u"aπ你🤣!";
   std::string_view utf8_text = "aπ你🤣!";
 
-  ASSERT_EQ(ToUtf16(utf8_text), utf16_text);
+  ASSERT_EQ(ToUtf16(utf8_text.data(), utf8_text.size()), utf16_text);
 }
 
 // TEST(WinString, IndexUtf8ToUtf16) {

@@ -13,7 +13,6 @@
 #include "cru/ui/controls/Control.hpp"
 #include "cru/ui/helper/ClickDetector.hpp"
 
-
 #include <gsl/pointers>
 #include <memory>
 #include <optional>
@@ -42,8 +41,8 @@ enum class ScrollBarAreaKind {
 enum class ScrollBarBrushUsageKind { Arrow, ArrowBackground, Slot, Thumb };
 enum class ScrollBarBrushStateKind { Normal, Hover, Press, Disable };
 
-std::u16string GenerateScrollBarThemeColorKey(ScrollBarBrushUsageKind usage,
-                                              ScrollBarBrushStateKind state);
+String GenerateScrollBarThemeColorKey(ScrollBarBrushUsageKind usage,
+                                      ScrollBarBrushStateKind state);
 
 class ScrollBar : public Object {
  public:

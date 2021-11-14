@@ -35,7 +35,7 @@ class ThemeManager : public Object {
   }
 
   gsl::not_null<std::shared_ptr<platform::graphics::IBrush>> GetBrush(
-      std::u16string key);
+      StringView key);
 
  private:
   void Init();
@@ -43,8 +43,7 @@ class ThemeManager : public Object {
  private:
   Event<std::nullptr_t> theme_resource_change_event_;
   boost::property_tree::ptree theme_tree_;
-  std::unordered_map<std::u16string,
-                     std::shared_ptr<platform::graphics::IBrush>>
+  std::unordered_map<String, std::shared_ptr<platform::graphics::IBrush>>
       brushes_;
 };
 }  // namespace cru::ui

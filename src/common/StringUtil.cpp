@@ -252,16 +252,4 @@ char16_t ToUpper(char16_t c) {
   }
   return c;
 }
-
-std::u16string ToLower(std::u16string_view s) {
-  std::u16string result;
-  for (auto c : s) result.push_back(ToLower(c));
-  return result;
-}
-
-std::u16string ToUpper(std::u16string_view s) {
-  std::u16string result;
-  for (auto c : s) result.push_back(ToUpper(c));
-  return result;
-}
 }  // namespace cru

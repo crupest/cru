@@ -39,9 +39,9 @@ constexpr std::array<ScrollBarAreaKind, 5> kScrollBarAreaKindList{
     ScrollBarAreaKind::UpSlot, ScrollBarAreaKind::DownSlot,
     ScrollBarAreaKind::Thumb};
 
-std::u16string GenerateScrollBarThemeColorKey(ScrollBarBrushUsageKind usage,
-                                              ScrollBarBrushStateKind state) {
-  std::u16string result = u"scrollbar.";
+String GenerateScrollBarThemeColorKey(ScrollBarBrushUsageKind usage,
+                                      ScrollBarBrushStateKind state) {
+  String result = u"scrollbar.";
   switch (usage) {
     case ScrollBarBrushUsageKind::Arrow:
       result.append(u"arrow");

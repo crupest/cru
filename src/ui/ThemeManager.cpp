@@ -36,15 +36,15 @@ void ThemeManager::Init() {
 }
 
 gsl::not_null<std::shared_ptr<platform::graphics::IBrush>>
-ThemeManager::GetBrush(std::u16string key) {
-  std::u16string k = ToLower(key);
+ThemeManager::GetBrush(StringView key) {
+  String k = ToLower(key);
   auto cached_brush_iter = brushes_.find(k);
   if (cached_brush_iter != brushes_.cend()) {
     return cached_brush_iter->second;
   }
 
   auto color_string =
-      String::FromUtf8(theme_tree_.get<std::string>(ToUtf8(key)));
+      String::FromUtf8(theme_tree_.get<std::string>(key.ToUtf8()));
   auto color = Color::Parse(color_string);
   if (!color) throw BadThemeResourceException("Value is not a valid color.");
   std::shared_ptr<platform::graphics::IBrush> brush =
