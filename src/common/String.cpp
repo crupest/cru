@@ -10,16 +10,6 @@
 #include <string_view>
 
 namespace cru {
-String String::FromUtf8(const char* str) {
-  return FromUtf16(cru::ToUtf16(std::string_view(str)));
-}
-
-String String::FromUtf8(const char* str, Index size) {
-  return FromUtf16(cru::ToUtf16(std::string_view(str, size)));
-}
-
-char16_t String::kEmptyBuffer[1] = {0};
-
 template <typename C>
 Index GetStrSize(const C* str) {
   Index i = 0;
@@ -28,6 +18,16 @@ Index GetStrSize(const C* str) {
   }
   return i;
 }
+
+String String::FromUtf8(const char* str) {
+  return FromUtf16(cru::ToUtf16(str, GetStrSize(str)));
+}
+
+String String::FromUtf8(const char* str, Index size) {
+  return FromUtf16(cru::ToUtf16(str, size));
+}
+
+char16_t String::kEmptyBuffer[1] = {0};
 
 String::String(const_pointer str) : String(str, GetStrSize(str)) {}
 
@@ -211,9 +211,7 @@ String::iterator String::erase(const_iterator start, const_iterator end) {
   return s;
 }
 
-std::string String::ToUtf8() const {
-  return cru::ToUtf8(std::u16string_view(data(), size()));
-}
+std::string String::ToUtf8() const { return cru::ToUtf8(buffer_, size_); }
 
 void String::AppendCodePoint(CodePoint code_point) {
   if (!Utf16EncodeCodePointAppendWithFunc(

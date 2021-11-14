@@ -7,7 +7,7 @@
 #include "TextLayout.hpp"
 
 namespace cru::platform::graphics {
-// Entry point of the graph module.
+// Entry point of the graphics module.
 struct IGraphicsFactory : virtual IPlatformResource {
   virtual std::unique_ptr<ISolidColorBrush> CreateSolidColorBrush() = 0;
 

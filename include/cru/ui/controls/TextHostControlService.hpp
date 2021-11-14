@@ -23,6 +23,44 @@ struct ITextHostControl : virtual Interface {
   virtual render::ScrollRenderObject* GetScrollRenderObject() = 0;
 };
 
+class TextHostControlService;
+
+class TextControlMovePattern : public Object {
+ public:
+  static TextControlMovePattern kLeft;
+  static TextControlMovePattern kRight;
+  static TextControlMovePattern kUp;
+  static TextControlMovePattern kDown;
+  static TextControlMovePattern kHome;
+  static TextControlMovePattern kEnd;
+  static TextControlMovePattern kPageUp;
+  static TextControlMovePattern kPageDown;
+
+  using MoveFunction =
+      std::function<gsl::index(TextHostControlService* service, StringView text,
+                               gsl::index current_position)>;
+
+  TextControlMovePattern(helper::ShortcutKeyBind key_bind,
+                         MoveFunction move_function)
+      : key_bind_(key_bind), move_function_(move_function) {}
+
+  CRU_DELETE_COPY(TextControlMovePattern)
+  CRU_DELETE_MOVE(TextControlMovePattern)
+
+  ~TextControlMovePattern() override = default;
+
+ public:
+  helper::ShortcutKeyBind GetKeyBind() const { return key_bind_; }
+  gsl::index Move(TextHostControlService* service, StringView text,
+                  gsl::index current_position) {
+    return move_function_(service, text, current_position);
+  }
+
+ private:
+  helper::ShortcutKeyBind key_bind_;
+  MoveFunction move_function_;
+};
+
 class TextHostControlService : public Object {
   CRU_DEFINE_CLASS_LOG_TAG(u"cru::ui::controls::TextControlService")
 

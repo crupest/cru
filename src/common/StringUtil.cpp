@@ -6,29 +6,29 @@
 namespace cru {
 using details::ExtractBits;
 
-CodePoint Utf8NextCodePoint(std::string_view str, Index current,
+CodePoint Utf8NextCodePoint(const char* ptr, Index size, Index current,
                             Index* next_position) {
   CodePoint result;
 
-  if (current >= static_cast<Index>(str.length())) {
+  if (current >= size) {
     result = k_invalid_code_point;
   } else {
-    const auto cu0 = static_cast<std::uint8_t>(str[current++]);
+    const auto cu0 = static_cast<std::uint8_t>(ptr[current++]);
 
-    auto read_next_folowing_code = [&str, &current]() -> CodePoint {
-      if (current == static_cast<Index>(str.length()))
+    auto read_next_folowing_code = [ptr, size, &current]() -> CodePoint {
+      if (current == size)
         throw TextEncodeException(
             u"Unexpected end when read continuing byte of multi-byte code "
             "point.");
 
-      const auto u = static_cast<std::uint8_t>(str[current]);
+      const auto u = static_cast<std::uint8_t>(ptr[current]);
       if (!(u & (1u << 7)) || (u & (1u << 6))) {
         throw TextEncodeException(
             u"Unexpected bad-format (not 0b10xxxxxx) continuing byte of "
             "multi-byte code point.");
       }
 
-      return ExtractBits<std::uint8_t, 6, CodePoint>(str[current++]);
+      return ExtractBits<std::uint8_t, 6, CodePoint>(ptr[current++]);
     };
 
     if ((1u << 7) & cu0) {
@@ -73,23 +73,23 @@ CodePoint Utf8NextCodePoint(std::string_view str, Index current,
   return result;
 }
 
-CodePoint Utf16NextCodePoint(std::u16string_view str, Index current,
+CodePoint Utf16NextCodePoint(const char16_t* ptr, Index size, Index current,
                              Index* next_position) {
   CodePoint result;
 
-  if (current >= static_cast<Index>(str.length())) {
+  if (current >= size) {
     result = k_invalid_code_point;
   } else {
-    const auto cu0 = str[current++];
+    const auto cu0 = ptr[current++];
 
     if (!IsUtf16SurrogatePairCodeUnit(cu0)) {  // 1-length code point
       result = static_cast<CodePoint>(cu0);
     } else if (IsUtf16SurrogatePairLeading(cu0)) {  // 2-length code point
-      if (current >= static_cast<Index>(str.length())) {
+      if (current >= size) {
         throw TextEncodeException(
             u"Unexpected end when reading second code unit of surrogate pair.");
       }
-      const auto cu1 = str[current++];
+      const auto cu1 = ptr[current++];
 
       if (!IsUtf16SurrogatePairTrailing(cu1)) {
         throw TextEncodeException(
@@ -111,13 +111,13 @@ CodePoint Utf16NextCodePoint(std::u16string_view str, Index current,
   return result;
 }
 
-CodePoint Utf16PreviousCodePoint(std::u16string_view str, Index current,
+CodePoint Utf16PreviousCodePoint(const char16_t* ptr, Index size, Index current,
                                  Index* previous_position) {
   CodePoint result;
   if (current <= 0) {
     result = k_invalid_code_point;
   } else {
-    const auto cu0 = str[--current];
+    const auto cu0 = ptr[--current];
 
     if (!IsUtf16SurrogatePairCodeUnit(cu0)) {  // 1-length code point
       result = static_cast<CodePoint>(cu0);
@@ -126,7 +126,7 @@ CodePoint Utf16PreviousCodePoint(std::u16string_view str, Index current,
         throw TextEncodeException(
             u"Unexpected end when reading first code unit of surrogate pair.");
       }
-      const auto cu1 = str[--current];
+      const auto cu1 = ptr[--current];
 
       if (!IsUtf16SurrogatePairLeading(cu1)) {
         throw TextEncodeException(
@@ -160,48 +160,49 @@ void Utf16EncodeCodePointAppend(CodePoint code_point, std::u16string& str) {
     throw TextEncodeException(u"Code point out of range.");
 }
 
-std::string ToUtf8(std::u16string_view s) {
+std::string ToUtf8(const char16_t* ptr, Index size) {
   std::string result;
-  for (CodePoint cp : Utf16CodePointIterator{s}) {
+  for (CodePoint cp : Utf16CodePointIterator(ptr, size)) {
     Utf8EncodeCodePointAppend(cp, result);
   }
   return result;
 }
 
-std::u16string ToUtf16(std::string_view s) {
+std::u16string ToUtf16(const char* ptr, Index size) {
   std::u16string result;
-  for (CodePoint cp : Utf8CodePointIterator{s}) {
+  for (CodePoint cp : Utf8CodePointIterator(ptr, size)) {
     Utf16EncodeCodePointAppend(cp, result);
   }
   return result;
 }
 
-bool Utf16IsValidInsertPosition(std::u16string_view s, gsl::index position) {
+bool Utf16IsValidInsertPosition(const char16_t* ptr, Index size,
+                                Index position) {
   if (position < 0) return false;
-  if (position > static_cast<gsl::index>(s.size())) return false;
+  if (position > size) return false;
   if (position == 0) return true;
-  if (position == static_cast<gsl::index>(s.size())) return true;
-  return !IsUtf16SurrogatePairTrailing(s[position]);
+  if (position == size) return true;
+  return !IsUtf16SurrogatePairTrailing(ptr[position]);
 }
 
-gsl::index Utf16BackwardUntil(std::u16string_view str, gsl::index position,
-                              const std::function<bool(CodePoint)>& predicate) {
+Index Utf16BackwardUntil(const char16_t* ptr, Index size, Index position,
+                         const std::function<bool(CodePoint)>& predicate) {
   if (position <= 0) return position;
   while (true) {
-    gsl::index p = position;
-    auto c = Utf16PreviousCodePoint(str, p, &position);
+    Index p = position;
+    auto c = Utf16PreviousCodePoint(ptr, size, p, &position);
     if (predicate(c)) return p;
     if (c == k_invalid_code_point) return p;
   }
   UnreachableCode();
 }
 
-gsl::index Utf16ForwardUntil(std::u16string_view str, gsl::index position,
-                             const std::function<bool(CodePoint)>& predicate) {
-  if (position >= static_cast<gsl::index>(str.size())) return position;
+Index Utf16ForwardUntil(const char16_t* ptr, Index size, Index position,
+                        const std::function<bool(CodePoint)>& predicate) {
+  if (position >= size) return position;
   while (true) {
-    gsl::index p = position;
-    auto c = Utf16NextCodePoint(str, p, &position);
+    Index p = position;
+    auto c = Utf16NextCodePoint(ptr, size, p, &position);
     if (predicate(c)) return p;
     if (c == k_invalid_code_point) return p;
   }
@@ -210,31 +211,31 @@ gsl::index Utf16ForwardUntil(std::u16string_view str, gsl::index position,
 
 inline bool IsSpace(CodePoint c) { return c == 0x20 || c == 0xA; }
 
-gsl::index Utf16PreviousWord(std::u16string_view str, gsl::index position,
-                             bool* is_space) {
+Index Utf16PreviousWord(const char16_t* ptr, Index size, Index position,
+                        bool* is_space) {
   if (position <= 0) return position;
-  auto c = Utf16PreviousCodePoint(str, position, nullptr);
+  auto c = Utf16PreviousCodePoint(ptr, size, position, nullptr);
   if (IsSpace(c)) {  // TODO: Currently only test against 0x20(space).
     if (is_space) *is_space = true;
-    return Utf16BackwardUntil(str, position,
+    return Utf16BackwardUntil(ptr, size, position,
                               [](CodePoint c) { return !IsSpace(c); });
   } else {
     if (is_space) *is_space = false;
-    return Utf16BackwardUntil(str, position, IsSpace);
+    return Utf16BackwardUntil(ptr, size, position, IsSpace);
   }
 }
 
-gsl::index Utf16NextWord(std::u16string_view str, gsl::index position,
-                         bool* is_space) {
-  if (position >= static_cast<gsl::index>(str.size())) return position;
-  auto c = Utf16NextCodePoint(str, position, nullptr);
+Index Utf16NextWord(const char16_t* ptr, Index size, Index position,
+                    bool* is_space) {
+  if (position >= size) return position;
+  auto c = Utf16NextCodePoint(ptr, size, position, nullptr);
   if (IsSpace(c)) {  // TODO: Currently only test against 0x20(space).
     if (is_space) *is_space = true;
-    return Utf16ForwardUntil(str, position,
+    return Utf16ForwardUntil(ptr, size, position,
                              [](CodePoint c) { return !IsSpace(c); });
   } else {
     if (is_space) *is_space = false;
-    return Utf16ForwardUntil(str, position, IsSpace);
+    return Utf16ForwardUntil(ptr, size, position, IsSpace);
   }
 }
 

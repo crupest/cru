@@ -22,20 +22,21 @@ inline bool IsUtf16SurrogatePairTrailing(char16_t c) {
   return c >= 0xDC00 && c <= 0xDFFF;
 }
 
-CodePoint CRU_BASE_API Utf8NextCodePoint(std::string_view str, Index current,
-                                         Index* next_position);
+CodePoint CRU_BASE_API Utf8NextCodePoint(const char* ptr, Index size,
+                                         Index current, Index* next_position);
 
-CodePoint CRU_BASE_API Utf16NextCodePoint(std::u16string_view str,
+CodePoint CRU_BASE_API Utf16NextCodePoint(const char16_t* ptr, Index size,
                                           Index current, Index* next_position);
-CodePoint CRU_BASE_API Utf16PreviousCodePoint(std::u16string_view str,
+CodePoint CRU_BASE_API Utf16PreviousCodePoint(const char16_t* ptr, Index size,
                                               Index current,
                                               Index* previous_position);
 
-template <typename StringType>
-using NextCodePointFunctionType = CodePoint (*)(StringType, Index, Index*);
+template <typename CharType>
+using NextCodePointFunctionType = CodePoint (*)(const CharType*, Index, Index,
+                                                Index*);
 
-template <typename StringType,
-          NextCodePointFunctionType<StringType> NextCodePointFunction>
+template <typename CharType,
+          NextCodePointFunctionType<CharType> NextCodePointFunction>
 class CodePointIterator {
  public:
   using difference_type = Index;
@@ -47,10 +48,10 @@ class CodePointIterator {
  public:
   struct past_end_tag_t {};
 
-  explicit CodePointIterator(StringType string)
-      : string_(std::move(string)), position_(0) {}
-  explicit CodePointIterator(StringType string, past_end_tag_t)
-      : string_(std::move(string)), position_(string_.size()) {}
+  explicit CodePointIterator(const CharType* ptr, Index size, Index current = 0)
+      : ptr_(ptr), size_(size), position_(0) {}
+  explicit CodePointIterator(const CharType* ptr, Index size, past_end_tag_t)
+      : ptr_(ptr), size_(size), position_(size) {}
 
   CRU_DEFAULT_COPY(CodePointIterator)
   CRU_DEFAULT_MOVE(CodePointIterator)
@@ -58,17 +59,16 @@ class CodePointIterator {
   ~CodePointIterator() = default;
 
  public:
-  StringType GetString() const { return string_; }
+  const CharType* GetPtr() const { return ptr_; }
+  Index GetSize() const { return size_; }
   Index GetPosition() const { return position_; }
 
-  bool IsPastEnd() const {
-    return position_ == static_cast<Index>(string_.size());
-  }
+  bool IsPastEnd() const { return position_ == static_cast<Index>(size_); }
 
  public:
   CodePointIterator begin() const { return *this; }
   CodePointIterator end() const {
-    return CodePointIterator{string_, past_end_tag_t{}};
+    return CodePointIterator{ptr_, size_, past_end_tag_t{}};
   }
 
  public:
@@ -96,7 +96,7 @@ class CodePointIterator {
   }
 
   CodePoint operator*() const {
-    return NextCodePointFunction(string_, position_, &next_position_cache_);
+    return NextCodePointFunction(ptr_, size_, position_, &next_position_cache_);
   }
 
  private:
@@ -104,21 +104,20 @@ class CodePointIterator {
     if (next_position_cache_ > position_) {
       position_ = next_position_cache_;
     } else {
-      NextCodePointFunction(string_, position_, &position_);
+      NextCodePointFunction(ptr_, size_, position_, &position_);
     }
   }
 
  private:
-  StringType string_;
+  const CharType* ptr_;
+  Index size_;
   Index position_;
   mutable Index next_position_cache_ = 0;
 };
 
-using Utf8CodePointIterator =
-    CodePointIterator<std::string_view, &Utf8NextCodePoint>;
+using Utf8CodePointIterator = CodePointIterator<char, &Utf8NextCodePoint>;
 
-using Utf16CodePointIterator =
-    CodePointIterator<std::u16string_view, &Utf16NextCodePoint>;
+using Utf16CodePointIterator = CodePointIterator<char16_t, &Utf16NextCodePoint>;
 
 void CRU_BASE_API Utf8EncodeCodePointAppend(CodePoint code_point,
                                             std::string& str);
@@ -198,30 +197,28 @@ bool Utf16EncodeCodePointAppendWithFunc(CodePoint code_point,
   }
 }
 
-std::string CRU_BASE_API ToUtf8(std::u16string_view s);
-std::u16string CRU_BASE_API ToUtf16(std::string_view s);
+std::string CRU_BASE_API ToUtf8(const char16_t* ptr, Index size);
+std::u16string CRU_BASE_API ToUtf16(const char* s, Index size);
 
 // If given s is not a valid utf16 string, return value is UD.
-bool CRU_BASE_API Utf16IsValidInsertPosition(std::u16string_view s,
-                                             gsl::index position);
+bool CRU_BASE_API Utf16IsValidInsertPosition(const char16_t* ptr, Index size,
+                                             Index position);
 
 // Return position after the character making predicate returns true or 0 if no
 // character doing so.
-gsl::index CRU_BASE_API
-Utf16BackwardUntil(std::u16string_view str, gsl::index position,
+Index CRU_BASE_API
+Utf16BackwardUntil(const char16_t* ptr, Index size, Index position,
                    const std::function<bool(CodePoint)>& predicate);
 // Return position before the character making predicate returns true or
 // str.size() if no character doing so.
-gsl::index CRU_BASE_API
-Utf16ForwardUntil(std::u16string_view str, gsl::index position,
+Index CRU_BASE_API
+Utf16ForwardUntil(const char16_t* ptr, Index size, Index position,
                   const std::function<bool(CodePoint)>& predicate);
 
-gsl::index CRU_BASE_API Utf16PreviousWord(std::u16string_view str,
-                                          gsl::index position,
-                                          bool* is_space = nullptr);
-gsl::index CRU_BASE_API Utf16NextWord(std::u16string_view str,
-                                      gsl::index position,
-                                      bool* is_space = nullptr);
+Index CRU_BASE_API Utf16PreviousWord(const char16_t* ptr, Index size,
+                                     Index position, bool* is_space = nullptr);
+Index CRU_BASE_API Utf16NextWord(const char16_t* ptr, Index size,
+                                 Index position, bool* is_space = nullptr);
 
 char16_t CRU_BASE_API ToLower(char16_t c);
 char16_t CRU_BASE_API ToUpper(char16_t c);

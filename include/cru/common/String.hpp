@@ -174,8 +174,7 @@ class CRU_BASE_API String {
   void AppendCodePoint(CodePoint code_point);
 
   Utf16CodePointIterator CodePointIterator() const {
-    return Utf16CodePointIterator(
-        std::u16string_view(reinterpret_cast<char16_t*>(buffer_), size_));
+    return Utf16CodePointIterator(buffer_, size_);
   }
 
   Index IndexFromCodeUnitToCodePoint(Index code_unit_index) const;
@@ -378,6 +377,31 @@ inline void String::append(StringView str) {
 inline String String::From(StringView str) { return str.ToString(); }
 
 inline String ToString(StringView value) { return value.ToString(); }
+
+inline CodePoint Utf16PreviousCodePoint(StringView str, Index current,
+                                        Index* previous_position) {
+  return Utf16PreviousCodePoint(str.data(), str.size(), current,
+                                previous_position);
+}
+
+inline CodePoint Utf16NextCodePoint(StringView str, Index current,
+                                    Index* next_position) {
+  return Utf16NextCodePoint(str.data(), str.size(), current, next_position);
+}
+
+inline bool Utf16IsValidInsertPosition(StringView str, Index position) {
+  return Utf16IsValidInsertPosition(str.data(), str.size(), position);
+}
+
+inline Index Utf16PreviousWord(StringView str, Index position,
+                               bool* is_space = nullptr) {
+  return Utf16PreviousWord(str.data(), str.size(), position, is_space);
+}
+
+inline Index Utf16NextWord(StringView str, Index position,
+                           bool* is_space = nullptr) {
+  return Utf16NextWord(str.data(), str.size(), position, is_space);
+}
 }  // namespace cru
 
 template <>

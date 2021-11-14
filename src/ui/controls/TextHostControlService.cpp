@@ -18,6 +18,45 @@
 #include "cru/ui/render/TextRenderObject.hpp"
 
 namespace cru::ui::controls {
+TextControlMovePattern TextControlMovePattern::kLeft(
+    helper::ShortcutKeyBind(platform::gui::KeyCode::Left),
+    [](TextHostControlService* service, StringView text,
+       gsl::index current_position) {
+      Utf16PreviousCodePoint(text, current_position, &current_position);
+      return current_position;
+    });
+TextControlMovePattern TextControlMovePattern::kRight(
+    helper::ShortcutKeyBind(platform::gui::KeyCode::Right),
+    [](TextHostControlService* service, StringView text,
+       gsl::index current_position) {
+      Utf16NextCodePoint(text, current_position, &current_position);
+      return current_position;
+    });
+TextControlMovePattern TextControlMovePattern::kUp(
+    helper::ShortcutKeyBind(platform::gui::KeyCode::Up),
+    [](TextHostControlService* service, StringView text,
+       gsl::index current_position) { return current_position; });
+TextControlMovePattern TextControlMovePattern::kDown(
+    helper::ShortcutKeyBind(platform::gui::KeyCode::Down),
+    [](TextHostControlService* service, StringView text,
+       gsl::index current_position) { return current_position; });
+TextControlMovePattern TextControlMovePattern::kHome(
+    helper::ShortcutKeyBind(platform::gui::KeyCode::Home),
+    [](TextHostControlService* service, StringView text,
+       gsl::index current_position) { return current_position; });
+TextControlMovePattern TextControlMovePattern::kEnd(
+    helper::ShortcutKeyBind(platform::gui::KeyCode::End),
+    [](TextHostControlService* service, StringView text,
+       gsl::index current_position) { return current_position; });
+TextControlMovePattern TextControlMovePattern::kPageUp(
+    helper::ShortcutKeyBind(platform::gui::KeyCode::PageUp),
+    [](TextHostControlService* service, StringView text,
+       gsl::index current_position) { return current_position; });
+TextControlMovePattern TextControlMovePattern::kPageDown(
+    helper::ShortcutKeyBind(platform::gui::KeyCode::PageDown),
+    [](TextHostControlService* service, StringView text,
+       gsl::index current_position) { return current_position; });
+
 TextHostControlService::TextHostControlService(gsl::not_null<Control*> control)
     : control_(control),
       text_host_control_(dynamic_cast<ITextHostControl*>(control.get())) {
