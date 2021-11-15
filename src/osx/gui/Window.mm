@@ -432,9 +432,10 @@ cru::platform::gui::KeyModifier GetKeyModifier(NSEvent* event) {
 
 namespace {
 using cru::platform::gui::KeyCode;
-const std::unordered_set<KeyCode> bypass_codes{
-    KeyCode::Backspace, KeyCode::Delete, KeyCode::Left, KeyCode::Right,  KeyCode::Up,
-    KeyCode::Down,      KeyCode::Home,   KeyCode::End,  KeyCode::PageUp, KeyCode::PageDown};
+const std::unordered_set<KeyCode> bypass_codes{KeyCode::Return, KeyCode::Space,  KeyCode::Backspace,
+                                               KeyCode::Delete, KeyCode::Left,   KeyCode::Right,
+                                               KeyCode::Up,     KeyCode::Down,   KeyCode::Home,
+                                               KeyCode::End,    KeyCode::PageUp, KeyCode::PageDown};
 }
 
 - (void)keyDown:(NSEvent*)event {
@@ -448,9 +449,22 @@ const std::unordered_set<KeyCode> bypass_codes{
 
   auto c = cru::platform::gui::osx::KeyCodeFromOsxToCru(event.keyCode);
 
-  if (!(input_context->GetCompositionText().text.empty() && bypass_codes.count(c)) &&
-      input_context->IsEnabled()) {
-    handled = [[self inputContext] handleEvent:event];
+  if (input_context->IsEnabled()) {
+    if (bypass_codes.count(c)) {
+      if (!(input_context->GetCompositionText().text.empty())) {
+        handled = [[self inputContext] handleEvent:event];
+      } else {
+        if (c == KeyCode::Return) {
+          _input_context_p->RaiseTextEvent(u"\n");
+          handled = true;
+        } else if (c == KeyCode::Space) {
+          _input_context_p->RaiseTextEvent(u" ");
+          handled = true;
+        }
+      }
+    } else {
+      handled = [[self inputContext] handleEvent:event];
+    }
   }
 
   if (!handled) {

@@ -479,7 +479,7 @@ void TextHostControlService::SetUpShortcuts() {
       auto text = this->GetTextView();
       auto caret = this->GetCaretPosition();
       auto new_position = pattern.Move(this, text, caret);
-      this->SetSelection(caret);
+      this->SetSelection(new_position);
       return true;
     });
 

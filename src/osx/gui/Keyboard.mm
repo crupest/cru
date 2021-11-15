@@ -87,6 +87,7 @@ KeyCode KeyCodeFromOsxToCru(unsigned short n) {
     CRU_DEFINE_KEYCODE_MAP(kVK_ANSI_Keypad7, KeyCode::NumPad7)
     CRU_DEFINE_KEYCODE_MAP(kVK_ANSI_Keypad8, KeyCode::NumPad8)
     CRU_DEFINE_KEYCODE_MAP(kVK_ANSI_Keypad9, KeyCode::NumPad9)
+    CRU_DEFINE_KEYCODE_MAP(kVK_Space, KeyCode::Space)
     default:
       return KeyCode::Unknown;
   }
@@ -177,6 +178,7 @@ unsigned short KeyCodeFromCruToOsx(KeyCode k) {
     CRU_DEFINE_KEYCODE_MAP(KeyCode::NumPad7, kVK_ANSI_Keypad7)
     CRU_DEFINE_KEYCODE_MAP(KeyCode::NumPad8, kVK_ANSI_Keypad8)
     CRU_DEFINE_KEYCODE_MAP(KeyCode::NumPad9, kVK_ANSI_Keypad9)
+    CRU_DEFINE_KEYCODE_MAP(KeyCode::Space, kVK_Space)
     default:
       return 0;
   }

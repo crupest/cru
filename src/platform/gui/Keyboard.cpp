@@ -114,9 +114,8 @@ String ToString(KeyCode key_code) {
   return key_code_string_list[static_cast<int>(key_code)].ToString();
 }
 
-std::u16string ToString(KeyModifier key_modifier,
-                        std::u16string_view separator) {
-  std::vector<std::u16string> list;
+String ToString(KeyModifier key_modifier, StringView separator) {
+  std::vector<String> list;
   if (key_modifier & KeyModifiers::shift) {
     list.push_back(u"Shift");
   }
@@ -130,7 +129,7 @@ std::u16string ToString(KeyModifier key_modifier,
   }
 
   if (list.empty()) return u"";
-  std::u16string result = list.front();
+  String result = list.front();
   for (auto iter = list.cbegin() + 1; iter != list.cend(); ++iter) {
     result += separator;
     result += *iter;

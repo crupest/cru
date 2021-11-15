@@ -49,7 +49,7 @@ class ShortcutKeyBind {
     return !this->operator==(other);
   }
 
-  String ToString() {
+  String ToString() const {
     String result = u"(";
     result += platform::gui::ToString(modifier_);
     result += u")";
@@ -61,6 +61,10 @@ class ShortcutKeyBind {
   platform::gui::KeyCode key_;
   platform::gui::KeyModifier modifier_;
 };
+
+inline String ToString(const ShortcutKeyBind& key_bind) {
+  return key_bind.ToString();
+}
 }  // namespace cru::ui::helper
 
 namespace std {
@@ -78,7 +82,7 @@ struct hash<cru::ui::helper::ShortcutKeyBind> {
 namespace cru::ui::helper {
 struct Shortcut {
   // Just for debug.
-  std::u16string name;
+  String name;
   ShortcutKeyBind key_bind;
   // Return true if it consumes the shortcut. Or return false if it does not
   // handle the shortcut.
@@ -87,7 +91,7 @@ struct Shortcut {
 
 struct ShortcutInfo {
   int id;
-  std::u16string name;
+  String name;
   ShortcutKeyBind key_bind;
   std::function<bool()> handler;
 };
@@ -101,7 +105,7 @@ class ShortcutHub : public Object {
 
   ~ShortcutHub() override = default;
 
-  int RegisterShortcut(std::u16string name, ShortcutKeyBind bind,
+  int RegisterShortcut(String name, ShortcutKeyBind bind,
                        std::function<bool()> handler) {
     return RegisterShortcut({std::move(name), bind, std::move(handler)});
   }
