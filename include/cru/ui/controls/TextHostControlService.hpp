@@ -8,6 +8,7 @@
 #include "cru/ui/helper/ShortcutHub.hpp"
 
 #include <functional>
+#include <vector>
 
 namespace cru::ui::render {
 class TextRenderObject;
@@ -29,12 +30,16 @@ class TextControlMovePattern : public Object {
  public:
   static TextControlMovePattern kLeft;
   static TextControlMovePattern kRight;
+  static TextControlMovePattern kCtrlLeft;
+  static TextControlMovePattern kCtrlRight;
   static TextControlMovePattern kUp;
   static TextControlMovePattern kDown;
   static TextControlMovePattern kHome;
   static TextControlMovePattern kEnd;
   static TextControlMovePattern kPageUp;
   static TextControlMovePattern kPageDown;
+
+  static std::vector<TextControlMovePattern> kDefaultPatterns;
 
   using MoveFunction =
       std::function<gsl::index(TextHostControlService* service, StringView text,
@@ -44,15 +49,15 @@ class TextControlMovePattern : public Object {
                          MoveFunction move_function)
       : key_bind_(key_bind), move_function_(move_function) {}
 
-  CRU_DELETE_COPY(TextControlMovePattern)
-  CRU_DELETE_MOVE(TextControlMovePattern)
+  CRU_DEFAULT_COPY(TextControlMovePattern)
+  CRU_DEFAULT_MOVE(TextControlMovePattern)
 
   ~TextControlMovePattern() override = default;
 
  public:
   helper::ShortcutKeyBind GetKeyBind() const { return key_bind_; }
   gsl::index Move(TextHostControlService* service, StringView text,
-                  gsl::index current_position) {
+                  gsl::index current_position) const {
     return move_function_(service, text, current_position);
   }
 
@@ -118,10 +123,10 @@ class TextHostControlService : public Object {
 
   void ScrollToCaret();
 
- private:
   gsl::not_null<render::TextRenderObject*> GetTextRenderObject();
   render::ScrollRenderObject* GetScrollRenderObject();
 
+ private:
   // May return nullptr.
   platform::gui::IInputMethodContext* GetInputMethodContext();
 

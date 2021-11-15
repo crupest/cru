@@ -395,6 +395,21 @@ inline bool Utf16IsValidInsertPosition(StringView str, Index position) {
   return Utf16IsValidInsertPosition(str.data(), str.size(), position);
 }
 
+// Return position after the character making predicate returns true or 0 if no
+// character doing so.
+inline Index CRU_BASE_API
+Utf16BackwardUntil(StringView str, Index position,
+                   const std::function<bool(CodePoint)>& predicate) {
+  return Utf16BackwardUntil(str.data(), str.size(), position, predicate);
+}
+// Return position before the character making predicate returns true or
+// str.size() if no character doing so.
+inline Index CRU_BASE_API
+Utf16ForwardUntil(StringView str, Index position,
+                  const std::function<bool(CodePoint)>& predicate) {
+  return Utf16ForwardUntil(str.data(), str.size(), position, predicate);
+}
+
 inline Index Utf16PreviousWord(StringView str, Index position,
                                bool* is_space = nullptr) {
   return Utf16PreviousWord(str.data(), str.size(), position, is_space);

@@ -32,6 +32,10 @@ class ShortcutKeyBind {
   platform::gui::KeyCode GetKey() const { return key_; }
   platform::gui::KeyModifier GetModifier() const { return modifier_; }
 
+  ShortcutKeyBind AddModifier(platform::gui::KeyModifier modifier) const {
+    return ShortcutKeyBind(key_, modifier_ | modifier);
+  }
+
   bool Is(platform::gui::KeyCode key,
           platform::gui::KeyModifier modifier) const {
     return key == key_ && modifier == modifier_;
