@@ -91,6 +91,8 @@ Rect OsxCTTextLayout::TextSinglePoint(Index position, bool trailing) {
 }
 
 TextHitTestResult OsxCTTextLayout::HitTest(const Point& point) {
+  auto p = transform_.Inverted()->TransformPoint(point);
+
   for (int i = 0; i < line_count_; i++) {
     auto line = lines_[i];
     const auto& line_origin = line_origins_[i];
@@ -98,35 +100,32 @@ TextHitTestResult OsxCTTextLayout::HitTest(const Point& point) {
     auto range =
         text_.RangeFromCodePointToCodeUnit(Convert(CTLineGetStringRange(line)));
 
-    auto bounds = Convert(CTLineGetImageBounds(line, nullptr));
-    bounds.left += line_origin.x;
-    bounds.top += line_origin.y;
-
-    bounds = transform_.TransformRect(bounds);
+    auto bounds = CTLineGetImageBounds(line, nullptr);
+    bounds.origin.x += line_origin.x;
+    bounds.origin.y += line_origin.y;
 
     bool force_inside = false;
-    if (i == 0 && point.y < bounds.top) {
+    if (i == 0 && p.y >= bounds.origin.y + bounds.size.height) {
       force_inside = true;
     }
 
-    if (i == line_count_ - 1 && point.y >= bounds.GetBottom()) {
+    if (i == line_count_ - 1 && p.y < bounds.origin.y) {
       force_inside = true;
     }
 
-    if (point.y >= bounds.top && point.y < bounds.GetBottom() || force_inside) {
-      auto p = point;
-      p.y = bounds.top;
+    if (p.y >= bounds.origin.y || force_inside) {
+      auto pp = p;
+      pp.y = bounds.origin.y;
 
-      if (p.x < bounds.left) {
+      if (pp.x < bounds.origin.x) {
         return TextHitTestResult{range.position, false, false};
-      } else if (p.x > bounds.GetRight()) {
+      } else if (pp.x > bounds.origin.x + bounds.size.width) {
         return TextHitTestResult{range.GetEnd(), false, false};
       } else {
         int position = CTLineGetStringIndexForPosition(
-            line, CGPointMake(p.x - line_origin.x, p.y - line_origin.y));
-        return TextHitTestResult{
-            text_.IndexFromCodePointToCodeUnit(position) + range.position,
-            false, true};
+            line, CGPointMake(pp.x - line_origin.x, pp.y - line_origin.y));
+        return TextHitTestResult{text_.IndexFromCodePointToCodeUnit(position),
+                                 false, true};
       }
     }
   }
@@ -292,8 +291,6 @@ Rect OsxCTTextLayout::DoTextSinglePoint(Index position, bool trailing) {
     if (range.GetStart() <= position && position < range.GetEnd()) {
       auto offset = CTLineGetOffsetForStringIndex(line, position, nullptr);
       return Rect(rect.left + offset, rect.top, 0, rect.height);
-    } else if (position == range.GetEnd()) {
-      return Rect(rect.GetRight(), rect.top, 0, rect.height);
     }
   }
 
