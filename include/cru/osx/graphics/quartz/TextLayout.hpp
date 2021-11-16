@@ -77,6 +77,10 @@ class OsxCTTextLayout : public OsxQuartzResource, public virtual ITextLayout {
   // The trailing empty line count in the back of the lines.
   int tail_empty_line_count_;
 
+  // Just for cache.
+  CGRect text_bounds_without_trailing_space_;
+  CGRect text_bounds_with_trailing_space_;
+
   Matrix transform_;
 };
 }  // namespace cru::platform::graphics::osx::quartz

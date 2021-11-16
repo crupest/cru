@@ -142,12 +142,13 @@ Rect OsxCTTextLayout::TextSinglePoint(Index position, bool trailing) {
   if (position < head_empty_line_count_) {
     return {0, position * font_->GetFontSize(), 0, font_->GetFontSize()};
   } else if (position > text_.size() - tail_empty_line_count_) {
-    return {0,
-            static_cast<float>(DoGetTextBounds().size.height) +
-                (head_empty_line_count_ + position -
-                 (text_.size() - tail_empty_line_count_) - 1) *
-                    font_->GetFontSize(),
-            0, font_->GetFontSize()};
+    return {
+        0,
+        static_cast<float>(text_bounds_without_trailing_space_.size.height) +
+            (head_empty_line_count_ + position -
+             (text_.size() - tail_empty_line_count_) - 1) *
+                font_->GetFontSize(),
+        0, font_->GetFontSize()};
   } else {
     auto result =
         DoTextSinglePoint(position - head_empty_line_count_, trailing);
@@ -168,7 +169,7 @@ TextHitTestResult OsxCTTextLayout::HitTest(const Point& point) {
     }
   }
 
-  auto text_bounds = DoGetTextBounds();
+  auto text_bounds = text_bounds_without_trailing_space_;
 
   auto text_height = static_cast<float>(text_bounds.size.height);
   auto th = text_height + head_empty_line_count_ * font_->GetFontSize();
@@ -278,6 +279,8 @@ void OsxCTTextLayout::RecreateFrame() {
   }
 
   auto bounds = DoGetTextBounds(false);
+  text_bounds_without_trailing_space_ = bounds;
+  text_bounds_with_trailing_space_ = DoGetTextBounds(true);
 
   transform_ =
       Matrix::Translation(-bounds.origin.x, -bounds.origin.y) *
@@ -347,7 +350,8 @@ CGRect OsxCTTextLayout::DoGetTextBounds(bool includingTrailingSpace) {
 
 CGRect OsxCTTextLayout::DoGetTextBoundsIncludingEmptyLines(
     bool includingTrailingSpace) {
-  auto result = DoGetTextBounds(includingTrailingSpace);
+  auto result = includingTrailingSpace ? text_bounds_with_trailing_space_
+                                       : text_bounds_without_trailing_space_;
 
   result.size.height += head_empty_line_count_ * font_->GetFontSize();
   result.size.height += tail_empty_line_count_ * font_->GetFontSize();
