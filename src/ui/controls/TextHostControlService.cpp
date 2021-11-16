@@ -150,6 +150,18 @@ void TextHostControlService::SetEditable(bool editable) {
   if (!editable) CancelComposition();
 }
 
+void TextHostControlService::SetMultiLine(bool multi_line) {
+  this->multi_line_ = multi_line;
+
+  if (!multi_line) {
+    auto text = GetText();
+    for (auto& c : text) {
+      if (c == u'\n') c = u' ';
+    }
+    SetText(text);
+  }
+}
+
 void TextHostControlService::SetText(String text, bool stop_composition) {
   this->text_ = std::move(text);
   CoerceSelection();
@@ -433,8 +445,12 @@ void TextHostControlService::GainFocusHandler(
     input_method_context_event_guard_ +=
         input_method_context->CompositionEndEvent()->AddHandler(sync);
     input_method_context_event_guard_ +=
-        input_method_context->TextEvent()->AddHandler(
-            [this](StringView text) { this->ReplaceSelectedText(text); });
+        input_method_context->TextEvent()->AddHandler([this](StringView text) {
+          if (!multi_line_ && text == u"\n") {
+            return;
+          }
+          this->ReplaceSelectedText(text);
+        });
 
     host::WindowHost* window_host = control_->GetWindowHost();
     if (window_host)

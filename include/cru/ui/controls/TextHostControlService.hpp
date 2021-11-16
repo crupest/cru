@@ -86,6 +86,10 @@ class TextHostControlService : public Object {
   bool IsEditable() { return this->editable_; }
   void SetEditable(bool editable);
 
+  bool IsMultiLine() { return this->multi_line_; }
+  // If text contains line feed characters, it will be converted to space.
+  void SetMultiLine(bool multi_line);
+
   String GetText() { return this->text_; }
   StringView GetTextView() { return this->text_; }
   void SetText(String text, bool stop_composition = false);
@@ -169,6 +173,7 @@ class TextHostControlService : public Object {
 
   bool enable_ = false;
   bool editable_ = false;
+  bool multi_line_ = false;
 
   bool caret_visible_ = false;
   platform::gui::TimerAutoCanceler caret_timer_canceler_;
