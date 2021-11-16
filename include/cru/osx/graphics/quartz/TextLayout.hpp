@@ -28,6 +28,9 @@ class OsxCTTextLayout : public OsxQuartzResource, public virtual ITextLayout {
   void SetMaxWidth(float max_width) override;
   void SetMaxHeight(float max_height) override;
 
+  bool IsEditMode() override;
+  void SetEditMode(bool enable) override;
+
   Rect GetTextBounds(bool includingTrailingSpace = false) override;
   std::vector<Rect> TextRangeRect(const TextRange& text_range) override;
   Rect TextSinglePoint(Index position, bool trailing) override;
@@ -45,17 +48,22 @@ class OsxCTTextLayout : public OsxQuartzResource, public virtual ITextLayout {
   void ReleaseResource();
   void RecreateFrame();
 
-  Rect DoGetTextBounds(bool includingTrailingSpace = false);
-  std::vector<Rect> DoTextRangeRect(const TextRange& text_range);
-  Rect DoTextSinglePoint(Index position, bool trailing);
+  CGRect DoGetTextBounds(bool includingTrailingSpace = false);
+  CGRect DoGetTextBoundsIncludingEmptyLines(
+      bool includingTrailingSpace = false);
+  std::vector<CGRect> DoTextRangeRect(const TextRange& text_range);
+  CGRect DoTextSinglePoint(Index position, bool trailing);
 
  private:
   float max_width_;
   float max_height_;
 
+  bool edit_mode_;
+
   std::shared_ptr<OsxCTFont> font_;
 
   String text_;
+  String actual_text_;
   CFMutableAttributedStringRef cf_attributed_text_;
 
   CTFramesetterRef ct_framesetter_ = nullptr;
@@ -64,6 +72,10 @@ class OsxCTTextLayout : public OsxQuartzResource, public virtual ITextLayout {
   int line_count_;
   std::vector<CGPoint> line_origins_;
   std::vector<CTLineRef> lines_;
+  // The empty line count in the front of the lines.
+  int head_empty_line_count_;
+  // The trailing empty line count in the back of the lines.
+  int tail_empty_line_count_;
 
   Matrix transform_;
 };

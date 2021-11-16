@@ -42,6 +42,9 @@ class TextRenderObject : public RenderObject {
   std::shared_ptr<platform::graphics::IFont> GetFont() const;
   void SetFont(std::shared_ptr<platform::graphics::IFont> font);
 
+  bool IsEditMode();
+  void SetEditMode(bool enable);
+
   std::vector<Rect> TextRangeRect(const TextRange& text_range);
   Rect TextSinglePoint(gsl::index position, bool trailing);
   platform::graphics::TextHitTestResult TextHitTest(const Point& point);

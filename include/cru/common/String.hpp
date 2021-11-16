@@ -132,18 +132,20 @@ class CRU_BASE_API String {
   const_iterator end() const { return this->buffer_ + this->size_; }
   const_iterator cend() const { return this->buffer_ + this->size_; }
 
-  reverse_iterator rbegin() { return reverse_iterator{begin()}; }
+  reverse_iterator rbegin() { return reverse_iterator{end()}; }
   const_reverse_iterator rbegin() const {
-    return const_reverse_iterator{begin()};
+    return const_reverse_iterator{end()};
   }
   const_reverse_iterator crbegin() const {
-    return const_reverse_iterator{cbegin()};
+    return const_reverse_iterator{cend()};
   }
 
-  reverse_iterator rend() { return reverse_iterator{end()}; }
-  const_reverse_iterator rend() const { return const_reverse_iterator{end()}; }
+  reverse_iterator rend() { return reverse_iterator{begin()}; }
+  const_reverse_iterator rend() const {
+    return const_reverse_iterator{begin()};
+  }
   const_reverse_iterator crend() const {
-    return const_reverse_iterator{cend()};
+    return const_reverse_iterator{cbegin()};
   }
 
  public:
@@ -246,18 +248,20 @@ class CRU_BASE_API StringView {
   const_iterator end() const { return this->ptr_ + this->size_; }
   const_iterator cend() const { return this->ptr_ + this->size_; }
 
-  reverse_iterator rbegin() { return reverse_iterator{begin()}; }
+  reverse_iterator rbegin() { return reverse_iterator{end()}; }
   const_reverse_iterator rbegin() const {
-    return const_reverse_iterator{begin()};
+    return const_reverse_iterator{end()};
   }
   const_reverse_iterator crbegin() const {
-    return const_reverse_iterator{cbegin()};
+    return const_reverse_iterator{cend()};
   }
 
-  reverse_iterator rend() { return reverse_iterator{end()}; }
-  const_reverse_iterator rend() const { return const_reverse_iterator{end()}; }
+  reverse_iterator rend() { return reverse_iterator{begin()}; }
+  const_reverse_iterator rend() const {
+    return const_reverse_iterator{begin()};
+  }
   const_reverse_iterator crend() const {
-    return const_reverse_iterator{cend()};
+    return const_reverse_iterator{cbegin()};
   }
 
   StringView substr(Index pos);

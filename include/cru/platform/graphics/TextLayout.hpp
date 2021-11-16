@@ -5,6 +5,8 @@
 #include <vector>
 
 namespace cru::platform::graphics {
+// Requirement:
+// All text must be left-top aligned.
 struct ITextLayout : virtual IGraphicsResource {
   virtual String GetText() = 0;
   virtual void SetText(String new_text) = 0;
@@ -14,6 +16,9 @@ struct ITextLayout : virtual IGraphicsResource {
 
   virtual void SetMaxWidth(float max_width) = 0;
   virtual void SetMaxHeight(float max_height) = 0;
+
+  virtual bool IsEditMode() = 0;
+  virtual void SetEditMode(bool enable) = 0;
 
   virtual Rect GetTextBounds(bool includingTrailingSpace = false) = 0;
   virtual std::vector<Rect> TextRangeRect(const TextRange& text_range) = 0;

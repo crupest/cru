@@ -58,6 +58,12 @@ void TextRenderObject::SetFont(
   text_layout_->SetFont(std::move(font));
 }
 
+bool TextRenderObject::IsEditMode() { return text_layout_->IsEditMode(); }
+
+void TextRenderObject::SetEditMode(bool enable) {
+  text_layout_->SetEditMode(enable);
+}
+
 std::vector<Rect> TextRenderObject::TextRangeRect(const TextRange& text_range) {
   return text_layout_->TextRangeRect(text_range);
 }

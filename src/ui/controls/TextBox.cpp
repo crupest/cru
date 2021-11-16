@@ -20,6 +20,7 @@ TextBox::TextBox()
   text_render_object_ = std::make_unique<TextRenderObject>(
       theme_resources->text_brush, theme_resources->default_font,
       theme_resources->text_selection_brush, theme_resources->caret_brush);
+  text_render_object_->SetEditMode(true);
 
   border_render_object_->AddChild(scroll_render_object_.get(), 0);
   scroll_render_object_->AddChild(text_render_object_.get(), 0);
