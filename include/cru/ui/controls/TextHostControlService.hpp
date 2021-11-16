@@ -36,6 +36,8 @@ class TextControlMovePattern : public Object {
   static TextControlMovePattern kDown;
   static TextControlMovePattern kHome;
   static TextControlMovePattern kEnd;
+  static TextControlMovePattern kCtrlHome;
+  static TextControlMovePattern kCtrlEnd;
   static TextControlMovePattern kPageUp;
   static TextControlMovePattern kPageDown;
 

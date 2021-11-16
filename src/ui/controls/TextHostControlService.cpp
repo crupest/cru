@@ -82,6 +82,16 @@ TextControlMovePattern TextControlMovePattern::kEnd(
       return Utf16ForwardUntil(text, current_position,
                                [](char16_t c) { return c == u'\n'; });
     });
+TextControlMovePattern TextControlMovePattern::kCtrlHome(
+    helper::ShortcutKeyBind(platform::gui::KeyCode::Home,
+                            platform::gui::KeyModifiers::ctrl),
+    [](TextHostControlService* service, StringView text,
+       gsl::index current_position) { return 0; });
+TextControlMovePattern TextControlMovePattern::kCtrlEnd(
+    helper::ShortcutKeyBind(platform::gui::KeyCode::End,
+                            platform::gui::KeyModifiers::ctrl),
+    [](TextHostControlService* service, StringView text,
+       gsl::index current_position) { return text.size(); });
 TextControlMovePattern TextControlMovePattern::kPageUp(
     helper::ShortcutKeyBind(platform::gui::KeyCode::PageUp),
     [](TextHostControlService* service, StringView text,
@@ -96,6 +106,7 @@ std::vector<TextControlMovePattern> TextControlMovePattern::kDefaultPatterns = {
     TextControlMovePattern::kCtrlLeft, TextControlMovePattern::kCtrlRight,
     TextControlMovePattern::kUp,       TextControlMovePattern::kDown,
     TextControlMovePattern::kHome,     TextControlMovePattern::kEnd,
+    TextControlMovePattern::kCtrlHome, TextControlMovePattern::kCtrlEnd,
     TextControlMovePattern::kPageUp,   TextControlMovePattern::kPageDown};
 
 TextHostControlService::TextHostControlService(gsl::not_null<Control*> control)
