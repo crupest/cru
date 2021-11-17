@@ -31,6 +31,10 @@
 #include <memory>
 #include <unordered_set>
 
+namespace {
+constexpr int key_down_debug = 0;
+}
+
 using cru::platform::osx::Convert;
 using cru::platform::graphics::osx::quartz::Convert;
 
@@ -292,6 +296,8 @@ cru::platform::gui::KeyModifier GetKeyModifier(NSEvent* event) {
     key_modifier |= cru::platform::gui::KeyModifiers::alt;
   if (event.modifierFlags & NSEventModifierFlagShift)
     key_modifier |= cru::platform::gui::KeyModifiers::shift;
+  if (event.modifierFlags & NSEventModifierFlagCommand)
+    key_modifier |= cru::platform::gui::KeyModifiers::command;
   return key_modifier;
 }
 }
@@ -432,14 +438,25 @@ cru::platform::gui::KeyModifier GetKeyModifier(NSEvent* event) {
 
 namespace {
 using cru::platform::gui::KeyCode;
-const std::unordered_set<KeyCode> bypass_codes{KeyCode::Return, KeyCode::Space,  KeyCode::Backspace,
-                                               KeyCode::Delete, KeyCode::Left,   KeyCode::Right,
-                                               KeyCode::Up,     KeyCode::Down,   KeyCode::Home,
-                                               KeyCode::End,    KeyCode::PageUp, KeyCode::PageDown};
+const std::unordered_set<KeyCode> input_context_handle_codes{
+    KeyCode::A,  KeyCode::B,  KeyCode::C,  KeyCode::D,  KeyCode::E,  KeyCode::F,
+    KeyCode::G,  KeyCode::H,  KeyCode::I,  KeyCode::J,  KeyCode::K,  KeyCode::L,
+    KeyCode::M,  KeyCode::N,  KeyCode::O,  KeyCode::P,  KeyCode::Q,  KeyCode::R,
+    KeyCode::S,  KeyCode::T,  KeyCode::U,  KeyCode::V,  KeyCode::W,  KeyCode::X,
+    KeyCode::Y,  KeyCode::Z,  KeyCode::N0, KeyCode::N1, KeyCode::N2, KeyCode::N3,
+    KeyCode::N4, KeyCode::N5, KeyCode::N6, KeyCode::N7, KeyCode::N8, KeyCode::N9};
 }
 
+const std::unordered_set<KeyCode> input_context_handle_codes_when_has_text{
+    KeyCode::Backspace, KeyCode::Space, KeyCode::Return, KeyCode::Left,
+    KeyCode::Right,     KeyCode::Up,    KeyCode::Down};
+
 - (void)keyDown:(NSEvent*)event {
-  // cru::log::TagDebug(u"CruView", u"Recieved key down.");
+  if constexpr (key_down_debug) {
+    cru::log::TagDebug(u"CruView", u"Recieved key down.");
+  }
+
+  auto key_modifier = GetKeyModifier(event);
 
   bool handled = false;
 
@@ -450,8 +467,11 @@ const std::unordered_set<KeyCode> bypass_codes{KeyCode::Return, KeyCode::Space, 
   auto c = cru::platform::gui::osx::KeyCodeFromOsxToCru(event.keyCode);
 
   if (input_context->IsEnabled()) {
-    if (bypass_codes.count(c)) {
-      if (!(input_context->GetCompositionText().text.empty())) {
+    if (input_context_handle_codes.count(c) &&
+        !(key_modifier & ~cru::platform::gui::KeyModifiers::shift)) {
+      handled = [[self inputContext] handleEvent:event];
+    } else if (input_context_handle_codes_when_has_text.count(c) && !key_modifier) {
+      if (!input_context->GetCompositionText().text.empty()) {
         handled = [[self inputContext] handleEvent:event];
       } else {
         if (c == KeyCode::Return) {
@@ -462,14 +482,15 @@ const std::unordered_set<KeyCode> bypass_codes{KeyCode::Return, KeyCode::Space, 
           handled = true;
         }
       }
-    } else {
-      handled = [[self inputContext] handleEvent:event];
     }
   }
 
   if (!handled) {
-    auto key_modifier = GetKeyModifier(event);
     _p->OnKeyDown(c, key_modifier);
+  } else {
+    if constexpr (key_down_debug) {
+      cru::log::TagDebug(u"CruView", u"Key down is handled by input context.");
+    }
   }
 }
 

@@ -125,7 +125,14 @@ struct KeyModifiers {
   static constexpr KeyModifier shift{0b1};
   static constexpr KeyModifier ctrl{0b10};
   static constexpr KeyModifier alt{0b100};
+  static constexpr KeyModifier command{0b1000};
 };
+
+#ifdef CRU_PLATFORM_OSX
+constexpr KeyModifier kKeyModifierCommand = KeyModifiers::command;
+#else
+constexpr KeyModifier kKeyModifierCommand = KeyModifiers::ctrl;
+#endif
 
 CRU_PLATFORM_GUI_API String ToString(KeyCode key_code);
 CRU_PLATFORM_GUI_API String ToString(KeyModifier key_modifier,

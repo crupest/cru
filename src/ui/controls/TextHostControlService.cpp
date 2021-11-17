@@ -318,6 +318,10 @@ void TextHostControlService::SetSelection(TextRange selection,
   }
 }
 
+void TextHostControlService::SelectAll() {
+  this->SetSelection(TextRange{0, this->text_.size()});
+}
+
 void TextHostControlService::ChangeSelectionEnd(Index new_end) {
   auto selection = GetSelection();
   selection.ChangeEnd(new_end);
@@ -482,6 +486,16 @@ void TextHostControlService::LoseFocusHandler(
 void TextHostControlService::SetUpShortcuts() {
   using platform::gui::KeyCode;
   using platform::gui::KeyModifiers;
+  using platform::gui::kKeyModifierCommand;
+
+  shortcut_hub_.RegisterShortcut(u"Select All",
+                                 {KeyCode::A, kKeyModifierCommand}, [this] {
+                                   if (IsEnabled()) {
+                                     this->SelectAll();
+                                     return true;
+                                   }
+                                   return false;
+                                 });
 
   shortcut_hub_.RegisterShortcut(u"Backspace", KeyCode::Backspace, [this] {
     if (!IsEnabled()) return false;

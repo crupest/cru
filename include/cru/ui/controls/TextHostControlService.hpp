@@ -119,6 +119,8 @@ class TextHostControlService : public Object {
   void SetSelection(gsl::index caret_position);
   void SetSelection(TextRange selection, bool scroll_to_caret = true);
 
+  void SelectAll();
+
   void ChangeSelectionEnd(gsl::index new_end);
   void AbortSelection();
 
