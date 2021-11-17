@@ -4,7 +4,7 @@
 namespace cru::ui::controls {
 class StackLayout : public LayoutControl {
  public:
-  static constexpr std::u16string_view control_type = u"StackLayout";
+  static constexpr StringView control_type = u"StackLayout";
 
   static StackLayout* Create() { return new StackLayout(); }
 
@@ -17,7 +17,7 @@ class StackLayout : public LayoutControl {
 
   ~StackLayout() override;
 
-  std::u16string_view GetControlType() const final { return control_type; }
+  String GetControlType() const final { return control_type.ToString(); }
 
   render::RenderObject* GetRenderObject() const override;
 

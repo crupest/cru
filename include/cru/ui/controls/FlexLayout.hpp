@@ -4,7 +4,7 @@
 namespace cru::ui::controls {
 class FlexLayout : public LayoutControl {
  public:
-  static constexpr std::u16string_view control_type = u"FlexLayout";
+  static constexpr StringView control_type = u"FlexLayout";
 
   static FlexLayout* Create() { return new FlexLayout(); }
 
@@ -18,7 +18,7 @@ class FlexLayout : public LayoutControl {
   FlexLayout& operator=(FlexLayout&& other) = delete;
   ~FlexLayout() override;
 
-  std::u16string_view GetControlType() const final { return control_type; }
+  String GetControlType() const final { return control_type.ToString(); }
 
   render::RenderObject* GetRenderObject() const override;
 

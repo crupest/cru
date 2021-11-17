@@ -6,7 +6,7 @@
 namespace cru::ui::controls {
 class TextBlock : public NoChildControl, public virtual ITextHostControl {
  public:
-  static constexpr std::u16string_view control_type = u"TextBlock";
+  static constexpr StringView control_type = u"TextBlock";
 
   static TextBlock* Create();
   static TextBlock* Create(String text, bool selectable = false);
@@ -21,7 +21,7 @@ class TextBlock : public NoChildControl, public virtual ITextHostControl {
   TextBlock& operator=(TextBlock&& other) = delete;
   ~TextBlock() override;
 
-  std::u16string_view GetControlType() const final { return control_type; }
+  String GetControlType() const final { return control_type.ToString(); }
 
   render::RenderObject* GetRenderObject() const override;
 

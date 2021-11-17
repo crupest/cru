@@ -12,7 +12,7 @@ class Button : public ContentControl,
                public virtual IClickableControl,
                public virtual IBorderControl {
  public:
-  static constexpr std::u16string_view control_type = u"Button";
+  static constexpr StringView control_type = u"Button";
 
   static Button* Create() { return new Button(); }
 
@@ -26,7 +26,7 @@ class Button : public ContentControl,
   Button& operator=(Button&& other) = delete;
   ~Button() override;
 
-  std::u16string_view GetControlType() const final { return control_type; }
+  String GetControlType() const final { return control_type.ToString(); }
 
   render::RenderObject* GetRenderObject() const override;
 

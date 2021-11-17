@@ -3,7 +3,7 @@
 
 namespace cru::ui::controls {
 class Container : public ContentControl {
-  static constexpr std::u16string_view control_type = u"Container";
+  static constexpr StringView control_type = u"Container";
 
  protected:
   Container();
@@ -15,7 +15,7 @@ class Container : public ContentControl {
   ~Container() override;
 
  public:
-  std::u16string_view GetControlType() const final { return control_type; }
+  String GetControlType() const final { return control_type.ToString(); }
 
   render::RenderObject* GetRenderObject() const override;
 

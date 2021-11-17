@@ -25,7 +25,6 @@ add_library(cru_ui STATIC
 	controls/TextHostControlService.cpp
 	controls/Window.cpp
 	events/UiEvent.cpp
-	helper/BorderStyle.cpp
 	helper/ClickDetector.cpp
 	helper/ShortcutHub.cpp
 	host/LayoutPaintCycler.cpp

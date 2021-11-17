@@ -95,11 +95,17 @@ TextControlMovePattern TextControlMovePattern::kCtrlEnd(
 TextControlMovePattern TextControlMovePattern::kPageUp(
     helper::ShortcutKeyBind(platform::gui::KeyCode::PageUp),
     [](TextHostControlService* service, StringView text,
-       gsl::index current_position) { return current_position; });
+       gsl::index current_position) {
+      // TODO: Implement this.
+      return current_position;
+    });
 TextControlMovePattern TextControlMovePattern::kPageDown(
     helper::ShortcutKeyBind(platform::gui::KeyCode::PageDown),
     [](TextHostControlService* service, StringView text,
-       gsl::index current_position) { return current_position; });
+       gsl::index current_position) {
+      // TODO: Implement this.
+      return current_position;
+    });
 
 std::vector<TextControlMovePattern> TextControlMovePattern::kDefaultPatterns = {
     TextControlMovePattern::kLeft,     TextControlMovePattern::kRight,

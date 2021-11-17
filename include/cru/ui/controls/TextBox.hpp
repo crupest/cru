@@ -14,7 +14,7 @@ class TextBox : public NoChildControl,
                 public virtual IBorderControl,
                 public virtual ITextHostControl {
  public:
-  static constexpr std::u16string_view control_type = u"TextBox";
+  static constexpr StringView control_type = u"TextBox";
 
   static TextBox* Create() { return new TextBox(); }
 
@@ -27,7 +27,7 @@ class TextBox : public NoChildControl,
 
   ~TextBox() override;
 
-  std::u16string_view GetControlType() const final { return control_type; }
+  String GetControlType() const final { return control_type.ToString(); }
 
   render::RenderObject* GetRenderObject() const override;
 

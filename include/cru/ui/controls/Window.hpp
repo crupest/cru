@@ -7,7 +7,7 @@
 namespace cru::ui::controls {
 class Window final : public RootControl {
  public:
-  static constexpr std::u16string_view control_type = u"Window";
+  static constexpr StringView control_type = u"Window";
 
  public:
   static Window* Create(Control* attached_control = nullptr);
@@ -22,7 +22,7 @@ class Window final : public RootControl {
   ~Window() override;
 
  public:
-  std::u16string_view GetControlType() const final { return control_type; }
+  String GetControlType() const final { return control_type.ToString(); }
 
  protected:
   gsl::not_null<platform::gui::INativeWindow*> CreateNativeWindow(

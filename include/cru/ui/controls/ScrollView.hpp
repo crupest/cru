@@ -12,7 +12,7 @@ class ScrollView : public ContentControl {
  public:
   static ScrollView* Create() { return new ScrollView(); }
 
-  static constexpr std::u16string_view control_type = u"ScrollView";
+  static constexpr StringView control_type = u"ScrollView";
 
   ScrollView();
 
@@ -22,7 +22,7 @@ class ScrollView : public ContentControl {
   ~ScrollView() override = default;
 
  public:
-  std::u16string_view GetControlType() const override { return control_type; }
+  String GetControlType() const override { return control_type.ToString(); }
 
   render::RenderObject* GetRenderObject() const override;
 
