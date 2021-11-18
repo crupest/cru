@@ -65,5 +65,7 @@ struct CRU_PLATFORM_GUI_API IUiApplication : public virtual IPlatformResource {
   virtual cru::platform::graphics::IGraphicsFactory* GetGraphicsFactory() = 0;
 
   virtual ICursorManager* GetCursorManager() = 0;
+
+  virtual IClipboard* GetClipboard() = 0;
 };
 }  // namespace cru::platform::gui

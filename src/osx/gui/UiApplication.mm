@@ -1,10 +1,13 @@
 #include "cru/osx/gui/UiApplication.hpp"
 
+#include "ClipboardPrivate.h"
 #include "cru/common/Logger.hpp"
 #include "cru/osx/graphics/quartz/Factory.hpp"
+#include "cru/osx/gui/Clipboard.hpp"
 #include "cru/osx/gui/Cursor.hpp"
 #include "cru/osx/gui/Window.hpp"
 #include "cru/platform/graphics/Factory.hpp"
+#include "cru/platform/gui/Base.hpp"
 #include "cru/platform/gui/UiApplication.hpp"
 #include "cru/platform/gui/Window.hpp"
 
@@ -55,6 +58,8 @@ class OsxUiApplicationPrivate {
 
   std::unique_ptr<OsxCursorManager> cursor_manager_;
 
+  std::unique_ptr<OsxClipboard> clipboard_;
+
   std::unique_ptr<platform::graphics::osx::quartz::QuartzGraphicsFactory> quartz_graphics_factory_;
 };
 
@@ -75,6 +80,8 @@ OsxUiApplication::OsxUiApplication()
   [NSApp setDelegate:p_->app_delegate_];
   p_->quartz_graphics_factory_ = std::make_unique<graphics::osx::quartz::QuartzGraphicsFactory>();
   p_->cursor_manager_ = std::make_unique<OsxCursorManager>(this);
+  p_->clipboard_ = std::make_unique<OsxClipboard>(
+      this, std::make_unique<details::OsxClipboardPrivate>([NSPasteboard generalPasteboard]));
 }
 
 OsxUiApplication::~OsxUiApplication() {}
@@ -155,6 +162,8 @@ INativeWindow* OsxUiApplication::CreateWindow(INativeWindow* parent, CreateWindo
 }
 
 ICursorManager* OsxUiApplication::GetCursorManager() { return p_->cursor_manager_.get(); }
+
+IClipboard* OsxUiApplication::GetClipboard() { return p_->clipboard_.get(); }
 
 graphics::IGraphicsFactory* OsxUiApplication::GetGraphicsFactory() {
   return p_->quartz_graphics_factory_.get();

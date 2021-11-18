@@ -1,6 +1,7 @@
 set(CRU_OSX_GUI_INCLUDE_DIR ${CRU_INCLUDE_DIR}/cru/osx/gui)
 
 add_library(cru_osx_gui SHARED
+	Clipboard.mm
 	Cursor.mm
 	InputMethod.mm
 	Keyboard.mm
@@ -8,12 +9,15 @@ add_library(cru_osx_gui SHARED
 	UiApplication.mm
 	Window.mm
 
+	ClipboardPrivate.h
 	InputMethodPrivate.h
 	CursorPrivate.h
 	WindowPrivate.h
 )
 
 target_sources(cru_osx_gui PUBLIC
+	${CRU_OSX_GUI_INCLUDE_DIR}/Clipboard.hpp
+	${CRU_OSX_GUI_INCLUDE_DIR}/Cursor.hpp
 	${CRU_OSX_GUI_INCLUDE_DIR}/InputMethod.hpp
 	${CRU_OSX_GUI_INCLUDE_DIR}/Keyboard.hpp
 	${CRU_OSX_GUI_INCLUDE_DIR}/Resource.hpp

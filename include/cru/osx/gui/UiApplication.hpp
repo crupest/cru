@@ -46,6 +46,8 @@ class OsxUiApplication : public OsxGuiResource, public virtual IUiApplication {
 
   ICursorManager* GetCursorManager() override;
 
+  IClipboard* GetClipboard() override;
+
  private:
   void UnregisterWindow(OsxWindow* window);
 

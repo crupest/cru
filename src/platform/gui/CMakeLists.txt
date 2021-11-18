@@ -5,6 +5,7 @@ add_library(cru_platform_gui SHARED
 )
 target_sources(cru_platform_gui PUBLIC
 	${CRU_PLATFORM_GUI_INCLUDE_DIR}/Base.hpp
+	${CRU_PLATFORM_GUI_INCLUDE_DIR}/Clipboard.hpp
 	${CRU_PLATFORM_GUI_INCLUDE_DIR}/Cursor.hpp
 	${CRU_PLATFORM_GUI_INCLUDE_DIR}/InputMethod.hpp
 	${CRU_PLATFORM_GUI_INCLUDE_DIR}/Keyboard.hpp

@@ -21,6 +21,7 @@ struct ICursorManager;
 struct IUiApplication;
 struct INativeWindow;
 struct IInputMethodContext;
+struct IClipboard;
 
 namespace details {
 struct TagMouseButton {};
