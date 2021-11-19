@@ -6,6 +6,7 @@
 #include "cru/common/StringUtil.hpp"
 #include "cru/platform/graphics/Font.hpp"
 #include "cru/platform/gui/Base.hpp"
+#include "cru/platform/gui/Clipboard.hpp"
 #include "cru/platform/gui/Cursor.hpp"
 #include "cru/platform/gui/InputMethod.hpp"
 #include "cru/platform/gui/Keyboard.hpp"
@@ -304,6 +305,11 @@ render::ScrollRenderObject* TextHostControlService::GetScrollRenderObject() {
   return this->text_host_control_->GetScrollRenderObject();
 }
 
+StringView TextHostControlService::GetSelectedText() {
+  auto selection = this->GetSelection().Normalize();
+  return GetTextView().substr(selection.position, selection.count);
+}
+
 void TextHostControlService::SetSelection(gsl::index caret_position) {
   this->SetSelection(TextRange{caret_position, 0});
 }
@@ -345,6 +351,25 @@ void TextHostControlService::ReplaceSelectedText(StringView text) {
 void TextHostControlService::DeleteSelectedText() {
   this->DeleteText(GetSelection());
   SetSelection(GetSelection().Normalize().GetStart());
+}
+
+void TextHostControlService::Cut() {
+  Copy();
+  ReplaceSelectedText(StringView{});
+}
+
+void TextHostControlService::Copy() {
+  auto selected_text = GetSelectedText();
+  if (selected_text.size() == 0) return;
+  auto clipboard = GetUiApplication()->GetClipboard();
+  clipboard->SetText(selected_text.ToString());
+}
+
+void TextHostControlService::Paste() {
+  auto clipboard = GetUiApplication()->GetClipboard();
+  auto text = clipboard->GetText();
+  if (text.empty()) return;
+  ReplaceSelectedText(text);
 }
 
 void TextHostControlService::SetupCaret() {
@@ -492,6 +517,33 @@ void TextHostControlService::SetUpShortcuts() {
                                  {KeyCode::A, kKeyModifierCommand}, [this] {
                                    if (IsEnabled()) {
                                      this->SelectAll();
+                                     return true;
+                                   }
+                                   return false;
+                                 });
+
+  shortcut_hub_.RegisterShortcut(u"Cut", {KeyCode::X, kKeyModifierCommand},
+                                 [this] {
+                                   if (IsEnabled() && IsEditable()) {
+                                     this->Cut();
+                                     return true;
+                                   }
+                                   return false;
+                                 });
+
+  shortcut_hub_.RegisterShortcut(u"Copy", {KeyCode::C, kKeyModifierCommand},
+                                 [this] {
+                                   if (IsEnabled()) {
+                                     this->Copy();
+                                     return true;
+                                   }
+                                   return false;
+                                 });
+
+  shortcut_hub_.RegisterShortcut(u"Paste", {KeyCode::V, kKeyModifierCommand},
+                                 [this] {
+                                   if (IsEnabled() && IsEditable()) {
+                                     this->Paste();
                                      return true;
                                    }
                                    return false;

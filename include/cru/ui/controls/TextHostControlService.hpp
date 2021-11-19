@@ -116,6 +116,8 @@ class TextHostControlService : public Object {
   gsl::index GetCaretPosition() { return selection_.GetEnd(); }
   TextRange GetSelection() { return selection_; }
 
+  StringView GetSelectedText();
+
   void SetSelection(gsl::index caret_position);
   void SetSelection(TextRange selection, bool scroll_to_caret = true);
 
@@ -130,6 +132,10 @@ class TextHostControlService : public Object {
   void ReplaceSelectedText(StringView text);
 
   void ScrollToCaret();
+
+  void Cut();
+  void Copy();
+  void Paste();
 
   gsl::not_null<render::TextRenderObject*> GetTextRenderObject();
   render::ScrollRenderObject* GetScrollRenderObject();
