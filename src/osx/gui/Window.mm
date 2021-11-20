@@ -71,7 +71,13 @@ void OsxWindowPrivate::OnWindowDidResize() {
   [view addTrackingArea:tracking_area];
 
   CGLayerRelease(draw_layer_);
-  draw_layer_ = CGLayerCreateWithContext(nullptr, rect.size, nullptr);
+
+  // If size is 0 then create layer will fail.
+  auto s = rect.size;
+  if (s.width == 0) s.width = 1;
+  if (s.height == 0) s.height = 1;
+
+  draw_layer_ = CGLayerCreateWithContext(nullptr, s, nullptr);
   Ensures(draw_layer_);
 
   resize_event_.Raise(osx_window_->GetClientSize());
@@ -252,8 +258,13 @@ void OsxWindow::CreateWindow() {
 
   [p_->window_ setContentView:content_view];
 
-  p_->draw_layer_ = CGLayerCreateWithContext(
-      nullptr, cru::platform::graphics::osx::quartz::Convert(p_->content_rect_.GetSize()), nullptr);
+  // If size is 0 then create layer will fail.
+  auto s = p_->content_rect_.GetSize();
+  if (s.width == 0) s.width = 1;
+  if (s.height == 0) s.height = 1;
+
+  p_->draw_layer_ =
+      CGLayerCreateWithContext(nullptr, cru::platform::graphics::osx::quartz::Convert(s), nullptr);
   Ensures(p_->draw_layer_);
 
   RequestRepaint();

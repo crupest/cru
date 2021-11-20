@@ -4,9 +4,9 @@
 #include "cru/ui/controls/Button.hpp"
 #include "cru/ui/controls/Control.hpp"
 #include "cru/ui/controls/FlexLayout.hpp"
+#include "cru/ui/controls/Popup.hpp"
 #include "cru/ui/controls/TextBlock.hpp"
 
-#include <string>
 #include <vector>
 
 namespace cru::ui::components {
@@ -40,6 +40,8 @@ class Menu : public Component {
   ~Menu();
 
  public:
+  controls::Control* GetRootControl() override { return container_; }
+
   gsl::index GetItemCount() const {
     return static_cast<gsl::index>(items_.size());
   }
@@ -56,5 +58,30 @@ class Menu : public Component {
  private:
   controls::FlexLayout* container_;
   std::vector<Component*> items_;
+};
+
+class PopupMenu : public Component {
+ public:
+  explicit PopupMenu(controls::Control* attached_control = nullptr);
+
+  CRU_DELETE_COPY(PopupMenu)
+  CRU_DELETE_MOVE(PopupMenu)
+
+  ~PopupMenu();
+
+ public:
+  controls::Control* GetRootControl() override;
+
+  controls::Popup* GetPopup() { return popup_; }
+  Menu* GetMenu() { return menu_; }
+
+  void SetPosition(const Point& position);
+  void Show();
+
+ private:
+  controls::Control* attached_control_;
+
+  controls::Popup* popup_;
+  Menu* menu_;
 };
 }  // namespace cru::ui::components

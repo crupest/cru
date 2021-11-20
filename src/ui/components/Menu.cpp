@@ -1,11 +1,11 @@
 #include "cru/ui/components/Menu.hpp"
 #include "cru/ui/UiManager.hpp"
 #include "cru/ui/controls/Button.hpp"
+#include "cru/ui/controls/Control.hpp"
 #include "cru/ui/controls/FlexLayout.hpp"
 #include "cru/ui/controls/TextBlock.hpp"
+#include "cru/ui/host/WindowHost.hpp"
 #include "cru/ui/style/StyleRuleSet.hpp"
-
-#include <string>
 
 namespace cru::ui::components {
 MenuItem::MenuItem() {
@@ -55,5 +55,38 @@ Component* Menu::RemoveItem(gsl::index index) {
   container_->RemoveChild(index);
 
   return item;
+}
+
+void Menu::AddTextItem(String text, gsl::index index) {
+  MenuItem* item = new MenuItem(std::move(text));
+  AddItem(item, index);
+}
+
+PopupMenu::PopupMenu(controls::Control* attached_control)
+    : attached_control_(attached_control) {
+  popup_ = controls::Popup::Create(attached_control);
+
+  menu_ = new Menu();
+
+  popup_->AddChild(menu_->GetRootControl(), 0);
+}
+
+PopupMenu::~PopupMenu() {
+  delete menu_;
+
+  if (!popup_->GetWindowHost()) {
+    delete popup_;
+  }
+}
+
+controls::Control* PopupMenu::GetRootControl() { return popup_; }
+
+void PopupMenu::SetPosition(const Point& position) {
+  popup_->SetRect(Rect{position, {}});
+}
+
+void PopupMenu::Show() {
+  popup_->GetWindowHost()->RelayoutWithSize(Size::Infinate(), true);
+  popup_->Show();
 }
 }  // namespace cru::ui::components

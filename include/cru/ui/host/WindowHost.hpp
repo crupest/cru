@@ -59,7 +59,8 @@ class WindowHost : public Object {
   }
 
   void Relayout();
-  void Relayout(const Size& available_size);
+  void RelayoutWithSize(const Size& available_size = Size::Infinate(),
+                        bool set_window_size_to_fit_content = false);
 
   void Repaint();
 
@@ -173,7 +174,7 @@ class WindowHost : public Object {
 
   controls::Control* mouse_captured_control_ = nullptr;
 
-  bool layout_prefer_to_fill_window_ = true;
+  bool layout_prefer_to_fill_window_ = false;
 
   Event<platform::gui::INativeWindow*> native_window_change_event_;
 

@@ -1,13 +1,16 @@
+#include <memory>
 #include "cru/platform/HeapDebug.hpp"
 #include "cru/platform/bootstrap/Bootstrap.hpp"
 #include "cru/platform/gui/UiApplication.hpp"
 #include "cru/platform/gui/Window.hpp"
 #include "cru/ui/Base.hpp"
+#include "cru/ui/components/Menu.hpp"
 #include "cru/ui/controls/Button.hpp"
 #include "cru/ui/controls/FlexLayout.hpp"
 #include "cru/ui/controls/TextBlock.hpp"
 #include "cru/ui/controls/TextBox.hpp"
 #include "cru/ui/controls/Window.hpp"
+#include "cru/ui/events/UiEvent.hpp"
 #include "cru/ui/host/WindowHost.hpp"
 
 using cru::platform::gui::IUiApplication;
@@ -39,6 +42,16 @@ int main() {
 
   const auto text_box = TextBox::Create();
   flex_layout->AddChild(text_box, 2);
+
+  auto popup_menu = std::make_unique<cru::ui::components::PopupMenu>(window);
+  popup_menu->GetMenu()->AddTextItem(u"Item 1");
+  popup_menu->GetMenu()->AddTextItem(u"Item 2000");
+
+  window->MouseDownEvent()->Bubble()->AddHandler(
+      [window, &popup_menu](cru::ui::event::MouseButtonEventArgs& e) {
+        popup_menu->SetPosition(e.GetPoint());
+        popup_menu->Show();
+      });
 
   window->Show();
 

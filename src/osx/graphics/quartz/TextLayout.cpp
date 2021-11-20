@@ -115,6 +115,8 @@ void OsxCTTextLayout::SetEditMode(bool enable) {
 }
 
 Rect OsxCTTextLayout::GetTextBounds(bool includingTrailingSpace) {
+  if (text_.empty() && edit_mode_) return Rect(0, 0, 0, font_->GetFontSize());
+
   auto result = DoGetTextBoundsIncludingEmptyLines(includingTrailingSpace);
   return Rect(0, 0, result.size.width, result.size.height);
 }

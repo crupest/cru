@@ -180,18 +180,24 @@ void WindowHost::SetLayoutPreferToFillWindow(bool value) {
 
 void WindowHost::Relayout() {
   const auto available_size =
-      native_window_ ? native_window_->GetClientSize()
-                     : Size{100, 100};  // a reasonable assumed size
-  Relayout(available_size);
+      native_window_ ? native_window_->GetClientSize() : Size::Infinate();
+  RelayoutWithSize(available_size);
 }
 
-void WindowHost::Relayout(const Size& available_size) {
+void WindowHost::RelayoutWithSize(const Size& available_size,
+                                  bool set_window_size_to_fit_content) {
   root_render_object_->Measure(
       render::MeasureRequirement{available_size,
                                  IsLayoutPreferToFillWindow()
                                      ? render::MeasureSize(available_size)
                                      : render::MeasureSize::NotSpecified()},
       render::MeasureSize::NotSpecified());
+
+  if (set_window_size_to_fit_content) {
+    auto rect = GetWindowRect();
+    SetWindowRect({rect.GetLeftTop(), root_render_object_->GetSize()});
+  }
+
   root_render_object_->Layout(Point{});
   for (auto& action : after_layout_stable_action_) action();
   after_layout_event_.Raise(AfterLayoutEventArgs{});
