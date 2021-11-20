@@ -1,7 +1,6 @@
 #pragma once
 #include "RootControl.hpp"
 
-#include "cru/ui/Base.hpp"
 #include "cru/platform/gui/Base.hpp"
 
 #include <memory>

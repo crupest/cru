@@ -51,6 +51,8 @@ struct INativeWindow : virtual IPlatformResource {
   // The lefttop of the rect is relative to screen lefttop.
   virtual void SetWindowRect(const Rect& rect) = 0;
 
+  virtual bool RequestFocus() = 0;
+
   // Relative to client lefttop.
   virtual Point GetMousePosition() = 0;
 

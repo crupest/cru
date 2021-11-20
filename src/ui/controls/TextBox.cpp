@@ -28,7 +28,7 @@ TextBox::TextBox()
   border_render_object_->SetAttachedControl(this);
   scroll_render_object_->SetAttachedControl(this);
   text_render_object_->SetAttachedControl(this);
-  text_render_object_->SetMinSize(Size{100, 24});
+  text_render_object_->SetMinSize(Size{100, 0});
   text_render_object_->SetMeasureIncludingTrailingSpace(true);
 
   service_ = std::make_unique<TextHostControlService>(this);

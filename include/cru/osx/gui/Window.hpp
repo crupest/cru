@@ -42,6 +42,8 @@ class OsxWindow : public OsxGuiResource, public INativeWindow {
   Rect GetWindowRect() override;
   void SetWindowRect(const Rect& rect) override;
 
+  bool RequestFocus() override;
+
   Point GetMousePosition() override;
 
   bool CaptureMouse() override;

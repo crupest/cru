@@ -241,6 +241,11 @@ void OsxWindow::CreateWindow() {
 
   [p_->window_ setDelegate:p_->window_delegate_];
 
+  if (p_->parent_) {
+    auto parent = CheckPlatform<OsxWindow>(p_->parent_, GetPlatformId());
+    [p_->window_ setParentWindow:parent->p_->window_];
+  }
+
   NSView* content_view = [[CruView alloc] init:p_.get()
                                input_context_p:p_->input_method_context_->p_.get()
                                          frame:Rect(Point{}, p_->content_rect_.GetSize())];
@@ -252,6 +257,12 @@ void OsxWindow::CreateWindow() {
   Ensures(p_->draw_layer_);
 
   RequestRepaint();
+}
+
+bool OsxWindow::RequestFocus() {
+  if (!p_->window_) return false;
+  [p_->window_ makeKeyWindow];
+  return true;
 }
 
 Point OsxWindow::GetMousePosition() {

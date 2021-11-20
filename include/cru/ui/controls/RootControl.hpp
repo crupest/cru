@@ -32,6 +32,8 @@ class RootControl : public LayoutControl {
       gsl::not_null<host::WindowHost*> host,
       platform::gui::INativeWindow* parent) = 0;
 
+  void SetGainFocusOnCreateAndDestroyWhenLoseFocus(bool value);
+
  private:
   platform::gui::INativeWindow* GetNativeWindow(bool create);
 
@@ -41,5 +43,7 @@ class RootControl : public LayoutControl {
   std::unique_ptr<render::StackLayoutRenderObject> render_object_;
 
   Control* attached_control_;
+
+  bool gain_focus_on_create_and_destroy_when_lose_focus_ = false;
 };
 }  // namespace cru::ui::controls
