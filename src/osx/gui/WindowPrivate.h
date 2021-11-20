@@ -4,6 +4,7 @@
 #include "cru/common/Event.hpp"
 #include "cru/osx/gui/Cursor.hpp"
 #include "cru/platform/gui/TimerHelper.hpp"
+#include "cru/platform/gui/Window.hpp"
 
 #import <AppKit/AppKit.h>
 
@@ -80,8 +81,8 @@ class OsxWindowPrivate {
   OsxWindow* osx_window_;
 
   INativeWindow* parent_;
+  WindowStyleFlag style_flag_;
 
-  bool frame_;
   Rect content_rect_;
 
   NSWindow* window_ = nil;
@@ -100,6 +101,7 @@ class OsxWindowPrivate {
   Event<std::nullptr_t> create_event_;
   Event<std::nullptr_t> destroy_event_;
   Event<std::nullptr_t> paint_event_;
+  Event<WindowVisibilityType> visibility_change_event_;
   Event<Size> resize_event_;
   Event<FocusChangeType> focus_event_;
   Event<MouseEnterLeaveType> mouse_enter_leave_event_;

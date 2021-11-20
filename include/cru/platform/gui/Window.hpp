@@ -8,6 +8,18 @@
 #include <string_view>
 
 namespace cru::platform::gui {
+namespace details {
+struct WindowStyleFlagTag;
+}
+
+using WindowStyleFlag = Bitmask<details::WindowStyleFlagTag>;
+
+struct WindowStyleFlags {
+  static constexpr WindowStyleFlag NoCaptionAndBorder{0b1};
+};
+
+enum class WindowVisibilityType { Show, Hide };
+
 enum class FocusChangeType { Gain, Lost };
 
 enum class MouseEnterLeaveType { Enter, Leave };
@@ -36,9 +48,13 @@ struct INativeWindow : virtual IPlatformResource {
   virtual void Close() = 0;
 
   virtual INativeWindow* GetParent() = 0;
+  virtual void SetParent(INativeWindow* parent) = 0;
 
-  virtual bool IsVisible() = 0;
-  virtual void SetVisible(bool is_visible) = 0;
+  virtual WindowStyleFlag GetShowFlag() = 0;
+  virtual void SetShowFlag(WindowStyleFlag flag) = 0;
+
+  virtual WindowVisibilityType GetVisibility() = 0;
+  virtual void SetVisibility(WindowVisibilityType visibility) = 0;
 
   virtual Size GetClientSize() = 0;
   virtual void SetClientSize(const Size& size) = 0;
@@ -73,8 +89,11 @@ struct INativeWindow : virtual IPlatformResource {
   virtual IEvent<std::nullptr_t>* CreateEvent() = 0;
   virtual IEvent<std::nullptr_t>* DestroyEvent() = 0;
   virtual IEvent<std::nullptr_t>* PaintEvent() = 0;
+
+  virtual IEvent<WindowVisibilityType>* VisibilityChangeEvent();
   virtual IEvent<Size>* ResizeEvent() = 0;
   virtual IEvent<FocusChangeType>* FocusEvent() = 0;
+
   virtual IEvent<MouseEnterLeaveType>* MouseEnterLeaveEvent() = 0;
   virtual IEvent<Point>* MouseMoveEvent() = 0;
   virtual IEvent<NativeMouseButtonEventArgs>* MouseDownEvent() = 0;

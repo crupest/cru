@@ -39,8 +39,7 @@ class OsxUiApplication : public OsxGuiResource, public virtual IUiApplication {
 
   std::vector<INativeWindow*> GetAllWindow() override;
 
-  INativeWindow* CreateWindow(INativeWindow* parent,
-                              CreateWindowFlag flags) override;
+  INativeWindow* CreateWindow() override;
 
   cru::platform::graphics::IGraphicsFactory* GetGraphicsFactory() override;
 

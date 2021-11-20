@@ -9,16 +9,6 @@
 #include <vector>
 
 namespace cru::platform::gui {
-namespace details {
-struct CreateWindowFlagTag;
-}
-
-using CreateWindowFlag = Bitmask<details::CreateWindowFlagTag>;
-
-struct CreateWindowFlags {
-  static constexpr CreateWindowFlag NoCaptionAndBorder{0b1};
-};
-
 // The entry point of a ui application.
 struct CRU_PLATFORM_GUI_API IUiApplication : public virtual IPlatformResource {
  public:
@@ -56,11 +46,7 @@ struct CRU_PLATFORM_GUI_API IUiApplication : public virtual IPlatformResource {
 
   virtual std::vector<INativeWindow*> GetAllWindow() = 0;
 
-  INativeWindow* CreateWindow(INativeWindow* parent) {
-    return this->CreateWindow(parent, CreateWindowFlag(0));
-  };
-  virtual INativeWindow* CreateWindow(INativeWindow* parent,
-                                      CreateWindowFlag flags) = 0;
+  virtual INativeWindow* CreateWindow() = 0;
 
   virtual cru::platform::graphics::IGraphicsFactory* GetGraphicsFactory() = 0;
 

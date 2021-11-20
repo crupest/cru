@@ -155,8 +155,8 @@ std::vector<INativeWindow*> OsxUiApplication::GetAllWindow() {
   return result;
 }
 
-INativeWindow* OsxUiApplication::CreateWindow(INativeWindow* parent, CreateWindowFlag flags) {
-  auto window = new OsxWindow(this, parent, !(flags & CreateWindowFlags::NoCaptionAndBorder));
+INativeWindow* OsxUiApplication::CreateWindow() {
+  auto window = new OsxWindow(this);
   p_->windows_.push_back(window);
   return window;
 }

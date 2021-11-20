@@ -40,10 +40,11 @@ using cru::platform::graphics::osx::quartz::Convert;
 
 namespace cru::platform::gui::osx {
 namespace {
-inline NSWindowStyleMask CalcWindowStyleMask(bool frame) {
-  return frame ? NSWindowStyleMaskTitled | NSWindowStyleMaskClosable |
-                     NSWindowStyleMaskMiniaturizable | NSWindowStyleMaskResizable
-               : NSWindowStyleMaskBorderless;
+inline NSWindowStyleMask CalcWindowStyleMask(WindowStyleFlag flag) {
+  return flag & WindowStyleFlags::NoCaptionAndBorder
+             ? NSWindowStyleMaskBorderless
+             : NSWindowStyleMaskTitled | NSWindowStyleMaskClosable |
+                   NSWindowStyleMaskMiniaturizable | NSWindowStyleMaskResizable;
 }
 }
 
@@ -144,7 +145,7 @@ Point OsxWindowPrivate::TransformMousePoint(const Point& point) {
 
 void OsxWindowPrivate::CreateWindow() {
   NSRect content_rect = Convert(content_rect_);
-  NSWindowStyleMask style_mask = CalcWindowStyleMask(frame_);
+  NSWindowStyleMask style_mask = CalcWindowStyleMask(style_flag_);
 
   auto cr = content_rect;
   cr.origin.y = GetScreenSize().height - content_rect.origin.y - content_rect.size.height;
@@ -179,20 +180,17 @@ Size OsxWindowPrivate::GetScreenSize() {
 
 Rect OsxWindowPrivate::RetrieveContentRect() {
   NSRect rect = [NSWindow contentRectForFrameRect:[window_ frame]
-                                        styleMask:CalcWindowStyleMask(frame_)];
+                                        styleMask:CalcWindowStyleMask(style_flag_)];
   rect.origin.y = GetScreenSize().height - rect.origin.y - rect.size.height;
   return cru::platform::graphics::osx::quartz::Convert(rect);
 }
 
 }
 
-OsxWindow::OsxWindow(OsxUiApplication* ui_application, INativeWindow* parent, bool frame)
+OsxWindow::OsxWindow(OsxUiApplication* ui_application)
     : OsxGuiResource(ui_application), p_(new details::OsxWindowPrivate(this)) {
   p_->window_delegate_ = [[CruWindowDelegate alloc] init:p_.get()];
 
-  p_->parent_ = parent;
-
-  p_->frame_ = frame;
   p_->content_rect_ = {100, 100, 400, 200};
 
   p_->input_method_context_ = std::make_unique<OsxInputMethodContext>(this);
@@ -211,20 +209,20 @@ void OsxWindow::Close() {
 
 INativeWindow* OsxWindow::GetParent() { return p_->parent_; }
 
-bool OsxWindow::IsVisible() {
-  if (!p_->window_) return false;
-  return [p_->window_ isVisible];
+WindowVisibilityType OsxWindow::GetVisibility() {
+  if (!p_->window_) return WindowVisibilityType::Hide;
+  return [p_->window_ isVisible] ? WindowVisibilityType::Show : WindowVisibilityType::Hide;
 }
 
-void OsxWindow::SetVisible(bool is_visible) {
+void OsxWindow::SetVisibility(WindowVisibilityType visibility) {
   if (p_->window_) {
-    if (is_visible) {
+    if (visibility == WindowVisibilityType::Show) {
       [p_->window_ orderFront:nil];
     } else {
       [p_->window_ orderOut:nil];
     }
   } else {
-    if (is_visible) {
+    if (visibility == WindowVisibilityType::Show) {
       p_->CreateWindow();
       [p_->window_ orderFront:nil];
     }
@@ -247,7 +245,7 @@ void OsxWindow::SetClientRect(const Rect& rect) {
   if (p_->window_) {
     auto r = Convert(rect);
     r.origin.y = p_->GetScreenSize().height - r.origin.y - r.size.height;
-    r = [NSWindow frameRectForContentRect:r styleMask:CalcWindowStyleMask(p_->frame_)];
+    r = [NSWindow frameRectForContentRect:r styleMask:CalcWindowStyleMask(p_->style_flag_)];
     [p_->window_ setFrame:r display:false];
   } else {
     p_->content_rect_ = rect;
@@ -257,7 +255,7 @@ void OsxWindow::SetClientRect(const Rect& rect) {
 Rect OsxWindow::GetWindowRect() {
   auto r = Convert(p_->content_rect_);
   r.origin.y = p_->GetScreenSize().height - r.origin.y - r.size.height;
-  r = [NSWindow frameRectForContentRect:r styleMask:CalcWindowStyleMask(p_->frame_)];
+  r = [NSWindow frameRectForContentRect:r styleMask:CalcWindowStyleMask(p_->style_flag_)];
   r.origin.y = p_->GetScreenSize().height - r.origin.y - r.size.height;
   return Convert(r);
 }
@@ -265,7 +263,7 @@ Rect OsxWindow::GetWindowRect() {
 void OsxWindow::SetWindowRect(const Rect& rect) {
   auto r = Convert(rect);
   r.origin.y = p_->GetScreenSize().height - r.origin.y - r.size.height;
-  r = [NSWindow frameRectForContentRect:r styleMask:CalcWindowStyleMask(p_->frame_)];
+  r = [NSWindow frameRectForContentRect:r styleMask:CalcWindowStyleMask(p_->style_flag_)];
   r.origin.y = p_->GetScreenSize().height - r.origin.y - r.size.height;
   SetClientRect(Convert(r));
 }
@@ -315,6 +313,9 @@ void OsxWindow::SetCursor(std::shared_ptr<ICursor> cursor) {
 IEvent<std::nullptr_t>* OsxWindow::CreateEvent() { return &p_->create_event_; }
 IEvent<std::nullptr_t>* OsxWindow::DestroyEvent() { return &p_->destroy_event_; }
 IEvent<std::nullptr_t>* OsxWindow::PaintEvent() { return &p_->paint_event_; }
+IEvent<WindowVisibilityType>* OsxWindow::VisibilityChangeEvent() {
+  return &p_->visibility_change_event_;
+}
 IEvent<Size>* OsxWindow::ResizeEvent() { return &p_->resize_event_; }
 IEvent<FocusChangeType>* OsxWindow::FocusEvent() { return &p_->focus_event_; }
 IEvent<MouseEnterLeaveType>* OsxWindow::MouseEnterLeaveEvent() {

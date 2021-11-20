@@ -20,8 +20,7 @@ class OsxWindow : public OsxGuiResource, public INativeWindow {
   friend details::OsxInputMethodContextPrivate;
 
  public:
-  OsxWindow(OsxUiApplication* ui_application, INativeWindow* parent,
-            bool frame);
+  OsxWindow(OsxUiApplication* ui_application);
 
   CRU_DELETE_COPY(OsxWindow)
   CRU_DELETE_MOVE(OsxWindow)
@@ -32,9 +31,13 @@ class OsxWindow : public OsxGuiResource, public INativeWindow {
   void Close() override;
 
   INativeWindow* GetParent() override;
+  void SetParent(INativeWindow* parent) override;
 
-  bool IsVisible() override;
-  void SetVisible(bool is_visible) override;
+  WindowStyleFlag GetShowFlag() override;
+  void SetShowFlag(WindowStyleFlag flag) override;
+
+  WindowVisibilityType GetVisibility() override;
+  void SetVisibility(WindowVisibilityType visibility) override;
 
   Size GetClientSize() override;
   void SetClientSize(const Size& size) override;
@@ -61,8 +64,11 @@ class OsxWindow : public OsxGuiResource, public INativeWindow {
   IEvent<std::nullptr_t>* CreateEvent() override;
   IEvent<std::nullptr_t>* DestroyEvent() override;
   IEvent<std::nullptr_t>* PaintEvent() override;
+
+  IEvent<WindowVisibilityType>* VisibilityChangeEvent() override;
   IEvent<Size>* ResizeEvent() override;
   IEvent<FocusChangeType>* FocusEvent() override;
+
   IEvent<MouseEnterLeaveType>* MouseEnterLeaveEvent() override;
   IEvent<Point>* MouseMoveEvent() override;
   IEvent<NativeMouseButtonEventArgs>* MouseDownEvent() override;
