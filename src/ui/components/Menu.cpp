@@ -1,4 +1,5 @@
 #include "cru/ui/components/Menu.hpp"
+#include "cru/platform/gui/Window.hpp"
 #include "cru/ui/UiManager.hpp"
 #include "cru/ui/controls/Button.hpp"
 #include "cru/ui/controls/Control.hpp"
@@ -82,11 +83,11 @@ PopupMenu::~PopupMenu() {
 controls::Control* PopupMenu::GetRootControl() { return popup_; }
 
 void PopupMenu::SetPosition(const Point& position) {
-  popup_->SetRect(Rect{position, {}});
+  popup_->GetWindowHost()->GetNativeWindow()->SetClientRect(Rect{position, {}});
 }
 
 void PopupMenu::Show() {
   popup_->GetWindowHost()->RelayoutWithSize(Size::Infinate(), true);
-  popup_->Show();
+  popup_->GetWindowHost()->GetNativeWindow()->SetVisible(true);
 }
 }  // namespace cru::ui::components

@@ -81,7 +81,7 @@ The cold never bothered me anyway)");
 
   scroll_view->SetChild(text_block);
 
-  window->Show();
+  window->GetWindowHost()->GetNativeWindow()->SetVisible(true);
 
   return application->Run();
 }

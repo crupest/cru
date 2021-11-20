@@ -12,13 +12,8 @@ Window* Window::Create(Control* attached_control) {
   return new Window(attached_control);
 }
 
-Window::Window(Control* attached_control) : RootControl(attached_control) {}
+Window::Window(Control* attached_control)
+    : RootControl(attached_control, host::CreateWindowParams{}) {}
 
 Window::~Window() {}
-
-gsl::not_null<platform::gui::INativeWindow*> Window::CreateNativeWindow(
-    gsl::not_null<host::WindowHost*> host,
-    platform::gui::INativeWindow* parent) {
-  return host->CreateNativeWindow({parent});
-}
 }  // namespace cru::ui::controls

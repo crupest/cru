@@ -7,12 +7,14 @@ namespace cru::platform::gui::osx {
 class OsxWindow;
 
 namespace details {
+class OsxWindowPrivate;
 class OsxInputMethodContextPrivate;
-}
+}  // namespace details
 
 class OsxInputMethodContext : public OsxGuiResource,
                               public virtual IInputMethodContext {
   friend OsxWindow;
+  friend details::OsxWindowPrivate;
   friend details::OsxInputMethodContextPrivate;
 
  public:

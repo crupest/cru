@@ -104,7 +104,8 @@ inline void BindNativeEvent(
 }
 }  // namespace
 
-WindowHost::WindowHost(controls::Control* root_control)
+WindowHost::WindowHost(controls::Control* root_control,
+                       CreateWindowParams params)
     : root_control_(root_control), focus_control_(root_control) {
   root_control_->TraverseDescendants([this](controls::Control* control) {
     control->window_host_ = this;
@@ -115,14 +116,14 @@ WindowHost::WindowHost(controls::Control* root_control)
   root_render_object_->SetWindowHostRecursive(this);
 
   this->layout_paint_cycler_ = std::make_unique<LayoutPaintCycler>(this);
+
+  CreateNativeWindow(params);
 }
 
 WindowHost::~WindowHost() {}
 
 gsl::not_null<platform::gui::INativeWindow*> WindowHost::CreateNativeWindow(
     CreateWindowParams create_window_params) {
-  if (native_window_ != nullptr) return native_window_;
-
   const auto ui_application = IUiApplication::GetInstance();
 
   auto native_window = ui_application->CreateWindow(create_window_params.parent,
@@ -152,10 +153,6 @@ gsl::not_null<platform::gui::INativeWindow*> WindowHost::CreateNativeWindow(
                   &WindowHost::OnNativeKeyDown, event_revoker_guards_);
   BindNativeEvent(this, native_window, native_window->KeyUpEvent(),
                   &WindowHost::OnNativeKeyUp, event_revoker_guards_);
-
-  if (saved_rect_) {
-    native_window->SetWindowRect(saved_rect_.value());
-  }
 
   native_window_change_event_.Raise(native_window);
 
@@ -194,8 +191,7 @@ void WindowHost::RelayoutWithSize(const Size& available_size,
       render::MeasureSize::NotSpecified());
 
   if (set_window_size_to_fit_content) {
-    auto rect = GetWindowRect();
-    SetWindowRect({rect.GetLeftTop(), root_render_object_->GetSize()});
+    native_window_->SetClientSize(root_render_object_->GetSize());
   }
 
   root_render_object_->Layout(Point{});
@@ -277,29 +273,8 @@ void WindowHost::RunAfterLayoutStable(std::function<void()> action) {
   }
 }
 
-Rect WindowHost::GetWindowRect() {
-  if (native_window_) return native_window_->GetWindowRect();
-  return saved_rect_.value_or(Rect{});
-}
-
-void WindowHost::SetSavedWindowRect(std::optional<Rect> rect) {
-  saved_rect_ = std::move(rect);
-}
-
-void WindowHost::SetWindowRect(const Rect& rect) {
-  SetSavedWindowRect(rect);
-  if (native_window_) native_window_->SetWindowRect(rect);
-}
-
 void WindowHost::OnNativeDestroy(INativeWindow* window, std::nullptr_t) {
   CRU_UNUSED(window)
-
-  saved_rect_ = this->native_window_->GetWindowRect();
-
-  this->native_window_ = nullptr;
-  event_revoker_guards_.clear();
-
-  native_window_change_event_.Raise(nullptr);
 }
 
 void WindowHost::OnNativePaint(INativeWindow* window, std::nullptr_t) {

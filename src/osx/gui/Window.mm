@@ -56,10 +56,10 @@ void OsxWindowPrivate::OnWindowWillClose() {
 
 void OsxWindowPrivate::OnWindowDidExpose() { osx_window_->RequestRepaint(); }
 void OsxWindowPrivate::OnWindowDidUpdate() {}
+void OsxWindowPrivate::OnWindowDidMove() { content_rect_ = RetrieveContentRect(); }
+
 void OsxWindowPrivate::OnWindowDidResize() {
-  NSRect rect = [NSWindow contentRectForFrameRect:[window_ frame]
-                                        styleMask:CalcWindowStyleMask(frame_)];
-  content_rect_ = cru::platform::graphics::osx::quartz::Convert(rect);
+  content_rect_ = RetrieveContentRect();
 
   auto view = [window_ contentView];
   [view removeTrackingArea:[view trackingAreas][0]];
@@ -72,13 +72,7 @@ void OsxWindowPrivate::OnWindowDidResize() {
 
   CGLayerRelease(draw_layer_);
 
-  // If size is 0 then create layer will fail.
-  auto s = rect.size;
-  if (s.width == 0) s.width = 1;
-  if (s.height == 0) s.height = 1;
-
-  draw_layer_ = CGLayerCreateWithContext(nullptr, s, nullptr);
-  Ensures(draw_layer_);
+  draw_layer_ = CreateLayer(Convert(content_rect_.GetSize()));
 
   resize_event_.Raise(osx_window_->GetClientSize());
 
@@ -121,6 +115,17 @@ void OsxWindowPrivate::OnKeyUp(KeyCode key, KeyModifier key_modifier) {
   key_up_event_.Raise({key, key_modifier});
 }
 
+CGLayerRef OsxWindowPrivate::CreateLayer(const CGSize& size) {
+  auto s = size;
+  if (s.width == 0) s.width = 1;
+  if (s.height == 0) s.height = 1;
+
+  auto draw_layer = CGLayerCreateWithContext(nullptr, s, nullptr);
+  Ensures(draw_layer);
+
+  return draw_layer;
+}
+
 void OsxWindowPrivate::UpdateCursor() {
   auto cursor = cursor_ == nullptr
                     ? std::dynamic_pointer_cast<OsxCursor>(
@@ -135,6 +140,48 @@ Point OsxWindowPrivate::TransformMousePoint(const Point& point) {
   Point r = point;
   r.y = content_rect_.height - r.y;
   return r;
+}
+
+void OsxWindowPrivate::CreateWindow() {
+  NSRect content_rect = Convert(content_rect_);
+  NSWindowStyleMask style_mask = CalcWindowStyleMask(frame_);
+
+  auto cr = content_rect;
+  cr.origin.y = GetScreenSize().height - content_rect.origin.y - content_rect.size.height;
+  window_ = [[CruWindow alloc] init:this contentRect:content_rect style:style_mask];
+  Ensures(window_);
+
+  [window_ setDelegate:window_delegate_];
+
+  if (parent_) {
+    auto parent = CheckPlatform<OsxWindow>(parent_, this->osx_window_->GetPlatformId());
+    [window_ setParentWindow:parent->p_->window_];
+  }
+
+  NSView* content_view = [[CruView alloc] init:this
+                               input_context_p:input_method_context_->p_.get()
+                                         frame:Rect(Point{}, content_rect_.GetSize())];
+
+  [window_ setContentView:content_view];
+
+  draw_layer_ = CreateLayer(content_rect.size);
+
+  create_event_.Raise(nullptr);
+
+  osx_window_->RequestRepaint();
+}
+
+Size OsxWindowPrivate::GetScreenSize() {
+  auto screen = window_ ? [window_ screen] : [NSScreen mainScreen];
+  auto size = [screen frame].size;
+  return Convert(size);
+}
+
+Rect OsxWindowPrivate::RetrieveContentRect() {
+  NSRect rect = [NSWindow contentRectForFrameRect:[window_ frame]
+                                        styleMask:CalcWindowStyleMask(frame_)];
+  rect.origin.y = GetScreenSize().height - rect.origin.y - rect.size.height;
+  return cru::platform::graphics::osx::quartz::Convert(rect);
 }
 
 }
@@ -178,7 +225,7 @@ void OsxWindow::SetVisible(bool is_visible) {
     }
   } else {
     if (is_visible) {
-      CreateWindow();
+      p_->CreateWindow();
       [p_->window_ orderFront:nil];
     }
   }
@@ -194,26 +241,33 @@ void OsxWindow::SetClientSize(const Size& size) {
   }
 }
 
-Rect OsxWindow::GetWindowRect() {
+Rect OsxWindow::GetClientRect() { return p_->content_rect_; }
+
+void OsxWindow::SetClientRect(const Rect& rect) {
   if (p_->window_) {
-    auto r = [p_->window_ frame];
-    return Rect(r.origin.x, r.origin.y, r.size.width, r.size.height);
+    auto r = Convert(rect);
+    r.origin.y = p_->GetScreenSize().height - r.origin.y - r.size.height;
+    r = [NSWindow frameRectForContentRect:r styleMask:CalcWindowStyleMask(p_->frame_)];
+    [p_->window_ setFrame:r display:false];
   } else {
-    NSRect rr{p_->content_rect_.left, p_->content_rect_.top, p_->content_rect_.width,
-              p_->content_rect_.height};
-    auto r = [NSWindow frameRectForContentRect:rr styleMask:CalcWindowStyleMask(p_->frame_)];
-    return Rect(r.origin.x, r.origin.y, r.size.width, r.size.height);
+    p_->content_rect_ = rect;
   }
 }
 
+Rect OsxWindow::GetWindowRect() {
+  auto r = Convert(p_->content_rect_);
+  r.origin.y = p_->GetScreenSize().height - r.origin.y - r.size.height;
+  r = [NSWindow frameRectForContentRect:r styleMask:CalcWindowStyleMask(p_->frame_)];
+  r.origin.y = p_->GetScreenSize().height - r.origin.y - r.size.height;
+  return Convert(r);
+}
+
 void OsxWindow::SetWindowRect(const Rect& rect) {
-  auto rr = NSRect{rect.left, rect.top, rect.width, rect.height};
-  if (p_->window_) {
-    [p_->window_ setFrame:rr display:false];
-  } else {
-    auto r = [NSWindow contentRectForFrameRect:rr styleMask:CalcWindowStyleMask(p_->frame_)];
-    p_->content_rect_ = Rect(r.origin.x, r.origin.y, r.size.width, r.size.height);
-  }
+  auto r = Convert(rect);
+  r.origin.y = p_->GetScreenSize().height - r.origin.y - r.size.height;
+  r = [NSWindow frameRectForContentRect:r styleMask:CalcWindowStyleMask(p_->frame_)];
+  r.origin.y = p_->GetScreenSize().height - r.origin.y - r.size.height;
+  SetClientRect(Convert(r));
 }
 
 void OsxWindow::RequestRepaint() {
@@ -234,40 +288,6 @@ std::unique_ptr<graphics::IPainter> OsxWindow::BeginPaint() {
         // log::Debug(u"Finish painting and invalidate view.");
         [[p_->window_ contentView] setNeedsDisplay:YES];
       });
-}
-
-void OsxWindow::CreateWindow() {
-  NSRect content_rect = CGRectMake(p_->content_rect_.left, p_->content_rect_.top,
-                                   p_->content_rect_.width, p_->content_rect_.height);
-
-  NSWindowStyleMask style_mask = CalcWindowStyleMask(p_->frame_);
-
-  p_->window_ = [[CruWindow alloc] init:p_.get() contentRect:content_rect style:style_mask];
-  Ensures(p_->window_);
-
-  [p_->window_ setDelegate:p_->window_delegate_];
-
-  if (p_->parent_) {
-    auto parent = CheckPlatform<OsxWindow>(p_->parent_, GetPlatformId());
-    [p_->window_ setParentWindow:parent->p_->window_];
-  }
-
-  NSView* content_view = [[CruView alloc] init:p_.get()
-                               input_context_p:p_->input_method_context_->p_.get()
-                                         frame:Rect(Point{}, p_->content_rect_.GetSize())];
-
-  [p_->window_ setContentView:content_view];
-
-  // If size is 0 then create layer will fail.
-  auto s = p_->content_rect_.GetSize();
-  if (s.width == 0) s.width = 1;
-  if (s.height == 0) s.height = 1;
-
-  p_->draw_layer_ =
-      CGLayerCreateWithContext(nullptr, cru::platform::graphics::osx::quartz::Convert(s), nullptr);
-  Ensures(p_->draw_layer_);
-
-  RequestRepaint();
 }
 
 bool OsxWindow::RequestFocus() {
@@ -292,6 +312,7 @@ void OsxWindow::SetCursor(std::shared_ptr<ICursor> cursor) {
   }
 }
 
+IEvent<std::nullptr_t>* OsxWindow::CreateEvent() { return &p_->create_event_; }
 IEvent<std::nullptr_t>* OsxWindow::DestroyEvent() { return &p_->destroy_event_; }
 IEvent<std::nullptr_t>* OsxWindow::PaintEvent() { return &p_->paint_event_; }
 IEvent<Size>* OsxWindow::ResizeEvent() { return &p_->resize_event_; }
@@ -658,6 +679,10 @@ const std::unordered_set<KeyCode> input_context_handle_codes_when_has_text{
 
 - (void)windowDidUpdate:(NSNotification*)notification {
   _p->OnWindowDidUpdate();
+}
+
+- (void)windowDidMove:(NSNotification*)notification {
+  _p->OnWindowDidMove();
 }
 
 - (void)windowDidResize:(NSNotification*)notification {

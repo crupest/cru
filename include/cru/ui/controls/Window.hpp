@@ -23,10 +23,5 @@ class Window final : public RootControl {
 
  public:
   String GetControlType() const final { return control_type.ToString(); }
-
- protected:
-  gsl::not_null<platform::gui::INativeWindow*> CreateNativeWindow(
-      gsl::not_null<host::WindowHost*> host,
-      platform::gui::INativeWindow* parent) override;
 };
 }  // namespace cru::ui::controls

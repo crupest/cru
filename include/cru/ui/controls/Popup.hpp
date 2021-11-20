@@ -22,10 +22,5 @@ class Popup : public RootControl {
   ~Popup() override;
 
   String GetControlType() const override { return kControlType.ToString(); }
-
- protected:
-  gsl::not_null<platform::gui::INativeWindow*> CreateNativeWindow(
-      gsl::not_null<host::WindowHost*> host,
-      platform::gui::INativeWindow* parent) override;
 };
 }  // namespace cru::ui::controls

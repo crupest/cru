@@ -39,6 +39,9 @@ class OsxWindow : public OsxGuiResource, public INativeWindow {
   Size GetClientSize() override;
   void SetClientSize(const Size& size) override;
 
+  Rect GetClientRect() override;
+  void SetClientRect(const Rect& rect) override;
+
   Rect GetWindowRect() override;
   void SetWindowRect(const Rect& rect) override;
 
@@ -55,6 +58,7 @@ class OsxWindow : public OsxGuiResource, public INativeWindow {
 
   std::unique_ptr<graphics::IPainter> BeginPaint() override;
 
+  IEvent<std::nullptr_t>* CreateEvent() override;
   IEvent<std::nullptr_t>* DestroyEvent() override;
   IEvent<std::nullptr_t>* PaintEvent() override;
   IEvent<Size>* ResizeEvent() override;
@@ -68,9 +72,6 @@ class OsxWindow : public OsxGuiResource, public INativeWindow {
   IEvent<NativeKeyEventArgs>* KeyUpEvent() override;
 
   IInputMethodContext* GetInputMethodContext() override;
-
- private:
-  void CreateWindow();
 
  private:
   std::unique_ptr<details::OsxWindowPrivate> p_;

@@ -49,11 +49,14 @@ int main() {
 
   window->MouseDownEvent()->Bubble()->AddHandler(
       [window, &popup_menu](cru::ui::event::MouseButtonEventArgs& e) {
-        popup_menu->SetPosition(e.GetPoint());
+        popup_menu->SetPosition(e.GetPoint() + window->GetWindowHost()
+                                                   ->GetNativeWindow()
+                                                   ->GetClientRect()
+                                                   .GetLeftTop());
         popup_menu->Show();
       });
 
-  window->Show();
+  window->GetWindowHost()->GetNativeWindow()->SetVisible(true);
 
   return application->Run();
 }

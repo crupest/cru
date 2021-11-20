@@ -43,6 +43,9 @@ struct INativeWindow : virtual IPlatformResource {
   virtual Size GetClientSize() = 0;
   virtual void SetClientSize(const Size& size) = 0;
 
+  virtual Rect GetClientRect() = 0;
+  virtual void SetClientRect(const Rect& rect) = 0;
+
   // Get the rect of the window containing frame.
   // The lefttop of the rect is relative to screen lefttop.
   virtual Rect GetWindowRect() = 0;
@@ -67,6 +70,7 @@ struct INativeWindow : virtual IPlatformResource {
   virtual std::unique_ptr<graphics::IPainter> BeginPaint() = 0;
 
   // Don't use this instance after receive this event.
+  virtual IEvent<std::nullptr_t>* CreateEvent() = 0;
   virtual IEvent<std::nullptr_t>* DestroyEvent() = 0;
   virtual IEvent<std::nullptr_t>* PaintEvent() = 0;
   virtual IEvent<Size>* ResizeEvent() = 0;

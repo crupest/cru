@@ -53,6 +53,7 @@ class OsxWindowPrivate {
   void OnWindowWillClose();
   void OnWindowDidExpose();
   void OnWindowDidUpdate();
+  void OnWindowDidMove();
   void OnWindowDidResize();
   void OnBecomeKeyWindow();
   void OnResignKeyWindow();
@@ -63,9 +64,17 @@ class OsxWindowPrivate {
   NSWindow* GetNSWindow() { return window_; }
 
  private:
+  Size GetScreenSize();
+
+  void CreateWindow();
+
   void UpdateCursor();
 
   Point TransformMousePoint(const Point& point);
+
+  CGLayerRef CreateLayer(const CGSize& size);
+
+  Rect RetrieveContentRect();
 
  private:
   OsxWindow* osx_window_;
@@ -88,6 +97,7 @@ class OsxWindowPrivate {
 
   TimerAutoCanceler draw_timer_;
 
+  Event<std::nullptr_t> create_event_;
   Event<std::nullptr_t> destroy_event_;
   Event<std::nullptr_t> paint_event_;
   Event<Size> resize_event_;
