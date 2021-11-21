@@ -56,7 +56,8 @@ int main() {
         popup_menu->Show();
       });
 
-  window->GetWindowHost()->GetNativeWindow()->SetVisible(true);
+  window->GetWindowHost()->GetNativeWindow()->SetVisibility(
+      cru::platform::gui::WindowVisibilityType::Show);
 
   return application->Run();
 }

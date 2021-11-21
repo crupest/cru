@@ -8,7 +8,6 @@
 #include "cru/platform/gui/UiApplication.hpp"
 #include "cru/platform/gui/Window.hpp"
 #include "cru/ui/DebugFlags.hpp"
-#include "cru/ui/controls/Window.hpp"
 #include "cru/ui/host/LayoutPaintCycler.hpp"
 #include "cru/ui/render/MeasureRequirement.hpp"
 #include "cru/ui/render/RenderObject.hpp"
@@ -104,8 +103,7 @@ inline void BindNativeEvent(
 }
 }  // namespace
 
-WindowHost::WindowHost(controls::Control* root_control,
-                       CreateWindowParams params)
+WindowHost::WindowHost(controls::Control* root_control)
     : root_control_(root_control), focus_control_(root_control) {
   root_control_->TraverseDescendants([this](controls::Control* control) {
     control->window_host_ = this;
@@ -117,17 +115,16 @@ WindowHost::WindowHost(controls::Control* root_control,
 
   this->layout_paint_cycler_ = std::make_unique<LayoutPaintCycler>(this);
 
-  CreateNativeWindow(params);
+  CreateNativeWindow();
 }
 
 WindowHost::~WindowHost() {}
 
-gsl::not_null<platform::gui::INativeWindow*> WindowHost::CreateNativeWindow(
-    CreateWindowParams create_window_params) {
+gsl::not_null<platform::gui::INativeWindow*> WindowHost::CreateNativeWindow() {
   const auto ui_application = IUiApplication::GetInstance();
 
-  auto native_window = ui_application->CreateWindow(create_window_params.parent,
-                                                    create_window_params.flag);
+  auto native_window = ui_application->CreateWindow();
+  Ensures(native_window);
 
   native_window_ = native_window;
 

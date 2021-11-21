@@ -17,7 +17,7 @@ int main() {
 
   auto graphics_factory = application->GetGraphicsFactory();
 
-  auto window = application->CreateWindow(nullptr);
+  auto window = application->CreateWindow();
 
   auto input_method_context = window->GetInputMethodContext();
 
@@ -141,7 +141,7 @@ int main() {
         window->RequestRepaint();
       });
 
-  window->SetVisible(true);
+  window->SetVisibility(WindowVisibilityType::Show);
 
   return application->Run();
 }

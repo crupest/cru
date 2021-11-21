@@ -49,6 +49,16 @@ inline NSWindowStyleMask CalcWindowStyleMask(WindowStyleFlag flag) {
 }
 
 namespace details {
+OsxWindowPrivate::OsxWindowPrivate(OsxWindow* osx_window) : osx_window_(osx_window) {
+  window_delegate_ = [[CruWindowDelegate alloc] init:this];
+
+  content_rect_ = {100, 100, 400, 200};
+
+  input_method_context_ = std::make_unique<OsxInputMethodContext>(osx_window);
+}
+
+OsxWindowPrivate::~OsxWindowPrivate() {}
+
 void OsxWindowPrivate::OnWindowWillClose() {
   destroy_event_.Raise(nullptr);
   window_ = nil;
@@ -72,12 +82,9 @@ void OsxWindowPrivate::OnWindowDidResize() {
   [view addTrackingArea:tracking_area];
 
   CGLayerRelease(draw_layer_);
-
   draw_layer_ = CreateLayer(Convert(content_rect_.GetSize()));
 
   resize_event_.Raise(osx_window_->GetClientSize());
-
-  osx_window_->RequestRepaint();
 }
 
 void OsxWindowPrivate::OnBecomeKeyWindow() { focus_event_.Raise(FocusChangeType::Gain); }
@@ -149,7 +156,7 @@ void OsxWindowPrivate::CreateWindow() {
 
   auto cr = content_rect;
   cr.origin.y = GetScreenSize().height - content_rect.origin.y - content_rect.size.height;
-  window_ = [[CruWindow alloc] init:this contentRect:content_rect style:style_mask];
+  window_ = [[CruWindow alloc] init:this contentRect:cr style:style_mask];
   Ensures(window_);
 
   [window_ setDelegate:window_delegate_];
@@ -188,16 +195,12 @@ Rect OsxWindowPrivate::RetrieveContentRect() {
 }
 
 OsxWindow::OsxWindow(OsxUiApplication* ui_application)
-    : OsxGuiResource(ui_application), p_(new details::OsxWindowPrivate(this)) {
-  p_->window_delegate_ = [[CruWindowDelegate alloc] init:p_.get()];
-
-  p_->content_rect_ = {100, 100, 400, 200};
-
-  p_->input_method_context_ = std::make_unique<OsxInputMethodContext>(this);
-}
+    : OsxGuiResource(ui_application), p_(new details::OsxWindowPrivate(this)) {}
 
 OsxWindow::~OsxWindow() {
-  Close();
+  if (p_->window_) {
+    [p_->window_ close];
+  }
   dynamic_cast<OsxUiApplication*>(GetUiApplication())->UnregisterWindow(this);
 }
 
@@ -209,6 +212,26 @@ void OsxWindow::Close() {
 
 INativeWindow* OsxWindow::GetParent() { return p_->parent_; }
 
+void OsxWindow::SetParent(INativeWindow* parent) {
+  auto p = CheckPlatform<OsxWindow>(parent, GetPlatformId());
+
+  p_->parent_ = parent;
+
+  if (p_->window_) {
+    [p_->window_ setParentWindow:p->p_->window_];
+  }
+}
+
+WindowStyleFlag OsxWindow::GetStyleFlag() { return p_->style_flag_; }
+
+void OsxWindow::SetStyleFlag(WindowStyleFlag flag) {
+  p_->style_flag_ = flag;
+
+  if (p_->window_) {
+    [p_->window_ close];
+  }
+}
+
 WindowVisibilityType OsxWindow::GetVisibility() {
   if (!p_->window_) return WindowVisibilityType::Hide;
   return [p_->window_ isVisible] ? WindowVisibilityType::Show : WindowVisibilityType::Hide;
@@ -218,13 +241,16 @@ void OsxWindow::SetVisibility(WindowVisibilityType visibility) {
   if (p_->window_) {
     if (visibility == WindowVisibilityType::Show) {
       [p_->window_ orderFront:nil];
+      p_->visibility_change_event_.Raise(WindowVisibilityType::Show);
     } else {
       [p_->window_ orderOut:nil];
+      p_->visibility_change_event_.Raise(WindowVisibilityType::Hide);
     }
   } else {
     if (visibility == WindowVisibilityType::Show) {
       p_->CreateWindow();
       [p_->window_ orderFront:nil];
+      p_->visibility_change_event_.Raise(WindowVisibilityType::Show);
     }
   }
 }
@@ -233,7 +259,9 @@ Size OsxWindow::GetClientSize() { return p_->content_rect_.GetSize(); }
 
 void OsxWindow::SetClientSize(const Size& size) {
   if (p_->window_) {
-    [p_->window_ setContentSize:NSSize{size.width, size.height}];
+    auto rect = GetWindowRect();
+    rect.SetSize(size);
+    SetWindowRect(rect);
   } else {
     p_->content_rect_.SetSize(size);
   }
@@ -278,6 +306,10 @@ void OsxWindow::RequestRepaint() {
 }
 
 std::unique_ptr<graphics::IPainter> OsxWindow::BeginPaint() {
+  if (!p_->window_) {
+    p_->CreateWindow();
+  }
+
   CGContextRef cg_context = CGLayerGetContext(p_->draw_layer_);
 
   return std::make_unique<cru::platform::graphics::osx::quartz::QuartzCGContextPainter>(

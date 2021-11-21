@@ -11,29 +11,12 @@
 #include <memory>
 
 namespace cru::ui::controls {
-RootControl::RootControl(Control* attached_control,
-                         host::CreateWindowParams params)
+RootControl::RootControl(Control* attached_control)
     : attached_control_(attached_control) {
   render_object_ = std::make_unique<render::StackLayoutRenderObject>();
   render_object_->SetAttachedControl(this);
   SetContainerRenderObject(render_object_.get());
-  window_host_ = std::make_unique<host::WindowHost>(this, params);
-
-  if (gain_focus_on_create_and_destroy_when_lose_focus_) {
-    auto native_window = window_host_->GetNativeWindow();
-    native_window->CreateEvent()->AddHandler(
-        [](platform::gui::INativeWindow* window) {
-          window->CreateEvent()->AddHandler(
-              [window](std::nullptr_t) { window->RequestFocus(); });
-        });
-
-    native_window->FocusEvent()->AddHandler(
-        [native_window](platform::gui::FocusChangeType type) {
-          if (type == platform::gui::FocusChangeType::Lost) {
-            native_window->Close();
-          }
-        });
-  }
+  window_host_ = std::make_unique<host::WindowHost>(this);
 }
 
 RootControl::~RootControl() {}
@@ -43,6 +26,25 @@ render::RenderObject* RootControl::GetRenderObject() const {
 }
 
 void RootControl::SetGainFocusOnCreateAndDestroyWhenLoseFocus(bool value) {
-  gain_focus_on_create_and_destroy_when_lose_focus_ = value;
+  gain_focus_on_create_and_destroy_when_lose_focus_event_guard_.Clear();
+  if (value) {
+    auto native_window = window_host_->GetNativeWindow();
+
+    gain_focus_on_create_and_destroy_when_lose_focus_event_guard_ +=
+        native_window->VisibilityChangeEvent()->AddHandler(
+            [native_window](platform::gui::WindowVisibilityType type) {
+              if (type == platform::gui::WindowVisibilityType::Show) {
+                native_window->RequestFocus();
+              }
+            });
+
+    gain_focus_on_create_and_destroy_when_lose_focus_event_guard_ +=
+        native_window->FocusEvent()->AddHandler(
+            [native_window](platform::gui::FocusChangeType type) {
+              if (type == platform::gui::FocusChangeType::Lost) {
+                native_window->Close();
+              }
+            });
+  }
 }
 }  // namespace cru::ui::controls

@@ -50,8 +50,8 @@ struct INativeWindow : virtual IPlatformResource {
   virtual INativeWindow* GetParent() = 0;
   virtual void SetParent(INativeWindow* parent) = 0;
 
-  virtual WindowStyleFlag GetShowFlag() = 0;
-  virtual void SetShowFlag(WindowStyleFlag flag) = 0;
+  virtual WindowStyleFlag GetStyleFlag() = 0;
+  virtual void SetStyleFlag(WindowStyleFlag flag) = 0;
 
   virtual WindowVisibilityType GetVisibility() = 0;
   virtual void SetVisibility(WindowVisibilityType visibility) = 0;
@@ -90,7 +90,7 @@ struct INativeWindow : virtual IPlatformResource {
   virtual IEvent<std::nullptr_t>* DestroyEvent() = 0;
   virtual IEvent<std::nullptr_t>* PaintEvent() = 0;
 
-  virtual IEvent<WindowVisibilityType>* VisibilityChangeEvent();
+  virtual IEvent<WindowVisibilityType>* VisibilityChangeEvent() = 0;
   virtual IEvent<Size>* ResizeEvent() = 0;
   virtual IEvent<FocusChangeType>* FocusEvent() = 0;
 

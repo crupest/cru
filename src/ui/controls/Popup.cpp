@@ -8,11 +8,9 @@
 #include <memory>
 
 namespace cru::ui::controls {
-Popup::Popup(Control* attached_control)
-    : RootControl(
-          attached_control,
-          host::CreateWindowParams{
-              nullptr, platform::gui::CreateWindowFlags::NoCaptionAndBorder}) {
+Popup::Popup(Control* attached_control) : RootControl(attached_control) {
+  GetWindowHost()->GetNativeWindow()->SetStyleFlag(
+      cru::platform::gui::WindowStyleFlags::NoCaptionAndBorder);
   SetGainFocusOnCreateAndDestroyWhenLoseFocus(true);
 }
 

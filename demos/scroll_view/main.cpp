@@ -1,5 +1,6 @@
 #include "cru/platform/bootstrap/Bootstrap.hpp"
 #include "cru/platform/gui/UiApplication.hpp"
+#include "cru/platform/gui/Window.hpp"
 #include "cru/ui/controls/ScrollView.hpp"
 #include "cru/ui/controls/TextBlock.hpp"
 #include "cru/ui/controls/Window.hpp"
@@ -81,7 +82,8 @@ The cold never bothered me anyway)");
 
   scroll_view->SetChild(text_block);
 
-  window->GetWindowHost()->GetNativeWindow()->SetVisible(true);
+  window->GetWindowHost()->GetNativeWindow()->SetVisibility(
+      cru::platform::gui::WindowVisibilityType::Show);
 
   return application->Run();
 }

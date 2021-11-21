@@ -35,12 +35,12 @@ class OsxWindowPrivate {
   friend OsxInputMethodContextPrivate;
 
  public:
-  explicit OsxWindowPrivate(OsxWindow* osx_window) : osx_window_(osx_window) {}
+  explicit OsxWindowPrivate(OsxWindow* osx_window);
 
   CRU_DELETE_COPY(OsxWindowPrivate)
   CRU_DELETE_MOVE(OsxWindowPrivate)
 
-  ~OsxWindowPrivate() = default;
+  ~OsxWindowPrivate();
 
  public:
   void OnMouseEnterLeave(MouseEnterLeaveType type);
@@ -80,15 +80,15 @@ class OsxWindowPrivate {
  private:
   OsxWindow* osx_window_;
 
-  INativeWindow* parent_;
-  WindowStyleFlag style_flag_;
+  INativeWindow* parent_ = nullptr;
+  WindowStyleFlag style_flag_ = WindowStyleFlag{};
 
   Rect content_rect_;
 
   NSWindow* window_ = nil;
   CruWindowDelegate* window_delegate_ = nil;
 
-  CGLayerRef draw_layer_;
+  CGLayerRef draw_layer_ = nullptr;
 
   bool mouse_in_ = false;
 

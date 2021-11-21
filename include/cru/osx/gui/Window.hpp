@@ -33,8 +33,8 @@ class OsxWindow : public OsxGuiResource, public INativeWindow {
   INativeWindow* GetParent() override;
   void SetParent(INativeWindow* parent) override;
 
-  WindowStyleFlag GetShowFlag() override;
-  void SetShowFlag(WindowStyleFlag flag) override;
+  WindowStyleFlag GetStyleFlag() override;
+  void SetStyleFlag(WindowStyleFlag flag) override;
 
   WindowVisibilityType GetVisibility() override;
   void SetVisibility(WindowVisibilityType visibility) override;

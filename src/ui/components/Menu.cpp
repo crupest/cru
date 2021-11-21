@@ -28,7 +28,10 @@ MenuItem::~MenuItem() {
 
 void MenuItem::SetText(String text) { text_->SetText(std::move(text)); }
 
-Menu::Menu() { container_ = controls::FlexLayout::Create(); }
+Menu::Menu() {
+  container_ = controls::FlexLayout::Create();
+  container_->SetFlexDirection(FlexDirection::Vertical);
+}
 
 Menu::~Menu() {
   if (!container_->GetWindowHost()) {
@@ -88,6 +91,7 @@ void PopupMenu::SetPosition(const Point& position) {
 
 void PopupMenu::Show() {
   popup_->GetWindowHost()->RelayoutWithSize(Size::Infinate(), true);
-  popup_->GetWindowHost()->GetNativeWindow()->SetVisible(true);
+  popup_->GetWindowHost()->GetNativeWindow()->SetVisibility(
+      platform::gui::WindowVisibilityType::Show);
 }
 }  // namespace cru::ui::components

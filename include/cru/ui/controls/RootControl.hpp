@@ -2,6 +2,7 @@
 #include "LayoutControl.hpp"
 
 #include "cru/common/Base.hpp"
+#include "cru/common/Event.hpp"
 #include "cru/platform/gui/Base.hpp"
 #include "cru/ui/Base.hpp"
 #include "cru/ui/host/WindowHost.hpp"
@@ -9,8 +10,7 @@
 namespace cru::ui::controls {
 class RootControl : public LayoutControl {
  protected:
-  explicit RootControl(Control* attached_control,
-                       host::CreateWindowParams params);
+  explicit RootControl(Control* attached_control);
 
  public:
   CRU_DELETE_COPY(RootControl)
@@ -24,15 +24,13 @@ class RootControl : public LayoutControl {
   void SetGainFocusOnCreateAndDestroyWhenLoseFocus(bool value);
 
  private:
-  platform::gui::INativeWindow* GetNativeWindow(bool create);
-
- private:
   std::unique_ptr<host::WindowHost> window_host_;
 
   std::unique_ptr<render::StackLayoutRenderObject> render_object_;
 
   Control* attached_control_;
 
-  bool gain_focus_on_create_and_destroy_when_lose_focus_ = false;
+  EventRevokerListGuard
+      gain_focus_on_create_and_destroy_when_lose_focus_event_guard_;
 };
 }  // namespace cru::ui::controls

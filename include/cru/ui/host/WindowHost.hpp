@@ -16,21 +16,12 @@ class LayoutPaintCycler;
 
 struct AfterLayoutEventArgs {};
 
-struct CreateWindowParams {
-  CreateWindowParams(platform::gui::INativeWindow* parent = nullptr,
-                     platform::gui::CreateWindowFlag flag = {})
-      : parent(parent), flag(flag) {}
-
-  platform::gui::INativeWindow* parent;
-  platform::gui::CreateWindowFlag flag;
-};
-
 // The bridge between control tree and native window.
 class WindowHost : public Object {
   CRU_DEFINE_CLASS_LOG_TAG(u"cru::ui::host::WindowHost")
 
  public:
-  WindowHost(controls::Control* root_control, CreateWindowParams params);
+  explicit WindowHost(controls::Control* root_control);
 
   CRU_DELETE_COPY(WindowHost)
   CRU_DELETE_MOVE(WindowHost)
@@ -112,8 +103,7 @@ class WindowHost : public Object {
   void SetOverrideCursor(std::shared_ptr<platform::gui::ICursor> cursor);
 
  private:
-  gsl::not_null<platform::gui::INativeWindow*> CreateNativeWindow(
-      CreateWindowParams params);
+  gsl::not_null<platform::gui::INativeWindow*> CreateNativeWindow();
 
   //*************** region: native messages ***************
   void OnNativeDestroy(platform::gui::INativeWindow* window, std::nullptr_t);

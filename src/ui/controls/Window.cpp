@@ -12,8 +12,7 @@ Window* Window::Create(Control* attached_control) {
   return new Window(attached_control);
 }
 
-Window::Window(Control* attached_control)
-    : RootControl(attached_control, host::CreateWindowParams{}) {}
+Window::Window(Control* attached_control) : RootControl(attached_control) {}
 
 Window::~Window() {}
 }  // namespace cru::ui::controls
