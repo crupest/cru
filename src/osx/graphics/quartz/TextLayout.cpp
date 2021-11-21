@@ -112,6 +112,30 @@ void OsxCTTextLayout::SetEditMode(bool enable) {
   RecreateFrame();
 }
 
+Index OsxCTTextLayout::GetLineIndexFromCharIndex(Index char_index) {
+  if (char_index < 0 || char_index >= text_.size()) {
+    return -1;
+  }
+
+  auto line_index = 0;
+  for (Index i = 0; i < char_index; ++i) {
+    if (text_[i] == u'\n') {
+      line_index++;
+    }
+  }
+
+  return line_index;
+}
+
+Index OsxCTTextLayout::GetLineCount() { return line_count_; }
+
+float OsxCTTextLayout::GetLineHeight(Index line_index) {
+  if (line_index < 0 || line_index >= line_count_) {
+    return 0.0f;
+  }
+  return line_heights_[line_index];
+}
+
 Rect OsxCTTextLayout::GetTextBounds(bool includingTrailingSpace) {
   if (text_.empty() && edit_mode_) return Rect(0, 0, 0, font_->GetFontSize());
 
@@ -123,8 +147,10 @@ std::vector<Rect> OsxCTTextLayout::TextRangeRect(const TextRange& text_range) {
   if (text_.empty()) return {};
 
   auto tr = text_range;
-  text_range.CoerceInto(head_empty_line_count_,
-                        text_.size() - tail_empty_line_count_);
+  tr = text_range.CoerceInto(head_empty_line_count_,
+                             text_.size() - tail_empty_line_count_);
+  tr.position -= head_empty_line_count_;
+
   std::vector<CGRect> results = DoTextRangeRect(tr);
   std::vector<Rect> r;
 
@@ -162,9 +188,9 @@ TextHitTestResult OsxCTTextLayout::HitTest(const Point& point) {
     if (point.y < 0) {
       return {0, false, false};
     } else {
-      for (int i = 0; i < head_empty_line_count_; ++i) {
+      for (int i = 1; i <= head_empty_line_count_; ++i) {
         if (point.y < i * font_->GetFontSize()) {
-          return {i, false, false};
+          return {i - 1, false, false};
         }
       }
     }
@@ -175,11 +201,12 @@ TextHitTestResult OsxCTTextLayout::HitTest(const Point& point) {
   auto text_height = static_cast<float>(text_bounds.size.height);
   auto th = text_height + head_empty_line_count_ * font_->GetFontSize();
   if (point.y >= th) {
-    for (int i = 0; i < tail_empty_line_count_; ++i) {
+    for (int i = 1; i <= tail_empty_line_count_; ++i) {
       if (point.y < th + i * font_->GetFontSize()) {
-        return {text_.size() - i, false, false};
+        return {text_.size() - (tail_empty_line_count_ - i), false, false};
       }
     }
+    return {text_.size(), false, false};
   }
 
   auto p = point;
@@ -209,27 +236,33 @@ TextHitTestResult OsxCTTextLayout::HitTest(const Point& point) {
     if (p.y >= bounds.origin.y || force_inside) {
       auto pp = p;
       pp.y = bounds.origin.y;
+      Index po;
+      bool inside_text;
 
       if (pp.x < bounds.origin.x) {
-        return TextHitTestResult{
-            actual_text_.IndexFromCodePointToCodeUnit(range.location) +
-                head_empty_line_count_,
-            false, false};
+        po = actual_text_.IndexFromCodePointToCodeUnit(range.location);
+        inside_text = false;
       } else if (pp.x > bounds.origin.x + bounds.size.width) {
-        auto po = actual_text_.IndexFromCodePointToCodeUnit(range.location +
-                                                            range.length);
-        if (po != actual_text_.size()) {
-          Utf16PreviousCodePoint(text_, po, &po);
-        }
-        return TextHitTestResult{po + head_empty_line_count_, false, false};
+        po = actual_text_.IndexFromCodePointToCodeUnit(range.location +
+                                                       range.length);
+        inside_text = false;
       } else {
         int position = CTLineGetStringIndexForPosition(
             line,
             CGPointMake(pp.x - line_origins_[i].x, pp.y - line_origins_[i].y));
-        return TextHitTestResult{text_.IndexFromCodePointToCodeUnit(position) +
-                                     head_empty_line_count_,
-                                 false, true};
+
+        po = actual_text_.IndexFromCodePointToCodeUnit(position);
+        inside_text = true;
       }
+
+      if (po != 0 &&
+          po == actual_text_.IndexFromCodePointToCodeUnit(range.location +
+                                                          range.length) &&
+          actual_text_[po - 1] == u'\n') {
+        --po;
+      }
+
+      return {po + head_empty_line_count_, false, inside_text};
     }
   }
 

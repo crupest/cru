@@ -20,6 +20,10 @@ struct ITextLayout : virtual IGraphicsResource {
   virtual bool IsEditMode() = 0;
   virtual void SetEditMode(bool enable) = 0;
 
+  virtual Index GetLineIndexFromCharIndex(Index char_index) = 0;
+  virtual Index GetLineCount() = 0;
+  virtual float GetLineHeight(Index line_index) = 0;
+
   virtual Rect GetTextBounds(bool includingTrailingSpace = false) = 0;
   virtual std::vector<Rect> TextRangeRect(const TextRange& text_range) = 0;
   // Width is always 0, height is line height.

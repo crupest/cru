@@ -47,12 +47,12 @@ OsxInputMethodContext::OsxInputMethodContext(OsxWindow* window)
 OsxInputMethodContext::~OsxInputMethodContext() {}
 
 void OsxInputMethodContext::EnableIME() {
-  log::Debug(u"Enable IME.");
+  // log::Debug(u"Enable IME.");
   p_->Activate();
 }
 
 void OsxInputMethodContext::DisableIME() {
-  log::Debug(u"Disable IME.");
+  // log::Debug(u"Disable IME.");
   p_->Deactivate();
 }
 

@@ -41,7 +41,7 @@ void RootControl::SetGainFocusOnCreateAndDestroyWhenLoseFocus(bool value) {
     gain_focus_on_create_and_destroy_when_lose_focus_event_guard_ +=
         native_window->FocusEvent()->AddHandler(
             [native_window](platform::gui::FocusChangeType type) {
-              if (type == platform::gui::FocusChangeType::Lost) {
+              if (type == platform::gui::FocusChangeType::Lose) {
                 native_window->Close();
               }
             });

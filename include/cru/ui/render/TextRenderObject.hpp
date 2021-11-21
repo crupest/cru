@@ -45,6 +45,9 @@ class TextRenderObject : public RenderObject {
   bool IsEditMode();
   void SetEditMode(bool enable);
 
+  Index GetLineCount();
+  Index GetLineIndexFromCharIndex(Index char_index);
+  float GetLineHeight(Index line_index);
   std::vector<Rect> TextRangeRect(const TextRange& text_range);
   Rect TextSinglePoint(gsl::index position, bool trailing);
   platform::graphics::TextHitTestResult TextHitTest(const Point& point);

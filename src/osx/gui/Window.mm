@@ -14,18 +14,11 @@
 #include "cru/osx/gui/Resource.hpp"
 #include "cru/osx/gui/UiApplication.hpp"
 #include "cru/platform/Check.hpp"
-#include "cru/platform/gui/Base.hpp"
-#include "cru/platform/gui/Cursor.hpp"
-#include "cru/platform/gui/InputMethod.hpp"
-#include "cru/platform/gui/Keyboard.hpp"
+#include "cru/platform/graphics/NullPainter.hpp"
 #include "cru/platform/gui/TimerHelper.hpp"
-#include "cru/platform/gui/Window.hpp"
 
-#include <AppKit/NSGraphicsContext.h>
-#include <AppKit/NSTextInputContext.h>
-#include <AppKit/NSWindow.h>
-#include <Foundation/NSAttributedString.h>
-#include <Foundation/NSString.h>
+#include <AppKit/AppKit.h>
+#include <Foundation/Foundation.h>
 
 #include <limits>
 #include <memory>
@@ -89,7 +82,7 @@ void OsxWindowPrivate::OnWindowDidResize() {
 
 void OsxWindowPrivate::OnBecomeKeyWindow() { focus_event_.Raise(FocusChangeType::Gain); }
 
-void OsxWindowPrivate::OnResignKeyWindow() { focus_event_.Raise(FocusChangeType::Lost); }
+void OsxWindowPrivate::OnResignKeyWindow() { focus_event_.Raise(FocusChangeType::Lose); }
 
 void OsxWindowPrivate::OnMouseEnterLeave(MouseEnterLeaveType type) {
   mouse_enter_leave_event_.Raise(type);
@@ -234,6 +227,7 @@ void OsxWindow::SetStyleFlag(WindowStyleFlag flag) {
 
 WindowVisibilityType OsxWindow::GetVisibility() {
   if (!p_->window_) return WindowVisibilityType::Hide;
+  if ([p_->window_ isMiniaturized]) return WindowVisibilityType::Minimize;
   return [p_->window_ isVisible] ? WindowVisibilityType::Show : WindowVisibilityType::Hide;
 }
 
@@ -242,9 +236,11 @@ void OsxWindow::SetVisibility(WindowVisibilityType visibility) {
     if (visibility == WindowVisibilityType::Show) {
       [p_->window_ orderFront:nil];
       p_->visibility_change_event_.Raise(WindowVisibilityType::Show);
-    } else {
+    } else if (visibility == WindowVisibilityType::Hide) {
       [p_->window_ orderOut:nil];
       p_->visibility_change_event_.Raise(WindowVisibilityType::Hide);
+    } else if (visibility == WindowVisibilityType::Minimize) {
+      [p_->window_ miniaturize:nil];
     }
   } else {
     if (visibility == WindowVisibilityType::Show) {
@@ -307,7 +303,7 @@ void OsxWindow::RequestRepaint() {
 
 std::unique_ptr<graphics::IPainter> OsxWindow::BeginPaint() {
   if (!p_->window_) {
-    p_->CreateWindow();
+    return std::make_unique<graphics::NullPainter>();
   }
 
   CGContextRef cg_context = CGLayerGetContext(p_->draw_layer_);

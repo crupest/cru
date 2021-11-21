@@ -31,6 +31,10 @@ class OsxCTTextLayout : public OsxQuartzResource, public virtual ITextLayout {
   bool IsEditMode() override;
   void SetEditMode(bool enable) override;
 
+  Index GetLineIndexFromCharIndex(Index char_index) override;
+  Index GetLineCount() override;
+  float GetLineHeight(Index line_index) override;
+
   Rect GetTextBounds(bool includingTrailingSpace = false) override;
   std::vector<Rect> TextRangeRect(const TextRange& text_range) override;
   Rect TextSinglePoint(Index position, bool trailing) override;

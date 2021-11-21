@@ -18,9 +18,9 @@ struct WindowStyleFlags {
   static constexpr WindowStyleFlag NoCaptionAndBorder{0b1};
 };
 
-enum class WindowVisibilityType { Show, Hide };
+enum class WindowVisibilityType { Show, Hide, Minimize };
 
-enum class FocusChangeType { Gain, Lost };
+enum class FocusChangeType { Gain, Lose };
 
 enum class MouseEnterLeaveType { Enter, Leave };
 

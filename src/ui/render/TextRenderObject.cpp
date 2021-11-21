@@ -64,6 +64,16 @@ void TextRenderObject::SetEditMode(bool enable) {
   text_layout_->SetEditMode(enable);
 }
 
+Index TextRenderObject::GetLineCount() { return text_layout_->GetLineCount(); }
+
+Index TextRenderObject::GetLineIndexFromCharIndex(Index char_index) {
+  return text_layout_->GetLineIndexFromCharIndex(char_index);
+}
+
+float TextRenderObject::GetLineHeight(Index line_index) {
+  return text_layout_->GetLineHeight(line_index);
+}
+
 std::vector<Rect> TextRenderObject::TextRangeRect(const TextRange& text_range) {
   return text_layout_->TextRangeRect(text_range);
 }
