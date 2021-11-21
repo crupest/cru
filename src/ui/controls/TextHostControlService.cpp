@@ -55,7 +55,7 @@ TextControlMovePattern TextControlMovePattern::kUp(
        gsl::index current_position) {
       auto text_render_object = service->GetTextRenderObject();
       auto rect = text_render_object->TextSinglePoint(current_position, false);
-      rect.top -= 1.f;
+      rect.top -= 0.1f;
       auto result = text_render_object->TextHitTest(rect.GetLeftTop());
       return result.trailing ? result.position + 1 : result.position;
     });
