@@ -45,6 +45,8 @@ class OsxCTTextLayout : public OsxQuartzResource, public virtual ITextLayout {
   String GetDebugString() override;
 
  private:
+  void DoSetText(String text);
+
   void ReleaseResource();
   void RecreateFrame();
 
@@ -72,6 +74,9 @@ class OsxCTTextLayout : public OsxQuartzResource, public virtual ITextLayout {
   int line_count_;
   std::vector<CGPoint> line_origins_;
   std::vector<CTLineRef> lines_;
+  std::vector<float> line_ascents_;
+  std::vector<float> line_descents_;
+  std::vector<float> line_heights_;
   // The empty line count in the front of the lines.
   int head_empty_line_count_;
   // The trailing empty line count in the back of the lines.

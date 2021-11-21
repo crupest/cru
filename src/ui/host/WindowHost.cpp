@@ -181,10 +181,11 @@ void WindowHost::Relayout() {
 void WindowHost::RelayoutWithSize(const Size& available_size,
                                   bool set_window_size_to_fit_content) {
   root_render_object_->Measure(
-      render::MeasureRequirement{available_size,
-                                 IsLayoutPreferToFillWindow()
-                                     ? render::MeasureSize(available_size)
-                                     : render::MeasureSize::NotSpecified()},
+      render::MeasureRequirement{
+          available_size,
+          !set_window_size_to_fit_content && IsLayoutPreferToFillWindow()
+              ? render::MeasureSize(available_size)
+              : render::MeasureSize::NotSpecified()},
       render::MeasureSize::NotSpecified());
 
   if (set_window_size_to_fit_content) {

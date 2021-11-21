@@ -1,6 +1,7 @@
 #include <memory>
 #include "cru/platform/HeapDebug.hpp"
 #include "cru/platform/bootstrap/Bootstrap.hpp"
+#include "cru/platform/gui/Base.hpp"
 #include "cru/platform/gui/UiApplication.hpp"
 #include "cru/platform/gui/Window.hpp"
 #include "cru/ui/Base.hpp"
@@ -41,6 +42,7 @@ int main() {
   flex_layout->AddChild(button, 1);
 
   const auto text_box = TextBox::Create();
+  text_box->SetMultiLine(true);
   flex_layout->AddChild(text_box, 2);
 
   auto popup_menu = std::make_unique<cru::ui::components::PopupMenu>(window);
@@ -49,11 +51,13 @@ int main() {
 
   window->MouseDownEvent()->Bubble()->AddHandler(
       [window, &popup_menu](cru::ui::event::MouseButtonEventArgs& e) {
-        popup_menu->SetPosition(e.GetPoint() + window->GetWindowHost()
-                                                   ->GetNativeWindow()
-                                                   ->GetClientRect()
-                                                   .GetLeftTop());
-        popup_menu->Show();
+        if (e.GetButton() == cru::ui::mouse_buttons::right) {
+          popup_menu->SetPosition(e.GetPoint() + window->GetWindowHost()
+                                                     ->GetNativeWindow()
+                                                     ->GetClientRect()
+                                                     .GetLeftTop());
+          popup_menu->Show();
+        }
       });
 
   window->GetWindowHost()->GetNativeWindow()->SetVisibility(

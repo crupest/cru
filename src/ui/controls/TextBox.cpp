@@ -46,6 +46,10 @@ render::RenderObject* TextBox::GetRenderObject() const {
   return border_render_object_.get();
 }
 
+bool TextBox::GetMultiLine() const { return service_->IsMultiLine(); }
+
+void TextBox::SetMultiLine(bool value) { service_->SetMultiLine(value); }
+
 gsl::not_null<render::TextRenderObject*> TextBox::GetTextRenderObject() {
   return text_render_object_.get();
 }

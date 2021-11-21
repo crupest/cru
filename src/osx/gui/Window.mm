@@ -259,9 +259,9 @@ Size OsxWindow::GetClientSize() { return p_->content_rect_.GetSize(); }
 
 void OsxWindow::SetClientSize(const Size& size) {
   if (p_->window_) {
-    auto rect = GetWindowRect();
+    auto rect = GetClientRect();
     rect.SetSize(size);
-    SetWindowRect(rect);
+    SetClientRect(rect);
   } else {
     p_->content_rect_.SetSize(size);
   }

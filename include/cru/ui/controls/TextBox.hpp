@@ -34,6 +34,9 @@ class TextBox : public NoChildControl,
   gsl::not_null<render::TextRenderObject*> GetTextRenderObject() override;
   render::ScrollRenderObject* GetScrollRenderObject() override;
 
+  bool GetMultiLine() const;
+  void SetMultiLine(bool value);
+
   void ApplyBorderStyle(const style::ApplyBorderStyleInfo& style) override;
 
  private:
