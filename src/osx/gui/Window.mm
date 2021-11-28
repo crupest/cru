@@ -78,6 +78,8 @@ void OsxWindowPrivate::OnWindowDidResize() {
   draw_layer_ = CreateLayer(Convert(content_rect_.GetSize()));
 
   resize_event_.Raise(osx_window_->GetClientSize());
+
+  osx_window_->RequestRepaint();
 }
 
 void OsxWindowPrivate::OnBecomeKeyWindow() { focus_event_.Raise(FocusChangeType::Gain); }
