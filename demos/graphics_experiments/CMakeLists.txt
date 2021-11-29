@@ -1,4 +1,7 @@
-add_executable(cru_graphics_experiment_1
-    1/main.cpp
-)
+add_executable(cru_graphics_experiment_1 1.cpp)
 target_link_libraries(cru_graphics_experiment_1 PRIVATE cru_demo_base)
+
+add_executable(cru_graphics_experiment_2 2.cpp)
+target_link_libraries(cru_graphics_experiment_2 PRIVATE cru_demo_base)
+
+add_executable(cru_graphics_experiment_3 3.cpp)

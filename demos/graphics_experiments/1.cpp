@@ -1,3 +1,6 @@
+// Code referred from
+// https://iq.opengenus.org/bresenham-line-drawining-algorithm/
+
 #include "cru/platform/Color.hpp"
 #include "cru/platform/bootstrap/Bootstrap.hpp"
 #include "cru/platform/graphics/Factory.hpp"
