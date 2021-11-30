@@ -1,9 +1,8 @@
 #pragma once
+#include "cru/common/Base.hpp"
 #include "cru/platform/Base.hpp"
 
 #include "cru/common/String.hpp"
-
-#include <boost/functional/hash.hpp>
 
 #include <cstdint>
 #include <optional>
@@ -243,10 +242,10 @@ template <>
 struct std::hash<cru::platform::Color> {
   std::size_t operator()(const cru::platform::Color& color) const {
     std::size_t seed = 0;
-    boost::hash_combine(seed, color.red);
-    boost::hash_combine(seed, color.green);
-    boost::hash_combine(seed, color.blue);
-    boost::hash_combine(seed, color.alpha);
+    cru::hash_combine(seed, color.red);
+    cru::hash_combine(seed, color.green);
+    cru::hash_combine(seed, color.blue);
+    cru::hash_combine(seed, color.alpha);
     return seed;
   }
 };

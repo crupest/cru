@@ -4,6 +4,7 @@
 #include "cru/common/Base.hpp"
 #include "cru/common/Event.hpp"
 #include "cru/platform/gui/Base.hpp"
+#include "cru/platform/gui/Window.hpp"
 #include "cru/ui/Base.hpp"
 #include "cru/ui/host/WindowHost.hpp"
 
@@ -19,6 +20,8 @@ class RootControl : public LayoutControl {
 
  public:
   render::RenderObject* GetRenderObject() const override;
+
+  platform::gui::INativeWindow* GetNativeWindow();
 
  protected:
   void SetGainFocusOnCreateAndDestroyWhenLoseFocus(bool value);

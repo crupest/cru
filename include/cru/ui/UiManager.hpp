@@ -18,7 +18,9 @@ struct ThemeResources {
   std::shared_ptr<platform::graphics::IBrush> text_brush;
   std::shared_ptr<platform::graphics::IBrush> text_selection_brush;
   std::shared_ptr<platform::graphics::IBrush> caret_brush;
+
   style::StyleRuleSet button_style;
+
   style::StyleRuleSet text_box_style;
 
   style::StyleRuleSet menu_item_style;

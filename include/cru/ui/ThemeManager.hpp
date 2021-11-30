@@ -2,19 +2,20 @@
 #include "Base.hpp"
 #include "cru/common/Base.hpp"
 #include "cru/common/Event.hpp"
+#include "cru/common/Exception.hpp"
 #include "cru/platform/graphics/Brush.hpp"
 
-#include <boost/property_tree/ptree.hpp>
-#include <cstddef>
-#include <memory>
-#include <stdexcept>
-#include <string_view>
 #include <unordered_map>
 
 namespace cru::ui {
-class BadThemeResourceException : public std::runtime_error {
+class ThemeResourceKeyNotExistException : public Exception {
  public:
-  using std::runtime_error::runtime_error;
+  using Exception::Exception;
+};
+
+class BadThemeResourceException : public Exception {
+ public:
+  using Exception::Exception;
 };
 
 class ThemeManager : public Object {
@@ -42,7 +43,7 @@ class ThemeManager : public Object {
 
  private:
   Event<std::nullptr_t> theme_resource_change_event_;
-  boost::property_tree::ptree theme_tree_;
+  std::unordered_map<String, String> theme_resource_map_;
   std::unordered_map<String, std::shared_ptr<platform::graphics::IBrush>>
       brushes_;
 };

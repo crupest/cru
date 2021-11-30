@@ -2,5 +2,8 @@
   "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg/master/scripts/vcpkg.schema.json",
   "name": "cru",
   "version": "0.0.1",
-  "dependencies": ["ms-gsl", "gtest", "boost"]
+  "dependencies": [
+    "ms-gsl",
+    "gtest"
+  ]
 }

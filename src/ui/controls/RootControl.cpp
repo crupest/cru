@@ -25,6 +25,10 @@ render::RenderObject* RootControl::GetRenderObject() const {
   return render_object_.get();
 }
 
+platform::gui::INativeWindow* RootControl::GetNativeWindow() {
+  return window_host_->GetNativeWindow();
+}
+
 void RootControl::SetGainFocusOnCreateAndDestroyWhenLoseFocus(bool value) {
   gain_focus_on_create_and_destroy_when_lose_focus_event_guard_.Clear();
   if (value) {
