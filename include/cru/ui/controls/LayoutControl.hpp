@@ -18,6 +18,8 @@ class LayoutControl : public Control {
   using Control::AddChild;
   using Control::RemoveChild;
 
+  void ClearChildren();
+
  protected:
   // If container render object is not null. Render object of added or removed
   // child control will automatically sync to the container render object.

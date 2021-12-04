@@ -7,6 +7,7 @@
 #include "cru/ui/controls/Popup.hpp"
 #include "cru/ui/controls/TextBlock.hpp"
 
+#include <functional>
 #include <vector>
 
 namespace cru::ui::components {
@@ -25,9 +26,14 @@ class MenuItem : public Component {
 
   void SetText(String text);
 
+  void SetOnClick(std::function<void()> on_click) {
+    on_click_ = std::move(on_click);
+  }
+
  private:
   controls::Button* container_;
   controls::TextBlock* text_;
+  std::function<void()> on_click_;
 };
 
 class Menu : public Component {
@@ -49,11 +55,13 @@ class Menu : public Component {
   void AddItem(Component* component) { AddItem(component, GetItemCount()); }
   void AddItem(Component* component, gsl::index index);
   Component* RemoveItem(gsl::index index);
+  void ClearItems();
 
-  void AddTextItem(String text) {
-    AddTextItem(std::move(text), GetItemCount());
+  void AddTextItem(String text, std::function<void()> on_click) {
+    AddTextItem(std::move(text), GetItemCount(), std::move(on_click));
   }
-  void AddTextItem(String text, gsl::index index);
+  void AddTextItem(String text, gsl::index index,
+                   std::function<void()> on_click);
 
  private:
   controls::FlexLayout* container_;
@@ -77,6 +85,7 @@ class PopupMenu : public Component {
 
   void SetPosition(const Point& position);
   void Show();
+  void Close();
 
  private:
   controls::Control* attached_control_;

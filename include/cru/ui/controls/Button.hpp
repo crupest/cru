@@ -39,6 +39,10 @@ class Button : public ContentControl,
     return click_detector_.StateChangeEvent();
   }
 
+  IEvent<helper::ClickEventArgs>* ClickEvent() {
+    return click_detector_.ClickEvent();
+  }
+
   void ApplyBorderStyle(const style::ApplyBorderStyleInfo& style) override;
 
  private:

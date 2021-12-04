@@ -15,6 +15,10 @@ class TextRenderObject;
 class ScrollRenderObject;
 }  // namespace cru::ui::render
 
+namespace cru::ui::components {
+class PopupMenu;
+}
+
 namespace cru::ui::controls {
 constexpr int k_default_caret_blink_duration = 500;
 
@@ -85,6 +89,9 @@ class TextHostControlService : public Object {
 
   bool IsEditable() { return this->editable_; }
   void SetEditable(bool editable);
+
+  bool IsContextMenuEnabled() { return this->context_menu_enabled_; }
+  void SetContextMenuEnabled(bool enabled);
 
   bool IsMultiLine() { return this->multi_line_; }
   // If text contains line feed characters, it will be converted to space.
@@ -169,6 +176,15 @@ class TextHostControlService : public Object {
 
   void SetUpShortcuts();
 
+  enum ContextMenuItem : unsigned {
+    kSelectAll = 0b1,
+    kCut = 0b10,
+    kCopy = 0b100,
+    kPaste = 0b1000
+  };
+
+  void OpenContextMenu(const Point& position, ContextMenuItem items);
+
  private:
   gsl::not_null<Control*> control_;
   gsl::not_null<ITextHostControl*> text_host_control_;
@@ -182,6 +198,7 @@ class TextHostControlService : public Object {
   bool enable_ = false;
   bool editable_ = false;
   bool multi_line_ = false;
+  bool context_menu_enabled_ = true;
 
   bool caret_visible_ = false;
   platform::gui::TimerAutoCanceler caret_timer_canceler_;
@@ -191,5 +208,8 @@ class TextHostControlService : public Object {
 
   // true if left mouse is down and selecting
   bool mouse_move_selecting_ = false;
+
+  bool context_menu_dirty_ = true;
+  std::unique_ptr<components::PopupMenu> context_menu_;
 };
 }  // namespace cru::ui::controls

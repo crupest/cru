@@ -1,10 +1,12 @@
 #include "cru/ui/components/Menu.hpp"
+#include <functional>
 #include "cru/platform/gui/Window.hpp"
 #include "cru/ui/UiManager.hpp"
 #include "cru/ui/controls/Button.hpp"
 #include "cru/ui/controls/Control.hpp"
 #include "cru/ui/controls/FlexLayout.hpp"
 #include "cru/ui/controls/TextBlock.hpp"
+#include "cru/ui/helper/ClickDetector.hpp"
 #include "cru/ui/host/WindowHost.hpp"
 #include "cru/ui/style/StyleRuleSet.hpp"
 
@@ -15,6 +17,9 @@ MenuItem::MenuItem() {
   container_->SetChild(text_);
   container_->GetStyleRuleSet()->SetParent(
       &UiManager::GetInstance()->GetThemeResources()->menu_item_style);
+  container_->ClickEvent()->AddHandler([this](const helper::ClickEventArgs&) {
+    if (this->on_click_) this->on_click_();
+  });
 }
 
 MenuItem::MenuItem(String text) : MenuItem() { SetText(std::move(text)); }
@@ -61,8 +66,20 @@ Component* Menu::RemoveItem(gsl::index index) {
   return item;
 }
 
-void Menu::AddTextItem(String text, gsl::index index) {
+void Menu::ClearItems() {
+  for (auto item : items_) {
+    delete item;
+  }
+
+  items_.clear();
+
+  container_->ClearChildren();
+}
+
+void Menu::AddTextItem(String text, gsl::index index,
+                       std::function<void()> on_click) {
   MenuItem* item = new MenuItem(std::move(text));
+  item->SetOnClick(std::move(on_click));
   AddItem(item, index);
 }
 
@@ -94,4 +111,6 @@ void PopupMenu::Show() {
   popup_->GetWindowHost()->GetNativeWindow()->SetVisibility(
       platform::gui::WindowVisibilityType::Show);
 }
+
+void PopupMenu::Close() { popup_->GetWindowHost()->GetNativeWindow()->Close(); }
 }  // namespace cru::ui::components

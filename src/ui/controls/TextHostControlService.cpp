@@ -14,11 +14,14 @@
 #include "cru/platform/gui/Window.hpp"
 #include "cru/ui/Base.hpp"
 #include "cru/ui/DebugFlags.hpp"
+#include "cru/ui/components/Menu.hpp"
 #include "cru/ui/events/UiEvent.hpp"
 #include "cru/ui/helper/ShortcutHub.hpp"
 #include "cru/ui/host/WindowHost.hpp"
 #include "cru/ui/render/ScrollRenderObject.hpp"
 #include "cru/ui/render/TextRenderObject.hpp"
+
+#include <memory>
 
 namespace cru::ui::controls {
 TextControlMovePattern TextControlMovePattern::kLeft(
@@ -119,6 +122,8 @@ std::vector<TextControlMovePattern> TextControlMovePattern::kDefaultPatterns = {
 TextHostControlService::TextHostControlService(gsl::not_null<Control*> control)
     : control_(control),
       text_host_control_(dynamic_cast<ITextHostControl*>(control.get())) {
+  context_menu_ = std::make_unique<components::PopupMenu>();
+
   SetUpShortcuts();
 
   SetupOneHandler(&Control::MouseMoveEvent,
@@ -149,6 +154,16 @@ void TextHostControlService::SetEnabled(bool enable) {
     this->AbortSelection();
     this->TearDownCaret();
     this->control_->SetCursor(nullptr);
+  }
+}
+
+void TextHostControlService::SetContextMenuEnabled(bool enabled) {
+  if (context_menu_enabled_ == enabled) return;
+
+  context_menu_enabled_ = enabled;
+
+  if (!context_menu_enabled_ && context_menu_) {
+    context_menu_->Close();
   }
 }
 
@@ -594,4 +609,25 @@ void TextHostControlService::SetUpShortcuts() {
         });
   }
 }
+
+void TextHostControlService::OpenContextMenu(const Point& position,
+                                             ContextMenuItem items) {
+  context_menu_ = std::make_unique<components::PopupMenu>();
+  auto menu = context_menu_->GetMenu();
+  if (items & ContextMenuItem::kSelectAll) {
+    menu->AddTextItem(u"Select All", [this] { this->SelectAll(); });
+  }
+  if (items & ContextMenuItem::kCopy) {
+    menu->AddTextItem(u"Copy", [this] { this->Copy(); });
+  }
+  if (items & ContextMenuItem::kCut) {
+    menu->AddTextItem(u"Cut", [this] { this->Cut(); });
+  }
+  if (items & ContextMenuItem::kPaste) {
+    menu->AddTextItem(u"Paste", [this] { this->Paste(); });
+  }
+  context_menu_->SetPosition(position);
+  context_menu_->Show();
+}
+
 }  // namespace cru::ui::controls

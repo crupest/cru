@@ -3,6 +3,12 @@
 #include "cru/ui/render/RenderObject.hpp"
 
 namespace cru::ui::controls {
+void LayoutControl::ClearChildren() {
+  while (GetChildren().size() > 0) {
+    RemoveChild(0);
+  }
+}
+
 void LayoutControl::OnAddChild(Control* child, Index position) {
   if (container_render_object_ != nullptr) {
     container_render_object_->AddChild(child->GetRenderObject(), position);
