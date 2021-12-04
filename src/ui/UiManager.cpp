@@ -1,5 +1,4 @@
 #include "cru/ui/UiManager.hpp"
-#include <optional>
 
 #include "Helper.hpp"
 #include "cru/platform/graphics/Brush.hpp"
@@ -13,6 +12,8 @@
 #include "cru/ui/style/ApplyBorderStyleInfo.hpp"
 #include "cru/ui/style/Condition.hpp"
 #include "cru/ui/style/Styler.hpp"
+
+#include <optional>
 
 namespace cru::ui {
 using namespace cru::platform::graphics;

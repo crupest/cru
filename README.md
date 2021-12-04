@@ -4,13 +4,15 @@
 
 ## overview
 
-CruUI is a UI library.
+_cru_ is a UI library.
 
 It is **under construction**. It can be built with _CMake_.
 
+After I changed to macOS, Windows feature is left behind now.
+
 ## build
 
-CruUI uses [_vcpkg_](https://github.com/microsoft/vcpkg) with _manifests mode_ to manage dependencies. You must setup vcpkg and `VCPKG_INSTALLATION_ROOT` environment variable.
+_cru_ uses [_vcpkg_](https://github.com/microsoft/vcpkg) with _manifests mode_ to manage dependencies. You must setup vcpkg and `VCPKG_INSTALLATION_ROOT` environment variable.
 
 There is also a automatic python script used in CI. Use python3 to run `tool/win_build.py` to build on Windows. Run with `-h` to see options. For convenience to avoid environment setup it uses _Visual Studio_ generator.
 
@@ -37,8 +39,6 @@ Check the code or fire a issue if you have any problem.
   - `tools/build.py` is a python3 script to build the source code.
 
 - `snippets/` contains useful snippets file for _Visual Studio_, you can import it. **No longer use any more**, because now I develop CruUI in VS Code.
-
-- `drafts/` contains draft codes during refactor etc. They are not in main source but I think might be used in the future.
 
 - `CMakeSettings.json` is a file that helps _Visual Studio_ to config CMake and setup intellisense.
 
