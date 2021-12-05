@@ -81,7 +81,7 @@ class TextHostControlService : public Object {
   CRU_DELETE_COPY(TextHostControlService)
   CRU_DELETE_MOVE(TextHostControlService)
 
-  ~TextHostControlService() = default;
+  ~TextHostControlService();
 
  public:
   bool IsEnabled() { return enable_; }

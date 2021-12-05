@@ -140,6 +140,8 @@ TextHostControlService::TextHostControlService(gsl::not_null<Control*> control)
   shortcut_hub_.Install(control_);
 }
 
+TextHostControlService::~TextHostControlService() {}
+
 void TextHostControlService::SetEnabled(bool enable) {
   if (enable == this->enable_) return;
   this->enable_ = enable;

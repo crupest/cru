@@ -46,8 +46,8 @@ int main() {
   flex_layout->AddChild(text_box, 2);
 
   auto popup_menu = std::make_unique<cru::ui::components::PopupMenu>(window);
-  popup_menu->GetMenu()->AddTextItem(u"Item 1");
-  popup_menu->GetMenu()->AddTextItem(u"Item 2000");
+  popup_menu->GetMenu()->AddTextItem(u"Item 1", [] {});
+  popup_menu->GetMenu()->AddTextItem(u"Item 2000", [] {});
 
   window->MouseDownEvent()->Bubble()->AddHandler(
       [window, &popup_menu](cru::ui::event::MouseButtonEventArgs& e) {
