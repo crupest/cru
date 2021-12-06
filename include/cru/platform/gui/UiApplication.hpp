@@ -32,6 +32,9 @@ struct CRU_PLATFORM_GUI_API IUiApplication : public virtual IPlatformResource {
 
   virtual void AddOnQuitHandler(std::function<void()> handler) = 0;
 
+  virtual bool IsQuitOnAllWindowClosed() = 0;
+  virtual void SetQuitOnAllWindowClosed(bool quit_on_all_window_closed) = 0;
+
   // Timer id should always be positive (not 0) and never the same. So it's ok
   // to use negative value (or 0) to represent no timer.
   virtual long long SetImmediate(std::function<void()> action) = 0;

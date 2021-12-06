@@ -53,9 +53,28 @@ OsxWindowPrivate::OsxWindowPrivate(OsxWindow* osx_window) : osx_window_(osx_wind
 OsxWindowPrivate::~OsxWindowPrivate() {}
 
 void OsxWindowPrivate::OnWindowWillClose() {
-  destroy_event_.Raise(nullptr);
+  if (window_) destroy_event_.Raise(nullptr);
   window_ = nil;
   CGLayerRelease(draw_layer_);
+  draw_layer_ = nullptr;
+
+  if (osx_window_->GetUiApplication()->IsQuitOnAllWindowClosed()) {
+    const auto& all_window = osx_window_->GetUiApplication()->GetAllWindow();
+
+    bool quit = true;
+
+    for (auto window : all_window) {
+      auto w = CheckPlatform<OsxWindow>(window, osx_window_->GetPlatformId());
+      if (w->p_->window_) {
+        quit = false;
+        break;
+      }
+    }
+
+    if (quit) {
+      osx_window_->GetUiApplication()->RequestQuit(0);
+    }
+  }
 }
 
 void OsxWindowPrivate::OnWindowDidExpose() { osx_window_->RequestRepaint(); }

@@ -29,6 +29,8 @@ class OsxUiApplication : public OsxGuiResource, public virtual IUiApplication {
 
   void RequestQuit(int quit_code) override;
   void AddOnQuitHandler(std::function<void()> handler) override;
+  bool IsQuitOnAllWindowClosed() override;
+  void SetQuitOnAllWindowClosed(bool quit_on_all_window_closed) override;
 
   long long SetImmediate(std::function<void()> action) override;
   long long SetTimeout(std::chrono::milliseconds milliseconds,

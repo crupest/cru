@@ -49,6 +49,7 @@ class OsxUiApplicationPrivate {
   OsxUiApplication* osx_ui_application_;
   CruAppDelegate* app_delegate_;
   std::vector<std::function<void()>> quit_handlers_;
+  bool quit_on_all_window_closed_ = true;
 
   long long current_timer_id_ = 1;
   std::unordered_map<long long, std::function<void()>> next_tick_;
@@ -97,6 +98,12 @@ void OsxUiApplication::RequestQuit(int quit_code) {
 
 void OsxUiApplication::AddOnQuitHandler(std::function<void()> handler) {
   p_->quit_handlers_.push_back(std::move(handler));
+}
+
+bool OsxUiApplication::IsQuitOnAllWindowClosed() { return p_->quit_on_all_window_closed_; }
+
+void OsxUiApplication::SetQuitOnAllWindowClosed(bool quit_on_all_window_closed) {
+  p_->quit_on_all_window_closed_ = quit_on_all_window_closed;
 }
 
 long long OsxUiApplication::SetImmediate(std::function<void()> action) {
