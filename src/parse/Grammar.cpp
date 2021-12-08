@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <iterator>
 #include <unordered_map>
+#include <unordered_set>
 
 namespace cru::parse {
 Grammar::Grammar() {}
@@ -200,5 +201,81 @@ void Grammar::EliminateLeftRecursions() {
   }
 }
 
-void Grammar::LeftFactor() {}
+void Grammar::LeftFactor() {
+  auto left_production_map = GenerateLeftProductionMap();
+
+  for (auto nonterminal : nonterminals_) {
+    auto productions = left_production_map[nonterminal];
+    if (productions.size() <= 1) continue;
+
+    while (true) {
+      std::unordered_set<Production*> productions_with_longest_common_prefix;
+      std::vector<Symbol*> longest_common_prefix;
+
+      for (int i = 0; i < productions.size(); i++) {
+        for (int j = i + 1; j < productions.size(); j++) {
+          // Get common prefix of the two productions.
+          std::vector<Symbol*> common_prefix;
+          for (int k = 0; k < std::min(productions[i]->GetRight().size(),
+                                       productions[j]->GetRight().size());
+               k++) {
+            if (productions[i]->GetRight()[k] ==
+                productions[j]->GetRight()[k]) {
+              common_prefix.push_back(productions[i]->GetRight()[k]);
+            } else {
+              break;
+            }
+          }
+
+          if (common_prefix.size() ==
+              productions_with_longest_common_prefix.size()) {
+            if (std::equal(common_prefix.cend(), common_prefix.cend(),
+                           longest_common_prefix.cbegin())) {
+              productions_with_longest_common_prefix.insert(productions[i]);
+              productions_with_longest_common_prefix.insert(productions[j]);
+            }
+          } else if (common_prefix.size() >
+                     productions_with_longest_common_prefix.size()) {
+            longest_common_prefix = common_prefix;
+            productions_with_longest_common_prefix.clear();
+            productions_with_longest_common_prefix.insert(productions[i]);
+            productions_with_longest_common_prefix.insert(productions[j]);
+          }
+        }
+      }
+
+      if (longest_common_prefix.empty()) break;
+
+      for (auto p : productions_with_longest_common_prefix) {
+        RemoveProduction(p);
+      }
+
+      // Also update local list.
+      productions.erase(
+          std::remove_if(
+              productions.begin(), productions.end(),
+              [&productions_with_longest_common_prefix](Production* p) {
+                return productions_with_longest_common_prefix.count(p);
+              }),
+          productions.end());
+
+      auto helper_nonterminal =
+          CreateNonterminal(nonterminal->GetName() + u" (Left Factor Helper)");
+
+      for (auto p : productions_with_longest_common_prefix) {
+        auto right = p->GetRight();
+        right.erase(right.cbegin(),
+                    right.cbegin() + longest_common_prefix.size());
+        CreateProduction(p->GetName() + u" (Left Factor Helper)",
+                         helper_nonterminal, std::move(right));
+      }
+
+      auto new_right = longest_common_prefix;
+      new_right.push_back(helper_nonterminal);
+
+      CreateProduction(nonterminal->GetName() + u" (Left Factor)", nonterminal,
+                       new_right);
+    }
+  }
+}
 }  // namespace cru::parse
