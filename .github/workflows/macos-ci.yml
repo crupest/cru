@@ -1,0 +1,42 @@
+name: macOS CI
+
+on:
+  push:
+    branches: [master]
+    paths-ignore:
+      - "docs/**"
+      - "**/README.md"
+  pull_request:
+    branches: [master]
+    paths-ignore:
+      - "docs/**"
+      - "**/README.md"
+
+jobs:
+  build:
+    name: Build
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Restore Cache
+        uses: actions/cache@v2
+        with:
+          path: ~/.cache/vcpkg/archives
+          key: vcpkg-${{ runner.os }}
+
+      - name: Setup Ninja
+        uses: ashutoshvarma/setup-ninja@master
+        with:
+          version: 1.10.2
+
+      - name: Build
+        run: |
+          cmake -DCMAKE_BUILD_TYPE:STRING=Debug -DCMAKE_C_COMPILER:FILEPATH=/usr/bin/clang -DCMAKE_CXX_COMPILER:FILEPATH=/usr/bin/clang++ -H. -B./build -G Ninja
+          cmake --build /Users/crupest/codes/cru/build --config Debug --target all
+
+      - name: Test
+        working-directory: build
+        run: |
+          ctest -C Debug -T test --output-on-failure
