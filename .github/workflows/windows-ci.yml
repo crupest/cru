@@ -1,17 +1,15 @@
-name: CI
+name: Windows CI
 
 on:
   push:
     branches: [master]
     paths-ignore:
       - "docs/**"
-      - "drafts/**"
       - "**/README.md"
   pull_request:
     branches: [master]
     paths-ignore:
       - "docs/**"
-      - "drafts/**"
       - "**/README.md"
 
 jobs:
