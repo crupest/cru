@@ -25,20 +25,21 @@
 
 namespace cru::ui::controls {
 TextControlMovePattern TextControlMovePattern::kLeft(
-    helper::ShortcutKeyBind(platform::gui::KeyCode::Left),
+    u"Left", helper::ShortcutKeyBind(platform::gui::KeyCode::Left),
     [](TextHostControlService* service, StringView text,
        gsl::index current_position) {
       Utf16PreviousCodePoint(text, current_position, &current_position);
       return current_position;
     });
 TextControlMovePattern TextControlMovePattern::kRight(
-    helper::ShortcutKeyBind(platform::gui::KeyCode::Right),
+    u"Right", helper::ShortcutKeyBind(platform::gui::KeyCode::Right),
     [](TextHostControlService* service, StringView text,
        gsl::index current_position) {
       Utf16NextCodePoint(text, current_position, &current_position);
       return current_position;
     });
 TextControlMovePattern TextControlMovePattern::kCtrlLeft(
+    u"Ctrl+Left(Previous Word)",
     helper::ShortcutKeyBind(platform::gui::KeyCode::Left,
                             platform::gui::KeyModifiers::ctrl),
     [](TextHostControlService* service, StringView text,
@@ -46,6 +47,7 @@ TextControlMovePattern TextControlMovePattern::kCtrlLeft(
       return Utf16PreviousWord(text, current_position);
     });
 TextControlMovePattern TextControlMovePattern::kCtrlRight(
+    u"Ctrl+Right(Next Word)",
     helper::ShortcutKeyBind(platform::gui::KeyCode::Right,
                             platform::gui::KeyModifiers::ctrl),
     [](TextHostControlService* service, StringView text,
@@ -53,7 +55,7 @@ TextControlMovePattern TextControlMovePattern::kCtrlRight(
       return Utf16NextWord(text, current_position);
     });
 TextControlMovePattern TextControlMovePattern::kUp(
-    helper::ShortcutKeyBind(platform::gui::KeyCode::Up),
+    u"Up", helper::ShortcutKeyBind(platform::gui::KeyCode::Up),
     [](TextHostControlService* service, StringView text,
        gsl::index current_position) {
       auto text_render_object = service->GetTextRenderObject();
@@ -63,7 +65,7 @@ TextControlMovePattern TextControlMovePattern::kUp(
       return result.trailing ? result.position + 1 : result.position;
     });
 TextControlMovePattern TextControlMovePattern::kDown(
-    helper::ShortcutKeyBind(platform::gui::KeyCode::Down),
+    u"Down", helper::ShortcutKeyBind(platform::gui::KeyCode::Down),
     [](TextHostControlService* service, StringView text,
        gsl::index current_position) {
       auto text_render_object = service->GetTextRenderObject();
@@ -73,38 +75,40 @@ TextControlMovePattern TextControlMovePattern::kDown(
       return result.trailing ? result.position + 1 : result.position;
     });
 TextControlMovePattern TextControlMovePattern::kHome(
-    helper::ShortcutKeyBind(platform::gui::KeyCode::Home),
+    u"Home(Line Begin)", helper::ShortcutKeyBind(platform::gui::KeyCode::Home),
     [](TextHostControlService* service, StringView text,
        gsl::index current_position) {
       return Utf16BackwardUntil(text, current_position,
                                 [](char16_t c) { return c == u'\n'; });
     });
 TextControlMovePattern TextControlMovePattern::kEnd(
-    helper::ShortcutKeyBind(platform::gui::KeyCode::End),
+    u"End(Line End)", helper::ShortcutKeyBind(platform::gui::KeyCode::End),
     [](TextHostControlService* service, StringView text,
        gsl::index current_position) {
       return Utf16ForwardUntil(text, current_position,
                                [](char16_t c) { return c == u'\n'; });
     });
 TextControlMovePattern TextControlMovePattern::kCtrlHome(
+    u"Ctrl+Home(Document Begin)",
     helper::ShortcutKeyBind(platform::gui::KeyCode::Home,
                             platform::gui::KeyModifiers::ctrl),
     [](TextHostControlService* service, StringView text,
        gsl::index current_position) { return 0; });
 TextControlMovePattern TextControlMovePattern::kCtrlEnd(
+    u"Ctrl+End(Document End)",
     helper::ShortcutKeyBind(platform::gui::KeyCode::End,
                             platform::gui::KeyModifiers::ctrl),
     [](TextHostControlService* service, StringView text,
        gsl::index current_position) { return text.size(); });
 TextControlMovePattern TextControlMovePattern::kPageUp(
-    helper::ShortcutKeyBind(platform::gui::KeyCode::PageUp),
+    u"PageUp", helper::ShortcutKeyBind(platform::gui::KeyCode::PageUp),
     [](TextHostControlService* service, StringView text,
        gsl::index current_position) {
       // TODO: Implement this.
       return current_position;
     });
 TextControlMovePattern TextControlMovePattern::kPageDown(
-    helper::ShortcutKeyBind(platform::gui::KeyCode::PageDown),
+    u"PageDown", helper::ShortcutKeyBind(platform::gui::KeyCode::PageDown),
     [](TextHostControlService* service, StringView text,
        gsl::index current_position) {
       // TODO: Implement this.
@@ -461,7 +465,8 @@ void TextHostControlService::MouseDownHandler(
   }
 }
 
-void TextHostControlService::MouseUpHandler(events::MouseButtonEventArgs& args) {
+void TextHostControlService::MouseUpHandler(
+    events::MouseButtonEventArgs& args) {
   if (args.GetButton() == mouse_buttons::left && mouse_move_selecting_) {
     this->control_->ReleaseMouse();
     this->mouse_move_selecting_ = false;
@@ -591,16 +596,18 @@ void TextHostControlService::SetUpShortcuts() {
   });
 
   for (const auto& pattern : TextControlMovePattern::kDefaultPatterns) {
-    shortcut_hub_.RegisterShortcut(u"", pattern.GetKeyBind(), [this, &pattern] {
-      auto text = this->GetTextView();
-      auto caret = this->GetCaretPosition();
-      auto new_position = pattern.Move(this, text, caret);
-      this->SetSelection(new_position);
-      return true;
-    });
+    auto name = pattern.GetName();
+    shortcut_hub_.RegisterShortcut(
+        u"Move " + name, pattern.GetKeyBind(), [this, &pattern] {
+          auto text = this->GetTextView();
+          auto caret = this->GetCaretPosition();
+          auto new_position = pattern.Move(this, text, caret);
+          this->SetSelection(new_position);
+          return true;
+        });
 
     shortcut_hub_.RegisterShortcut(
-        u"",
+        u"Move And Select " + name,
         pattern.GetKeyBind().AddModifier(platform::gui::KeyModifiers::shift),
         [this, &pattern] {
           auto text = this->GetTextView();

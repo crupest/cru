@@ -51,9 +51,11 @@ class TextControlMovePattern : public Object {
       std::function<gsl::index(TextHostControlService* service, StringView text,
                                gsl::index current_position)>;
 
-  TextControlMovePattern(helper::ShortcutKeyBind key_bind,
+  TextControlMovePattern(String name, helper::ShortcutKeyBind key_bind,
                          MoveFunction move_function)
-      : key_bind_(key_bind), move_function_(move_function) {}
+      : name_(std::move(name)),
+        key_bind_(key_bind),
+        move_function_(move_function) {}
 
   CRU_DEFAULT_COPY(TextControlMovePattern)
   CRU_DEFAULT_MOVE(TextControlMovePattern)
@@ -61,6 +63,7 @@ class TextControlMovePattern : public Object {
   ~TextControlMovePattern() override = default;
 
  public:
+  String GetName() const { return name_; }
   helper::ShortcutKeyBind GetKeyBind() const { return key_bind_; }
   gsl::index Move(TextHostControlService* service, StringView text,
                   gsl::index current_position) const {
@@ -68,6 +71,7 @@ class TextControlMovePattern : public Object {
   }
 
  private:
+  String name_;
   helper::ShortcutKeyBind key_bind_;
   MoveFunction move_function_;
 };
