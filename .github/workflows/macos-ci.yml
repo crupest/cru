@@ -34,7 +34,7 @@ jobs:
       - name: Build
         run: |
           cmake -DCMAKE_BUILD_TYPE:STRING=Debug -DCMAKE_C_COMPILER:FILEPATH=/usr/bin/clang -DCMAKE_CXX_COMPILER:FILEPATH=/usr/bin/clang++ -H. -B./build -G Ninja
-          cmake --build /Users/crupest/codes/cru/build --config Debug --target all
+          cmake --build ./build --config Debug --target all
 
       - name: Test
         working-directory: build

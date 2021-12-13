@@ -16,6 +16,7 @@ elseif(UNIX)
 	add_subdirectory(xcb)
 endif()
 
+# My computer graphics practice source codes. Needs `dlib` as dependency.
 if (CRU_BUILD_GRAPHICS_EXPERIMENTS)
 	add_subdirectory(graphics_experiments)
 endif()
