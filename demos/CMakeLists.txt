@@ -18,3 +18,4 @@ endif()
 
 if (CRU_BUILD_GRAPHICS_EXPERIMENTS)
 	add_subdirectory(graphics_experiments)
+endif()
