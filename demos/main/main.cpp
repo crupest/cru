@@ -11,7 +11,7 @@
 #include "cru/ui/controls/TextBlock.hpp"
 #include "cru/ui/controls/TextBox.hpp"
 #include "cru/ui/controls/Window.hpp"
-#include "cru/ui/events/UiEvent.hpp"
+#include "cru/ui/events/UiEvents.hpp"
 #include "cru/ui/host/WindowHost.hpp"
 
 using cru::platform::gui::IUiApplication;
@@ -50,7 +50,7 @@ int main() {
   popup_menu->GetMenu()->AddTextItem(u"Item 2000", [] {});
 
   window->MouseDownEvent()->Bubble()->AddHandler(
-      [window, &popup_menu](cru::ui::event::MouseButtonEventArgs& e) {
+      [window, &popup_menu](cru::ui::events::MouseButtonEventArgs& e) {
         if (e.GetButton() == cru::ui::mouse_buttons::right) {
           popup_menu->SetPosition(e.GetPoint() + window->GetWindowHost()
                                                      ->GetNativeWindow()

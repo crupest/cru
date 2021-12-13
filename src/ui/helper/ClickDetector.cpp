@@ -12,7 +12,7 @@ ClickDetector::ClickDetector(controls::Control* control) {
 
   event_rovoker_guards_.push_back(
       EventRevokerGuard(control->MouseEnterEvent()->Direct()->AddHandler(
-          [this](event::MouseEventArgs&) {
+          [this](events::MouseEventArgs&) {
             if (this->enable_) {
               if (this->state_ == ClickState::PressInactive) {
                 if ((this->button_ & this->trigger_button_)) {
@@ -26,7 +26,7 @@ ClickDetector::ClickDetector(controls::Control* control) {
 
   event_rovoker_guards_.push_back(
       EventRevokerGuard(control->MouseLeaveEvent()->Direct()->AddHandler(
-          [this](event::MouseEventArgs&) {
+          [this](events::MouseEventArgs&) {
             if (this->enable_) {
               if (this->state_ == ClickState::Press) {
                 if ((this->button_ & this->trigger_button_)) {
@@ -40,7 +40,7 @@ ClickDetector::ClickDetector(controls::Control* control) {
 
   event_rovoker_guards_.push_back(
       EventRevokerGuard(control->MouseDownEvent()->Direct()->AddHandler(
-          [this](event::MouseButtonEventArgs& args) {
+          [this](events::MouseButtonEventArgs& args) {
             const auto button = args.GetButton();
             if (this->enable_ && (button & this->trigger_button_) &&
                 this->state_ == ClickState::Hover) {
@@ -59,7 +59,7 @@ ClickDetector::ClickDetector(controls::Control* control) {
 
   event_rovoker_guards_.push_back(
       EventRevokerGuard(control->MouseUpEvent()->Direct()->AddHandler(
-          [this](event::MouseButtonEventArgs& args) {
+          [this](events::MouseButtonEventArgs& args) {
             const auto button = args.GetButton();
             if (this->enable_ && (button & this->trigger_button_) &&
                 button == button_) {

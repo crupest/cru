@@ -20,12 +20,12 @@ Control::Control() {
   style_rule_set_bind_ =
       std::make_unique<style::StyleRuleSetBind>(this, style_rule_set_.get());
 
-  MouseEnterEvent()->Direct()->AddHandler([this](event::MouseEventArgs&) {
+  MouseEnterEvent()->Direct()->AddHandler([this](events::MouseEventArgs&) {
     this->is_mouse_over_ = true;
     this->OnMouseHoverChange(true);
   });
 
-  MouseLeaveEvent()->Direct()->AddHandler([this](event::MouseEventArgs&) {
+  MouseLeaveEvent()->Direct()->AddHandler([this](events::MouseEventArgs&) {
     this->is_mouse_over_ = false;
     this->OnMouseHoverChange(true);
   });

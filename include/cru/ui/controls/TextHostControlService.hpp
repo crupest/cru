@@ -161,18 +161,18 @@ class TextHostControlService : public Object {
   void UpdateInputMethodPosition();
 
   template <typename TArgs>
-  void SetupOneHandler(event::RoutedEvent<TArgs>* (Control::*event)(),
+  void SetupOneHandler(events::RoutedEvent<TArgs>* (Control::*event)(),
                        void (TextHostControlService::*handler)(
-                           typename event::RoutedEvent<TArgs>::EventArgs)) {
+                           typename events::RoutedEvent<TArgs>::EventArgs)) {
     this->event_guard_ += (this->control_->*event)()->Bubble()->AddHandler(
         std::bind(handler, this, std::placeholders::_1));
   }
 
-  void MouseMoveHandler(event::MouseEventArgs& args);
-  void MouseDownHandler(event::MouseButtonEventArgs& args);
-  void MouseUpHandler(event::MouseButtonEventArgs& args);
-  void GainFocusHandler(event::FocusChangeEventArgs& args);
-  void LoseFocusHandler(event::FocusChangeEventArgs& args);
+  void MouseMoveHandler(events::MouseEventArgs& args);
+  void MouseDownHandler(events::MouseButtonEventArgs& args);
+  void MouseUpHandler(events::MouseButtonEventArgs& args);
+  void GainFocusHandler(events::FocusChangeEventArgs& args);
+  void LoseFocusHandler(events::FocusChangeEventArgs& args);
 
   void SetUpShortcuts();
 

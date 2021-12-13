@@ -12,7 +12,7 @@
 #include "cru/ui/Base.hpp"
 #include "cru/ui/ThemeManager.hpp"
 #include "cru/ui/UiManager.hpp"
-#include "cru/ui/events/UiEvent.hpp"
+#include "cru/ui/events/UiEvents.hpp"
 #include "cru/ui/helper/ClickDetector.hpp"
 #include "cru/ui/host/WindowHost.hpp"
 #include "cru/ui/render/ScrollRenderObject.hpp"
@@ -124,7 +124,7 @@ void ScrollBar::InstallHandlers(controls::Control* control) {
   if (control != nullptr) {
     event_guard_ +=
         control->MouseDownEvent()->Tunnel()->PrependShortCircuitHandler(
-            [control, this](event::MouseButtonEventArgs& event) {
+            [control, this](events::MouseButtonEventArgs& event) {
               if (event.GetButton() == mouse_buttons::left && IsEnabled() &&
                   IsExpanded()) {
                 auto hit_test_result =
@@ -178,7 +178,7 @@ void ScrollBar::InstallHandlers(controls::Control* control) {
 
     event_guard_ +=
         control->MouseUpEvent()->Tunnel()->PrependShortCircuitHandler(
-            [control, this](event::MouseButtonEventArgs& event) {
+            [control, this](events::MouseButtonEventArgs& event) {
               if (mouse_press_ != std::nullopt) {
                 mouse_press_ = std::nullopt;
                 render_object_->InvalidatePaint();
@@ -203,7 +203,7 @@ void ScrollBar::InstallHandlers(controls::Control* control) {
 
     event_guard_ +=
         control->MouseMoveEvent()->Tunnel()->PrependShortCircuitHandler(
-            [this](event::MouseEventArgs& event) {
+            [this](events::MouseEventArgs& event) {
               if (move_thumb_start_) {
                 auto new_scroll_position = CalculateNewScrollPosition(
                     move_thumb_thumb_original_rect_,
@@ -249,7 +249,7 @@ void ScrollBar::InstallHandlers(controls::Control* control) {
 
     event_guard_ +=
         control->MouseLeaveEvent()->Tunnel()->PrependShortCircuitHandler(
-            [this](event::MouseEventArgs&) {
+            [this](events::MouseEventArgs&) {
               if (IsExpanded() && !move_thumb_start_) {
                 if (mouse_hover_ != std::nullopt) {
                   mouse_hover_ = std::nullopt;

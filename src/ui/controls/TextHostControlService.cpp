@@ -15,7 +15,7 @@
 #include "cru/ui/Base.hpp"
 #include "cru/ui/DebugFlags.hpp"
 #include "cru/ui/components/Menu.hpp"
-#include "cru/ui/events/UiEvent.hpp"
+#include "cru/ui/events/UiEvents.hpp"
 #include "cru/ui/helper/ShortcutHub.hpp"
 #include "cru/ui/host/WindowHost.hpp"
 #include "cru/ui/render/ScrollRenderObject.hpp"
@@ -445,7 +445,7 @@ void TextHostControlService::UpdateInputMethodPosition() {
 }
 
 void TextHostControlService::MouseDownHandler(
-    event::MouseButtonEventArgs& args) {
+    events::MouseButtonEventArgs& args) {
   if (IsEnabled()) {
     this->control_->SetFocus();
     if (args.GetButton() == mouse_buttons::left &&
@@ -461,14 +461,14 @@ void TextHostControlService::MouseDownHandler(
   }
 }
 
-void TextHostControlService::MouseUpHandler(event::MouseButtonEventArgs& args) {
+void TextHostControlService::MouseUpHandler(events::MouseButtonEventArgs& args) {
   if (args.GetButton() == mouse_buttons::left && mouse_move_selecting_) {
     this->control_->ReleaseMouse();
     this->mouse_move_selecting_ = false;
   }
 }
 
-void TextHostControlService::MouseMoveHandler(event::MouseEventArgs& args) {
+void TextHostControlService::MouseMoveHandler(events::MouseEventArgs& args) {
   if (this->mouse_move_selecting_) {
     const auto text_render_object = this->GetTextRenderObject();
     const auto result = text_render_object->TextHitTest(
@@ -479,7 +479,7 @@ void TextHostControlService::MouseMoveHandler(event::MouseEventArgs& args) {
 }
 
 void TextHostControlService::GainFocusHandler(
-    event::FocusChangeEventArgs& args) {
+    events::FocusChangeEventArgs& args) {
   CRU_UNUSED(args);
   if (editable_) {
     auto input_method_context = GetInputMethodContext();
@@ -514,7 +514,7 @@ void TextHostControlService::GainFocusHandler(
 }
 
 void TextHostControlService::LoseFocusHandler(
-    event::FocusChangeEventArgs& args) {
+    events::FocusChangeEventArgs& args) {
   if (!args.IsWindow()) this->AbortSelection();
   input_method_context_event_guard_.Clear();
   auto input_method_context = GetInputMethodContext();

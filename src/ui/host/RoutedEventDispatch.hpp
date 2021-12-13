@@ -23,7 +23,7 @@ template <typename EventArgs, typename... Args>
 void DispatchEvent(
     const std::u16string_view& event_name,
     controls::Control* const original_sender,
-    event::RoutedEvent<EventArgs>* (controls::Control::*event_ptr)(),
+    events::RoutedEvent<EventArgs>* (controls::Control::*event_ptr)(),
     controls::Control* const last_receiver, Args&&... args) {
   CRU_UNUSED(event_name)
 

@@ -1,7 +1,7 @@
 #pragma once
 #include "../Base.hpp"
 
-#include "../events/UiEvent.hpp"
+#include "../events/UiEvents.hpp"
 #include "cru/common/Event.hpp"
 #include "cru/platform/gui/Keyboard.hpp"
 
@@ -120,13 +120,13 @@ class ShortcutHub : public Object {
   const std::vector<ShortcutInfo>& GetShortcutByKeyBind(
       const ShortcutKeyBind& key_bind) const;
 
-  IEvent<event::KeyEventArgs&>* FallbackKeyEvent() { return &fallback_event_; }
+  IEvent<events::KeyEventArgs&>* FallbackKeyEvent() { return &fallback_event_; }
 
   void Install(controls::Control* control);
   void Uninstall();
 
  private:
-  void OnKeyDown(event::KeyEventArgs& event);
+  void OnKeyDown(events::KeyEventArgs& event);
 
  private:
   std::unordered_map<ShortcutKeyBind, std::vector<ShortcutInfo>> map_;
@@ -135,7 +135,7 @@ class ShortcutHub : public Object {
 
   int current_id_ = 1;
 
-  Event<event::KeyEventArgs&> fallback_event_;
+  Event<events::KeyEventArgs&> fallback_event_;
 
   EventRevokerListGuard event_guard_;
 };

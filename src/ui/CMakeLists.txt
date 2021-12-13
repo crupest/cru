@@ -24,7 +24,7 @@ add_library(cru_ui STATIC
 	controls/TextBox.cpp
 	controls/TextHostControlService.cpp
 	controls/Window.cpp
-	events/UiEvent.cpp
+	events/MouseEventArgs.cpp
 	helper/ClickDetector.cpp
 	helper/ShortcutHub.cpp
 	host/LayoutPaintCycler.cpp
@@ -68,7 +68,15 @@ target_sources(cru_ui PUBLIC
 	${CRU_UI_INCLUDE_DIR}/controls/TextBox.hpp
 	${CRU_UI_INCLUDE_DIR}/controls/TextHostControlService.hpp
 	${CRU_UI_INCLUDE_DIR}/controls/Window.hpp
-	${CRU_UI_INCLUDE_DIR}/events/UiEvent.hpp
+	${CRU_UI_INCLUDE_DIR}/events/FocusChangeEventArgs.hpp
+	${CRU_UI_INCLUDE_DIR}/events/KeyEventArgs.hpp
+	${CRU_UI_INCLUDE_DIR}/events/MouseButtonEventArgs.hpp
+	${CRU_UI_INCLUDE_DIR}/events/MouseEventArgs.hpp
+	${CRU_UI_INCLUDE_DIR}/events/MouseWheelEventArgs.hpp
+	${CRU_UI_INCLUDE_DIR}/events/PaintEventArgs.hpp
+	${CRU_UI_INCLUDE_DIR}/events/RoutedEvent.hpp
+	${CRU_UI_INCLUDE_DIR}/events/UiEventArgs.hpp
+	${CRU_UI_INCLUDE_DIR}/events/UiEvents.hpp
 	${CRU_UI_INCLUDE_DIR}/helper/ClickDetector.hpp
 	${CRU_UI_INCLUDE_DIR}/helper/ShortcutHub.hpp
 	${CRU_UI_INCLUDE_DIR}/host/LayoutPaintCycler.hpp

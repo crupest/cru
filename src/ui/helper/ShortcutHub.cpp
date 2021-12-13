@@ -81,7 +81,7 @@ void ShortcutHub::Uninstall() {
   event_guard_.Clear();
 }
 
-void ShortcutHub::OnKeyDown(event::KeyEventArgs& event) {
+void ShortcutHub::OnKeyDown(events::KeyEventArgs& event) {
   ShortcutKeyBind key_bind(event.GetKeyCode(), event.GetKeyModifier());
   const auto& shortcut_list = this->GetShortcutByKeyBind(key_bind);
 
