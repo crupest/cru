@@ -461,6 +461,8 @@ void TextHostControlService::MouseDownHandler(
           args.GetPointToContent(text_render_object));
       const auto position = result.position + (result.trailing ? 1 : 0);
       SetSelection(position);
+    } else if (args.GetButton() == mouse_buttons::right) {
+      // TODO: Finish context menu logic here.
     }
   }
 }
