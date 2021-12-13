@@ -12,7 +12,9 @@ elseif(APPLE)
 	add_subdirectory(scroll_view)
 
 	add_subdirectory(input_method)
-	add_subdirectory(graphics_experiments)
 elseif(UNIX)
 	add_subdirectory(xcb)
 endif()
+
+if (CRU_BUILD_GRAPHICS_EXPERIMENTS)
+	add_subdirectory(graphics_experiments)
