@@ -60,12 +60,17 @@ class Menu : public Component {
   void AddTextItem(String text, std::function<void()> on_click) {
     AddTextItem(std::move(text), GetItemCount(), std::move(on_click));
   }
-  void AddTextItem(String text, gsl::index index,
-                   std::function<void()> on_click);
+  void AddTextItem(String text, Index index, std::function<void()> on_click);
+
+  void SetOnItemClick(std::function<void(Index)> on_item_click) {
+    on_item_click_ = std::move(on_item_click);
+  }
 
  private:
   controls::FlexLayout* container_;
   std::vector<Component*> items_;
+
+  std::function<void(Index)> on_item_click_;
 };
 
 class PopupMenu : public Component {

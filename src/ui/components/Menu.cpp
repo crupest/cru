@@ -79,7 +79,10 @@ void Menu::ClearItems() {
 void Menu::AddTextItem(String text, gsl::index index,
                        std::function<void()> on_click) {
   MenuItem* item = new MenuItem(std::move(text));
-  item->SetOnClick(std::move(on_click));
+  item->SetOnClick([this, index, on_click = std::move(on_click)] {
+    on_click();
+    if (on_item_click_) on_item_click_(index);
+  });
   AddItem(item, index);
 }
 
@@ -88,6 +91,8 @@ PopupMenu::PopupMenu(controls::Control* attached_control)
   popup_ = controls::Popup::Create(attached_control);
 
   menu_ = new Menu();
+
+  menu_->SetOnItemClick([this](Index _) { this->Close(); });
 
   popup_->AddChild(menu_->GetRootControl(), 0);
 }
