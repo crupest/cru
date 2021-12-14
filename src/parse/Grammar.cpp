@@ -1,4 +1,5 @@
 #include "cru/parse/Grammar.hpp"
+#include "cru/common/String.hpp"
 #include "cru/parse/Symbol.hpp"
 
 #include <algorithm>
@@ -17,6 +18,10 @@ Grammar::~Grammar() {
   for (auto production : productions_) {
     delete production;
   }
+}
+
+void Grammar::SetStartSymbol(Nonterminal* start_symbol) {
+  start_symbol_ = start_symbol;
 }
 
 Terminal* Grammar::CreateTerminal(String name) {
@@ -147,8 +152,10 @@ void Grammar::EliminateLeftRecursions() {
             auto new_right = right;
             new_right.insert(new_right.cbegin(), jp->GetRight().cbegin(),
                              jp->GetRight().cend());
-            // TODO: What should this name be.
-            CreateProduction(u"", ni, std::move(new_right));
+            CreateProduction(
+                Format(u"Merge of {} and {} (Eliminate Left Recursion)",
+                       production->GetName(), jp->GetName()),
+                ni, std::move(new_right));
           }
         }
       }
@@ -277,5 +284,20 @@ void Grammar::LeftFactor() {
                        new_right);
     }
   }
+}
+
+String Grammar::ProductionsToString() const {
+  String result;
+
+  for (const auto& production : productions_) {
+    result += production->GetName() + u" : ";
+    result += production->GetLeft()->GetName() + u" := ";
+    for (auto s : production->GetRight()) {
+      result += s->GetName() + u" ";
+    }
+    result += u"\n";
+  }
+
+  return result;
 }
 }  // namespace cru::parse

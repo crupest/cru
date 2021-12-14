@@ -49,8 +49,11 @@ class Grammar : public Object {
   // Algorithm 4.21
   void LeftFactor();
 
+ public:
+  String ProductionsToString() const;
+
  private:
-  Nonterminal* start_symbol_;
+  Nonterminal* start_symbol_ = nullptr;
   std::vector<Terminal*> terminals_;
   std::vector<Nonterminal*> nonterminals_;
   std::vector<Symbol*> symbols_;

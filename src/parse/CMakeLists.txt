@@ -7,4 +7,4 @@ add_library(cru_parse SHARED
 	Token.cpp
 	TokenType.cpp
 )
-target_link_libraries(cru_parse PUBLIC cru_common)
+target_link_libraries(cru_parse PUBLIC cru_base)
