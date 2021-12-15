@@ -1,6 +1,9 @@
 add_library(cru_parse SHARED
 	Grammar.cpp
 	Nonterminal.cpp
+	ParsingAlgorithm.cpp
+	ParsingAlgorithmContext.cpp
+	ParsingContext.cpp
 	Production.cpp
 	Symbol.cpp
 	Terminal.cpp
