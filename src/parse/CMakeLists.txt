@@ -4,6 +4,7 @@ add_library(cru_parse SHARED
 	ParsingAlgorithm.cpp
 	ParsingAlgorithmContext.cpp
 	ParsingContext.cpp
+	ParsingTreeNode.cpp
 	Production.cpp
 	Symbol.cpp
 	Terminal.cpp
