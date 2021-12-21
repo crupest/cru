@@ -88,8 +88,14 @@ class PopupMenu : public Component {
   controls::Popup* GetPopup() { return popup_; }
   Menu* GetMenu() { return menu_; }
 
+  // position relative to screen left top.
   void SetPosition(const Point& position);
   void Show();
+  // position relative to screen left top.
+  void Show(const Point& position) {
+    SetPosition(position);
+    Show();
+  }
   void Close();
 
  private:

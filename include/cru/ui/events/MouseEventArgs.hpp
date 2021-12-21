@@ -19,8 +19,9 @@ class MouseEventArgs : public UiEventArgs {
   Point GetPoint() const { return point_.value_or(Point{}); }
   Point GetPoint(render::RenderObject* render_target) const;
   Point GetPointToContent(render::RenderObject* render_target) const;
+  Point GetPointOfScreen() const;
 
  private:
   std::optional<Point> point_;
 };
-}  // namespace cru::ui::event
+}  // namespace cru::ui::events

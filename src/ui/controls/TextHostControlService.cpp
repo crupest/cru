@@ -461,8 +461,50 @@ void TextHostControlService::MouseDownHandler(
           args.GetPointToContent(text_render_object));
       const auto position = result.position + (result.trailing ? 1 : 0);
       SetSelection(position);
+      args.SetHandled(true);
     } else if (args.GetButton() == mouse_buttons::right) {
       // TODO: Finish context menu logic here.
+
+      const Point p = args.GetPointToContent(GetTextRenderObject());
+      if (GetSelection().count != 0) {
+        auto selected_area =
+            GetTextRenderObject()->TextRangeRect(GetSelection());
+
+        bool inside = false;
+
+        for (const auto& rect : selected_area) {
+          if (rect.IsPointInside(p)) {
+            inside = true;
+            break;
+          }
+        }
+
+        if (inside) {
+          ContextMenuItem items = ContextMenuItem(kSelectAll | kCopy);
+          if (IsEditable()) {
+            items = ContextMenuItem(items | kCut | kPaste);
+          }
+
+          this->OpenContextMenu(args.GetPointOfScreen(), items);
+          args.SetHandled(true);
+          return;
+        }
+      }
+
+      const auto text_render_object = this->GetTextRenderObject();
+      const auto result = text_render_object->TextHitTest(
+          args.GetPointToContent(text_render_object));
+      const auto position = result.position + (result.trailing ? 1 : 0);
+      SetSelection(position);
+
+      ContextMenuItem items = ContextMenuItem::kSelectAll;
+      if (IsEditable()) {
+        items = ContextMenuItem(items | ContextMenuItem::kPaste);
+      }
+
+      OpenContextMenu(args.GetPointOfScreen(), items);
+
+      args.SetHandled(true);
     }
   }
 }
@@ -472,6 +514,7 @@ void TextHostControlService::MouseUpHandler(
   if (args.GetButton() == mouse_buttons::left && mouse_move_selecting_) {
     this->control_->ReleaseMouse();
     this->mouse_move_selecting_ = false;
+    args.SetHandled();
   }
 }
 
@@ -482,6 +525,7 @@ void TextHostControlService::MouseMoveHandler(events::MouseEventArgs& args) {
         args.GetPointToContent(text_render_object));
     const auto position = result.position + (result.trailing ? 1 : 0);
     ChangeSelectionEnd(position);
+    args.SetHandled();
   }
 }
 
