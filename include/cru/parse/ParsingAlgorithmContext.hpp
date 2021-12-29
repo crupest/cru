@@ -1,5 +1,8 @@
 #pragma once
+#include <vector>
 #include "Grammar.hpp"
+#include "cru/parse/ParsingTreeNode.hpp"
+#include "cru/parse/Terminal.hpp"
 
 namespace cru::parse {
 class ParsingAlgorithm;
@@ -9,15 +12,17 @@ class ParsingAlgorithm;
 // contain any state machine.
 class ParsingAlgorithmContext {
  public:
-  ParsingAlgorithmContext(Grammar* grammar, ParsingAlgorithm* algorithm);
+  ParsingAlgorithmContext(Grammar* grammar, const ParsingAlgorithm* algorithm);
 
   CRU_DELETE_COPY(ParsingAlgorithmContext)
   CRU_DELETE_MOVE(ParsingAlgorithmContext)
 
-  ~ParsingAlgorithmContext();
+  virtual ~ParsingAlgorithmContext();
+
+  virtual ParsingTreeNode* Parse(const std::vector<Terminal*>& input) = 0;
 
  private:
   Grammar* grammar_;
-  ParsingAlgorithm* algorithm_;
+  const ParsingAlgorithm* algorithm_;
 };
 }  // namespace cru::parse

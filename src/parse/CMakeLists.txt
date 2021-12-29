@@ -6,6 +6,8 @@ add_library(cru_parse SHARED
 	ParsingContext.cpp
 	ParsingTreeNode.cpp
 	Production.cpp
+	RecursiveDescentAlgorithm.cpp
+	RecursiveDescentAlgorithmContext.cpp
 	Symbol.cpp
 	Terminal.cpp
 	Token.cpp

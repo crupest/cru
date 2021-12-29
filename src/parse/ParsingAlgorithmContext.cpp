@@ -2,7 +2,7 @@
 
 namespace cru::parse {
 ParsingAlgorithmContext::ParsingAlgorithmContext(Grammar* grammar,
-                                                 ParsingAlgorithm* algorithm)
+                                                 const ParsingAlgorithm* algorithm)
     : grammar_(grammar), algorithm_(algorithm) {}
 
 ParsingAlgorithmContext::~ParsingAlgorithmContext() {}

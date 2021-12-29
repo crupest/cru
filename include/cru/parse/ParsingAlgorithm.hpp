@@ -14,7 +14,7 @@ class ParsingAlgorithm {
   CRU_DELETE_COPY(ParsingAlgorithm)
   CRU_DELETE_MOVE(ParsingAlgorithm)
 
-  ~ParsingAlgorithm() = default;
+  virtual ~ParsingAlgorithm() = default;
 
   virtual bool CanHandle(Grammar* grammar) const = 0;
   virtual ParsingAlgorithmContext* CreateContext(Grammar* grammar) const = 0;

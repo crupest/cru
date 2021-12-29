@@ -1,12 +1,13 @@
 #pragma once
 #include "ParsingAlgorithmContext.hpp"
+#include "cru/parse/ParsingTreeNode.hpp"
 
 namespace cru::parse {
 // A parsing context contains all info that a program needs to know when parsing
 // a input sequence of terminals.
 class ParsingContext {
  public:
-  ParsingContext(ParsingAlgorithmContext* parsing_algorithm_context,
+  ParsingContext(const ParsingAlgorithmContext* parsing_algorithm_context,
                  std::vector<Terminal*> input);
 
   CRU_DELETE_COPY(ParsingContext)
@@ -15,7 +16,7 @@ class ParsingContext {
   ~ParsingContext();
 
  private:
-  ParsingAlgorithmContext* parsing_algorithm_context_;
+  const ParsingAlgorithmContext* parsing_algorithm_context_;
   std::vector<Terminal*> input_;
 };
 }  // namespace cru::parse
