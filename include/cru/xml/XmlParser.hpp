@@ -2,11 +2,17 @@
 
 #include "XmlNode.hpp"
 
+#include "cru/common/Exception.hpp"
 #include "cru/common/String.hpp"
 
 #include <optional>
 
 namespace cru::xml {
+class XmlParsingException : public Exception {
+ public:
+  using Exception::Exception;
+};
+
 class XmlParser {
  public:
   explicit XmlParser(String xml);
@@ -16,14 +22,24 @@ class XmlParser {
 
   ~XmlParser();
 
-  XmlNode Parse();
+  XmlElementNode* Parse();
 
  private:
-  XmlNode DoParse();
+  XmlElementNode* DoParse();
+
+  char16_t Read1();
+  void ReadSpacesAndDiscard();
+  String ReadSpaces();
+  String ReadIdenitifier();
+  String ReadAttributeString();
 
  private:
   String xml_;
 
-  std::optional<XmlNode> root_node_;
+  XmlElementNode* cache_;
+
+  XmlElementNode* pseudo_root_node_ = new XmlElementNode(u"$root");
+  XmlElementNode* current_ = pseudo_root_node_;
+  int current_position_ = 0;
 };
 }  // namespace cru::xml

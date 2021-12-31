@@ -7,61 +7,87 @@
 #include <vector>
 
 namespace cru::xml {
+class XmlElementNode;
+
 class XmlNode {
+  friend XmlElementNode;
+
  public:
   enum class Type { Text, Element };
 
-  static XmlNode CreateText(String text) {
-    XmlNode node(Type::Text);
-    node.SetText(std::move(text));
-    return node;
-  }
-
-  static XmlNode CreateElement(
-      String tag, std::unordered_map<String, String> attributes = {},
-      std::vector<XmlNode> children = {}) {
-    XmlNode node(Type::Element);
-    node.SetTag(std::move(tag));
-    node.SetAttributes(std::move(attributes));
-    node.SetChildren(std::move(children));
-    return node;
-  }
-
+ protected:
   explicit XmlNode(Type type) : type_(type) {}
 
-  CRU_DEFAULT_COPY(XmlNode)
-  CRU_DEFAULT_MOVE(XmlNode)
+ public:
+  CRU_DELETE_COPY(XmlNode)
+  CRU_DELETE_MOVE(XmlNode)
 
-  ~XmlNode() = default;
+  virtual ~XmlNode() = default;
 
   Type GetType() const { return type_; }
+  XmlElementNode* GetParent() const { return parent_; }
+
+  virtual XmlNode* Clone() const = 0;
+
+ private:
+  const Type type_;
+  XmlElementNode* parent_ = nullptr;
+};
+
+class XmlTextNode : public XmlNode {
+ public:
+  XmlTextNode() : XmlNode(Type::Text) {}
+  explicit XmlTextNode(String text)
+      : XmlNode(Type::Text), text_(std::move(text)) {}
+
+  CRU_DELETE_COPY(XmlTextNode)
+  CRU_DELETE_MOVE(XmlTextNode)
+
+  ~XmlTextNode() override = default;
+
+ public:
   String GetText() const { return text_; }
+  void SetText(String text) { text_ = std::move(text); }
+
+  XmlNode* Clone() const override { return new XmlTextNode(text_); }
+
+ private:
+  String text_;
+};
+
+class XmlElementNode : public XmlNode {
+ public:
+  XmlElementNode() : XmlNode(Type::Element) {}
+  explicit XmlElementNode(String tag,
+                          std::unordered_map<String, String> attributes = {})
+      : XmlNode(Type::Element),
+        tag_(std::move(tag)),
+        attributes_(std::move(attributes)) {}
+
+  CRU_DELETE_COPY(XmlElementNode)
+  CRU_DELETE_MOVE(XmlElementNode)
+
+  ~XmlElementNode() override = default;
+
+ public:
   String GetTag() const { return tag_; }
-  std::unordered_map<String, String> GetAttributes() { return attributes_; }
+  void SetTag(String tag) { tag_ = std::move(tag); }
   const std::unordered_map<String, String>& GetAttributes() const {
     return attributes_;
   }
-  std::vector<XmlNode>& GetChildren() { return children_; }
-  const std::vector<XmlNode>& GetChildren() const { return children_; }
-
-  void SetType(Type type) { type_ = type; }
-  void SetText(String text) { text_ = std::move(text); }
-  void SetTag(String tag) { tag_ = std::move(tag); }
   void SetAttributes(std::unordered_map<String, String> attributes) {
     attributes_ = std::move(attributes);
   }
-  void SetChildren(std::vector<XmlNode> children) {
-    children_ = std::move(children);
-  }
+
+  void AddAttribute(String key, String value);
+  void AddChild(XmlNode* child);
+
+  XmlNode* Clone() const override;
 
  private:
-  Type type_;
-  String text_;
   String tag_;
   std::unordered_map<String, String> attributes_;
-  std::vector<XmlNode> children_;
+  std::vector<XmlNode*> children_;
 };
 
-bool operator==(const XmlNode& lhs, const XmlNode& rhs);
-bool operator!=(const XmlNode& lhs, const XmlNode& rhs);
 }  // namespace cru::xml

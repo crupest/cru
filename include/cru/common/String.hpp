@@ -166,6 +166,10 @@ class CRU_BASE_API String {
   inline void append(StringView str);
 
  public:
+  String& operator+=(value_type value) {
+    this->append(value);
+    return *this;
+  }
   String& operator+=(StringView other);
 
   operator std::u16string_view() const {

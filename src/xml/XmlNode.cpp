@@ -1,14 +1,23 @@
 #include "cru/xml/XmlNode.hpp"
 
 namespace cru::xml {
-bool operator==(const XmlNode& lhs, const XmlNode& rhs) {
-  return lhs.GetType() == rhs.GetType() && lhs.GetText() == rhs.GetText() &&
-         lhs.GetTag() == rhs.GetTag() &&
-         lhs.GetAttributes() == rhs.GetAttributes() &&
-         lhs.GetChildren() == rhs.GetChildren();
+void XmlElementNode::AddAttribute(String key, String value) {
+  attributes_[std::move(key)] = std::move(value);
 }
 
-bool operator!=(const XmlNode& lhs, const XmlNode& rhs) {
-  return !(lhs == rhs);
+void XmlElementNode::AddChild(XmlNode* child) {
+  assert(child->GetParent() == nullptr);
+  children_.push_back(child);
+  child->parent_ = this;
+}
+
+XmlNode* XmlElementNode::Clone() const {
+  XmlElementNode* node = new XmlElementNode(tag_, attributes_);
+
+  for (auto child : children_) {
+    node->AddChild(child->Clone());
+  }
+
+  return node;
 }
 }  // namespace cru::xml
