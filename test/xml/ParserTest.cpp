@@ -10,7 +10,7 @@ TEST(CruXmlParserTest, Simple) {
   auto n = parser.Parse();
   ASSERT_EQ(n->GetTag(), u"root");
   ASSERT_EQ(n->GetAttributes().empty(), true);
-  ASSERT_EQ(n->GetChildren().size(), 0);
+  ASSERT_EQ(n->GetChildCount(), 0);
   delete n;
 }
 
@@ -18,9 +18,9 @@ TEST(CruXmlParserTest, SimpleWithAttribute) {
   XmlParser parser(u"<root a1=\"v1\" a2=\"v2\"></root>");
   auto n = parser.Parse();
   ASSERT_EQ(n->GetTag(), u"root");
-  ASSERT_EQ(n->GetAttributes().at(u"a1"), u"v1");
-  ASSERT_EQ(n->GetAttributes().at(u"a2"), u"v2");
-  ASSERT_EQ(n->GetChildren().size(), 0);
+  ASSERT_EQ(n->GetAttribute(u"a1"), u"v1");
+  ASSERT_EQ(n->GetAttribute(u"a2"), u"v2");
+  ASSERT_EQ(n->GetChildCount(), 0);
   delete n;
 }
 
@@ -28,9 +28,9 @@ TEST(CruXmlParserTest, SimpleSelfClosing) {
   XmlParser parser(u"<root a1=\"v1\" a2=\"v2\"/>");
   auto n = parser.Parse();
   ASSERT_EQ(n->GetTag(), u"root");
-  ASSERT_EQ(n->GetAttributes().at(u"a1"), u"v1");
-  ASSERT_EQ(n->GetAttributes().at(u"a2"), u"v2");
-  ASSERT_EQ(n->GetChildren().size(), 0);
+  ASSERT_EQ(n->GetAttribute(u"a1"), u"v1");
+  ASSERT_EQ(n->GetAttribute(u"a2"), u"v2");
+  ASSERT_EQ(n->GetChildCount(), 0);
   delete n;
 }
 
@@ -39,35 +39,15 @@ TEST(CruXmlParserTest, NestedElement) {
       u"<root><c1><d1></d1></c1><c2><d2></d2><d3></d3></c2></root>");
   auto n = parser.Parse();
   ASSERT_EQ(n->GetChildren().size(), 2);
-  ASSERT_EQ(static_cast<XmlElementNode*>(n->GetChildren().at(0))->GetTag(),
-            u"c1");
-  ASSERT_EQ(static_cast<XmlElementNode*>(n->GetChildren().at(1))->GetTag(),
-            u"c2");
-  ASSERT_EQ(static_cast<XmlElementNode*>(n->GetChildren().at(0))
-                ->GetChildren()
-                .size(),
-            1);
-  ASSERT_EQ(static_cast<XmlElementNode*>(
-                static_cast<XmlElementNode*>(n->GetChildren().at(0))
-                    ->GetChildren()
-                    .at(0))
-                ->GetTag(),
+  ASSERT_EQ(n->GetChildAt(0)->AsElement()->GetTag(), u"c1");
+  ASSERT_EQ(n->GetChildAt(1)->AsElement()->GetTag(), u"c2");
+  ASSERT_EQ(n->GetChildAt(0)->AsElement()->GetChildCount(), 1);
+  ASSERT_EQ(n->GetChildAt(0)->AsElement()->GetChildAt(0)->AsElement()->GetTag(),
             u"d1");
-  ASSERT_EQ(static_cast<XmlElementNode*>(n->GetChildren().at(1))
-                ->GetChildren()
-                .size(),
-            2);
-  ASSERT_EQ(static_cast<XmlElementNode*>(
-                static_cast<XmlElementNode*>(n->GetChildren().at(1))
-                    ->GetChildren()
-                    .at(0))
-                ->GetTag(),
+  ASSERT_EQ(n->GetChildAt(1)->AsElement()->GetChildCount(), 2);
+  ASSERT_EQ(n->GetChildAt(1)->AsElement()->GetChildAt(0)->AsElement()->GetTag(),
             u"d2");
-  ASSERT_EQ(static_cast<XmlElementNode*>(
-                static_cast<XmlElementNode*>(n->GetChildren().at(1))
-                    ->GetChildren()
-                    .at(1))
-                ->GetTag(),
+  ASSERT_EQ(n->GetChildAt(1)->AsElement()->GetChildAt(1)->AsElement()->GetTag(),
             u"d3");
   delete n;
 }
@@ -75,18 +55,16 @@ TEST(CruXmlParserTest, NestedElement) {
 TEST(CruXmlParserTest, SimpleText) {
   XmlParser parser(u"<root>text</root>");
   auto n = parser.Parse();
-  ASSERT_EQ(n->GetChildren().size(), 1);
-  ASSERT_EQ(static_cast<XmlTextNode*>(n->GetChildren().at(0))->GetText(),
-            u"text");
+  ASSERT_EQ(n->GetChildCount(), 1);
+  ASSERT_EQ(n->GetChildAt(0)->AsText()->GetText(), u"text");
   delete n;
 }
 
 TEST(CruXmlParserTest, Whitespace) {
   XmlParser parser(u"\t\t<root>\n\t\t\ttext test\n\t\t</root>\t\t");
   auto n = parser.Parse();
-  ASSERT_EQ(n->GetChildren().size(), 1);
-  ASSERT_EQ(static_cast<XmlTextNode*>(n->GetChildren().at(0))->GetText(),
-            u"text test");
+  ASSERT_EQ(n->GetChildCount(), 1);
+  ASSERT_EQ(n->GetChildAt(0)->AsText()->GetText(), u"text test");
   delete n;
 }
 
@@ -108,28 +86,20 @@ TEST(CruXmlParserTest, Complex) {
 </root>
   )");
   auto n = parser.Parse();
-  ASSERT_EQ(n->GetAttributes().at(u"a1"), u"v1");
-  ASSERT_EQ(n->GetChildren().size(), 2);
-  ASSERT_EQ(static_cast<XmlElementNode*>(n->GetChildren().at(0))->GetTag(),
-            u"c1");
-  ASSERT_EQ(static_cast<XmlElementNode*>(n->GetChildren().at(0))
-                ->GetChildren()
-                .size(),
-            1);
-  auto c2 = static_cast<XmlElementNode*>(n->GetChildren().at(1));
+  ASSERT_EQ(n->GetAttribute(u"a1"), u"v1");
+  ASSERT_EQ(n->GetChildCount(), 2);
+  ASSERT_EQ(n->GetChildAt(0)->AsElement()->GetTag(), u"c1");
+  ASSERT_EQ(n->GetChildAt(0)->AsElement()->GetChildCount(), 1);
+  auto c2 = n->GetChildAt(1)->AsElement();
   ASSERT_EQ(c2->GetTag(), u"c2");
-  ASSERT_EQ(c2->GetAttributes().at(u"a2"), u"v2");
-  ASSERT_EQ(c2->GetAttributes().at(u"a3"), u"v3");
-  ASSERT_EQ(static_cast<XmlTextNode*>(c2->GetChildren().at(0))->GetText(),
-            u"t1");
-  auto d2 = static_cast<XmlElementNode*>(c2->GetChildren().at(1));
+  ASSERT_EQ(c2->GetAttribute(u"a2"), u"v2");
+  ASSERT_EQ(c2->GetAttribute(u"a3"), u"v3");
+  ASSERT_EQ(c2->GetChildAt(0)->AsText()->GetText(), u"t1");
+  auto d2 = c2->GetChildAt(1)->AsElement();
   ASSERT_EQ(d2->GetTag(), u"d2");
-  ASSERT_EQ(d2->GetAttributes().at(u"a4"), u"v4");
-  ASSERT_EQ(static_cast<XmlTextNode*>(c2->GetChildren().at(2))->GetText(),
-            u"text test");
-  ASSERT_EQ(static_cast<XmlElementNode*>(c2->GetChildren().at(3))->GetTag(),
-            u"d3");
-  ASSERT_EQ(static_cast<XmlTextNode*>(c2->GetChildren().at(4))->GetText(),
-            u"t2");
+  ASSERT_EQ(d2->GetAttribute(u"a4"), u"v4");
+  ASSERT_EQ(c2->GetChildAt(2)->AsText()->GetText(), u"text test");
+  ASSERT_EQ(c2->GetChildAt(3)->AsElement()->GetTag(), u"d3");
+  ASSERT_EQ(c2->GetChildAt(4)->AsText()->GetText(), u"t2");
   delete n;
 }

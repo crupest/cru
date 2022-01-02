@@ -8,6 +8,7 @@
 
 namespace cru::xml {
 class XmlElementNode;
+class XmlTextNode;
 
 class XmlNode {
   friend XmlElementNode;
@@ -28,6 +29,11 @@ class XmlNode {
   XmlElementNode* GetParent() const { return parent_; }
 
   virtual XmlNode* Clone() const = 0;
+
+  XmlElementNode* AsElement();
+  XmlTextNode* AsText();
+  const XmlElementNode* AsElement() const;
+  const XmlTextNode* AsText() const;
 
  private:
   const Type type_;
@@ -79,6 +85,10 @@ class XmlElementNode : public XmlNode {
     attributes_ = std::move(attributes);
   }
   const std::vector<XmlNode*> GetChildren() const { return children_; }
+
+  int GetChildCount() const { return children_.size(); }
+  String GetAttribute(const String& key) const { return attributes_.at(key); }
+  XmlNode* GetChildAt(int index) const { return children_[index]; }
 
   void AddAttribute(String key, String value);
   void AddChild(XmlNode* child);
