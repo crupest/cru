@@ -1,6 +1,12 @@
 #include "cru/xml/XmlNode.hpp"
 
 namespace cru::xml {
+XmlElementNode::~XmlElementNode() {
+  for (auto child : children_) {
+    delete child;
+  }
+}
+
 void XmlElementNode::AddAttribute(String key, String value) {
   attributes_[std::move(key)] = std::move(value);
 }

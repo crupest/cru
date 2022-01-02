@@ -67,7 +67,7 @@ class XmlElementNode : public XmlNode {
   CRU_DELETE_COPY(XmlElementNode)
   CRU_DELETE_MOVE(XmlElementNode)
 
-  ~XmlElementNode() override = default;
+  ~XmlElementNode() override;
 
  public:
   String GetTag() const { return tag_; }
@@ -78,6 +78,7 @@ class XmlElementNode : public XmlNode {
   void SetAttributes(std::unordered_map<String, String> attributes) {
     attributes_ = std::move(attributes);
   }
+  const std::vector<XmlNode*> GetChildren() const { return children_; }
 
   void AddAttribute(String key, String value);
   void AddChild(XmlNode* child);

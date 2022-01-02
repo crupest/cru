@@ -2,6 +2,10 @@
 #include "cru/xml/XmlNode.hpp"
 
 namespace cru::xml {
+XmlParser::XmlParser(String xml) : xml_(std::move(xml)) {}
+
+XmlParser::~XmlParser() { delete pseudo_root_node_; }
+
 XmlElementNode* XmlParser::Parse() {
   if (!cache_) {
     cache_ = DoParse();
@@ -14,6 +18,13 @@ char16_t XmlParser::Read1() {
     throw XmlParsingException(u"Unexpected end of xml");
   }
   return xml_[current_position_++];
+}
+
+String XmlParser::ReadWithoutAdvance(int count) {
+  if (current_position_ + count > xml_.size()) {
+    return u"";
+  }
+  return xml_.substr(current_position_, count);
 }
 
 void XmlParser::ReadSpacesAndDiscard() {
@@ -70,48 +81,104 @@ String XmlParser::ReadAttributeString() {
 
 XmlElementNode* XmlParser::DoParse() {
   while (current_position_ < xml_.size()) {
-    switch (xml_[current_position_]) {
-      case '<': {
-        ++current_position_;
+    ReadSpacesAndDiscard();
 
-        if (Read1() == '/') {
-        } else {
-          ReadSpacesAndDiscard();
+    if (current_position_ == xml_.size()) {
+      break;
+    }
 
-          String tag = ReadIdenitifier();
+    if (ReadWithoutAdvance() == u"<") {
+      current_position_ += 1;
 
-          XmlElementNode* node = new XmlElementNode(tag);
+      if (ReadWithoutAdvance() == u"/") {
+        current_position_ += 1;
 
-          while (true) {
-            ReadSpacesAndDiscard();
-            if (Read1() == '>') {
-              break;
-            } else {
-              String attribute_name = ReadIdenitifier();
+        ReadSpacesAndDiscard();
 
-              ReadSpacesAndDiscard();
+        String tag = ReadIdenitifier();
 
-              if (Read1() != '=') {
-                throw XmlParsingException(u"Expected '='");
-              }
-
-              ReadSpacesAndDiscard();
-
-              String attribute_value = ReadAttributeString();
-
-              node->AddAttribute(attribute_name, attribute_value);
-            }
-          }
-
-          current_->AddChild(node);
-          current_ = node;
+        if (tag != current_->GetTag()) {
+          throw XmlParsingException(u"Tag mismatch.");
         }
 
-        break;
+        ReadSpacesAndDiscard();
+
+        if (Read1() != '>') {
+          throw XmlParsingException(u"Expected >.");
+        }
+
+        current_ = current_->GetParent();
+      } else {
+        ReadSpacesAndDiscard();
+
+        String tag = ReadIdenitifier();
+
+        XmlElementNode* node = new XmlElementNode(tag);
+
+        bool is_self_closing = false;
+
+        while (true) {
+          ReadSpacesAndDiscard();
+          auto c = ReadWithoutAdvance();
+          if (c == u">") {
+            current_position_ += 1;
+            break;
+          } else if (c == u"/") {
+            current_position_ += 1;
+
+            if (Read1() != '>') {
+              throw XmlParsingException(u"Expected >.");
+            }
+
+            is_self_closing = true;
+            break;
+          } else {
+            String attribute_name = ReadIdenitifier();
+
+            ReadSpacesAndDiscard();
+
+            if (Read1() != '=') {
+              throw XmlParsingException(u"Expected '='");
+            }
+
+            ReadSpacesAndDiscard();
+
+            String attribute_value = ReadAttributeString();
+
+            node->AddAttribute(attribute_name, attribute_value);
+          }
+        }
+
+        current_->AddChild(node);
+
+        if (!is_self_closing) {
+          current_ = node;
+        }
       }
+
+    } else {
+      String text;
+
+      while (ReadWithoutAdvance() != u"<") {
+        char16_t c = Read1();
+
+        text += c;
+      }
+
+      if (!text.empty()) current_->AddChild(new XmlTextNode(text.TrimEnd()));
     }
   }
 
-  return pseudo_root_node_;
+  if (current_ != pseudo_root_node_) {
+    throw XmlParsingException(u"Unexpected end of xml");
+  }
+
+  if (pseudo_root_node_->GetChildren().size() != 1 ||
+      pseudo_root_node_->GetChildren()[0]->GetType() !=
+          XmlNode::Type::Element) {
+    throw XmlParsingException(u"Expected 1 element node as root.");
+  }
+
+  return static_cast<XmlElementNode*>(pseudo_root_node_->GetChildren()[0]);
 }
 }  // namespace cru::xml

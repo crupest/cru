@@ -28,6 +28,7 @@ class XmlParser {
   XmlElementNode* DoParse();
 
   char16_t Read1();
+  String ReadWithoutAdvance(int count = 1);
   void ReadSpacesAndDiscard();
   String ReadSpaces();
   String ReadIdenitifier();
@@ -36,8 +37,9 @@ class XmlParser {
  private:
   String xml_;
 
-  XmlElementNode* cache_;
+  XmlElementNode* cache_ = nullptr;
 
+  // Consider the while file enclosed by a single tag called $root.
   XmlElementNode* pseudo_root_node_ = new XmlElementNode(u"$root");
   XmlElementNode* current_ = pseudo_root_node_;
   int current_position_ = 0;

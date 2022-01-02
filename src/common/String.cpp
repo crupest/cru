@@ -211,6 +211,15 @@ String::iterator String::erase(const_iterator start, const_iterator end) {
   return s;
 }
 
+String& String::TrimEnd() {
+  if (size_ == 0) return *this;
+  while (size_ > 0 && IsWhitespace(buffer_[size_ - 1])) {
+    size_--;
+  }
+
+  return *this;
+}
+
 std::string String::ToUtf8() const { return cru::ToUtf8(buffer_, size_); }
 
 void String::AppendCodePoint(CodePoint code_point) {

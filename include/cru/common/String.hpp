@@ -165,6 +165,10 @@ class CRU_BASE_API String {
   }
   inline void append(StringView str);
 
+  String substr(size_type start, size_type size) const {
+    return String(this->buffer_ + start, size);
+  }
+
  public:
   String& operator+=(value_type value) {
     this->append(value);
@@ -175,6 +179,9 @@ class CRU_BASE_API String {
   operator std::u16string_view() const {
     return std::u16string_view(data(), size());
   }
+
+ public:
+  String& TrimEnd();
 
  public:
   void AppendCodePoint(CodePoint code_point);
