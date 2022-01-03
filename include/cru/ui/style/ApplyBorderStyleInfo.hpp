@@ -1,6 +1,7 @@
 #pragma once
-#include <optional>
 #include "../Base.hpp"
+
+#include <optional>
 
 namespace cru::ui::style {
 struct ApplyBorderStyleInfo {

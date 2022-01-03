@@ -2,7 +2,7 @@
 
 namespace cru::ui::style {
 StyleRule::StyleRule(ClonablePtr<Condition> condition,
-                     ClonablePtr<Styler> styler, std::u16string name)
+                     ClonablePtr<Styler> styler, String name)
     : condition_(std::move(condition)),
       styler_(std::move(styler)),
       name_(std::move(name)) {}
