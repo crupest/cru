@@ -181,7 +181,13 @@ class CRU_BASE_API String {
   }
 
  public:
+  Index Find(value_type value, Index start = 0) const;
+
+  String& TrimStart();
   String& TrimEnd();
+  String& Trim();
+
+  std::vector<String> SplitToLines(bool remove_space_line = false) const;
 
  public:
   void AppendCodePoint(CodePoint code_point);

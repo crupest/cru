@@ -113,6 +113,8 @@ String::~String() {
 String::String(from_buffer_tag, pointer buffer, Index size, Index capacity)
     : buffer_(buffer), size_(size), capacity_(capacity) {}
 
+void String::clear() { resize(0); }
+
 void String::resize(Index new_size) {
   Expects(new_size >= 0);
 
@@ -211,6 +213,32 @@ String::iterator String::erase(const_iterator start, const_iterator end) {
   return s;
 }
 
+Index String::Find(value_type value, Index start) const {
+  Expects(start >= 0 && start <= size_);
+
+  for (Index i = start; i < size_; ++i) {
+    if (buffer_[i] == value) return i;
+  }
+  return -1;
+}
+
+String& String::TrimStart() {
+  if (size_ == 0) return *this;
+
+  auto start = begin();
+  while (start != end() && IsWhitespace(*start)) {
+    ++start;
+  }
+
+  if (start == end()) {
+    clear();
+  } else {
+    erase(begin(), start);
+  }
+
+  return *this;
+}
+
 String& String::TrimEnd() {
   if (size_ == 0) return *this;
   while (size_ > 0 && IsWhitespace(buffer_[size_ - 1])) {
@@ -218,6 +246,56 @@ String& String::TrimEnd() {
   }
 
   return *this;
+}
+
+String& String::Trim() {
+  TrimStart();
+  TrimEnd();
+  return *this;
+}
+
+std::vector<String> String::SplitToLines(bool remove_space_line) const {
+  std::vector<String> result;
+
+  if (size_ == 0) return result;
+
+  Index line_start = 0;
+  Index line_end = 0;
+  while (line_end < size_) {
+    if (buffer_[line_end] == '\n') {
+      if (remove_space_line) {
+        bool add = false;
+        for (Index i = line_start; i < line_end; i++) {
+          if (!IsWhitespace(buffer_[i])) {
+            add = true;
+            break;
+          }
+        }
+        if (add) result.emplace_back(begin() + line_start, begin() + line_end);
+      } else {
+        result.emplace_back(begin() + line_start, begin() + line_end);
+      }
+      line_start = line_end + 1;
+      line_end = line_start;
+    } else {
+      line_end++;
+    }
+  }
+
+  if (remove_space_line) {
+    bool add = false;
+    for (Index i = line_start; i < size_; i++) {
+      if (!IsWhitespace(buffer_[i])) {
+        add = true;
+        break;
+      }
+    }
+    if (add) result.emplace_back(begin() + line_start, begin() + size_);
+  } else {
+    result.emplace_back(begin() + line_start, begin() + size_);
+  }
+
+  return result;
 }
 
 std::string String::ToUtf8() const { return cru::ToUtf8(buffer_, size_); }
