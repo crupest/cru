@@ -37,25 +37,6 @@ void TomlParser::DoParse(TomlDocument& document) {
       auto key = line.substr(0, equal_index).Trim();
       auto value = line.substr(equal_index + 1).Trim();
 
-      auto remove_quote = [](const String& str) -> String {
-        if (str.size() < 2) {
-          return str;
-        }
-
-        if (str.StartWith(u"\"") && str.EndWith(u"\"")) {
-          return str.substr(1, str.size() - 2);
-        }
-
-        if (str.StartWith(u"\'") && str.EndWith(u"\'")) {
-          return str.substr(1, str.size() - 2);
-        }
-
-        return str;
-      };
-
-      key = remove_quote(key);
-      value = remove_quote(value);
-
       document.GetSectionOrCreate(current_section_name)->SetValue(key, value);
     }
   }
