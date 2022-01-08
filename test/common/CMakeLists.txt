@@ -1,5 +1,6 @@
 add_executable(cru_base_test
 	HandlerRegistryTest.cpp
+	PropertyTreeTest.cpp
 	StringTest.cpp
 	StringUtilTest.cpp
 )

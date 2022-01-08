@@ -1,6 +1,7 @@
 set(CRU_BASE_INCLUDE_DIR ${CRU_INCLUDE_DIR}/cru/common)
 add_library(cru_base SHARED
 	Logger.cpp
+	PropertyTree.cpp
 	String.cpp
 	StringUtil.cpp
 )

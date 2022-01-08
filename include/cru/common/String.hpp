@@ -82,6 +82,8 @@ class CRU_BASE_API String {
 
   String(std::initializer_list<value_type> l);
 
+  explicit String(StringView str);
+
 #ifdef CRU_PLATFORM_WINDOWS
   String(const wchar_t* str);
   String(const wchar_t* str, Index size);
@@ -259,6 +261,7 @@ class CRU_BASE_API StringView {
 
   ~StringView() = default;
 
+  bool empty() const { return size_ == 0; }
   Index size() const { return size_; }
   const value_type* data() const { return ptr_; }
 
@@ -404,6 +407,8 @@ inline void String::append(StringView str) {
 }
 
 inline String String::From(StringView str) { return str.ToString(); }
+
+inline String::String(StringView str) : String(str.data(), str.size()) {}
 
 inline String ToString(StringView value) { return value.ToString(); }
 

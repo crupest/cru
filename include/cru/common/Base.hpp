@@ -36,7 +36,7 @@
   classname(classname&&) = delete; \
   classname& operator=(classname&&) = delete;
 
-#define CRU_DEFAULT_DESTRUCTOR(classname) ~classname() override = default;
+#define CRU_DEFAULT_DESTRUCTOR(classname) ~classname() = default;
 
 #define CRU_DEFAULT_CONSTRUCTOR_DESTRUCTOR(classname) \
   classname() = default;                              \
