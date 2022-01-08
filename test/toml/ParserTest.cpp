@@ -9,17 +9,17 @@ TEST(CruTomlParserTest, Simple) {
   TomlParser parser(
       uR"(
 a1 = v1
-"a2" = "v2"
+a2 = v2
 # comment
 
 [s1]
 # comment
 a3 = v3
-"a4" = "v4"
+a4 = v4
 
 [s2]
 a5 = v5
-"a6" = "v6"
+a6 = v6
   )");
   auto document = parser.Parse();
   ASSERT_EQ(document.GetSection(u"")->GetValue(u"a1"), u"v1");
