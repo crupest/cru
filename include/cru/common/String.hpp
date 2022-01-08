@@ -165,7 +165,10 @@ class CRU_BASE_API String {
   }
   inline void append(StringView str);
 
-  String substr(size_type start, size_type size) const {
+  String substr(size_type start, size_type size = -1) const {
+    if (size == -1) {
+      size = this->size_ - start;
+    }
     return String(this->buffer_ + start, size);
   }
 
@@ -188,6 +191,9 @@ class CRU_BASE_API String {
   String& Trim();
 
   std::vector<String> SplitToLines(bool remove_space_line = false) const;
+
+  bool StartWith(StringView str) const;
+  bool EndWith(StringView str) const;
 
  public:
   void AppendCodePoint(CodePoint code_point);

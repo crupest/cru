@@ -222,5 +222,5 @@ Index CRU_BASE_API Utf16NextWord(const char16_t* ptr, Index size,
 char16_t CRU_BASE_API ToLower(char16_t c);
 char16_t CRU_BASE_API ToUpper(char16_t c);
 
-char16_t CRU_BASE_API IsWhitespace(char16_t c);
+bool CRU_BASE_API IsWhitespace(char16_t c);
 }  // namespace cru

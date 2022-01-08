@@ -1,10 +1,17 @@
 #pragma once
 
+#include "cru/common/Exception.hpp"
 #include "cru/toml/TomlDocument.hpp"
 
 #include <optional>
 
 namespace cru::toml {
+// A very simple and tolerant TOML parser.
+class TomlParsingException : public Exception {
+ public:
+  using Exception::Exception;
+};
+
 class TomlParser {
  public:
   explicit TomlParser(String input);

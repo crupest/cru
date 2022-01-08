@@ -8,6 +8,7 @@ target_link_libraries(cru_test_base INTERFACE GTest::gtest GTest::gtest_main)
 add_subdirectory(common)
 add_subdirectory(platform)
 add_subdirectory(xml)
+add_subdirectory(toml)
 
 if(WIN32)
 	add_subdirectory(win)

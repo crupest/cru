@@ -28,6 +28,11 @@ TEST(String, Format) {
   ASSERT_EQ(Format(u"{} + {} = {}", 123, 321, 444), String(u"123 + 321 = 444"));
 }
 
+TEST(String, Trim) {
+  using cru::String;
+  ASSERT_EQ(String(u"  abc  ").Trim(), u"abc");
+}
+
 TEST(String, SplitToLines) {
   using cru::String;
 

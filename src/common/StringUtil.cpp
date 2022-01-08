@@ -253,7 +253,7 @@ char16_t ToUpper(char16_t c) {
   return c;
 }
 
-char16_t IsWhitespace(char16_t c) {
+bool IsWhitespace(char16_t c) {
   return c == u' ' || c == u'\t' || c == u'\n' || c == u'\r';
 }
 }  // namespace cru

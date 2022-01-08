@@ -17,6 +17,47 @@ TomlDocument TomlParser::Parse() {
 }
 
 void TomlParser::DoParse(TomlDocument& document) {
-  // TODO: Implement this.
+  std::vector<String> lines = input_.SplitToLines(true);
+
+  String current_section_name;
+
+  for (auto& line : lines) {
+    line.Trim();
+    if (line.StartWith(u"[") && line.EndWith(u"]")) {
+      current_section_name = line.substr(1, line.size() - 2);
+    } else if (line.StartWith(u"#")) {
+      // Ignore comments.
+    } else {
+      auto equal_index = line.Find(u'=');
+
+      if (equal_index == -1) {
+        throw TomlParsingException(u"Invalid TOML line: " + line);
+      }
+
+      auto key = line.substr(0, equal_index).Trim();
+      auto value = line.substr(equal_index + 1).Trim();
+
+      auto remove_quote = [](const String& str) -> String {
+        if (str.size() < 2) {
+          return str;
+        }
+
+        if (str.StartWith(u"\"") && str.EndWith(u"\"")) {
+          return str.substr(1, str.size() - 2);
+        }
+
+        if (str.StartWith(u"\'") && str.EndWith(u"\'")) {
+          return str.substr(1, str.size() - 2);
+        }
+
+        return str;
+      };
+
+      key = remove_quote(key);
+      value = remove_quote(value);
+
+      document.GetSectionOrCreate(current_section_name)->SetValue(key, value);
+    }
+  }
 }
 }  // namespace cru::toml

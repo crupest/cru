@@ -31,6 +31,15 @@ const TomlSection* TomlDocument::GetSection(const String& name) const {
   return &it->second;
 }
 
+TomlSection* TomlDocument::GetSectionOrCreate(const String& name) {
+  auto it = sections_.find(name);
+  if (it == sections_.end()) {
+    sections_[name] = TomlSection();
+    return &sections_[name];
+  }
+  return &it->second;
+}
+
 void TomlDocument::SetSection(const String& name, TomlSection section) {
   sections_[name] = std::move(section);
 }

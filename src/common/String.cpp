@@ -206,7 +206,7 @@ String::iterator String::erase(const_iterator start, const_iterator end) {
   auto s = const_cast<iterator>(start);
   auto e = const_cast<iterator>(end);
 
-  std::memmove(e, s, (cend() - end) * sizeof(value_type));
+  std::memmove(s, e, (cend() - end) * sizeof(value_type));
   this->size_ = new_size;
   this->buffer_[new_size] = 0;
 
@@ -296,6 +296,16 @@ std::vector<String> String::SplitToLines(bool remove_space_line) const {
   }
 
   return result;
+}
+
+bool String::StartWith(StringView str) const {
+  if (str.size() > size_) return false;
+  return std::memcmp(str.data(), buffer_, str.size()) == 0;
+}
+
+bool String::EndWith(StringView str) const {
+  if (str.size() > size_) return false;
+  return std::memcmp(str.data(), buffer_ + size_ - str.size(), str.size()) == 0;
 }
 
 std::string String::ToUtf8() const { return cru::ToUtf8(buffer_, size_); }

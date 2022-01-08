@@ -37,6 +37,7 @@ class TomlDocument {
 
  public:
   TomlSection* GetSection(const String& name);
+  TomlSection* GetSectionOrCreate(const String& name);
   const TomlSection* GetSection(const String& name) const;
   void SetSection(const String& name, TomlSection section);
   void DeleteSection(const String& name);
