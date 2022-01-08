@@ -40,7 +40,7 @@
 
 #define CRU_DEFAULT_CONSTRUCTOR_DESTRUCTOR(classname) \
   classname() = default;                              \
-  ~classname() override = default;
+  ~classname() = default;
 
 #define CRU_DEFINE_COMPARE_OPERATORS(classname)                           \
   inline bool operator==(const classname& left, const classname& right) { \
