@@ -1,12 +1,10 @@
 tasks:
   - name: vcpkg
-    env:
-      VCPKG_INSTALLATION_ROOT: /tmp/vcpkg
     init: |
       brew install ninja
-      git clone https://github.com/Microsoft/vcpkg.git /tmp/vcpkg
-      /tmp/vcpkg/bootstrap-vcpkg.sh
-      /tmp/vcpkg/vcpkg install
+      git clone https://github.com/Microsoft/vcpkg.git
+      ./vcpkg/bootstrap-vcpkg.sh
+      ./vcpkg/vcpkg install
       cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=TRUE -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -H. -B./build -G Ninja
       ln -s build/compile_commands.json compile_commands.json
 
