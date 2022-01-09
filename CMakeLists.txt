@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.14)
 
 if(NOT CMAKE_TOOLCHAIN_FILE)
 	message("CMAKE_TOOLCHAIN_FILE not set. Begin to find vcpkg toolchain file.")
-    if($ENV{VCPKG_INSTALLATION_ROOT})
+    if(DEFINED ENV{VCPKG_INSTALLATION_ROOT})
 		message("VCPKG_INSTALLATION_ROOT environment variable is set. Use that vcpkg.")
 		set(CMAKE_TOOLCHAIN_FILE $ENV{VCPKG_INSTALLATION_ROOT}/scripts/buildsystems/vcpkg.cmake
 		CACHE STRING "Vcpkg toolchain file")
