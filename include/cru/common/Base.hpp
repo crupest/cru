@@ -13,7 +13,6 @@
 
 #include <gsl/gsl>
 #include <stdexcept>
-#include <string>
 
 #define CRU_UNUSED(entity) static_cast<void>(entity);
 
