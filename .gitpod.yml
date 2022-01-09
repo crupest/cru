@@ -3,7 +3,7 @@ tasks:
     env:
       VCPKG_INSTALLATION_ROOT: /opt/vcpkg
     init: |
-      brew install ninja
+      sudo apt-get install ninja-build
       git clone https://github.com/Microsoft/vcpkg.git /tmp/vcpkg
       /tmp/vcpkg/bootstrap-vcpkg.sh
       /tmp/vcpkg/vcpkg install
