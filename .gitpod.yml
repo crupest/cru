@@ -3,9 +3,9 @@ tasks:
     env:
       VCPKG_INSTALLATION_ROOT: /opt/vcpkg
     init: |
-      git clone https://github.com/Microsoft/vcpkg.git /opt/vcpkg
-      /opt/vcpkg/bootstrap-vcpkg.sh
-      /opt/vcpkg/vcpkg install
+      git clone https://github.com/Microsoft/vcpkg.git /tmp/vcpkg
+      /tmp/vcpkg/bootstrap-vcpkg.sh
+      /tmp/vcpkg/vcpkg install
 
 vscode:
   extensions:
