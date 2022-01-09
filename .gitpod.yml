@@ -1,0 +1,14 @@
+tasks:
+  - name: vcpkg
+    env:
+      VCPKG_INSTALLATION_ROOT: /opt/vcpkg
+    init: |
+      git clone https://github.com/Microsoft/vcpkg.git /opt/vcpkg
+      /opt/vcpkg/bootstrap-vcpkg.sh
+      /opt/vcpkg/vcpkg install
+
+vscode:
+  extensions:
+    - "llvm-vs-code-extensions.vscode-clangd"
+    - "ms-vscode.cmake-tools"
+    - "wayou.vscode-todo-highlight"

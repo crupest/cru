@@ -89,5 +89,9 @@
     "variant": "cpp",
     "gsl": "cpp"
   },
-  "cmake.generator": "Ninja"
+  "cmake.generator": "Ninja",
+  "yaml.schemas": {
+    "https://raw.githubusercontent.com/gitpod-io/gitpod/main/components/gitpod-protocol/data/gitpod-schema.json": ".gitpod.yml",
+    "https://json.schemastore.org/github-workflow.json": ".github/workflows/*"
+  }
 }
