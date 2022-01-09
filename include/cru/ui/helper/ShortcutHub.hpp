@@ -131,7 +131,7 @@ class ShortcutHub : public Object {
  private:
   std::unordered_map<ShortcutKeyBind, std::vector<ShortcutInfo>> map_;
 
-  const std::vector<ShortcutInfo> empty_list_;
+  std::vector<ShortcutInfo> empty_list_;
 
   int current_id_ = 1;
 

@@ -27,7 +27,7 @@ void XmlElementNode::AddAttribute(String key, String value) {
 }
 
 void XmlElementNode::AddChild(XmlNode* child) {
-  assert(child->GetParent() == nullptr);
+  Expects(child->GetParent() == nullptr);
   children_.push_back(child);
   child->parent_ = this;
 }
