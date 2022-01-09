@@ -10,6 +10,8 @@ It is **under construction**. It can be built with _CMake_.
 
 After I changed to macOS, Windows feature is left behind now.
 
+[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/crupest/cru)
+
 ## build
 
 _cru_ uses [_vcpkg_](https://github.com/microsoft/vcpkg) with _manifests mode_ to manage dependencies. You must setup vcpkg and `VCPKG_INSTALLATION_ROOT` environment variable.
