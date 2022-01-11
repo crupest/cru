@@ -7,7 +7,7 @@
 #include <memory>
 
 namespace cru::platform::graphics::win::direct {
-class DirectGraphFactory;
+class DirectGraphicsFactory;
 }
 
 namespace cru::platform::gui::win {
@@ -41,11 +41,11 @@ class WinUiApplication : public WinNativeResource,
   void CancelTimer(long long id) override;
 
   std::vector<INativeWindow*> GetAllWindow() override;
-  INativeWindow* CreateWindow(INativeWindow* parent, CreateWindowFlag flag) override;
+  INativeWindow* CreateWindow() override;
 
-  cru::platform::graphics::IGraphFactory* GetGraphFactory() override;
+  cru::platform::graphics::IGraphicsFactory* GetGraphicsFactory() override;
 
-  cru::platform::graphics::win::direct::DirectGraphFactory* GetDirectFactory() {
+  cru::platform::graphics::win::direct::DirectGraphicsFactory* GetDirectFactory() {
     return graph_factory_.get();
   }
 
@@ -60,7 +60,7 @@ class WinUiApplication : public WinNativeResource,
  private:
   HINSTANCE instance_handle_;
 
-  std::unique_ptr<cru::platform::graphics::win::direct::DirectGraphFactory>
+  std::unique_ptr<cru::platform::graphics::win::direct::DirectGraphicsFactory>
       graph_factory_;
 
   std::unique_ptr<GodWindow> god_window_;

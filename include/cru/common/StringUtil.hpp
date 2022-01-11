@@ -49,7 +49,7 @@ class CodePointIterator {
   struct past_end_tag_t {};
 
   explicit CodePointIterator(const CharType* ptr, Index size, Index current = 0)
-      : ptr_(ptr), size_(size), position_(0) {}
+      : ptr_(ptr), size_(size), position_(current) {}
   explicit CodePointIterator(const CharType* ptr, Index size, past_end_tag_t)
       : ptr_(ptr), size_(size), position_(size) {}
 

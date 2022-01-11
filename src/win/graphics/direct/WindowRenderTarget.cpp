@@ -5,7 +5,7 @@
 
 namespace cru::platform::graphics::win::direct {
 D2DWindowRenderTarget::D2DWindowRenderTarget(
-    gsl::not_null<DirectGraphFactory*> factory, HWND hwnd)
+    gsl::not_null<DirectGraphicsFactory*> factory, HWND hwnd)
     : factory_(factory), hwnd_(hwnd) {
   const auto d3d11_device = factory->GetD3D11Device();
   const auto dxgi_factory = factory->GetDxgiFactory();

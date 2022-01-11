@@ -5,8 +5,8 @@
 #include "cru/win/graphics/direct/Factory.hpp"
 
 namespace cru::platform::graphics::win::direct {
-D2DSolidColorBrush::D2DSolidColorBrush(DirectGraphFactory* factory)
-    : DirectGraphResource(factory) {
+D2DSolidColorBrush::D2DSolidColorBrush(DirectGraphicsFactory* factory)
+    : DirectGraphicsResource(factory) {
   ThrowIfFailed(factory->GetDefaultD2D1DeviceContext()->CreateSolidColorBrush(
       Convert(color_), &brush_));
 }

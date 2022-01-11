@@ -9,10 +9,9 @@
 #include <utility>
 
 namespace cru::platform::graphics::win::direct {
-DWriteTextLayout::DWriteTextLayout(DirectGraphFactory* factory,
-                                   std::shared_ptr<IFont> font,
-                                   std::u16string text)
-    : DirectGraphResource(factory), text_(std::move(text)) {
+DWriteTextLayout::DWriteTextLayout(DirectGraphicsFactory* factory,
+                                   std::shared_ptr<IFont> font, String text)
+    : DirectGraphicsResource(factory), text_(std::move(text)) {
   Expects(font);
   font_ = CheckPlatform<DWriteFont>(font, GetPlatformId());
 
@@ -24,12 +23,10 @@ DWriteTextLayout::DWriteTextLayout(DirectGraphFactory* factory,
 
 DWriteTextLayout::~DWriteTextLayout() = default;
 
-std::u16string DWriteTextLayout::GetText() { return text_; }
+String DWriteTextLayout::GetText() { return text_; }
 
-std::u16string_view DWriteTextLayout::GetTextView() { return text_; }
-
-void DWriteTextLayout::SetText(std::u16string new_text) {
-  text_.swap(new_text);
+void DWriteTextLayout::SetText(String new_text) {
+  text_ = std::move(new_text);
   ThrowIfFailed(GetDirectFactory()->GetDWriteFactory()->CreateTextLayout(
       reinterpret_cast<const wchar_t*>(text_.c_str()),
       static_cast<UINT32>(text_.size()), font_->GetComInterface(), max_width_,
@@ -100,14 +97,14 @@ std::vector<Rect> DWriteTextLayout::TextRangeRect(
   return result;
 }
 
-Point DWriteTextLayout::TextSinglePoint(Index position, bool trailing) {
+Rect DWriteTextLayout::TextSinglePoint(Index position, bool trailing) {
   DWRITE_HIT_TEST_METRICS metrics;
   FLOAT left;
   FLOAT top;
   ThrowIfFailed(text_layout_->HitTestTextPosition(static_cast<UINT32>(position),
                                                   static_cast<BOOL>(trailing),
                                                   &left, &top, &metrics));
-  return Point{left, top};
+  return Rect{left, top, 0, GetFont()->GetFontSize()};
 }
 
 TextHitTestResult DWriteTextLayout::HitTest(const Point& point) {
@@ -121,7 +118,6 @@ TextHitTestResult DWriteTextLayout::HitTest(const Point& point) {
   TextHitTestResult result;
   result.position = metrics.textPosition;
   result.trailing = trailing != 0;
-  result.insideText = inside != 0;
   return result;
 }
 }  // namespace cru::platform::graphics::win::direct

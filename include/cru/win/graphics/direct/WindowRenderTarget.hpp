@@ -5,7 +5,7 @@ namespace cru::platform::graphics::win::direct {
 // Represents a window render target.
 class D2DWindowRenderTarget : public Object {
  public:
-  D2DWindowRenderTarget(gsl::not_null<DirectGraphFactory*> factory, HWND hwnd);
+  D2DWindowRenderTarget(gsl::not_null<DirectGraphicsFactory*> factory, HWND hwnd);
 
   CRU_DELETE_COPY(D2DWindowRenderTarget)
   CRU_DELETE_MOVE(D2DWindowRenderTarget)
@@ -13,7 +13,7 @@ class D2DWindowRenderTarget : public Object {
   ~D2DWindowRenderTarget() override = default;
 
  public:
-  graphics::win::direct::DirectGraphFactory* GetDirectFactory() const {
+  graphics::win::direct::DirectGraphicsFactory* GetDirectFactory() const {
     return factory_;
   }
 
@@ -33,7 +33,7 @@ class D2DWindowRenderTarget : public Object {
   void CreateTargetBitmap();
 
  private:
-  DirectGraphFactory* factory_;
+  DirectGraphicsFactory* factory_;
   HWND hwnd_;
   Microsoft::WRL::ComPtr<ID2D1DeviceContext> d2d1_device_context_;
   Microsoft::WRL::ComPtr<IDXGISwapChain1> dxgi_swap_chain_;

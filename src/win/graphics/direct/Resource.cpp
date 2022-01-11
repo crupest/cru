@@ -5,10 +5,12 @@
 namespace cru::platform::graphics::win::direct {
 String DirectResource::kPlatformId = u"Windows Direct";
 
-DirectGraphResource::DirectGraphResource(DirectGraphFactory* factory)
+DirectGraphicsResource::DirectGraphicsResource(DirectGraphicsFactory* factory)
     : factory_(factory) {
   Expects(factory);
 }
 
-IGraphFactory* DirectGraphResource::GetGraphFactory() { return factory_; }
+IGraphicsFactory* DirectGraphicsResource::GetGraphicsFactory() {
+  return factory_;
+}
 }  // namespace cru::platform::graphics::win::direct

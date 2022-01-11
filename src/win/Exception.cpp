@@ -1,6 +1,5 @@
 #include "cru/win/Exception.hpp"
 
-#include <fmt/format.h>
 #include <optional>
 
 namespace cru::platform::win {

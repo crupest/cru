@@ -65,7 +65,7 @@ class WinInputMethodContext : public WinNativeResource,
 
   IEvent<std::nullptr_t>* CompositionEvent() override;
 
-  IEvent<std::u16string_view>* TextEvent() override;
+  IEvent<StringView>* TextEvent() override;
 
  private:
   void OnWindowNativeMessage(WindowNativeMessageEventArgs& args);

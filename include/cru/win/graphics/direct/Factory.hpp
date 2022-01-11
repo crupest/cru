@@ -4,14 +4,15 @@
 #include "cru/platform/graphics/Factory.hpp"
 
 namespace cru::platform::graphics::win::direct {
-class DirectGraphFactory : public DirectResource, public virtual IGraphFactory {
+class DirectGraphicsFactory : public DirectResource,
+                              public virtual IGraphicsFactory {
  public:
-  DirectGraphFactory();
+  DirectGraphicsFactory();
 
-  CRU_DELETE_COPY(DirectGraphFactory)
-  CRU_DELETE_MOVE(DirectGraphFactory)
+  CRU_DELETE_COPY(DirectGraphicsFactory)
+  CRU_DELETE_MOVE(DirectGraphicsFactory)
 
-  ~DirectGraphFactory() override;
+  ~DirectGraphicsFactory() override;
 
  public:
   ID3D11Device* GetD3D11Device() const { return d3d11_device_.Get(); }
@@ -38,11 +39,11 @@ class DirectGraphFactory : public DirectResource, public virtual IGraphFactory {
 
   std::unique_ptr<IGeometryBuilder> CreateGeometryBuilder() override;
 
-  std::unique_ptr<IFont> CreateFont(std::u16string font_family,
+  std::unique_ptr<IFont> CreateFont(String font_family,
                                     float font_size) override;
 
   std::unique_ptr<ITextLayout> CreateTextLayout(std::shared_ptr<IFont> font,
-                                                std::u16string text) override;
+                                                String text) override;
 
  private:
   Microsoft::WRL::ComPtr<ID3D11Device> d3d11_device_;

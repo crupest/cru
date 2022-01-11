@@ -7,9 +7,9 @@
 #include <utility>
 
 namespace cru::platform::graphics::win::direct {
-DWriteFont::DWriteFont(DirectGraphFactory* factory, std::u16string font_family,
+DWriteFont::DWriteFont(DirectGraphicsFactory* factory, String font_family,
                        float font_size)
-    : DirectGraphResource(factory), font_family_(std::move(font_family)) {
+    : DirectGraphicsResource(factory), font_family_(std::move(font_family)) {
   // Get locale
   std::array<wchar_t, LOCALE_NAME_MAX_LENGTH> buffer;
   if (!::GetUserDefaultLocaleName(buffer.data(),

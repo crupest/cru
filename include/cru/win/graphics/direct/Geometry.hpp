@@ -5,10 +5,10 @@
 #include "cru/platform/graphics/Geometry.hpp"
 
 namespace cru::platform::graphics::win::direct {
-class D2DGeometryBuilder : public DirectGraphResource,
+class D2DGeometryBuilder : public DirectGraphicsResource,
                            public virtual IGeometryBuilder {
  public:
-  explicit D2DGeometryBuilder(DirectGraphFactory* factory);
+  explicit D2DGeometryBuilder(DirectGraphicsFactory* factory);
 
   CRU_DELETE_COPY(D2DGeometryBuilder)
   CRU_DELETE_MOVE(D2DGeometryBuilder)
@@ -33,11 +33,11 @@ class D2DGeometryBuilder : public DirectGraphResource,
   Microsoft::WRL::ComPtr<ID2D1GeometrySink> geometry_sink_;
 };
 
-class D2DGeometry : public DirectGraphResource,
+class D2DGeometry : public DirectGraphicsResource,
                     public virtual IGeometry,
                     public IComResource<ID2D1Geometry> {
  public:
-  D2DGeometry(DirectGraphFactory* factory,
+  D2DGeometry(DirectGraphicsFactory* factory,
               Microsoft::WRL::ComPtr<ID2D1PathGeometry> geometry);
 
   CRU_DELETE_COPY(D2DGeometry)

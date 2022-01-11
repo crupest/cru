@@ -113,6 +113,8 @@ CodePoint Utf16NextCodePoint(const char16_t* ptr, Index size, Index current,
 
 CodePoint Utf16PreviousCodePoint(const char16_t* ptr, Index size, Index current,
                                  Index* previous_position) {
+  CRU_UNUSED(size)
+
   CodePoint result;
   if (current <= 0) {
     result = k_invalid_code_point;

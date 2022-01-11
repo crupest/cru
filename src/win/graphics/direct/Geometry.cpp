@@ -5,8 +5,8 @@
 #include "cru/win/graphics/direct/Factory.hpp"
 
 namespace cru::platform::graphics::win::direct {
-D2DGeometryBuilder::D2DGeometryBuilder(DirectGraphFactory* factory)
-    : DirectGraphResource(factory) {
+D2DGeometryBuilder::D2DGeometryBuilder(DirectGraphicsFactory* factory)
+    : DirectGraphicsResource(factory) {
   ThrowIfFailed(factory->GetD2D1Factory()->CreatePathGeometry(&geometry_));
   ThrowIfFailed(geometry_->Open(&geometry_sink_));
 }
@@ -49,9 +49,9 @@ std::unique_ptr<IGeometry> D2DGeometryBuilder::Build() {
   return geometry;
 }
 
-D2DGeometry::D2DGeometry(DirectGraphFactory* factory,
+D2DGeometry::D2DGeometry(DirectGraphicsFactory* factory,
                          Microsoft::WRL::ComPtr<ID2D1PathGeometry> geometry)
-    : DirectGraphResource(factory), geometry_(std::move(geometry)) {}
+    : DirectGraphicsResource(factory), geometry_(std::move(geometry)) {}
 
 bool D2DGeometry::FillContains(const Point& point) {
   BOOL result;

@@ -37,7 +37,7 @@ WinUiApplication::WinUiApplication() {
       std::make_unique<::cru::platform::win::WinStdOutLoggerSource>());
 
   graph_factory_ = std::make_unique<
-      cru::platform::graphics::win::direct::DirectGraphFactory>();
+      cru::platform::graphics::win::direct::DirectGraphicsFactory>();
 
   god_window_ = std::make_unique<GodWindow>(this);
   timer_manager_ = std::make_unique<TimerManager>(god_window_.get());
@@ -112,7 +112,7 @@ INativeWindow* WinUiApplication::CreateWindow(INativeWindow* parent,
                              p);
 }
 
-cru::platform::graphics::IGraphFactory* WinUiApplication::GetGraphFactory() {
+cru::platform::graphics::IGraphicsFactory* WinUiApplication::GetGraphicsFactory() {
   return graph_factory_.get();
 }
 

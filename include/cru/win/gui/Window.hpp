@@ -2,7 +2,6 @@
 #include "Resource.hpp"
 
 #include "WindowNativeMessageEventArgs.hpp"
-#include "cru/platform/GraphBase.hpp"
 #include "cru/platform/gui/Base.hpp"
 #include "cru/platform/gui/Window.hpp"
 #include "cru/win/graphics/direct/WindowRenderTarget.hpp"
@@ -27,8 +26,6 @@ class WinNativeWindow : public WinNativeResource, public virtual INativeWindow {
 
   WinNativeWindow* GetParent() override { return parent_window_; }
 
-  bool IsVisible() override;
-  void SetVisible(bool is_visible) override;
 
   Size GetClientSize() override;
   void SetClientSize(const Size& size) override;

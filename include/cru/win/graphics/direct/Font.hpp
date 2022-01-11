@@ -7,11 +7,11 @@
 #include <string_view>
 
 namespace cru::platform::graphics::win::direct {
-class DWriteFont : public DirectGraphResource,
+class DWriteFont : public DirectGraphicsResource,
                    public virtual IFont,
                    public virtual IComResource<IDWriteTextFormat> {
  public:
-  DWriteFont(DirectGraphFactory* factory, std::u16string font_family,
+  DWriteFont(DirectGraphicsFactory* factory, String font_family,
              float font_size);
 
   CRU_DELETE_COPY(DWriteFont)
@@ -27,7 +27,7 @@ class DWriteFont : public DirectGraphResource,
   float GetFontSize() override;
 
  private:
-  std::u16string font_family_;
+  String font_family_;
   Microsoft::WRL::ComPtr<IDWriteTextFormat> text_format_;
 };
 }  // namespace cru::platform::graphics::win::direct
