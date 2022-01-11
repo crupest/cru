@@ -1,5 +1,4 @@
 #include <memory>
-#include "cru/platform/HeapDebug.hpp"
 #include "cru/platform/bootstrap/Bootstrap.hpp"
 #include "cru/platform/gui/Base.hpp"
 #include "cru/platform/gui/UiApplication.hpp"

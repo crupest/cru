@@ -93,6 +93,18 @@ class ClonablePtr {
   element_type& operator*() const noexcept { return *ptr_; }
   pointer operator->() const noexcept { return ptr_.get(); }
 
+  int Compare(const ClonablePtr& other) const noexcept {
+    if (ptr_ == other.ptr_) {
+      return 0;
+    } else if (ptr_ < other.ptr_) {
+      return -1;
+    } else {
+      return 1;
+    }
+  }
+
+  int Compare(nullptr_t) const noexcept { return ptr_ ? 1 : 0; }
+
  private:
   std::unique_ptr<element_type> ptr_;
 };
@@ -104,92 +116,92 @@ void swap(ClonablePtr<T>& left, ClonablePtr<T>& right) noexcept {
 
 template <typename T>
 bool operator==(const ClonablePtr<T>& left, const ClonablePtr<T>& right) {
-  return left.get() == right.get();
+  return left.Compare(right) == 0;
 }
 
 template <typename T>
 bool operator!=(const ClonablePtr<T>& left, const ClonablePtr<T>& right) {
-  return left.get() != right.get();
+  return left.Compare(right) != 0;
 }
 
 template <typename T>
 bool operator<(const ClonablePtr<T>& left, const ClonablePtr<T>& right) {
-  return left.get() < right.get();
+  return left.Compare(right) < 0;
 }
 
 template <typename T>
 bool operator<=(const ClonablePtr<T>& left, const ClonablePtr<T>& right) {
-  return left.get() <= right.get();
+  return left.Compare(right) <= 0;
 }
 
 template <typename T>
 bool operator>(const ClonablePtr<T>& left, const ClonablePtr<T>& right) {
-  return left.get() > right.get();
+  return left.Compare(right) > 0;
 }
 
 template <typename T>
 bool operator>=(const ClonablePtr<T>& left, const ClonablePtr<T>& right) {
-  return left.get() >= right.get();
+  return left.Compare(right) >= 0;
 }
 
 template <typename T>
 bool operator==(const ClonablePtr<T>& left, std::nullptr_t) {
-  return left.get() == nullptr;
+  return left.Compare(nullptr) == 0;
 }
 
 template <typename T>
 bool operator!=(const ClonablePtr<T>& left, std::nullptr_t) {
-  return left.get() != nullptr;
+  return left.Compare(nullptr) != 0;
 }
 
 template <typename T>
 bool operator<(const ClonablePtr<T>& left, std::nullptr_t) {
-  return left.get() < nullptr;
+  return left.Compare(nullptr) < 0;
 }
 
 template <typename T>
 bool operator<=(const ClonablePtr<T>& left, std::nullptr_t) {
-  return left.get() <= nullptr;
+  return left.Compare(nullptr) <= 0;
 }
 
 template <typename T>
 bool operator>(const ClonablePtr<T>& left, std::nullptr_t) {
-  return left.get() > nullptr;
+  return left.Compare(nullptr) > 0;
 }
 
 template <typename T>
 bool operator>=(const ClonablePtr<T>& left, std::nullptr_t) {
-  return left.get() >= nullptr;
+  return left.Compare(nullptr) >= 0;
 }
 
 template <typename T>
 bool operator==(std::nullptr_t, const ClonablePtr<T>& right) {
-  return nullptr == right.get();
+  return right.Compare(nullptr) == 0;
 }
 
 template <typename T>
 bool operator!=(std::nullptr_t, const ClonablePtr<T>& right) {
-  return nullptr != right.get();
+  return right.Compare(nullptr) != 0;
 }
 
 template <typename T>
 bool operator<(std::nullptr_t, const ClonablePtr<T>& right) {
-  return nullptr < right.get();
+  return right.Compare(nullptr) > 0;
 }
 
 template <typename T>
 bool operator<=(std::nullptr_t, const ClonablePtr<T>& right) {
-  return nullptr <= right.get();
+  return right.Compare(nullptr) >= 0;
 }
 
 template <typename T>
 bool operator>(std::nullptr_t, const ClonablePtr<T>& right) {
-  return nullptr > right.get();
+  return right.Compare(nullptr) < 0;
 }
 
 template <typename T>
 bool operator>=(std::nullptr_t, const ClonablePtr<T>& right) {
-  return nullptr >= right.get();
+  return right.Compare(nullptr) <= 0;
 }
 
 }  // namespace cru
