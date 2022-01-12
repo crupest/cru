@@ -7,12 +7,12 @@
 
 namespace cru::toml {
 // A very simple and tolerant TOML parser.
-class TomlParsingException : public Exception {
+class CRU_TOML_API TomlParsingException : public Exception {
  public:
   using Exception::Exception;
 };
 
-class TomlParser {
+class CRU_TOML_API TomlParser {
  public:
   explicit TomlParser(String input);
 

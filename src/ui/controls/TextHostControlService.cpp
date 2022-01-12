@@ -87,7 +87,7 @@ TextControlMovePattern TextControlMovePattern::kHome(
        gsl::index current_position) {
       CRU_UNUSED(service)
       return Utf16BackwardUntil(text, current_position,
-                                [](char16_t c) { return c == u'\n'; });
+                                [](CodePoint c) { return c == u'\n'; });
     });
 TextControlMovePattern TextControlMovePattern::kEnd(
     u"End(Line End)", helper::ShortcutKeyBind(platform::gui::KeyCode::End),
@@ -95,7 +95,7 @@ TextControlMovePattern TextControlMovePattern::kEnd(
        gsl::index current_position) {
       CRU_UNUSED(service)
       return Utf16ForwardUntil(text, current_position,
-                               [](char16_t c) { return c == u'\n'; });
+                               [](CodePoint c) { return c == u'\n'; });
     });
 TextControlMovePattern TextControlMovePattern::kCtrlHome(
     u"Ctrl+Home(Document Begin)",

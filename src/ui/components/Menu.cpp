@@ -92,7 +92,7 @@ PopupMenu::PopupMenu(controls::Control* attached_control)
 
   menu_ = new Menu();
 
-  menu_->SetOnItemClick([this](Index _) { this->Close(); });
+  menu_->SetOnItemClick([this](Index) { this->Close(); });
 
   popup_->AddChild(menu_->GetRootControl(), 0);
 }

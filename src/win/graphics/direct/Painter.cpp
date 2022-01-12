@@ -146,7 +146,7 @@ void D2DPainter::EndDraw() {
 void D2DPainter::CheckValidation() {
   if (!is_drawing_) {
     throw cru::platform::ReuseException(
-        L"Can't do that on painter after end drawing.");
+        u"Can't do that on painter after end drawing.");
   }
 }
 }  // namespace cru::platform::graphics::win::direct

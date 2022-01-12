@@ -44,7 +44,6 @@ class WinNativeWindow : public WinNativeResource, public virtual INativeWindow {
 
   // Set the rect of the window containing frame.
   // The lefttop of the rect is relative to screen lefttop.
-  // TODO: Known limitation: can't calc client rect and save.
   void SetWindowRect(const Rect& rect) override;
 
   bool RequestFocus() override;
@@ -149,8 +148,10 @@ class WinNativeWindow : public WinNativeResource, public virtual INativeWindow {
 
   //*************** region: native messages ***************
 
+  void OnCreateInternal();
   void OnDestroyInternal();
   void OnPaintInternal();
+  void OnMoveInternal(int new_left, int new_top);
   void OnResizeInternal(int new_width, int new_height);
 
   void OnSetFocusInternal();

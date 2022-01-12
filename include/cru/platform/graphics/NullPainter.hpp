@@ -3,7 +3,7 @@
 #include "cru/common/Base.hpp"
 
 namespace cru::platform::graphics {
-class NullPainter : public Object, public virtual IPainter {
+class CRU_PLATFORM_GRAPHICS_API NullPainter : public Object, public virtual IPainter {
  public:
   NullPainter() = default;
 

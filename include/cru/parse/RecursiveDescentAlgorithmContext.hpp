@@ -6,7 +6,7 @@
 #include "cru/parse/Terminal.hpp"
 
 namespace cru::parse {
-class RecursiveDescentAlgorithmContext : public ParsingAlgorithmContext {
+class CRU_PARSE_API RecursiveDescentAlgorithmContext : public ParsingAlgorithmContext {
  public:
   RecursiveDescentAlgorithmContext(Grammar* grammar,
                                    const RecursiveDescentAlgorithm* algorithm);

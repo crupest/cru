@@ -4,6 +4,7 @@
 
 namespace cru::parse {
 bool RecursiveDescentAlgorithm::CanHandle(Grammar *grammar) const {
+  CRU_UNUSED(grammar);
   return true;
 }
 

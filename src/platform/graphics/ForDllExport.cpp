@@ -1,0 +1,7 @@
+#include "cru/platform/graphics/Brush.hpp"
+#include "cru/platform/graphics/Factory.hpp"
+#include "cru/platform/graphics/Font.hpp"
+#include "cru/platform/graphics/Geometry.hpp"
+#include "cru/platform/graphics/Painter.hpp"
+#include "cru/platform/graphics/Resource.hpp"
+#include "cru/platform/graphics/TextLayout.hpp"

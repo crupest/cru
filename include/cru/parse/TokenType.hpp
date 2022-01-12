@@ -1,9 +1,11 @@
 #pragma once
+#include "Base.hpp"
+
 #include "cru/common/Base.hpp"
 #include "cru/common/String.hpp"
 
 namespace cru::parse {
-class TokenType : public Object {
+class CRU_PARSE_API TokenType : public Object {
  public:
   explicit TokenType(String name);
 

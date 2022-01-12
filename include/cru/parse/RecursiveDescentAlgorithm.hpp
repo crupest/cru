@@ -3,7 +3,7 @@
 #include "ParsingAlgorithm.hpp"
 
 namespace cru::parse {
-class RecursiveDescentAlgorithm : public ParsingAlgorithm {
+class CRU_PARSE_API RecursiveDescentAlgorithm : public ParsingAlgorithm {
  public:
   RecursiveDescentAlgorithm() = default;
 

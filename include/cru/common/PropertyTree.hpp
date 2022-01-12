@@ -8,7 +8,7 @@
 namespace cru {
 class PropertyTree;
 
-class PropertySubTreeRef {
+class CRU_BASE_API PropertySubTreeRef {
  public:
   static String CombineKey(StringView left, StringView right);
 
@@ -37,7 +37,7 @@ class PropertySubTreeRef {
   String path_;
 };
 
-class PropertyTree {
+class CRU_BASE_API PropertyTree {
  public:
   static String CombineKey(StringView left, StringView right);
 

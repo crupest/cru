@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Base.hpp"
+
 #include "cru/common/String.hpp"
 
 #include <algorithm>
@@ -10,7 +12,7 @@ namespace cru::xml {
 class XmlElementNode;
 class XmlTextNode;
 
-class XmlNode {
+class CRU_XML_API XmlNode {
   friend XmlElementNode;
 
  public:
@@ -40,7 +42,7 @@ class XmlNode {
   XmlElementNode* parent_ = nullptr;
 };
 
-class XmlTextNode : public XmlNode {
+class CRU_XML_API XmlTextNode : public XmlNode {
  public:
   XmlTextNode() : XmlNode(Type::Text) {}
   explicit XmlTextNode(String text)
@@ -61,7 +63,7 @@ class XmlTextNode : public XmlNode {
   String text_;
 };
 
-class XmlElementNode : public XmlNode {
+class CRU_XML_API XmlElementNode : public XmlNode {
  public:
   XmlElementNode() : XmlNode(Type::Element) {}
   explicit XmlElementNode(String tag,
@@ -86,9 +88,9 @@ class XmlElementNode : public XmlNode {
   }
   const std::vector<XmlNode*> GetChildren() const { return children_; }
 
-  int GetChildCount() const { return children_.size(); }
+  Index GetChildCount() const { return children_.size(); }
   String GetAttribute(const String& key) const { return attributes_.at(key); }
-  XmlNode* GetChildAt(int index) const { return children_[index]; }
+  XmlNode* GetChildAt(Index index) const { return children_[index]; }
 
   void AddAttribute(String key, String value);
   void AddChild(XmlNode* child);

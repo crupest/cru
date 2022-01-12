@@ -15,6 +15,7 @@
 #include "cru/win/gui/WindowClass.hpp"
 
 #include <windowsx.h>
+#include <winuser.h>
 
 namespace cru::platform::gui::win {
 namespace {
@@ -47,6 +48,21 @@ Rect CalcWindowRectFromClient(const Rect& rect, WindowStyleFlag style_flag,
   return result;
 }
 
+Rect CalcClientRectFromWindow(const Rect& rect, WindowStyleFlag style_flag,
+                              float dpi) {
+  RECT o{100, 100, 500, 500};
+  RECT s = o;
+  if (!AdjustWindowRectEx(&s, CalcWindowStyle(style_flag), FALSE, 0))
+    throw Win32Error(::GetLastError(), "Failed to invoke AdjustWindowRectEx.");
+
+  Rect result = rect;
+  result.Shrink(Thickness(PixelToDip(s.left - o.left, dpi),
+                          PixelToDip(o.top - s.top, dpi),
+                          PixelToDip(s.right - o.right, dpi),
+                          PixelToDip(s.bottom - o.bottom, dpi)));
+
+  return result;
+}
 }  // namespace
 
 WinNativeWindow::WinNativeWindow(WinUiApplication* application)
@@ -58,6 +74,15 @@ WinNativeWindow::~WinNativeWindow() { Close(); }
 
 void WinNativeWindow::Close() {
   if (hwnd_) ::DestroyWindow(hwnd_);
+}
+
+void WinNativeWindow::SetParent(INativeWindow *parent) {
+  auto p = CheckPlatform<WinNativeWindow>(parent, GetPlatformId());
+  parent_window_ = p;
+
+  if (hwnd_) {
+    ::SetParent(hwnd_, parent_window_->hwnd_);
+  }
 }
 
 void WinNativeWindow::SetStyleFlag(WindowStyleFlag flag) {
@@ -108,11 +133,11 @@ void WinNativeWindow::SetClientRect(const Rect& rect) {
   client_rect_ = rect;
 
   if (hwnd_) {
-    RECT rect =
+    RECT r =
         DipToPixel(CalcWindowRectFromClient(client_rect_, style_flag_, dpi_));
 
-    if (!SetWindowPos(hwnd_, nullptr, 0, 0, rect.right - rect.left,
-                      rect.bottom - rect.top, SWP_NOZORDER | SWP_NOMOVE))
+    if (!SetWindowPos(hwnd_, nullptr, 0, 0, r.right - r.left, r.bottom - r.top,
+                      SWP_NOZORDER | SWP_NOMOVE))
       throw Win32Error(::GetLastError(), "Failed to invoke SetWindowPos.");
   }
 }
@@ -126,17 +151,27 @@ Rect WinNativeWindow::GetWindowRect() {
     return Rect::FromVertices(PixelToDip(rect.left), PixelToDip(rect.top),
                               PixelToDip(rect.right), PixelToDip(rect.bottom));
   } else {
-    return {};
+    return CalcWindowRectFromClient(client_rect_, style_flag_, dpi_);
   }
 }
 
 void WinNativeWindow::SetWindowRect(const Rect& rect) {
+  client_rect_ = CalcClientRectFromWindow(rect, style_flag_, dpi_);
+
   if (hwnd_) {
     if (!SetWindowPos(hwnd_, nullptr, DipToPixel(rect.left),
                       DipToPixel(rect.top), DipToPixel(rect.GetRight()),
                       DipToPixel(rect.GetBottom()), SWP_NOZORDER))
       throw Win32Error(::GetLastError(), "Failed to invoke SetWindowPos.");
   }
+}
+
+bool WinNativeWindow::RequestFocus() {
+  if (hwnd_) {
+    SetFocus(hwnd_);
+    return true;
+  }
+  return false;
 }
 
 Point WinNativeWindow::GetMousePosition() {
@@ -193,7 +228,7 @@ void WinNativeWindow::SetCursor(std::shared_ptr<ICursor> cursor) {
 
   if (GetVisibility() != WindowVisibilityType::Show) return;
 
-  auto lg = [](const std::u16string_view& reason) {
+  auto lg = [](StringView reason) {
     log::TagWarn(
         log_tag,
         u"Failed to set cursor because {} when window is visible. (We need to "
@@ -348,6 +383,14 @@ bool WinNativeWindow::HandleNativeWindowMessage(HWND hwnd, UINT msg,
         return true;
       }
       return false;
+    case WM_CREATE:
+      OnCreateInternal();
+      *result = 0;
+      return true;
+    case WM_MOVE:
+      OnMoveInternal(LOWORD(l_param), HIWORD(l_param));
+      *result = 0;
+      return true;
     case WM_SIZE:
       OnResizeInternal(LOWORD(l_param), HIWORD(l_param));
       *result = 0;
@@ -427,6 +470,8 @@ void WinNativeWindow::RecreateWindow() {
   input_method_context_->DisableIME();
 }
 
+void WinNativeWindow::OnCreateInternal() { create_event_.Raise(nullptr); }
+
 void WinNativeWindow::OnDestroyInternal() {
   destroy_event_.Raise(nullptr);
   application_->GetWindowManager()->UnregisterWindow(hwnd_);
@@ -441,8 +486,15 @@ void WinNativeWindow::OnPaintInternal() {
   }
 }
 
+void WinNativeWindow::OnMoveInternal(const int new_left, const int new_top) {
+  client_rect_.left = PixelToDip(new_left);
+  client_rect_.top = PixelToDip(new_top);
+}
+
 void WinNativeWindow::OnResizeInternal(const int new_width,
                                        const int new_height) {
+  client_rect_.width = PixelToDip(new_width);
+  client_rect_.height = PixelToDip(new_height);
   if (!(new_width == 0 && new_height == 0)) {
     window_render_target_->ResizeBuffer(new_width, new_height);
     resize_event_.Raise(Size{PixelToDip(new_width), PixelToDip(new_height)});

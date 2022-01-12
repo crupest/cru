@@ -147,7 +147,6 @@ Rect TextRenderObject::GetCaretRectInContent() {
   const auto caret_top_center =
       this->text_layout_->TextSinglePoint(caret_pos, false);
 
-  const auto font_height = this->font_->GetFontSize();
   const auto caret_width = this->caret_width_;
 
   auto rect = Rect{caret_top_center.left - caret_width / 2.0f,

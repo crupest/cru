@@ -2,7 +2,7 @@
 #include "Symbol.hpp"
 
 namespace cru::parse {
-class Nonterminal : public Symbol {
+class CRU_PARSE_API Nonterminal : public Symbol {
  public:
   Nonterminal(Grammar* grammar, String name);
 
