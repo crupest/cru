@@ -4,7 +4,7 @@
 #include <vector>
 
 namespace cru::parse {
-class ParsingTreeNode {
+class CRU_PARSE_API ParsingTreeNode {
  public:
   ParsingTreeNode(Symbol* symbol, Production* production);
 

@@ -1,4 +1,5 @@
 #include "cru/win/graphics/direct/TextLayout.hpp"
+#include <dwrite.h>
 
 #include "cru/common/Logger.hpp"
 #include "cru/platform/Check.hpp"
@@ -9,10 +10,9 @@
 #include <utility>
 
 namespace cru::platform::graphics::win::direct {
-DWriteTextLayout::DWriteTextLayout(DirectGraphFactory* factory,
-                                   std::shared_ptr<IFont> font,
-                                   std::u16string text)
-    : DirectGraphResource(factory), text_(std::move(text)) {
+DWriteTextLayout::DWriteTextLayout(DirectGraphicsFactory* factory,
+                                   std::shared_ptr<IFont> font, String text)
+    : DirectGraphicsResource(factory), text_(std::move(text)) {
   Expects(font);
   font_ = CheckPlatform<DWriteFont>(font, GetPlatformId());
 
@@ -24,12 +24,10 @@ DWriteTextLayout::DWriteTextLayout(DirectGraphFactory* factory,
 
 DWriteTextLayout::~DWriteTextLayout() = default;
 
-std::u16string DWriteTextLayout::GetText() { return text_; }
+String DWriteTextLayout::GetText() { return text_; }
 
-std::u16string_view DWriteTextLayout::GetTextView() { return text_; }
-
-void DWriteTextLayout::SetText(std::u16string new_text) {
-  text_.swap(new_text);
+void DWriteTextLayout::SetText(String new_text) {
+  text_ = std::move(new_text);
   ThrowIfFailed(GetDirectFactory()->GetDWriteFactory()->CreateTextLayout(
       reinterpret_cast<const wchar_t*>(text_.c_str()),
       static_cast<UINT32>(text_.size()), font_->GetComInterface(), max_width_,
@@ -56,6 +54,44 @@ void DWriteTextLayout::SetMaxWidth(float max_width) {
 void DWriteTextLayout::SetMaxHeight(float max_height) {
   max_height_ = max_height;
   ThrowIfFailed(text_layout_->SetMaxHeight(max_height_));
+}
+
+bool DWriteTextLayout::IsEditMode() { return edit_mode_; }
+
+void DWriteTextLayout::SetEditMode(bool enable) {
+  edit_mode_ = enable;
+  // TODO: Implement this.
+}
+
+Index DWriteTextLayout::GetLineIndexFromCharIndex(Index char_index) {
+  if (char_index < 0 || char_index >= text_.size()) {
+    return -1;
+  }
+
+  auto line_index = 0;
+  for (Index i = 0; i < char_index; ++i) {
+    if (text_[i] == u'\n') {
+      line_index++;
+    }
+  }
+
+  return line_index;
+}
+
+float DWriteTextLayout::GetLineHeight(Index line_index) {
+  Index count = GetLineCount();
+  std::vector<DWRITE_LINE_METRICS> line_metrics(count);
+
+  UINT32 actual_line_count = 0;
+  text_layout_->GetLineMetrics(line_metrics.data(), static_cast<UINT32>(count),
+                               &actual_line_count);
+  return line_metrics[line_index].height;
+}
+
+Index DWriteTextLayout::GetLineCount() {
+  UINT32 line_count = 0;
+  text_layout_->GetLineMetrics(nullptr, 0, &line_count);
+  return line_count;
 }
 
 Rect DWriteTextLayout::GetTextBounds(bool includingTrailingSpace) {
@@ -100,14 +136,14 @@ std::vector<Rect> DWriteTextLayout::TextRangeRect(
   return result;
 }
 
-Point DWriteTextLayout::TextSinglePoint(Index position, bool trailing) {
+Rect DWriteTextLayout::TextSinglePoint(Index position, bool trailing) {
   DWRITE_HIT_TEST_METRICS metrics;
   FLOAT left;
   FLOAT top;
   ThrowIfFailed(text_layout_->HitTestTextPosition(static_cast<UINT32>(position),
                                                   static_cast<BOOL>(trailing),
                                                   &left, &top, &metrics));
-  return Point{left, top};
+  return Rect{left, top, 0, GetFont()->GetFontSize()};
 }
 
 TextHitTestResult DWriteTextLayout::HitTest(const Point& point) {
@@ -121,7 +157,6 @@ TextHitTestResult DWriteTextLayout::HitTest(const Point& point) {
   TextHitTestResult result;
   result.position = metrics.textPosition;
   result.trailing = trailing != 0;
-  result.insideText = inside != 0;
   return result;
 }
 }  // namespace cru::platform::graphics::win::direct

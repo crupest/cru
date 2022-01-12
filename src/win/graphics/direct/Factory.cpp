@@ -27,7 +27,7 @@ void InitializeCom() {
 void UninitializeCom() { ::CoUninitialize(); }
 }  // namespace
 
-DirectGraphFactory::DirectGraphFactory() {
+DirectGraphicsFactory::DirectGraphicsFactory() {
   // TODO! Detect repeated creation. Because I don't think we can create two d2d
   // and dwrite factory so we need to prevent the "probably dangerous" behavior.
 
@@ -76,31 +76,33 @@ DirectGraphFactory::DirectGraphFactory() {
       &dwrite_system_font_collection_));
 }
 
-DirectGraphFactory::~DirectGraphFactory() { UninitializeCom(); }
+DirectGraphicsFactory::~DirectGraphicsFactory() { UninitializeCom(); }
 
 Microsoft::WRL::ComPtr<ID2D1DeviceContext>
-DirectGraphFactory::CreateD2D1DeviceContext() {
+DirectGraphicsFactory::CreateD2D1DeviceContext() {
   Microsoft::WRL::ComPtr<ID2D1DeviceContext> d2d1_device_context;
   ThrowIfFailed(d2d1_device_->CreateDeviceContext(
       D2D1_DEVICE_CONTEXT_OPTIONS_NONE, &d2d1_device_context));
   return d2d1_device_context;
 }
 
-std::unique_ptr<ISolidColorBrush> DirectGraphFactory::CreateSolidColorBrush() {
+std::unique_ptr<ISolidColorBrush>
+DirectGraphicsFactory::CreateSolidColorBrush() {
   return std::make_unique<D2DSolidColorBrush>(this);
 }
 
-std::unique_ptr<IGeometryBuilder> DirectGraphFactory::CreateGeometryBuilder() {
+std::unique_ptr<IGeometryBuilder>
+DirectGraphicsFactory::CreateGeometryBuilder() {
   return std::make_unique<D2DGeometryBuilder>(this);
 }
 
-std::unique_ptr<IFont> DirectGraphFactory::CreateFont(
-    std::u16string font_family, float font_size) {
+std::unique_ptr<IFont> DirectGraphicsFactory::CreateFont(String font_family,
+                                                         float font_size) {
   return std::make_unique<DWriteFont>(this, std::move(font_family), font_size);
 }
 
-std::unique_ptr<ITextLayout> DirectGraphFactory::CreateTextLayout(
-    std::shared_ptr<IFont> font, std::u16string text) {
+std::unique_ptr<ITextLayout> DirectGraphicsFactory::CreateTextLayout(
+    std::shared_ptr<IFont> font, String text) {
   return std::make_unique<DWriteTextLayout>(this, std::move(font),
                                             std::move(text));
 }

@@ -5,7 +5,7 @@
 #include <vector>
 
 namespace cru::parse {
-class Grammar : public Object {
+class CRU_PARSE_API Grammar : public Object {
  public:
   Grammar();
 

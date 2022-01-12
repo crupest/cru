@@ -8,12 +8,12 @@
 #include <optional>
 
 namespace cru::xml {
-class XmlParsingException : public Exception {
+class CRU_XML_API XmlParsingException : public Exception {
  public:
   using Exception::Exception;
 };
 
-class XmlParser {
+class CRU_XML_API XmlParser {
  public:
   explicit XmlParser(String xml);
 

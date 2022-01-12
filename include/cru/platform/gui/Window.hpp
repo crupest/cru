@@ -85,7 +85,6 @@ struct INativeWindow : virtual IPlatformResource {
   // Remember to call EndDraw on return value and destroy it.
   virtual std::unique_ptr<graphics::IPainter> BeginPaint() = 0;
 
-  // Don't use this instance after receive this event.
   virtual IEvent<std::nullptr_t>* CreateEvent() = 0;
   virtual IEvent<std::nullptr_t>* DestroyEvent() = 0;
   virtual IEvent<std::nullptr_t>* PaintEvent() = 0;

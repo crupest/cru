@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Base.hpp"
+
 #include "cru/common/Base.hpp"
 #include "cru/common/String.hpp"
 
@@ -7,7 +9,7 @@
 #include <unordered_map>
 
 namespace cru::toml {
-class TomlSection {
+class CRU_TOML_API TomlSection {
  public:
   CRU_DEFAULT_CONSTRUCTOR_DESTRUCTOR(TomlSection)
   CRU_DEFAULT_COPY(TomlSection)
@@ -29,7 +31,7 @@ class TomlSection {
   std::unordered_map<String, String> values_;
 };
 
-class TomlDocument {
+class CRU_TOML_API TomlDocument {
  public:
   CRU_DEFAULT_CONSTRUCTOR_DESTRUCTOR(TomlDocument)
   CRU_DEFAULT_COPY(TomlDocument)

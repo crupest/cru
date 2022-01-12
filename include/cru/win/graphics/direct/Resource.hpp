@@ -6,7 +6,7 @@
 #include <string_view>
 
 namespace cru::platform::graphics::win::direct {
-class DirectGraphFactory;
+class DirectGraphicsFactory;
 
 class DirectResource : public Object, public virtual IPlatformResource {
  public:
@@ -25,25 +25,25 @@ class DirectResource : public Object, public virtual IPlatformResource {
   String GetPlatformId() const final { return kPlatformId; }
 };
 
-class DirectGraphResource : public DirectResource,
-                            public virtual IGraphResource {
+class DirectGraphicsResource : public DirectResource,
+                            public virtual IGraphicsResource {
  protected:
   // Param factory can't be null.
-  explicit DirectGraphResource(DirectGraphFactory* factory);
+  explicit DirectGraphicsResource(DirectGraphicsFactory* factory);
 
  public:
-  CRU_DELETE_COPY(DirectGraphResource)
-  CRU_DELETE_MOVE(DirectGraphResource)
+  CRU_DELETE_COPY(DirectGraphicsResource)
+  CRU_DELETE_MOVE(DirectGraphicsResource)
 
-  ~DirectGraphResource() override = default;
-
- public:
-  IGraphFactory* GetGraphFactory() final;
+  ~DirectGraphicsResource() override = default;
 
  public:
-  DirectGraphFactory* GetDirectFactory() const { return factory_; }
+  IGraphicsFactory* GetGraphicsFactory() final;
+
+ public:
+  DirectGraphicsFactory* GetDirectFactory() const { return factory_; }
 
  private:
-  DirectGraphFactory* factory_;
+  DirectGraphicsFactory* factory_;
 };
 }  // namespace cru::platform::graphics::win::direct

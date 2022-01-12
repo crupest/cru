@@ -5,7 +5,7 @@
 namespace cru::parse {
 // A parsing context contains all info that a program needs to know when parsing
 // a input sequence of terminals.
-class ParsingContext {
+class CRU_PARSE_API ParsingContext {
  public:
   ParsingContext(const ParsingAlgorithmContext* parsing_algorithm_context,
                  std::vector<Terminal*> input);

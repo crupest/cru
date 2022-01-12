@@ -10,7 +10,7 @@ class ParsingAlgorithm;
 // A parsing algorithm context contains all data a parsing algorithm needs to
 // parse for a grammar. It does not relate to any input. For example, it can
 // contain any state machine.
-class ParsingAlgorithmContext {
+class CRU_PARSE_API ParsingAlgorithmContext {
  public:
   ParsingAlgorithmContext(Grammar* grammar, const ParsingAlgorithm* algorithm);
 

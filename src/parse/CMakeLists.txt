@@ -13,4 +13,5 @@ add_library(cru_parse SHARED
 	Token.cpp
 	TokenType.cpp
 )
+target_compile_definitions(cru_parse PRIVATE CRU_PARSE_EXPORT_API)
 target_link_libraries(cru_parse PUBLIC cru_base)

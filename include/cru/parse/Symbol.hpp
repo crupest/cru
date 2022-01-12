@@ -1,11 +1,13 @@
 #pragma once
+#include "Base.hpp"
+
 #include "cru/common/String.hpp"
 
 namespace cru::parse {
 class Grammar;
 
 // Base class of Terminal and Nonterminal.
-class Symbol : public Object {
+class CRU_PARSE_API Symbol : public Object {
  public:
   explicit Symbol(Grammar* grammar, String name);
 

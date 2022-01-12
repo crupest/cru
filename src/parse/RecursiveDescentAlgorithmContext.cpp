@@ -10,6 +10,7 @@ RecursiveDescentAlgorithmContext::~RecursiveDescentAlgorithmContext() = default;
 
 ParsingTreeNode* RecursiveDescentAlgorithmContext::Parse(
     const std::vector<Terminal*>& input) {
+  CRU_UNUSED(input)
   // TODO: Implement this.
   return nullptr;
 }

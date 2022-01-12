@@ -80,6 +80,8 @@ class CRU_BASE_API String {
     }
   }
 
+  String(size_type size, value_type ch = 0);
+
   String(std::initializer_list<value_type> l);
 
   explicit String(StringView str);
@@ -328,16 +330,16 @@ std::enable_if_t<std::is_integral_v<T>, String> ToString(T value) {
   auto result =
       std::to_chars(buffer.data(), buffer.data() + buffer.size(), value);
 
+  if (result.ec == std::errc{}) {
+  } else {
+    throw std::invalid_argument("Failed to convert value to chars.");
+  }
+
   auto size = result.ptr - buffer.data();
   auto b = new char16_t[size + 1];
   b[size] = 0;
   std::copy(buffer.data(), result.ptr, b);
   return String::FromBuffer(b, size, size);
-
-  if (result.ec == std::errc{}) {
-  } else {
-    throw std::invalid_argument("Failed to convert value to chars.");
-  }
 }
 
 template <typename T>
@@ -346,7 +348,7 @@ std::enable_if_t<std::is_floating_point_v<T>, String> ToString(T value) {
   return String(str.cbegin(), str.cend());
 }
 
-inline String ToString(String value) { return std::move(value); }
+inline String ToString(String value) { return value; }
 
 namespace details {
 enum class FormatTokenType { PlaceHolder, Text };
@@ -366,7 +368,7 @@ template <typename TA, typename... T>
 void FormatAppendFromFormatTokenList(
     String& current, const std::vector<FormatToken>& format_token_list,
     Index index, TA&& args0, T&&... args) {
-  for (Index i = index; i < format_token_list.size(); i++) {
+  for (Index i = index; i < static_cast<Index>(format_token_list.size()); i++) {
     const auto& token = format_token_list[i];
     if (token.type == FormatTokenType::PlaceHolder) {
       current += ToString(std::forward<TA>(args0));

@@ -2,7 +2,7 @@
 #include "Symbol.hpp"
 
 namespace cru::parse {
-class Terminal : public Symbol {
+class CRU_PARSE_API Terminal : public Symbol {
  public:
   Terminal(Grammar* grammar, String name);
 

@@ -7,7 +7,7 @@
 #include <vector>
 
 namespace cru::parse {
-class Production : public Object {
+class CRU_PARSE_API Production : public Object {
  public:
   Production(Grammar* grammar, String name, Nonterminal* left,
              std::vector<Symbol*> right);

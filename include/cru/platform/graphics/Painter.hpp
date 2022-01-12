@@ -3,7 +3,7 @@
 
 namespace cru::platform::graphics {
 
-struct IPainter : virtual IPlatformResource {
+struct CRU_PLATFORM_GRAPHICS_API IPainter : virtual IPlatformResource {
   virtual Matrix GetTransform() = 0;
   virtual void SetTransform(const Matrix& matrix) = 0;
 
@@ -18,8 +18,7 @@ struct IPainter : virtual IPlatformResource {
   virtual void FillRectangle(const Rect& rectangle, IBrush* brush) = 0;
   virtual void StrokeEllipse(const Rect& outline_rect, IBrush* brush,
                              float width) = 0;
-  virtual void FillEllipse(const Rect& outline_rect, IBrush* brush,
-                           float width) = 0;
+  virtual void FillEllipse(const Rect& outline_rect, IBrush* brush) = 0;
 
   virtual void StrokeGeometry(IGeometry* geometry, IBrush* brush,
                               float width) = 0;

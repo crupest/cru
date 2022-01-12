@@ -1,5 +1,6 @@
 set(CRU_PLATFORM_GRAPHICS_INCLUDE_DIR ${CRU_INCLUDE_DIR}/cru/platform/graphics)
 add_library(cru_platform_graphics SHARED
+	ForDllExport.cpp
 	NullPainter.cpp
 )
 target_sources(cru_platform_graphics PUBLIC
@@ -14,4 +15,5 @@ target_sources(cru_platform_graphics PUBLIC
 	${CRU_PLATFORM_GRAPHICS_INCLUDE_DIR}/TextLayout.hpp
 	${CRU_PLATFORM_GRAPHICS_INCLUDE_DIR}/util/Painter.hpp
 )
+target_compile_definitions(cru_platform_graphics PRIVATE CRU_PLATFORM_GRAPHICS_EXPORT_API)
 target_link_libraries(cru_platform_graphics PUBLIC cru_platform_base)

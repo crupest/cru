@@ -15,10 +15,11 @@ class WinStdOutLoggerSource : public ::cru::log::ILogSource {
 
   ~WinStdOutLoggerSource() = default;
 
-  void Write(::cru::log::LogLevel level, const std::u16string& s) override {
+  void Write(::cru::log::LogLevel level, StringView s) override {
     CRU_UNUSED(level)
 
-    std::fputws(reinterpret_cast<const wchar_t*>(s.c_str()), stdout);
+    String m = s.ToString();
+    std::fputws(reinterpret_cast<const wchar_t*>(m.c_str()), stdout);
   }
 };
 }  // namespace cru::platform::win

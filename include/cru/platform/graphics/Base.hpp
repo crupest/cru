@@ -6,6 +6,17 @@
 
 #include <memory>
 
+#ifdef CRU_PLATFORM_WINDOWS
+#ifdef CRU_PLATFORM_GRAPHICS_EXPORT_API
+#define CRU_PLATFORM_GRAPHICS_API __declspec(dllexport)
+#else
+#define CRU_PLATFORM_GRAPHICS_API __declspec(dllimport)
+#endif
+#else
+#define CRU_PLATFORM_GRAPHICS_API
+#endif
+
+
 namespace cru::platform::graphics {
 // forward declarations
 struct IGraphicsFactory;
