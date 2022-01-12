@@ -52,6 +52,7 @@ class DWriteTextLayout : public DirectGraphicsResource,
   TextHitTestResult HitTest(const Point& point) override;
 
  private:
+  bool edit_mode_ = false;
   String text_;
   std::shared_ptr<DWriteFont> font_;
   float max_width_ = std::numeric_limits<float>::max();

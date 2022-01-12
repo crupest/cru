@@ -33,6 +33,13 @@ class WinUiApplication : public WinNativeResource,
 
   void AddOnQuitHandler(std::function<void()> handler) override;
 
+  bool IsQuitOnAllWindowClosed() override {
+    return is_quit_on_all_window_closed_;
+  }
+  void SetQuitOnAllWindowClosed(bool quit_on_all_window_closed) override {
+    is_quit_on_all_window_closed_ = quit_on_all_window_closed;
+  }
+
   long long SetImmediate(std::function<void()> action) override;
   long long SetTimeout(std::chrono::milliseconds milliseconds,
                        std::function<void()> action) override;
@@ -45,11 +52,14 @@ class WinUiApplication : public WinNativeResource,
 
   cru::platform::graphics::IGraphicsFactory* GetGraphicsFactory() override;
 
-  cru::platform::graphics::win::direct::DirectGraphicsFactory* GetDirectFactory() {
+  cru::platform::graphics::win::direct::DirectGraphicsFactory*
+  GetDirectFactory() {
     return graph_factory_.get();
   }
 
   ICursorManager* GetCursorManager() override;
+
+  IClipboard* GetClipboard() override;
 
   HINSTANCE GetInstanceHandle() const { return instance_handle_; }
 
@@ -59,6 +69,8 @@ class WinUiApplication : public WinNativeResource,
 
  private:
   HINSTANCE instance_handle_;
+
+  bool is_quit_on_all_window_closed_ = true;
 
   std::unique_ptr<cru::platform::graphics::win::direct::DirectGraphicsFactory>
       graph_factory_;

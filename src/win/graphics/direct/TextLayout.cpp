@@ -1,4 +1,5 @@
 #include "cru/win/graphics/direct/TextLayout.hpp"
+#include <dwrite.h>
 
 #include "cru/common/Logger.hpp"
 #include "cru/platform/Check.hpp"
@@ -53,6 +54,44 @@ void DWriteTextLayout::SetMaxWidth(float max_width) {
 void DWriteTextLayout::SetMaxHeight(float max_height) {
   max_height_ = max_height;
   ThrowIfFailed(text_layout_->SetMaxHeight(max_height_));
+}
+
+bool DWriteTextLayout::IsEditMode() { return edit_mode_; }
+
+void DWriteTextLayout::SetEditMode(bool enable) {
+  edit_mode_ = enable;
+  // TODO: Implement this.
+}
+
+Index DWriteTextLayout::GetLineIndexFromCharIndex(Index char_index) {
+  if (char_index < 0 || char_index >= text_.size()) {
+    return -1;
+  }
+
+  auto line_index = 0;
+  for (Index i = 0; i < char_index; ++i) {
+    if (text_[i] == u'\n') {
+      line_index++;
+    }
+  }
+
+  return line_index;
+}
+
+float DWriteTextLayout::GetLineHeight(Index line_index) {
+  Index count = GetLineCount();
+  std::vector<DWRITE_LINE_METRICS> line_metrics(count);
+
+  UINT32 actual_line_count = 0;
+  text_layout_->GetLineMetrics(line_metrics.data(), static_cast<UINT32>(count),
+                               &actual_line_count);
+  return line_metrics[line_index].height;
+}
+
+Index DWriteTextLayout::GetLineCount() {
+  UINT32 line_count = 0;
+  text_layout_->GetLineMetrics(nullptr, 0, &line_count);
+  return line_count;
 }
 
 Rect DWriteTextLayout::GetTextBounds(bool includingTrailingSpace) {

@@ -104,19 +104,19 @@ CompositionClauses GetCompositionClauses(HIMC imm_context, int target_start,
   return result;
 }
 
-std::u16string GetString(HIMC imm_context) {
+String GetString(HIMC imm_context) {
   LONG string_size =
       ::ImmGetCompositionString(imm_context, GCS_COMPSTR, NULL, 0);
-  std::u16string result((string_size / sizeof(char16_t)), 0);
+  String result((string_size / sizeof(char16_t)), 0);
   ::ImmGetCompositionString(imm_context, GCS_COMPSTR, result.data(),
                             string_size);
   return result;
 }
 
-std::u16string GetResultString(HIMC imm_context) {
+String GetResultString(HIMC imm_context) {
   LONG string_size =
       ::ImmGetCompositionString(imm_context, GCS_RESULTSTR, NULL, 0);
-  std::u16string result((string_size / sizeof(char16_t)), 0);
+  String result((string_size / sizeof(char16_t)), 0);
   ::ImmGetCompositionString(imm_context, GCS_RESULTSTR, result.data(),
                             string_size);
   return result;
@@ -217,9 +217,7 @@ IEvent<std::nullptr_t>* WinInputMethodContext::CompositionEvent() {
   return &composition_event_;
 }
 
-IEvent<std::u16string_view>* WinInputMethodContext::TextEvent() {
-  return &text_event_;
-}
+IEvent<StringView>* WinInputMethodContext::TextEvent() { return &text_event_; }
 
 void WinInputMethodContext::OnWindowNativeMessage(
     WindowNativeMessageEventArgs& args) {
@@ -275,7 +273,7 @@ void WinInputMethodContext::OnWindowNativeMessage(
   }
 }
 
-std::u16string WinInputMethodContext::GetResultString() {
+String WinInputMethodContext::GetResultString() {
   auto himc = GetHIMC();
   auto result = win::GetResultString(himc.Get());
   return result;

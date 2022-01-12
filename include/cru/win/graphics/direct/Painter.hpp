@@ -24,6 +24,7 @@ class D2DPainter : public DirectResource,
  public:
   Matrix GetTransform() override;
   void SetTransform(const platform::Matrix& matrix) override;
+  void ConcatTransform(const Matrix& matrix) override;
 
   void Clear(const Color& color) override;
 
@@ -32,6 +33,9 @@ class D2DPainter : public DirectResource,
   void StrokeRectangle(const Rect& rectangle, IBrush* brush,
                        float width) override;
   void FillRectangle(const Rect& rectangle, IBrush* brush) override;
+  void StrokeEllipse(const Rect& outline_rect, IBrush* brush,
+                     float width) override;
+  void FillEllipse(const Rect& outline_rect, IBrush* brush) override;
 
   void StrokeGeometry(IGeometry* geometry, IBrush* brush, float width) override;
   void FillGeometry(IGeometry* geometry, IBrush* brush) override;
@@ -40,8 +44,10 @@ class D2DPainter : public DirectResource,
                 IBrush* brush) override;
 
   void PushLayer(const Rect& bounds) override;
-
   void PopLayer() override;
+
+  void PushState() override;
+  void PopState() override;
 
   void EndDraw() override final;
 
@@ -56,6 +62,8 @@ class D2DPainter : public DirectResource,
   ID2D1RenderTarget* render_target_;
 
   std::vector<Microsoft::WRL::ComPtr<ID2D1Layer>> layers_;
+  std::vector<Microsoft::WRL::ComPtr<ID2D1DrawingStateBlock>>
+      drawing_state_stack_;
 
   bool is_drawing_ = true;
 };

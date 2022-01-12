@@ -7,10 +7,9 @@ namespace cru::platform::win {
 inline String HResultMakeMessage(HRESULT h_result,
                                  std::optional<String> message) {
   if (message.has_value())
-    return fmt::format(FMT_STRING(L"HRESULT: {:#08x}. Message: {}"), h_result,
-                       message->WinCStr());
+    return Format(L"HRESULT: {}. Message: {}", h_result, message->WinCStr());
   else
-    return fmt::format(FMT_STRING(L"HRESULT: {:#08x}."), h_result);
+    return Format(L"HRESULT: {}.", h_result);
 }
 
 HResultError::HResultError(HRESULT h_result)
@@ -25,8 +24,8 @@ HResultError::HResultError(HRESULT h_result,
       h_result_(h_result) {}
 
 inline String Win32MakeMessage(DWORD error_code, String message) {
-  return fmt::format(L"Last error code: {:#04x}.\nMessage: {}\n", error_code,
-                     message.WinCStr());
+  return Format(L"Last error code: {}.\nMessage: {}\n", error_code,
+                message.WinCStr());
 }
 
 Win32Error::Win32Error(std::string_view message)

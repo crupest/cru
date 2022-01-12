@@ -42,11 +42,9 @@ class NullPainter : public Object, public virtual IPainter {
     CRU_UNUSED(brush)
     CRU_UNUSED(width)
   }
-  void FillEllipse(const Rect& outline_rect, IBrush* brush,
-                   float width) override {
+  void FillEllipse(const Rect& outline_rect, IBrush* brush) override {
     CRU_UNUSED(outline_rect)
     CRU_UNUSED(brush)
-    CRU_UNUSED(width)
   }
 
   void StrokeGeometry(IGeometry* geometry, IBrush* brush,

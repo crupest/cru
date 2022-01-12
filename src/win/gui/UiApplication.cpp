@@ -99,24 +99,22 @@ std::vector<INativeWindow*> WinUiApplication::GetAllWindow() {
   return result;
 }
 
-INativeWindow* WinUiApplication::CreateWindow(INativeWindow* parent,
-                                              CreateWindowFlag flag) {
-  WinNativeWindow* p = nullptr;
-  if (parent != nullptr) {
-    p = CheckPlatform<WinNativeWindow>(parent, GetPlatformId());
-  }
-  return new WinNativeWindow(this, window_manager_->GetGeneralWindowClass(),
-                             flag & CreateWindowFlags::NoCaptionAndBorder
-                                 ? WS_POPUP
-                                 : WS_OVERLAPPEDWINDOW,
-                             p);
+INativeWindow* WinUiApplication::CreateWindow() {
+  return new WinNativeWindow(this);
 }
 
-cru::platform::graphics::IGraphicsFactory* WinUiApplication::GetGraphicsFactory() {
+cru::platform::graphics::IGraphicsFactory*
+WinUiApplication::GetGraphicsFactory() {
   return graph_factory_.get();
 }
 
 ICursorManager* WinUiApplication::GetCursorManager() {
   return cursor_manager_.get();
 }
+
+IClipboard* WinUiApplication::GetClipboard() {
+  // TODO: Implement this.
+  return nullptr;
+}
+
 }  // namespace cru::platform::gui::win

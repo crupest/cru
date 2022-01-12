@@ -37,7 +37,8 @@ void WindowManager::UnregisterWindow(HWND hwnd) {
   const auto find_result = window_map_.find(hwnd);
   Expects(find_result != window_map_.end());  // The hwnd is not in the map.
   window_map_.erase(find_result);
-  if (window_map_.empty()) application_->RequestQuit(0);
+  if (window_map_.empty() && application_->IsQuitOnAllWindowClosed())
+    application_->RequestQuit(0);
 }
 
 WinNativeWindow* WindowManager::FromHandle(HWND hwnd) {

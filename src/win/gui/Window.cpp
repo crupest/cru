@@ -5,6 +5,7 @@
 #include "cru/platform/Check.hpp"
 #include "cru/platform/gui/Base.hpp"
 #include "cru/platform/gui/DebugFlags.hpp"
+#include "cru/platform/gui/Window.hpp"
 #include "cru/win/graphics/direct/WindowPainter.hpp"
 #include "cru/win/gui/Cursor.hpp"
 #include "cru/win/gui/Exception.hpp"
@@ -13,104 +14,129 @@
 #include "cru/win/gui/UiApplication.hpp"
 #include "cru/win/gui/WindowClass.hpp"
 
-#include <imm.h>
 #include <windowsx.h>
-#include <memory>
 
 namespace cru::platform::gui::win {
-WinNativeWindow::WinNativeWindow(WinUiApplication* application,
-                                 WindowClass* window_class, DWORD window_style,
-                                 WinNativeWindow* parent)
-    : application_(application), parent_window_(parent) {
-  Expects(application);  // application can't be null.
-
-  if (parent != nullptr) {
-    throw new std::runtime_error("Can't use a invalid window as parent.");
-  }
-
-  const auto window_manager = application->GetWindowManager();
-
-  hwnd_ = CreateWindowExW(
-      0, window_class->GetName(), L"", window_style, CW_USEDEFAULT,
-      CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
-      parent == nullptr ? nullptr : parent->GetWindowHandle(), nullptr,
-      application->GetInstanceHandle(), nullptr);
-
-  if (hwnd_ == nullptr)
-    throw Win32Error(::GetLastError(), "Failed to create window.");
-
-  auto dpi = ::GetDpiForWindow(hwnd_);
-  if (dpi == 0)
-    throw Win32Error(::GetLastError(), "Failed to get dpi of window.");
-  dpi_ = static_cast<float>(dpi);
-  log::Debug(u"Dpi of window is {}.", dpi_);
-
-  window_manager->RegisterWindow(hwnd_, this);
-
-  SetCursor(application->GetCursorManager()->GetSystemCursor(
-      cru::platform::gui::SystemCursorType::Arrow));
-
-  window_render_target_ =
-      std::make_unique<graphics::win::direct::D2DWindowRenderTarget>(
-          application->GetDirectFactory(), hwnd_);
-  window_render_target_->SetDpi(dpi_, dpi_);
-
-  input_method_context_ = std::make_unique<WinInputMethodContext>(this);
-  input_method_context_->DisableIME();
+namespace {
+inline int DipToPixel(const float dip, const float dpi) {
+  return static_cast<int>(dip * dpi / 96.0f);
 }
 
-WinNativeWindow::~WinNativeWindow() {
-  if (!sync_flag_) {
-    sync_flag_ = true;
-    Close();
-  }
+inline float PixelToDip(const int pixel, const float dpi) {
+  return static_cast<float>(pixel) * 96.0f / dpi;
 }
 
-void WinNativeWindow::Close() { ::DestroyWindow(hwnd_); }
-
-bool WinNativeWindow::IsVisible() { return ::IsWindowVisible(hwnd_); }
-
-void WinNativeWindow::SetVisible(bool is_visible) {
-  is_visible ? ShowWindow(hwnd_, SW_SHOWNORMAL) : ShowWindow(hwnd_, SW_HIDE);
-}
-Size WinNativeWindow::GetClientSize() {
-  const auto pixel_rect = GetClientRectPixel();
-  return Size(PixelToDip(pixel_rect.right), PixelToDip(pixel_rect.bottom));
+DWORD CalcWindowStyle(WindowStyleFlag flag) {
+  return flag & WindowStyleFlags::NoCaptionAndBorder ? WS_POPUP
+                                                     : WS_OVERLAPPEDWINDOW;
 }
 
-void WinNativeWindow::SetClientSize(const Size& size) {
-  const auto window_style =
-      static_cast<DWORD>(GetWindowLongPtr(hwnd_, GWL_STYLE));
-  const auto window_ex_style =
-      static_cast<DWORD>(GetWindowLongPtr(hwnd_, GWL_EXSTYLE));
-
-  RECT rect;
-  rect.left = 0;
-  rect.top = 0;
-  rect.right = DipToPixel(size.width);
-  rect.bottom = DipToPixel(size.height);
-  if (!AdjustWindowRectEx(&rect, window_style, FALSE, window_ex_style))
+Rect CalcWindowRectFromClient(const Rect& rect, WindowStyleFlag style_flag,
+                              float dpi) {
+  RECT r;
+  r.left = DipToPixel(rect.left, dpi);
+  r.top = DipToPixel(rect.top, dpi);
+  r.right = DipToPixel(rect.GetRight(), dpi);
+  r.bottom = DipToPixel(rect.GetBottom(), dpi);
+  if (!AdjustWindowRectEx(&r, CalcWindowStyle(style_flag), FALSE, 0))
     throw Win32Error(::GetLastError(), "Failed to invoke AdjustWindowRectEx.");
 
-  if (!SetWindowPos(hwnd_, nullptr, 0, 0, rect.right - rect.left,
-                    rect.bottom - rect.top, SWP_NOZORDER | SWP_NOMOVE))
-    throw Win32Error(::GetLastError(), "Failed to invoke SetWindowPos.");
+  Rect result =
+      Rect::FromVertices(PixelToDip(r.left, dpi), PixelToDip(r.top, dpi),
+                         PixelToDip(r.right, dpi), PixelToDip(r.bottom, dpi));
+  return result;
+}
+
+}  // namespace
+
+WinNativeWindow::WinNativeWindow(WinUiApplication* application)
+    : application_(application) {
+  Expects(application);  // application can't be null.
+}
+
+WinNativeWindow::~WinNativeWindow() { Close(); }
+
+void WinNativeWindow::Close() {
+  if (hwnd_) ::DestroyWindow(hwnd_);
+}
+
+void WinNativeWindow::SetStyleFlag(WindowStyleFlag flag) {
+  if (flag == style_flag_) return;
+
+  style_flag_ = flag;
+  if (hwnd_) {
+    SetWindowLongPtrW(hwnd_, GWL_STYLE,
+                      static_cast<LONG_PTR>(CalcWindowStyle(style_flag_)));
+  }
+}
+
+void WinNativeWindow::SetVisibility(WindowVisibilityType visibility) {
+  if (visibility == visibility_) return;
+  visibility_ = visibility;
+
+  if (!hwnd_) {
+    RecreateWindow();
+  }
+
+  if (visibility == WindowVisibilityType::Show) {
+    ShowWindow(hwnd_, SW_SHOWNORMAL);
+  } else if (visibility == WindowVisibilityType::Hide) {
+    ShowWindow(hwnd_, SW_HIDE);
+  } else if (visibility == WindowVisibilityType::Minimize) {
+    ShowWindow(hwnd_, SW_MINIMIZE);
+  }
+}
+
+Size WinNativeWindow::GetClientSize() { return GetClientRect().GetSize(); }
+
+void WinNativeWindow::SetClientSize(const Size& size) {
+  client_rect_.SetSize(size);
+
+  if (hwnd_) {
+    RECT rect =
+        DipToPixel(CalcWindowRectFromClient(client_rect_, style_flag_, dpi_));
+
+    if (!SetWindowPos(hwnd_, nullptr, 0, 0, rect.right - rect.left,
+                      rect.bottom - rect.top, SWP_NOZORDER | SWP_NOMOVE))
+      throw Win32Error(::GetLastError(), "Failed to invoke SetWindowPos.");
+  }
+}
+
+Rect WinNativeWindow::GetClientRect() { return client_rect_; }
+
+void WinNativeWindow::SetClientRect(const Rect& rect) {
+  client_rect_ = rect;
+
+  if (hwnd_) {
+    RECT rect =
+        DipToPixel(CalcWindowRectFromClient(client_rect_, style_flag_, dpi_));
+
+    if (!SetWindowPos(hwnd_, nullptr, 0, 0, rect.right - rect.left,
+                      rect.bottom - rect.top, SWP_NOZORDER | SWP_NOMOVE))
+      throw Win32Error(::GetLastError(), "Failed to invoke SetWindowPos.");
+  }
 }
 
 Rect WinNativeWindow::GetWindowRect() {
-  RECT rect;
-  if (!::GetWindowRect(hwnd_, &rect))
-    throw Win32Error(::GetLastError(), "Failed to invoke GetWindowRect.");
+  if (hwnd_) {
+    RECT rect;
+    if (!::GetWindowRect(hwnd_, &rect))
+      throw Win32Error(::GetLastError(), "Failed to invoke GetWindowRect.");
 
-  return Rect::FromVertices(PixelToDip(rect.left), PixelToDip(rect.top),
-                            PixelToDip(rect.right), PixelToDip(rect.bottom));
+    return Rect::FromVertices(PixelToDip(rect.left), PixelToDip(rect.top),
+                              PixelToDip(rect.right), PixelToDip(rect.bottom));
+  } else {
+    return {};
+  }
 }
 
 void WinNativeWindow::SetWindowRect(const Rect& rect) {
-  if (!SetWindowPos(hwnd_, nullptr, DipToPixel(rect.left), DipToPixel(rect.top),
-                    DipToPixel(rect.GetRight()), DipToPixel(rect.GetBottom()),
-                    SWP_NOZORDER))
-    throw Win32Error(::GetLastError(), "Failed to invoke SetWindowPos.");
+  if (hwnd_) {
+    if (!SetWindowPos(hwnd_, nullptr, DipToPixel(rect.left),
+                      DipToPixel(rect.top), DipToPixel(rect.GetRight()),
+                      DipToPixel(rect.GetBottom()), SWP_NOZORDER))
+      throw Win32Error(::GetLastError(), "Failed to invoke SetWindowPos.");
+  }
 }
 
 Point WinNativeWindow::GetMousePosition() {
@@ -154,6 +180,8 @@ void WinNativeWindow::SetCursor(std::shared_ptr<ICursor> cursor) {
 
   cursor_ = CheckPlatform<WinCursor>(cursor, GetPlatformId());
 
+  if (hwnd_) return;
+
   if (!::SetClassLongPtrW(hwnd_, GCLP_HCURSOR,
                           reinterpret_cast<LONG_PTR>(cursor_->GetHandle()))) {
     log::TagWarn(log_tag,
@@ -163,7 +191,7 @@ void WinNativeWindow::SetCursor(std::shared_ptr<ICursor> cursor) {
     return;
   }
 
-  if (!IsVisible()) return;
+  if (GetVisibility() != WindowVisibilityType::Show) return;
 
   auto lg = [](const std::u16string_view& reason) {
     log::TagWarn(
@@ -361,19 +389,48 @@ bool WinNativeWindow::HandleNativeWindowMessage(HWND hwnd, UINT msg,
 
 RECT WinNativeWindow::GetClientRectPixel() {
   RECT rect;
-  if (!GetClientRect(hwnd_, &rect))
+  if (!::GetClientRect(hwnd_, &rect))
     throw Win32Error(::GetLastError(), "Failed to invoke GetClientRect.");
   return rect;
+}
+
+void WinNativeWindow::RecreateWindow() {
+  const auto window_manager = application_->GetWindowManager();
+  auto window_class = window_manager->GetGeneralWindowClass();
+
+  hwnd_ = CreateWindowExW(
+      0, window_class->GetName(), L"", CalcWindowStyle(style_flag_),
+      CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
+      parent_window_ == nullptr ? nullptr : parent_window_->GetWindowHandle(),
+      nullptr, application_->GetInstanceHandle(), nullptr);
+
+  if (hwnd_ == nullptr)
+    throw Win32Error(::GetLastError(), "Failed to create window.");
+
+  auto dpi = ::GetDpiForWindow(hwnd_);
+  if (dpi == 0)
+    throw Win32Error(::GetLastError(), "Failed to get dpi of window.");
+  dpi_ = static_cast<float>(dpi);
+  log::Debug(u"Dpi of window is {}.", dpi_);
+
+  window_manager->RegisterWindow(hwnd_, this);
+
+  SetCursor(application_->GetCursorManager()->GetSystemCursor(
+      cru::platform::gui::SystemCursorType::Arrow));
+
+  window_render_target_ =
+      std::make_unique<graphics::win::direct::D2DWindowRenderTarget>(
+          application_->GetDirectFactory(), hwnd_);
+  window_render_target_->SetDpi(dpi_, dpi_);
+
+  input_method_context_ = std::make_unique<WinInputMethodContext>(this);
+  input_method_context_->DisableIME();
 }
 
 void WinNativeWindow::OnDestroyInternal() {
   destroy_event_.Raise(nullptr);
   application_->GetWindowManager()->UnregisterWindow(hwnd_);
   hwnd_ = nullptr;
-  if (!sync_flag_) {
-    sync_flag_ = true;
-    delete this;
-  }
 }
 
 void WinNativeWindow::OnPaintInternal() {
@@ -399,7 +456,7 @@ void WinNativeWindow::OnSetFocusInternal() {
 
 void WinNativeWindow::OnKillFocusInternal() {
   has_focus_ = false;
-  focus_event_.Raise(FocusChangeType::Lost);
+  focus_event_.Raise(FocusChangeType::Lose);
 }
 
 void WinNativeWindow::OnMouseMoveInternal(const POINT point) {

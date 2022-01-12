@@ -70,7 +70,7 @@ class WinInputMethodContext : public WinNativeResource,
  private:
   void OnWindowNativeMessage(WindowNativeMessageEventArgs& args);
 
-  std::u16string GetResultString();
+  String GetResultString();
 
   AutoHIMC GetHIMC();
 
@@ -82,6 +82,6 @@ class WinInputMethodContext : public WinNativeResource,
   Event<std::nullptr_t> composition_start_event_;
   Event<std::nullptr_t> composition_end_event_;
   Event<std::nullptr_t> composition_event_;
-  Event<std::u16string_view> text_event_;
+  Event<StringView> text_event_;
 };
 }  // namespace cru::platform::gui::win

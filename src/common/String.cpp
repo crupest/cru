@@ -39,6 +39,13 @@ String::String(const_pointer str, Index size) {
   this->capacity_ = size;
 }
 
+String::String(size_type size, value_type ch) : String() {
+  reserve(size);
+  for (Index i = 0; i < size; i++) {
+    append(ch);
+  }
+}
+
 String::String(std::initializer_list<char16_t> l)
     : String(l.begin(), l.size()) {}
 

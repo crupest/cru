@@ -80,6 +80,8 @@ class CRU_BASE_API String {
     }
   }
 
+  String(size_type size, value_type ch = 0);
+
   String(std::initializer_list<value_type> l);
 
   explicit String(StringView str);

@@ -13,10 +13,11 @@ class WinDebugLoggerSource : public ::cru::log::ILogSource {
 
   ~WinDebugLoggerSource() = default;
 
-  void Write(::cru::log::LogLevel level, const std::u16string& s) override {
+  void Write(::cru::log::LogLevel level, StringView s) override {
     CRU_UNUSED(level)
 
-    ::OutputDebugStringW(reinterpret_cast<const wchar_t*>(s.c_str()));
+    String m = s.ToString();
+    ::OutputDebugStringW(reinterpret_cast<const wchar_t*>(m.c_str()));
   }
 };
 }  // namespace cru::platform::win

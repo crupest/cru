@@ -1,6 +1,7 @@
 #include "cru/ui/controls/TextHostControlService.hpp"
 
 #include "../Helper.hpp"
+#include "cru/common/Base.hpp"
 #include "cru/common/Logger.hpp"
 #include "cru/common/String.hpp"
 #include "cru/common/StringUtil.hpp"
@@ -28,6 +29,7 @@ TextControlMovePattern TextControlMovePattern::kLeft(
     u"Left", helper::ShortcutKeyBind(platform::gui::KeyCode::Left),
     [](TextHostControlService* service, StringView text,
        gsl::index current_position) {
+      CRU_UNUSED(service)
       Utf16PreviousCodePoint(text, current_position, &current_position);
       return current_position;
     });
@@ -35,6 +37,7 @@ TextControlMovePattern TextControlMovePattern::kRight(
     u"Right", helper::ShortcutKeyBind(platform::gui::KeyCode::Right),
     [](TextHostControlService* service, StringView text,
        gsl::index current_position) {
+      CRU_UNUSED(service)
       Utf16NextCodePoint(text, current_position, &current_position);
       return current_position;
     });
@@ -44,6 +47,7 @@ TextControlMovePattern TextControlMovePattern::kCtrlLeft(
                             platform::gui::KeyModifiers::ctrl),
     [](TextHostControlService* service, StringView text,
        gsl::index current_position) {
+      CRU_UNUSED(service)
       return Utf16PreviousWord(text, current_position);
     });
 TextControlMovePattern TextControlMovePattern::kCtrlRight(
@@ -52,12 +56,14 @@ TextControlMovePattern TextControlMovePattern::kCtrlRight(
                             platform::gui::KeyModifiers::ctrl),
     [](TextHostControlService* service, StringView text,
        gsl::index current_position) {
+      CRU_UNUSED(service)
       return Utf16NextWord(text, current_position);
     });
 TextControlMovePattern TextControlMovePattern::kUp(
     u"Up", helper::ShortcutKeyBind(platform::gui::KeyCode::Up),
     [](TextHostControlService* service, StringView text,
        gsl::index current_position) {
+      CRU_UNUSED(text)
       auto text_render_object = service->GetTextRenderObject();
       auto rect = text_render_object->TextSinglePoint(current_position, false);
       rect.top -= 0.1f;
@@ -68,6 +74,7 @@ TextControlMovePattern TextControlMovePattern::kDown(
     u"Down", helper::ShortcutKeyBind(platform::gui::KeyCode::Down),
     [](TextHostControlService* service, StringView text,
        gsl::index current_position) {
+      CRU_UNUSED(text)
       auto text_render_object = service->GetTextRenderObject();
       auto rect = text_render_object->TextSinglePoint(current_position, false);
       rect.top += rect.height + 0.1f;
@@ -78,6 +85,7 @@ TextControlMovePattern TextControlMovePattern::kHome(
     u"Home(Line Begin)", helper::ShortcutKeyBind(platform::gui::KeyCode::Home),
     [](TextHostControlService* service, StringView text,
        gsl::index current_position) {
+      CRU_UNUSED(service)
       return Utf16BackwardUntil(text, current_position,
                                 [](char16_t c) { return c == u'\n'; });
     });
@@ -85,6 +93,7 @@ TextControlMovePattern TextControlMovePattern::kEnd(
     u"End(Line End)", helper::ShortcutKeyBind(platform::gui::KeyCode::End),
     [](TextHostControlService* service, StringView text,
        gsl::index current_position) {
+      CRU_UNUSED(service)
       return Utf16ForwardUntil(text, current_position,
                                [](char16_t c) { return c == u'\n'; });
     });
@@ -93,17 +102,29 @@ TextControlMovePattern TextControlMovePattern::kCtrlHome(
     helper::ShortcutKeyBind(platform::gui::KeyCode::Home,
                             platform::gui::KeyModifiers::ctrl),
     [](TextHostControlService* service, StringView text,
-       gsl::index current_position) { return 0; });
+       gsl::index current_position) {
+      CRU_UNUSED(service)
+      CRU_UNUSED(text)
+      CRU_UNUSED(current_position)
+      return 0;
+    });
 TextControlMovePattern TextControlMovePattern::kCtrlEnd(
     u"Ctrl+End(Document End)",
     helper::ShortcutKeyBind(platform::gui::KeyCode::End,
                             platform::gui::KeyModifiers::ctrl),
     [](TextHostControlService* service, StringView text,
-       gsl::index current_position) { return text.size(); });
+       gsl::index current_position) {
+      CRU_UNUSED(service)
+      CRU_UNUSED(text)
+      CRU_UNUSED(current_position)
+      return text.size();
+    });
 TextControlMovePattern TextControlMovePattern::kPageUp(
     u"PageUp", helper::ShortcutKeyBind(platform::gui::KeyCode::PageUp),
     [](TextHostControlService* service, StringView text,
        gsl::index current_position) {
+      CRU_UNUSED(service)
+      CRU_UNUSED(text)
       // TODO: Implement this.
       return current_position;
     });
@@ -111,6 +132,8 @@ TextControlMovePattern TextControlMovePattern::kPageDown(
     u"PageDown", helper::ShortcutKeyBind(platform::gui::KeyCode::PageDown),
     [](TextHostControlService* service, StringView text,
        gsl::index current_position) {
+      CRU_UNUSED(service)
+      CRU_UNUSED(text)
       // TODO: Implement this.
       return current_position;
     });

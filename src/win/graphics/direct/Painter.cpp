@@ -27,6 +27,10 @@ void D2DPainter::SetTransform(const platform::Matrix& matrix) {
   render_target_->SetTransform(Convert(matrix));
 }
 
+void D2DPainter::ConcatTransform(const Matrix& matrix) {
+  SetTransform(GetTransform() * matrix);
+}
+
 void D2DPainter::Clear(const Color& color) {
   CheckValidation();
   render_target_->Clear(Convert(color));
@@ -52,6 +56,24 @@ void D2DPainter::FillRectangle(const Rect& rectangle, IBrush* brush) {
   CheckValidation();
   const auto b = CheckPlatform<ID2DBrush>(brush, GetPlatformId());
   render_target_->FillRectangle(Convert(rectangle), b->GetD2DBrushInterface());
+}
+
+void D2DPainter::StrokeEllipse(const Rect& outline_rect, IBrush* brush,
+                               float width) {
+  CheckValidation();
+  const auto b = CheckPlatform<ID2DBrush>(brush, GetPlatformId());
+  render_target_->DrawEllipse(
+      D2D1::Ellipse(Convert(outline_rect.GetCenter()),
+                    outline_rect.width / 2.0f, outline_rect.height / 2.0f),
+      b->GetD2DBrushInterface(), width);
+}
+void D2DPainter::FillEllipse(const Rect& outline_rect, IBrush* brush) {
+  CheckValidation();
+  const auto b = CheckPlatform<ID2DBrush>(brush, GetPlatformId());
+  render_target_->FillEllipse(
+      D2D1::Ellipse(Convert(outline_rect.GetCenter()),
+                    outline_rect.width / 2.0f, outline_rect.height / 2.0f),
+      b->GetD2DBrushInterface());
 }
 
 void D2DPainter::StrokeGeometry(IGeometry* geometry, IBrush* brush,
@@ -94,6 +116,24 @@ void D2DPainter::PushLayer(const Rect& bounds) {
 void D2DPainter::PopLayer() {
   render_target_->PopLayer();
   layers_.pop_back();
+}
+
+void D2DPainter::PushState() {
+  Microsoft::WRL::ComPtr<ID2D1Factory> factory = nullptr;
+  render_target_->GetFactory(&factory);
+
+  Microsoft::WRL::ComPtr<ID2D1DrawingStateBlock> state_block;
+  factory->CreateDrawingStateBlock(&state_block);
+  render_target_->SaveDrawingState(state_block.Get());
+
+  drawing_state_stack_.push_back(std::move(state_block));
+}
+
+void D2DPainter::PopState() {
+  Expects(!drawing_state_stack_.empty());
+  auto drawing_state = drawing_state_stack_.back();
+  drawing_state_stack_.pop_back();
+  render_target_->RestoreDrawingState(drawing_state.Get());
 }
 
 void D2DPainter::EndDraw() {
