@@ -3,6 +3,7 @@
 #include "WindowManager.hpp"
 #include "cru/common/Logger.hpp"
 #include "cru/platform/Check.hpp"
+#include "cru/platform/graphics/NullPainter.hpp"
 #include "cru/platform/gui/Base.hpp"
 #include "cru/platform/gui/DebugFlags.hpp"
 #include "cru/platform/gui/Window.hpp"
@@ -16,6 +17,7 @@
 
 #include <windowsx.h>
 #include <winuser.h>
+#include <memory>
 
 namespace cru::platform::gui::win {
 namespace {
@@ -76,7 +78,7 @@ void WinNativeWindow::Close() {
   if (hwnd_) ::DestroyWindow(hwnd_);
 }
 
-void WinNativeWindow::SetParent(INativeWindow *parent) {
+void WinNativeWindow::SetParent(INativeWindow* parent) {
   auto p = CheckPlatform<WinNativeWindow>(parent, GetPlatformId());
   parent_window_ = p;
 
@@ -204,8 +206,11 @@ void WinNativeWindow::RequestRepaint() {
 }
 
 std::unique_ptr<graphics::IPainter> WinNativeWindow::BeginPaint() {
-  return std::make_unique<graphics::win::direct::D2DWindowPainter>(
-      window_render_target_.get());
+  if (hwnd_)
+    return std::make_unique<graphics::win::direct::D2DWindowPainter>(
+        window_render_target_.get());
+  else
+    return std::make_unique<graphics::NullPainter>();
 }
 
 void WinNativeWindow::SetCursor(std::shared_ptr<ICursor> cursor) {
