@@ -40,8 +40,7 @@ class QuartzCGContextPainter : public OsxQuartzResource,
   void FillRectangle(const Rect& rectangle, IBrush* brush) override;
   void StrokeEllipse(const Rect& outline_rect, IBrush* brush,
                      float width) override;
-  void FillEllipse(const Rect& outline_rect, IBrush* brush,
-                   float width) override;
+  void FillEllipse(const Rect& outline_rect, IBrush* brush) override;
 
   void StrokeGeometry(IGeometry* geometry, IBrush* brush, float width) override;
   void FillGeometry(IGeometry* geometry, IBrush* brush) override;

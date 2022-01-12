@@ -109,7 +109,7 @@ void QuartzCGContextPainter::StrokeEllipse(const Rect& outline_rect,
 }
 
 void QuartzCGContextPainter::FillEllipse(const Rect& outline_rect,
-                                         IBrush* brush, float width) {
+                                         IBrush* brush) {
   Validate();
 
   QuartzBrush* b = CheckPlatform<QuartzBrush>(brush, GetPlatformId());
