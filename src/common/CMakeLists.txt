@@ -4,6 +4,8 @@ add_library(cru_base SHARED
 	PropertyTree.cpp
 	String.cpp
 	StringUtil.cpp
+	io/Stream.cpp
+	io/MemoryStream.cpp
 )
 target_sources(cru_base PUBLIC
 	${CRU_BASE_INCLUDE_DIR}/Base.hpp
@@ -12,10 +14,13 @@ target_sources(cru_base PUBLIC
 	${CRU_BASE_INCLUDE_DIR}/Exception.hpp
 	${CRU_BASE_INCLUDE_DIR}/Logger.hpp
 	${CRU_BASE_INCLUDE_DIR}/PreConfig.hpp
+	${CRU_BASE_INCLUDE_DIR}/PropertyTree.hpp
 	${CRU_BASE_INCLUDE_DIR}/Range.hpp
 	${CRU_BASE_INCLUDE_DIR}/SelfResolvable.hpp
 	${CRU_BASE_INCLUDE_DIR}/String.hpp
 	${CRU_BASE_INCLUDE_DIR}/StringUtil.hpp
+	${CRU_BASE_INCLUDE_DIR}/io/Stream.hpp
+	${CRU_BASE_INCLUDE_DIR}/io/MemoryStream.hpp
 )
 target_include_directories(cru_base PUBLIC ${CRU_INCLUDE_DIR})
 target_compile_definitions(cru_base PUBLIC $<$<CONFIG:Debug>:CRU_DEBUG>)
