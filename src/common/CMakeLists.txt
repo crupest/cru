@@ -26,6 +26,14 @@ target_include_directories(cru_base PUBLIC ${CRU_INCLUDE_DIR})
 target_compile_definitions(cru_base PUBLIC $<$<CONFIG:Debug>:CRU_DEBUG>)
 target_compile_definitions(cru_base PRIVATE CRU_BASE_EXPORT_API)
 
+if (UNIX)
+	target_sources(cru_base PRIVATE
+		io/UnixFileStream.cpp
+	PUBLIC
+		${CRU_BASE_INCLUDE_DIR}/io/UnixFileStream.hpp
+	)
+endif()
+
 if (WIN32)
 	target_compile_definitions(cru_base PUBLIC CRU_PLATFORM_WINDOWS)
 elseif(APPLE)

@@ -15,15 +15,6 @@ target_sources(cru_platform_base PUBLIC
 target_link_libraries(cru_platform_base PUBLIC cru_base)
 target_compile_definitions(cru_platform_base PRIVATE CRU_PLATFORM_EXPORT_API)
 
-if (UNIX)
-target_sources(cru_platform_base PRIVATE
-	UnixFileStream.cpp
-PUBLIC
-	${CRU_PLATFORM_BASE_INCLUDE_DIR}/UnixFileStream.hpp
-)
-endif()
-
-add_subdirectory(filesystem)
 add_subdirectory(graphics)
 add_subdirectory(gui)
 

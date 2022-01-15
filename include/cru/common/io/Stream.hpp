@@ -32,5 +32,7 @@ class CRU_BASE_API Stream : public Object {
   virtual Index Write(const std::byte* buffer, Index size);
 
   virtual void Flush() = 0;
+
+  virtual void Close();
 };
 }  // namespace cru::io
