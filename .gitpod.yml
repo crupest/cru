@@ -12,3 +12,4 @@ vscode:
   extensions:
     - "llvm-vs-code-extensions.vscode-clangd"
     - "wayou.vscode-todo-highlight"
+    - "editorconfig.editorconfig"
