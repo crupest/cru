@@ -53,6 +53,8 @@ int MapSeekOrigin(Stream::SeekOrigin origin) {
 }
 }  // namespace
 
+UnixFileStream::~UnixFileStream() { Close(); }
+
 UnixFileStream::UnixFileStream(String path, OpenFileFlag flags) {
   file_descriptor_ = ::open(path.ToUtf8().c_str(), MapOpenFileFlag(flags));
   if (file_descriptor_ == -1) {

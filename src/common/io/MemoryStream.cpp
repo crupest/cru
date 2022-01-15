@@ -49,6 +49,4 @@ Index MemoryStream::Write(const std::byte *buffer, Index offset, Index size) {
   position_ += size;
   return size;
 }
-
-void MemoryStream::Flush() {}
 }  // namespace cru::io

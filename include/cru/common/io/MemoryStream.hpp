@@ -29,8 +29,6 @@ class CRU_BASE_API MemoryStream : public Stream {
   bool CanWrite() override;
   Index Write(const std::byte* buffer, Index offset, Index size) override;
 
-  void Flush() override;
-
  private:
   std::byte* buffer_ = nullptr;
   Index size_ = 0;

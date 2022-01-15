@@ -19,5 +19,7 @@ Index Stream::Write(const std::byte* buffer, Index size) {
   return Write(buffer, 0, size);
 }
 
+void Stream::Flush() {}
+
 void Stream::Close() {}
 }  // namespace cru::io

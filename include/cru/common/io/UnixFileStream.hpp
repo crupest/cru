@@ -29,8 +29,6 @@ class UnixFileStream : public Stream {
   bool CanWrite() override;
   Index Write(const std::byte* buffer, Index offset, Index size) override;
 
-  void Flush() override;
-
   void Close() override;
 
  private:
