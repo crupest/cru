@@ -28,8 +28,10 @@ target_compile_definitions(cru_base PRIVATE CRU_BASE_EXPORT_API)
 
 if (UNIX)
 	target_sources(cru_base PRIVATE
+		ErrnoException.cpp
 		io/UnixFileStream.cpp
 	PUBLIC
+		${CRU_BASE_INCLUDE_DIR}/ErrnoException.hpp
 		${CRU_BASE_INCLUDE_DIR}/io/UnixFileStream.hpp
 	)
 endif()

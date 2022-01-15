@@ -1,5 +1,9 @@
 #pragma once
 
+#include "../PreConfig.hpp"
+
+#ifdef CRU_PLATFORM_UNIX
+
 #include "../String.hpp"
 #include "OpenFileFlag.hpp"
 #include "Stream.hpp"
@@ -39,3 +43,5 @@ class UnixFileStream : public Stream {
   bool closed_ = false;
 };
 }  // namespace cru::io
+
+#endif

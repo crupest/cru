@@ -10,3 +10,7 @@
 #ifdef CRU_PLATFORM_WINDOWS
 #define _CRT_SECURE_NO_WARNINGS
 #endif
+
+#if defined(CRU_PLATFORM_OSX) || defined(CRU_PLATFORM_LINUX)
+#define CRU_PLATFORM_UNIX
+#endif

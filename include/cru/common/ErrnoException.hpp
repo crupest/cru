@@ -1,5 +1,9 @@
 #pragma once
 
+#include "PreConfig.hpp"
+
+#ifdef CRU_PLATFORM_UNIX
+
 #include "Exception.hpp"
 
 namespace cru {
@@ -20,3 +24,5 @@ class ErrnoException : public Exception {
   int errno_code_;
 };
 }  // namespace cru
+
+#endif
