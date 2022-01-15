@@ -25,9 +25,11 @@ class UnixFileStream : public Stream {
 
   bool CanRead() override;
   Index Read(std::byte* buffer, Index offset, Index size) override;
+  using Stream::Read;
 
   bool CanWrite() override;
   Index Write(const std::byte* buffer, Index offset, Index size) override;
+  using Stream::Write;
 
   void Close() override;
 
@@ -36,7 +38,7 @@ class UnixFileStream : public Stream {
 
  private:
   String path_;
-  OpenFileFlag flags;
+  OpenFileFlag flags_;
   int file_descriptor_;
   bool closed_ = false;
 };

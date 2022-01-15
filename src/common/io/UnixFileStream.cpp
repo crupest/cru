@@ -3,36 +3,37 @@
 #include "cru/common/io/OpenFileFlag.hpp"
 
 #include <fcntl.h>
+#include <sys/_types/_s_ifmt.h>
 #include <unistd.h>
 
 namespace cru::io {
 
 namespace {
-int MapOpenFileFlag(OpenFileFlag flag) {
+int MapOpenFileFlag(OpenFileFlag flags) {
   int result = 0;
-  if (flag & OpenFileFlags::Read) {
-    if (flag & OpenFileFlags::Write) {
+  if (flags & OpenFileFlags::Read) {
+    if (flags & OpenFileFlags::Write) {
       result |= O_RDWR;
     } else {
       result |= O_RDONLY;
     }
   } else {
-    if (flag & OpenFileFlags::Write) {
+    if (flags & OpenFileFlags::Write) {
       result |= O_WRONLY;
     } else {
       throw Exception(u"Invalid open file flag.");
     }
   }
 
-  if (flag | OpenFileFlags::Append) {
+  if (flags & OpenFileFlags::Append) {
     result |= O_APPEND;
   }
 
-  if (flag | OpenFileFlags::Create) {
+  if (flags & OpenFileFlags::Create) {
     result |= O_CREAT;
   }
 
-  if (flag | OpenFileFlags::ThrowOnExist) {
+  if (flags & OpenFileFlags::ThrowOnExist) {
     result |= O_EXCL;
   }
 
@@ -55,10 +56,14 @@ int MapSeekOrigin(Stream::SeekOrigin origin) {
 
 UnixFileStream::~UnixFileStream() { Close(); }
 
-UnixFileStream::UnixFileStream(String path, OpenFileFlag flags) {
-  file_descriptor_ = ::open(path.ToUtf8().c_str(), MapOpenFileFlag(flags));
+UnixFileStream::UnixFileStream(String path, OpenFileFlag flags)
+    : path_(std::move(path)), flags_(flags) {
+  auto p = path_.ToUtf8();
+  file_descriptor_ =
+      ::open(p.c_str(), MapOpenFileFlag(flags_), S_IRUSR | S_IWUSR);
   if (file_descriptor_ == -1) {
-    throw ErrnoException(u"Failed to open file.");
+    throw ErrnoException(
+        Format(u"Failed to open file {} with flags {}.", path_, flags_.value));
   }
 }
 
@@ -86,7 +91,7 @@ void UnixFileStream::Seek(Index offset, SeekOrigin origin) {
 
 bool UnixFileStream::CanRead() {
   CheckClosed();
-  return flags & OpenFileFlags::Read;
+  return flags_ & OpenFileFlags::Read;
 }
 
 Index UnixFileStream::Read(std::byte *buffer, Index offset, Index size) {
@@ -100,7 +105,7 @@ Index UnixFileStream::Read(std::byte *buffer, Index offset, Index size) {
 
 bool UnixFileStream::CanWrite() {
   CheckClosed();
-  return flags & OpenFileFlags::Write;
+  return flags_ & OpenFileFlags::Write;
 }
 
 Index UnixFileStream::Write(const std::byte *buffer, Index offset, Index size) {
@@ -117,6 +122,7 @@ void UnixFileStream::Close() {
   if (::close(file_descriptor_) == -1) {
     throw ErrnoException(u"Failed to close file.");
   }
+  closed_ = true;
 }
 
 void UnixFileStream::CheckClosed() {

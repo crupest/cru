@@ -30,6 +30,8 @@ class CRU_BASE_API Stream : public Object {
   virtual bool CanWrite() = 0;
   virtual Index Write(const std::byte* buffer, Index offset, Index size) = 0;
   virtual Index Write(const std::byte* buffer, Index size);
+  Index Write(const char* buffer, Index offset, Index size);
+  Index Write(const char* buffer, Index size);
 
   virtual void Flush();
 

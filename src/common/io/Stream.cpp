@@ -19,6 +19,14 @@ Index Stream::Write(const std::byte* buffer, Index size) {
   return Write(buffer, 0, size);
 }
 
+Index Stream::Write(const char* buffer, Index offset, Index size) {
+  return Write(reinterpret_cast<const std::byte*>(buffer), offset, size);
+}
+
+Index Stream::Write(const char* buffer, Index size) {
+  return Write(reinterpret_cast<const std::byte*>(buffer), size);
+}
+
 void Stream::Flush() {}
 
 void Stream::Close() {}
