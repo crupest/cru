@@ -2,6 +2,9 @@
 #include "String.hpp"
 
 namespace cru {
+#ifdef _MSC_VER
+#pragma warning(disable : 4275)
+#endif
 class CRU_BASE_API Exception : public std::exception {
  public:
   Exception();

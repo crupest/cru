@@ -1,19 +1,19 @@
-name: macOS CI
+name: CI
 
 on:
   push:
-    branches: [master]
+    branches: [main]
     paths-ignore:
       - "docs/**"
       - "**/README.md"
   pull_request:
-    branches: [master]
+    branches: [main]
     paths-ignore:
       - "docs/**"
       - "**/README.md"
 
 jobs:
-  build:
+  macos-build:
     name: Build
     runs-on: macos-latest
 
@@ -40,3 +40,30 @@ jobs:
         working-directory: build
         run: |
           ctest -C Debug -T test --output-on-failure
+
+  windows-build:
+    name: Build
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Restore Cache
+        uses: actions/cache@v2
+        with:
+          path: ~/AppData/Local/vcpkg/archives
+          key: vcpkg-${{ runner.os }}
+
+      - name: Setup Ninja
+        uses: ashutoshvarma/setup-ninja@master
+        with:
+          version: 1.10.2
+
+      - name: Run build script
+        shell: pwsh
+        run: |
+          . ./tools/Use-VC.ps1
+          Use-VC
+          mkdir build && cd build
+          cmake .. -G Ninja -DCMAKE_BUILD_TYPE:STRING=Debug
+          ninja all

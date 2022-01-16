@@ -1,6 +1,6 @@
 # CruUI
 
-[![macOS CI](https://github.com/crupest/cru/actions/workflows/macos-ci.yml/badge.svg?branch=master)](https://github.com/crupest/cru/actions/workflows/macos-ci.yml)
+[![CI](https://github.com/crupest/cru/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/crupest/cru/actions/workflows/ci.yml)
 
 ## overview
 

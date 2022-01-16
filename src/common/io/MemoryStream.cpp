@@ -1,6 +1,12 @@
 #include "cru/common/io/MemoryStream.hpp"
 
 namespace cru::io {
+MemoryStream::~MemoryStream() {
+  if (release_func_) {
+    release_func_(buffer_, size_);
+  }
+}
+
 bool MemoryStream::CanSeek() { return true; }
 
 Index MemoryStream::Tell() { return position_; }
