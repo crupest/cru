@@ -14,7 +14,7 @@ on:
 
 jobs:
   macos-build:
-    name: Build
+    name: macOS Build
     runs-on: macos-latest
 
     steps:
@@ -42,7 +42,7 @@ jobs:
           ctest -C Debug -T test --output-on-failure
 
   windows-build:
-    name: Build
+    name: Windows Build
     runs-on: windows-latest
 
     steps:
