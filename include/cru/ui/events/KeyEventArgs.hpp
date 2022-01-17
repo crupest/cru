@@ -4,7 +4,7 @@
 #include "cru/platform/gui/Keyboard.hpp"
 
 namespace cru::ui::events {
-class KeyEventArgs : public UiEventArgs {
+class CRU_UI_API KeyEventArgs : public UiEventArgs {
  public:
   KeyEventArgs(Object* sender, Object* original_sender,
                platform::gui::KeyCode key_code,

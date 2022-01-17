@@ -4,7 +4,7 @@
 #include "cru/platform/gui/Keyboard.hpp"
 
 namespace cru::ui::events {
-class MouseWheelEventArgs : public MouseEventArgs {
+class CRU_UI_API MouseWheelEventArgs : public MouseEventArgs {
  public:
   MouseWheelEventArgs(Object* sender, Object* original_sender,
                       const Point& point, const float delta,

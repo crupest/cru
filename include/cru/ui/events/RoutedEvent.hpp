@@ -7,7 +7,7 @@ namespace cru::ui::events {
 // TEventArgs must not be a reference type. This class help add reference.
 // EventArgs must be reference because the IsHandled property must be settable.
 template <typename TEventArgs>
-class RoutedEvent {
+class CRU_UI_API RoutedEvent {
  public:
   static_assert(std::is_base_of_v<UiEventArgs, TEventArgs>,
                 "TEventArgs must be subclass of UiEventArgs.");

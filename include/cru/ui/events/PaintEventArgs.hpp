@@ -6,7 +6,7 @@ struct IPainter;
 }
 
 namespace cru::ui::events {
-class PaintEventArgs : public UiEventArgs {
+class CRU_UI_API PaintEventArgs : public UiEventArgs {
  public:
   PaintEventArgs(Object* sender, Object* original_sender,
                  platform::graphics::IPainter* painter)

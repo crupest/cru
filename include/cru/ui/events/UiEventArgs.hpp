@@ -2,7 +2,7 @@
 #include "../Base.hpp"
 
 namespace cru::ui::events {
-class UiEventArgs : public Object {
+class CRU_UI_API UiEventArgs : public Object {
  public:
   UiEventArgs(Object* sender, Object* original_sender)
       : sender_(sender), original_sender_(original_sender), handled_(false) {}

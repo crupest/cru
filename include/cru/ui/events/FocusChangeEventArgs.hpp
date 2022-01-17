@@ -3,7 +3,7 @@
 
 namespace cru::ui::events {
 
-class FocusChangeEventArgs : public UiEventArgs {
+class CRU_UI_API FocusChangeEventArgs : public UiEventArgs {
  public:
   FocusChangeEventArgs(Object* sender, Object* original_sender,
                        const bool is_window = false)

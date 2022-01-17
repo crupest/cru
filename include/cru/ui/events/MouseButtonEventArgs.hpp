@@ -5,7 +5,7 @@
 
 namespace cru::ui::events {
 
-class MouseButtonEventArgs : public MouseEventArgs {
+class CRU_UI_API MouseButtonEventArgs : public MouseEventArgs {
  public:
   MouseButtonEventArgs(Object* sender, Object* original_sender,
                        const Point& point, const MouseButton button,
