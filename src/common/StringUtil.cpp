@@ -1,5 +1,4 @@
 #include "cru/common/StringUtil.hpp"
-#include <functional>
 #include "cru/common/Base.hpp"
 #include "cru/common/Exception.hpp"
 
@@ -258,4 +257,13 @@ char16_t ToUpper(char16_t c) {
 bool IsWhitespace(char16_t c) {
   return c == u' ' || c == u'\t' || c == u'\n' || c == u'\r';
 }
+
+Utf8CodePointIterator CreateUtf8Iterator(const std::byte* buffer, Index size) {
+  return Utf8CodePointIterator(reinterpret_cast<const char*>(buffer), size);
+}
+
+Utf8CodePointIterator CreateUtf8Iterator(const std::vector<std::byte>& buffer) {
+  return CreateUtf8Iterator(buffer.data(), buffer.size());
+}
+
 }  // namespace cru

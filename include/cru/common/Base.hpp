@@ -12,7 +12,6 @@
 #endif
 
 #include <gsl/gsl>
-#include <stdexcept>
 
 #define CRU_UNUSED(entity) static_cast<void>(entity);
 
@@ -82,7 +81,7 @@ struct CRU_BASE_API Interface {
   virtual ~Interface() = default;
 };
 
-[[noreturn]] inline void UnreachableCode() { std::terminate(); }
+[[noreturn]] void CRU_BASE_API UnreachableCode();
 
 using Index = gsl::index;
 

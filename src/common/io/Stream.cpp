@@ -27,6 +27,19 @@ Index Stream::Write(const char* buffer, Index size) {
   return Write(reinterpret_cast<const std::byte*>(buffer), size);
 }
 
+std::vector<std::byte> Stream::ReadAll() {
+  std::vector<std::byte> buffer;
+  buffer.resize(GetSize());
+  Read(buffer.data(), 0, buffer.size());
+  return buffer;
+}
+
+String Stream::ReadAllAsString() {
+  auto buffer = ReadAll();
+  return String::FromUtf8(reinterpret_cast<const char*>(buffer.data()),
+                          buffer.size());
+}
+
 void Stream::Flush() {}
 
 void Stream::Close() {}

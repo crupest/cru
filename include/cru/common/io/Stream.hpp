@@ -2,7 +2,10 @@
 
 #include "../Base.hpp"
 
+#include "../String.hpp"
+
 #include <cstddef>
+#include <vector>
 
 namespace cru::io {
 class CRU_BASE_API Stream : public Object {
@@ -32,6 +35,11 @@ class CRU_BASE_API Stream : public Object {
   virtual Index Write(const std::byte* buffer, Index size);
   Index Write(const char* buffer, Index offset, Index size);
   Index Write(const char* buffer, Index size);
+
+  virtual std::vector<std::byte> ReadAll();
+
+  // Utf8 encoding.
+  String ReadAllAsString();
 
   virtual void Flush();
 

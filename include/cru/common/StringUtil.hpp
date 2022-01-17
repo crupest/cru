@@ -223,4 +223,10 @@ char16_t CRU_BASE_API ToLower(char16_t c);
 char16_t CRU_BASE_API ToUpper(char16_t c);
 
 bool CRU_BASE_API IsWhitespace(char16_t c);
+
+Utf8CodePointIterator CRU_BASE_API CreateUtf8Iterator(const std::byte* buffer,
+                                                      Index size);
+Utf8CodePointIterator CRU_BASE_API
+CreateUtf8Iterator(const std::vector<std::byte>& buffer);
+
 }  // namespace cru
