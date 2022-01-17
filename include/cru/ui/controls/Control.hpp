@@ -8,7 +8,7 @@
 #include <string_view>
 
 namespace cru::ui::controls {
-class Control : public Object {
+class CRU_UI_API Control : public Object {
   friend host::WindowHost;
 
  protected:

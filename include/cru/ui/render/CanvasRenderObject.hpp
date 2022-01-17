@@ -5,7 +5,7 @@ namespace cru::ui::render {
 // Layout logic:
 // If no preferred size is set. Then (100, 100) is used and then coerced to
 // required range.
-class CanvasRenderObject : public RenderObject {
+class CRU_UI_API CanvasRenderObject : public RenderObject {
  public:
   CanvasRenderObject();
 

@@ -2,7 +2,7 @@
 #include "LayoutControl.hpp"
 
 namespace cru::ui::controls {
-class FlexLayout : public LayoutControl {
+class CRU_UI_API FlexLayout : public LayoutControl {
  public:
   static constexpr StringView control_type = u"FlexLayout";
 

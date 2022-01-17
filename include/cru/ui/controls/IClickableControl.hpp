@@ -5,7 +5,7 @@
 #include "cru/ui/helper/ClickDetector.hpp"
 
 namespace cru::ui::controls {
-struct IClickableControl : virtual Interface {
+struct CRU_UI_API IClickableControl : virtual Interface {
   virtual helper::ClickState GetClickState() = 0;
   virtual IEvent<helper::ClickState>* ClickStateChangeEvent() = 0;
 };

@@ -17,7 +17,7 @@ class LayoutPaintCycler;
 struct AfterLayoutEventArgs {};
 
 // The bridge between control tree and native window.
-class WindowHost : public Object {
+class CRU_UI_API WindowHost : public Object {
   CRU_DEFINE_CLASS_LOG_TAG(u"cru::ui::host::WindowHost")
 
  public:

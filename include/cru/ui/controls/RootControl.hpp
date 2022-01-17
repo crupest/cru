@@ -9,7 +9,7 @@
 #include "cru/ui/host/WindowHost.hpp"
 
 namespace cru::ui::controls {
-class RootControl : public LayoutControl {
+class CRU_UI_API RootControl : public LayoutControl {
  protected:
   explicit RootControl(Control* attached_control);
 

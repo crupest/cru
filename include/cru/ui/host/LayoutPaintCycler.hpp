@@ -7,7 +7,7 @@
 #include <chrono>
 
 namespace cru::ui::host {
-class LayoutPaintCycler {
+class CRU_UI_API LayoutPaintCycler {
  public:
   explicit LayoutPaintCycler(WindowHost* host);
 

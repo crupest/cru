@@ -22,7 +22,7 @@ class PopupMenu;
 namespace cru::ui::controls {
 constexpr int k_default_caret_blink_duration = 500;
 
-struct ITextHostControl : virtual Interface {
+struct CRU_UI_API ITextHostControl : virtual Interface {
   virtual gsl::not_null<render::TextRenderObject*> GetTextRenderObject() = 0;
   // May return nullptr.
   virtual render::ScrollRenderObject* GetScrollRenderObject() = 0;
@@ -76,7 +76,7 @@ class TextControlMovePattern : public Object {
   MoveFunction move_function_;
 };
 
-class TextHostControlService : public Object {
+class CRU_UI_API TextHostControlService : public Object {
   CRU_DEFINE_CLASS_LOG_TAG(u"cru::ui::controls::TextControlService")
 
  public:

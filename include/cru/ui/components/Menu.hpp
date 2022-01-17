@@ -11,7 +11,7 @@
 #include <vector>
 
 namespace cru::ui::components {
-class MenuItem : public Component {
+class CRU_UI_API MenuItem : public Component {
  public:
   MenuItem();
   explicit MenuItem(String text);
@@ -36,7 +36,7 @@ class MenuItem : public Component {
   std::function<void()> on_click_;
 };
 
-class Menu : public Component {
+class CRU_UI_API Menu : public Component {
  public:
   Menu();
 
@@ -73,7 +73,7 @@ class Menu : public Component {
   std::function<void(Index)> on_item_click_;
 };
 
-class PopupMenu : public Component {
+class CRU_UI_API PopupMenu : public Component {
  public:
   explicit PopupMenu(controls::Control* attached_control = nullptr);
 

@@ -8,7 +8,7 @@
 #include <string_view>
 
 namespace cru::ui::controls {
-class ScrollView : public ContentControl {
+class CRU_UI_API ScrollView : public ContentControl {
  public:
   static ScrollView* Create() { return new ScrollView(); }
 

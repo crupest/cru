@@ -4,7 +4,7 @@
 #include "TextHostControlService.hpp"
 
 namespace cru::ui::controls {
-class TextBlock : public NoChildControl, public virtual ITextHostControl {
+class CRU_UI_API TextBlock : public NoChildControl, public virtual ITextHostControl {
  public:
   static constexpr StringView control_type = u"TextBlock";
 

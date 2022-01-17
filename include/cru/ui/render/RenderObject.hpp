@@ -39,7 +39,7 @@ namespace cru::ui::render {
 // protected:
 //  Size OnMeasureContent(const MeasureRequirement& requirement) override;
 //  void OnLayoutContent(const Rect& content_rect) override;
-class RenderObject : public Object {
+class CRU_UI_API RenderObject : public Object {
   friend host::WindowHost;
 
   CRU_DEFINE_CLASS_LOG_TAG(u"cru::ui::render::RenderObject")

@@ -75,7 +75,7 @@ namespace cru::ui::render {
 // (if specified), then coerce the length to the min value but not report error
 // and just fill the rest space with blank.
 //
-class FlexLayoutRenderObject : public LayoutRenderObject<FlexChildLayoutData> {
+class CRU_UI_API FlexLayoutRenderObject : public LayoutRenderObject<FlexChildLayoutData> {
   CRU_DEFINE_CLASS_LOG_TAG(u"cru::ui::render::FlexLayoutRenderObject")
 
  public:

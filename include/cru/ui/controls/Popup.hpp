@@ -6,7 +6,7 @@
 #include <memory>
 
 namespace cru::ui::controls {
-class Popup : public RootControl {
+class CRU_UI_API Popup : public RootControl {
  public:
   static constexpr StringView kControlType = u"Popup";
 

@@ -41,10 +41,10 @@ enum class ScrollBarAreaKind {
 enum class ScrollBarBrushUsageKind { Arrow, ArrowBackground, Slot, Thumb };
 enum class ScrollBarBrushStateKind { Normal, Hover, Press, Disable };
 
-String GenerateScrollBarThemeColorKey(ScrollBarBrushUsageKind usage,
-                                      ScrollBarBrushStateKind state);
+String CRU_UI_API GenerateScrollBarThemeColorKey(ScrollBarBrushUsageKind usage,
+                                                 ScrollBarBrushStateKind state);
 
-class ScrollBar : public Object {
+class CRU_UI_API ScrollBar : public Object {
  public:
   ScrollBar(gsl::not_null<ScrollRenderObject*> render_object,
             Direction direction);
@@ -153,7 +153,7 @@ class ScrollBar : public Object {
   platform::gui::TimerAutoCanceler auto_collapse_timer_canceler_;
 };
 
-class HorizontalScrollBar : public ScrollBar {
+class CRU_UI_API HorizontalScrollBar : public ScrollBar {
  public:
   explicit HorizontalScrollBar(
       gsl::not_null<ScrollRenderObject*> render_object);
@@ -186,7 +186,7 @@ class HorizontalScrollBar : public ScrollBar {
   bool CanScrollDown() override;
 };
 
-class VerticalScrollBar : public ScrollBar {
+class CRU_UI_API VerticalScrollBar : public ScrollBar {
  public:
   explicit VerticalScrollBar(gsl::not_null<ScrollRenderObject*> render_object);
 
@@ -219,7 +219,7 @@ class VerticalScrollBar : public ScrollBar {
 };
 
 // A delegate to draw scrollbar and register related events.
-class ScrollBarDelegate : public Object {
+class CRU_UI_API ScrollBarDelegate : public Object {
  public:
   explicit ScrollBarDelegate(gsl::not_null<ScrollRenderObject*> render_object);
 

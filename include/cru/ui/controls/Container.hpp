@@ -2,7 +2,7 @@
 #include "ContentControl.hpp"
 
 namespace cru::ui::controls {
-class Container : public ContentControl {
+class CRU_UI_API Container : public ContentControl {
   static constexpr StringView control_type = u"Container";
 
  protected:

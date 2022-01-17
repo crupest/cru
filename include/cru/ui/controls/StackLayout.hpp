@@ -2,7 +2,7 @@
 #include "LayoutControl.hpp"
 
 namespace cru::ui::controls {
-class StackLayout : public LayoutControl {
+class CRU_UI_API StackLayout : public LayoutControl {
  public:
   static constexpr StringView control_type = u"StackLayout";
 

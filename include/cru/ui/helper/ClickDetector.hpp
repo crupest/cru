@@ -2,7 +2,7 @@
 #include "../controls/Control.hpp"
 
 namespace cru::ui::helper {
-class ClickEventArgs : Object {
+class CRU_UI_API ClickEventArgs : Object {
  public:
   ClickEventArgs(controls::Control* sender, const Point& down_point,
                  const Point& up_point, MouseButton button)

@@ -1,6 +1,6 @@
 set(CRU_UI_INCLUDE_DIR ${CRU_INCLUDE_DIR}/cru/ui)
 
-add_library(cru_ui STATIC
+add_library(cru_ui SHARED
 	Helper.cpp
 	ThemeManager.cpp
 	UiManager.cpp
@@ -26,6 +26,8 @@ add_library(cru_ui STATIC
 	helper/ShortcutHub.cpp
 	host/LayoutPaintCycler.cpp
 	host/WindowHost.cpp
+	mapper/Mapper.cpp
+	mapper/MapperRegistry.cpp
 	render/BorderRenderObject.cpp
 	render/CanvasRenderObject.cpp
 	render/FlexLayoutRenderObject.cpp
@@ -39,7 +41,6 @@ add_library(cru_ui STATIC
 	style/Styler.cpp
 	style/StyleRule.cpp
 	style/StyleRuleSet.cpp
-	xml/XmlMapper.cpp
-	xml/XmlMapperRegistry.cpp
 )
-target_link_libraries(cru_ui PUBLIC cru_platform_gui)
+target_compile_definitions(cru_ui PRIVATE CRU_UI_EXPORT_API)
+target_link_libraries(cru_ui PUBLIC cru_platform_gui cru_xml)

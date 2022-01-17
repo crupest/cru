@@ -4,7 +4,7 @@
 #include "cru/ui/render/RenderObject.hpp"
 
 namespace cru::ui::controls {
-class ContentControl : public Control {
+class CRU_UI_API ContentControl : public Control {
  protected:
   ContentControl() = default;
 

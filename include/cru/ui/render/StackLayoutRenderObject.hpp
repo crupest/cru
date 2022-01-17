@@ -21,7 +21,7 @@ namespace cru::ui::render {
 //
 // 4. If result size is smaller than min size (if specified), coerce result size
 // to min size.
-class StackLayoutRenderObject
+class CRU_UI_API StackLayoutRenderObject
     : public LayoutRenderObject<StackChildLayoutData> {
   CRU_DEFINE_CLASS_LOG_TAG(u"cru::ui::render:StackLayoutRenderObject")
 

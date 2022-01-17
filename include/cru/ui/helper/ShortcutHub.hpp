@@ -96,7 +96,7 @@ struct ShortcutInfo {
   std::function<bool()> handler;
 };
 
-class ShortcutHub : public Object {
+class CRU_UI_API ShortcutHub : public Object {
  public:
   ShortcutHub() = default;
 

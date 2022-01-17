@@ -8,17 +8,17 @@
 #include <unordered_map>
 
 namespace cru::ui {
-class ThemeResourceKeyNotExistException : public Exception {
+class CRU_UI_API ThemeResourceKeyNotExistException : public Exception {
  public:
   using Exception::Exception;
 };
 
-class BadThemeResourceException : public Exception {
+class CRU_UI_API BadThemeResourceException : public Exception {
  public:
   using Exception::Exception;
 };
 
-class ThemeManager : public Object {
+class CRU_UI_API ThemeManager : public Object {
  public:
   static ThemeManager* GetInstance();
 

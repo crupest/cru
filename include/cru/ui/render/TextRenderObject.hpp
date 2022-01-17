@@ -17,7 +17,7 @@ namespace cru::ui::render {
 //
 // If the result layout box is bigger than actual text box, then text is center
 // aligned.
-class TextRenderObject : public RenderObject {
+class CRU_UI_API TextRenderObject : public RenderObject {
   CRU_DEFINE_CLASS_LOG_TAG(u"cru::ui::render::TextRenderObject")
 
  public:

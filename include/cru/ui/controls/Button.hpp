@@ -8,7 +8,7 @@
 #include "cru/ui/style/ApplyBorderStyleInfo.hpp"
 
 namespace cru::ui::controls {
-class Button : public ContentControl,
+class CRU_UI_API Button : public ContentControl,
                public virtual IClickableControl,
                public virtual IBorderControl {
  public:

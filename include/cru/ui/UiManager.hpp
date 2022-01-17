@@ -26,7 +26,7 @@ struct ThemeResources {
   style::StyleRuleSet menu_item_style;
 };
 
-class UiManager : public Object {
+class CRU_UI_API UiManager : public Object {
  public:
   static UiManager* GetInstance();
 

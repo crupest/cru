@@ -2,7 +2,7 @@
 #include "Control.hpp"
 
 namespace cru::ui::controls {
-class NoChildControl : public Control {
+class CRU_UI_API NoChildControl : public Control {
  protected:
   NoChildControl() = default;
 

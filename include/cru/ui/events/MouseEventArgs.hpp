@@ -4,7 +4,7 @@
 #include <optional>
 
 namespace cru::ui::events {
-class MouseEventArgs : public UiEventArgs {
+class CRU_UI_API MouseEventArgs : public UiEventArgs {
  public:
   MouseEventArgs(Object* sender, Object* original_sender,
                  const std::optional<Point>& point = std::nullopt)

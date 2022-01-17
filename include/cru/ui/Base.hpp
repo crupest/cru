@@ -8,6 +8,16 @@
 #include <optional>
 #include <vector>
 
+#ifdef CRU_PLATFORM_WINDOWS
+#ifdef CRU_UI_EXPORT_API
+#define CRU_UI_API __declspec(dllexport)
+#else
+#define CRU_UI_API __declspec(dllimport)
+#endif
+#else
+#define CRU_UI_API
+#endif
+
 namespace cru::ui {
 //-------------------- region: import --------------------
 using cru::platform::Color;

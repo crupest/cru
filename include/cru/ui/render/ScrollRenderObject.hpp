@@ -18,7 +18,7 @@ namespace cru::ui::render {
 // Layout logic:
 // If child is smaller than content area, layout at lefttop.
 // Or layout by scroll state.
-class ScrollRenderObject : public RenderObject {
+class CRU_UI_API ScrollRenderObject : public RenderObject {
  public:
   ScrollRenderObject();
 

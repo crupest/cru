@@ -6,7 +6,7 @@
 #include "cru/ui/Base.hpp"
 
 namespace cru::ui::render {
-class BorderRenderObject : public RenderObject {
+class CRU_UI_API BorderRenderObject : public RenderObject {
   CRU_DEFINE_CLASS_LOG_TAG(u"cru::ui::render::BorderRenderObject")
 
  public:

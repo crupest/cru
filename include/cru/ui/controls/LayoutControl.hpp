@@ -2,7 +2,7 @@
 #include "Control.hpp"
 
 namespace cru::ui::controls {
-class LayoutControl : public Control {
+class CRU_UI_API LayoutControl : public Control {
  protected:
   LayoutControl() = default;
   explicit LayoutControl(render::RenderObject* container_render_object)

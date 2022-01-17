@@ -5,7 +5,7 @@
 #include "cru/common/Base.hpp"
 
 namespace cru::ui::controls {
-class Window final : public RootControl {
+class CRU_UI_API Window final : public RootControl {
  public:
   static constexpr StringView control_type = u"Window";
 

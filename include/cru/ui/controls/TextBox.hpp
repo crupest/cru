@@ -7,10 +7,7 @@
 #include <memory>
 
 namespace cru::ui::controls {
-template <typename TControl>
-class TextControlService;
-
-class TextBox : public NoChildControl,
+class CRU_UI_API TextBox : public NoChildControl,
                 public virtual IBorderControl,
                 public virtual ITextHostControl {
  public:
