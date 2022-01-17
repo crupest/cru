@@ -34,12 +34,6 @@ Check the code or fire a issue if you have any problem.
 
 - `tools/` contains some codes of tools like code generators.
 
-  - `tools/cppmerge` contains a _python_ script program that merges all cpp headers and sources into one **single** header and source. **Not use now**.
+  - `cppmerge/` contains a _python_ script program that merges all cpp headers and sources into one **single** header and source. **Not use now**.
 
   - `migrate-1/` contains _python_ scripts that migrate all header and source files into CamelCase. **Not use after migration**.
-
-  - `tools/build.py` is a python3 script to build the source code.
-
-- `snippets/` contains useful snippets file for _Visual Studio_, you can import it. **No longer use any more**, because now I develop CruUI in VS Code.
-
-- `CMakeSettings.json` is a file that helps _Visual Studio_ to config CMake and setup intellisense.
