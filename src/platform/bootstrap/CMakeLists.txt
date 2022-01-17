@@ -1,9 +1,5 @@
-set(CRU_PLATFORM_BOOTSTRAP_INCLUDE_DIR ${CRU_INCLUDE_DIR}/cru/platform/bootstrap)
 add_library(cru_platform_bootstrap SHARED
 	Bootstrap.cpp
-)
-target_sources(cru_platform_bootstrap PUBLIC
-	${CRU_PLATFORM_BOOTSTRAP_INCLUDE_DIR}/Bootstrap.hpp
 )
 
 if(WIN32)

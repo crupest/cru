@@ -1,5 +1,3 @@
-set(CRU_OSX_GRAPHICS_NATIVE_INCLUDE_DIR ${CRU_INCLUDE_DIR}/cru/osx/graphics/quartz)
-
 add_library(cru_osx_graphics_quartz SHARED
 	Brush.cpp
 	Convert.cpp
@@ -9,16 +7,6 @@ add_library(cru_osx_graphics_quartz SHARED
 	Painter.cpp
 	Resource.cpp
 	TextLayout.cpp
-)
-target_sources(cru_osx_graphics_quartz PUBLIC
-	${CRU_OSX_GRAPHICS_NATIVE_INCLUDE_DIR}/Brush.hpp
-	${CRU_OSX_GRAPHICS_NATIVE_INCLUDE_DIR}/Convert.hpp
-	${CRU_OSX_GRAPHICS_NATIVE_INCLUDE_DIR}/Factory.hpp
-	${CRU_OSX_GRAPHICS_NATIVE_INCLUDE_DIR}/Font.hpp
-	${CRU_OSX_GRAPHICS_NATIVE_INCLUDE_DIR}/Geometry.hpp
-	${CRU_OSX_GRAPHICS_NATIVE_INCLUDE_DIR}/Painter.hpp
-	${CRU_OSX_GRAPHICS_NATIVE_INCLUDE_DIR}/Resource.hpp
-	${CRU_OSX_GRAPHICS_NATIVE_INCLUDE_DIR}/TextLayout.hpp
 )
 
 find_library(CORE_GRAPHICS CoreGraphics REQUIRED)

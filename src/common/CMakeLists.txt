@@ -1,4 +1,3 @@
-set(CRU_BASE_INCLUDE_DIR ${CRU_INCLUDE_DIR}/cru/common)
 add_library(cru_base SHARED
 	Base.cpp
 	Exception.cpp
@@ -9,32 +8,14 @@ add_library(cru_base SHARED
 	io/Stream.cpp
 	io/MemoryStream.cpp
 )
-target_sources(cru_base PUBLIC
-	${CRU_BASE_INCLUDE_DIR}/Base.hpp
-	${CRU_BASE_INCLUDE_DIR}/Bitmask.hpp
-	${CRU_BASE_INCLUDE_DIR}/Event.hpp
-	${CRU_BASE_INCLUDE_DIR}/Exception.hpp
-	${CRU_BASE_INCLUDE_DIR}/Logger.hpp
-	${CRU_BASE_INCLUDE_DIR}/PreConfig.hpp
-	${CRU_BASE_INCLUDE_DIR}/PropertyTree.hpp
-	${CRU_BASE_INCLUDE_DIR}/Range.hpp
-	${CRU_BASE_INCLUDE_DIR}/SelfResolvable.hpp
-	${CRU_BASE_INCLUDE_DIR}/String.hpp
-	${CRU_BASE_INCLUDE_DIR}/StringUtil.hpp
-	${CRU_BASE_INCLUDE_DIR}/io/Stream.hpp
-	${CRU_BASE_INCLUDE_DIR}/io/MemoryStream.hpp
-)
+target_compile_definitions(cru_base PRIVATE CRU_BASE_EXPORT_API)
 target_include_directories(cru_base PUBLIC ${CRU_INCLUDE_DIR})
 target_compile_definitions(cru_base PUBLIC $<$<CONFIG:Debug>:CRU_DEBUG>)
-target_compile_definitions(cru_base PRIVATE CRU_BASE_EXPORT_API)
 
 if (UNIX)
 	target_sources(cru_base PRIVATE
 		ErrnoException.cpp
 		io/UnixFileStream.cpp
-	PUBLIC
-		${CRU_BASE_INCLUDE_DIR}/ErrnoException.hpp
-		${CRU_BASE_INCLUDE_DIR}/io/UnixFileStream.hpp
 	)
 endif()
 

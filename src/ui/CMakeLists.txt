@@ -1,9 +1,6 @@
 set(CRU_UI_INCLUDE_DIR ${CRU_INCLUDE_DIR}/cru/ui)
 
 add_library(cru_ui STATIC
-	Helper.hpp
-	host/RoutedEventDispatch.hpp
-
 	Helper.cpp
 	ThemeManager.cpp
 	UiManager.cpp
@@ -42,61 +39,7 @@ add_library(cru_ui STATIC
 	style/Styler.cpp
 	style/StyleRule.cpp
 	style/StyleRuleSet.cpp
-)
-target_sources(cru_ui PUBLIC
-	${CRU_UI_INCLUDE_DIR}/Base.hpp
-	${CRU_UI_INCLUDE_DIR}/DebugFlags.hpp
-	${CRU_UI_INCLUDE_DIR}/ThemeManager.hpp
-	${CRU_UI_INCLUDE_DIR}/UiManager.hpp
-	${CRU_UI_INCLUDE_DIR}/components/Component.hpp
-	${CRU_UI_INCLUDE_DIR}/components/Menu.hpp
-	${CRU_UI_INCLUDE_DIR}/controls/Base.hpp
-	${CRU_UI_INCLUDE_DIR}/controls/Button.hpp
-	${CRU_UI_INCLUDE_DIR}/controls/Container.hpp
-	${CRU_UI_INCLUDE_DIR}/controls/ContentControl.hpp
-	${CRU_UI_INCLUDE_DIR}/controls/Control.hpp
-	${CRU_UI_INCLUDE_DIR}/controls/FlexLayout.hpp
-	${CRU_UI_INCLUDE_DIR}/controls/IBorderControl.hpp
-	${CRU_UI_INCLUDE_DIR}/controls/IClickableControl.hpp
-	${CRU_UI_INCLUDE_DIR}/controls/LayoutControl.hpp
-	${CRU_UI_INCLUDE_DIR}/controls/NoChildControl.hpp
-	${CRU_UI_INCLUDE_DIR}/controls/Popup.hpp
-	${CRU_UI_INCLUDE_DIR}/controls/RootControl.hpp
-	${CRU_UI_INCLUDE_DIR}/controls/ScrollView.hpp
-	${CRU_UI_INCLUDE_DIR}/controls/StackLayout.hpp
-	${CRU_UI_INCLUDE_DIR}/controls/TextBlock.hpp
-	${CRU_UI_INCLUDE_DIR}/controls/TextBox.hpp
-	${CRU_UI_INCLUDE_DIR}/controls/TextHostControlService.hpp
-	${CRU_UI_INCLUDE_DIR}/controls/Window.hpp
-	${CRU_UI_INCLUDE_DIR}/events/FocusChangeEventArgs.hpp
-	${CRU_UI_INCLUDE_DIR}/events/KeyEventArgs.hpp
-	${CRU_UI_INCLUDE_DIR}/events/MouseButtonEventArgs.hpp
-	${CRU_UI_INCLUDE_DIR}/events/MouseEventArgs.hpp
-	${CRU_UI_INCLUDE_DIR}/events/MouseWheelEventArgs.hpp
-	${CRU_UI_INCLUDE_DIR}/events/PaintEventArgs.hpp
-	${CRU_UI_INCLUDE_DIR}/events/RoutedEvent.hpp
-	${CRU_UI_INCLUDE_DIR}/events/UiEventArgs.hpp
-	${CRU_UI_INCLUDE_DIR}/events/UiEvents.hpp
-	${CRU_UI_INCLUDE_DIR}/helper/ClickDetector.hpp
-	${CRU_UI_INCLUDE_DIR}/helper/ShortcutHub.hpp
-	${CRU_UI_INCLUDE_DIR}/host/LayoutPaintCycler.hpp
-	${CRU_UI_INCLUDE_DIR}/host/WindowHost.hpp
-	${CRU_UI_INCLUDE_DIR}/render/Base.hpp
-	${CRU_UI_INCLUDE_DIR}/render/BorderRenderObject.hpp
-	${CRU_UI_INCLUDE_DIR}/render/CanvasRenderObject.hpp
-	${CRU_UI_INCLUDE_DIR}/render/FlexLayoutRenderObject.hpp
-	${CRU_UI_INCLUDE_DIR}/render/LayoutHelper.hpp
-	${CRU_UI_INCLUDE_DIR}/render/LayoutRenderObject.hpp
-	${CRU_UI_INCLUDE_DIR}/render/MeasureRequirement.hpp
-	${CRU_UI_INCLUDE_DIR}/render/RenderObject.hpp
-	${CRU_UI_INCLUDE_DIR}/render/ScrollBar.hpp
-	${CRU_UI_INCLUDE_DIR}/render/ScrollRenderObject.hpp
-	${CRU_UI_INCLUDE_DIR}/render/StackLayoutRenderObject.hpp
-	${CRU_UI_INCLUDE_DIR}/render/TextRenderObject.hpp
-	${CRU_UI_INCLUDE_DIR}/style/ApplyBorderStyleInfo.hpp
-	${CRU_UI_INCLUDE_DIR}/style/Condition.hpp
-	${CRU_UI_INCLUDE_DIR}/style/Styler.hpp
-	${CRU_UI_INCLUDE_DIR}/style/StyleRule.hpp
-	${CRU_UI_INCLUDE_DIR}/style/StyleRuleSet.hpp
+	xml/XmlMapper.cpp
+	xml/XmlMapperRegistry.cpp
 )
 target_link_libraries(cru_ui PUBLIC cru_platform_gui)
