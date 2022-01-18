@@ -394,56 +394,6 @@ int String::Compare(const String& other) const {
   }
 }
 
-namespace details {
-std::vector<FormatToken> ParseToFormatTokenList(const String& str) {
-  std::vector<FormatToken> result;
-
-  auto push_char = [&result](char16_t c) {
-    if (result.empty() || result.back().type == FormatTokenType::PlaceHolder) {
-      result.push_back(FormatToken{FormatTokenType::Text, String{}});
-    }
-    result.back().data.append(c);
-  };
-
-  bool last_is_left_bracket = false;
-  for (auto c : str) {
-    if (c == u'{') {
-      if (last_is_left_bracket) {
-        push_char(u'{');
-        last_is_left_bracket = false;
-      } else {
-        last_is_left_bracket = true;
-      }
-    } else if (c == u'}') {
-      if (last_is_left_bracket) {
-        result.push_back(FormatToken{FormatTokenType::PlaceHolder, String{}});
-      }
-      last_is_left_bracket = false;
-    } else {
-      if (last_is_left_bracket) {
-        push_char(u'{');
-      }
-      push_char(c);
-      last_is_left_bracket = false;
-    }
-  }
-  return result;
-}
-
-void FormatAppendFromFormatTokenList(
-    String& current, const std::vector<FormatToken>& format_token_list,
-    Index index) {
-  for (Index i = index; i < static_cast<Index>(format_token_list.size()); i++) {
-    const auto& token = format_token_list[i];
-    if (token.type == FormatTokenType::PlaceHolder) {
-      current += u"{}";
-    } else {
-      current += token.data;
-    }
-  }
-}
-}  // namespace details
-
 int StringView::Compare(const StringView& other) const {
   const_iterator i1 = cbegin();
   const_iterator i2 = other.cbegin();

@@ -1,6 +1,7 @@
 add_library(cru_base SHARED
 	Base.cpp
 	Exception.cpp
+	Format.cpp
 	Logger.cpp
 	PropertyTree.cpp
 	String.cpp

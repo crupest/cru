@@ -53,28 +53,3 @@ struct IInputMethodContext : virtual IPlatformResource {
 };
 }  // namespace cru::platform::gui
 
-// template <>
-// struct fmt::formatter<cru::platform::gui::CompositionText, char16_t>
-//     : fmt::formatter<std::u16string_view, char16_t> {
-//   auto parse(fmt::basic_format_parse_context<char16_t>& ctx) {
-//     return fmt::formatter<std::u16string_view, char16_t>::parse(ctx);
-//   }
-
-//   template <typename FormatContext>
-//   auto format(const cru::platform::gui::CompositionText& ct,
-//               FormatContext& ctx) {
-//     auto output = ctx.out();
-//     output = format_to(output, u"text: {}\n", ct.text);
-//     output = format_to(output, u"clauses:\n");
-//     for (gsl::index i = 0; i < static_cast<gsl::index>(ct.clauses.size());
-//          i++) {
-//       const auto& clause = ct.clauses[i];
-//       output =
-//           format_to(output, u"\t{}. start: {} end: {}{}\n", i, clause.start,
-//                     clause.end, clause.target ? u" target" : u"");
-//     }
-//     output = format_to(output, u"selection: position: {} count: {}",
-//                        ct.selection.position, ct.selection.count);
-//     return output;
-//   }
-// };

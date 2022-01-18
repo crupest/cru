@@ -1,6 +1,7 @@
 #include "cru/parse/Grammar.hpp"
 #include "cru/common/String.hpp"
 #include "cru/parse/Symbol.hpp"
+#include "cru/common/Format.hpp"
 
 #include <algorithm>
 #include <iterator>

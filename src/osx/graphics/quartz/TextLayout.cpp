@@ -6,6 +6,7 @@
 #include "cru/osx/graphics/quartz/Resource.hpp"
 #include "cru/platform/Check.hpp"
 #include "cru/platform/graphics/Base.hpp"
+#include "cru/common/Format.hpp"
 
 #include <algorithm>
 #include <limits>

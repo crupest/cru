@@ -258,6 +258,8 @@ bool IsWhitespace(char16_t c) {
   return c == u' ' || c == u'\t' || c == u'\n' || c == u'\r';
 }
 
+bool IsDigit(char16_t c) { return c >= u'0' && c <= u'9'; }
+
 Utf8CodePointIterator CreateUtf8Iterator(const std::byte* buffer, Index size) {
   return Utf8CodePointIterator(reinterpret_cast<const char*>(buffer), size);
 }

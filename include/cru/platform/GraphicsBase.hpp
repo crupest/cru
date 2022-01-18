@@ -3,6 +3,7 @@
 
 #include "cru/common/Range.hpp"
 #include "cru/common/String.hpp"
+#include "cru/common/Format.hpp"
 
 #include <cstdint>
 #include <limits>

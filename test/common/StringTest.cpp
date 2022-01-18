@@ -1,4 +1,5 @@
 #include "cru/common/String.hpp"
+#include "cru/common/Format.hpp"
 
 #include <gtest/gtest.h>
 
