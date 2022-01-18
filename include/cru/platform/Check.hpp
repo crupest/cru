@@ -3,6 +3,7 @@
 #include "Resource.hpp"
 
 #include "cru/common/String.hpp"
+#include "cru/common/Format.hpp"
 
 #include <memory>
 #include <type_traits>

@@ -33,7 +33,7 @@ jobs:
 
       - name: Build
         run: |
-          cmake -DCMAKE_BUILD_TYPE:STRING=Debug -DCMAKE_C_COMPILER:FILEPATH=/usr/bin/clang -DCMAKE_CXX_COMPILER:FILEPATH=/usr/bin/clang++ -H. -B./build -G Ninja
+          cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=/usr/bin/clang -DCMAKE_CXX_COMPILER=/usr/bin/clang++ -H. -B./build -G Ninja
           cmake --build ./build --config Debug --target all
 
       - name: Test
@@ -59,11 +59,12 @@ jobs:
         with:
           version: 1.10.2
 
-      - name: Run build script
-        shell: pwsh
+      - name: Build
         run: |
-          . ./tools/Use-VC.ps1
-          Use-VC
-          mkdir build && cd build
-          cmake .. -G Ninja -DCMAKE_BUILD_TYPE:STRING=Debug
-          ninja all
+          cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -H. -B./build -G Ninja
+          cmake --build ./build --config Debug --target all
+
+      - name: Test
+        working-directory: build
+        run: |
+          ctest -C Debug -T test --output-on-failure

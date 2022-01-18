@@ -1,5 +1,6 @@
 #include "cru/win/graphics/direct/Font.hpp"
 
+#include "cru/common/Format.hpp"
 #include "cru/win/graphics/direct/Exception.hpp"
 #include "cru/win/graphics/direct/Factory.hpp"
 

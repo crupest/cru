@@ -1,5 +1,7 @@
 #include "cru/common/ErrnoException.hpp"
 
+#include "cru/common/Format.hpp"
+
 #include <errno.h>
 
 namespace cru {

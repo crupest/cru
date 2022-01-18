@@ -14,6 +14,7 @@
 #include <string>
 #include <string_view>
 #include <system_error>
+#include <tuple>
 #include <type_traits>
 #include <vector>
 
@@ -318,84 +319,6 @@ inline String operator+(const String& left, const String& right) {
   String result(left);
   result += right;
   return result;
-}
-
-inline String ToString(bool value) {
-  return value ? String(u"true") : String(u"false");
-}
-
-template <typename T>
-std::enable_if_t<std::is_integral_v<T>, String> ToString(T value) {
-  std::array<char, 50> buffer;
-  auto result =
-      std::to_chars(buffer.data(), buffer.data() + buffer.size(), value);
-
-  if (result.ec == std::errc{}) {
-  } else {
-    throw std::invalid_argument("Failed to convert value to chars.");
-  }
-
-  auto size = result.ptr - buffer.data();
-  auto b = new char16_t[size + 1];
-  b[size] = 0;
-  std::copy(buffer.data(), result.ptr, b);
-  return String::FromBuffer(b, size, size);
-}
-
-template <typename T>
-std::enable_if_t<std::is_floating_point_v<T>, String> ToString(T value) {
-  auto str = std::to_string(value);
-  return String(str.cbegin(), str.cend());
-}
-
-inline String ToString(String value) { return value; }
-
-namespace details {
-enum class FormatTokenType { PlaceHolder, Text };
-
-struct FormatToken {
-  FormatTokenType type;
-  String data;
-};
-
-std::vector<FormatToken> CRU_BASE_API ParseToFormatTokenList(const String& str);
-
-void CRU_BASE_API FormatAppendFromFormatTokenList(
-    String& current, const std::vector<FormatToken>& format_token_list,
-    Index index);
-
-template <typename TA, typename... T>
-void FormatAppendFromFormatTokenList(
-    String& current, const std::vector<FormatToken>& format_token_list,
-    Index index, TA&& args0, T&&... args) {
-  for (Index i = index; i < static_cast<Index>(format_token_list.size()); i++) {
-    const auto& token = format_token_list[i];
-    if (token.type == FormatTokenType::PlaceHolder) {
-      current += ToString(std::forward<TA>(args0));
-      FormatAppendFromFormatTokenList(current, format_token_list, i + 1,
-                                      std::forward<T>(args)...);
-      return;
-    } else {
-      current += token.data;
-    }
-  }
-}
-}  // namespace details
-
-template <typename... T>
-String Format(const String& format, T&&... args) {
-  String result;
-
-  details::FormatAppendFromFormatTokenList(
-      result, details::ParseToFormatTokenList(format), 0,
-      std::forward<T>(args)...);
-
-  return result;
-}
-
-template <typename... T>
-String String::Format(T&&... args) const {
-  return cru::Format(*this, std::forward<T>(args)...);
 }
 
 CRU_DEFINE_COMPARE_OPERATORS(StringView)

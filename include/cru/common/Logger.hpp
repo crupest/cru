@@ -2,6 +2,7 @@
 #include "Base.hpp"
 
 #include "String.hpp"
+#include "Format.hpp"
 
 #include <list>
 #include <memory>
