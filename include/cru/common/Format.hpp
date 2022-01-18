@@ -2,6 +2,7 @@
 
 #include "Exception.hpp"
 #include "String.hpp"
+#include "cru/common/Base.hpp"
 
 namespace cru {
 inline String ToString(bool value) {
@@ -32,15 +33,13 @@ std::enable_if_t<std::is_floating_point_v<T>, String> ToString(T value) {
   return String(str.cbegin(), str.cend());
 }
 
-template <typename T>
-std::enable_if_t<
-    std::is_convertible_v<decltype(ToString(std::declval<const T&>)), String>,
-    String>
-ToString(const T& value, StringView option) {
-  return ToString(value);
-}
-
 inline String ToString(String value) { return value; }
+
+template <typename T>
+String ToString(T&& value, StringView option) {
+  CRU_UNUSED(option)
+  return ToString(std::forward<T>(value));
+}
 
 namespace details {
 enum class FormatTokenType { PlaceHolder, Text };
