@@ -27,5 +27,6 @@ else()
 	target_compile_definitions(cru_base PUBLIC CRU_PLATFORM_LINUX)
 endif()
 
+find_package(double-conversion CONFIG REQUIRED)
 find_package(Microsoft.GSL CONFIG REQUIRED)
-target_link_libraries(cru_base PUBLIC Microsoft.GSL::GSL)
+target_link_libraries(cru_base PUBLIC Microsoft.GSL::GSL double-conversion::double-conversion)
