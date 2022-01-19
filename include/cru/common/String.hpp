@@ -4,6 +4,7 @@
 #include "Range.hpp"
 #include "StringUtil.hpp"
 
+#include <double-conversion/double-conversion.h>
 #include <algorithm>
 #include <array>
 #include <charconv>
@@ -23,6 +24,9 @@ class StringView;
 
 class CRU_BASE_API String {
  public:
+  static double_conversion::StringToDoubleConverter
+      kDefaultStringToDoubleConverter;
+
   using value_type = char16_t;
   using size_type = Index;
   using difference_type = Index;
@@ -195,6 +199,8 @@ class CRU_BASE_API String {
   String& TrimEnd();
   String& Trim();
 
+  std::vector<String> Split(value_type separator,
+                            bool remove_space_line = false) const;
   std::vector<String> SplitToLines(bool remove_space_line = false) const;
 
   bool StartWith(StringView str) const;
@@ -224,6 +230,9 @@ class CRU_BASE_API String {
   std::string ToUtf8() const;
 
   int Compare(const String& other) const;
+
+  float ParseToFloat(Index* processed_characters_count = nullptr) const;
+  double ParseToDouble(Index* processed_characters_count = nullptr) const;
 
  private:
   static char16_t kEmptyBuffer[1];

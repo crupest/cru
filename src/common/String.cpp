@@ -2,6 +2,7 @@
 #include "cru/common/Exception.hpp"
 #include "cru/common/StringUtil.hpp"
 
+#include <cmath>
 #include <gsl/gsl>
 
 #include <algorithm>
@@ -10,6 +11,15 @@
 #include <string_view>
 
 namespace cru {
+double_conversion::StringToDoubleConverter
+    String::kDefaultStringToDoubleConverter(
+        double_conversion::StringToDoubleConverter::ALLOW_TRAILING_JUNK |
+            double_conversion::StringToDoubleConverter::ALLOW_LEADING_SPACES |
+            double_conversion::StringToDoubleConverter::ALLOW_TRAILING_SPACES |
+            double_conversion::StringToDoubleConverter::
+                ALLOW_CASE_INSENSIBILITY,
+        0.0, NAN, "infinity", "nan");
+
 template <typename C>
 Index GetStrSize(const C* str) {
   Index i = 0;
@@ -261,7 +271,8 @@ String& String::Trim() {
   return *this;
 }
 
-std::vector<String> String::SplitToLines(bool remove_space_line) const {
+std::vector<String> String::Split(value_type separator,
+                                  bool remove_space_line) const {
   std::vector<String> result;
 
   if (size_ == 0) return result;
@@ -269,7 +280,7 @@ std::vector<String> String::SplitToLines(bool remove_space_line) const {
   Index line_start = 0;
   Index line_end = 0;
   while (line_end < size_) {
-    if (buffer_[line_end] == '\n') {
+    if (buffer_[line_end] == separator) {
       if (remove_space_line) {
         bool add = false;
         for (Index i = line_start; i < line_end; i++) {
@@ -303,6 +314,10 @@ std::vector<String> String::SplitToLines(bool remove_space_line) const {
   }
 
   return result;
+}
+
+std::vector<String> String::SplitToLines(bool remove_space_line) const {
+  return Split(u'\n', remove_space_line);
 }
 
 bool String::StartWith(StringView str) const {
@@ -417,6 +432,26 @@ int StringView::Compare(const StringView& other) const {
   } else {
     return 1;
   }
+}
+
+float String::ParseToFloat(Index* processed_characters_count) const {
+  int pcc;
+  auto result = kDefaultStringToDoubleConverter.StringToFloat(
+      reinterpret_cast<const uc16*>(buffer_), static_cast<int>(size_), &pcc);
+  if (processed_characters_count != nullptr) {
+    *processed_characters_count = pcc;
+  }
+  return result;
+}
+
+double String::ParseToDouble(Index* processed_characters_count) const {
+  int pcc;
+  auto result = kDefaultStringToDoubleConverter.StringToDouble(
+      reinterpret_cast<const uc16*>(buffer_), static_cast<int>(size_), &pcc);
+  if (processed_characters_count != nullptr) {
+    *processed_characters_count = pcc;
+  }
+  return result;
 }
 
 StringView StringView::substr(Index pos) {

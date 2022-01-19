@@ -1,5 +1,5 @@
-#include "cru/common/String.hpp"
 #include "cru/common/Format.hpp"
+#include "cru/common/String.hpp"
 
 #include <gtest/gtest.h>
 
@@ -68,4 +68,16 @@ TEST(String, SplitToLinesRemoveSpaceLine) {
   ASSERT_EQ(lines[0], String(u"abc"));
   ASSERT_EQ(lines[1], String(u"def"));
   ASSERT_EQ(lines[2], String(u"ghi"));
+}
+
+TEST(String, ParseToFloat) {
+  using cru::String;
+  ASSERT_EQ(String(u"3.14159").ParseToDouble(), 3.14159);
+  ASSERT_EQ(String(u"   3.14159").ParseToDouble(), 3.14159);
+  ASSERT_EQ(String(u"   3.14159    ").ParseToDouble(), 3.14159);
+
+  cru::Index processed_char_count = 0;
+  ASSERT_EQ(String(u" 3.14159 garbege").ParseToDouble(&processed_char_count),
+            3.14159);
+  ASSERT_EQ(processed_char_count, 9);
 }
