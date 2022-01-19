@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.14)
+cmake_minimum_required(VERSION 3.21)
 
 if(NOT CMAKE_TOOLCHAIN_FILE)
 	message("CMAKE_TOOLCHAIN_FILE not set. Begin to find vcpkg toolchain file.")
@@ -18,9 +18,6 @@ set(CMAKE_CXX_STANDARD 20)
 project(cru)
 
 enable_testing()
-
-set (CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
-set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 if (MSVC)
 	string(REGEX REPLACE "/W[0-4]\\s*" "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
