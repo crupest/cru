@@ -233,6 +233,8 @@ class CRU_BASE_API String {
 
   float ParseToFloat(Index* processed_characters_count = nullptr) const;
   double ParseToDouble(Index* processed_characters_count = nullptr) const;
+  std::vector<float> ParseToFloatList(value_type separator = u' ');
+  std::vector<double> ParseToDoubleList(value_type separator = u' ');
 
  private:
   static char16_t kEmptyBuffer[1];

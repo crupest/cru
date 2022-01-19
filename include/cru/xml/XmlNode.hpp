@@ -90,6 +90,14 @@ class CRU_XML_API XmlElementNode : public XmlNode {
 
   Index GetChildCount() const { return children_.size(); }
   String GetAttribute(const String& key) const { return attributes_.at(key); }
+  std::optional<String> GetOptionalAttribute(const String& key) const {
+    auto it = attributes_.find(key);
+    if (it == attributes_.end()) {
+      return std::nullopt;
+    }
+
+    return it->second;
+  }
   XmlNode* GetChildAt(Index index) const { return children_[index]; }
 
   void AddAttribute(String key, String value);

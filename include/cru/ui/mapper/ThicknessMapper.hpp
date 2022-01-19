@@ -6,7 +6,7 @@
 #include "cru/xml/XmlNode.hpp"
 
 namespace cru::ui::mapper {
-class ThicknessMapper : public BasicMapper<Thickness> {
+class CRU_UI_API ThicknessMapper : public BasicMapper<Thickness> {
  public:
   CRU_DEFAULT_CONSTRUCTOR_DESTRUCTOR(ThicknessMapper)
 

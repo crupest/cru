@@ -13,8 +13,7 @@
 namespace cru {
 double_conversion::StringToDoubleConverter
     String::kDefaultStringToDoubleConverter(
-        double_conversion::StringToDoubleConverter::ALLOW_TRAILING_JUNK |
-            double_conversion::StringToDoubleConverter::ALLOW_LEADING_SPACES |
+        double_conversion::StringToDoubleConverter::ALLOW_LEADING_SPACES |
             double_conversion::StringToDoubleConverter::ALLOW_TRAILING_SPACES |
             double_conversion::StringToDoubleConverter::
                 ALLOW_CASE_INSENSIBILITY,
@@ -450,6 +449,32 @@ double String::ParseToDouble(Index* processed_characters_count) const {
       reinterpret_cast<const uc16*>(buffer_), static_cast<int>(size_), &pcc);
   if (processed_characters_count != nullptr) {
     *processed_characters_count = pcc;
+  }
+  return result;
+}
+
+std::vector<float> String::ParseToFloatList(value_type separator) {
+  std::vector<float> result;
+  auto list = Split(separator);
+  for (auto& item : list) {
+    auto value = ParseToFloat();
+    if (std::isnan(value)) {
+      throw Exception(u"Invalid double value.");
+    }
+    result.push_back(value);
+  }
+  return result;
+}
+
+std::vector<double> String::ParseToDoubleList(value_type separator) {
+  std::vector<double> result;
+  auto list = Split(separator);
+  for (auto& item : list) {
+    auto value = ParseToDouble();
+    if (std::isnan(value)) {
+      throw Exception(u"Invalid double value.");
+    }
+    result.push_back(value);
   }
   return result;
 }
