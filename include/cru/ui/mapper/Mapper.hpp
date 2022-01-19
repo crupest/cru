@@ -46,7 +46,7 @@ class CRU_UI_API BasicMapper : public MapperBase {
   CRU_DELETE_COPY(BasicMapper)
   CRU_DELETE_MOVE(BasicMapper)
 
-  ~BasicMapper() override;
+  ~BasicMapper() override = default;
 
   virtual bool SupportMapFromString() { return false; }
   virtual std::unique_ptr<T> MapFromString(String str) {
