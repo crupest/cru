@@ -61,6 +61,7 @@ jobs:
 
       - name: Build
         run: |
+          mkdir build
           cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -H. -Bbuild -G Ninja
           cmake --build build --config Debug --target all
 
