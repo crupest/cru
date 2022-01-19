@@ -28,6 +28,8 @@ add_library(cru_ui SHARED
 	host/WindowHost.cpp
 	mapper/Mapper.cpp
 	mapper/MapperRegistry.cpp
+	mapper/PointMapper.cpp
+	mapper/ThicknessMapper.cpp
 	render/BorderRenderObject.cpp
 	render/CanvasRenderObject.cpp
 	render/FlexLayoutRenderObject.cpp
