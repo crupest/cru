@@ -11,14 +11,6 @@
 #include <string_view>
 
 namespace cru {
-double_conversion::StringToDoubleConverter
-    String::kDefaultStringToDoubleConverter(
-        double_conversion::StringToDoubleConverter::ALLOW_LEADING_SPACES |
-            double_conversion::StringToDoubleConverter::ALLOW_TRAILING_SPACES |
-            double_conversion::StringToDoubleConverter::
-                ALLOW_CASE_INSENSIBILITY,
-        0.0, NAN, "infinity", "nan");
-
 template <typename C>
 Index GetStrSize(const C* str) {
   Index i = 0;
@@ -29,11 +21,16 @@ Index GetStrSize(const C* str) {
 }
 
 String String::FromUtf8(const char* str) {
-  return FromUtf16(cru::ToUtf16(str, GetStrSize(str)));
+  return FromUtf8(str, GetStrSize(str));
 }
 
 String String::FromUtf8(const char* str, Index size) {
-  return FromUtf16(cru::ToUtf16(str, size));
+  String result;
+  Utf8CodePointIterator iter(str, size);
+  for (auto cp : iter) {
+    Utf16EncodeCodePointAppend(cp, result);
+  }
+  return result;
 }
 
 char16_t String::kEmptyBuffer[1] = {0};
@@ -190,6 +187,7 @@ String::iterator String::insert(const_iterator pos, const_iterator str,
   }
 
   Index index = pos - cbegin();
+
   Index new_size = size_ + size;
   if (new_size > capacity_) {
     auto new_capacity = capacity_;
@@ -229,14 +227,31 @@ String::iterator String::erase(const_iterator start, const_iterator end) {
   return s;
 }
 
-Index String::Find(value_type value, Index start) const {
-  Expects(start >= 0 && start <= size_);
-
-  for (Index i = start; i < size_; ++i) {
-    if (buffer_[i] == value) return i;
-  }
-  return -1;
+String& String::operator+=(StringView other) {
+  append(other);
+  return *this;
 }
+
+StringView String::View() const { return *this; }
+
+Index String::Find(value_type value, Index start) const {
+  return View().Find(value, start);
+}
+
+std::vector<String> String::Split(value_type separator,
+                                  bool remove_space_line) const {
+  return View().Split(separator, remove_space_line);
+}
+
+std::vector<String> String::SplitToLines(bool remove_space_line) const {
+  return View().SplitToLines(remove_space_line);
+}
+
+bool String::StartWith(StringView str) const { return View().StartWith(str); }
+
+bool String::EndWith(StringView str) const { return View().EndWith(str); }
+
+std::string String::ToUtf8() const { return View().ToUtf8(); }
 
 String& String::TrimStart() {
   if (size_ == 0) return *this;
@@ -270,109 +285,42 @@ String& String::Trim() {
   return *this;
 }
 
-std::vector<String> String::Split(value_type separator,
-                                  bool remove_space_line) const {
-  std::vector<String> result;
-
-  if (size_ == 0) return result;
-
-  Index line_start = 0;
-  Index line_end = 0;
-  while (line_end < size_) {
-    if (buffer_[line_end] == separator) {
-      if (remove_space_line) {
-        bool add = false;
-        for (Index i = line_start; i < line_end; i++) {
-          if (!IsWhitespace(buffer_[i])) {
-            add = true;
-            break;
-          }
-        }
-        if (add) result.emplace_back(begin() + line_start, begin() + line_end);
-      } else {
-        result.emplace_back(begin() + line_start, begin() + line_end);
-      }
-      line_start = line_end + 1;
-      line_end = line_start;
-    } else {
-      line_end++;
-    }
-  }
-
-  if (remove_space_line) {
-    bool add = false;
-    for (Index i = line_start; i < size_; i++) {
-      if (!IsWhitespace(buffer_[i])) {
-        add = true;
-        break;
-      }
-    }
-    if (add) result.emplace_back(begin() + line_start, begin() + size_);
-  } else {
-    result.emplace_back(begin() + line_start, begin() + size_);
-  }
-
-  return result;
-}
-
-std::vector<String> String::SplitToLines(bool remove_space_line) const {
-  return Split(u'\n', remove_space_line);
-}
-
-bool String::StartWith(StringView str) const {
-  if (str.size() > size_) return false;
-  return std::memcmp(str.data(), buffer_, str.size()) == 0;
-}
-
-bool String::EndWith(StringView str) const {
-  if (str.size() > size_) return false;
-  return std::memcmp(str.data(), buffer_ + size_ - str.size(), str.size()) == 0;
-}
-
-std::string String::ToUtf8() const { return cru::ToUtf8(buffer_, size_); }
-
 void String::AppendCodePoint(CodePoint code_point) {
-  if (!Utf16EncodeCodePointAppendWithFunc(
-          code_point, [this](char16_t c) { this->push_back(c); })) {
+  if (Utf16EncodeCodePointAppend(code_point, *this)) {
     throw TextEncodeException(u"Code point out of range.");
   }
 }
 
 Index String::IndexFromCodeUnitToCodePoint(Index code_unit_index) const {
-  auto iter = CodePointIterator();
-  Index result = 0;
-  while (iter.GetPosition() < code_unit_index && !iter.IsPastEnd()) {
-    ++iter;
-    ++result;
-  }
-  return result;
+  return View().IndexFromCodeUnitToCodePoint(code_unit_index);
 }
 
 Index String::IndexFromCodePointToCodeUnit(Index code_point_index) const {
-  auto iter = CodePointIterator();
-  Index cpi = 0;
-  while (cpi < code_point_index && !iter.IsPastEnd()) {
-    ++iter;
-    ++cpi;
-  }
-  return iter.GetPosition();
+  return View().IndexFromCodePointToCodeUnit(code_point_index);
 }
 
 Range String::RangeFromCodeUnitToCodePoint(Range code_unit_range) const {
-  return Range::FromTwoSides(
-      IndexFromCodeUnitToCodePoint(code_unit_range.GetStart()),
-      IndexFromCodeUnitToCodePoint(code_unit_range.GetEnd()));
+  return View().RangeFromCodeUnitToCodePoint(code_unit_range);
 }
 
 Range String::RangeFromCodePointToCodeUnit(Range code_point_range) const {
-  return Range::FromTwoSides(
-      IndexFromCodePointToCodeUnit(code_point_range.GetStart()),
-      IndexFromCodePointToCodeUnit(code_point_range.GetEnd()));
+  return View().RangeFromCodePointToCodeUnit(code_point_range);
 }
 
-String& String::operator+=(StringView other) {
-  append(other);
-  return *this;
+float String::ParseToFloat(Index* processed_characters_count) const {
+  return View().ParseToFloat(processed_characters_count);
+}
+
+double String::ParseToDouble(Index* processed_characters_count) const {
+  return View().ParseToDouble(processed_characters_count);
+}
+
+std::vector<float> String::ParseToFloatList(value_type separator) const {
+  return View().ParseToFloatList(separator);
+}
+
+std::vector<double> String::ParseToDoubleList(value_type separator) const {
+  return View().ParseToDoubleList(separator);
 }
 
 namespace {
@@ -408,6 +356,14 @@ int String::Compare(const String& other) const {
   }
 }
 
+double_conversion::StringToDoubleConverter
+    StringView::kDefaultStringToDoubleConverter(
+        double_conversion::StringToDoubleConverter::ALLOW_LEADING_SPACES |
+            double_conversion::StringToDoubleConverter::ALLOW_TRAILING_SPACES |
+            double_conversion::StringToDoubleConverter::
+                ALLOW_CASE_INSENSIBILITY,
+        0.0, NAN, "infinity", "nan");
+
 int StringView::Compare(const StringView& other) const {
   const_iterator i1 = cbegin();
   const_iterator i2 = other.cbegin();
@@ -433,52 +389,6 @@ int StringView::Compare(const StringView& other) const {
   }
 }
 
-float String::ParseToFloat(Index* processed_characters_count) const {
-  int pcc;
-  auto result = kDefaultStringToDoubleConverter.StringToFloat(
-      reinterpret_cast<const uc16*>(buffer_), static_cast<int>(size_), &pcc);
-  if (processed_characters_count != nullptr) {
-    *processed_characters_count = pcc;
-  }
-  return result;
-}
-
-double String::ParseToDouble(Index* processed_characters_count) const {
-  int pcc;
-  auto result = kDefaultStringToDoubleConverter.StringToDouble(
-      reinterpret_cast<const uc16*>(buffer_), static_cast<int>(size_), &pcc);
-  if (processed_characters_count != nullptr) {
-    *processed_characters_count = pcc;
-  }
-  return result;
-}
-
-std::vector<float> String::ParseToFloatList(value_type separator) {
-  std::vector<float> result;
-  auto list = Split(separator);
-  for (auto& item : list) {
-    auto value = ParseToFloat();
-    if (std::isnan(value)) {
-      throw Exception(u"Invalid double value.");
-    }
-    result.push_back(value);
-  }
-  return result;
-}
-
-std::vector<double> String::ParseToDoubleList(value_type separator) {
-  std::vector<double> result;
-  auto list = Split(separator);
-  for (auto& item : list) {
-    auto value = ParseToDouble();
-    if (std::isnan(value)) {
-      throw Exception(u"Invalid double value.");
-    }
-    result.push_back(value);
-  }
-  return result;
-}
-
 StringView StringView::substr(Index pos) {
   Expects(pos >= 0 && pos < size_);
   return StringView(ptr_ + pos, size_ - pos);
@@ -490,7 +400,159 @@ StringView StringView::substr(Index pos, Index size) {
   return StringView(ptr_ + pos, std::min(size, size_ - pos));
 }
 
-std::string StringView::ToUtf8() const { return cru::ToUtf8(ptr_, size_); }
+Index StringView::Find(value_type value, Index start) const {
+  Expects(start >= 0 && start <= size_);
+
+  for (Index i = start; i < size_; ++i) {
+    if (ptr_[i] == value) return i;
+  }
+  return -1;
+}
+
+std::vector<String> StringView::Split(value_type separator,
+                                      bool remove_space_line) const {
+  std::vector<String> result;
+
+  if (size_ == 0) return result;
+
+  Index line_start = 0;
+  Index line_end = 0;
+  while (line_end < size_) {
+    if (ptr_[line_end] == separator) {
+      if (remove_space_line) {
+        bool add = false;
+        for (Index i = line_start; i < line_end; i++) {
+          if (!IsWhitespace(ptr_[i])) {
+            add = true;
+            break;
+          }
+        }
+        if (add) result.emplace_back(begin() + line_start, begin() + line_end);
+      } else {
+        result.emplace_back(begin() + line_start, begin() + line_end);
+      }
+      line_start = line_end + 1;
+      line_end = line_start;
+    } else {
+      line_end++;
+    }
+  }
+
+  if (remove_space_line) {
+    bool add = false;
+    for (Index i = line_start; i < size_; i++) {
+      if (!IsWhitespace(ptr_[i])) {
+        add = true;
+        break;
+      }
+    }
+    if (add) result.emplace_back(begin() + line_start, begin() + size_);
+  } else {
+    result.emplace_back(begin() + line_start, begin() + size_);
+  }
+
+  return result;
+}
+
+std::vector<String> StringView::SplitToLines(bool remove_space_line) const {
+  return Split(u'\n', remove_space_line);
+}
+
+bool StringView::StartWith(StringView str) const {
+  if (str.size() > size_) return false;
+  return std::memcmp(str.data(), ptr_, str.size()) == 0;
+}
+
+bool StringView::EndWith(StringView str) const {
+  if (str.size() > size_) return false;
+  return std::memcmp(str.data(), ptr_ + size_ - str.size(), str.size()) == 0;
+}
+
+Index StringView::IndexFromCodeUnitToCodePoint(Index code_unit_index) const {
+  auto iter = CodePointIterator();
+  Index result = 0;
+  while (iter.GetPosition() < code_unit_index && !iter.IsPastEnd()) {
+    ++iter;
+    ++result;
+  }
+  return result;
+}
+
+Index StringView::IndexFromCodePointToCodeUnit(Index code_point_index) const {
+  auto iter = CodePointIterator();
+  Index cpi = 0;
+  while (cpi < code_point_index && !iter.IsPastEnd()) {
+    ++iter;
+    ++cpi;
+  }
+  return iter.GetPosition();
+}
+
+Range StringView::RangeFromCodeUnitToCodePoint(Range code_unit_range) const {
+  return Range::FromTwoSides(
+      IndexFromCodeUnitToCodePoint(code_unit_range.GetStart()),
+      IndexFromCodeUnitToCodePoint(code_unit_range.GetEnd()));
+}
+
+Range StringView::RangeFromCodePointToCodeUnit(Range code_point_range) const {
+  return Range::FromTwoSides(
+      IndexFromCodePointToCodeUnit(code_point_range.GetStart()),
+      IndexFromCodePointToCodeUnit(code_point_range.GetEnd()));
+}
+
+std::string StringView::ToUtf8() const {
+  std::string result;
+  for (auto cp : CodePointIterator()) {
+    Utf8EncodeCodePointAppend(cp, result);
+  }
+  return result;
+}
+
+float StringView::ParseToFloat(Index* processed_characters_count) const {
+  int pcc;
+  auto result = kDefaultStringToDoubleConverter.StringToFloat(
+      reinterpret_cast<const uc16*>(ptr_), static_cast<int>(size_), &pcc);
+  if (processed_characters_count != nullptr) {
+    *processed_characters_count = pcc;
+  }
+  return result;
+}
+
+double StringView::ParseToDouble(Index* processed_characters_count) const {
+  int pcc;
+  auto result = kDefaultStringToDoubleConverter.StringToDouble(
+      reinterpret_cast<const uc16*>(ptr_), static_cast<int>(size_), &pcc);
+  if (processed_characters_count != nullptr) {
+    *processed_characters_count = pcc;
+  }
+  return result;
+}
+
+std::vector<float> StringView::ParseToFloatList(value_type separator) const {
+  std::vector<float> result;
+  auto list = Split(separator, true);
+  for (auto& item : list) {
+    auto value = item.ParseToFloat();
+    if (std::isnan(value)) {
+      throw Exception(u"Invalid double value.");
+    }
+    result.push_back(value);
+  }
+  return result;
+}
+
+std::vector<double> StringView::ParseToDoubleList(value_type separator) const {
+  std::vector<double> result;
+  auto list = Split(separator, true);
+  for (auto& item : list) {
+    auto value = item.ParseToDouble();
+    if (std::isnan(value)) {
+      throw Exception(u"Invalid double value.");
+    }
+    result.push_back(value);
+  }
+  return result;
+}
 
 String ToLower(StringView s) {
   String result;

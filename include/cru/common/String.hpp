@@ -5,18 +5,10 @@
 #include "StringUtil.hpp"
 
 #include <double-conversion/double-conversion.h>
-#include <algorithm>
-#include <array>
-#include <charconv>
 #include <initializer_list>
 #include <iterator>
-#include <limits>
-#include <stdexcept>
 #include <string>
 #include <string_view>
-#include <system_error>
-#include <tuple>
-#include <type_traits>
 #include <vector>
 
 namespace cru {
@@ -24,9 +16,6 @@ class StringView;
 
 class CRU_BASE_API String {
  public:
-  static double_conversion::StringToDoubleConverter
-      kDefaultStringToDoubleConverter;
-
   using value_type = char16_t;
   using size_type = Index;
   using difference_type = Index;
@@ -181,30 +170,31 @@ class CRU_BASE_API String {
     return String(this->buffer_ + start, size);
   }
 
- public:
   String& operator+=(value_type value) {
     this->append(value);
     return *this;
   }
   String& operator+=(StringView other);
 
+ public:
   operator std::u16string_view() const {
     return std::u16string_view(data(), size());
   }
 
+  StringView View() const;
+
  public:
   Index Find(value_type value, Index start = 0) const;
-
-  String& TrimStart();
-  String& TrimEnd();
-  String& Trim();
-
   std::vector<String> Split(value_type separator,
                             bool remove_space_line = false) const;
   std::vector<String> SplitToLines(bool remove_space_line = false) const;
 
   bool StartWith(StringView str) const;
   bool EndWith(StringView str) const;
+
+  String& TrimStart();
+  String& TrimEnd();
+  String& Trim();
 
  public:
   void AppendCodePoint(CodePoint code_point);
@@ -217,6 +207,11 @@ class CRU_BASE_API String {
   Index IndexFromCodePointToCodeUnit(Index code_point_index) const;
   Range RangeFromCodeUnitToCodePoint(Range code_unit_range) const;
   Range RangeFromCodePointToCodeUnit(Range code_point_range) const;
+
+  float ParseToFloat(Index* processed_characters_count = nullptr) const;
+  double ParseToDouble(Index* processed_characters_count = nullptr) const;
+  std::vector<float> ParseToFloatList(value_type separator = u' ') const;
+  std::vector<double> ParseToDoubleList(value_type separator = u' ') const;
 
 #ifdef CRU_PLATFORM_WINDOWS
   const wchar_t* WinCStr() const {
@@ -231,11 +226,6 @@ class CRU_BASE_API String {
 
   int Compare(const String& other) const;
 
-  float ParseToFloat(Index* processed_characters_count = nullptr) const;
-  double ParseToDouble(Index* processed_characters_count = nullptr) const;
-  std::vector<float> ParseToFloatList(value_type separator = u' ');
-  std::vector<double> ParseToDoubleList(value_type separator = u' ');
-
  private:
   static char16_t kEmptyBuffer[1];
 
@@ -247,6 +237,9 @@ class CRU_BASE_API String {
 
 class CRU_BASE_API StringView {
  public:
+  static double_conversion::StringToDoubleConverter
+      kDefaultStringToDoubleConverter;
+
   using value_type = char16_t;
   using size_type = Index;
   using difference_type = Index;
@@ -307,15 +300,38 @@ class CRU_BASE_API StringView {
   StringView substr(Index pos);
   StringView substr(Index pos, Index size);
 
-  int Compare(const StringView& other) const;
-
-  String ToString() const { return String(ptr_, size_); }
-
   value_type operator[](Index index) const { return ptr_[index]; }
 
   operator std::u16string_view() const {
     return std::u16string_view(data(), size());
   }
+
+ public:
+  int Compare(const StringView& other) const;
+
+  String ToString() const { return String(ptr_, size_); }
+
+  Utf16CodePointIterator CodePointIterator() const {
+    return Utf16CodePointIterator(ptr_, size_);
+  }
+
+  Index Find(value_type value, Index start = 0) const;
+  std::vector<String> Split(value_type separator,
+                            bool remove_space_line = false) const;
+  std::vector<String> SplitToLines(bool remove_space_line = false) const;
+
+  bool StartWith(StringView str) const;
+  bool EndWith(StringView str) const;
+
+  Index IndexFromCodeUnitToCodePoint(Index code_unit_index) const;
+  Index IndexFromCodePointToCodeUnit(Index code_point_index) const;
+  Range RangeFromCodeUnitToCodePoint(Range code_unit_range) const;
+  Range RangeFromCodePointToCodeUnit(Range code_point_range) const;
+
+  float ParseToFloat(Index* processed_characters_count = nullptr) const;
+  double ParseToDouble(Index* processed_characters_count = nullptr) const;
+  std::vector<float> ParseToFloatList(value_type separator = u' ') const;
+  std::vector<double> ParseToDoubleList(value_type separator = u' ') const;
 
   std::string ToUtf8() const;
 

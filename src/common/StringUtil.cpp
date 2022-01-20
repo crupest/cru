@@ -149,34 +149,6 @@ CodePoint Utf16PreviousCodePoint(const char16_t* ptr, Index size, Index current,
   return result;
 }
 
-void Utf8EncodeCodePointAppend(CodePoint code_point, std::string& str) {
-  if (!Utf8EncodeCodePointAppendWithFunc(code_point,
-                                         [&str](char c) { str.push_back(c); }))
-    throw TextEncodeException(u"Code point out of range.");
-}
-
-void Utf16EncodeCodePointAppend(CodePoint code_point, std::u16string& str) {
-  if (!Utf16EncodeCodePointAppendWithFunc(
-          code_point, [&str](char16_t c) { str.push_back(c); }))
-    throw TextEncodeException(u"Code point out of range.");
-}
-
-std::string ToUtf8(const char16_t* ptr, Index size) {
-  std::string result;
-  for (CodePoint cp : Utf16CodePointIterator(ptr, size)) {
-    Utf8EncodeCodePointAppend(cp, result);
-  }
-  return result;
-}
-
-std::u16string ToUtf16(const char* ptr, Index size) {
-  std::u16string result;
-  for (CodePoint cp : Utf8CodePointIterator(ptr, size)) {
-    Utf16EncodeCodePointAppend(cp, result);
-  }
-  return result;
-}
-
 bool Utf16IsValidInsertPosition(const char16_t* ptr, Index size,
                                 Index position) {
   if (position < 0) return false;

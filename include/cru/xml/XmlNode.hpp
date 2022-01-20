@@ -5,6 +5,7 @@
 #include "cru/common/String.hpp"
 
 #include <algorithm>
+#include <optional>
 #include <unordered_map>
 #include <vector>
 

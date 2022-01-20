@@ -2,7 +2,8 @@
 
 #include "Exception.hpp"
 #include "String.hpp"
-#include "cru/common/Base.hpp"
+
+#include <charconv>
 
 namespace cru {
 inline String ToString(bool value) {
