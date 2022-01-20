@@ -26,12 +26,13 @@ add_library(cru_ui SHARED
 	helper/ShortcutHub.cpp
 	host/LayoutPaintCycler.cpp
 	host/WindowHost.cpp
+	mapper/CornerRadiusMapper.cpp
 	mapper/Mapper.cpp
 	mapper/MapperRegistry.cpp
 	mapper/PointMapper.cpp
 	mapper/SizeMapper.cpp
 	mapper/ThicknessMapper.cpp
-	render/CornerRenderObject.cpp
+	render/BorderRenderObject.cpp
 	render/CanvasRenderObject.cpp
 	render/FlexLayoutRenderObject.cpp
 	render/LayoutHelper.cpp
