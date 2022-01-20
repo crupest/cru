@@ -31,7 +31,7 @@ add_library(cru_ui SHARED
 	mapper/PointMapper.cpp
 	mapper/SizeMapper.cpp
 	mapper/ThicknessMapper.cpp
-	render/BorderRenderObject.cpp
+	render/CornerRenderObject.cpp
 	render/CanvasRenderObject.cpp
 	render/FlexLayoutRenderObject.cpp
 	render/LayoutHelper.cpp

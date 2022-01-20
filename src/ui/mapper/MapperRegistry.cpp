@@ -1,6 +1,21 @@
 #include "cru/ui/mapper/MapperRegistry.hpp"
+#include "cru/ui/mapper/CornerRadiusMapper.hpp"
+#include "cru/ui/mapper/PointMapper.hpp"
+#include "cru/ui/mapper/SizeMapper.hpp"
+#include "cru/ui/mapper/ThicknessMapper.hpp"
 
 namespace cru::ui::mapper {
+MapperRegistry *MapperRegistry::GetInstance() {
+  static MapperRegistry instance;
+
+  instance.RegisterMapper(new CornerRadiusMapper());
+  instance.RegisterMapper(new PointMapper());
+  instance.RegisterMapper(new SizeMapper());
+  instance.RegisterMapper(new ThicknessMapper());
+
+  return &instance;
+}
+
 MapperRegistry::MapperRegistry() {}
 
 MapperRegistry::~MapperRegistry() {

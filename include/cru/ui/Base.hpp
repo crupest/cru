@@ -87,6 +87,11 @@ struct CornerRadius {
         left_bottom(left_bottom),
         right_bottom(right_bottom) {}
 
+  CornerRadius& SetAll(const Point& point) {
+    left_top = right_top = left_bottom = right_bottom = point;
+    return *this;
+  }
+
   Point left_top;
   Point right_top;
   Point left_bottom;
