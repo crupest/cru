@@ -13,7 +13,7 @@ on:
       - "**/README.md"
 
 env:
-  VCPKG_DEFAULT_BINARY_CACHE: /tmp/vcpkg-cache
+  VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}/.cache/vcpkg/archives
 
 jobs:
   macos-build:
@@ -26,7 +26,7 @@ jobs:
       - name: Restore Cache
         uses: actions/cache@v2
         with:
-          path: /tmp/vcpkg-cache
+          path: ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
           key: vcpkg-${{ runner.os }}
 
       - name: Setup Ninja
@@ -36,6 +36,7 @@ jobs:
 
       - name: Build
         run: |
+          mkdir -p ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
           cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=/usr/bin/clang -DCMAKE_CXX_COMPILER=/usr/bin/clang++ -S. -Bbuild -G Ninja
           cmake --build build --config Debug --target all
 
@@ -54,7 +55,7 @@ jobs:
       - name: Restore Cache
         uses: actions/cache@v2
         with:
-          path: /tmp/vcpkg-cache
+          path: ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
           key: vcpkg-${{ runner.os }}
 
       - name: Setup Ninja
@@ -64,6 +65,7 @@ jobs:
 
       - name: Build
         run: |
+          mkdir -p ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
           cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -S. -Bbuild -G Ninja
           cmake --build build --config Debug --target all
 
