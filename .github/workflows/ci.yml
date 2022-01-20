@@ -12,6 +12,9 @@ on:
       - "docs/**"
       - "**/README.md"
 
+env:
+  VCPKG_DEFAULT_BINARY_CACHE: /tmp/vcpkg-cache
+
 jobs:
   macos-build:
     name: macOS Build
@@ -23,7 +26,7 @@ jobs:
       - name: Restore Cache
         uses: actions/cache@v2
         with:
-          path: ~/.cache/vcpkg/archives
+          path: /tmp/vcpkg-cache
           key: vcpkg-${{ runner.os }}
 
       - name: Setup Ninja
@@ -51,7 +54,7 @@ jobs:
       - name: Restore Cache
         uses: actions/cache@v2
         with:
-          path: ~/AppData/Local/vcpkg/archives
+          path: /tmp/vcpkg-cache
           key: vcpkg-${{ runner.os }}
 
       - name: Setup Ninja
