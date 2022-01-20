@@ -12,12 +12,13 @@ on:
       - "docs/**"
       - "**/README.md"
 
+env:
+  VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}/.cache/vcpkg/archives
+
 jobs:
   macos-build:
     name: macOS Build
     runs-on: macos-latest
-    env:
-      VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}/.cache/vcpkg/archives
 
     steps:
       - uses: actions/checkout@v2
@@ -25,7 +26,7 @@ jobs:
       - name: Restore Cache
         uses: actions/cache@v2
         with:
-          path: ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
+          path: .cache/vcpkg/archives
           key: vcpkg-${{ runner.os }}
 
       - name: Setup Ninja
@@ -48,16 +49,13 @@ jobs:
     name: Windows Build
     runs-on: windows-latest
 
-    env:
-      VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}/.cache/vcpkg/archives
-
     steps:
       - uses: actions/checkout@v2
 
       - name: Restore Cache
         uses: actions/cache@v2
         with:
-          path: ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
+          path: .cache/vcpkg/archives
           key: vcpkg-${{ runner.os }}
 
       - name: Setup Ninja
