@@ -26,6 +26,7 @@ add_library(cru_ui SHARED
 	helper/ShortcutHub.cpp
 	host/LayoutPaintCycler.cpp
 	host/WindowHost.cpp
+	mapper/ColorMapper.cpp
 	mapper/CornerRadiusMapper.cpp
 	mapper/Mapper.cpp
 	mapper/MapperRegistry.cpp
