@@ -4,7 +4,8 @@
 #include "cru/xml/XmlNode.hpp"
 
 namespace cru::ui::mapper::style {
-class BorderStyleMapper : BasicMapper<ui::style::ApplyBorderStyleInfo> {
+class CRU_UI_API BorderStyleMapper
+    : BasicMapper<ui::style::ApplyBorderStyleInfo> {
  public:
   CRU_DEFAULT_CONSTRUCTOR_DESTRUCTOR(BorderStyleMapper)
 
