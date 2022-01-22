@@ -2,7 +2,7 @@
 
 namespace cru::ui::mapper {
 bool ColorMapper::XmlElementIsOfThisType(xml::XmlElementNode* node) {
-  return node->GetTag() == u"color";
+  return node->GetTag() == u"Color";
 }
 
 std::unique_ptr<Color> ColorMapper::DoMapFromString(String str) {
