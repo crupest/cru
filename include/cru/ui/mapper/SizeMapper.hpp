@@ -12,7 +12,7 @@ class CRU_UI_API SizeMapper : public BasicMapper<Size> {
   bool XmlElementIsOfThisType(xml::XmlElementNode* node) override;
 
  protected:
-  std::unique_ptr<Size> DoMapFromString(String str) override;
-  std::unique_ptr<Size> DoMapFromXml(xml::XmlElementNode* node) override;
+  Size DoMapFromString(String str) override;
+  Size DoMapFromXml(xml::XmlElementNode* node) override;
 };
 }  // namespace cru::ui::mapper

@@ -16,7 +16,7 @@ class CRU_UI_API ThicknessMapper : public BasicMapper<Thickness> {
   bool XmlElementIsOfThisType(xml::XmlElementNode* node) override;
 
  protected:
-  std::unique_ptr<Thickness> DoMapFromString(String str) override;
-  std::unique_ptr<Thickness> DoMapFromXml(xml::XmlElementNode* node) override;
+  Thickness DoMapFromString(String str) override;
+  Thickness DoMapFromXml(xml::XmlElementNode* node) override;
 };
 }  // namespace cru::ui::mapper

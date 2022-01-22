@@ -1,9 +1,9 @@
 #pragma once
-#include "../Mapper.hpp"
+#include "Mapper.hpp"
 #include "cru/ui/style/ApplyBorderStyleInfo.hpp"
 #include "cru/xml/XmlNode.hpp"
 
-namespace cru::ui::mapper::style {
+namespace cru::ui::mapper {
 class CRU_UI_API BorderStyleMapper
     : BasicMapper<ui::style::ApplyBorderStyleInfo> {
  public:
@@ -14,7 +14,7 @@ class CRU_UI_API BorderStyleMapper
   bool XmlElementIsOfThisType(xml::XmlElementNode* node) override;
 
  protected:
-  std::unique_ptr<ui::style::ApplyBorderStyleInfo> DoMapFromXml(
+  ui::style::ApplyBorderStyleInfo DoMapFromXml(
       xml::XmlElementNode* node) override;
 };
-}  // namespace cru::ui::mapper::style
+}  // namespace cru::ui::mapper

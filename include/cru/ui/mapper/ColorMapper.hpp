@@ -13,7 +13,7 @@ class ColorMapper : public BasicMapper<Color> {
   bool XmlElementIsOfThisType(xml::XmlElementNode* node) override;
 
  protected:
-  std::unique_ptr<Color> DoMapFromString(String str) override;
-  std::unique_ptr<Color> DoMapFromXml(xml::XmlElementNode* node) override;
+  Color DoMapFromString(String str) override;
+  Color DoMapFromXml(xml::XmlElementNode* node) override;
 };
 }  // namespace cru::ui::mapper

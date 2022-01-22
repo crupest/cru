@@ -12,7 +12,6 @@ class CRU_UI_API CornerRadiusMapper : public BasicMapper<CornerRadius> {
   bool XmlElementIsOfThisType(xml::XmlElementNode* node) override;
 
  protected:
-  std::unique_ptr<CornerRadius> DoMapFromXml(
-      xml::XmlElementNode* node) override;
+  CornerRadius DoMapFromXml(xml::XmlElementNode* node) override;
 };
 }  // namespace cru::ui::mapper

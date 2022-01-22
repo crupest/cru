@@ -5,6 +5,7 @@
 #include "cru/common/Exception.hpp"
 #include "cru/xml/XmlNode.hpp"
 
+#include <type_traits>
 #include <typeindex>
 #include <typeinfo>
 
@@ -41,6 +42,9 @@ class CRU_UI_API MapperBase : public Object {
 template <typename T>
 class CRU_UI_API BasicMapper : public MapperBase {
  public:
+  static_assert(std::is_default_constructible_v<T>,
+                "T must be default constructible.");
+
   BasicMapper() : MapperBase(typeid(T)) {}
 
   CRU_DELETE_COPY(BasicMapper)
@@ -49,7 +53,7 @@ class CRU_UI_API BasicMapper : public MapperBase {
   ~BasicMapper() override = default;
 
   virtual bool SupportMapFromString() { return false; }
-  virtual std::unique_ptr<T> MapFromString(String str) {
+  virtual T MapFromString(String str) {
     if (!SupportMapFromString()) {
       throw Exception(u"This mapper does not support map from string.");
     }
@@ -61,7 +65,7 @@ class CRU_UI_API BasicMapper : public MapperBase {
   virtual bool XmlElementIsOfThisType(xml::XmlElementNode* node) {
     return false;
   }
-  std::unique_ptr<T> MapFromXml(xml::XmlElementNode* node) {
+  T MapFromXml(xml::XmlElementNode* node) {
     if (!SupportMapFromXml()) {
       throw new Exception(u"This mapper does not support map from xml.");
     }
@@ -74,9 +78,7 @@ class CRU_UI_API BasicMapper : public MapperBase {
   }
 
  protected:
-  virtual std::unique_ptr<T> DoMapFromString(String str) { return nullptr; }
-  virtual std::unique_ptr<T> DoMapFromXml(xml::XmlElementNode* node) {
-    return nullptr;
-  }
+  virtual T DoMapFromString(String str) { return {}; }
+  virtual T DoMapFromXml(xml::XmlElementNode* node) { return {}; }
 };
 }  // namespace cru::ui::mapper

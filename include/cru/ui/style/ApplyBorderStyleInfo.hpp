@@ -5,9 +5,10 @@
 
 namespace cru::ui::style {
 struct ApplyBorderStyleInfo {
+  ApplyBorderStyleInfo() = default;
+
   explicit ApplyBorderStyleInfo(
-      std::optional<std::shared_ptr<platform::graphics::IBrush>> border_brush =
-          std::nullopt,
+      std::optional<std::shared_ptr<platform::graphics::IBrush>> border_brush,
       std::optional<Thickness> border_thickness = std::nullopt,
       std::optional<CornerRadius> border_radius = std::nullopt,
       std::optional<std::shared_ptr<platform::graphics::IBrush>>
