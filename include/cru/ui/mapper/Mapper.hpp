@@ -5,6 +5,7 @@
 #include "cru/common/Exception.hpp"
 #include "cru/xml/XmlNode.hpp"
 
+#include <memory>
 #include <type_traits>
 #include <typeindex>
 #include <typeinfo>
@@ -81,4 +82,7 @@ class CRU_UI_API BasicMapper : public MapperBase {
   virtual T DoMapFromString(String str) { return {}; }
   virtual T DoMapFromXml(xml::XmlElementNode* node) { return {}; }
 };
+
+template <typename T>
+using BasicRefMapper = BasicMapper<std::shared_ptr<T>>;
 }  // namespace cru::ui::mapper
