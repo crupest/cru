@@ -44,10 +44,15 @@ class CompoundStyler : public Styler {
 
 class BorderStyler : public Styler {
  public:
+  static ClonablePtr<BorderStyler> Create() {
+    return ClonablePtr<BorderStyler>(new BorderStyler());
+  }
+
   static ClonablePtr<BorderStyler> Create(ApplyBorderStyleInfo style) {
     return ClonablePtr<BorderStyler>(new BorderStyler(std::move(style)));
   }
 
+  BorderStyler() = default;
   explicit BorderStyler(ApplyBorderStyleInfo style);
 
   void Apply(controls::Control* control) const override;

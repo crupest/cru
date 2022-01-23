@@ -1,7 +1,7 @@
 #pragma once
-
 #include "../Base.hpp"
 
+#include "cru/common/ClonablePtr.hpp"
 #include "cru/common/Exception.hpp"
 #include "cru/xml/XmlNode.hpp"
 
@@ -85,4 +85,7 @@ class CRU_UI_API BasicMapper : public MapperBase {
 
 template <typename T>
 using BasicRefMapper = BasicMapper<std::shared_ptr<T>>;
+
+template <typename T>
+using BasicPtrMapper = BasicMapper<ClonablePtr<T>>;
 }  // namespace cru::ui::mapper

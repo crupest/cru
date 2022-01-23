@@ -226,6 +226,9 @@ class CRU_BASE_API String {
 
   int Compare(const String& other) const;
   int CaseInsensitiveCompare(const String& other) const;
+  bool CaseInsensitiveEqual(const String& other) const {
+    return CaseInsensitiveCompare(other) == 0;
+  }
 
  private:
   static char16_t kEmptyBuffer[1];
@@ -310,6 +313,9 @@ class CRU_BASE_API StringView {
  public:
   int Compare(const StringView& other) const;
   int CaseInsensitiveCompare(const StringView& other) const;
+  bool CaseInsensitiveEqual(const StringView& other) const {
+    return CaseInsensitiveCompare(other) == 0;
+  }
 
   String ToString() const { return String(ptr_, size_); }
 

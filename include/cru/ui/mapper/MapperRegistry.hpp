@@ -34,6 +34,11 @@ class CRU_UI_API MapperRegistry {
     return GetMapper<std::shared_ptr<T>>();
   }
 
+  template <typename T>
+  BasicPtrMapper<T>* GetPtrMapper() const {
+    return GetMapper<ClonablePtr<T>>();
+  }
+
   void RegisterMapper(MapperBase* mapper);
   void UnregisterMapper(MapperBase* mapper);
 
