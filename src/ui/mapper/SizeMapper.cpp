@@ -2,10 +2,7 @@
 
 namespace cru::ui::mapper {
 bool SizeMapper::XmlElementIsOfThisType(xml::XmlElementNode* node) {
-  if (node->GetTag() == u"Size") {
-    return true;
-  }
-  return false;
+  return node->GetTag().CaseInsensitiveCompare(u"Size") == 0;
 }
 
 Size SizeMapper::DoMapFromString(String str) {
@@ -20,7 +17,7 @@ Size SizeMapper::DoMapFromString(String str) {
 }
 
 Size SizeMapper::DoMapFromXml(xml::XmlElementNode* node) {
-  auto value_attr = node->GetOptionalAttribute(u"value");
+  auto value_attr = node->GetOptionalAttributeCaseInsensitive(u"value");
   if (!value_attr) return {};
   return DoMapFromString(*value_attr);
 }

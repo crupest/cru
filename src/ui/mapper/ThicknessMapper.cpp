@@ -3,10 +3,7 @@
 
 namespace cru::ui::mapper {
 bool ThicknessMapper::XmlElementIsOfThisType(xml::XmlElementNode* node) {
-  if (node->GetTag() == u"Thickness") {
-    return true;
-  }
-  return false;
+  return node->GetTag().CaseInsensitiveCompare(u"Thickness") == 0;
 }
 
 Thickness ThicknessMapper::DoMapFromString(String str) {
@@ -23,7 +20,7 @@ Thickness ThicknessMapper::DoMapFromString(String str) {
 }
 
 Thickness ThicknessMapper::DoMapFromXml(xml::XmlElementNode* node) {
-  auto value_attr = node->GetOptionalAttribute(u"value");
+  auto value_attr = node->GetOptionalAttributeCaseInsensitive(u"value");
   if (!value_attr) return {};
   return DoMapFromString(*value_attr);
 }

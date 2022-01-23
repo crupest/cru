@@ -329,9 +329,26 @@ inline int Compare(char16_t left, char16_t right) {
   if (left > right) return 1;
   return 0;
 }
+
+inline int CaseInsensitiveCompare(char16_t left, char16_t right) {
+  return Compare(ToLower(left), ToLower(right));
+}
 }  // namespace
 
-int String::Compare(const String& other) const {
+int String::Compare(const String& other) const { return View().Compare(other); }
+int String::CaseInsensitiveCompare(const String& other) const {
+  return View().CaseInsensitiveCompare(other);
+}
+
+double_conversion::StringToDoubleConverter
+    StringView::kDefaultStringToDoubleConverter(
+        double_conversion::StringToDoubleConverter::ALLOW_LEADING_SPACES |
+            double_conversion::StringToDoubleConverter::ALLOW_TRAILING_SPACES |
+            double_conversion::StringToDoubleConverter::
+                ALLOW_CASE_INSENSIBILITY,
+        0.0, NAN, "infinity", "nan");
+
+int StringView::Compare(const StringView& other) const {
   const_iterator i1 = cbegin();
   const_iterator i2 = other.cbegin();
 
@@ -356,15 +373,7 @@ int String::Compare(const String& other) const {
   }
 }
 
-double_conversion::StringToDoubleConverter
-    StringView::kDefaultStringToDoubleConverter(
-        double_conversion::StringToDoubleConverter::ALLOW_LEADING_SPACES |
-            double_conversion::StringToDoubleConverter::ALLOW_TRAILING_SPACES |
-            double_conversion::StringToDoubleConverter::
-                ALLOW_CASE_INSENSIBILITY,
-        0.0, NAN, "infinity", "nan");
-
-int StringView::Compare(const StringView& other) const {
+int StringView::CaseInsensitiveCompare(const StringView& other) const {
   const_iterator i1 = cbegin();
   const_iterator i2 = other.cbegin();
 
@@ -372,7 +381,7 @@ int StringView::Compare(const StringView& other) const {
   const_iterator end2 = other.cend();
 
   while (i1 != end1 && i2 != end2) {
-    int r = cru::Compare(*i1, *i2);
+    int r = cru::CaseInsensitiveCompare(*i1, *i2);
     if (r != 0) return r;
     i1++;
     i2++;

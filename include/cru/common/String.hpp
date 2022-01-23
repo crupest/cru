@@ -225,6 +225,7 @@ class CRU_BASE_API String {
   std::string ToUtf8() const;
 
   int Compare(const String& other) const;
+  int CaseInsensitiveCompare(const String& other) const;
 
  private:
   static char16_t kEmptyBuffer[1];
@@ -308,6 +309,7 @@ class CRU_BASE_API StringView {
 
  public:
   int Compare(const StringView& other) const;
+  int CaseInsensitiveCompare(const StringView& other) const;
 
   String ToString() const { return String(ptr_, size_); }
 

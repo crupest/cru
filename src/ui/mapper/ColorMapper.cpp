@@ -2,7 +2,7 @@
 
 namespace cru::ui::mapper {
 bool ColorMapper::XmlElementIsOfThisType(xml::XmlElementNode* node) {
-  return node->GetTag() == u"Color";
+  return node->GetTag().CaseInsensitiveCompare(u"Color") == 0;
 }
 
 Color ColorMapper::DoMapFromString(String str) {
@@ -14,7 +14,7 @@ Color ColorMapper::DoMapFromString(String str) {
 }
 
 Color ColorMapper::DoMapFromXml(xml::XmlElementNode* node) {
-  auto value_attr = node->GetOptionalAttribute(u"value");
+  auto value_attr = node->GetOptionalAttributeCaseInsensitive(u"value");
   if (!value_attr) {
     return colors::transparent;
   }

@@ -2,10 +2,7 @@
 
 namespace cru::ui::mapper {
 bool PointMapper::XmlElementIsOfThisType(xml::XmlElementNode* node) {
-  if (node->GetTag() == u"Point") {
-    return true;
-  }
-  return false;
+  return node->GetTag().CaseInsensitiveCompare(u"Point") == 0;
 }
 
 Point PointMapper::DoMapFromString(String str) {
@@ -20,7 +17,7 @@ Point PointMapper::DoMapFromString(String str) {
 }
 
 Point PointMapper::DoMapFromXml(xml::XmlElementNode* node) {
-  auto value_attr = node->GetOptionalAttribute(u"value");
+  auto value_attr = node->GetOptionalAttributeCaseInsensitive(u"value");
   if (!value_attr) return {};
   return DoMapFromString(*value_attr);
 }

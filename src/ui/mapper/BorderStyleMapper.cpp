@@ -11,7 +11,7 @@ using namespace xml;
 using ui::style::ApplyBorderStyleInfo;
 
 bool BorderStyleMapper::XmlElementIsOfThisType(xml::XmlElementNode* node) {
-  return node->GetTag() == u"BorderStyle";
+  return node->GetTag().CaseInsensitiveCompare(u"BorderStyle") == 0;
 }
 
 ApplyBorderStyleInfo BorderStyleMapper::DoMapFromXml(
@@ -35,11 +35,11 @@ ApplyBorderStyleInfo BorderStyleMapper::DoMapFromXml(
       } else if (color_mapper->XmlElementIsOfThisType(c)) {
         auto brush = GetGraphicsFactory()->CreateSolidColorBrush(
             color_mapper->MapFromXml(c));
-        auto name = c->GetOptionalAttribute(u"name");
+        auto name = c->GetOptionalAttributeCaseInsensitive(u"name");
         if (name) {
-          if (name == u"foreground") {
+          if (name->CaseInsensitiveCompare(u"foreground") == 0) {
             result.foreground_brush = std::move(brush);
-          } else if (name == u"background") {
+          } else if (name->CaseInsensitiveCompare(u"background") == 0) {
             result.background_brush = std::move(brush);
           } else {
             log::Debug(u"Unknown brush name: {}", *name);
