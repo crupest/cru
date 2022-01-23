@@ -37,6 +37,8 @@ add_library(cru_ui SHARED
 	mapper/ThicknessMapper.cpp
 	mapper/style/BorderStylerMapper.cpp
 	mapper/style/CursorStylerMapper.cpp
+	mapper/style/FocusConditionMapper.cpp
+	mapper/style/NoConditionMapper.cpp
 	render/BorderRenderObject.cpp
 	render/CanvasRenderObject.cpp
 	render/FlexLayoutRenderObject.cpp
