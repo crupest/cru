@@ -21,6 +21,12 @@ if (UNIX)
 endif()
 
 if (WIN32)
+	target_sources(cru_base PRIVATE
+		io/Win32FileStream.cpp
+	)
+endif()
+
+if (WIN32)
 	target_compile_definitions(cru_base PUBLIC CRU_PLATFORM_WINDOWS)
 elseif(APPLE)
 	target_compile_definitions(cru_base PUBLIC CRU_PLATFORM_OSX)

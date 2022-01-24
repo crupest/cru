@@ -13,6 +13,10 @@ if (UNIX)
 endif()
 
 if (WIN32)
+	target_sources(cru_base_test PRIVATE
+		io/Win32FileStreamTest.cpp
+	)
+
 	add_custom_command(TARGET cru_base_test POST_BUILD
 	COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_RUNTIME_DLLS:cru_base_test> $<TARGET_FILE_DIR:cru_base_test>
 	COMMAND_EXPAND_LISTS
