@@ -3,8 +3,9 @@
 #include "IConditionMapper.hpp"
 
 namespace cru::ui::mapper::style {
-class OrConditionMapper : public BasicPtrMapper<ui::style::OrCondition>,
-                           public virtual IConditionMapper {
+class CRU_UI_API OrConditionMapper
+    : public BasicPtrMapper<ui::style::OrCondition>,
+      public virtual IConditionMapper {
  public:
   CRU_DEFAULT_CONSTRUCTOR_DESTRUCTOR(OrConditionMapper)
 
