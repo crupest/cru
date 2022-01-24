@@ -6,19 +6,21 @@
 
 _cru_ is a C++ library. The biggest part of it is for UI.
 
-It is **under construction**. It can be built with _CMake_.
+It is **under heavy construction**.
 
-After I changed to macOS, Windows feature is left behind now.
+Check the code or fire a issue if you have any problem.
 
 [![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/crupest/cru)
 
 ## build
 
-_cru_ uses [_vcpkg_](https://github.com/microsoft/vcpkg) with _manifests mode_ to manage dependencies. You must setup vcpkg and `VCPKG_INSTALLATION_ROOT` environment variable.
+_cru_ is built with [_CMake_](https://cmake.org/) and [_vcpkg_](https://github.com/microsoft/vcpkg). You must setup vcpkg first. There are two ways.
 
-There is also a automatic python script used in CI. Use python3 to run `tool/win_build.py` to build on Windows. Run with `-h` to see options. For convenience to avoid environment setup it uses _Visual Studio_ generator.
+1. Set environment variable `VCPKG_INSTALLATION_ROOT` to your vcpkg installation directory.
 
-Check the code or fire a issue if you have any problem.
+2. Symlink the vcpkg installation directory to `vcpkg` of project root directory. Or just put real vcpkg there.
+
+Currently I only build _cru_ with **LLVM/Clang**. If you compile with MSVC, you might encounter some problems.
 
 ## structure of repository
 
@@ -32,8 +34,4 @@ Check the code or fire a issue if you have any problem.
 
 - `docs` contains docs-related things.
 
-- `tools/` contains some codes of tools like code generators.
-
-  - `cppmerge/` contains a _python_ script program that merges all cpp headers and sources into one **single** header and source. **Not use now**.
-
-  - `migrate-1/` contains _python_ scripts that migrate all header and source files into CamelCase. **Not use after migration**.
+- `tools/` contains some codes of tools I wrote for development. However most of them are not used now.
