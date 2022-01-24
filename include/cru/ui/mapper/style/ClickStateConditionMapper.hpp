@@ -4,7 +4,7 @@
 #include "cru/ui/style/Condition.hpp"
 
 namespace cru::ui::mapper::style {
-class ClickStateConditionMapper
+class CRU_UI_API ClickStateConditionMapper
     : public BasicPtrMapper<ui::style::ClickStateCondition>,
       public IConditionMapper {
  public:

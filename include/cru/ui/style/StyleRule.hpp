@@ -10,6 +10,13 @@
 namespace cru::ui::style {
 class StyleRule : public Object {
  public:
+  static ClonablePtr<StyleRule> Create(ClonablePtr<Condition> condition,
+                                       ClonablePtr<Styler> styler,
+                                       String name = {}) {
+    return ClonablePtr<StyleRule>(new StyleRule(
+        std::move(condition), std::move(styler), std::move(name)));
+  }
+
   StyleRule(ClonablePtr<Condition> condition, ClonablePtr<Styler> styler,
             String name = {});
 

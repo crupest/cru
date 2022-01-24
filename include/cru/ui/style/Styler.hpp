@@ -25,6 +25,11 @@ class CompoundStyler : public Styler {
         new CompoundStyler(std::vector<ClonablePtr<Styler>>{std::move(s)...}));
   }
 
+  static ClonablePtr<CompoundStyler> Create(
+      std::vector<ClonablePtr<Styler>> stylers) {
+    return ClonablePtr<CompoundStyler>(new CompoundStyler(std::move(stylers)));
+  }
+
   explicit CompoundStyler(std::vector<ClonablePtr<Styler>> stylers)
       : stylers_(std::move(stylers)) {}
 

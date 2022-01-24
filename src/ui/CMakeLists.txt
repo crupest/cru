@@ -42,6 +42,8 @@ add_library(cru_ui SHARED
 	mapper/style/FocusConditionMapper.cpp
 	mapper/style/NoConditionMapper.cpp
 	mapper/style/OrConditionMapper.cpp
+	mapper/style/StyleRuleMapper.cpp
+	mapper/style/StyleRuleSetMapper.cpp
 	render/BorderRenderObject.cpp
 	render/CanvasRenderObject.cpp
 	render/FlexLayoutRenderObject.cpp

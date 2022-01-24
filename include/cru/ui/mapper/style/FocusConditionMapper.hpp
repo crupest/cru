@@ -4,8 +4,9 @@
 #include "cru/ui/style/Condition.hpp"
 
 namespace cru::ui::mapper::style {
-class FocusConditionMapper : public BasicPtrMapper<ui::style::FocusCondition>,
-                             public virtual IConditionMapper {
+class CRU_UI_API FocusConditionMapper
+    : public BasicPtrMapper<ui::style::FocusCondition>,
+      public virtual IConditionMapper {
  public:
   CRU_DEFAULT_CONSTRUCTOR_DESTRUCTOR(FocusConditionMapper)
 

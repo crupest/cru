@@ -7,8 +7,9 @@
 #include "cru/xml/XmlNode.hpp"
 
 namespace cru::ui::mapper::style {
-class NoConditionMapper : public BasicPtrMapper<ui::style::NoCondition>,
-                          public virtual IConditionMapper {
+class CRU_UI_API NoConditionMapper
+    : public BasicPtrMapper<ui::style::NoCondition>,
+      public virtual IConditionMapper {
  public:
   CRU_DEFAULT_CONSTRUCTOR_DESTRUCTOR(NoConditionMapper)
 

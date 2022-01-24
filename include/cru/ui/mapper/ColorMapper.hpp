@@ -3,7 +3,7 @@
 #include "cru/xml/XmlNode.hpp"
 
 namespace cru::ui::mapper {
-class ColorMapper : public BasicMapper<Color> {
+class CRU_UI_API ColorMapper : public BasicMapper<Color> {
  public:
   CRU_DEFAULT_CONSTRUCTOR_DESTRUCTOR(ColorMapper)
 

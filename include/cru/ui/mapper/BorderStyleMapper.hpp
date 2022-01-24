@@ -5,7 +5,7 @@
 
 namespace cru::ui::mapper {
 class CRU_UI_API BorderStyleMapper
-    : BasicMapper<ui::style::ApplyBorderStyleInfo> {
+    : public BasicMapper<ui::style::ApplyBorderStyleInfo> {
  public:
   CRU_DEFAULT_CONSTRUCTOR_DESTRUCTOR(BorderStyleMapper)
 

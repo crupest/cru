@@ -6,7 +6,7 @@
 #include "cru/xml/XmlNode.hpp"
 
 namespace cru::ui::mapper::style {
-struct IStylerMapper : virtual Interface {
+struct CRU_UI_API IStylerMapper : virtual Interface {
   bool XmlElementIsOfThisType(xml::XmlElementNode* node) {
     return dynamic_cast<MapperBase*>(this)->XmlElementIsOfThisType(node);
   }
