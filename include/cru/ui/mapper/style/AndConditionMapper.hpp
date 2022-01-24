@@ -1,16 +1,12 @@
 #pragma once
 #include "../Mapper.hpp"
 #include "IConditionMapper.hpp"
-#include "cru/common/Base.hpp"
-#include "cru/common/ClonablePtr.hpp"
-#include "cru/ui/style/Condition.hpp"
-#include "cru/xml/XmlNode.hpp"
 
 namespace cru::ui::mapper::style {
-class NoConditionMapper : public BasicPtrMapper<ui::style::NoCondition>,
-                          public virtual IConditionMapper {
+class AndConditionMapper : public BasicPtrMapper<ui::style::AndCondition>,
+                           public virtual IConditionMapper {
  public:
-  CRU_DEFAULT_CONSTRUCTOR_DESTRUCTOR(NoConditionMapper)
+  CRU_DEFAULT_CONSTRUCTOR_DESTRUCTOR(AndConditionMapper)
 
  public:
   bool SupportMapFromXml() override { return true; }
@@ -22,7 +18,7 @@ class NoConditionMapper : public BasicPtrMapper<ui::style::NoCondition>,
   }
 
  protected:
-  ClonablePtr<ui::style::NoCondition> DoMapFromXml(
+  ClonablePtr<ui::style::AndCondition> DoMapFromXml(
       xml::XmlElementNode* node) override;
 };
 }  // namespace cru::ui::mapper::style

@@ -48,6 +48,11 @@ class CompoundCondition : public Condition {
 
 class AndCondition : public CompoundCondition {
  public:
+  static ClonablePtr<AndCondition> Create(
+      std::vector<ClonablePtr<Condition>> conditions) {
+    return ClonablePtr<AndCondition>(new AndCondition(std::move(conditions)));
+  }
+
   using CompoundCondition::CompoundCondition;
 
   bool Judge(controls::Control* control) const override;
@@ -57,6 +62,11 @@ class AndCondition : public CompoundCondition {
 
 class OrCondition : public CompoundCondition {
  public:
+  static ClonablePtr<OrCondition> Create(
+      std::vector<ClonablePtr<Condition>> conditions) {
+    return ClonablePtr<OrCondition>(new OrCondition(std::move(conditions)));
+  }
+
   using CompoundCondition::CompoundCondition;
 
   bool Judge(controls::Control* control) const override;

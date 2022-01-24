@@ -12,7 +12,7 @@
 
 namespace cru::ui::mapper {
 template <typename T>
-class Mapper;
+class BasicMapper;
 
 class CRU_UI_API MapperBase : public Object {
  public:
@@ -27,13 +27,19 @@ class CRU_UI_API MapperBase : public Object {
   std::type_index GetTypeIndex() const { return type_index_; }
 
   template <typename T>
-  Mapper<T>* StaticCast() {
-    return static_cast<Mapper<T>*>(this);
+  BasicMapper<T>* StaticCast() {
+    return static_cast<BasicMapper<T>*>(this);
   }
 
   template <typename T>
-  Mapper<T>* DynamicCast() {
-    return dynamic_cast<Mapper<T>*>(this);
+  BasicMapper<T>* DynamicCast() {
+    return dynamic_cast<BasicMapper<T>*>(this);
+  }
+
+  virtual bool SupportMapFromString() { return false; }
+  virtual bool SupportMapFromXml() { return false; }
+  virtual bool XmlElementIsOfThisType(xml::XmlElementNode* node) {
+    return false;
   }
 
  private:
@@ -53,7 +59,6 @@ class CRU_UI_API BasicMapper : public MapperBase {
 
   ~BasicMapper() override = default;
 
-  virtual bool SupportMapFromString() { return false; }
   virtual T MapFromString(String str) {
     if (!SupportMapFromString()) {
       throw Exception(u"This mapper does not support map from string.");
@@ -62,10 +67,6 @@ class CRU_UI_API BasicMapper : public MapperBase {
     return DoMapFromString(str);
   }
 
-  virtual bool SupportMapFromXml() { return false; }
-  virtual bool XmlElementIsOfThisType(xml::XmlElementNode* node) {
-    return false;
-  }
   T MapFromXml(xml::XmlElementNode* node) {
     if (!SupportMapFromXml()) {
       throw new Exception(u"This mapper does not support map from xml.");

@@ -39,6 +39,16 @@ class CRU_UI_API MapperRegistry {
     return GetMapper<ClonablePtr<T>>();
   }
 
+  template <typename T>
+  std::vector<T*> GetMappersByInterface() const {
+    std::vector<T*> result;
+    for (auto mapper : mapper_list_) {
+      auto m = dynamic_cast<T*>(mapper);
+      if (m) result.push_back(m);
+    }
+    return result;
+  }
+
   void RegisterMapper(MapperBase* mapper);
   void UnregisterMapper(MapperBase* mapper);
 
