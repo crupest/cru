@@ -1,0 +1,97 @@
+<Theme>
+    <Resource key="button-style">
+        <StyleRuleSet>
+            <StyleRule>
+                <NoCondition />
+                <BorderStyler>
+                    <BorderStyle>
+                        <Thickness value="5" />
+                        <CornerRadius all="5" />
+                    </BorderStyle>
+                </BorderStyler>
+            </StyleRule>
+            <StyleRule>
+                <ClickStateCondition value="none" />
+                <BorderStyler>
+                    <BorderStyle>
+                        <Color value="#00bfff" />
+                    </BorderStyle>
+                </BorderStyler>
+                <CursorStyler>
+                    <Cursor value="arrow" />
+                </CursorStyler>
+            </StyleRule>
+            <StyleRule>
+                <ClickStateCondition value="hover" />
+                <BorderStyler>
+                    <BorderStyle>
+                        <Color value="#47d1ff" />
+                    </BorderStyle>
+                </BorderStyler>
+                <CursorStyler>
+                    <Cursor value="hand" />
+                </CursorStyler>
+            </StyleRule>
+            <StyleRule>
+                <ClickStateCondition value="press" />
+                <BorderStyler>
+                    <BorderStyle>
+                        <Color value="#91e4ff" />
+                    </BorderStyle>
+                </BorderStyler>
+                <CursorStyler>
+                    <Cursor value="hand" />
+                </CursorStyler>
+            </StyleRule>
+            <StyleRule>
+                <ClickStateCondition value="pressinactive" />
+                <BorderStyler>
+                    <BorderStyle>
+                        <Color value="#91e4ff" />
+                    </BorderStyle>
+                </BorderStyler>
+                <CursorStyler>
+                    <Cursor value="arrow" />
+                </CursorStyler>
+            </StyleRule>
+        </StyleRuleSet>
+    </Resource>
+
+    <Resource key="text-box-style">
+        <StyleRuleSet>
+            <StyleRule>
+                <NoCondition />
+                <BorderStyler>
+                    <BorderStyle>
+                        <Thickness value="1" />
+                        <CornerRadius all="5" />
+                    </BorderStyle>
+                </BorderStyler>
+            </StyleRule>
+            <StyleRule>
+                <HoverCondition value="false" />
+                <BorderStyler>
+                    <BorderStyle>
+                        <Color value="#ced4da" />
+                    </BorderStyle>
+                </BorderStyler>
+            </StyleRule>
+            <StyleRule>
+                <HoverCondition value="true" />
+                <BorderStyler>
+                    <BorderStyle>
+                        <Color value="#ced4da" />
+                    </BorderStyle>
+                </BorderStyler>
+            </StyleRule>
+            <StyleRule>
+                <FocusCondition value="true" />
+                <BorderStyler>
+                    <BorderStyle>
+                        <Color value="#495057" />
+                    </BorderStyle>
+                </BorderStyler>
+            </StyleRule>
+        </StyleRuleSet>
+    </Resource>
+</Theme>

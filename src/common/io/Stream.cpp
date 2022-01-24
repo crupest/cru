@@ -7,7 +7,7 @@ Index Stream::GetSize() {
   Index current_position = Tell();
   Seek(0, SeekOrigin::End);
   Index size = Tell();
-  Seek(current_position);
+  Seek(current_position, SeekOrigin::Begin);
   return size;
 }
 

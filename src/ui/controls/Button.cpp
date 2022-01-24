@@ -15,8 +15,9 @@ Button::Button() : click_detector_(this) {
   SetContainerRenderObject(render_object_.get());
   render_object_->SetBorderEnabled(true);
 
-  GetStyleRuleSet()->SetParent(
-      &UiManager::GetInstance()->GetThemeResources()->button_style);
+  auto default_button_style =
+      UiManager::GetInstance()->GetThemeResources()->button_style.get();
+  GetStyleRuleSet()->SetParent(default_button_style);
 }
 
 Button::~Button() = default;

@@ -118,6 +118,8 @@ class CRU_XML_API XmlElementNode : public XmlNode {
   void AddAttribute(String key, String value);
   void AddChild(XmlNode* child);
 
+  XmlElementNode* GetFirstChildElement() const;
+
   XmlNode* Clone() const override;
 
  private:

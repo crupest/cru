@@ -32,6 +32,15 @@ void XmlElementNode::AddChild(XmlNode* child) {
   child->parent_ = this;
 }
 
+XmlElementNode* XmlElementNode::GetFirstChildElement() const {
+  for (auto child : children_) {
+    if (child->GetType() == XmlNode::Type::Element) {
+      return child->AsElement();
+    }
+  }
+  return nullptr;
+}
+
 XmlNode* XmlElementNode::Clone() const {
   XmlElementNode* node = new XmlElementNode(tag_, attributes_);
 

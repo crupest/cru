@@ -37,7 +37,7 @@ TextBox::TextBox()
 
   border_render_object_->SetBorderEnabled(true);
 
-  GetStyleRuleSet()->SetParent(&theme_resources->text_box_style);
+  GetStyleRuleSet()->SetParent(theme_resources->text_box_style.get());
 }
 
 TextBox::~TextBox() {}

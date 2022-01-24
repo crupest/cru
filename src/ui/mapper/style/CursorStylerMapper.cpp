@@ -6,7 +6,7 @@
 
 namespace cru::ui::mapper::style {
 bool CursorStylerMapper::XmlElementIsOfThisType(xml::XmlElementNode* node) {
-  return node->GetTag().CaseInsensitiveEqual(u"cursor");
+  return node->GetTag().CaseInsensitiveEqual(u"CursorStyler");
 }
 
 ClonablePtr<ui::style::CursorStyler> CursorStylerMapper::DoMapFromXml(

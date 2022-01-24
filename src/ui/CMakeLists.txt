@@ -40,6 +40,7 @@ add_library(cru_ui SHARED
 	mapper/style/ClickStateConditionMapper.cpp
 	mapper/style/CursorStylerMapper.cpp
 	mapper/style/FocusConditionMapper.cpp
+	mapper/style/HoverConditionMapper.cpp
 	mapper/style/NoConditionMapper.cpp
 	mapper/style/OrConditionMapper.cpp
 	mapper/style/StyleRuleMapper.cpp

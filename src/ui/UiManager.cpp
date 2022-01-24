@@ -1,6 +1,8 @@
 #include "cru/ui/UiManager.hpp"
 
 #include "Helper.hpp"
+#include "cru/common/io/FileStream.hpp"
+#include "cru/common/io/OpenFileFlag.hpp"
 #include "cru/platform/graphics/Brush.hpp"
 #include "cru/platform/graphics/Factory.hpp"
 #include "cru/platform/graphics/Font.hpp"
@@ -8,10 +10,13 @@
 #include "cru/platform/gui/UiApplication.hpp"
 #include "cru/ui/Base.hpp"
 #include "cru/ui/helper/ClickDetector.hpp"
+#include "cru/ui/mapper/MapperRegistry.hpp"
 #include "cru/ui/render/ScrollBar.hpp"
 #include "cru/ui/style/ApplyBorderStyleInfo.hpp"
 #include "cru/ui/style/Condition.hpp"
 #include "cru/ui/style/Styler.hpp"
+#include "cru/xml/XmlNode.hpp"
+#include "cru/xml/XmlParser.hpp"
 
 #include <optional>
 
@@ -32,6 +37,10 @@ UiManager* UiManager::GetInstance() {
 UiManager::UiManager() {
   const auto factory = GetGraphicsFactory();
 
+   // TODO: Resource file path!!!
+  ReadResourcesFile(
+      u"/Users/crupest/codes/cru/assets/cru/ui/DefaultResources.xml");
+
   theme_resource_.default_font_family = u"";
 
   theme_resource_.default_font =
@@ -45,62 +54,6 @@ UiManager::UiManager() {
       factory->CreateSolidColorBrush(colors::skyblue);
   theme_resource_.caret_brush = black_brush;
 
-  theme_resource_.button_style.AddStyleRule(
-      {NoCondition::Create(),
-       BorderStyler::Create(ApplyBorderStyleInfo{std::nullopt, Thickness(3),
-                                                 CornerRadius(5), std::nullopt,
-                                                 std::nullopt}),
-       u"DefaultButton"});
-  theme_resource_.button_style.AddStyleRule(
-      {ClickStateCondition::Create(ClickState::None),
-       CompoundStyler::Create(
-           BorderStyler::Create(ApplyBorderStyleInfo{
-               factory->CreateSolidColorBrush(Color::FromHex(0x00bfff))}),
-           CursorStyler::Create(platform::gui::SystemCursorType::Arrow)),
-       u"DefaultButtonNormal"});
-  theme_resource_.button_style.AddStyleRule(
-      {ClickStateCondition::Create(ClickState::Hover),
-       CompoundStyler::Create(
-           BorderStyler::Create(ApplyBorderStyleInfo{
-               factory->CreateSolidColorBrush(Color::FromHex(0x47d1ff))}),
-           CursorStyler::Create(platform::gui::SystemCursorType::Hand)),
-       u"DefaultButtonHover"});
-  theme_resource_.button_style.AddStyleRule(
-      {ClickStateCondition::Create(ClickState::Press),
-       CompoundStyler::Create(
-           BorderStyler::Create(ApplyBorderStyleInfo{
-               factory->CreateSolidColorBrush(Color::FromHex(0x91e4ff))}),
-           CursorStyler::Create(platform::gui::SystemCursorType::Hand)),
-       u"DefaultButtonPress"});
-  theme_resource_.button_style.AddStyleRule(
-      {ClickStateCondition::Create(ClickState::PressInactive),
-       CompoundStyler::Create(
-           BorderStyler::Create(ApplyBorderStyleInfo{
-               factory->CreateSolidColorBrush(Color::FromHex(0x91e4ff))}),
-           CursorStyler::Create(platform::gui::SystemCursorType::Arrow)),
-       u"DefaultButtonPressInactive"});
-
-  theme_resource_.text_box_style.AddStyleRule(
-      {NoCondition::Create(),
-       BorderStyler::Create(
-           ApplyBorderStyleInfo{std::nullopt, Thickness{1}, CornerRadius{5}}),
-       u"DefaultTextBox"});
-  theme_resource_.text_box_style.AddStyleRule(
-      {HoverCondition::Create(false),
-       BorderStyler::Create(ApplyBorderStyleInfo{
-           factory->CreateSolidColorBrush(Color::FromHex(0xced4da))}),
-       u"DefaultTextBoxNormal"});
-  theme_resource_.text_box_style.AddStyleRule(
-      {HoverCondition::Create(true),
-       BorderStyler::Create(ApplyBorderStyleInfo{
-           factory->CreateSolidColorBrush(Color::FromHex(0xced4da))}),
-       u"DefaultTextBoxHover"});
-  theme_resource_.text_box_style.AddStyleRule(
-      {FocusCondition::Create(true),
-       BorderStyler::Create(ApplyBorderStyleInfo{
-           factory->CreateSolidColorBrush(Color::FromHex(0x495057))}),
-       u"DefaultTextBoxFocus"});
-
   theme_resource_.menu_item_style.AddStyleRule(
       {NoCondition::Create(),
        BorderStyler::Create(
@@ -109,4 +62,33 @@ UiManager::UiManager() {
 }
 
 UiManager::~UiManager() = default;
+
+void UiManager::ReadResourcesFile(const String& file_path) {
+  io::FileStream stream(file_path, io::OpenFileFlags::Read);
+  auto xml_string = stream.ReadAllAsString();
+  auto parser = xml::XmlParser(xml_string);
+  auto xml_root = parser.Parse();
+
+  for (auto child : xml_root->GetChildren()) {
+    if (child->GetType() == xml::XmlNode::Type::Element) {
+      auto c = child->AsElement();
+      if (c->GetTag().CaseInsensitiveEqual(u"Resource")) {
+        auto key = c->GetAttributeCaseInsensitive(u"key");
+        if (key.CaseInsensitiveEqual(u"button-style")) {
+          auto style_rule_set_mapper = mapper::MapperRegistry::GetInstance()
+                                           ->GetRefMapper<StyleRuleSet>();
+          auto style_rule_set =
+              style_rule_set_mapper->MapFromXml(c->GetFirstChildElement());
+          theme_resource_.button_style = style_rule_set;
+        } else if (key.CaseInsensitiveEqual(u"text-box-style")) {
+          auto style_rule_set_mapper = mapper::MapperRegistry::GetInstance()
+                                           ->GetRefMapper<StyleRuleSet>();
+          auto style_rule_set =
+              style_rule_set_mapper->MapFromXml(c->GetFirstChildElement());
+          theme_resource_.text_box_style = style_rule_set;
+        }
+      }
+    }
+  }
+}
 }  // namespace cru::ui

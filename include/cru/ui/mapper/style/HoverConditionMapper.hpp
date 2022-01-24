@@ -4,11 +4,11 @@
 #include "cru/ui/style/Condition.hpp"
 
 namespace cru::ui::mapper::style {
-class CRU_UI_API ClickStateConditionMapper
-    : public BasicPtrMapper<ui::style::ClickStateCondition>,
+class CRU_UI_API HoverConditionMapper
+    : public BasicPtrMapper<ui::style::HoverCondition>,
       public virtual IConditionMapper {
  public:
-  CRU_DEFAULT_CONSTRUCTOR_DESTRUCTOR(ClickStateConditionMapper)
+  CRU_DEFAULT_CONSTRUCTOR_DESTRUCTOR(HoverConditionMapper)
 
  public:
   bool SupportMapFromXml() override { return true; }
@@ -19,8 +19,8 @@ class CRU_UI_API ClickStateConditionMapper
     return MapFromXml(node);
   }
 
- public:
-  ClonablePtr<ui::style::ClickStateCondition> DoMapFromXml(
+ protected:
+  ClonablePtr<ui::style::HoverCondition> DoMapFromXml(
       xml::XmlElementNode* node) override;
 };
 }  // namespace cru::ui::mapper::style

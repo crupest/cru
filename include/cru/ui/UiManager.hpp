@@ -19,9 +19,8 @@ struct ThemeResources {
   std::shared_ptr<platform::graphics::IBrush> text_selection_brush;
   std::shared_ptr<platform::graphics::IBrush> caret_brush;
 
-  style::StyleRuleSet button_style;
-
-  style::StyleRuleSet text_box_style;
+  std::shared_ptr<style::StyleRuleSet> button_style;
+  std::shared_ptr<style::StyleRuleSet> text_box_style;
 
   style::StyleRuleSet menu_item_style;
 };
@@ -41,6 +40,8 @@ class CRU_UI_API UiManager : public Object {
   ~UiManager() override;
 
   ThemeResources* GetThemeResources() { return &theme_resource_; }
+
+  void ReadResourcesFile(const String& file_path);
 
  private:
   ThemeResources theme_resource_;
