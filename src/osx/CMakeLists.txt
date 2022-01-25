@@ -1,6 +1,4 @@
 add_library(cru_osx_base SHARED
-	Convert.cpp
-	Exception.cpp
 	Resource.cpp
 )
 

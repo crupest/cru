@@ -2,18 +2,9 @@
 #include "Base.hpp"
 #include "cru/common/Base.hpp"
 #include "cru/common/Exception.hpp"
+#include "cru/common/platform/Exception.hpp"
 
 namespace cru::platform {
-class CRU_PLATFORM_API PlatformException : public Exception {
- public:
-  using Exception::Exception;  // inherit constructors
-
-  CRU_DEFAULT_COPY(PlatformException)
-  CRU_DEFAULT_MOVE(PlatformException)
-
-  CRU_DEFAULT_DESTRUCTOR(PlatformException)
-};
-
 // This exception is thrown when a resource is used on another platform.
 // Of course, you can't mix resources of two different platform.
 // For example, Win32 Brush (may add in the future) with Direct Painter.

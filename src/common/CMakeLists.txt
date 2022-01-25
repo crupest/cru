@@ -7,7 +7,9 @@ add_library(cru_base SHARED
 	String.cpp
 	StringUtil.cpp
 	io/Stream.cpp
+	io/Resource.cpp
 	io/MemoryStream.cpp
+	platform/Exception.cpp
 )
 target_compile_definitions(cru_base PRIVATE CRU_BASE_EXPORT_API)
 target_include_directories(cru_base PUBLIC ${CRU_INCLUDE_DIR})
@@ -20,9 +22,20 @@ if (UNIX)
 	)
 endif()
 
+if (APPLE)
+	find_library(CORE_FOUNDATION CoreFoundation REQUIRED)
+	target_link_libraries(cru_base PUBLIC ${CORE_FOUNDATION})
+
+	target_sources(cru_base PRIVATE
+		platform/osx/Convert.cpp
+		platform/osx/Exception.cpp
+	)
+endif()
+
 if (WIN32)
 	target_sources(cru_base PRIVATE
 		io/Win32FileStream.cpp
+		platform/win/Exception.cpp
 	)
 endif()
 

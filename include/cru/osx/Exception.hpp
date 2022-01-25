@@ -1,9 +1,2 @@
 #pragma once
-#include "cru/platform/Exception.hpp"
-
-namespace cru::platform::osx {
-class OsxException : public PlatformException {
- public:
-  using PlatformException::PlatformException;
-};
-}  // namespace cru::platform::osx
+#include "cru/common/platform/osx/Exception.hpp"

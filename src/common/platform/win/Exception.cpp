@@ -1,4 +1,4 @@
-#include "cru/win/Exception.hpp"
+#include "cru/common/platform/win/Exception.hpp"
 #include "cru/common/Format.hpp"
 
 #include <optional>
