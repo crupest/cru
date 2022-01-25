@@ -1,11 +1,13 @@
-#include "cru/common/io/Win32FileStream.hpp"
+#include "cru/common/platform/win/Win32FileStream.hpp"
 
-#include "cru/common/Exception.hpp"
 #include "cru/common/io/OpenFileFlag.hpp"
+#include "cru/common/platform/win/Exception.hpp"
 
 #include <Windows.h>
 
-namespace cru::io {
+namespace cru::platform::win {
+using namespace cru::io;
+
 namespace details {
 struct Win32FileStreamPrivate {
   HANDLE handle;
@@ -40,7 +42,7 @@ Win32FileStream::Win32FileStream(String path, OpenFileFlag flags)
                     dwCreationDisposition, FILE_ATTRIBUTE_NORMAL, nullptr);
 
   if (p_->handle == INVALID_HANDLE_VALUE) {
-    throw Exception(u"Failed to call CreateFileW.");
+    throw Win32Error(u"Failed to call CreateFileW.");
   }
 }
 
@@ -59,7 +61,7 @@ Index Win32FileStream::Tell() {
   LARGE_INTEGER file_pointer;
   if (::SetFilePointerEx(p_->handle, offset, &file_pointer, FILE_CURRENT) ==
       0) {
-    throw Exception(u"Failed to call SetFilePointerEx.");
+    throw Win32Error(u"Failed to call SetFilePointerEx.");
   }
 
   return file_pointer.QuadPart;
@@ -81,7 +83,7 @@ void Win32FileStream::Seek(Index offset, SeekOrigin origin) {
   LARGE_INTEGER n_offset;
   n_offset.QuadPart = offset;
   if (::SetFilePointerEx(p_->handle, n_offset, nullptr, dwMoveMethod) == 0) {
-    throw Exception(u"Failed to call SetFilePointerEx.");
+    throw Win32Error(u"Failed to call SetFilePointerEx.");
   }
 }
 
@@ -92,7 +94,7 @@ Index Win32FileStream::Read(std::byte* buffer, Index offset, Index size) {
 
   DWORD dwRead;
   if (::ReadFile(p_->handle, buffer + offset, size, &dwRead, nullptr) == 0) {
-    throw Exception(u"Failed to call ReadFile.");
+    throw Win32Error(u"Failed to call ReadFile.");
   }
   return dwRead;
 }
@@ -106,7 +108,7 @@ Index Win32FileStream::Write(const std::byte* buffer, Index offset,
   DWORD dwWritten;
   if (::WriteFile(p_->handle, buffer + offset, size, &dwWritten, nullptr) ==
       0) {
-    throw Exception(u"Failed to call WriteFile.");
+    throw Win32Error(u"Failed to call WriteFile.");
   }
 
   return dwWritten;
@@ -124,4 +126,4 @@ void Win32FileStream::CheckClosed() {
   if (closed_) throw Exception(u"Stream is closed.");
 }
 
-}  // namespace cru::io
+}  // namespace cru::platform::win

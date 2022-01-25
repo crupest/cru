@@ -1,5 +1,5 @@
 #include "cru/common/io/OpenFileFlag.hpp"
-#include "cru/common/io/Win32FileStream.hpp"
+#include "cru/common/platform/win/Win32FileStream.hpp"
 
 #include <gtest/gtest.h>
 
@@ -9,6 +9,7 @@
 TEST(UnixFileStream, Work) {
   using namespace cru;
   using namespace cru::io;
+  using namespace cru::platform::win;
 
   auto temp_file_path =
       (std::filesystem::temp_directory_path() / "cru_test_temp.XXXXXX")

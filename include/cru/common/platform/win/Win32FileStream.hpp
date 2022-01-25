@@ -1,22 +1,21 @@
 #pragma once
 
-#include "../PreConfig.hpp"
+#include "../../PreConfig.hpp"
 
 #ifdef CRU_PLATFORM_WINDOWS
 
-#include "../String.hpp"
-#include "OpenFileFlag.hpp"
-#include "Stream.hpp"
-#include "cru/common/Base.hpp"
+#include "../../String.hpp"
+#include "../../io/OpenFileFlag.hpp"
+#include "../../io/Stream.hpp"
 
-namespace cru::io {
+namespace cru::platform::win {
 namespace details {
 class Win32FileStreamPrivate;
 }
 
-class CRU_BASE_API Win32FileStream : public Stream {
+class CRU_BASE_API Win32FileStream : public io::Stream {
  public:
-  Win32FileStream(String path, OpenFileFlag flags);
+  Win32FileStream(String path, io::OpenFileFlag flags);
 
   CRU_DELETE_COPY(Win32FileStream)
   CRU_DELETE_MOVE(Win32FileStream)
@@ -43,7 +42,7 @@ class CRU_BASE_API Win32FileStream : public Stream {
 
  private:
   String path_;
-  OpenFileFlag flags_;
+  io::OpenFileFlag flags_;
   bool closed_ = false;
 
   details::Win32FileStreamPrivate* p_;

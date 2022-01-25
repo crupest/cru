@@ -34,7 +34,7 @@ endif()
 
 if (WIN32)
 	target_sources(cru_base PRIVATE
-		io/Win32FileStream.cpp
+		platform/win/Win32FileStream.cpp
 		platform/win/Exception.cpp
 	)
 endif()

@@ -32,8 +32,15 @@ inline String Win32MakeMessage(DWORD error_code, String message) {
 Win32Error::Win32Error(std::string_view message)
     : Win32Error(::GetLastError(), message) {}
 
+Win32Error::Win32Error(String message)
+    : Win32Error(::GetLastError(), message) {}
+
 Win32Error::Win32Error(DWORD error_code, std::string_view message)
     : PlatformException(Win32MakeMessage(
           error_code, String::FromUtf8(message.data(), message.size()))),
+      error_code_(error_code) {}
+
+Win32Error::Win32Error(DWORD error_code, String message)
+    : PlatformException(Win32MakeMessage(error_code, message)),
       error_code_(error_code) {}
 }  // namespace cru::platform::win
