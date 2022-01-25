@@ -1,17 +1,17 @@
 #pragma once
 
-#include "../PreConfig.hpp"
+#include "../../PreConfig.hpp"
 
 #ifdef CRU_PLATFORM_UNIX
 
-#include "../String.hpp"
-#include "OpenFileFlag.hpp"
-#include "Stream.hpp"
+#include "../../String.hpp"
+#include "../../io/OpenFileFlag.hpp"
+#include "../../io/Stream.hpp"
 
-namespace cru::io {
-class UnixFileStream : public Stream {
+namespace cru::platform::unix {
+class UnixFileStream : public io::Stream {
  public:
-  UnixFileStream(String path, OpenFileFlag flags);
+  UnixFileStream(String path, io::OpenFileFlag flags);
 
   CRU_DELETE_COPY(UnixFileStream)
   CRU_DELETE_MOVE(UnixFileStream)
@@ -38,10 +38,10 @@ class UnixFileStream : public Stream {
 
  private:
   String path_;
-  OpenFileFlag flags_;
+  io::OpenFileFlag flags_;
   int file_descriptor_;
   bool closed_ = false;
 };
-}  // namespace cru::io
+}  // namespace cru::platform::unix
 
 #endif

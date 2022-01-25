@@ -1,13 +1,14 @@
-#include "cru/common/io/UnixFileStream.hpp"
-#include "cru/common/ErrnoException.hpp"
-#include "cru/common/io/OpenFileFlag.hpp"
+#include "cru/common/platform/unix/UnixFileStream.hpp"
 #include "cru/common/Format.hpp"
+#include "cru/common/io/OpenFileFlag.hpp"
+#include "cru/common/platform/unix/ErrnoException.hpp"
 
 #include <fcntl.h>
 #include <sys/_types/_s_ifmt.h>
 #include <unistd.h>
 
-namespace cru::io {
+namespace cru::platform::unix {
+using namespace cru::io;
 
 namespace {
 int MapOpenFileFlag(OpenFileFlag flags) {
@@ -131,4 +132,4 @@ void UnixFileStream::CheckClosed() {
     throw Exception(u"File is closed.");
   }
 }
-}  // namespace cru::io
+}  // namespace cru::platform::unix

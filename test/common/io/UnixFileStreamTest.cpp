@@ -1,5 +1,5 @@
 #include "cru/common/io/OpenFileFlag.hpp"
-#include "cru/common/io/UnixFileStream.hpp"
+#include "cru/common/platform/unix/UnixFileStream.hpp"
 
 #include <gtest/gtest.h>
 
@@ -9,6 +9,7 @@
 TEST(UnixFileStream, Work) {
   using namespace cru;
   using namespace cru::io;
+  using namespace cru::platform::unix;
 
   auto temp_file_path =
       (std::filesystem::temp_directory_path() / "cru_test_temp.XXXXXX")

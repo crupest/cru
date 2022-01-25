@@ -17,8 +17,8 @@ target_compile_definitions(cru_base PUBLIC $<$<CONFIG:Debug>:CRU_DEBUG>)
 
 if (UNIX)
 	target_sources(cru_base PRIVATE
-		ErrnoException.cpp
-		io/UnixFileStream.cpp
+		platform/unix/ErrnoException.cpp
+		platform/unix/UnixFileStream.cpp
 	)
 endif()
 

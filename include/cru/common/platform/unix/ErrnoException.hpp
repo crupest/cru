@@ -1,13 +1,13 @@
 #pragma once
 
-#include "PreConfig.hpp"
+#include "../../PreConfig.hpp"
 
 #ifdef CRU_PLATFORM_UNIX
 
-#include "Exception.hpp"
+#include "../Exception.hpp"
 
-namespace cru {
-class ErrnoException : public Exception {
+namespace cru::platform::unix {
+class ErrnoException : public PlatformException {
  public:
   ErrnoException() : ErrnoException(String{}) {}
   explicit ErrnoException(const String& message);
@@ -23,6 +23,6 @@ class ErrnoException : public Exception {
  private:
   int errno_code_;
 };
-}  // namespace cru
+}  // namespace cru::platform::unix
 
 #endif

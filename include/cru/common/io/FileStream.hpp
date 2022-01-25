@@ -1,9 +1,9 @@
 #pragma once
 
 #ifdef CRU_PLATFORM_UNIX
-#include "UnixFileStream.hpp"
+#include "../platform/unix/UnixFileStream.hpp"
 namespace cru::io {
-using FileStream = UnixFileStream;
+using FileStream = platform::unix::UnixFileStream;
 }
 #elif CRU_PLATFORM_WINDOWS
 #include "../platform/win/Win32FileStream.hpp"
