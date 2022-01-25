@@ -25,6 +25,7 @@ if (MSVC)
 endif()
 
 set(CRU_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include)
+set(CRU_ASSETS_DIR ${PROJECT_SOURCE_DIR}/assets)
 
 add_subdirectory(src)
 add_subdirectory(test)

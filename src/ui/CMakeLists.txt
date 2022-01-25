@@ -1,5 +1,3 @@
-set(CRU_UI_INCLUDE_DIR ${CRU_INCLUDE_DIR}/cru/ui)
-
 add_library(cru_ui SHARED
 	Helper.cpp
 	ThemeManager.cpp
@@ -61,3 +59,10 @@ add_library(cru_ui SHARED
 )
 target_compile_definitions(cru_ui PRIVATE CRU_UI_EXPORT_API)
 target_link_libraries(cru_ui PUBLIC cru_platform_gui cru_xml)
+
+file(GLOB_RECURSE CRU_UI_RES_SOURCES "${CRU_ASSETS_DIR}/cru/ui/*")
+target_sources(cru_ui PUBLIC ${CRU_UI_RES_SOURCES})
+foreach (CRU_UI_RES_FILE ${CRU_UI_RES_SOURCES})
+	file(RELATIVE_PATH CRU_UI_RES_PATH ${CRU_ASSETS_DIR} ${CRU_UI_RES_FILE})
+	set_property(SOURCE ${CRU_UI_RES_FILE} PROPERTY MACOSX_PACKAGE_LOCATION "Resources/${CRU_UI_RES_PATH}")
+endforeach(CRU_UI_RES_FILE)
