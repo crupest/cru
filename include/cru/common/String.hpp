@@ -5,6 +5,7 @@
 #include "StringUtil.hpp"
 
 #include <double-conversion/double-conversion.h>
+#include <filesystem>
 #include <initializer_list>
 #include <iterator>
 #include <string>
@@ -49,6 +50,8 @@ class CRU_BASE_API String {
   static String FromBuffer(pointer buffer, Index size, Index capacity) {
     return String{from_buffer_tag{}, buffer, size, capacity};
   }
+
+  static String FromStdPath(const std::filesystem::path& path);
 
 #ifdef CRU_PLATFORM_WINDOWS
   static String FromUtf16(wchar_t* str) { return String(str); }

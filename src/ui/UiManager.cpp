@@ -3,6 +3,7 @@
 #include "Helper.hpp"
 #include "cru/common/io/FileStream.hpp"
 #include "cru/common/io/OpenFileFlag.hpp"
+#include "cru/common/io/Resource.hpp"
 #include "cru/platform/graphics/Brush.hpp"
 #include "cru/platform/graphics/Factory.hpp"
 #include "cru/platform/graphics/Font.hpp"
@@ -37,9 +38,14 @@ UiManager* UiManager::GetInstance() {
 UiManager::UiManager() {
   const auto factory = GetGraphicsFactory();
 
-   // TODO: Resource file path!!!
-  ReadResourcesFile(
-      u"/Users/crupest/codes/cru/assets/cru/ui/DefaultResources.xml");
+  std::filesystem::path resourses_file =
+      cru::io::GetResourceDir() / "cru/ui/DefaultResources.xml";
+
+  if (!std::filesystem::exists(resourses_file)) {
+    throw Exception(u"Default resources file not found.");
+  }
+
+  ReadResourcesFile(String::FromStdPath(resourses_file));
 
   theme_resource_.default_font_family = u"";
 

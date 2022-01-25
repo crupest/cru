@@ -7,10 +7,19 @@
 #endif
 
 namespace cru::io {
-std::unique_ptr<Stream> CreateStreamFromResourcePath(const String& path) {
+std::filesystem::path GetResourceDir() {
 #if defined(CRU_PLATFORM_OSX)
-  // CFBundleRef main_bundle = CFBundleGetMainBundle();
-  throw Exception(u"Not implemented.");
+  CFBundleRef main_bundle = CFBundleGetMainBundle();
+  CFURLRef bundle_url = CFBundleCopyBundleURL(main_bundle);
+  CFStringRef cf_string_ref =
+      CFURLCopyFileSystemPath(bundle_url, kCFURLPOSIXPathStyle);
+  std::filesystem::path bundle_path(
+      CFStringGetCStringPtr(cf_string_ref, kCFStringEncodingUTF8));
+
+  CFRelease(bundle_url);
+  CFRelease(cf_string_ref);
+
+  return bundle_path / "Contents/Resources";
 #elif defined(CRU_PLATFORM_WINDOWS)
   throw Exception(u"Not implemented.");
 #else

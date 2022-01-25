@@ -8,4 +8,5 @@ if(APPLE)
 	)
 endif()
 
+target_add_resources(demo_main cru/ui)
 target_link_libraries(demo_main PRIVATE cru_demo_base cru_ui)

@@ -27,6 +27,17 @@ endif()
 set(CRU_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include)
 set(CRU_ASSETS_DIR ${PROJECT_SOURCE_DIR}/assets)
 
+function(target_add_resources target res_dir)
+	message("Add resources for target ${target} with files ${res_dir}.")
+
+	file(GLOB_RECURSE RES_SOURCES "${CRU_ASSETS_DIR}/${res_dir}/*")
+	target_sources(${target} PUBLIC ${RES_SOURCES})
+	foreach (RES_FILE ${RES_SOURCES})
+		file(RELATIVE_PATH RES_PATH ${CRU_ASSETS_DIR} ${RES_FILE})
+		set_property(SOURCE ${RES_FILE} PROPERTY MACOSX_PACKAGE_LOCATION "Resources/${RES_PATH}/..")
+	endforeach(RES_FILE)
+endfunction()
+
 add_subdirectory(src)
 add_subdirectory(test)
 add_subdirectory(demos)

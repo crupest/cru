@@ -33,6 +33,10 @@ String String::FromUtf8(const char* str, Index size) {
   return result;
 }
 
+String String::FromStdPath(const std::filesystem::path& path) {
+  return String::FromUtf8(path.string());
+}
+
 char16_t String::kEmptyBuffer[1] = {0};
 
 String::String(const_pointer str) : String(str, GetStrSize(str)) {}

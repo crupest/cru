@@ -1,10 +1,8 @@
 #pragma once
-
 #include "../Base.hpp"
-#include "Stream.hpp"
 
-#include <memory>
+#include <filesystem>
 
 namespace cru::io {
-std::unique_ptr<Stream> CreateStreamFromResourcePath(const String& path);
+std::filesystem::path CRU_BASE_API GetResourceDir();
 }
