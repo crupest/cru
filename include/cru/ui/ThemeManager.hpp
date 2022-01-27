@@ -8,6 +8,9 @@
 #include "cru/ui/style/StyleRuleSet.hpp"
 #include "cru/xml/XmlNode.hpp"
 
+#include <any>
+#include <typeindex>
+#include <typeinfo>
 #include <unordered_map>
 
 namespace cru::ui {
@@ -40,6 +43,8 @@ class CRU_UI_API ThemeManager : public Object {
 
   void ReadResourcesFile(const String& file_path);
 
+  void SetThemeXml(xml::XmlElementNode* root);
+
   template <typename T>
   T GetResource(const String& key) {
     auto find_result = theme_resource_map_.find(key);
@@ -48,9 +53,17 @@ class CRU_UI_API ThemeManager : public Object {
           Format(u"Theme resource key \"%s\" not exist.", key));
     }
 
+    auto& cache = find_result->second.cache;
+    auto cache_find_result = cache.find(typeid(T));
+    if (cache_find_result != cache.cend()) {
+      return std::any_cast<T>(cache_find_result->second);
+    }
+
     auto mapper_registry = mapper::MapperRegistry::GetInstance();
     auto mapper = mapper_registry->GetMapper<T>();
-    return mapper->MapFromXml(find_result->second);
+    auto resource = mapper->MapFromXml(find_result->second.xml_node);
+    cache[typeid(T)] = resource;
+    return resource;
   }
 
   std::shared_ptr<platform::graphics::IBrush> GetResourceBrush(
@@ -62,8 +75,18 @@ class CRU_UI_API ThemeManager : public Object {
       const String& key);
 
  private:
+  struct ResourceEntry {
+    CRU_DEFAULT_CONSTRUCTOR_DESTRUCTOR(ResourceEntry)
+    CRU_DEFAULT_COPY(ResourceEntry)
+    CRU_DEFAULT_MOVE(ResourceEntry)
+
+    String name;
+    xml::XmlElementNode* xml_node;
+    std::unordered_map<std::type_index, std::any> cache;
+  };
+
   Event<std::nullptr_t> theme_resource_change_event_;
   std::unique_ptr<xml::XmlElementNode> theme_resource_xml_root_;
-  std::unordered_map<String, xml::XmlElementNode*> theme_resource_map_;
+  std::unordered_map<String, ResourceEntry> theme_resource_map_;
 };
 }  // namespace cru::ui

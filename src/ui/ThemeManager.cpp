@@ -49,11 +49,15 @@ void ThemeManager::ReadResourcesFile(const String& file_path) {
   io::FileStream stream(file_path, io::OpenFileFlags::Read);
   auto xml_string = stream.ReadAllAsString();
   auto parser = xml::XmlParser(xml_string);
-  theme_resource_xml_root_.reset(parser.Parse());
+  SetThemeXml(parser.Parse());
+}
+
+void ThemeManager::SetThemeXml(xml::XmlElementNode* root) {
+  theme_resource_xml_root_.reset(root);
   theme_resource_map_.clear();
 
   if (!theme_resource_xml_root_->GetTag().CaseInsensitiveEqual(u"Theme")) {
-    throw Exception(u"Root tag of theme resource file must be \"Theme\".");
+    throw Exception(u"Root tag of theme must be \"Theme\".");
   }
 
   for (auto child : theme_resource_xml_root_->GetChildren()) {
@@ -64,10 +68,20 @@ void ThemeManager::ReadResourcesFile(const String& file_path) {
         if (!key_attr) {
           throw Exception(u"\"key\" attribute is required for resource.");
         }
-        theme_resource_map_[*key_attr] = c->GetFirstChildElement();
+        if (!c->GetChildElementCount()) {
+          throw Exception(u"Resource must have only one child element.");
+        }
+
+        ResourceEntry entry;
+
+        entry.name = *key_attr;
+        entry.xml_node = c->GetFirstChildElement();
+
+        theme_resource_map_[entry.name] = std::move(entry);
       }
     }
   }
-}
 
+  theme_resource_change_event_.Raise(nullptr);
+}
 }  // namespace cru::ui

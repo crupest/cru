@@ -1,4 +1,5 @@
 #include "cru/xml/XmlNode.hpp"
+#include <algorithm>
 
 namespace cru::xml {
 
@@ -30,6 +31,12 @@ void XmlElementNode::AddChild(XmlNode* child) {
   Expects(child->GetParent() == nullptr);
   children_.push_back(child);
   child->parent_ = this;
+}
+
+Index XmlElementNode::GetChildElementCount() const {
+  return std::count_if(
+      children_.cbegin(), children_.cend(),
+      [](xml::XmlNode* node) { return node->IsElementNode(); });
 }
 
 XmlElementNode* XmlElementNode::GetFirstChildElement() const {
