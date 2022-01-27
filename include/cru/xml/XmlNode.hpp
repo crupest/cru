@@ -33,6 +33,9 @@ class CRU_XML_API XmlNode {
 
   virtual XmlNode* Clone() const = 0;
 
+  bool IsTextNode() const { return type_ == Type::Text; }
+  bool IsElementNode() const { return type_ == Type::Element; }
+
   XmlElementNode* AsElement();
   XmlTextNode* AsText();
   const XmlElementNode* AsElement() const;

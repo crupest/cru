@@ -1,6 +1,7 @@
 #include "cru/ui/mapper/BorderStyleMapper.hpp"
 #include "../Helper.hpp"
 #include "cru/common/Logger.hpp"
+#include "cru/platform/graphics/Brush.hpp"
 #include "cru/platform/graphics/Factory.hpp"
 #include "cru/ui/mapper/MapperRegistry.hpp"
 #include "cru/ui/style/ApplyBorderStyleInfo.hpp"
@@ -27,14 +28,14 @@ ApplyBorderStyleInfo BorderStyleMapper::DoMapFromXml(
           MapperRegistry::GetInstance()->GetMapper<Thickness>();
       auto corner_radius_mapper =
           MapperRegistry::GetInstance()->GetMapper<CornerRadius>();
-      auto color_mapper = MapperRegistry::GetInstance()->GetMapper<Color>();
+      auto brush_mapper = MapperRegistry::GetInstance()
+                              ->GetRefMapper<platform::graphics::IBrush>();
       if (thickness_mapper->XmlElementIsOfThisType(c)) {
         result.border_thickness = thickness_mapper->MapFromXml(c);
       } else if (corner_radius_mapper->XmlElementIsOfThisType(c)) {
         result.border_radius = corner_radius_mapper->MapFromXml(c);
-      } else if (color_mapper->XmlElementIsOfThisType(c)) {
-        auto brush = GetGraphicsFactory()->CreateSolidColorBrush(
-            color_mapper->MapFromXml(c));
+      } else if (brush_mapper->XmlElementIsOfThisType(c)) {
+        auto brush = brush_mapper->MapFromXml(c);
         auto name = c->GetOptionalAttributeCaseInsensitive(u"name");
         if (name) {
           if (name->CaseInsensitiveCompare(u"foreground") == 0) {

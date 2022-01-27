@@ -1,0 +1,40 @@
+#include "cru/ui/mapper/BrushMapper.hpp"
+#include "../Helper.hpp"
+#include "cru/platform/Color.hpp"
+#include "cru/platform/graphics/Brush.hpp"
+#include "cru/platform/graphics/Factory.hpp"
+#include "cru/ui/mapper/ColorMapper.hpp"
+#include "cru/ui/mapper/MapperRegistry.hpp"
+#include "cru/xml/XmlNode.hpp"
+
+#include <memory>
+
+namespace cru::ui::mapper {
+bool BrushMapper::XmlElementIsOfThisType(xml::XmlElementNode* node) {
+  auto color_mapper = MapperRegistry::GetInstance()->GetMapper<Color>();
+  return color_mapper->XmlElementIsOfThisType(node) ||
+         node->GetTag().CaseInsensitiveEqual(u"Brush");
+}
+
+std::shared_ptr<platform::graphics::IBrush> BrushMapper::DoMapFromXml(
+    xml::XmlElementNode* node) {
+  auto color_mapper = MapperRegistry::GetInstance()->GetMapper<Color>();
+
+  Color color = colors::transparent;
+
+  if (color_mapper->XmlElementIsOfThisType(node)) {
+    color = color_mapper->MapFromXml(node);
+  } else {
+    for (auto child : node->GetChildren()) {
+      if (child->IsElementNode()) {
+        auto c = child->AsElement();
+        if (color_mapper->XmlElementIsOfThisType(node)) {
+          color = color_mapper->MapFromXml(node);
+        }
+      }
+    }
+  }
+
+  return GetGraphicsFactory()->CreateSolidColorBrush(color);
+}
+}  // namespace cru::ui::mapper

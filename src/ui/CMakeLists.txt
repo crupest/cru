@@ -25,6 +25,7 @@ add_library(cru_ui SHARED
 	host/LayoutPaintCycler.cpp
 	host/WindowHost.cpp
 	mapper/BorderStyleMapper.cpp
+	mapper/BrushMapper.cpp
 	mapper/ColorMapper.cpp
 	mapper/CornerRadiusMapper.cpp
 	mapper/CursorMapper.cpp
