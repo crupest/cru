@@ -1,7 +1,6 @@
 #include "cru/ui/controls/TextBox.hpp"
 
 #include "cru/ui/ThemeManager.hpp"
-#include "cru/ui/UiManager.hpp"
 #include "cru/ui/render/BorderRenderObject.hpp"
 #include "cru/ui/render/CanvasRenderObject.hpp"
 #include "cru/ui/render/ScrollRenderObject.hpp"
@@ -16,12 +15,13 @@ using render::TextRenderObject;
 TextBox::TextBox()
     : border_render_object_(new BorderRenderObject()),
       scroll_render_object_(new ScrollRenderObject()) {
-  const auto theme_resources = UiManager::GetInstance()->GetThemeResources();
   auto theme_manager = ThemeManager::GetInstance();
 
   text_render_object_ = std::make_unique<TextRenderObject>(
-      theme_resources->text_brush, theme_resources->default_font,
-      theme_resources->text_selection_brush, theme_resources->caret_brush);
+      theme_manager->GetResourceBrush(u"text.brush"),
+      theme_manager->GetResourceFont(u"text.font"),
+      theme_manager->GetResourceBrush(u"text.selection.brush"),
+      theme_manager->GetResourceBrush(u"text.caret.brush"));
   text_render_object_->SetEditMode(true);
 
   border_render_object_->AddChild(scroll_render_object_.get(), 0);

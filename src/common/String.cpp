@@ -290,7 +290,7 @@ String& String::Trim() {
 }
 
 void String::AppendCodePoint(CodePoint code_point) {
-  if (Utf16EncodeCodePointAppend(code_point, *this)) {
+  if (!Utf16EncodeCodePointAppend(code_point, *this)) {
     throw TextEncodeException(u"Code point out of range.");
   }
 }

@@ -1,6 +1,6 @@
 #include "cru/ui/controls/TextBlock.hpp"
 
-#include "cru/ui/UiManager.hpp"
+#include "cru/ui/ThemeManager.hpp"
 #include "cru/ui/render/CanvasRenderObject.hpp"
 #include "cru/ui/render/StackLayoutRenderObject.hpp"
 #include "cru/ui/render/TextRenderObject.hpp"
@@ -18,11 +18,13 @@ TextBlock* TextBlock::Create(String text, bool selectable) {
 }
 
 TextBlock::TextBlock() {
-  const auto theme_resources = UiManager::GetInstance()->GetThemeResources();
+  const auto theme_manager = ThemeManager::GetInstance();
 
   text_render_object_ = std::make_unique<TextRenderObject>(
-      theme_resources->text_brush, theme_resources->default_font,
-      theme_resources->text_selection_brush, theme_resources->caret_brush);
+      theme_manager->GetResourceBrush(u"text.brush"),
+      theme_manager->GetResourceFont(u"text.font"),
+      theme_manager->GetResourceBrush(u"text.selection.brush"),
+      theme_manager->GetResourceBrush(u"text.caret.brush"));
 
   text_render_object_->SetAttachedControl(this);
 

@@ -56,6 +56,8 @@ class CRU_UI_API ThemeManager : public Object {
   std::shared_ptr<platform::graphics::IBrush> GetResourceBrush(
       const String& key);
 
+  std::shared_ptr<platform::graphics::IFont> GetResourceFont(const String& key);
+
   std::shared_ptr<style::StyleRuleSet> GetResourceStyleRuleSet(
       const String& key);
 

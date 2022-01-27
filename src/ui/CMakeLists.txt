@@ -1,7 +1,6 @@
 add_library(cru_ui SHARED
 	Helper.cpp
 	ThemeManager.cpp
-	UiManager.cpp
 	components/Component.cpp
 	components/Menu.cpp
 	controls/Button.cpp
@@ -29,6 +28,7 @@ add_library(cru_ui SHARED
 	mapper/ColorMapper.cpp
 	mapper/CornerRadiusMapper.cpp
 	mapper/CursorMapper.cpp
+	mapper/FontMapper.cpp
 	mapper/Mapper.cpp
 	mapper/MapperRegistry.cpp
 	mapper/PointMapper.cpp

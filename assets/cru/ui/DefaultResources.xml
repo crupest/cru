@@ -1,4 +1,17 @@
 <Theme>
+    <Resource key="text.font">
+        <Font />
+    </Resource>
+    <Resource key="text.brush">
+        <Color value="black" />
+    </Resource>
+    <Resource key="text.selection.brush">
+        <Color value="skyblue" />
+    </Resource>
+    <Resource key="text.caret.brush">
+        <Color value="black" />
+    </Resource>
+
     <Resource key="scrollbar.collapse-thumb.color">
         <Color value="gray" alpha="0.5" />
     </Resource>

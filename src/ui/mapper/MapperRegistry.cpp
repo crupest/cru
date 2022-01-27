@@ -4,6 +4,7 @@
 #include "cru/ui/mapper/ColorMapper.hpp"
 #include "cru/ui/mapper/CornerRadiusMapper.hpp"
 #include "cru/ui/mapper/CursorMapper.hpp"
+#include "cru/ui/mapper/FontMapper.hpp"
 #include "cru/ui/mapper/PointMapper.hpp"
 #include "cru/ui/mapper/SizeMapper.hpp"
 #include "cru/ui/mapper/ThicknessMapper.hpp"
@@ -29,6 +30,7 @@ MapperRegistry::MapperRegistry() {
 
   RegisterMapper(new BrushMapper());
   RegisterMapper(new CornerRadiusMapper());
+  RegisterMapper(new FontMapper());
   RegisterMapper(new PointMapper());
   RegisterMapper(new SizeMapper());
   RegisterMapper(new ThicknessMapper());

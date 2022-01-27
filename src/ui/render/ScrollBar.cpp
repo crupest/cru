@@ -11,7 +11,6 @@
 #include "cru/platform/gui/Cursor.hpp"
 #include "cru/ui/Base.hpp"
 #include "cru/ui/ThemeManager.hpp"
-#include "cru/ui/UiManager.hpp"
 #include "cru/ui/events/UiEvents.hpp"
 #include "cru/ui/helper/ClickDetector.hpp"
 #include "cru/ui/host/WindowHost.hpp"

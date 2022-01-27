@@ -5,7 +5,6 @@
 #include "cru/platform/gui/Cursor.hpp"
 #include "cru/platform/gui/UiApplication.hpp"
 #include "cru/ui/ThemeManager.hpp"
-#include "cru/ui/UiManager.hpp"
 #include "cru/ui/helper/ClickDetector.hpp"
 #include "cru/ui/render/BorderRenderObject.hpp"
 

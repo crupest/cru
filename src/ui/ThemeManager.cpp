@@ -35,6 +35,11 @@ std::shared_ptr<platform::graphics::IBrush> ThemeManager::GetResourceBrush(
   return GetResource<std::shared_ptr<platform::graphics::IBrush>>(key);
 }
 
+std::shared_ptr<platform::graphics::IFont> ThemeManager::GetResourceFont(
+    const String& key) {
+  return GetResource<std::shared_ptr<platform::graphics::IFont>>(key);
+}
+
 std::shared_ptr<style::StyleRuleSet> ThemeManager::GetResourceStyleRuleSet(
     const String& key) {
   return GetResource<std::shared_ptr<style::StyleRuleSet>>(key);

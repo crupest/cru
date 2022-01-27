@@ -2,7 +2,6 @@
 #include <functional>
 #include "cru/platform/gui/Window.hpp"
 #include "cru/ui/ThemeManager.hpp"
-#include "cru/ui/UiManager.hpp"
 #include "cru/ui/controls/Button.hpp"
 #include "cru/ui/controls/Control.hpp"
 #include "cru/ui/controls/FlexLayout.hpp"
