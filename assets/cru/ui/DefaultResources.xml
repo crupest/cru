@@ -1,9 +1,57 @@
 <Theme>
     <Resource key="scrollbar.collapse-thumb.color">
-        <Color value="gray" />
+        <Color value="gray" alpha="0.5" />
+    </Resource>
+    <Resource key="scrollbar.arrow.normal.color">
+        <Color value="#505050" />
+    </Resource>
+    <Resource key="scrollbar.arrow.hover.color">
+        <Color value="#505050" />
+    </Resource>
+    <Resource key="scrollbar.arrow.press.color">
+        <Color value="#ffffff" />
+    </Resource>
+    <Resource key="scrollbar.arrow.disable.color">
+        <Color value="#a3a3a3" />
+    </Resource>
+    <Resource key="scrollbar.arrow-background.normal.color">
+        <Color value="#f1f1f1" />
+    </Resource>
+    <Resource key="scrollbar.arrow-background.hover.color">
+        <Color value="#d2d2d2" />
+    </Resource>
+    <Resource key="scrollbar.arrow-background.press.color">
+        <Color value="#787878" />
+    </Resource>
+    <Resource key="scrollbar.arrow-background.disable.color">
+        <Color value="#f1f1f1" />
+    </Resource>
+    <Resource key="scrollbar.slot.normal.color">
+        <Color value="#f1f1f1" />
+    </Resource>
+    <Resource key="scrollbar.slot.hover.color">
+        <Color value="#f1f1f1" />
+    </Resource>
+    <Resource key="scrollbar.slot.press.color">
+        <Color value="#f1f1f1" />
+    </Resource>
+    <Resource key="scrollbar.slot.disable.color">
+        <Color value="#f1f1f1" />
+    </Resource>
+    <Resource key="scrollbar.thumb.normal.color">
+        <Color value="#c1c1c1" />
+    </Resource>
+    <Resource key="scrollbar.thumb.hover.color">
+        <Color value="#a8a8a8" />
+    </Resource>
+    <Resource key="scrollbar.thumb.press.color">
+        <Color value="#787878" />
+    </Resource>
+    <Resource key="scrollbar.thumb.disable.color">
+        <Color value="#c1c1c1" />
     </Resource>
 
-    <Resource key="button-style">
+    <Resource key="button.style">
         <StyleRuleSet>
             <StyleRule>
                 <NoCondition />
@@ -61,7 +109,7 @@
         </StyleRuleSet>
     </Resource>
 
-    <Resource key="text-box-style">
+    <Resource key="textbox.style">
         <StyleRuleSet>
             <StyleRule>
                 <NoCondition />
@@ -97,5 +145,9 @@
                 </BorderStyler>
             </StyleRule>
         </StyleRuleSet>
+    </Resource>
+
+    <Resource key="menuitem.style">
+        <StyleRuleSet></StyleRuleSet>
     </Resource>
 </Theme>

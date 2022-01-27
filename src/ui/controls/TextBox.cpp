@@ -1,5 +1,6 @@
 #include "cru/ui/controls/TextBox.hpp"
 
+#include "cru/ui/ThemeManager.hpp"
 #include "cru/ui/UiManager.hpp"
 #include "cru/ui/render/BorderRenderObject.hpp"
 #include "cru/ui/render/CanvasRenderObject.hpp"
@@ -16,6 +17,7 @@ TextBox::TextBox()
     : border_render_object_(new BorderRenderObject()),
       scroll_render_object_(new ScrollRenderObject()) {
   const auto theme_resources = UiManager::GetInstance()->GetThemeResources();
+  auto theme_manager = ThemeManager::GetInstance();
 
   text_render_object_ = std::make_unique<TextRenderObject>(
       theme_resources->text_brush, theme_resources->default_font,
@@ -37,7 +39,8 @@ TextBox::TextBox()
 
   border_render_object_->SetBorderEnabled(true);
 
-  GetStyleRuleSet()->SetParent(theme_resources->text_box_style.get());
+  GetStyleRuleSet()->SetParent(
+      theme_manager->GetResourceStyleRuleSet(u"textbox.style"));
 }
 
 TextBox::~TextBox() {}

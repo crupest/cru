@@ -4,6 +4,7 @@
 #include "cru/platform/graphics/Brush.hpp"
 #include "cru/platform/gui/Cursor.hpp"
 #include "cru/platform/gui/UiApplication.hpp"
+#include "cru/ui/ThemeManager.hpp"
 #include "cru/ui/UiManager.hpp"
 #include "cru/ui/helper/ClickDetector.hpp"
 #include "cru/ui/render/BorderRenderObject.hpp"
@@ -16,8 +17,8 @@ Button::Button() : click_detector_(this) {
   render_object_->SetBorderEnabled(true);
 
   auto default_button_style =
-      UiManager::GetInstance()->GetThemeResources()->button_style.get();
-  GetStyleRuleSet()->SetParent(default_button_style);
+      ThemeManager::GetInstance()->GetResourceStyleRuleSet(u"button.style");
+  GetStyleRuleSet()->SetParent(std::move(default_button_style));
 }
 
 Button::~Button() = default;

@@ -1,5 +1,6 @@
 #include "cru/ui/mapper/MapperRegistry.hpp"
 #include "cru/ui/mapper/BorderStyleMapper.hpp"
+#include "cru/ui/mapper/BrushMapper.hpp"
 #include "cru/ui/mapper/ColorMapper.hpp"
 #include "cru/ui/mapper/CornerRadiusMapper.hpp"
 #include "cru/ui/mapper/CursorMapper.hpp"
@@ -26,6 +27,7 @@ MapperRegistry *MapperRegistry::GetInstance() {
 MapperRegistry::MapperRegistry() {
   using namespace style;
 
+  RegisterMapper(new BrushMapper());
   RegisterMapper(new CornerRadiusMapper());
   RegisterMapper(new PointMapper());
   RegisterMapper(new SizeMapper());

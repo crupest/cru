@@ -67,7 +67,7 @@ class CRU_UI_API Control : public Object {
   void SetCursor(std::shared_ptr<platform::gui::ICursor> cursor);
 
  public:
-  style::StyleRuleSet* GetStyleRuleSet();
+  std::shared_ptr<style::StyleRuleSet> GetStyleRuleSet();
 
   //*************** region: events ***************
  public:
@@ -151,7 +151,7 @@ class CRU_UI_API Control : public Object {
 
   std::shared_ptr<platform::gui::ICursor> cursor_ = nullptr;
 
-  std::unique_ptr<style::StyleRuleSet> style_rule_set_;
+  std::shared_ptr<style::StyleRuleSet> style_rule_set_;
   std::unique_ptr<style::StyleRuleSetBind> style_rule_set_bind_;
 };
 }  // namespace cru::ui::controls

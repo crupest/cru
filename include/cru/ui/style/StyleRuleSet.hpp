@@ -9,7 +9,7 @@ namespace cru::ui::style {
 class StyleRuleSet : public Object {
  public:
   StyleRuleSet() = default;
-  explicit StyleRuleSet(StyleRuleSet* parent);
+  explicit StyleRuleSet(std::shared_ptr<StyleRuleSet> parent);
 
   CRU_DELETE_COPY(StyleRuleSet)
   CRU_DELETE_MOVE(StyleRuleSet)
@@ -17,8 +17,8 @@ class StyleRuleSet : public Object {
   ~StyleRuleSet() override = default;
 
  public:
-  StyleRuleSet* GetParent() const { return parent_; }
-  void SetParent(StyleRuleSet* parent);
+  std::shared_ptr<StyleRuleSet> GetParent() const { return parent_; }
+  void SetParent(std::shared_ptr<StyleRuleSet> parent);
 
   gsl::index GetSize() const { return static_cast<gsl::index>(rules_.size()); }
   const std::vector<StyleRule>& GetRules() const { return rules_; }
@@ -47,7 +47,7 @@ class StyleRuleSet : public Object {
  private:
   Event<std::nullptr_t> change_event_;
 
-  StyleRuleSet* parent_ = nullptr;
+  std::shared_ptr<StyleRuleSet> parent_ = nullptr;
   EventRevokerGuard parent_change_event_guard_;
 
   std::vector<StyleRule> rules_;
@@ -55,7 +55,8 @@ class StyleRuleSet : public Object {
 
 class StyleRuleSetBind {
  public:
-  StyleRuleSetBind(controls::Control* control, StyleRuleSet* ruleset);
+  StyleRuleSetBind(controls::Control* control,
+                   std::shared_ptr<StyleRuleSet> ruleset);
 
   CRU_DELETE_COPY(StyleRuleSetBind)
   CRU_DELETE_MOVE(StyleRuleSetBind)
@@ -69,7 +70,7 @@ class StyleRuleSetBind {
 
  private:
   controls::Control* control_;
-  StyleRuleSet* ruleset_;
+  std::shared_ptr<StyleRuleSet> ruleset_;
 
   // child first, parent last.
   std::vector<StyleRuleSet*> ruleset_chain_cache_;

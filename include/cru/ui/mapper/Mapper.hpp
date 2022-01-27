@@ -69,11 +69,11 @@ class CRU_UI_API BasicMapper : public MapperBase {
 
   T MapFromXml(xml::XmlElementNode* node) {
     if (!SupportMapFromXml()) {
-      throw new Exception(u"This mapper does not support map from xml.");
+      throw Exception(u"This mapper does not support map from xml.");
     }
 
     if (!XmlElementIsOfThisType(node)) {
-      throw new Exception(u"This xml element is not of mapping type.");
+      throw Exception(u"This xml element is not of mapping type.");
     }
 
     return DoMapFromXml(node);

@@ -16,9 +16,9 @@ using platform::gui::IUiApplication;
 using platform::gui::SystemCursorType;
 
 Control::Control() {
-  style_rule_set_ = std::make_unique<style::StyleRuleSet>();
+  style_rule_set_ = std::make_shared<style::StyleRuleSet>();
   style_rule_set_bind_ =
-      std::make_unique<style::StyleRuleSetBind>(this, style_rule_set_.get());
+      std::make_unique<style::StyleRuleSetBind>(this, style_rule_set_);
 
   MouseEnterEvent()->Direct()->AddHandler([this](events::MouseEventArgs&) {
     this->is_mouse_over_ = true;
@@ -99,8 +99,8 @@ void Control::SetCursor(std::shared_ptr<ICursor> cursor) {
   }
 }
 
-style::StyleRuleSet* Control::GetStyleRuleSet() {
-  return style_rule_set_.get();
+std::shared_ptr<style::StyleRuleSet> Control::GetStyleRuleSet() {
+  return style_rule_set_;
 }
 
 void Control::AddChild(Control* control, const Index position) {

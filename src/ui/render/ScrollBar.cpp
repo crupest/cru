@@ -264,9 +264,10 @@ void ScrollBar::InstallHandlers(controls::Control* control) {
 
 gsl::not_null<std::shared_ptr<platform::graphics::IBrush>>
 ScrollBar::GetCollapsedThumbBrush() {
-  return collapsed_thumb_brush_ ? gsl::not_null(collapsed_thumb_brush_)
-                                : ThemeManager::GetInstance()->GetBrush(
-                                      u"scrollbar.collapse-thumb.color");
+  return collapsed_thumb_brush_
+             ? gsl::not_null(collapsed_thumb_brush_)
+             : gsl::not_null(ThemeManager::GetInstance()->GetResourceBrush(
+                   u"scrollbar.collapse-thumb.color"));
 }
 
 void ScrollBar::SetCollapsedThumbBrush(
@@ -280,8 +281,8 @@ gsl::not_null<std::shared_ptr<platform::graphics::IBrush>> ScrollBar::GetBrush(
     ScrollBarBrushUsageKind usage, ScrollBarBrushStateKind state) {
   auto b = brushes_[usage][state];
   return b ? gsl::not_null(b)
-           : ThemeManager::GetInstance()->GetBrush(
-                 GenerateScrollBarThemeColorKey(usage, state));
+           : gsl::not_null(ThemeManager::GetInstance()->GetResourceBrush(
+                 GenerateScrollBarThemeColorKey(usage, state)));
 }
 
 // Brush could be nullptr to use the theme brush.

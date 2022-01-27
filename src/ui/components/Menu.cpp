@@ -1,6 +1,7 @@
 #include "cru/ui/components/Menu.hpp"
 #include <functional>
 #include "cru/platform/gui/Window.hpp"
+#include "cru/ui/ThemeManager.hpp"
 #include "cru/ui/UiManager.hpp"
 #include "cru/ui/controls/Button.hpp"
 #include "cru/ui/controls/Control.hpp"
@@ -16,7 +17,7 @@ MenuItem::MenuItem() {
   text_ = controls::TextBlock::Create();
   container_->SetChild(text_);
   container_->GetStyleRuleSet()->SetParent(
-      &UiManager::GetInstance()->GetThemeResources()->menu_item_style);
+      ThemeManager::GetInstance()->GetResourceStyleRuleSet(u"menuitem.style"));
   container_->ClickEvent()->AddHandler([this](const helper::ClickEventArgs&) {
     if (this->on_click_) this->on_click_();
   });

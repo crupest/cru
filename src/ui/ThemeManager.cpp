@@ -1,10 +1,15 @@
 #include "cru/ui/ThemeManager.hpp"
+#include <memory>
 
 #include "Helper.hpp"
 #include "cru/common/StringUtil.hpp"
+#include "cru/common/io/FileStream.hpp"
+#include "cru/common/io/Resource.hpp"
 #include "cru/platform/graphics/Brush.hpp"
 #include "cru/platform/graphics/Factory.hpp"
 #include "cru/platform/gui/UiApplication.hpp"
+#include "cru/ui/style/StyleRuleSet.hpp"
+#include "cru/xml/XmlParser.hpp"
 
 namespace cru::ui {
 ThemeManager* ThemeManager::GetInstance() {
@@ -12,52 +17,52 @@ ThemeManager* ThemeManager::GetInstance() {
   return &instance;
 }
 
-ThemeManager::ThemeManager() { Init(); }
+ThemeManager::ThemeManager() {
+  std::filesystem::path resourses_file =
+      cru::io::GetResourceDir() / "cru/ui/DefaultResources.xml";
 
-void ThemeManager::Init() {
-  theme_resource_map_.emplace(u"scrollbar.collapse-thumb.color",
-                              colors::gray.WithAlpha(128).ToString());
-  theme_resource_map_.emplace(u"scrollbar.arrow.normal.color", u"#505050");
-  theme_resource_map_.emplace(u"scrollbar.arrow.hover.color", u"#505050");
-  theme_resource_map_.emplace(u"scrollbar.arrow.press.color", u"#ffffff");
-  theme_resource_map_.emplace(u"scrollbar.arrow.disable.color", u"#a3a3a3");
-  theme_resource_map_.emplace(u"scrollbar.arrow-background.normal.color",
-                              u"#f1f1f1");
-  theme_resource_map_.emplace(u"scrollbar.arrow-background.hover.color",
-                              u"#d2d2d2");
-  theme_resource_map_.emplace(u"scrollbar.arrow-background.press.color",
-                              u"#787878");
-  theme_resource_map_.emplace(u"scrollbar.arrow-background.disable.color",
-                              u"#f1f1f1");
-  theme_resource_map_.emplace(u"scrollbar.slot.normal.color", u"#f1f1f1");
-  theme_resource_map_.emplace(u"scrollbar.slot.hover.color", u"#f1f1f1");
-  theme_resource_map_.emplace(u"scrollbar.slot.press.color", u"#f1f1f1");
-  theme_resource_map_.emplace(u"scrollbar.slot.disable.color", u"#f1f1f1");
-  theme_resource_map_.emplace(u"scrollbar.thumb.normal.color", u"#c1c1c1");
-  theme_resource_map_.emplace(u"scrollbar.thumb.hover.color", u"#a8a8a8");
-  theme_resource_map_.emplace(u"scrollbar.thumb.press.color", u"#787878");
-  theme_resource_map_.emplace(u"scrollbar.thumb.disable.color", u"#c1c1c1");
+  if (!std::filesystem::exists(resourses_file)) {
+    throw Exception(u"Default resources file not found.");
+  }
+
+  ReadResourcesFile(String::FromStdPath(resourses_file));
 }
 
-gsl::not_null<std::shared_ptr<platform::graphics::IBrush>>
-ThemeManager::GetBrush(StringView key) {
-  auto k = key.ToString();
-  auto cached_brush_iter = brushes_.find(k);
-  if (cached_brush_iter != brushes_.cend()) {
-    return cached_brush_iter->second;
+ThemeManager::~ThemeManager() {}
+
+std::shared_ptr<platform::graphics::IBrush> ThemeManager::GetResourceBrush(
+    const String& key) {
+  return GetResource<std::shared_ptr<platform::graphics::IBrush>>(key);
+}
+
+std::shared_ptr<style::StyleRuleSet> ThemeManager::GetResourceStyleRuleSet(
+    const String& key) {
+  return GetResource<std::shared_ptr<style::StyleRuleSet>>(key);
+}
+
+void ThemeManager::ReadResourcesFile(const String& file_path) {
+  io::FileStream stream(file_path, io::OpenFileFlags::Read);
+  auto xml_string = stream.ReadAllAsString();
+  auto parser = xml::XmlParser(xml_string);
+  theme_resource_xml_root_.reset(parser.Parse());
+  theme_resource_map_.clear();
+
+  if (!theme_resource_xml_root_->GetTag().CaseInsensitiveEqual(u"Theme")) {
+    throw Exception(u"Root tag of theme resource file must be \"Theme\".");
   }
 
-  auto color_string_iter = theme_resource_map_.find(k);
-  if (color_string_iter == theme_resource_map_.cend()) {
-    throw ThemeResourceKeyNotExistException(u"Key do not exist.");
+  for (auto child : theme_resource_xml_root_->GetChildren()) {
+    if (child->IsElementNode()) {
+      auto c = child->AsElement();
+      if (c->GetTag().CaseInsensitiveEqual(u"Resource")) {
+        auto key_attr = c->GetOptionalAttributeCaseInsensitive(u"key");
+        if (!key_attr) {
+          throw Exception(u"\"key\" attribute is required for resource.");
+        }
+        theme_resource_map_[*key_attr] = c->GetFirstChildElement();
+      }
+    }
   }
-
-  auto color = Color::Parse(color_string_iter->second);
-  if (!color) throw BadThemeResourceException(u"Value is not a valid color.");
-  std::shared_ptr<platform::graphics::IBrush> brush =
-      GetUiApplication()->GetGraphicsFactory()->CreateSolidColorBrush(*color);
-  brushes_[k] = brush;
-  return brush;
 }
 
 }  // namespace cru::ui
