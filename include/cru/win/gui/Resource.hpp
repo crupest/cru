@@ -4,7 +4,8 @@
 #include "cru/platform/Resource.hpp"
 
 namespace cru::platform::gui::win {
-class WinNativeResource : public Object, public virtual IPlatformResource {
+class CRU_WIN_GUI_API WinNativeResource : public Object,
+                                          public virtual IPlatformResource {
  public:
   static String kPlatformId;
 

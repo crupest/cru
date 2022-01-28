@@ -6,7 +6,8 @@
 #include <memory>
 
 namespace cru::platform::gui::win {
-class WinCursor : public WinNativeResource, public virtual ICursor {
+class CRU_WIN_GUI_API WinCursor : public WinNativeResource,
+                                  public virtual ICursor {
   CRU_DEFINE_CLASS_LOG_TAG(u"cru::platform::gui::win::WinCursor")
 
  public:

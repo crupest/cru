@@ -1,11 +1,11 @@
 #pragma once
-#include "../../WinPreConfig.hpp"
+#include "Base.hpp"
 
 #include "cru/common/Base.hpp"
 
 namespace cru::platform::graphics::win::direct {
 template <typename TInterface>
-struct IComResource : virtual Interface {
+struct CRU_WIN_GRAPHICS_DIRECT_API IComResource : virtual Interface {
   virtual TInterface* GetComInterface() const = 0;
 };
 }  // namespace cru::platform::graphics::win::direct

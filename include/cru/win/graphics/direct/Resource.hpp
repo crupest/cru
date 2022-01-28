@@ -1,5 +1,5 @@
 #pragma once
-#include "../../WinPreConfig.hpp"
+#include "Base.hpp"
 
 #include "cru/platform/graphics/Resource.hpp"
 
@@ -8,7 +8,9 @@
 namespace cru::platform::graphics::win::direct {
 class DirectGraphicsFactory;
 
-class DirectResource : public Object, public virtual IPlatformResource {
+class CRU_WIN_GRAPHICS_DIRECT_API DirectResource
+    : public Object,
+      public virtual IPlatformResource {
  public:
   static String kPlatformId;
 
@@ -25,8 +27,9 @@ class DirectResource : public Object, public virtual IPlatformResource {
   String GetPlatformId() const final { return kPlatformId; }
 };
 
-class DirectGraphicsResource : public DirectResource,
-                            public virtual IGraphicsResource {
+class CRU_WIN_GRAPHICS_DIRECT_API DirectGraphicsResource
+    : public DirectResource,
+      public virtual IGraphicsResource {
  protected:
   // Param factory can't be null.
   explicit DirectGraphicsResource(DirectGraphicsFactory* factory);

@@ -16,7 +16,7 @@ DWriteFont::DWriteFont(DirectGraphicsFactory* factory, String font_family,
   if (!::GetUserDefaultLocaleName(buffer.data(),
                                   static_cast<int>(buffer.size())))
     throw platform::win::Win32Error(
-        ::GetLastError(), "Failed to get locale when create dwrite font.");
+        ::GetLastError(), u"Failed to get locale when create dwrite font.");
 
   ThrowIfFailed(factory->GetDWriteFactory()->CreateTextFormat(
       reinterpret_cast<const wchar_t*>(font_family_.c_str()), nullptr,

@@ -4,8 +4,9 @@
 #include "cru/platform/graphics/Factory.hpp"
 
 namespace cru::platform::graphics::win::direct {
-class DirectGraphicsFactory : public DirectResource,
-                              public virtual IGraphicsFactory {
+class CRU_WIN_GRAPHICS_DIRECT_API DirectGraphicsFactory
+    : public DirectResource,
+      public virtual IGraphicsFactory {
  public:
   DirectGraphicsFactory();
 

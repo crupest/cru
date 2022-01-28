@@ -1,10 +1,11 @@
-#include "cru/win/WinPreConfig.hpp"
+#pragma once
+#include "Base.hpp"
 
 #include "cru/common/Logger.hpp"
 
 namespace cru::platform::win {
 
-class WinDebugLoggerSource : public ::cru::log::ILogSource {
+class CRU_WIN_API WinDebugLoggerSource : public ::cru::log::ILogSource {
  public:
   WinDebugLoggerSource() = default;
 

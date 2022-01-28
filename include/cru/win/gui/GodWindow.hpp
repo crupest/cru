@@ -8,7 +8,7 @@
 #include <memory>
 
 namespace cru::platform::gui::win {
-class GodWindow : public Object {
+class CRU_WIN_GUI_API GodWindow : public Object {
   CRU_DEFINE_CLASS_LOG_TAG(u"cru::platform::gui::win::GodWindow")
 
  public:

@@ -7,9 +7,10 @@
 #include <vector>
 
 namespace cru::platform::graphics::win::direct {
-class D2DPainter : public DirectResource,
-                   public virtual IPainter,
-                   public virtual IComResource<ID2D1RenderTarget> {
+class CRU_WIN_GRAPHICS_DIRECT_API D2DPainter
+    : public DirectResource,
+      public virtual IPainter,
+      public virtual IComResource<ID2D1RenderTarget> {
  public:
   explicit D2DPainter(ID2D1RenderTarget* render_target);
 

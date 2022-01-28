@@ -10,9 +10,10 @@
 namespace cru::platform::graphics::win::direct {
 class DWriteFont;
 
-class DWriteTextLayout : public DirectGraphicsResource,
-                         public virtual ITextLayout,
-                         public virtual IComResource<IDWriteTextLayout> {
+class CRU_WIN_GRAPHICS_DIRECT_API DWriteTextLayout
+    : public DirectGraphicsResource,
+      public virtual ITextLayout,
+      public virtual IComResource<IDWriteTextLayout> {
  public:
   DWriteTextLayout(DirectGraphicsFactory* factory, std::shared_ptr<IFont> font,
                    String text);

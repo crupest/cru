@@ -11,7 +11,7 @@
 #include <imm.h>
 
 namespace cru::platform::gui::win {
-class AutoHIMC : public Object {
+class CRU_WIN_GUI_API AutoHIMC : public Object {
   CRU_DEFINE_CLASS_LOG_TAG(u"cru::platform::gui::win::AutoHIMC")
 
  public:
@@ -33,8 +33,9 @@ class AutoHIMC : public Object {
   HIMC handle_;
 };
 
-class WinInputMethodContext : public WinNativeResource,
-                              public virtual IInputMethodContext {
+class CRU_WIN_GUI_API WinInputMethodContext
+    : public WinNativeResource,
+      public virtual IInputMethodContext {
   CRU_DEFINE_CLASS_LOG_TAG(u"cru::platform::gui::win::WinInputMethodContext")
 
  public:

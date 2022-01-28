@@ -3,7 +3,8 @@
 #include "WindowRenderTarget.hpp"
 
 namespace cru::platform::graphics::win::direct {
-class D2DWindowPainter : public graphics::win::direct::D2DPainter {
+class CRU_WIN_GRAPHICS_DIRECT_API D2DWindowPainter
+    : public graphics::win::direct::D2DPainter {
  public:
   explicit D2DWindowPainter(D2DWindowRenderTarget* window);
 

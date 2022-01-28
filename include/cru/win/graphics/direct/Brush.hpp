@@ -5,14 +5,15 @@
 #include "cru/platform/graphics/Brush.hpp"
 
 namespace cru::platform::graphics::win::direct {
-struct ID2DBrush : virtual IBrush {
+struct CRU_WIN_GRAPHICS_DIRECT_API ID2DBrush : virtual IBrush {
   virtual ID2D1Brush* GetD2DBrushInterface() const = 0;
 };
 
-class D2DSolidColorBrush : public DirectGraphicsResource,
-                           public virtual ISolidColorBrush,
-                           public virtual ID2DBrush,
-                           public virtual IComResource<ID2D1SolidColorBrush> {
+class CRU_WIN_GRAPHICS_DIRECT_API D2DSolidColorBrush
+    : public DirectGraphicsResource,
+      public virtual ISolidColorBrush,
+      public virtual ID2DBrush,
+      public virtual IComResource<ID2D1SolidColorBrush> {
  public:
   explicit D2DSolidColorBrush(DirectGraphicsFactory* factory);
 

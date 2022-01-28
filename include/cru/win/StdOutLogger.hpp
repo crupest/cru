@@ -1,12 +1,10 @@
-#include "cru/common/Base.hpp"
-#include "cru/win/WinPreConfig.hpp"
+#pragma once
+#include "Base.hpp"
 
 #include "cru/common/Logger.hpp"
 
-#include <cwchar>
-
 namespace cru::platform::win {
-class WinStdOutLoggerSource : public ::cru::log::ILogSource {
+class CRU_WIN_API WinStdOutLoggerSource : public ::cru::log::ILogSource {
  public:
   WinStdOutLoggerSource() = default;
 
