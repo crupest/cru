@@ -80,6 +80,7 @@ class CRU_WIN_GUI_API WinUiApplication : public WinNativeResource,
   std::unique_ptr<WindowManager> window_manager_;
 
   std::unique_ptr<WinCursorManager> cursor_manager_;
+  std::unique_ptr<WinClipboard> clipboard_;
 
   std::vector<std::function<void()>> quit_handlers_;
 };

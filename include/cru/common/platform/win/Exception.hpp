@@ -38,9 +38,7 @@ class CRU_BASE_API Win32Error : public platform::PlatformException {
  public:
   // ::GetLastError is automatically called to get the error code.
   // The same as Win32Error(::GetLastError(), message)
-  [[deprecated]] explicit Win32Error(std::string_view message);
   explicit Win32Error(String message);
-  [[deprecated]] Win32Error(DWORD error_code, std::string_view message);
   Win32Error(DWORD error_code, String message);
 
   CRU_DEFAULT_COPY(Win32Error)

@@ -7,6 +7,8 @@
 #include "cru/win/DebugLogger.hpp"
 #include "cru/win/StdOutLogger.hpp"
 #include "cru/win/graphics/direct/Factory.hpp"
+#include "cru/win/gui/Base.hpp"
+#include "cru/win/gui/Clipboard.hpp"
 #include "cru/win/gui/Cursor.hpp"
 #include "cru/win/gui/Exception.hpp"
 #include "cru/win/gui/GodWindow.hpp"
@@ -43,6 +45,7 @@ WinUiApplication::WinUiApplication() {
   timer_manager_ = std::make_unique<TimerManager>(god_window_.get());
   window_manager_ = std::make_unique<WindowManager>(this);
   cursor_manager_ = std::make_unique<WinCursorManager>();
+  clipboard_ = std::make_unique<WinClipboard>(this);
 }
 
 WinUiApplication::~WinUiApplication() { instance = nullptr; }
@@ -112,9 +115,6 @@ ICursorManager* WinUiApplication::GetCursorManager() {
   return cursor_manager_.get();
 }
 
-IClipboard* WinUiApplication::GetClipboard() {
-  // TODO: Implement this.
-  return nullptr;
-}
+IClipboard* WinUiApplication::GetClipboard() { return clipboard_.get(); }
 
 }  // namespace cru::platform::gui::win

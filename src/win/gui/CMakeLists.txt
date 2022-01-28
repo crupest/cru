@@ -1,7 +1,5 @@
 add_library(cru_win_gui SHARED
-	TimerManager.hpp
-	WindowManager.hpp
-
+	Clipboard.cpp
 	Cursor.cpp
 	GodWindow.cpp
 	InputMethod.cpp

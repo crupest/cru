@@ -1,0 +1,82 @@
+#include "cru/win/gui/Clipboard.hpp"
+#include <winuser.h>
+#include "cru/common/Logger.hpp"
+#include "cru/win/gui/GodWindow.hpp"
+#include "cru/win/gui/UiApplication.hpp"
+
+namespace cru::platform::gui::win {
+WinClipboard::WinClipboard(WinUiApplication* application)
+    : application_(application) {}
+
+WinClipboard::~WinClipboard() {}
+
+String WinClipboard::GetText() {
+  auto god_window = application_->GetGodWindow();
+
+  if (!::OpenClipboard(god_window->GetHandle())) {
+    log::Warn(u"Failed to open clipboard.");
+    return {};
+  }
+
+  if (!::IsClipboardFormatAvailable(CF_UNICODETEXT)) {
+    log::Warn(u"Clipboard format for text is not available.");
+    return {};
+  }
+
+  auto handle = ::GetClipboardData(CF_UNICODETEXT);
+
+  if (handle == nullptr) {
+    log::Warn(u"Failed to get clipboard data.");
+    return {};
+  }
+
+  auto ptr = ::GlobalLock(handle);
+  if (ptr == nullptr) {
+    log::Warn(u"Failed to lock clipboard data.");
+    ::CloseClipboard();
+    return {};
+  }
+
+  String result(static_cast<wchar_t*>(ptr));
+
+  ::GlobalUnlock(handle);
+  ::CloseClipboard();
+
+  return result;
+}
+
+void WinClipboard::SetText(String text) {
+  auto god_window = application_->GetGodWindow();
+
+  if (!::OpenClipboard(god_window->GetHandle())) {
+    log::Warn(u"Failed to open clipboard.");
+    return;
+  }
+
+  auto handle = GlobalAlloc(GMEM_MOVEABLE, (text.size() + 1) * sizeof(wchar_t));
+
+  if (handle == nullptr) {
+    log::Warn(u"Failed to allocate clipboard data.");
+    ::CloseClipboard();
+    return;
+  }
+
+  auto ptr = ::GlobalLock(handle);
+  if (ptr == nullptr) {
+    log::Warn(u"Failed to lock clipboard data.");
+    ::GlobalFree(handle);
+    ::CloseClipboard();
+    return;
+  }
+
+  std::memcpy(ptr, text.c_str(), (text.size() + 1) * sizeof(wchar_t));
+
+  ::GlobalUnlock(handle);
+
+  if (::SetClipboardData(CF_UNICODETEXT, handle) == nullptr) {
+    log::Warn(u"Failed to set clipboard data.");
+  }
+
+  ::CloseClipboard();
+}
+}  // namespace cru::platform::gui::win

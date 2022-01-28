@@ -23,4 +23,5 @@ class WindowManager;
 class WinNativeWindow;
 class WinUiApplication;
 class WinInputMethodContext;
+class WinClipboard;
 }  // namespace cru::platform::gui::win
