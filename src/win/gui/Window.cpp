@@ -42,7 +42,7 @@ Rect CalcWindowRectFromClient(const Rect& rect, WindowStyleFlag style_flag,
   r.right = DipToPixel(rect.GetRight(), dpi);
   r.bottom = DipToPixel(rect.GetBottom(), dpi);
   if (!AdjustWindowRectEx(&r, CalcWindowStyle(style_flag), FALSE, 0))
-    throw Win32Error(::GetLastError(), "Failed to invoke AdjustWindowRectEx.");
+    throw Win32Error(::GetLastError(), u"Failed to invoke AdjustWindowRectEx.");
 
   Rect result =
       Rect::FromVertices(PixelToDip(r.left, dpi), PixelToDip(r.top, dpi),
@@ -55,7 +55,7 @@ Rect CalcClientRectFromWindow(const Rect& rect, WindowStyleFlag style_flag,
   RECT o{100, 100, 500, 500};
   RECT s = o;
   if (!AdjustWindowRectEx(&s, CalcWindowStyle(style_flag), FALSE, 0))
-    throw Win32Error(::GetLastError(), "Failed to invoke AdjustWindowRectEx.");
+    throw Win32Error(::GetLastError(), u"Failed to invoke AdjustWindowRectEx.");
 
   Rect result = rect;
   result.Shrink(Thickness(PixelToDip(s.left - o.left, dpi),
@@ -125,7 +125,7 @@ void WinNativeWindow::SetClientSize(const Size& size) {
 
     if (!SetWindowPos(hwnd_, nullptr, 0, 0, rect.right - rect.left,
                       rect.bottom - rect.top, SWP_NOZORDER | SWP_NOMOVE))
-      throw Win32Error(::GetLastError(), "Failed to invoke SetWindowPos.");
+      throw Win32Error(::GetLastError(), u"Failed to invoke SetWindowPos.");
   }
 }
 
@@ -140,7 +140,7 @@ void WinNativeWindow::SetClientRect(const Rect& rect) {
 
     if (!SetWindowPos(hwnd_, nullptr, 0, 0, r.right - r.left, r.bottom - r.top,
                       SWP_NOZORDER | SWP_NOMOVE))
-      throw Win32Error(::GetLastError(), "Failed to invoke SetWindowPos.");
+      throw Win32Error(::GetLastError(), u"Failed to invoke SetWindowPos.");
   }
 }
 
@@ -148,7 +148,7 @@ Rect WinNativeWindow::GetWindowRect() {
   if (hwnd_) {
     RECT rect;
     if (!::GetWindowRect(hwnd_, &rect))
-      throw Win32Error(::GetLastError(), "Failed to invoke GetWindowRect.");
+      throw Win32Error(::GetLastError(), u"Failed to invoke GetWindowRect.");
 
     return Rect::FromVertices(PixelToDip(rect.left), PixelToDip(rect.top),
                               PixelToDip(rect.right), PixelToDip(rect.bottom));
@@ -164,7 +164,7 @@ void WinNativeWindow::SetWindowRect(const Rect& rect) {
     if (!SetWindowPos(hwnd_, nullptr, DipToPixel(rect.left),
                       DipToPixel(rect.top), DipToPixel(rect.GetRight()),
                       DipToPixel(rect.GetBottom()), SWP_NOZORDER))
-      throw Win32Error(::GetLastError(), "Failed to invoke SetWindowPos.");
+      throw Win32Error(::GetLastError(), u"Failed to invoke SetWindowPos.");
   }
 }
 
@@ -179,9 +179,9 @@ bool WinNativeWindow::RequestFocus() {
 Point WinNativeWindow::GetMousePosition() {
   POINT p;
   if (!::GetCursorPos(&p))
-    throw Win32Error(::GetLastError(), "Failed to get cursor position.");
+    throw Win32Error(::GetLastError(), u"Failed to get cursor position.");
   if (!::ScreenToClient(hwnd_, &p))
-    throw Win32Error(::GetLastError(), "Failed to call ScreenToClient.");
+    throw Win32Error(::GetLastError(), u"Failed to call ScreenToClient.");
   return PixelToDip(p);
 }
 
@@ -200,9 +200,9 @@ void WinNativeWindow::RequestRepaint() {
     log::TagDebug(log_tag, u"A repaint is requested.");
   }
   if (!::InvalidateRect(hwnd_, nullptr, FALSE))
-    throw Win32Error(::GetLastError(), "Failed to invalidate window.");
+    throw Win32Error(::GetLastError(), u"Failed to invalidate window.");
   if (!::UpdateWindow(hwnd_))
-    throw Win32Error(::GetLastError(), "Failed to update window.");
+    throw Win32Error(::GetLastError(), u"Failed to update window.");
 }
 
 std::unique_ptr<graphics::IPainter> WinNativeWindow::BeginPaint() {
@@ -438,7 +438,7 @@ bool WinNativeWindow::HandleNativeWindowMessage(HWND hwnd, UINT msg,
 RECT WinNativeWindow::GetClientRectPixel() {
   RECT rect;
   if (!::GetClientRect(hwnd_, &rect))
-    throw Win32Error(::GetLastError(), "Failed to invoke GetClientRect.");
+    throw Win32Error(::GetLastError(), u"Failed to invoke GetClientRect.");
   return rect;
 }
 
@@ -453,11 +453,11 @@ void WinNativeWindow::RecreateWindow() {
       nullptr, application_->GetInstanceHandle(), nullptr);
 
   if (hwnd_ == nullptr)
-    throw Win32Error(::GetLastError(), "Failed to create window.");
+    throw Win32Error(::GetLastError(), u"Failed to create window.");
 
   auto dpi = ::GetDpiForWindow(hwnd_);
   if (dpi == 0)
-    throw Win32Error(::GetLastError(), "Failed to get dpi of window.");
+    throw Win32Error(::GetLastError(), u"Failed to get dpi of window.");
   dpi_ = static_cast<float>(dpi);
   log::Debug(u"Dpi of window is {}.", dpi_);
 

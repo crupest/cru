@@ -26,7 +26,7 @@ long long TimerManager::SetTimer(TimerType type, int period,
                         gsl::narrow<UINT_PTR>(id), 0)) {
       throw Win32Error(
           ::GetLastError(),
-          "Failed to post window message to god window for set immediate.");
+          u"Failed to post window message to god window for set immediate.");
     }
   } else {
     CreateNativeTimer(&timer_info);

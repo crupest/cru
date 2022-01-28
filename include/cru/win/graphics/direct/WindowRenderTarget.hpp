@@ -3,9 +3,10 @@
 
 namespace cru::platform::graphics::win::direct {
 // Represents a window render target.
-class D2DWindowRenderTarget : public Object {
+class CRU_WIN_GRAPHICS_DIRECT_API D2DWindowRenderTarget : public Object {
  public:
-  D2DWindowRenderTarget(gsl::not_null<DirectGraphicsFactory*> factory, HWND hwnd);
+  D2DWindowRenderTarget(gsl::not_null<DirectGraphicsFactory*> factory,
+                        HWND hwnd);
 
   CRU_DELETE_COPY(D2DWindowRenderTarget)
   CRU_DELETE_MOVE(D2DWindowRenderTarget)

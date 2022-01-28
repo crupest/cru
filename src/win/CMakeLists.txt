@@ -1,8 +1,8 @@
-add_library(cru_win_base STATIC
-	DebugLogger.hpp
-	StdOutLogger.hpp
+add_library(cru_win_base SHARED
+	ForDllExport.cpp
 )
 target_compile_definitions(cru_win_base PUBLIC UNICODE _UNICODE) # use unicode
+target_compile_definitions(cru_win_base PRIVATE CRU_WIN_EXPORT_API)
 target_link_libraries(cru_win_base PUBLIC cru_base)
 
 add_subdirectory(graphics)

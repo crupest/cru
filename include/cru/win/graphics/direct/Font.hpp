@@ -7,9 +7,10 @@
 #include <string_view>
 
 namespace cru::platform::graphics::win::direct {
-class DWriteFont : public DirectGraphicsResource,
-                   public virtual IFont,
-                   public virtual IComResource<IDWriteTextFormat> {
+class CRU_WIN_GRAPHICS_DIRECT_API DWriteFont
+    : public DirectGraphicsResource,
+      public virtual IFont,
+      public virtual IComResource<IDWriteTextFormat> {
  public:
   DWriteFont(DirectGraphicsFactory* factory, String font_family,
              float font_size);

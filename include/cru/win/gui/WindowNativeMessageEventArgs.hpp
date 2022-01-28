@@ -1,17 +1,17 @@
 #pragma once
-#include "../WinPreConfig.hpp"
+#include "Base.hpp"
 
 #include "cru/common/Base.hpp"
 
 namespace cru::platform::gui::win {
-struct WindowNativeMessage {
+struct CRU_WIN_GUI_API WindowNativeMessage {
   HWND hwnd;
   UINT msg;
   WPARAM w_param;
   LPARAM l_param;
 };
 
-class WindowNativeMessageEventArgs : public Object {
+class CRU_WIN_GUI_API WindowNativeMessageEventArgs : public Object {
  public:
   WindowNativeMessageEventArgs(const WindowNativeMessage& message)
       : message_(message) {}

@@ -5,8 +5,9 @@
 #include "cru/platform/graphics/Geometry.hpp"
 
 namespace cru::platform::graphics::win::direct {
-class D2DGeometryBuilder : public DirectGraphicsResource,
-                           public virtual IGeometryBuilder {
+class CRU_WIN_GRAPHICS_DIRECT_API D2DGeometryBuilder
+    : public DirectGraphicsResource,
+      public virtual IGeometryBuilder {
  public:
   explicit D2DGeometryBuilder(DirectGraphicsFactory* factory);
 
@@ -33,9 +34,10 @@ class D2DGeometryBuilder : public DirectGraphicsResource,
   Microsoft::WRL::ComPtr<ID2D1GeometrySink> geometry_sink_;
 };
 
-class D2DGeometry : public DirectGraphicsResource,
-                    public virtual IGeometry,
-                    public IComResource<ID2D1Geometry> {
+class CRU_WIN_GRAPHICS_DIRECT_API D2DGeometry
+    : public DirectGraphicsResource,
+      public virtual IGeometry,
+      public IComResource<ID2D1Geometry> {
  public:
   D2DGeometry(DirectGraphicsFactory* factory,
               Microsoft::WRL::ComPtr<ID2D1PathGeometry> geometry);

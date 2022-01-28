@@ -11,8 +11,8 @@ class DirectGraphicsFactory;
 }
 
 namespace cru::platform::gui::win {
-class WinUiApplication : public WinNativeResource,
-                         public virtual IUiApplication {
+class CRU_WIN_GUI_API WinUiApplication : public WinNativeResource,
+                                         public virtual IUiApplication {
  public:
   static WinUiApplication* GetInstance() { return instance; }
 

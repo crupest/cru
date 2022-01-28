@@ -9,7 +9,8 @@
 #include <memory>
 
 namespace cru::platform::gui::win {
-class WinNativeWindow : public WinNativeResource, public virtual INativeWindow {
+class CRU_WIN_GUI_API WinNativeWindow : public WinNativeResource,
+                                        public virtual INativeWindow {
   CRU_DEFINE_CLASS_LOG_TAG(u"cru::platform::gui::win::WinNativeWindow")
 
  public:

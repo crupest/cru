@@ -1,11 +1,11 @@
 #include "cru/win/gui/UiApplication.hpp"
 
-#include "../DebugLogger.hpp"
-#include "../StdOutLogger.hpp"
 #include "TimerManager.hpp"
 #include "WindowManager.hpp"
 #include "cru/common/Logger.hpp"
 #include "cru/platform/Check.hpp"
+#include "cru/win/DebugLogger.hpp"
+#include "cru/win/StdOutLogger.hpp"
 #include "cru/win/graphics/direct/Factory.hpp"
 #include "cru/win/gui/Cursor.hpp"
 #include "cru/win/gui/Exception.hpp"
@@ -27,7 +27,7 @@ WinUiApplication::WinUiApplication() {
 
   instance_handle_ = ::GetModuleHandleW(nullptr);
   if (!instance_handle_)
-    throw Win32Error("Failed to get module(instance) handle.");
+    throw Win32Error(u"Failed to get module(instance) handle.");
 
   ::SetThreadDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE);
 
