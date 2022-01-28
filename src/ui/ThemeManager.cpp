@@ -1,5 +1,4 @@
 #include "cru/ui/ThemeManager.hpp"
-#include <memory>
 
 #include "Helper.hpp"
 #include "cru/common/StringUtil.hpp"
