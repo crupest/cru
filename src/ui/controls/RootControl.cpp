@@ -20,6 +20,7 @@ RootControl::RootControl(Control* attached_control)
   render_object_->SetDefaultVertialAlignment(Alignment::Stretch);
   SetContainerRenderObject(render_object_.get());
   window_host_ = std::make_unique<host::WindowHost>(this);
+  window_host_->SetLayoutPreferToFillWindow(true);
 }
 
 RootControl::~RootControl() {}

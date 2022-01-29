@@ -2,7 +2,9 @@
 
 #include "cru/common/Logger.hpp"
 #include "cru/platform/graphics/util/Painter.hpp"
+#include "cru/ui/Base.hpp"
 #include "cru/ui/render/LayoutHelper.hpp"
+#include "cru/ui/render/MeasureRequirement.hpp"
 
 #include <algorithm>
 #include <functional>
@@ -91,7 +93,8 @@ template <typename direction_tag_t,
 Size FlexLayoutMeasureContentImpl(
     const MeasureRequirement& requirement, const MeasureSize& preferred_size,
     const std::vector<RenderObject*>& children,
-    const std::vector<FlexChildLayoutData>& layout_data, StringView log_tag) {
+    const std::vector<FlexChildLayoutData>& layout_data,
+    Alignment item_cross_align, StringView log_tag) {
   Expects(children.size() == layout_data.size());
 
   direction_tag_t direction_tag;
@@ -311,6 +314,17 @@ Size FlexLayoutMeasureContentImpl(
   child_max_cross_length =
       std::max(min_cross_length.GetLengthOr0(), child_max_cross_length);
 
+  for (Index i = 0; i < child_count; i++) {
+    auto child_layout_data = layout_data[i];
+    auto child = children[i];
+    if (child_layout_data.cross_alignment.value_or(item_cross_align) ==
+        Alignment::Stretch) {
+      auto size = child->GetSize();
+      GetCross(size, direction_tag) = child_max_cross_length;
+      child->Measure({size, size}, MeasureSize::NotSpecified());
+    }
+  }
+
   return CreateTSize<Size>(total_length, child_max_cross_length, direction_tag);
 }
 }  // namespace
@@ -322,11 +336,11 @@ Size FlexLayoutRenderObject::OnMeasureContent(
   if (horizontal) {
     return FlexLayoutMeasureContentImpl<tag_horizontal_t>(
         requirement, preferred_size, GetChildren(), GetChildLayoutDataList(),
-        log_tag);
+        item_cross_align_, log_tag);
   } else {
     return FlexLayoutMeasureContentImpl<tag_vertical_t>(
         requirement, preferred_size, GetChildren(), GetChildLayoutDataList(),
-        log_tag);
+        item_cross_align_, log_tag);
   }
 }
 
