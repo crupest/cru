@@ -87,6 +87,16 @@ void WinNativeWindow::SetParent(INativeWindow* parent) {
   }
 }
 
+String WinNativeWindow::GetTitle() { return title_; }
+
+void WinNativeWindow::SetTitle(String title) {
+  title_ = title;
+
+  if (hwnd_) {
+    ::SetWindowTextW(hwnd_, title_.WinCStr());
+  }
+}
+
 void WinNativeWindow::SetStyleFlag(WindowStyleFlag flag) {
   if (flag == style_flag_) return;
 
@@ -465,6 +475,8 @@ void WinNativeWindow::RecreateWindow() {
 
   SetCursor(application_->GetCursorManager()->GetSystemCursor(
       cru::platform::gui::SystemCursorType::Arrow));
+
+  ::SetWindowTextW(hwnd_, title_.WinCStr());
 
   window_render_target_ =
       std::make_unique<graphics::win::direct::D2DWindowRenderTarget>(

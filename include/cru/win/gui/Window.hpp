@@ -179,6 +179,7 @@ class CRU_WIN_GUI_API WinNativeWindow : public WinNativeResource,
   WindowStyleFlag style_flag_{};
   WindowVisibilityType visibility_ = WindowVisibilityType::Hide;
   Rect client_rect_{100, 100, 400, 300};
+  String title_;
 
   HWND hwnd_ = nullptr;
   WinNativeWindow* parent_window_ = nullptr;
