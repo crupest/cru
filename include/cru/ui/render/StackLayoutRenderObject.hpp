@@ -1,5 +1,6 @@
 #pragma once
 #include "LayoutRenderObject.hpp"
+#include "cru/ui/Base.hpp"
 
 namespace cru::ui::render {
 // Measure Logic:
@@ -35,9 +36,22 @@ class CRU_UI_API StackLayoutRenderObject
     return u"StackLayoutRenderObject";
   }
 
+  Alignment GetDefaultHorizontalAlignment() const {
+    return default_vertical_alignment_;
+  }
+  void SetDefaultHorizontalAlignment(Alignment alignment);
+  Alignment GetDefaultVerticalAlignment() {
+    return default_horizontal_alignment_;
+  }
+  void SetDefaultVertialAlignment(Alignment alignment);
+
  protected:
   Size OnMeasureContent(const MeasureRequirement& requirement,
                         const MeasureSize& preferred_size) override;
   void OnLayoutContent(const Rect& content_rect) override;
+
+ private:
+  Alignment default_horizontal_alignment_ = Alignment::Start;
+  Alignment default_vertical_alignment_ = Alignment::Start;
 };
 }  // namespace cru::ui::render

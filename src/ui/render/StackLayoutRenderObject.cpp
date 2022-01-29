@@ -7,6 +7,17 @@
 #include <algorithm>
 
 namespace cru::ui::render {
+void StackLayoutRenderObject::SetDefaultHorizontalAlignment(
+    Alignment alignment) {
+  default_horizontal_alignment_ = alignment;
+  InvalidateLayout();
+}
+
+void StackLayoutRenderObject::SetDefaultVertialAlignment(Alignment alignment) {
+  default_vertical_alignment_ = alignment;
+  InvalidateLayout();
+}
+
 Size StackLayoutRenderObject::OnMeasureContent(
     const MeasureRequirement& requirement, const MeasureSize& preferred_size) {
   Size child_max_size;
@@ -22,6 +33,31 @@ Size StackLayoutRenderObject::OnMeasureContent(
   child_max_size = Max(preferred_size.GetSizeOr0(), child_max_size);
   child_max_size = Max(requirement.min.GetSizeOr0(), child_max_size);
 
+  for (Index i = 0; i < GetChildren().size(); ++i) {
+    auto child_layout_data = GetChildLayoutData(i);
+    auto horizontal_stretch =
+        child_layout_data.horizontal.value_or(default_horizontal_alignment_) ==
+        Alignment::Stretch;
+    auto vertical_stretch =
+        child_layout_data.vertical.value_or(default_vertical_alignment_) ==
+        Alignment::Stretch;
+    if (horizontal_stretch || vertical_stretch) {
+      auto child = GetChildren()[i];
+      auto child_size = child->GetSize();
+      MeasureRequirement child_requirement(child_size, child_size);
+      if (horizontal_stretch) {
+        child_requirement.min.width = child_requirement.max.width =
+            child_max_size.width;
+      }
+
+      if (vertical_stretch) {
+        child_requirement.min.height = child_requirement.max.height =
+            child_max_size.height;
+      }
+      child->Measure(child_requirement, MeasureSize::NotSpecified());
+    }
+  }
+
   return child_max_size;
 }
 
@@ -34,10 +70,12 @@ void StackLayoutRenderObject::OnLayoutContent(const Rect& content_rect) {
     const auto& layout_data = GetChildLayoutData(i);
     const auto& size = child->GetSize();
     child->Layout(Point{
-        CalculateAnchorByAlignment(layout_data.horizontal, content_rect.left,
-                                   content_rect.width, size.width),
-        CalculateAnchorByAlignment(layout_data.vertical, content_rect.top,
-                                   content_rect.height, size.height)});
+        CalculateAnchorByAlignment(
+            layout_data.horizontal.value_or(default_horizontal_alignment_),
+            content_rect.left, content_rect.width, size.width),
+        CalculateAnchorByAlignment(
+            layout_data.vertical.value_or(default_vertical_alignment_),
+            content_rect.top, content_rect.height, size.height)});
   }
 }
 }  // namespace cru::ui::render

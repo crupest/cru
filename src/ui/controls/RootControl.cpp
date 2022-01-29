@@ -3,6 +3,7 @@
 #include "cru/common/Base.hpp"
 #include "cru/platform/gui/Base.hpp"
 #include "cru/platform/gui/Window.hpp"
+#include "cru/ui/Base.hpp"
 #include "cru/ui/host/WindowHost.hpp"
 #include "cru/ui/render/Base.hpp"
 #include "cru/ui/render/StackLayoutRenderObject.hpp"
@@ -15,6 +16,8 @@ RootControl::RootControl(Control* attached_control)
     : attached_control_(attached_control) {
   render_object_ = std::make_unique<render::StackLayoutRenderObject>();
   render_object_->SetAttachedControl(this);
+  render_object_->SetDefaultHorizontalAlignment(Alignment::Stretch);
+  render_object_->SetDefaultVertialAlignment(Alignment::Stretch);
   SetContainerRenderObject(render_object_.get());
   window_host_ = std::make_unique<host::WindowHost>(this);
 }
