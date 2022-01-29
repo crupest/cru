@@ -62,6 +62,8 @@ class CRU_WIN_GUI_API WinNativeWindow : public WinNativeResource,
 
   void SetCursor(std::shared_ptr<ICursor> cursor) override;
 
+  void SetToForeground() override;
+
   IEvent<std::nullptr_t>* CreateEvent() override { return &create_event_; }
   IEvent<std::nullptr_t>* DestroyEvent() override { return &destroy_event_; }
   IEvent<std::nullptr_t>* PaintEvent() override { return &paint_event_; }

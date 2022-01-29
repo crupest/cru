@@ -281,6 +281,14 @@ void WinNativeWindow::SetCursor(std::shared_ptr<ICursor> cursor) {
   }
 }
 
+void WinNativeWindow::SetToForeground() {
+  if (hwnd_) {
+    if (!::SetForegroundWindow(hwnd_))
+      throw Win32Error(::GetLastError(),
+                       u"Failed to set window to foreground.");
+  }
+}
+
 IInputMethodContext* WinNativeWindow::GetInputMethodContext() {
   return static_cast<IInputMethodContext*>(input_method_context_.get());
 }
