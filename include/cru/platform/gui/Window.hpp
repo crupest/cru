@@ -83,6 +83,8 @@ struct INativeWindow : virtual IPlatformResource {
 
   virtual void SetCursor(std::shared_ptr<ICursor> cursor) = 0;
 
+  virtual void SetToForeground() = 0;
+
   virtual void RequestRepaint() = 0;
 
   // Remember to call EndDraw on return value and destroy it.

@@ -60,6 +60,8 @@ class OsxWindow : public OsxGuiResource, public INativeWindow {
 
   void SetCursor(std::shared_ptr<ICursor> cursor) override;
 
+  void SetToForeground() override;
+
   void RequestRepaint() override;
 
   std::unique_ptr<graphics::IPainter> BeginPaint() override;

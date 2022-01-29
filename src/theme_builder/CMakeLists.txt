@@ -1,4 +1,7 @@
-add_executable(cru_theme_builder main.cpp)
+add_executable(cru_theme_builder
+	main.cpp
+	components/MainWindow.cpp
+)
 
 if(APPLE)
 	set_target_properties(cru_theme_builder PROPERTIES

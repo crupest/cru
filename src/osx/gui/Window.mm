@@ -375,6 +375,12 @@ void OsxWindow::SetCursor(std::shared_ptr<ICursor> cursor) {
   }
 }
 
+void OsxWindow::SetToForeground() {
+  if (!p_->window_) return;
+  [p_->window_ makeMainWindow];
+  [p_->window_ orderFrontRegardless];
+}
+
 IEvent<std::nullptr_t>* OsxWindow::CreateEvent() { return &p_->create_event_; }
 IEvent<std::nullptr_t>* OsxWindow::DestroyEvent() { return &p_->destroy_event_; }
 IEvent<std::nullptr_t>* OsxWindow::PaintEvent() { return &p_->paint_event_; }
