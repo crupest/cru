@@ -186,6 +186,10 @@ void OsxWindowPrivate::CreateWindow() {
 
   [window_ setContentView:content_view];
 
+  auto title_str = Convert(title_);
+  [window_ setTitle:(NSString*)title_str];
+  CFRelease(title_str);
+
   draw_layer_ = CreateLayer(content_rect.size);
 
   create_event_.Raise(nullptr);
@@ -243,6 +247,18 @@ void OsxWindow::SetStyleFlag(WindowStyleFlag flag) {
 
   if (p_->window_) {
     [p_->window_ close];
+  }
+}
+
+String OsxWindow::GetTitle() { return p_->title_; }
+
+void OsxWindow::SetTitle(String title) {
+  p_->title_ = title;
+
+  if (p_->window_) {
+    auto str = Convert(title);
+    [p_->window_ setTitle:(NSString*)str];
+    CFRelease(str);
   }
 }
 

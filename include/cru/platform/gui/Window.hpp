@@ -53,6 +53,9 @@ struct INativeWindow : virtual IPlatformResource {
   virtual WindowStyleFlag GetStyleFlag() = 0;
   virtual void SetStyleFlag(WindowStyleFlag flag) = 0;
 
+  virtual String GetTitle() = 0;
+  virtual void SetTitle(String title) = 0;
+
   virtual WindowVisibilityType GetVisibility() = 0;
   virtual void SetVisibility(WindowVisibilityType visibility) = 0;
 

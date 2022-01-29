@@ -83,6 +83,8 @@ class OsxWindowPrivate {
   INativeWindow* parent_ = nullptr;
   WindowStyleFlag style_flag_ = WindowStyleFlag{};
 
+  String title_;
+
   Rect content_rect_;
 
   NSWindow* window_ = nil;

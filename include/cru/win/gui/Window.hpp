@@ -30,6 +30,9 @@ class CRU_WIN_GUI_API WinNativeWindow : public WinNativeResource,
   WindowStyleFlag GetStyleFlag() override { return style_flag_; }
   void SetStyleFlag(WindowStyleFlag flag) override;
 
+  String GetTitle() override;
+  void SetTitle(String title) override;
+
   WindowVisibilityType GetVisibility() override { return visibility_; }
   void SetVisibility(WindowVisibilityType visibility) override;
 

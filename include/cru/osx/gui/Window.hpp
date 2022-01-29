@@ -36,6 +36,9 @@ class OsxWindow : public OsxGuiResource, public INativeWindow {
   WindowStyleFlag GetStyleFlag() override;
   void SetStyleFlag(WindowStyleFlag flag) override;
 
+  String GetTitle() override;
+  void SetTitle(String title) override;
+
   WindowVisibilityType GetVisibility() override;
   void SetVisibility(WindowVisibilityType visibility) override;
 
