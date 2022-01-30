@@ -4,7 +4,7 @@
 
 #include "../../String.hpp"
 
-#include <CoreFoundation/CFString.h>
+#include <CoreFoundation/CoreFoundation.h>
 
 namespace cru::platform::osx {
 CFStringRef Convert(const String& string);

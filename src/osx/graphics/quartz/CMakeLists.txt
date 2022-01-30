@@ -4,6 +4,7 @@ add_library(cru_osx_graphics_quartz SHARED
 	Factory.cpp
 	Font.cpp
 	Geometry.cpp
+	ImageFactory.cpp
 	Painter.cpp
 	Resource.cpp
 	TextLayout.cpp

@@ -4,6 +4,8 @@
 #include "Brush.hpp"
 #include "Font.hpp"
 #include "Geometry.hpp"
+#include "Image.hpp"
+#include "ImageFactory.hpp"
 #include "TextLayout.hpp"
 
 namespace cru::platform::graphics {
@@ -24,5 +26,7 @@ struct CRU_PLATFORM_GRAPHICS_API IGraphicsFactory : virtual IPlatformResource {
     brush->SetColor(color);
     return brush;
   }
+
+  virtual IImageFactory* GetImageFactory() = 0;
 };
 }  // namespace cru::platform::graphics
