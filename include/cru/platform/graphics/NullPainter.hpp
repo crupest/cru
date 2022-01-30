@@ -3,7 +3,8 @@
 #include "cru/common/Base.hpp"
 
 namespace cru::platform::graphics {
-class CRU_PLATFORM_GRAPHICS_API NullPainter : public Object, public virtual IPainter {
+class CRU_PLATFORM_GRAPHICS_API NullPainter : public Object,
+                                              public virtual IPainter {
  public:
   NullPainter() = default;
 
@@ -63,6 +64,11 @@ class CRU_PLATFORM_GRAPHICS_API NullPainter : public Object, public virtual IPai
     CRU_UNUSED(offset)
     CRU_UNUSED(text_layout)
     CRU_UNUSED(brush)
+  }
+
+  void DrawImage(const Rect& rect, IImage* image) override {
+    CRU_UNUSED(rect)
+    CRU_UNUSED(image)
   }
 
   void PushLayer(const Rect& bounds) override { CRU_UNUSED(bounds) }

@@ -4,6 +4,7 @@
 #include "cru/osx/graphics/quartz/Brush.hpp"
 #include "cru/osx/graphics/quartz/Convert.hpp"
 #include "cru/osx/graphics/quartz/Geometry.hpp"
+#include "cru/osx/graphics/quartz/Image.hpp"
 #include "cru/osx/graphics/quartz/TextLayout.hpp"
 #include "cru/platform/Check.hpp"
 #include "cru/platform/Color.hpp"
@@ -171,6 +172,12 @@ void QuartzCGContextPainter::DrawText(const Point& offset,
   CFRelease(frame);
 
   CGContextRestoreGState(cg_context_);
+}
+
+void QuartzCGContextPainter::DrawImage(const Rect& rect, IImage* image) {
+  Validate();
+  auto i = CheckPlatform<QuartzImage>(image, GetPlatformId());
+  CGContextDrawImage(cg_context_, Convert(rect), i->GetCGImage());
 }
 
 void QuartzCGContextPainter::PushLayer(const Rect& bounds) {

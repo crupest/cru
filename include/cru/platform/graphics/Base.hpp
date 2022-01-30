@@ -16,7 +16,6 @@
 #define CRU_PLATFORM_GRAPHICS_API
 #endif
 
-
 namespace cru::platform::graphics {
 // forward declarations
 struct IGraphicsFactory;
@@ -25,6 +24,8 @@ struct ISolidColorBrush;
 struct IFont;
 struct IGeometry;
 struct IGeometryBuilder;
+struct IImage;
+struct IImageFactory;
 struct IPainter;
 struct ITextLayout;
 

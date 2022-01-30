@@ -17,6 +17,8 @@ class QuartzImage : public OsxQuartzResource, public virtual IImage {
   ~QuartzImage() override;
 
  public:
+  CGImageRef GetCGImage() const { return image_; }
+
  private:
   CGImageRef image_;
   bool auto_release_ = false;

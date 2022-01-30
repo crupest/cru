@@ -27,6 +27,8 @@ struct CRU_PLATFORM_GRAPHICS_API IPainter : virtual IPlatformResource {
   virtual void DrawText(const Point& offset, ITextLayout* text_layout,
                         IBrush* brush) = 0;
 
+  virtual void DrawImage(const Rect& rect, IImage* image) = 0;
+
   virtual void PushLayer(const Rect& bounds) = 0;
 
   virtual void PopLayer() = 0;
