@@ -174,10 +174,17 @@ void QuartzCGContextPainter::DrawText(const Point& offset,
   CGContextRestoreGState(cg_context_);
 }
 
-void QuartzCGContextPainter::DrawImage(const Rect& rect, IImage* image) {
+void QuartzCGContextPainter::DrawImage(const Point& offset, IImage* image) {
   Validate();
   auto i = CheckPlatform<QuartzImage>(image, GetPlatformId());
-  CGContextDrawImage(cg_context_, Convert(rect), i->GetCGImage());
+
+  auto cg_image = i->GetCGImage();
+
+  auto width = CGImageGetWidth(cg_image);
+  auto height = CGImageGetHeight(cg_image);
+
+  CGContextDrawImage(cg_context_, CGRectMake(offset.x, offset.y, width, height),
+                     cg_image);
 }
 
 void QuartzCGContextPainter::PushLayer(const Rect& bounds) {

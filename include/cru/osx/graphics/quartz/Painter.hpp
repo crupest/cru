@@ -48,7 +48,7 @@ class QuartzCGContextPainter : public OsxQuartzResource,
   void DrawText(const Point& offset, ITextLayout* text_layout,
                 IBrush* brush) override;
 
-  void DrawImage(const Rect& rect, IImage* image) override;
+  void DrawImage(const Point& offset, IImage* image) override;
 
   void PushLayer(const Rect& bounds) override;
 
