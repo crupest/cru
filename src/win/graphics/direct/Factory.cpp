@@ -5,6 +5,7 @@
 #include "cru/win/graphics/direct/Exception.hpp"
 #include "cru/win/graphics/direct/Font.hpp"
 #include "cru/win/graphics/direct/Geometry.hpp"
+#include "cru/win/graphics/direct/ImageFactory.hpp"
 #include "cru/win/graphics/direct/TextLayout.hpp"
 
 #include <cstdlib>
@@ -74,6 +75,8 @@ DirectGraphicsFactory::DirectGraphicsFactory() {
 
   ThrowIfFailed(dwrite_factory_->GetSystemFontCollection(
       &dwrite_system_font_collection_));
+
+  image_factory_ = std::make_unique<WinImageFactory>(this);
 }
 
 DirectGraphicsFactory::~DirectGraphicsFactory() { UninitializeCom(); }
@@ -105,5 +108,9 @@ std::unique_ptr<ITextLayout> DirectGraphicsFactory::CreateTextLayout(
     std::shared_ptr<IFont> font, String text) {
   return std::make_unique<DWriteTextLayout>(this, std::move(font),
                                             std::move(text));
+}
+
+IImageFactory* DirectGraphicsFactory::GetImageFactory() {
+  return image_factory_.get();
 }
 }  // namespace cru::platform::graphics::win::direct

@@ -1,6 +1,9 @@
 #pragma once
 #include "Resource.hpp"
 
+#include "ImageFactory.hpp"
+
+#include "cru/platform/graphics/Base.hpp"
 #include "cru/platform/graphics/Factory.hpp"
 
 namespace cru::platform::graphics::win::direct {
@@ -46,6 +49,8 @@ class CRU_WIN_GRAPHICS_DIRECT_API DirectGraphicsFactory
   std::unique_ptr<ITextLayout> CreateTextLayout(std::shared_ptr<IFont> font,
                                                 String text) override;
 
+  IImageFactory* GetImageFactory() override;
+
  private:
   Microsoft::WRL::ComPtr<ID3D11Device> d3d11_device_;
   // ID2D1Factory1 is a interface only available in Windows 8 and Windows 7 with
@@ -56,5 +61,7 @@ class CRU_WIN_GRAPHICS_DIRECT_API DirectGraphicsFactory
   Microsoft::WRL::ComPtr<IDXGIFactory2> dxgi_factory_;
   Microsoft::WRL::ComPtr<IDWriteFactory> dwrite_factory_;
   Microsoft::WRL::ComPtr<IDWriteFontCollection> dwrite_system_font_collection_;
+
+  std::unique_ptr<WinImageFactory> image_factory_;
 };
 }  // namespace cru::platform::graphics::win::direct

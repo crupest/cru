@@ -44,6 +44,8 @@ class CRU_WIN_GRAPHICS_DIRECT_API D2DPainter
   void DrawText(const Point& offset, ITextLayout* text_layout,
                 IBrush* brush) override;
 
+  void DrawImage(const Point& offset, IImage* image) override;
+
   void PushLayer(const Rect& bounds) override;
   void PopLayer() override;
 

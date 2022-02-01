@@ -2,6 +2,8 @@ add_library(cru_win_graphics_direct SHARED
 	Brush.cpp
 	Font.cpp
 	Geometry.cpp
+	Image.cpp
+	ImageFactory.cpp
 	Factory.cpp
 	Painter.cpp
 	Resource.cpp

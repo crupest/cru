@@ -66,8 +66,8 @@ class CRU_PLATFORM_GRAPHICS_API NullPainter : public Object,
     CRU_UNUSED(brush)
   }
 
-  void DrawImage(const Rect& rect, IImage* image) override {
-    CRU_UNUSED(rect)
+  void DrawImage(const Point& offset, IImage* image) override {
+    CRU_UNUSED(offset)
     CRU_UNUSED(image)
   }
 

@@ -5,6 +5,7 @@
 #include "cru/win/graphics/direct/ConvertUtil.hpp"
 #include "cru/win/graphics/direct/Exception.hpp"
 #include "cru/win/graphics/direct/Geometry.hpp"
+#include "cru/win/graphics/direct/Image.hpp"
 #include "cru/win/graphics/direct/TextLayout.hpp"
 
 #include <type_traits>
@@ -99,6 +100,16 @@ void D2DPainter::DrawText(const Point& offset, ITextLayout* text_layout,
   const auto b = CheckPlatform<ID2DBrush>(brush, GetPlatformId());
   render_target_->DrawTextLayout(Convert(offset), t->GetComInterface(),
                                  b->GetD2DBrushInterface());
+}
+
+void D2DPainter::DrawImage(const Point& offset, IImage* image) {
+  CheckValidation();
+  const auto i = CheckPlatform<Direct2DImage>(image, GetPlatformId());
+
+  ID2D1DeviceContext* device_context;
+
+  render_target_->QueryInterface(&device_context);
+  device_context->DrawImage(i->GetD2DImage(), Convert(offset));
 }
 
 void D2DPainter::PushLayer(const Rect& bounds) {
