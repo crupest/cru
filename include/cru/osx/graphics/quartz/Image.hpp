@@ -17,9 +17,15 @@ class QuartzImage : public OsxQuartzResource, public virtual IImage {
   ~QuartzImage() override;
 
  public:
+  float GetWidth() override;
+  float GetHeight() override;
+
+  std::unique_ptr<IImage> CreateWithRect(const Rect& rect) override;
+
   CGImageRef GetCGImage() const { return image_; }
 
  private:
+  IImageFactory* image_factory_;
   CGImageRef image_;
   bool auto_release_ = false;
 };
