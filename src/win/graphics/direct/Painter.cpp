@@ -11,150 +11,155 @@
 #include <type_traits>
 
 namespace cru::platform::graphics::win::direct {
-D2DPainter::D2DPainter(ID2D1RenderTarget* render_target) {
-  Expects(render_target);
-  render_target_ = render_target;
+D2DDeviceContextPainter::D2DDeviceContextPainter(
+    ID2D1DeviceContext1* device_context) {
+  Expects(device_context);
+  device_context_ = device_context;
 }
 
-platform::Matrix D2DPainter::GetTransform() {
+platform::Matrix D2DDeviceContextPainter::GetTransform() {
   CheckValidation();
   D2D1_MATRIX_3X2_F m;
-  render_target_->GetTransform(&m);
+  device_context_->GetTransform(&m);
   return Convert(m);
 }
 
-void D2DPainter::SetTransform(const platform::Matrix& matrix) {
+void D2DDeviceContextPainter::SetTransform(const platform::Matrix& matrix) {
   CheckValidation();
-  render_target_->SetTransform(Convert(matrix));
+  device_context_->SetTransform(Convert(matrix));
 }
 
-void D2DPainter::ConcatTransform(const Matrix& matrix) {
+void D2DDeviceContextPainter::ConcatTransform(const Matrix& matrix) {
   SetTransform(GetTransform() * matrix);
 }
 
-void D2DPainter::Clear(const Color& color) {
+void D2DDeviceContextPainter::Clear(const Color& color) {
   CheckValidation();
-  render_target_->Clear(Convert(color));
+  device_context_->Clear(Convert(color));
 }
 
-void D2DPainter::DrawLine(const Point& start, const Point& end, IBrush* brush,
-                          float width) {
+void D2DDeviceContextPainter::DrawLine(const Point& start, const Point& end,
+                                       IBrush* brush, float width) {
   CheckValidation();
   const auto b = CheckPlatform<ID2DBrush>(brush, GetPlatformId());
-  render_target_->DrawLine(Convert(start), Convert(end),
-                           b->GetD2DBrushInterface(), width);
+  device_context_->DrawLine(Convert(start), Convert(end),
+                            b->GetD2DBrushInterface(), width);
 }
 
-void D2DPainter::StrokeRectangle(const Rect& rectangle, IBrush* brush,
-                                 float width) {
+void D2DDeviceContextPainter::StrokeRectangle(const Rect& rectangle,
+                                              IBrush* brush, float width) {
   CheckValidation();
   const auto b = CheckPlatform<ID2DBrush>(brush, GetPlatformId());
-  render_target_->DrawRectangle(Convert(rectangle), b->GetD2DBrushInterface(),
-                                width);
+  device_context_->DrawRectangle(Convert(rectangle), b->GetD2DBrushInterface(),
+                                 width);
 }
 
-void D2DPainter::FillRectangle(const Rect& rectangle, IBrush* brush) {
+void D2DDeviceContextPainter::FillRectangle(const Rect& rectangle,
+                                            IBrush* brush) {
   CheckValidation();
   const auto b = CheckPlatform<ID2DBrush>(brush, GetPlatformId());
-  render_target_->FillRectangle(Convert(rectangle), b->GetD2DBrushInterface());
+  device_context_->FillRectangle(Convert(rectangle), b->GetD2DBrushInterface());
 }
 
-void D2DPainter::StrokeEllipse(const Rect& outline_rect, IBrush* brush,
-                               float width) {
+void D2DDeviceContextPainter::StrokeEllipse(const Rect& outline_rect,
+                                            IBrush* brush, float width) {
   CheckValidation();
   const auto b = CheckPlatform<ID2DBrush>(brush, GetPlatformId());
-  render_target_->DrawEllipse(
+  device_context_->DrawEllipse(
       D2D1::Ellipse(Convert(outline_rect.GetCenter()),
                     outline_rect.width / 2.0f, outline_rect.height / 2.0f),
       b->GetD2DBrushInterface(), width);
 }
-void D2DPainter::FillEllipse(const Rect& outline_rect, IBrush* brush) {
+void D2DDeviceContextPainter::FillEllipse(const Rect& outline_rect,
+                                          IBrush* brush) {
   CheckValidation();
   const auto b = CheckPlatform<ID2DBrush>(brush, GetPlatformId());
-  render_target_->FillEllipse(
+  device_context_->FillEllipse(
       D2D1::Ellipse(Convert(outline_rect.GetCenter()),
                     outline_rect.width / 2.0f, outline_rect.height / 2.0f),
       b->GetD2DBrushInterface());
 }
 
-void D2DPainter::StrokeGeometry(IGeometry* geometry, IBrush* brush,
-                                float width) {
+void D2DDeviceContextPainter::StrokeGeometry(IGeometry* geometry, IBrush* brush,
+                                             float width) {
   CheckValidation();
   const auto g = CheckPlatform<D2DGeometry>(geometry, GetPlatformId());
   const auto b = CheckPlatform<ID2DBrush>(brush, GetPlatformId());
-  render_target_->DrawGeometry(g->GetComInterface(), b->GetD2DBrushInterface(),
-                               width);
+  device_context_->DrawGeometry(g->GetComInterface(), b->GetD2DBrushInterface(),
+                                width);
 }
 
-void D2DPainter::FillGeometry(IGeometry* geometry, IBrush* brush) {
+void D2DDeviceContextPainter::FillGeometry(IGeometry* geometry, IBrush* brush) {
   CheckValidation();
   const auto g = CheckPlatform<D2DGeometry>(geometry, GetPlatformId());
   const auto b = CheckPlatform<ID2DBrush>(brush, GetPlatformId());
-  render_target_->FillGeometry(g->GetComInterface(), b->GetD2DBrushInterface());
+  device_context_->FillGeometry(g->GetComInterface(),
+                                b->GetD2DBrushInterface());
 }
 
-void D2DPainter::DrawText(const Point& offset, ITextLayout* text_layout,
-                          IBrush* brush) {
+void D2DDeviceContextPainter::DrawText(const Point& offset,
+                                       ITextLayout* text_layout,
+                                       IBrush* brush) {
   CheckValidation();
   const auto t = CheckPlatform<DWriteTextLayout>(text_layout, GetPlatformId());
   const auto b = CheckPlatform<ID2DBrush>(brush, GetPlatformId());
-  render_target_->DrawTextLayout(Convert(offset), t->GetComInterface(),
-                                 b->GetD2DBrushInterface());
+  device_context_->DrawTextLayout(Convert(offset), t->GetComInterface(),
+                                  b->GetD2DBrushInterface());
 }
 
-void D2DPainter::DrawImage(const Point& offset, IImage* image) {
+void D2DDeviceContextPainter::DrawImage(const Point& offset, IImage* image) {
   CheckValidation();
   const auto i = CheckPlatform<Direct2DImage>(image, GetPlatformId());
 
   Microsoft::WRL::ComPtr<ID2D1DeviceContext> device_context;
 
-  render_target_->QueryInterface(device_context.GetAddressOf());
-  device_context->DrawImage(i->GetD2DImage(), Convert(offset));
+  device_context_->QueryInterface(device_context.GetAddressOf());
+  device_context->DrawImage(i->GetD2DBitmap().Get(), Convert(offset));
 }
 
-void D2DPainter::PushLayer(const Rect& bounds) {
+void D2DDeviceContextPainter::PushLayer(const Rect& bounds) {
   CheckValidation();
 
   Microsoft::WRL::ComPtr<ID2D1Layer> layer;
-  ThrowIfFailed(render_target_->CreateLayer(&layer));
+  ThrowIfFailed(device_context_->CreateLayer(&layer));
 
-  render_target_->PushLayer(D2D1::LayerParameters(Convert(bounds)),
-                            layer.Get());
+  device_context_->PushLayer(D2D1::LayerParameters(Convert(bounds)),
+                             layer.Get());
 
   layers_.push_back(std::move(layer));
 }
 
-void D2DPainter::PopLayer() {
-  render_target_->PopLayer();
+void D2DDeviceContextPainter::PopLayer() {
+  device_context_->PopLayer();
   layers_.pop_back();
 }
 
-void D2DPainter::PushState() {
+void D2DDeviceContextPainter::PushState() {
   Microsoft::WRL::ComPtr<ID2D1Factory> factory = nullptr;
-  render_target_->GetFactory(&factory);
+  device_context_->GetFactory(&factory);
 
   Microsoft::WRL::ComPtr<ID2D1DrawingStateBlock> state_block;
   factory->CreateDrawingStateBlock(&state_block);
-  render_target_->SaveDrawingState(state_block.Get());
+  device_context_->SaveDrawingState(state_block.Get());
 
   drawing_state_stack_.push_back(std::move(state_block));
 }
 
-void D2DPainter::PopState() {
+void D2DDeviceContextPainter::PopState() {
   Expects(!drawing_state_stack_.empty());
   auto drawing_state = drawing_state_stack_.back();
   drawing_state_stack_.pop_back();
-  render_target_->RestoreDrawingState(drawing_state.Get());
+  device_context_->RestoreDrawingState(drawing_state.Get());
 }
 
-void D2DPainter::EndDraw() {
+void D2DDeviceContextPainter::EndDraw() {
   if (is_drawing_) {
     is_drawing_ = false;
     DoEndDraw();
   }
 }
 
-void D2DPainter::CheckValidation() {
+void D2DDeviceContextPainter::CheckValidation() {
   if (!is_drawing_) {
     throw cru::platform::ReuseException(
         u"Can't do that on painter after end drawing.");

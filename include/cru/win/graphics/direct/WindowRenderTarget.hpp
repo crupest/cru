@@ -18,7 +18,7 @@ class CRU_WIN_GRAPHICS_DIRECT_API D2DWindowRenderTarget : public Object {
     return factory_;
   }
 
-  ID2D1DeviceContext* GetD2D1DeviceContext() {
+  ID2D1DeviceContext1* GetD2D1DeviceContext() {
     return d2d1_device_context_.Get();
   }
 
@@ -36,7 +36,7 @@ class CRU_WIN_GRAPHICS_DIRECT_API D2DWindowRenderTarget : public Object {
  private:
   DirectGraphicsFactory* factory_;
   HWND hwnd_;
-  Microsoft::WRL::ComPtr<ID2D1DeviceContext> d2d1_device_context_;
+  Microsoft::WRL::ComPtr<ID2D1DeviceContext1> d2d1_device_context_;
   Microsoft::WRL::ComPtr<IDXGISwapChain1> dxgi_swap_chain_;
   Microsoft::WRL::ComPtr<ID2D1Bitmap1> target_bitmap_;
 };

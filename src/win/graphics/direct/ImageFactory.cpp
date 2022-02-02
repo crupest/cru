@@ -43,10 +43,11 @@ std::unique_ptr<IImage> WinImageFactory::DecodeFromStream(io::Stream* stream) {
 
   auto d2d_context = graphics_factory_->GetDefaultD2D1DeviceContext();
 
-  ID2D1Bitmap* d2d_image;
+  Microsoft::WRL::ComPtr<ID2D1Bitmap1> d2d_image;
   d2d_context->CreateBitmapFromWicBitmap(wic_bitmap_frame_decode.Get(), NULL,
                                          &d2d_image);
 
-  return std::make_unique<Direct2DImage>(graphics_factory_, d2d_image, true);
+  return std::make_unique<Direct2DImage>(graphics_factory_,
+                                         std::move(d2d_image));
 }
 }  // namespace cru::platform::graphics::win::direct

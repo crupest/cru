@@ -7,20 +7,22 @@
 #include <vector>
 
 namespace cru::platform::graphics::win::direct {
-class CRU_WIN_GRAPHICS_DIRECT_API D2DPainter
+class CRU_WIN_GRAPHICS_DIRECT_API D2DDeviceContextPainter
     : public DirectResource,
       public virtual IPainter,
-      public virtual IComResource<ID2D1RenderTarget> {
+      public virtual IComResource<ID2D1DeviceContext1> {
  public:
-  explicit D2DPainter(ID2D1RenderTarget* render_target);
+  explicit D2DDeviceContextPainter(ID2D1DeviceContext1* device_context);
 
-  CRU_DELETE_COPY(D2DPainter)
-  CRU_DELETE_MOVE(D2DPainter)
+  CRU_DELETE_COPY(D2DDeviceContextPainter)
+  CRU_DELETE_MOVE(D2DDeviceContextPainter)
 
-  ~D2DPainter() override = default;
+  ~D2DDeviceContextPainter() override = default;
 
  public:
-  ID2D1RenderTarget* GetComInterface() const override { return render_target_; }
+  ID2D1DeviceContext1* GetComInterface() const override {
+    return device_context_;
+  }
 
  public:
   Matrix GetTransform() override;
@@ -62,7 +64,7 @@ class CRU_WIN_GRAPHICS_DIRECT_API D2DPainter
   void CheckValidation();
 
  private:
-  ID2D1RenderTarget* render_target_;
+  ID2D1DeviceContext1* device_context_;
 
   std::vector<Microsoft::WRL::ComPtr<ID2D1Layer>> layers_;
   std::vector<Microsoft::WRL::ComPtr<ID2D1DrawingStateBlock>>

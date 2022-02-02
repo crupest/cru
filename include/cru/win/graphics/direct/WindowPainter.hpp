@@ -4,7 +4,7 @@
 
 namespace cru::platform::graphics::win::direct {
 class CRU_WIN_GRAPHICS_DIRECT_API D2DWindowPainter
-    : public graphics::win::direct::D2DPainter {
+    : public graphics::win::direct::D2DDeviceContextPainter {
  public:
   explicit D2DWindowPainter(D2DWindowRenderTarget* window);
 

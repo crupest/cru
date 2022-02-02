@@ -81,9 +81,9 @@ DirectGraphicsFactory::DirectGraphicsFactory() {
 
 DirectGraphicsFactory::~DirectGraphicsFactory() { UninitializeCom(); }
 
-Microsoft::WRL::ComPtr<ID2D1DeviceContext>
+Microsoft::WRL::ComPtr<ID2D1DeviceContext1>
 DirectGraphicsFactory::CreateD2D1DeviceContext() {
-  Microsoft::WRL::ComPtr<ID2D1DeviceContext> d2d1_device_context;
+  Microsoft::WRL::ComPtr<ID2D1DeviceContext1> d2d1_device_context;
   ThrowIfFailed(d2d1_device_->CreateDeviceContext(
       D2D1_DEVICE_CONTEXT_OPTIONS_NONE, &d2d1_device_context));
   return d2d1_device_context;
