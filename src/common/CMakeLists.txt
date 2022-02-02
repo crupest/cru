@@ -34,6 +34,7 @@ endif()
 
 if (WIN32)
 	target_sources(cru_base PRIVATE
+		platform/win/BridgeComStream.cpp
 		platform/win/Win32FileStream.cpp
 		platform/win/Exception.cpp
 	)
