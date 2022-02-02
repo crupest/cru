@@ -106,9 +106,9 @@ void D2DPainter::DrawImage(const Point& offset, IImage* image) {
   CheckValidation();
   const auto i = CheckPlatform<Direct2DImage>(image, GetPlatformId());
 
-  ID2D1DeviceContext* device_context;
+  Microsoft::WRL::ComPtr<ID2D1DeviceContext> device_context;
 
-  render_target_->QueryInterface(&device_context);
+  render_target_->QueryInterface(device_context.GetAddressOf());
   device_context->DrawImage(i->GetD2DImage(), Convert(offset));
 }
 
