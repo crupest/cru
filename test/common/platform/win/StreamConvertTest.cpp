@@ -20,11 +20,12 @@ TEST(StreamConvert, FileStreamWork) {
 
   String path = temp_file_path;
 
-  Win32FileStream file(
-      path, OpenFileFlags::Read | OpenFileFlags::Write | OpenFileFlags::Create);
+  Win32FileStream file(path, OpenFileFlags::Write | OpenFileFlags::Create);
   file.Write("abc", 3);
+  file.Close();
 
-  IStream* com_stream = ConvertStreamToComStream(&file);
+  Win32FileStream file2(path, OpenFileFlags::Read);
+  IStream* com_stream = ConvertStreamToComStream(&file2);
   LARGE_INTEGER position;
   position.QuadPart = 0;
   ThrowIfFailed(com_stream->Seek(position, SEEK_SET, nullptr));
@@ -32,7 +33,7 @@ TEST(StreamConvert, FileStreamWork) {
   ThrowIfFailed(com_stream->Read(buffer.get(), 3, nullptr));
   ASSERT_EQ(std::string_view(buffer.get(), 3), "abc");
   com_stream->Release();
-  file.Close();
+  file2.Close();
 
   std::filesystem::remove(temp_file_path);
 }
