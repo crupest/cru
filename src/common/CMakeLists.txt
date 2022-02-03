@@ -35,9 +35,13 @@ endif()
 if (WIN32)
 	target_sources(cru_base PRIVATE
 		platform/win/BridgeComStream.cpp
-		platform/win/Win32FileStream.cpp
+		platform/win/ComAutoInit.cpp
+		platform/win/StreamConvert.cpp
 		platform/win/Exception.cpp
+		platform/win/Win32FileStream.cpp
 	)
+
+	target_link_libraries(cru_base PUBLIC Shlwapi.lib)
 endif()
 
 if (WIN32)

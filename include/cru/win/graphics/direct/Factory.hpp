@@ -3,6 +3,7 @@
 
 #include "ImageFactory.hpp"
 
+#include "cru/common/platform/win/ComAutoInit.hpp"
 #include "cru/platform/graphics/Base.hpp"
 #include "cru/platform/graphics/Factory.hpp"
 
@@ -52,6 +53,8 @@ class CRU_WIN_GRAPHICS_DIRECT_API DirectGraphicsFactory
   IImageFactory* GetImageFactory() override;
 
  private:
+  platform::win::ComAutoInit com_auto_init_;
+
   Microsoft::WRL::ComPtr<ID3D11Device> d3d11_device_;
   Microsoft::WRL::ComPtr<ID2D1Factory2> d2d1_factory_;
   Microsoft::WRL::ComPtr<ID2D1Device1> d2d1_device_;

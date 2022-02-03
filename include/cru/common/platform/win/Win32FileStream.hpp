@@ -36,6 +36,9 @@ class CRU_BASE_API Win32FileStream : public io::Stream {
 
   void Close() override;
 
+  String GetPath() const { return path_; }
+  io::OpenFileFlag GetOpenFileFlags() const { return flags_; }
+
  private:
   void CheckClosed();
 

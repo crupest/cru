@@ -4,6 +4,7 @@
 #include "cru/common/platform/win/Exception.hpp"
 
 #include <Windows.h>
+#include <winnt.h>
 
 namespace cru::platform::win {
 using namespace cru::io;
@@ -37,9 +38,9 @@ Win32FileStream::Win32FileStream(String path, OpenFileFlag flags)
     dwCreationDisposition = OPEN_EXISTING;
   }
 
-  p_->handle =
-      ::CreateFileW(path_.WinCStr(), dwDesiredAccess, 0, nullptr,
-                    dwCreationDisposition, FILE_ATTRIBUTE_NORMAL, nullptr);
+  p_->handle = ::CreateFileW(
+      path_.WinCStr(), dwDesiredAccess, FILE_SHARE_READ | FILE_SHARE_WRITE,
+      nullptr, dwCreationDisposition, FILE_ATTRIBUTE_NORMAL, nullptr);
 
   if (p_->handle == INVALID_HANDLE_VALUE) {
     throw Win32Error(u"Failed to call CreateFileW.");

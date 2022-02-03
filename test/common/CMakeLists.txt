@@ -8,13 +8,14 @@ target_link_libraries(cru_base_test PRIVATE cru_base cru_test_base)
 
 if (UNIX)
 	target_sources(cru_base_test PRIVATE
-		io/UnixFileStreamTest.cpp
+		platform/unix/UnixFileStreamTest.cpp
 	)
 endif()
 
 if (WIN32)
 	target_sources(cru_base_test PRIVATE
-		io/Win32FileStreamTest.cpp
+		platform/win/StreamConvertTest.cpp
+		platform/win/Win32FileStreamTest.cpp
 	)
 
 	add_custom_command(TARGET cru_base_test POST_BUILD

@@ -12,27 +12,10 @@
 #include <utility>
 
 namespace cru::platform::graphics::win::direct {
-namespace {
-void InitializeCom() {
-  const auto hresult = ::CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
-  if (FAILED(hresult)) {
-    throw HResultError(hresult, "Failed to call CoInitializeEx.");
-  }
-  if (hresult == S_FALSE) {
-    log::Debug(
-        u"Try to call CoInitializeEx, but it seems COM is already "
-        u"initialized.");
-  }
-}
-
-void UninitializeCom() { ::CoUninitialize(); }
-}  // namespace
 
 DirectGraphicsFactory::DirectGraphicsFactory() {
-  // TODO! Detect repeated creation. Because I don't think we can create two d2d
+  // TODO: Detect repeated creation. Because I don't think we can create two d2d
   // and dwrite factory so we need to prevent the "probably dangerous" behavior.
-
-  InitializeCom();
 
   UINT creation_flags = D3D11_CREATE_DEVICE_BGRA_SUPPORT;
 
@@ -79,7 +62,7 @@ DirectGraphicsFactory::DirectGraphicsFactory() {
   image_factory_ = std::make_unique<WinImageFactory>(this);
 }
 
-DirectGraphicsFactory::~DirectGraphicsFactory() { UninitializeCom(); }
+DirectGraphicsFactory::~DirectGraphicsFactory() {}
 
 Microsoft::WRL::ComPtr<ID2D1DeviceContext1>
 DirectGraphicsFactory::CreateD2D1DeviceContext() {

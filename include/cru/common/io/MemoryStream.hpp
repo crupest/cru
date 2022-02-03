@@ -31,6 +31,9 @@ class CRU_BASE_API MemoryStream : public Stream {
   bool CanWrite() override;
   Index Write(const std::byte* buffer, Index offset, Index size) override;
 
+  std::byte* GetBuffer() const { return buffer_; }
+  Index GetSize() override { return size_; }
+
  private:
   std::byte* buffer_ = nullptr;
   Index size_ = 0;

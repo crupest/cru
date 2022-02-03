@@ -6,7 +6,7 @@
 #include <cstdio>
 #include <filesystem>
 
-TEST(UnixFileStream, Work) {
+TEST(Win32FileStream, Work) {
   using namespace cru;
   using namespace cru::io;
   using namespace cru::platform::win;

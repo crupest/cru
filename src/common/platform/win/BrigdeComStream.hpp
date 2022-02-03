@@ -1,10 +1,7 @@
 #pragma once
-#include "../../PreConfig.hpp"
-#ifdef CRU_PLATFORM_WINDOWS
+#include "cru/common/platform/win/WinPreConfig.hpp"
 
-#include "WinPreConfig.hpp"
-
-#include "../../io/Stream.hpp"
+#include "cru/common/io/Stream.hpp"
 
 #include <objidlbase.h>
 
@@ -44,5 +41,3 @@ class BridgeComStream : public IStream {
   ULONG ref_count_;
 };
 }  // namespace cru::platform::win
-
-#endif
