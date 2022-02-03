@@ -74,21 +74,13 @@ bool UnixFileStream::CanSeek() {
   return true;
 }
 
-Index UnixFileStream::Tell() {
+Index UnixFileStream::Seek(Index offset, SeekOrigin origin) {
   CheckClosed();
-  auto result = ::lseek(file_descriptor_, 0, SEEK_CUR);
-  if (result == -1) {
-    throw ErrnoException(u"Failed to get file position.");
-  }
-  return result;
-}
-
-void UnixFileStream::Seek(Index offset, SeekOrigin origin) {
-  CheckClosed();
-  int result = ::lseek(file_descriptor_, offset, MapSeekOrigin(origin));
+  off_t result = ::lseek(file_descriptor_, offset, MapSeekOrigin(origin));
   if (result == -1) {
     throw ErrnoException(u"Failed to seek file.");
   }
+  return result;
 }
 
 bool UnixFileStream::CanRead() {
