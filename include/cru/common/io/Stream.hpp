@@ -21,8 +21,8 @@ class CRU_BASE_API Stream : public Object {
 
  public:
   virtual bool CanSeek() = 0;
-  virtual Index Tell() = 0;
-  virtual void Seek(Index offset, SeekOrigin origin = SeekOrigin::Current) = 0;
+  virtual Index Seek(Index offset, SeekOrigin origin = SeekOrigin::Current) = 0;
+  virtual Index Tell();
   virtual void Rewind();
   virtual Index GetSize();
 

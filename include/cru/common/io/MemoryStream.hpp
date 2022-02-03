@@ -23,8 +23,7 @@ class CRU_BASE_API MemoryStream : public Stream {
 
  public:
   bool CanSeek() override;
-  Index Tell() override;
-  void Seek(Index offset, SeekOrigin origin = SeekOrigin::Current) override;
+  Index Seek(Index offset, SeekOrigin origin = SeekOrigin::Current) override;
 
   bool CanRead() override;
   Index Read(std::byte* buffer, Index offset, Index size) override;

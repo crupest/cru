@@ -9,9 +9,7 @@ MemoryStream::~MemoryStream() {
 
 bool MemoryStream::CanSeek() { return true; }
 
-Index MemoryStream::Tell() { return position_; }
-
-void MemoryStream::Seek(Index offset, SeekOrigin origin) {
+Index MemoryStream::Seek(Index offset, SeekOrigin origin) {
   switch (origin) {
     case SeekOrigin::Current:
       position_ += offset;
@@ -23,6 +21,7 @@ void MemoryStream::Seek(Index offset, SeekOrigin origin) {
       position_ = size_ + offset;
       break;
   }
+  return position_;
 }
 
 bool MemoryStream::CanRead() { return true; }

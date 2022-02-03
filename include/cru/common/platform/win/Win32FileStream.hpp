@@ -24,8 +24,7 @@ class CRU_BASE_API Win32FileStream : public io::Stream {
 
  public:
   bool CanSeek() override;
-  Index Tell() override;
-  void Seek(Index offset, SeekOrigin origin = SeekOrigin::Current) override;
+  Index Seek(Index offset, SeekOrigin origin = SeekOrigin::Current) override;
 
   bool CanRead() override;
   Index Read(std::byte* buffer, Index offset, Index size) override;
@@ -47,6 +46,6 @@ class CRU_BASE_API Win32FileStream : public io::Stream {
 
   details::Win32FileStreamPrivate* p_;
 };
-}  // namespace cru::io
+}  // namespace cru::platform::win
 
 #endif

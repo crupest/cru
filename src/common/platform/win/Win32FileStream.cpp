@@ -53,21 +53,7 @@ Win32FileStream::~Win32FileStream() {
 
 bool Win32FileStream::CanSeek() { return true; }
 
-Index Win32FileStream::Tell() {
-  CheckClosed();
-
-  LARGE_INTEGER offset;
-  offset.QuadPart = 0;
-  LARGE_INTEGER file_pointer;
-  if (::SetFilePointerEx(p_->handle, offset, &file_pointer, FILE_CURRENT) ==
-      0) {
-    throw Win32Error(u"Failed to call SetFilePointerEx.");
-  }
-
-  return file_pointer.QuadPart;
-}
-
-void Win32FileStream::Seek(Index offset, SeekOrigin origin) {
+Index Win32FileStream::Seek(Index offset, SeekOrigin origin) {
   CheckClosed();
 
   DWORD dwMoveMethod = 0;
@@ -82,9 +68,12 @@ void Win32FileStream::Seek(Index offset, SeekOrigin origin) {
 
   LARGE_INTEGER n_offset;
   n_offset.QuadPart = offset;
-  if (::SetFilePointerEx(p_->handle, n_offset, nullptr, dwMoveMethod) == 0) {
+  LARGE_INTEGER n_new_offset;
+  if (!::SetFilePointerEx(p_->handle, n_offset, &n_new_offset, dwMoveMethod)) {
     throw Win32Error(u"Failed to call SetFilePointerEx.");
   }
+
+  return n_new_offset.QuadPart;
 }
 
 bool Win32FileStream::CanRead() { return true; }

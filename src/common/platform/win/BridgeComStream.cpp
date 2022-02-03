@@ -50,15 +50,23 @@ HRESULT BridgeComStream::Write(const void *pv, ULONG cb, ULONG *pcbWritten) {
 
 HRESULT BridgeComStream::Seek(LARGE_INTEGER dlibMove, DWORD dwOrigin,
                               ULARGE_INTEGER *plibNewPosition) {
-  io::Stream::SeekOrigin so =
-      dwOrigin == STREAM_SEEK_SET
-          ? io::Stream::SeekOrigin::Begin
-          : (STREAM_SEEK_CUR ? io::Stream::SeekOrigin::Current
-                             : io::Stream::SeekOrigin::End);
+  io::Stream::SeekOrigin so;
 
-  stream_->Seek(dlibMove.QuadPart, so);
-  plibNewPosition->QuadPart = stream_->Tell();
+  switch (dwOrigin) {
+    case STREAM_SEEK_SET:
+      so = io::Stream::SeekOrigin::Begin;
+      break;
+    case STREAM_SEEK_CUR:
+      so = io::Stream::SeekOrigin::Current;
+      break;
+    case STREAM_SEEK_END:
+      so = io::Stream::SeekOrigin::End;
+      break;
+    default:
+      return STG_E_INVALIDFUNCTION;
+  };
 
+  plibNewPosition->QuadPart = stream_->Seek(dlibMove.QuadPart, so);
   return S_OK;
 }
 

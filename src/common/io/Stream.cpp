@@ -1,7 +1,9 @@
 #include "cru/common/io/Stream.hpp"
 
 namespace cru::io {
-void Stream::Rewind() { Seek(0); }
+Index Stream::Tell() { return Seek(0, SeekOrigin::Current); }
+
+void Stream::Rewind() { Seek(0, SeekOrigin::Begin); }
 
 Index Stream::GetSize() {
   Index current_position = Tell();
