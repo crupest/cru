@@ -6,7 +6,7 @@
 
 @interface CruOsxMenuItemClickHandler : NSObject
 - init:(cru::platform::gui::osx::details::OsxMenuItemPrivate*)p;
-- (void)handleClick:(id)sender;
+- (void)handleClick;
 @end
 
 namespace cru::platform::gui::osx {
@@ -51,10 +51,12 @@ class OsxMenuPrivate {
   ~OsxMenuPrivate();
 
  public:
+  void SetParentItem(OsxMenuItem* item) { parent_item_ = item; }
   void AttachToNative(NSMenu* native_menu);
 
  private:
   OsxMenu* d_;
+  OsxMenuItem* parent_item_ = nullptr;
   NSMenu* menu_ = nullptr;
   std::vector<OsxMenuItem*> items_;
 };

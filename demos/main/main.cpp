@@ -23,6 +23,18 @@ using cru::ui::controls::Window;
 int main() {
   IUiApplication* application = cru::platform::bootstrap::CreateUiApplication();
 
+  auto application_menu = application->GetApplicationMenu();
+
+  if (application_menu) {
+    auto mi = application->GetApplicationMenu()
+                  ->GetItemAt(0)
+                  ->GetSubmenu()
+                  ->CreateItemAt(0);
+    mi->SetTitle(u"Quit");
+    mi->SetEnabled(true);
+    mi->SetOnClickHandler([&]() { application->RequestQuit(0); });
+  }
+
   const auto window = Window::Create();
 
   const auto flex_layout = FlexLayout::Create();

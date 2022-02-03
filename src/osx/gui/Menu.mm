@@ -15,6 +15,7 @@ namespace details {
 OsxMenuItemPrivate::OsxMenuItemPrivate(OsxMenuItem* d) {
   d_ = d;
   sub_menu_ = new OsxMenu(d->GetUiApplication());
+  sub_menu_->p_->SetParentItem(d);
   handler_ = [[CruOsxMenuItemClickHandler alloc] init:this];
 }
 
@@ -80,8 +81,14 @@ OsxMenu* OsxMenu::CreateOrGetApplicationMenu(IUiApplication* ui_application) {
     return application_menu.get();
   }
 
+  NSMenu* native_main_menu = [[NSMenu alloc] init];
+  [NSApp setMainMenu:native_main_menu];
+  [native_main_menu setAutoenablesItems:NO];
+
   application_menu.reset(new OsxMenu(ui_application));
-  application_menu->p_->AttachToNative([NSApp mainMenu]);
+  application_menu->p_->AttachToNative(native_main_menu);
+
+  application_menu->CreateItemAt(0);
 
   return application_menu.get();
 }
@@ -106,6 +113,13 @@ IMenuItem* OsxMenu::CreateItemAt(int index) {
   if (index < 0) index = 0;
   if (index > p_->items_.size()) index = p_->items_.size();
 
+  if (p_->parent_item_ && p_->items_.empty()) {
+    Expects(p_->menu_ == nullptr);
+    p_->menu_ = [[NSMenu alloc] init];
+    [p_->menu_ setAutoenablesItems:NO];
+    [p_->parent_item_->p_->GetNative() setSubmenu:p_->menu_];
+  }
+
   auto native_item = [[NSMenuItem alloc] init];
   [p_->menu_ insertItem:native_item atIndex:index];
 
@@ -127,6 +141,12 @@ void OsxMenu::RemoveItemAt(int index) {
   p_->items_.erase(p_->items_.begin() + index);
 
   delete item;
+
+  if (p_->items_.empty() && p_->parent_item_) {
+    Expects(p_->menu_ != nullptr);
+    [p_->parent_item_->p_->GetNative() setSubmenu:nullptr];
+    p_->menu_ = nullptr;
+  }
 }
 }
 
@@ -139,7 +159,7 @@ void OsxMenu::RemoveItemAt(int index) {
   return self;
 }
 
-- (void)handleClick:(id)sender {
+- (void)handleClick {
   if (p_->GetOnClickHandler()) {
     p_->GetOnClickHandler()();
   }
