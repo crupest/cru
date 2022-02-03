@@ -5,6 +5,7 @@
 #include "cru/osx/graphics/quartz/Factory.hpp"
 #include "cru/osx/gui/Clipboard.hpp"
 #include "cru/osx/gui/Cursor.hpp"
+#include "cru/osx/gui/Menu.hpp"
 #include "cru/osx/gui/Window.hpp"
 #include "cru/platform/graphics/Factory.hpp"
 #include "cru/platform/gui/Base.hpp"
@@ -171,6 +172,8 @@ INativeWindow* OsxUiApplication::CreateWindow() {
 ICursorManager* OsxUiApplication::GetCursorManager() { return p_->cursor_manager_.get(); }
 
 IClipboard* OsxUiApplication::GetClipboard() { return p_->clipboard_.get(); }
+
+IMenu* OsxUiApplication::GetApplicationMenu() { return OsxMenu::CreateOrGetApplicationMenu(this); }
 
 graphics::IGraphicsFactory* OsxUiApplication::GetGraphicsFactory() {
   return p_->quartz_graphics_factory_.get();

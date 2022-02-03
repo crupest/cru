@@ -1,5 +1,6 @@
 add_library(cru_platform_gui SHARED
 	Keyboard.cpp
+	Menu.cpp
 	UiApplication.cpp
 )
 target_link_libraries(cru_platform_gui PUBLIC cru_platform_graphics)

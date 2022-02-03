@@ -49,6 +49,8 @@ class OsxUiApplication : public OsxGuiResource, public virtual IUiApplication {
 
   IClipboard* GetClipboard() override;
 
+  IMenu* GetApplicationMenu() override;
+
  private:
   void UnregisterWindow(OsxWindow* window);
 

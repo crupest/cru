@@ -2,6 +2,7 @@
 #include "Base.hpp"
 
 #include "cru/common/Bitmask.hpp"
+#include "cru/platform/gui/Menu.hpp"
 
 #include <chrono>
 #include <functional>
@@ -56,5 +57,8 @@ struct CRU_PLATFORM_GUI_API IUiApplication : public virtual IPlatformResource {
   virtual ICursorManager* GetCursorManager() = 0;
 
   virtual IClipboard* GetClipboard() = 0;
+
+  // If return nullptr, it means the menu is not supported.
+  virtual IMenu* GetApplicationMenu();
 };
 }  // namespace cru::platform::gui

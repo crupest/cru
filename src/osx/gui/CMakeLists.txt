@@ -3,6 +3,7 @@ add_library(cru_osx_gui SHARED
 	Cursor.mm
 	InputMethod.mm
 	Keyboard.mm
+	Menu.mm
 	Resource.cpp
 	UiApplication.mm
 	Window.mm
