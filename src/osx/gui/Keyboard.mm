@@ -1,6 +1,8 @@
 #include "cru/osx/gui/Keyboard.hpp"
 
-#include <Carbon/Carbon.h>
+#import <AppKit/NSText.h>
+#import <Carbon/Carbon.h>
+#import "KeyboardPrivate.h"
 
 namespace cru::platform::gui::osx {
 KeyCode KeyCodeFromOsxToCru(unsigned short n) {
@@ -94,6 +96,7 @@ KeyCode KeyCodeFromOsxToCru(unsigned short n) {
 
 #undef CRU_DEFINE_KEYCODE_MAP
 }
+
 unsigned short KeyCodeFromCruToOsx(KeyCode k) {
   switch (k) {
 #define CRU_DEFINE_KEYCODE_MAP(cru, osx) \
@@ -182,5 +185,99 @@ unsigned short KeyCodeFromCruToOsx(KeyCode k) {
     default:
       return 0;
   }
+#undef CRU_DEFINE_KEYCODE_MAP
+}
+
+NSString* ConvertKeyCodeToKeyEquivalent(KeyCode key_code) {
+#define CRU_DEFINE_KEYCODE_MAP(key_code, str) \
+  case key_code:                              \
+    return str;
+
+  switch (key_code) {
+    CRU_DEFINE_KEYCODE_MAP(KeyCode::A, @"a")
+    CRU_DEFINE_KEYCODE_MAP(KeyCode::B, @"b")
+    CRU_DEFINE_KEYCODE_MAP(KeyCode::C, @"c")
+    CRU_DEFINE_KEYCODE_MAP(KeyCode::D, @"d")
+    CRU_DEFINE_KEYCODE_MAP(KeyCode::E, @"e")
+    CRU_DEFINE_KEYCODE_MAP(KeyCode::F, @"f")
+    CRU_DEFINE_KEYCODE_MAP(KeyCode::G, @"g")
+    CRU_DEFINE_KEYCODE_MAP(KeyCode::H, @"h")
+    CRU_DEFINE_KEYCODE_MAP(KeyCode::I, @"i")
+    CRU_DEFINE_KEYCODE_MAP(KeyCode::J, @"j")
+    CRU_DEFINE_KEYCODE_MAP(KeyCode::K, @"k")
+    CRU_DEFINE_KEYCODE_MAP(KeyCode::L, @"l")
+    CRU_DEFINE_KEYCODE_MAP(KeyCode::M, @"m")
+    CRU_DEFINE_KEYCODE_MAP(KeyCode::N, @"n")
+    CRU_DEFINE_KEYCODE_MAP(KeyCode::O, @"o")
+    CRU_DEFINE_KEYCODE_MAP(KeyCode::P, @"p")
+    CRU_DEFINE_KEYCODE_MAP(KeyCode::Q, @"q")
+    CRU_DEFINE_KEYCODE_MAP(KeyCode::R, @"r")
+    CRU_DEFINE_KEYCODE_MAP(KeyCode::S, @"s")
+    CRU_DEFINE_KEYCODE_MAP(KeyCode::T, @"t")
+    CRU_DEFINE_KEYCODE_MAP(KeyCode::U, @"u")
+    CRU_DEFINE_KEYCODE_MAP(KeyCode::V, @"v")
+    CRU_DEFINE_KEYCODE_MAP(KeyCode::W, @"w")
+    CRU_DEFINE_KEYCODE_MAP(KeyCode::X, @"x")
+    CRU_DEFINE_KEYCODE_MAP(KeyCode::Y, @"y")
+    CRU_DEFINE_KEYCODE_MAP(KeyCode::Z, @"z")
+    CRU_DEFINE_KEYCODE_MAP(KeyCode::N0, @"0")
+    CRU_DEFINE_KEYCODE_MAP(KeyCode::N1, @"1")
+    CRU_DEFINE_KEYCODE_MAP(KeyCode::N2, @"2")
+    CRU_DEFINE_KEYCODE_MAP(KeyCode::N3, @"3")
+    CRU_DEFINE_KEYCODE_MAP(KeyCode::N4, @"4")
+    CRU_DEFINE_KEYCODE_MAP(KeyCode::N5, @"5")
+    CRU_DEFINE_KEYCODE_MAP(KeyCode::N6, @"6")
+    CRU_DEFINE_KEYCODE_MAP(KeyCode::N7, @"7")
+    CRU_DEFINE_KEYCODE_MAP(KeyCode::N8, @"8")
+    CRU_DEFINE_KEYCODE_MAP(KeyCode::N9, @"9")
+    CRU_DEFINE_KEYCODE_MAP(KeyCode::F1, @"F1")
+    CRU_DEFINE_KEYCODE_MAP(KeyCode::F2, @"F2")
+    CRU_DEFINE_KEYCODE_MAP(KeyCode::F3, @"F3")
+    CRU_DEFINE_KEYCODE_MAP(KeyCode::F4, @"F4")
+    CRU_DEFINE_KEYCODE_MAP(KeyCode::F5, @"F5")
+    CRU_DEFINE_KEYCODE_MAP(KeyCode::F6, @"F6")
+    CRU_DEFINE_KEYCODE_MAP(KeyCode::F7, @"F7")
+    CRU_DEFINE_KEYCODE_MAP(KeyCode::F8, @"F8")
+    CRU_DEFINE_KEYCODE_MAP(KeyCode::F9, @"F9")
+    CRU_DEFINE_KEYCODE_MAP(KeyCode::F10, @"F10")
+    CRU_DEFINE_KEYCODE_MAP(KeyCode::F11, @"F11")
+    CRU_DEFINE_KEYCODE_MAP(KeyCode::F12, @"F12")
+    CRU_DEFINE_KEYCODE_MAP(KeyCode::Minus, @"-")
+    CRU_DEFINE_KEYCODE_MAP(KeyCode::Equal, @"=")
+    CRU_DEFINE_KEYCODE_MAP(KeyCode::Comma, @",")
+    CRU_DEFINE_KEYCODE_MAP(KeyCode::Period, @".")
+    CRU_DEFINE_KEYCODE_MAP(KeyCode::Slash, @"/")
+    CRU_DEFINE_KEYCODE_MAP(KeyCode::Semicolon, @";")
+    CRU_DEFINE_KEYCODE_MAP(KeyCode::Quote, @"'")
+    CRU_DEFINE_KEYCODE_MAP(KeyCode::LeftSquareBracket, @"[")
+    CRU_DEFINE_KEYCODE_MAP(KeyCode::RightSquareBracket, @"]")
+    CRU_DEFINE_KEYCODE_MAP(KeyCode::BackSlash, @"\\")
+    CRU_DEFINE_KEYCODE_MAP(KeyCode::GraveAccent, @"`")
+    CRU_DEFINE_KEYCODE_MAP(KeyCode::Return, @"\n")
+    CRU_DEFINE_KEYCODE_MAP(KeyCode::Escape, @"\e")
+    CRU_DEFINE_KEYCODE_MAP(KeyCode::Tab, @"\t")
+    CRU_DEFINE_KEYCODE_MAP(KeyCode::Backspace, @"\x08")
+    CRU_DEFINE_KEYCODE_MAP(KeyCode::Delete, @"\x7F")
+    default:
+      throw Exception(u"Failed to convert key code to key equivalent string.");
+  }
+#undef CRU_DEFINE_KEYCODE_MAP
+}
+
+NSEventModifierFlags ConvertKeyModifier(KeyModifier k) {
+  NSEventModifierFlags flags = 0;
+  if (k & KeyModifiers::shift) {
+    flags |= NSEventModifierFlagShift;
+  }
+  if (k & KeyModifiers::ctrl) {
+    flags |= NSEventModifierFlagControl;
+  }
+  if (k & KeyModifiers::alt) {
+    flags |= NSEventModifierFlagOption;
+  }
+  if (k & KeyModifiers::command) {
+    flags |= NSEventModifierFlagCommand;
+  }
+  return flags;
 }
 }

@@ -1,6 +1,8 @@
 #pragma once
 #include "Base.hpp"
 
+#include "Keyboard.hpp"
+
 #include <functional>
 
 namespace cru::platform::gui {
@@ -13,6 +15,8 @@ struct CRU_PLATFORM_GUI_API IMenuItem : virtual IPlatformResource {
   virtual void SetEnabled(bool enabled) = 0;
   virtual IMenu* GetParentMenu() = 0;
   virtual IMenu* GetSubmenu() = 0;
+  virtual void SetKeyboardShortcut(KeyCode key, KeyModifier modifiers) = 0;
+  virtual void DeleteKeyboardShortcut() = 0;
   virtual void SetOnClickHandler(std::function<void()> handler) = 0;
 };
 

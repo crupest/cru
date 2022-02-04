@@ -31,6 +31,8 @@ class OsxMenuItem : public OsxGuiResource, public virtual IMenuItem {
   void SetEnabled(bool enabled) override;
   IMenu* GetParentMenu() override;
   IMenu* GetSubmenu() override;
+  void SetKeyboardShortcut(KeyCode key, KeyModifier modifiers) override;
+  void DeleteKeyboardShortcut() override;
   void SetOnClickHandler(std::function<void()> handler) override;
 
  private:

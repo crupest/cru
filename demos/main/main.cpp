@@ -31,6 +31,8 @@ int main() {
                   ->GetSubmenu()
                   ->CreateItemAt(0);
     mi->SetTitle(u"Quit");
+    mi->SetKeyboardShortcut(cru::platform::gui::KeyCode::Q,
+                            cru::platform::gui::KeyModifiers::command);
     mi->SetEnabled(true);
     mi->SetOnClickHandler([&]() { application->RequestQuit(0); });
   }

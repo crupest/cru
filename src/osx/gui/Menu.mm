@@ -1,5 +1,7 @@
+#include "cru/osx/gui/Menu.hpp"
 #import "MenuPrivate.h"
 
+#include "KeyboardPrivate.h"
 #include "cru/common/platform/osx/Convert.hpp"
 
 #import <AppKit/NSApplication.h>
@@ -71,6 +73,16 @@ void OsxMenuItem::SetEnabled(bool enabled) { [p_->menu_item_ setEnabled:enabled]
 IMenu* OsxMenuItem::GetParentMenu() { return p_->parent_menu_; }
 
 IMenu* OsxMenuItem::GetSubmenu() { return p_->sub_menu_; }
+
+void OsxMenuItem::SetKeyboardShortcut(KeyCode key, KeyModifier modifiers) {
+  [p_->menu_item_ setKeyEquivalent:ConvertKeyCodeToKeyEquivalent(key)];
+  [p_->menu_item_ setKeyEquivalentModifierMask:ConvertKeyModifier(modifiers)];
+}
+
+void OsxMenuItem::DeleteKeyboardShortcut() {
+  [p_->menu_item_ setKeyEquivalent:@""];
+  [p_->menu_item_ setKeyEquivalentModifierMask:0];
+}
 
 void OsxMenuItem::SetOnClickHandler(std::function<void()> handler) {
   p_->on_click_handler_ = std::move(handler);
