@@ -47,7 +47,7 @@ class OsxWindowPrivate {
   void OnMouseMove(Point p);
   void OnMouseDown(MouseButton button, Point p, KeyModifier key_modifier);
   void OnMouseUp(MouseButton button, Point p, KeyModifier key_modifier);
-  void OnMouseWheel(float delta, Point p, KeyModifier key_modifier);
+  void OnMouseWheel(float delta, Point p, KeyModifier key_modifier, bool horizontal);
   void OnKeyDown(KeyCode key, KeyModifier key_modifier);
   void OnKeyUp(KeyCode key, KeyModifier key_modifier);
 

@@ -35,6 +35,7 @@ struct NativeMouseWheelEventArgs {
   float delta;
   Point point;
   KeyModifier modifier;
+  bool horizontal;  // true if horizontal wheel.
 };
 
 struct NativeKeyEventArgs {

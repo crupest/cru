@@ -125,8 +125,9 @@ void OsxWindowPrivate::OnMouseUp(MouseButton button, Point p, KeyModifier key_mo
   mouse_up_event_.Raise({button, TransformMousePoint(p), key_modifier});
 }
 
-void OsxWindowPrivate::OnMouseWheel(float delta, Point p, KeyModifier key_modifier) {
-  mouse_wheel_event_.Raise({delta, TransformMousePoint(p), key_modifier});
+void OsxWindowPrivate::OnMouseWheel(float delta, Point p, KeyModifier key_modifier,
+                                    bool horizontal) {
+  mouse_wheel_event_.Raise({delta, TransformMousePoint(p), key_modifier, horizontal});
 }
 
 void OsxWindowPrivate::OnKeyDown(KeyCode key, KeyModifier key_modifier) {
@@ -548,7 +549,13 @@ cru::platform::gui::KeyModifier GetKeyModifier(NSEvent* event) {
   auto key_modifier = GetKeyModifier(event);
   cru::platform::Point p(event.locationInWindow.x, event.locationInWindow.y);
 
-  _p->OnMouseWheel(static_cast<float>(event.scrollingDeltaY), p, key_modifier);
+  if (event.scrollingDeltaY) {
+    _p->OnMouseWheel(static_cast<float>(event.scrollingDeltaY), p, key_modifier, false);
+  }
+
+  if (event.scrollingDeltaX) {
+    _p->OnMouseWheel(static_cast<float>(event.scrollingDeltaX), p, key_modifier, true);
+  }
 }
 
 namespace {
