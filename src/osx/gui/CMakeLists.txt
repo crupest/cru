@@ -10,5 +10,6 @@ add_library(cru_osx_gui SHARED
 )
 
 find_library(APPKIT AppKit REQUIRED)
+find_library(UNIFORMTYPEIDENTIFIERS UniformTypeIdentifiers REQUIRED)
 
-target_link_libraries(cru_osx_gui PUBLIC cru_platform_gui cru_osx_graphics_quartz ${APPKIT})
+target_link_libraries(cru_osx_gui PUBLIC cru_platform_gui cru_osx_graphics_quartz ${APPKIT} ${UNIFORMTYPEIDENTIFIERS})

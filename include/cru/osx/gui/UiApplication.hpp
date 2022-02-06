@@ -51,6 +51,11 @@ class OsxUiApplication : public OsxGuiResource, public virtual IUiApplication {
 
   IMenu* GetApplicationMenu() override;
 
+  std::optional<String> ShowSaveDialog(SaveDialogOptions options) override;
+
+  std::optional<std::vector<String>> ShowOpenDialog(
+      OpenDialogOptions options) override;
+
  private:
   void UnregisterWindow(OsxWindow* window);
 

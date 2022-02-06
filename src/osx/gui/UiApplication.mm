@@ -2,6 +2,7 @@
 
 #include "ClipboardPrivate.h"
 #include "cru/common/Logger.hpp"
+#include "cru/common/platform/osx/Convert.hpp"
 #include "cru/osx/graphics/quartz/Factory.hpp"
 #include "cru/osx/gui/Clipboard.hpp"
 #include "cru/osx/gui/Cursor.hpp"
@@ -14,6 +15,7 @@
 
 #include <AppKit/NSApplication.h>
 #include <Foundation/NSRunLoop.h>
+#include <UniformTypeIdentifiers/UTType.h>
 
 #include <algorithm>
 #include <iterator>
@@ -28,6 +30,8 @@
 @end
 
 namespace cru::platform::gui::osx {
+
+using cru::platform::osx::Convert;
 
 namespace details {
 class OsxUiApplicationPrivate {
@@ -177,6 +181,62 @@ IMenu* OsxUiApplication::GetApplicationMenu() { return OsxMenu::CreateOrGetAppli
 
 graphics::IGraphicsFactory* OsxUiApplication::GetGraphicsFactory() {
   return p_->quartz_graphics_factory_.get();
+}
+
+std::optional<String> OsxUiApplication::ShowSaveDialog(SaveDialogOptions options) {
+  NSSavePanel* panel = [NSSavePanel savePanel];
+  [panel setTitle:(NSString*)Convert(options.title)];
+  [panel setPrompt:(NSString*)Convert(options.prompt)];
+  [panel setMessage:(NSString*)Convert(options.message)];
+
+  NSMutableArray* allowed_content_types = [NSMutableArray array];
+
+  for (const auto& file_type : options.allowed_file_types) {
+    [allowed_content_types
+        addObject:[UTType typeWithFilenameExtension:(NSString*)Convert(file_type)]];
+  }
+
+  [panel setAllowedContentTypes:allowed_content_types];
+  [panel setAllowsOtherFileTypes:options.allow_all_file_types];
+
+  auto model_result = [panel runModal];
+  if (model_result == NSModalResponseOK) {
+    return Convert((CFStringRef)[[panel URL] path]);
+  } else {
+    return std::nullopt;
+  }
+}
+
+std::optional<std::vector<String>> OsxUiApplication::ShowOpenDialog(OpenDialogOptions options) {
+  NSOpenPanel* panel = [NSOpenPanel openPanel];
+  [panel setTitle:(NSString*)Convert(options.title)];
+  [panel setPrompt:(NSString*)Convert(options.prompt)];
+  [panel setMessage:(NSString*)Convert(options.message)];
+
+  NSMutableArray* allowed_content_types = [NSMutableArray array];
+
+  for (const auto& file_type : options.allowed_file_types) {
+    [allowed_content_types
+        addObject:[UTType typeWithFilenameExtension:(NSString*)Convert(file_type)]];
+  }
+
+  [panel setAllowedContentTypes:allowed_content_types];
+  [panel setAllowsOtherFileTypes:options.allow_all_file_types];
+
+  [panel setCanChooseFiles:options.can_choose_files];
+  [panel setCanChooseDirectories:options.can_choose_directories];
+  [panel setAllowsMultipleSelection:options.allow_mulitple_selection];
+
+  auto model_result = [panel runModal];
+  if (model_result == NSModalResponseOK) {
+    std::vector<String> result;
+    for (NSURL* url in [panel URLs]) {
+      result.push_back(Convert((CFStringRef)[url path]));
+    }
+    return result;
+  } else {
+    return std::nullopt;
+  }
 }
 
 void OsxUiApplication::UnregisterWindow(OsxWindow* window) {
