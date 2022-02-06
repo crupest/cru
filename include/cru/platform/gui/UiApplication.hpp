@@ -4,6 +4,8 @@
 #include "cru/common/Bitmask.hpp"
 #include "cru/platform/gui/Menu.hpp"
 
+#include "SaveOpenDialogOptions.hpp"
+
 #include <chrono>
 #include <functional>
 #include <memory>
@@ -60,5 +62,9 @@ struct CRU_PLATFORM_GUI_API IUiApplication : public virtual IPlatformResource {
 
   // If return nullptr, it means the menu is not supported.
   virtual IMenu* GetApplicationMenu();
+
+  virtual std::optional<String> ShowSaveDialog(SaveDialogOptions options);
+  virtual std::optional<std::vector<String>> ShowOpenDialog(
+      OpenDialogOptions options);
 };
 }  // namespace cru::platform::gui

@@ -14,4 +14,14 @@ IUiApplication::IUiApplication() {
 IUiApplication::~IUiApplication() { instance = nullptr; }
 
 IMenu* IUiApplication::GetApplicationMenu() { return nullptr; }
+
+std::optional<String> IUiApplication::ShowSaveDialog(
+    SaveDialogOptions options) {
+  throw Exception(u"Not implemented.");
+}
+
+std::optional<std::vector<String>> IUiApplication::ShowOpenDialog(
+    OpenDialogOptions options) {
+  throw Exception(u"Not implemented.");
+}
 }  // namespace cru::platform::gui
