@@ -33,6 +33,9 @@ class CRU_UI_API TreeRenderObjectItem : public Object {
   TreeRenderObjectItem* AddItem(Index position);
   void RemoveItem(Index position);
 
+  Point GetCachedOffset() const { return offset_cache_; }
+  void SetCachedOffset(const Point& point) { offset_cache_ = point; }
+
  private:
   TreeRenderObject* tree_render_object_;
 
@@ -41,7 +44,7 @@ class CRU_UI_API TreeRenderObjectItem : public Object {
 
   RenderObject* render_object_;
 
-  Rect rect_cache_;
+  Point offset_cache_;
 };
 
 class CRU_UI_API TreeRenderObject : public RenderObject {

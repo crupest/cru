@@ -47,11 +47,14 @@ void TreeRenderObject::SetTabWidth(float tab_width) {
 static Size MeasureTreeRenderObjectItem(MeasureSize max_size,
                                         TreeRenderObjectItem* item,
                                         float tab_width) {
-  item->GetRenderObject()->Measure(
-      MeasureRequirement(max_size, MeasureSize::NotSpecified()),
-      MeasureSize::NotSpecified());
+  auto render_object = item->GetRenderObject();
+  if (render_object) {
+    render_object->Measure(
+        MeasureRequirement(max_size, MeasureSize::NotSpecified()),
+        MeasureSize::NotSpecified());
+  }
 
-  auto item_size = item->GetRenderObject()->GetSize();
+  Size item_size = render_object ? render_object->GetSize() : Size{};
 
   if (max_size.width.IsSpecified()) {
     max_size.width = max_size.width.GetLengthOrUndefined() - tab_width;
@@ -83,7 +86,31 @@ Size TreeRenderObject::OnMeasureContent(const MeasureRequirement& requirement,
   return size;
 }
 
+static void LayoutTreeRenderObjectItem(Rect rect, TreeRenderObjectItem* item,
+                                       float tab_width) {
+  auto render_object = item->GetRenderObject();
+  float item_height = 0.f;
+  if (render_object) {
+    render_object->Layout(rect.GetLeftTop());
+    item_height = render_object->GetSize().height;
+  }
+
+  rect.left += tab_width;
+  rect.width -= tab_width;
+  rect.top += item_height;
+  rect.height -= item_height;
+
+  for (auto child : item->GetChildren()) {
+    LayoutTreeRenderObjectItem(rect, child, tab_width);
+    auto child_render_object = child->GetRenderObject();
+    auto child_height =
+        child_render_object ? child_render_object->GetSize().height : 0.f;
+    rect.top += child_height;
+    rect.height -= child_height;
+  }
+}
+
 void TreeRenderObject::OnLayoutContent(const Rect& content_rect) {
-  throw Exception(u"Not implemented.");
+  LayoutTreeRenderObjectItem(content_rect, root_item_, tab_width_);
 }
 }  // namespace cru::ui::render
