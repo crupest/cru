@@ -1,4 +1,4 @@
-#include "cru/parse/ParsingTreeNode.hpp"
+#include "cru/parse/ParsingTreeNode.h"
 
 namespace cru::parse {
 ParsingTreeNode::ParsingTreeNode(Symbol* symbol, Production* production)

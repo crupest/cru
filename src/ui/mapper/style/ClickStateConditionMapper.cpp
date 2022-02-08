@@ -1,8 +1,8 @@
-#include "cru/ui/mapper/style/ClickStateConditionMapper.hpp"
-#include "cru/common/ClonablePtr.hpp"
-#include "cru/common/Exception.hpp"
-#include "cru/ui/helper/ClickDetector.hpp"
-#include "cru/ui/style/Condition.hpp"
+#include "cru/ui/mapper/style/ClickStateConditionMapper.h"
+#include "cru/common/ClonablePtr.h"
+#include "cru/common/Exception.h"
+#include "cru/ui/helper/ClickDetector.h"
+#include "cru/ui/style/Condition.h"
 
 namespace cru::ui::mapper::style {
 bool ClickStateConditionMapper::XmlElementIsOfThisType(

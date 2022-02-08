@@ -1,4 +1,4 @@
-#include "cru/platform/gui/UiApplication.hpp"
+#include "cru/platform/gui/UiApplication.h"
 
 namespace cru::platform::gui {
 IUiApplication* IUiApplication::instance = nullptr;

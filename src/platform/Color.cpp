@@ -1,4 +1,4 @@
-#include "cru/platform/Color.hpp"
+#include "cru/platform/Color.h"
 
 #include <cstdint>
 #include <gsl/gsl>

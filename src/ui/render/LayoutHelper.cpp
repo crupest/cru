@@ -1,6 +1,6 @@
-#include "cru/ui/render/LayoutHelper.hpp"
+#include "cru/ui/render/LayoutHelper.h"
 
-#include "cru/common/Logger.hpp"
+#include "cru/common/Logger.h"
 
 namespace cru::ui::render {
 float CalculateAnchorByAlignment(Alignment alignment, float start_point,

@@ -1,10 +1,10 @@
 #pragma once
-#include "cru/osx/gui/Window.hpp"
+#include "cru/osx/gui/Window.h"
 
-#include "cru/common/Event.hpp"
-#include "cru/osx/gui/Cursor.hpp"
-#include "cru/platform/gui/TimerHelper.hpp"
-#include "cru/platform/gui/Window.hpp"
+#include "cru/common/Event.h"
+#include "cru/osx/gui/Cursor.h"
+#include "cru/platform/gui/TimerHelper.h"
+#include "cru/platform/gui/Window.h"
 
 #import <AppKit/AppKit.h>
 

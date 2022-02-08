@@ -1,12 +1,12 @@
-#include "cru/ui/style/Styler.hpp"
+#include "cru/ui/style/Styler.h"
 
-#include "../Helper.hpp"
-#include "cru/common/ClonablePtr.hpp"
-#include "cru/platform/gui/Cursor.hpp"
-#include "cru/platform/gui/UiApplication.hpp"
-#include "cru/ui/controls/Control.hpp"
-#include "cru/ui/controls/IBorderControl.hpp"
-#include "cru/ui/style/ApplyBorderStyleInfo.hpp"
+#include "../Helper.h"
+#include "cru/common/ClonablePtr.h"
+#include "cru/platform/gui/Cursor.h"
+#include "cru/platform/gui/UiApplication.h"
+#include "cru/ui/controls/Control.h"
+#include "cru/ui/controls/IBorderControl.h"
+#include "cru/ui/style/ApplyBorderStyleInfo.h"
 
 namespace cru::ui::style {
 BorderStyler::BorderStyler(ApplyBorderStyleInfo style)

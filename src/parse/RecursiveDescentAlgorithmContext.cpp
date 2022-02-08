@@ -1,5 +1,5 @@
-#include "cru/parse/RecursiveDescentAlgorithmContext.hpp"
-#include "cru/parse/ParsingTreeNode.hpp"
+#include "cru/parse/RecursiveDescentAlgorithmContext.h"
+#include "cru/parse/ParsingTreeNode.h"
 
 namespace cru::parse {
 RecursiveDescentAlgorithmContext::RecursiveDescentAlgorithmContext(

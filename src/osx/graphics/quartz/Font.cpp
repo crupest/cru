@@ -1,8 +1,8 @@
-#include "cru/osx/graphics/quartz/Font.hpp"
+#include "cru/osx/graphics/quartz/Font.h"
 
-#include "cru/osx/Convert.hpp"
-#include "cru/osx/graphics/quartz/Convert.hpp"
-#include "cru/osx/graphics/quartz/Resource.hpp"
+#include "cru/osx/Convert.h"
+#include "cru/osx/graphics/quartz/Convert.h"
+#include "cru/osx/graphics/quartz/Resource.h"
 
 namespace cru::platform::graphics::osx::quartz {
 using cru::platform::osx::Convert;

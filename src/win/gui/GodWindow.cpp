@@ -1,9 +1,9 @@
-#include "cru/win/gui/GodWindow.hpp"
+#include "cru/win/gui/GodWindow.h"
 
-#include "cru/common/Logger.hpp"
-#include "cru/win/gui/Exception.hpp"
-#include "cru/win/gui/UiApplication.hpp"
-#include "cru/win/gui/WindowClass.hpp"
+#include "cru/common/Logger.h"
+#include "cru/win/gui/Exception.h"
+#include "cru/win/gui/UiApplication.h"
+#include "cru/win/gui/WindowClass.h"
 
 namespace cru::platform::gui::win {
 constexpr auto god_window_class_name = L"GodWindowClass";

@@ -1,6 +1,6 @@
-#include "cru/ui/controls/FlexLayout.hpp"
+#include "cru/ui/controls/FlexLayout.h"
 
-#include "cru/ui/render/FlexLayoutRenderObject.hpp"
+#include "cru/ui/render/FlexLayoutRenderObject.h"
 
 namespace cru::ui::controls {
 using render::FlexLayoutRenderObject;

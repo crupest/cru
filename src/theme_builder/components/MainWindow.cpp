@@ -1,7 +1,7 @@
-#include "MainWindow.hpp"
-#include "cru/ui/Base.hpp"
-#include "cru/ui/controls/StackLayout.hpp"
-#include "cru/ui/controls/TextBlock.hpp"
+#include "MainWindow.h"
+#include "cru/ui/Base.h"
+#include "cru/ui/controls/StackLayout.h"
+#include "cru/ui/controls/TextBlock.h"
 
 namespace cru::theme_builder {
 using namespace cru::ui;

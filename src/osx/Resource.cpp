@@ -1,1 +1,1 @@
-#include "cru/osx/Resource.hpp"
+#include "cru/osx/Resource.h"

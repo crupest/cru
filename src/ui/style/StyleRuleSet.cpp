@@ -1,6 +1,6 @@
-#include "cru/ui/style/StyleRuleSet.hpp"
-#include "cru/common/Event.hpp"
-#include "cru/ui/controls/Control.hpp"
+#include "cru/ui/style/StyleRuleSet.h"
+#include "cru/common/Event.h"
+#include "cru/ui/controls/Control.h"
 #include "gsl/gsl_assert"
 
 #include <unordered_set>

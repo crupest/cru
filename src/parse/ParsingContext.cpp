@@ -1,5 +1,5 @@
-#include "cru/parse/ParsingContext.hpp"
-#include "cru/parse/ParsingAlgorithmContext.hpp"
+#include "cru/parse/ParsingContext.h"
+#include "cru/parse/ParsingAlgorithmContext.h"
 
 namespace cru::parse {
 ParsingContext::ParsingContext(

@@ -1,8 +1,8 @@
-#include "cru/ui/events/MouseEventArgs.hpp"
+#include "cru/ui/events/MouseEventArgs.h"
 
-#include "cru/ui/controls/Control.hpp"
-#include "cru/ui/host/WindowHost.hpp"
-#include "cru/ui/render/RenderObject.hpp"
+#include "cru/ui/controls/Control.h"
+#include "cru/ui/host/WindowHost.h"
+#include "cru/ui/render/RenderObject.h"
 
 namespace cru::ui::events {
 Point MouseEventArgs::GetPoint(render::RenderObject* render_object) const {

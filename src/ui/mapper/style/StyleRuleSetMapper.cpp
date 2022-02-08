@@ -1,8 +1,8 @@
-#include "cru/ui/mapper/style/StyleRuleSetMapper.hpp"
+#include "cru/ui/mapper/style/StyleRuleSetMapper.h"
 #include <memory>
-#include "cru/ui/mapper/MapperRegistry.hpp"
-#include "cru/ui/style/StyleRule.hpp"
-#include "cru/ui/style/StyleRuleSet.hpp"
+#include "cru/ui/mapper/MapperRegistry.h"
+#include "cru/ui/style/StyleRule.h"
+#include "cru/ui/style/StyleRuleSet.h"
 
 namespace cru::ui::mapper::style {
 using namespace cru::ui::style;

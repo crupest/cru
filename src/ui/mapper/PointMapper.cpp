@@ -1,4 +1,4 @@
-#include "cru/ui/mapper/PointMapper.hpp"
+#include "cru/ui/mapper/PointMapper.h"
 
 namespace cru::ui::mapper {
 bool PointMapper::XmlElementIsOfThisType(xml::XmlElementNode* node) {

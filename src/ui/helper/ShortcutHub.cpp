@@ -1,8 +1,8 @@
-#include "cru/ui/helper/ShortcutHub.hpp"
+#include "cru/ui/helper/ShortcutHub.h"
 
-#include "cru/common/Logger.hpp"
-#include "cru/ui/DebugFlags.hpp"
-#include "cru/ui/controls/Control.hpp"
+#include "cru/common/Logger.h"
+#include "cru/ui/DebugFlags.h"
+#include "cru/ui/controls/Control.h"
 
 #include <algorithm>
 #include <functional>

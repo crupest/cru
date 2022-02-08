@@ -1,5 +1,5 @@
-#include "cru/platform/GraphicsBase.hpp"
-#include "cru/platform/Matrix.hpp"
+#include "cru/platform/GraphicsBase.h"
+#include "cru/platform/Matrix.h"
 
 #include <gtest/gtest.h>
 

@@ -1,11 +1,11 @@
-#include "cru/ui/render/RenderObject.hpp"
+#include "cru/ui/render/RenderObject.h"
 
-#include "cru/common/Logger.hpp"
-#include "cru/platform/GraphicsBase.hpp"
-#include "cru/platform/graphics/util/Painter.hpp"
-#include "cru/ui/Base.hpp"
-#include "cru/ui/DebugFlags.hpp"
-#include "cru/ui/host/WindowHost.hpp"
+#include "cru/common/Logger.h"
+#include "cru/platform/GraphicsBase.h"
+#include "cru/platform/graphics/util/Painter.h"
+#include "cru/ui/Base.h"
+#include "cru/ui/DebugFlags.h"
+#include "cru/ui/host/WindowHost.h"
 
 #include <algorithm>
 #include <string>

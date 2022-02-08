@@ -1,12 +1,12 @@
-#include "cru/osx/graphics/quartz/Factory.hpp"
+#include "cru/osx/graphics/quartz/Factory.h"
 
-#include "cru/osx/graphics/quartz/Brush.hpp"
-#include "cru/osx/graphics/quartz/Font.hpp"
-#include "cru/osx/graphics/quartz/Geometry.hpp"
-#include "cru/osx/graphics/quartz/ImageFactory.hpp"
-#include "cru/osx/graphics/quartz/TextLayout.hpp"
-#include "cru/platform/Check.hpp"
-#include "cru/platform/graphics/ImageFactory.hpp"
+#include "cru/osx/graphics/quartz/Brush.h"
+#include "cru/osx/graphics/quartz/Font.h"
+#include "cru/osx/graphics/quartz/Geometry.h"
+#include "cru/osx/graphics/quartz/ImageFactory.h"
+#include "cru/osx/graphics/quartz/TextLayout.h"
+#include "cru/platform/Check.h"
+#include "cru/platform/graphics/ImageFactory.h"
 
 #include <memory>
 

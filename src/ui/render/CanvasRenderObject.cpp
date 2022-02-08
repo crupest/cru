@@ -1,4 +1,4 @@
-#include "cru/ui/render/CanvasRenderObject.hpp"
+#include "cru/ui/render/CanvasRenderObject.h"
 
 namespace cru::ui::render {
 CanvasRenderObject::CanvasRenderObject() : RenderObject(ChildMode::None) {}

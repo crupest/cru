@@ -1,6 +1,6 @@
-#include "cru/common/StringUtil.hpp"
-#include "cru/common/Base.hpp"
-#include "cru/common/Exception.hpp"
+#include "cru/common/StringUtil.h"
+#include "cru/common/Base.h"
+#include "cru/common/Exception.h"
 
 namespace cru {
 using details::ExtractBits;

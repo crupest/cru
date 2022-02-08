@@ -1,12 +1,12 @@
-#include "cru/ui/controls/Button.hpp"
+#include "cru/ui/controls/Button.h"
 
-#include "../Helper.hpp"
-#include "cru/platform/graphics/Brush.hpp"
-#include "cru/platform/gui/Cursor.hpp"
-#include "cru/platform/gui/UiApplication.hpp"
-#include "cru/ui/ThemeManager.hpp"
-#include "cru/ui/helper/ClickDetector.hpp"
-#include "cru/ui/render/BorderRenderObject.hpp"
+#include "../Helper.h"
+#include "cru/platform/graphics/Brush.h"
+#include "cru/platform/gui/Cursor.h"
+#include "cru/platform/gui/UiApplication.h"
+#include "cru/ui/ThemeManager.h"
+#include "cru/ui/helper/ClickDetector.h"
+#include "cru/ui/render/BorderRenderObject.h"
 
 namespace cru::ui::controls {
 Button::Button() : click_detector_(this) {

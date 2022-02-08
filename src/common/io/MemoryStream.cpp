@@ -1,4 +1,4 @@
-#include "cru/common/io/MemoryStream.hpp"
+#include "cru/common/io/MemoryStream.h"
 
 namespace cru::io {
 MemoryStream::~MemoryStream() {

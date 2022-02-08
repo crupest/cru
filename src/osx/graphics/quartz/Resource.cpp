@@ -1,1 +1,1 @@
-#include "cru/osx/graphics/quartz/Resource.hpp"
+#include "cru/osx/graphics/quartz/Resource.h"

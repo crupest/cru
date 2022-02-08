@@ -1,7 +1,7 @@
-#include "cru/win/graphics/direct/WindowRenderTarget.hpp"
+#include "cru/win/graphics/direct/WindowRenderTarget.h"
 
-#include "cru/win/graphics/direct/Exception.hpp"
-#include "cru/win/graphics/direct/Factory.hpp"
+#include "cru/win/graphics/direct/Exception.h"
+#include "cru/win/graphics/direct/Factory.h"
 
 namespace cru::platform::graphics::win::direct {
 D2DWindowRenderTarget::D2DWindowRenderTarget(

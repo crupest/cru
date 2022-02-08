@@ -1,7 +1,7 @@
-#include "cru/ui/helper/ClickDetector.hpp"
+#include "cru/ui/helper/ClickDetector.h"
 
-#include "cru/common/Logger.hpp"
-#include "cru/ui/DebugFlags.hpp"
+#include "cru/common/Logger.h"
+#include "cru/ui/DebugFlags.h"
 
 #include <optional>
 

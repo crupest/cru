@@ -1,7 +1,7 @@
-#include "cru/common/io/OpenFileFlag.hpp"
-#include "cru/common/platform/win/Exception.hpp"
-#include "cru/common/platform/win/StreamConvert.hpp"
-#include "cru/common/platform/win/Win32FileStream.hpp"
+#include "cru/common/io/OpenFileFlag.h"
+#include "cru/common/platform/win/Exception.h"
+#include "cru/common/platform/win/StreamConvert.h"
+#include "cru/common/platform/win/Win32FileStream.h"
 
 #include <gtest/gtest.h>
 

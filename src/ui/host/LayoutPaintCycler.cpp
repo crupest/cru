@@ -1,9 +1,9 @@
-#include "cru/ui/host/LayoutPaintCycler.hpp"
+#include "cru/ui/host/LayoutPaintCycler.h"
 #include <chrono>
 
-#include "../Helper.hpp"
-#include "cru/ui/Base.hpp"
-#include "cru/ui/host/WindowHost.hpp"
+#include "../Helper.h"
+#include "cru/ui/Base.h"
+#include "cru/ui/host/WindowHost.h"
 
 namespace cru::ui::host {
 LayoutPaintCycler::LayoutPaintCycler(WindowHost* host) : host_(host) {

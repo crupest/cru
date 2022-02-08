@@ -1,4 +1,4 @@
-#include "cru/common/io/Stream.hpp"
+#include "cru/common/io/Stream.h"
 
 namespace cru::io {
 Index Stream::Tell() { return Seek(0, SeekOrigin::Current); }

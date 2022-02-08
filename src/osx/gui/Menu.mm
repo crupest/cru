@@ -1,8 +1,8 @@
-#include "cru/osx/gui/Menu.hpp"
+#include "cru/osx/gui/Menu.h"
 #import "MenuPrivate.h"
 
 #include "KeyboardPrivate.h"
-#include "cru/common/platform/osx/Convert.hpp"
+#include "cru/common/platform/osx/Convert.h"
 
 #import <AppKit/NSApplication.h>
 

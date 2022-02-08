@@ -1,7 +1,7 @@
-#include "cru/common/platform/unix/UnixFileStream.hpp"
-#include "cru/common/Format.hpp"
-#include "cru/common/io/OpenFileFlag.hpp"
-#include "cru/common/platform/unix/ErrnoException.hpp"
+#include "cru/common/platform/unix/UnixFileStream.h"
+#include "cru/common/Format.h"
+#include "cru/common/io/OpenFileFlag.h"
+#include "cru/common/platform/unix/ErrnoException.h"
 
 #include <fcntl.h>
 #include <sys/_types/_s_ifmt.h>

@@ -1,8 +1,8 @@
-#include "cru/win/graphics/direct/Geometry.hpp"
+#include "cru/win/graphics/direct/Geometry.h"
 
-#include "cru/win/graphics/direct/ConvertUtil.hpp"
-#include "cru/win/graphics/direct/Exception.hpp"
-#include "cru/win/graphics/direct/Factory.hpp"
+#include "cru/win/graphics/direct/ConvertUtil.h"
+#include "cru/win/graphics/direct/Exception.h"
+#include "cru/win/graphics/direct/Factory.h"
 
 namespace cru::platform::graphics::win::direct {
 D2DGeometryBuilder::D2DGeometryBuilder(DirectGraphicsFactory* factory)

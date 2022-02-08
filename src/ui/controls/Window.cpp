@@ -1,11 +1,11 @@
-#include "cru/ui/controls/Window.hpp"
+#include "cru/ui/controls/Window.h"
 
-#include "cru/common/Base.hpp"
-#include "cru/platform/gui/Base.hpp"
-#include "cru/ui/controls/RootControl.hpp"
-#include "cru/ui/host/WindowHost.hpp"
-#include "cru/ui/render/Base.hpp"
-#include "cru/ui/render/StackLayoutRenderObject.hpp"
+#include "cru/common/Base.h"
+#include "cru/platform/gui/Base.h"
+#include "cru/ui/controls/RootControl.h"
+#include "cru/ui/host/WindowHost.h"
+#include "cru/ui/render/Base.h"
+#include "cru/ui/render/StackLayoutRenderObject.h"
 
 namespace cru::ui::controls {
 Window* Window::Create(Control* attached_control) {

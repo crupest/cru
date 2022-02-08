@@ -1,11 +1,11 @@
-#include "cru/ui/mapper/style/StyleRuleMapper.hpp"
-#include "cru/common/ClonablePtr.hpp"
-#include "cru/ui/mapper/MapperRegistry.hpp"
-#include "cru/ui/mapper/style/IConditionMapper.hpp"
-#include "cru/ui/mapper/style/IStylerMapper.hpp"
-#include "cru/ui/style/Condition.hpp"
-#include "cru/ui/style/StyleRule.hpp"
-#include "cru/ui/style/Styler.hpp"
+#include "cru/ui/mapper/style/StyleRuleMapper.h"
+#include "cru/common/ClonablePtr.h"
+#include "cru/ui/mapper/MapperRegistry.h"
+#include "cru/ui/mapper/style/IConditionMapper.h"
+#include "cru/ui/mapper/style/IStylerMapper.h"
+#include "cru/ui/style/Condition.h"
+#include "cru/ui/style/StyleRule.h"
+#include "cru/ui/style/Styler.h"
 
 namespace cru::ui::mapper::style {
 using namespace ui::style;

@@ -1,4 +1,4 @@
-#include "cru/common/Format.hpp"
+#include "cru/common/Format.h"
 
 namespace cru {
 namespace details {

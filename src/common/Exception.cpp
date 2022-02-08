@@ -1,4 +1,4 @@
-#include "cru/common/Exception.hpp"
+#include "cru/common/Exception.h"
 
 namespace cru {
 Exception::Exception() {}

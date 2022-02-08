@@ -1,11 +1,11 @@
-#include "cru/ui/render/TextRenderObject.hpp"
+#include "cru/ui/render/TextRenderObject.h"
 
-#include "../Helper.hpp"
-#include "cru/common/Logger.hpp"
-#include "cru/platform/graphics/Factory.hpp"
-#include "cru/platform/graphics/TextLayout.hpp"
-#include "cru/platform/graphics/util/Painter.hpp"
-#include "cru/ui/DebugFlags.hpp"
+#include "../Helper.h"
+#include "cru/common/Logger.h"
+#include "cru/platform/graphics/Factory.h"
+#include "cru/platform/graphics/TextLayout.h"
+#include "cru/platform/graphics/util/Painter.h"
+#include "cru/ui/DebugFlags.h"
 
 #include <algorithm>
 #include <limits>

@@ -1,5 +1,5 @@
-#include "cru/common/platform/win/ComAutoInit.hpp"
-#include "cru/common/platform/win/Exception.hpp"
+#include "cru/common/platform/win/ComAutoInit.h"
+#include "cru/common/platform/win/Exception.h"
 
 #include <combaseapi.h>
 

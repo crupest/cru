@@ -1,8 +1,8 @@
-#include "cru/win/gui/Clipboard.hpp"
+#include "cru/win/gui/Clipboard.h"
 #include <winuser.h>
-#include "cru/common/Logger.hpp"
-#include "cru/win/gui/GodWindow.hpp"
-#include "cru/win/gui/UiApplication.hpp"
+#include "cru/common/Logger.h"
+#include "cru/win/gui/GodWindow.h"
+#include "cru/win/gui/UiApplication.h"
 
 namespace cru::platform::gui::win {
 WinClipboard::WinClipboard(WinUiApplication* application)

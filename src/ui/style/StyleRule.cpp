@@ -1,4 +1,4 @@
-#include "cru/ui/style/StyleRule.hpp"
+#include "cru/ui/style/StyleRule.h"
 
 namespace cru::ui::style {
 StyleRule::StyleRule(ClonablePtr<Condition> condition,

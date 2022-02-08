@@ -1,4 +1,4 @@
-#include "cru/osx/graphics/quartz/Geometry.hpp"
+#include "cru/osx/graphics/quartz/Geometry.h"
 
 #include <memory>
 

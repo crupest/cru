@@ -1,5 +1,5 @@
 #pragma once
-#include "cru/osx/gui/Cursor.hpp"
+#include "cru/osx/gui/Cursor.h"
 
 #import <AppKit/NSCursor.h>
 

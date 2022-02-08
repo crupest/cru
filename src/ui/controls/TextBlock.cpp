@@ -1,9 +1,9 @@
-#include "cru/ui/controls/TextBlock.hpp"
+#include "cru/ui/controls/TextBlock.h"
 
-#include "cru/ui/ThemeManager.hpp"
-#include "cru/ui/render/CanvasRenderObject.hpp"
-#include "cru/ui/render/StackLayoutRenderObject.hpp"
-#include "cru/ui/render/TextRenderObject.hpp"
+#include "cru/ui/ThemeManager.h"
+#include "cru/ui/render/CanvasRenderObject.h"
+#include "cru/ui/render/StackLayoutRenderObject.h"
+#include "cru/ui/render/TextRenderObject.h"
 
 namespace cru::ui::controls {
 using render::TextRenderObject;

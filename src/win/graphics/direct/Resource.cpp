@@ -1,6 +1,6 @@
-#include "cru/win/graphics/direct/Resource.hpp"
+#include "cru/win/graphics/direct/Resource.h"
 
-#include "cru/win/graphics/direct/Factory.hpp"
+#include "cru/win/graphics/direct/Factory.h"
 
 namespace cru::platform::graphics::win::direct {
 String DirectResource::kPlatformId = u"Windows Direct";

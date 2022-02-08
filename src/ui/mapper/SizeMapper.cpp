@@ -1,4 +1,4 @@
-#include "cru/ui/mapper/SizeMapper.hpp"
+#include "cru/ui/mapper/SizeMapper.h"
 
 namespace cru::ui::mapper {
 bool SizeMapper::XmlElementIsOfThisType(xml::XmlElementNode* node) {

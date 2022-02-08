@@ -1,11 +1,11 @@
-#include "cru/common/platform/win/StreamConvert.hpp"
-#include "BrigdeComStream.hpp"
-#include "cru/common/Exception.hpp"
-#include "cru/common/io/MemoryStream.hpp"
-#include "cru/common/io/OpenFileFlag.hpp"
-#include "cru/common/platform/win/ComAutoInit.hpp"
-#include "cru/common/platform/win/Exception.hpp"
-#include "cru/common/platform/win/Win32FileStream.hpp"
+#include "cru/common/platform/win/StreamConvert.h"
+#include "BrigdeComStream.h"
+#include "cru/common/Exception.h"
+#include "cru/common/io/MemoryStream.h"
+#include "cru/common/io/OpenFileFlag.h"
+#include "cru/common/platform/win/ComAutoInit.h"
+#include "cru/common/platform/win/Exception.h"
+#include "cru/common/platform/win/Win32FileStream.h"
 
 #include <shlwapi.h>
 #include <winnt.h>

@@ -1,4 +1,4 @@
-#include "cru/platform/gui/Menu.hpp"
+#include "cru/platform/gui/Menu.h"
 
 namespace cru::platform::gui {
 std::vector<IMenuItem*> IMenu::GetItems() {

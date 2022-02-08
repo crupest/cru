@@ -1,4 +1,4 @@
-#include "cru/toml/TomlDocument.hpp"
+#include "cru/toml/TomlDocument.h"
 
 namespace cru::toml {
 std::optional<String> TomlSection::GetValue(const String& key) const {

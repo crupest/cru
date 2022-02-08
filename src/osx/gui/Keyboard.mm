@@ -1,4 +1,4 @@
-#include "cru/osx/gui/Keyboard.hpp"
+#include "cru/osx/gui/Keyboard.h"
 
 #import <AppKit/NSText.h>
 #import <Carbon/Carbon.h>

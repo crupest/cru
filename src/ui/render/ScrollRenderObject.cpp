@@ -1,10 +1,10 @@
-#include "cru/ui/render/ScrollRenderObject.hpp"
+#include "cru/ui/render/ScrollRenderObject.h"
 
-#include "cru/platform/graphics/Painter.hpp"
-#include "cru/platform/graphics/util/Painter.hpp"
-#include "cru/ui/Base.hpp"
-#include "cru/ui/controls/Control.hpp"
-#include "cru/ui/render/ScrollBar.hpp"
+#include "cru/platform/graphics/Painter.h"
+#include "cru/platform/graphics/util/Painter.h"
+#include "cru/ui/Base.h"
+#include "cru/ui/controls/Control.h"
+#include "cru/ui/render/ScrollBar.h"
 
 #include <algorithm>
 #include <memory>

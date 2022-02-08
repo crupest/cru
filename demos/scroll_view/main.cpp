@@ -1,9 +1,9 @@
-#include "cru/platform/bootstrap/Bootstrap.hpp"
-#include "cru/platform/gui/UiApplication.hpp"
-#include "cru/platform/gui/Window.hpp"
-#include "cru/ui/controls/ScrollView.hpp"
-#include "cru/ui/controls/TextBlock.hpp"
-#include "cru/ui/controls/Window.hpp"
+#include "cru/platform/bootstrap/Bootstrap.h"
+#include "cru/platform/gui/UiApplication.h"
+#include "cru/platform/gui/Window.h"
+#include "cru/ui/controls/ScrollView.h"
+#include "cru/ui/controls/TextBlock.h"
+#include "cru/ui/controls/Window.h"
 
 using cru::platform::gui::IUiApplication;
 using cru::ui::controls::ScrollView;

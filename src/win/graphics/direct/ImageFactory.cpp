@@ -1,8 +1,8 @@
-#include "cru/win/graphics/direct/ImageFactory.hpp"
-#include "cru/common/platform/win/StreamConvert.hpp"
-#include "cru/win/graphics/direct/Exception.hpp"
-#include "cru/win/graphics/direct/Factory.hpp"
-#include "cru/win/graphics/direct/Image.hpp"
+#include "cru/win/graphics/direct/ImageFactory.h"
+#include "cru/common/platform/win/StreamConvert.h"
+#include "cru/win/graphics/direct/Exception.h"
+#include "cru/win/graphics/direct/Factory.h"
+#include "cru/win/graphics/direct/Image.h"
 
 #include <wincodec.h>
 

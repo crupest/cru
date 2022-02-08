@@ -1,5 +1,5 @@
 #pragma once
-#include "cru/osx/gui/Menu.hpp"
+#include "cru/osx/gui/Menu.h"
 
 #import <AppKit/NSMenu.h>
 #import <AppKit/NSMenuItem.h>

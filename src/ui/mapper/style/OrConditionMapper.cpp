@@ -1,9 +1,9 @@
-#include "cru/ui/mapper/style/OrConditionMapper.hpp"
-#include "cru/common/ClonablePtr.hpp"
-#include "cru/ui/mapper/MapperRegistry.hpp"
-#include "cru/ui/mapper/style/IConditionMapper.hpp"
-#include "cru/ui/style/Condition.hpp"
-#include "cru/xml/XmlNode.hpp"
+#include "cru/ui/mapper/style/OrConditionMapper.h"
+#include "cru/common/ClonablePtr.h"
+#include "cru/ui/mapper/MapperRegistry.h"
+#include "cru/ui/mapper/style/IConditionMapper.h"
+#include "cru/ui/style/Condition.h"
+#include "cru/xml/XmlNode.h"
 
 namespace cru::ui::mapper::style {
 bool OrConditionMapper::XmlElementIsOfThisType(xml::XmlElementNode *node) {

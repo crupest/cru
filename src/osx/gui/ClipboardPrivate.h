@@ -1,6 +1,6 @@
 #pragma once
-#include "cru/common/Base.hpp"
-#include "cru/osx/gui/Clipboard.hpp"
+#include "cru/common/Base.h"
+#include "cru/osx/gui/Clipboard.h"
 
 #include <AppKit/AppKit.h>
 

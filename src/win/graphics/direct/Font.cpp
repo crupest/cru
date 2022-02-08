@@ -1,8 +1,8 @@
-#include "cru/win/graphics/direct/Font.hpp"
+#include "cru/win/graphics/direct/Font.h"
 
-#include "cru/common/Format.hpp"
-#include "cru/win/graphics/direct/Exception.hpp"
-#include "cru/win/graphics/direct/Factory.hpp"
+#include "cru/common/Format.h"
+#include "cru/win/graphics/direct/Exception.h"
+#include "cru/win/graphics/direct/Factory.h"
 
 #include <array>
 #include <utility>

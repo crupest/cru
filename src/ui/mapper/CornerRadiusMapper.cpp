@@ -1,6 +1,6 @@
-#include "cru/ui/mapper/CornerRadiusMapper.hpp"
-#include "cru/ui/mapper/MapperRegistry.hpp"
-#include "cru/ui/mapper/PointMapper.hpp"
+#include "cru/ui/mapper/CornerRadiusMapper.h"
+#include "cru/ui/mapper/MapperRegistry.h"
+#include "cru/ui/mapper/PointMapper.h"
 
 namespace cru::ui::mapper {
 bool CornerRadiusMapper::XmlElementIsOfThisType(xml::XmlElementNode* node) {

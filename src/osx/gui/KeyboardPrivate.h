@@ -1,5 +1,5 @@
 #pragma once
-#include "cru/osx/gui/Keyboard.hpp"
+#include "cru/osx/gui/Keyboard.h"
 
 #import <AppKit/NSEvent.h>
 

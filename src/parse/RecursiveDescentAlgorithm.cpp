@@ -1,6 +1,6 @@
-#include "cru/parse/RecursiveDescentAlgorithm.hpp"
-#include "cru/parse/ParsingAlgorithmContext.hpp"
-#include "cru/parse/RecursiveDescentAlgorithmContext.hpp"
+#include "cru/parse/RecursiveDescentAlgorithm.h"
+#include "cru/parse/ParsingAlgorithmContext.h"
+#include "cru/parse/RecursiveDescentAlgorithmContext.h"
 
 namespace cru::parse {
 bool RecursiveDescentAlgorithm::CanHandle(Grammar *grammar) const {

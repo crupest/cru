@@ -1,12 +1,12 @@
-#include "cru/win/graphics/direct/Factory.hpp"
+#include "cru/win/graphics/direct/Factory.h"
 
-#include "cru/common/Logger.hpp"
-#include "cru/win/graphics/direct/Brush.hpp"
-#include "cru/win/graphics/direct/Exception.hpp"
-#include "cru/win/graphics/direct/Font.hpp"
-#include "cru/win/graphics/direct/Geometry.hpp"
-#include "cru/win/graphics/direct/ImageFactory.hpp"
-#include "cru/win/graphics/direct/TextLayout.hpp"
+#include "cru/common/Logger.h"
+#include "cru/win/graphics/direct/Brush.h"
+#include "cru/win/graphics/direct/Exception.h"
+#include "cru/win/graphics/direct/Font.h"
+#include "cru/win/graphics/direct/Geometry.h"
+#include "cru/win/graphics/direct/ImageFactory.h"
+#include "cru/win/graphics/direct/TextLayout.h"
 
 #include <cstdlib>
 #include <utility>

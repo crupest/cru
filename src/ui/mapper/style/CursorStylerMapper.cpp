@@ -1,8 +1,8 @@
-#include "cru/ui/mapper/style/CursorStylerMapper.hpp"
-#include "cru/common/ClonablePtr.hpp"
-#include "cru/platform/gui/Cursor.hpp"
-#include "cru/ui/mapper/MapperRegistry.hpp"
-#include "cru/ui/style/Styler.hpp"
+#include "cru/ui/mapper/style/CursorStylerMapper.h"
+#include "cru/common/ClonablePtr.h"
+#include "cru/platform/gui/Cursor.h"
+#include "cru/ui/mapper/MapperRegistry.h"
+#include "cru/ui/style/Styler.h"
 
 namespace cru::ui::mapper::style {
 bool CursorStylerMapper::XmlElementIsOfThisType(xml::XmlElementNode* node) {

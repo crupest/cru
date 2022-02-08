@@ -1,7 +1,7 @@
-#include "cru/osx/graphics/quartz/ImageFactory.hpp"
-#include "cru/osx/graphics/quartz/Convert.hpp"
-#include "cru/osx/graphics/quartz/Image.hpp"
-#include "cru/platform/graphics/Image.hpp"
+#include "cru/osx/graphics/quartz/ImageFactory.h"
+#include "cru/osx/graphics/quartz/Convert.h"
+#include "cru/osx/graphics/quartz/Image.h"
+#include "cru/platform/graphics/Image.h"
 
 #include <ImageIO/ImageIO.h>
 

@@ -1,11 +1,11 @@
-#include "cru/win/graphics/direct/TextLayout.hpp"
+#include "cru/win/graphics/direct/TextLayout.h"
 #include <dwrite.h>
 
-#include "cru/common/Logger.hpp"
-#include "cru/platform/Check.hpp"
-#include "cru/win/graphics/direct/Exception.hpp"
-#include "cru/win/graphics/direct/Factory.hpp"
-#include "cru/win/graphics/direct/Font.hpp"
+#include "cru/common/Logger.h"
+#include "cru/platform/Check.h"
+#include "cru/win/graphics/direct/Exception.h"
+#include "cru/win/graphics/direct/Factory.h"
+#include "cru/win/graphics/direct/Font.h"
 
 #include <utility>
 

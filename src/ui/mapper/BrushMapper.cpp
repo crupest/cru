@@ -1,11 +1,11 @@
-#include "cru/ui/mapper/BrushMapper.hpp"
-#include "../Helper.hpp"
-#include "cru/platform/Color.hpp"
-#include "cru/platform/graphics/Brush.hpp"
-#include "cru/platform/graphics/Factory.hpp"
-#include "cru/ui/mapper/ColorMapper.hpp"
-#include "cru/ui/mapper/MapperRegistry.hpp"
-#include "cru/xml/XmlNode.hpp"
+#include "cru/ui/mapper/BrushMapper.h"
+#include "../Helper.h"
+#include "cru/platform/Color.h"
+#include "cru/platform/graphics/Brush.h"
+#include "cru/platform/graphics/Factory.h"
+#include "cru/ui/mapper/ColorMapper.h"
+#include "cru/ui/mapper/MapperRegistry.h"
+#include "cru/xml/XmlNode.h"
 
 #include <memory>
 

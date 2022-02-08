@@ -1,5 +1,5 @@
-#include "cru/toml/TomlDocument.hpp"
-#include "cru/toml/TomlParser.hpp"
+#include "cru/toml/TomlDocument.h"
+#include "cru/toml/TomlParser.h"
 
 #include <gtest/gtest.h>
 

@@ -1,11 +1,11 @@
-#include "cru/win/gui/InputMethod.hpp"
+#include "cru/win/gui/InputMethod.h"
 
-#include "cru/common/Logger.hpp"
-#include "cru/common/StringUtil.hpp"
-#include "cru/platform/Check.hpp"
-#include "cru/platform/gui/DebugFlags.hpp"
-#include "cru/win/Exception.hpp"
-#include "cru/win/gui/Window.hpp"
+#include "cru/common/Logger.h"
+#include "cru/common/StringUtil.h"
+#include "cru/platform/Check.h"
+#include "cru/platform/gui/DebugFlags.h"
+#include "cru/win/Exception.h"
+#include "cru/win/gui/Window.h"
 
 #include <vector>
 

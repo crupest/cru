@@ -1,10 +1,10 @@
-#include "cru/osx/gui/Cursor.hpp"
+#include "cru/osx/gui/Cursor.h"
 #include "CursorPrivate.h"
 
-#include "cru/osx/Exception.hpp"
-#include "cru/osx/gui/Resource.hpp"
-#include "cru/platform/gui/Cursor.hpp"
-#include "cru/platform/gui/UiApplication.hpp"
+#include "cru/osx/Exception.h"
+#include "cru/osx/gui/Resource.h"
+#include "cru/platform/gui/Cursor.h"
+#include "cru/platform/gui/UiApplication.h"
 
 #include <memory>
 

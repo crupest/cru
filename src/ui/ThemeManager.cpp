@@ -1,14 +1,14 @@
-#include "cru/ui/ThemeManager.hpp"
+#include "cru/ui/ThemeManager.h"
 
-#include "Helper.hpp"
-#include "cru/common/StringUtil.hpp"
-#include "cru/common/io/FileStream.hpp"
-#include "cru/common/io/Resource.hpp"
-#include "cru/platform/graphics/Brush.hpp"
-#include "cru/platform/graphics/Factory.hpp"
-#include "cru/platform/gui/UiApplication.hpp"
-#include "cru/ui/style/StyleRuleSet.hpp"
-#include "cru/xml/XmlParser.hpp"
+#include "Helper.h"
+#include "cru/common/StringUtil.h"
+#include "cru/common/io/FileStream.h"
+#include "cru/common/io/Resource.h"
+#include "cru/platform/graphics/Brush.h"
+#include "cru/platform/graphics/Factory.h"
+#include "cru/platform/gui/UiApplication.h"
+#include "cru/ui/style/StyleRuleSet.h"
+#include "cru/xml/XmlParser.h"
 
 namespace cru::ui {
 ThemeManager* ThemeManager::GetInstance() {

@@ -1,5 +1,5 @@
-#include "cru/platform/Matrix.hpp"
-#include "cru/win/graphics/direct/ConvertUtil.hpp"
+#include "cru/platform/Matrix.h"
+#include "cru/win/graphics/direct/ConvertUtil.h"
 
 #include <gtest/gtest.h>
 

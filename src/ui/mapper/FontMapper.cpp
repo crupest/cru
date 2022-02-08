@@ -1,6 +1,6 @@
-#include "cru/ui/mapper/FontMapper.hpp"
-#include "../Helper.hpp"
-#include "cru/platform/graphics/Factory.hpp"
+#include "cru/ui/mapper/FontMapper.h"
+#include "../Helper.h"
+#include "cru/platform/graphics/Factory.h"
 
 namespace cru::ui::mapper {
 bool FontMapper::XmlElementIsOfThisType(xml::XmlElementNode* node) {

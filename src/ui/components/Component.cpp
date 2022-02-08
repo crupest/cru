@@ -1,4 +1,4 @@
-#include "cru/ui/components/Component.hpp"
+#include "cru/ui/components/Component.h"
 
 namespace cru::ui::components {
   

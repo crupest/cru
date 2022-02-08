@@ -1,5 +1,5 @@
-#include "cru/common/platform/win/Exception.hpp"
-#include "cru/common/Format.hpp"
+#include "cru/common/platform/win/Exception.h"
+#include "cru/common/Format.h"
 
 #include <optional>
 

@@ -1,4 +1,4 @@
-#include "cru/common/Base.hpp"
+#include "cru/common/Base.h"
 
 #include <stdexcept>
 

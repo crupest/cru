@@ -1,16 +1,16 @@
-#include "cru/ui/host/WindowHost.hpp"
+#include "cru/ui/host/WindowHost.h"
 
-#include "RoutedEventDispatch.hpp"
-#include "cru/common/Base.hpp"
-#include "cru/common/Logger.hpp"
-#include "cru/platform/graphics/Painter.hpp"
-#include "cru/platform/gui/InputMethod.hpp"
-#include "cru/platform/gui/UiApplication.hpp"
-#include "cru/platform/gui/Window.hpp"
-#include "cru/ui/DebugFlags.hpp"
-#include "cru/ui/host/LayoutPaintCycler.hpp"
-#include "cru/ui/render/MeasureRequirement.hpp"
-#include "cru/ui/render/RenderObject.hpp"
+#include "RoutedEventDispatch.h"
+#include "cru/common/Base.h"
+#include "cru/common/Logger.h"
+#include "cru/platform/graphics/Painter.h"
+#include "cru/platform/gui/InputMethod.h"
+#include "cru/platform/gui/UiApplication.h"
+#include "cru/platform/gui/Window.h"
+#include "cru/ui/DebugFlags.h"
+#include "cru/ui/host/LayoutPaintCycler.h"
+#include "cru/ui/render/MeasureRequirement.h"
+#include "cru/ui/render/RenderObject.h"
 
 #include <cstddef>
 #include <memory>

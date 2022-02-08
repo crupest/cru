@@ -1,4 +1,4 @@
-#include "cru/win/gui/Keyboard.hpp"
+#include "cru/win/gui/Keyboard.h"
 
 namespace cru::platform::gui::win {
 KeyCode VirtualKeyToKeyCode(int virtual_key) {

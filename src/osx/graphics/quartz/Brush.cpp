@@ -1,6 +1,6 @@
-#include "cru/osx/graphics/quartz/Brush.hpp"
-#include "cru/common/String.hpp"
-#include "cru/common/Format.hpp"
+#include "cru/osx/graphics/quartz/Brush.h"
+#include "cru/common/String.h"
+#include "cru/common/Format.h"
 
 namespace cru::platform::graphics::osx::quartz {
 QuartzSolidColorBrush::QuartzSolidColorBrush(IGraphicsFactory* graphics_factory,

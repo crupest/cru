@@ -1,6 +1,6 @@
-#include "cru/ui/mapper/style/HoverConditionMapper.hpp"
-#include "cru/common/ClonablePtr.hpp"
-#include "cru/ui/style/Condition.hpp"
+#include "cru/ui/mapper/style/HoverConditionMapper.h"
+#include "cru/common/ClonablePtr.h"
+#include "cru/ui/style/Condition.h"
 
 namespace cru::ui::mapper::style {
 using namespace cru::ui::style;

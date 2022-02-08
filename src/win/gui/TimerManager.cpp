@@ -1,7 +1,7 @@
-#include "TimerManager.hpp"
+#include "TimerManager.h"
 
-#include "cru/win/gui/Base.hpp"
-#include "cru/win/gui/Exception.hpp"
+#include "cru/win/gui/Base.h"
+#include "cru/win/gui/Exception.h"
 #include "gsl/gsl_util"
 
 #include <functional>

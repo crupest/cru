@@ -1,5 +1,5 @@
-#include "cru/xml/XmlParser.hpp"
-#include "cru/xml/XmlNode.hpp"
+#include "cru/xml/XmlParser.h"
+#include "cru/xml/XmlNode.h"
 
 namespace cru::xml {
 XmlParser::XmlParser(String xml) : xml_(std::move(xml)) {}

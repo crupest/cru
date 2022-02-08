@@ -1,4 +1,4 @@
-#include "cru/platform/gui/Keyboard.hpp"
+#include "cru/platform/gui/Keyboard.h"
 
 #include <array>
 #include <string>

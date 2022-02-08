@@ -1,2 +1,2 @@
-#include "cru/platform/Exception.hpp"
-#include "cru/platform/Resource.hpp"
+#include "cru/platform/Exception.h"
+#include "cru/platform/Resource.h"

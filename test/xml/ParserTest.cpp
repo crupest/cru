@@ -1,5 +1,5 @@
-#include "cru/xml/XmlNode.hpp"
-#include "cru/xml/XmlParser.hpp"
+#include "cru/xml/XmlNode.h"
+#include "cru/xml/XmlParser.h"
 
 #include <gtest/gtest.h>
 

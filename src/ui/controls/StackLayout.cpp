@@ -1,7 +1,7 @@
-#include "cru/ui/controls/StackLayout.hpp"
+#include "cru/ui/controls/StackLayout.h"
 #include <memory>
 
-#include "cru/ui/render/StackLayoutRenderObject.hpp"
+#include "cru/ui/render/StackLayoutRenderObject.h"
 
 namespace cru::ui::controls {
 using render::StackLayoutRenderObject;

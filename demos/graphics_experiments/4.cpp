@@ -1,9 +1,9 @@
-#include "cru/platform/GraphicsBase.hpp"
-#include "cru/platform/bootstrap/Bootstrap.hpp"
-#include "cru/platform/graphics/Factory.hpp"
-#include "cru/platform/graphics/Painter.hpp"
-#include "cru/platform/gui/UiApplication.hpp"
-#include "cru/platform/gui/Window.hpp"
+#include "cru/platform/GraphicsBase.h"
+#include "cru/platform/bootstrap/Bootstrap.h"
+#include "cru/platform/graphics/Factory.h"
+#include "cru/platform/graphics/Painter.h"
+#include "cru/platform/gui/UiApplication.h"
+#include "cru/platform/gui/Window.h"
 
 #include <dlib/matrix.h>
 #include <dlib/numeric_constants.h>

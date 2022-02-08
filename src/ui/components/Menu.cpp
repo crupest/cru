@@ -1,14 +1,14 @@
-#include "cru/ui/components/Menu.hpp"
+#include "cru/ui/components/Menu.h"
 #include <functional>
-#include "cru/platform/gui/Window.hpp"
-#include "cru/ui/ThemeManager.hpp"
-#include "cru/ui/controls/Button.hpp"
-#include "cru/ui/controls/Control.hpp"
-#include "cru/ui/controls/FlexLayout.hpp"
-#include "cru/ui/controls/TextBlock.hpp"
-#include "cru/ui/helper/ClickDetector.hpp"
-#include "cru/ui/host/WindowHost.hpp"
-#include "cru/ui/style/StyleRuleSet.hpp"
+#include "cru/platform/gui/Window.h"
+#include "cru/ui/ThemeManager.h"
+#include "cru/ui/controls/Button.h"
+#include "cru/ui/controls/Control.h"
+#include "cru/ui/controls/FlexLayout.h"
+#include "cru/ui/controls/TextBlock.h"
+#include "cru/ui/helper/ClickDetector.h"
+#include "cru/ui/host/WindowHost.h"
+#include "cru/ui/style/StyleRuleSet.h"
 
 namespace cru::ui::components {
 MenuItem::MenuItem() {

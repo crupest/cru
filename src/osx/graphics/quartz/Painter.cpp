@@ -1,14 +1,14 @@
-#include "cru/osx/graphics/quartz/Painter.hpp"
+#include "cru/osx/graphics/quartz/Painter.h"
 
-#include "cru/common/Logger.hpp"
-#include "cru/osx/graphics/quartz/Brush.hpp"
-#include "cru/osx/graphics/quartz/Convert.hpp"
-#include "cru/osx/graphics/quartz/Geometry.hpp"
-#include "cru/osx/graphics/quartz/Image.hpp"
-#include "cru/osx/graphics/quartz/TextLayout.hpp"
-#include "cru/platform/Check.hpp"
-#include "cru/platform/Color.hpp"
-#include "cru/platform/Exception.hpp"
+#include "cru/common/Logger.h"
+#include "cru/osx/graphics/quartz/Brush.h"
+#include "cru/osx/graphics/quartz/Convert.h"
+#include "cru/osx/graphics/quartz/Geometry.h"
+#include "cru/osx/graphics/quartz/Image.h"
+#include "cru/osx/graphics/quartz/TextLayout.h"
+#include "cru/platform/Check.h"
+#include "cru/platform/Color.h"
+#include "cru/platform/Exception.h"
 
 namespace cru::platform::graphics::osx::quartz {
 QuartzCGContextPainter::QuartzCGContextPainter(

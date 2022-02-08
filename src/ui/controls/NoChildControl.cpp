@@ -1,3 +1,3 @@
-#include "cru/ui/controls/NoChildControl.hpp"
+#include "cru/ui/controls/NoChildControl.h"
 
 namespace cru::ui::controls {}

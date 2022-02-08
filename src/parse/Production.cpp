@@ -1,4 +1,4 @@
-#include "cru/parse/Production.hpp"
+#include "cru/parse/Production.h"
 
 namespace cru::parse {
 Production::Production(Grammar* grammar, String name, Nonterminal* left,

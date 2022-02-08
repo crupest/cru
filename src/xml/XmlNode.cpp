@@ -1,4 +1,4 @@
-#include "cru/xml/XmlNode.hpp"
+#include "cru/xml/XmlNode.h"
 #include <algorithm>
 
 namespace cru::xml {

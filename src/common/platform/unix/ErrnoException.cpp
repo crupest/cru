@@ -1,6 +1,6 @@
-#include "cru/common/platform/unix/ErrnoException.hpp"
+#include "cru/common/platform/unix/ErrnoException.h"
 
-#include "cru/common/Format.hpp"
+#include "cru/common/Format.h"
 
 #include <errno.h>
 

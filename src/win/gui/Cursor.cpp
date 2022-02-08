@@ -1,7 +1,7 @@
-#include "cru/win/gui/Cursor.hpp"
+#include "cru/win/gui/Cursor.h"
 
-#include "cru/common/Logger.hpp"
-#include "cru/win/gui/Exception.hpp"
+#include "cru/common/Logger.h"
+#include "cru/win/gui/Exception.h"
 
 #include <stdexcept>
 

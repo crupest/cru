@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "cru/parse/Grammar.hpp"
+#include "cru/parse/Grammar.h"
 
 int main() {
   using namespace cru::parse;

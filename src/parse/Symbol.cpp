@@ -1,4 +1,4 @@
-#include "cru/parse/Symbol.hpp"
+#include "cru/parse/Symbol.h"
 
 namespace cru::parse {
 Symbol::Symbol(Grammar* grammar, String name)

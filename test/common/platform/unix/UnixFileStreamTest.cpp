@@ -1,5 +1,5 @@
-#include "cru/common/io/OpenFileFlag.hpp"
-#include "cru/common/platform/unix/UnixFileStream.hpp"
+#include "cru/common/io/OpenFileFlag.h"
+#include "cru/common/platform/unix/UnixFileStream.h"
 
 #include <gtest/gtest.h>
 

@@ -1,8 +1,8 @@
-#include "WindowManager.hpp"
+#include "WindowManager.h"
 
-#include "cru/win/gui/UiApplication.hpp"
-#include "cru/win/gui/Window.hpp"
-#include "cru/win/gui/WindowClass.hpp"
+#include "cru/win/gui/UiApplication.h"
+#include "cru/win/gui/Window.h"
+#include "cru/win/gui/WindowClass.h"
 
 namespace cru::platform::gui::win {
 LRESULT __stdcall GeneralWndProc(HWND hWnd, UINT Msg, WPARAM wParam,

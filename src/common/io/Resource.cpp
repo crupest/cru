@@ -1,5 +1,5 @@
-#include "cru/common/io/Resource.hpp"
-#include "cru/common/Exception.hpp"
+#include "cru/common/io/Resource.h"
+#include "cru/common/Exception.h"
 
 #if defined(CRU_PLATFORM_OSX)
 #include <CoreFoundation/CoreFoundation.h>

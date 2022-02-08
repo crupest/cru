@@ -1,8 +1,8 @@
-#include "cru/ui/mapper/CursorMapper.hpp"
-#include "../Helper.hpp"
-#include "cru/common/Exception.hpp"
-#include "cru/platform/gui/Cursor.hpp"
-#include "cru/platform/gui/UiApplication.hpp"
+#include "cru/ui/mapper/CursorMapper.h"
+#include "../Helper.h"
+#include "cru/common/Exception.h"
+#include "cru/platform/gui/Cursor.h"
+#include "cru/platform/gui/UiApplication.h"
 
 namespace cru::ui::mapper {
 using cru::platform::gui::ICursor;

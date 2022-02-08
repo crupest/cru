@@ -1,4 +1,4 @@
-#include "cru/ui/controls/ContentControl.hpp"
+#include "cru/ui/controls/ContentControl.h"
 
 namespace cru::ui::controls {
 Control* ContentControl::GetChild() const {

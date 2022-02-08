@@ -1,4 +1,4 @@
-#include "cru/ui/mapper/ColorMapper.hpp"
+#include "cru/ui/mapper/ColorMapper.h"
 
 namespace cru::ui::mapper {
 bool ColorMapper::XmlElementIsOfThisType(xml::XmlElementNode* node) {

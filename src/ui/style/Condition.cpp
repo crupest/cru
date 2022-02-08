@@ -1,11 +1,11 @@
-#include "cru/ui/style/Condition.hpp"
+#include "cru/ui/style/Condition.h"
 #include <memory>
 
-#include "cru/common/ClonablePtr.hpp"
-#include "cru/common/Event.hpp"
-#include "cru/ui/controls/Control.hpp"
-#include "cru/ui/controls/IClickableControl.hpp"
-#include "cru/ui/helper/ClickDetector.hpp"
+#include "cru/common/ClonablePtr.h"
+#include "cru/common/Event.h"
+#include "cru/ui/controls/Control.h"
+#include "cru/ui/controls/IClickableControl.h"
+#include "cru/ui/helper/ClickDetector.h"
 
 namespace cru::ui::style {
 CompoundCondition::CompoundCondition(

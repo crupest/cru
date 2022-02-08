@@ -1,6 +1,6 @@
-#include "cru/ui/controls/LayoutControl.hpp"
+#include "cru/ui/controls/LayoutControl.h"
 
-#include "cru/ui/render/RenderObject.hpp"
+#include "cru/ui/render/RenderObject.h"
 
 namespace cru::ui::controls {
 void LayoutControl::ClearChildren() {

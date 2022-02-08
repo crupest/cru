@@ -1,4 +1,4 @@
-#include "StyleRuleSetEditor.hpp"
+#include "StyleRuleSetEditor.h"
 
 namespace cru::theme_builder {
 StyleRuleSetEditor::StyleRuleSetEditor() {}

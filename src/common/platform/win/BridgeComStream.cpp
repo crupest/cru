@@ -1,5 +1,5 @@
-#include "BrigdeComStream.hpp"
-#include "cru/common/io/Stream.hpp"
+#include "BrigdeComStream.h"
+#include "cru/common/io/Stream.h"
 
 namespace cru::platform::win {
 BridgeComStream::BridgeComStream(io::Stream *stream)

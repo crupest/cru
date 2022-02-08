@@ -1,4 +1,4 @@
-#include "cru/parse/ParsingAlgorithmContext.hpp"
+#include "cru/parse/ParsingAlgorithmContext.h"
 
 namespace cru::parse {
 ParsingAlgorithmContext::ParsingAlgorithmContext(Grammar* grammar,

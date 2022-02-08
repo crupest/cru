@@ -1,7 +1,7 @@
-#include "Helper.hpp"
+#include "Helper.h"
 
-#include "cru/platform/graphics/Factory.hpp"
-#include "cru/platform/gui/UiApplication.hpp"
+#include "cru/platform/graphics/Factory.h"
+#include "cru/platform/gui/UiApplication.h"
 
 namespace cru::ui {
 using cru::platform::graphics::IGraphicsFactory;

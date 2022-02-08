@@ -1,4 +1,4 @@
-#include "cru/osx/graphics/quartz/Convert.hpp"
+#include "cru/osx/graphics/quartz/Convert.h"
 #include <cstdint>
 
 namespace cru::platform::graphics::osx::quartz {

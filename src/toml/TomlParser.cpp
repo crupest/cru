@@ -1,5 +1,5 @@
-#include "cru/toml/TomlParser.hpp"
-#include "cru/toml/TomlDocument.hpp"
+#include "cru/toml/TomlParser.h"
+#include "cru/toml/TomlDocument.h"
 
 namespace cru::toml {
 TomlParser::TomlParser(String input) : input_(std::move(input)) {}

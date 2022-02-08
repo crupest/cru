@@ -1,8 +1,8 @@
-#include "cru/win/graphics/direct/Image.hpp"
-#include "cru/common/platform/win/Exception.hpp"
-#include "cru/win/graphics/direct/ConvertUtil.hpp"
-#include "cru/win/graphics/direct/Exception.hpp"
-#include "cru/win/graphics/direct/Factory.hpp"
+#include "cru/win/graphics/direct/Image.h"
+#include "cru/common/platform/win/Exception.h"
+#include "cru/win/graphics/direct/ConvertUtil.h"
+#include "cru/win/graphics/direct/Exception.h"
+#include "cru/win/graphics/direct/Factory.h"
 
 namespace cru::platform::graphics::win::direct {
 Direct2DImage::Direct2DImage(DirectGraphicsFactory* graphics_factory,

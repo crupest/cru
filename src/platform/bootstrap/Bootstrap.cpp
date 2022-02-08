@@ -1,8 +1,8 @@
-#include "cru/platform/bootstrap/Bootstrap.hpp"
-#include "cru/osx/gui/UiApplication.hpp"
+#include "cru/platform/bootstrap/Bootstrap.h"
+#include "cru/osx/gui/UiApplication.h"
 
 #ifdef CRU_PLATFORM_WINDOWS
-#include "cru/win/gui/UiApplication.hpp"
+#include "cru/win/gui/UiApplication.h"
 #else
 #endif
 

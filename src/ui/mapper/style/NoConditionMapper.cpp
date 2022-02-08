@@ -1,6 +1,6 @@
-#include "cru/ui/mapper/style/NoConditionMapper.hpp"
-#include "cru/common/ClonablePtr.hpp"
-#include "cru/xml/XmlNode.hpp"
+#include "cru/ui/mapper/style/NoConditionMapper.h"
+#include "cru/common/ClonablePtr.h"
+#include "cru/xml/XmlNode.h"
 
 namespace cru::ui::mapper::style {
 bool NoConditionMapper::XmlElementIsOfThisType(xml::XmlElementNode* node) {

@@ -1,1 +1,1 @@
-#include "cru/common/platform/Exception.hpp"
+#include "cru/common/platform/Exception.h"

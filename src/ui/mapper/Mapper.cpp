@@ -1,4 +1,4 @@
-#include "cru/ui/mapper/Mapper.hpp"
+#include "cru/ui/mapper/Mapper.h"
 
 #include <typeindex>
 

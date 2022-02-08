@@ -1,6 +1,6 @@
-#include "cru/common/PropertyTree.hpp"
+#include "cru/common/PropertyTree.h"
 #include <unordered_map>
-#include "cru/common/Exception.hpp"
+#include "cru/common/Exception.h"
 
 namespace cru {
 String PropertySubTreeRef::CombineKey(StringView left, StringView right) {

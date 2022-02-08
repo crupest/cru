@@ -1,12 +1,12 @@
 // Code referred from
 // https://www.geeksforgeeks.org/scan-line-polygon-filling-using-opengl-c/
 
-#include "cru/platform/Color.hpp"
-#include "cru/platform/bootstrap/Bootstrap.hpp"
-#include "cru/platform/graphics/Factory.hpp"
-#include "cru/platform/graphics/Painter.hpp"
-#include "cru/platform/gui/UiApplication.hpp"
-#include "cru/platform/gui/Window.hpp"
+#include "cru/platform/Color.h"
+#include "cru/platform/bootstrap/Bootstrap.h"
+#include "cru/platform/graphics/Factory.h"
+#include "cru/platform/graphics/Painter.h"
+#include "cru/platform/gui/UiApplication.h"
+#include "cru/platform/gui/Window.h"
 
 #include <cmath>
 #include <cstdio>

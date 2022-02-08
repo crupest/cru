@@ -1,5 +1,5 @@
 #pragma once
-#include "cru/osx/gui/InputMethod.hpp"
+#include "cru/osx/gui/InputMethod.h"
 
 #include <AppKit/AppKit.h>
 

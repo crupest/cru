@@ -1,4 +1,4 @@
-#include "cru/common/PropertyTree.hpp"
+#include "cru/common/PropertyTree.h"
 
 #include <gtest/gtest.h>
 

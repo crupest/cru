@@ -1,8 +1,8 @@
-#include "cru/win/graphics/direct/WindowPainter.hpp"
+#include "cru/win/graphics/direct/WindowPainter.h"
 
-#include "cru/win/graphics/direct/Exception.hpp"
-#include "cru/win/graphics/direct/Factory.hpp"
-#include "cru/win/graphics/direct/WindowRenderTarget.hpp"
+#include "cru/win/graphics/direct/Exception.h"
+#include "cru/win/graphics/direct/Factory.h"
+#include "cru/win/graphics/direct/WindowRenderTarget.h"
 
 namespace cru::platform::graphics::win::direct {
 D2DWindowPainter::D2DWindowPainter(D2DWindowRenderTarget* render_target)

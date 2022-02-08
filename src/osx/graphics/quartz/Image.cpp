@@ -1,5 +1,5 @@
-#include "cru/osx/graphics/quartz/Image.hpp"
-#include "cru/osx/graphics/quartz/Convert.hpp"
+#include "cru/osx/graphics/quartz/Image.h"
+#include "cru/osx/graphics/quartz/Convert.h"
 
 namespace cru::platform::graphics::osx::quartz {
 QuartzImage::QuartzImage(IGraphicsFactory* graphics_factory,

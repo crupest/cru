@@ -1,11 +1,11 @@
-#include "cru/ui/mapper/BorderStyleMapper.hpp"
-#include "../Helper.hpp"
-#include "cru/common/Logger.hpp"
-#include "cru/platform/graphics/Brush.hpp"
-#include "cru/platform/graphics/Factory.hpp"
-#include "cru/ui/mapper/MapperRegistry.hpp"
-#include "cru/ui/style/ApplyBorderStyleInfo.hpp"
-#include "cru/xml/XmlNode.hpp"
+#include "cru/ui/mapper/BorderStyleMapper.h"
+#include "../Helper.h"
+#include "cru/common/Logger.h"
+#include "cru/platform/graphics/Brush.h"
+#include "cru/platform/graphics/Factory.h"
+#include "cru/ui/mapper/MapperRegistry.h"
+#include "cru/ui/style/ApplyBorderStyleInfo.h"
+#include "cru/xml/XmlNode.h"
 
 namespace cru::ui::mapper {
 using namespace xml;

@@ -1,5 +1,5 @@
-#include "components/MainWindow.hpp"
-#include "cru/platform/bootstrap/Bootstrap.hpp"
+#include "components/MainWindow.h"
+#include "cru/platform/bootstrap/Bootstrap.h"
 
 int main() {
   using namespace cru::theme_builder;

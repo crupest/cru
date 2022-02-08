@@ -1,4 +1,4 @@
-#include "cru/parse/Nonterminal.hpp"
+#include "cru/parse/Nonterminal.h"
 
 namespace cru::parse {
 Nonterminal::Nonterminal(Grammar* grammar, String name)

@@ -1,4 +1,4 @@
-#include "cru/platform/Color.hpp"
+#include "cru/platform/Color.h"
 
 #include <gtest/gtest.h>
 

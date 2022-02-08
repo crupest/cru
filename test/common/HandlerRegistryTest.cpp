@@ -1,4 +1,4 @@
-#include "cru/common/HandlerRegistry.hpp"
+#include "cru/common/HandlerRegistry.h"
 
 #include <gtest/gtest.h>
 #include <algorithm>

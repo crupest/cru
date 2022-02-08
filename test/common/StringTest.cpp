@@ -1,5 +1,5 @@
-#include "cru/common/Format.hpp"
-#include "cru/common/String.hpp"
+#include "cru/common/Format.h"
+#include "cru/common/String.h"
 
 #include <gtest/gtest.h>
 

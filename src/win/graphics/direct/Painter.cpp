@@ -1,12 +1,12 @@
-#include "cru/win/graphics/direct/Painter.hpp"
+#include "cru/win/graphics/direct/Painter.h"
 
-#include "cru/platform/Check.hpp"
-#include "cru/win/graphics/direct/Brush.hpp"
-#include "cru/win/graphics/direct/ConvertUtil.hpp"
-#include "cru/win/graphics/direct/Exception.hpp"
-#include "cru/win/graphics/direct/Geometry.hpp"
-#include "cru/win/graphics/direct/Image.hpp"
-#include "cru/win/graphics/direct/TextLayout.hpp"
+#include "cru/platform/Check.h"
+#include "cru/win/graphics/direct/Brush.h"
+#include "cru/win/graphics/direct/ConvertUtil.h"
+#include "cru/win/graphics/direct/Exception.h"
+#include "cru/win/graphics/direct/Geometry.h"
+#include "cru/win/graphics/direct/Image.h"
+#include "cru/win/graphics/direct/TextLayout.h"
 
 #include <type_traits>
 
