@@ -40,6 +40,8 @@ class CRU_UI_API TreeRenderObjectItem : public Object {
   std::vector<TreeRenderObjectItem*> children_;
 
   RenderObject* render_object_;
+
+  Rect rect_cache_;
 };
 
 class CRU_UI_API TreeRenderObject : public RenderObject {
@@ -55,12 +57,17 @@ class CRU_UI_API TreeRenderObject : public RenderObject {
 
   TreeRenderObjectItem* GetRootItem() { return root_item_; }
 
+  float GetTabWidth() const { return tab_width_; }
+  void SetTabWidth(float tab_width);
+
  protected:
   Size OnMeasureContent(const MeasureRequirement& requirement,
                         const MeasureSize& preferred_size) override;
   void OnLayoutContent(const Rect& content_rect) override;
 
  private:
+  float tab_width_ = 12.f;
+
   TreeRenderObjectItem* root_item_;
 };
 }  // namespace cru::ui::render
