@@ -53,6 +53,7 @@ add_library(cru_ui SHARED
 	render/ScrollRenderObject.cpp
 	render/StackLayoutRenderObject.cpp
 	render/TextRenderObject.cpp
+	render/TreeRenderObject.cpp
 	style/Condition.cpp
 	style/Styler.cpp
 	style/StyleRule.cpp
