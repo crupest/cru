@@ -29,7 +29,9 @@ class CRU_UI_API WindowHost : public Object {
   ~WindowHost() override;
 
  public:
-  platform::gui::INativeWindow* GetNativeWindow() { return native_window_; }
+  platform::gui::INativeWindow* GetNativeWindow() {
+    return native_window_.get();
+  }
 
   // Mark the layout as invalid, and arrange a re-layout later.
   // This method could be called more than one times in a message cycle. But
@@ -103,7 +105,7 @@ class CRU_UI_API WindowHost : public Object {
   void SetOverrideCursor(std::shared_ptr<platform::gui::ICursor> cursor);
 
  private:
-  gsl::not_null<platform::gui::INativeWindow*> CreateNativeWindow();
+  std::unique_ptr<platform::gui::INativeWindow> CreateNativeWindow();
 
   //*************** region: native messages ***************
   void OnNativeDestroy(platform::gui::INativeWindow* window, std::nullptr_t);
@@ -140,7 +142,7 @@ class CRU_UI_API WindowHost : public Object {
   controls::Control* root_control_ = nullptr;
   render::RenderObject* root_render_object_ = nullptr;
 
-  platform::gui::INativeWindow* native_window_ = nullptr;
+  std::unique_ptr<platform::gui::INativeWindow> native_window_;
 
   std::unique_ptr<LayoutPaintCycler> layout_paint_cycler_;
 

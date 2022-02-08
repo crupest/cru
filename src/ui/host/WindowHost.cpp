@@ -115,18 +115,16 @@ WindowHost::WindowHost(controls::Control* root_control)
 
   this->layout_paint_cycler_ = std::make_unique<LayoutPaintCycler>(this);
 
-  CreateNativeWindow();
+  native_window_ = CreateNativeWindow();
 }
 
-WindowHost::~WindowHost() { delete native_window_; }
+WindowHost::~WindowHost() {}
 
-gsl::not_null<platform::gui::INativeWindow*> WindowHost::CreateNativeWindow() {
+std::unique_ptr<platform::gui::INativeWindow> WindowHost::CreateNativeWindow() {
   const auto ui_application = IUiApplication::GetInstance();
 
   auto native_window = ui_application->CreateWindow();
   Ensures(native_window);
-
-  native_window_ = native_window;
 
   BindNativeEvent(this, native_window, native_window->DestroyEvent(),
                   &WindowHost::OnNativeDestroy, event_revoker_guards_);
@@ -153,7 +151,7 @@ gsl::not_null<platform::gui::INativeWindow*> WindowHost::CreateNativeWindow() {
 
   native_window_change_event_.Raise(native_window);
 
-  return native_window_;
+  return std::unique_ptr<INativeWindow>(native_window);
 }
 
 void WindowHost::InvalidatePaint() { layout_paint_cycler_->InvalidatePaint(); }
