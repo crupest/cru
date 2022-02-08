@@ -63,7 +63,14 @@ struct CRU_PLATFORM_GUI_API IUiApplication : public virtual IPlatformResource {
   // If return nullptr, it means the menu is not supported.
   virtual IMenu* GetApplicationMenu();
 
+  /**
+   * \todo Implement on Windows.
+   */
   virtual std::optional<String> ShowSaveDialog(SaveDialogOptions options);
+
+  /**
+   * \todo Implement on Windows.
+   */
   virtual std::optional<std::vector<String>> ShowOpenDialog(
       OpenDialogOptions options);
 };
