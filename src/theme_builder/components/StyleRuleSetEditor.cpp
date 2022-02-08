@@ -1,9 +1,16 @@
 #include "StyleRuleSetEditor.h"
+#include "cru/ui/controls/FlexLayout.h"
 
 namespace cru::theme_builder {
-StyleRuleSetEditor::StyleRuleSetEditor() {}
+using namespace cru::ui::controls;
+StyleRuleSetEditor::StyleRuleSetEditor() {
+  main_layout_ = FlexLayout::Create();
+}
 
-StyleRuleSetEditor::~StyleRuleSetEditor() {}
+StyleRuleSetEditor::~StyleRuleSetEditor() {
+  main_layout_->RemoveFromParent();
+  delete main_layout_;
+}
 
 void StyleRuleSetEditor::BindStyleRuleSet(
     std::shared_ptr<ui::style::StyleRuleSet> rule_set) {
@@ -11,7 +18,5 @@ void StyleRuleSetEditor::BindStyleRuleSet(
   UpdateView();
 }
 
-void StyleRuleSetEditor::UpdateView() {
-  
-}
+void StyleRuleSetEditor::UpdateView() {}
 }  // namespace cru::theme_builder

@@ -2,9 +2,11 @@
 #include "../Base.h"
 
 namespace cru::ui::components {
-// In destructor, component should check all owned controls whether it is
-// attached to window, if not, destroy them, otherwise it is host's duty to
-// destroy them.
+/**
+ * \remarks In destructor, component should first delete all child components
+ * and then remove root control from its parent (by calling
+ * Control::RemoveFromParent). Then delete all its root control.
+ */
 class CRU_UI_API Component : public Object {
  public:
   Component() = default;
