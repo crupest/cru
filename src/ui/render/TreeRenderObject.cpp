@@ -88,6 +88,7 @@ Size TreeRenderObject::OnMeasureContent(const MeasureRequirement& requirement,
 
 static void LayoutTreeRenderObjectItem(Rect rect, TreeRenderObjectItem* item,
                                        float tab_width) {
+  item->SetCachedOffset(rect.GetLeftTop());
   auto render_object = item->GetRenderObject();
   float item_height = 0.f;
   if (render_object) {
