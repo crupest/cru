@@ -32,15 +32,30 @@ Control::Control() {
 }
 
 Control::~Control() {
-  for (const auto child : children_) delete child;
+  if (auto_delete_children_) {
+    for (const auto child : children_) {
+      delete child;
+    }
+  }
 }
 
 host::WindowHost* Control::GetWindowHost() const { return window_host_; }
+
+Index Control::IndexOf(Control* child) const {
+  for (Index i = 0; i < children_.size(); ++i) {
+    if (children_[i] == child) return i;
+  }
+  return -1;
+}
 
 void Control::TraverseDescendants(
     const std::function<void(Control*)>& predicate) {
   predicate(this);
   for (auto c : GetChildren()) c->TraverseDescendants(predicate);
+}
+
+void Control::RemoveFromParent() {
+  if (parent_) parent_->RemoveChild(parent_->IndexOf(this));
 }
 
 bool Control::HasFocus() {

@@ -2,22 +2,22 @@
 #include "cru/ui/components/Component.h"
 #include "cru/ui/controls/Control.h"
 #include "cru/ui/controls/FlexLayout.h"
-#include "cru/ui/style/StyleRuleSet.h"
+#include "cru/ui/style/StyleRule.h"
 
 namespace cru::theme_builder {
-class StyleRuleSetEditor : public ui::components::Component {
+class StyleRuleEditor : public ui::components::Component {
  public:
-  StyleRuleSetEditor();
+  StyleRuleEditor();
 
-  CRU_DELETE_COPY(StyleRuleSetEditor)
-  CRU_DELETE_MOVE(StyleRuleSetEditor)
+  CRU_DELETE_COPY(StyleRuleEditor)
+  CRU_DELETE_MOVE(StyleRuleEditor)
 
-  ~StyleRuleSetEditor() override;
+  ~StyleRuleEditor() override;
 
  public:
   ui::controls::Control* GetRootControl() override { return main_layout_; }
 
-  void BindStyleRuleSet(std::shared_ptr<ui::style::StyleRuleSet> rule_set);
+  void BindStyleRule(ui::style::StyleRule* rule);
 
  private:
   void UpdateView();
@@ -25,6 +25,6 @@ class StyleRuleSetEditor : public ui::components::Component {
  private:
   ui::controls::FlexLayout* main_layout_;
 
-  std::shared_ptr<ui::style::StyleRuleSet> style_rule_set_;
+  ui::style::StyleRule* style_rule_;
 };
 }  // namespace cru::theme_builder

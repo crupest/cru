@@ -5,8 +5,6 @@
 #include "../render/Base.h"
 #include "cru/common/Event.h"
 
-#include <string_view>
-
 namespace cru::ui::controls {
 class CRU_UI_API Control : public Object {
   friend host::WindowHost;
@@ -31,9 +29,17 @@ class CRU_UI_API Control : public Object {
   Control* GetParent() const { return parent_; }
 
   const std::vector<Control*>& GetChildren() const { return children_; }
+  Index IndexOf(Control* child) const;
 
   // Traverse the tree rooted the control including itself.
   void TraverseDescendants(const std::function<void(Control*)>& predicate);
+
+  bool IsAutoDeleteChildren() const { return auto_delete_children_; }
+  void SetAutoDeleteChildren(bool auto_delete_children) {
+    auto_delete_children_ = auto_delete_children;
+  }
+
+  void RemoveFromParent();
 
  public:
   virtual render::RenderObject* GetRenderObject() const = 0;
@@ -145,6 +151,8 @@ class CRU_UI_API Control : public Object {
   std::vector<Control*> children_;
 
   host::WindowHost* window_host_ = nullptr;
+
+  bool auto_delete_children_ = true;
 
  private:
   bool is_mouse_over_ = false;

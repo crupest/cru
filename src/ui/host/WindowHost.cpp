@@ -118,7 +118,7 @@ WindowHost::WindowHost(controls::Control* root_control)
   CreateNativeWindow();
 }
 
-WindowHost::~WindowHost() {}
+WindowHost::~WindowHost() { delete native_window_; }
 
 gsl::not_null<platform::gui::INativeWindow*> WindowHost::CreateNativeWindow() {
   const auto ui_application = IUiApplication::GetInstance();

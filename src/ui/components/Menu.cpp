@@ -25,10 +25,8 @@ MenuItem::MenuItem() {
 MenuItem::MenuItem(String text) : MenuItem() { SetText(std::move(text)); }
 
 MenuItem::~MenuItem() {
-  if (!container_->GetWindowHost()) {
-    delete container_;
-    delete text_;
-  }
+  container_->RemoveFromParent();
+  delete container_;
 }
 
 void MenuItem::SetText(String text) { text_->SetText(std::move(text)); }
@@ -39,13 +37,12 @@ Menu::Menu() {
 }
 
 Menu::~Menu() {
-  if (!container_->GetWindowHost()) {
-    delete container_;
-  }
-
   for (auto item : items_) {
     delete item;
   }
+
+  container_->RemoveFromParent();
+  delete container_;
 }
 
 void Menu::AddItem(Component* item, gsl::index index) {
@@ -100,9 +97,7 @@ PopupMenu::PopupMenu(controls::Control* attached_control)
 PopupMenu::~PopupMenu() {
   delete menu_;
 
-  if (!popup_->GetWindowHost()) {
-    delete popup_;
-  }
+  delete popup_;
 }
 
 controls::Control* PopupMenu::GetRootControl() { return popup_; }

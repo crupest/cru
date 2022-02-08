@@ -166,6 +166,8 @@ Point OsxWindowPrivate::TransformMousePoint(const Point& point) {
 }
 
 void OsxWindowPrivate::CreateWindow() {
+  Expects(!window_);
+
   NSRect content_rect = Convert(content_rect_);
   NSWindowStyleMask style_mask = CalcWindowStyleMask(style_flag_);
 
