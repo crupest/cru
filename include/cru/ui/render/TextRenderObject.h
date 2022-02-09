@@ -101,8 +101,6 @@ class CRU_UI_API TextRenderObject : public RenderObject {
                         const MeasureSize& preferred_size) override;
   void OnLayoutContent(const Rect& content_rect) override;
 
-  void OnResize(const Size& size) override;
-
  private:
   std::shared_ptr<platform::graphics::IBrush> brush_;
   std::shared_ptr<platform::graphics::IFont> font_;

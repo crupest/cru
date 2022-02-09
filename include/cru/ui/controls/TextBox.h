@@ -1,6 +1,7 @@
 #pragma once
 #include "NoChildControl.h"
 
+#include "../render/TextRenderObject.h"
 #include "IBorderControl.h"
 #include "TextHostControlService.h"
 
@@ -8,8 +9,8 @@
 
 namespace cru::ui::controls {
 class CRU_UI_API TextBox : public NoChildControl,
-                public virtual IBorderControl,
-                public virtual ITextHostControl {
+                           public virtual IBorderControl,
+                           public virtual ITextHostControl {
  public:
   static constexpr StringView control_type = u"TextBox";
 

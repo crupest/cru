@@ -5,8 +5,6 @@
 #include "cru/platform/gui/Window.h"
 #include "cru/ui/Base.h"
 #include "cru/ui/host/WindowHost.h"
-#include "cru/ui/render/Base.h"
-#include "cru/ui/render/StackLayoutRenderObject.h"
 #include "gsl/pointers"
 
 #include <memory>

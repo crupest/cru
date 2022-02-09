@@ -4,10 +4,8 @@
 #include "cru/common/Logger.h"
 #include "cru/platform/graphics/Factory.h"
 #include "cru/platform/graphics/Geometry.h"
-#include "cru/platform/graphics/util/Painter.h"
-#include "cru/ui/Base.h"
+#include "cru/platform/graphics/Painter.h"
 #include "cru/ui/DebugFlags.h"
-#include "cru/ui/style/ApplyBorderStyleInfo.h"
 
 #include <algorithm>
 
@@ -15,14 +13,6 @@ namespace cru::ui::render {
 BorderRenderObject::BorderRenderObject() { RecreateGeometry(); }
 
 BorderRenderObject::~BorderRenderObject() {}
-
-void BorderRenderObject::SetChild(RenderObject* new_child) {
-  if (child_ == new_child) return;
-  if (child_ != nullptr) child_->SetParent(nullptr);
-  child_ = new_child;
-  if (child_ != nullptr) child_->SetParent(this);
-  InvalidateLayout();
-}
 
 void BorderRenderObject::ApplyBorderStyle(
     const style::ApplyBorderStyleInfo& style) {
@@ -34,27 +24,57 @@ void BorderRenderObject::ApplyBorderStyle(
   InvalidateLayout();
 }
 
+void BorderRenderObject::SetBorderEnabled(bool enabled) {
+  if (is_border_enabled_ == enabled) return;
+  is_border_enabled_ = enabled;
+  InvalidateLayout();
+}
+
+void BorderRenderObject::SetBorderBrush(
+    std::shared_ptr<platform::graphics::IBrush> brush) {
+  if (brush == border_brush_) return;
+  border_brush_ = std::move(brush);
+  InvalidatePaint();
+}
+
+void BorderRenderObject::SetBorderThickness(const Thickness thickness) {
+  if (thickness == border_thickness_) return;
+  border_thickness_ = thickness;
+  InvalidateLayout();
+}
+
+void BorderRenderObject::SetBorderRadius(const CornerRadius radius) {
+  if (radius == border_radius_) return;
+  border_radius_ = radius;
+  RecreateGeometry();
+}
+
+void BorderRenderObject::SetForegroundBrush(
+    std::shared_ptr<platform::graphics::IBrush> brush) {
+  if (brush == foreground_brush_) return;
+  foreground_brush_ = std::move(brush);
+  InvalidatePaint();
+}
+
+void BorderRenderObject::SetBackgroundBrush(
+    std::shared_ptr<platform::graphics::IBrush> brush) {
+  if (brush == background_brush_) return;
+  background_brush_ = std::move(brush);
+  InvalidatePaint();
+}
+
 RenderObject* BorderRenderObject::HitTest(const Point& point) {
-  if (child_) {
-    const auto result = child_->HitTest(point - child_->GetOffset());
+  if (auto child = GetChild()) {
+    const auto result = child->HitTest(point - child->GetOffset());
     if (result != nullptr) {
       return result;
     }
   }
 
   if (is_border_enabled_) {
-    const auto contains =
-        border_outer_geometry_->FillContains(Point{point.x, point.y});
-    return contains ? this : nullptr;
+    return border_outer_geometry_->FillContains(point) ? this : nullptr;
   } else {
-    const auto margin = GetMargin();
-    const auto size = GetDesiredSize();
-    return Rect{margin.left, margin.top,
-                std::max(size.width - margin.GetHorizontalTotal(), 0.0f),
-                std::max(size.height - margin.GetVerticalTotal(), 0.0f)}
-                   .IsPointInside(point)
-               ? this
-               : nullptr;
+    return GetPaddingRect().IsPointInside(point) ? this : nullptr;
   }
 }
 
@@ -80,10 +100,10 @@ void BorderRenderObject::Draw(platform::graphics::IPainter* painter) {
     }
   }
 
-  if (child_) {
+  if (auto child = GetChild()) {
     painter->PushState();
-    painter->ConcatTransform(Matrix::Translation(child_->GetOffset()));
-    child_->Draw(painter);
+    painter->ConcatTransform(Matrix::Translation(child->GetOffset()));
+    child->Draw(painter);
     painter->PopState();
   }
 
@@ -94,17 +114,17 @@ void BorderRenderObject::Draw(platform::graphics::IPainter* painter) {
 
 Size BorderRenderObject::OnMeasureContent(const MeasureRequirement& requirement,
                                           const MeasureSize& preferred_size) {
-  if (child_) {
-    child_->Measure(requirement, preferred_size);
-    return child_->GetDesiredSize();
+  if (auto child = GetChild()) {
+    child->Measure(requirement, preferred_size);
+    return child->GetDesiredSize();
   } else {
     return Size{};
   }
 }
 
 void BorderRenderObject::OnLayoutContent(const Rect& content_rect) {
-  if (child_) {
-    child_->Layout(content_rect.GetLeftTop());
+  if (auto child = GetChild()) {
+    child->Layout(content_rect.GetLeftTop());
   }
 }
 
@@ -117,7 +137,7 @@ Thickness BorderRenderObject::GetOuterSpaceThickness() const {
 }
 
 Rect BorderRenderObject::GetPaddingRect() const {
-  const auto size = GetDesiredSize();
+  const auto size = GetSize();
   Rect rect{Point{}, size};
   rect = rect.Shrink(GetMargin());
   if (is_border_enabled_) rect = rect.Shrink(border_thickness_);
@@ -209,4 +229,6 @@ void BorderRenderObject::RecreateGeometry() {
   geometry_ = builder->Build();
   builder.reset();
 }
+
+String BorderRenderObject::GetName() const { return u"BorderRenderObject"; }
 }  // namespace cru::ui::render

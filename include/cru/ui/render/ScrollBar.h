@@ -1,5 +1,4 @@
 #pragma once
-#include "Base.h"
 #include "cru/common/Base.h"
 #include "cru/common/Event.h"
 #include "cru/platform/graphics/Base.h"

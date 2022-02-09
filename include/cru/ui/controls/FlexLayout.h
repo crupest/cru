@@ -1,7 +1,15 @@
 #pragma once
 #include "LayoutControl.h"
 
+#include "cru/ui/render/FlexLayoutRenderObject.h"
+
 namespace cru::ui::controls {
+
+using render::FlexChildLayoutData;
+using render::FlexCrossAlignment;
+using render::FlexDirection;
+using render::FlexMainAlignment;
+
 class CRU_UI_API FlexLayout : public LayoutControl {
  public:
   static constexpr StringView control_type = u"FlexLayout";

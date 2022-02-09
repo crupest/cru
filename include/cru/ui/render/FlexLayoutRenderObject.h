@@ -2,6 +2,24 @@
 #include "LayoutRenderObject.h"
 
 namespace cru::ui::render {
+
+enum class FlexDirection {
+  Horizontal,
+  HorizontalReverse,
+  Vertical,
+  VertivalReverse
+};
+
+using FlexMainAlignment = Alignment;
+using FlexCrossAlignment = Alignment;
+
+struct FlexChildLayoutData {
+  float expand_factor = 0;
+  float shrink_factor = 1;
+  // nullopt stands for looking at parent's setting
+  std::optional<FlexCrossAlignment> cross_alignment = std::nullopt;
+};
+
 // Measure Logic (v0.1):
 // Cross axis measure logic is the same as stack layout.
 //

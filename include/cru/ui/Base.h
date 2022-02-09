@@ -128,23 +128,6 @@ class CanvasPaintEventArgs {
   Size paint_size_;
 };
 
-enum class FlexDirection {
-  Horizontal,
-  HorizontalReverse,
-  Vertical,
-  VertivalReverse
-};
-
-using FlexMainAlignment = Alignment;
-using FlexCrossAlignment = Alignment;
-
-struct FlexChildLayoutData {
-  float expand_factor = 0;
-  float shrink_factor = 1;
-  // nullopt stands for looking at parent's setting
-  std::optional<FlexCrossAlignment> cross_alignment = std::nullopt;
-};
-
 struct StackChildLayoutData {
   std::optional<Alignment> horizontal;
   std::optional<Alignment> vertical;

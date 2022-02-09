@@ -1,7 +1,7 @@
 #pragma once
 #include "RenderObject.h"
 
-#include "cru/platform/graphics/util/Painter.h"
+#include "cru/platform/graphics/Painter.h"
 
 namespace cru::ui::render {
 template <typename TChildLayoutData>
@@ -52,6 +52,16 @@ class CRU_UI_API LayoutRenderObject : public RenderObject {
   const ChildLayoutData& GetChildLayoutData(Index position) const {
     Expects(position >= 0 && position < GetChildCount());
     return children_[position].layout_data;
+  }
+
+  void Draw(platform::graphics::IPainter* painter) override {
+    for (auto& child : children_) {
+      painter->PushState();
+      painter->ConcatTransform(
+          Matrix::Translation(child.render_object->GetOffset()));
+      child.render_object->Draw(painter);
+      painter->PopState();
+    }
   }
 
   RenderObject* HitTest(const Point& point) override {

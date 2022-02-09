@@ -2,8 +2,8 @@
 #include "Base.h"
 
 #include "../events/UiEvents.h"
-#include "../render/Base.h"
 #include "cru/common/Event.h"
+#include "cru/ui/render/RenderObject.h"
 
 namespace cru::ui::controls {
 class CRU_UI_API Control : public Object {

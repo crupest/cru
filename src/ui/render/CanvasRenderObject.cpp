@@ -1,7 +1,7 @@
 #include "cru/ui/render/CanvasRenderObject.h"
 
 namespace cru::ui::render {
-CanvasRenderObject::CanvasRenderObject() : RenderObject() {}
+CanvasRenderObject::CanvasRenderObject()  {}
 
 CanvasRenderObject::~CanvasRenderObject() = default;
 

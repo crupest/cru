@@ -448,7 +448,7 @@ void HorizontalScrollBar::DrawDownArrow(
 }
 
 bool HorizontalScrollBar::IsShowBar() {
-  const auto child = render_object_->GetFirstChild();
+  const auto child = render_object_->GetChild();
   if (child == nullptr) return false;
 
   const auto view_rect = render_object_->GetViewRect();
@@ -466,7 +466,7 @@ std::optional<Rect> HorizontalScrollBar::GetExpandedAreaRect(
 
   const auto padding_rect = render_object_->GetPaddingRect();
 
-  const auto child = render_object_->GetFirstChild();
+  const auto child = render_object_->GetChild();
 
   const auto view_rect = render_object_->GetViewRect();
   const auto child_size = child->GetDesiredSize();
@@ -518,7 +518,7 @@ std::optional<Rect> HorizontalScrollBar::GetCollapsedThumbRect() {
   auto show = IsShowBar();
   if (!show) return std::nullopt;
 
-  const auto child = render_object_->GetFirstChild();
+  const auto child = render_object_->GetChild();
 
   const auto view_rect = render_object_->GetViewRect();
   const auto child_size = child->GetDesiredSize();
@@ -546,7 +546,7 @@ float HorizontalScrollBar::CalculateNewScrollPosition(
 
   auto thumb_head_end = scroll_area_end - thumb_original_rect.width;
 
-  const auto child = render_object_->GetFirstChild();
+  const auto child = render_object_->GetChild();
   const auto child_size = child->GetDesiredSize();
 
   new_thumb_start =
@@ -597,7 +597,7 @@ void VerticalScrollBar::DrawDownArrow(
 }
 
 bool VerticalScrollBar::IsShowBar() {
-  const auto child = render_object_->GetFirstChild();
+  const auto child = render_object_->GetChild();
   if (child == nullptr) return false;
 
   const auto view_rect = render_object_->GetViewRect();
@@ -615,7 +615,7 @@ std::optional<Rect> VerticalScrollBar::GetExpandedAreaRect(
 
   const auto padding_rect = render_object_->GetPaddingRect();
 
-  const auto child = render_object_->GetFirstChild();
+  const auto child = render_object_->GetChild();
 
   const auto view_rect = render_object_->GetViewRect();
   const auto child_size = child->GetDesiredSize();
@@ -663,7 +663,7 @@ std::optional<Rect> VerticalScrollBar::GetCollapsedTriggerExpandAreaRect() {
 }
 
 std::optional<Rect> VerticalScrollBar::GetCollapsedThumbRect() {
-  const auto child = render_object_->GetFirstChild();
+  const auto child = render_object_->GetChild();
   if (child == nullptr) return std::nullopt;
 
   const auto view_rect = render_object_->GetViewRect();
@@ -693,7 +693,7 @@ float VerticalScrollBar::CalculateNewScrollPosition(
 
   auto thumb_head_end = scroll_area_end - thumb_original_rect.height;
 
-  const auto child = render_object_->GetFirstChild();
+  const auto child = render_object_->GetChild();
   const auto child_size = child->GetDesiredSize();
 
   new_thumb_start =

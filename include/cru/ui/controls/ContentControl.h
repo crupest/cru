@@ -1,7 +1,6 @@
 #pragma once
 #include "Control.h"
 
-#include "cru/ui/render/RenderObject.h"
 
 namespace cru::ui::controls {
 class CRU_UI_API ContentControl : public Control {

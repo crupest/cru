@@ -1,8 +1,6 @@
 #include "cru/ui/render/ScrollRenderObject.h"
 
 #include "cru/platform/graphics/Painter.h"
-#include "cru/platform/graphics/util/Painter.h"
-#include "cru/ui/Base.h"
 #include "cru/ui/controls/Control.h"
 #include "cru/ui/render/ScrollBar.h"
 
@@ -38,17 +36,10 @@ Point CoerceScroll(const Point& scroll_offset, const Size& content_size,
 }
 }  // namespace
 
-ScrollRenderObject::ScrollRenderObject() : RenderObject() {
+ScrollRenderObject::ScrollRenderObject() {
   scroll_bar_delegate_ = std::make_unique<ScrollBarDelegate>(this);
   scroll_bar_delegate_->ScrollAttemptEvent()->AddHandler(
       [this](const struct Scroll& scroll) { this->ApplyScroll(scroll); });
-}
-
-void ScrollRenderObject::SetChild(RenderObject* new_child) {
-  if (child_ == new_child) return;
-  if (child_) child_->SetParent(nullptr);
-  child_ = new_child;
-  if (child_) child_->SetParent(this);
 }
 
 void ScrollRenderObject::ApplyScroll(const struct Scroll& scroll) {
@@ -79,9 +70,9 @@ void ScrollRenderObject::ApplyScroll(const struct Scroll& scroll) {
 }
 
 RenderObject* ScrollRenderObject::HitTest(const Point& point) {
-  if (child_) {
-    const auto offset = child_->GetOffset();
-    const auto r = child_->HitTest(point - offset);
+  if (auto child = GetChild()) {
+    const auto offset = child->GetOffset();
+    const auto r = child->HitTest(point - offset);
     if (r != nullptr) return r;
   }
 
@@ -90,12 +81,12 @@ RenderObject* ScrollRenderObject::HitTest(const Point& point) {
 }  // namespace cru::ui::render
 
 void ScrollRenderObject::Draw(platform::graphics::IPainter* painter) {
-  if (child_) {
+  if (auto child = GetChild()) {
     painter->PushLayer(this->GetContentRect());
-    const auto offset = child_->GetOffset();
+    const auto offset = child->GetOffset();
     painter->PushState();
     painter->ConcatTransform(Matrix::Translation(offset));
-    child_->Draw(painter);
+    child->Draw(painter);
     painter->PopState();
     painter->PopLayer();
   }
@@ -103,11 +94,12 @@ void ScrollRenderObject::Draw(platform::graphics::IPainter* painter) {
 }
 
 Point ScrollRenderObject::GetScrollOffset() {
-  if (child_)
+  if (auto child = GetChild()) {
     return CoerceScroll(scroll_offset_, GetContentRect().GetSize(),
-                        child_->GetDesiredSize());
-  else
+                        child->GetSize());
+  } else {
     return scroll_offset_;
+  }
 }
 
 void ScrollRenderObject::SetScrollOffset(const Point& offset) {
@@ -171,12 +163,12 @@ void ScrollRenderObject::SetMouseWheelScrollEnabled(bool enable) {
 
 Size ScrollRenderObject::OnMeasureContent(const MeasureRequirement& requirement,
                                           const MeasureSize& preferred_size) {
-  if (child_) {
-    child_->Measure(MeasureRequirement{MeasureSize::NotSpecified(),
-                                       MeasureSize::NotSpecified()},
-                    MeasureSize::NotSpecified());
+  if (auto child = GetChild()) {
+    child->Measure(MeasureRequirement{MeasureSize::NotSpecified(),
+                                      MeasureSize::NotSpecified()},
+                   MeasureSize::NotSpecified());
 
-    Size result = requirement.Coerce(child_->GetDesiredSize());
+    Size result = requirement.Coerce(child->GetDesiredSize());
     if (preferred_size.width.IsSpecified()) {
       result.width = preferred_size.width.GetLengthOrUndefined();
     }
@@ -196,8 +188,8 @@ Size ScrollRenderObject::OnMeasureContent(const MeasureRequirement& requirement,
 }  // namespace cru::ui::render
 
 void ScrollRenderObject::OnLayoutContent(const Rect& content_rect) {
-  if (child_) {
-    child_->Layout(content_rect.GetLeftTop() - GetScrollOffset());
+  if (auto child = GetChild()) {
+    child->Layout(content_rect.GetLeftTop() - GetScrollOffset());
   }
 }
 
@@ -255,8 +247,10 @@ bool ScrollRenderObject::HorizontalCanScrollUp() {
 }
 
 bool ScrollRenderObject::HorizontalCanScrollDown() {
+  auto child = GetChild();
+  if (child == nullptr) return false;
   return GetScrollOffset().x <
-         child_->GetDesiredSize().width - GetViewRect().width;
+         child->GetDesiredSize().width - GetViewRect().width;
 }
 
 bool ScrollRenderObject::VerticalCanScrollUp() {
@@ -264,7 +258,9 @@ bool ScrollRenderObject::VerticalCanScrollUp() {
 }
 
 bool ScrollRenderObject::VerticalCanScrollDown() {
+  auto child = GetChild();
+  if (child == nullptr) return false;
   return GetScrollOffset().y <
-         child_->GetDesiredSize().height - GetViewRect().height;
+         child->GetDesiredSize().height - GetViewRect().height;
 }
 }  // namespace cru::ui::render

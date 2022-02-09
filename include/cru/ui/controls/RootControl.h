@@ -7,6 +7,7 @@
 #include "cru/platform/gui/Window.h"
 #include "cru/ui/Base.h"
 #include "cru/ui/host/WindowHost.h"
+#include "cru/ui/render/StackLayoutRenderObject.h"
 
 namespace cru::ui::controls {
 class CRU_UI_API RootControl : public LayoutControl {

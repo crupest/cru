@@ -5,12 +5,13 @@
 #include "IBorderControl.h"
 #include "IClickableControl.h"
 #include "cru/common/Event.h"
+#include "cru/ui/render/BorderRenderObject.h"
 #include "cru/ui/style/ApplyBorderStyleInfo.h"
 
 namespace cru::ui::controls {
 class CRU_UI_API Button : public ContentControl,
-               public virtual IClickableControl,
-               public virtual IBorderControl {
+                          public virtual IClickableControl,
+                          public virtual IBorderControl {
  public:
   static constexpr StringView control_type = u"Button";
 

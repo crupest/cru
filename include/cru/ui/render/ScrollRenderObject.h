@@ -1,10 +1,8 @@
 #pragma once
-#include "RenderObject.h"
+#include "SingleChildRenderObject.h"
 
+#include "ScrollBar.h"
 #include "cru/common/Event.h"
-#include "cru/platform/graphics/util/Painter.h"
-#include "cru/ui/Base.h"
-#include "cru/ui/render/ScrollBar.h"
 
 #include <memory>
 #include <optional>
@@ -18,7 +16,7 @@ namespace cru::ui::render {
 // Layout logic:
 // If child is smaller than content area, layout at lefttop.
 // Or layout by scroll state.
-class CRU_UI_API ScrollRenderObject : public RenderObject {
+class CRU_UI_API ScrollRenderObject : public SingleChildRenderObject {
  public:
   ScrollRenderObject();
 
@@ -26,9 +24,6 @@ class CRU_UI_API ScrollRenderObject : public RenderObject {
   CRU_DELETE_MOVE(ScrollRenderObject)
 
   ~ScrollRenderObject() override = default;
-
-  RenderObject* GetChild() const { return child_; }
-  void SetChild(RenderObject* new_child);
 
   RenderObject* HitTest(const Point& point) override;
 
@@ -91,8 +86,6 @@ class CRU_UI_API ScrollRenderObject : public RenderObject {
   void InstallMouseWheelHandler(controls::Control* control);
 
  private:
-  RenderObject* child_;
-
   Point scroll_offset_;
 
   std::unique_ptr<ScrollBarDelegate> scroll_bar_delegate_;

@@ -1,10 +1,8 @@
 #pragma once
-#include "Base.h"
+#include "../Base.h"
 
 #include "MeasureRequirement.h"
-#include "cru/common/Base.h"
 #include "cru/common/String.h"
-#include "cru/ui/Base.h"
 
 namespace cru::ui::render {
 // Render object will not destroy its children when destroyed. Control must

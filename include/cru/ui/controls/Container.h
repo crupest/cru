@@ -1,6 +1,8 @@
 #pragma once
 #include "ContentControl.h"
 
+#include "cru/ui/render/BorderRenderObject.h"
+
 namespace cru::ui::controls {
 class CRU_UI_API Container : public ContentControl {
   static constexpr StringView control_type = u"Container";

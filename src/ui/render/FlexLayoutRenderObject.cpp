@@ -1,10 +1,7 @@
 #include "cru/ui/render/FlexLayoutRenderObject.h"
 
 #include "cru/common/Logger.h"
-#include "cru/platform/graphics/util/Painter.h"
-#include "cru/ui/Base.h"
 #include "cru/ui/render/LayoutHelper.h"
-#include "cru/ui/render/MeasureRequirement.h"
 
 #include <algorithm>
 #include <functional>

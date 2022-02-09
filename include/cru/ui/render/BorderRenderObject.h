@@ -1,10 +1,10 @@
 #pragma once
-#include "RenderObject.h"
+#include "SingleChildRenderObject.h"
 
 #include "../style/ApplyBorderStyleInfo.h"
 
 namespace cru::ui::render {
-class CRU_UI_API BorderRenderObject : public RenderObject {
+class CRU_UI_API BorderRenderObject : public SingleChildRenderObject {
   CRU_DEFINE_CLASS_LOG_TAG(u"cru::ui::render::BorderRenderObject")
 
  public:
@@ -13,57 +13,31 @@ class CRU_UI_API BorderRenderObject : public RenderObject {
   CRU_DELETE_MOVE(BorderRenderObject)
   ~BorderRenderObject() override;
 
-  RenderObject* GetChild() const { return child_; }
-  void SetChild(RenderObject* new_child);
-
   bool IsBorderEnabled() const { return is_border_enabled_; }
-  void SetBorderEnabled(bool enabled) { is_border_enabled_ = enabled; }
+  void SetBorderEnabled(bool enabled);
 
   std::shared_ptr<platform::graphics::IBrush> GetBorderBrush() {
     return border_brush_;
   }
-
-  void SetBorderBrush(std::shared_ptr<platform::graphics::IBrush> brush) {
-    if (brush == border_brush_) return;
-    border_brush_ = std::move(brush);
-    InvalidatePaint();
-  }
+  void SetBorderBrush(std::shared_ptr<platform::graphics::IBrush> brush);
 
   Thickness GetBorderThickness() const { return border_thickness_; }
-
-  void SetBorderThickness(const Thickness thickness) {
-    if (thickness == border_thickness_) return;
-    border_thickness_ = thickness;
-    InvalidateLayout();
-  }
+  void SetBorderThickness(const Thickness thickness);
 
   CornerRadius GetBorderRadius() { return border_radius_; }
-
-  void SetBorderRadius(const CornerRadius radius) {
-    if (radius == border_radius_) return;
-    border_radius_ = radius;
-    RecreateGeometry();
-  }
+  void SetBorderRadius(const CornerRadius radius);
 
   std::shared_ptr<platform::graphics::IBrush> GetForegroundBrush() {
     return foreground_brush_;
   }
 
-  void SetForegroundBrush(std::shared_ptr<platform::graphics::IBrush> brush) {
-    if (brush == foreground_brush_) return;
-    foreground_brush_ = std::move(brush);
-    InvalidatePaint();
-  }
+  void SetForegroundBrush(std::shared_ptr<platform::graphics::IBrush> brush);
 
   std::shared_ptr<platform::graphics::IBrush> GetBackgroundBrush() {
     return background_brush_;
   }
 
-  void SetBackgroundBrush(std::shared_ptr<platform::graphics::IBrush> brush) {
-    if (brush == background_brush_) return;
-    background_brush_ = std::move(brush);
-    InvalidatePaint();
-  }
+  void SetBackgroundBrush(std::shared_ptr<platform::graphics::IBrush> brush);
 
   void ApplyBorderStyle(const style::ApplyBorderStyleInfo& style);
 
@@ -74,7 +48,7 @@ class CRU_UI_API BorderRenderObject : public RenderObject {
   Rect GetPaddingRect() const override;
   Rect GetContentRect() const override;
 
-  String GetName() const override { return u"BorderRenderObject"; }
+  String GetName() const override;
 
  protected:
   Size OnMeasureContent(const MeasureRequirement& requirement,
@@ -87,8 +61,6 @@ class CRU_UI_API BorderRenderObject : public RenderObject {
   void RecreateGeometry();
 
  private:
-  RenderObject* child_ = nullptr;
-
   bool is_border_enabled_ = false;
 
   std::shared_ptr<platform::graphics::IBrush> border_brush_;

@@ -1,10 +1,12 @@
 #pragma once
 #include "NoChildControl.h"
 
+#include "../render/TextRenderObject.h"
 #include "TextHostControlService.h"
 
 namespace cru::ui::controls {
-class CRU_UI_API TextBlock : public NoChildControl, public virtual ITextHostControl {
+class CRU_UI_API TextBlock : public NoChildControl,
+                             public virtual ITextHostControl {
  public:
   static constexpr StringView control_type = u"TextBlock";
 

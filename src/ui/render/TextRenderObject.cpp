@@ -3,8 +3,8 @@
 #include "../Helper.h"
 #include "cru/common/Logger.h"
 #include "cru/platform/graphics/Factory.h"
+#include "cru/platform/graphics/Painter.h"
 #include "cru/platform/graphics/TextLayout.h"
-#include "cru/platform/graphics/util/Painter.h"
 #include "cru/ui/DebugFlags.h"
 
 #include <algorithm>
