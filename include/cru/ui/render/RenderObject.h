@@ -170,10 +170,14 @@ class CRU_UI_API RenderObject : public Object {
   // default is to invalidate both layout and paint
   virtual void OnRemoveChild(RenderObject* removed_child, Index position);
 
-  // Draw all children with offset.
+  /**
+   * \brief Draw all children with offset.
+   */
   void DefaultDrawChildren(platform::graphics::IPainter* painter);
 
-  // Draw all children with translation of content rect lefttop.
+  /**
+   * \brief Call OnDrawContent with translation of content rect lefttop.
+   */
   void DefaultDrawContent(platform::graphics::IPainter* painter);
 
   // Call DefaultDrawContent. Then call DefaultDrawChildren.

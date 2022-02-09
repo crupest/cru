@@ -1,5 +1,7 @@
 #include "cru/ui/render/TreeRenderObject.h"
+#include "cru/platform/graphics/Painter.h"
 #include "cru/ui/render/MeasureRequirement.h"
+#include "cru/ui/render/RenderObject.h"
 
 namespace cru::ui::render {
 TreeRenderObjectItem::TreeRenderObjectItem(TreeRenderObject* tree_render_object,
@@ -42,6 +44,45 @@ void TreeRenderObject::SetTabWidth(float tab_width) {
   if (tab_width == tab_width_) return;
   tab_width_ = tab_width;
   InvalidateLayout();
+}
+
+RenderObject* TreeRenderObjectItemHitTest(TreeRenderObjectItem* item,
+                                          const Point& point) {
+  auto render_object = item->GetRenderObject();
+  if (render_object) {
+    auto result = render_object->HitTest(point - render_object->GetOffset());
+    if (result) return result;
+  }
+
+  for (auto child : item->GetChildren()) {
+    auto result = TreeRenderObjectItemHitTest(child, point);
+    if (result) return result;
+  }
+
+  return nullptr;
+}
+
+RenderObject* TreeRenderObject::HitTest(const Point& point) {
+  return TreeRenderObjectItemHitTest(root_item_, point);
+}
+
+void TreeRenderObjectItemDraw(TreeRenderObjectItem* item,
+                              platform::graphics::IPainter* painter) {
+  auto render_object = item->GetRenderObject();
+  if (render_object) {
+    painter->PushState();
+    painter->ConcatTransform(Matrix::Translation(render_object->GetOffset()));
+    render_object->Draw(painter);
+    painter->PopState();
+  }
+
+  for (auto child : item->GetChildren()) {
+    TreeRenderObjectItemDraw(child, painter);
+  }
+}
+
+void TreeRenderObject::OnDrawCore(platform::graphics::IPainter* painter) {
+  TreeRenderObjectItemDraw(root_item_, painter);
 }
 
 static Size MeasureTreeRenderObjectItem(MeasureSize max_size,
@@ -88,7 +129,6 @@ Size TreeRenderObject::OnMeasureContent(const MeasureRequirement& requirement,
 
 static void LayoutTreeRenderObjectItem(Rect rect, TreeRenderObjectItem* item,
                                        float tab_width) {
-  item->SetCachedOffset(rect.GetLeftTop());
   auto render_object = item->GetRenderObject();
   float item_height = 0.f;
   if (render_object) {

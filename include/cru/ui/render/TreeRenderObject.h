@@ -1,5 +1,6 @@
 #pragma once
 #include "RenderObject.h"
+#include "cru/platform/graphics/Painter.h"
 
 namespace cru::ui::render {
 class TreeRenderObject;
@@ -33,9 +34,6 @@ class CRU_UI_API TreeRenderObjectItem : public Object {
   TreeRenderObjectItem* AddItem(Index position);
   void RemoveItem(Index position);
 
-  Point GetCachedOffset() const { return offset_cache_; }
-  void SetCachedOffset(const Point& point) { offset_cache_ = point; }
-
  private:
   TreeRenderObject* tree_render_object_;
 
@@ -43,8 +41,6 @@ class CRU_UI_API TreeRenderObjectItem : public Object {
   std::vector<TreeRenderObjectItem*> children_;
 
   RenderObject* render_object_;
-
-  Point offset_cache_;
 };
 
 class CRU_UI_API TreeRenderObject : public RenderObject {
@@ -63,7 +59,11 @@ class CRU_UI_API TreeRenderObject : public RenderObject {
   float GetTabWidth() const { return tab_width_; }
   void SetTabWidth(float tab_width);
 
+  RenderObject* HitTest(const Point& point) override;
+
  protected:
+  void OnDrawCore(platform::graphics::IPainter* painter) override;
+
   Size OnMeasureContent(const MeasureRequirement& requirement,
                         const MeasureSize& preferred_size) override;
   void OnLayoutContent(const Rect& content_rect) override;
