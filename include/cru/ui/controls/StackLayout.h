@@ -1,11 +1,13 @@
 #pragma once
 #include "LayoutControl.h"
-#include "cru/ui/Base.h"
+
+#include "../render/StackLayoutRenderObject.h"
 
 namespace cru::ui::controls {
-class CRU_UI_API StackLayout : public LayoutControl {
+class CRU_UI_API StackLayout
+    : public LayoutControl<render::StackLayoutRenderObject> {
  public:
-  static constexpr StringView control_type = u"StackLayout";
+  static constexpr StringView kControlType = u"StackLayout";
 
   static StackLayout* Create() { return new StackLayout(); }
 
@@ -18,14 +20,6 @@ class CRU_UI_API StackLayout : public LayoutControl {
 
   ~StackLayout() override;
 
-  String GetControlType() const final { return control_type.ToString(); }
-
-  render::RenderObject* GetRenderObject() const override;
-
-  const StackChildLayoutData& GetChildLayoutData(Index position);
-  void SetChildLayoutData(Index position, StackChildLayoutData data);
-
- private:
-  std::shared_ptr<render::StackLayoutRenderObject> render_object_;
+  String GetControlType() const final { return kControlType.ToString(); }
 };
 }  // namespace cru::ui::controls

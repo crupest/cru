@@ -105,11 +105,6 @@ inline void BindNativeEvent(
 
 WindowHost::WindowHost(controls::Control* root_control)
     : root_control_(root_control), focus_control_(root_control) {
-  root_control_->TraverseDescendants([this](controls::Control* control) {
-    control->window_host_ = this;
-    control->OnAttachToHost(this);
-  });
-
   root_render_object_ = root_control->GetRenderObject();
 
   this->layout_paint_cycler_ = std::make_unique<LayoutPaintCycler>(this);

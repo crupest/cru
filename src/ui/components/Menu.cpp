@@ -33,7 +33,7 @@ void MenuItem::SetText(String text) { text_->SetText(std::move(text)); }
 
 Menu::Menu() {
   container_ = controls::FlexLayout::Create();
-  container_->SetFlexDirection(FlexDirection::Vertical);
+  container_->SetFlexDirection(controls::FlexDirection::Vertical);
 }
 
 Menu::~Menu() {

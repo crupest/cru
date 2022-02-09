@@ -1,19 +1,19 @@
 #pragma once
-#include "ContentControl.h"
+#include "SingleChildControl.h"
 
+#include "../controls/SingleChildControl.h"
 #include "../helper/ClickDetector.h"
+#include "../render/BorderRenderObject.h"
 #include "IBorderControl.h"
 #include "IClickableControl.h"
 #include "cru/common/Event.h"
-#include "cru/ui/render/BorderRenderObject.h"
-#include "cru/ui/style/ApplyBorderStyleInfo.h"
 
 namespace cru::ui::controls {
-class CRU_UI_API Button : public ContentControl,
+class CRU_UI_API Button : public SingleChildControl<render::BorderRenderObject>,
                           public virtual IClickableControl,
                           public virtual IBorderControl {
  public:
-  static constexpr StringView control_type = u"Button";
+  static constexpr StringView kControlType = u"Button";
 
   static Button* Create() { return new Button(); }
 
@@ -27,9 +27,7 @@ class CRU_UI_API Button : public ContentControl,
   Button& operator=(Button&& other) = delete;
   ~Button() override;
 
-  String GetControlType() const final { return control_type.ToString(); }
-
-  render::RenderObject* GetRenderObject() const override;
+  String GetControlType() const final { return kControlType.ToString(); }
 
  public:
   helper::ClickState GetClickState() override {
@@ -47,8 +45,6 @@ class CRU_UI_API Button : public ContentControl,
   void ApplyBorderStyle(const style::ApplyBorderStyleInfo& style) override;
 
  private:
-  std::unique_ptr<render::BorderRenderObject> render_object_{};
-
   helper::ClickDetector click_detector_;
 };
 }  // namespace cru::ui::controls

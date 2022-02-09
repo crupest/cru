@@ -1,6 +1,7 @@
 #pragma once
 #include "../Base.h"
 
+#include "../render/RenderObject.h"
 #include "cru/common/Event.h"
 #include "cru/platform/gui/Cursor.h"
 #include "cru/platform/gui/UiApplication.h"

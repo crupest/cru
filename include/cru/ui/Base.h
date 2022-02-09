@@ -46,10 +46,6 @@ namespace host {
 class WindowHost;
 }
 
-namespace render {
-class RenderObject;
-}
-
 namespace style {
 class StyleRuleSet;
 class StyleRuleSetBind;

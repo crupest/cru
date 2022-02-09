@@ -12,20 +12,13 @@
 namespace cru::ui::controls {
 RootControl::RootControl(Control* attached_control)
     : attached_control_(attached_control) {
-  render_object_ = std::make_unique<render::StackLayoutRenderObject>();
-  render_object_->SetAttachedControl(this);
-  render_object_->SetDefaultHorizontalAlignment(Alignment::Stretch);
-  render_object_->SetDefaultVertialAlignment(Alignment::Stretch);
-  SetContainerRenderObject(render_object_.get());
+  GetContainerRenderObject()->SetDefaultHorizontalAlignment(Alignment::Stretch);
+  GetContainerRenderObject()->SetDefaultVertialAlignment(Alignment::Stretch);
   window_host_ = std::make_unique<host::WindowHost>(this);
   window_host_->SetLayoutPreferToFillWindow(true);
 }
 
 RootControl::~RootControl() {}
-
-render::RenderObject* RootControl::GetRenderObject() const {
-  return render_object_.get();
-}
 
 platform::gui::INativeWindow* RootControl::GetNativeWindow() {
   return window_host_->GetNativeWindow();

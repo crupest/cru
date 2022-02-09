@@ -35,7 +35,7 @@ Size StackLayoutRenderObject::OnMeasureContent(
   child_max_size = Max(requirement.min.GetSizeOr0(), child_max_size);
 
   for (Index i = 0; i < GetChildCount(); ++i) {
-    auto child_layout_data = GetChildLayoutData(i);
+    auto child_layout_data = GetChildLayoutDataAt(i);
     auto horizontal_stretch =
         child_layout_data.horizontal.value_or(default_horizontal_alignment_) ==
         Alignment::Stretch;
@@ -67,7 +67,7 @@ void StackLayoutRenderObject::OnLayoutContent(const Rect& content_rect) {
 
   for (int i = 0; i < count; i++) {
     const auto child = GetChildAt(i);
-    const auto& layout_data = GetChildLayoutData(i);
+    const auto& layout_data = GetChildLayoutDataAt(i);
     const auto& size = child->GetDesiredSize();
     child->Layout(Point{
         CalculateAnchorByAlignment(

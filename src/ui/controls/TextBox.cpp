@@ -24,8 +24,8 @@ TextBox::TextBox()
       theme_manager->GetResourceBrush(u"text.caret.brush"));
   text_render_object_->SetEditMode(true);
 
-  border_render_object_->AddChild(scroll_render_object_.get(), 0);
-  scroll_render_object_->AddChild(text_render_object_.get(), 0);
+  border_render_object_->SetChild(scroll_render_object_.get());
+  scroll_render_object_->SetChild(text_render_object_.get());
 
   border_render_object_->SetAttachedControl(this);
   scroll_render_object_->SetAttachedControl(this);

@@ -1,16 +1,14 @@
 #pragma once
 #include "LayoutControl.h"
 
-#include "cru/common/Base.h"
 #include "cru/common/Event.h"
-#include "cru/platform/gui/Base.h"
 #include "cru/platform/gui/Window.h"
-#include "cru/ui/Base.h"
 #include "cru/ui/host/WindowHost.h"
 #include "cru/ui/render/StackLayoutRenderObject.h"
 
 namespace cru::ui::controls {
-class CRU_UI_API RootControl : public LayoutControl {
+class CRU_UI_API RootControl
+    : public LayoutControl<render::StackLayoutRenderObject> {
  protected:
   explicit RootControl(Control* attached_control);
 
@@ -20,7 +18,9 @@ class CRU_UI_API RootControl : public LayoutControl {
   ~RootControl() override;
 
  public:
-  render::RenderObject* GetRenderObject() const override;
+  host::WindowHost* GetWindowHost() const override {
+    return window_host_.get();
+  }
 
   platform::gui::INativeWindow* GetNativeWindow();
 
@@ -29,8 +29,6 @@ class CRU_UI_API RootControl : public LayoutControl {
 
  private:
   std::unique_ptr<host::WindowHost> window_host_;
-
-  std::unique_ptr<render::StackLayoutRenderObject> render_object_;
 
   Control* attached_control_;
 

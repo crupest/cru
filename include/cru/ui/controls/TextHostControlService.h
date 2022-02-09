@@ -1,6 +1,4 @@
 #pragma once
-#include "Base.h"
-
 #include "../render/TextRenderObject.h"
 #include "cru/platform/gui/InputMethod.h"
 #include "cru/platform/gui/TimerHelper.h"

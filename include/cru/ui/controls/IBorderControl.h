@@ -1,6 +1,5 @@
 #pragma once
 #include "../style/ApplyBorderStyleInfo.h"
-#include "Base.h"
 #include "cru/common/Base.h"
 
 namespace cru::ui::controls {

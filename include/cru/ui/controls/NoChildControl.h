@@ -13,8 +13,7 @@ class CRU_UI_API NoChildControl : public Control {
   NoChildControl& operator=(NoChildControl&& other) = delete;
   ~NoChildControl() override = default;
 
- private:
-  using Control::AddChild;
-  using Control::RemoveChild;
+ public:
+  void ForEachChild(const std::function<void(Control*)>& callback) override;
 };
-}  // namespace cru::ui
+}  // namespace cru::ui::controls

@@ -11,7 +11,7 @@ class CRU_UI_API LayoutRenderObject : public RenderObject {
 
  private:
   struct ChildData {
-    RenderObject* child;
+    RenderObject* render_object;
     ChildLayoutData layout_data;
   };
 
@@ -43,19 +43,19 @@ class CRU_UI_API LayoutRenderObject : public RenderObject {
     children_.erase(children_.begin() + position);
   }
 
-  void SetChildLayoutData(Index position, ChildLayoutData data) {
+  const ChildLayoutData& GetChildLayoutDataAt(Index position) const {
+    Expects(position >= 0 && position < GetChildCount());
+    return children_[position].layout_data;
+  }
+
+  void SetChildLayoutDataAt(Index position, ChildLayoutData data) {
     Expects(position >= 0 && position < GetChildCount());
     children_[position].layout_data = std::move(data);
     InvalidateLayout();
   }
 
-  const ChildLayoutData& GetChildLayoutData(Index position) const {
-    Expects(position >= 0 && position < GetChildCount());
-    return children_[position].layout_data;
-  }
-
   void Draw(platform::graphics::IPainter* painter) override {
-    for (auto& child : children_) {
+    for (const auto& child : children_) {
       painter->PushState();
       painter->ConcatTransform(
           Matrix::Translation(child.render_object->GetOffset()));

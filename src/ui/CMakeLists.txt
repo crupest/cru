@@ -5,10 +5,8 @@ add_library(cru_ui SHARED
 	components/Menu.cpp
 	controls/Button.cpp
 	controls/Container.cpp
-	controls/ContentControl.cpp
 	controls/Control.cpp
 	controls/FlexLayout.cpp
-	controls/LayoutControl.cpp
 	controls/NoChildControl.cpp
 	controls/Popup.cpp
 	controls/RootControl.cpp

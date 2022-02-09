@@ -1,14 +1,18 @@
 #pragma once
-#include "Base.h"
-
+#include "../Base.h"
 #include "../events/UiEvents.h"
-#include "cru/common/Event.h"
-#include "cru/ui/render/RenderObject.h"
+#include "../render/RenderObject.h"
 
 namespace cru::ui::controls {
-class CRU_UI_API Control : public Object {
-  friend host::WindowHost;
 
+/**
+ *  \remarks If you want to write a new control. You should override following
+ * methods:
+ *  - GetControlType()
+ *  - ForEachChild(const std::function<void(Control*)>& predicate)
+ *  - GetRenderObject()
+ */
+class CRU_UI_API Control : public Object {
  protected:
   Control();
 
@@ -24,22 +28,12 @@ class CRU_UI_API Control : public Object {
 
   //*************** region: tree ***************
  public:
-  host::WindowHost* GetWindowHost() const;
+  virtual host::WindowHost* GetWindowHost() const;
 
   Control* GetParent() const { return parent_; }
+  void SetParent(Control* parent);
 
-  const std::vector<Control*>& GetChildren() const { return children_; }
-  Index IndexOf(Control* child) const;
-
-  // Traverse the tree rooted the control including itself.
-  void TraverseDescendants(const std::function<void(Control*)>& predicate);
-
-  bool IsAutoDeleteChildren() const { return auto_delete_children_; }
-  void SetAutoDeleteChildren(bool auto_delete_children) {
-    auto_delete_children_ = auto_delete_children;
-  }
-
-  void RemoveFromParent();
+  virtual void ForEachChild(const std::function<void(Control*)>& predicate) = 0;
 
  public:
   virtual render::RenderObject* GetRenderObject() const = 0;
@@ -135,24 +129,13 @@ class CRU_UI_API Control : public Object {
 
   //*************** region: tree ***************
  protected:
-  void AddChild(Control* control, Index position);
-  void RemoveChild(Index position);
-  virtual void OnAddChild(Control* child, Index position);
-  virtual void OnRemoveChild(Control* child, Index position);
   virtual void OnParentChanged(Control* old_parent, Control* new_parent);
-  virtual void OnAttachToHost(host::WindowHost* host);
-  virtual void OnDetachFromHost(host::WindowHost* host);
 
  protected:
   virtual void OnMouseHoverChange(bool newHover) { CRU_UNUSED(newHover) }
 
  private:
   Control* parent_ = nullptr;
-  std::vector<Control*> children_;
-
-  host::WindowHost* window_host_ = nullptr;
-
-  bool auto_delete_children_ = true;
 
  private:
   bool is_mouse_over_ = false;

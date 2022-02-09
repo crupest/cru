@@ -333,7 +333,7 @@ Size FlexLayoutRenderObject::OnMeasureContent(
   std::vector<FlexChildLayoutData> layout_data_list;
   for (int i = 0; i < GetChildCount(); i++) {
     children.push_back(GetChildAt(i));
-    layout_data_list.push_back(GetChildLayoutData(i));
+    layout_data_list.push_back(GetChildLayoutDataAt(i));
   }
 
   if (horizontal) {
@@ -353,7 +353,7 @@ void FlexLayoutRenderObject::OnLayoutContent(const Rect& content_rect) {
   std::vector<FlexChildLayoutData> layout_data_list;
   for (int i = 0; i < child_count; i++) {
     children.push_back(GetChildAt(i));
-    layout_data_list.push_back(GetChildLayoutData(i));
+    layout_data_list.push_back(GetChildLayoutDataAt(i));
   }
 
   if (direction_ == FlexDirection::Horizontal) {

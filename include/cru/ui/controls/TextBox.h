@@ -1,6 +1,7 @@
 #pragma once
 #include "NoChildControl.h"
 
+#include "../render/BorderRenderObject.h"
 #include "../render/TextRenderObject.h"
 #include "IBorderControl.h"
 #include "TextHostControlService.h"

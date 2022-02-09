@@ -1,6 +1,8 @@
 #pragma once
 #include "UiEventArgs.h"
 
+#include "../render/RenderObject.h"
+
 #include <optional>
 
 namespace cru::ui::events {

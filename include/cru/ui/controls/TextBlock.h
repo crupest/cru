@@ -8,7 +8,7 @@ namespace cru::ui::controls {
 class CRU_UI_API TextBlock : public NoChildControl,
                              public virtual ITextHostControl {
  public:
-  static constexpr StringView control_type = u"TextBlock";
+  static constexpr StringView kControlType = u"TextBlock";
 
   static TextBlock* Create();
   static TextBlock* Create(String text, bool selectable = false);
@@ -23,7 +23,7 @@ class CRU_UI_API TextBlock : public NoChildControl,
   TextBlock& operator=(TextBlock&& other) = delete;
   ~TextBlock() override;
 
-  String GetControlType() const final { return control_type.ToString(); }
+  String GetControlType() const final { return kControlType.ToString(); }
 
   render::RenderObject* GetRenderObject() const override;
 

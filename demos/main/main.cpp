@@ -14,11 +14,7 @@
 #include "cru/ui/host/WindowHost.h"
 
 using cru::platform::gui::IUiApplication;
-using cru::ui::controls::Button;
-using cru::ui::controls::FlexLayout;
-using cru::ui::controls::TextBlock;
-using cru::ui::controls::TextBox;
-using cru::ui::controls::Window;
+using namespace cru::ui::controls;
 
 int main() {
   IUiApplication* application = cru::platform::bootstrap::CreateUiApplication();
@@ -40,9 +36,9 @@ int main() {
   const auto window = Window::Create();
 
   const auto flex_layout = FlexLayout::Create();
-  flex_layout->SetFlexDirection(cru::ui::FlexDirection::Vertical);
-  flex_layout->SetContentMainAlign(cru::ui::FlexCrossAlignment::Center);
-  flex_layout->SetItemCrossAlign(cru::ui::FlexCrossAlignment::Center);
+  flex_layout->SetFlexDirection(FlexDirection::Vertical);
+  flex_layout->SetContentMainAlign(FlexCrossAlignment::Center);
+  flex_layout->SetItemCrossAlign(FlexCrossAlignment::Center);
 
   window->AddChild(flex_layout, 0);
 
