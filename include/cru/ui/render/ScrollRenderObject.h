@@ -27,6 +27,9 @@ class CRU_UI_API ScrollRenderObject : public RenderObject {
 
   ~ScrollRenderObject() override = default;
 
+  RenderObject* GetChild() const { return child_; }
+  void SetChild(RenderObject* new_child);
+
   RenderObject* HitTest(const Point& point) override;
 
   // Return the coerced scroll offset.
@@ -61,7 +64,7 @@ class CRU_UI_API ScrollRenderObject : public RenderObject {
   // Param margin is just for convenience and it will just add to the rect.
   void ScrollToContain(const Rect& rect, const Thickness& margin = Thickness{});
 
-  std::u16string_view GetName() const override { return u"ScrollRenderObject"; }
+  String GetName() const override { return u"ScrollRenderObject"; }
 
   bool IsMouseWheelScrollEnabled() const { return is_mouse_wheel_enabled_; }
   void SetMouseWheelScrollEnabled(bool enable);
@@ -71,9 +74,9 @@ class CRU_UI_API ScrollRenderObject : public RenderObject {
   bool VerticalCanScrollUp();
   bool VerticalCanScrollDown();
 
- protected:
-  void OnDrawCore(platform::graphics::IPainter* painter) override;
+  void Draw(platform::graphics::IPainter* painter) override;
 
+ protected:
   // Logic:
   // If available size is bigger than child's preferred size, then child's
   // preferred size is taken.
@@ -82,11 +85,14 @@ class CRU_UI_API ScrollRenderObject : public RenderObject {
                         const MeasureSize& preferred_size) override;
   void OnLayoutContent(const Rect& content_rect) override;
 
-  void OnAttachedControlChanged(controls::Control* control) override;
+  void OnAttachedControlChanged(controls::Control* old_control,
+                                controls::Control* new_control) override;
 
   void InstallMouseWheelHandler(controls::Control* control);
 
  private:
+  RenderObject* child_;
+
   Point scroll_offset_;
 
   std::unique_ptr<ScrollBarDelegate> scroll_bar_delegate_;

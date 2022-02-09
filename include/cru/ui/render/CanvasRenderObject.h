@@ -1,6 +1,8 @@
 #pragma once
 #include "RenderObject.h"
 
+#include "cru/common/Event.h"
+
 namespace cru::ui::render {
 // Layout logic:
 // If no preferred size is set. Then (100, 100) is used and then coerced to
@@ -21,9 +23,9 @@ class CRU_UI_API CanvasRenderObject : public RenderObject {
 
   IEvent<CanvasPaintEventArgs>* PaintEvent() { return &paint_event_; }
 
- protected:
-  void OnDrawContent(platform::graphics::IPainter* painter) override;
+  void Draw(platform::graphics::IPainter* painter) override;
 
+ protected:
   Size OnMeasureContent(const MeasureRequirement& requirement,
                         const MeasureSize& preferred_size) override;
   void OnLayoutContent(const Rect& content_rect) override;

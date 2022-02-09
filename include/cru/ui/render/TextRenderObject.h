@@ -91,17 +91,17 @@ class CRU_UI_API TextRenderObject : public RenderObject {
 
   RenderObject* HitTest(const Point& point) override;
 
-  std::u16string_view GetName() const override { return u"TextRenderObject"; }
+  String GetName() const override { return u"TextRenderObject"; }
+
+  void Draw(platform::graphics::IPainter* painter) override;
 
  protected:
-  void OnDrawContent(platform::graphics::IPainter* painter) override;
-
   // See remarks of this class.
   Size OnMeasureContent(const MeasureRequirement& requirement,
                         const MeasureSize& preferred_size) override;
   void OnLayoutContent(const Rect& content_rect) override;
 
-  void OnAfterLayout() override;
+  void OnResize(const Size& size) override;
 
  private:
   std::shared_ptr<platform::graphics::IBrush> brush_;

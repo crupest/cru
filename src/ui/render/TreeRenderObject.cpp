@@ -34,7 +34,6 @@ void TreeRenderObjectItem::RemoveItem(Index position) {
 }
 
 TreeRenderObject::TreeRenderObject() {
-  SetChildMode(ChildMode::None);
   root_item_ = new TreeRenderObjectItem(this, nullptr);
 }
 
@@ -81,7 +80,7 @@ void TreeRenderObjectItemDraw(TreeRenderObjectItem* item,
   }
 }
 
-void TreeRenderObject::OnDrawCore(platform::graphics::IPainter* painter) {
+void TreeRenderObject::Draw(platform::graphics::IPainter* painter) {
   TreeRenderObjectItemDraw(root_item_, painter);
 }
 
@@ -95,7 +94,7 @@ static Size MeasureTreeRenderObjectItem(MeasureSize max_size,
         MeasureSize::NotSpecified());
   }
 
-  Size item_size = render_object ? render_object->GetSize() : Size{};
+  Size item_size = render_object ? render_object->GetDesiredSize() : Size{};
 
   if (max_size.width.IsSpecified()) {
     max_size.width = max_size.width.GetLengthOrUndefined() - tab_width;
@@ -133,7 +132,7 @@ static void LayoutTreeRenderObjectItem(Rect rect, TreeRenderObjectItem* item,
   float item_height = 0.f;
   if (render_object) {
     render_object->Layout(rect.GetLeftTop());
-    item_height = render_object->GetSize().height;
+    item_height = render_object->GetDesiredSize().height;
   }
 
   rect.left += tab_width;
@@ -144,8 +143,9 @@ static void LayoutTreeRenderObjectItem(Rect rect, TreeRenderObjectItem* item,
   for (auto child : item->GetChildren()) {
     LayoutTreeRenderObjectItem(rect, child, tab_width);
     auto child_render_object = child->GetRenderObject();
-    auto child_height =
-        child_render_object ? child_render_object->GetSize().height : 0.f;
+    auto child_height = child_render_object
+                            ? child_render_object->GetDesiredSize().height
+                            : 0.f;
     rect.top += child_height;
     rect.height -= child_height;
   }

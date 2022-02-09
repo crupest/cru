@@ -17,6 +17,7 @@ add_library(cru_ui SHARED
 	controls/TextBlock.cpp
 	controls/TextBox.cpp
 	controls/TextHostControlService.cpp
+	controls/TreeView.cpp
 	controls/Window.cpp
 	events/MouseEventArgs.cpp
 	helper/ClickDetector.cpp

@@ -38,10 +38,17 @@ Point CoerceScroll(const Point& scroll_offset, const Size& content_size,
 }
 }  // namespace
 
-ScrollRenderObject::ScrollRenderObject() : RenderObject(ChildMode::Single) {
+ScrollRenderObject::ScrollRenderObject() : RenderObject() {
   scroll_bar_delegate_ = std::make_unique<ScrollBarDelegate>(this);
   scroll_bar_delegate_->ScrollAttemptEvent()->AddHandler(
       [this](const struct Scroll& scroll) { this->ApplyScroll(scroll); });
+}
+
+void ScrollRenderObject::SetChild(RenderObject* new_child) {
+  if (child_ == new_child) return;
+  if (child_) child_->SetParent(nullptr);
+  child_ = new_child;
+  if (child_) child_->SetParent(this);
 }
 
 void ScrollRenderObject::ApplyScroll(const struct Scroll& scroll) {
@@ -72,9 +79,9 @@ void ScrollRenderObject::ApplyScroll(const struct Scroll& scroll) {
 }
 
 RenderObject* ScrollRenderObject::HitTest(const Point& point) {
-  if (const auto child = GetSingleChild()) {
-    const auto offset = child->GetOffset();
-    const auto r = child->HitTest(point - offset);
+  if (child_) {
+    const auto offset = child_->GetOffset();
+    const auto r = child_->HitTest(point - offset);
     if (r != nullptr) return r;
   }
 
@@ -82,23 +89,23 @@ RenderObject* ScrollRenderObject::HitTest(const Point& point) {
   return rect.IsPointInside(point) ? this : nullptr;
 }  // namespace cru::ui::render
 
-void ScrollRenderObject::OnDrawCore(platform::graphics::IPainter* painter) {
-  DefaultDrawContent(painter);
-  if (const auto child = GetSingleChild()) {
+void ScrollRenderObject::Draw(platform::graphics::IPainter* painter) {
+  if (child_) {
     painter->PushLayer(this->GetContentRect());
-    const auto offset = child->GetOffset();
-    platform::graphics::util::WithTransform(
-        painter, Matrix::Translation(offset.x, offset.y),
-        [child](platform::graphics::IPainter* p) { child->Draw(p); });
+    const auto offset = child_->GetOffset();
+    painter->PushState();
+    painter->ConcatTransform(Matrix::Translation(offset));
+    child_->Draw(painter);
+    painter->PopState();
     painter->PopLayer();
   }
   scroll_bar_delegate_->DrawScrollBar(painter);
 }
 
 Point ScrollRenderObject::GetScrollOffset() {
-  if (const auto child = GetSingleChild())
+  if (child_)
     return CoerceScroll(scroll_offset_, GetContentRect().GetSize(),
-                        child->GetSize());
+                        child_->GetDesiredSize());
   else
     return scroll_offset_;
 }
@@ -164,12 +171,12 @@ void ScrollRenderObject::SetMouseWheelScrollEnabled(bool enable) {
 
 Size ScrollRenderObject::OnMeasureContent(const MeasureRequirement& requirement,
                                           const MeasureSize& preferred_size) {
-  if (const auto child = GetSingleChild()) {
-    child->Measure(MeasureRequirement{MeasureSize::NotSpecified(),
-                                      MeasureSize::NotSpecified()},
-                   MeasureSize::NotSpecified());
+  if (child_) {
+    child_->Measure(MeasureRequirement{MeasureSize::NotSpecified(),
+                                       MeasureSize::NotSpecified()},
+                    MeasureSize::NotSpecified());
 
-    Size result = requirement.Coerce(child->GetSize());
+    Size result = requirement.Coerce(child_->GetDesiredSize());
     if (preferred_size.width.IsSpecified()) {
       result.width = preferred_size.width.GetLengthOrUndefined();
     }
@@ -189,16 +196,17 @@ Size ScrollRenderObject::OnMeasureContent(const MeasureRequirement& requirement,
 }  // namespace cru::ui::render
 
 void ScrollRenderObject::OnLayoutContent(const Rect& content_rect) {
-  if (const auto child = GetSingleChild()) {
-    child->Layout(content_rect.GetLeftTop() - GetScrollOffset());
+  if (child_) {
+    child_->Layout(content_rect.GetLeftTop() - GetScrollOffset());
   }
 }
 
-void ScrollRenderObject::OnAttachedControlChanged(controls::Control* control) {
-  if (control) {
-    scroll_bar_delegate_->InstallHandlers(control);
+void ScrollRenderObject::OnAttachedControlChanged(
+    controls::Control* old_control, controls::Control* new_control) {
+  if (new_control) {
+    scroll_bar_delegate_->InstallHandlers(new_control);
     if (is_mouse_wheel_enabled_) {
-      InstallMouseWheelHandler(control);
+      InstallMouseWheelHandler(new_control);
     }
   } else {
     InstallMouseWheelHandler(nullptr);
@@ -248,7 +256,7 @@ bool ScrollRenderObject::HorizontalCanScrollUp() {
 
 bool ScrollRenderObject::HorizontalCanScrollDown() {
   return GetScrollOffset().x <
-         GetFirstChild()->GetSize().width - GetViewRect().width;
+         child_->GetDesiredSize().width - GetViewRect().width;
 }
 
 bool ScrollRenderObject::VerticalCanScrollUp() {
@@ -257,6 +265,6 @@ bool ScrollRenderObject::VerticalCanScrollUp() {
 
 bool ScrollRenderObject::VerticalCanScrollDown() {
   return GetScrollOffset().y <
-         GetFirstChild()->GetSize().height - GetViewRect().height;
+         child_->GetDesiredSize().height - GetViewRect().height;
 }
 }  // namespace cru::ui::render

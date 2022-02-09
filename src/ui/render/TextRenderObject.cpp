@@ -21,8 +21,6 @@ TextRenderObject::TextRenderObject(
   Expects(selection_brush);
   Expects(caret_brush);
 
-  SetChildMode(ChildMode::None);
-
   brush.swap(brush_);
   font.swap(font_);
   selection_brush.swap(selection_brush_);
@@ -176,15 +174,18 @@ RenderObject* TextRenderObject::HitTest(const Point& point) {
   return padding_rect.IsPointInside(point) ? this : nullptr;
 }
 
-void TextRenderObject::OnDrawContent(platform::graphics::IPainter* painter) {
+void TextRenderObject::Draw(platform::graphics::IPainter* painter) {
   if constexpr (debug_flags::draw) {
     log::TagDebug(log_tag,
                   u"Begin to paint, total_offset: {}, size: {}, text_layout: "
                   u"{}, brush: {}.",
-                  this->GetTotalOffset(), this->GetSize(),
+                  this->GetTotalOffset(), this->GetDesiredSize(),
                   this->text_layout_->GetDebugString(),
                   this->brush_->GetDebugString());
   }
+
+  painter->PushState();
+  painter->ConcatTransform(Matrix::Translation(GetOffset()));
 
   if (this->selection_range_.has_value()) {
     const auto&& rects =
@@ -198,6 +199,8 @@ void TextRenderObject::OnDrawContent(platform::graphics::IPainter* painter) {
   if (this->draw_caret_ && this->caret_width_ != 0.0f) {
     painter->FillRectangle(GetCaretRectInContent(), this->caret_brush_.get());
   }
+
+  painter->PopState();
 }
 
 Size TextRenderObject::OnMeasureContent(const MeasureRequirement& requirement,
@@ -229,6 +232,4 @@ Size TextRenderObject::OnMeasureContent(const MeasureRequirement& requirement,
 void TextRenderObject::OnLayoutContent(const Rect& content_rect) {
   CRU_UNUSED(content_rect)
 }
-
-void TextRenderObject::OnAfterLayout() {}
 }  // namespace cru::ui::render

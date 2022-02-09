@@ -1,9 +1,7 @@
 #pragma once
-#include <string_view>
-#include "../style/ApplyBorderStyleInfo.h"
 #include "RenderObject.h"
-#include "cru/platform/GraphicsBase.h"
-#include "cru/ui/Base.h"
+
+#include "../style/ApplyBorderStyleInfo.h"
 
 namespace cru::ui::render {
 class CRU_UI_API BorderRenderObject : public RenderObject {
@@ -11,11 +9,12 @@ class CRU_UI_API BorderRenderObject : public RenderObject {
 
  public:
   BorderRenderObject();
-  BorderRenderObject(const BorderRenderObject& other) = delete;
-  BorderRenderObject(BorderRenderObject&& other) = delete;
-  BorderRenderObject& operator=(const BorderRenderObject& other) = delete;
-  BorderRenderObject& operator=(BorderRenderObject&& other) = delete;
+  CRU_DELETE_COPY(BorderRenderObject)
+  CRU_DELETE_MOVE(BorderRenderObject)
   ~BorderRenderObject() override;
+
+  RenderObject* GetChild() const { return child_; }
+  void SetChild(RenderObject* new_child);
 
   bool IsBorderEnabled() const { return is_border_enabled_; }
   void SetBorderEnabled(bool enabled) { is_border_enabled_ = enabled; }
@@ -69,26 +68,27 @@ class CRU_UI_API BorderRenderObject : public RenderObject {
   void ApplyBorderStyle(const style::ApplyBorderStyleInfo& style);
 
   RenderObject* HitTest(const Point& point) override;
+  void Draw(platform::graphics::IPainter* painter) override;
 
   Thickness GetOuterSpaceThickness() const override;
   Rect GetPaddingRect() const override;
   Rect GetContentRect() const override;
 
-  std::u16string_view GetName() const override { return u"BorderRenderObject"; }
+  String GetName() const override { return u"BorderRenderObject"; }
 
  protected:
-  void OnDrawCore(platform::graphics::IPainter* painter) override;
-
   Size OnMeasureContent(const MeasureRequirement& requirement,
                         const MeasureSize& preferred_size) override;
   void OnLayoutContent(const Rect& content_rect) override;
 
-  void OnAfterLayout() override;
+  void OnResize(const Size& new_size) override;
 
  private:
   void RecreateGeometry();
 
  private:
+  RenderObject* child_ = nullptr;
+
   bool is_border_enabled_ = false;
 
   std::shared_ptr<platform::graphics::IBrush> border_brush_;

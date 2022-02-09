@@ -12,12 +12,17 @@
 #include <algorithm>
 
 namespace cru::ui::render {
-BorderRenderObject::BorderRenderObject() {
-  SetChildMode(ChildMode::Single);
-  RecreateGeometry();
-}
+BorderRenderObject::BorderRenderObject() { RecreateGeometry(); }
 
 BorderRenderObject::~BorderRenderObject() {}
+
+void BorderRenderObject::SetChild(RenderObject* new_child) {
+  if (child_ == new_child) return;
+  if (child_ != nullptr) child_->SetParent(nullptr);
+  child_ = new_child;
+  if (child_ != nullptr) child_->SetParent(this);
+  InvalidateLayout();
+}
 
 void BorderRenderObject::ApplyBorderStyle(
     const style::ApplyBorderStyleInfo& style) {
@@ -30,10 +35,8 @@ void BorderRenderObject::ApplyBorderStyle(
 }
 
 RenderObject* BorderRenderObject::HitTest(const Point& point) {
-  if (const auto child = GetSingleChild()) {
-    auto offset = child->GetOffset();
-    Point p{point.x - offset.x, point.y - offset.y};
-    const auto result = child->HitTest(p);
+  if (child_) {
+    const auto result = child_->HitTest(point - child_->GetOffset());
     if (result != nullptr) {
       return result;
     }
@@ -45,7 +48,7 @@ RenderObject* BorderRenderObject::HitTest(const Point& point) {
     return contains ? this : nullptr;
   } else {
     const auto margin = GetMargin();
-    const auto size = GetSize();
+    const auto size = GetDesiredSize();
     return Rect{margin.left, margin.top,
                 std::max(size.width - margin.GetHorizontalTotal(), 0.0f),
                 std::max(size.height - margin.GetVerticalTotal(), 0.0f)}
@@ -55,7 +58,7 @@ RenderObject* BorderRenderObject::HitTest(const Point& point) {
   }
 }
 
-void BorderRenderObject::OnDrawCore(platform::graphics::IPainter* painter) {
+void BorderRenderObject::Draw(platform::graphics::IPainter* painter) {
   if constexpr (debug_flags::draw) {
     log::TagDebug(
         log_tag, u"BorderRenderObject draw, background: {}, foreground: {}.",
@@ -77,34 +80,35 @@ void BorderRenderObject::OnDrawCore(platform::graphics::IPainter* painter) {
     }
   }
 
-  DefaultDrawContent(painter);
+  if (child_) {
+    painter->PushState();
+    painter->ConcatTransform(Matrix::Translation(child_->GetOffset()));
+    child_->Draw(painter);
+    painter->PopState();
+  }
 
   if (foreground_brush_ != nullptr)
     painter->FillGeometry(border_inner_geometry_.get(),
                           foreground_brush_.get());
-
-  DefaultDrawChildren(painter);
 }
 
 Size BorderRenderObject::OnMeasureContent(const MeasureRequirement& requirement,
                                           const MeasureSize& preferred_size) {
-  const auto child = GetSingleChild();
-  if (child) {
-    child->Measure(requirement, preferred_size);
-    return child->GetSize();
+  if (child_) {
+    child_->Measure(requirement, preferred_size);
+    return child_->GetDesiredSize();
   } else {
     return Size{};
   }
 }
 
 void BorderRenderObject::OnLayoutContent(const Rect& content_rect) {
-  const auto child = GetSingleChild();
-  if (child) {
-    child->Layout(content_rect.GetLeftTop());
+  if (child_) {
+    child_->Layout(content_rect.GetLeftTop());
   }
 }
 
-void BorderRenderObject::OnAfterLayout() { RecreateGeometry(); }
+void BorderRenderObject::OnResize(const Size& new_size) { RecreateGeometry(); }
 
 Thickness BorderRenderObject::GetOuterSpaceThickness() const {
   return is_border_enabled_
@@ -113,7 +117,7 @@ Thickness BorderRenderObject::GetOuterSpaceThickness() const {
 }
 
 Rect BorderRenderObject::GetPaddingRect() const {
-  const auto size = GetSize();
+  const auto size = GetDesiredSize();
   Rect rect{Point{}, size};
   rect = rect.Shrink(GetMargin());
   if (is_border_enabled_) rect = rect.Shrink(border_thickness_);
@@ -125,7 +129,7 @@ Rect BorderRenderObject::GetPaddingRect() const {
 }
 
 Rect BorderRenderObject::GetContentRect() const {
-  const auto size = GetSize();
+  const auto size = GetDesiredSize();
   Rect rect{Point{}, size};
   rect = rect.Shrink(GetMargin());
   if (is_border_enabled_) rect = rect.Shrink(border_thickness_);
@@ -180,7 +184,7 @@ void BorderRenderObject::RecreateGeometry() {
     builder->CloseFigure(true);
   };
 
-  const auto size = GetSize();
+  const auto size = GetDesiredSize();
   const auto margin = GetMargin();
   const Rect outer_rect{margin.left, margin.top,
                         size.width - margin.GetHorizontalTotal(),

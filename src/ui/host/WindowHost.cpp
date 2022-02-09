@@ -111,7 +111,6 @@ WindowHost::WindowHost(controls::Control* root_control)
   });
 
   root_render_object_ = root_control->GetRenderObject();
-  root_render_object_->SetWindowHostRecursive(this);
 
   this->layout_paint_cycler_ = std::make_unique<LayoutPaintCycler>(this);
 
@@ -187,16 +186,12 @@ void WindowHost::RelayoutWithSize(const Size& available_size,
       render::MeasureSize::NotSpecified());
 
   if (set_window_size_to_fit_content) {
-    native_window_->SetClientSize(root_render_object_->GetSize());
+    native_window_->SetClientSize(root_render_object_->GetDesiredSize());
   }
 
   root_render_object_->Layout(Point{});
   for (auto& action : after_layout_stable_action_) action();
   after_layout_event_.Raise(AfterLayoutEventArgs{});
-  root_render_object_->TraverseDescendants(
-      [](render::RenderObject* render_object) {
-        render_object->OnAfterLayout();
-      });
   after_layout_stable_action_.clear();
   if constexpr (debug_flags::layout)
     log::TagDebug(log_tag, u"A relayout is finished.");

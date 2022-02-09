@@ -26,13 +26,16 @@ class CRU_UI_API TreeRenderObjectItem : public Object {
 
   Index GetChildCount() const { return children_.size(); }
 
-  TreeRenderObjectItem* GetChild(Index index) {
+  TreeRenderObjectItem* GetChildAt(Index index) {
     Expects(index >= 0 && index < children_.size());
     return children_[index];
   }
 
   TreeRenderObjectItem* AddItem(Index position);
   void RemoveItem(Index position);
+
+  void* GetUserData() const { return user_data_; }
+  void SetUserData(void* user_data) { user_data_ = user_data; }
 
  private:
   TreeRenderObject* tree_render_object_;
@@ -41,6 +44,8 @@ class CRU_UI_API TreeRenderObjectItem : public Object {
   std::vector<TreeRenderObjectItem*> children_;
 
   RenderObject* render_object_;
+
+  void* user_data_;
 };
 
 class CRU_UI_API TreeRenderObject : public RenderObject {
@@ -52,7 +57,7 @@ class CRU_UI_API TreeRenderObject : public RenderObject {
   CRU_DELETE_MOVE(TreeRenderObject)
   ~TreeRenderObject() override;
 
-  std::u16string_view GetName() const override { return u"TreeRenderObject"; }
+  String GetName() const override { return u"TreeRenderObject"; }
 
   TreeRenderObjectItem* GetRootItem() { return root_item_; }
 
@@ -61,9 +66,9 @@ class CRU_UI_API TreeRenderObject : public RenderObject {
 
   RenderObject* HitTest(const Point& point) override;
 
- protected:
-  void OnDrawCore(platform::graphics::IPainter* painter) override;
+  void Draw(platform::graphics::IPainter* painter) override;
 
+ protected:
   Size OnMeasureContent(const MeasureRequirement& requirement,
                         const MeasureSize& preferred_size) override;
   void OnLayoutContent(const Rect& content_rect) override;

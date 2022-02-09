@@ -32,9 +32,7 @@ class CRU_UI_API StackLayoutRenderObject
   CRU_DELETE_MOVE(StackLayoutRenderObject)
   ~StackLayoutRenderObject() = default;
 
-  std::u16string_view GetName() const override {
-    return u"StackLayoutRenderObject";
-  }
+  String GetName() const override { return u"StackLayoutRenderObject"; }
 
   Alignment GetDefaultHorizontalAlignment() const {
     return default_vertical_alignment_;

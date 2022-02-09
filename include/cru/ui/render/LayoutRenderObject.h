@@ -9,8 +9,14 @@ class CRU_UI_API LayoutRenderObject : public RenderObject {
  public:
   using ChildLayoutData = TChildLayoutData;
 
+ private:
+  struct ChildData {
+    RenderObject* child;
+    ChildLayoutData layout_data;
+  };
+
  protected:
-  LayoutRenderObject() : RenderObject(ChildMode::Multiple) {}
+  LayoutRenderObject() = default;
 
  public:
   CRU_DELETE_COPY(LayoutRenderObject)
@@ -18,69 +24,50 @@ class CRU_UI_API LayoutRenderObject : public RenderObject {
 
   ~LayoutRenderObject() override = default;
 
-  const std::vector<ChildLayoutData>& GetChildLayoutDataList() const {
-    return this->child_layout_data_;
+  Index GetChildCount() const { return static_cast<Index>(children_.size()); }
+  RenderObject* GetChildAt(Index position) {
+    Expects(position > 0 && position < GetChildCount());
+    return children_[position].render_object;
+  }
+  void AddChild(RenderObject* render_object, Index position) {
+    if (position < 0) position = 0;
+    if (position > GetChildCount()) position = GetChildCount();
+    children_.insert(children_.begin() + position,
+                     ChildData{render_object, ChildLayoutData()});
+    render_object->SetParent(this);
+  }
+
+  void RemoveChild(Index position) {
+    Expects(position > 0 && position < GetChildCount());
+    children_[position].render_object->SetParent(nullptr);
+    children_.erase(children_.begin() + position);
   }
 
   void SetChildLayoutData(Index position, ChildLayoutData data) {
-    Expects(position >= 0 &&
-            position < static_cast<Index>(this->child_layout_data_.size()));
-    this->child_layout_data_[position] = std::move(data);
-    this->InvalidateLayout();
+    Expects(position >= 0 && position < GetChildCount());
+    children_[position].layout_data = std::move(data);
+    InvalidateLayout();
   }
 
   const ChildLayoutData& GetChildLayoutData(Index position) const {
-    Expects(position >= 0 &&
-            position < static_cast<Index>(this->child_layout_data_.size()));
-    return this->child_layout_data_[position];
+    Expects(position >= 0 && position < GetChildCount());
+    return children_[position].layout_data;
   }
 
-  RenderObject* HitTest(const Point& point) override;
+  RenderObject* HitTest(const Point& point) override {
+    const auto child_count = GetChildCount();
+    for (auto i = child_count - 1; i >= 0; --i) {
+      const auto child = GetChildAt(i);
+      const auto result = child->HitTest(point - child->GetOffset());
+      if (result != nullptr) {
+        return result;
+      }
+    }
 
- protected:
-  void OnAddChild(RenderObject* new_child, Index position) override;
-  void OnRemoveChild(RenderObject* removed_child, Index position) override;
+    return GetPaddingRect().IsPointInside(point) ? this : nullptr;
+  }
 
  private:
-  std::vector<ChildLayoutData> child_layout_data_{};
+  std::vector<ChildData> children_;
 };
-
-template <typename TChildLayoutData>
-RenderObject* LayoutRenderObject<TChildLayoutData>::HitTest(
-    const Point& point) {
-  const auto& children = GetChildren();
-  for (auto i = children.crbegin(); i != children.crend(); ++i) {
-    auto offset = (*i)->GetOffset();
-    Point p{point.x - offset.x, point.y - offset.y};
-    const auto result = (*i)->HitTest(p);
-    if (result != nullptr) {
-      return result;
-    }
-  }
-
-  const auto margin = GetMargin();
-  const auto size = GetSize();
-  return Rect{margin.left, margin.top,
-              std::max(size.width - margin.GetHorizontalTotal(), 0.0f),
-              std::max(size.height - margin.GetVerticalTotal(), 0.0f)}
-                 .IsPointInside(point)
-             ? this
-             : nullptr;
-}  // namespace cru::ui::render
-
-template <typename TChildLayoutData>
-void LayoutRenderObject<TChildLayoutData>::OnAddChild(RenderObject* new_child,
-                                                      const Index position) {
-  CRU_UNUSED(new_child)
-
-  child_layout_data_.emplace(child_layout_data_.cbegin() + position);
-}
-
-template <typename TChildLayoutData>
-void LayoutRenderObject<TChildLayoutData>::OnRemoveChild(
-    RenderObject* removed_child, const Index position) {
-  CRU_UNUSED(removed_child)
-
-  child_layout_data_.erase(child_layout_data_.cbegin() + position);
-}
 }  // namespace cru::ui::render

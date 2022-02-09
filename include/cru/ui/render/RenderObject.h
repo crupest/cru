@@ -3,12 +3,8 @@
 
 #include "MeasureRequirement.h"
 #include "cru/common/Base.h"
-#include "cru/common/Event.h"
+#include "cru/common/String.h"
 #include "cru/ui/Base.h"
-
-#include <cstddef>
-#include <string>
-#include <string_view>
 
 namespace cru::ui::render {
 // Render object will not destroy its children when destroyed. Control must
@@ -40,80 +36,46 @@ namespace cru::ui::render {
 //  Size OnMeasureContent(const MeasureRequirement& requirement) override;
 //  void OnLayoutContent(const Rect& content_rect) override;
 class CRU_UI_API RenderObject : public Object {
-  friend host::WindowHost;
-
   CRU_DEFINE_CLASS_LOG_TAG(u"cru::ui::render::RenderObject")
 
  protected:
-  enum class ChildMode {
-    None,
-    Single,
-    Multiple,
-  };
-
   RenderObject() = default;
-  RenderObject(ChildMode child_mode) : RenderObject() {
-    SetChildMode(child_mode);
-  }
 
  public:
-  RenderObject(const RenderObject& other) = delete;
-  RenderObject(RenderObject&& other) = delete;
-  RenderObject& operator=(const RenderObject& other) = delete;
-  RenderObject& operator=(RenderObject&& other) = delete;
+  CRU_DELETE_COPY(RenderObject)
+  CRU_DELETE_MOVE(RenderObject)
   ~RenderObject() override = default;
 
   controls::Control* GetAttachedControl() const { return control_; }
   void SetAttachedControl(controls::Control* new_control);
 
-  host::WindowHost* GetWindowHost() const { return window_host_; }
-
   RenderObject* GetParent() const { return parent_; }
-
-  const std::vector<RenderObject*>& GetChildren() const { return children_; }
-  Index GetChildCount() const { return static_cast<Index>(children_.size()); }
-  void AddChild(RenderObject* render_object, Index position);
-  void RemoveChild(Index position);
-
-  RenderObject* GetFirstChild() const;
-  void TraverseDescendants(const std::function<void(RenderObject*)>& action);
+  void SetParent(RenderObject* new_parent) { parent_ = new_parent; }
 
   // Offset from parent's lefttop to lefttop of this render object. Margin is
   // accounted for.
   Point GetOffset() const { return offset_; }
   Size GetSize() const { return size_; }
+
   Point GetTotalOffset() const;
   Point FromRootToContent(const Point& point) const;
 
+  Size GetDesiredSize() const { return desired_size_; }
+
   Thickness GetMargin() const { return margin_; }
-  void SetMargin(const Thickness& margin) {
-    margin_ = margin;
-    InvalidateLayout();
-  }
+  void SetMargin(const Thickness& margin);
 
   Thickness GetPadding() const { return padding_; }
-  void SetPadding(const Thickness& padding) {
-    padding_ = padding;
-    InvalidateLayout();
-  }
+  void SetPadding(const Thickness& padding);
 
   MeasureSize GetPreferredSize() const { return preferred_size_; }
-  void SetPreferredSize(const MeasureSize& preferred_size) {
-    preferred_size_ = preferred_size;
-    InvalidateLayout();
-  }
+  void SetPreferredSize(const MeasureSize& preferred_size);
 
   MeasureSize GetMinSize() const { return custom_measure_requirement_.min; }
-  void SetMinSize(const MeasureSize& min_size) {
-    custom_measure_requirement_.min = min_size;
-    InvalidateLayout();
-  }
+  void SetMinSize(const MeasureSize& min_size);
 
   MeasureSize GetMaxSize() const { return custom_measure_requirement_.max; }
-  void SetMaxSize(const MeasureSize& max_size) {
-    custom_measure_requirement_.max = max_size;
-    InvalidateLayout();
-  }
+  void SetMaxSize(const MeasureSize& max_size);
 
   MeasureRequirement GetCustomMeasureRequirement() const {
     return custom_measure_requirement_;
@@ -135,56 +97,22 @@ class CRU_UI_API RenderObject : public Object {
   virtual Rect GetPaddingRect() const;
   virtual Rect GetContentRect() const;
 
-  void Draw(platform::graphics::IPainter* painter);
+  virtual void Draw(platform::graphics::IPainter* painter) = 0;
 
   // Param point must be relative the lefttop of render object including margin.
   // Add offset before pass point to children.
   virtual RenderObject* HitTest(const Point& point) = 0;
 
-  IEvent<host::WindowHost*>* AttachToHostEvent() {
-    return &attach_to_host_event_;
-  }
-  IEvent<std::nullptr_t>* DetachFromHostEvent() {
-    return &detach_from_host_event_;
-  }
-
  public:
+  host::WindowHost* GetWindowHost();
   void InvalidateLayout();
   void InvalidatePaint();
 
  public:
-  virtual std::u16string_view GetName() const;
-  std::u16string GetDebugPathInTree() const;
+  virtual String GetName() const;
+  String GetDebugPathInTree() const;
 
  protected:
-  void SetChildMode(ChildMode mode) { child_mode_ = mode; }
-
- protected:
-  RenderObject* GetSingleChild() const;
-
-  virtual void OnParentChanged(RenderObject* old_parent,
-                               RenderObject* new_parent);
-
-  // default is to invalidate both layout and paint
-  virtual void OnAddChild(RenderObject* new_child, Index position);
-  // default is to invalidate both layout and paint
-  virtual void OnRemoveChild(RenderObject* removed_child, Index position);
-
-  /**
-   * \brief Draw all children with offset.
-   */
-  void DefaultDrawChildren(platform::graphics::IPainter* painter);
-
-  /**
-   * \brief Call OnDrawContent with translation of content rect lefttop.
-   */
-  void DefaultDrawContent(platform::graphics::IPainter* painter);
-
-  // Call DefaultDrawContent. Then call DefaultDrawChildren.
-  virtual void OnDrawCore(platform::graphics::IPainter* painter);
-
-  virtual void OnDrawContent(platform::graphics::IPainter* painter);
-
   // Size measure including margin and padding. Please reduce margin and padding
   // or other custom things and pass the result content measure requirement and
   // preferred size to OnMeasureContent. Return value must not be negative and
@@ -209,36 +137,24 @@ class CRU_UI_API RenderObject : public Object {
   // Lefttop of content_rect should be added when calculated children's offset.
   virtual void OnLayoutContent(const Rect& content_rect) = 0;
 
-  virtual void OnAttachedControlChanged(controls::Control* control) {
-    CRU_UNUSED(control)
-  }
-
-  virtual void OnAfterLayout();
-
- private:
-  void SetParent(RenderObject* new_parent);
-
-  void SetWindowHostRecursive(host::WindowHost* host);
+  virtual void OnAttachedControlChanged(controls::Control* old_control,
+                                        controls::Control* new_control) {}
+  virtual void OnResize(const Size& new_size) {}
 
  private:
   controls::Control* control_ = nullptr;
-  host::WindowHost* window_host_ = nullptr;
 
   RenderObject* parent_ = nullptr;
-  std::vector<RenderObject*> children_{};
-
-  ChildMode child_mode_ = ChildMode::None;
 
   Point offset_{};
   Size size_{};
 
-  MeasureSize preferred_size_;
-  MeasureRequirement custom_measure_requirement_;
+  Size desired_size_{};
 
   Thickness margin_{};
   Thickness padding_{};
 
-  Event<host::WindowHost*> attach_to_host_event_;
-  Event<std::nullptr_t> detach_from_host_event_;
+  MeasureSize preferred_size_{};
+  MeasureRequirement custom_measure_requirement_{};
 };
 }  // namespace cru::ui::render
