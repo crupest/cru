@@ -37,14 +37,14 @@ Menu::~Menu() {
   container_.RemoveFromParent();
 }
 
-void Menu::AddItem(Component* item, gsl::index index) {
+void Menu::AddItemAt(Component* item, gsl::index index) {
   Expects(index >= 0 && index <= GetItemCount());
 
   items_.insert(items_.cbegin() + index, item);
   container_.AddChildAt(item->GetRootControl(), index);
 }
 
-Component* Menu::RemoveItem(gsl::index index) {
+Component* Menu::RemoveItemAt(gsl::index index) {
   Expects(index >= 0 && index < GetItemCount());
 
   Component* item = items_[index];
@@ -57,7 +57,7 @@ Component* Menu::RemoveItem(gsl::index index) {
 
 void Menu::ClearItems() {
   for (auto item : items_) {
-    delete item;
+    item->DeleteIfDeleteByParent();
   }
 
   items_.clear();
@@ -65,14 +65,15 @@ void Menu::ClearItems() {
   container_.ClearChildren();
 }
 
-void Menu::AddTextItem(String text, gsl::index index,
-                       std::function<void()> on_click) {
+void Menu::AddTextItemAt(String text, gsl::index index,
+                         std::function<void()> on_click) {
   MenuItem* item = new MenuItem(std::move(text));
   item->SetOnClick([this, index, on_click = std::move(on_click)] {
     on_click();
     if (on_item_click_) on_item_click_(index);
   });
-  AddItem(item, index);
+  item->SetDeleteByParent(true);
+  AddItemAt(item, index);
 }
 
 PopupMenu::PopupMenu(controls::Control* attached_control)

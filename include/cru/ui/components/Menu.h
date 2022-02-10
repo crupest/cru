@@ -52,15 +52,15 @@ class CRU_UI_API Menu : public Component {
     return static_cast<gsl::index>(items_.size());
   }
 
-  void AddItem(Component* component) { AddItem(component, GetItemCount()); }
-  void AddItem(Component* component, gsl::index index);
-  Component* RemoveItem(gsl::index index);
+  void AddItem(Component* component) { AddItemAt(component, GetItemCount()); }
+  void AddItemAt(Component* component, gsl::index index);
+  Component* RemoveItemAt(gsl::index index);
   void ClearItems();
 
   void AddTextItem(String text, std::function<void()> on_click) {
-    AddTextItem(std::move(text), GetItemCount(), std::move(on_click));
+    AddTextItemAt(std::move(text), GetItemCount(), std::move(on_click));
   }
-  void AddTextItem(String text, Index index, std::function<void()> on_click);
+  void AddTextItemAt(String text, Index index, std::function<void()> on_click);
 
   void SetOnItemClick(std::function<void(Index)> on_item_click) {
     on_item_click_ = std::move(on_item_click);

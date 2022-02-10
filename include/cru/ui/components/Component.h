@@ -17,5 +17,16 @@ class CRU_UI_API Component : public Object {
   ~Component() = default;
 
   virtual controls::Control* GetRootControl() = 0;
+
+  bool IsDeleteByParent() const { return delete_by_parent_; }
+  void SetDeleteByParent(bool delete_by_parent) {
+    delete_by_parent_ = delete_by_parent;
+  }
+  void DeleteIfDeleteByParent() const {
+    if (delete_by_parent_) delete this;
+  }
+
+ private:
+  bool delete_by_parent_;
 };
 }  // namespace cru::ui::components
