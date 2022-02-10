@@ -1,9 +1,9 @@
 add_executable(cru_theme_builder
 	main.cpp
-	components/ConditionEditor.cpp
 	components/MainWindow.cpp
 	components/StyleRuleEditor.cpp
 	components/StyleRuleSetEditor.cpp
+	components/conditions/ConditionEditor.cpp
 )
 
 if(APPLE)
