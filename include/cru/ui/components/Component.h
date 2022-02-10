@@ -3,9 +3,10 @@
 
 namespace cru::ui::components {
 /**
- * \remarks In destructor, component should first delete all child components
- * and then remove root control from its parent (by calling
- * Control::RemoveFromParent). Then delete all its root control.
+ * \brief A component is a composition of controls.
+ * \remarks In destructor, component should remove root control from its parent
+ * by calling Control::RemoveFromParent. It should respect children's
+ * Component::IsDeleteByParent value and decide whether to delete it.
  */
 class CRU_UI_API Component : public Object {
  public:
@@ -27,6 +28,6 @@ class CRU_UI_API Component : public Object {
   }
 
  private:
-  bool delete_by_parent_;
+  bool delete_by_parent_ = false;
 };
 }  // namespace cru::ui::components

@@ -2,6 +2,7 @@
 
 #include "cru/common/Logger.h"
 #include "cru/ui/DebugFlags.h"
+#include "cru/ui/controls/Control.h"
 
 #include <optional>
 

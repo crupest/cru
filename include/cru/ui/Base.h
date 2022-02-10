@@ -38,7 +38,6 @@ namespace colors = cru::platform::colors;
 //-------------------- region: forward declaration --------------------
 
 namespace controls {
-class Window;
 class Control;
 }  // namespace controls
 
@@ -46,27 +45,9 @@ namespace host {
 class WindowHost;
 }
 
-namespace style {
-class StyleRuleSet;
-class StyleRuleSetBind;
-}  // namespace style
-
 //-------------------- region: basic types --------------------
 enum class Direction { Horizontal, Vertical };
-
-namespace internal {
-constexpr int align_start = 0;
-constexpr int align_end = align_start + 1;
-constexpr int align_center = align_end + 1;
-constexpr int align_stretch = align_center + 1;
-}  // namespace internal
-
-enum class Alignment {
-  Start = internal::align_start,
-  End = internal::align_end,
-  Center = internal::align_center,
-  Stretch = internal::align_stretch
-};
+enum class Alignment { Start, End, Center, Stretch };
 
 struct CornerRadius {
   constexpr CornerRadius()
@@ -107,25 +88,4 @@ inline bool operator!=(const CornerRadius& left, const CornerRadius& right) {
   return !(left == right);
 }
 
-class CanvasPaintEventArgs {
- public:
-  CanvasPaintEventArgs(platform::graphics::IPainter* painter,
-                       const Size& paint_size)
-      : painter_(painter), paint_size_(paint_size) {}
-  CRU_DEFAULT_COPY(CanvasPaintEventArgs)
-  CRU_DEFAULT_MOVE(CanvasPaintEventArgs)
-  ~CanvasPaintEventArgs() = default;
-
-  platform::graphics::IPainter* GetPainter() const { return painter_; }
-  Size GetPaintSize() const { return paint_size_; }
-
- private:
-  platform::graphics::IPainter* painter_;
-  Size paint_size_;
-};
-
-struct StackChildLayoutData {
-  std::optional<Alignment> horizontal;
-  std::optional<Alignment> vertical;
-};
 }  // namespace cru::ui

@@ -1,5 +1,7 @@
 #pragma once
-#include "../controls/Control.h"
+#include "../Base.h"
+
+#include "cru/common/Event.h"
 
 namespace cru::ui::helper {
 class CRU_UI_API ClickEventArgs : Object {

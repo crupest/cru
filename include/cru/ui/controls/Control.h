@@ -2,6 +2,7 @@
 #include "../Base.h"
 #include "../events/UiEvents.h"
 #include "../render/RenderObject.h"
+#include "../style/StyleRuleSet.h"
 
 namespace cru::ui::controls {
 

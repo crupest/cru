@@ -2,6 +2,11 @@
 #include "LayoutRenderObject.h"
 
 namespace cru::ui::render {
+struct StackChildLayoutData {
+  std::optional<Alignment> horizontal;
+  std::optional<Alignment> vertical;
+};
+
 // Measure Logic:
 // Following rules are applied both horizontally and vertically.
 //

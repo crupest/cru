@@ -4,6 +4,8 @@
 #include "../render/StackLayoutRenderObject.h"
 
 namespace cru::ui::controls {
+using render::StackChildLayoutData;
+
 class CRU_UI_API StackLayout
     : public LayoutControl<render::StackLayoutRenderObject> {
  public:

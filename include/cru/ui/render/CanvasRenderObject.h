@@ -4,6 +4,23 @@
 #include "cru/common/Event.h"
 
 namespace cru::ui::render {
+class CanvasPaintEventArgs {
+ public:
+  CanvasPaintEventArgs(platform::graphics::IPainter* painter,
+                       const Size& paint_size)
+      : painter_(painter), paint_size_(paint_size) {}
+  CRU_DEFAULT_COPY(CanvasPaintEventArgs)
+  CRU_DEFAULT_MOVE(CanvasPaintEventArgs)
+  ~CanvasPaintEventArgs() = default;
+
+  platform::graphics::IPainter* GetPainter() const { return painter_; }
+  Size GetPaintSize() const { return paint_size_; }
+
+ private:
+  platform::graphics::IPainter* painter_;
+  Size paint_size_;
+};
+
 // Layout logic:
 // If no preferred size is set. Then (100, 100) is used and then coerced to
 // required range.
