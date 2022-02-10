@@ -15,15 +15,9 @@ class CRU_UI_API TextBox : public NoChildControl,
  public:
   static constexpr StringView control_type = u"TextBox";
 
-  static TextBox* Create() { return new TextBox(); }
-
- protected:
   TextBox();
-
- public:
   CRU_DELETE_COPY(TextBox)
   CRU_DELETE_MOVE(TextBox)
-
   ~TextBox() override;
 
   String GetControlType() const final { return control_type.ToString(); }

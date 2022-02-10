@@ -1,4 +1,3 @@
-#include <memory>
 #include "cru/platform/bootstrap/Bootstrap.h"
 #include "cru/platform/gui/Base.h"
 #include "cru/platform/gui/UiApplication.h"
@@ -17,7 +16,8 @@ using cru::platform::gui::IUiApplication;
 using namespace cru::ui::controls;
 
 int main() {
-  IUiApplication* application = cru::platform::bootstrap::CreateUiApplication();
+  std::unique_ptr<IUiApplication> application(
+      cru::platform::bootstrap::CreateUiApplication());
 
   auto application_menu = application->GetApplicationMenu();
 
@@ -33,35 +33,35 @@ int main() {
     mi->SetOnClickHandler([&]() { application->RequestQuit(0); });
   }
 
-  const auto window = Window::Create();
+  Window window;
 
-  const auto flex_layout = FlexLayout::Create();
-  flex_layout->SetFlexDirection(FlexDirection::Vertical);
-  flex_layout->SetContentMainAlign(FlexCrossAlignment::Center);
-  flex_layout->SetItemCrossAlign(FlexCrossAlignment::Center);
+  FlexLayout flex_layout;
+  flex_layout.SetFlexDirection(FlexDirection::Vertical);
+  flex_layout.SetContentMainAlign(FlexCrossAlignment::Center);
+  flex_layout.SetItemCrossAlign(FlexCrossAlignment::Center);
 
-  window->AddChildAt(flex_layout, 0);
+  window.AddChild(&flex_layout);
 
-  const auto text_block = TextBlock::Create(u"Hello World from CruUI!", true);
-  flex_layout->AddChildAt(text_block, 0);
+  TextBlock text_block(u"Hello World from CruUI!", true);
+  flex_layout.AddChild(&text_block);
 
-  const auto button_text_block = TextBlock::Create(u"OK");
-  const auto button = Button::Create();
-  button->SetChild(button_text_block);
-  flex_layout->AddChildAt(button, 1);
+  TextBlock button_text_block(u"OK");
+  Button button;
+  button.SetChild(&button_text_block);
+  flex_layout.AddChild(&button);
 
-  const auto text_box = TextBox::Create();
-  text_box->SetMultiLine(true);
-  flex_layout->AddChildAt(text_box, 2);
+  TextBox text_box;
+  text_box.SetMultiLine(true);
+  flex_layout.AddChild(&text_box);
 
-  auto popup_menu = std::make_unique<cru::ui::components::PopupMenu>(window);
+  auto popup_menu = std::make_unique<cru::ui::components::PopupMenu>(&window);
   popup_menu->GetMenu()->AddTextItem(u"Item 1", [] {});
   popup_menu->GetMenu()->AddTextItem(u"Item 2000", [] {});
 
-  window->MouseDownEvent()->Bubble()->AddHandler(
-      [window, &popup_menu](cru::ui::events::MouseButtonEventArgs& e) {
+  window.MouseDownEvent()->Bubble()->AddHandler(
+      [&window, &popup_menu](cru::ui::events::MouseButtonEventArgs& e) {
         if (e.GetButton() == cru::ui::mouse_buttons::right) {
-          popup_menu->SetPosition(e.GetPoint() + window->GetWindowHost()
+          popup_menu->SetPosition(e.GetPoint() + window.GetWindowHost()
                                                      ->GetNativeWindow()
                                                      ->GetClientRect()
                                                      .GetLeftTop());
@@ -69,7 +69,7 @@ int main() {
         }
       });
 
-  window->GetWindowHost()->GetNativeWindow()->SetVisibility(
+  window.GetWindowHost()->GetNativeWindow()->SetVisibility(
       cru::platform::gui::WindowVisibilityType::Show);
 
   return application->Run();

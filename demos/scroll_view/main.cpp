@@ -11,15 +11,14 @@ using cru::ui::controls::TextBlock;
 using cru::ui::controls::Window;
 
 int main() {
-  IUiApplication* application = cru::platform::bootstrap::CreateUiApplication();
+  std::unique_ptr<IUiApplication> application(
+      cru::platform::bootstrap::CreateUiApplication());
 
-  auto window = Window::Create();
+  Window window;
+  ScrollView scroll_view;
+  window.AddChild(&scroll_view);
 
-  auto scroll_view = ScrollView::Create();
-
-  window->AddChild(scroll_view);
-
-  auto text_block = TextBlock::Create(
+  TextBlock text_block(
       uR"([Verse 1]
 The snow glows white on the mountain tonight
 Not a footprint to be seen
@@ -76,13 +75,12 @@ Let it go, let it go
 That perfect girl is gone
 Here I stand in the light of day
 Let the storm rage on!
-The cold never bothered me anyway)");
+The cold never bothered me anyway)",
+      true);
 
-  text_block->SetSelectable(true);
+  scroll_view.SetChild(&text_block);
 
-  scroll_view->SetChild(text_block);
-
-  window->GetWindowHost()->GetNativeWindow()->SetVisibility(
+  window.GetWindowHost()->GetNativeWindow()->SetVisibility(
       cru::platform::gui::WindowVisibilityType::Show);
 
   return application->Run();

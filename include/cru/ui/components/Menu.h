@@ -22,7 +22,7 @@ class CRU_UI_API MenuItem : public Component {
   ~MenuItem();
 
  public:
-  controls::Control* GetRootControl() override { return container_; }
+  controls::Control* GetRootControl() override { return &container_; }
 
   void SetText(String text);
 
@@ -31,8 +31,8 @@ class CRU_UI_API MenuItem : public Component {
   }
 
  private:
-  controls::Button* container_;
-  controls::TextBlock* text_;
+  controls::Button container_;
+  controls::TextBlock text_;
   std::function<void()> on_click_;
 };
 
@@ -46,7 +46,7 @@ class CRU_UI_API Menu : public Component {
   ~Menu();
 
  public:
-  controls::Control* GetRootControl() override { return container_; }
+  controls::Control* GetRootControl() override { return &container_; }
 
   gsl::index GetItemCount() const {
     return static_cast<gsl::index>(items_.size());
@@ -67,7 +67,7 @@ class CRU_UI_API Menu : public Component {
   }
 
  private:
-  controls::FlexLayout* container_;
+  controls::FlexLayout container_;
   std::vector<Component*> items_;
 
   std::function<void(Index)> on_item_click_;
@@ -85,8 +85,8 @@ class CRU_UI_API PopupMenu : public Component {
  public:
   controls::Control* GetRootControl() override;
 
-  controls::Popup* GetPopup() { return popup_; }
-  Menu* GetMenu() { return menu_; }
+  controls::Popup* GetPopup() { return &popup_; }
+  Menu* GetMenu() { return &menu_; }
 
   // position relative to screen left top.
   void SetPosition(const Point& position);
@@ -101,7 +101,7 @@ class CRU_UI_API PopupMenu : public Component {
  private:
   controls::Control* attached_control_;
 
-  controls::Popup* popup_;
-  Menu* menu_;
+  controls::Popup popup_;
+  Menu menu_;
 };
 }  // namespace cru::ui::components

@@ -15,7 +15,7 @@ class StyleRuleEditor : public ui::components::Component {
   ~StyleRuleEditor() override;
 
  public:
-  ui::controls::Control* GetRootControl() override { return main_layout_; }
+  ui::controls::Control* GetRootControl() override { return &main_layout_; }
 
   void BindStyleRule(ui::style::StyleRule* rule);
 
@@ -23,7 +23,7 @@ class StyleRuleEditor : public ui::components::Component {
   void UpdateView();
 
  private:
-  ui::controls::FlexLayout* main_layout_;
+  ui::controls::FlexLayout main_layout_;
 
   ui::style::StyleRule* style_rule_;
 };

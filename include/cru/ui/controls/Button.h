@@ -15,12 +15,8 @@ class CRU_UI_API Button : public SingleChildControl<render::BorderRenderObject>,
  public:
   static constexpr StringView kControlType = u"Button";
 
-  static Button* Create() { return new Button(); }
-
- protected:
-  Button();
-
  public:
+  Button();
   Button(const Button& other) = delete;
   Button(Button&& other) = delete;
   Button& operator=(const Button& other) = delete;

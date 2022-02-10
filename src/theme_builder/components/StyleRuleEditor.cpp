@@ -1,14 +1,9 @@
 #include "StyleRuleEditor.h"
 
 namespace cru::theme_builder {
-StyleRuleEditor::StyleRuleEditor() {
-  main_layout_ = ui::controls::FlexLayout::Create();
-}
+StyleRuleEditor::StyleRuleEditor() {}
 
-StyleRuleEditor::~StyleRuleEditor() {
-  main_layout_->RemoveFromParent();
-  delete main_layout_;
-}
+StyleRuleEditor::~StyleRuleEditor() { main_layout_.RemoveFromParent(); }
 
 void StyleRuleEditor::BindStyleRule(ui::style::StyleRule *rule) {
   style_rule_ = rule;

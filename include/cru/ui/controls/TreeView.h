@@ -7,13 +7,10 @@ class TreeView;
 class CRU_UI_API TreeViewItem : public Object {
   friend TreeView;
 
- private:
-  TreeViewItem(TreeView* tree_view, TreeViewItem* parent);
-
  public:
+  TreeViewItem(TreeView* tree_view, TreeViewItem* parent);
   CRU_DELETE_COPY(TreeViewItem)
   CRU_DELETE_MOVE(TreeViewItem)
-
   ~TreeViewItem() override;
 
   TreeView* GetTreeView() { return tree_view_; }

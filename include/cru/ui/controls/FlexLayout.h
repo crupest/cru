@@ -15,12 +15,8 @@ class CRU_UI_API FlexLayout
  public:
   static constexpr StringView kControlType = u"FlexLayout";
 
-  static FlexLayout* Create() { return new FlexLayout(); }
-
- protected:
-  FlexLayout();
-
  public:
+  FlexLayout();
   FlexLayout(const FlexLayout& other) = delete;
   FlexLayout(FlexLayout&& other) = delete;
   FlexLayout& operator=(const FlexLayout& other) = delete;

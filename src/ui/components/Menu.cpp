@@ -5,6 +5,7 @@
 #include "cru/ui/controls/Button.h"
 #include "cru/ui/controls/Control.h"
 #include "cru/ui/controls/FlexLayout.h"
+#include "cru/ui/controls/Popup.h"
 #include "cru/ui/controls/TextBlock.h"
 #include "cru/ui/helper/ClickDetector.h"
 #include "cru/ui/host/WindowHost.h"
@@ -12,44 +13,35 @@
 
 namespace cru::ui::components {
 MenuItem::MenuItem() {
-  container_ = controls::Button::Create();
-  text_ = controls::TextBlock::Create();
-  container_->SetChild(text_);
-  container_->GetStyleRuleSet()->SetParent(
+  container_.SetChild(&text_);
+  container_.GetStyleRuleSet()->SetParent(
       ThemeManager::GetInstance()->GetResourceStyleRuleSet(u"menuitem.style"));
-  container_->ClickEvent()->AddHandler([this](const helper::ClickEventArgs&) {
+  container_.ClickEvent()->AddHandler([this](const helper::ClickEventArgs&) {
     if (this->on_click_) this->on_click_();
   });
 }
 
 MenuItem::MenuItem(String text) : MenuItem() { SetText(std::move(text)); }
 
-MenuItem::~MenuItem() {
-  container_->RemoveFromParent();
-  delete container_;
-}
+MenuItem::~MenuItem() { container_.RemoveFromParent(); }
 
-void MenuItem::SetText(String text) { text_->SetText(std::move(text)); }
+void MenuItem::SetText(String text) { text_.SetText(std::move(text)); }
 
-Menu::Menu() {
-  container_ = controls::FlexLayout::Create();
-  container_->SetFlexDirection(controls::FlexDirection::Vertical);
-}
+Menu::Menu() { container_.SetFlexDirection(controls::FlexDirection::Vertical); }
 
 Menu::~Menu() {
   for (auto item : items_) {
     delete item;
   }
 
-  container_->RemoveFromParent();
-  delete container_;
+  container_.RemoveFromParent();
 }
 
 void Menu::AddItem(Component* item, gsl::index index) {
   Expects(index >= 0 && index <= GetItemCount());
 
   items_.insert(items_.cbegin() + index, item);
-  container_->AddChildAt(item->GetRootControl(), index);
+  container_.AddChildAt(item->GetRootControl(), index);
 }
 
 Component* Menu::RemoveItem(gsl::index index) {
@@ -58,7 +50,7 @@ Component* Menu::RemoveItem(gsl::index index) {
   Component* item = items_[index];
 
   items_.erase(items_.cbegin() + index);
-  container_->RemoveChildAt(index);
+  container_.RemoveChildAt(index);
 
   return item;
 }
@@ -70,7 +62,7 @@ void Menu::ClearItems() {
 
   items_.clear();
 
-  container_->ClearChildren();
+  container_.ClearChildren();
 }
 
 void Menu::AddTextItem(String text, gsl::index index,
@@ -84,33 +76,24 @@ void Menu::AddTextItem(String text, gsl::index index,
 }
 
 PopupMenu::PopupMenu(controls::Control* attached_control)
-    : attached_control_(attached_control) {
-  popup_ = controls::Popup::Create(attached_control);
-
-  menu_ = new Menu();
-
-  menu_->SetOnItemClick([this](Index) { this->Close(); });
-
-  popup_->AddChildAt(menu_->GetRootControl(), 0);
+    : attached_control_(attached_control), popup_(attached_control) {
+  menu_.SetOnItemClick([this](Index) { this->Close(); });
+  popup_.AddChildAt(menu_.GetRootControl(), 0);
 }
 
-PopupMenu::~PopupMenu() {
-  delete menu_;
+PopupMenu::~PopupMenu() {}
 
-  delete popup_;
-}
-
-controls::Control* PopupMenu::GetRootControl() { return popup_; }
+controls::Control* PopupMenu::GetRootControl() { return &popup_; }
 
 void PopupMenu::SetPosition(const Point& position) {
-  popup_->GetWindowHost()->GetNativeWindow()->SetClientRect(Rect{position, {}});
+  popup_.GetWindowHost()->GetNativeWindow()->SetClientRect(Rect{position, {}});
 }
 
 void PopupMenu::Show() {
-  popup_->GetWindowHost()->RelayoutWithSize(Size::Infinate(), true);
-  popup_->GetWindowHost()->GetNativeWindow()->SetVisibility(
+  popup_.GetWindowHost()->RelayoutWithSize(Size::Infinate(), true);
+  popup_.GetWindowHost()->GetNativeWindow()->SetVisibility(
       platform::gui::WindowVisibilityType::Show);
 }
 
-void PopupMenu::Close() { popup_->GetWindowHost()->GetNativeWindow()->Close(); }
+void PopupMenu::Close() { popup_.GetWindowHost()->GetNativeWindow()->Close(); }
 }  // namespace cru::ui::components

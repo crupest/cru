@@ -15,7 +15,7 @@ class StyleRuleSetEditor : public ui::components::Component {
   ~StyleRuleSetEditor() override;
 
  public:
-  ui::controls::Control* GetRootControl() override { return main_layout_; }
+  ui::controls::Control* GetRootControl() override { return &main_layout_; }
 
   void BindStyleRuleSet(std::shared_ptr<ui::style::StyleRuleSet> rule_set);
 
@@ -23,7 +23,7 @@ class StyleRuleSetEditor : public ui::components::Component {
   void UpdateView();
 
  private:
-  ui::controls::FlexLayout* main_layout_;
+  ui::controls::FlexLayout main_layout_;
 
   std::shared_ptr<ui::style::StyleRuleSet> style_rule_set_;
 };

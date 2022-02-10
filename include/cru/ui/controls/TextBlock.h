@@ -10,18 +10,18 @@ class CRU_UI_API TextBlock : public NoChildControl,
  public:
   static constexpr StringView kControlType = u"TextBlock";
 
-  static TextBlock* Create();
-  static TextBlock* Create(String text, bool selectable = false);
-
- protected:
-  TextBlock();
-
  public:
+  TextBlock();
   TextBlock(const TextBlock& other) = delete;
   TextBlock(TextBlock&& other) = delete;
   TextBlock& operator=(const TextBlock& other) = delete;
   TextBlock& operator=(TextBlock&& other) = delete;
   ~TextBlock() override;
+
+  TextBlock(String text, bool selectable = false) : TextBlock() {
+    SetText(std::move(text));
+    SetSelectable(selectable);
+  }
 
   String GetControlType() const final { return kControlType.ToString(); }
 

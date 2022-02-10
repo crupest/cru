@@ -3,14 +3,9 @@
 
 namespace cru::theme_builder {
 using namespace cru::ui::controls;
-StyleRuleSetEditor::StyleRuleSetEditor() {
-  main_layout_ = FlexLayout::Create();
-}
+StyleRuleSetEditor::StyleRuleSetEditor() {}
 
-StyleRuleSetEditor::~StyleRuleSetEditor() {
-  main_layout_->RemoveFromParent();
-  delete main_layout_;
-}
+StyleRuleSetEditor::~StyleRuleSetEditor() { main_layout_.RemoveFromParent(); }
 
 void StyleRuleSetEditor::BindStyleRuleSet(
     std::shared_ptr<ui::style::StyleRuleSet> rule_set) {

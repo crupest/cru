@@ -10,15 +10,9 @@ class CRU_UI_API Window final : public RootControl {
   static constexpr StringView control_type = u"Window";
 
  public:
-  static Window* Create(Control* attached_control = nullptr);
-
- private:
-  explicit Window(Control* attached_control);
-
- public:
+  explicit Window(Control* attached_control = nullptr);
   CRU_DELETE_COPY(Window)
   CRU_DELETE_MOVE(Window)
-
   ~Window() override;
 
  public:

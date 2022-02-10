@@ -8,10 +8,8 @@ class CRU_UI_API Container
     : public SingleChildControl<render::BorderRenderObject> {
   static constexpr StringView kControlType = u"Container";
 
- protected:
-  Container();
-
  public:
+  Container();
   CRU_DELETE_COPY(Container)
   CRU_DELETE_MOVE(Container)
 

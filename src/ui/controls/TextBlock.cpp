@@ -8,15 +8,6 @@
 namespace cru::ui::controls {
 using render::TextRenderObject;
 
-TextBlock* TextBlock::Create() { return new TextBlock(); }
-
-TextBlock* TextBlock::Create(String text, bool selectable) {
-  auto c = new TextBlock();
-  c->SetText(text);
-  c->SetSelectable(selectable);
-  return c;
-}
-
 TextBlock::TextBlock() {
   const auto theme_manager = ThemeManager::GetInstance();
 
