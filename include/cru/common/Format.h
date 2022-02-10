@@ -35,10 +35,7 @@ std::enable_if_t<std::is_floating_point_v<T>, String> ToString(T value) {
 }
 
 template <typename T>
-std::enable_if_t<
-    std::is_convertible_v<decltype(ToString(std::declval<const T&>)), String>,
-    String>
-ToString(const T& value, StringView option) {
+String ToString(const T& value, StringView option) {
   CRU_UNUSED(option)
   return ToString(value);
 }

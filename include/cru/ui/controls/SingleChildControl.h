@@ -3,7 +3,7 @@
 
 namespace cru::ui::controls {
 template <typename TRenderObject>
-class CRU_UI_API SingleChildControl : public Control {
+class SingleChildControl : public Control {
  protected:
   SingleChildControl() : container_render_object_(new TRenderObject()) {
     container_render_object_->SetAttachedControl(this);

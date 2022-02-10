@@ -3,7 +3,7 @@
 
 namespace cru::ui::controls {
 template <typename TRenderObject>
-class CRU_UI_API LayoutControl : public Control {
+class LayoutControl : public Control {
  protected:
   LayoutControl() : container_render_object_(new TRenderObject()) {
     container_render_object_->SetAttachedControl(this);

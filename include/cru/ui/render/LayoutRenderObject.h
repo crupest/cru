@@ -5,7 +5,7 @@
 
 namespace cru::ui::render {
 template <typename TChildLayoutData>
-class CRU_UI_API LayoutRenderObject : public RenderObject {
+class LayoutRenderObject : public RenderObject {
  public:
   using ChildLayoutData = TChildLayoutData;
 

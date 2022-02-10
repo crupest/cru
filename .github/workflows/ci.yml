@@ -61,7 +61,9 @@ jobs:
 
       - name: Build
         run: |
-          cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -S. -Bbuild -G Ninja
+          . tools/Use-VC.ps1
+          Use-VC
+          cmake -DCMAKE_BUILD_TYPE=Debug -S. -Bbuild -G Ninja
           cmake --build build --config Debug --target all
 
       - name: Test
