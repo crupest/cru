@@ -9,9 +9,11 @@ namespace cru::ui::controls {
  *  \remarks If you want to write a new control. You should override following
  * methods:
  *  - GetControlType()
+ *  - GetRenderObject()
  *  - ForEachChild(const std::function<void(Control*)>& predicate)
  *  - RemoveChild(Control* child)
- *  - GetRenderObject()
+ * The last two methods are totally for convenient control tree management. The
+ * former one is even not used.
  */
 class CRU_UI_API Control : public Object {
  protected:

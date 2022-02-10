@@ -9,6 +9,11 @@ TreeRenderObjectItem::TreeRenderObjectItem(TreeRenderObject* tree_render_object,
     : tree_render_object_(tree_render_object), parent_(parent) {}
 
 TreeRenderObjectItem::~TreeRenderObjectItem() {
+  if (render_object_) {
+    render_object_->SetParent(nullptr);
+    render_object_ = nullptr;
+  }
+
   for (auto child : children_) {
     delete child;
   }
@@ -16,7 +21,14 @@ TreeRenderObjectItem::~TreeRenderObjectItem() {
 
 void TreeRenderObjectItem::SetRenderObject(RenderObject* render_object) {
   if (render_object == render_object_) return;
+  if (render_object_) {
+    render_object_->SetParent(nullptr);
+  }
   render_object_ = render_object;
+  if (render_object) {
+    assert(render_object->GetParent() == nullptr);
+    render_object->SetParent(tree_render_object_);
+  }
   tree_render_object_->InvalidateLayout();
 }
 
