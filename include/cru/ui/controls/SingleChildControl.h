@@ -48,8 +48,14 @@ class CRU_UI_API SingleChildControl : public Control {
     }
   }
 
+  void RemoveChild(Control* child) override {
+    if (child_ == child) {
+      SetChild(nullptr);
+    }
+  }
+
  private:
-  Control* child_;
+  Control* child_ = nullptr;
   std::unique_ptr<TRenderObject> container_render_object_;
 };
 }  // namespace cru::ui::controls

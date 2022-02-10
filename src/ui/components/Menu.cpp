@@ -49,7 +49,7 @@ void Menu::AddItem(Component* item, gsl::index index) {
   Expects(index >= 0 && index <= GetItemCount());
 
   items_.insert(items_.cbegin() + index, item);
-  container_->AddChild(item->GetRootControl(), index);
+  container_->AddChildAt(item->GetRootControl(), index);
 }
 
 Component* Menu::RemoveItem(gsl::index index) {
@@ -58,7 +58,7 @@ Component* Menu::RemoveItem(gsl::index index) {
   Component* item = items_[index];
 
   items_.erase(items_.cbegin() + index);
-  container_->RemoveChild(index);
+  container_->RemoveChildAt(index);
 
   return item;
 }
@@ -91,7 +91,7 @@ PopupMenu::PopupMenu(controls::Control* attached_control)
 
   menu_->SetOnItemClick([this](Index) { this->Close(); });
 
-  popup_->AddChild(menu_->GetRootControl(), 0);
+  popup_->AddChildAt(menu_->GetRootControl(), 0);
 }
 
 PopupMenu::~PopupMenu() {

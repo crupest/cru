@@ -17,9 +17,27 @@ class CRU_UI_API LayoutControl : public Control {
   ~LayoutControl() override = default;
 
  public:
+  const std::vector<Control*>& GetChildren() const { return children_; }
+  Index GetChildCount() const { return children_.size(); }
+  Control* GetChild(Index index) const { return children_[index]; }
+  Index IndexOf(Control* control) const {
+    auto it = std::find(children_.begin(), children_.end(), control);
+    if (it == children_.end()) {
+      return -1;
+    }
+    return it - children_.begin();
+  }
+
   void ForEachChild(const std::function<void(Control*)>& callback) override {
     for (auto child : children_) {
       callback(child);
+    }
+  }
+
+  void RemoveChild(Control* child) override {
+    auto index = IndexOf(child);
+    if (index != -1) {
+      RemoveChildAt(index);
     }
   }
 
@@ -31,7 +49,7 @@ class CRU_UI_API LayoutControl : public Control {
     return container_render_object_.get();
   }
 
-  void AddChild(Control* child, Index position) {
+  void AddChildAt(Control* child, Index position) {
     Expects(child);
     Expects(child->GetParent() == nullptr);
     if (position < 0) position = 0;
@@ -43,12 +61,22 @@ class CRU_UI_API LayoutControl : public Control {
     container_render_object_->AddChild(child->GetRenderObject(), position);
   }
 
-  void RemoveChild(Index position) {
+  void AddChild(Control* child) { AddChildAt(child, GetChildCount()); }
+
+  void RemoveChildAt(Index position) {
     if (position < 0 || position >= children_.size()) return;
     auto child = children_[position];
     children_.erase(children_.begin() + position);
     child->SetParent(nullptr);
     container_render_object_->RemoveChild(position);
+  }
+
+  void ClearChildren() {
+    for (auto child : children_) {
+      child->SetParent(nullptr);
+    }
+    children_.clear();
+    container_render_object_->ClearChildren();
   }
 
   const typename TRenderObject::ChildLayoutData& GetChildLayoutData(

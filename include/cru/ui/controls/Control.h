@@ -10,6 +10,7 @@ namespace cru::ui::controls {
  * methods:
  *  - GetControlType()
  *  - ForEachChild(const std::function<void(Control*)>& predicate)
+ *  - RemoveChild(Control* child)
  *  - GetRenderObject()
  */
 class CRU_UI_API Control : public Object {
@@ -34,6 +35,14 @@ class CRU_UI_API Control : public Object {
   void SetParent(Control* parent);
 
   virtual void ForEachChild(const std::function<void(Control*)>& predicate) = 0;
+
+  /**
+   *  \remarks This method should be permissive, which means if the specified
+   * child control is not a real child of this then nothing will be done.
+   */
+  virtual void RemoveChild(Control* child) = 0;
+
+  void RemoveFromParent();
 
  public:
   virtual render::RenderObject* GetRenderObject() const = 0;
@@ -129,7 +138,7 @@ class CRU_UI_API Control : public Object {
 
   //*************** region: tree ***************
  protected:
-  virtual void OnParentChanged(Control* old_parent, Control* new_parent);
+  virtual void OnParentChanged(Control* old_parent, Control* new_parent) {}
 
  protected:
   virtual void OnMouseHoverChange(bool newHover) { CRU_UNUSED(newHover) }

@@ -1,14 +1,10 @@
 #include "cru/ui/controls/Control.h"
 
-#include "cru/common/Base.h"
 #include "cru/platform/gui/Cursor.h"
 #include "cru/platform/gui/UiApplication.h"
-#include "cru/ui/Base.h"
 #include "cru/ui/host/WindowHost.h"
 #include "cru/ui/render/RenderObject.h"
 #include "cru/ui/style/StyleRuleSet.h"
-
-#include <memory>
 
 namespace cru::ui::controls {
 using platform::gui::ICursor;
@@ -46,6 +42,12 @@ void Control::SetParent(Control* parent) {
   auto old_parent = parent_;
   parent_ = parent;
   OnParentChanged(old_parent, parent);
+}
+
+void Control::RemoveFromParent() {
+  if (parent_) {
+    parent_->RemoveChild(this);
+  }
 }
 
 bool Control::HasFocus() {

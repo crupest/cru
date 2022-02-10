@@ -14,14 +14,14 @@ MainWindow::MainWindow() {
 
   main_layout_ = FlexLayout::Create();
   main_layout_->SetFlexDirection(FlexDirection::Horizontal);
-  window_->AddChild(main_layout_, 0);
+  window_->AddChild(main_layout_);
 
   preview_layout_ = StackLayout::Create();
-  main_layout_->AddChild(preview_layout_, 0);
+  main_layout_->AddChild(preview_layout_);
 
   preview_button_ = Button::Create();
   preview_button_->SetChild(TextBlock::Create(u"Preview"));
-  preview_layout_->AddChild(preview_button_, 0);
+  preview_layout_->AddChild(preview_button_);
   preview_layout_->SetChildLayoutData(
       0, StackChildLayoutData{Alignment::Center, Alignment::Center});
 }

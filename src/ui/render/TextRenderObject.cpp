@@ -184,9 +184,6 @@ void TextRenderObject::Draw(platform::graphics::IPainter* painter) {
                   this->brush_->GetDebugString());
   }
 
-  painter->PushState();
-  painter->ConcatTransform(Matrix::Translation(GetOffset()));
-
   if (this->selection_range_.has_value()) {
     const auto&& rects =
         text_layout_->TextRangeRect(this->selection_range_.value());
@@ -199,8 +196,6 @@ void TextRenderObject::Draw(platform::graphics::IPainter* painter) {
   if (this->draw_caret_ && this->caret_width_ != 0.0f) {
     painter->FillRectangle(GetCaretRectInContent(), this->caret_brush_.get());
   }
-
-  painter->PopState();
 }
 
 Size TextRenderObject::OnMeasureContent(const MeasureRequirement& requirement,

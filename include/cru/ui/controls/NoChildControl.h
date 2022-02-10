@@ -15,5 +15,7 @@ class CRU_UI_API NoChildControl : public Control {
 
  public:
   void ForEachChild(const std::function<void(Control*)>& callback) override;
+
+  void RemoveChild(Control* child) override;
 };
 }  // namespace cru::ui::controls

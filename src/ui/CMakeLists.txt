@@ -50,6 +50,7 @@ add_library(cru_ui SHARED
 	render/RenderObject.cpp
 	render/ScrollBar.cpp
 	render/ScrollRenderObject.cpp
+	render/SingleChildRenderObject.cpp
 	render/StackLayoutRenderObject.cpp
 	render/TextRenderObject.cpp
 	render/TreeRenderObject.cpp

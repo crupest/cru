@@ -26,7 +26,7 @@ class CRU_UI_API LayoutRenderObject : public RenderObject {
 
   Index GetChildCount() const { return static_cast<Index>(children_.size()); }
   RenderObject* GetChildAt(Index position) {
-    Expects(position > 0 && position < GetChildCount());
+    Expects(position >= 0 && position < GetChildCount());
     return children_[position].render_object;
   }
   void AddChild(RenderObject* render_object, Index position) {
@@ -35,12 +35,22 @@ class CRU_UI_API LayoutRenderObject : public RenderObject {
     children_.insert(children_.begin() + position,
                      ChildData{render_object, ChildLayoutData()});
     render_object->SetParent(this);
+    InvalidateLayout();
   }
 
   void RemoveChild(Index position) {
     Expects(position > 0 && position < GetChildCount());
     children_[position].render_object->SetParent(nullptr);
     children_.erase(children_.begin() + position);
+    InvalidateLayout();
+  }
+
+  void ClearChildren() {
+    for (auto child : children_) {
+      child.render_object->SetParent(nullptr);
+    }
+    children_.clear();
+    InvalidateLayout();
   }
 
   const ChildLayoutData& GetChildLayoutDataAt(Index position) const {

@@ -17,7 +17,7 @@ int main() {
 
   auto scroll_view = ScrollView::Create();
 
-  window->AddChild(scroll_view, 0);
+  window->AddChild(scroll_view);
 
   auto text_block = TextBlock::Create(
       uR"([Verse 1]

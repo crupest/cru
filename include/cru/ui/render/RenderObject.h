@@ -5,34 +5,36 @@
 #include "cru/common/String.h"
 
 namespace cru::ui::render {
-// Render object will not destroy its children when destroyed. Control must
-// manage lifecycle of its render objects. Since control will destroy its
-// children when destroyed, render objects will be destroyed along with it.
-//
-// About layout:
-// Render object should be able to deal with arbitrary size as the result of
-// measure and layout.
-//
-// Parent may pass calculated preferred size down. But the preferred size set on
-// child itself takes precedence.
-//
-// Each render object should obey the measure requirement to set size and report
-// a warning when that requirement can't be satisfied with probably bigger size
-// of children than that of itself and optional visual effect to indicate that.
-//
-// If size of chilren are less than min size requirement, then render object
-// should try to fill the rest area. If size of children are more than max size
-// requirement, then render object should display a warning of the layout
-// problem and use the max size of itself with children exceeding its bound.
-// (Or better you could use some visual effect to indicate that.)
-//
-// To write a custom RenderObject, override following methods:
-// public:
-//  void Draw(platform::graphics::IPainter* painter) override;
-//  RenderObject* HitTest(const Point& point) override;
-// protected:
-//  Size OnMeasureContent(const MeasureRequirement& requirement) override;
-//  void OnLayoutContent(const Rect& content_rect) override;
+/**
+ * ### Layout
+ *
+ * Render object should be able to deal with _arbitrary_ size as the result of
+ * measure and layout.
+ *
+ * Parent may pass calculated preferred size down. But the preferred size set on
+ * child itself takes precedence.
+ *
+ * Each render object should obey the measure requirement to set size and report
+ * a warning when that requirement can't be satisfied with probably bigger size
+ * of children than that of itself and optional visual effect to indicate that.
+ *
+ * If size of chilren are less than min size requirement, then render object
+ * should try to fill the rest area. If size of children are more than max size
+ * requirement, then render object should display a warning of the layout
+ * problem and use the max size of itself with children exceeding its bound.
+ * (Or better you could use some visual effect to indicate that.)
+ *
+ * ### Create New Render Object
+ *
+ * To write a custom RenderObject, override following methods:
+ *
+ * public:
+ *  void Draw(platform::graphics::IPainter* painter) override;
+ *  RenderObject* HitTest(const Point& point) override;
+ * protected:
+ *  Size OnMeasureContent(const MeasureRequirement& requirement) override;
+ *  void OnLayoutContent(const Rect& content_rect) override;
+ */
 class CRU_UI_API RenderObject : public Object {
   CRU_DEFINE_CLASS_LOG_TAG(u"cru::ui::render::RenderObject")
 
@@ -137,6 +139,7 @@ class CRU_UI_API RenderObject : public Object {
 
   virtual void OnAttachedControlChanged(controls::Control* old_control,
                                         controls::Control* new_control) {}
+
   virtual void OnResize(const Size& new_size) {}
 
  private:
