@@ -3,11 +3,6 @@
 #include "cru/platform/graphics/Base.h"
 #include "cru/platform/gui/Base.h"
 
-#include <functional>
-#include <memory>
-#include <optional>
-#include <vector>
-
 #ifdef CRU_PLATFORM_WINDOWS
 #ifdef CRU_UI_EXPORT_API
 #define CRU_UI_API __declspec(dllexport)

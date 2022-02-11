@@ -220,6 +220,7 @@ void TextHostControlService::SetText(String text, bool stop_composition) {
     CancelComposition();
   }
   SyncTextRenderObject();
+  text_change_event_.Raise(nullptr);
 }
 
 void TextHostControlService::InsertText(gsl::index position, StringView text,
@@ -233,6 +234,7 @@ void TextHostControlService::InsertText(gsl::index position, StringView text,
     CancelComposition();
   }
   SyncTextRenderObject();
+  text_change_event_.Raise(nullptr);
 }
 
 void TextHostControlService::DeleteChar(gsl::index position,
@@ -281,6 +283,7 @@ void TextHostControlService::DeleteText(TextRange range,
     CancelComposition();
   }
   this->SyncTextRenderObject();
+  text_change_event_.Raise(nullptr);
 }
 
 platform::gui::IInputMethodContext*

@@ -147,6 +147,8 @@ class CRU_UI_API TextHostControlService : public Object {
   void Copy();
   void Paste();
 
+  IEvent<std::nullptr_t>* TextChangeEvent() { return &text_change_event_; }
+
   gsl::not_null<render::TextRenderObject*> GetTextRenderObject();
   render::ScrollRenderObject* GetScrollRenderObject();
 
@@ -191,6 +193,8 @@ class CRU_UI_API TextHostControlService : public Object {
  private:
   gsl::not_null<Control*> control_;
   gsl::not_null<ITextHostControl*> text_host_control_;
+
+  Event<std::nullptr_t> text_change_event_;
 
   EventRevokerListGuard event_guard_;
   EventRevokerListGuard input_method_context_event_guard_;
