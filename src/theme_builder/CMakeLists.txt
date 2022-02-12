@@ -5,6 +5,7 @@ add_executable(cru_theme_builder
 	components/StyleRuleSetEditor.cpp
 	components/conditions/ConditionEditor.cpp
 	components/properties/ColorPropertyEditor.cpp
+	components/properties/CornerRadiusPropertyEditor.cpp
 	components/properties/PointPropertyEditor.cpp
 	components/properties/TextPropertyEditor.cpp
 	components/properties/ThicknessPropertyEditor.cpp
