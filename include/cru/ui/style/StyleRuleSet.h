@@ -6,7 +6,7 @@
 #include <cstddef>
 
 namespace cru::ui::style {
-class StyleRuleSet : public Object {
+class CRU_UI_API StyleRuleSet : public Object {
  public:
   StyleRuleSet() = default;
   explicit StyleRuleSet(std::shared_ptr<StyleRuleSet> parent);
@@ -53,7 +53,7 @@ class StyleRuleSet : public Object {
   std::vector<StyleRule> rules_;
 };
 
-class StyleRuleSetBind {
+class CRU_UI_API StyleRuleSetBind {
  public:
   StyleRuleSetBind(controls::Control* control,
                    std::shared_ptr<StyleRuleSet> ruleset);

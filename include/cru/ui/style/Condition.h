@@ -12,7 +12,7 @@
 #include <vector>
 
 namespace cru::ui::style {
-class Condition : public Object {
+class CRU_UI_API Condition : public Object {
  public:
   virtual std::vector<IBaseEvent*> ChangeOn(
       controls::Control* control) const = 0;
@@ -21,7 +21,7 @@ class Condition : public Object {
   virtual Condition* Clone() const = 0;
 };
 
-class NoCondition : public Condition {
+class CRU_UI_API NoCondition : public Condition {
  public:
   static ClonablePtr<NoCondition> Create() {
     return ClonablePtr<NoCondition>(new NoCondition);
@@ -36,7 +36,7 @@ class NoCondition : public Condition {
   NoCondition* Clone() const override { return new NoCondition; }
 };
 
-class CompoundCondition : public Condition {
+class CRU_UI_API CompoundCondition : public Condition {
  public:
   explicit CompoundCondition(std::vector<ClonablePtr<Condition>> conditions);
 
@@ -46,7 +46,7 @@ class CompoundCondition : public Condition {
   std::vector<ClonablePtr<Condition>> conditions_;
 };
 
-class AndCondition : public CompoundCondition {
+class CRU_UI_API AndCondition : public CompoundCondition {
  public:
   static ClonablePtr<AndCondition> Create(
       std::vector<ClonablePtr<Condition>> conditions) {
@@ -60,7 +60,7 @@ class AndCondition : public CompoundCondition {
   AndCondition* Clone() const override { return new AndCondition(conditions_); }
 };
 
-class OrCondition : public CompoundCondition {
+class CRU_UI_API OrCondition : public CompoundCondition {
  public:
   static ClonablePtr<OrCondition> Create(
       std::vector<ClonablePtr<Condition>> conditions) {
@@ -74,7 +74,7 @@ class OrCondition : public CompoundCondition {
   OrCondition* Clone() const override { return new OrCondition(conditions_); }
 };
 
-class FocusCondition : public Condition {
+class CRU_UI_API FocusCondition : public Condition {
  public:
   static ClonablePtr<FocusCondition> Create(bool has_focus) {
     return ClonablePtr<FocusCondition>(new FocusCondition(has_focus));
@@ -93,7 +93,7 @@ class FocusCondition : public Condition {
   bool has_focus_;
 };
 
-class HoverCondition : public Condition {
+class CRU_UI_API HoverCondition : public Condition {
  public:
   static ClonablePtr<HoverCondition> Create(bool hover) {
     return ClonablePtr<HoverCondition>(new HoverCondition(hover));
@@ -110,7 +110,7 @@ class HoverCondition : public Condition {
   bool hover_;
 };
 
-class ClickStateCondition : public Condition {
+class CRU_UI_API ClickStateCondition : public Condition {
  public:
   static ClonablePtr<ClickStateCondition> Create(
       helper::ClickState click_state) {
@@ -129,5 +129,24 @@ class ClickStateCondition : public Condition {
 
  private:
   helper::ClickState click_state_;
+};
+
+class CRU_UI_API CheckedCondition : public Condition {
+ public:
+  static ClonablePtr<CheckedCondition> Create(bool checked) {
+    return ClonablePtr<CheckedCondition>(new CheckedCondition(checked));
+  }
+
+  explicit CheckedCondition(bool checked);
+
+  std::vector<IBaseEvent*> ChangeOn(controls::Control* control) const override;
+  bool Judge(controls::Control* control) const override;
+
+  CheckedCondition* Clone() const override {
+    return new CheckedCondition(checked_);
+  }
+
+ private:
+  bool checked_;
 };
 }  // namespace cru::ui::style

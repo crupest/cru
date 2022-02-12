@@ -4,6 +4,7 @@
 #include "cru/common/ClonablePtr.h"
 #include "cru/common/Event.h"
 #include "cru/ui/controls/Control.h"
+#include "cru/ui/controls/ICheckableControl.h"
 #include "cru/ui/controls/IClickableControl.h"
 #include "cru/ui/helper/ClickDetector.h"
 
@@ -78,6 +79,26 @@ bool ClickStateCondition::Judge(controls::Control* control) const {
   auto clickable_control = dynamic_cast<controls::IClickableControl*>(control);
   if (clickable_control) {
     return clickable_control->GetClickState() == click_state_;
+  }
+  return false;
+}
+
+CheckedCondition::CheckedCondition(bool checked) : checked_(checked) {}
+
+std::vector<IBaseEvent*> CheckedCondition::ChangeOn(
+    controls::Control* control) const {
+  auto checkable_control = dynamic_cast<controls::ICheckableControl*>(control);
+  if (checkable_control) {
+    return {checkable_control->CheckedChangeEvent()};
+  } else {
+    return {};
+  }
+}
+
+bool CheckedCondition::Judge(controls::Control* control) const {
+  auto checkable_control = dynamic_cast<controls::ICheckableControl*>(control);
+  if (checkable_control) {
+    return checkable_control->IsChecked() == checked_;
   }
   return false;
 }

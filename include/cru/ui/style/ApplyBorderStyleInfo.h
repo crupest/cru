@@ -4,7 +4,7 @@
 #include <optional>
 
 namespace cru::ui::style {
-struct ApplyBorderStyleInfo {
+struct CRU_UI_API ApplyBorderStyleInfo {
   ApplyBorderStyleInfo() = default;
 
   explicit ApplyBorderStyleInfo(

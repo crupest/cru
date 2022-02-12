@@ -8,14 +8,14 @@
 #include <vector>
 
 namespace cru::ui::style {
-class Styler : public Object {
+class CRU_UI_API Styler : public Object {
  public:
   virtual void Apply(controls::Control* control) const = 0;
 
   virtual Styler* Clone() const = 0;
 };
 
-class CompoundStyler : public Styler {
+class CRU_UI_API CompoundStyler : public Styler {
  public:
   template <typename... S>
   static ClonablePtr<CompoundStyler> Create(ClonablePtr<S>... s) {
@@ -45,7 +45,7 @@ class CompoundStyler : public Styler {
   std::vector<ClonablePtr<Styler>> stylers_;
 };
 
-class BorderStyler : public Styler {
+class CRU_UI_API BorderStyler : public Styler {
  public:
   static ClonablePtr<BorderStyler> Create() {
     return ClonablePtr<BorderStyler>(new BorderStyler());
@@ -66,7 +66,7 @@ class BorderStyler : public Styler {
   ApplyBorderStyleInfo style_;
 };
 
-class CursorStyler : public Styler {
+class CRU_UI_API CursorStyler : public Styler {
  public:
   static ClonablePtr<CursorStyler> Create(
       std::shared_ptr<platform::gui::ICursor> cursor) {

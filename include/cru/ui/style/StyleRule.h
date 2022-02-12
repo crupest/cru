@@ -8,7 +8,7 @@
 #include <vector>
 
 namespace cru::ui::style {
-class StyleRule : public Object {
+class CRU_UI_API StyleRule : public Object {
  public:
   static ClonablePtr<StyleRule> Create(ClonablePtr<Condition> condition,
                                        ClonablePtr<Styler> styler,
