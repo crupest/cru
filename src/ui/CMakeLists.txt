@@ -4,6 +4,7 @@ add_library(cru_ui SHARED
 	components/Component.cpp
 	components/Menu.cpp
 	controls/Button.cpp
+	controls/CheckBox.cpp
 	controls/Container.cpp
 	controls/Control.cpp
 	controls/FlexLayout.cpp
