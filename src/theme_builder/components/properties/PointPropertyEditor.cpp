@@ -24,7 +24,7 @@ PointPropertyEditor::PointPropertyEditor() {
   });
 }
 
-PointPropertyEditor::~PointPropertyEditor() {}
+PointPropertyEditor::~PointPropertyEditor() { container_.RemoveFromParent(); }
 
 void PointPropertyEditor::SetPoint(const ui::Point& point) {
   point_ = point;

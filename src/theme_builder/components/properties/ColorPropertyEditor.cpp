@@ -29,7 +29,7 @@ ColorPropertyEditor::ColorPropertyEditor() {
   });
 }
 
-ColorPropertyEditor::~ColorPropertyEditor() {}
+ColorPropertyEditor::~ColorPropertyEditor() { container_.RemoveFromParent(); }
 
 void ColorPropertyEditor::SetColor(const ui::Color &color) {
   color_cube_brush_->SetColor(color);

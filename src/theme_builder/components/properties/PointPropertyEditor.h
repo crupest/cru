@@ -11,6 +11,11 @@ class PointPropertyEditor : public ui::components::Component {
   ~PointPropertyEditor() override;
 
  public:
+  ui::controls::Control* GetRootControl() override { return &container_; }
+
+  String GetLabel() const { return label_.GetText(); }
+  void SetLabel(String label) { label_.SetText(std::move(label)); }
+
   ui::Point GetPoint() const { return point_; }
   void SetPoint(const ui::Point& point);
 

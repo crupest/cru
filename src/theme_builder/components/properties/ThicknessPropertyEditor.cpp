@@ -23,7 +23,9 @@ ThicknessPropertyEditor::ThicknessPropertyEditor() {
   });
 }
 
-ThicknessPropertyEditor::~ThicknessPropertyEditor() {}
+ThicknessPropertyEditor::~ThicknessPropertyEditor() {
+  container_.RemoveFromParent();
+}
 
 void ThicknessPropertyEditor::SetThickness(const ui::Thickness &thickness) {
   thickness_ = thickness;
