@@ -9,6 +9,8 @@ class CornerRadiusPropertyEditor : public ui::components::Component {
   CornerRadiusPropertyEditor();
   ~CornerRadiusPropertyEditor() override;
 
+  ui::controls::Control* GetRootControl() override { return &container_; }
+
   ui::CornerRadius GetCornerRadius() const { return corner_radius_; }
   void SetCornerRadius(const ui::CornerRadius& corner_radius);
 

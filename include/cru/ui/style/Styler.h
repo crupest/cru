@@ -60,6 +60,8 @@ class CRU_UI_API BorderStyler : public Styler {
 
   void Apply(controls::Control* control) const override;
 
+  ApplyBorderStyleInfo GetBorderStyle() const { return style_; }
+
   BorderStyler* Clone() const override { return new BorderStyler(style_); }
 
  private:

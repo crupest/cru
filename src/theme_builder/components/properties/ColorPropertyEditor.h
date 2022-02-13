@@ -13,6 +13,8 @@ class ColorPropertyEditor : public ui::components::Component {
   ~ColorPropertyEditor() override;
 
  public:
+  ui::controls::Control* GetRootControl() override { return &container_; }
+
   String GetLabel() const { return label_.GetText(); }
   void SetLabel(String label) { label_.SetText(std::move(label)); }
 

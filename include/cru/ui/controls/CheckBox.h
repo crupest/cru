@@ -12,8 +12,12 @@ class CRU_UI_API CheckBox : public NoChildControl,
                             public virtual ICheckableControl,
                             public virtual IClickableControl {
  public:
+  static constexpr StringView kControlType = u"CheckBox";
+
   CheckBox();
   ~CheckBox() override;
+
+  String GetControlType() const override { return kControlType.ToString(); }
 
   render::RenderObject* GetRenderObject() const override {
     return container_render_object_.get();
@@ -27,7 +31,7 @@ class CRU_UI_API CheckBox : public NoChildControl,
 
   void ApplyBorderStyle(const style::ApplyBorderStyleInfo& style) override;
 
-  helper::ClickState GetClickState() const {
+  helper::ClickState GetClickState() override {
     return click_detector_.GetState();
   }
 
