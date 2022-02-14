@@ -88,7 +88,7 @@ class ClonablePtr {
  public:
   pointer get() const noexcept { return ptr_.get(); }
 
-  operator bool() const noexcept { return ptr_; }
+  operator bool() const noexcept { return ptr_ != nullptr; }
 
   element_type& operator*() const noexcept { return *ptr_; }
   pointer operator->() const noexcept { return ptr_.get(); }

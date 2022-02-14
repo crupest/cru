@@ -13,7 +13,7 @@ class OptionalPropertyEditor : public ui::components::Component {
 
   OptionalPropertyEditor() {
     container_.AddChild(&check_box_);
-    container_.AddChild(editor_->GetRootControl());
+    container_.AddChild(editor_.GetRootControl());
 
     editor_.ChangeEvent()->AddHandler([this](std::nullptr_t) {
       if (IsEnabled()) {
@@ -34,7 +34,8 @@ class OptionalPropertyEditor : public ui::components::Component {
   }
 
   std::optional<PropertyType> GetValue() const {
-    return IsEnabled() ? editor_.GetValue() : std::nullopt;
+    return IsEnabled() ? std::optional<PropertyType>(editor_.GetValue())
+                       : std::nullopt;
   }
 
   void SetValue(std::optional<PropertyType> value, bool trigger_change = true) {

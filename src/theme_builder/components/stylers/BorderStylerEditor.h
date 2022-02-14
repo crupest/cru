@@ -10,7 +10,7 @@
 #include "cru/ui/controls/FlexLayout.h"
 #include "cru/ui/style/Styler.h"
 
-namespace cru::theme_builder::components::styler {
+namespace cru::theme_builder::components::stylers {
 class BorderStylerEditor : public ui::components::Component {
  public:
   BorderStylerEditor();
@@ -38,4 +38,4 @@ class BorderStylerEditor : public ui::components::Component {
 
   Event<std::nullptr_t> change_event_;
 };
-}  // namespace cru::theme_builder::components::styler
+}  // namespace cru::theme_builder::components::stylers

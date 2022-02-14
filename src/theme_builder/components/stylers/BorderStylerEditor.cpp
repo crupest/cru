@@ -6,7 +6,7 @@
 #include "cru/ui/style/ApplyBorderStyleInfo.h"
 #include "cru/ui/style/Styler.h"
 
-namespace cru::theme_builder::components::styler {
+namespace cru::theme_builder::components::stylers {
 BorderStylerEditor::BorderStylerEditor() {
   container_.AddChild(corner_radius_editor_.GetRootControl());
   container_.AddChild(thickness_editor_.GetRootControl());
@@ -92,4 +92,4 @@ void BorderStylerEditor::SetValue(
   }
 }
 
-}  // namespace cru::theme_builder::components::styler
+}  // namespace cru::theme_builder::components::stylers
