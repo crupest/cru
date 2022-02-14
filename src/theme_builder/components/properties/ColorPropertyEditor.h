@@ -9,6 +9,8 @@
 namespace cru::theme_builder::components::properties {
 class ColorPropertyEditor : public ui::components::Component {
  public:
+  using PropertyType = ui::Color;
+
   ColorPropertyEditor();
   ~ColorPropertyEditor() override;
 
@@ -18,10 +20,10 @@ class ColorPropertyEditor : public ui::components::Component {
   String GetLabel() const { return label_.GetText(); }
   void SetLabel(String label) { label_.SetText(std::move(label)); }
 
-  ui::Color GetColor() const { return color_; }
-  void SetColor(const ui::Color& color);
+  ui::Color GetValue() const { return color_; }
+  void SetValue(const ui::Color& color, bool trigger_change = true);
 
-  IEvent<ui::Color>* ColorChangeEvent() { return &color_change_event_; }
+  IEvent<std::nullptr_t>* ChangeEvent() { return &change_event_; }
 
  private:
   ui::Color color_ = ui::colors::transparent;
@@ -33,6 +35,6 @@ class ColorPropertyEditor : public ui::components::Component {
   ui::controls::TextBox color_text_;
   bool is_color_text_valid_;
 
-  Event<ui::Color> color_change_event_;
+  Event<std::nullptr_t> change_event_;
 };
 }  // namespace cru::theme_builder::components::properties

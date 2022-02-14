@@ -7,6 +7,8 @@
 namespace cru::theme_builder::components::properties {
 class ThicknessPropertyEditor : public ui::components::Component {
  public:
+  using PropertyType = ui::Thickness;
+
   ThicknessPropertyEditor();
   ~ThicknessPropertyEditor() override;
 
@@ -15,12 +17,10 @@ class ThicknessPropertyEditor : public ui::components::Component {
   String GetLabel() const { return label_.GetText(); }
   void SetLabel(String label) { label_.SetText(std::move(label)); }
 
-  ui::Thickness GetThickness() const { return thickness_; }
-  void SetThickness(const ui::Thickness& thickness);
+  ui::Thickness GetValue() const { return thickness_; }
+  void SetValue(const ui::Thickness& thickness, bool trigger_change = true);
 
-  IEvent<ui::Thickness>* ThicknessChangeEvent() {
-    return &thickness_change_event_;
-  }
+  IEvent<std::nullptr_t>* ChangeEvent() { return &change_event_; }
 
  private:
   ui::Thickness thickness_;
@@ -30,6 +30,6 @@ class ThicknessPropertyEditor : public ui::components::Component {
   ui::controls::TextBox text_;
   bool is_text_valid_;
 
-  Event<ui::Thickness> thickness_change_event_;
+  Event<std::nullptr_t> change_event_;
 };
 }  // namespace cru::theme_builder::components::properties

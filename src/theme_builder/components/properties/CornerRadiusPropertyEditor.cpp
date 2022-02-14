@@ -13,40 +13,37 @@ CornerRadiusPropertyEditor::CornerRadiusPropertyEditor() {
   container_.AddChild(left_bottom_editor_.GetRootControl());
   container_.AddChild(right_bottom_editor_.GetRootControl());
 
-  left_top_editor_.PointChangeEvent()->AddHandler(
-      [this](const ui::Point& point) {
-        corner_radius_.left_top = point;
-        corner_radius_change_event_.Raise(corner_radius_);
-      });
+  left_top_editor_.ChangeEvent()->AddHandler([this](std::nullptr_t) {
+    corner_radius_.left_top = left_top_editor_.GetValue();
+    change_event_.Raise(nullptr);
+  });
 
-  right_top_editor_.PointChangeEvent()->AddHandler(
-      [this](const ui::Point& point) {
-        corner_radius_.right_top = point;
-        corner_radius_change_event_.Raise(corner_radius_);
-      });
+  right_top_editor_.ChangeEvent()->AddHandler([this](std::nullptr_t) {
+    corner_radius_.right_top = left_top_editor_.GetValue();
+    change_event_.Raise(nullptr);
+  });
 
-  left_bottom_editor_.PointChangeEvent()->AddHandler(
-      [this](const ui::Point& point) {
-        corner_radius_.left_bottom = point;
-        corner_radius_change_event_.Raise(corner_radius_);
-      });
+  left_bottom_editor_.ChangeEvent()->AddHandler([this](std::nullptr_t) {
+    corner_radius_.left_bottom = left_bottom_editor_.GetValue();
+    change_event_.Raise(nullptr);
+  });
 
-  right_bottom_editor_.PointChangeEvent()->AddHandler(
-      [this](const ui::Point& point) {
-        corner_radius_.right_bottom = point;
-        corner_radius_change_event_.Raise(corner_radius_);
-      });
+  right_bottom_editor_.ChangeEvent()->AddHandler([this](std::nullptr_t) {
+    corner_radius_.right_bottom = right_bottom_editor_.GetValue();
+    change_event_.Raise(nullptr);
+  });
 }
 
 CornerRadiusPropertyEditor::~CornerRadiusPropertyEditor() {
   container_.RemoveFromParent();
 }
 
-void CornerRadiusPropertyEditor::SetCornerRadius(
-    const ui::CornerRadius& corner_radius) {
-  left_top_editor_.SetPoint(corner_radius_.left_top);
-  right_top_editor_.SetPoint(corner_radius_.right_top);
-  left_bottom_editor_.SetPoint(corner_radius_.left_bottom);
-  right_bottom_editor_.SetPoint(corner_radius_.right_bottom);
+void CornerRadiusPropertyEditor::SetValue(const ui::CornerRadius& corner_radius,
+                                          bool trigger_change) {
+  left_top_editor_.SetValue(corner_radius_.left_top, false);
+  right_top_editor_.SetValue(corner_radius_.right_top, false);
+  left_bottom_editor_.SetValue(corner_radius_.left_bottom, false);
+  right_bottom_editor_.SetValue(corner_radius_.right_bottom, false);
+  if (trigger_change) change_event_.Raise(nullptr);
 }
 }  // namespace cru::theme_builder::components::properties

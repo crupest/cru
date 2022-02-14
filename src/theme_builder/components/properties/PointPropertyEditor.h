@@ -7,6 +7,8 @@
 namespace cru::theme_builder::components::properties {
 class PointPropertyEditor : public ui::components::Component {
  public:
+  using PropertyType = ui::Point;
+
   PointPropertyEditor();
   ~PointPropertyEditor() override;
 
@@ -16,10 +18,10 @@ class PointPropertyEditor : public ui::components::Component {
   String GetLabel() const { return label_.GetText(); }
   void SetLabel(String label) { label_.SetText(std::move(label)); }
 
-  ui::Point GetPoint() const { return point_; }
-  void SetPoint(const ui::Point& point);
+  ui::Point GetValue() const { return point_; }
+  void SetValue(const ui::Point& point, bool trigger_change = true);
 
-  IEvent<ui::Point>* PointChangeEvent() { return &point_change_event_; }
+  IEvent<std::nullptr_t>* ChangeEvent() { return &change_event_; }
 
  private:
   static String ConvertPointToString(const ui::Point& point);
@@ -32,6 +34,6 @@ class PointPropertyEditor : public ui::components::Component {
   ui::controls::TextBox text_;
   bool is_text_valid_;
 
-  Event<ui::Point> point_change_event_;
+  Event<std::nullptr_t> change_event_;
 };
 }  // namespace cru::theme_builder::components::properties

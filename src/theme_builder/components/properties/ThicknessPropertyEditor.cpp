@@ -15,7 +15,7 @@ ThicknessPropertyEditor::ThicknessPropertyEditor() {
       auto thickness = thickness_mapper->MapFromString(text.ToString());
       thickness_ = thickness;
       is_text_valid_ = true;
-      thickness_change_event_.Raise(thickness);
+      change_event_.Raise(nullptr);
     } catch (const Exception &) {
       is_text_valid_ = false;
       // TODO: Show error!
@@ -27,11 +27,12 @@ ThicknessPropertyEditor::~ThicknessPropertyEditor() {
   container_.RemoveFromParent();
 }
 
-void ThicknessPropertyEditor::SetThickness(const ui::Thickness &thickness) {
+void ThicknessPropertyEditor::SetValue(const ui::Thickness &thickness,
+                                       bool trigger_change) {
   thickness_ = thickness;
   text_.SetText(Format(u"{} {} {} {}", thickness_.left, thickness_.top,
                        thickness_.right, thickness_.bottom));
   is_text_valid_ = true;
-  thickness_change_event_.Raise(thickness_);
+  if (trigger_change) change_event_.Raise(nullptr);
 }
 }  // namespace cru::theme_builder::components::properties

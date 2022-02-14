@@ -18,12 +18,10 @@ class BorderStylerEditor : public ui::components::Component {
 
   ui::controls::Control* GetRootControl() override { return nullptr; }
 
-  ClonablePtr<ui::style::BorderStyler> GetStyler();
-  void SetStyler(const ClonablePtr<ui::style::BorderStyler>& styler);
+  ClonablePtr<ui::style::BorderStyler> GetValue();
+  void SetValue(const ClonablePtr<ui::style::BorderStyler>& styler);
 
-  IEvent<ClonablePtr<ui::style::BorderStyler>>* ChangeEvent() {
-    return &change_event_;
-  }
+  IEvent<std::nullptr_t>* ChangeEvent() { return &change_event_; }
 
  private:
   ui::controls::FlexLayout container_;
@@ -38,6 +36,6 @@ class BorderStylerEditor : public ui::components::Component {
   properties::OptionalPropertyEditor<properties::ColorPropertyEditor>
       background_brush_editor_;
 
-  Event<ClonablePtr<ui::style::BorderStyler>> change_event_;
+  Event<std::nullptr_t> change_event_;
 };
 }  // namespace cru::theme_builder::components::styler

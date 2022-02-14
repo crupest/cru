@@ -16,7 +16,7 @@ PointPropertyEditor::PointPropertyEditor() {
       auto point = point_mapper->MapFromString(text.ToString());
       point_ = point;
       is_text_valid_ = true;
-      point_change_event_.Raise(point);
+      change_event_.Raise(nullptr);
     } catch (const Exception&) {
       is_text_valid_ = false;
       // TODO: Show error!
@@ -26,11 +26,12 @@ PointPropertyEditor::PointPropertyEditor() {
 
 PointPropertyEditor::~PointPropertyEditor() { container_.RemoveFromParent(); }
 
-void PointPropertyEditor::SetPoint(const ui::Point& point) {
+void PointPropertyEditor::SetValue(const ui::Point& point,
+                                   bool trigger_change) {
   point_ = point;
   text_.SetText(ConvertPointToString(point));
   is_text_valid_ = true;
-  point_change_event_.Raise(point);
+  if (trigger_change) change_event_.Raise(nullptr);
 }
 
 String PointPropertyEditor::ConvertPointToString(const ui::Point& point) {
