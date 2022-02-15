@@ -4,7 +4,11 @@ namespace cru::ui::components {
 Select::Select() {
   button_.SetChild(&button_text_);
   button_.ClickEvent()->AddHandler([this](const helper::ClickEventArgs& args) {
-    popup_menu_.SetPosition(args.GetDownPoint());
+    auto left_bottom =
+        button_.GetContainerRenderObject()->GetTotalOffset() +
+        Point{0, button_.GetContainerRenderObject()->GetSize().height};
+    popup_menu_.SetPosition(args.GetDownPointOfScreen() - args.GetDownPoint() +
+                            left_bottom);
     popup_menu_.Show();
   });
 }
@@ -12,6 +16,7 @@ Select::Select() {
 Select::~Select() { button_.RemoveFromParent(); }
 
 void Select::SetItems(std::vector<String> items) {
+  items_ = items;
   popup_menu_.GetMenu()->ClearItems();
   for (Index i = 0; i < items.size(); i++) {
     popup_menu_.GetMenu()->AddTextItem(std::move(items[i]),

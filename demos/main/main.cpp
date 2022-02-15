@@ -5,6 +5,7 @@
 #include "cru/ui/Base.h"
 #include "cru/ui/components/Menu.h"
 #include "cru/ui/components/PopupButton.h"
+#include "cru/ui/components/Select.h"
 #include "cru/ui/controls/Button.h"
 #include "cru/ui/controls/FlexLayout.h"
 #include "cru/ui/controls/TextBlock.h"
@@ -60,6 +61,10 @@ int main() {
   popup_menu_text_button.SetButtonText(u"Popup Menu Button");
   popup_menu_text_button.SetMenuItems({u"Item 1", u"Item 2", u"Item 3"});
   flex_layout.AddChild(popup_menu_text_button.GetRootControl());
+
+  Select select;
+  select.SetItems({u"Item 1", u"Item 2", u"Item 3"});
+  flex_layout.AddChild(select.GetRootControl());
 
   window.GetWindowHost()->GetNativeWindow()->SetVisibility(
       cru::platform::gui::WindowVisibilityType::Show);
