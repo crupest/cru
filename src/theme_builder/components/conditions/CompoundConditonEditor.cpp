@@ -1,4 +1,6 @@
 #include "CompoundConditionEditor.h"
+#include "cru/common/ClonablePtr.h"
+#include "cru/ui/style/Condition.h"
 
 namespace cru::theme_builder::components::conditions {
 CompoundConditionEditorChild::CompoundConditionEditorChild(
@@ -25,5 +27,14 @@ CompoundConditionEditor::CompoundConditionEditor() {
 }
 
 CompoundConditionEditor::~CompoundConditionEditor() {}
+
+std::vector<ClonablePtr<ui::style::Condition>>
+CompoundConditionEditor::GetChildren() {
+  std::vector<ClonablePtr<ui::style::Condition>> children;
+  for (auto& child : children_) {
+    children.push_back(child->GetConditionEditor()->GetCondition());
+  }
+  return children;
+}
 
 }  // namespace cru::theme_builder::components::conditions

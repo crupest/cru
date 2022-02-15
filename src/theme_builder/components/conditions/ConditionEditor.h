@@ -1,13 +1,14 @@
 #pragma once
+#include "cru/common/ClonablePtr.h"
 #include "cru/ui/components/Component.h"
 #include "cru/ui/controls/FlexLayout.h"
 #include "cru/ui/controls/TextBlock.h"
+#include "cru/ui/style/Condition.h"
 
 namespace cru::theme_builder::components::conditions {
 class ConditionEditor : public ui::components::Component {
  public:
   ConditionEditor();
-
   ~ConditionEditor() override;
 
  public:
@@ -17,6 +18,8 @@ class ConditionEditor : public ui::components::Component {
 
   String GetLabel() const { return label_.GetText(); }
   void SetLabel(String label) { label_.SetText(std::move(label)); }
+
+  virtual ClonablePtr<ui::style::Condition> GetCondition() = 0;
 
  private:
   ui::controls::FlexLayout container_;
