@@ -39,7 +39,7 @@ class LayoutRenderObject : public RenderObject {
   }
 
   void RemoveChild(Index position) {
-    Expects(position > 0 && position < GetChildCount());
+    Expects(position >= 0 && position < GetChildCount());
     children_[position].render_object->SetParent(nullptr);
     children_.erase(children_.begin() + position);
     InvalidateLayout();

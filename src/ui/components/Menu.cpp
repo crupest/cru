@@ -92,8 +92,10 @@ void PopupMenu::SetPosition(const Point& position) {
 
 void PopupMenu::Show() {
   popup_.GetWindowHost()->RelayoutWithSize(Size::Infinate(), true);
-  popup_.GetWindowHost()->GetNativeWindow()->SetVisibility(
-      platform::gui::WindowVisibilityType::Show);
+  auto native_window = popup_.GetWindowHost()->GetNativeWindow();
+  native_window->SetVisibility(platform::gui::WindowVisibilityType::Show);
+  native_window->RequestFocus();
+  native_window->SetToForeground();
 }
 
 void PopupMenu::Close() { popup_.GetWindowHost()->GetNativeWindow()->Close(); }

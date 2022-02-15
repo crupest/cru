@@ -7,7 +7,7 @@ namespace cru::ui::components {
 PopupMenuTextButton::PopupMenuTextButton() : popup_menu_(&button_) {
   button_.SetChild(&button_text_);
   button_.ClickEvent()->AddHandler([this](const helper::ClickEventArgs& args) {
-    popup_menu_.SetPosition(args.GetDownPoint());
+    popup_menu_.SetPosition(args.GetDownPointOfScreen());
     popup_menu_.Show();
   });
 }

@@ -4,6 +4,7 @@
 #include "cru/platform/gui/Window.h"
 #include "cru/ui/Base.h"
 #include "cru/ui/components/Menu.h"
+#include "cru/ui/components/PopupButton.h"
 #include "cru/ui/controls/Button.h"
 #include "cru/ui/controls/FlexLayout.h"
 #include "cru/ui/controls/TextBlock.h"
@@ -14,6 +15,7 @@
 
 using cru::platform::gui::IUiApplication;
 using namespace cru::ui::controls;
+using namespace cru::ui::components;
 
 int main() {
   std::unique_ptr<IUiApplication> application(
@@ -54,20 +56,10 @@ int main() {
   text_box.SetMultiLine(true);
   flex_layout.AddChild(&text_box);
 
-  auto popup_menu = std::make_unique<cru::ui::components::PopupMenu>(&window);
-  popup_menu->GetMenu()->AddTextItem(u"Item 1", [] {});
-  popup_menu->GetMenu()->AddTextItem(u"Item 2000", [] {});
-
-  window.MouseDownEvent()->Bubble()->AddHandler(
-      [&window, &popup_menu](cru::ui::events::MouseButtonEventArgs& e) {
-        if (e.GetButton() == cru::ui::mouse_buttons::right) {
-          popup_menu->SetPosition(e.GetPoint() + window.GetWindowHost()
-                                                     ->GetNativeWindow()
-                                                     ->GetClientRect()
-                                                     .GetLeftTop());
-          popup_menu->Show();
-        }
-      });
+  PopupMenuTextButton popup_menu_text_button;
+  popup_menu_text_button.SetButtonText(u"Popup Menu Button");
+  popup_menu_text_button.SetMenuItems({u"Item 1", u"Item 2", u"Item 3"});
+  flex_layout.AddChild(popup_menu_text_button.GetRootControl());
 
   window.GetWindowHost()->GetNativeWindow()->SetVisibility(
       cru::platform::gui::WindowVisibilityType::Show);

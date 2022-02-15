@@ -168,13 +168,13 @@ Point OsxWindowPrivate::TransformMousePoint(const Point& point) {
 void OsxWindowPrivate::CreateWindow() {
   Expects(!window_);
 
-  NSRect content_rect = Convert(content_rect_);
   NSWindowStyleMask style_mask = CalcWindowStyleMask(style_flag_);
-
-  auto cr = content_rect;
-  cr.origin.y = GetScreenSize().height - content_rect.origin.y - content_rect.size.height;
-  window_ = [[CruWindow alloc] init:this contentRect:cr style:style_mask];
+  window_ = [[CruWindow alloc] init:this
+                        contentRect:{0, 0, content_rect_.width, content_rect_.height}
+                              style:style_mask];
   Ensures(window_);
+
+  osx_window_->SetClientRect(content_rect_);
 
   [window_ setDelegate:window_delegate_];
 
@@ -193,7 +193,7 @@ void OsxWindowPrivate::CreateWindow() {
   [window_ setTitle:(NSString*)title_str];
   CFRelease(title_str);
 
-  draw_layer_ = CreateLayer(content_rect.size);
+  draw_layer_ = CreateLayer(Convert(content_rect_.GetSize()));
 
   create_event_.Raise(nullptr);
 
@@ -436,6 +436,10 @@ cru::platform::gui::KeyModifier GetKeyModifier(NSEvent* event) {
   [self setAcceptsMouseMovedEvents:YES];
 
   return self;
+}
+
+- (BOOL)canBecomeMainWindow {
+  return YES;
 }
 
 - (BOOL)canBecomeKeyWindow {

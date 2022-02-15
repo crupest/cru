@@ -1,12 +1,13 @@
 #pragma once
 #include "Component.h"
+#include "cru/ui/Base.h"
 #include "cru/ui/components/Menu.h"
 #include "cru/ui/controls/Button.h"
 #include "cru/ui/controls/Popup.h"
 #include "cru/ui/controls/TextBlock.h"
 
 namespace cru::ui::components {
-class PopupMenuTextButton : public Component {
+class CRU_UI_API PopupMenuTextButton : public Component {
  public:
   PopupMenuTextButton();
   ~PopupMenuTextButton() override;

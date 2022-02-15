@@ -4,6 +4,8 @@
 #include "cru/common/Event.h"
 
 namespace cru::ui::helper {
+class ClickDetector;
+
 class CRU_UI_API ClickEventArgs : Object {
  public:
   ClickEventArgs(controls::Control* sender, const Point& down_point,
@@ -20,6 +22,7 @@ class CRU_UI_API ClickEventArgs : Object {
 
   controls::Control* GetSender() const { return sender_; }
   Point GetDownPoint() const { return down_point_; }
+  Point GetDownPointOfScreen() const;
   Point GetUpPoint() const { return up_point_; }
   MouseButton GetButton() const { return button_; }
 
