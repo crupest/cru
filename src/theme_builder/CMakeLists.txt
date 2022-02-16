@@ -16,6 +16,9 @@ add_executable(cru_theme_builder
 	components/properties/TextPropertyEditor.cpp
 	components/properties/ThicknessPropertyEditor.cpp
 	components/stylers/BorderStylerEditor.cpp
+	components/stylers/CompoundStylerEditor.cpp
+	components/stylers/CursorStylerEditor.cpp
+	components/stylers/StylerEditor.cpp
 )
 
 if(APPLE)

@@ -37,6 +37,8 @@ class CRU_UI_API CompoundStyler : public Styler {
     }
   }
 
+  std::vector<ClonablePtr<Styler>> GetChildren() const { return stylers_; }
+
   virtual CompoundStyler* Clone() const override {
     return new CompoundStyler(stylers_);
   }
@@ -83,6 +85,8 @@ class CRU_UI_API CursorStyler : public Styler {
   void Apply(controls::Control* control) const override;
 
   CursorStyler* Clone() const override { return new CursorStyler(cursor_); }
+
+  std::shared_ptr<platform::gui::ICursor> GetCursor() const { return cursor_; }
 
  private:
   std::shared_ptr<platform::gui::ICursor> cursor_;

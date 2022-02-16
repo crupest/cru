@@ -38,29 +38,36 @@ CompoundConditionEditor::CompoundConditionEditor() {
       u"Checked Condtion",
   });
   add_child_button_.MenuItemSelectedEvent()->AddHandler([this](Index index) {
-    std::unique_ptr<ConditionEditor> child;
+    std::unique_ptr<ConditionEditor> editor;
     switch (index) {
       case 0:
-        child = std::make_unique<AndConditionEditor>();
+        editor = std::make_unique<AndConditionEditor>();
         break;
       case 1:
-        child = std::make_unique<OrConditionEditor>();
+        editor = std::make_unique<OrConditionEditor>();
         break;
       case 2:
-        child = std::make_unique<ClickStateConditionEditor>();
+        editor = std::make_unique<ClickStateConditionEditor>();
         break;
       case 3:
-        child = std::make_unique<FocusConditionEditor>();
+        editor = std::make_unique<FocusConditionEditor>();
         break;
       case 4:
-        child = std::make_unique<CheckedConditionEditor>();
+        editor = std::make_unique<CheckedConditionEditor>();
         break;
       default:
         break;
     }
-    if (child) {
-      auto c = std::make_unique<CompoundConditionEditorChild>(std::move(child));
-      children_.push_back(std::move(c));
+    if (editor) {
+      auto child =
+          std::make_unique<CompoundConditionEditorChild>(std::move(editor));
+      child->RemoveEvent()->AddSpyOnlyHandler([this, c = child.get()] {
+        auto index = this->children_container_.IndexOf(c->GetRootControl());
+        this->children_.erase(this->children_.begin() + index);
+        this->children_container_.RemoveChildAt(index);
+        change_event_.Raise(nullptr);
+      });
+      children_.push_back(std::move(child));
       children_container_.AddChild(children_.back()->GetRootControl());
       change_event_.Raise(nullptr);
     }

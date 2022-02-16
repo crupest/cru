@@ -3,28 +3,27 @@
 #include "../properties/CornerRadiusPropertyEditor.h"
 #include "../properties/OptionalPropertyEditor.h"
 #include "../properties/ThicknessPropertyEditor.h"
+#include "StylerEditor.h"
 #include "cru/common/ClonablePtr.h"
-#include "cru/common/Event.h"
-#include "cru/ui/components/Component.h"
-#include "cru/ui/controls/CheckBox.h"
-#include "cru/ui/controls/FlexLayout.h"
-#include "cru/ui/style/Styler.h"
 
 namespace cru::theme_builder::components::stylers {
-class BorderStylerEditor : public ui::components::Component {
+class BorderStylerEditor : public StylerEditor {
  public:
   BorderStylerEditor();
   ~BorderStylerEditor() override;
 
-  ui::controls::Control* GetRootControl() override { return nullptr; }
-
   ClonablePtr<ui::style::BorderStyler> GetValue();
-  void SetValue(const ClonablePtr<ui::style::BorderStyler>& styler);
+  void SetValue(ui::style::BorderStyler* styler, bool trigger_change = true);
+  void SetValue(const ClonablePtr<ui::style::BorderStyler>& styler,
+                bool trigger_change = true) {
+    SetValue(styler.get(), trigger_change);
+  }
+
+  ClonablePtr<ui::style::Styler> GetStyler() override { return GetValue(); }
 
   IEvent<std::nullptr_t>* ChangeEvent() { return &change_event_; }
 
  private:
-  ui::controls::FlexLayout container_;
   properties::OptionalPropertyEditor<properties::CornerRadiusPropertyEditor>
       corner_radius_editor_;
   properties::OptionalPropertyEditor<properties::ThicknessPropertyEditor>

@@ -8,11 +8,11 @@
 
 namespace cru::theme_builder::components::stylers {
 BorderStylerEditor::BorderStylerEditor() {
-  container_.AddChild(corner_radius_editor_.GetRootControl());
-  container_.AddChild(thickness_editor_.GetRootControl());
-  container_.AddChild(brush_editor_.GetRootControl());
-  container_.AddChild(foreground_brush_editor_.GetRootControl());
-  container_.AddChild(background_brush_editor_.GetRootControl());
+  GetContainer()->AddChild(corner_radius_editor_.GetRootControl());
+  GetContainer()->AddChild(thickness_editor_.GetRootControl());
+  GetContainer()->AddChild(brush_editor_.GetRootControl());
+  GetContainer()->AddChild(foreground_brush_editor_.GetRootControl());
+  GetContainer()->AddChild(background_brush_editor_.GetRootControl());
 
   auto connect = [this](IEvent<std::nullptr_t>* event) {
     event->AddHandler(
@@ -26,7 +26,7 @@ BorderStylerEditor::BorderStylerEditor() {
   connect(background_brush_editor_.ChangeEvent());
 }
 
-BorderStylerEditor::~BorderStylerEditor() { container_.RemoveFromParent(); }
+BorderStylerEditor::~BorderStylerEditor() {}
 
 ClonablePtr<ui::style::BorderStyler> BorderStylerEditor::GetValue() {
   auto graphics_factory =
@@ -54,8 +54,8 @@ ClonablePtr<ui::style::BorderStyler> BorderStylerEditor::GetValue() {
   return ui::style::BorderStyler::Create(border_style);
 }
 
-void BorderStylerEditor::SetValue(
-    const ClonablePtr<ui::style::BorderStyler>& styler) {
+void BorderStylerEditor::SetValue(ui::style::BorderStyler* styler,
+                                  bool trigger_change) {
   Expects(styler);
 
   auto border_style = styler->GetBorderStyle();
@@ -89,6 +89,10 @@ void BorderStylerEditor::SetValue(
             border_style.background_brush.value())
             ->GetColor(),
         false);
+  }
+
+  if (trigger_change) {
+    change_event_.Raise(nullptr);
   }
 }
 
