@@ -28,7 +28,7 @@ std::unique_ptr<StylerEditor> CreateStylerEditor(ui::style::Styler* styler) {
     editor->SetValue(cursor_styler);
     return editor;
   } else {
-    return nullptr;
+    throw Exception(u"Unknown styler type");
   }
 }
 }  // namespace cru::theme_builder::components::stylers

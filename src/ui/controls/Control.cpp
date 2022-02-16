@@ -27,7 +27,7 @@ Control::Control() {
   });
 }
 
-Control::~Control() {}
+Control::~Control() { ReleaseMouse(); }
 
 host::WindowHost* Control::GetWindowHost() const {
   auto parent = GetParent();

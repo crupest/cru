@@ -216,10 +216,13 @@ Size TextRenderObject::OnMeasureContent(const MeasureRequirement& requirement,
 
   result.width = std::max(result.width, preferred_size.width.GetLengthOr0());
   result.width = std::max(result.width, requirement.min.width.GetLengthOr0());
+  result.width = std::min(result.width, requirement.max.width.GetLengthOrMax());
 
   result.height = std::max(result.height, preferred_size.height.GetLengthOr0());
   result.height =
       std::max(result.height, requirement.min.height.GetLengthOr0());
+  result.height =
+      std::min(result.height, requirement.max.height.GetLengthOrMax());
 
   return result;
 }

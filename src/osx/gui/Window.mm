@@ -373,9 +373,7 @@ bool OsxWindow::ReleaseMouse() { return true; }
 
 void OsxWindow::SetCursor(std::shared_ptr<ICursor> cursor) {
   p_->cursor_ = CheckPlatform<OsxCursor>(cursor, GetPlatformId());
-  if (p_->mouse_in_) {
-    p_->UpdateCursor();
-  }
+  p_->UpdateCursor();
 }
 
 void OsxWindow::SetToForeground() {

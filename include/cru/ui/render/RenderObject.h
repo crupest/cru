@@ -50,7 +50,7 @@ class CRU_UI_API RenderObject : public Object {
   void SetAttachedControl(controls::Control* new_control);
 
   RenderObject* GetParent() const { return parent_; }
-  void SetParent(RenderObject* new_parent) { parent_ = new_parent; }
+  void SetParent(RenderObject* new_parent);
 
   // Offset from parent's lefttop to lefttop of this render object. Margin is
   // accounted for.

@@ -6,6 +6,9 @@
 namespace cru::theme_builder {
 using namespace cru::ui::controls;
 StyleRuleSetEditor::StyleRuleSetEditor() {
+  scroll_view_.SetChild(&container_);
+
+  rules_layout_.SetFlexDirection(ui::controls::FlexDirection::Vertical);
   container_.AddChild(&rules_layout_);
   container_.AddChild(&add_button_);
 
@@ -13,7 +16,7 @@ StyleRuleSetEditor::StyleRuleSetEditor() {
   add_button_text_.SetText(u"+");
 
   add_button_.ClickEvent()->AddSpyOnlyHandler([this] {
-    auto rule_set = ui::style::StyleRule(ui::style::AndCondition::Create({}),
+    auto rule_set = ui::style::StyleRule(ui::style::NoCondition::Create(),
                                          ui::style::CompoundStyler::Create({}));
     style_rule_set_->AddStyleRule(rule_set);
     style_rule_editors_.push_back(std::make_unique<StyleRuleEditor>());
@@ -22,7 +25,7 @@ StyleRuleSetEditor::StyleRuleSetEditor() {
   });
 }
 
-StyleRuleSetEditor::~StyleRuleSetEditor() { rules_layout_.RemoveFromParent(); }
+StyleRuleSetEditor::~StyleRuleSetEditor() { scroll_view_.RemoveFromParent(); }
 
 void StyleRuleSetEditor::BindStyleRuleSet(
     std::shared_ptr<ui::style::StyleRuleSet> rule_set) {

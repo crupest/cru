@@ -2,8 +2,8 @@
 #include "Exception.h"
 #include "Resource.h"
 
-#include "cru/common/String.h"
 #include "cru/common/Format.h"
+#include "cru/common/String.h"
 
 #include <memory>
 #include <type_traits>
@@ -12,7 +12,7 @@ namespace cru::platform {
 template <typename TTarget>
 TTarget* CheckPlatform(IPlatformResource* resource,
                        const String& target_platform) {
-  Expects(resource);
+  if (resource == nullptr) return nullptr;
   const auto result = dynamic_cast<TTarget*>(resource);
   if (result == nullptr) {
     throw UnsupportPlatformException(Format(
@@ -26,9 +26,9 @@ TTarget* CheckPlatform(IPlatformResource* resource,
 template <typename TTarget, typename TSource>
 std::shared_ptr<TTarget> CheckPlatform(const std::shared_ptr<TSource>& resource,
                                        const String& target_platform) {
+  if (resource == nullptr) return nullptr;
   static_assert(std::is_base_of_v<IPlatformResource, TSource>,
                 "TSource must be a subclass of INativeResource.");
-  Expects(resource);
   const auto result = std::dynamic_pointer_cast<TTarget>(resource);
   if (result == nullptr) {
     throw UnsupportPlatformException(Format(

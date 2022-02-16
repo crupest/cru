@@ -14,7 +14,7 @@ CompoundStylerEditorChild::CompoundStylerEditorChild(
   remove_button_.SetChild(&remove_button_text_);
   remove_button_text_.SetText(u"-");
 
-  container_.AddChild(editor->GetRootControl());
+  container_.AddChild(styler_editor_->GetRootControl());
 
   remove_button_.ClickEvent()->AddSpyOnlyHandler(
       [this] { this->remove_event_.Raise(nullptr); });

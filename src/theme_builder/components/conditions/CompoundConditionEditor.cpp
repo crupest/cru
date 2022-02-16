@@ -3,6 +3,7 @@
 #include "ClickStateConditionEditor.h"
 #include "ConditionEditor.h"
 #include "FocusConditionEditor.h"
+#include "NoConditionEditor.h"
 #include "cru/common/ClonablePtr.h"
 #include "cru/ui/style/Condition.h"
 
@@ -32,13 +33,9 @@ CompoundConditionEditor::CompoundConditionEditor() {
   GetContainer()->AddChild(&children_container_);
   GetContainer()->AddChild(add_child_button_.GetRootControl());
   add_child_button_.SetButtonText(u"+");
-  add_child_button_.SetMenuItems({
-      u"And Condtion",
-      u"Or Condtion",
-      u"Click State Condtion",
-      u"Focus Condtion",
-      u"Checked Condtion",
-  });
+  add_child_button_.SetMenuItems({u"And Condition", u"Or Condition",
+                                  u"Click State Condition", u"Focus Condition",
+                                  u"Checked Condition", u"No Condition"});
   add_child_button_.MenuItemSelectedEvent()->AddHandler([this](Index index) {
     std::unique_ptr<ConditionEditor> editor;
     switch (index) {
@@ -56,6 +53,9 @@ CompoundConditionEditor::CompoundConditionEditor() {
         break;
       case 4:
         editor = std::make_unique<CheckedConditionEditor>();
+        break;
+      case 5:
+        editor = std::make_unique<NoConditionEditor>();
         break;
       default:
         break;

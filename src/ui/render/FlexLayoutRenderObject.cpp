@@ -181,6 +181,10 @@ Size FlexLayoutMeasureContentImpl(
         total_shrink_factor += layout_data[i].shrink_factor;
       }
 
+      if (total_shrink_factor == 0.0f) {
+        break;
+      }
+
       for (Index i : shrink_list) {
         const auto child = children[i];
         const float shrink_length = layout_data[i].shrink_factor /
@@ -208,7 +212,7 @@ Size FlexLayoutMeasureContentImpl(
 
         const Size new_size = child->GetDesiredSize();
         const float new_main_length = GetMain(new_size, direction_tag);
-        if (new_main_length > new_measure_length) {
+        if (new_main_length >= new_measure_length) {
           to_remove.push_back(i);
         }
       }
@@ -269,7 +273,7 @@ Size FlexLayoutMeasureContentImpl(
 
         const Size new_size = child->GetDesiredSize();
         const float new_main_length = GetMain(new_size, direction_tag);
-        if (new_main_length < new_measure_length) {
+        if (new_main_length <= new_measure_length) {
           to_remove.push_back(i);
         }
       }
@@ -309,6 +313,8 @@ Size FlexLayoutMeasureContentImpl(
       std::max(preferred_cross_length.GetLengthOr0(), child_max_cross_length);
   child_max_cross_length =
       std::max(min_cross_length.GetLengthOr0(), child_max_cross_length);
+  child_max_cross_length =
+      std::min(max_cross_length.GetLengthOrMax(), child_max_cross_length);
 
   for (Index i = 0; i < child_count; i++) {
     auto child_layout_data = layout_data[i];

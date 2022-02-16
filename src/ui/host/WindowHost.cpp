@@ -53,6 +53,8 @@ bool IsAncestor(controls::Control* control, controls::Control* ancestor) {
 
 // Ancestor at last.
 std::vector<controls::Control*> GetAncestorList(controls::Control* control) {
+  if (control == nullptr) return {};
+
   std::vector<controls::Control*> l;
   while (control != nullptr) {
     l.push_back(control);

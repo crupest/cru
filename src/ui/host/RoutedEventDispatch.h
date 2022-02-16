@@ -25,6 +25,8 @@ void DispatchEvent(
     controls::Control* const original_sender,
     events::RoutedEvent<EventArgs>* (controls::Control::*event_ptr)(),
     controls::Control* const last_receiver, Args&&... args) {
+  if (original_sender == nullptr) return;
+
   CRU_UNUSED(event_name)
 
   if (original_sender == last_receiver) {
@@ -41,7 +43,9 @@ void DispatchEvent(
   auto parent = original_sender;
   while (parent != last_receiver) {
     receive_list.push_back(parent);
-    parent = parent->GetParent();
+    auto p = parent->GetParent();
+    assert(!(p == nullptr && last_receiver != nullptr));
+    parent = p;
   }
 
   if constexpr (debug_flags::routed_event) {

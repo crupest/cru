@@ -23,6 +23,9 @@ MainWindow::MainWindow() {
   style_rule_set_editor_.BindStyleRuleSet(
       preview_button_.GetStyleRuleSet()->GetParent());
   main_layout_.AddChild(style_rule_set_editor_.GetRootControl());
+
+  main_layout_.SetChildLayoutData(0, {0, 0});
+  main_layout_.SetChildLayoutData(1, {1, 1});
 }
 
 MainWindow::~MainWindow() {}

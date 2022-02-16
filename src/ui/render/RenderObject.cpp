@@ -6,6 +6,19 @@
 #include "cru/ui/host/WindowHost.h"
 
 namespace cru::ui::render {
+
+void RenderObject::SetParent(RenderObject* new_parent) {
+#ifdef CRU_DEBUG
+  // In case there is a cycle.
+  auto parent = new_parent;
+  while (parent) {
+    assert(parent != this);
+    parent = parent->GetParent();
+  }
+#endif
+  parent_ = new_parent;
+}
+
 void RenderObject::SetAttachedControl(controls::Control* new_control) {
   auto old_control = control_;
   control_ = new_control;

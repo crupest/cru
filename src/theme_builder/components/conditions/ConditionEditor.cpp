@@ -3,6 +3,8 @@
 #include "ClickStateConditionEditor.h"
 #include "CompoundConditionEditor.h"
 #include "FocusConditionEditor.h"
+#include "NoConditionEditor.h"
+#include "cru/common/Exception.h"
 #include "cru/ui/controls/FlexLayout.h"
 
 namespace cru::theme_builder::components::conditions {
@@ -24,6 +26,10 @@ std::unique_ptr<ConditionEditor> CreateConditionEditor(
     auto result = std::make_unique<OrConditionEditor>();
     result->SetValue(or_condition);
     return result;
+  } else if (auto no_condition =
+                 dynamic_cast<ui::style::NoCondition*>(condition)) {
+    auto result = std::make_unique<NoConditionEditor>();
+    return result;
   } else if (auto click_state_condition =
                  dynamic_cast<ui::style::ClickStateCondition*>(condition)) {
     auto result = std::make_unique<ClickStateConditionEditor>();
@@ -40,7 +46,7 @@ std::unique_ptr<ConditionEditor> CreateConditionEditor(
     result->SetValue(checked_condition);
     return result;
   } else {
-    return nullptr;
+    throw Exception(u"Unknown condition type");
   }
 }
 }  // namespace cru::theme_builder::components::conditions
