@@ -127,6 +127,8 @@ class CRU_UI_API ClickStateCondition : public Condition {
     return new ClickStateCondition(click_state_);
   }
 
+  helper::ClickState GetClickState() const { return click_state_; }
+
  private:
   helper::ClickState click_state_;
 };

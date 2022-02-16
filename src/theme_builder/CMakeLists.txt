@@ -3,10 +3,12 @@ add_executable(cru_theme_builder
 	components/MainWindow.cpp
 	components/StyleRuleEditor.cpp
 	components/StyleRuleSetEditor.cpp
+	components/conditions/ClickStateConditionEditor.cpp
 	components/conditions/ConditionEditor.cpp
 	components/properties/ColorPropertyEditor.cpp
 	components/properties/CornerRadiusPropertyEditor.cpp
 	components/properties/PointPropertyEditor.cpp
+	components/properties/SelectPropertyEditor.cpp
 	components/properties/TextPropertyEditor.cpp
 	components/properties/ThicknessPropertyEditor.cpp
 	components/stylers/BorderStylerEditor.cpp

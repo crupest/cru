@@ -13,10 +13,10 @@ class CRU_UI_API Select : public Component {
  public:
   ui::controls::Control* GetRootControl() override { return &button_; }
 
-  std::vector<String> GetItems() { return items_; }
+  std::vector<String> GetItems() const { return items_; }
   void SetItems(std::vector<String> items);
 
-  Index GetSelectedIndex() { return selected_index_; }
+  Index GetSelectedIndex() const { return selected_index_; }
   void SetSelectedIndex(Index index);
 
   IEvent<Index>* ItemSelectedEvent() { return &item_selected_event_; }
