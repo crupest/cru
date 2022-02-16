@@ -60,9 +60,8 @@ ClickStateConditionEditor::GetValue() const {
       ConvertIndexToClickState(click_state_select_.GetSelectedIndex()));
 }
 
-void ClickStateConditionEditor::SetValue(
-    const ClonablePtr<ui::style::ClickStateCondition>& value,
-    bool trigger_change) {
+void ClickStateConditionEditor::SetValue(ui::style::ClickStateCondition* value,
+                                         bool trigger_change) {
   click_state_select_.SetSelectedIndex(
       ConvertClickStateToIndex(value->GetClickState()), trigger_change);
 }

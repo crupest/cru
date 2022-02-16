@@ -3,6 +3,7 @@
 #include "cru/common/ClonablePtr.h"
 #include "cru/common/Event.h"
 #include "cru/ui/components/Component.h"
+#include "cru/ui/components/PopupButton.h"
 #include "cru/ui/controls/Button.h"
 #include "cru/ui/controls/FlexLayout.h"
 #include "cru/ui/controls/TextBlock.h"
@@ -38,18 +39,60 @@ class CompoundConditionEditor : public ConditionEditor {
 
  protected:
   std::vector<ClonablePtr<ui::style::Condition>> GetChildren();
-  void SetChildren(std::vector<ClonablePtr<ui::style::Condition>> children);
+  void SetChildren(std::vector<ClonablePtr<ui::style::Condition>> children,
+                   bool trigger_change = true);
 
-  IEvent<std::nullptr_t>* ChildrenChangeEvent() {
-    return &children_change_event_;
-  }
+  IEvent<std::nullptr_t>* ChangeEvent() { return &change_event_; }
 
  private:
   ui::controls::FlexLayout children_container_;
-  ui::controls::Button add_child_button_;
-  ui::controls::TextBlock add_child_button_text_;
+  ui::components::PopupMenuTextButton add_child_button_;
   std::vector<std::unique_ptr<CompoundConditionEditorChild>> children_;
 
-  Event<std::nullptr_t> children_change_event_;
+  Event<std::nullptr_t> change_event_;
+};
+
+class AndConditionEditor : public CompoundConditionEditor {
+ public:
+  AndConditionEditor() = default;
+  ~AndConditionEditor() override = default;
+
+ public:
+  ClonablePtr<ui::style::AndCondition> GetValue() {
+    return ui::style::AndCondition::Create(GetChildren());
+  }
+  void SetValue(ui::style::AndCondition* value, bool trigger_change = true) {
+    SetChildren(value->GetChildren(), trigger_change);
+  }
+  void SetValue(const ClonablePtr<ui::style::AndCondition>& value,
+                bool trigger_change = true) {
+    SetValue(value.get(), trigger_change);
+  }
+
+  ClonablePtr<ui::style::Condition> GetCondition() override {
+    return GetValue();
+  }
+};
+
+class OrConditionEditor : public CompoundConditionEditor {
+ public:
+  OrConditionEditor() = default;
+  ~OrConditionEditor() override = default;
+
+ public:
+  ClonablePtr<ui::style::OrCondition> GetValue() {
+    return ui::style::OrCondition::Create(GetChildren());
+  }
+  void SetValue(ui::style::OrCondition* value, bool trigger_change = true) {
+    SetChildren(value->GetChildren(), trigger_change);
+  }
+  void SetValue(const ClonablePtr<ui::style::OrCondition>& value,
+                bool trigger_change = true) {
+    SetValue(value.get(), trigger_change);
+  }
+
+  ClonablePtr<ui::style::Condition> GetCondition() override {
+    return GetValue();
+  }
 };
 }  // namespace cru::theme_builder::components::conditions

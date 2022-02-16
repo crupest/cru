@@ -42,6 +42,10 @@ class CRU_UI_API CompoundCondition : public Condition {
 
   std::vector<IBaseEvent*> ChangeOn(controls::Control* control) const override;
 
+  std::vector<ClonablePtr<Condition>> GetChildren() const {
+    return conditions_;
+  }
+
  protected:
   std::vector<ClonablePtr<Condition>> conditions_;
 };

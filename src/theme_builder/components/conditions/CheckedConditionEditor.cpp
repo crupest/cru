@@ -17,9 +17,8 @@ ClonablePtr<ui::style::CheckedCondition> CheckedConditionEditor::GetValue()
   return ui::style::CheckedCondition::Create(checked_check_box_.GetValue());
 }
 
-void CheckedConditionEditor::SetValue(
-    const ClonablePtr<ui::style::CheckedCondition> &value,
-    bool trigger_change) {
+void CheckedConditionEditor::SetValue(ui::style::CheckedCondition* value,
+                                      bool trigger_change) {
   checked_check_box_.SetValue(value->IsChecked(), trigger_change);
 }
 }  // namespace cru::theme_builder::components::conditions

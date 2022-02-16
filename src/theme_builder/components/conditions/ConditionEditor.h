@@ -25,4 +25,7 @@ class ConditionEditor : public ui::components::Component {
   ui::controls::FlexLayout container_;
   ui::controls::TextBlock label_;
 };
+
+std::unique_ptr<ConditionEditor> CreateConditionEditor(
+    ui::style::Condition* condition);
 }  // namespace cru::theme_builder::components::conditions

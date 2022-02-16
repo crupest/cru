@@ -12,8 +12,11 @@ class CheckedConditionEditor : public ConditionEditor {
 
  public:
   ClonablePtr<ui::style::CheckedCondition> GetValue() const;
+  void SetValue(ui::style::CheckedCondition* value, bool trigger_change = true);
   void SetValue(const ClonablePtr<ui::style::CheckedCondition>& value,
-                bool trigger_change = true);
+                bool trigger_change = true) {
+    SetValue(value.get(), trigger_change);
+  }
 
   ClonablePtr<ui::style::Condition> GetCondition() override {
     return GetValue();

@@ -13,8 +13,12 @@ class ClickStateConditionEditor : public ConditionEditor {
 
  public:
   ClonablePtr<ui::style::ClickStateCondition> GetValue() const;
-  void SetValue(const ClonablePtr<ui::style::ClickStateCondition>& value,
+  void SetValue(ui::style::ClickStateCondition* value,
                 bool trigger_change = true);
+  void SetValue(const ClonablePtr<ui::style::ClickStateCondition>& value,
+                bool trigger_change = true) {
+    SetValue(value.get(), trigger_change);
+  }
 
   ClonablePtr<ui::style::Condition> GetCondition() override {
     return GetValue();
