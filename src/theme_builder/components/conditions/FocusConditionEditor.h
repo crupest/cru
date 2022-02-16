@@ -1,19 +1,18 @@
 #pragma once
-#include "../properties/SelectPropertyEditor.h"
+#include "../properties/CheckBoxPropertyEditor.h"
 #include "ConditionEditor.h"
 #include "cru/common/ClonablePtr.h"
-#include "cru/common/Event.h"
 #include "cru/ui/style/Condition.h"
 
 namespace cru::theme_builder::components::conditions {
-class ClickStateConditionEditor : public ConditionEditor {
+class FocusConditionEditor : public ConditionEditor {
  public:
-  ClickStateConditionEditor();
-  ~ClickStateConditionEditor();
+  FocusConditionEditor();
+  ~FocusConditionEditor() override;
 
  public:
-  ClonablePtr<ui::style::ClickStateCondition> GetValue() const;
-  void SetValue(const ClonablePtr<ui::style::ClickStateCondition>& value,
+  ClonablePtr<ui::style::FocusCondition> GetValue() const;
+  void SetValue(const ClonablePtr<ui::style::FocusCondition>& value,
                 bool trigger_change = true);
 
   ClonablePtr<ui::style::Condition> GetCondition() override {
@@ -23,7 +22,7 @@ class ClickStateConditionEditor : public ConditionEditor {
   IEvent<std::nullptr_t>* ChangeEvent() { return &change_event_; }
 
  private:
-  properties::SelectPropertyEditor click_state_select_;
+  properties::CheckBoxPropertyEditor focus_check_box_;
 
   Event<std::nullptr_t> change_event_;
 };

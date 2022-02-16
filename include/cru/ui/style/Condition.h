@@ -89,6 +89,8 @@ class CRU_UI_API FocusCondition : public Condition {
     return new FocusCondition(has_focus_);
   }
 
+  bool IsHasFocus() const { return has_focus_; }
+
  private:
   bool has_focus_;
 };

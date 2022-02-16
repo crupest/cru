@@ -5,6 +5,8 @@ add_executable(cru_theme_builder
 	components/StyleRuleSetEditor.cpp
 	components/conditions/ClickStateConditionEditor.cpp
 	components/conditions/ConditionEditor.cpp
+	components/conditions/FocusConditionEditor.cpp
+	components/properties/CheckBoxPropertyEditor.cpp
 	components/properties/ColorPropertyEditor.cpp
 	components/properties/CornerRadiusPropertyEditor.cpp
 	components/properties/PointPropertyEditor.cpp

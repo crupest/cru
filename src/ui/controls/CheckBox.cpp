@@ -15,7 +15,6 @@ CheckBox::CheckBox()
 CheckBox::~CheckBox() {}
 
 void CheckBox::SetChecked(bool checked) {
-  if (checked == checked_) return;
   checked_ = checked;
   checked_change_event_.Raise(checked);
 }
