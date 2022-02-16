@@ -150,6 +150,8 @@ class CRU_UI_API CheckedCondition : public Condition {
     return new CheckedCondition(checked_);
   }
 
+  bool IsChecked() const { return checked_; }
+
  private:
   bool checked_;
 };

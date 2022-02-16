@@ -3,6 +3,7 @@ add_executable(cru_theme_builder
 	components/MainWindow.cpp
 	components/StyleRuleEditor.cpp
 	components/StyleRuleSetEditor.cpp
+	components/conditions/CheckedConditionEditor.cpp
 	components/conditions/ClickStateConditionEditor.cpp
 	components/conditions/ConditionEditor.cpp
 	components/conditions/FocusConditionEditor.cpp
