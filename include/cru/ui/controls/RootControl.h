@@ -18,10 +18,6 @@ class CRU_UI_API RootControl
   ~RootControl() override;
 
  public:
-  host::WindowHost* GetWindowHost() const override {
-    return window_host_.get();
-  }
-
   platform::gui::INativeWindow* GetNativeWindow();
 
  protected:

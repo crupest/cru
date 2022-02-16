@@ -27,21 +27,13 @@ Control::Control() {
   });
 }
 
-Control::~Control() { ReleaseMouse(); }
-
-host::WindowHost* Control::GetWindowHost() const {
-  auto parent = GetParent();
-  if (parent) {
-    return parent->GetWindowHost();
-  }
-  return nullptr;
-}
+Control::~Control() { RemoveFromParent(); }
 
 void Control::SetParent(Control* parent) {
   if (parent_ == parent) return;
   auto old_parent = parent_;
   parent_ = parent;
-  OnParentChanged(old_parent, parent);
+  OnParentChangedCore(old_parent, parent);
 }
 
 void Control::RemoveFromParent() {
@@ -108,5 +100,35 @@ void Control::SetCursor(std::shared_ptr<ICursor> cursor) {
 
 std::shared_ptr<style::StyleRuleSet> Control::GetStyleRuleSet() {
   return style_rule_set_;
+}
+
+void Control::OnParentChangedCore(Control* old_parent, Control* new_parent) {
+  auto new_window_host =
+      new_parent == nullptr ? nullptr : new_parent->GetWindowHost();
+  if (window_host_ != new_window_host) {
+    auto old_host = window_host_;
+    window_host_ = new_window_host;
+    OnWindowHostChangedCore(old_host, new_window_host);
+  }
+
+  OnParentChanged(old_parent, new_parent);
+}
+
+void Control::OnWindowHostChangedCore(host::WindowHost* old_host,
+                                      host::WindowHost* new_host) {
+  if (old_host != nullptr) {
+    if (old_host->GetMouseCaptureControl() == this) {
+      old_host->CaptureMouseFor(nullptr);
+    }
+    if (old_host->GetMouseHoverControl() == this) {
+      old_host->mouse_hover_control_ = nullptr;
+    }
+  }
+
+  ForEachChild([old_host, new_host](Control* child) {
+    child->window_host_ = new_host;
+    child->OnWindowHostChangedCore(old_host, new_host);
+  });
+  OnWindowHostChanged(old_host, new_host);
 }
 }  // namespace cru::ui::controls

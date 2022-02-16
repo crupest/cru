@@ -2,7 +2,7 @@
 
 namespace cru::ui::render {
 void SingleChildRenderObject::SetChild(RenderObject *new_child) {
-  assert(new_child->GetParent() == nullptr);
+  assert(new_child == nullptr || new_child->GetParent() == nullptr);
   if (child_ == new_child) return;
   auto old_child = child_;
   if (child_) {

@@ -17,6 +17,8 @@ namespace cru::ui::controls {
  * former one is even not used.
  */
 class CRU_UI_API Control : public Object {
+  friend class RootControl;
+
  protected:
   Control();
 
@@ -32,7 +34,7 @@ class CRU_UI_API Control : public Object {
 
   //*************** region: tree ***************
  public:
-  virtual host::WindowHost* GetWindowHost() const;
+  host::WindowHost* GetWindowHost() const { return window_host_; }
 
   Control* GetParent() const { return parent_; }
   void SetParent(Control* parent);
@@ -143,11 +145,21 @@ class CRU_UI_API Control : public Object {
  protected:
   virtual void OnParentChanged(Control* old_parent, Control* new_parent) {}
 
+  virtual void OnWindowHostChanged(host::WindowHost* old_host,
+                                   host::WindowHost* new_host) {}
+
  protected:
   virtual void OnMouseHoverChange(bool newHover) { CRU_UNUSED(newHover) }
 
  private:
+  void OnParentChangedCore(Control* old_parent, Control* new_parent);
+  void OnWindowHostChangedCore(host::WindowHost* old_host,
+                               host::WindowHost* new_host);
+
+ private:
   Control* parent_ = nullptr;
+
+  host::WindowHost* window_host_ = nullptr;
 
  private:
   bool is_mouse_over_ = false;

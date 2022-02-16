@@ -31,7 +31,8 @@ class SingleChildControl : public Control {
       child->SetParent(this);
     }
 
-    container_render_object_->SetChild(child->GetRenderObject());
+    container_render_object_->SetChild(
+        child == nullptr ? nullptr : child->GetRenderObject());
   }
 
   render::RenderObject* GetRenderObject() const override {
