@@ -13,7 +13,7 @@ ConditionEditor::ConditionEditor() {
   container_.AddChild(&label_);
 }
 
-ConditionEditor::~ConditionEditor() { container_.RemoveFromParent(); }
+ConditionEditor::~ConditionEditor() {}
 
 std::unique_ptr<ConditionEditor> CreateConditionEditor(
     ui::style::Condition* condition) {

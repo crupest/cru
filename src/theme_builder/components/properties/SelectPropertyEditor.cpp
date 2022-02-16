@@ -16,6 +16,6 @@ SelectPropertyEditor::SelectPropertyEditor() {
   });
 }
 
-SelectPropertyEditor::~SelectPropertyEditor() { container_.RemoveFromParent(); }
+SelectPropertyEditor::~SelectPropertyEditor() {}
 
 }  // namespace cru::theme_builder::components::properties

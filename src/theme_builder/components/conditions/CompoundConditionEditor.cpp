@@ -23,9 +23,7 @@ CompoundConditionEditorChild::CompoundConditionEditorChild(
       [this] { this->remove_event_.Raise(nullptr); });
 }
 
-CompoundConditionEditorChild::~CompoundConditionEditorChild() {
-  container_.RemoveFromParent();
-}
+CompoundConditionEditorChild::~CompoundConditionEditorChild() {}
 
 CompoundConditionEditor::CompoundConditionEditor() {
   SetLabel(u"Compound Condition");

@@ -29,7 +29,7 @@ ColorPropertyEditor::ColorPropertyEditor() {
   });
 }
 
-ColorPropertyEditor::~ColorPropertyEditor() { container_.RemoveFromParent(); }
+ColorPropertyEditor::~ColorPropertyEditor() {}
 
 void ColorPropertyEditor::SetValue(const ui::Color &color,
                                    bool trigger_change) {

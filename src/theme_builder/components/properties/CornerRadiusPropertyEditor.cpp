@@ -34,9 +34,7 @@ CornerRadiusPropertyEditor::CornerRadiusPropertyEditor() {
   });
 }
 
-CornerRadiusPropertyEditor::~CornerRadiusPropertyEditor() {
-  container_.RemoveFromParent();
-}
+CornerRadiusPropertyEditor::~CornerRadiusPropertyEditor() {}
 
 void CornerRadiusPropertyEditor::SetValue(const ui::CornerRadius& corner_radius,
                                           bool trigger_change) {

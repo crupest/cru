@@ -13,7 +13,7 @@ Select::Select() {
   });
 }
 
-Select::~Select() { button_.RemoveFromParent(); }
+Select::~Select() {}
 
 void Select::SetItems(std::vector<String> items) {
   items_ = items;

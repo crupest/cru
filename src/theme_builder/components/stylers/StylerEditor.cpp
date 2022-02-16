@@ -10,7 +10,7 @@ StylerEditor::StylerEditor() {
   container_.AddChild(&label_);
 }
 
-StylerEditor::~StylerEditor() { container_.RemoveFromParent(); }
+StylerEditor::~StylerEditor() {}
 
 std::unique_ptr<StylerEditor> CreateStylerEditor(ui::style::Styler* styler) {
   if (auto compound_styler = dynamic_cast<ui::style::CompoundStyler*>(styler)) {

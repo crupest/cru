@@ -12,7 +12,7 @@ PopupMenuTextButton::PopupMenuTextButton() : popup_menu_(&button_) {
   });
 }
 
-PopupMenuTextButton::~PopupMenuTextButton() { button_.RemoveFromParent(); }
+PopupMenuTextButton::~PopupMenuTextButton() {}
 
 void PopupMenuTextButton::SetMenuItems(std::vector<String> items) {
   popup_menu_.GetMenu()->ClearItems();

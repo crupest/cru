@@ -21,7 +21,7 @@ class OptionalPropertyEditor : public ui::components::Component {
       }
     });
   }
-  ~OptionalPropertyEditor() override { container_.RemoveFromParent(); }
+  ~OptionalPropertyEditor() override {}
 
   ui::controls::Control* GetRootControl() override { return &container_; }
 

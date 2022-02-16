@@ -25,7 +25,7 @@ StyleRuleSetEditor::StyleRuleSetEditor() {
   });
 }
 
-StyleRuleSetEditor::~StyleRuleSetEditor() { scroll_view_.RemoveFromParent(); }
+StyleRuleSetEditor::~StyleRuleSetEditor() {}
 
 void StyleRuleSetEditor::BindStyleRuleSet(
     std::shared_ptr<ui::style::StyleRuleSet> rule_set) {

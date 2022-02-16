@@ -157,6 +157,8 @@ class CRU_UI_API Control : public Object {
                                host::WindowHost* new_host);
 
  private:
+  bool in_destruction_ = false;
+
   Control* parent_ = nullptr;
 
   host::WindowHost* window_host_ = nullptr;

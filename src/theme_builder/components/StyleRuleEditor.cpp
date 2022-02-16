@@ -17,7 +17,7 @@ StyleRuleEditor::StyleRuleEditor() {
       [this] { remove_event_.Raise(nullptr); });
 }
 
-StyleRuleEditor::~StyleRuleEditor() { main_layout_.RemoveFromParent(); }
+StyleRuleEditor::~StyleRuleEditor() {}
 
 ui::style::StyleRule StyleRuleEditor::GetValue() const {
   return ui::style::StyleRule(condition_editor_->GetCondition(),

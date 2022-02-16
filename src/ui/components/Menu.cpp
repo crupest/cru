@@ -23,7 +23,7 @@ MenuItem::MenuItem() {
 
 MenuItem::MenuItem(String text) : MenuItem() { SetText(std::move(text)); }
 
-MenuItem::~MenuItem() { container_.RemoveFromParent(); }
+MenuItem::~MenuItem() {}
 
 void MenuItem::SetText(String text) { text_.SetText(std::move(text)); }
 
@@ -33,8 +33,6 @@ Menu::~Menu() {
   for (auto item : items_) {
     delete item;
   }
-
-  container_.RemoveFromParent();
 }
 
 void Menu::AddItemAt(Component* item, gsl::index index) {

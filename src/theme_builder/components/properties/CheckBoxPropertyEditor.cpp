@@ -15,9 +15,7 @@ CheckBoxPropertyEditor::CheckBoxPropertyEditor() {
   });
 }
 
-CheckBoxPropertyEditor::~CheckBoxPropertyEditor() {
-  container_.RemoveFromParent();
-}
+CheckBoxPropertyEditor::~CheckBoxPropertyEditor() {}
 
 void CheckBoxPropertyEditor::SetValue(bool value, bool trigger_change) {
   if (!trigger_change) suppress_next_change_event_ = true;

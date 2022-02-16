@@ -12,7 +12,7 @@ TextPropertyEditor::TextPropertyEditor() {
   });
 }
 
-TextPropertyEditor::~TextPropertyEditor() { container_.RemoveFromParent(); }
+TextPropertyEditor::~TextPropertyEditor() {}
 
 bool TextPropertyEditor::Validate(StringView text, String* error_message) {
   return true;

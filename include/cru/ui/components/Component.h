@@ -4,9 +4,8 @@
 namespace cru::ui::components {
 /**
  * \brief A component is a composition of controls.
- * \remarks In destructor, component should remove root control from its parent
- * by calling Control::RemoveFromParent. It should respect children's
- * Component::IsDeleteByParent value and decide whether to delete it.
+ * \remarks Component should respect children's Component::IsDeleteByParent
+ * value and decide whether to delete it.
  */
 class CRU_UI_API Component : public Object {
  public:

@@ -27,7 +27,10 @@ Control::Control() {
   });
 }
 
-Control::~Control() { RemoveFromParent(); }
+Control::~Control() {
+  in_destruction_ = true;
+  RemoveFromParent();
+}
 
 void Control::SetParent(Control* parent) {
   if (parent_ == parent) return;
@@ -111,7 +114,7 @@ void Control::OnParentChangedCore(Control* old_parent, Control* new_parent) {
     OnWindowHostChangedCore(old_host, new_window_host);
   }
 
-  OnParentChanged(old_parent, new_parent);
+  if (!in_destruction_) OnParentChanged(old_parent, new_parent);
 }
 
 void Control::OnWindowHostChangedCore(host::WindowHost* old_host,
@@ -125,10 +128,12 @@ void Control::OnWindowHostChangedCore(host::WindowHost* old_host,
     }
   }
 
-  ForEachChild([old_host, new_host](Control* child) {
-    child->window_host_ = new_host;
-    child->OnWindowHostChangedCore(old_host, new_host);
-  });
-  OnWindowHostChanged(old_host, new_host);
+  if (!in_destruction_) {
+    ForEachChild([old_host, new_host](Control* child) {
+      child->window_host_ = new_host;
+      child->OnWindowHostChangedCore(old_host, new_host);
+    });
+    OnWindowHostChanged(old_host, new_host);
+  }
 }
 }  // namespace cru::ui::controls

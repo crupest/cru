@@ -20,9 +20,7 @@ CompoundStylerEditorChild::CompoundStylerEditorChild(
       [this] { this->remove_event_.Raise(nullptr); });
 }
 
-CompoundStylerEditorChild::~CompoundStylerEditorChild() {
-  container_.RemoveFromParent();
-}
+CompoundStylerEditorChild::~CompoundStylerEditorChild() {}
 
 CompoundStylerEditor::CompoundStylerEditor() {
   SetLabel(u"Compound Styler");
