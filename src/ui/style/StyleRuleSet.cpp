@@ -54,6 +54,12 @@ void StyleRuleSet::RemoveStyleRule(gsl::index index, gsl::index count) {
   RaiseChangeEvent();
 }
 
+void StyleRuleSet::SetStyleRule(Index index, StyleRule rule) {
+  Expects(index >= 0 && index < GetSize());
+  rules_[index] = std::move(rule);
+  RaiseChangeEvent();
+}
+
 void StyleRuleSet::Set(const StyleRuleSet& other, bool set_parent) {
   rules_ = other.rules_;
   if (set_parent) parent_ = other.parent_;

@@ -19,6 +19,10 @@ MainWindow::MainWindow() {
   preview_layout_.AddChild(&preview_button_);
   preview_layout_.SetChildLayoutData(
       0, StackChildLayoutData{Alignment::Center, Alignment::Center});
+
+  style_rule_set_editor_.BindStyleRuleSet(
+      preview_button_.GetStyleRuleSet()->GetParent());
+  main_layout_.AddChild(style_rule_set_editor_.GetRootControl());
 }
 
 MainWindow::~MainWindow() {}

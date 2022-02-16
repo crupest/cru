@@ -22,7 +22,7 @@ class CheckedConditionEditor : public ConditionEditor {
     return GetValue();
   }
 
-  IEvent<std::nullptr_t>* ChangeEvent() { return &change_event_; }
+  IEvent<std::nullptr_t>* ChangeEvent() override { return &change_event_; }
 
  private:
   properties::CheckBoxPropertyEditor checked_check_box_;

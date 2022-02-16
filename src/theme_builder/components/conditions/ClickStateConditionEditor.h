@@ -24,7 +24,7 @@ class ClickStateConditionEditor : public ConditionEditor {
     return GetValue();
   }
 
-  IEvent<std::nullptr_t>* ChangeEvent() { return &change_event_; }
+  IEvent<std::nullptr_t>* ChangeEvent() override { return &change_event_; }
 
  private:
   properties::SelectPropertyEditor click_state_select_;

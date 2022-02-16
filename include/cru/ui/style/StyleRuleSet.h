@@ -31,6 +31,9 @@ class CRU_UI_API StyleRuleSet : public Object {
 
   void RemoveStyleRule(gsl::index index, gsl::index count = 1);
 
+  const StyleRule& GetStyleRule(Index index) const { return rules_[index]; }
+  void SetStyleRule(Index index, StyleRule rule);
+
   void Clear() { RemoveStyleRule(0, GetSize()); }
 
   void Set(const StyleRuleSet& other, bool set_parent = false);

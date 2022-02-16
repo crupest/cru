@@ -1,4 +1,5 @@
 #pragma once
+#include "StyleRuleSetEditor.h"
 #include "cru/ui/components/Component.h"
 #include "cru/ui/controls/Button.h"
 #include "cru/ui/controls/FlexLayout.h"
@@ -26,5 +27,6 @@ class MainWindow : public ui::components::Component {
   ui::controls::StackLayout preview_layout_;
   ui::controls::Button preview_button_;
   ui::controls::TextBlock preview_button_text_;
+  StyleRuleSetEditor style_rule_set_editor_;
 };
 }  // namespace cru::theme_builder

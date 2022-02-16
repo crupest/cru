@@ -42,7 +42,7 @@ class CompoundStylerEditor : public StylerEditor {
 
   ClonablePtr<ui::style::Styler> GetStyler() override { return GetValue(); }
 
-  IEvent<std::nullptr_t>* ChangeEvent() { return &change_event_; }
+  IEvent<std::nullptr_t>* ChangeEvent() override { return &change_event_; }
 
  private:
   ui::controls::FlexLayout children_container_;

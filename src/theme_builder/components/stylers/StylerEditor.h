@@ -19,6 +19,7 @@ class StylerEditor : public ui::components::Component {
   void SetLabel(String label) { label_.SetText(std::move(label)); }
 
   virtual ClonablePtr<ui::style::Styler> GetStyler() = 0;
+  virtual IEvent<std::nullptr_t>* ChangeEvent() = 0;
 
  private:
   ui::controls::FlexLayout container_;

@@ -1,5 +1,7 @@
 #pragma once
+#include "StyleRuleEditor.h"
 #include "cru/ui/components/Component.h"
+#include "cru/ui/controls/Button.h"
 #include "cru/ui/controls/Control.h"
 #include "cru/ui/controls/FlexLayout.h"
 #include "cru/ui/style/StyleRuleSet.h"
@@ -15,16 +17,17 @@ class StyleRuleSetEditor : public ui::components::Component {
   ~StyleRuleSetEditor() override;
 
  public:
-  ui::controls::Control* GetRootControl() override { return &main_layout_; }
+  ui::controls::Control* GetRootControl() override { return &container_; }
 
   void BindStyleRuleSet(std::shared_ptr<ui::style::StyleRuleSet> rule_set);
 
  private:
-  void UpdateView();
-
- private:
-  ui::controls::FlexLayout main_layout_;
-
   std::shared_ptr<ui::style::StyleRuleSet> style_rule_set_;
+
+  ui::controls::FlexLayout container_;
+  ui::controls::FlexLayout rules_layout_;
+  std::vector<std::unique_ptr<StyleRuleEditor>> style_rule_editors_;
+  ui::controls::Button add_button_;
+  ui::controls::TextBlock add_button_text_;
 };
 }  // namespace cru::theme_builder
