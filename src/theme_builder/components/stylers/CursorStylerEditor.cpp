@@ -4,8 +4,10 @@
 
 namespace cru::theme_builder::components::stylers {
 CursorStylerEditor::CursorStylerEditor() {
+  SetLabel(u"Cursor Styler");
   GetContainer()->AddChild(cursor_select_.GetRootControl());
 
+  cursor_select_.SetLabel(u"Cursor");
   cursor_select_.SetItems({u"arrow", u"hand", u"ibeam"});
   cursor_select_.SetSelectedIndex(0);
 }

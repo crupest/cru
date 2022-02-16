@@ -27,6 +27,8 @@ CompoundConditionEditorChild::~CompoundConditionEditorChild() {
 }
 
 CompoundConditionEditor::CompoundConditionEditor() {
+  SetLabel(u"Compound Condition");
+
   GetContainer()->AddChild(&children_container_);
   GetContainer()->AddChild(add_child_button_.GetRootControl());
   add_child_button_.SetButtonText(u"+");

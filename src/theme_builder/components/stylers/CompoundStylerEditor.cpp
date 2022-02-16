@@ -25,6 +25,7 @@ CompoundStylerEditorChild::~CompoundStylerEditorChild() {
 }
 
 CompoundStylerEditor::CompoundStylerEditor() {
+  SetLabel(u"Compound Styler");
   children_container_.SetFlexDirection(ui::controls::FlexDirection::Vertical);
   GetContainer()->AddChild(&children_container_);
 

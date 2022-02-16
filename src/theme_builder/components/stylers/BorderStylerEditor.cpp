@@ -8,6 +8,7 @@
 
 namespace cru::theme_builder::components::stylers {
 BorderStylerEditor::BorderStylerEditor() {
+  SetLabel(u"Border Styler");
   GetContainer()->AddChild(corner_radius_editor_.GetRootControl());
   GetContainer()->AddChild(thickness_editor_.GetRootControl());
   GetContainer()->AddChild(brush_editor_.GetRootControl());

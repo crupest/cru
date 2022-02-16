@@ -43,8 +43,10 @@ ClickState ConvertIndexToClickState(Index index) {
 }  // namespace
 
 ClickStateConditionEditor::ClickStateConditionEditor() {
+  SetLabel(u"Click State Condition");
   GetContainer()->AddChild(click_state_select_.GetRootControl());
 
+  click_state_select_.SetLabel(u"Click State");
   click_state_select_.SetItems(kClickStates);
   click_state_select_.SetSelectedIndex(0, false);
 
