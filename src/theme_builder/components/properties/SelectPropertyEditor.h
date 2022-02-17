@@ -1,11 +1,11 @@
 #pragma once
-#include "cru/ui/components/Component.h"
+#include "../Editor.h"
 #include "cru/ui/components/Select.h"
 #include "cru/ui/controls/FlexLayout.h"
 #include "cru/ui/controls/TextBlock.h"
 
 namespace cru::theme_builder::components::properties {
-class SelectPropertyEditor : public ui::components::Component {
+class SelectPropertyEditor : public Editor {
  public:
   using PropertyType = Index;
 
@@ -20,7 +20,7 @@ class SelectPropertyEditor : public ui::components::Component {
 
   Index GetSelectedIndex() const { return select_.GetSelectedIndex(); }
   void SetSelectedIndex(Index index, bool trigger_change = true) {
-    if (trigger_change == false) suppress_next_change_event_ = true;
+    if (trigger_change == false) SuppressNextChangeEvent();
     select_.SetSelectedIndex(index);
   }
 
@@ -34,14 +34,9 @@ class SelectPropertyEditor : public ui::components::Component {
     SetSelectedIndex(value, trigger_change);
   }
 
-  IEvent<std::nullptr_t>* ChangeEvent() { return &change_event_; }
-
  private:
   ui::controls::FlexLayout container_;
   ui::controls::TextBlock label_;
   ui::components::Select select_;
-
-  bool suppress_next_change_event_ = false;
-  Event<std::nullptr_t> change_event_;
 };
 }  // namespace cru::theme_builder::components::properties

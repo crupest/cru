@@ -13,10 +13,5 @@ class NoConditionEditor : public ConditionEditor {
   ClonablePtr<ui::style::Condition> GetCondition() override {
     return ui::style::NoCondition::Create();
   }
-
-  IEvent<std::nullptr_t>* ChangeEvent() override { return &change_event_; }
-
- private:
-  Event<std::nullptr_t> change_event_;
 };
 }  // namespace cru::theme_builder::components::conditions

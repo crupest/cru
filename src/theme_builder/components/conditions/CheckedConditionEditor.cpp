@@ -9,8 +9,7 @@ CheckedConditionEditor::CheckedConditionEditor() {
   checked_check_box_.SetLabel(u"Checked");
   GetContainer()->AddChild(checked_check_box_.GetRootControl());
 
-  checked_check_box_.ChangeEvent()->AddSpyOnlyHandler(
-      [this] { change_event_.Raise(nullptr); });
+  ConnectChangeEvent(checked_check_box_);
 }
 
 CheckedConditionEditor::~CheckedConditionEditor() {}

@@ -1,12 +1,11 @@
 #pragma once
-#include "cru/ui/components/Component.h"
+#include "../Editor.h"
 #include "cru/ui/controls/CheckBox.h"
-#include "cru/ui/controls/Control.h"
 #include "cru/ui/controls/FlexLayout.h"
 #include "cru/ui/controls/TextBlock.h"
 
 namespace cru::theme_builder::components::properties {
-class CheckBoxPropertyEditor : public ui::components::Component {
+class CheckBoxPropertyEditor : public Editor {
  public:
   using PropertyType = bool;
 
@@ -22,14 +21,9 @@ class CheckBoxPropertyEditor : public ui::components::Component {
   bool GetValue() const { return check_box_.IsChecked(); }
   void SetValue(bool value, bool trigger_change = true);
 
-  IEvent<std::nullptr_t>* ChangeEvent() { return &change_event_; }
-
  private:
   ui::controls::FlexLayout container_;
   ui::controls::TextBlock label_;
   ui::controls::CheckBox check_box_;
-
-  bool suppress_next_change_event_ = false;
-  Event<std::nullptr_t> change_event_;
 };
 }  // namespace cru::theme_builder::components::properties

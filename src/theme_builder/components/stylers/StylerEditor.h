@@ -1,11 +1,11 @@
 #pragma once
-#include "cru/ui/components/Component.h"
+#include "../Editor.h"
 #include "cru/ui/controls/FlexLayout.h"
 #include "cru/ui/controls/TextBlock.h"
 #include "cru/ui/style/Styler.h"
 
 namespace cru::theme_builder::components::stylers {
-class StylerEditor : public ui::components::Component {
+class StylerEditor : public Editor {
  public:
   StylerEditor();
   ~StylerEditor() override;
@@ -19,7 +19,6 @@ class StylerEditor : public ui::components::Component {
   void SetLabel(String label) { label_.SetText(std::move(label)); }
 
   virtual ClonablePtr<ui::style::Styler> GetStyler() = 0;
-  virtual IEvent<std::nullptr_t>* ChangeEvent() = 0;
 
  private:
   ui::controls::FlexLayout container_;

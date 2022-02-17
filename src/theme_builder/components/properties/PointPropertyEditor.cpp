@@ -9,21 +9,17 @@ PointPropertyEditor::PointPropertyEditor() {
   container_.AddChild(&text_);
 
   text_.TextChangeEvent()->AddHandler([this](std::nullptr_t) {
-    if (!suppress_next_change_event_) {
-      auto text = text_.GetTextView();
-      auto point_mapper =
-          ui::mapper::MapperRegistry::GetInstance()->GetMapper<ui::Point>();
-      try {
-        auto point = point_mapper->MapFromString(text.ToString());
-        point_ = point;
-        is_text_valid_ = true;
-        change_event_.Raise(nullptr);
-      } catch (const Exception&) {
-        is_text_valid_ = false;
-        // TODO: Show error!
-      }
-    } else {
-      suppress_next_change_event_ = false;
+    auto text = text_.GetTextView();
+    auto point_mapper =
+        ui::mapper::MapperRegistry::GetInstance()->GetMapper<ui::Point>();
+    try {
+      auto point = point_mapper->MapFromString(text.ToString());
+      point_ = point;
+      is_text_valid_ = true;
+      RaiseChangeEvent();
+    } catch (const Exception&) {
+      is_text_valid_ = false;
+      // TODO: Show error!
     }
   });
 }
@@ -32,9 +28,7 @@ PointPropertyEditor::~PointPropertyEditor() {}
 
 void PointPropertyEditor::SetValue(const ui::Point& point,
                                    bool trigger_change) {
-  point_ = point;
-  is_text_valid_ = true;
-  if (!trigger_change) suppress_next_change_event_ = true;
+  if (!trigger_change) SuppressNextChangeEvent();
   text_.SetText(ConvertPointToString(point));
 }
 

@@ -42,13 +42,9 @@ class CompoundStylerEditor : public StylerEditor {
 
   ClonablePtr<ui::style::Styler> GetStyler() override { return GetValue(); }
 
-  IEvent<std::nullptr_t>* ChangeEvent() override { return &change_event_; }
-
  private:
   ui::controls::FlexLayout children_container_;
   std::vector<std::unique_ptr<CompoundStylerEditorChild>> children_;
   ui::components::PopupMenuTextButton add_child_button_;
-
-  Event<std::nullptr_t> change_event_;
 };
 }  // namespace cru::theme_builder::components::stylers

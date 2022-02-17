@@ -12,7 +12,7 @@ CompoundStylerEditorChild::CompoundStylerEditorChild(
   container_.AddChild(&remove_button_);
 
   remove_button_.SetChild(&remove_button_text_);
-  remove_button_text_.SetText(u"-");
+  remove_button_text_.SetText(u"X");
 
   container_.AddChild(styler_editor_->GetRootControl());
 
@@ -49,17 +49,18 @@ CompoundStylerEditor::CompoundStylerEditor() {
         break;
     }
     if (editor) {
+      ConnectChangeEvent(editor.get());
       auto child =
           std::make_unique<CompoundStylerEditorChild>(std::move(editor));
       child->RemoveEvent()->AddSpyOnlyHandler([this, c = child.get()] {
         auto index = this->children_container_.IndexOf(c->GetRootControl());
         this->children_.erase(this->children_.begin() + index);
         this->children_container_.RemoveChildAt(index);
-        change_event_.Raise(nullptr);
+        RaiseChangeEvent();
       });
       children_container_.AddChild(child->GetRootControl());
       children_.push_back(std::move(child));
-      change_event_.Raise(nullptr);
+      RaiseChangeEvent();
     }
   });
 }
@@ -80,18 +81,16 @@ void CompoundStylerEditor::SetValue(ui::style::CompoundStyler* value,
   children_container_.ClearChildren();
   for (const auto& styler : value->GetChildren()) {
     auto editor = CreateStylerEditor(styler.get());
-    if (editor) {
-      auto child =
-          std::make_unique<CompoundStylerEditorChild>(std::move(editor));
-      child->RemoveEvent()->AddSpyOnlyHandler([this, c = child.get()] {
-        auto index = this->children_container_.IndexOf(c->GetRootControl());
-        this->children_.erase(this->children_.begin() + index);
-        this->children_container_.RemoveChildAt(index);
-        change_event_.Raise(nullptr);
-      });
-      children_.push_back(std::move(child));
-      children_container_.AddChild(children_.back()->GetRootControl());
-    }
+    ConnectChangeEvent(editor.get());
+    auto child = std::make_unique<CompoundStylerEditorChild>(std::move(editor));
+    child->RemoveEvent()->AddSpyOnlyHandler([this, c = child.get()] {
+      auto index = this->children_container_.IndexOf(c->GetRootControl());
+      this->children_.erase(this->children_.begin() + index);
+      this->children_container_.RemoveChildAt(index);
+      RaiseChangeEvent();
+    });
+    children_.push_back(std::move(child));
+    children_container_.AddChild(children_.back()->GetRootControl());
   }
 }
 }  // namespace cru::theme_builder::components::stylers

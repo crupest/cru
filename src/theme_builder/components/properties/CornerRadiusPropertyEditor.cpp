@@ -1,4 +1,5 @@
 #include "CornerRadiusPropertyEditor.h"
+#include "cru/ui/Base.h"
 
 namespace cru::theme_builder::components::properties {
 CornerRadiusPropertyEditor::CornerRadiusPropertyEditor() {
@@ -13,28 +14,19 @@ CornerRadiusPropertyEditor::CornerRadiusPropertyEditor() {
   container_.AddChild(left_bottom_editor_.GetRootControl());
   container_.AddChild(right_bottom_editor_.GetRootControl());
 
-  left_top_editor_.ChangeEvent()->AddHandler([this](std::nullptr_t) {
-    corner_radius_.left_top = left_top_editor_.GetValue();
-    change_event_.Raise(nullptr);
-  });
-
-  right_top_editor_.ChangeEvent()->AddHandler([this](std::nullptr_t) {
-    corner_radius_.right_top = left_top_editor_.GetValue();
-    change_event_.Raise(nullptr);
-  });
-
-  left_bottom_editor_.ChangeEvent()->AddHandler([this](std::nullptr_t) {
-    corner_radius_.left_bottom = left_bottom_editor_.GetValue();
-    change_event_.Raise(nullptr);
-  });
-
-  right_bottom_editor_.ChangeEvent()->AddHandler([this](std::nullptr_t) {
-    corner_radius_.right_bottom = right_bottom_editor_.GetValue();
-    change_event_.Raise(nullptr);
-  });
+  ConnectChangeEvent(left_top_editor_);
+  ConnectChangeEvent(right_top_editor_);
+  ConnectChangeEvent(left_bottom_editor_);
+  ConnectChangeEvent(right_bottom_editor_);
 }
 
 CornerRadiusPropertyEditor::~CornerRadiusPropertyEditor() {}
+
+ui::CornerRadius CornerRadiusPropertyEditor::GetValue() const {
+  return ui::CornerRadius(
+      left_top_editor_.GetValue(), right_top_editor_.GetValue(),
+      left_bottom_editor_.GetValue(), right_bottom_editor_.GetValue());
+}
 
 void CornerRadiusPropertyEditor::SetValue(const ui::CornerRadius& corner_radius,
                                           bool trigger_change) {
@@ -42,6 +34,6 @@ void CornerRadiusPropertyEditor::SetValue(const ui::CornerRadius& corner_radius,
   right_top_editor_.SetValue(corner_radius.right_top, false);
   left_bottom_editor_.SetValue(corner_radius.left_bottom, false);
   right_bottom_editor_.SetValue(corner_radius.right_bottom, false);
-  if (trigger_change) change_event_.Raise(nullptr);
+  if (trigger_change) RaiseChangeEvent();
 }
 }  // namespace cru::theme_builder::components::properties

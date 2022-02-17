@@ -8,14 +8,14 @@ ThicknessPropertyEditor::ThicknessPropertyEditor() {
   container_.AddChild(&text_);
 
   text_.TextChangeEvent()->AddHandler([this](std::nullptr_t) {
-    auto text = text_.GetTextView();
+    auto text = text_.GetText();
     auto thickness_mapper =
         ui::mapper::MapperRegistry::GetInstance()->GetMapper<ui::Thickness>();
     try {
-      auto thickness = thickness_mapper->MapFromString(text.ToString());
+      auto thickness = thickness_mapper->MapFromString(text);
       thickness_ = thickness;
       is_text_valid_ = true;
-      change_event_.Raise(nullptr);
+      RaiseChangeEvent();
     } catch (const Exception &) {
       is_text_valid_ = false;
       // TODO: Show error!
@@ -27,10 +27,8 @@ ThicknessPropertyEditor::~ThicknessPropertyEditor() {}
 
 void ThicknessPropertyEditor::SetValue(const ui::Thickness &thickness,
                                        bool trigger_change) {
-  thickness_ = thickness;
-  text_.SetText(Format(u"{} {} {} {}", thickness_.left, thickness_.top,
-                       thickness_.right, thickness_.bottom));
-  is_text_valid_ = true;
-  if (trigger_change) change_event_.Raise(nullptr);
+  if (!trigger_change) SuppressNextChangeEvent();
+  text_.SetText(Format(u"{} {} {} {}", thickness.left, thickness.top,
+                       thickness.right, thickness.bottom));
 }
 }  // namespace cru::theme_builder::components::properties

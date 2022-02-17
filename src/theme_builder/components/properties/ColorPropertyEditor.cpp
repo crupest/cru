@@ -21,7 +21,7 @@ ColorPropertyEditor::ColorPropertyEditor() {
       color_ = *color;
       color_cube_brush_->SetColor(*color);
       is_color_text_valid_ = true;
-      change_event_.Raise(nullptr);
+      RaiseChangeEvent();
     } else {
       is_color_text_valid_ = false;
       // TODO: Show error!
@@ -33,9 +33,7 @@ ColorPropertyEditor::~ColorPropertyEditor() {}
 
 void ColorPropertyEditor::SetValue(const ui::Color &color,
                                    bool trigger_change) {
-  color_cube_brush_->SetColor(color);
+  if (!trigger_change) SuppressNextChangeEvent();
   color_text_.SetText(color.ToString());
-  is_color_text_valid_ = true;
-  if (trigger_change) change_event_.Raise(nullptr);
 }
 }  // namespace cru::theme_builder::components::properties

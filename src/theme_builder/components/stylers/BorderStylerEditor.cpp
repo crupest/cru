@@ -15,16 +15,11 @@ BorderStylerEditor::BorderStylerEditor() {
   GetContainer()->AddChild(foreground_brush_editor_.GetRootControl());
   GetContainer()->AddChild(background_brush_editor_.GetRootControl());
 
-  auto connect = [this](IEvent<std::nullptr_t>* event) {
-    event->AddHandler(
-        [this](std::nullptr_t) { this->change_event_.Raise(nullptr); });
-  };
-
-  connect(corner_radius_editor_.ChangeEvent());
-  connect(thickness_editor_.ChangeEvent());
-  connect(brush_editor_.ChangeEvent());
-  connect(foreground_brush_editor_.ChangeEvent());
-  connect(background_brush_editor_.ChangeEvent());
+  ConnectChangeEvent(corner_radius_editor_);
+  ConnectChangeEvent(thickness_editor_);
+  ConnectChangeEvent(brush_editor_);
+  ConnectChangeEvent(foreground_brush_editor_);
+  ConnectChangeEvent(background_brush_editor_);
 }
 
 BorderStylerEditor::~BorderStylerEditor() {}
@@ -93,7 +88,7 @@ void BorderStylerEditor::SetValue(ui::style::BorderStyler* styler,
   }
 
   if (trigger_change) {
-    change_event_.Raise(nullptr);
+    RaiseChangeEvent();
   }
 }
 

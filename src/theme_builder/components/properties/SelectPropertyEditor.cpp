@@ -7,15 +7,9 @@ SelectPropertyEditor::SelectPropertyEditor() {
   container_.AddChild(&label_);
   container_.AddChild(select_.GetRootControl());
 
-  select_.ItemSelectedEvent()->AddHandler([this](Index index) {
-    if (!suppress_next_change_event_) {
-      change_event_.Raise(nullptr);
-    } else {
-      suppress_next_change_event_ = false;
-    }
-  });
+  select_.ItemSelectedEvent()->AddHandler(
+      [this](Index index) { RaiseChangeEvent(); });
 }
 
 SelectPropertyEditor::~SelectPropertyEditor() {}
-
 }  // namespace cru::theme_builder::components::properties

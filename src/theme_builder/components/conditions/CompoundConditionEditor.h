@@ -42,14 +42,10 @@ class CompoundConditionEditor : public ConditionEditor {
   void SetChildren(std::vector<ClonablePtr<ui::style::Condition>> children,
                    bool trigger_change = true);
 
-  IEvent<std::nullptr_t>* ChangeEvent() override { return &change_event_; }
-
  private:
   ui::controls::FlexLayout children_container_;
   ui::components::PopupMenuTextButton add_child_button_;
   std::vector<std::unique_ptr<CompoundConditionEditorChild>> children_;
-
-  Event<std::nullptr_t> change_event_;
 };
 
 class AndConditionEditor : public CompoundConditionEditor {

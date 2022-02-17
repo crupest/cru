@@ -6,19 +6,14 @@ CheckBoxPropertyEditor::CheckBoxPropertyEditor() {
   container_.AddChild(&label_);
   container_.AddChild(&check_box_);
 
-  check_box_.CheckedChangeEvent()->AddSpyOnlyHandler([this] {
-    if (!suppress_next_change_event_) {
-      change_event_.Raise(nullptr);
-    } else {
-      suppress_next_change_event_ = false;
-    }
-  });
+  check_box_.CheckedChangeEvent()->AddSpyOnlyHandler(
+      [this] { RaiseChangeEvent(); });
 }
 
 CheckBoxPropertyEditor::~CheckBoxPropertyEditor() {}
 
 void CheckBoxPropertyEditor::SetValue(bool value, bool trigger_change) {
-  if (!trigger_change) suppress_next_change_event_ = true;
+  if (!trigger_change) SuppressNextChangeEvent();
   check_box_.SetChecked(value);
 }
 }  // namespace cru::theme_builder::components::properties

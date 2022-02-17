@@ -59,17 +59,18 @@ CompoundConditionEditor::CompoundConditionEditor() {
         break;
     }
     if (editor) {
+      ConnectChangeEvent(editor.get());
       auto child =
           std::make_unique<CompoundConditionEditorChild>(std::move(editor));
       child->RemoveEvent()->AddSpyOnlyHandler([this, c = child.get()] {
         auto index = this->children_container_.IndexOf(c->GetRootControl());
         this->children_.erase(this->children_.begin() + index);
         this->children_container_.RemoveChildAt(index);
-        change_event_.Raise(nullptr);
+        RaiseChangeEvent();
       });
       children_.push_back(std::move(child));
       children_container_.AddChild(children_.back()->GetRootControl());
-      change_event_.Raise(nullptr);
+      RaiseChangeEvent();
     }
   });
 }
@@ -92,19 +93,20 @@ void CompoundConditionEditor::SetChildren(
   children_.clear();
   for (const auto& condition : children) {
     auto condition_editor = CreateConditionEditor(condition.get());
+    ConnectChangeEvent(condition_editor.get());
     auto child = std::make_unique<CompoundConditionEditorChild>(
         std::move(condition_editor));
     child->RemoveEvent()->AddSpyOnlyHandler([this, c = child.get()] {
       auto index = this->children_container_.IndexOf(c->GetRootControl());
       this->children_.erase(this->children_.begin() + index);
       this->children_container_.RemoveChildAt(index);
-      change_event_.Raise(nullptr);
+      RaiseChangeEvent();
     });
     children_.push_back(std::move(child));
     children_container_.AddChild(children_.back()->GetRootControl());
   }
   if (trigger_change) {
-    change_event_.Raise(nullptr);
+    RaiseChangeEvent();
   }
 }
 }  // namespace cru::theme_builder::components::conditions

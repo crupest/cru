@@ -21,8 +21,6 @@ class BorderStylerEditor : public StylerEditor {
 
   ClonablePtr<ui::style::Styler> GetStyler() override { return GetValue(); }
 
-  IEvent<std::nullptr_t>* ChangeEvent() override { return &change_event_; }
-
  private:
   properties::OptionalPropertyEditor<properties::CornerRadiusPropertyEditor>
       corner_radius_editor_;
@@ -34,7 +32,5 @@ class BorderStylerEditor : public StylerEditor {
       foreground_brush_editor_;
   properties::OptionalPropertyEditor<properties::ColorPropertyEditor>
       background_brush_editor_;
-
-  Event<std::nullptr_t> change_event_;
 };
 }  // namespace cru::theme_builder::components::stylers

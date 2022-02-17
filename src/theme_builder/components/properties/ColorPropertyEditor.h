@@ -1,13 +1,13 @@
 #pragma once
+#include "../Editor.h"
 #include "cru/platform/graphics/Base.h"
-#include "cru/ui/components/Component.h"
 #include "cru/ui/controls/Container.h"
 #include "cru/ui/controls/FlexLayout.h"
 #include "cru/ui/controls/TextBlock.h"
 #include "cru/ui/controls/TextBox.h"
 
 namespace cru::theme_builder::components::properties {
-class ColorPropertyEditor : public ui::components::Component {
+class ColorPropertyEditor : public Editor {
  public:
   using PropertyType = ui::Color;
 
@@ -23,8 +23,6 @@ class ColorPropertyEditor : public ui::components::Component {
   ui::Color GetValue() const { return color_; }
   void SetValue(const ui::Color& color, bool trigger_change = true);
 
-  IEvent<std::nullptr_t>* ChangeEvent() { return &change_event_; }
-
  private:
   ui::Color color_ = ui::colors::transparent;
 
@@ -34,7 +32,5 @@ class ColorPropertyEditor : public ui::components::Component {
   std::shared_ptr<platform::graphics::ISolidColorBrush> color_cube_brush_;
   ui::controls::TextBox color_text_;
   bool is_color_text_valid_;
-
-  Event<std::nullptr_t> change_event_;
 };
 }  // namespace cru::theme_builder::components::properties

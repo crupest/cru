@@ -8,8 +8,8 @@ FocusConditionEditor::FocusConditionEditor() {
   GetContainer()->AddChild(focus_check_box_.GetRootControl());
 
   focus_check_box_.SetLabel(u"Focus");
-  focus_check_box_.ChangeEvent()->AddSpyOnlyHandler(
-      [this] { change_event_.Raise(nullptr); });
+
+  ConnectChangeEvent(focus_check_box_);
 }
 
 FocusConditionEditor::~FocusConditionEditor() {}

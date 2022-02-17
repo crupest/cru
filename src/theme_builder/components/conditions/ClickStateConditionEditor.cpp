@@ -50,8 +50,7 @@ ClickStateConditionEditor::ClickStateConditionEditor() {
   click_state_select_.SetItems(kClickStates);
   click_state_select_.SetSelectedIndex(0, false);
 
-  click_state_select_.ChangeEvent()->AddSpyOnlyHandler(
-      [this] { change_event_.Raise(nullptr); });
+  ConnectChangeEvent(click_state_select_);
 }
 
 ClickStateConditionEditor::~ClickStateConditionEditor() {}

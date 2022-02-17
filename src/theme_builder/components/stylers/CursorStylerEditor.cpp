@@ -10,6 +10,8 @@ CursorStylerEditor::CursorStylerEditor() {
   cursor_select_.SetLabel(u"Cursor");
   cursor_select_.SetItems({u"arrow", u"hand", u"ibeam"});
   cursor_select_.SetSelectedIndex(0);
+
+  ConnectChangeEvent(cursor_select_);
 }
 
 CursorStylerEditor::~CursorStylerEditor() {}
@@ -57,7 +59,7 @@ void CursorStylerEditor::SetValue(ui::style::CursorStyler* styler,
   }
 
   if (trigger_change) {
-    change_event_.Raise(nullptr);
+    RaiseChangeEvent();
   }
 }
 }  // namespace cru::theme_builder::components::stylers
