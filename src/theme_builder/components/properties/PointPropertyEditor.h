@@ -34,6 +34,7 @@ class PointPropertyEditor : public ui::components::Component {
   ui::controls::TextBox text_;
   bool is_text_valid_;
 
+  bool suppress_next_change_event_ = false;
   Event<std::nullptr_t> change_event_;
 };
 }  // namespace cru::theme_builder::components::properties

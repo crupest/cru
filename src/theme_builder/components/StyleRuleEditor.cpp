@@ -33,5 +33,13 @@ void StyleRuleEditor::SetValue(const ui::style::StyleRule& style_rule,
       components::stylers::CreateStylerEditor(style_rule.GetStyler());
   right_layout_.AddChild(condition_editor_->GetRootControl());
   right_layout_.AddChild(styler_editor_->GetRootControl());
+  condition_editor_->ChangeEvent()->AddSpyOnlyHandler(
+      [this] { change_event_.Raise(nullptr); });
+  styler_editor_->ChangeEvent()->AddSpyOnlyHandler(
+      [this] { change_event_.Raise(nullptr); });
+
+  if (trigger_change) {
+    change_event_.Raise(nullptr);
+  }
 }
 }  // namespace cru::theme_builder

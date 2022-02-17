@@ -38,10 +38,10 @@ CornerRadiusPropertyEditor::~CornerRadiusPropertyEditor() {}
 
 void CornerRadiusPropertyEditor::SetValue(const ui::CornerRadius& corner_radius,
                                           bool trigger_change) {
-  left_top_editor_.SetValue(corner_radius_.left_top, false);
-  right_top_editor_.SetValue(corner_radius_.right_top, false);
-  left_bottom_editor_.SetValue(corner_radius_.left_bottom, false);
-  right_bottom_editor_.SetValue(corner_radius_.right_bottom, false);
+  left_top_editor_.SetValue(corner_radius.left_top, false);
+  right_top_editor_.SetValue(corner_radius.right_top, false);
+  left_bottom_editor_.SetValue(corner_radius.left_bottom, false);
+  right_bottom_editor_.SetValue(corner_radius.right_bottom, false);
   if (trigger_change) change_event_.Raise(nullptr);
 }
 }  // namespace cru::theme_builder::components::properties

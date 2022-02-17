@@ -41,7 +41,7 @@ class OptionalPropertyEditor : public ui::components::Component {
   void SetValue(std::optional<PropertyType> value, bool trigger_change = true) {
     if (value) {
       SetEnabled(true, false);
-      editor_.SetValue(*value);
+      editor_.SetValue(*value, false);
       if (trigger_change) change_event_.Raise(nullptr);
     } else {
       SetEnabled(false, trigger_change);
