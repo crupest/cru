@@ -1,5 +1,4 @@
 #include "cru/win/gui/Clipboard.h"
-#include <winuser.h>
 #include "cru/common/log/Logger.h"
 #include "cru/win/gui/GodWindow.h"
 #include "cru/win/gui/UiApplication.h"
@@ -14,25 +13,25 @@ String WinClipboard::GetText() {
   auto god_window = application_->GetGodWindow();
 
   if (!::OpenClipboard(god_window->GetHandle())) {
-    log::Warn(u"Failed to open clipboard.");
+    CRU_LOG_WARN(u"Failed to open clipboard.");
     return {};
   }
 
   if (!::IsClipboardFormatAvailable(CF_UNICODETEXT)) {
-    log::Warn(u"Clipboard format for text is not available.");
+    CRU_LOG_WARN(u"Clipboard format for text is not available.");
     return {};
   }
 
   auto handle = ::GetClipboardData(CF_UNICODETEXT);
 
   if (handle == nullptr) {
-    log::Warn(u"Failed to get clipboard data.");
+    CRU_LOG_WARN(u"Failed to get clipboard data.");
     return {};
   }
 
   auto ptr = ::GlobalLock(handle);
   if (ptr == nullptr) {
-    log::Warn(u"Failed to lock clipboard data.");
+    CRU_LOG_WARN(u"Failed to lock clipboard data.");
     ::CloseClipboard();
     return {};
   }
@@ -49,21 +48,21 @@ void WinClipboard::SetText(String text) {
   auto god_window = application_->GetGodWindow();
 
   if (!::OpenClipboard(god_window->GetHandle())) {
-    log::Warn(u"Failed to open clipboard.");
+    CRU_LOG_WARN(u"Failed to open clipboard.");
     return;
   }
 
   auto handle = GlobalAlloc(GMEM_MOVEABLE, (text.size() + 1) * sizeof(wchar_t));
 
   if (handle == nullptr) {
-    log::Warn(u"Failed to allocate clipboard data.");
+    CRU_LOG_WARN(u"Failed to allocate clipboard data.");
     ::CloseClipboard();
     return;
   }
 
   auto ptr = ::GlobalLock(handle);
   if (ptr == nullptr) {
-    log::Warn(u"Failed to lock clipboard data.");
+    CRU_LOG_WARN(u"Failed to lock clipboard data.");
     ::GlobalFree(handle);
     ::CloseClipboard();
     return;
@@ -74,7 +73,7 @@ void WinClipboard::SetText(String text) {
   ::GlobalUnlock(handle);
 
   if (::SetClipboardData(CF_UNICODETEXT, handle) == nullptr) {
-    log::Warn(u"Failed to set clipboard data.");
+    CRU_LOG_WARN(u"Failed to set clipboard data.");
   }
 
   ::CloseClipboard();

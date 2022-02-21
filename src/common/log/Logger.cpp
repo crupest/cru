@@ -5,11 +5,19 @@
 #include <cstdlib>
 #include <ctime>
 
+#ifdef CRU_PLATFORM_WINDOWS
+#include "cru/common/platform/win/DebugLogTarget.h"
+#endif
+
 namespace cru::log {
 Logger *Logger::GetInstance() {
   static Logger logger;
 
   logger.AddLogTarget(std::make_unique<StdioLogTarget>());
+
+#ifdef CRU_PLATFORM_WINDOWS
+  logger.AddLogTarget(std::make_unique<platform::win::WinDebugLogTarget>());
+#endif
 
   return &logger;
 }

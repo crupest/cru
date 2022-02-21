@@ -235,9 +235,9 @@ void WinNativeWindow::SetCursor(std::shared_ptr<ICursor> cursor) {
   if (!::SetClassLongPtrW(hwnd_, GCLP_HCURSOR,
                           reinterpret_cast<LONG_PTR>(cursor_->GetHandle()))) {
     CRU_LOG_WARN(
-                 u"Failed to set cursor because failed to set class long. Last "
-                 u"error code: {}.",
-                 ::GetLastError());
+        u"Failed to set cursor because failed to set class long. Last "
+        u"error code: {}.",
+        ::GetLastError());
     return;
   }
 
@@ -245,7 +245,7 @@ void WinNativeWindow::SetCursor(std::shared_ptr<ICursor> cursor) {
 
   auto lg = [](StringView reason) {
     CRU_LOG_WARN(
-        
+
         u"Failed to set cursor because {} when window is visible. (We need to "
         u"update cursor if it is inside the window.) Last error code: {}.",
         reason, ::GetLastError());
@@ -477,7 +477,7 @@ void WinNativeWindow::RecreateWindow() {
   if (dpi == 0)
     throw Win32Error(::GetLastError(), u"Failed to get dpi of window.");
   dpi_ = static_cast<float>(dpi);
-  log::Debug(u"Dpi of window is {}.", dpi_);
+  CRU_LOG_DEBUG(u"Dpi of window is {}.", dpi_);
 
   window_manager->RegisterWindow(hwnd_, this);
 

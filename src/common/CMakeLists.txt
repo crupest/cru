@@ -37,8 +37,9 @@ if (WIN32)
 	target_sources(cru_base PRIVATE
 		platform/win/BridgeComStream.cpp
 		platform/win/ComAutoInit.cpp
-		platform/win/StreamConvert.cpp
+		platform/win/DebugLogTarget.cpp
 		platform/win/Exception.cpp
+		platform/win/StreamConvert.cpp
 		platform/win/Win32FileStream.cpp
 	)
 

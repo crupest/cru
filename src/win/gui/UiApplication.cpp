@@ -4,8 +4,6 @@
 #include "WindowManager.h"
 #include "cru/common/log/Logger.h"
 #include "cru/platform/Check.h"
-#include "cru/win/DebugLogger.h"
-#include "cru/win/StdOutLogger.h"
 #include "cru/win/graphics/direct/Factory.h"
 #include "cru/win/gui/Base.h"
 #include "cru/win/gui/Clipboard.h"
@@ -32,11 +30,6 @@ WinUiApplication::WinUiApplication() {
     throw Win32Error(u"Failed to get module(instance) handle.");
 
   ::SetThreadDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE);
-
-  log::Logger::GetInstance()->AddSource(
-      std::make_unique<::cru::platform::win::WinDebugLoggerSource>());
-  log::Logger::GetInstance()->AddSource(
-      std::make_unique<::cru::platform::win::WinStdOutLoggerSource>());
 
   graph_factory_ = std::make_unique<
       cru::platform::graphics::win::direct::DirectGraphicsFactory>();
