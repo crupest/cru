@@ -2,7 +2,7 @@
 
 #include "TimerManager.h"
 #include "WindowManager.h"
-#include "cru/common/Logger.h"
+#include "cru/common/log/Logger.h"
 #include "cru/platform/Check.h"
 #include "cru/win/DebugLogger.h"
 #include "cru/win/StdOutLogger.h"

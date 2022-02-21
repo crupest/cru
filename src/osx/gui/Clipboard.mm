@@ -1,7 +1,7 @@
 #include "cru/osx/gui/Clipboard.h"
 #include "ClipboardPrivate.h"
 
-#include "cru/common/Logger.h"
+#include "cru/common/log/Logger.h"
 #include "cru/osx/Convert.h"
 
 #include <memory>
@@ -27,7 +27,7 @@ OsxClipboardPrivate::~OsxClipboardPrivate() {}
 String OsxClipboardPrivate::GetText() {
   auto result = [pasteboard_ readObjectsForClasses:@[ NSString.class ] options:nil];
   if (result == nil) {
-    log::TagWarn(log_tag, u"Failed to get text from clipboard");
+    CRU_LOG_WARN(u"Failed to get text from clipboard");
     return u"";
   } else {
     if (result.count == 0) {

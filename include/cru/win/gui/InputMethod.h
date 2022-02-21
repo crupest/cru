@@ -12,7 +12,7 @@
 
 namespace cru::platform::gui::win {
 class CRU_WIN_GUI_API AutoHIMC : public Object {
-  CRU_DEFINE_CLASS_LOG_TAG(u"cru::platform::gui::win::AutoHIMC")
+  CRU_DEFINE_CLASS_LOG_TAG(u"AutoHIMC")
 
  public:
   explicit AutoHIMC(HWND hwnd);
@@ -36,7 +36,7 @@ class CRU_WIN_GUI_API AutoHIMC : public Object {
 class CRU_WIN_GUI_API WinInputMethodContext
     : public WinNativeResource,
       public virtual IInputMethodContext {
-  CRU_DEFINE_CLASS_LOG_TAG(u"cru::platform::gui::win::WinInputMethodContext")
+  CRU_DEFINE_CLASS_LOG_TAG(u"WinInputMethodContext")
 
  public:
   WinInputMethodContext(gsl::not_null<WinNativeWindow*> window);

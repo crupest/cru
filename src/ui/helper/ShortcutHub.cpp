@@ -1,6 +1,6 @@
 #include "cru/ui/helper/ShortcutHub.h"
 
-#include "cru/common/Logger.h"
+#include "cru/common/log/Logger.h"
 #include "cru/ui/DebugFlags.h"
 #include "cru/ui/controls/Control.h"
 
@@ -64,7 +64,7 @@ const std::vector<ShortcutInfo>& ShortcutHub::GetShortcutByKeyBind(
 
 void ShortcutHub::Install(controls::Control* control) {
   if (!event_guard_.IsEmpty()) {
-    log::Error(u"Shortcut hub is already installed. Failed to install.");
+    CRU_LOG_ERROR(u"Shortcut hub is already installed. Failed to install.");
     return;
   }
 
@@ -74,7 +74,7 @@ void ShortcutHub::Install(controls::Control* control) {
 
 void ShortcutHub::Uninstall() {
   if (event_guard_.IsEmpty()) {
-    log::Warn(u"Shortcut hub is not installed. Failed to uninstall.");
+    CRU_LOG_WARN(u"Shortcut hub is not installed. Failed to uninstall.");
     return;
   }
 
@@ -89,17 +89,17 @@ void ShortcutHub::OnKeyDown(events::KeyEventArgs& event) {
 
   if constexpr (debug_flags::shortcut) {
     if (shortcut_list.empty()) {
-      log::Debug(u"No shortcut for key bind {}.", key_bind.ToString());
+      CRU_LOG_DEBUG(u"No shortcut for key bind {}.", key_bind.ToString());
     }
-    log::Debug(u"Begin to handle shortcut for key bind {}.",
-               key_bind.ToString());
+    CRU_LOG_DEBUG(u"Begin to handle shortcut for key bind {}.",
+                  key_bind.ToString());
   }
 
   for (const auto& shortcut : shortcut_list) {
     auto is_handled = shortcut.handler();
     if (is_handled) {
       if constexpr (debug_flags::shortcut) {
-        log::Debug(u"Handle {} handled it.", shortcut.name);
+        CRU_LOG_DEBUG(u"Handle {} handled it.", shortcut.name);
       }
 
       handled = true;
@@ -108,22 +108,23 @@ void ShortcutHub::OnKeyDown(events::KeyEventArgs& event) {
       break;
     } else {
       if constexpr (debug_flags::shortcut) {
-        log::Debug(u"Handle {} didn't handle it.", shortcut.name);
+        CRU_LOG_DEBUG(u"Handle {} didn't handle it.", shortcut.name);
       }
     }
   }
 
   if constexpr (debug_flags::shortcut) {
     if (!shortcut_list.empty()) {
-      log::Debug(u"End handling shortcut for key bind {}.",
-                 key_bind.ToString());
+      CRU_LOG_DEBUG(u"End handling shortcut for key bind {}.",
+                    key_bind.ToString());
     }
   }
 
   if (!handled) {
     if constexpr (debug_flags::shortcut) {
-      log::Debug(u"Raise fallback event for unhandled shortcut of key bind {}.",
-                 key_bind.ToString());
+      CRU_LOG_DEBUG(
+          u"Raise fallback event for unhandled shortcut of key bind {}.",
+          key_bind.ToString());
     }
     fallback_event_.Raise(event);
   }

@@ -1,6 +1,6 @@
 #include "cru/win/graphics/direct/Factory.h"
 
-#include "cru/common/Logger.h"
+#include "cru/common/log/Logger.h"
 #include "cru/win/graphics/direct/Brush.h"
 #include "cru/win/graphics/direct/Exception.h"
 #include "cru/win/graphics/direct/Font.h"

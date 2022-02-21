@@ -2,6 +2,7 @@
 #include "../Base.h"
 
 #include "../events/UiEvents.h"
+#include "cru/common/Base.h"
 #include "cru/common/Event.h"
 #include "cru/platform/gui/Keyboard.h"
 
@@ -97,6 +98,7 @@ struct ShortcutInfo {
 };
 
 class CRU_UI_API ShortcutHub : public Object {
+  CRU_DEFINE_CLASS_LOG_TAG(u"ShortcutHub")
  public:
   ShortcutHub() = default;
 

@@ -1,7 +1,7 @@
 #include "cru/ui/render/BorderRenderObject.h"
 
 #include "../Helper.h"
-#include "cru/common/Logger.h"
+#include "cru/common/log/Logger.h"
 #include "cru/platform/graphics/Factory.h"
 #include "cru/platform/graphics/Geometry.h"
 #include "cru/platform/graphics/Painter.h"
@@ -80,8 +80,8 @@ RenderObject* BorderRenderObject::HitTest(const Point& point) {
 
 void BorderRenderObject::Draw(platform::graphics::IPainter* painter) {
   if constexpr (debug_flags::draw) {
-    log::TagDebug(
-        log_tag, u"BorderRenderObject draw, background: {}, foreground: {}.",
+    CRU_LOG_DEBUG(
+        u"BorderRenderObject draw, background: {}, foreground: {}.",
         background_brush_ == nullptr ? u"NONE"
                                      : background_brush_->GetDebugString(),
         foreground_brush_ == nullptr ? u"NONE"
@@ -94,7 +94,7 @@ void BorderRenderObject::Draw(platform::graphics::IPainter* painter) {
 
   if (is_border_enabled_) {
     if (border_brush_ == nullptr) {
-      log::TagWarn(log_tag, u"Border is enabled but border brush is null.");
+      CRU_LOG_WARN(u"Border is enabled but border brush is null.");
     } else {
       painter->FillGeometry(geometry_.get(), border_brush_.get());
     }

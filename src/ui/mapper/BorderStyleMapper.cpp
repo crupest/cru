@@ -1,6 +1,6 @@
 #include "cru/ui/mapper/BorderStyleMapper.h"
 #include "../Helper.h"
-#include "cru/common/Logger.h"
+#include "cru/common/log/Logger.h"
 #include "cru/platform/graphics/Brush.h"
 #include "cru/platform/graphics/Factory.h"
 #include "cru/ui/mapper/MapperRegistry.h"
@@ -21,7 +21,6 @@ ApplyBorderStyleInfo BorderStyleMapper::DoMapFromXml(
 
   for (auto child : node->GetChildren()) {
     if (child->GetType() == XmlNode::Type::Text) {
-      log::Debug(u"Ignore text node.");
     } else {
       auto c = child->AsElement();
       auto thickness_mapper =
@@ -43,7 +42,6 @@ ApplyBorderStyleInfo BorderStyleMapper::DoMapFromXml(
           } else if (name->CaseInsensitiveCompare(u"background") == 0) {
             result.background_brush = std::move(brush);
           } else {
-            log::Debug(u"Unknown brush name: {}", *name);
           }
         } else {
           result.border_brush = std::move(brush);

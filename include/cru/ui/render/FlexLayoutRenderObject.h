@@ -93,7 +93,7 @@ struct FlexChildLayoutData {
 //
 class CRU_UI_API FlexLayoutRenderObject
     : public LayoutRenderObject<FlexChildLayoutData> {
-  CRU_DEFINE_CLASS_LOG_TAG(u"cru::ui::render::FlexLayoutRenderObject")
+  CRU_DEFINE_CLASS_LOG_TAG(u"FlexLayoutRenderObject")
 
  public:
   FlexLayoutRenderObject() = default;

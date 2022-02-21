@@ -63,7 +63,7 @@ class CRU_BASE_API String {
  public:
   String() = default;
 
-  explicit String(const_pointer str);
+  String(const_pointer str);
   String(const_pointer str, size_type size);
 
   template <Index size>

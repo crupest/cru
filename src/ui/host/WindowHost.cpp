@@ -2,7 +2,7 @@
 
 #include "RoutedEventDispatch.h"
 #include "cru/common/Base.h"
-#include "cru/common/Logger.h"
+#include "cru/common/log/Logger.h"
 #include "cru/platform/graphics/Painter.h"
 #include "cru/platform/gui/InputMethod.h"
 #include "cru/platform/gui/UiApplication.h"
@@ -191,7 +191,7 @@ void WindowHost::RelayoutWithSize(const Size& available_size,
   after_layout_event_.Raise(AfterLayoutEventArgs{});
   after_layout_stable_action_.clear();
   if constexpr (debug_flags::layout)
-    log::TagDebug(log_tag, u"A relayout is finished.");
+    CRU_LOG_DEBUG(u"A relayout is finished.");
 }
 
 void WindowHost::Repaint() {

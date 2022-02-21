@@ -1,6 +1,5 @@
 #include "cru/osx/graphics/quartz/Painter.h"
 
-#include "cru/common/Logger.h"
 #include "cru/osx/graphics/quartz/Brush.h"
 #include "cru/osx/graphics/quartz/Convert.h"
 #include "cru/osx/graphics/quartz/Geometry.h"
@@ -27,10 +26,6 @@ QuartzCGContextPainter::QuartzCGContextPainter(
 
   transform_ = Matrix::Scale(1, -1) * Matrix::Translation(0, size.height);
   CGContextConcatCTM(cg_context_, Convert(transform_));
-
-  // log::TagDebug(log_tag,
-  //               u"Created with CGContext: {}, Auto Release: {},  Size: {}.",
-  //               cg_context, auto_release, size_);
 }
 
 QuartzCGContextPainter::~QuartzCGContextPainter() {
@@ -61,8 +56,6 @@ void QuartzCGContextPainter::Clear(const Color& color) {
                            color.GetFloatGreen(), color.GetFloatBlue(),
                            color.GetFloatAlpha());
   CGContextFillRect(cg_context_, Convert(Rect{Point{}, size_}));
-
-  // log::TagDebug(log_tag, u"Clear with color {}, size {}.", color, size_);
 }
 
 void QuartzCGContextPainter::DrawLine(const Point& start, const Point& end,
@@ -225,7 +218,6 @@ void QuartzCGContextPainter::DoEndDraw() {
   if (cg_context_) {
     CGContextFlush(cg_context_);
     CGContextSynchronize(cg_context_);
-    // log::TagDebug(log_tag, u"End draw and flush.");
 
     on_end_draw_(this);
   }

@@ -49,7 +49,7 @@ class CRU_UI_API TreeRenderObjectItem : public Object {
 };
 
 class CRU_UI_API TreeRenderObject : public RenderObject {
-  CRU_DEFINE_CLASS_LOG_TAG(u"cru::ui::render:TreeRenderObject")
+  CRU_DEFINE_CLASS_LOG_TAG(u"TreeRenderObject")
 
  public:
   TreeRenderObject();

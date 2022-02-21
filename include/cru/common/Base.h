@@ -94,5 +94,5 @@ inline void hash_combine(std::size_t& s, const T& v) {
 
 #define CRU_DEFINE_CLASS_LOG_TAG(tag) \
  private:                             \
-  constexpr static StringView log_tag = tag;
+  constexpr static const char16_t* kLogTag = tag;
 }  // namespace cru

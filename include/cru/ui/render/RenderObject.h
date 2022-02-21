@@ -36,7 +36,7 @@ namespace cru::ui::render {
  *  void OnLayoutContent(const Rect& content_rect) override;
  */
 class CRU_UI_API RenderObject : public Object {
-  CRU_DEFINE_CLASS_LOG_TAG(u"cru::ui::render::RenderObject")
+  CRU_DEFINE_CLASS_LOG_TAG(u"RenderObject")
 
  protected:
   RenderObject() = default;

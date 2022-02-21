@@ -1,7 +1,7 @@
 #include "cru/osx/gui/UiApplication.h"
 
 #include "ClipboardPrivate.h"
-#include "cru/common/Logger.h"
+#include "cru/common/log/Logger.h"
 #include "cru/common/platform/osx/Convert.h"
 #include "cru/osx/graphics/quartz/Factory.h"
 #include "cru/osx/gui/Clipboard.h"
@@ -79,9 +79,6 @@ void OsxUiApplicationPrivate::CallQuitHandlers() {
 OsxUiApplication::OsxUiApplication()
     : OsxGuiResource(this), p_(new details::OsxUiApplicationPrivate(this)) {
   [NSApplication sharedApplication];
-
-  // Add stdio logger.
-  log::Logger::GetInstance()->AddSource(std::make_unique<log::StdioLogSource>());
 
   [NSApp setDelegate:p_->app_delegate_];
   p_->quartz_graphics_factory_ = std::make_unique<graphics::osx::quartz::QuartzGraphicsFactory>();

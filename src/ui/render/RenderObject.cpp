@@ -1,6 +1,6 @@
 #include "cru/ui/render/RenderObject.h"
 
-#include "cru/common/Logger.h"
+#include "cru/common/log/Logger.h"
 #include "cru/ui/DebugFlags.h"
 #include "cru/ui/controls/Control.h"
 #include "cru/ui/host/WindowHost.h"
@@ -80,16 +80,16 @@ void RenderObject::Measure(const MeasureRequirement& requirement,
       preferred_size.OverrideBy(preferred_size_);
 
   if constexpr (cru::ui::debug_flags::layout) {
-    log::Debug(u"{} Measure begins :\nrequirement: {}\npreferred size: {}",
-               this->GetDebugPathInTree(), requirement.ToDebugString(),
-               preferred_size.ToDebugString());
+    CRU_LOG_DEBUG(u"{} Measure begins :\nrequirement: {}\npreferred size: {}",
+                  this->GetDebugPathInTree(), requirement.ToDebugString(),
+                  preferred_size.ToDebugString());
   }
 
   desired_size_ = OnMeasureCore(merged_requirement, merged_preferred_size);
 
   if constexpr (cru::ui::debug_flags::layout) {
-    log::Debug(u"{} Measure ends :\nresult size: {}",
-               this->GetDebugPathInTree(), desired_size_);
+    CRU_LOG_DEBUG(u"{} Measure ends :\nresult size: {}",
+                  this->GetDebugPathInTree(), desired_size_);
   }
 
   Ensures(desired_size_.width >= 0);
@@ -98,8 +98,8 @@ void RenderObject::Measure(const MeasureRequirement& requirement,
 
 void RenderObject::Layout(const Point& offset) {
   if constexpr (cru::ui::debug_flags::layout) {
-    log::Debug(u"{} Layout :\noffset: {} size: {}", this->GetDebugPathInTree(),
-               offset, desired_size_);
+    CRU_LOG_DEBUG(u"{} Layout :\noffset: {} size: {}",
+                  this->GetDebugPathInTree(), offset, desired_size_);
   }
   offset_ = offset;
   size_ = desired_size_;

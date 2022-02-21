@@ -1,6 +1,6 @@
 #include "cru/ui/helper/ClickDetector.h"
 
-#include "cru/common/Logger.h"
+#include "cru/common/log/Logger.h"
 #include "cru/ui/DebugFlags.h"
 #include "cru/ui/controls/Control.h"
 #include "cru/ui/host/WindowHost.h"
@@ -58,7 +58,7 @@ ClickDetector::ClickDetector(controls::Control* control) {
                 this->state_ == ClickState::Hover) {
               if (!this->control_->CaptureMouse()) {
                 if constexpr (debug_flags::click_detector) {
-                  log::TagDebug(log_tag,
+                  CRU_LOG_DEBUG(
                                 u"Failed to capture mouse when begin click.");
                 }
                 return;
@@ -136,7 +136,7 @@ void ClickDetector::SetState(ClickState state) {
           UnreachableCode();
       }
     };
-    log::TagDebug(log_tag, u"Click state changed, new state: {}.",
+    CRU_LOG_DEBUG(u"Click state changed, new state: {}.",
                   to_string(state));
   }
 

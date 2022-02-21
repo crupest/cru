@@ -1,6 +1,6 @@
 #include "cru/ui/render/FlexLayoutRenderObject.h"
 
-#include "cru/common/Logger.h"
+#include "cru/common/log/Logger.h"
 #include "cru/ui/render/LayoutHelper.h"
 
 #include <algorithm>
@@ -90,7 +90,7 @@ Size FlexLayoutMeasureContentImpl(
     const MeasureRequirement& requirement, const MeasureSize& preferred_size,
     const std::vector<RenderObject*>& children,
     const std::vector<FlexChildLayoutData>& layout_data,
-    Alignment item_cross_align, StringView log_tag) {
+    Alignment item_cross_align, String kLogTag) {
   Expects(children.size() == layout_data.size());
 
   direction_tag_t direction_tag;
@@ -300,8 +300,7 @@ Size FlexLayoutMeasureContentImpl(
 
   if (max_main_length.IsSpecified() &&
       total_length > max_main_length.GetLengthOrUndefined()) {
-    log::TagWarn(
-        log_tag,
+    CRU_LOG_WARN(
         u"(Measure) Children's main axis length exceeds required max length.");
     total_length = max_main_length.GetLengthOrUndefined();
   } else if (min_main_length.IsSpecified() &&
@@ -345,11 +344,11 @@ Size FlexLayoutRenderObject::OnMeasureContent(
   if (horizontal) {
     return FlexLayoutMeasureContentImpl<tag_horizontal_t>(
         requirement, preferred_size, children, layout_data_list,
-        item_cross_align_, log_tag);
+        item_cross_align_, kLogTag);
   } else {
     return FlexLayoutMeasureContentImpl<tag_vertical_t>(
         requirement, preferred_size, children, layout_data_list,
-        item_cross_align_, log_tag);
+        item_cross_align_, kLogTag);
   }
 }
 

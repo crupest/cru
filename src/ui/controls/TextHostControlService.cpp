@@ -2,7 +2,7 @@
 
 #include "../Helper.h"
 #include "cru/common/Base.h"
-#include "cru/common/Logger.h"
+#include "cru/common/log/Logger.h"
 #include "cru/common/String.h"
 #include "cru/common/StringUtil.h"
 #include "cru/platform/graphics/Font.h"
@@ -226,7 +226,7 @@ void TextHostControlService::SetText(String text, bool stop_composition) {
 void TextHostControlService::InsertText(gsl::index position, StringView text,
                                         bool stop_composition) {
   if (!Utf16IsValidInsertPosition(this->text_, position)) {
-    log::TagError(log_tag, u"Invalid text insert position.");
+    CRU_LOG_ERROR(u"Invalid text insert position.");
     return;
   }
   this->text_.insert(this->text_.cbegin() + position, text);
@@ -240,7 +240,7 @@ void TextHostControlService::InsertText(gsl::index position, StringView text,
 void TextHostControlService::DeleteChar(gsl::index position,
                                         bool stop_composition) {
   if (!Utf16IsValidInsertPosition(this->text_, position)) {
-    log::TagError(log_tag, u"Invalid text delete position.");
+    CRU_LOG_ERROR(u"Invalid text delete position.");
     return;
   }
   if (position == static_cast<gsl::index>(this->text_.size())) return;
@@ -253,7 +253,7 @@ void TextHostControlService::DeleteChar(gsl::index position,
 gsl::index TextHostControlService::DeleteCharPrevious(gsl::index position,
                                                       bool stop_composition) {
   if (!Utf16IsValidInsertPosition(this->text_, position)) {
-    log::TagError(log_tag, u"Invalid text delete position.");
+    CRU_LOG_ERROR(u"Invalid text delete position.");
     return 0;
   }
   if (position == 0) return 0;
@@ -269,11 +269,11 @@ void TextHostControlService::DeleteText(TextRange range,
   if (range.count == 0) return;
   range = range.Normalize();
   if (!Utf16IsValidInsertPosition(this->text_, range.GetStart())) {
-    log::TagError(log_tag, u"Invalid text delete start position.");
+    CRU_LOG_ERROR(u"Invalid text delete start position.");
     return;
   }
   if (!Utf16IsValidInsertPosition(this->text_, range.GetStart())) {
-    log::TagError(log_tag, u"Invalid text delete end position.");
+    CRU_LOG_ERROR(u"Invalid text delete end position.");
     return;
   }
   this->text_.erase(this->text_.cbegin() + range.GetStart(),
@@ -465,7 +465,7 @@ void TextHostControlService::UpdateInputMethodPosition() {
     right_bottom.y += 5;
 
     if constexpr (debug_flags::text_service) {
-      log::TagDebug(log_tag,
+      CRU_LOG_DEBUG(
                     u"Calculate input method candidate window position: {}.",
                     right_bottom);
     }

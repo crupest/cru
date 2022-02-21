@@ -1,5 +1,5 @@
 #pragma once
-#include "cru/common/Logger.h"
+#include "cru/common/log/Logger.h"
 #include "cru/ui/DebugFlags.h"
 #include "cru/ui/controls/Control.h"
 
@@ -21,18 +21,19 @@ namespace cru::ui {
 // as the rest arguments.
 template <typename EventArgs, typename... Args>
 void DispatchEvent(
-    const std::u16string_view& event_name,
-    controls::Control* const original_sender,
+    const String& event_name, controls::Control* const original_sender,
     events::RoutedEvent<EventArgs>* (controls::Control::*event_ptr)(),
     controls::Control* const last_receiver, Args&&... args) {
+  constexpr auto kLogTag = u"DispatchEvent";
+
   if (original_sender == nullptr) return;
 
   CRU_UNUSED(event_name)
 
   if (original_sender == last_receiver) {
     if constexpr (debug_flags::routed_event)
-      log::Debug(
-          "Routed event {} no need to dispatch (original_sender == "
+      CRU_LOG_DEBUG(
+          u"Routed event {} no need to dispatch (original_sender == "
           "last_receiver). Original sender is {}.",
           event_name, original_sender->GetControlType());
     return;
@@ -49,7 +50,7 @@ void DispatchEvent(
   }
 
   if constexpr (debug_flags::routed_event) {
-    std::u16string log = u"Dispatch routed event ";
+    String log = u"Dispatch routed event ";
     log += event_name;
     log += u". Path (parent first): ";
     auto i = receive_list.crbegin();
@@ -59,7 +60,7 @@ void DispatchEvent(
       log += u" -> ";
     }
     log += (*i)->GetControlType();
-    log::Debug(log);
+    CRU_LOG_DEBUG(log);
   }
 
   auto handled = false;
@@ -75,7 +76,7 @@ void DispatchEvent(
     if (event_args.IsHandled()) {
       handled = true;
       if constexpr (debug_flags::routed_event)
-        log::Debug(
+        CRU_LOG_DEBUG(
             u"Routed event is short-circuit in TUNNEL at {}-st control (count "
             u"from parent).",
             count);
@@ -92,7 +93,7 @@ void DispatchEvent(
           ->Raise(event_args);
       if (event_args.IsHandled()) {
         if constexpr (debug_flags::routed_event)
-          log::Debug(
+          CRU_LOG_DEBUG(
               u"Routed event is short-circuit in BUBBLE at {}-st control "
               u"(count from parent).",
               count);
@@ -109,6 +110,6 @@ void DispatchEvent(
   }
 
   if constexpr (debug_flags::routed_event)
-    log::Debug(u"Routed event dispatch finished.");
+    CRU_LOG_DEBUG(u"Routed event dispatch finished.");
 }
 }  // namespace cru::ui

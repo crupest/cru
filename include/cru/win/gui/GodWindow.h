@@ -9,7 +9,7 @@
 
 namespace cru::platform::gui::win {
 class CRU_WIN_GUI_API GodWindow : public Object {
-  CRU_DEFINE_CLASS_LOG_TAG(u"cru::platform::gui::win::GodWindow")
+  CRU_DEFINE_CLASS_LOG_TAG(u"GodWindow")
 
  public:
   explicit GodWindow(WinUiApplication* application);

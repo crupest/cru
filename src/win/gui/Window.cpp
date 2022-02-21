@@ -1,7 +1,7 @@
 #include "cru/win/gui/Window.h"
 
 #include "WindowManager.h"
-#include "cru/common/Logger.h"
+#include "cru/common/log/Logger.h"
 #include "cru/platform/Check.h"
 #include "cru/platform/graphics/NullPainter.h"
 #include "cru/platform/gui/Base.h"
@@ -207,7 +207,7 @@ bool WinNativeWindow::ReleaseMouse() {
 
 void WinNativeWindow::RequestRepaint() {
   if constexpr (DebugFlags::paint) {
-    log::TagDebug(log_tag, u"A repaint is requested.");
+    CRU_LOG_DEBUG(u"A repaint is requested.");
   }
   if (!::InvalidateRect(hwnd_, nullptr, FALSE))
     throw Win32Error(::GetLastError(), u"Failed to invalidate window.");
@@ -234,7 +234,7 @@ void WinNativeWindow::SetCursor(std::shared_ptr<ICursor> cursor) {
 
   if (!::SetClassLongPtrW(hwnd_, GCLP_HCURSOR,
                           reinterpret_cast<LONG_PTR>(cursor_->GetHandle()))) {
-    log::TagWarn(log_tag,
+    CRU_LOG_WARN(
                  u"Failed to set cursor because failed to set class long. Last "
                  u"error code: {}.",
                  ::GetLastError());
@@ -244,8 +244,8 @@ void WinNativeWindow::SetCursor(std::shared_ptr<ICursor> cursor) {
   if (GetVisibility() != WindowVisibilityType::Show) return;
 
   auto lg = [](StringView reason) {
-    log::TagWarn(
-        log_tag,
+    CRU_LOG_WARN(
+        
         u"Failed to set cursor because {} when window is visible. (We need to "
         u"update cursor if it is inside the window.) Last error code: {}.",
         reason, ::GetLastError());
@@ -507,7 +507,7 @@ void WinNativeWindow::OnPaintInternal() {
   paint_event_.Raise(nullptr);
   ValidateRect(hwnd_, nullptr);
   if constexpr (DebugFlags::paint) {
-    log::TagDebug(log_tag, u"A repaint is finished.");
+    CRU_LOG_DEBUG(u"A repaint is finished.");
   }
 }
 

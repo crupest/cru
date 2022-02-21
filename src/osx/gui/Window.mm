@@ -3,8 +3,8 @@
 
 #include "CursorPrivate.h"
 #include "InputMethodPrivate.h"
-#include "cru/common/Logger.h"
 #include "cru/common/Range.h"
+#include "cru/common/log/Logger.h"
 #include "cru/osx/Convert.h"
 #include "cru/osx/graphics/quartz/Convert.h"
 #include "cru/osx/graphics/quartz/Painter.h"
@@ -351,7 +351,6 @@ std::unique_ptr<graphics::IPainter> OsxWindow::BeginPaint() {
   return std::make_unique<cru::platform::graphics::osx::quartz::QuartzCGContextPainter>(
       GetUiApplication()->GetGraphicsFactory(), cg_context, false, GetClientSize(),
       [this](graphics::osx::quartz::QuartzCGContextPainter*) {
-        // log::Debug(u"Finish painting and invalidate view.");
         [[p_->window_ contentView] setNeedsDisplay:YES];
       });
 }
@@ -470,7 +469,6 @@ cru::platform::gui::KeyModifier GetKeyModifier(NSEvent* event) {
 }
 
 - (void)drawRect:(NSRect)dirtyRect {
-  // cru::log::TagDebug(u"CruView", u"Begin to draw layer in view.");
   auto cg_context = [[NSGraphicsContext currentContext] CGContext];
   auto layer = _p->GetDrawLayer();
   Ensures(layer);
@@ -486,32 +484,26 @@ cru::platform::gui::KeyModifier GetKeyModifier(NSEvent* event) {
 }
 
 - (void)mouseMoved:(NSEvent*)event {
-  // cru::log::TagDebug(u"CruView", u"Recieved mouse move.");
   _p->OnMouseMove(cru::platform::Point(event.locationInWindow.x, event.locationInWindow.y));
 }
 
 - (void)mouseDragged:(NSEvent*)event {
-  // cru::log::TagDebug(u"CruView", u"Recieved mouse move.");
   _p->OnMouseMove(cru::platform::Point(event.locationInWindow.x, event.locationInWindow.y));
 }
 
 - (void)rightMouseDragged:(NSEvent*)event {
-  // cru::log::TagDebug(u"CruView", u"Recieved mouse move.");
   _p->OnMouseMove(cru::platform::Point(event.locationInWindow.x, event.locationInWindow.y));
 }
 
 - (void)mouseEntered:(NSEvent*)event {
-  // cru::log::TagDebug(u"CruView", u"Recieved mouse enter.");
   _p->OnMouseEnterLeave(cru::platform::gui::MouseEnterLeaveType::Enter);
 }
 
 - (void)mouseExited:(NSEvent*)event {
-  // cru::log::TagDebug(u"CruView", u"Recieved mouse exit.");
   _p->OnMouseEnterLeave(cru::platform::gui::MouseEnterLeaveType::Leave);
 }
 
 - (void)mouseDown:(NSEvent*)event {
-  // cru::log::TagDebug(u"CruView", u"Recieved mouse down.");
   [[self window] makeKeyWindow];
 
   auto key_modifier = GetKeyModifier(event);
@@ -521,8 +513,6 @@ cru::platform::gui::KeyModifier GetKeyModifier(NSEvent* event) {
 }
 
 - (void)mouseUp:(NSEvent*)event {
-  // cru::log::TagDebug(u"CruView", u"Recieved mouse up.");
-
   auto key_modifier = GetKeyModifier(event);
   cru::platform::Point p(event.locationInWindow.x, event.locationInWindow.y);
 
@@ -530,8 +520,6 @@ cru::platform::gui::KeyModifier GetKeyModifier(NSEvent* event) {
 }
 
 - (void)rightMouseDown:(NSEvent*)event {
-  // cru::log::TagDebug(u"CruView", u"Recieved right mouse down.");
-
   auto key_modifier = GetKeyModifier(event);
   cru::platform::Point p(event.locationInWindow.x, event.locationInWindow.y);
 
@@ -539,8 +527,6 @@ cru::platform::gui::KeyModifier GetKeyModifier(NSEvent* event) {
 }
 
 - (void)rightMouseUp:(NSEvent*)event {
-  // cru::log::TagDebug(u"CruView", u"Recieved right mouse up.");
-
   auto key_modifier = GetKeyModifier(event);
   cru::platform::Point p(event.locationInWindow.x, event.locationInWindow.y);
 
@@ -548,8 +534,6 @@ cru::platform::gui::KeyModifier GetKeyModifier(NSEvent* event) {
 }
 
 - (void)scrollWheel:(NSEvent*)event {
-  // cru::log::TagDebug(u"CruView", u"Recieved mouse wheel.");
-
   auto key_modifier = GetKeyModifier(event);
   cru::platform::Point p(event.locationInWindow.x, event.locationInWindow.y);
 
@@ -620,10 +604,6 @@ const std::unordered_set<KeyCode> input_context_handle_codes_when_has_text{
     KeyCode::Right,     KeyCode::Up,    KeyCode::Down};
 
 - (void)keyDown:(NSEvent*)event {
-  if constexpr (key_down_debug) {
-    cru::log::TagDebug(u"CruView", u"Recieved key down.");
-  }
-
   auto key_modifier = GetKeyModifier(event);
 
   bool handled = false;
@@ -655,15 +635,11 @@ const std::unordered_set<KeyCode> input_context_handle_codes_when_has_text{
 
   if (!handled) {
     _p->OnKeyDown(c, key_modifier);
-  } else {
-    if constexpr (key_down_debug) {
-      cru::log::TagDebug(u"CruView", u"Key down is handled by input context.");
-    }
   }
 }
 
 - (void)keyUp:(NSEvent*)event {
-  // cru::log::TagDebug(u"CruView", u"Recieved key up.");
+  // cru::CRU_LOG_DEBUG(u"CruView", u"Recieved key up.");
 
   auto key_modifier = GetKeyModifier(event);
   auto c = cru::platform::gui::osx::KeyCodeFromOsxToCru(event.keyCode);
@@ -698,7 +674,7 @@ const std::unordered_set<KeyCode> input_context_handle_codes_when_has_text{
 
   auto ss = Convert(s);
 
-  // cru::log::TagDebug(u"CruView",
+  // cru::CRU_LOG_DEBUG(u"CruView",
   //                    u"Received setMarkedText string: {}, selected range: ({}, {}), "
   //                    u"replacement range: ({}, {}).",
   //                    ss, selectedRange.location, selectedRange.length, replacementRange.location,
@@ -759,7 +735,7 @@ const std::unordered_set<KeyCode> input_context_handle_codes_when_has_text{
   _input_context_p->SetCompositionText(cru::platform::gui::CompositionText());
   cru::String ss = Convert(s);
 
-  // cru::log::TagDebug(u"CruView", u"Finish composition: {}, replacement range: ({}, {})", ss,
+  // cru::CRU_LOG_DEBUG(u"CruView", u"Finish composition: {}, replacement range: ({}, {})", ss,
   //                    replacementRange.location, replacementRange.length);
 
   _input_context_p->RaiseCompositionEvent();

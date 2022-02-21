@@ -19,7 +19,7 @@ struct AfterLayoutEventArgs {};
 // The bridge between control tree and native window.
 class CRU_UI_API WindowHost : public Object {
   friend controls::Control;
-  CRU_DEFINE_CLASS_LOG_TAG(u"cru::ui::host::WindowHost")
+  CRU_DEFINE_CLASS_LOG_TAG(u"WindowHost")
 
  public:
   explicit WindowHost(controls::Control* root_control);

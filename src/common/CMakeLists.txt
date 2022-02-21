@@ -2,13 +2,14 @@ add_library(cru_base SHARED
 	Base.cpp
 	Exception.cpp
 	Format.cpp
-	Logger.cpp
 	PropertyTree.cpp
 	String.cpp
 	StringUtil.cpp
 	io/Stream.cpp
 	io/Resource.cpp
 	io/MemoryStream.cpp
+	log/Logger.cpp
+	log/StdioLogTarget.cpp
 	platform/Exception.cpp
 )
 target_compile_definitions(cru_base PRIVATE CRU_BASE_EXPORT_API)

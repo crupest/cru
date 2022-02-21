@@ -1,6 +1,6 @@
 #include "cru/win/gui/GodWindow.h"
 
-#include "cru/common/Logger.h"
+#include "cru/common/log/Logger.h"
 #include "cru/win/gui/Exception.h"
 #include "cru/win/gui/UiApplication.h"
 #include "cru/win/gui/WindowClass.h"
@@ -43,7 +43,7 @@ GodWindow::GodWindow(WinUiApplication* application) {
 GodWindow::~GodWindow() {
   if (!::DestroyWindow(hwnd_)) {
     // Although this could be "safely" ignore.
-    log::TagWarn(log_tag, u"Failed to destroy god window.");
+    CRU_LOG_WARN(u"Failed to destroy god window.");
   }
 }
 

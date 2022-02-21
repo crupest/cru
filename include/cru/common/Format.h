@@ -92,7 +92,7 @@ struct FormatToken {
   String place_holder_option;
 };
 
-std::vector<FormatToken> CRU_BASE_API ParseToFormatTokenList(const String& str);
+std::vector<FormatToken> CRU_BASE_API ParseToFormatTokenList(StringView str);
 
 void CRU_BASE_API FormatAppendFromFormatTokenList(
     String& current, const std::vector<FormatToken>& format_token_list,
@@ -123,7 +123,7 @@ void FormatAppendFromFormatTokenList(
 }  // namespace details
 
 template <typename... T>
-String Format(const String& format, T&&... args) {
+String Format(StringView format, T&&... args) {
   String result;
 
   details::FormatAppendFromFormatTokenList(

@@ -76,7 +76,7 @@ class TextControlMovePattern : public Object {
 };
 
 class CRU_UI_API TextHostControlService : public Object {
-  CRU_DEFINE_CLASS_LOG_TAG(u"cru::ui::controls::TextControlService")
+  CRU_DEFINE_CLASS_LOG_TAG(u"TextControlService")
 
  public:
   TextHostControlService(gsl::not_null<Control*> control);

@@ -46,7 +46,7 @@ FormatToken ParsePlaceHolder(String place_holder_string) {
   }
 }
 
-std::vector<FormatToken> ParseToFormatTokenList(const String& str) {
+std::vector<FormatToken> ParseToFormatTokenList(StringView str) {
   std::vector<FormatToken> result;
 
   auto push_char = [&result](char16_t c) {

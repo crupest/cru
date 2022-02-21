@@ -1,6 +1,6 @@
 #include "cru/win/gui/Clipboard.h"
 #include <winuser.h>
-#include "cru/common/Logger.h"
+#include "cru/common/log/Logger.h"
 #include "cru/win/gui/GodWindow.h"
 #include "cru/win/gui/UiApplication.h"
 

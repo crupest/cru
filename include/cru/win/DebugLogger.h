@@ -1,7 +1,7 @@
 #pragma once
 #include "Base.h"
 
-#include "cru/common/Logger.h"
+#include "cru/common/log/Logger.h"
 
 namespace cru::platform::win {
 
