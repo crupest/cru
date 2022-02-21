@@ -59,14 +59,9 @@ String GetLogTime() {
 }
 
 String MakeLogFinalMessage(const LogInfo &log_info) {
-  if (log_info.tag.empty()) {
-    return Format(u"[{}] {}: {}", GetLogTime(),
-                  LogLevelToString(log_info.level), log_info.message);
-  } else {
-    return Format(u"[{}] {} {}: {}", GetLogTime(),
-                  LogLevelToString(log_info.level), log_info.tag,
-                  log_info.message);
-  }
+  return Format(u"[{}] {} {}: {}\n", GetLogTime(),
+                LogLevelToString(log_info.level), log_info.tag,
+                log_info.message);
 }
 }  // namespace
 
@@ -81,7 +76,7 @@ Logger::Logger()
         }
       }) {}
 
-Logger::~Logger() {}
+Logger::~Logger() { log_thread_.detach(); }
 
 void Logger::Log(LogInfo log_info) {
 #ifndef CRU_DEBUG
