@@ -27,9 +27,8 @@ jobs:
           key: vcpkg-${{ runner.os }}
 
       - name: Setup Ninja
-        uses: ashutoshvarma/setup-ninja@master
-        with:
-          version: 1.10.2
+        run: |
+          brew install ninja
 
       - name: Build
         run: |
@@ -55,9 +54,8 @@ jobs:
           key: vcpkg-${{ runner.os }}
 
       - name: Setup Ninja
-        uses: ashutoshvarma/setup-ninja@master
-        with:
-          version: 1.10.2
+        run: |
+          choco install ninja
 
       - name: Build
         run: |
