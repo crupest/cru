@@ -39,6 +39,7 @@ add_library(cru_ui SHARED
 	mapper/ThicknessMapper.cpp
 	mapper/style/AndConditionMapper.cpp
 	mapper/style/BorderStylerMapper.cpp
+	mapper/style/CheckedConditionMapper.cpp
 	mapper/style/ClickStateConditionMapper.cpp
 	mapper/style/CursorStylerMapper.cpp
 	mapper/style/FocusConditionMapper.cpp

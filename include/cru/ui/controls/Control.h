@@ -3,6 +3,7 @@
 #include "../events/UiEvents.h"
 #include "../render/RenderObject.h"
 #include "../style/StyleRuleSet.h"
+#include "cru/ui/render/MeasureRequirement.h"
 
 namespace cru::ui::controls {
 
@@ -13,8 +14,7 @@ namespace cru::ui::controls {
  *  - GetRenderObject()
  *  - ForEachChild(const std::function<void(Control*)>& predicate)
  *  - RemoveChild(Control* child)
- * The last two methods are totally for convenient control tree management. The
- * former one is even not used.
+ * The last two methods are totally for convenient control tree management.
  */
 class CRU_UI_API Control : public Object {
   friend class RootControl;
@@ -51,6 +51,13 @@ class CRU_UI_API Control : public Object {
 
  public:
   virtual render::RenderObject* GetRenderObject() const = 0;
+
+  render::MeasureSize GetPreferredSize() {
+    return GetRenderObject()->GetPreferredSize();
+  }
+  void SetPreferredSize(const render::MeasureSize& size) {
+    GetRenderObject()->SetPreferredSize(size);
+  }
 
   //*************** region: focus ***************
  public:
