@@ -1,6 +1,7 @@
 add_library(cru_ui SHARED
 	Helper.cpp
 	ThemeManager.cpp
+	ThemeResourceDictionary.cpp
 	components/Component.cpp
 	components/Menu.cpp
 	components/PopupButton.cpp

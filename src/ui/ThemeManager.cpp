@@ -7,6 +7,7 @@
 #include "cru/platform/graphics/Brush.h"
 #include "cru/platform/graphics/Factory.h"
 #include "cru/platform/gui/UiApplication.h"
+#include "cru/ui/ThemeResourceDictionary.h"
 #include "cru/ui/style/StyleRuleSet.h"
 #include "cru/xml/XmlParser.h"
 
@@ -24,10 +25,29 @@ ThemeManager::ThemeManager() {
     throw Exception(u"Default resources file not found.");
   }
 
-  ReadResourcesFile(String::FromStdPath(resourses_file));
+  PrependThemeResourceDictionary(
+      ThemeResourceDictionary::FromFile(String::FromStdPath(resourses_file)));
 }
 
 ThemeManager::~ThemeManager() {}
+
+std::vector<ThemeResourceDictionary*>
+ThemeManager::GetThemeResourceDictionaryList() const {
+  std::vector<ThemeResourceDictionary*> result;
+  for (const auto& theme_resource_dictionary :
+       theme_resource_dictionary_list_) {
+    result.push_back(theme_resource_dictionary.get());
+  }
+  return result;
+}
+
+void ThemeManager::PrependThemeResourceDictionary(
+    std::unique_ptr<ThemeResourceDictionary> theme_resource_dictionary) {
+  theme_resource_dictionary_list_.insert(
+      theme_resource_dictionary_list_.begin(),
+      std::move(theme_resource_dictionary));
+  theme_resource_change_event_.Raise(nullptr);
+}
 
 std::shared_ptr<platform::graphics::IBrush> ThemeManager::GetResourceBrush(
     const String& key) {
@@ -42,45 +62,5 @@ std::shared_ptr<platform::graphics::IFont> ThemeManager::GetResourceFont(
 std::shared_ptr<style::StyleRuleSet> ThemeManager::GetResourceStyleRuleSet(
     const String& key) {
   return GetResource<std::shared_ptr<style::StyleRuleSet>>(key);
-}
-
-void ThemeManager::ReadResourcesFile(const String& file_path) {
-  io::FileStream stream(file_path, io::OpenFileFlags::Read);
-  auto xml_string = stream.ReadAllAsString();
-  auto parser = xml::XmlParser(xml_string);
-  SetThemeXml(parser.Parse());
-}
-
-void ThemeManager::SetThemeXml(xml::XmlElementNode* root) {
-  theme_resource_xml_root_.reset(root);
-  theme_resource_map_.clear();
-
-  if (!theme_resource_xml_root_->GetTag().CaseInsensitiveEqual(u"Theme")) {
-    throw Exception(u"Root tag of theme must be \"Theme\".");
-  }
-
-  for (auto child : theme_resource_xml_root_->GetChildren()) {
-    if (child->IsElementNode()) {
-      auto c = child->AsElement();
-      if (c->GetTag().CaseInsensitiveEqual(u"Resource")) {
-        auto key_attr = c->GetOptionalAttributeCaseInsensitive(u"key");
-        if (!key_attr) {
-          throw Exception(u"\"key\" attribute is required for resource.");
-        }
-        if (!c->GetChildElementCount()) {
-          throw Exception(u"Resource must have only one child element.");
-        }
-
-        ResourceEntry entry;
-
-        entry.name = *key_attr;
-        entry.xml_node = c->GetFirstChildElement();
-
-        theme_resource_map_[entry.name] = std::move(entry);
-      }
-    }
-  }
-
-  theme_resource_change_event_.Raise(nullptr);
 }
 }  // namespace cru::ui
