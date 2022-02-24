@@ -26,4 +26,8 @@ ClonablePtr<CursorStyler> CursorStyler::Create(
 void CursorStyler::Apply(controls::Control *control) const {
   control->SetCursor(cursor_);
 }
+
+void PreferredSizeStyler::Apply(controls::Control *control) const {
+  control->SetPreferredSize(size_);
+}
 }  // namespace cru::ui::style

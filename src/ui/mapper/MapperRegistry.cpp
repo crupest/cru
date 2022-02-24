@@ -17,6 +17,7 @@
 #include "cru/ui/mapper/style/HoverConditionMapper.h"
 #include "cru/ui/mapper/style/NoConditionMapper.h"
 #include "cru/ui/mapper/style/OrConditionMapper.h"
+#include "cru/ui/mapper/style/PreferredSizeStylerMapper.h"
 #include "cru/ui/mapper/style/StyleRuleMapper.h"
 #include "cru/ui/mapper/style/StyleRuleSetMapper.h"
 
@@ -47,6 +48,7 @@ MapperRegistry::MapperRegistry() {
   RegisterMapper(new HoverConditionMapper());
   RegisterMapper(new NoConditionMapper());
   RegisterMapper(new OrConditionMapper());
+  RegisterMapper(new PreferredSizeStylerMapper());
   RegisterMapper(new StyleRuleMapper());
   RegisterMapper(new StyleRuleSetMapper());
 }

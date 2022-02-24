@@ -3,6 +3,7 @@
 #include "ApplyBorderStyleInfo.h"
 #include "cru/common/ClonablePtr.h"
 #include "cru/platform/gui/Cursor.h"
+#include "cru/ui/render/MeasureRequirement.h"
 
 #include <memory>
 #include <vector>
@@ -90,5 +91,25 @@ class CRU_UI_API CursorStyler : public Styler {
 
  private:
   std::shared_ptr<platform::gui::ICursor> cursor_;
+};
+
+class CRU_UI_API PreferredSizeStyler : public Styler {
+ public:
+  static ClonablePtr<PreferredSizeStyler> Create(render::MeasureSize size) {
+    return ClonablePtr<PreferredSizeStyler>(new PreferredSizeStyler(size));
+  }
+
+  explicit PreferredSizeStyler(render::MeasureSize size) : size_(size) {}
+
+  void Apply(controls::Control* control) const override;
+
+  PreferredSizeStyler* Clone() const override {
+    return new PreferredSizeStyler(size_);
+  }
+
+  render::MeasureSize GetPreferredSize() const { return size_; }
+
+ private:
+  render::MeasureSize size_;
 };
 }  // namespace cru::ui::style
