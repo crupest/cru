@@ -5,6 +5,7 @@
 #include "cru/ui/mapper/CornerRadiusMapper.h"
 #include "cru/ui/mapper/CursorMapper.h"
 #include "cru/ui/mapper/FontMapper.h"
+#include "cru/ui/mapper/MeasureLengthMapper.h"
 #include "cru/ui/mapper/PointMapper.h"
 #include "cru/ui/mapper/SizeMapper.h"
 #include "cru/ui/mapper/ThicknessMapper.h"
@@ -33,6 +34,7 @@ MapperRegistry::MapperRegistry() {
   RegisterMapper(new BrushMapper());
   RegisterMapper(new CornerRadiusMapper());
   RegisterMapper(new FontMapper());
+  RegisterMapper(new MeasureLengthMapper());
   RegisterMapper(new PointMapper());
   RegisterMapper(new SizeMapper());
   RegisterMapper(new ThicknessMapper());

@@ -34,6 +34,7 @@ add_library(cru_ui SHARED
 	mapper/FontMapper.cpp
 	mapper/Mapper.cpp
 	mapper/MapperRegistry.cpp
+	mapper/MeasureLengthMapper.cpp
 	mapper/PointMapper.cpp
 	mapper/SizeMapper.cpp
 	mapper/ThicknessMapper.cpp

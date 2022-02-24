@@ -1,4 +1,5 @@
 #include "cru/ui/mapper/style/PreferredSizeStylerMapper.h"
+#include "cru/ui/mapper/MapperRegistry.h"
 #include "cru/ui/render/MeasureRequirement.h"
 #include "cru/ui/style/Styler.h"
 
@@ -11,14 +12,18 @@ bool PreferredSizeStylerMapper::XmlElementIsOfThisType(
 ClonablePtr<ui::style::PreferredSizeStyler>
 PreferredSizeStylerMapper::DoMapFromXml(xml::XmlElementNode* node) {
   render::MeasureSize size;
+
+  auto measure_length_mapper =
+      MapperRegistry::GetInstance()->GetMapper<render::MeasureLength>();
+
   auto width_attribute = node->GetOptionalAttributeCaseInsensitive(u"width");
   if (width_attribute) {
-    size.width = width_attribute->ParseToFloat();
+    size.width = measure_length_mapper->MapFromString(*width_attribute);
   }
 
   auto height_attribute = node->GetOptionalAttributeCaseInsensitive(u"height");
   if (height_attribute) {
-    size.height = height_attribute->ParseToFloat();
+    size.height = measure_length_mapper->MapFromString(*height_attribute);
   }
 
   return ui::style::PreferredSizeStyler::Create(size);
