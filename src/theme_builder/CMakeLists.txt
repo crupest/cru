@@ -21,6 +21,7 @@ add_executable(cru_theme_builder
 	components/stylers/BorderStylerEditor.cpp
 	components/stylers/CompoundStylerEditor.cpp
 	components/stylers/CursorStylerEditor.cpp
+	components/stylers/PreferredSizeStylerEditor.cpp
 	components/stylers/StylerEditor.cpp
 )
 

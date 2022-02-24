@@ -1,0 +1,34 @@
+#include "PreferredSizeStylerEditor.h"
+#include "cru/ui/style/Styler.h"
+
+namespace cru::theme_builder::components::stylers {
+PreferredSizeStylerEditor::PreferredSizeStylerEditor() {
+  SetLabel(u"Preferred Size Styler");
+  GetContainer()->AddChild(width_editor_.GetRootControl());
+  GetContainer()->AddChild(height_editor_.GetRootControl());
+
+  width_editor_.SetLabel(u"Width");
+  height_editor_.SetLabel(u"Height");
+
+  ConnectChangeEvent(width_editor_);
+  ConnectChangeEvent(height_editor_);
+}
+
+PreferredSizeStylerEditor::~PreferredSizeStylerEditor() {}
+
+ClonablePtr<ui::style::PreferredSizeStyler>
+PreferredSizeStylerEditor::GetValue() {
+  return ui::style::PreferredSizeStyler::Create(ui::render::MeasureSize{
+      width_editor_.GetValue(), height_editor_.GetValue()});
+}
+
+void PreferredSizeStylerEditor::SetValue(ui::style::PreferredSizeStyler* styler,
+                                         bool trigger_change) {
+  width_editor_.SetValue(styler->GetPreferredSize().width, false);
+  height_editor_.SetValue(styler->GetPreferredSize().height, false);
+
+  if (trigger_change) {
+    RaiseChangeEvent();
+  }
+}
+}  // namespace cru::theme_builder::components::stylers
