@@ -1,4 +1,5 @@
 #include "cru/ui/controls/CheckBox.h"
+#include "cru/ui/ThemeManager.h"
 #include "cru/ui/helper/ClickDetector.h"
 #include "cru/ui/render/BorderRenderObject.h"
 
@@ -7,6 +8,11 @@ CheckBox::CheckBox()
     : container_render_object_(new render::BorderRenderObject()),
       click_detector_(this) {
   container_render_object_->SetAttachedControl(this);
+
+  container_render_object_->SetBorderEnabled(true);
+  auto default_checkbox_style =
+      ThemeManager::GetInstance()->GetResourceStyleRuleSet(u"checkbox.style");
+  GetStyleRuleSet()->SetParent(std::move(default_checkbox_style));
 
   click_detector_.ClickEvent()->AddHandler(
       [this](const helper::ClickEventArgs&) { Toggle(); });

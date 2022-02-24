@@ -160,6 +160,31 @@
         </StyleRuleSet>
     </Resource>
 
+    <Resource key="checkbox.style">
+        <StyleRuleSet>
+            <StyleRule>
+                <NoCondition />
+                <PreferredSizeStyler width="20" height="20" />
+                <BorderStyler>
+                    <BorderStyle>
+                        <Color value="black" />
+                        <Thickness value="1" />
+                        <CornerRadius all="5" />
+                        <Color name="background" value="white" />
+                    </BorderStyle>
+                </BorderStyler>
+            </StyleRule>
+            <StyleRule>
+                <CheckedCondition value="true" />
+                <BorderStyler>
+                    <BorderStyle>
+                        <Color name="background" value="skyblue" />
+                    </BorderStyle>
+                </BorderStyler>
+            </StyleRule>
+        </StyleRuleSet>
+    </Resource>
+
     <Resource key="menuitem.style">
         <StyleRuleSet></StyleRuleSet>
     </Resource>

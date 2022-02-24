@@ -1,5 +1,7 @@
 #include "cru/ui/mapper/style/StyleRuleMapper.h"
 #include "cru/common/ClonablePtr.h"
+#include "cru/common/Exception.h"
+#include "cru/common/log/Logger.h"
 #include "cru/ui/mapper/MapperRegistry.h"
 #include "cru/ui/mapper/style/IConditionMapper.h"
 #include "cru/ui/mapper/style/IStylerMapper.h"
@@ -44,6 +46,10 @@ ClonablePtr<ui::style::StyleRule> StyleRuleMapper::DoMapFromXml(
             break;
           }
         }
+      }
+
+      if (!resolved) {
+        throw Exception(u"Unknown element in StyleRule: " + c->GetTag());
       }
     }
   }

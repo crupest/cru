@@ -112,10 +112,9 @@ void StyleRuleSetBind::UpdateStyle() {
   // reverse.
   for (auto iter = ruleset_chain_cache_.crbegin();
        iter != ruleset_chain_cache_.crend(); ++iter) {
-    for (const auto& rule : (*iter)->GetRules())
-      if (rule.GetCondition()->Judge(control_)) {
-        rule.GetStyler()->Apply(control_);
-      }
+    for (const auto& rule : (*iter)->GetRules()) {
+      rule.CheckAndApply(control_);
+    }
   }
 }
 }  // namespace cru::ui::style

@@ -118,7 +118,7 @@ Size BorderRenderObject::OnMeasureContent(const MeasureRequirement& requirement,
     child->Measure(requirement, preferred_size);
     return child->GetDesiredSize();
   } else {
-    return Size{};
+    return preferred_size.GetSizeOr0();
   }
 }
 
