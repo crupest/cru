@@ -1,6 +1,7 @@
 #pragma once
 #include "RenderObject.h"
 
+#include <memory>
 #include <string>
 
 namespace cru::ui::render {
@@ -37,6 +38,7 @@ class CRU_UI_API TextRenderObject : public RenderObject {
   String GetText() const;
   void SetText(String new_text);
 
+  std::shared_ptr<platform::graphics::IBrush> GetBrush() { return brush_; }
   void SetBrush(std::shared_ptr<platform::graphics::IBrush> new_brush);
 
   std::shared_ptr<platform::graphics::IFont> GetFont() const;

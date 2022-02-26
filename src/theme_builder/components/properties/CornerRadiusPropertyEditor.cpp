@@ -1,12 +1,15 @@
 #include "CornerRadiusPropertyEditor.h"
 #include "cru/ui/Base.h"
+#include "cru/ui/controls/FlexLayout.h"
 
 namespace cru::theme_builder::components::properties {
 CornerRadiusPropertyEditor::CornerRadiusPropertyEditor() {
-  left_top_editor_.SetLabel(u"Left Top");
-  right_top_editor_.SetLabel(u"Right Top");
-  left_bottom_editor_.SetLabel(u"Left Bottom");
-  right_bottom_editor_.SetLabel(u"Right Bottom");
+  container_.SetItemCrossAlign(ui::controls::FlexCrossAlignment::Start);
+
+  left_top_editor_.SetLabel(u"⌜");
+  right_top_editor_.SetLabel(u"⌝");
+  left_bottom_editor_.SetLabel(u"⌞");
+  right_bottom_editor_.SetLabel(u"⌟");
 
   container_.SetFlexDirection(ui::controls::FlexDirection::Vertical);
   container_.AddChild(left_top_editor_.GetRootControl());

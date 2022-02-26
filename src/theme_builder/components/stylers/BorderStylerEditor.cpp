@@ -15,6 +15,11 @@ BorderStylerEditor::BorderStylerEditor() {
   GetContainer()->AddChild(foreground_brush_editor_.GetRootControl());
   GetContainer()->AddChild(background_brush_editor_.GetRootControl());
 
+  thickness_editor_.GetEditor()->SetLabel(u"Thickness");
+  brush_editor_.GetEditor()->SetLabel(u"Border");
+  foreground_brush_editor_.GetEditor()->SetLabel(u"Foreground");
+  background_brush_editor_.GetEditor()->SetLabel(u"Background");
+
   ConnectChangeEvent(corner_radius_editor_);
   ConnectChangeEvent(thickness_editor_);
   ConnectChangeEvent(brush_editor_);

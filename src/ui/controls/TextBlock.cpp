@@ -1,5 +1,8 @@
 #include "cru/ui/controls/TextBlock.h"
 
+#include "../Helper.h"
+#include "cru/platform/graphics/Factory.h"
+#include "cru/platform/gui/UiApplication.h"
 #include "cru/ui/ThemeManager.h"
 #include "cru/ui/render/CanvasRenderObject.h"
 #include "cru/ui/render/StackLayoutRenderObject.h"
@@ -38,6 +41,11 @@ void TextBlock::SetText(String text) { service_->SetText(std::move(text)); }
 bool TextBlock::IsSelectable() const { return service_->IsEnabled(); }
 
 void TextBlock::SetSelectable(bool value) { service_->SetEnabled(value); }
+
+void TextBlock::SetTextColor(const Color& color) {
+  text_render_object_->SetBrush(
+      GetUiApplication()->GetGraphicsFactory()->CreateSolidColorBrush(color));
+}
 
 gsl::not_null<render::TextRenderObject*> TextBlock::GetTextRenderObject() {
   return text_render_object_.get();

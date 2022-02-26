@@ -10,7 +10,10 @@
 namespace cru::theme_builder::components::conditions {
 ConditionEditor::ConditionEditor() {
   container_.SetFlexDirection(ui::controls::FlexDirection::Vertical);
-  container_.AddChild(&label_);
+  container_.AddChild(&head_container_);
+
+  head_container_.SetFlexDirection(ui::controls::FlexDirection::Horizontal);
+  head_container_.AddChild(&label_);
 }
 
 ConditionEditor::~ConditionEditor() {}

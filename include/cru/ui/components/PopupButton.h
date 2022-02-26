@@ -15,8 +15,14 @@ class CRU_UI_API PopupMenuTextButton : public Component {
  public:
   ui::controls::Control* GetRootControl() override { return &button_; }
 
+  ui::controls::Button* GetButton() { return &button_; }
+
   String GetButtonText() { return button_text_.GetText(); }
   void SetButtonText(String text) { button_text_.SetText(std::move(text)); }
+
+  void SetButtonTextColor(const Color& color) {
+    button_text_.SetTextColor(color);
+  }
 
   void SetMenuItems(std::vector<String> items);
 

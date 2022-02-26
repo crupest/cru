@@ -43,8 +43,8 @@ class CompoundConditionEditor : public ConditionEditor {
                    bool trigger_change = true);
 
  private:
-  ui::controls::FlexLayout children_container_;
   ui::components::PopupMenuTextButton add_child_button_;
+  ui::controls::FlexLayout children_container_;
   std::vector<std::unique_ptr<CompoundConditionEditorChild>> children_;
 };
 

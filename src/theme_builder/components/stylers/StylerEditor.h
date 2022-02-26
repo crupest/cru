@@ -15,6 +15,8 @@ class StylerEditor : public Editor {
 
   ui::controls::FlexLayout* GetContainer() { return &container_; }
 
+  ui::controls::FlexLayout* GetHeadContainer() { return &head_container_; }
+
   String GetLabel() const { return label_.GetText(); }
   void SetLabel(String label) { label_.SetText(std::move(label)); }
 
@@ -22,6 +24,7 @@ class StylerEditor : public Editor {
 
  private:
   ui::controls::FlexLayout container_;
+  ui::controls::FlexLayout head_container_;
   ui::controls::TextBlock label_;
 };
 

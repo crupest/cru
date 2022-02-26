@@ -5,6 +5,9 @@
 #include "FocusConditionEditor.h"
 #include "NoConditionEditor.h"
 #include "cru/common/ClonablePtr.h"
+#include "cru/platform/Color.h"
+#include "cru/ui/ThemeManager.h"
+#include "cru/ui/controls/FlexLayout.h"
 #include "cru/ui/style/Condition.h"
 
 namespace cru::theme_builder::components::conditions {
@@ -14,8 +17,12 @@ CompoundConditionEditorChild::CompoundConditionEditorChild(
   container_.SetFlexDirection(ui::controls::FlexDirection::Horizontal);
   container_.AddChild(&remove_button_);
 
+  remove_button_.GetStyleRuleSet()->SetParent(
+      ui::ThemeManager::GetInstance()->GetResourceStyleRuleSet(
+          u"cru.theme_builder.icon-button.style"));
   remove_button_.SetChild(&remove_button_text_);
-  remove_button_text_.SetText(u"-");
+  remove_button_text_.SetText(u"x");
+  remove_button_text_.SetTextColor(ui::colors::red);
 
   container_.AddChild(condition_editor_->GetRootControl());
 
@@ -29,8 +36,16 @@ CompoundConditionEditor::CompoundConditionEditor() {
   SetLabel(u"Compound Condition");
 
   GetContainer()->AddChild(&children_container_);
-  GetContainer()->AddChild(add_child_button_.GetRootControl());
+  children_container_.SetItemCrossAlign(
+      ui::controls::FlexCrossAlignment::Start);
+
+  GetHeadContainer()->AddChild(add_child_button_.GetRootControl());
+
+  add_child_button_.GetButton()->GetStyleRuleSet()->SetParent(
+      ui::ThemeManager::GetInstance()->GetResourceStyleRuleSet(
+          u"cru.theme_builder.icon-button.style"));
   add_child_button_.SetButtonText(u"+");
+  add_child_button_.SetButtonTextColor(ui::colors::green);
   add_child_button_.SetMenuItems({u"And Condition", u"Or Condition",
                                   u"Click State Condition", u"Focus Condition",
                                   u"Checked Condition", u"No Condition"});

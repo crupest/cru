@@ -3,6 +3,7 @@
 
 #include "../render/TextRenderObject.h"
 #include "TextHostControlService.h"
+#include "cru/platform/graphics/Brush.h"
 
 namespace cru::ui::controls {
 class CRU_UI_API TextBlock : public NoChildControl,
@@ -32,6 +33,14 @@ class CRU_UI_API TextBlock : public NoChildControl,
 
   bool IsSelectable() const;
   void SetSelectable(bool value);
+
+  std::shared_ptr<platform::graphics::IBrush> GetTextBrush() const {
+    return text_render_object_->GetBrush();
+  }
+  void SetTextBrush(std::shared_ptr<platform::graphics::IBrush> brush) {
+    text_render_object_->SetBrush(std::move(brush));
+  }
+  void SetTextColor(const Color& color);
 
   gsl::not_null<render::TextRenderObject*> GetTextRenderObject() override;
   render::ScrollRenderObject* GetScrollRenderObject() override {

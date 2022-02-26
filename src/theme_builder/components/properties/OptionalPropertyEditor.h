@@ -2,6 +2,7 @@
 #include "../Editor.h"
 #include "cru/ui/controls/CheckBox.h"
 #include "cru/ui/controls/FlexLayout.h"
+#include "cru/ui/controls/TextBlock.h"
 
 #include <optional>
 
@@ -12,7 +13,9 @@ class OptionalPropertyEditor : public Editor {
   using PropertyType = typename TEditor::PropertyType;
 
   OptionalPropertyEditor() {
+    container_.AddChild(&label_);
     container_.AddChild(&check_box_);
+    check_box_.SetMargin({0, 0, 10, 0});
     container_.AddChild(editor_.GetRootControl());
 
     editor_.ChangeEvent()->AddHandler([this](std::nullptr_t) {
@@ -24,6 +27,9 @@ class OptionalPropertyEditor : public Editor {
   ~OptionalPropertyEditor() override {}
 
   ui::controls::Control* GetRootControl() override { return &container_; }
+
+  String GetLabel() const { return label_.GetText(); }
+  void SetLabel(String label) { label_.SetText(std::move(label)); }
 
   bool IsEnabled() const { return check_box_.IsChecked(); }
   void SetEnabled(bool enabled, bool trigger_change = true) {
@@ -52,6 +58,7 @@ class OptionalPropertyEditor : public Editor {
 
  private:
   ui::controls::FlexLayout container_;
+  ui::controls::TextBlock label_;
   ui::controls::CheckBox check_box_;
   TEditor editor_;
 };

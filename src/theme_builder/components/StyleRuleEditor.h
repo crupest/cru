@@ -4,6 +4,7 @@
 #include "cru/ui/controls/Button.h"
 #include "cru/ui/controls/Control.h"
 #include "cru/ui/controls/FlexLayout.h"
+#include "cru/ui/controls/TextBlock.h"
 #include "cru/ui/style/StyleRule.h"
 #include "stylers/StylerEditor.h"
 
@@ -29,9 +30,11 @@ class StyleRuleEditor : public ui::components::Component {
 
  private:
   ui::controls::FlexLayout main_layout_;
+  ui::controls::TextBlock label_;
+  ui::controls::FlexLayout head_layout_;
   ui::controls::Button remove_button_;
   ui::controls::TextBlock remove_button_text_;
-  ui::controls::FlexLayout right_layout_;
+  ui::controls::FlexLayout body_layout_;
   std::unique_ptr<components::conditions::ConditionEditor> condition_editor_;
   std::unique_ptr<components::stylers::StylerEditor> styler_editor_;
 

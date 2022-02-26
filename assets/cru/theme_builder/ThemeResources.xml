@@ -3,6 +3,24 @@
         <Font size="16" />
     </Resource>
 
+    <Resource key="cru.theme_builder.icon-button.style">
+        <StyleRuleSet>
+            <StyleRule>
+                <NoCondition />
+                <PreferredSizeStyler width="30" height="20" />
+                <BorderStyler>
+                    <BorderStyle>
+                        <Thickness value="0" />
+                    </BorderStyle>
+                </BorderStyler>
+                <MarginStyler value="10 0 0 0" />
+                <CursorStyler>
+                    <Cursor value="hand" />
+                </CursorStyler>
+            </StyleRule>
+        </StyleRuleSet>
+    </Resource>
+
     <Resource key="cru.theme_builder.color_cube.style">
         <StyleRuleSet>
             <StyleRule>

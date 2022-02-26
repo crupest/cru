@@ -2,6 +2,7 @@
 #include "BorderStylerEditor.h"
 #include "CursorStylerEditor.h"
 #include "cru/common/ClonablePtr.h"
+#include "cru/ui/ThemeManager.h"
 #include "cru/ui/style/Styler.h"
 
 namespace cru::theme_builder::components::stylers {
@@ -11,8 +12,12 @@ CompoundStylerEditorChild::CompoundStylerEditorChild(
   container_.SetFlexDirection(ui::controls::FlexDirection::Horizontal);
   container_.AddChild(&remove_button_);
 
+  remove_button_.GetStyleRuleSet()->SetParent(
+      ui::ThemeManager::GetInstance()->GetResourceStyleRuleSet(
+          u"cru.theme_builder.icon-button.style"));
   remove_button_.SetChild(&remove_button_text_);
-  remove_button_text_.SetText(u"X");
+  remove_button_text_.SetText(u"x");
+  remove_button_text_.SetTextColor(ui::colors::red);
 
   container_.AddChild(styler_editor_->GetRootControl());
 
@@ -24,10 +29,17 @@ CompoundStylerEditorChild::~CompoundStylerEditorChild() {}
 
 CompoundStylerEditor::CompoundStylerEditor() {
   SetLabel(u"Compound Styler");
-  children_container_.SetFlexDirection(ui::controls::FlexDirection::Vertical);
   GetContainer()->AddChild(&children_container_);
+  children_container_.SetFlexDirection(ui::controls::FlexDirection::Vertical);
+  children_container_.SetItemCrossAlign(
+      ui::controls::FlexCrossAlignment::Start);
 
+  GetHeadContainer()->AddChild(add_child_button_.GetRootControl());
   add_child_button_.SetButtonText(u"+");
+  add_child_button_.GetButton()->GetStyleRuleSet()->SetParent(
+      ui::ThemeManager::GetInstance()->GetResourceStyleRuleSet(
+          u"cru.theme_builder.icon-button.style"));
+  add_child_button_.SetButtonTextColor(ui::colors::green);
   add_child_button_.SetMenuItems({
       u"Compound Styler",
       u"Border Styler",
