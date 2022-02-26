@@ -1,15 +1,20 @@
 <Theme>
+    <Resource key="cru.theme_builder.editor.label.font">
+        <Font size="16" />
+    </Resource>
+
     <Resource key="cru.theme_builder.color_cube.style">
         <StyleRuleSet>
             <StyleRule>
                 <NoCondition />
-                <PreferredSizeStyler width="20" height="20" />
+                <PreferredSizeStyler width="30" height="20" />
                 <BorderStyler>
                     <BorderStyle>
                         <Color value="black" />
                         <Thickness value="1" />
                     </BorderStyle>
                 </BorderStyler>
+                <MarginStyler value="10 0 0 0" />
             </StyleRule>
         </StyleRuleSet>
     </Resource>

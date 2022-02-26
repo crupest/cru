@@ -19,7 +19,9 @@ ColorPropertyEditor::ColorPropertyEditor() {
                           ->CreateSolidColorBrush(color_);
 
   color_cube_.SetForegroundBrush(color_cube_brush_);
+
   color_text_.SetText(color_.ToString());
+  color_text_.SetMargin(ui::Thickness(10, 0, 0, 0));
 
   color_text_.TextChangeEvent()->AddHandler([this](std::nullptr_t) {
     auto text = color_text_.GetTextView();

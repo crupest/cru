@@ -1,5 +1,6 @@
 #pragma once
 
+#include <double-conversion/double-conversion.h>
 #include "Exception.h"
 #include "String.h"
 
@@ -28,11 +29,12 @@ std::enable_if_t<std::is_integral_v<T>, String> ToString(T value) {
   return String::FromBuffer(b, size, size);
 }
 
-template <typename T>
-std::enable_if_t<std::is_floating_point_v<T>, String> ToString(T value) {
-  auto str = std::to_string(value);
-  return String(str.cbegin(), str.cend());
-}
+extern double_conversion::DoubleToStringConverter kDefaultDoubleToStringConverter;
+
+String ToString(float value, StringView option);
+String ToString(double value, StringView option);
+inline String ToString(float value) { return ToString(value, u""); }
+inline String ToString(double value) { return ToString(value, u""); }
 
 template <typename T>
 String ToString(const T& value, StringView option) {
