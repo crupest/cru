@@ -112,4 +112,41 @@ class CRU_UI_API PreferredSizeStyler : public Styler {
  private:
   render::MeasureSize size_;
 };
+
+class CRU_UI_API MarginStyler : public Styler {
+ public:
+  static ClonablePtr<MarginStyler> Create(const Thickness& margin) {
+    return ClonablePtr<MarginStyler>(new MarginStyler(margin));
+  }
+
+  explicit MarginStyler(const Thickness& margin) : margin_(margin) {}
+
+  void Apply(controls::Control* control) const override;
+
+  MarginStyler* Clone() const override { return new MarginStyler(margin_); }
+
+  Thickness GetMargin() const { return margin_; }
+
+ private:
+  Thickness margin_;
+};
+
+class CRU_UI_API PaddingStyler : public Styler {
+ public:
+  static ClonablePtr<PaddingStyler> Create(const Thickness& padding) {
+    return ClonablePtr<PaddingStyler>(new PaddingStyler(padding));
+  }
+
+  explicit PaddingStyler(const Thickness& padding) : padding_(padding) {}
+
+  void Apply(controls::Control* control) const override;
+
+  PaddingStyler* Clone() const override { return new PaddingStyler(padding_); }
+
+  Thickness GetPadding() const { return padding_; }
+
+ private:
+  Thickness padding_;
+};
+
 }  // namespace cru::ui::style

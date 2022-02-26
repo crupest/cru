@@ -2,6 +2,8 @@
 #include "BorderStylerEditor.h"
 #include "CompoundStylerEditor.h"
 #include "CursorStylerEditor.h"
+#include "MarginStylerEditor.h"
+#include "PaddingStylerEditor.h"
 #include "PreferredSizeStylerEditor.h"
 #include "cru/ui/style/Styler.h"
 
@@ -32,6 +34,16 @@ std::unique_ptr<StylerEditor> CreateStylerEditor(ui::style::Styler* styler) {
                  dynamic_cast<ui::style::PreferredSizeStyler*>(styler)) {
     auto editor = std::make_unique<PreferredSizeStylerEditor>();
     editor->SetValue(preferred_size_styler);
+    return editor;
+  } else if (auto margin_styler =
+                 dynamic_cast<ui::style::MarginStyler*>(styler)) {
+    auto editor = std::make_unique<MarginStylerEditor>();
+    editor->SetValue(margin_styler);
+    return editor;
+  } else if (auto padding_styler =
+                 dynamic_cast<ui::style::PaddingStyler*>(styler)) {
+    auto editor = std::make_unique<PaddingStylerEditor>();
+    editor->SetValue(padding_styler);
     return editor;
   } else {
     throw Exception(u"Unknown styler type");

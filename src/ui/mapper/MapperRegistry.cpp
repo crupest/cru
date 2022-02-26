@@ -16,8 +16,10 @@
 #include "cru/ui/mapper/style/CursorStylerMapper.h"
 #include "cru/ui/mapper/style/FocusConditionMapper.h"
 #include "cru/ui/mapper/style/HoverConditionMapper.h"
+#include "cru/ui/mapper/style/MarginStylerMapper.h"
 #include "cru/ui/mapper/style/NoConditionMapper.h"
 #include "cru/ui/mapper/style/OrConditionMapper.h"
+#include "cru/ui/mapper/style/PaddingStylerMapper.h"
 #include "cru/ui/mapper/style/PreferredSizeStylerMapper.h"
 #include "cru/ui/mapper/style/StyleRuleMapper.h"
 #include "cru/ui/mapper/style/StyleRuleSetMapper.h"
@@ -48,8 +50,10 @@ MapperRegistry::MapperRegistry() {
   RegisterMapper(new CursorStylerMapper());
   RegisterMapper(new FocusConditionMapper());
   RegisterMapper(new HoverConditionMapper());
+  RegisterMapper(new MarginStylerMapper());
   RegisterMapper(new NoConditionMapper());
   RegisterMapper(new OrConditionMapper());
+  RegisterMapper(new PaddingStylerMapper());
   RegisterMapper(new PreferredSizeStylerMapper());
   RegisterMapper(new StyleRuleMapper());
   RegisterMapper(new StyleRuleSetMapper());

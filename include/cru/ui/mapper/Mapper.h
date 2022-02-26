@@ -38,12 +38,17 @@ class CRU_UI_API MapperBase : public Object {
 
   virtual bool SupportMapFromString() { return false; }
   virtual bool SupportMapFromXml() { return false; }
-  virtual bool XmlElementIsOfThisType(xml::XmlElementNode* node) {
-    return false;
+  virtual bool XmlElementIsOfThisType(xml::XmlElementNode* node);
+
+ protected:
+  void SetAllowedTags(std::vector<String> allowed_tags) {
+    allowed_tags_ = std::move(allowed_tags);
   }
 
  private:
   std::type_index type_index_;
+
+  std::vector<String> allowed_tags_;
 };
 
 template <typename T>

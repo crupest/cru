@@ -30,4 +30,12 @@ void CursorStyler::Apply(controls::Control *control) const {
 void PreferredSizeStyler::Apply(controls::Control *control) const {
   control->SetPreferredSize(size_);
 }
+
+void MarginStyler::Apply(controls::Control *control) const {
+  control->SetMargin(margin_);
+}
+
+void PaddingStyler::Apply(controls::Control *control) const {
+  control->SetPadding(padding_);
+}
 }  // namespace cru::ui::style

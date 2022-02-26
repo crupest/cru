@@ -52,11 +52,23 @@ class CRU_UI_API Control : public Object {
  public:
   virtual render::RenderObject* GetRenderObject() const = 0;
 
-  render::MeasureSize GetPreferredSize() {
+  virtual render::MeasureSize GetPreferredSize() const {
     return GetRenderObject()->GetPreferredSize();
   }
-  void SetPreferredSize(const render::MeasureSize& size) {
+  virtual void SetPreferredSize(const render::MeasureSize& size) {
     GetRenderObject()->SetPreferredSize(size);
+  }
+
+  virtual Thickness GetMargin() const { return GetRenderObject()->GetMargin(); }
+  virtual void SetMargin(const Thickness& margin) {
+    GetRenderObject()->SetMargin(margin);
+  }
+
+  virtual Thickness GetPadding() const {
+    return GetRenderObject()->GetPadding();
+  }
+  virtual void SetPadding(const Thickness& padding) {
+    GetRenderObject()->SetPadding(padding);
   }
 
   //*************** region: focus ***************
