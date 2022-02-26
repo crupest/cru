@@ -7,6 +7,7 @@
 #include "style/StyleRuleSet.h"
 
 #include <any>
+#include <filesystem>
 #include <typeindex>
 #include <typeinfo>
 
@@ -25,9 +26,15 @@ class CRU_UI_API ThemeResourceDictionary : public Object {
   CRU_DEFINE_CLASS_LOG_TAG(u"ThemeResources");
 
  public:
-  static std::unique_ptr<ThemeResourceDictionary> FromFile(const String& file_path);
+  static std::unique_ptr<ThemeResourceDictionary> FromFile(
+      const String& file_path);
+  static std::unique_ptr<ThemeResourceDictionary> FromFile(
+      std::filesystem::path file_path) {
+    return FromFile(String::FromStdPath(file_path));
+  }
 
-  explicit ThemeResourceDictionary(xml::XmlElementNode* xml_root, bool clone = true);
+  explicit ThemeResourceDictionary(xml::XmlElementNode* xml_root,
+                                   bool clone = true);
 
   CRU_DELETE_COPY(ThemeResourceDictionary)
   CRU_DELETE_MOVE(ThemeResourceDictionary)

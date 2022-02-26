@@ -1,6 +1,7 @@
 #include "ColorPropertyEditor.h"
 #include "cru/platform/graphics/Factory.h"
 #include "cru/ui/Base.h"
+#include "cru/ui/ThemeManager.h"
 
 namespace cru::theme_builder::components::properties {
 ColorPropertyEditor::ColorPropertyEditor() {
@@ -8,9 +9,15 @@ ColorPropertyEditor::ColorPropertyEditor() {
   container_.AddChild(&color_cube_);
   container_.AddChild(&color_text_);
 
+  color_cube_.SetBorderEnabled(true);
+  color_cube_.GetStyleRuleSet()->SetParent(
+      ui::ThemeManager::GetInstance()->GetResourceStyleRuleSet(
+          u"cru.theme_builder.color_cube.style"));
+
   color_cube_brush_ = platform::gui::IUiApplication::GetInstance()
                           ->GetGraphicsFactory()
                           ->CreateSolidColorBrush(color_);
+
   color_cube_.SetForegroundBrush(color_cube_brush_);
   color_text_.SetText(color_.ToString());
 

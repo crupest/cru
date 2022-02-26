@@ -2,10 +2,12 @@
 #include "SingleChildControl.h"
 
 #include "../render/BorderRenderObject.h"
+#include "IBorderControl.h"
 
 namespace cru::ui::controls {
 class CRU_UI_API Container
-    : public SingleChildControl<render::BorderRenderObject> {
+    : public SingleChildControl<render::BorderRenderObject>,
+      public virtual IBorderControl {
   static constexpr StringView kControlType = u"Container";
 
  public:
@@ -16,6 +18,13 @@ class CRU_UI_API Container
   ~Container() override;
 
  public:
+  bool IsBorderEnabled() const {
+    return GetContainerRenderObject()->IsBorderEnabled();
+  }
+  void SetBorderEnabled(bool enabled) {
+    GetContainerRenderObject()->SetBorderEnabled(enabled);
+  }
+
   std::shared_ptr<platform::graphics::IBrush> GetForegroundBrush() const {
     return GetContainerRenderObject()->GetForegroundBrush();
   }
@@ -30,6 +39,10 @@ class CRU_UI_API Container
   void SetBackgroundBrush(
       const std::shared_ptr<platform::graphics::IBrush>& brush) {
     GetContainerRenderObject()->SetBackgroundBrush(brush);
+  }
+
+  void ApplyBorderStyle(const style::ApplyBorderStyleInfo& style) override {
+    GetContainerRenderObject()->ApplyBorderStyle(style);
   }
 
  public:
