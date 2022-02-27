@@ -50,12 +50,6 @@ void QuartzGeometryBuilder::QuadraticBezierTo(const Point &control_point,
                             control_point.y, end_point.x, end_point.y);
 }
 
-void QuartzGeometryBuilder::ArcTo(const Point &radius, float angle,
-                                  bool is_large_arc, bool is_clockwise,
-                                  const Point &end_point) {
-  // TODO: Implement this!
-}
-
 void QuartzGeometryBuilder::CloseFigure(bool close) {
   if (close) CGPathCloseSubpath(cg_mutable_path_);
 }

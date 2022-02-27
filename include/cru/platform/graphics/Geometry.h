@@ -43,7 +43,7 @@ struct CRU_PLATFORM_GRAPHICS_API IGeometryBuilder : virtual IGraphicsResource {
   }
 
   virtual void ArcTo(const Point& radius, float angle, bool is_large_arc,
-                     bool is_clockwise, const Point& end_point) = 0;
+                     bool is_clockwise, const Point& end_point);
   void RelativeArcTo(const Point& radius, float angle, bool is_large_arc,
                      bool is_clockwise, const Point& end_offset) {
     ArcTo(radius, angle, is_large_arc, is_clockwise,

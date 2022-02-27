@@ -1,5 +1,6 @@
 add_library(cru_platform_graphics SHARED
 	ForDllExport.cpp
+	Geometry.cpp
 	NullPainter.cpp
 )
 target_compile_definitions(cru_platform_graphics PRIVATE CRU_PLATFORM_GRAPHICS_EXPORT_API)
