@@ -20,8 +20,6 @@ _cru_ is built with [_CMake_](https://cmake.org/) and [_vcpkg_](https://github.c
 
 2. Symlink the vcpkg installation directory to `vcpkg` of project root directory. Or just put real vcpkg there.
 
-Currently I only build _cru_ with **LLVM/Clang**. If you compile with MSVC, you might encounter some problems.
-
 ## structure of repository
 
 - `include/` contains public headers.
