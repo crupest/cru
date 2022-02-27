@@ -34,11 +34,18 @@ class QuartzGeometryBuilder : public OsxQuartzResource,
 
   ~QuartzGeometryBuilder() override;
 
-  void BeginFigure(const Point &point) override;
-  void CloseFigure(bool close) override;
+  Point GetCurrentPosition() override;
+
+  void MoveTo(const Point &point) override;
   void LineTo(const Point &point) override;
+  void CubicBezierTo(const Point &start_control_point,
+                     const Point &end_control_point,
+                     const Point &end_point) override;
   void QuadraticBezierTo(const Point &control_point,
                          const Point &end_point) override;
+  void ArcTo(const Point &radius, float angle, bool is_large_arc,
+             bool is_clockwise, const Point &end_point) override;
+  void CloseFigure(bool close) override;
 
   std::unique_ptr<IGeometry> Build() override;
 

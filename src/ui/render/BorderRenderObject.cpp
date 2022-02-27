@@ -184,7 +184,7 @@ void BorderRenderObject::RecreateGeometry() {
 
   auto f = [](platform::graphics::IGeometryBuilder* builder, const Rect& rect,
               const CornerRadius& corner) {
-    builder->BeginFigure(Point(rect.left + corner.left_top.x, rect.top));
+    builder->MoveTo(Point(rect.left + corner.left_top.x, rect.top));
     builder->LineTo(Point(rect.GetRight() - corner.right_top.x, rect.top));
     builder->QuadraticBezierTo(
         Point(rect.GetRight(), rect.top),

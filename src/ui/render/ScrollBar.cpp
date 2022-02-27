@@ -77,7 +77,7 @@ String GenerateScrollBarThemeColorKey(ScrollBarBrushUsageKind usage,
 namespace {
 std::unique_ptr<platform::graphics::IGeometry> CreateScrollBarArrowGeometry() {
   auto geometry_builder = GetGraphicsFactory()->CreateGeometryBuilder();
-  geometry_builder->BeginFigure({-kScrollBarArrowHeight / 2, 0});
+  geometry_builder->MoveTo({-kScrollBarArrowHeight / 2, 0});
   geometry_builder->LineTo({kScrollBarArrowHeight / 2, kScrollBarArrowHeight});
   geometry_builder->LineTo({kScrollBarArrowHeight / 2, -kScrollBarArrowHeight});
   geometry_builder->CloseFigure(true);
