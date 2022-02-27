@@ -17,10 +17,17 @@ class CRU_WIN_GRAPHICS_DIRECT_API D2DGeometryBuilder
   ~D2DGeometryBuilder() override = default;
 
  public:
-  void BeginFigure(const Point& point) override;
+  Point GetCurrentPosition() override;
+
+  void MoveTo(const Point& point) override;
   void LineTo(const Point& point) override;
+  void CubicBezierTo(const Point& start_control_point,
+                     const Point& end_control_point,
+                     const Point& end_point) override;
   void QuadraticBezierTo(const Point& control_point,
                          const Point& end_point) override;
+  void ArcTo(const Point& radius, float angle, bool is_large_arc,
+             bool is_clockwise, const Point& end_point) override;
   void CloseFigure(bool close) override;
 
   std::unique_ptr<IGeometry> Build() override;
@@ -32,6 +39,8 @@ class CRU_WIN_GRAPHICS_DIRECT_API D2DGeometryBuilder
  private:
   Microsoft::WRL::ComPtr<ID2D1PathGeometry> geometry_;
   Microsoft::WRL::ComPtr<ID2D1GeometrySink> geometry_sink_;
+  Point start_point_;
+  Point current_position_;
 };
 
 class CRU_WIN_GRAPHICS_DIRECT_API D2DGeometry

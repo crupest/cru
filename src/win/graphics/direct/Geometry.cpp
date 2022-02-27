@@ -1,4 +1,6 @@
 #include "cru/win/graphics/direct/Geometry.h"
+#include <d2d1.h>
+#include <d2d1helper.h>
 
 #include "cru/win/graphics/direct/ConvertUtil.h"
 #include "cru/win/graphics/direct/Exception.h"
@@ -16,14 +18,31 @@ void D2DGeometryBuilder::CheckValidation() {
     throw ReuseException(u"The geometry builder is already disposed.");
 }
 
-void D2DGeometryBuilder::BeginFigure(const Point& point) {
+Point D2DGeometryBuilder::GetCurrentPosition() {
+  CheckValidation();
+  return current_position_;
+}
+
+void D2DGeometryBuilder::MoveTo(const Point& point) {
   CheckValidation();
   geometry_sink_->BeginFigure(Convert(point), D2D1_FIGURE_BEGIN_FILLED);
+  start_point_ = current_position_ = point;
 }
 
 void D2DGeometryBuilder::LineTo(const Point& point) {
   CheckValidation();
   geometry_sink_->AddLine(Convert(point));
+  current_position_ = point;
+}
+
+void D2DGeometryBuilder::CubicBezierTo(const Point& start_control_point,
+                                       const Point& end_control_point,
+                                       const Point& end_point) {
+  CheckValidation();
+  geometry_sink_->AddBezier(D2D1::BezierSegment(Convert(start_control_point),
+                                                Convert(end_control_point),
+                                                Convert(end_point)));
+  current_position_ = end_point;
 }
 
 void D2DGeometryBuilder::QuadraticBezierTo(const Point& control_point,
@@ -31,12 +50,26 @@ void D2DGeometryBuilder::QuadraticBezierTo(const Point& control_point,
   CheckValidation();
   geometry_sink_->AddQuadraticBezier(
       D2D1::QuadraticBezierSegment(Convert(control_point), Convert(end_point)));
+  current_position_ = end_point;
+}
+
+void D2DGeometryBuilder::ArcTo(const Point& radius, float angle,
+                               bool is_large_arc, bool is_clockwise,
+                               const Point& end_point) {
+  CheckValidation();
+  geometry_sink_->AddArc(D2D1::ArcSegment(
+      Convert(end_point), {radius.x, radius.y}, angle,
+      is_clockwise ? D2D1_SWEEP_DIRECTION_CLOCKWISE
+                   : D2D1_SWEEP_DIRECTION_COUNTER_CLOCKWISE,
+      is_large_arc ? D2D1_ARC_SIZE_LARGE : D2D1_ARC_SIZE_SMALL));
+  current_position_ = end_point;
 }
 
 void D2DGeometryBuilder::CloseFigure(bool close) {
   CheckValidation();
   geometry_sink_->EndFigure(close ? D2D1_FIGURE_END_CLOSED
                                   : D2D1_FIGURE_END_OPEN);
+  current_position_ = start_point_;
 }
 
 std::unique_ptr<IGeometry> D2DGeometryBuilder::Build() {
