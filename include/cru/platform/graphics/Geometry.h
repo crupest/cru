@@ -6,8 +6,6 @@ struct CRU_PLATFORM_GRAPHICS_API IGeometry : virtual IGraphicsResource {
   virtual bool FillContains(const Point& point) = 0;
 };
 
-// After called Build, calling every method will throw a
-
 struct CRU_PLATFORM_GRAPHICS_API IGeometryBuilder : virtual IGraphicsResource {
   virtual Point GetCurrentPosition() = 0;
 
@@ -17,9 +15,11 @@ struct CRU_PLATFORM_GRAPHICS_API IGeometryBuilder : virtual IGraphicsResource {
   }
 
   virtual void LineTo(const Point& point) = 0;
+  void LineTo(float x, float y) { LineTo(Point(x, y)); }
   void RelativeLineTo(const Point& offset) {
     LineTo(GetCurrentPosition() + offset);
   }
+  void RelativeLineTo(float x, float y) { RelativeLineTo(Point(x, y)); }
 
   virtual void CubicBezierTo(const Point& start_control_point,
                              const Point& end_control_point,
@@ -53,5 +53,7 @@ struct CRU_PLATFORM_GRAPHICS_API IGeometryBuilder : virtual IGraphicsResource {
   virtual void CloseFigure(bool close) = 0;
 
   virtual std::unique_ptr<IGeometry> Build() = 0;
+
+  void ParseAndApplySvgPathData(StringView path_d);
 };
 }  // namespace cru::platform::graphics

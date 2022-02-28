@@ -1,4 +1,5 @@
 #include "cru/common/String.h"
+#include <double-conversion/double-conversion.h>
 #include "cru/common/Exception.h"
 #include "cru/common/StringUtil.h"
 
@@ -349,7 +350,8 @@ double_conversion::StringToDoubleConverter
         double_conversion::StringToDoubleConverter::ALLOW_LEADING_SPACES |
             double_conversion::StringToDoubleConverter::ALLOW_TRAILING_SPACES |
             double_conversion::StringToDoubleConverter::
-                ALLOW_CASE_INSENSIBILITY,
+                ALLOW_CASE_INSENSIBILITY |
+            double_conversion::StringToDoubleConverter::ALLOW_TRAILING_JUNK,
         0.0, NAN, "infinity", "nan");
 
 int StringView::Compare(const StringView& other) const {

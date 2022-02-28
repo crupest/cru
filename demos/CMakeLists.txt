@@ -7,11 +7,13 @@ if(WIN32)
 	add_subdirectory(scroll_view)
 
 	add_subdirectory(input_method)
+	add_subdirectory(svg_path)
 elseif(APPLE)
 	add_subdirectory(main)
 	add_subdirectory(scroll_view)
 
 	add_subdirectory(input_method)
+	add_subdirectory(svg_path)
 elseif(UNIX)
 	add_subdirectory(xcb)
 endif()

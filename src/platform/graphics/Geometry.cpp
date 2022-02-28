@@ -1,6 +1,8 @@
 #include "cru/platform/graphics/Geometry.h"
 
 #include <cmath>
+#include <unordered_set>
+#include "cru/common/Exception.h"
 
 namespace cru::platform::graphics {
 constexpr float PI = 3.14159265358979323846f;
@@ -151,6 +153,216 @@ void IGeometryBuilder::ArcTo(const Point& radius, float angle,
   auto current_position = GetCurrentPosition();
   pathArc(this, radius.x, radius.y, angle, is_large_arc, is_clockwise,
           end_point.x, end_point.y, current_position.x, current_position.y);
+}
+
+namespace {
+const std::unordered_set<char16_t> kSvgPathDataCommands = {
+    'M', 'm', 'L', 'l', 'H', 'h', 'V', 'v', 'C', 'c',
+    'S', 's', 'Q', 'q', 'T', 't', 'A', 'a', 'Z', 'z'};
+}
+
+void IGeometryBuilder::ParseAndApplySvgPathData(StringView path_d) {
+  Index position = 0;
+  const auto size = path_d.size();
+
+  char16_t last_command = 0;
+  bool last_is_cubic = false;
+  bool last_is_quad = false;
+  Point last_end_point;
+  Point last_control_point;
+
+  auto read_spaces = [&] {
+    while (position < size &&
+           (path_d[position] == ' ' || path_d[position] == '\n')) {
+      ++position;
+    }
+    return position == size;
+  };
+
+  auto read_number = [&] {
+    if (read_spaces()) {
+      throw Exception(u"Unexpected eof of svg path data command.");
+    }
+
+    if (path_d[position] == ',') {
+      ++position;
+    }
+
+    Index processed_count = 0;
+
+    auto result = path_d.substr(position).ParseToFloat(&processed_count);
+
+    if (std::isnan(result)) throw Exception(u"Invalid svg path data number.");
+
+    position += processed_count;
+
+    return result;
+  };
+
+  auto read_point = [&] {
+    auto x = read_number();
+    auto y = read_number();
+    return Point(x, y);
+  };
+
+  auto do_command = [&, this](char16_t command) {
+    last_command = command;
+    last_is_cubic = false;
+    last_is_quad = false;
+
+    switch (command) {
+      case 'M':
+        MoveTo(read_point());
+        break;
+      case 'm':
+        RelativeMoveTo(read_point());
+        break;
+      case 'L':
+        LineTo(read_point());
+        break;
+      case 'l':
+        RelativeLineTo(read_point());
+        break;
+      case 'H':
+        LineTo(read_number(), this->GetCurrentPosition().y);
+        break;
+      case 'h':
+        RelativeLineTo(read_number(), 0);
+        break;
+      case 'V':
+        LineTo(GetCurrentPosition().x, read_number());
+        break;
+      case 'v':
+        RelativeLineTo(0, read_number());
+        break;
+      case 'C': {
+        auto start_control_point = read_point(),
+             end_control_point = read_point(), end_point = read_point();
+        CubicBezierTo(start_control_point, end_control_point, end_point);
+        last_is_cubic = true;
+        last_control_point = end_control_point;
+        last_end_point = end_point;
+        break;
+      }
+      case 'c': {
+        auto current_position = GetCurrentPosition();
+        auto start_control_point = current_position + read_point(),
+             end_control_point = current_position + read_point(),
+             end_point = current_position + read_point();
+        CubicBezierTo(start_control_point, end_control_point, end_point);
+        last_is_cubic = true;
+        last_control_point = end_control_point;
+        last_end_point = end_point;
+        break;
+      }
+      case 'S': {
+        auto current_position = GetCurrentPosition();
+        auto start_control_point = last_is_cubic ? Point{last_end_point.x * 2,
+                                                         last_end_point.y * 2} -
+                                                       last_control_point
+                                                 : current_position,
+             end_control_point = read_point(), end_point = read_point();
+        CubicBezierTo(start_control_point, end_control_point, end_point);
+        last_is_cubic = true;
+        last_control_point = end_control_point;
+        last_end_point = end_point;
+        break;
+      }
+      case 's': {
+        auto current_position = GetCurrentPosition();
+        auto start_control_point = last_is_cubic ? Point{last_end_point.x * 2,
+                                                         last_end_point.y * 2} -
+                                                       last_control_point
+                                                 : current_position,
+             end_control_point = current_position + read_point(),
+             end_point = current_position + read_point();
+        CubicBezierTo(start_control_point, end_control_point, end_point);
+        last_is_cubic = true;
+        last_control_point = end_control_point;
+        last_end_point = end_point;
+        break;
+      }
+      case 'Q': {
+        auto control_point = read_point(), end_point = read_point();
+        QuadraticBezierTo(control_point, end_point);
+        last_is_quad = true;
+        last_control_point = control_point;
+        last_end_point = end_point;
+        break;
+      }
+      case 'q': {
+        auto current_position = GetCurrentPosition();
+        auto control_point = current_position + read_point(),
+             end_point = current_position + read_point();
+        QuadraticBezierTo(control_point, end_point);
+        last_is_quad = true;
+        last_control_point = control_point;
+        last_end_point = end_point;
+        break;
+      }
+      case 'T': {
+        auto current_position = GetCurrentPosition();
+        auto control_point = last_is_quad ? Point{last_end_point.x * 2,
+                                                  last_end_point.y * 2} -
+                                                last_control_point
+                                          : current_position,
+             end_point = read_point();
+        QuadraticBezierTo(control_point, end_point);
+        last_is_quad = true;
+        last_control_point = control_point;
+        last_end_point = end_point;
+        break;
+      }
+      case 't': {
+        auto current_position = GetCurrentPosition();
+        auto control_point = last_is_quad ? Point{last_end_point.x * 2,
+                                                  last_end_point.y * 2} -
+                                                last_control_point
+                                          : current_position,
+             end_point = current_position + read_point();
+        QuadraticBezierTo(control_point, end_point);
+        last_is_quad = true;
+        last_control_point = control_point;
+        last_end_point = end_point;
+        break;
+      }
+      case 'A':
+        ArcTo({read_number(), read_number()}, read_number(), read_number(),
+              read_number(), read_point());
+        break;
+      case 'a':
+        RelativeArcTo({read_number(), read_number()}, read_number(),
+                      read_number(), read_number(), read_point());
+        break;
+      case 'Z':
+      case 'z':
+        CloseFigure(true);
+        break;
+      default:
+        throw Exception(u"Invalid svg path command.");
+    }
+    return true;
+  };
+
+  auto read_command = [&] {
+    if (read_spaces()) {
+      return false;
+    }
+    auto command = path_d[position];
+
+    if (kSvgPathDataCommands.contains(command)) {
+      position++;
+      do_command(command);
+    } else {
+      do_command(last_command);
+    }
+
+    return true;
+  };
+
+  while (true) {
+    if (!read_command()) break;
+  }
 }
 
 }  // namespace cru::platform::graphics
