@@ -11,6 +11,7 @@ add_library(cru_ui SHARED
 	controls/Container.cpp
 	controls/Control.cpp
 	controls/FlexLayout.cpp
+	controls/IconButton.cpp
 	controls/NoChildControl.cpp
 	controls/Popup.cpp
 	controls/RootControl.cpp
@@ -37,6 +38,7 @@ add_library(cru_ui SHARED
 	mapper/MeasureLengthMapper.cpp
 	mapper/PointMapper.cpp
 	mapper/SizeMapper.cpp
+	mapper/StringMapper.cpp
 	mapper/ThicknessMapper.cpp
 	mapper/style/AndConditionMapper.cpp
 	mapper/style/BorderStylerMapper.cpp
@@ -55,6 +57,7 @@ add_library(cru_ui SHARED
 	render/BorderRenderObject.cpp
 	render/CanvasRenderObject.cpp
 	render/FlexLayoutRenderObject.cpp
+	render/GeometryRenderObject.cpp
 	render/LayoutHelper.cpp
 	render/RenderObject.cpp
 	render/ScrollBar.cpp

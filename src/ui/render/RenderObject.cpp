@@ -1,6 +1,7 @@
 #include "cru/ui/render/RenderObject.h"
 
 #include "cru/common/log/Logger.h"
+#include "cru/platform/GraphicsBase.h"
 #include "cru/ui/DebugFlags.h"
 #include "cru/ui/controls/Control.h"
 #include "cru/ui/host/WindowHost.h"
@@ -109,13 +110,15 @@ void RenderObject::Layout(const Point& offset) {
   OnLayoutCore();
 }
 
-Thickness RenderObject::GetOuterSpaceThickness() const {
+Thickness RenderObject::GetTotalSpaceThickness() const {
   return margin_ + padding_;
 }
 
+Thickness RenderObject::GetInnerSpaceThickness() const { return padding_; }
+
 Size RenderObject::OnMeasureCore(const MeasureRequirement& requirement,
                                  const MeasureSize& preferred_size) {
-  const Thickness outer_space = GetOuterSpaceThickness();
+  const Thickness outer_space = GetTotalSpaceThickness();
   const Size space_size{outer_space.GetHorizontalTotal(),
                         outer_space.GetVerticalTotal()};
 
@@ -124,8 +127,10 @@ Size RenderObject::OnMeasureCore(const MeasureRequirement& requirement,
   content_requirement.max = content_requirement.max.Minus(space_size);
   content_requirement.min = content_requirement.min.Minus(space_size);
 
+  auto inner_space = GetInnerSpaceThickness();
   MeasureSize content_preferred_size =
-      content_requirement.Coerce(preferred_size.Minus(space_size));
+      content_requirement.Coerce(preferred_size.Minus(
+          {inner_space.GetHorizontalTotal(), inner_space.GetVerticalTotal()}));
 
   const auto content_size =
       OnMeasureContent(content_requirement, content_preferred_size);
@@ -135,7 +140,7 @@ Size RenderObject::OnMeasureCore(const MeasureRequirement& requirement,
 
 void RenderObject::OnLayoutCore() {
   Size total_size = GetDesiredSize();
-  const Thickness outer_space = GetOuterSpaceThickness();
+  const Thickness outer_space = GetTotalSpaceThickness();
   const Size space_size{outer_space.GetHorizontalTotal(),
                         outer_space.GetVerticalTotal()};
 

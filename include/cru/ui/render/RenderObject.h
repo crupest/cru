@@ -32,8 +32,9 @@ namespace cru::ui::render {
  *  void Draw(platform::graphics::IPainter* painter) override;
  *  RenderObject* HitTest(const Point& point) override;
  * protected:
- *  Size OnMeasureContent(const MeasureRequirement& requirement) override;
- *  void OnLayoutContent(const Rect& content_rect) override;
+ *  Size OnMeasureContent(const MeasureRequirement& requirement, const
+ * MeasureSize& preferred_size) override; void OnLayoutContent(const Rect&
+ * content_rect) override;
  */
 class CRU_UI_API RenderObject : public Object {
   CRU_DEFINE_CLASS_LOG_TAG(u"RenderObject")
@@ -93,7 +94,9 @@ class CRU_UI_API RenderObject : public Object {
   // This will set offset of this render object and call OnLayoutCore.
   void Layout(const Point& offset);
 
-  virtual Thickness GetOuterSpaceThickness() const;
+  virtual Thickness GetTotalSpaceThickness() const;
+  virtual Thickness GetInnerSpaceThickness() const;
+
   virtual Rect GetPaddingRect() const;
   virtual Rect GetContentRect() const;
 

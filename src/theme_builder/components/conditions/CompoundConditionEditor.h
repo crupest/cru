@@ -25,8 +25,7 @@ class CompoundConditionEditorChild : public ui::components::Component {
 
  private:
   ui::controls::FlexLayout container_;
-  ui::controls::Button remove_button_;
-  ui::controls::TextBlock remove_button_text_;
+  ui::controls::IconButton remove_button_;
   std::unique_ptr<ConditionEditor> condition_editor_;
 
   Event<std::nullptr_t> remove_event_;
@@ -43,7 +42,7 @@ class CompoundConditionEditor : public ConditionEditor {
                    bool trigger_change = true);
 
  private:
-  ui::components::PopupMenuTextButton add_child_button_;
+  ui::components::PopupMenuIconButton add_child_button_;
   ui::controls::FlexLayout children_container_;
   std::vector<std::unique_ptr<CompoundConditionEditorChild>> children_;
 };

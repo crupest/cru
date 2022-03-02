@@ -130,10 +130,16 @@ void BorderRenderObject::OnLayoutContent(const Rect& content_rect) {
 
 void BorderRenderObject::OnResize(const Size& new_size) { RecreateGeometry(); }
 
-Thickness BorderRenderObject::GetOuterSpaceThickness() const {
+Thickness BorderRenderObject::GetTotalSpaceThickness() const {
   return is_border_enabled_
-             ? RenderObject::GetOuterSpaceThickness() + GetBorderThickness()
-             : RenderObject::GetOuterSpaceThickness();
+             ? RenderObject::GetTotalSpaceThickness() + GetBorderThickness()
+             : RenderObject::GetTotalSpaceThickness();
+}
+
+Thickness BorderRenderObject::GetInnerSpaceThickness() const {
+  return is_border_enabled_
+             ? RenderObject::GetInnerSpaceThickness() + GetBorderThickness()
+             : RenderObject::GetInnerSpaceThickness();
 }
 
 Rect BorderRenderObject::GetPaddingRect() const {

@@ -1,9 +1,9 @@
 #pragma once
 #include "cru/common/Base.h"
 
+#include "cru/common/Format.h"
 #include "cru/common/Range.h"
 #include "cru/common/String.h"
-#include "cru/common/Format.h"
 
 #include <cstdint>
 #include <limits>
@@ -24,6 +24,8 @@ struct Point final {
     this->y += other.y;
     return *this;
   }
+
+  constexpr Point Negate() const { return Point(-x, -y); }
 
   float x = 0;
   float y = 0;

@@ -1,8 +1,10 @@
 #include "cru/platform/graphics/Geometry.h"
 
+#include "cru/common/Exception.h"
+#include "cru/platform/graphics/Factory.h"
+
 #include <cmath>
 #include <unordered_set>
-#include "cru/common/Exception.h"
 
 namespace cru::platform::graphics {
 constexpr float PI = 3.14159265358979323846f;
@@ -363,6 +365,13 @@ void IGeometryBuilder::ParseAndApplySvgPathData(StringView path_d) {
   while (true) {
     if (!read_command()) break;
   }
+}
+
+std::unique_ptr<IGeometry> CreateGeometryFromSvgPathData(
+    IGraphicsFactory* factory, StringView path_d) {
+  auto builder = factory->CreateGeometryBuilder();
+  builder->ParseAndApplySvgPathData(path_d);
+  return builder->Build();
 }
 
 }  // namespace cru::platform::graphics

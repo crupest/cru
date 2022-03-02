@@ -49,6 +49,10 @@ void ThemeManager::PrependThemeResourceDictionary(
   theme_resource_change_event_.Raise(nullptr);
 }
 
+String ThemeManager::GetResourceString(const String& key) {
+  return GetResource<String>(key);
+}
+
 std::shared_ptr<platform::graphics::IBrush> ThemeManager::GetResourceBrush(
     const String& key) {
   return GetResource<std::shared_ptr<platform::graphics::IBrush>>(key);

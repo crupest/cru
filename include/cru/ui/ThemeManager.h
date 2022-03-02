@@ -37,6 +37,8 @@ class CRU_UI_API ThemeManager : public Object {
         Format(u"Theme resource key {} not exist.", key));
   }
 
+  String GetResourceString(const String& key);
+
   std::shared_ptr<platform::graphics::IBrush> GetResourceBrush(
       const String& key);
 

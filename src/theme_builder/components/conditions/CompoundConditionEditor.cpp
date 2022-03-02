@@ -6,6 +6,7 @@
 #include "NoConditionEditor.h"
 #include "cru/common/ClonablePtr.h"
 #include "cru/platform/Color.h"
+#include "cru/ui/Base.h"
 #include "cru/ui/ThemeManager.h"
 #include "cru/ui/controls/FlexLayout.h"
 #include "cru/ui/style/Condition.h"
@@ -20,9 +21,11 @@ CompoundConditionEditorChild::CompoundConditionEditorChild(
   remove_button_.GetStyleRuleSet()->SetParent(
       ui::ThemeManager::GetInstance()->GetResourceStyleRuleSet(
           u"cru.theme_builder.icon-button.style"));
-  remove_button_.SetChild(&remove_button_text_);
-  remove_button_text_.SetText(u"x");
-  remove_button_text_.SetTextColor(ui::colors::red);
+  remove_button_.SetIconWithSvgPathDataStringResourceKey(u"icon.close",
+                                                         {0, 0, 16, 16});
+  remove_button_.SetPreferredSize({24, 24});
+  remove_button_.SetPadding(ui::Thickness(4));
+  remove_button_.SetIconFillColor(ui::colors::red);
 
   container_.AddChild(condition_editor_->GetRootControl());
 
@@ -44,8 +47,11 @@ CompoundConditionEditor::CompoundConditionEditor() {
   add_child_button_.GetButton()->GetStyleRuleSet()->SetParent(
       ui::ThemeManager::GetInstance()->GetResourceStyleRuleSet(
           u"cru.theme_builder.icon-button.style"));
-  add_child_button_.SetButtonText(u"+");
-  add_child_button_.SetButtonTextColor(ui::colors::green);
+  add_child_button_.GetButton()->SetIconWithSvgPathDataStringResourceKey(
+      u"icon.plus-square", {0, 0, 16, 16});
+  add_child_button_.GetButton()->SetPreferredSize({24, 24});
+  add_child_button_.GetButton()->SetPadding(ui::Thickness(4));
+  add_child_button_.GetButton()->SetIconFillColor(ui::colors::green);
   add_child_button_.SetMenuItems({u"And Condition", u"Or Condition",
                                   u"Click State Condition", u"Focus Condition",
                                   u"Checked Condition", u"No Condition"});

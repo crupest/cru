@@ -8,6 +8,7 @@
 #include "cru/ui/mapper/MeasureLengthMapper.h"
 #include "cru/ui/mapper/PointMapper.h"
 #include "cru/ui/mapper/SizeMapper.h"
+#include "cru/ui/mapper/StringMapper.h"
 #include "cru/ui/mapper/ThicknessMapper.h"
 #include "cru/ui/mapper/style/AndConditionMapper.h"
 #include "cru/ui/mapper/style/BorderStylerMapper.h"
@@ -39,6 +40,7 @@ MapperRegistry::MapperRegistry() {
   RegisterMapper(new MeasureLengthMapper());
   RegisterMapper(new PointMapper());
   RegisterMapper(new SizeMapper());
+  RegisterMapper(new StringMapper());
   RegisterMapper(new ThicknessMapper());
   RegisterMapper(new BorderStyleMapper());
   RegisterMapper(new ColorMapper());

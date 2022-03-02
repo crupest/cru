@@ -1,6 +1,8 @@
 #pragma once
 #include "Resource.h"
 
+#include <memory>
+
 namespace cru::platform::graphics {
 struct CRU_PLATFORM_GRAPHICS_API IGeometry : virtual IGraphicsResource {
   virtual bool FillContains(const Point& point) = 0;
@@ -59,4 +61,7 @@ struct CRU_PLATFORM_GRAPHICS_API IGeometryBuilder : virtual IGraphicsResource {
 
   void ParseAndApplySvgPathData(StringView path_d);
 };
+
+std::unique_ptr<IGeometry> CRU_PLATFORM_GRAPHICS_API
+CreateGeometryFromSvgPathData(IGraphicsFactory* factory, StringView path_d);
 }  // namespace cru::platform::graphics

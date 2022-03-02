@@ -44,7 +44,8 @@ class CRU_UI_API BorderRenderObject : public SingleChildRenderObject {
   RenderObject* HitTest(const Point& point) override;
   void Draw(platform::graphics::IPainter* painter) override;
 
-  Thickness GetOuterSpaceThickness() const override;
+  Thickness GetTotalSpaceThickness() const override;
+  Thickness GetInnerSpaceThickness() const override;
   Rect GetPaddingRect() const override;
   Rect GetContentRect() const override;
 

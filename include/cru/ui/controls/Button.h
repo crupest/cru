@@ -1,7 +1,6 @@
 #pragma once
 #include "SingleChildControl.h"
 
-#include "../controls/SingleChildControl.h"
 #include "../helper/ClickDetector.h"
 #include "../render/BorderRenderObject.h"
 #include "IBorderControl.h"

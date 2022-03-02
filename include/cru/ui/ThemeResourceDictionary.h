@@ -63,14 +63,6 @@ class CRU_UI_API ThemeResourceDictionary : public Object {
     return resource;
   }
 
-  std::shared_ptr<platform::graphics::IBrush> GetResourceBrush(
-      const String& key);
-
-  std::shared_ptr<platform::graphics::IFont> GetResourceFont(const String& key);
-
-  std::shared_ptr<style::StyleRuleSet> GetResourceStyleRuleSet(
-      const String& key);
-
  private:
   void UpdateResourceMap(xml::XmlElementNode* root_xml);
 
