@@ -19,6 +19,10 @@ class QuartzGeometry : public OsxQuartzResource, public virtual IGeometry {
   CGPathRef GetCGPath() const { return cg_path_; }
 
   bool FillContains(const Point &point) override;
+  Rect GetBounds() override;
+
+  std::unique_ptr<IGeometry> Transform(const Matrix &matrix) override;
+  std::unique_ptr<IGeometry> CreateStrokeGeometry(float width) override;
 
  private:
   CGPathRef cg_path_;

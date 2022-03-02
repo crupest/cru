@@ -15,6 +15,24 @@ bool QuartzGeometry::FillContains(const Point &point) {
                              kCGPathFill);
 }
 
+Rect QuartzGeometry::GetBounds() {
+  auto bounds = CGPathGetPathBoundingBox(cg_path_);
+  if (CGRectIsNull(bounds)) return {};
+  return Convert(bounds);
+}
+
+std::unique_ptr<IGeometry> QuartzGeometry::Transform(const Matrix &matrix) {
+  auto cg_matrix = Convert(matrix);
+  auto cg_path = CGPathCreateCopyByTransformingPath(cg_path_, &cg_matrix);
+  return std::make_unique<QuartzGeometry>(GetGraphicsFactory(), cg_path);
+}
+
+std::unique_ptr<IGeometry> QuartzGeometry::CreateStrokeGeometry(float width) {
+  auto cg_path = CGPathCreateCopyByStrokingPath(
+      cg_path_, nullptr, width, kCGLineCapButt, kCGLineJoinMiter, 10);
+  return std::make_unique<QuartzGeometry>(GetGraphicsFactory(), cg_path);
+}
+
 QuartzGeometryBuilder::QuartzGeometryBuilder(IGraphicsFactory *graphics_factory)
     : OsxQuartzResource(graphics_factory) {
   cg_mutable_path_ = CGPathCreateMutable();

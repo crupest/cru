@@ -4,6 +4,9 @@
 namespace cru::platform::graphics {
 struct CRU_PLATFORM_GRAPHICS_API IGeometry : virtual IGraphicsResource {
   virtual bool FillContains(const Point& point) = 0;
+  virtual Rect GetBounds() = 0;
+  virtual std::unique_ptr<IGeometry> Transform(const Matrix& matrix) = 0;
+  virtual std::unique_ptr<IGeometry> CreateStrokeGeometry(float width) = 0;
 };
 
 struct CRU_PLATFORM_GRAPHICS_API IGeometryBuilder : virtual IGraphicsResource {
