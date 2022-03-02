@@ -2,6 +2,7 @@
 #include <d2d1.h>
 #include <d2d1helper.h>
 
+#include "cru/common/platform/win/Exception.h"
 #include "cru/win/graphics/direct/ConvertUtil.h"
 #include "cru/win/graphics/direct/Exception.h"
 #include "cru/win/graphics/direct/Factory.h"
@@ -83,7 +84,7 @@ std::unique_ptr<IGeometry> D2DGeometryBuilder::Build() {
 }
 
 D2DGeometry::D2DGeometry(DirectGraphicsFactory* factory,
-                         Microsoft::WRL::ComPtr<ID2D1PathGeometry> geometry)
+                         Microsoft::WRL::ComPtr<ID2D1Geometry> geometry)
     : DirectGraphicsResource(factory), geometry_(std::move(geometry)) {}
 
 bool D2DGeometry::FillContains(const Point& point) {
@@ -91,5 +92,33 @@ bool D2DGeometry::FillContains(const Point& point) {
   ThrowIfFailed(geometry_->FillContainsPoint(
       Convert(point), D2D1::Matrix3x2F::Identity(), &result));
   return result != 0;
+}
+
+Rect D2DGeometry::GetBounds() {
+  D2D1_RECT_F bounds;
+  ThrowIfFailed(geometry_->GetBounds(D2D1::Matrix3x2F::Identity(), &bounds));
+  return Convert(bounds);
+}
+
+std::unique_ptr<IGeometry> D2DGeometry::Transform(const Matrix& matrix) {
+  Microsoft::WRL::ComPtr<ID2D1TransformedGeometry> d2d1_geometry;
+  ThrowIfFailed(GetDirectFactory()->GetD2D1Factory()->CreateTransformedGeometry(
+      geometry_.Get(), Convert(matrix), &d2d1_geometry));
+  return std::make_unique<D2DGeometry>(GetDirectFactory(),
+                                       std::move(d2d1_geometry));
+}
+
+std::unique_ptr<IGeometry> D2DGeometry::CreateStrokeGeometry(float width) {
+  Microsoft::WRL::ComPtr<ID2D1PathGeometry> d2d1_geometry;
+  ThrowIfFailed(
+      GetDirectFactory()->GetD2D1Factory()->CreatePathGeometry(&d2d1_geometry));
+  Microsoft::WRL::ComPtr<ID2D1GeometrySink> d2d1_geometry_sink;
+  ThrowIfFailed(d2d1_geometry->Open(&d2d1_geometry_sink));
+  ThrowIfFailed(
+      geometry_->Widen(width, nullptr, nullptr, d2d1_geometry_sink.Get()));
+  d2d1_geometry_sink->Close();
+
+  return std::make_unique<D2DGeometry>(GetDirectFactory(),
+                                       std::move(d2d1_geometry));
 }
 }  // namespace cru::platform::graphics::win::direct

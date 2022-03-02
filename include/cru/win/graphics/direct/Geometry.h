@@ -49,7 +49,7 @@ class CRU_WIN_GRAPHICS_DIRECT_API D2DGeometry
       public IComResource<ID2D1Geometry> {
  public:
   D2DGeometry(DirectGraphicsFactory* factory,
-              Microsoft::WRL::ComPtr<ID2D1PathGeometry> geometry);
+              Microsoft::WRL::ComPtr<ID2D1Geometry> geometry);
 
   CRU_DELETE_COPY(D2DGeometry)
   CRU_DELETE_MOVE(D2DGeometry)
@@ -61,8 +61,11 @@ class CRU_WIN_GRAPHICS_DIRECT_API D2DGeometry
 
  public:
   bool FillContains(const Point& point) override;
+  Rect GetBounds() override;
+  std::unique_ptr<IGeometry> Transform(const Matrix& matrix) override;
+  std::unique_ptr<IGeometry> CreateStrokeGeometry(float width) override;
 
  private:
-  Microsoft::WRL::ComPtr<ID2D1PathGeometry> geometry_;
+  Microsoft::WRL::ComPtr<ID2D1Geometry> geometry_;
 };
 }  // namespace cru::platform::graphics::win::direct
