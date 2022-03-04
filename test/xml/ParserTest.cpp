@@ -68,6 +68,14 @@ TEST(CruXmlParserTest, Whitespace) {
   delete n;
 }
 
+TEST(CruXmlParserTest, Comment) {
+  XmlParser parser(u"<!-- comment -->");
+  auto n = parser.Parse();
+  ASSERT_TRUE(n->IsCommentNode());
+  ASSERT_EQ(n->AsComment()->GetText(), u"comment");
+  delete n;
+}
+
 TEST(CruXmlParserTest, Complex) {
   XmlParser parser(
       uR"(
@@ -83,11 +91,12 @@ TEST(CruXmlParserTest, Complex) {
     <d3></d3>
     t2
   </c2>
+  <!-- comment -->
 </root>
   )");
   auto n = parser.Parse();
   ASSERT_EQ(n->GetAttribute(u"a1"), u"v1");
-  ASSERT_EQ(n->GetChildCount(), 2);
+  ASSERT_EQ(n->GetChildCount(), 3);
   ASSERT_EQ(n->GetChildAt(0)->AsElement()->GetTag(), u"c1");
   ASSERT_EQ(n->GetChildAt(0)->AsElement()->GetChildCount(), 1);
   auto c2 = n->GetChildAt(1)->AsElement();
@@ -101,5 +110,7 @@ TEST(CruXmlParserTest, Complex) {
   ASSERT_EQ(c2->GetChildAt(2)->AsText()->GetText(), u"text test");
   ASSERT_EQ(c2->GetChildAt(3)->AsElement()->GetTag(), u"d3");
   ASSERT_EQ(c2->GetChildAt(4)->AsText()->GetText(), u"t2");
+  ASSERT_TRUE(n->GetChildAt(2)->IsCommentNode());
+  ASSERT_EQ(n->GetChildAt(2)->AsComment()->GetText(), u"comment");
   delete n;
 }

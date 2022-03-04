@@ -9,12 +9,20 @@ XmlElementNode* XmlNode::AsElement() {
 
 XmlTextNode* XmlNode::AsText() { return static_cast<XmlTextNode*>(this); }
 
+XmlCommentNode* XmlNode::AsComment() {
+  return static_cast<XmlCommentNode*>(this);
+}
+
 const XmlElementNode* XmlNode::AsElement() const {
   return static_cast<const XmlElementNode*>(this);
 }
 
 const XmlTextNode* XmlNode::AsText() const {
   return static_cast<const XmlTextNode*>(this);
+}
+
+const XmlCommentNode* XmlNode::AsComment() const {
+  return static_cast<const XmlCommentNode*>(this);
 }
 
 XmlElementNode::~XmlElementNode() {
@@ -54,6 +62,14 @@ XmlNode* XmlElementNode::Clone() const {
   for (auto child : children_) {
     node->AddChild(child->Clone());
   }
+
+  return node;
+}
+
+XmlCommentNode::~XmlCommentNode() {}
+
+XmlNode* XmlCommentNode::Clone() const {
+  XmlCommentNode* node = new XmlCommentNode(text_);
 
   return node;
 }

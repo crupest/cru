@@ -22,7 +22,7 @@ char16_t XmlParser::Read1() {
 
 String XmlParser::ReadWithoutAdvance(int count) {
   if (current_position_ + count > xml_.size()) {
-    return u"";
+    count = xml_.size() - current_position_;
   }
   return xml_.substr(current_position_, count);
 }
@@ -108,6 +108,19 @@ XmlElementNode* XmlParser::DoParse() {
         }
 
         current_ = current_->GetParent();
+      } else if (ReadWithoutAdvance(3) == u"!--") {
+        current_position_ += 3;
+
+        String text;
+        while (true) {
+          auto str = ReadWithoutAdvance(3);
+          if (str == u"-->") break;
+          if (str.empty()) throw XmlParsingException(u"Unexpected end of xml");
+          text += Read1();
+        }
+
+        current_position_ += 3;
+        current_->AddChild(new XmlCommentNode(text.Trim()));
       } else {
         ReadSpacesAndDiscard();
 
@@ -173,10 +186,8 @@ XmlElementNode* XmlParser::DoParse() {
     throw XmlParsingException(u"Unexpected end of xml");
   }
 
-  if (pseudo_root_node_->GetChildren().size() != 1 ||
-      pseudo_root_node_->GetChildren()[0]->GetType() !=
-          XmlNode::Type::Element) {
-    throw XmlParsingException(u"Expected 1 element node as root.");
+  if (pseudo_root_node_->GetChildren().size() != 1) {
+    throw XmlParsingException(u"Expected 1 node as root.");
   }
 
   return static_cast<XmlElementNode*>(pseudo_root_node_->GetChildren()[0]);

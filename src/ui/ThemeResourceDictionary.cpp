@@ -50,7 +50,7 @@ void ThemeResourceDictionary::UpdateResourceMap(xml::XmlElementNode* xml_root) {
         CRU_LOG_DEBUG(u"Ignore unknown element {} of theme.", c->GetTag());
       }
     } else {
-      CRU_LOG_WARN(u"Ignore text node of theme.");
+      CRU_LOG_DEBUG(u"Ignore text or comment node of theme.");
     }
   }
 }

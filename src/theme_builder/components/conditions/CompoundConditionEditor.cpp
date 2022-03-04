@@ -24,7 +24,7 @@ CompoundConditionEditorChild::CompoundConditionEditorChild(
   remove_button_.SetIconWithSvgPathDataStringResourceKey(u"icon.close",
                                                          {0, 0, 16, 16});
   remove_button_.SetPreferredSize({24, 24});
-  remove_button_.SetPadding(ui::Thickness(4));
+  remove_button_.SetPadding(ui::Thickness(2));
   remove_button_.SetIconFillColor(ui::colors::red);
 
   container_.AddChild(condition_editor_->GetRootControl());
@@ -50,7 +50,7 @@ CompoundConditionEditor::CompoundConditionEditor() {
   add_child_button_.GetButton()->SetIconWithSvgPathDataStringResourceKey(
       u"icon.plus-square", {0, 0, 16, 16});
   add_child_button_.GetButton()->SetPreferredSize({24, 24});
-  add_child_button_.GetButton()->SetPadding(ui::Thickness(4));
+  add_child_button_.GetButton()->SetPadding(ui::Thickness(2));
   add_child_button_.GetButton()->SetIconFillColor(ui::colors::green);
   add_child_button_.SetMenuItems({u"And Condition", u"Or Condition",
                                   u"Click State Condition", u"Focus Condition",

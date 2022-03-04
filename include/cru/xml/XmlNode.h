@@ -12,12 +12,13 @@
 namespace cru::xml {
 class XmlElementNode;
 class XmlTextNode;
+class XmlCommentNode;
 
 class CRU_XML_API XmlNode {
   friend XmlElementNode;
 
  public:
-  enum class Type { Text, Element };
+  enum class Type { Text, Element, Comment };
 
  protected:
   explicit XmlNode(Type type) : type_(type) {}
@@ -35,11 +36,14 @@ class CRU_XML_API XmlNode {
 
   bool IsTextNode() const { return type_ == Type::Text; }
   bool IsElementNode() const { return type_ == Type::Element; }
+  bool IsCommentNode() const { return type_ == Type::Comment; }
 
   XmlElementNode* AsElement();
   XmlTextNode* AsText();
+  XmlCommentNode* AsComment();
   const XmlElementNode* AsElement() const;
   const XmlTextNode* AsText() const;
+  const XmlCommentNode* AsComment() const;
 
  private:
   const Type type_;
@@ -132,4 +136,23 @@ class CRU_XML_API XmlElementNode : public XmlNode {
   std::vector<XmlNode*> children_;
 };
 
+class CRU_XML_API XmlCommentNode : public XmlNode {
+ public:
+  XmlCommentNode() : XmlNode(Type::Comment) {}
+  explicit XmlCommentNode(String text)
+      : XmlNode(Type::Comment), text_(std::move(text)) {}
+
+  CRU_DELETE_COPY(XmlCommentNode)
+  CRU_DELETE_MOVE(XmlCommentNode)
+
+  ~XmlCommentNode() override;
+
+  String GetText() const { return text_; }
+  void SetText(String text) { text_ = std::move(text); }
+
+  XmlNode* Clone() const override;
+
+ private:
+  String text_;
+};
 }  // namespace cru::xml
