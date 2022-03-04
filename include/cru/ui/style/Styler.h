@@ -2,6 +2,7 @@
 #include "../Base.h"
 #include "ApplyBorderStyleInfo.h"
 #include "cru/common/ClonablePtr.h"
+#include "cru/platform/graphics/Brush.h"
 #include "cru/platform/gui/Cursor.h"
 #include "cru/ui/render/MeasureRequirement.h"
 
@@ -149,4 +150,48 @@ class CRU_UI_API PaddingStyler : public Styler {
   Thickness padding_;
 };
 
+class CRU_UI_API ContentBrushStyler : public Styler {
+ public:
+  static ClonablePtr<ContentBrushStyler> Create(
+      std::shared_ptr<platform::graphics::IBrush> brush) {
+    return ClonablePtr<ContentBrushStyler>(
+        new ContentBrushStyler(std::move(brush)));
+  }
+
+  explicit ContentBrushStyler(std::shared_ptr<platform::graphics::IBrush> brush)
+      : brush_(std::move(brush)) {}
+
+  void Apply(controls::Control* control) const override;
+
+  ContentBrushStyler* Clone() const override {
+    return new ContentBrushStyler(brush_);
+  }
+
+  std::shared_ptr<platform::graphics::IBrush> GetBrush() const {
+    return brush_;
+  }
+
+ private:
+  std::shared_ptr<platform::graphics::IBrush> brush_;
+};
+
+class CRU_UI_API FontStyler : public Styler {
+ public:
+  static ClonablePtr<FontStyler> Create(
+      std::shared_ptr<platform::graphics::IFont> font) {
+    return ClonablePtr<FontStyler>(new FontStyler(std::move(font)));
+  }
+
+  explicit FontStyler(std::shared_ptr<platform::graphics::IFont> font)
+      : font_(std::move(font)) {}
+
+  void Apply(controls::Control* control) const override;
+
+  FontStyler* Clone() const override { return new FontStyler(font_); }
+
+  std::shared_ptr<platform::graphics::IFont> GetFont() const { return font_; }
+
+ private:
+  std::shared_ptr<platform::graphics::IFont> font_;
+};
 }  // namespace cru::ui::style

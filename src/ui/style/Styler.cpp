@@ -6,6 +6,8 @@
 #include "cru/platform/gui/UiApplication.h"
 #include "cru/ui/controls/Control.h"
 #include "cru/ui/controls/IBorderControl.h"
+#include "cru/ui/controls/IContentBrushControl.h"
+#include "cru/ui/controls/IFontControl.h"
 #include "cru/ui/style/ApplyBorderStyleInfo.h"
 
 namespace cru::ui::style {
@@ -37,5 +39,18 @@ void MarginStyler::Apply(controls::Control *control) const {
 
 void PaddingStyler::Apply(controls::Control *control) const {
   control->SetPadding(padding_);
+}
+
+void ContentBrushStyler::Apply(controls::Control *control) const {
+  if (auto content_brush_control =
+          dynamic_cast<controls::IContentBrushControl *>(control)) {
+    content_brush_control->SetContentBrush(brush_);
+  }
+}
+
+void FontStyler::Apply(controls::Control *control) const {
+  if (auto font_control = dynamic_cast<controls::IFontControl *>(control)) {
+    font_control->SetFont(font_);
+  }
 }
 }  // namespace cru::ui::style
