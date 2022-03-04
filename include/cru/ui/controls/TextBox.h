@@ -4,14 +4,19 @@
 #include "../render/BorderRenderObject.h"
 #include "../render/TextRenderObject.h"
 #include "IBorderControl.h"
+#include "IContentBrushControl.h"
+#include "IFontControl.h"
 #include "TextHostControlService.h"
+#include "cru/platform/graphics/Brush.h"
 
 #include <memory>
 
 namespace cru::ui::controls {
 class CRU_UI_API TextBox : public NoChildControl,
                            public virtual IBorderControl,
-                           public virtual ITextHostControl {
+                           public virtual ITextHostControl,
+                           public virtual IContentBrushControl,
+                           public virtual IFontControl {
  public:
   static constexpr StringView control_type = u"TextBox";
 
@@ -38,6 +43,29 @@ class CRU_UI_API TextBox : public NoChildControl,
 
   IEvent<std::nullptr_t>* TextChangeEvent() {
     return service_->TextChangeEvent();
+  }
+
+  std::shared_ptr<platform::graphics::IFont> GetFont() const override {
+    return text_render_object_->GetFont();
+  }
+  void SetFont(std::shared_ptr<platform::graphics::IFont> font) override {
+    text_render_object_->SetFont(std::move(font));
+  }
+
+  std::shared_ptr<platform::graphics::IBrush> GetTextBrush() const {
+    return text_render_object_->GetBrush();
+  }
+  void SetTextBrush(std::shared_ptr<platform::graphics::IBrush> brush) {
+    text_render_object_->SetBrush(std::move(brush));
+  }
+
+  std::shared_ptr<platform::graphics::IBrush> GetContentBrush() const override {
+    return GetTextBrush();
+  }
+
+  void SetContentBrush(
+      std::shared_ptr<platform::graphics::IBrush> brush) override {
+    SetTextBrush(std::move(brush));
   }
 
  private:

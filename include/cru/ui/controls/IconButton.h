@@ -1,4 +1,5 @@
 #pragma once
+#include <memory>
 #include "NoChildControl.h"
 
 #include "../helper/ClickDetector.h"
@@ -6,12 +7,15 @@
 #include "../render/GeometryRenderObject.h"
 #include "IBorderControl.h"
 #include "IClickableControl.h"
+#include "IContentBrushControl.h"
 #include "cru/common/Event.h"
+#include "cru/platform/graphics/Brush.h"
 
 namespace cru::ui::controls {
 class CRU_UI_API IconButton : public NoChildControl,
                               public virtual IClickableControl,
-                              public virtual IBorderControl {
+                              public virtual IBorderControl,
+                              public virtual IContentBrushControl {
  public:
   static constexpr StringView kControlType = u"IconButton";
 
@@ -84,6 +88,15 @@ class CRU_UI_API IconButton : public NoChildControl,
                                     const Rect& view_port);
   void SetIconWithSvgPathDataStringResourceKey(
       StringView icon_svg_path_data_string_resource_key, const Rect& view_port);
+
+  std::shared_ptr<platform::graphics::IBrush> GetContentBrush() const override {
+    return GetIconFillBrush();
+  }
+
+  void SetContentBrush(
+      std::shared_ptr<platform::graphics::IBrush> brush) override {
+    SetIconFillBrush(std::move(brush));
+  }
 
  private:
   std::unique_ptr<render::BorderRenderObject> container_render_object_;

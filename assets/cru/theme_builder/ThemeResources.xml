@@ -7,7 +7,7 @@
         <StyleRuleSet>
             <StyleRule>
                 <NoCondition />
-                <PreferredSizeStyler width="30" height="20" />
+                <PreferredSizeStyler width="20" height="20" />
                 <BorderStyler>
                     <BorderStyle>
                         <Thickness value="0" />
@@ -25,7 +25,7 @@
         <StyleRuleSet>
             <StyleRule>
                 <NoCondition />
-                <PreferredSizeStyler width="30" height="20" />
+                <PreferredSizeStyler width="20" height="20" />
                 <BorderStyler>
                     <BorderStyle>
                         <Color value="black" />
