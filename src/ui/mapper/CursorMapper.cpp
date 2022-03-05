@@ -29,7 +29,7 @@ std::shared_ptr<ICursor> CursorMapper::DoMapFromString(String str) {
 }
 
 std::shared_ptr<ICursor> CursorMapper::DoMapFromXml(xml::XmlElementNode *node) {
-  auto value_attr = node->GetOptionalAttributeCaseInsensitive(u"value");
+  auto value_attr = node->GetOptionalAttributeValueCaseInsensitive(u"value");
   if (!value_attr) return nullptr;
   return DoMapFromString(*value_attr);
 }

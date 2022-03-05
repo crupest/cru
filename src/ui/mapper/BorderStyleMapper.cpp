@@ -35,7 +35,7 @@ ApplyBorderStyleInfo BorderStyleMapper::DoMapFromXml(
         result.border_radius = corner_radius_mapper->MapFromXml(c);
       } else if (brush_mapper->XmlElementIsOfThisType(c)) {
         auto brush = brush_mapper->MapFromXml(c);
-        auto name = c->GetOptionalAttributeCaseInsensitive(u"name");
+        auto name = c->GetOptionalAttributeValueCaseInsensitive(u"name");
         if (name) {
           if (name->CaseInsensitiveCompare(u"foreground") == 0) {
             result.foreground_brush = std::move(brush);

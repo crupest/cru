@@ -97,11 +97,13 @@ class CRU_XML_API XmlElementNode : public XmlNode {
   const std::vector<XmlNode*> GetChildren() const { return children_; }
 
   Index GetChildCount() const { return children_.size(); }
-  String GetAttribute(const String& key) const { return attributes_.at(key); }
-  String GetAttributeCaseInsensitive(const String& key) const {
-    return *GetOptionalAttributeCaseInsensitive(key);
+  String GetAttributeValue(const String& key) const {
+    return attributes_.at(key);
   }
-  std::optional<String> GetOptionalAttribute(const String& key) const {
+  String GetAttributeValueCaseInsensitive(const String& key) const {
+    return *GetOptionalAttributeValueCaseInsensitive(key);
+  }
+  std::optional<String> GetOptionalAttributeValue(const String& key) const {
     auto it = attributes_.find(key);
     if (it == attributes_.end()) {
       return std::nullopt;
@@ -109,7 +111,7 @@ class CRU_XML_API XmlElementNode : public XmlNode {
 
     return it->second;
   }
-  std::optional<String> GetOptionalAttributeCaseInsensitive(
+  std::optional<String> GetOptionalAttributeValueCaseInsensitive(
       const String& key) const {
     for (auto it = attributes_.begin(); it != attributes_.end(); ++it) {
       if (it->first.CaseInsensitiveCompare(key) == 0) {

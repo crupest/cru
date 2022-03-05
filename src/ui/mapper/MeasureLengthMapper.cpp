@@ -22,7 +22,7 @@ render::MeasureLength MeasureLengthMapper::DoMapFromString(String str) {
 
 render::MeasureLength MeasureLengthMapper::DoMapFromXml(
     xml::XmlElementNode* node) {
-  auto value_attr = node->GetOptionalAttributeCaseInsensitive(u"value");
+  auto value_attr = node->GetOptionalAttributeValueCaseInsensitive(u"value");
   if (!value_attr) return {};
   return DoMapFromString(*value_attr);
 }

@@ -13,7 +13,7 @@ bool ClickStateConditionMapper::XmlElementIsOfThisType(
 ClonablePtr<ui::style::ClickStateCondition>
 ClickStateConditionMapper::DoMapFromXml(xml::XmlElementNode *node) {
   auto state = helper::ClickState::None;
-  auto value_attr = node->GetOptionalAttributeCaseInsensitive(u"value");
+  auto value_attr = node->GetOptionalAttributeValueCaseInsensitive(u"value");
   if (value_attr) {
     if (value_attr->CaseInsensitiveEqual(u"none")) {
       state = helper::ClickState::None;

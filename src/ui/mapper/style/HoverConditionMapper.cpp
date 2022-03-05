@@ -11,7 +11,7 @@ bool HoverConditionMapper::XmlElementIsOfThisType(xml::XmlElementNode* node) {
 
 ClonablePtr<HoverCondition> HoverConditionMapper::DoMapFromXml(
     xml::XmlElementNode* node) {
-  auto value = node->GetAttributeCaseInsensitive(u"value");
+  auto value = node->GetAttributeValueCaseInsensitive(u"value");
   if (value.CaseInsensitiveEqual(u"true")) {
     return ui::style::HoverCondition::Create(true);
   } else if (value.CaseInsensitiveEqual(u"false")) {

@@ -14,13 +14,13 @@ Color ColorMapper::DoMapFromString(String str) {
 }
 
 Color ColorMapper::DoMapFromXml(xml::XmlElementNode* node) {
-  auto value_attr = node->GetOptionalAttributeCaseInsensitive(u"value");
+  auto value_attr = node->GetOptionalAttributeValueCaseInsensitive(u"value");
   Color result = colors::transparent;
   if (value_attr) {
     result = DoMapFromString(*value_attr);
   }
 
-  auto alpha_value_attr = node->GetOptionalAttributeCaseInsensitive(u"alpha");
+  auto alpha_value_attr = node->GetOptionalAttributeValueCaseInsensitive(u"alpha");
   if (alpha_value_attr) {
     result.alpha = alpha_value_attr->ParseToDouble() * 255;
   }

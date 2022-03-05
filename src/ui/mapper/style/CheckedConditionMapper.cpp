@@ -10,7 +10,7 @@ bool CheckedConditionMapper::XmlElementIsOfThisType(xml::XmlElementNode* node) {
 
 ClonablePtr<ui::style::CheckedCondition> CheckedConditionMapper::DoMapFromXml(
     xml::XmlElementNode* node) {
-  auto value = node->GetAttributeCaseInsensitive(u"value");
+  auto value = node->GetAttributeValueCaseInsensitive(u"value");
   if (value.CaseInsensitiveEqual(u"true")) {
     return ui::style::CheckedCondition::Create(true);
   } else if (value.CaseInsensitiveEqual(u"false")) {

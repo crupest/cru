@@ -18,8 +18,8 @@ TEST(CruXmlParserTest, SimpleWithAttribute) {
   XmlParser parser(u"<root a1=\"v1\" a2=\"v2\"></root>");
   auto n = parser.Parse();
   ASSERT_EQ(n->GetTag(), u"root");
-  ASSERT_EQ(n->GetAttribute(u"a1"), u"v1");
-  ASSERT_EQ(n->GetAttribute(u"a2"), u"v2");
+  ASSERT_EQ(n->GetAttributeValue(u"a1"), u"v1");
+  ASSERT_EQ(n->GetAttributeValue(u"a2"), u"v2");
   ASSERT_EQ(n->GetChildCount(), 0);
   delete n;
 }
@@ -28,8 +28,8 @@ TEST(CruXmlParserTest, SimpleSelfClosing) {
   XmlParser parser(u"<root a1=\"v1\" a2=\"v2\"/>");
   auto n = parser.Parse();
   ASSERT_EQ(n->GetTag(), u"root");
-  ASSERT_EQ(n->GetAttribute(u"a1"), u"v1");
-  ASSERT_EQ(n->GetAttribute(u"a2"), u"v2");
+  ASSERT_EQ(n->GetAttributeValue(u"a1"), u"v1");
+  ASSERT_EQ(n->GetAttributeValue(u"a2"), u"v2");
   ASSERT_EQ(n->GetChildCount(), 0);
   delete n;
 }
@@ -95,18 +95,18 @@ TEST(CruXmlParserTest, Complex) {
 </root>
   )");
   auto n = parser.Parse();
-  ASSERT_EQ(n->GetAttribute(u"a1"), u"v1");
+  ASSERT_EQ(n->GetAttributeValue(u"a1"), u"v1");
   ASSERT_EQ(n->GetChildCount(), 3);
   ASSERT_EQ(n->GetChildAt(0)->AsElement()->GetTag(), u"c1");
   ASSERT_EQ(n->GetChildAt(0)->AsElement()->GetChildCount(), 1);
   auto c2 = n->GetChildAt(1)->AsElement();
   ASSERT_EQ(c2->GetTag(), u"c2");
-  ASSERT_EQ(c2->GetAttribute(u"a2"), u"v2");
-  ASSERT_EQ(c2->GetAttribute(u"a3"), u"v3");
+  ASSERT_EQ(c2->GetAttributeValue(u"a2"), u"v2");
+  ASSERT_EQ(c2->GetAttributeValue(u"a3"), u"v3");
   ASSERT_EQ(c2->GetChildAt(0)->AsText()->GetText(), u"t1");
   auto d2 = c2->GetChildAt(1)->AsElement();
   ASSERT_EQ(d2->GetTag(), u"d2");
-  ASSERT_EQ(d2->GetAttribute(u"a4"), u"v4");
+  ASSERT_EQ(d2->GetAttributeValue(u"a4"), u"v4");
   ASSERT_EQ(c2->GetChildAt(2)->AsText()->GetText(), u"text test");
   ASSERT_EQ(c2->GetChildAt(3)->AsElement()->GetTag(), u"d3");
   ASSERT_EQ(c2->GetChildAt(4)->AsText()->GetText(), u"t2");

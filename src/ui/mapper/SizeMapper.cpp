@@ -17,7 +17,7 @@ Size SizeMapper::DoMapFromString(String str) {
 }
 
 Size SizeMapper::DoMapFromXml(xml::XmlElementNode* node) {
-  auto value_attr = node->GetOptionalAttributeCaseInsensitive(u"value");
+  auto value_attr = node->GetOptionalAttributeValueCaseInsensitive(u"value");
   if (!value_attr) return {};
   return DoMapFromString(*value_attr);
 }

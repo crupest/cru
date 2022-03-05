@@ -9,7 +9,7 @@ StringMapper::~StringMapper() {}
 String StringMapper::DoMapFromString(String str) { return std::move(str); }
 
 String StringMapper::DoMapFromXml(xml::XmlElementNode* node) {
-  auto value_attr = node->GetOptionalAttributeCaseInsensitive(u"value");
+  auto value_attr = node->GetOptionalAttributeValueCaseInsensitive(u"value");
   if (value_attr) return *value_attr;
   return {};
 }

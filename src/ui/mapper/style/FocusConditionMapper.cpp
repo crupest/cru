@@ -10,7 +10,7 @@ bool FocusConditionMapper::XmlElementIsOfThisType(xml::XmlElementNode* node) {
 
 ClonablePtr<ui::style::FocusCondition> FocusConditionMapper::DoMapFromXml(
     xml::XmlElementNode* node) {
-  auto value = node->GetAttributeCaseInsensitive(u"value");
+  auto value = node->GetAttributeValueCaseInsensitive(u"value");
   if (value.CaseInsensitiveEqual(u"true")) {
     return ui::style::FocusCondition::Create(true);
   } else if (value.CaseInsensitiveEqual(u"false")) {

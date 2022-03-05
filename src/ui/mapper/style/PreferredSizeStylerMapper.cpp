@@ -16,12 +16,12 @@ PreferredSizeStylerMapper::DoMapFromXml(xml::XmlElementNode* node) {
   auto measure_length_mapper =
       MapperRegistry::GetInstance()->GetMapper<render::MeasureLength>();
 
-  auto width_attribute = node->GetOptionalAttributeCaseInsensitive(u"width");
+  auto width_attribute = node->GetOptionalAttributeValueCaseInsensitive(u"width");
   if (width_attribute) {
     size.width = measure_length_mapper->MapFromString(*width_attribute);
   }
 
-  auto height_attribute = node->GetOptionalAttributeCaseInsensitive(u"height");
+  auto height_attribute = node->GetOptionalAttributeValueCaseInsensitive(u"height");
   if (height_attribute) {
     size.height = measure_length_mapper->MapFromString(*height_attribute);
   }
