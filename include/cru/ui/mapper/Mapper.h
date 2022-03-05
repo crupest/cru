@@ -90,8 +90,8 @@ class CRU_UI_API BasicMapper : public MapperBase {
 };
 
 template <typename T>
-using BasicRefMapper = BasicMapper<std::shared_ptr<T>>;
+using BasicSharedPtrMapper = BasicMapper<std::shared_ptr<T>>;
 
 template <typename T>
-using BasicPtrMapper = BasicMapper<ClonablePtr<T>>;
+using BasicClonablePtrMapper = BasicMapper<ClonablePtr<T>>;
 }  // namespace cru::ui::mapper

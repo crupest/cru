@@ -27,8 +27,9 @@ ApplyBorderStyleInfo BorderStyleMapper::DoMapFromXml(
           MapperRegistry::GetInstance()->GetMapper<Thickness>();
       auto corner_radius_mapper =
           MapperRegistry::GetInstance()->GetMapper<CornerRadius>();
-      auto brush_mapper = MapperRegistry::GetInstance()
-                              ->GetRefMapper<platform::graphics::IBrush>();
+      auto brush_mapper =
+          MapperRegistry::GetInstance()
+              ->GetSharedPtrMapper<platform::graphics::IBrush>();
       if (thickness_mapper->XmlElementIsOfThisType(c)) {
         result.border_thickness = thickness_mapper->MapFromXml(c);
       } else if (corner_radius_mapper->XmlElementIsOfThisType(c)) {

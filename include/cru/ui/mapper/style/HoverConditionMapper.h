@@ -5,7 +5,7 @@
 
 namespace cru::ui::mapper::style {
 class CRU_UI_API HoverConditionMapper
-    : public BasicPtrMapper<ui::style::HoverCondition>,
+    : public BasicClonablePtrMapper<ui::style::HoverCondition>,
       public virtual IConditionMapper {
  public:
   CRU_DEFAULT_CONSTRUCTOR_DESTRUCTOR(HoverConditionMapper)

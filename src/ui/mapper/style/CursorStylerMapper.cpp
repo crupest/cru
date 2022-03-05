@@ -12,7 +12,7 @@ bool CursorStylerMapper::XmlElementIsOfThisType(xml::XmlElementNode* node) {
 ClonablePtr<ui::style::CursorStyler> CursorStylerMapper::DoMapFromXml(
     xml::XmlElementNode* node) {
   auto cursor_mapper =
-      MapperRegistry::GetInstance()->GetRefMapper<platform::gui::ICursor>();
+      MapperRegistry::GetInstance()->GetSharedPtrMapper<platform::gui::ICursor>();
   std::shared_ptr<platform::gui::ICursor> cursor;
 
   for (auto child : node->GetChildren()) {

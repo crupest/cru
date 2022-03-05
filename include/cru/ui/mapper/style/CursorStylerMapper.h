@@ -5,7 +5,7 @@
 
 namespace cru::ui::mapper::style {
 class CRU_UI_API CursorStylerMapper
-    : public BasicPtrMapper<ui::style::CursorStyler>,
+    : public BasicClonablePtrMapper<ui::style::CursorStyler>,
       public virtual IStylerMapper {
  public:
   CRU_DEFAULT_CONSTRUCTOR_DESTRUCTOR(CursorStylerMapper)

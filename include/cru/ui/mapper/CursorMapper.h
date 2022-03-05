@@ -4,7 +4,7 @@
 #include "cru/xml/XmlNode.h"
 
 namespace cru::ui::mapper {
-class CRU_UI_API CursorMapper : public BasicRefMapper<platform::gui::ICursor> {
+class CRU_UI_API CursorMapper : public BasicSharedPtrMapper<platform::gui::ICursor> {
  public:
   CRU_DEFAULT_CONSTRUCTOR_DESTRUCTOR(CursorMapper);
 

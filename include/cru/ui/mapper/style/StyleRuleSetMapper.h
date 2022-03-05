@@ -5,7 +5,7 @@
 
 namespace cru::ui::mapper::style {
 class CRU_UI_API StyleRuleSetMapper
-    : public BasicRefMapper<ui::style::StyleRuleSet> {
+    : public BasicSharedPtrMapper<ui::style::StyleRuleSet> {
  public:
   CRU_DEFAULT_CONSTRUCTOR_DESTRUCTOR(StyleRuleSetMapper)
 

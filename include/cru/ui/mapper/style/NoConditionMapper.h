@@ -8,7 +8,7 @@
 
 namespace cru::ui::mapper::style {
 class CRU_UI_API NoConditionMapper
-    : public BasicPtrMapper<ui::style::NoCondition>,
+    : public BasicClonablePtrMapper<ui::style::NoCondition>,
       public virtual IConditionMapper {
  public:
   CRU_DEFAULT_CONSTRUCTOR_DESTRUCTOR(NoConditionMapper)

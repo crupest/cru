@@ -7,7 +7,7 @@
 
 namespace cru::ui::mapper::style {
 class CRU_UI_API BorderStylerMapper
-    : public BasicPtrMapper<ui::style::BorderStyler>,
+    : public BasicClonablePtrMapper<ui::style::BorderStyler>,
       public virtual IStylerMapper {
  public:
   CRU_DEFAULT_CONSTRUCTOR_DESTRUCTOR(BorderStylerMapper)

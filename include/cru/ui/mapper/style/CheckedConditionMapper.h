@@ -5,7 +5,7 @@
 
 namespace cru::ui::mapper::style {
 class CRU_UI_API CheckedConditionMapper
-    : public BasicPtrMapper<ui::style::CheckedCondition>,
+    : public BasicClonablePtrMapper<ui::style::CheckedCondition>,
       public virtual IConditionMapper {
  public:
   CRU_DEFAULT_CONSTRUCTOR_DESTRUCTOR(CheckedConditionMapper)

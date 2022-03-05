@@ -5,7 +5,7 @@
 
 namespace cru::ui::mapper::style {
 class CRU_UI_API PreferredSizeStylerMapper
-    : public BasicPtrMapper<ui::style::PreferredSizeStyler>,
+    : public BasicClonablePtrMapper<ui::style::PreferredSizeStyler>,
       public virtual IStylerMapper {
  public:
   CRU_DEFAULT_CONSTRUCTOR_DESTRUCTOR(PreferredSizeStylerMapper)

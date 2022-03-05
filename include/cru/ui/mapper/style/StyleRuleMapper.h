@@ -6,7 +6,7 @@
 #include "cru/xml/XmlNode.h"
 
 namespace cru::ui::mapper::style {
-class CRU_UI_API StyleRuleMapper : public BasicPtrMapper<ui::style::StyleRule> {
+class CRU_UI_API StyleRuleMapper : public BasicClonablePtrMapper<ui::style::StyleRule> {
   CRU_DEFINE_CLASS_LOG_TAG(u"StyleRuleMapper")
  public:
   CRU_DEFAULT_CONSTRUCTOR_DESTRUCTOR(StyleRuleMapper)

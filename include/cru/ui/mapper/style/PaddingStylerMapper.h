@@ -5,7 +5,7 @@
 
 namespace cru::ui::mapper::style {
 class CRU_UI_API PaddingStylerMapper
-    : public BasicPtrMapper<ui::style::PaddingStyler>,
+    : public BasicClonablePtrMapper<ui::style::PaddingStyler>,
       public virtual IStylerMapper {
  public:
   PaddingStylerMapper();

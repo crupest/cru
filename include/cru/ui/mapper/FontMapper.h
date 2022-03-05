@@ -4,7 +4,7 @@
 #include "cru/platform/graphics/Font.h"
 
 namespace cru::ui::mapper {
-class FontMapper : public BasicRefMapper<platform::graphics::IFont> {
+class FontMapper : public BasicSharedPtrMapper<platform::graphics::IFont> {
  public:
   CRU_DEFAULT_CONSTRUCTOR_DESTRUCTOR(FontMapper)
 

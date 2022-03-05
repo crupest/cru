@@ -5,7 +5,7 @@
 
 namespace cru::ui::mapper::style {
 class CRU_UI_API FocusConditionMapper
-    : public BasicPtrMapper<ui::style::FocusCondition>,
+    : public BasicClonablePtrMapper<ui::style::FocusCondition>,
       public virtual IConditionMapper {
  public:
   CRU_DEFAULT_CONSTRUCTOR_DESTRUCTOR(FocusConditionMapper)

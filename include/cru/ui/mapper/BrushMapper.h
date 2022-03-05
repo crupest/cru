@@ -5,7 +5,7 @@
 #include "cru/xml/XmlNode.h"
 
 namespace cru::ui::mapper {
-class BrushMapper : public BasicRefMapper<platform::graphics::IBrush> {
+class BrushMapper : public BasicSharedPtrMapper<platform::graphics::IBrush> {
  public:
   CRU_DEFAULT_CONSTRUCTOR_DESTRUCTOR(BrushMapper)
 

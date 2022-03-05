@@ -5,7 +5,7 @@
 
 namespace cru::ui::mapper::style {
 class CRU_UI_API ClickStateConditionMapper
-    : public BasicPtrMapper<ui::style::ClickStateCondition>,
+    : public BasicClonablePtrMapper<ui::style::ClickStateCondition>,
       public virtual IConditionMapper {
  public:
   CRU_DEFAULT_CONSTRUCTOR_DESTRUCTOR(ClickStateConditionMapper)

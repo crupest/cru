@@ -4,7 +4,7 @@
 
 namespace cru::ui::mapper::style {
 class CRU_UI_API AndConditionMapper
-    : public BasicPtrMapper<ui::style::AndCondition>,
+    : public BasicClonablePtrMapper<ui::style::AndCondition>,
       public virtual IConditionMapper {
  public:
   CRU_DEFAULT_CONSTRUCTOR_DESTRUCTOR(AndConditionMapper)

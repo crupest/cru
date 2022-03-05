@@ -5,7 +5,7 @@
 
 namespace cru::ui::mapper::style {
 class CRU_UI_API MarginStylerMapper
-    : public BasicPtrMapper<ui::style::MarginStyler>,
+    : public BasicClonablePtrMapper<ui::style::MarginStyler>,
       public virtual IStylerMapper {
  public:
   MarginStylerMapper();

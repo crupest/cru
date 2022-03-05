@@ -30,12 +30,12 @@ class CRU_UI_API MapperRegistry {
   }
 
   template <typename T>
-  BasicRefMapper<T>* GetRefMapper() const {
+  BasicSharedPtrMapper<T>* GetSharedPtrMapper() const {
     return GetMapper<std::shared_ptr<T>>();
   }
 
   template <typename T>
-  BasicPtrMapper<T>* GetPtrMapper() const {
+  BasicClonablePtrMapper<T>* GetClonablePtrMapper() const {
     return GetMapper<ClonablePtr<T>>();
   }
 
