@@ -14,6 +14,7 @@
 #include "cru/ui/mapper/style/BorderStylerMapper.h"
 #include "cru/ui/mapper/style/CheckedConditionMapper.h"
 #include "cru/ui/mapper/style/ClickStateConditionMapper.h"
+#include "cru/ui/mapper/style/ContentBrushStylerMapper.h"
 #include "cru/ui/mapper/style/CursorStylerMapper.h"
 #include "cru/ui/mapper/style/FocusConditionMapper.h"
 #include "cru/ui/mapper/style/HoverConditionMapper.h"
@@ -49,6 +50,7 @@ MapperRegistry::MapperRegistry() {
   RegisterMapper(new BorderStylerMapper());
   RegisterMapper(new CheckedConditionMapper());
   RegisterMapper(new ClickStateConditionMapper());
+  RegisterMapper(new ContentBrushStylerMapper());
   RegisterMapper(new CursorStylerMapper());
   RegisterMapper(new FocusConditionMapper());
   RegisterMapper(new HoverConditionMapper());
