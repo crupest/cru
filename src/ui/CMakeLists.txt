@@ -47,6 +47,7 @@ add_library(cru_ui SHARED
 	mapper/style/ContentBrushStylerMapper.cpp
 	mapper/style/CursorStylerMapper.cpp
 	mapper/style/FocusConditionMapper.cpp
+	mapper/style/FontStylerMapper.cpp
 	mapper/style/HoverConditionMapper.cpp
 	mapper/style/MarginStylerMapper.cpp
 	mapper/style/NoConditionMapper.cpp
