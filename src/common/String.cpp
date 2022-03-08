@@ -1,5 +1,6 @@
 #include "cru/common/String.h"
 #include <double-conversion/double-conversion.h>
+#include <double-conversion/string-to-double.h>
 #include "cru/common/Exception.h"
 #include "cru/common/StringUtil.h"
 
@@ -312,12 +313,13 @@ Range String::RangeFromCodePointToCodeUnit(Range code_point_range) const {
   return View().RangeFromCodePointToCodeUnit(code_point_range);
 }
 
-float String::ParseToFloat(Index* processed_characters_count) const {
-  return View().ParseToFloat(processed_characters_count);
+float String::ParseToFloat(Index* processed_characters_count, int flags) const {
+  return View().ParseToFloat(processed_characters_count, flags);
 }
 
-double String::ParseToDouble(Index* processed_characters_count) const {
-  return View().ParseToDouble(processed_characters_count);
+double String::ParseToDouble(Index* processed_characters_count,
+                             int flags) const {
+  return View().ParseToDouble(processed_characters_count, flags);
 }
 
 std::vector<float> String::ParseToFloatList(value_type separator) const {
@@ -344,15 +346,6 @@ int String::Compare(const String& other) const { return View().Compare(other); }
 int String::CaseInsensitiveCompare(const String& other) const {
   return View().CaseInsensitiveCompare(other);
 }
-
-double_conversion::StringToDoubleConverter
-    StringView::kDefaultStringToDoubleConverter(
-        double_conversion::StringToDoubleConverter::ALLOW_LEADING_SPACES |
-            double_conversion::StringToDoubleConverter::ALLOW_TRAILING_SPACES |
-            double_conversion::StringToDoubleConverter::
-                ALLOW_CASE_INSENSIBILITY |
-            double_conversion::StringToDoubleConverter::ALLOW_TRAILING_JUNK,
-        0.0, NAN, "infinity", "nan");
 
 int StringView::Compare(const StringView& other) const {
   const_iterator i1 = cbegin();
@@ -523,9 +516,29 @@ std::string StringView::ToUtf8() const {
   return result;
 }
 
-float StringView::ParseToFloat(Index* processed_characters_count) const {
+static int MapStringToFloatFlags(int flags) {
+  int f = double_conversion::StringToDoubleConverter::ALLOW_CASE_INSENSIBILITY;
+  if (flags & StringToFloatFlags::kAllowLeadingSpaces) {
+    f |= double_conversion::StringToDoubleConverter::ALLOW_LEADING_SPACES;
+  }
+  if (flags & StringToFloatFlags::kAllowTrailingSpaces) {
+    f |= double_conversion::StringToDoubleConverter::ALLOW_TRAILING_SPACES;
+  }
+  if (flags & StringToFloatFlags::kAllowTrailingJunk) {
+    f |= double_conversion::StringToDoubleConverter::ALLOW_TRAILING_JUNK;
+  }
+  return f;
+}
+
+static double_conversion::StringToDoubleConverter CreateStringToDoubleConverter(
+    int flags) {
+  return {MapStringToFloatFlags(flags), 0.0, NAN, "inf", "nan"};
+}
+
+float StringView::ParseToFloat(Index* processed_characters_count,
+                               int flags) const {
   int pcc;
-  auto result = kDefaultStringToDoubleConverter.StringToFloat(
+  auto result = CreateStringToDoubleConverter(flags).StringToFloat(
       reinterpret_cast<const uc16*>(ptr_), static_cast<int>(size_), &pcc);
   if (processed_characters_count != nullptr) {
     *processed_characters_count = pcc;
@@ -533,9 +546,10 @@ float StringView::ParseToFloat(Index* processed_characters_count) const {
   return result;
 }
 
-double StringView::ParseToDouble(Index* processed_characters_count) const {
+double StringView::ParseToDouble(Index* processed_characters_count,
+                                 int flags) const {
   int pcc;
-  auto result = kDefaultStringToDoubleConverter.StringToDouble(
+  auto result = CreateStringToDoubleConverter(flags).StringToDouble(
       reinterpret_cast<const uc16*>(ptr_), static_cast<int>(size_), &pcc);
   if (processed_characters_count != nullptr) {
     *processed_characters_count = pcc;

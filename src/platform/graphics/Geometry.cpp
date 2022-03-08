@@ -192,7 +192,8 @@ void IGeometryBuilder::ParseAndApplySvgPathData(StringView path_d) {
 
     Index processed_count = 0;
 
-    auto result = path_d.substr(position).ParseToFloat(&processed_count);
+    auto result = path_d.substr(position).ParseToFloat(
+        &processed_count, StringToFloatFlags::kAllowTrailingJunk);
 
     if (std::isnan(result)) throw Exception(u"Invalid svg path data number.");
 

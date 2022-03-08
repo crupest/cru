@@ -13,6 +13,13 @@
 #include <vector>
 
 namespace cru {
+struct StringToFloatFlags {
+  constexpr static int kNoFlags = 0;
+  constexpr static int kAllowLeadingSpaces = 1 << 0;
+  constexpr static int kAllowTrailingSpaces = 1 << 1;
+  constexpr static int kAllowTrailingJunk = 1 << 2;
+};
+
 class StringView;
 
 class CRU_BASE_API String {
@@ -211,8 +218,10 @@ class CRU_BASE_API String {
   Range RangeFromCodeUnitToCodePoint(Range code_unit_range) const;
   Range RangeFromCodePointToCodeUnit(Range code_point_range) const;
 
-  float ParseToFloat(Index* processed_characters_count = nullptr) const;
-  double ParseToDouble(Index* processed_characters_count = nullptr) const;
+  float ParseToFloat(Index* processed_characters_count = nullptr,
+                     int flags = StringToFloatFlags::kNoFlags) const;
+  double ParseToDouble(Index* processed_characters_count = nullptr,
+                       int flags = StringToFloatFlags::kNoFlags) const;
   std::vector<float> ParseToFloatList(value_type separator = u' ') const;
   std::vector<double> ParseToDoubleList(value_type separator = u' ') const;
 
@@ -244,9 +253,6 @@ class CRU_BASE_API String {
 
 class CRU_BASE_API StringView {
  public:
-  static double_conversion::StringToDoubleConverter
-      kDefaultStringToDoubleConverter;
-
   using value_type = char16_t;
   using size_type = Index;
   using difference_type = Index;
@@ -339,8 +345,10 @@ class CRU_BASE_API StringView {
   Range RangeFromCodeUnitToCodePoint(Range code_unit_range) const;
   Range RangeFromCodePointToCodeUnit(Range code_point_range) const;
 
-  float ParseToFloat(Index* processed_characters_count = nullptr) const;
-  double ParseToDouble(Index* processed_characters_count = nullptr) const;
+  float ParseToFloat(Index* processed_characters_count = nullptr,
+                     int flags = StringToFloatFlags::kNoFlags) const;
+  double ParseToDouble(Index* processed_characters_count = nullptr,
+                       int flags = StringToFloatFlags::kNoFlags) const;
   std::vector<float> ParseToFloatList(value_type separator = u' ') const;
   std::vector<double> ParseToDoubleList(value_type separator = u' ') const;
 

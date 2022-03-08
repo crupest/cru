@@ -8,6 +8,10 @@ insert_final_newline = true
 indent_style = space
 indent_size = 2
 
+[*.h]
+indent_style = space
+indent_size = 2
+
 [*.hpp]
 indent_style = space
 indent_size = 2
