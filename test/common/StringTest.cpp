@@ -86,17 +86,17 @@ TEST(String, FromUtf8) {
 }
 
 TEST(StringView, ParseToDouble) {
-  using cru::StringToFloatFlags;
+  using cru::StringToNumberFlags;
   using cru::StringView;
   ASSERT_EQ(StringView(u"3.14159").ParseToDouble(), 3.14159);
   ASSERT_EQ(
       StringView(u"   3.14159")
-          .ParseToDouble(nullptr, StringToFloatFlags::kAllowLeadingSpaces),
+          .ParseToDouble(nullptr, StringToNumberFlags::kAllowLeadingSpaces),
       3.14159);
   ASSERT_EQ(
       StringView(u"   3.14159    ")
-          .ParseToDouble(nullptr, StringToFloatFlags::kAllowLeadingSpaces |
-                                      StringToFloatFlags::kAllowTrailingSpaces),
+          .ParseToDouble(nullptr, StringToNumberFlags::kAllowLeadingSpaces |
+                                      StringToNumberFlags::kAllowTrailingSpaces),
       3.14159);
 }
 

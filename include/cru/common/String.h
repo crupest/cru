@@ -2,6 +2,7 @@
 #include "Base.h"
 
 #include "Range.h"
+#include "StringToNumberConverter.h"
 #include "StringUtil.h"
 
 #include <double-conversion/double-conversion.h>
@@ -13,13 +14,6 @@
 #include <vector>
 
 namespace cru {
-struct StringToFloatFlags {
-  constexpr static int kNoFlags = 0;
-  constexpr static int kAllowLeadingSpaces = 1 << 0;
-  constexpr static int kAllowTrailingSpaces = 1 << 1;
-  constexpr static int kAllowTrailingJunk = 1 << 2;
-};
-
 class StringView;
 
 class CRU_BASE_API String {
@@ -219,9 +213,9 @@ class CRU_BASE_API String {
   Range RangeFromCodePointToCodeUnit(Range code_point_range) const;
 
   float ParseToFloat(Index* processed_characters_count = nullptr,
-                     int flags = StringToFloatFlags::kNoFlags) const;
+                     unsigned flags = StringToNumberFlags::kNoFlags) const;
   double ParseToDouble(Index* processed_characters_count = nullptr,
-                       int flags = StringToFloatFlags::kNoFlags) const;
+                       unsigned flags = StringToNumberFlags::kNoFlags) const;
   std::vector<float> ParseToFloatList(value_type separator = u' ') const;
   std::vector<double> ParseToDoubleList(value_type separator = u' ') const;
 
@@ -346,9 +340,9 @@ class CRU_BASE_API StringView {
   Range RangeFromCodePointToCodeUnit(Range code_point_range) const;
 
   float ParseToFloat(Index* processed_characters_count = nullptr,
-                     int flags = StringToFloatFlags::kNoFlags) const;
+                     unsigned flags = StringToNumberFlags::kNoFlags) const;
   double ParseToDouble(Index* processed_characters_count = nullptr,
-                       int flags = StringToFloatFlags::kNoFlags) const;
+                       unsigned flags = StringToNumberFlags::kNoFlags) const;
   std::vector<float> ParseToFloatList(value_type separator = u' ') const;
   std::vector<double> ParseToDoubleList(value_type separator = u' ') const;
 

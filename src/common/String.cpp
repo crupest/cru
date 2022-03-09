@@ -313,12 +313,13 @@ Range String::RangeFromCodePointToCodeUnit(Range code_point_range) const {
   return View().RangeFromCodePointToCodeUnit(code_point_range);
 }
 
-float String::ParseToFloat(Index* processed_characters_count, int flags) const {
+float String::ParseToFloat(Index* processed_characters_count,
+                           unsigned flags) const {
   return View().ParseToFloat(processed_characters_count, flags);
 }
 
 double String::ParseToDouble(Index* processed_characters_count,
-                             int flags) const {
+                             unsigned flags) const {
   return View().ParseToDouble(processed_characters_count, flags);
 }
 
@@ -516,15 +517,15 @@ std::string StringView::ToUtf8() const {
   return result;
 }
 
-static int MapStringToFloatFlags(int flags) {
+static int MapStringToDoubleFlags(int flags) {
   int f = double_conversion::StringToDoubleConverter::ALLOW_CASE_INSENSIBILITY;
-  if (flags & StringToFloatFlags::kAllowLeadingSpaces) {
+  if (flags & StringToNumberFlags::kAllowLeadingSpaces) {
     f |= double_conversion::StringToDoubleConverter::ALLOW_LEADING_SPACES;
   }
-  if (flags & StringToFloatFlags::kAllowTrailingSpaces) {
+  if (flags & StringToNumberFlags::kAllowTrailingSpaces) {
     f |= double_conversion::StringToDoubleConverter::ALLOW_TRAILING_SPACES;
   }
-  if (flags & StringToFloatFlags::kAllowTrailingJunk) {
+  if (flags & StringToNumberFlags::kAllowTrailingJunk) {
     f |= double_conversion::StringToDoubleConverter::ALLOW_TRAILING_JUNK;
   }
   return f;
@@ -532,11 +533,11 @@ static int MapStringToFloatFlags(int flags) {
 
 static double_conversion::StringToDoubleConverter CreateStringToDoubleConverter(
     int flags) {
-  return {MapStringToFloatFlags(flags), 0.0, NAN, "inf", "nan"};
+  return {MapStringToDoubleFlags(flags), 0.0, NAN, "inf", "nan"};
 }
 
 float StringView::ParseToFloat(Index* processed_characters_count,
-                               int flags) const {
+                               unsigned flags) const {
   int pcc;
   auto result = CreateStringToDoubleConverter(flags).StringToFloat(
       reinterpret_cast<const uc16*>(ptr_), static_cast<int>(size_), &pcc);
@@ -547,7 +548,7 @@ float StringView::ParseToFloat(Index* processed_characters_count,
 }
 
 double StringView::ParseToDouble(Index* processed_characters_count,
-                                 int flags) const {
+                                 unsigned flags) const {
   int pcc;
   auto result = CreateStringToDoubleConverter(flags).StringToDouble(
       reinterpret_cast<const uc16*>(ptr_), static_cast<int>(size_), &pcc);

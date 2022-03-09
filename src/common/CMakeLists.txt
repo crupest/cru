@@ -4,6 +4,7 @@ add_library(cru_base SHARED
 	Format.cpp
 	PropertyTree.cpp
 	String.cpp
+	StringToNumberConverter.cpp
 	StringUtil.cpp
 	io/Stream.cpp
 	io/Resource.cpp
