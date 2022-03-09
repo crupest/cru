@@ -143,10 +143,21 @@ StringToIntegerConverterImplResult StringToIntegerConverterImpl::Parse(
     while (current != end && IsSpace(*current)) {
       current++;
     }
+
+    if (current != end) {
+      if (processed_characters_count) {
+        *processed_characters_count = 0;
+      }
+      if (throw_on_error) {
+        throw Exception(u"There is trailing junk.");
+      } else {
+        return {false, 0};
+      }
+    }
   }
 
-  if (current != end) {
-    throw Exception(u"There is trailing junk.");
+  if (processed_characters_count) {
+    *processed_characters_count = current - str;
   }
 
   return {negate, result};
