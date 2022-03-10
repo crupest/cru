@@ -10,20 +10,24 @@ static bool IsSpace(char c) {
   return c == ' ' || c == '\t' || c == '\n' || c == '\r';
 }
 
-StringToIntegerConverterImplResult StringToIntegerConverterImpl::Parse(
-    const char* const str, const Index size,
-    Index* processed_characters_count) const {
+namespace {
+template <typename T>
+StringToIntegerConverterImplResult GenericParseInteger(
+    const StringToIntegerConverterImpl* converter, const T* const str,
+    const Index size, Index* processed_characters_count) {
   if (str == nullptr) throw std::invalid_argument("Invalid str.");
   if (size < 0) throw std::invalid_argument("Invalid size.");
-  if (!CheckParams()) throw std::invalid_argument("Invalid parsing flags.");
+  if (!converter->CheckParams())
+    throw std::invalid_argument("Invalid parsing flags.");
 
-  const bool throw_on_error = (flags & StringToNumberFlags::kThrowOnError) != 0;
+  const bool throw_on_error =
+      (converter->flags & StringToNumberFlags::kThrowOnError) != 0;
 
-  const char* const end = str + size;
+  auto const end = str + size;
 
-  const char* current = str;
+  auto current = str;
 
-  if (flags & StringToNumberFlags::kAllowLeadingSpaces) {
+  if (converter->flags & StringToNumberFlags::kAllowLeadingSpaces) {
     while (current != end && IsSpace(*current)) {
       current++;
     }
@@ -60,7 +64,7 @@ StringToIntegerConverterImplResult StringToIntegerConverterImpl::Parse(
     }
   }
 
-  int base = this->base;
+  int base = converter->base;
 
   if (base == 0) {
     if (*current == '0') {
@@ -96,7 +100,7 @@ StringToIntegerConverterImplResult StringToIntegerConverterImpl::Parse(
   }
 
   const bool allow_leading_zero =
-      flags & StringToNumberFlags::kAllowLeadingZeroForInteger;
+      converter->flags & StringToNumberFlags::kAllowLeadingZeroForInteger;
 
   while (current != end && *current == '0') {
     current++;
@@ -110,9 +114,9 @@ StringToIntegerConverterImplResult StringToIntegerConverterImpl::Parse(
   }
 
   const bool allow_trailing_junk =
-      flags & StringToNumberFlags::kAllowTrailingJunk;
+      converter->flags & StringToNumberFlags::kAllowTrailingJunk;
   const bool allow_trailing_spaces =
-      flags & StringToNumberFlags::kAllowTrailingSpaces;
+      converter->flags & StringToNumberFlags::kAllowTrailingSpaces;
   unsigned long long result = 0;
 
   while (current != end) {
@@ -164,5 +168,18 @@ StringToIntegerConverterImplResult StringToIntegerConverterImpl::Parse(
   }
 
   return {negate, result};
+}
+}  // namespace
+
+StringToIntegerConverterImplResult StringToIntegerConverterImpl::Parse(
+    const char* const str, const Index size,
+    Index* processed_characters_count) const {
+  return GenericParseInteger(this, str, size, processed_characters_count);
+}
+
+StringToIntegerConverterImplResult StringToIntegerConverterImpl::Parse(
+    const char16_t* const str, const Index size,
+    Index* processed_characters_count) const {
+  return GenericParseInteger(this, str, size, processed_characters_count);
 }
 }  // namespace cru

@@ -2,6 +2,7 @@
 #include <double-conversion/double-conversion.h>
 #include <double-conversion/string-to-double.h>
 #include "cru/common/Exception.h"
+#include "cru/common/StringToNumberConverter.h"
 #include "cru/common/StringUtil.h"
 
 #include <cmath>
@@ -313,6 +314,16 @@ Range String::RangeFromCodePointToCodeUnit(Range code_point_range) const {
   return View().RangeFromCodePointToCodeUnit(code_point_range);
 }
 
+int String::ParseToInt(Index* processed_characters_count, unsigned flags,
+                       int base) const {
+  return View().ParseToInt(processed_characters_count, flags, base);
+}
+
+long long String::ParseToLongLong(Index* processed_characters_count,
+                                  unsigned flags, int base) const {
+  return View().ParseToLongLong(processed_characters_count, flags, base);
+}
+
 float String::ParseToFloat(Index* processed_characters_count,
                            unsigned flags) const {
   return View().ParseToFloat(processed_characters_count, flags);
@@ -517,6 +528,16 @@ std::string StringView::ToUtf8() const {
   return result;
 }
 
+int StringView::ParseToInt(Index* processed_characters_count, unsigned flags,
+                           int base) const {
+  return ParseToInteger<int>(processed_characters_count, flags, base);
+}
+
+long long StringView::ParseToLongLong(Index* processed_characters_count,
+                                      unsigned flags, int base) const {
+  return ParseToInteger<long long>(processed_characters_count, flags, base);
+}
+
 static int MapStringToDoubleFlags(int flags) {
   int f = double_conversion::StringToDoubleConverter::ALLOW_CASE_INSENSIBILITY;
   if (flags & StringToNumberFlags::kAllowLeadingSpaces) {
@@ -544,6 +565,11 @@ float StringView::ParseToFloat(Index* processed_characters_count,
   if (processed_characters_count != nullptr) {
     *processed_characters_count = pcc;
   }
+
+  if (flags & StringToNumberFlags::kThrowOnError && std::isnan(result)) {
+    throw Exception(u"Result of string to float conversion is NaN");
+  }
+
   return result;
 }
 
@@ -555,6 +581,11 @@ double StringView::ParseToDouble(Index* processed_characters_count,
   if (processed_characters_count != nullptr) {
     *processed_characters_count = pcc;
   }
+
+  if (flags & StringToNumberFlags::kThrowOnError && std::isnan(result)) {
+    throw Exception(u"Result of string to double conversion is NaN");
+  }
+
   return result;
 }
 

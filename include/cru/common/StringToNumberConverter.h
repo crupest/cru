@@ -4,7 +4,7 @@
 #include <ostream>
 
 namespace cru {
-struct StringToNumberFlags {
+struct CRU_BASE_API StringToNumberFlags {
   constexpr static unsigned kNoFlags = 0;
   constexpr static unsigned kAllowLeadingSpaces = 1 << 0;
   constexpr static unsigned kAllowTrailingSpaces = 1 << 1;
@@ -13,7 +13,7 @@ struct StringToNumberFlags {
   constexpr static unsigned kThrowOnError = 1 << 3;
 };
 
-struct StringToIntegerConverterImplResult {
+struct CRU_BASE_API StringToIntegerConverterImplResult {
   StringToIntegerConverterImplResult() = default;
   StringToIntegerConverterImplResult(bool negate, unsigned long long value)
       : negate(negate), value(value) {}
@@ -22,13 +22,15 @@ struct StringToIntegerConverterImplResult {
   unsigned long long value;
 };
 
-inline bool operator==(const StringToIntegerConverterImplResult& left,
-                       const StringToIntegerConverterImplResult& right) {
+inline bool CRU_BASE_API
+operator==(const StringToIntegerConverterImplResult& left,
+           const StringToIntegerConverterImplResult& right) {
   return left.negate == right.negate && left.value == right.value;
 }
 
-inline bool operator!=(const StringToIntegerConverterImplResult& left,
-                       const StringToIntegerConverterImplResult& right) {
+inline bool CRU_BASE_API
+operator!=(const StringToIntegerConverterImplResult& left,
+           const StringToIntegerConverterImplResult& right) {
   return !(left == right);
 }
 
@@ -41,7 +43,7 @@ inline std::ostream& operator<<(
 /**
  * \brief A converter that convert number into long long.
  */
-struct StringToIntegerConverterImpl {
+struct CRU_BASE_API StringToIntegerConverterImpl {
  public:
   explicit StringToIntegerConverterImpl(unsigned flags, int base = 0)
       : flags(flags), base(base) {}
@@ -57,6 +59,9 @@ struct StringToIntegerConverterImpl {
    */
   StringToIntegerConverterImplResult Parse(
       const char* str, Index size, Index* processed_characters_count) const;
+
+  StringToIntegerConverterImplResult Parse(
+      const char16_t* str, Index size, Index* processed_characters_count) const;
 
   template <std::size_t Size>
   StringToIntegerConverterImplResult Parse(

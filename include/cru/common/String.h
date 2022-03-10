@@ -11,6 +11,7 @@
 #include <iterator>
 #include <string>
 #include <string_view>
+#include <type_traits>
 #include <vector>
 
 namespace cru {
@@ -212,6 +213,17 @@ class CRU_BASE_API String {
   Range RangeFromCodeUnitToCodePoint(Range code_unit_range) const;
   Range RangeFromCodePointToCodeUnit(Range code_point_range) const;
 
+  template <typename TInteger>
+  std::enable_if_t<std::is_signed_v<TInteger>, TInteger> ParseToInteger(
+      Index* processed_characters_count, unsigned flags, int base) const;
+
+  int ParseToInt(Index* processed_characters_count = nullptr,
+                 unsigned flags = StringToNumberFlags::kNoFlags,
+                 int base = 0) const;
+  long long ParseToLongLong(Index* processed_characters_count = nullptr,
+                            unsigned flags = StringToNumberFlags::kNoFlags,
+                            int base = 0) const;
+
   float ParseToFloat(Index* processed_characters_count = nullptr,
                      unsigned flags = StringToNumberFlags::kNoFlags) const;
   double ParseToDouble(Index* processed_characters_count = nullptr,
@@ -339,6 +351,21 @@ class CRU_BASE_API StringView {
   Range RangeFromCodeUnitToCodePoint(Range code_unit_range) const;
   Range RangeFromCodePointToCodeUnit(Range code_point_range) const;
 
+  template <typename TInteger>
+  std::enable_if_t<std::is_signed_v<TInteger>, TInteger> ParseToInteger(
+      Index* processed_characters_count, unsigned flags, int base) const {
+    auto result = StringToIntegerConverterImpl(flags, base)
+                      .Parse(data(), size(), processed_characters_count);
+    return result.negate ? -result.value : result.value;
+  }
+
+  int ParseToInt(Index* processed_characters_count = nullptr,
+                 unsigned flags = StringToNumberFlags::kNoFlags,
+                 int base = 0) const;
+  long long ParseToLongLong(Index* processed_characters_count = nullptr,
+                            unsigned flags = StringToNumberFlags::kNoFlags,
+                            int base = 0) const;
+
   float ParseToFloat(Index* processed_characters_count = nullptr,
                      unsigned flags = StringToNumberFlags::kNoFlags) const;
   double ParseToDouble(Index* processed_characters_count = nullptr,
@@ -434,6 +461,13 @@ inline Index Utf16NextWord(StringView str, Index position,
 
 String CRU_BASE_API ToLower(StringView s);
 String CRU_BASE_API ToUpper(StringView s);
+
+template <typename TInteger>
+std::enable_if_t<std::is_signed_v<TInteger>, TInteger> String::ParseToInteger(
+    Index* processed_characters_count, unsigned flags, int base) const {
+  View().ParseToInteger<TInteger>(processed_characters_count, flags, base);
+}
+
 }  // namespace cru
 
 template <>
