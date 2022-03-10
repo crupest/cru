@@ -7,7 +7,7 @@
 #include "cru/ui/controls/ScrollView.h"
 #include "cru/ui/style/StyleRuleSet.h"
 
-namespace cru::theme_builder {
+namespace cru::theme_builder::components {
 class StyleRuleSetEditor : public ui::components::Component {
  public:
   StyleRuleSetEditor();
@@ -32,4 +32,4 @@ class StyleRuleSetEditor : public ui::components::Component {
   ui::controls::Button add_button_;
   ui::controls::TextBlock add_button_text_;
 };
-}  // namespace cru::theme_builder
+}  // namespace cru::theme_builder::components

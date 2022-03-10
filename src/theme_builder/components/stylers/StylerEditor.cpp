@@ -1,4 +1,5 @@
 #include "StylerEditor.h"
+#include "../Common.h"
 #include "BorderStylerEditor.h"
 #include "CompoundStylerEditor.h"
 #include "ContentBrushStylerEditor.h"
@@ -13,6 +14,9 @@
 
 namespace cru::theme_builder::components::stylers {
 StylerEditor::StylerEditor() {
+  border_.SetChild(&container_);
+  border_.SetBackgroundBrush(CreateRandomEditorBackgroundBrush());
+
   container_.SetFlexDirection(ui::controls::FlexDirection::Vertical);
   container_.AddChild(&head_container_);
   container_.SetItemCrossAlign(ui::controls::FlexCrossAlignment::Start);

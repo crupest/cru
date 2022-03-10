@@ -1,5 +1,6 @@
 #pragma once
 #include "../Editor.h"
+#include "cru/ui/controls/Container.h"
 #include "cru/ui/controls/FlexLayout.h"
 #include "cru/ui/controls/TextBlock.h"
 #include "cru/ui/style/Styler.h"
@@ -11,7 +12,7 @@ class StylerEditor : public Editor {
   ~StylerEditor() override;
 
  public:
-  ui::controls::Control* GetRootControl() override { return &container_; }
+  ui::controls::Control* GetRootControl() override { return &border_; }
 
   ui::controls::FlexLayout* GetContainer() { return &container_; }
 
@@ -23,6 +24,7 @@ class StylerEditor : public Editor {
   virtual ClonablePtr<ui::style::Styler> GetStyler() = 0;
 
  private:
+  ui::controls::Container border_;
   ui::controls::FlexLayout container_;
   ui::controls::FlexLayout head_container_;
   ui::controls::TextBlock label_;

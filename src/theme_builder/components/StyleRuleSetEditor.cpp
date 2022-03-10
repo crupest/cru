@@ -3,7 +3,7 @@
 #include "cru/ui/style/Condition.h"
 #include "cru/ui/style/Styler.h"
 
-namespace cru::theme_builder {
+namespace cru::theme_builder::components {
 using namespace cru::ui::controls;
 StyleRuleSetEditor::StyleRuleSetEditor() {
   scroll_view_.SetChild(&container_);
@@ -50,4 +50,4 @@ void StyleRuleSetEditor::BindStyleRuleSet(
     rules_layout_.AddChild(style_rule_editors_.back()->GetRootControl());
   }
 }
-}  // namespace cru::theme_builder
+}  // namespace cru::theme_builder::components

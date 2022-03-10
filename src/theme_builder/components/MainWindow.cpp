@@ -3,7 +3,7 @@
 #include "cru/ui/controls/StackLayout.h"
 #include "cru/ui/controls/TextBlock.h"
 
-namespace cru::theme_builder {
+namespace cru::theme_builder::components {
 using namespace cru::ui;
 using namespace cru::ui::controls;
 using namespace cru::platform::gui;
@@ -34,4 +34,4 @@ void MainWindow::Show() {
   window_.GetNativeWindow()->SetVisibility(WindowVisibilityType::Show);
   window_.GetNativeWindow()->SetToForeground();
 }
-}  // namespace cru::theme_builder
+}  // namespace cru::theme_builder::components

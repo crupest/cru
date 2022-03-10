@@ -7,7 +7,7 @@
 #include "cru/ui/controls/TextBlock.h"
 #include "cru/ui/controls/Window.h"
 
-namespace cru::theme_builder {
+namespace cru::theme_builder::components {
 class MainWindow : public ui::components::Component {
  public:
   MainWindow();
@@ -29,4 +29,4 @@ class MainWindow : public ui::components::Component {
   ui::controls::TextBlock preview_button_text_;
   StyleRuleSetEditor style_rule_set_editor_;
 };
-}  // namespace cru::theme_builder
+}  // namespace cru::theme_builder::components

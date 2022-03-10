@@ -8,7 +8,7 @@
 #include "cru/ui/style/StyleRule.h"
 #include "stylers/StylerEditor.h"
 
-namespace cru::theme_builder {
+namespace cru::theme_builder::components {
 class StyleRuleEditor : public ui::components::Component {
  public:
   StyleRuleEditor();
@@ -19,7 +19,7 @@ class StyleRuleEditor : public ui::components::Component {
   ~StyleRuleEditor() override;
 
  public:
-  ui::controls::Control* GetRootControl() override { return &main_layout_; }
+  ui::controls::Control* GetRootControl() override { return &container_; }
 
   ui::style::StyleRule GetValue() const;
   void SetValue(const ui::style::StyleRule& style_rule,
@@ -29,6 +29,7 @@ class StyleRuleEditor : public ui::components::Component {
   IEvent<std::nullptr_t>* RemoveEvent() { return &remove_event_; }
 
  private:
+  ui::controls::Container container_;
   ui::controls::FlexLayout main_layout_;
   ui::controls::TextBlock label_;
   ui::controls::FlexLayout head_layout_;
@@ -41,4 +42,4 @@ class StyleRuleEditor : public ui::components::Component {
   Event<std::nullptr_t> change_event_;
   Event<std::nullptr_t> remove_event_;
 };
-}  // namespace cru::theme_builder
+}  // namespace cru::theme_builder::components

@@ -1,10 +1,14 @@
 #include "StyleRuleEditor.h"
+#include "Common.h"
 #include "conditions/ConditionEditor.h"
 #include "cru/ui/ThemeManager.h"
 #include "cru/ui/style/StyleRule.h"
 
-namespace cru::theme_builder {
+namespace cru::theme_builder::components {
 StyleRuleEditor::StyleRuleEditor() {
+  container_.SetChild(&main_layout_);
+  container_.SetBackgroundBrush(CreateRandomEditorBackgroundBrush());
+
   main_layout_.SetFlexDirection(ui::controls::FlexDirection::Vertical);
   main_layout_.SetItemCrossAlign(ui::controls::FlexCrossAlignment::Start);
 
@@ -55,4 +59,4 @@ void StyleRuleEditor::SetValue(const ui::style::StyleRule& style_rule,
     change_event_.Raise(nullptr);
   }
 }
-}  // namespace cru::theme_builder
+}  // namespace cru::theme_builder::components
