@@ -13,7 +13,7 @@ class SingleChildControl : public Control {
   CRU_DELETE_COPY(SingleChildControl)
   CRU_DELETE_MOVE(SingleChildControl)
 
-  ~SingleChildControl() override {}
+  ~SingleChildControl() override { SetChild(nullptr); }
 
   Control* GetChild() const { return child_; }
   void SetChild(Control* child) {

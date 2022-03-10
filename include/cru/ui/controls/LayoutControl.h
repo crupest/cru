@@ -14,7 +14,7 @@ class LayoutControl : public Control {
   LayoutControl(LayoutControl&& other) = delete;
   LayoutControl& operator=(const LayoutControl& other) = delete;
   LayoutControl& operator=(LayoutControl&& other) = delete;
-  ~LayoutControl() override = default;
+  ~LayoutControl() override { ClearChildren(); }
 
  public:
   const std::vector<Control*>& GetChildren() const { return children_; }

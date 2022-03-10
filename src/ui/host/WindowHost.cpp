@@ -150,10 +150,12 @@ std::unique_ptr<platform::gui::INativeWindow> WindowHost::CreateNativeWindow() {
   return std::unique_ptr<INativeWindow>(native_window);
 }
 
-void WindowHost::InvalidatePaint() { layout_paint_cycler_->InvalidatePaint(); }
+void WindowHost::InvalidatePaint() {
+  if (layout_paint_cycler_) layout_paint_cycler_->InvalidatePaint();
+}
 
 void WindowHost::InvalidateLayout() {
-  layout_paint_cycler_->InvalidateLayout();
+  if (layout_paint_cycler_) layout_paint_cycler_->InvalidateLayout();
 }
 
 bool WindowHost::IsLayoutPreferToFillWindow() const {
@@ -190,8 +192,7 @@ void WindowHost::RelayoutWithSize(const Size& available_size,
   for (auto& action : after_layout_stable_action_) action();
   after_layout_event_.Raise(AfterLayoutEventArgs{});
   after_layout_stable_action_.clear();
-  if constexpr (debug_flags::layout)
-    CRU_LOG_DEBUG(u"A relayout is finished.");
+  if constexpr (debug_flags::layout) CRU_LOG_DEBUG(u"A relayout is finished.");
 }
 
 void WindowHost::Repaint() {
