@@ -356,7 +356,22 @@ class CRU_BASE_API StringView {
 CRU_DEFINE_COMPARE_OPERATORS(String)
 
 inline String operator+(const String& left, const String& right) {
-  String result(left);
+  String result;
+  result += left;
+  result += right;
+  return result;
+}
+
+inline String operator+(String::value_type left, const String& right) {
+  String result;
+  result += left;
+  result += right;
+  return result;
+}
+
+inline String operator+(const String& left, String::value_type right) {
+  String result;
+  result += left;
   result += right;
   return result;
 }

@@ -1,6 +1,8 @@
 #pragma once
 #include "Base.h"
 
+#include <ostream>
+
 namespace cru {
 struct StringToNumberFlags {
   constexpr static unsigned kNoFlags = 0;
@@ -12,9 +14,29 @@ struct StringToNumberFlags {
 };
 
 struct StringToIntegerConverterImplResult {
+  StringToIntegerConverterImplResult() = default;
+  StringToIntegerConverterImplResult(bool negate, unsigned long long value)
+      : negate(negate), value(value) {}
+
   bool negate;
   unsigned long long value;
 };
+
+inline bool operator==(const StringToIntegerConverterImplResult& left,
+                       const StringToIntegerConverterImplResult& right) {
+  return left.negate == right.negate && left.value == right.value;
+}
+
+inline bool operator!=(const StringToIntegerConverterImplResult& left,
+                       const StringToIntegerConverterImplResult& right) {
+  return !(left == right);
+}
+
+inline std::ostream& operator<<(
+    std::ostream& stream, const StringToIntegerConverterImplResult& result) {
+  return stream << "StringToIntegerConverterImplResult("
+                << (result.negate ? "-" : "") << result.value << ")";
+}
 
 /**
  * \brief A converter that convert number into long long.
@@ -35,6 +57,12 @@ struct StringToIntegerConverterImpl {
    */
   StringToIntegerConverterImplResult Parse(
       const char* str, Index size, Index* processed_characters_count) const;
+
+  template <std::size_t Size>
+  StringToIntegerConverterImplResult Parse(
+      const char (&str)[Size], Index* processed_characters_count) const {
+    return Parse(str, Size - 1, processed_characters_count);
+  }
 
   unsigned flags;
   /**

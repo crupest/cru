@@ -3,15 +3,7 @@
 
 namespace cru {
 bool StringToIntegerConverterImpl::CheckParams() const {
-  if (base == 0) {
-    if (flags & StringToNumberFlags::kAllowLeadingZeroForInteger) {
-      return false;
-    } else {
-      return true;
-    }
-  }
-
-  return base >= 2 & base <= 36;
+  return base == 0 || base >= 2 & base <= 36;
 }
 
 static bool IsSpace(char c) {
@@ -74,6 +66,9 @@ StringToIntegerConverterImplResult StringToIntegerConverterImpl::Parse(
     if (*current == '0') {
       ++current;
       if (current == end) {
+        if (processed_characters_count) {
+          *processed_characters_count = current - str;
+        }
         return {negate, 0};
       } else if (*current == 'x' || *current == 'X') {
         ++current;
@@ -84,6 +79,8 @@ StringToIntegerConverterImplResult StringToIntegerConverterImpl::Parse(
       } else {
         base = 8;
       }
+    } else {
+      base = 10;
     }
   }
 
@@ -106,6 +103,9 @@ StringToIntegerConverterImplResult StringToIntegerConverterImpl::Parse(
   }
 
   if (current == end) {
+    if (processed_characters_count) {
+      *processed_characters_count = current - str;
+    }
     return {negate, 0};
   }
 
@@ -119,10 +119,13 @@ StringToIntegerConverterImplResult StringToIntegerConverterImpl::Parse(
     const char c = *current;
     if (c >= '0' && c <= (base > 10 ? '9' : base + '0' - 1)) {
       result = result * base + c - '0';
-    } else if (base > 10 && c >= 'a' && c <= 'z') {
+      current++;
+    } else if (base > 10 && c >= 'a' && c <= (base + 'a' - 10 - 1)) {
       result = result * base + c - 'a' + 10;
-    } else if (base > 10 && c >= 'A' && c <= 'Z') {
+      current++;
+    } else if (base > 10 && c >= 'A' && c <= (base + 'A' - 10 - 1)) {
       result = result * base + c - 'A' + 10;
+      current++;
     } else if (allow_trailing_junk) {
       break;
     } else if (allow_trailing_spaces && IsSpace(c)) {
@@ -132,7 +135,7 @@ StringToIntegerConverterImplResult StringToIntegerConverterImpl::Parse(
         *processed_characters_count = 0;
       }
       if (throw_on_error) {
-        throw Exception(u"Read invalid character.");
+        throw Exception(String(u"Read invalid character '") + c + u"'.");
       } else {
         return {false, 0};
       }
