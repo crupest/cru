@@ -3,6 +3,7 @@
 #include "CompoundStylerEditor.h"
 #include "ContentBrushStylerEditor.h"
 #include "CursorStylerEditor.h"
+#include "FontStylerEditor.h"
 #include "MarginStylerEditor.h"
 #include "PaddingStylerEditor.h"
 #include "PreferredSizeStylerEditor.h"
@@ -55,6 +56,10 @@ std::unique_ptr<StylerEditor> CreateStylerEditor(ui::style::Styler* styler) {
                  dynamic_cast<ui::style::ContentBrushStyler*>(styler)) {
     auto editor = std::make_unique<ContentBrushStylerEditor>();
     editor->SetValue(content_brush_styler);
+    return editor;
+  } else if (auto font_styler = dynamic_cast<ui::style::FontStyler*>(styler)) {
+    auto editor = std::make_unique<FontStylerEditor>();
+    editor->SetValue(font_styler);
     return editor;
   } else {
     throw Exception(u"Unknown styler type");

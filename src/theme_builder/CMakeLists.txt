@@ -23,6 +23,7 @@ add_executable(cru_theme_builder
 	components/stylers/CompoundStylerEditor.cpp
 	components/stylers/ContentBrushStylerEditor.cpp
 	components/stylers/CursorStylerEditor.cpp
+	components/stylers/FontStylerEditor.cpp
 	components/stylers/MarginStylerEditor.cpp
 	components/stylers/PaddingStylerEditor.cpp
 	components/stylers/PreferredSizeStylerEditor.cpp
