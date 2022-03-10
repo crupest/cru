@@ -21,6 +21,7 @@ add_executable(cru_theme_builder
 	components/properties/ThicknessPropertyEditor.cpp
 	components/stylers/BorderStylerEditor.cpp
 	components/stylers/CompoundStylerEditor.cpp
+	components/stylers/ContentBrushStylerEditor.cpp
 	components/stylers/CursorStylerEditor.cpp
 	components/stylers/MarginStylerEditor.cpp
 	components/stylers/PaddingStylerEditor.cpp
