@@ -3,6 +3,7 @@ add_library(cru_ui SHARED
 	ThemeManager.cpp
 	ThemeResourceDictionary.cpp
 	components/Component.cpp
+	components/Input.cpp
 	components/Menu.cpp
 	components/PopupButton.cpp
 	components/Select.cpp

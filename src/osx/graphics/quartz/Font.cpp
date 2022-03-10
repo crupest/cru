@@ -9,7 +9,7 @@ using cru::platform::osx::Convert;
 
 OsxCTFont::OsxCTFont(IGraphicsFactory* graphics_factory, const String& name,
                      float size)
-    : OsxQuartzResource(graphics_factory) {
+    : OsxQuartzResource(graphics_factory), name_(name) {
   CFStringRef n = Convert(name);
 
   if (name.empty()) {
@@ -25,5 +25,6 @@ OsxCTFont::OsxCTFont(IGraphicsFactory* graphics_factory, const String& name,
 
 OsxCTFont::~OsxCTFont() { CFRelease(ct_font_); }
 
+String OsxCTFont::GetFontName() { return name_; }
 float OsxCTFont::GetFontSize() { return CTFontGetSize(ct_font_); }
 }  // namespace cru::platform::graphics::osx::quartz

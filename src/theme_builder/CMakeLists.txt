@@ -13,6 +13,7 @@ add_executable(cru_theme_builder
 	components/properties/CheckBoxPropertyEditor.cpp
 	components/properties/ColorPropertyEditor.cpp
 	components/properties/CornerRadiusPropertyEditor.cpp
+	components/properties/FontPropertyEditor.cpp
 	components/properties/MeasureLengthPropertyEditor.cpp
 	components/properties/PointPropertyEditor.cpp
 	components/properties/SelectPropertyEditor.cpp

@@ -1,6 +1,7 @@
 #pragma once
 #include "../Editor.h"
 #include "cru/platform/graphics/Font.h"
+#include "cru/ui/components/Input.h"
 #include "cru/ui/controls/Control.h"
 #include "cru/ui/controls/FlexLayout.h"
 #include "cru/ui/controls/TextBlock.h"
@@ -32,6 +33,6 @@ class FontPropertyEditor : public Editor {
   ui::controls::TextBox font_family_text_;
   ui::controls::FlexLayout font_size_container_;
   ui::controls::TextBlock font_size_label_;
-  ui::controls::TextBox font_size_text_;
+  ui::components::FloatInput font_size_input_;
 };
 }  // namespace cru::theme_builder::components::properties

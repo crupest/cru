@@ -24,13 +24,14 @@ FontPropertyEditor::FontPropertyEditor() {
 
   font_size_container_.SetFlexDirection(FlexDirection::Horizontal);
   font_size_container_.AddChild(&font_size_label_);
-  font_size_container_.AddChild(&font_size_text_);
+  font_size_container_.AddChild(font_size_input_.GetRootControl());
   font_size_label_.SetText(u"Font Size");
+  font_size_input_.SetMin(0.0f);
 
   font_family_text_.TextChangeEvent()->AddSpyOnlyHandler(
       [this] { RaiseChangeEvent(); });
 
-  font_size_text_.TextChangeEvent()->AddSpyOnlyHandler(
+  font_size_input_.ChangeEvent()->AddSpyOnlyHandler(
       [this] { RaiseChangeEvent(); });
 }
 
@@ -42,8 +43,18 @@ std::shared_ptr<platform::graphics::IFont> FontPropertyEditor::GetValue()
     const {
   return platform::gui::IUiApplication::GetInstance()
       ->GetGraphicsFactory()
-      ->CreateFont(font_family_text_.GetText(),
-                   font_size_text_.GetText().ParseToFloat());
+      ->CreateFont(font_family_text_.GetText(), font_size_input_.GetValue());
 }
 
+void FontPropertyEditor::SetValue(
+    std::shared_ptr<platform::graphics::IFont> value, bool trigger_change) {
+  SuppressNextChangeEvent();
+  font_family_text_.SetText(value->GetFontName());
+  SuppressNextChangeEvent();
+  font_size_input_.SetValue(value->GetFontSize());
+
+  if (trigger_change) {
+    RaiseChangeEvent();
+  }
+}
 }  // namespace cru::theme_builder::components::properties
