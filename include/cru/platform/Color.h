@@ -2,8 +2,8 @@
 #include "cru/common/Base.h"
 #include "cru/platform/Base.h"
 
-#include "cru/common/String.h"
 #include "cru/common/Format.h"
+#include "cru/common/String.h"
 
 #include <cstdint>
 #include <optional>
@@ -262,4 +262,18 @@ inline String ToString(const Color& color) {
   return cru::Format(u"rgba({}, {}, {}, {})", color.red, color.green,
                      color.blue, color.alpha);
 }
+
+struct CRU_PLATFORM_API HslColor {
+  HslColor() = default;
+  HslColor(float h, float s, float l, float a = 1.0f)
+      : h(h), s(s), l(l), a(a) {}
+  HslColor(const Color& rgb);
+
+  operator Color() const;
+
+  float h;
+  float s;
+  float l;
+  float a;
+};
 }  // namespace cru::platform
