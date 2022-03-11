@@ -48,7 +48,7 @@ CompoundConditionEditor::CompoundConditionEditor() {
       ui::ThemeManager::GetInstance()->GetResourceStyleRuleSet(
           u"cru.theme_builder.icon-button.style"));
   add_child_button_.GetButton()->SetIconWithSvgPathDataStringResourceKey(
-      u"icon.plus-square", {0, 0, 16, 16});
+      u"icon.plus", {0, 0, 16, 16});
   add_child_button_.GetButton()->SetPreferredSize({24, 24});
   add_child_button_.GetButton()->SetPadding(ui::Thickness(2));
   add_child_button_.GetButton()->SetIconFillColor(ui::colors::green);

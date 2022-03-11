@@ -15,9 +15,9 @@ CompoundStylerEditorChild::CompoundStylerEditorChild(
   remove_button_.GetStyleRuleSet()->SetParent(
       ui::ThemeManager::GetInstance()->GetResourceStyleRuleSet(
           u"cru.theme_builder.icon-button.style"));
-  remove_button_.SetChild(&remove_button_text_);
-  remove_button_text_.SetText(u"x");
-  remove_button_text_.SetTextColor(ui::colors::red);
+  remove_button_.SetIconWithSvgPathDataStringResourceKey(u"icon.close",
+                                                         {0, 0, 16, 16});
+  remove_button_.SetIconFillColor(ui::colors::red);
 
   container_.AddChild(styler_editor_->GetRootControl());
 
@@ -35,11 +35,14 @@ CompoundStylerEditor::CompoundStylerEditor() {
       ui::controls::FlexCrossAlignment::Start);
 
   GetHeadContainer()->AddChild(add_child_button_.GetRootControl());
-  add_child_button_.SetButtonText(u"+");
   add_child_button_.GetButton()->GetStyleRuleSet()->SetParent(
       ui::ThemeManager::GetInstance()->GetResourceStyleRuleSet(
           u"cru.theme_builder.icon-button.style"));
-  add_child_button_.SetButtonTextColor(ui::colors::green);
+  add_child_button_.GetButton()->SetIconWithSvgPathDataStringResourceKey(
+      u"icon.plus", {0, 0, 16, 16});
+  add_child_button_.GetButton()->SetPreferredSize({24, 24});
+  add_child_button_.GetButton()->SetPadding(ui::Thickness(2));
+  add_child_button_.GetButton()->SetIconFillColor(ui::colors::green);
   add_child_button_.SetMenuItems({
       u"Compound Styler",
       u"Border Styler",

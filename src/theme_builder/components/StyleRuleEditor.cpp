@@ -21,9 +21,9 @@ StyleRuleEditor::StyleRuleEditor() {
   remove_button_.GetStyleRuleSet()->SetParent(
       ui::ThemeManager::GetInstance()->GetResourceStyleRuleSet(
           u"cru.theme_builder.icon-button.style"));
-  remove_button_.SetChild(&remove_button_text_);
-  remove_button_text_.SetText(u"x");
-  remove_button_text_.SetTextColor(ui::colors::red);
+  remove_button_.SetIconWithSvgPathDataStringResourceKey(u"icon.close",
+                                                         {0, 0, 16, 16});
+  remove_button_.SetIconFillColor(ui::colors::red);
 
   main_layout_.AddChild(&body_layout_);
   body_layout_.SetFlexDirection(ui::controls::FlexDirection::Vertical);

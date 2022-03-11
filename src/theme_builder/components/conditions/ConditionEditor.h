@@ -1,6 +1,7 @@
 #pragma once
 #include "../Editor.h"
 #include "cru/common/ClonablePtr.h"
+#include "cru/ui/controls/Container.h"
 #include "cru/ui/controls/FlexLayout.h"
 #include "cru/ui/controls/TextBlock.h"
 #include "cru/ui/style/Condition.h"
@@ -12,7 +13,7 @@ class ConditionEditor : public Editor {
   ~ConditionEditor() override;
 
  public:
-  ui::controls::Control* GetRootControl() override { return &container_; }
+  ui::controls::Control* GetRootControl() override { return &border_; }
 
   ui::controls::FlexLayout* GetContainer() { return &container_; }
 
@@ -24,6 +25,7 @@ class ConditionEditor : public Editor {
   virtual ClonablePtr<ui::style::Condition> GetCondition() = 0;
 
  private:
+  ui::controls::Container border_;
   ui::controls::FlexLayout container_;
   ui::controls::FlexLayout head_container_;
   ui::controls::TextBlock label_;

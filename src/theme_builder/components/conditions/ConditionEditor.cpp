@@ -1,4 +1,5 @@
 #include "ConditionEditor.h"
+#include "../Common.h"
 #include "CheckedConditionEditor.h"
 #include "ClickStateConditionEditor.h"
 #include "CompoundConditionEditor.h"
@@ -9,6 +10,9 @@
 
 namespace cru::theme_builder::components::conditions {
 ConditionEditor::ConditionEditor() {
+  border_.SetChild(&container_);
+  border_.SetBackgroundBrush(CreateRandomEditorBackgroundBrush());
+
   container_.SetFlexDirection(ui::controls::FlexDirection::Vertical);
   container_.AddChild(&head_container_);
 

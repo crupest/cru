@@ -1,5 +1,5 @@
 <Theme>
-    <Resource key="cru.theme_builder.editor.label.font">
+    <Resource key="text.font">
         <Font size="16" />
     </Resource>
 
