@@ -1,4 +1,5 @@
 #pragma once
+#include "cru/common/SelfResolvable.h"
 #include "cru/common/log/Logger.h"
 #include "cru/ui/DebugFlags.h"
 #include "cru/ui/controls/Control.h"
@@ -39,11 +40,11 @@ void DispatchEvent(
     return;
   }
 
-  std::vector<controls::Control*> receive_list;
+  std::vector<ObjectResolver<controls::Control>> receive_list;
 
   auto parent = original_sender;
   while (parent != last_receiver) {
-    receive_list.push_back(parent);
+    receive_list.push_back(parent->CreateResolver());
     auto p = parent->GetParent();
     assert(!(p == nullptr && last_receiver != nullptr));
     parent = p;
@@ -56,10 +57,10 @@ void DispatchEvent(
     auto i = receive_list.crbegin();
     const auto end = --receive_list.crend();
     for (; i != end; ++i) {
-      log += (*i)->GetControlType();
+      log += i->Resolve()->GetControlType();
       log += u" -> ";
     }
-    log += (*i)->GetControlType();
+    log += i->Resolve()->GetControlType();
     CRU_LOG_DEBUG(log);
   }
 
@@ -70,8 +71,10 @@ void DispatchEvent(
   // tunnel
   for (auto i = receive_list.crbegin(); i != receive_list.crend(); ++i) {
     count++;
-    EventArgs event_args(*i, original_sender, std::forward<Args>(args)...);
-    static_cast<Event<EventArgs&>*>(((*i)->*event_ptr)()->Tunnel())
+    auto control = i->Resolve();
+    if (!control) continue;
+    EventArgs event_args(control, original_sender, std::forward<Args>(args)...);
+    static_cast<Event<EventArgs&>*>((control->*event_ptr)()->Tunnel())
         ->Raise(event_args);
     if (event_args.IsHandled()) {
       handled = true;
@@ -86,10 +89,13 @@ void DispatchEvent(
 
   // bubble
   if (!handled) {
-    for (auto i : receive_list) {
+    for (const auto& resolver : receive_list) {
       count--;
-      EventArgs event_args(i, original_sender, std::forward<Args>(args)...);
-      static_cast<Event<EventArgs&>*>((i->*event_ptr)()->Bubble())
+      auto control = resolver.Resolve();
+      if (!control) continue;
+      EventArgs event_args(control, original_sender,
+                           std::forward<Args>(args)...);
+      static_cast<Event<EventArgs&>*>((control->*event_ptr)()->Bubble())
           ->Raise(event_args);
       if (event_args.IsHandled()) {
         if constexpr (debug_flags::routed_event)
@@ -103,9 +109,11 @@ void DispatchEvent(
   }
 
   // direct
-  for (auto i : receive_list) {
-    EventArgs event_args(i, original_sender, std::forward<Args>(args)...);
-    static_cast<Event<EventArgs&>*>((i->*event_ptr)()->Direct())
+  for (auto resolver : receive_list) {
+    auto control = resolver.Resolve();
+    if (!control) continue;
+    EventArgs event_args(control, original_sender, std::forward<Args>(args)...);
+    static_cast<Event<EventArgs&>*>((control->*event_ptr)()->Direct())
         ->Raise(event_args);
   }
 

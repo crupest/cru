@@ -8,6 +8,10 @@
 #include <vector>
 
 namespace cru::ui::style {
+/**
+ * \brief An immutable style rule contains a condition and a styler.
+ * \remarks This class is immutable and has value semantics.
+ */
 class CRU_UI_API StyleRule : public Object {
  public:
   static ClonablePtr<StyleRule> Create(ClonablePtr<Condition> condition,

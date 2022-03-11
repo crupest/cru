@@ -3,6 +3,7 @@
 #include "../events/UiEvents.h"
 #include "../render/RenderObject.h"
 #include "../style/StyleRuleSet.h"
+#include "cru/common/SelfResolvable.h"
 #include "cru/ui/render/MeasureRequirement.h"
 
 namespace cru::ui::controls {
@@ -16,7 +17,7 @@ namespace cru::ui::controls {
  *  - RemoveChild(Control* child)
  * The last two methods are totally for convenient control tree management.
  */
-class CRU_UI_API Control : public Object {
+class CRU_UI_API Control : public Object, public SelfResolvable<Control> {
   friend class RootControl;
 
  protected:

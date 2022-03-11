@@ -6,6 +6,12 @@
 #include <cstddef>
 
 namespace cru::ui::style {
+/**
+ *  \brief A set of style rules.
+ *  \remarks Note this class is different from other constructs in style. It is
+ * mutable and has reference semantics. Change of it will be notified by
+ * StyleRuleSet::ChangeEvent.
+ */
 class CRU_UI_API StyleRuleSet : public Object {
  public:
   StyleRuleSet() = default;

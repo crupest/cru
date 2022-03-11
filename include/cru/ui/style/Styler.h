@@ -10,6 +10,11 @@
 #include <vector>
 
 namespace cru::ui::style {
+/**
+ * \brief The base class for all styler implementations.
+ * \remarks Styler should be immutable. And we use cru::ClonablePtr to wrap it
+ * in order to get both polymorphic and value semantics.
+ */
 class CRU_UI_API Styler : public Object {
  public:
   virtual void Apply(controls::Control* control) const = 0;

@@ -58,8 +58,7 @@ ClickDetector::ClickDetector(controls::Control* control) {
                 this->state_ == ClickState::Hover) {
               if (!this->control_->CaptureMouse()) {
                 if constexpr (debug_flags::click_detector) {
-                  CRU_LOG_DEBUG(
-                                u"Failed to capture mouse when begin click.");
+                  CRU_LOG_DEBUG(u"Failed to capture mouse when begin click.");
                 }
                 return;
               }
@@ -77,10 +76,12 @@ ClickDetector::ClickDetector(controls::Control* control) {
                 button == button_) {
               if (this->state_ == ClickState::Press) {
                 this->SetState(ClickState::Hover);
+                auto resolver = this->control_->CreateResolver();
                 this->event_.Raise(ClickEventArgs{this->control_,
                                                   this->down_point_,
                                                   args.GetPoint(), button});
-                this->control_->ReleaseMouse();
+                auto c = resolver.Resolve();
+                if (c) c->ReleaseMouse();
               } else if (this->state_ == ClickState::PressInactive) {
                 this->SetState(ClickState::None);
                 this->control_->ReleaseMouse();
@@ -136,8 +137,7 @@ void ClickDetector::SetState(ClickState state) {
           UnreachableCode();
       }
     };
-    CRU_LOG_DEBUG(u"Click state changed, new state: {}.",
-                  to_string(state));
+    CRU_LOG_DEBUG(u"Click state changed, new state: {}.", to_string(state));
   }
 
   state_ = state;

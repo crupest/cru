@@ -23,13 +23,15 @@ class StyleRuleSetEditor : public ui::components::Component {
   void BindStyleRuleSet(std::shared_ptr<ui::style::StyleRuleSet> rule_set);
 
  private:
+  void UpdateView(ui::style::StyleRuleSet* style_rule_set);
+
+ private:
   std::shared_ptr<ui::style::StyleRuleSet> style_rule_set_;
 
   ui::controls::ScrollView scroll_view_;
   ui::controls::FlexLayout container_;
   ui::controls::FlexLayout rules_layout_;
   std::vector<std::unique_ptr<StyleRuleEditor>> style_rule_editors_;
-  ui::controls::Button add_button_;
-  ui::controls::TextBlock add_button_text_;
+  ui::controls::IconButton add_button_;
 };
 }  // namespace cru::theme_builder::components
