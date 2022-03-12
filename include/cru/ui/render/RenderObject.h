@@ -5,6 +5,18 @@
 #include "cru/common/String.h"
 
 namespace cru::ui::render {
+struct BoxConstraint {
+  static const BoxConstraint kNotLimit;
+
+  Size max;
+  Size min;
+
+  constexpr bool Validate() const {
+    return max.width >= min.width && max.height >= min.height &&
+           min.width >= 0 && min.height >= 0;
+  }
+};
+
 /**
  * ### Layout
  *
@@ -82,6 +94,12 @@ class CRU_UI_API RenderObject : public Object {
     return custom_measure_requirement_;
   }
 
+  Size GetMinSize1() const { return min_size_; }
+  void SetMinSize1(const Size& min_size);
+
+  Size GetMaxSize1() const { return max_size_; }
+  void SetMaxSize1(const Size& max_size);
+
   // This method will merge requirement passed by argument and requirement of
   // the render object using MeasureRequirement::Merge and then call
   // MeasureRequirement::Normalize on it. And it will use preferred size of the
@@ -93,6 +111,8 @@ class CRU_UI_API RenderObject : public Object {
                const MeasureSize& preferred_size);
   // This will set offset of this render object and call OnLayoutCore.
   void Layout(const Point& offset);
+
+  void Measure1(const BoxConstraint& constraint);
 
   virtual Thickness GetTotalSpaceThickness() const;
   virtual Thickness GetInnerSpaceThickness() const;
@@ -125,6 +145,8 @@ class CRU_UI_API RenderObject : public Object {
   virtual Size OnMeasureCore(const MeasureRequirement& requirement,
                              const MeasureSize& preferred_size);
 
+  virtual Size OnMeasureCore1(const BoxConstraint& constraint);
+
   // Please reduce margin and padding or other custom things and pass the result
   // content rect to OnLayoutContent.
   virtual void OnLayoutCore();
@@ -135,6 +157,8 @@ class CRU_UI_API RenderObject : public Object {
   // Caller should guarantee preferred_size is corerced into required range.
   virtual Size OnMeasureContent(const MeasureRequirement& requirement,
                                 const MeasureSize& preferred_size) = 0;
+
+  virtual Size OnMeasureContent1(const BoxConstraint& constraint);
 
   // Layout all content and children(Call Layout on them).
   // Lefttop of content_rect should be added when calculated children's offset.
@@ -160,5 +184,8 @@ class CRU_UI_API RenderObject : public Object {
 
   MeasureSize preferred_size_{};
   MeasureRequirement custom_measure_requirement_{};
+
+  Size min_size_ = Size::kZero;
+  Size max_size_ = Size::kMax;
 };
 }  // namespace cru::ui::render

@@ -1,5 +1,5 @@
 #pragma once
-#include "cru/common/Base.h"
+#include "Base.h"
 
 #include "cru/common/Format.h"
 #include "cru/common/Range.h"
@@ -51,7 +51,10 @@ inline String ToString(const Point& point) {
   return Format(u"(x: {}, y: {})", point.x, point.y);
 }
 
-struct Size final {
+struct CRU_PLATFORM_API Size final {
+  static const Size kMax;
+  static const Size kZero;
+
   constexpr Size() = default;
   constexpr Size(const float width, const float height)
       : width(width), height(height) {}

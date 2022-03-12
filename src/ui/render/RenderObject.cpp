@@ -1,5 +1,6 @@
 #include "cru/ui/render/RenderObject.h"
 
+#include "cru/common/Exception.h"
 #include "cru/common/log/Logger.h"
 #include "cru/platform/GraphicsBase.h"
 #include "cru/ui/DebugFlags.h"
@@ -7,6 +8,7 @@
 #include "cru/ui/host/WindowHost.h"
 
 namespace cru::ui::render {
+const BoxConstraint BoxConstraint::kNotLimit{Size::kMax, Size::kZero};
 
 void RenderObject::SetParent(RenderObject* new_parent) {
 #ifdef CRU_DEBUG
@@ -72,6 +74,16 @@ void RenderObject::SetMaxSize(const MeasureSize& max_size) {
   InvalidateLayout();
 }
 
+void RenderObject::SetMinSize1(const Size& min_size) {
+  min_size_ = min_size;
+  InvalidateLayout();
+}
+
+void RenderObject::SetMaxSize1(const Size& max_size) {
+  max_size_ = max_size;
+  InvalidateLayout();
+}
+
 void RenderObject::Measure(const MeasureRequirement& requirement,
                            const MeasureSize& preferred_size) {
   MeasureRequirement merged_requirement =
@@ -95,6 +107,11 @@ void RenderObject::Measure(const MeasureRequirement& requirement,
 
   Ensures(desired_size_.width >= 0);
   Ensures(desired_size_.height >= 0);
+}
+
+void RenderObject::Measure1(const BoxConstraint& constraint) {
+  Expects(constraint.Validate());
+  desired_size_ = OnMeasureCore1(constraint);
 }
 
 void RenderObject::Layout(const Point& offset) {
@@ -138,6 +155,31 @@ Size RenderObject::OnMeasureCore(const MeasureRequirement& requirement,
   return space_size + content_size;
 }
 
+Size RenderObject::OnMeasureCore1(const BoxConstraint& constraint) {
+  const Thickness outer_space = GetTotalSpaceThickness();
+  Size space_size{outer_space.GetHorizontalTotal(),
+                  outer_space.GetVerticalTotal()};
+
+  if (space_size.width > constraint.max.width) {
+    space_size.width = constraint.max.width;
+    CRU_LOG_WARN(u"{} space width is over constraint.max.width",
+                 this->GetDebugPathInTree());
+  }
+
+  if (space_size.height > constraint.max.height) {
+    space_size.height = constraint.max.height;
+    CRU_LOG_WARN(u"{} space height is over constraint.max.height",
+                 this->GetDebugPathInTree());
+  }
+
+  BoxConstraint content_constraint{constraint.max - space_size,
+                                   constraint.min - space_size};
+
+  const auto content_size = OnMeasureContent1(content_constraint);
+
+  return space_size + content_size;
+}
+
 void RenderObject::OnLayoutCore() {
   Size total_size = GetDesiredSize();
   const Thickness outer_space = GetTotalSpaceThickness();
@@ -164,6 +206,10 @@ void RenderObject::OnLayoutCore() {
   const Rect content_rect{lefttop, content_size};
 
   OnLayoutContent(content_rect);
+}
+
+Size RenderObject::OnMeasureContent1(const BoxConstraint& constraint) {
+  throw Exception(u"Not implemented.");
 }
 
 Rect RenderObject::GetPaddingRect() const {
