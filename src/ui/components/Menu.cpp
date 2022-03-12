@@ -27,7 +27,10 @@ MenuItem::~MenuItem() {}
 
 void MenuItem::SetText(String text) { text_.SetText(std::move(text)); }
 
-Menu::Menu() { container_.SetFlexDirection(controls::FlexDirection::Vertical); }
+Menu::Menu() {
+  container_.SetFlexDirection(controls::FlexDirection::Vertical);
+  container_.SetItemCrossAlign(controls::FlexCrossAlignment::Stretch);
+}
 
 Menu::~Menu() {
   for (auto item : items_) {

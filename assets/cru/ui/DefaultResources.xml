@@ -255,6 +255,59 @@
     </Resource>
 
     <Resource key="menuitem.style">
-        <StyleRuleSet></StyleRuleSet>
+        <StyleRuleSet>
+            <StyleRule>
+                <NoCondition />
+                <BorderStyler>
+                    <BorderStyle>
+                        <Thickness value="2" />
+                        <CornerRadius value="0" />
+                        <Color value="transparent" />
+                    </BorderStyle>
+                </BorderStyler>
+            </StyleRule>
+            <StyleRule>
+                <ClickStateCondition value="none" />
+                <BorderStyler>
+                    <BorderStyle></BorderStyle>
+                </BorderStyler>
+                <CursorStyler>
+                    <Cursor value="arrow" />
+                </CursorStyler>
+            </StyleRule>
+            <StyleRule>
+                <ClickStateCondition value="hover" />
+                <BorderStyler>
+                    <BorderStyle>
+                        <Color value="#00bfff" />
+                    </BorderStyle>
+                </BorderStyler>
+                <CursorStyler>
+                    <Cursor value="hand" />
+                </CursorStyler>
+            </StyleRule>
+            <StyleRule>
+                <ClickStateCondition value="press" />
+                <BorderStyler>
+                    <BorderStyle>
+                        <Color value="#91e4ff" />
+                    </BorderStyle>
+                </BorderStyler>
+                <CursorStyler>
+                    <Cursor value="hand" />
+                </CursorStyler>
+            </StyleRule>
+            <StyleRule>
+                <ClickStateCondition value="pressinactive" />
+                <BorderStyler>
+                    <BorderStyle>
+                        <Color value="#91e4ff" />
+                    </BorderStyle>
+                </BorderStyler>
+                <CursorStyler>
+                    <Cursor value="arrow" />
+                </CursorStyler>
+            </StyleRule>
+        </StyleRuleSet>
     </Resource>
 </Theme>
