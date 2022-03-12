@@ -6,6 +6,7 @@
 #include "cru/platform/graphics/Geometry.h"
 #include "cru/platform/graphics/Painter.h"
 #include "cru/ui/DebugFlags.h"
+#include "cru/ui/render/RenderObject.h"
 
 #include <algorithm>
 
@@ -120,6 +121,13 @@ Size BorderRenderObject::OnMeasureContent(const MeasureRequirement& requirement,
   } else {
     return preferred_size.GetSizeOr0();
   }
+}
+
+Size BorderRenderObject::OnMeasureContent1(const BoxConstraint& constraint) {
+  auto child = GetChild();
+  if (child == nullptr) return constraint.min;
+  auto child_size = child->Measure1(BoxConstraint::kNotLimit);
+  return constraint.Coerce(child_size);
 }
 
 void BorderRenderObject::OnLayoutContent(const Rect& content_rect) {

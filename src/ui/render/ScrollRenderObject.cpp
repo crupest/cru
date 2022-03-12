@@ -2,6 +2,7 @@
 
 #include "cru/platform/graphics/Painter.h"
 #include "cru/ui/controls/Control.h"
+#include "cru/ui/render/RenderObject.h"
 #include "cru/ui/render/ScrollBar.h"
 
 #include <algorithm>
@@ -185,7 +186,14 @@ Size ScrollRenderObject::OnMeasureContent(const MeasureRequirement& requirement,
                     : requirement.min.height.GetLengthOr0()};
     return result;
   }
-}  // namespace cru::ui::render
+}
+
+Size ScrollRenderObject::OnMeasureContent1(const BoxConstraint& constraint) {
+  auto child = GetChild();
+  if (child == nullptr) return constraint.min;
+  auto child_size = child->Measure1(BoxConstraint::kNotLimit);
+  return constraint.Coerce(child_size);
+}
 
 void ScrollRenderObject::OnLayoutContent(const Rect& content_rect) {
   if (auto child = GetChild()) {

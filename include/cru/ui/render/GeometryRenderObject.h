@@ -2,6 +2,7 @@
 #include "RenderObject.h"
 #include "cru/platform/graphics/Brush.h"
 #include "cru/platform/graphics/Geometry.h"
+#include "cru/ui/render/MeasureRequirement.h"
 
 #include <optional>
 
@@ -39,6 +40,8 @@ class GeometryRenderObject : public RenderObject {
   Size OnMeasureContent(const MeasureRequirement& requirement,
                         const MeasureSize& preferred_size) override;
   void OnLayoutContent(const Rect& content_rect) override;
+
+  Size OnMeasureContent1(const BoxConstraint& constraint) override;
 
  private:
   std::shared_ptr<platform::graphics::IGeometry> geometry_ = nullptr;

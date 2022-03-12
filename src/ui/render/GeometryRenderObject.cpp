@@ -106,5 +106,9 @@ Size GeometryRenderObject::OnMeasureContent(
   return requirement.Coerce(result);
 }
 
+Size GeometryRenderObject::OnMeasureContent1(const BoxConstraint& constraint) {
+  return constraint.Coerce(GetViewPort().GetSize());
+}
+
 void GeometryRenderObject::OnLayoutContent(const Rect& content_rect) {}
 }  // namespace cru::ui::render

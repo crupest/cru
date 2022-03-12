@@ -84,6 +84,32 @@ void RenderObject::SetMaxSize1(const Size& max_size) {
   InvalidateLayout();
 }
 
+BoxConstraint RenderObject::CalculateMergedConstraint(
+    const BoxConstraint& constraint) const {
+  auto result = constraint;
+  if (max_size_.width >= constraint.min.width &&
+      max_size_.width < constraint.max.width) {
+    result.max.width = max_size_.width;
+  }
+
+  if (max_size_.height >= constraint.min.height &&
+      max_size_.height < constraint.max.height) {
+    result.max.height = max_size_.height;
+  }
+
+  if (min_size_.width <= constraint.max.width &&
+      min_size_.width > constraint.min.width) {
+    result.min.width = min_size_.width;
+  }
+
+  if (min_size_.height <= constraint.max.height &&
+      min_size_.height > constraint.min.height) {
+    result.min.height = min_size_.height;
+  }
+
+  return result;
+}
+
 void RenderObject::Measure(const MeasureRequirement& requirement,
                            const MeasureSize& preferred_size) {
   MeasureRequirement merged_requirement =
@@ -109,9 +135,11 @@ void RenderObject::Measure(const MeasureRequirement& requirement,
   Ensures(desired_size_.height >= 0);
 }
 
-void RenderObject::Measure1(const BoxConstraint& constraint) {
+Size RenderObject::Measure1(const BoxConstraint& constraint) {
   Expects(constraint.Validate());
   desired_size_ = OnMeasureCore1(constraint);
+  Ensures(constraint.Satisfy(desired_size_));
+  return desired_size_;
 }
 
 void RenderObject::Layout(const Point& offset) {
@@ -156,24 +184,26 @@ Size RenderObject::OnMeasureCore(const MeasureRequirement& requirement,
 }
 
 Size RenderObject::OnMeasureCore1(const BoxConstraint& constraint) {
+  auto merged_constraint = CalculateMergedConstraint(constraint);
+
   const Thickness outer_space = GetTotalSpaceThickness();
   Size space_size{outer_space.GetHorizontalTotal(),
                   outer_space.GetVerticalTotal()};
 
-  if (space_size.width > constraint.max.width) {
-    space_size.width = constraint.max.width;
+  if (space_size.width > merged_constraint.max.width) {
+    space_size.width = merged_constraint.max.width;
     CRU_LOG_WARN(u"{} space width is over constraint.max.width",
                  this->GetDebugPathInTree());
   }
 
-  if (space_size.height > constraint.max.height) {
-    space_size.height = constraint.max.height;
+  if (space_size.height > merged_constraint.max.height) {
+    space_size.height = merged_constraint.max.height;
     CRU_LOG_WARN(u"{} space height is over constraint.max.height",
                  this->GetDebugPathInTree());
   }
 
-  BoxConstraint content_constraint{constraint.max - space_size,
-                                   constraint.min - space_size};
+  BoxConstraint content_constraint{merged_constraint.max - space_size,
+                                   merged_constraint.min - space_size};
 
   const auto content_size = OnMeasureContent1(content_constraint);
 

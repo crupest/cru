@@ -3,6 +3,7 @@
 
 #include "ScrollBar.h"
 #include "cru/common/Event.h"
+#include "cru/ui/render/RenderObject.h"
 
 #include <memory>
 #include <optional>
@@ -79,6 +80,8 @@ class CRU_UI_API ScrollRenderObject : public SingleChildRenderObject {
   Size OnMeasureContent(const MeasureRequirement& requirement,
                         const MeasureSize& preferred_size) override;
   void OnLayoutContent(const Rect& content_rect) override;
+
+  Size OnMeasureContent1(const BoxConstraint& constraint) override;
 
   void OnAttachedControlChanged(controls::Control* old_control,
                                 controls::Control* new_control) override;

@@ -15,6 +15,16 @@ struct BoxConstraint {
     return max.width >= min.width && max.height >= min.height &&
            min.width >= 0 && min.height >= 0;
   }
+
+  constexpr bool Satisfy(const Size& size) const {
+    return size.width <= max.width && size.height <= max.height &&
+           size.width >= min.width && size.height >= min.height;
+  }
+
+  constexpr Size Coerce(const Size& size) const {
+    return Size{std::min(std::max(size.width, min.width), max.width),
+                std::min(std::max(size.height, min.height), max.height)};
+  }
 };
 
 /**
@@ -96,9 +106,10 @@ class CRU_UI_API RenderObject : public Object {
 
   Size GetMinSize1() const { return min_size_; }
   void SetMinSize1(const Size& min_size);
-
   Size GetMaxSize1() const { return max_size_; }
   void SetMaxSize1(const Size& max_size);
+  BoxConstraint CalculateMergedConstraint(
+      const BoxConstraint& constraint) const;
 
   // This method will merge requirement passed by argument and requirement of
   // the render object using MeasureRequirement::Merge and then call
@@ -112,7 +123,7 @@ class CRU_UI_API RenderObject : public Object {
   // This will set offset of this render object and call OnLayoutCore.
   void Layout(const Point& offset);
 
-  void Measure1(const BoxConstraint& constraint);
+  Size Measure1(const BoxConstraint& constraint);
 
   virtual Thickness GetTotalSpaceThickness() const;
   virtual Thickness GetInnerSpaceThickness() const;

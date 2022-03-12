@@ -2,6 +2,7 @@
 #include "SingleChildRenderObject.h"
 
 #include "../style/ApplyBorderStyleInfo.h"
+#include "cru/ui/render/RenderObject.h"
 
 namespace cru::ui::render {
 class CRU_UI_API BorderRenderObject : public SingleChildRenderObject {
@@ -55,6 +56,8 @@ class CRU_UI_API BorderRenderObject : public SingleChildRenderObject {
   Size OnMeasureContent(const MeasureRequirement& requirement,
                         const MeasureSize& preferred_size) override;
   void OnLayoutContent(const Rect& content_rect) override;
+
+  Size OnMeasureContent1(const BoxConstraint& constraint) override;
 
   void OnResize(const Size& new_size) override;
 

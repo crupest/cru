@@ -1,7 +1,7 @@
 #include "cru/ui/render/CanvasRenderObject.h"
 
 namespace cru::ui::render {
-CanvasRenderObject::CanvasRenderObject()  {}
+CanvasRenderObject::CanvasRenderObject() {}
 
 CanvasRenderObject::~CanvasRenderObject() = default;
 
@@ -20,6 +20,10 @@ Size CanvasRenderObject::OnMeasureContent(const MeasureRequirement& requirement,
                                           const MeasureSize& preferred_size) {
   return requirement.Coerce(Size{preferred_size.width.GetLengthOr(100),
                                  preferred_size.height.GetLengthOr(100)});
+}
+
+Size CanvasRenderObject::OnMeasureContent1(const BoxConstraint& constraint) {
+  return constraint.Coerce(Size{100, 100});
 }
 
 void CanvasRenderObject::OnLayoutContent(const Rect& content_rect) {

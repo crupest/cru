@@ -6,6 +6,7 @@
 #include "cru/platform/graphics/Painter.h"
 #include "cru/platform/graphics/TextLayout.h"
 #include "cru/ui/DebugFlags.h"
+#include "cru/ui/render/RenderObject.h"
 
 #include <algorithm>
 #include <limits>
@@ -224,6 +225,17 @@ Size TextRenderObject::OnMeasureContent(const MeasureRequirement& requirement,
       std::min(result.height, requirement.max.height.GetLengthOrMax());
 
   return result;
+}
+
+Size TextRenderObject::OnMeasureContent1(const BoxConstraint& constraint) {
+  text_layout_->SetMaxWidth(constraint.max.width);
+  text_layout_->SetMaxHeight(std::numeric_limits<float>::max());
+
+  const Size text_size(
+      text_layout_->GetTextBounds(is_measure_including_trailing_space_)
+          .GetRightBottom());
+
+  return constraint.Coerce(text_size);
 }
 
 void TextRenderObject::OnLayoutContent(const Rect& content_rect) {
