@@ -1,5 +1,4 @@
 #include "cru/ui/components/Menu.h"
-#include <functional>
 #include "cru/platform/gui/Window.h"
 #include "cru/ui/ThemeManager.h"
 #include "cru/ui/controls/Button.h"
