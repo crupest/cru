@@ -28,5 +28,7 @@ DWriteFont::DWriteFont(DirectGraphicsFactory* factory, String font_family,
       text_format_->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_NEAR));
 }
 
+String DWriteFont::GetFontName() { return font_family_; }
+
 float DWriteFont::GetFontSize() { return text_format_->GetFontSize(); }
 }  // namespace cru::platform::graphics::win::direct

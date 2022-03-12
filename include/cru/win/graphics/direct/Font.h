@@ -25,6 +25,7 @@ class CRU_WIN_GRAPHICS_DIRECT_API DWriteFont
     return text_format_.Get();
   }
 
+  String GetFontName() override;
   float GetFontSize() override;
 
  private:

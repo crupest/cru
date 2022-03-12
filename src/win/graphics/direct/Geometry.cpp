@@ -1,11 +1,12 @@
 #include "cru/win/graphics/direct/Geometry.h"
-#include <d2d1.h>
-#include <d2d1helper.h>
 
 #include "cru/common/platform/win/Exception.h"
 #include "cru/win/graphics/direct/ConvertUtil.h"
 #include "cru/win/graphics/direct/Exception.h"
 #include "cru/win/graphics/direct/Factory.h"
+
+#include <d2d1.h>
+#include <d2d1helper.h>
 
 namespace cru::platform::graphics::win::direct {
 D2DGeometryBuilder::D2DGeometryBuilder(DirectGraphicsFactory* factory)
