@@ -69,8 +69,9 @@ void Menu::AddTextItemAt(String text, gsl::index index,
                          std::function<void()> on_click) {
   MenuItem* item = new MenuItem(std::move(text));
   item->SetOnClick([this, index, on_click = std::move(on_click)] {
+    auto on_item_click = on_item_click_;
     on_click();
-    if (on_item_click_) on_item_click_(index);
+    if (on_item_click) on_item_click(index);
   });
   item->SetDeleteByParent(true);
   AddItemAt(item, index);
@@ -78,7 +79,10 @@ void Menu::AddTextItemAt(String text, gsl::index index,
 
 PopupMenu::PopupMenu(controls::Control* attached_control)
     : attached_control_(attached_control), popup_(attached_control) {
-  menu_.SetOnItemClick([this](Index) { this->Close(); });
+  menu_.SetOnItemClick([resolver = CreateResolver()](Index) {
+    auto t = static_cast<PopupMenu*>(resolver.Resolve());
+    if (t) t->popup_.GetNativeWindow()->Close();
+  });
   popup_.AddChildAt(menu_.GetRootControl(), 0);
 }
 

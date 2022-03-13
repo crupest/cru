@@ -39,6 +39,8 @@ CompoundConditionEditor::CompoundConditionEditor() {
   SetLabel(u"Compound Condition");
 
   GetContainer()->AddChild(&children_container_);
+  children_container_.SetMargin({20, 0, 0, 0});
+  children_container_.SetFlexDirection(ui::controls::FlexDirection::Vertical);
   children_container_.SetItemCrossAlign(
       ui::controls::FlexCrossAlignment::Start);
 

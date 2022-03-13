@@ -1,5 +1,6 @@
 #pragma once
 #include "../Base.h"
+#include "cru/common/SelfResolvable.h"
 
 namespace cru::ui::components {
 /**
@@ -7,7 +8,7 @@ namespace cru::ui::components {
  * \remarks Component should respect children's Component::IsDeleteByParent
  * value and decide whether to delete it.
  */
-class CRU_UI_API Component : public Object {
+class CRU_UI_API Component : public Object, public SelfResolvable<Component> {
  public:
   Component() = default;
 

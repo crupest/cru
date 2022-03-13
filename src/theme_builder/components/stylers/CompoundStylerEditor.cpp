@@ -1,6 +1,11 @@
 #include "CompoundStylerEditor.h"
 #include "BorderStylerEditor.h"
+#include "ContentBrushStylerEditor.h"
 #include "CursorStylerEditor.h"
+#include "FontStylerEditor.h"
+#include "MarginStylerEditor.h"
+#include "PaddingStylerEditor.h"
+#include "PreferredSizeStylerEditor.h"
 #include "cru/common/ClonablePtr.h"
 #include "cru/ui/ThemeManager.h"
 #include "cru/ui/style/Styler.h"
@@ -43,11 +48,10 @@ CompoundStylerEditor::CompoundStylerEditor() {
   add_child_button_.GetButton()->SetPreferredSize({24, 24});
   add_child_button_.GetButton()->SetPadding(ui::Thickness(2));
   add_child_button_.GetButton()->SetIconFillColor(ui::colors::green);
-  add_child_button_.SetMenuItems({
-      u"Compound Styler",
-      u"Border Styler",
-      u"Cursor Styler",
-  });
+  add_child_button_.SetMenuItems({u"Compound Styler", u"Border Styler",
+                                  u"Cursor Styler", u"Content Brush Styler",
+                                  u"Font Styler", u"Margin Styler",
+                                  u"Padding Styler", u"Preferred Size Styler"});
   add_child_button_.MenuItemSelectedEvent()->AddHandler([this](Index index) {
     std::unique_ptr<StylerEditor> editor;
     switch (index) {
@@ -59,6 +63,21 @@ CompoundStylerEditor::CompoundStylerEditor() {
         break;
       case 2:
         editor = std::make_unique<CursorStylerEditor>();
+        break;
+      case 3:
+        editor = std::make_unique<ContentBrushStylerEditor>();
+        break;
+      case 4:
+        editor = std::make_unique<FontStylerEditor>();
+        break;
+      case 5:
+        editor = std::make_unique<MarginStylerEditor>();
+        break;
+      case 6:
+        editor = std::make_unique<PaddingStylerEditor>();
+        break;
+      case 7:
+        editor = std::make_unique<PreferredSizeStylerEditor>();
         break;
       default:
         break;
@@ -93,7 +112,6 @@ ClonablePtr<ui::style::CompoundStyler> CompoundStylerEditor::GetValue() {
 void CompoundStylerEditor::SetValue(ui::style::CompoundStyler* value,
                                     bool trigger_change) {
   children_.clear();
-  children_container_.ClearChildren();
   for (const auto& styler : value->GetChildren()) {
     auto editor = CreateStylerEditor(styler.get());
     ConnectChangeEvent(editor.get());
