@@ -1,6 +1,11 @@
 #include "StyleRuleSetEditor.h"
+#include <memory>
+#include <optional>
+#include "cru/common/Exception.h"
+#include "cru/common/String.h"
 #include "cru/ui/ThemeManager.h"
 #include "cru/ui/controls/FlexLayout.h"
+#include "cru/ui/model/IListChangeNotify.h"
 #include "cru/ui/render/FlexLayoutRenderObject.h"
 #include "cru/ui/style/Condition.h"
 #include "cru/ui/style/Styler.h"
@@ -39,25 +44,63 @@ void StyleRuleSetEditor::BindStyleRuleSet(
   Expects(style_rule_set_ == nullptr && rule_set);
   style_rule_set_ = std::move(rule_set);
   UpdateView(style_rule_set_.get());
-  style_rule_set_->ChangeEvent()->AddSpyOnlyHandler(
-      [this] { UpdateView(style_rule_set_.get()); });
+  style_rule_set_->ListChangeEvent()->AddHandler(
+      [this](const ui::model::ListChange& change) {
+        UpdateView(style_rule_set_.get(), change);
+      });
 }
 
-void StyleRuleSetEditor::UpdateView(ui::style::StyleRuleSet* style_rule_set) {
-  style_rule_editors_.clear();
-
-  for (Index i = 0; i < style_rule_set->GetSize(); ++i) {
-    const auto& rule = style_rule_set->GetStyleRule(i);
-    auto style_rule_editor = std::make_unique<StyleRuleEditor>();
-    style_rule_editor->SetValue(rule, false);
-    style_rule_editor->RemoveEvent()->AddSpyOnlyHandler(
-        [this, i] { style_rule_set_->RemoveStyleRule(i); });
-    style_rule_editor->ChangeEvent()->AddSpyOnlyHandler(
-        [this, i, editor = style_rule_editor.get()]() {
-          style_rule_set_->SetStyleRule(i, editor->GetValue());
-        });
-    style_rule_editors_.push_back(std::move(style_rule_editor));
-    rules_layout_.AddChild(style_rule_editors_.back()->GetRootControl());
+void StyleRuleSetEditor::UpdateView(
+    ui::style::StyleRuleSet* style_rule_set,
+    std::optional<ui::model::ListChange> change) {
+  if (change) {
+    switch (change->type) {
+      case ui::model::ListChangeType::kItemAdd: {
+        for (auto i = change->position; i < change->position + change->count;
+             ++i) {
+          const auto& rule = style_rule_set->GetStyleRule(i);
+          auto style_rule_editor = std::make_unique<StyleRuleEditor>();
+          style_rule_editor->SetValue(rule, false);
+          style_rule_editor->RemoveEvent()->AddSpyOnlyHandler(
+              [this, i] { style_rule_set_->RemoveStyleRule(i); });
+          style_rule_editor->ChangeEvent()->AddSpyOnlyHandler(
+              [this, i, editor = style_rule_editor.get()]() {
+                style_rule_set_->SetStyleRule(i, editor->GetValue());
+              });
+          style_rule_editors_.insert(style_rule_editors_.cbegin() + i,
+                                     std::move(style_rule_editor));
+          rules_layout_.AddChildAt(style_rule_editors_.back()->GetRootControl(),
+                                   i);
+        }
+        break;
+      }
+      case ui::model::ListChangeType::kItemRemove: {
+        for (auto i = change->position; i < change->position + change->count;
+             ++i) {
+          style_rule_editors_.erase(style_rule_editors_.begin() + i);
+        }
+        break;
+      }
+      case ui::model::ListChangeType::kItemSet: {
+        for (auto i = change->position; i < change->position + change->count;
+             ++i) {
+          const auto& rule = style_rule_set->GetStyleRule(i);
+          style_rule_editors_[i]->SetValue(rule, false);
+        }
+        break;
+      }
+      case ui::model::ListChangeType::kItemMove: {
+        throw Exception(u"Not supported now!");
+        break;
+      }
+      case ui::model::ListChangeType::kClear: {
+        style_rule_editors_.clear();
+      }
+    }
+  } else {
+    UpdateView(style_rule_set, ui::model::ListChange::Clear());
+    UpdateView(style_rule_set,
+               ui::model::ListChange::ItemAdd(0, style_rule_set->GetSize()));
   }
 }
 }  // namespace cru::theme_builder::components

@@ -1,6 +1,7 @@
 #include "cru/ui/style/StyleRuleSet.h"
 #include "cru/common/Event.h"
 #include "cru/ui/controls/Control.h"
+#include "cru/ui/model/IListChangeNotify.h"
 #include "gsl/gsl_assert"
 
 #include <unordered_set>
@@ -42,7 +43,7 @@ void StyleRuleSet::AddStyleRule(StyleRule rule, gsl::index index) {
 
   rules_.insert(rules_.cbegin() + index, std::move(rule));
 
-  RaiseChangeEvent();
+  RaiseChangeEvent(model::ListChange::ItemAdd(index));
 }
 
 void StyleRuleSet::RemoveStyleRule(gsl::index index, gsl::index count) {
@@ -51,20 +52,22 @@ void StyleRuleSet::RemoveStyleRule(gsl::index index, gsl::index count) {
 
   rules_.erase(rules_.cbegin() + index, rules_.cbegin() + index + count);
 
-  RaiseChangeEvent();
+  RaiseChangeEvent(model::ListChange::ItemRemove(index, count));
 }
 
 void StyleRuleSet::SetStyleRule(Index index, StyleRule rule) {
   Expects(index >= 0 && index < GetSize());
   rules_[index] = std::move(rule);
-  RaiseChangeEvent();
+  RaiseChangeEvent(model::ListChange::ItemSet(index));
 }
 
 void StyleRuleSet::Set(const StyleRuleSet& other, bool set_parent) {
   rules_ = other.rules_;
   if (set_parent) parent_ = other.parent_;
 
-  RaiseChangeEvent();
+  list_change_event_.Raise(model::ListChange::Clear());
+  list_change_event_.Raise(model::ListChange::ItemAdd(0, GetSize()));
+  change_event_.Raise(nullptr);
 }
 
 StyleRuleSetBind::StyleRuleSetBind(controls::Control* control,

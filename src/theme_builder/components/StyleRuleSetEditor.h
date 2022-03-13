@@ -5,6 +5,7 @@
 #include "cru/ui/controls/Control.h"
 #include "cru/ui/controls/FlexLayout.h"
 #include "cru/ui/controls/ScrollView.h"
+#include "cru/ui/model/IListChangeNotify.h"
 #include "cru/ui/style/StyleRuleSet.h"
 
 namespace cru::theme_builder::components {
@@ -23,7 +24,8 @@ class StyleRuleSetEditor : public ui::components::Component {
   void BindStyleRuleSet(std::shared_ptr<ui::style::StyleRuleSet> rule_set);
 
  private:
-  void UpdateView(ui::style::StyleRuleSet* style_rule_set);
+  void UpdateView(ui::style::StyleRuleSet* style_rule_set,
+                  std::optional<ui::model::ListChange> change = std::nullopt);
 
  private:
   std::shared_ptr<ui::style::StyleRuleSet> style_rule_set_;

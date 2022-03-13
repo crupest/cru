@@ -2,6 +2,7 @@
 #include "StyleRule.h"
 #include "cru/common/Base.h"
 #include "cru/common/Event.h"
+#include "cru/ui/model/IListChangeNotify.h"
 
 #include <cstddef>
 
@@ -12,7 +13,7 @@ namespace cru::ui::style {
  * mutable and has reference semantics. Change of it will be notified by
  * StyleRuleSet::ChangeEvent.
  */
-class CRU_UI_API StyleRuleSet : public Object {
+class CRU_UI_API StyleRuleSet : public Object, public model::IListChangeNotify {
  public:
   StyleRuleSet() = default;
   explicit StyleRuleSet(std::shared_ptr<StyleRuleSet> parent);
@@ -50,11 +51,20 @@ class CRU_UI_API StyleRuleSet : public Object {
   // change ...). Subscribe to this and update style change listeners and style.
   IEvent<std::nullptr_t>* ChangeEvent() { return &change_event_; }
 
+  IEvent<model::ListChange>* ListChangeEvent() override {
+    return &list_change_event_;
+  }
+
  private:
   void RaiseChangeEvent() { change_event_.Raise(nullptr); }
+  void RaiseChangeEvent(model::ListChange list_change) {
+    list_change_event_.Raise(list_change);
+    change_event_.Raise(nullptr);
+  }
 
  private:
   Event<std::nullptr_t> change_event_;
+  Event<model::ListChange> list_change_event_;
 
   std::shared_ptr<StyleRuleSet> parent_ = nullptr;
   EventRevokerGuard parent_change_event_guard_;
