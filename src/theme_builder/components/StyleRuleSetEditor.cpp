@@ -1,4 +1,5 @@
 #include "StyleRuleSetEditor.h"
+#include <algorithm>
 #include <memory>
 #include <optional>
 #include "cru/common/Exception.h"
@@ -50,6 +51,15 @@ void StyleRuleSetEditor::BindStyleRuleSet(
       });
 }
 
+Index StyleRuleSetEditor::IndexOfRuleEditor(StyleRuleEditor* editor) {
+  auto iter =
+      std::find_if(style_rule_editors_.cbegin(), style_rule_editors_.cend(),
+                   [editor](const std::unique_ptr<StyleRuleEditor>& p) {
+                     return p.get() == editor;
+                   });
+  return iter - style_rule_editors_.cbegin();
+}
+
 void StyleRuleSetEditor::UpdateView(
     ui::style::StyleRuleSet* style_rule_set,
     std::optional<ui::model::ListChange> change) {
@@ -62,10 +72,13 @@ void StyleRuleSetEditor::UpdateView(
           auto style_rule_editor = std::make_unique<StyleRuleEditor>();
           style_rule_editor->SetValue(rule, false);
           style_rule_editor->RemoveEvent()->AddSpyOnlyHandler(
-              [this, i] { style_rule_set_->RemoveStyleRule(i); });
+              [this, editor = style_rule_editor.get()] {
+                style_rule_set_->RemoveStyleRule(IndexOfRuleEditor(editor));
+              });
           style_rule_editor->ChangeEvent()->AddSpyOnlyHandler(
-              [this, i, editor = style_rule_editor.get()]() {
-                style_rule_set_->SetStyleRule(i, editor->GetValue());
+              [this, editor = style_rule_editor.get()]() {
+                style_rule_set_->SetStyleRule(IndexOfRuleEditor(editor),
+                                              editor->GetValue());
               });
           style_rule_editors_.insert(style_rule_editors_.cbegin() + i,
                                      std::move(style_rule_editor));

@@ -24,6 +24,8 @@ class StyleRuleSetEditor : public ui::components::Component {
   void BindStyleRuleSet(std::shared_ptr<ui::style::StyleRuleSet> rule_set);
 
  private:
+  Index IndexOfRuleEditor(StyleRuleEditor* editor);
+
   void UpdateView(ui::style::StyleRuleSet* style_rule_set,
                   std::optional<ui::model::ListChange> change = std::nullopt);
 
