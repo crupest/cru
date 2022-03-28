@@ -1,4 +1,5 @@
 add_library(cru_ui SHARED
+	DeleteLater.cpp
 	Helper.cpp
 	ThemeManager.cpp
 	ThemeResourceDictionary.cpp

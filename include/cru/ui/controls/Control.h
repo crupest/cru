@@ -1,5 +1,6 @@
 #pragma once
 #include "../Base.h"
+#include "../DeleteLater.h"
 #include "../events/UiEvents.h"
 #include "../render/RenderObject.h"
 #include "../style/StyleRuleSet.h"
@@ -17,7 +18,9 @@ namespace cru::ui::controls {
  *  - RemoveChild(Control* child)
  * The last two methods are totally for convenient control tree management.
  */
-class CRU_UI_API Control : public Object, public SelfResolvable<Control> {
+class CRU_UI_API Control : public Object,
+                           public SelfResolvable<Control>,
+                           public DeleteLaterImpl {
   friend class RootControl;
 
  protected:
