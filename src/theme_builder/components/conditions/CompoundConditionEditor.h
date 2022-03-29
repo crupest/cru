@@ -10,27 +10,6 @@
 #include "cru/ui/style/Condition.h"
 
 namespace cru::theme_builder::components::conditions {
-class CompoundConditionEditorChild : public ui::components::Component {
- public:
-  explicit CompoundConditionEditorChild(
-      std::unique_ptr<ConditionEditor>&& editor);
-  ~CompoundConditionEditorChild() override;
-
- public:
-  ui::controls::Control* GetRootControl() override { return &container_; }
-
-  ConditionEditor* GetConditionEditor() { return condition_editor_.get(); }
-
-  IEvent<std::nullptr_t>* RemoveEvent() { return &remove_event_; }
-
- private:
-  ui::controls::FlexLayout container_;
-  ui::controls::IconButton remove_button_;
-  std::unique_ptr<ConditionEditor> condition_editor_;
-
-  Event<std::nullptr_t> remove_event_;
-};
-
 class CompoundConditionEditor : public ConditionEditor {
  public:
   CompoundConditionEditor();
@@ -44,7 +23,7 @@ class CompoundConditionEditor : public ConditionEditor {
  private:
   ui::components::PopupMenuIconButton add_child_button_;
   ui::controls::FlexLayout children_container_;
-  std::vector<std::unique_ptr<CompoundConditionEditorChild>> children_;
+  std::vector<std::unique_ptr<ConditionEditor>> children_;
 };
 
 class AndConditionEditor : public CompoundConditionEditor {

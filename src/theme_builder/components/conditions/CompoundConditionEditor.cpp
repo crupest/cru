@@ -12,28 +12,6 @@
 #include "cru/ui/style/Condition.h"
 
 namespace cru::theme_builder::components::conditions {
-CompoundConditionEditorChild::CompoundConditionEditorChild(
-    std::unique_ptr<ConditionEditor>&& condition_editor)
-    : condition_editor_(std::move(condition_editor)) {
-  container_.SetFlexDirection(ui::controls::FlexDirection::Horizontal);
-  container_.AddChild(&remove_button_);
-
-  remove_button_.GetStyleRuleSet()->SetParent(
-      ui::ThemeManager::GetInstance()->GetResourceStyleRuleSet(
-          u"cru.theme_builder.icon-button.style"));
-  remove_button_.SetIconWithSvgPathDataStringResourceKey(u"icon.close",
-                                                         {0, 0, 16, 16});
-  remove_button_.SetPreferredSize({24, 24});
-  remove_button_.SetPadding(ui::Thickness(2));
-  remove_button_.SetIconFillColor(ui::colors::red);
-
-  container_.AddChild(condition_editor_->GetRootControl());
-
-  remove_button_.ClickEvent()->AddSpyOnlyHandler(
-      [this] { this->remove_event_.Raise(nullptr); });
-}
-
-CompoundConditionEditorChild::~CompoundConditionEditorChild() {}
 
 CompoundConditionEditor::CompoundConditionEditor() {
   SetLabel(u"Compound Condition");
@@ -83,15 +61,13 @@ CompoundConditionEditor::CompoundConditionEditor() {
     }
     if (editor) {
       ConnectChangeEvent(editor.get());
-      auto child =
-          std::make_unique<CompoundConditionEditorChild>(std::move(editor));
-      child->RemoveEvent()->AddSpyOnlyHandler([this, c = child.get()] {
+      editor->RemoveEvent()->AddSpyOnlyHandler([this, c = editor.get()] {
         auto index = this->children_container_.IndexOf(c->GetRootControl());
         this->children_.erase(this->children_.begin() + index);
         this->children_container_.RemoveChildAt(index);
         RaiseChangeEvent();
       });
-      children_.push_back(std::move(child));
+      children_.push_back(std::move(editor));
       children_container_.AddChild(children_.back()->GetRootControl());
       RaiseChangeEvent();
     }
@@ -104,7 +80,7 @@ std::vector<ClonablePtr<ui::style::Condition>>
 CompoundConditionEditor::GetChildren() {
   std::vector<ClonablePtr<ui::style::Condition>> children;
   for (auto& child : children_) {
-    children.push_back(child->GetConditionEditor()->GetCondition());
+    children.push_back(child->GetCondition());
   }
   return children;
 }
@@ -115,17 +91,15 @@ void CompoundConditionEditor::SetChildren(
   children_container_.ClearChildren();
   children_.clear();
   for (const auto& condition : children) {
-    auto condition_editor = CreateConditionEditor(condition.get());
-    ConnectChangeEvent(condition_editor.get());
-    auto child = std::make_unique<CompoundConditionEditorChild>(
-        std::move(condition_editor));
-    child->RemoveEvent()->AddSpyOnlyHandler([this, c = child.get()] {
+    auto editor = CreateConditionEditor(condition.get());
+    ConnectChangeEvent(editor.get());
+    editor->RemoveEvent()->AddSpyOnlyHandler([this, c = editor.get()] {
       auto index = this->children_container_.IndexOf(c->GetRootControl());
       this->children_.erase(this->children_.begin() + index);
       this->children_container_.RemoveChildAt(index);
       RaiseChangeEvent();
     });
-    children_.push_back(std::move(child));
+    children_.push_back(std::move(editor));
     children_container_.AddChild(children_.back()->GetRootControl());
   }
   if (trigger_change) {

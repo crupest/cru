@@ -9,17 +9,7 @@
 #include "cru/ui/controls/FlexLayout.h"
 
 namespace cru::theme_builder::components::conditions {
-ConditionEditor::ConditionEditor() {
-  border_.SetChild(&container_);
-  border_.SetBackgroundBrush(CreateRandomEditorBackgroundBrush());
-
-  container_.SetFlexDirection(ui::controls::FlexDirection::Vertical);
-  container_.SetItemCrossAlign(ui::controls::FlexCrossAlignment::Start);
-  container_.AddChild(&head_container_);
-
-  head_container_.SetFlexDirection(ui::controls::FlexDirection::Horizontal);
-  head_container_.AddChild(&label_);
-}
+ConditionEditor::ConditionEditor() {}
 
 ConditionEditor::~ConditionEditor() {}
 

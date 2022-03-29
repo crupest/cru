@@ -1,34 +1,15 @@
 #pragma once
-#include "../Editor.h"
-#include "cru/common/ClonablePtr.h"
-#include "cru/ui/controls/Container.h"
-#include "cru/ui/controls/FlexLayout.h"
-#include "cru/ui/controls/TextBlock.h"
+#include "../HeadBodyEditor.h"
 #include "cru/ui/style/Condition.h"
 
 namespace cru::theme_builder::components::conditions {
-class ConditionEditor : public Editor {
+class ConditionEditor : public HeadBodyEditor {
  public:
   ConditionEditor();
   ~ConditionEditor() override;
 
  public:
-  ui::controls::Control* GetRootControl() override { return &border_; }
-
-  ui::controls::FlexLayout* GetContainer() { return &container_; }
-
-  ui::controls::FlexLayout* GetHeadContainer() { return &head_container_; }
-
-  String GetLabel() const { return label_.GetText(); }
-  void SetLabel(String label) { label_.SetText(std::move(label)); }
-
   virtual ClonablePtr<ui::style::Condition> GetCondition() = 0;
-
- private:
-  ui::controls::Container border_;
-  ui::controls::FlexLayout container_;
-  ui::controls::FlexLayout head_container_;
-  ui::controls::TextBlock label_;
 };
 
 std::unique_ptr<ConditionEditor> CreateConditionEditor(

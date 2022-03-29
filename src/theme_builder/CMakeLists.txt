@@ -2,6 +2,7 @@ add_executable(cru_theme_builder
 	main.cpp
 	components/Common.cpp
 	components/Editor.cpp
+	components/HeadBodyEditor.cpp
 	components/MainWindow.cpp
 	components/StyleRuleEditor.cpp
 	components/StyleRuleSetEditor.cpp

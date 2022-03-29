@@ -13,16 +13,7 @@
 #include "cru/ui/style/Styler.h"
 
 namespace cru::theme_builder::components::stylers {
-StylerEditor::StylerEditor() {
-  border_.SetChild(&container_);
-  border_.SetBackgroundBrush(CreateRandomEditorBackgroundBrush());
-
-  container_.SetFlexDirection(ui::controls::FlexDirection::Vertical);
-  container_.AddChild(&head_container_);
-  container_.SetItemCrossAlign(ui::controls::FlexCrossAlignment::Start);
-  head_container_.SetFlexDirection(ui::render::FlexDirection::Horizontal);
-  head_container_.AddChild(&label_);
-}
+StylerEditor::StylerEditor() {}
 
 StylerEditor::~StylerEditor() {}
 
