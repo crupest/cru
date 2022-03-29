@@ -4,6 +4,7 @@
 #include <optional>
 #include "cru/common/Exception.h"
 #include "cru/common/String.h"
+#include "cru/ui/DeleteLater.h"
 #include "cru/ui/ThemeManager.h"
 #include "cru/ui/controls/FlexLayout.h"
 #include "cru/ui/model/IListChangeNotify.h"
@@ -54,7 +55,7 @@ void StyleRuleSetEditor::BindStyleRuleSet(
 Index StyleRuleSetEditor::IndexOfRuleEditor(StyleRuleEditor* editor) {
   auto iter =
       std::find_if(style_rule_editors_.cbegin(), style_rule_editors_.cend(),
-                   [editor](const std::unique_ptr<StyleRuleEditor>& p) {
+                   [editor](const ui::DeleteLaterPtr<StyleRuleEditor>& p) {
                      return p.get() == editor;
                    });
   return iter - style_rule_editors_.cbegin();
@@ -69,7 +70,7 @@ void StyleRuleSetEditor::UpdateView(
         for (auto i = change->position; i < change->position + change->count;
              ++i) {
           const auto& rule = style_rule_set->GetStyleRule(i);
-          auto style_rule_editor = std::make_unique<StyleRuleEditor>();
+          auto style_rule_editor = ui::MakeDeleteLaterPtr<StyleRuleEditor>();
           style_rule_editor->SetValue(rule, false);
           style_rule_editor->RemoveEvent()->AddSpyOnlyHandler(
               [this, editor = style_rule_editor.get()] {
@@ -77,6 +78,7 @@ void StyleRuleSetEditor::UpdateView(
               });
           style_rule_editor->ChangeEvent()->AddSpyOnlyHandler(
               [this, editor = style_rule_editor.get()]() {
+                suppress_next_set_ = true;
                 style_rule_set_->SetStyleRule(IndexOfRuleEditor(editor),
                                               editor->GetValue());
               });
@@ -95,6 +97,10 @@ void StyleRuleSetEditor::UpdateView(
         break;
       }
       case ui::model::ListChangeType::kItemSet: {
+        if (suppress_next_set_) {
+          suppress_next_set_ = false;
+          break;
+        }
         for (auto i = change->position; i < change->position + change->count;
              ++i) {
           const auto& rule = style_rule_set->GetStyleRule(i);

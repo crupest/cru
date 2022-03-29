@@ -1,5 +1,6 @@
 #pragma once
 #include "StyleRuleEditor.h"
+#include "cru/ui/DeleteLater.h"
 #include "cru/ui/components/Component.h"
 #include "cru/ui/controls/Button.h"
 #include "cru/ui/controls/Control.h"
@@ -35,7 +36,9 @@ class StyleRuleSetEditor : public ui::components::Component {
   ui::controls::ScrollView scroll_view_;
   ui::controls::FlexLayout container_;
   ui::controls::FlexLayout rules_layout_;
-  std::vector<std::unique_ptr<StyleRuleEditor>> style_rule_editors_;
+  std::vector<ui::DeleteLaterPtr<StyleRuleEditor>> style_rule_editors_;
   ui::controls::IconButton add_button_;
+
+  bool suppress_next_set_ = false;
 };
 }  // namespace cru::theme_builder::components
