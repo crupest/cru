@@ -1,10 +1,12 @@
 #pragma once
 
+#include "Base.h"
+
 #include <memory>
 #include <utility>
 
 namespace cru::ui {
-class DeleteLaterImpl {
+class CRU_UI_API DeleteLaterImpl {
  public:
   virtual ~DeleteLaterImpl();
   void DeleteLater();
