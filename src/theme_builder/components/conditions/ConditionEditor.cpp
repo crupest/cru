@@ -14,6 +14,7 @@ ConditionEditor::ConditionEditor() {
   border_.SetBackgroundBrush(CreateRandomEditorBackgroundBrush());
 
   container_.SetFlexDirection(ui::controls::FlexDirection::Vertical);
+  container_.SetItemCrossAlign(ui::controls::FlexCrossAlignment::Start);
   container_.AddChild(&head_container_);
 
   head_container_.SetFlexDirection(ui::controls::FlexDirection::Horizontal);

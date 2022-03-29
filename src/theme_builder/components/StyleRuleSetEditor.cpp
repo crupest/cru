@@ -19,6 +19,7 @@ StyleRuleSetEditor::StyleRuleSetEditor() {
   container_.AddChild(&add_button_);
 
   rules_layout_.SetFlexDirection(ui::controls::FlexDirection::Vertical);
+  rules_layout_.SetItemCrossAlign(ui::controls::FlexCrossAlignment::Stretch);
 
   add_button_.GetStyleRuleSet()->SetParent(
       ui::ThemeManager::GetInstance()->GetResourceStyleRuleSet(

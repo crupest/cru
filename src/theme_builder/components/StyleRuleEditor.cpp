@@ -28,7 +28,7 @@ StyleRuleEditor::StyleRuleEditor() {
   main_layout_.AddChild(&body_layout_);
   body_layout_.SetFlexDirection(ui::controls::FlexDirection::Vertical);
   body_layout_.SetItemCrossAlign(ui::controls::FlexCrossAlignment::Start);
-  body_layout_.SetMargin({20, 0, 0, 0});
+  body_layout_.SetMargin({10, 0, 0, 0});
 
   remove_button_.ClickEvent()->AddSpyOnlyHandler(
       [this] { remove_event_.Raise(nullptr); });
