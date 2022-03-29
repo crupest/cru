@@ -30,6 +30,9 @@ class CRU_UI_API Component : public Object,
     if (delete_by_parent_) delete this;
   }
 
+ protected:
+  void OnPrepareDelete() override;
+
  private:
   bool delete_by_parent_ = false;
 };

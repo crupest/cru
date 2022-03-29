@@ -3,10 +3,11 @@
 #include "cru/common/log/Logger.h"
 #include "cru/ui/DebugFlags.h"
 #include "cru/ui/controls/Control.h"
+#include "cru/ui/host/WindowHost.h"
 
 #include <vector>
 
-namespace cru::ui {
+namespace cru::ui::host {
 // Dispatch the event.
 //
 // This will raise routed event of the control and its parent and parent's
@@ -39,6 +40,8 @@ void DispatchEvent(
           event_name, original_sender->GetControlType());
     return;
   }
+
+  WindowHost::EnterEventHandling();
 
   std::vector<ObjectResolver<controls::Control>> receive_list;
 
@@ -119,5 +122,7 @@ void DispatchEvent(
 
   if constexpr (debug_flags::routed_event)
     CRU_LOG_DEBUG(u"Routed event dispatch finished.");
+
+  WindowHost::LeaveEventHandling();
 }
-}  // namespace cru::ui
+}  // namespace cru::ui::host

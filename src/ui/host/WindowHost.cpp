@@ -7,6 +7,7 @@
 #include "cru/platform/gui/InputMethod.h"
 #include "cru/platform/gui/UiApplication.h"
 #include "cru/platform/gui/Window.h"
+#include "cru/ui/Base.h"
 #include "cru/ui/DebugFlags.h"
 #include "cru/ui/host/LayoutPaintCycler.h"
 #include "cru/ui/render/MeasureRequirement.h"
@@ -104,6 +105,15 @@ inline void BindNativeEvent(
       std::bind(handler, host, native_window, std::placeholders::_1))));
 }
 }  // namespace
+
+int WindowHost::event_handling_depth_ = 0;
+
+void WindowHost::EnterEventHandling() { event_handling_depth_++; }
+
+void WindowHost::LeaveEventHandling() {
+  Expects(event_handling_depth_ > 0);
+  event_handling_depth_--;
+}
 
 WindowHost::WindowHost(controls::Control* root_control)
     : root_control_(root_control), focus_control_(root_control) {
@@ -437,5 +447,17 @@ void WindowHost::SetOverrideCursor(
   if (cursor == override_cursor_) return;
   override_cursor_ = cursor;
   UpdateCursor();
+}
+
+void WindowHost::OnControlDetach(controls::Control* control) {
+  if (GetFocusControl() == control) {
+    SetFocusControl(nullptr);
+  }
+  if (GetMouseCaptureControl() == control) {
+    CaptureMouseFor(nullptr);
+  }
+  if (GetMouseHoverControl() == control) {
+    mouse_hover_control_ = HitTest(GetNativeWindow()->GetMousePosition());
+  }
 }
 }  // namespace cru::ui::host

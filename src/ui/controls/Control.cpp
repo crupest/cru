@@ -1,5 +1,6 @@
 #include "cru/ui/controls/Control.h"
 
+#include "cru/common/log/Logger.h"
 #include "cru/platform/gui/Cursor.h"
 #include "cru/platform/gui/UiApplication.h"
 #include "cru/ui/host/WindowHost.h"
@@ -28,6 +29,11 @@ Control::Control() {
 }
 
 Control::~Control() {
+  if (host::WindowHost::IsInEventHandling()) {
+    CRU_LOG_ERROR(
+        u"Control destroyed during event handling. Please use DeleteLater.");
+  }
+
   in_destruction_ = true;
   RemoveFromParent();
 }
@@ -120,12 +126,7 @@ void Control::OnParentChangedCore(Control* old_parent, Control* new_parent) {
 void Control::OnWindowHostChangedCore(host::WindowHost* old_host,
                                       host::WindowHost* new_host) {
   if (old_host != nullptr) {
-    if (old_host->GetMouseCaptureControl() == this) {
-      old_host->CaptureMouseFor(nullptr);
-    }
-    if (old_host->GetMouseHoverControl() == this) {
-      old_host->mouse_hover_control_ = nullptr;
-    }
+    old_host->OnControlDetach(this);
   }
 
   if (!in_destruction_) {
@@ -136,4 +137,6 @@ void Control::OnWindowHostChangedCore(host::WindowHost* old_host,
     OnWindowHostChanged(old_host, new_host);
   }
 }
+
+void Control::OnPrepareDelete() { RemoveFromParent(); }
 }  // namespace cru::ui::controls

@@ -2,9 +2,9 @@
 
 #include "../Helper.h"
 #include "cru/common/Base.h"
-#include "cru/common/log/Logger.h"
 #include "cru/common/String.h"
 #include "cru/common/StringUtil.h"
+#include "cru/common/log/Logger.h"
 #include "cru/platform/graphics/Font.h"
 #include "cru/platform/gui/Base.h"
 #include "cru/platform/gui/Clipboard.h"
@@ -15,6 +15,7 @@
 #include "cru/platform/gui/Window.h"
 #include "cru/ui/Base.h"
 #include "cru/ui/DebugFlags.h"
+#include "cru/ui/DeleteLater.h"
 #include "cru/ui/components/Menu.h"
 #include "cru/ui/events/UiEvents.h"
 #include "cru/ui/helper/ShortcutHub.h"
@@ -149,7 +150,7 @@ std::vector<TextControlMovePattern> TextControlMovePattern::kDefaultPatterns = {
 TextHostControlService::TextHostControlService(gsl::not_null<Control*> control)
     : control_(control),
       text_host_control_(dynamic_cast<ITextHostControl*>(control.get())) {
-  context_menu_ = std::make_unique<components::PopupMenu>();
+  context_menu_ = MakeDeleteLaterPtr<components::PopupMenu>();
 
   SetUpShortcuts();
 
@@ -335,11 +336,12 @@ void TextHostControlService::SetCaretBlinkDuration(int milliseconds) {
 
 void TextHostControlService::ScrollToCaret() {
   if (const auto scroll_render_object = this->GetScrollRenderObject()) {
-    this->control_->GetWindowHost()->RunAfterLayoutStable(
-        [this, scroll_render_object]() {
-          const auto caret_rect = this->GetTextRenderObject()->GetCaretRect();
-          scroll_render_object->ScrollToContain(caret_rect, Thickness{5.f});
-        });
+    auto window_host = this->control_->GetWindowHost();
+    if (window_host)
+      window_host->RunAfterLayoutStable([this, scroll_render_object]() {
+        const auto caret_rect = this->GetTextRenderObject()->GetCaretRect();
+        scroll_render_object->ScrollToContain(caret_rect, Thickness{5.f});
+      });
   }
 }
 
@@ -465,8 +467,7 @@ void TextHostControlService::UpdateInputMethodPosition() {
     right_bottom.y += 5;
 
     if constexpr (debug_flags::text_service) {
-      CRU_LOG_DEBUG(
-                    u"Calculate input method candidate window position: {}.",
+      CRU_LOG_DEBUG(u"Calculate input method candidate window position: {}.",
                     right_bottom);
     }
 
@@ -693,7 +694,7 @@ void TextHostControlService::SetUpShortcuts() {
 
 void TextHostControlService::OpenContextMenu(const Point& position,
                                              ContextMenuItem items) {
-  context_menu_ = std::make_unique<components::PopupMenu>();
+  context_menu_ = MakeDeleteLaterPtr<components::PopupMenu>();
   auto menu = context_menu_->GetMenu();
   if (items & ContextMenuItem::kSelectAll) {
     menu->AddTextItem(u"Select All", [this] { this->SelectAll(); });

@@ -21,6 +21,14 @@ class CRU_UI_API WindowHost : public Object, public SelfResolvable<WindowHost> {
   friend controls::Control;
   CRU_DEFINE_CLASS_LOG_TAG(u"WindowHost")
 
+ private:
+  static int event_handling_depth_;
+
+ public:
+  static bool IsInEventHandling() { return event_handling_depth_ > 0; }
+  static void EnterEventHandling();
+  static void LeaveEventHandling();
+
  public:
   explicit WindowHost(controls::Control* root_control);
 
@@ -138,6 +146,8 @@ class CRU_UI_API WindowHost : public Object, public SelfResolvable<WindowHost> {
                                             controls::Control* new_control,
                                             const Point& point, bool no_leave,
                                             bool no_enter);
+
+  void OnControlDetach(controls::Control* control);
 
  private:
   controls::Control* root_control_ = nullptr;

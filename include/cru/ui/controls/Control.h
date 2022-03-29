@@ -23,6 +23,8 @@ class CRU_UI_API Control : public Object,
                            public DeleteLaterImpl {
   friend class RootControl;
 
+  CRU_DEFINE_CLASS_LOG_TAG(u"Control")
+
  protected:
   Control();
 
@@ -173,6 +175,8 @@ class CRU_UI_API Control : public Object,
 
  protected:
   virtual void OnMouseHoverChange(bool newHover) { CRU_UNUSED(newHover) }
+
+  void OnPrepareDelete() override;
 
  private:
   void OnParentChangedCore(Control* old_parent, Control* new_parent);

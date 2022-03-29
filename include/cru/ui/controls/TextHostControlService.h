@@ -3,6 +3,7 @@
 #include "cru/platform/gui/InputMethod.h"
 #include "cru/platform/gui/TimerHelper.h"
 #include "cru/platform/gui/UiApplication.h"
+#include "cru/ui/DeleteLater.h"
 #include "cru/ui/controls/Control.h"
 #include "cru/ui/helper/ShortcutHub.h"
 
@@ -217,6 +218,6 @@ class CRU_UI_API TextHostControlService : public Object {
   bool mouse_move_selecting_ = false;
 
   bool context_menu_dirty_ = true;
-  std::unique_ptr<components::PopupMenu> context_menu_;
+  DeleteLaterPtr<components::PopupMenu> context_menu_;
 };
 }  // namespace cru::ui::controls

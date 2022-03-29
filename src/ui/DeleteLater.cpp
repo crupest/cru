@@ -9,4 +9,6 @@ DeleteLaterImpl::~DeleteLaterImpl() {}
 void DeleteLaterImpl::DeleteLater() {
   GetUiApplication()->SetImmediate([this] { delete this; });
 }
+
+void DeleteLaterImpl::OnPrepareDelete() {}
 }  // namespace cru::ui
