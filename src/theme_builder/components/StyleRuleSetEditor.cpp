@@ -1,7 +1,4 @@
 #include "StyleRuleSetEditor.h"
-#include <algorithm>
-#include <memory>
-#include <optional>
 #include "cru/common/Exception.h"
 #include "cru/common/String.h"
 #include "cru/ui/DeleteLater.h"

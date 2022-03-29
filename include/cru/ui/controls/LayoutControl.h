@@ -67,16 +67,16 @@ class LayoutControl : public Control {
     if (position < 0 || position >= children_.size()) return;
     auto child = children_[position];
     children_.erase(children_.begin() + position);
-    child->SetParent(nullptr);
     container_render_object_->RemoveChild(position);
+    child->SetParent(nullptr);
   }
 
   void ClearChildren() {
+    container_render_object_->ClearChildren();
     for (auto child : children_) {
       child->SetParent(nullptr);
     }
     children_.clear();
-    container_render_object_->ClearChildren();
   }
 
   const typename TRenderObject::ChildLayoutData& GetChildLayoutData(
