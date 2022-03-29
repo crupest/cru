@@ -30,6 +30,6 @@ _cru_ is built with [_CMake_](https://cmake.org/) and [_vcpkg_](https://github.c
 
 - `demo/` contains sources of demo excutable targets. They are mostly used for integrated tests but can also be used for demonstration.
 
-- `docs` contains docs-related things.
+- `docs/` contains docs-related things.
 
 - `tools/` contains some codes of tools I wrote for development. However most of them are not used now.
