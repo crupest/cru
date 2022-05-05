@@ -15,5 +15,6 @@ class QuartzImageFactory : public OsxQuartzResource,
 
  public:
   std::unique_ptr<IImage> DecodeFromStream(io::Stream* stream) override;
+  std::unique_ptr<IImage> CreateBitmap(int width, int height) override;
 };
 }  // namespace cru::platform::graphics::osx::quartz
