@@ -35,6 +35,15 @@ std::unique_ptr<IImage> QuartzImageFactory::CreateBitmap(int width,
 
   CGColorSpaceRef color_space = CGColorSpaceCreateDeviceRGB();
 
+  const auto buffer_size = width * height * 4;
+  auto buffer = new unsigned char[buffer_size];
+
+  auto cg_data_provider = CGDataProviderCreateWithData(
+      nullptr, buffer, buffer_size,
+      [](void* info, const void* data, size_t size) {
+        delete[] static_cast<const unsigned char*>(data);
+      });
+
   auto cg_image = CGImageCreate(width, height, 8, 32, 4 * width, color_space,
                                 kCGImageAlphaLast, nullptr, nullptr, true,
                                 kCGRenderingIntentDefault);
@@ -42,6 +51,6 @@ std::unique_ptr<IImage> QuartzImageFactory::CreateBitmap(int width,
   CGColorSpaceRelease(color_space);
 
   return std::unique_ptr<IImage>(
-      new QuartzImage(GetGraphicsFactory(), this, cg_image, true));
+      new QuartzImage(GetGraphicsFactory(), this, cg_image, true, buffer));
 }
 }  // namespace cru::platform::graphics::osx::quartz
