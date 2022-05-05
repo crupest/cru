@@ -12,6 +12,7 @@ struct CRU_PLATFORM_GRAPHICS_API IImage : public virtual IGraphicsResource {
    * \remarks Not all image could create a painter. If not this method will
    * throw. Currently we only ensure images returned by
    * IImageFactory::CreateBitmap or CloneToBitmap can create a painter.
+   * \todo Implement on Windows.
    */
   virtual std::unique_ptr<IPainter> CreatePainter() = 0;
 
