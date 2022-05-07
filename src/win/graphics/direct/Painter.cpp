@@ -1,5 +1,6 @@
 #include "cru/win/graphics/direct/Painter.h"
 
+#include "cru/common/log/Logger.h"
 #include "cru/platform/Check.h"
 #include "cru/win/graphics/direct/Brush.h"
 #include "cru/win/graphics/direct/ConvertUtil.h"
@@ -12,9 +13,22 @@
 
 namespace cru::platform::graphics::win::direct {
 D2DDeviceContextPainter::D2DDeviceContextPainter(
-    ID2D1DeviceContext1* device_context) {
+    ID2D1DeviceContext1* device_context, bool release) {
   Expects(device_context);
   device_context_ = device_context;
+  release_ = release;
+  device_context->BeginDraw();
+}
+
+D2DDeviceContextPainter::~D2DDeviceContextPainter() {
+  if (is_drawing_) {
+    CRU_LOG_INFO(u"You may forget to call EndDraw before destroying painter.");
+  }
+
+  if (release_) {
+    device_context_->Release();
+    device_context_ = nullptr;
+  }
 }
 
 platform::Matrix D2DDeviceContextPainter::GetTransform() {
@@ -155,6 +169,7 @@ void D2DDeviceContextPainter::PopState() {
 void D2DDeviceContextPainter::EndDraw() {
   if (is_drawing_) {
     is_drawing_ = false;
+    ThrowIfFailed(device_context_->EndDraw());
     DoEndDraw();
   }
 }

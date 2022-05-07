@@ -99,6 +99,8 @@ int main() {
                cursor_lefttop.height},
           brush.get());
     }
+
+    painter->EndDraw();
   });
 
   window->KeyDownEvent()->AddHandler(

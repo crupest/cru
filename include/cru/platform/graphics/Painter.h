@@ -3,6 +3,10 @@
 
 namespace cru::platform::graphics {
 
+/**
+ * \brief Painter is a object to paint on something like window, bitmap and etc.
+ * \remarks Remember to call EndDraw() when you are done with painting.
+ */
 struct CRU_PLATFORM_GRAPHICS_API IPainter : virtual IPlatformResource {
   virtual Matrix GetTransform() = 0;
   virtual void SetTransform(const Matrix& matrix) = 0;
