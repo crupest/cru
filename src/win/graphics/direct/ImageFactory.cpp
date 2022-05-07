@@ -53,7 +53,7 @@ std::unique_ptr<IImage> WinImageFactory::CreateBitmap(int width, int height) {
   auto d2d_context = graphics_factory_->GetDefaultD2D1DeviceContext();
   d2d_context->CreateBitmap(
       D2D1::SizeU(width, height),
-      D2D1::BitmapProperties(D2D1::PixelFormat(DXGI_FORMAT_R8G8B8A8_TYPELESS,
+      D2D1::BitmapProperties(D2D1::PixelFormat(DXGI_FORMAT_R8G8B8A8_UINT,
                                                D2D1_ALPHA_MODE_STRAIGHT)),
       &bitmap);
 
