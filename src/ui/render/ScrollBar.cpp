@@ -19,7 +19,6 @@
 #include <algorithm>
 #include <cassert>
 #include <chrono>
-#include <gsl/pointers>
 #include <memory>
 #include <optional>
 #include <stdexcept>
