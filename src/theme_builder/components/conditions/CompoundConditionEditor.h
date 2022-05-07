@@ -23,7 +23,7 @@ class CompoundConditionEditor : public ConditionEditor {
  private:
   ui::components::PopupMenuIconButton add_child_button_;
   ui::controls::FlexLayout children_container_;
-  std::vector<std::unique_ptr<ConditionEditor>> children_;
+  std::vector<ui::DeleteLaterPtr<ConditionEditor>> children_;
 };
 
 class AndConditionEditor : public CompoundConditionEditor {

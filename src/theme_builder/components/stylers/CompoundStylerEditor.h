@@ -1,6 +1,7 @@
 #pragma once
 #include "StylerEditor.h"
 #include "cru/common/ClonablePtr.h"
+#include "cru/ui/DeleteLater.h"
 #include "cru/ui/components/PopupButton.h"
 #include "cru/ui/controls/FlexLayout.h"
 #include "cru/ui/style/Styler.h"
@@ -23,7 +24,7 @@ class CompoundStylerEditor : public StylerEditor {
 
  private:
   ui::controls::FlexLayout children_container_;
-  std::vector<std::unique_ptr<StylerEditor>> children_;
+  std::vector<ui::DeleteLaterPtr<StylerEditor>> children_;
   ui::components::PopupMenuIconButton add_child_button_;
 };
 }  // namespace cru::theme_builder::components::stylers
