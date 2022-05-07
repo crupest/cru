@@ -20,5 +20,5 @@ function Use-VC {
         }
     }
     Pop-Location
-    Write-Host "Visual Studio 2019 Command Prompt variables set." -ForegroundColor Yellow
+    Write-Host "Visual Studio Command Prompt variables set." -ForegroundColor Yellow
 }

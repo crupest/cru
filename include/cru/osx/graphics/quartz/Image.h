@@ -9,7 +9,8 @@ namespace cru::platform::graphics::osx::quartz {
 class QuartzImage : public OsxQuartzResource, public virtual IImage {
  public:
   QuartzImage(IGraphicsFactory* graphics_factory, IImageFactory* image_factory,
-              CGImageRef image, bool auto_release);
+              CGImageRef image, bool auto_release,
+              unsigned char* buffer = nullptr);
 
   CRU_DELETE_COPY(QuartzImage)
   CRU_DELETE_MOVE(QuartzImage)
@@ -22,11 +23,15 @@ class QuartzImage : public OsxQuartzResource, public virtual IImage {
 
   std::unique_ptr<IImage> CreateWithRect(const Rect& rect) override;
 
+  std::unique_ptr<IPainter> CreatePainter() override;
+
   CGImageRef GetCGImage() const { return image_; }
 
  private:
   IImageFactory* image_factory_;
   CGImageRef image_;
   bool auto_release_ = false;
+
+  unsigned char* buffer_;
 };
 }  // namespace cru::platform::graphics::osx::quartz

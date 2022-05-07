@@ -19,6 +19,8 @@ class CRU_WIN_GRAPHICS_DIRECT_API WinImageFactory
  public:
   std::unique_ptr<IImage> DecodeFromStream(io::Stream* stream) override;
 
+  std::unique_ptr<IImage> CreateBitmap(int width, int height) override;
+
  private:
   DirectGraphicsFactory* graphics_factory_;
 

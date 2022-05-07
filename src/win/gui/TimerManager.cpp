@@ -2,7 +2,6 @@
 
 #include "cru/win/gui/Base.h"
 #include "cru/win/gui/Exception.h"
-#include "gsl/gsl_util"
 
 #include <functional>
 #include <type_traits>

@@ -1,4 +1,5 @@
 #include "cru/win/graphics/direct/ImageFactory.h"
+#include "cru/common/platform/win/Exception.h"
 #include "cru/common/platform/win/StreamConvert.h"
 #include "cru/win/graphics/direct/Exception.h"
 #include "cru/win/graphics/direct/Factory.h"
@@ -41,5 +42,24 @@ std::unique_ptr<IImage> WinImageFactory::DecodeFromStream(io::Stream* stream) {
 
   return std::make_unique<Direct2DImage>(graphics_factory_,
                                          std::move(d2d_image));
+}
+
+std::unique_ptr<IImage> WinImageFactory::CreateBitmap(int width, int height) {
+  if (width <= 0) throw Exception(u"Bitmap width must be greater than 0.");
+  if (height <= 0) throw Exception(u"Bitmap height must be greater than 0.");
+
+  Microsoft::WRL::ComPtr<ID2D1Bitmap> bitmap;
+
+  auto d2d_context = graphics_factory_->GetDefaultD2D1DeviceContext();
+  d2d_context->CreateBitmap(
+      D2D1::SizeU(width, height),
+      D2D1::BitmapProperties(D2D1::PixelFormat(DXGI_FORMAT_R8G8B8A8_UINT,
+                                               D2D1_ALPHA_MODE_STRAIGHT)),
+      &bitmap);
+
+  Microsoft::WRL::ComPtr<ID2D1Bitmap1> bitmap1;
+  ThrowIfFailed(bitmap.As(&bitmap1), "Failed to convert bitmap to bitmap1.");
+
+  return std::make_unique<Direct2DImage>(graphics_factory_, std::move(bitmap1));
 }
 }  // namespace cru::platform::graphics::win::direct

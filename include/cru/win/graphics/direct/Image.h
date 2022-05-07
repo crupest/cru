@@ -20,6 +20,8 @@ class CRU_WIN_GRAPHICS_DIRECT_API Direct2DImage : public DirectGraphicsResource,
 
   std::unique_ptr<IImage> CreateWithRect(const Rect& rect) override;
 
+  std::unique_ptr<IPainter> CreatePainter() override;
+
   const Microsoft::WRL::ComPtr<ID2D1Bitmap1>& GetD2DBitmap() const {
     return d2d_bitmap_;
   }

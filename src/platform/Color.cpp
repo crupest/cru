@@ -1,9 +1,10 @@
 #include "cru/platform/Color.h"
 
+#include <gsl/gsl>
+
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
-#include <gsl/gsl>
 #include <optional>
 #include <stdexcept>
 #include <string>

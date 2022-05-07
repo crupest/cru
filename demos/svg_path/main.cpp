@@ -39,6 +39,7 @@ M6.5 0a.5.5 0 0 0 0 1H7v1.07a7.001 7.001 0 0 0-3.273 12.474l-.602.602a.5.5 0 0 0
     painter->ConcatTransform(Matrix::Scale(10, 10));
     painter->FillGeometry(geometry.get(), brush.get());
     painter->PopState();
+    painter->EndDraw();
   });
 
   window->SetVisibility(WindowVisibilityType::Show);

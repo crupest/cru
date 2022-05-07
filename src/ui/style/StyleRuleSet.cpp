@@ -2,7 +2,6 @@
 #include "cru/common/Event.h"
 #include "cru/ui/controls/Control.h"
 #include "cru/ui/model/IListChangeNotify.h"
-#include "gsl/gsl_assert"
 
 #include <unordered_set>
 

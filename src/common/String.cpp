@@ -1,14 +1,15 @@
 #include "cru/common/String.h"
-#include <double-conversion/double-conversion.h>
-#include <double-conversion/string-to-double.h>
+
 #include "cru/common/Exception.h"
 #include "cru/common/StringToNumberConverter.h"
 #include "cru/common/StringUtil.h"
 
-#include <cmath>
+#include <double-conversion/double-conversion.h>
+#include <double-conversion/string-to-double.h>
 #include <gsl/gsl>
 
 #include <algorithm>
+#include <cmath>
 #include <cstring>
 #include <functional>
 #include <string_view>

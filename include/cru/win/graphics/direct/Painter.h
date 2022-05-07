@@ -2,6 +2,7 @@
 #include "ComResource.h"
 #include "Resource.h"
 
+#include "cru/common/Base.h"
 #include "cru/platform/graphics/Painter.h"
 
 #include <vector>
@@ -11,13 +12,15 @@ class CRU_WIN_GRAPHICS_DIRECT_API D2DDeviceContextPainter
     : public DirectResource,
       public virtual IPainter,
       public virtual IComResource<ID2D1DeviceContext1> {
+  CRU_DEFINE_CLASS_LOG_TAG(u"D2DDeviceContextPainter")
  public:
-  explicit D2DDeviceContextPainter(ID2D1DeviceContext1* device_context);
+  explicit D2DDeviceContextPainter(ID2D1DeviceContext1* device_context,
+                                   bool release = false);
 
   CRU_DELETE_COPY(D2DDeviceContextPainter)
   CRU_DELETE_MOVE(D2DDeviceContextPainter)
 
-  ~D2DDeviceContextPainter() override = default;
+  ~D2DDeviceContextPainter() override;
 
  public:
   ID2D1DeviceContext1* GetComInterface() const override {
@@ -57,7 +60,7 @@ class CRU_WIN_GRAPHICS_DIRECT_API D2DDeviceContextPainter
   void EndDraw() override final;
 
  protected:
-  virtual void DoEndDraw() = 0;
+  virtual void DoEndDraw() {}
 
  private:
   bool IsValid() { return is_drawing_; }
@@ -71,5 +74,7 @@ class CRU_WIN_GRAPHICS_DIRECT_API D2DDeviceContextPainter
       drawing_state_stack_;
 
   bool is_drawing_ = true;
+
+  bool release_;
 };
 }  // namespace cru::platform::graphics::win::direct
