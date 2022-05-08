@@ -20,4 +20,5 @@ CGRect Convert(const Rect& rect);
 Rect Convert(const CGRect& rect);
 
 CGDataProviderRef ConvertStreamToCGDataProvider(io::Stream* stream);
+CGDataConsumerRef ConvertStreamToCGDataConsumer(io::Stream* stream);
 }  // namespace cru::platform::graphics::osx::quartz

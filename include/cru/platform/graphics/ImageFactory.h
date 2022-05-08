@@ -3,7 +3,7 @@
 #include "cru/common/io/Stream.h"
 
 namespace cru::platform::graphics {
-enum class ImageFormat { Jpeg, Png };
+enum class ImageFormat { Jpeg, Png, Gif };
 
 struct CRU_PLATFORM_GRAPHICS_API IImageFactory
     : public virtual IGraphicsResource {
@@ -15,7 +15,7 @@ struct CRU_PLATFORM_GRAPHICS_API IImageFactory
    *  \param stream The stream to write to.
    *  \param format The format to encode to.
    *  \param quality The quality to encode to.
-   *  \todo Implement on macOS and Windows.
+   *  \todo Implement on Windows.
    */
   virtual void EncodeToStream(IImage* image, io::Stream* stream,
                               ImageFormat format, float quality) = 0;

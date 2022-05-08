@@ -49,4 +49,15 @@ CGDataProviderRef ConvertStreamToCGDataProvider(io::Stream* stream) {
                                         &kStreamToCGDataProviderCallbacks);
 }
 
+const CGDataConsumerCallbacks kStreamToCGDataConsumerCallbacks{
+    [](void* info, const void* buffer, size_t count) -> size_t {
+      return static_cast<io::Stream*>(info)->Write(
+          static_cast<const std::byte*>(buffer), count);
+    },
+    [](void* info) {}};
+
+CGDataConsumerRef ConvertStreamToCGDataConsumer(io::Stream* stream) {
+  return CGDataConsumerCreate(stream, &kStreamToCGDataConsumerCallbacks);
+}
+
 }  // namespace cru::platform::graphics::osx::quartz

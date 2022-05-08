@@ -1,12 +1,16 @@
 #include "cru/osx/graphics/quartz/ImageFactory.h"
 #include "cru/common/Exception.h"
+#include "cru/common/platform/osx/Convert.h"
 #include "cru/osx/graphics/quartz/Convert.h"
 #include "cru/osx/graphics/quartz/Image.h"
+#include "cru/platform/Check.h"
 #include "cru/platform/graphics/Image.h"
 
 #include <ImageIO/ImageIO.h>
 
 namespace cru::platform::graphics::osx::quartz {
+using cru::platform::osx::Convert;
+
 QuartzImageFactory::QuartzImageFactory(IGraphicsFactory* graphics_factory)
     : OsxQuartzResource(graphics_factory) {}
 
@@ -26,6 +30,53 @@ std::unique_ptr<IImage> QuartzImageFactory::DecodeFromStream(
 
   return std::unique_ptr<IImage>(
       new QuartzImage(GetGraphicsFactory(), this, cg_image, true));
+}
+
+static String GetImageFormatUniformTypeIdentifier(ImageFormat format) {
+  switch (format) {
+    case ImageFormat::Png:
+      return u"public.png";
+    case ImageFormat::Jpeg:
+      return u"public.jpeg";
+    case ImageFormat::Gif:
+      return u"com.compuserve.gif";
+    default:
+      throw Exception(u"Unknown image format.");
+  }
+}
+
+void QuartzImageFactory::EncodeToStream(IImage* image, io::Stream* stream,
+                                        ImageFormat format, float quality) {
+  if (quality <= 0 || quality > 1) {
+    throw Exception(u"Invalid quality value.");
+  }
+
+  auto quartz_image = CheckPlatform<QuartzImage>(image, GetPlatformId());
+  auto cg_image = quartz_image->GetCGImage();
+
+  CFStringRef uti = Convert(GetImageFormatUniformTypeIdentifier(format));
+  CGDataConsumerRef data_consumer = ConvertStreamToCGDataConsumer(stream);
+  CGImageDestinationRef destination =
+      CGImageDestinationCreateWithDataConsumer(data_consumer, uti, 1, nullptr);
+
+  CFMutableDictionaryRef properties =
+      CFDictionaryCreateMutable(nullptr, 0, nullptr, nullptr);
+  CFNumberRef quality_wrap =
+      CFNumberCreate(nullptr, kCFNumberFloatType, &quality);
+  CFDictionaryAddValue(properties, kCGImageDestinationLossyCompressionQuality,
+                       quality_wrap);
+
+  CGImageDestinationAddImage(destination, cg_image, properties);
+
+  if (!CGImageDestinationFinalize(destination)) {
+    throw Exception(u"Failed to finalize image destination.");
+  }
+
+  CFRelease(quality_wrap);
+  CFRelease(properties);
+  CFRelease(destination);
+  CFRelease(data_consumer);
+  CFRelease(uti);
 }
 
 std::unique_ptr<IImage> QuartzImageFactory::CreateBitmap(int width,
