@@ -1,4 +1,5 @@
 #pragma once
+#include "cru/platform/graphics/Factory.h"
 #include "cru/platform/gui/UiApplication.h"
 
 #ifdef CRU_PLATFORM_WINDOWS
@@ -14,4 +15,7 @@
 namespace cru::platform::bootstrap {
 CRU_PLATFORM_BOOTSTRAP_API cru::platform::gui::IUiApplication*
 CreateUiApplication();
-}
+
+CRU_PLATFORM_BOOTSTRAP_API cru::platform::graphics::IGraphicsFactory*
+CreateGraphicsFactory();
+}  // namespace cru::platform::bootstrap
