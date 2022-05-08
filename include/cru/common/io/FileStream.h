@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../PreConfig.h"
+
 #ifdef CRU_PLATFORM_UNIX
 #include "../platform/unix/UnixFileStream.h"
 namespace cru::io {

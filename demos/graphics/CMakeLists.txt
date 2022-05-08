@@ -1,0 +1,3 @@
+add_executable(cru_demo_graphics_draw_circle DrawCircle.cpp)
+
+target_link_libraries(cru_demo_graphics_draw_circle PRIVATE cru_demo_base)

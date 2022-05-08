@@ -87,7 +87,7 @@ std::unique_ptr<IImage> QuartzImageFactory::CreateBitmap(int width,
   CGColorSpaceRef color_space = CGColorSpaceCreateDeviceRGB();
 
   const auto buffer_size = width * height * 4;
-  auto buffer = new unsigned char[buffer_size];
+  auto buffer = new unsigned char[buffer_size]{0};
 
   auto cg_data_provider = CGDataProviderCreateWithData(
       nullptr, buffer, buffer_size,
@@ -95,11 +95,13 @@ std::unique_ptr<IImage> QuartzImageFactory::CreateBitmap(int width,
         delete[] static_cast<const unsigned char*>(data);
       });
 
-  auto cg_image = CGImageCreate(width, height, 8, 32, 4 * width, color_space,
-                                kCGImageAlphaLast, nullptr, nullptr, true,
-                                kCGRenderingIntentDefault);
+  auto cg_image =
+      CGImageCreate(width, height, 8, 32, 4 * width, color_space,
+                    kCGImageAlphaPremultipliedLast, cg_data_provider, nullptr,
+                    true, kCGRenderingIntentDefault);
 
   CGColorSpaceRelease(color_space);
+  CGDataProviderRelease(cg_data_provider);
 
   return std::unique_ptr<IImage>(
       new QuartzImage(GetGraphicsFactory(), this, cg_image, true, buffer));

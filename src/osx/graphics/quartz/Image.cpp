@@ -11,7 +11,9 @@ QuartzImage::QuartzImage(IGraphicsFactory* graphics_factory,
       image_factory_(image_factory),
       image_(image),
       auto_release_(auto_release),
-      buffer_(buffer) {}
+      buffer_(buffer) {
+  Expects(image);
+}
 
 QuartzImage::~QuartzImage() {
   if (auto_release_) {
