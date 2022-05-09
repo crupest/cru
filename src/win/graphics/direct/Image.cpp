@@ -9,7 +9,9 @@ namespace cru::platform::graphics::win::direct {
 Direct2DImage::Direct2DImage(DirectGraphicsFactory* graphics_factory,
                              Microsoft::WRL::ComPtr<ID2D1Bitmap1> d2d_bitmap)
     : DirectGraphicsResource(graphics_factory),
-      d2d_bitmap_(std::move(d2d_bitmap)) {}
+      d2d_bitmap_(std::move(d2d_bitmap)) {
+  Expects(d2d_bitmap_);
+}
 
 Direct2DImage::~Direct2DImage() {}
 
