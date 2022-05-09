@@ -6,11 +6,6 @@
 #include "cru/win/graphics/direct/Factory.h"
 #include "cru/win/graphics/direct/Image.h"
 
-#include <d2d1_1.h>
-#include <d2d1_1helper.h>
-#include <d2d1helper.h>
-#include <dcommon.h>
-#include <dxgiformat.h>
 #include <wincodec.h>
 #include <wrl/client.h>
 
