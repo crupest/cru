@@ -35,8 +35,8 @@ int MapOpenFileFlag(OpenFileFlag flags) {
     result |= O_CREAT;
   }
 
-  if (flags & OpenFileFlags::ThrowOnExist) {
-    result |= O_EXCL;
+  if (flags & OpenFileFlags::Truncate) {
+    result |= O_TRUNC;
   }
 
   return result;
