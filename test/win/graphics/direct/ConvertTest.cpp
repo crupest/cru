@@ -2,7 +2,9 @@
 #include "cru/win/graphics/direct/ConvertUtil.h"
 
 #include <catch2/catch_test_macros.hpp>
+#include "catch2/catch_approx.hpp"
 
+using Catch::Approx;
 using cru::platform::Matrix;
 using cru::platform::graphics::win::direct::Convert;
 
@@ -13,8 +15,8 @@ TEST_CASE("MatrixConvert Rotation", "[matrix]") {
 
   auto p = m.TransformPoint({1, 1});
 
-  REQUIRE(p.x == -1);
-  REQUIRE(p.y == 1);
+  REQUIRE(p.x == Approx(-1));
+  REQUIRE(p.y == Approx(1));
 }
 
 TEST_CASE("MatrixConvert RotationAndTranslation", "[matrix]") {
@@ -24,6 +26,6 @@ TEST_CASE("MatrixConvert RotationAndTranslation", "[matrix]") {
 
   auto p = m.TransformPoint({1, 1});
 
-  REQUIRE(p.x == 0);
-  REQUIRE(p.y == 2);
+  REQUIRE(p.x == Approx(0));
+  REQUIRE(p.y == Approx(2));
 }
