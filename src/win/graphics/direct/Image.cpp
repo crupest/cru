@@ -1,4 +1,5 @@
 #include "cru/win/graphics/direct/Image.h"
+#include <d2d1_1.h>
 #include "cru/common/platform/win/Exception.h"
 #include "cru/win/graphics/direct/ConvertUtil.h"
 #include "cru/win/graphics/direct/Exception.h"
@@ -24,7 +25,10 @@ std::unique_ptr<IImage> Direct2DImage::CreateWithRect(const Rect& rect) {
   Microsoft::WRL::ComPtr<ID2D1Bitmap1> bitmap;
   ThrowIfFailed(device_context->CreateBitmap(
       D2D1::SizeU(rect.width, rect.height), nullptr, 0,
-      D2D1::BitmapProperties1(D2D1_BITMAP_OPTIONS_TARGET), &bitmap));
+      D2D1::BitmapProperties1(D2D1_BITMAP_OPTIONS_TARGET,
+                              D2D1::PixelFormat(DXGI_FORMAT_B8G8R8A8_UNORM,
+                                                D2D1_ALPHA_MODE_PREMULTIPLIED)),
+      &bitmap));
   device_context->SetTarget(bitmap.Get());
   device_context->BeginDraw();
   device_context->DrawBitmap(d2d_bitmap_.Get(), Convert(rect));

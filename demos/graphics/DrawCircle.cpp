@@ -22,9 +22,10 @@ int main() {
     painter->EndDraw();
   }
 
-  cru::io::FileStream file_stream(
-      u"./test_image.png",
-      cru::io::OpenFileFlags::Write | cru::io::OpenFileFlags::Create);
+  cru::io::FileStream file_stream(u"./test_image.png",
+                                  cru::io::OpenFileFlags::Write |
+                                      cru::io::OpenFileFlags::Create |
+                                      cru::io::OpenFileFlags::Truncate);
 
   graphics_factory->GetImageFactory()->EncodeToStream(
       image.get(), &file_stream, cru::platform::graphics::ImageFormat::Png,

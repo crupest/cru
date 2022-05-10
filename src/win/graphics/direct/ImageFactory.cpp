@@ -6,6 +6,8 @@
 #include "cru/win/graphics/direct/Factory.h"
 #include "cru/win/graphics/direct/Image.h"
 
+#include <d2d1_1.h>
+#include <d2d1_1helper.h>
 #include <wincodec.h>
 #include <wrl/client.h>
 
@@ -78,22 +80,32 @@ void WinImageFactory::EncodeToStream(IImage* image, io::Stream* stream,
       platform::win::ConvertStreamToComStream(stream));
 
   auto d2d_bitmap = direct_image->GetD2DBitmap();
-  auto size = d2d_bitmap->GetSize();
+  auto size = d2d_bitmap->GetPixelSize();
   FLOAT dpi_x, dpi_y;
   d2d_bitmap->GetDpi(&dpi_x, &dpi_y);
   auto pixel_format = d2d_bitmap->GetPixelFormat();
   Ensures(pixel_format.format == DXGI_FORMAT_B8G8R8A8_UNORM);
   Ensures(pixel_format.alphaMode == D2D1_ALPHA_MODE_PREMULTIPLIED);
 
+  Microsoft::WRL::ComPtr<ID2D1Bitmap1> cpu_bitmap;
+  ThrowIfFailed(GetDirectFactory()->GetDefaultD2D1DeviceContext()->CreateBitmap(
+      size, nullptr, 0,
+      D2D1::BitmapProperties1(
+          D2D1_BITMAP_OPTIONS_CANNOT_DRAW | D2D1_BITMAP_OPTIONS_CPU_READ,
+          pixel_format, dpi_x, dpi_y),
+      &cpu_bitmap));
+
+  ThrowIfFailed(cpu_bitmap->CopyFromBitmap(nullptr, d2d_bitmap.Get(), nullptr));
+
   D2D1_MAPPED_RECT mapped_rect;
-  ThrowIfFailed(d2d_bitmap->Map(D2D1_MAP_OPTIONS_READ, &mapped_rect));
+  ThrowIfFailed(cpu_bitmap->Map(D2D1_MAP_OPTIONS_READ, &mapped_rect));
 
   Microsoft::WRL::ComPtr<IWICBitmap> wic_bitmap;
   ThrowIfFailed(wic_imaging_factory_->CreateBitmapFromMemory(
       size.width, size.height, GUID_WICPixelFormat32bppPBGRA, mapped_rect.pitch,
       mapped_rect.pitch * size.height, mapped_rect.bits, &wic_bitmap));
 
-  ThrowIfFailed(d2d_bitmap->Unmap());
+  ThrowIfFailed(cpu_bitmap->Unmap());
 
   Microsoft::WRL::ComPtr<IWICBitmapEncoder> wic_bitmap_encoder;
 
