@@ -6,6 +6,8 @@ if(WIN32)
 	add_subdirectory(win)
 elseif (APPLE)
 	add_subdirectory(osx)
+elseif (UNIX)
+	add_subdirectory(unix)
 endif()
 
 add_subdirectory(ui)

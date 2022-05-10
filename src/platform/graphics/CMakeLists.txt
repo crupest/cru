@@ -6,3 +6,5 @@ add_library(cru_platform_graphics SHARED
 )
 target_compile_definitions(cru_platform_graphics PRIVATE CRU_PLATFORM_GRAPHICS_EXPORT_API)
 target_link_libraries(cru_platform_graphics PUBLIC cru_platform_base)
+
+add_subdirectory(cairo)
