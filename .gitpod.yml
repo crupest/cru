@@ -1,7 +1,6 @@
 tasks:
-  - name: vcpkg
+  - name: configure
     init: |
-      brew install ninja
       cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=TRUE -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -H. -B./build -G Ninja
       ln -s build/compile_commands.json compile_commands.json
 
