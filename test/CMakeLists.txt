@@ -1,9 +1,7 @@
-find_package(GTest CONFIG REQUIRED)
-
-include(GoogleTest)
+include(Catch)
 
 add_library(cru_test_base INTERFACE)
-target_link_libraries(cru_test_base INTERFACE GTest::gtest GTest::gtest_main)
+target_link_libraries(cru_test_base INTERFACE Catch2::Catch2WithMain)
 
 add_subdirectory(common)
 add_subdirectory(platform)

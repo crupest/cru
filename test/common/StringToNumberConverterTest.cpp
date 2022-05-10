@@ -1,136 +1,138 @@
 #include "cru/common/Exception.h"
 #include "cru/common/StringToNumberConverter.h"
 
-#include <gtest/gtest.h>
+#include <catch2/catch_test_macros.hpp>
 
-TEST(StringToIntegerConverterImpl, Base0) {
+TEST_CASE("StringToIntegerConverterImpl Base0", "[string]") {
   using namespace cru;
   StringToIntegerConverterImpl converter(0, 0);
   Index processed_characters_count;
 
-  ASSERT_EQ(converter.Parse("12345678", &processed_characters_count),
-            StringToIntegerConverterImplResult(false, 12345678));
-  ASSERT_EQ(processed_characters_count, 8);
+  REQUIRE(converter.Parse("12345678", &processed_characters_count) ==
+          StringToIntegerConverterImplResult(false, 12345678));
+  REQUIRE(processed_characters_count == 8);
 
-  ASSERT_EQ(converter.Parse("0", &processed_characters_count),
-            StringToIntegerConverterImplResult(false, 0));
-  ASSERT_EQ(processed_characters_count, 1);
+  REQUIRE(converter.Parse("0", &processed_characters_count) ==
+          StringToIntegerConverterImplResult(false, 0));
+  REQUIRE(processed_characters_count == 1);
 
-  ASSERT_EQ(converter.Parse("012", &processed_characters_count),
-            StringToIntegerConverterImplResult(false, 012));
-  ASSERT_EQ(processed_characters_count, 3);
+  REQUIRE(converter.Parse("012", &processed_characters_count) ==
+          StringToIntegerConverterImplResult(false, 012));
+  REQUIRE(processed_characters_count == 3);
 
-  ASSERT_EQ(converter.Parse("0x12", &processed_characters_count),
-            StringToIntegerConverterImplResult(false, 0x12));
-  ASSERT_EQ(processed_characters_count, 4);
+  REQUIRE(converter.Parse("0x12", &processed_characters_count) ==
+          StringToIntegerConverterImplResult(false, 0x12));
+  REQUIRE(processed_characters_count == 4);
 
-  ASSERT_EQ(converter.Parse("0X12", &processed_characters_count),
-            StringToIntegerConverterImplResult(false, 0x12));
-  ASSERT_EQ(processed_characters_count, 4);
+  REQUIRE(converter.Parse("0X12", &processed_characters_count) ==
+          StringToIntegerConverterImplResult(false, 0x12));
+  REQUIRE(processed_characters_count == 4);
 
-  ASSERT_EQ(converter.Parse("0b101", &processed_characters_count),
-            StringToIntegerConverterImplResult(false, 0b101));
-  ASSERT_EQ(processed_characters_count, 5);
+  REQUIRE(converter.Parse("0b101", &processed_characters_count) ==
+          StringToIntegerConverterImplResult(false, 0b101));
+  REQUIRE(processed_characters_count == 5);
 
-  ASSERT_EQ(converter.Parse("0B101", &processed_characters_count),
-            StringToIntegerConverterImplResult(false, 0b101));
-  ASSERT_EQ(processed_characters_count, 5);
+  REQUIRE(converter.Parse("0B101", &processed_characters_count) ==
+          StringToIntegerConverterImplResult(false, 0b101));
+  REQUIRE(processed_characters_count == 5);
 
-  ASSERT_EQ(converter.Parse("-123", &processed_characters_count),
-            StringToIntegerConverterImplResult(true, 123));
-  ASSERT_EQ(processed_characters_count, 4);
+  REQUIRE(converter.Parse("-123", &processed_characters_count) ==
+          StringToIntegerConverterImplResult(true, 123));
+  REQUIRE(processed_characters_count == 4);
 
-    ASSERT_EQ(converter.Parse("-0x10", &processed_characters_count),
-            StringToIntegerConverterImplResult(true, 0x10));
-  ASSERT_EQ(processed_characters_count, 5);
+  REQUIRE(converter.Parse("-0x10", &processed_characters_count) ==
+          StringToIntegerConverterImplResult(true, 0x10));
+  REQUIRE(processed_characters_count == 5);
 }
 
-TEST(StringToIntegerConverterImpl, Base0ForError) {
+TEST_CASE("StringToIntegerConverterImpl Base0ForError", "[string]") {
   using namespace cru;
   StringToIntegerConverterImpl converter(0, 0);
   Index processed_characters_count;
 
-  ASSERT_EQ(converter.Parse("a", &processed_characters_count),
-            StringToIntegerConverterImplResult(false, 0));
-  ASSERT_EQ(processed_characters_count, 0);
+  REQUIRE(converter.Parse("a", &processed_characters_count) ==
+          StringToIntegerConverterImplResult(false, 0));
+  REQUIRE(processed_characters_count == 0);
 
-  ASSERT_EQ(converter.Parse("0a", &processed_characters_count),
-            StringToIntegerConverterImplResult(false, 0));
-  ASSERT_EQ(processed_characters_count, 0);
+  REQUIRE(converter.Parse("0a", &processed_characters_count) ==
+          StringToIntegerConverterImplResult(false, 0));
+  REQUIRE(processed_characters_count == 0);
 
-  ASSERT_EQ(converter.Parse("0x", &processed_characters_count),
-            StringToIntegerConverterImplResult(false, 0));
-  ASSERT_EQ(processed_characters_count, 0);
+  REQUIRE(converter.Parse("0x", &processed_characters_count) ==
+          StringToIntegerConverterImplResult(false, 0));
+  REQUIRE(processed_characters_count == 0);
 
-  ASSERT_EQ(converter.Parse("0xx", &processed_characters_count),
-            StringToIntegerConverterImplResult(false, 0));
-  ASSERT_EQ(processed_characters_count, 0);
+  REQUIRE(converter.Parse("0xx", &processed_characters_count) ==
+          StringToIntegerConverterImplResult(false, 0));
+  REQUIRE(processed_characters_count == 0);
 
-  ASSERT_EQ(converter.Parse(" 0", &processed_characters_count),
-            StringToIntegerConverterImplResult(false, 0));
-  ASSERT_EQ(processed_characters_count, 0);
+  REQUIRE(converter.Parse(" 0", &processed_characters_count) ==
+          StringToIntegerConverterImplResult(false, 0));
+  REQUIRE(processed_characters_count == 0);
 
-  ASSERT_EQ(converter.Parse("0 ", &processed_characters_count),
-            StringToIntegerConverterImplResult(false, 0));
-  ASSERT_EQ(processed_characters_count, 0);
+  REQUIRE(converter.Parse("0 ", &processed_characters_count) ==
+          StringToIntegerConverterImplResult(false, 0));
+  REQUIRE(processed_characters_count == 0);
 }
 
-TEST(StringToIntegerConverterImpl, ThrowOnErrorFlag) {
+TEST_CASE("StringToIntegerConverterImpl ThrowOnErrorFlag", "[string]") {
   using namespace cru;
   StringToIntegerConverterImpl converter(StringToNumberFlags::kThrowOnError, 0);
   Index processed_characters_count;
-  ASSERT_THROW(converter.Parse("?", &processed_characters_count), Exception);
+  REQUIRE_THROWS_AS(converter.Parse("?", &processed_characters_count),
+                    Exception);
 }
 
-TEST(StringToIntegerConverterImpl, AllowLeadingZeroFlag) {
+TEST_CASE("StringToIntegerConverterImpl AllowLeadingZeroFlag", "[string]") {
   using namespace cru;
   StringToIntegerConverterImpl converter(
       StringToNumberFlags::kAllowLeadingSpaces, 0);
   Index processed_characters_count;
-  ASSERT_EQ(converter.Parse("   123", &processed_characters_count),
-            StringToIntegerConverterImplResult(false, 123));
-  ASSERT_EQ(processed_characters_count, 6);
+  REQUIRE(converter.Parse("   123", &processed_characters_count) ==
+          StringToIntegerConverterImplResult(false, 123));
+  REQUIRE(processed_characters_count == 6);
 }
 
-TEST(StringToIntegerConverterImpl, AllowTrailingZeroFlag) {
+TEST_CASE("StringToIntegerConverterImpl AllowTrailingZeroFlag", "[string]") {
   using namespace cru;
   StringToIntegerConverterImpl converter(
       StringToNumberFlags::kAllowTrailingSpaces, 0);
   Index processed_characters_count;
-  ASSERT_EQ(converter.Parse("123   ", &processed_characters_count),
-            StringToIntegerConverterImplResult(false, 123));
-  ASSERT_EQ(processed_characters_count, 6);
+  REQUIRE(converter.Parse("123   ", &processed_characters_count) ==
+          StringToIntegerConverterImplResult(false, 123));
+  REQUIRE(processed_characters_count == 6);
 }
 
-TEST(StringToIntegerConverterImpl, AllowTrailingJunk) {
+TEST_CASE("StringToIntegerConverterImpl AllowTrailingJunk", "[string]") {
   using namespace cru;
   StringToIntegerConverterImpl converter(
       StringToNumberFlags::kAllowLeadingZeroForInteger, 0);
   Index processed_characters_count;
-  ASSERT_EQ(converter.Parse("123 12", &processed_characters_count),
-            StringToIntegerConverterImplResult(false, 123));
-  ASSERT_EQ(processed_characters_count, 3);
+  REQUIRE(converter.Parse("123 12", &processed_characters_count) ==
+          StringToIntegerConverterImplResult(false, 123));
+  REQUIRE(processed_characters_count == 3);
 }
 
-TEST(StringToIntegerConverterImpl, AllowLeadingZeroForInteger) {
+TEST_CASE("StringToIntegerConverterImpl AllowLeadingZeroForInteger",
+          "[string]") {
   using namespace cru;
   StringToIntegerConverterImpl converter(
       StringToNumberFlags::kAllowLeadingZeroForInteger, 0);
   Index processed_characters_count;
-  ASSERT_EQ(converter.Parse("0x0012", &processed_characters_count),
-            StringToIntegerConverterImplResult(false, 0x12));
-  ASSERT_EQ(processed_characters_count, 6);
+  REQUIRE(converter.Parse("0x0012", &processed_characters_count) ==
+          StringToIntegerConverterImplResult(false, 0x12));
+  REQUIRE(processed_characters_count == 6);
 
-  ASSERT_EQ(converter.Parse("000011", &processed_characters_count),
-            StringToIntegerConverterImplResult(false, 000011));
-  ASSERT_EQ(processed_characters_count, 6);
+  REQUIRE(converter.Parse("000011", &processed_characters_count) ==
+          StringToIntegerConverterImplResult(false, 000011));
+  REQUIRE(processed_characters_count == 6);
 
-  ASSERT_EQ(converter.Parse("0b0011", &processed_characters_count),
-            StringToIntegerConverterImplResult(false, 0b0011));
-  ASSERT_EQ(processed_characters_count, 6);
+  REQUIRE(converter.Parse("0b0011", &processed_characters_count) ==
+          StringToIntegerConverterImplResult(false, 0b0011));
+  REQUIRE(processed_characters_count == 6);
 }
 
-TEST(StringToIntegerConverterImpl, CompositeFlags) {
+TEST_CASE("StringToIntegerConverterImpl CompositeFlags", "[string]") {
   using namespace cru;
   StringToIntegerConverterImpl converter(
       StringToNumberFlags::kAllowLeadingSpaces |
@@ -139,26 +141,26 @@ TEST(StringToIntegerConverterImpl, CompositeFlags) {
       0);
   Index processed_characters_count;
 
-  ASSERT_EQ(converter.Parse("   0x00123!!!", &processed_characters_count),
-            StringToIntegerConverterImplResult(false, 0x00123));
-  ASSERT_EQ(processed_characters_count, 10);
+  REQUIRE(converter.Parse("   0x00123!!!", &processed_characters_count) ==
+          StringToIntegerConverterImplResult(false, 0x00123));
+  REQUIRE(processed_characters_count == 10);
 }
 
-TEST(StringToIntegerConverterImpl, OtherBase) {
+TEST_CASE("StringToIntegerConverterImpl OtherBase", "[string]") {
   using namespace cru;
   StringToIntegerConverterImpl converter(0, 7);
   Index processed_characters_count;
 
-  ASSERT_EQ(converter.Parse("12", &processed_characters_count),
-            StringToIntegerConverterImplResult(false, 9));
-  ASSERT_EQ(processed_characters_count, 2);
+  REQUIRE(converter.Parse("12", &processed_characters_count) ==
+          StringToIntegerConverterImplResult(false, 9));
+  REQUIRE(processed_characters_count == 2);
 
-  ASSERT_EQ(converter.Parse("-12", &processed_characters_count),
-            StringToIntegerConverterImplResult(true, 9));
-  ASSERT_EQ(processed_characters_count, 3);
+  REQUIRE(converter.Parse("-12", &processed_characters_count) ==
+          StringToIntegerConverterImplResult(true, 9));
+  REQUIRE(processed_characters_count == 3);
 
   converter.base = 11;
-  ASSERT_EQ(converter.Parse("1a", &processed_characters_count),
-            StringToIntegerConverterImplResult(false, 21));
-  ASSERT_EQ(processed_characters_count, 2);
+  REQUIRE(converter.Parse("1a", &processed_characters_count) ==
+          StringToIntegerConverterImplResult(false, 21));
+  REQUIRE(processed_characters_count == 2);
 }

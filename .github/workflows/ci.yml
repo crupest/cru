@@ -18,13 +18,9 @@ jobs:
     runs-on: macos-latest
 
     steps:
-      - uses: actions/checkout@v2
-
-      - name: Restore Cache
-        uses: actions/cache@v3
+      - uses: actions/checkout@v3
         with:
-          path: ~/.cache/vcpkg/archives
-          key: vcpkg-${{ runner.os }}
+          submodules: true
 
       - name: Setup Ninja
         run: |
@@ -45,13 +41,9 @@ jobs:
     runs-on: windows-latest
 
     steps:
-      - uses: actions/checkout@v2
-
-      - name: Restore Cache
-        uses: actions/cache@v3
+      - uses: actions/checkout@v3
         with:
-          path: ~/AppData/Local/vcpkg/archives
-          key: vcpkg-${{ runner.os }}
+          submodules: true
 
       - name: Setup Ninja
         run: |

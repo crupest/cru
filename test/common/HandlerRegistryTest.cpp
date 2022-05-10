@@ -1,9 +1,10 @@
 #include "cru/common/HandlerRegistry.h"
 
-#include <gtest/gtest.h>
+#include <catch2/catch_test_macros.hpp>
+
 #include <algorithm>
 
-TEST(HandlerRegistry, Work) {
+TEST_CASE("HandlerRegistry", "[handler_registry]") {
   using namespace cru;
   HandlerRegistry<void()> registry;
 
@@ -16,7 +17,7 @@ TEST(HandlerRegistry, Work) {
     handler();
   }
 
-  ASSERT_EQ(counter, 3);
+  REQUIRE(counter == 3);
 
   registry.RemoveHandler(tag1);
 
@@ -24,7 +25,7 @@ TEST(HandlerRegistry, Work) {
     handler();
   }
 
-  ASSERT_EQ(counter, 4);
+  REQUIRE(counter == 4);
 
   registry.RemoveHandler(tag2);
 
@@ -32,5 +33,5 @@ TEST(HandlerRegistry, Work) {
     handler();
   }
 
-  ASSERT_EQ(counter, 4);
+  REQUIRE(counter == 4);
 }

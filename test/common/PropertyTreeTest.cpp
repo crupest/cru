@@ -1,8 +1,8 @@
 #include "cru/common/PropertyTree.h"
 
-#include <gtest/gtest.h>
+#include <catch2/catch_test_macros.hpp>
 
-TEST(PropertyTree, Test) {
+TEST_CASE("PropertyTree", "[property_tree]") {
   using cru::PropertySubTreeRef;
   using cru::PropertyTree;
 
@@ -12,15 +12,15 @@ TEST(PropertyTree, Test) {
       {u"k3.sub", u"v3"},
   });
 
-  ASSERT_EQ(tree.GetValue(u"k1"), u"v1");
-  ASSERT_EQ(tree.GetValue(u"k2"), u"v2");
-  ASSERT_EQ(tree.GetValue(u"k3.sub"), u"v3");
+  REQUIRE(tree.GetValue(u"k1") == u"v1");
+  REQUIRE(tree.GetValue(u"k2") == u"v2");
+  REQUIRE(tree.GetValue(u"k3.sub") == u"v3");
 
   PropertySubTreeRef sub_tree = tree.GetSubTreeRef(u"k3");
-  ASSERT_EQ(sub_tree.GetValue(u"sub"), u"v3");
+  REQUIRE(sub_tree.GetValue(u"sub") == u"v3");
 
   PropertySubTreeRef root_tree = sub_tree.GetParent();
-  ASSERT_EQ(root_tree.GetValue(u"k1"), u"v1");
-  ASSERT_EQ(root_tree.GetValue(u"k2"), u"v2");
-  ASSERT_EQ(root_tree.GetValue(u"k3.sub"), u"v3");
+  REQUIRE(root_tree.GetValue(u"k1") == u"v1");
+  REQUIRE(root_tree.GetValue(u"k2") == u"v2");
+  REQUIRE(root_tree.GetValue(u"k3.sub") == u"v3");
 }

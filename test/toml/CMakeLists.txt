@@ -10,4 +10,4 @@ if (WIN32)
 	)
 endif()
 
-gtest_discover_tests(cru_toml_test)
+catch_discover_tests(cru_toml_test)

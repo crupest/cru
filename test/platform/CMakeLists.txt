@@ -11,4 +11,4 @@ if (WIN32)
 	)
 endif()
 
-gtest_discover_tests(cru_platform_base_test)
+catch_discover_tests(cru_platform_base_test)

@@ -1,12 +1,12 @@
 #include "cru/common/io/OpenFileFlag.h"
 #include "cru/common/platform/unix/UnixFileStream.h"
 
-#include <gtest/gtest.h>
+#include <catch2/catch_test_macros.hpp>
 
 #include <cstdio>
 #include <filesystem>
 
-TEST(UnixFileStream, Work) {
+TEST_CASE("UnixFileStream Work", "[stream]") {
   using namespace cru;
   using namespace cru::io;
   using namespace cru::platform::unix;
@@ -25,8 +25,8 @@ TEST(UnixFileStream, Work) {
   UnixFileStream file2(path, OpenFileFlags::Read);
   auto buffer = std::make_unique<std::byte[]>(3);
   file2.Read(buffer.get(), 3);
-  ASSERT_EQ(std::string_view(reinterpret_cast<const char*>(buffer.get()), 3),
-            "abc");
+  REQUIRE(std::string_view(reinterpret_cast<const char*>(buffer.get()), 3) ==
+          "abc");
   file2.Close();
 
   std::filesystem::remove(temp_file_path);

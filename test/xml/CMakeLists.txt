@@ -10,4 +10,4 @@ if (WIN32)
 	)
 endif()
 
-gtest_discover_tests(cru_xml_test)
+catch_discover_tests(cru_xml_test)

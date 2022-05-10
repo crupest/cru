@@ -14,11 +14,7 @@ Check the code or fire a issue if you have any problem.
 
 ## build
 
-_cru_ is built with [_CMake_](https://cmake.org/) and [_vcpkg_](https://github.com/microsoft/vcpkg). You must setup vcpkg first. There are two ways.
-
-1. Set environment variable `VCPKG_INSTALLATION_ROOT` to your vcpkg installation directory.
-
-2. Symlink the vcpkg installation directory to `vcpkg` of project root directory. Or just put real vcpkg there.
+_cru_ is built with [_CMake_](https://cmake.org/).
 
 ## structure of repository
 

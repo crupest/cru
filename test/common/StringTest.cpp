@@ -1,112 +1,112 @@
 #include "cru/common/Format.h"
 #include "cru/common/String.h"
 
-#include <gtest/gtest.h>
+#include <catch2/catch_test_macros.hpp>
 
-TEST(String, Append) {
+TEST_CASE("String Append", "[string]") {
   using cru::String;
 
   String s;
   s.append(u"ha");
   s.append(s);
-  ASSERT_EQ(s, String(u"haha"));
+  REQUIRE(s == String(u"haha"));
 }
 
-TEST(String, IndexConvert) {
+TEST_CASE("String IndexConvert", "[string]") {
   using cru::String;
 
   String s(u"123");
-  ASSERT_EQ(s.IndexFromCodePointToCodeUnit(1), 1);
-  ASSERT_EQ(s.IndexFromCodeUnitToCodePoint(1), 1);
-  ASSERT_EQ(s.IndexFromCodeUnitToCodePoint(3), 3);
-  ASSERT_EQ(s.IndexFromCodeUnitToCodePoint(3), 3);
+  REQUIRE(s.IndexFromCodePointToCodeUnit(1) == 1);
+  REQUIRE(s.IndexFromCodeUnitToCodePoint(1) == 1);
+  REQUIRE(s.IndexFromCodeUnitToCodePoint(3) == 3);
+  REQUIRE(s.IndexFromCodeUnitToCodePoint(3) == 3);
 }
 
-TEST(String, Format) {
+TEST_CASE("String Format", "[string]") {
   using cru::Format;
   using cru::String;
 
-  ASSERT_EQ(Format(u"{} + {} = {}", 123, 321, 444), String(u"123 + 321 = 444"));
+  REQUIRE(Format(u"{} + {} = {}", 123, 321, 444) == String(u"123 + 321 = 444"));
 }
 
-TEST(String, Trim) {
+TEST_CASE("String Trim", "[string]") {
   using cru::String;
-  ASSERT_EQ(String(u"  abc  ").Trim(), u"abc");
+  REQUIRE(String(u"  abc  ").Trim() == u"abc");
 }
 
-TEST(String, SplitToLines) {
+TEST_CASE("String SplitToLines", "[string]") {
   using cru::String;
 
   String s(u"abc\ndef\nghi");
   auto lines = s.SplitToLines();
-  ASSERT_EQ(lines.size(), 3);
-  ASSERT_EQ(lines[0], String(u"abc"));
-  ASSERT_EQ(lines[1], String(u"def"));
-  ASSERT_EQ(lines[2], String(u"ghi"));
+  REQUIRE(lines.size() == 3);
+  REQUIRE(lines[0] == String(u"abc"));
+  REQUIRE(lines[1] == String(u"def"));
+  REQUIRE(lines[2] == String(u"ghi"));
 }
 
-TEST(String, SplitToLinesWithEmptyLine) {
+TEST_CASE("String SplitToLinesWithEmptyLine", "[string]") {
   using cru::String;
 
   String s(u"abc\n   \ndef\n\nghi\n");
   auto lines = s.SplitToLines();
-  ASSERT_EQ(lines.size(), 6);
-  ASSERT_EQ(lines[0], String(u"abc"));
-  ASSERT_EQ(lines[1], String(u"   "));
-  ASSERT_EQ(lines[2], String(u"def"));
-  ASSERT_EQ(lines[3], String(u""));
-  ASSERT_EQ(lines[4], String(u"ghi"));
-  ASSERT_EQ(lines[5], String(u""));
+  REQUIRE(lines.size() == 6);
+  REQUIRE(lines[0] == String(u"abc"));
+  REQUIRE(lines[1] == String(u"   "));
+  REQUIRE(lines[2] == String(u"def"));
+  REQUIRE(lines[3] == String(u""));
+  REQUIRE(lines[4] == String(u"ghi"));
+  REQUIRE(lines[5] == String(u""));
 }
 
-TEST(String, SplitToLinesRemoveSpaceLine) {
+TEST_CASE("String SplitToLinesRemoveSpaceLine", "[string]") {
   using cru::String;
 
   String s(u"abc\n   \ndef\n\nghi\n");
   auto lines = s.SplitToLines(true);
-  ASSERT_EQ(lines.size(), 3);
-  ASSERT_EQ(lines[0], String(u"abc"));
-  ASSERT_EQ(lines[1], String(u"def"));
-  ASSERT_EQ(lines[2], String(u"ghi"));
+  REQUIRE(lines.size() == 3);
+  REQUIRE(lines[0] == String(u"abc"));
+  REQUIRE(lines[1] == String(u"def"));
+  REQUIRE(lines[2] == String(u"ghi"));
 }
 
-TEST(StringView, ToUtf8) {
+TEST_CASE("StringView ToUtf8", "[string]") {
   using cru::StringView;
   StringView utf16_text = u"aπ你🤣!";
   std::string_view utf8_text = "aπ你🤣!";
 
-  ASSERT_EQ(utf16_text.ToUtf8(), utf8_text);
+  REQUIRE(utf16_text.ToUtf8() == utf8_text);
 }
 
-TEST(String, FromUtf8) {
+TEST_CASE("String FromUtf8", "[string]") {
   std::u16string_view utf16_text = u"aπ你🤣!";
   std::string_view utf8_text = "aπ你🤣!";
 
-  ASSERT_EQ(cru::String::FromUtf8(utf8_text), utf16_text);
+  REQUIRE(cru::String::FromUtf8(utf8_text) == utf16_text);
 }
 
-TEST(StringView, ParseToDouble) {
+TEST_CASE("StringView ParseToDouble", "[string]") {
   using cru::StringToNumberFlags;
   using cru::StringView;
-  ASSERT_EQ(StringView(u"3.14159").ParseToDouble(), 3.14159);
-  ASSERT_EQ(
+  REQUIRE(StringView(u"3.14159").ParseToDouble() == 3.14159);
+  REQUIRE(
       StringView(u"   3.14159")
-          .ParseToDouble(nullptr, StringToNumberFlags::kAllowLeadingSpaces),
+          .ParseToDouble(nullptr, StringToNumberFlags::kAllowLeadingSpaces) ==
       3.14159);
-  ASSERT_EQ(
-      StringView(u"   3.14159    ")
-          .ParseToDouble(nullptr, StringToNumberFlags::kAllowLeadingSpaces |
-                                      StringToNumberFlags::kAllowTrailingSpaces),
-      3.14159);
+  REQUIRE(StringView(u"   3.14159    ")
+              .ParseToDouble(nullptr,
+                             StringToNumberFlags::kAllowLeadingSpaces |
+                                 StringToNumberFlags::kAllowTrailingSpaces) ==
+          3.14159);
 }
 
-TEST(String, ParseToDoubleList) {
+TEST_CASE("String ParseToDoubleList", "[string]") {
   using cru::StringView;
 
   auto list = StringView(u" 1.23 2.34 3.45 ").ParseToDoubleList();
 
-  ASSERT_EQ(list.size(), 3);
-  ASSERT_EQ(list[0], 1.23);
-  ASSERT_EQ(list[1], 2.34);
-  ASSERT_EQ(list[2], 3.45);
+  REQUIRE(list.size() == 3);
+  REQUIRE(list[0] == 1.23);
+  REQUIRE(list[1] == 2.34);
+  REQUIRE(list[2] == 3.45);
 }
