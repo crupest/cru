@@ -19,12 +19,16 @@ TEST(Win32FileStream, Work) {
   String path = temp_file_path;
 
   Win32FileStream file(path, OpenFileFlags::Write | OpenFileFlags::Create);
-  file.Write("abc", 3);
+  auto write_count = file.Write("abc", 3);
+  ASSERT_EQ(write_count, 3);
   file.Close();
+
+  ASSERT_EQ(std::filesystem::file_size(path.ToUtf8()), 3);
 
   Win32FileStream file2(path, OpenFileFlags::Read);
   auto buffer = std::make_unique<std::byte[]>(3);
-  file2.Read(buffer.get(), 3);
+  auto read_count = file2.Read(buffer.get(), 3);
+  ASSERT_EQ(read_count, 3);
   ASSERT_EQ(std::string_view(reinterpret_cast<const char*>(buffer.get()), 3),
             "abc");
   file2.Close();

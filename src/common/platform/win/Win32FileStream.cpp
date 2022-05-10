@@ -1,50 +1,48 @@
 #include "cru/common/platform/win/Win32FileStream.h"
 
+#include "Win32FileStreamPrivate.h"
 #include "cru/common/io/OpenFileFlag.h"
 #include "cru/common/platform/win/Exception.h"
 
 #include <Windows.h>
+#include <coml2api.h>
+#include <shlwapi.h>
 #include <winnt.h>
+#include <filesystem>
 
 namespace cru::platform::win {
 using namespace cru::io;
 
-namespace details {
-struct Win32FileStreamPrivate {
-  HANDLE handle;
-};
-}  // namespace details
-
 Win32FileStream::Win32FileStream(String path, OpenFileFlag flags)
-    : path_(std::move(path)), flags_(flags) {
-  p_ = new details::Win32FileStreamPrivate();
-
-  DWORD dwDesiredAccess = 0;
-  if (flags & OpenFileFlags::Read) {
-    dwDesiredAccess |= GENERIC_READ;
-  }
-  if (flags & OpenFileFlags::Write) {
-    dwDesiredAccess |= GENERIC_WRITE;
-  }
-
-  DWORD dwCreationDisposition = 0;
-  if (flags & OpenFileFlags::Create) {
-    if (flags & OpenFileFlags::ThrowOnExist) {
-      dwCreationDisposition = CREATE_NEW;
+    : path_(std::move(path)),
+      flags_(flags),
+      p_(new details::Win32FileStreamPrivate()) {
+  DWORD grfMode = STGM_SHARE_DENY_NONE;
+  if (flags & io::OpenFileFlags::Read) {
+    if (flags & io::OpenFileFlags::Write) {
+      grfMode |= STGM_READWRITE;
     } else {
-      dwCreationDisposition = OPEN_ALWAYS;
+      grfMode |= STGM_READ;
     }
   } else {
-    dwCreationDisposition = OPEN_EXISTING;
+    if (flags & io::OpenFileFlags::Write) {
+      grfMode |= STGM_WRITE;
+    } else {
+      throw Exception(u"Stream must be readable or writable.");
+    }
   }
 
-  p_->handle = ::CreateFileW(
-      path_.WinCStr(), dwDesiredAccess, FILE_SHARE_READ | FILE_SHARE_WRITE,
-      nullptr, dwCreationDisposition, FILE_ATTRIBUTE_NORMAL, nullptr);
-
-  if (p_->handle == INVALID_HANDLE_VALUE) {
-    throw Win32Error(u"Failed to call CreateFileW.");
+  if (flags & io::OpenFileFlags::Truncate) {
+    grfMode |= STGM_CREATE;
   }
+
+  IStream* stream;
+
+  ThrowIfFailed(SHCreateStreamOnFileEx(
+      path_.WinCStr(), grfMode, FILE_ATTRIBUTE_NORMAL,
+      flags & io::OpenFileFlags::Create ? TRUE : FALSE, NULL, &stream));
+
+  p_->stream_ = stream;
 }
 
 Win32FileStream::~Win32FileStream() {
@@ -57,22 +55,21 @@ bool Win32FileStream::CanSeek() { return true; }
 Index Win32FileStream::Seek(Index offset, SeekOrigin origin) {
   CheckClosed();
 
-  DWORD dwMoveMethod = 0;
+  DWORD dwOrigin = 0;
 
   if (origin == SeekOrigin::Current) {
-    dwMoveMethod = FILE_CURRENT;
+    dwOrigin = STREAM_SEEK_CUR;
   } else if (origin == SeekOrigin::End) {
-    dwMoveMethod = FILE_END;
+    dwOrigin = STREAM_SEEK_END;
   } else {
-    dwMoveMethod = FILE_BEGIN;
+    dwOrigin = STREAM_SEEK_SET;
   }
 
   LARGE_INTEGER n_offset;
   n_offset.QuadPart = offset;
-  LARGE_INTEGER n_new_offset;
-  if (!::SetFilePointerEx(p_->handle, n_offset, &n_new_offset, dwMoveMethod)) {
-    throw Win32Error(u"Failed to call SetFilePointerEx.");
-  }
+  ULARGE_INTEGER n_new_offset;
+
+  ThrowIfFailed(p_->stream_->Seek(n_offset, dwOrigin, &n_new_offset));
 
   return n_new_offset.QuadPart;
 }
@@ -80,34 +77,40 @@ Index Win32FileStream::Seek(Index offset, SeekOrigin origin) {
 bool Win32FileStream::CanRead() { return true; }
 
 Index Win32FileStream::Read(std::byte* buffer, Index offset, Index size) {
+  if (size < 0) {
+    throw Exception(u"Size must be greater than 0.");
+  }
+
   CheckClosed();
 
-  DWORD dwRead;
-  if (::ReadFile(p_->handle, buffer + offset, size, &dwRead, nullptr) == 0) {
-    throw Win32Error(u"Failed to call ReadFile.");
-  }
-  return dwRead;
+  ULONG n_read;
+  ThrowIfFailed(p_->stream_->Read(buffer + offset, size, &n_read));
+  return n_read;
 }
 
 bool Win32FileStream::CanWrite() { return true; }
 
 Index Win32FileStream::Write(const std::byte* buffer, Index offset,
                              Index size) {
-  CheckClosed();
-
-  DWORD dwWritten;
-  if (::WriteFile(p_->handle, buffer + offset, size, &dwWritten, nullptr) ==
-      0) {
-    throw Win32Error(u"Failed to call WriteFile.");
+  if (size < 0) {
+    throw Exception(u"Size must be greater than 0.");
   }
 
-  return dwWritten;
+  CheckClosed();
+
+  ULONG n_written;
+  ThrowIfFailed(p_->stream_->Write(buffer + offset, size, &n_written));
+
+  return n_written;
 }
 
 void Win32FileStream::Close() {
   if (closed_) return;
 
-  ::CloseHandle(p_->handle);
+  if (p_->stream_) {
+    p_->stream_->Release();
+    p_->stream_ = nullptr;
+  }
 
   closed_ = true;
 }
