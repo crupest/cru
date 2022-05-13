@@ -4,7 +4,6 @@
 #include "cru/common/platform/unix/ErrnoException.h"
 
 #include <fcntl.h>
-#include <sys/_types/_s_ifmt.h>
 #include <unistd.h>
 
 namespace cru::platform::unix {
