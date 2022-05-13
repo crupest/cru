@@ -14,6 +14,8 @@ cru::platform::gui::IUiApplication* CreateUiApplication() {
   return new cru::platform::gui::win::WinUiApplication();
 #elif CRU_PLATFORM_OSX
   return new cru::platform::gui::osx::OsxUiApplication();
+#else
+  return nullptr;
 #endif
 }
 
@@ -23,6 +25,8 @@ CreateGraphicsFactory() {
   return new cru::platform::graphics::win::direct::DirectGraphicsFactory();
 #elif CRU_PLATFORM_OSX
   return new cru::platform::graphics::osx::quartz::QuartzGraphicsFactory();
+#else
+  return nullptr;
 #endif
 }
 

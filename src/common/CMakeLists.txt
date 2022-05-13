@@ -22,6 +22,10 @@ if (UNIX)
 		platform/unix/ErrnoException.cpp
 		platform/unix/UnixFileStream.cpp
 	)
+
+	if (NOT APPLE)
+		target_link_libraries(cru_base PUBLIC pthread)
+	endif()
 endif()
 
 if (APPLE)
