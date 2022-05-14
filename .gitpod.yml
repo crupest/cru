@@ -1,7 +1,7 @@
 tasks:
   - name: configure
     init: |
-      sudo apt-get install libcairo2-dev libpango1.0-dev
+      sudo apt-get -y install libcairo2-dev libpango1.0-dev
       cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=TRUE -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -H. -B./build -G Ninja
       ln -s build/compile_commands.json compile_commands.json
 
