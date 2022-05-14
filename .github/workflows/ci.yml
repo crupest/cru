@@ -24,7 +24,7 @@ jobs:
 
       - name: Setup Ninja
         run: |
-          brew install ninja
+          brew install ninja cairo pango
 
       - name: Build
         run: |
