@@ -4,8 +4,8 @@
 #include "cru/platform/graphics/direct2d/Factory.h"
 #include "cru/platform/gui/win/UiApplication.h"
 #else
-#include "cru/osx/graphics/quartz/Factory.h"
-#include "cru/osx/gui/UiApplication.h"
+#include "cru/platform/graphics/quartz/Factory.h"
+#include "cru/platform/gui/osx/UiApplication.h"
 #endif
 
 namespace cru::platform::bootstrap {
@@ -24,7 +24,7 @@ CreateGraphicsFactory() {
 #ifdef CRU_PLATFORM_WINDOWS
   return new cru::platform::graphics::direct2d::DirectGraphicsFactory();
 #elif CRU_PLATFORM_OSX
-  return new cru::platform::graphics::osx::quartz::QuartzGraphicsFactory();
+  return new cru::platform::graphics::quartz::QuartzGraphicsFactory();
 #else
   return nullptr;
 #endif
