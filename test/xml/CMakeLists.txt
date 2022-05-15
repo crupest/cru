@@ -3,11 +3,4 @@ add_executable(CruXmlTest
 )
 target_link_libraries(CruXmlTest PRIVATE CruXml CruTestBase)
 
-if (WIN32)
-	add_custom_command(TARGET CruXmlTest POST_BUILD
-	COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_RUNTIME_DLLS:CruXmlTest> $<TARGET_FILE_DIR:CruXmlTest>
-	COMMAND_EXPAND_LISTS
-	)
-endif()
-
 catch_discover_tests(CruXmlTest)
