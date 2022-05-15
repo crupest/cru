@@ -1,4 +1,4 @@
-add_library(cru_win_graphics_direct SHARED
+add_library(CruPlatformGraphicsDirect2d SHARED
 	Brush.cpp
 	Font.cpp
 	Geometry.cpp
@@ -11,6 +11,6 @@ add_library(cru_win_graphics_direct SHARED
 	WindowPainter.cpp
 	WindowRenderTarget.cpp
 )
-target_link_libraries(cru_win_graphics_direct PUBLIC D3D11 D2d1 DWrite)
-target_link_libraries(cru_win_graphics_direct PUBLIC cru_win_base cru_platform_graphics)
-target_compile_definitions(cru_win_graphics_direct PRIVATE CRU_WIN_GRAPHICS_DIRECT_EXPORT_API)
+target_link_libraries(CruPlatformGraphicsDirect2d PUBLIC D3D11 D2d1 DWrite)
+target_link_libraries(CruPlatformGraphicsDirect2d PUBLIC CruWinBase CruPlatformGraphics)
+target_compile_definitions(CruPlatformGraphicsDirect2d PRIVATE CRU_WIN_GRAPHICS_DIRECT_EXPORT_API)

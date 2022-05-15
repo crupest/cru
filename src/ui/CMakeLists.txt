@@ -1,4 +1,4 @@
-add_library(cru_ui SHARED
+add_library(CruUi SHARED
 	DeleteLater.cpp
 	Helper.cpp
 	ThemeManager.cpp
@@ -75,5 +75,5 @@ add_library(cru_ui SHARED
 	style/StyleRule.cpp
 	style/StyleRuleSet.cpp
 )
-target_compile_definitions(cru_ui PRIVATE CRU_UI_EXPORT_API)
-target_link_libraries(cru_ui PUBLIC cru_platform_gui cru_xml)
+target_compile_definitions(CruUi PRIVATE CRU_UI_EXPORT_API)
+target_link_libraries(CruUi PUBLIC CruPlatformGui CruXml)

@@ -1,13 +1,13 @@
-add_executable(cru_toml_test
+add_executable(CruTomlTest
 	ParserTest.cpp
 )
-target_link_libraries(cru_toml_test PRIVATE cru_toml cru_test_base)
+target_link_libraries(CruTomlTest PRIVATE CruToml cru_test_base)
 
 if (WIN32)
-	add_custom_command(TARGET cru_toml_test POST_BUILD
-	COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_RUNTIME_DLLS:cru_toml_test> $<TARGET_FILE_DIR:cru_toml_test>
+	add_custom_command(TARGET CruTomlTest POST_BUILD
+	COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_RUNTIME_DLLS:CruTomlTest> $<TARGET_FILE_DIR:CruTomlTest>
 	COMMAND_EXPAND_LISTS
 	)
 endif()
 
-catch_discover_tests(cru_toml_test)
+catch_discover_tests(CruTomlTest)

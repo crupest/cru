@@ -1,13 +1,13 @@
-add_executable(cru_xml_test
+add_executable(CruXmlTest
 	ParserTest.cpp
 )
-target_link_libraries(cru_xml_test PRIVATE cru_xml cru_test_base)
+target_link_libraries(CruXmlTest PRIVATE CruXml cru_test_base)
 
 if (WIN32)
-	add_custom_command(TARGET cru_xml_test POST_BUILD
-	COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_RUNTIME_DLLS:cru_xml_test> $<TARGET_FILE_DIR:cru_xml_test>
+	add_custom_command(TARGET CruXmlTest POST_BUILD
+	COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_RUNTIME_DLLS:CruXmlTest> $<TARGET_FILE_DIR:CruXmlTest>
 	COMMAND_EXPAND_LISTS
 	)
 endif()
 
-catch_discover_tests(cru_xml_test)
+catch_discover_tests(CruXmlTest)

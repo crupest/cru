@@ -1,13 +1,13 @@
-add_executable(cru_win_graphics_direct_test
+add_executable(CruPlatformGraphicsDirect2d_test
 	ConvertTest.cpp
 )
-target_link_libraries(cru_win_graphics_direct_test PRIVATE cru_win_graphics_direct cru_test_base)
+target_link_libraries(CruPlatformGraphicsDirect2d_test PRIVATE CruPlatformGraphicsDirect2d cru_test_base)
 
 if (WIN32)
-	add_custom_command(TARGET cru_win_graphics_direct_test POST_BUILD
-	COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_RUNTIME_DLLS:cru_win_graphics_direct_test> $<TARGET_FILE_DIR:cru_win_graphics_direct_test>
+	add_custom_command(TARGET CruPlatformGraphicsDirect2d_test POST_BUILD
+	COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_RUNTIME_DLLS:CruPlatformGraphicsDirect2d_test> $<TARGET_FILE_DIR:CruPlatformGraphicsDirect2d_test>
 	COMMAND_EXPAND_LISTS
 	)
 endif()
 
-catch_discover_tests(cru_win_graphics_direct_test)
+catch_discover_tests(CruPlatformGraphicsDirect2d_test)

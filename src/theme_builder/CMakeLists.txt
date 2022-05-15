@@ -42,4 +42,4 @@ endif()
 
 target_add_resources(cru_theme_builder cru/ui)
 target_add_resources(cru_theme_builder cru/theme_builder)
-target_link_libraries(cru_theme_builder PRIVATE cru_platform_bootstrap cru_ui)
+target_link_libraries(cru_theme_builder PRIVATE CruPlatformBootstrap CruUi)

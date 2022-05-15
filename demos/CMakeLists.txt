@@ -1,6 +1,6 @@
 add_library(cru_demo_base INTERFACE)
 
-target_link_libraries(cru_demo_base INTERFACE cru_platform_bootstrap)
+target_link_libraries(cru_demo_base INTERFACE CruPlatformBootstrap)
 
 if(WIN32)
 	add_subdirectory(graphics)
@@ -24,7 +24,3 @@ endif()
 
 add_subdirectory(parse)
 
-# My computer graphics practice source codes. Needs `dlib` as dependency.
-if (CRU_BUILD_GRAPHICS_EXPERIMENTS)
-	add_subdirectory(graphics_experiments)
-endif()

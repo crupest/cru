@@ -1,2 +1,2 @@
-add_executable(cru_demo_parse_eliminate_left_recursion EliminateLeftRecursion.cpp)
-target_link_libraries(cru_demo_parse_eliminate_left_recursion PRIVATE cru_parse)
+add_executable(CruDemoParseEliminateLeftRecursion EliminateLeftRecursion.cpp)
+target_link_libraries(CruDemoParseEliminateLeftRecursion PRIVATE CruParse)

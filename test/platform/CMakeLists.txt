@@ -1,14 +1,14 @@
-add_executable(cru_platform_base_test
+add_executable(CruPlatformBaseTest
 	ColorTest.cpp
 	MatrixTest.cpp
 )
-target_link_libraries(cru_platform_base_test PRIVATE cru_platform_base cru_test_base)
+target_link_libraries(CruPlatformBaseTest PRIVATE CruPlatformBase cru_test_base)
 
 if (WIN32)
-	add_custom_command(TARGET cru_platform_base_test POST_BUILD
-	COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_RUNTIME_DLLS:cru_platform_base_test> $<TARGET_FILE_DIR:cru_platform_base_test>
+	add_custom_command(TARGET CruPlatformBaseTest POST_BUILD
+	COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_RUNTIME_DLLS:CruPlatformBaseTest> $<TARGET_FILE_DIR:CruPlatformBaseTest>
 	COMMAND_EXPAND_LISTS
 	)
 endif()
 
-catch_discover_tests(cru_platform_base_test)
+catch_discover_tests(CruPlatformBaseTest)

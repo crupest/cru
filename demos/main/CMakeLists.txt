@@ -1,12 +1,12 @@
-add_executable(demo_main main.cpp)
+add_executable(CruDemoMain main.cpp)
 
 if(APPLE)
-	set_target_properties(demo_main PROPERTIES
+	set_target_properties(CruDemoMain PROPERTIES
 		MACOSX_BUNDLE TRUE
     	MACOSX_BUNDLE_BUNDLE_NAME demo-main
     	MACOSX_BUNDLE_GUI_IDENTIFIER life.crupest.cru.demo-main
 	)
 endif()
 
-target_add_resources(demo_main cru/ui)
-target_link_libraries(demo_main PRIVATE cru_demo_base cru_ui)
+target_add_resources(CruDemoMain cru/ui)
+target_link_libraries(CruDemoMain PRIVATE cru_demo_base CruUi)

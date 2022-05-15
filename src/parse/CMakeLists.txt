@@ -1,4 +1,4 @@
-add_library(cru_parse SHARED
+add_library(CruParse SHARED
 	Grammar.cpp
 	Nonterminal.cpp
 	ParsingAlgorithm.cpp
@@ -13,5 +13,5 @@ add_library(cru_parse SHARED
 	Token.cpp
 	TokenType.cpp
 )
-target_compile_definitions(cru_parse PRIVATE CRU_PARSE_EXPORT_API)
-target_link_libraries(cru_parse PUBLIC cru_base)
+target_compile_definitions(CruParse PRIVATE CRU_PARSE_EXPORT_API)
+target_link_libraries(CruParse PUBLIC CruBase)

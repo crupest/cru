@@ -1,13 +1,13 @@
-add_library(cru_platform_bootstrap SHARED
+add_library(CruPlatformBootstrap SHARED
 	Bootstrap.cpp
 )
 
 if(WIN32)
-	target_link_libraries(cru_platform_bootstrap PUBLIC cru_win_gui)
+	target_link_libraries(CruPlatformBootstrap PUBLIC CruPlatformGuiWin)
 elseif(APPLE)
-	target_link_libraries(cru_platform_bootstrap PUBLIC cru_osx_gui)
+	target_link_libraries(CruPlatformBootstrap PUBLIC CruPlatformGuiOsx)
 else()
-	target_link_libraries(cru_platform_bootstrap PUBLIC cru_platform_graphics_cairo)
+	target_link_libraries(CruPlatformBootstrap PUBLIC CruPlatformGraphicsCairo)
 endif()
 
-target_compile_definitions(cru_platform_bootstrap PRIVATE CRU_PLATFORM_BOOTSTRAP_EXPORT_API)
+target_compile_definitions(CruPlatformBootstrap PRIVATE CRU_PLATFORM_BOOTSTRAP_EXPORT_API)

@@ -1,4 +1,4 @@
-add_library(cru_osx_graphics_quartz SHARED
+add_library(CruPlatformGraphicsQuartz SHARED
 	Brush.cpp
 	Convert.cpp
 	Factory.cpp
@@ -15,5 +15,5 @@ find_library(CORE_GRAPHICS CoreGraphics REQUIRED)
 find_library(CORE_TEXT CoreText REQUIRED)
 find_library(IMAGE_IO ImageIO REQUIRED)
 
-target_link_libraries(cru_osx_graphics_quartz PUBLIC ${CORE_GRAPHICS} ${CORE_TEXT} ${IMAGE_IO})
-target_link_libraries(cru_osx_graphics_quartz PUBLIC cru_osx_base cru_platform_graphics)
+target_link_libraries(CruPlatformGraphicsQuartz PUBLIC ${CORE_GRAPHICS} ${CORE_TEXT} ${IMAGE_IO})
+target_link_libraries(CruPlatformGraphicsQuartz PUBLIC CruPlatformBaseOsx CruPlatformGraphics)

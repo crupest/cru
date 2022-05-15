@@ -1,4 +1,4 @@
-add_library(cru_base SHARED
+add_library(CruBase SHARED
 	Base.cpp
 	Exception.cpp
 	Format.cpp
@@ -13,33 +13,33 @@ add_library(cru_base SHARED
 	log/StdioLogTarget.cpp
 	platform/Exception.cpp
 )
-target_compile_definitions(cru_base PRIVATE CRU_BASE_EXPORT_API)
-target_include_directories(cru_base PUBLIC ${CRU_INCLUDE_DIR})
-target_compile_definitions(cru_base PUBLIC $<$<CONFIG:Debug>:CRU_DEBUG>)
+target_compile_definitions(CruBase PRIVATE CRU_BASE_EXPORT_API)
+target_include_directories(CruBase PUBLIC ${CRU_INCLUDE_DIR})
+target_compile_definitions(CruBase PUBLIC $<$<CONFIG:Debug>:CRU_DEBUG>)
 
 if (UNIX)
-	target_sources(cru_base PRIVATE
+	target_sources(CruBase PRIVATE
 		platform/unix/ErrnoException.cpp
 		platform/unix/UnixFileStream.cpp
 	)
 
 	if (NOT APPLE)
-		target_link_libraries(cru_base PUBLIC pthread)
+		target_link_libraries(CruBase PUBLIC pthread)
 	endif()
 endif()
 
 if (APPLE)
 	find_library(CORE_FOUNDATION CoreFoundation REQUIRED)
-	target_link_libraries(cru_base PUBLIC ${CORE_FOUNDATION})
+	target_link_libraries(CruBase PUBLIC ${CORE_FOUNDATION})
 
-	target_sources(cru_base PRIVATE
+	target_sources(CruBase PRIVATE
 		platform/osx/Convert.cpp
 		platform/osx/Exception.cpp
 	)
 endif()
 
 if (WIN32)
-	target_sources(cru_base PRIVATE
+	target_sources(CruBase PRIVATE
 		platform/win/BridgeComStream.cpp
 		platform/win/ComAutoInit.cpp
 		platform/win/DebugLogTarget.cpp
@@ -48,15 +48,15 @@ if (WIN32)
 		platform/win/Win32FileStream.cpp
 	)
 
-	target_link_libraries(cru_base PUBLIC Shlwapi.lib)
+	target_link_libraries(CruBase PUBLIC Shlwapi.lib)
 endif()
 
 if (WIN32)
-	target_compile_definitions(cru_base PUBLIC CRU_PLATFORM_WINDOWS)
+	target_compile_definitions(CruBase PUBLIC CRU_PLATFORM_WINDOWS)
 elseif(APPLE)
-	target_compile_definitions(cru_base PUBLIC CRU_PLATFORM_OSX)
+	target_compile_definitions(CruBase PUBLIC CRU_PLATFORM_OSX)
 else()
-	target_compile_definitions(cru_base PUBLIC CRU_PLATFORM_LINUX)
+	target_compile_definitions(CruBase PUBLIC CRU_PLATFORM_LINUX)
 endif()
 
-target_link_libraries(cru_base PUBLIC GSL double-conversion)
+target_link_libraries(CruBase PUBLIC GSL double-conversion)
