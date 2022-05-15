@@ -1,8 +1,8 @@
 #include "cru/platform/bootstrap/Bootstrap.h"
 
 #ifdef CRU_PLATFORM_WINDOWS
-#include "cru/win/graphics/direct/Factory.h"
-#include "cru/win/gui/UiApplication.h"
+#include "cru/platform/graphics/direct2d/Factory.h"
+#include "cru/platform/gui/win/UiApplication.h"
 #else
 #include "cru/osx/graphics/quartz/Factory.h"
 #include "cru/osx/gui/UiApplication.h"
@@ -22,7 +22,7 @@ cru::platform::gui::IUiApplication* CreateUiApplication() {
 CRU_PLATFORM_BOOTSTRAP_API cru::platform::graphics::IGraphicsFactory*
 CreateGraphicsFactory() {
 #ifdef CRU_PLATFORM_WINDOWS
-  return new cru::platform::graphics::win::direct::DirectGraphicsFactory();
+  return new cru::platform::graphics::direct2d::DirectGraphicsFactory();
 #elif CRU_PLATFORM_OSX
   return new cru::platform::graphics::osx::quartz::QuartzGraphicsFactory();
 #else
