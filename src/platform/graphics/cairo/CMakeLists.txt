@@ -3,6 +3,7 @@ if (UNIX)
 	find_library(LIB_PANGO NAMES pango pango-1.0 REQUIRED)
 
 	add_library(CruPlatformGraphicsCairo SHARED
+		CairoBrush.cpp
 		CairoGraphicsFactory.cpp
 		CairoResource.cpp
 	)

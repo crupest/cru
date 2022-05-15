@@ -5,6 +5,10 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 project(cru)
 
+if (APPLE)
+	include_directories(BEFORE SYSTEM "/usr/local/include")
+endif()
+
 add_subdirectory(lib/Catch2)
 add_subdirectory(lib/double-conversion)
 add_subdirectory(lib/GSL)
