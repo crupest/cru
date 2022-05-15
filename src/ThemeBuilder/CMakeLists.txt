@@ -1,4 +1,4 @@
-add_executable(cru_theme_builder
+add_executable(CruThemeBuilder
 	main.cpp
 	components/Common.cpp
 	components/Editor.cpp
@@ -33,13 +33,13 @@ add_executable(cru_theme_builder
 )
 
 if(APPLE)
-	set_target_properties(cru_theme_builder PROPERTIES
+	set_target_properties(CruThemeBuilder PROPERTIES
 		MACOSX_BUNDLE TRUE
     	MACOSX_BUNDLE_BUNDLE_NAME cru-theme-builder
     	MACOSX_BUNDLE_GUI_IDENTIFIER life.crupest.cru.theme-builder
 	)
 endif()
 
-target_add_resources(cru_theme_builder cru/ui)
-target_add_resources(cru_theme_builder cru/theme_builder)
-target_link_libraries(cru_theme_builder PRIVATE CruPlatformBootstrap CruUi)
+target_add_resources(CruThemeBuilder cru/ui)
+target_add_resources(CruThemeBuilder cru/theme_builder)
+target_link_libraries(CruThemeBuilder PRIVATE CruPlatformBootstrap CruUi)

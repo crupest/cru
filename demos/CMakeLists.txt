@@ -1,23 +1,23 @@
-add_library(cru_demo_base INTERFACE)
+add_library(CruDemoBase INTERFACE)
 
-target_link_libraries(cru_demo_base INTERFACE CruPlatformBootstrap)
+target_link_libraries(CruDemoBase INTERFACE CruPlatformBootstrap)
 
 if(WIN32)
 	add_subdirectory(graphics)
 
 	add_subdirectory(main)
-	add_subdirectory(scroll_view)
+	add_subdirectory(ScrollView)
 
-	add_subdirectory(input_method)
-	add_subdirectory(svg_path)
+	add_subdirectory(InputMethod)
+	add_subdirectory(SvgPath)
 elseif(APPLE)
 	add_subdirectory(graphics)
 
 	add_subdirectory(main)
-	add_subdirectory(scroll_view)
+	add_subdirectory(ScrollView)
 
-	add_subdirectory(input_method)
-	add_subdirectory(svg_path)
+	add_subdirectory(InputMethod)
+	add_subdirectory(SvgPath)
 elseif(UNIX)
 	add_subdirectory(xcb)
 endif()

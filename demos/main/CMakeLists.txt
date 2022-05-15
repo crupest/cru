@@ -9,4 +9,4 @@ if(APPLE)
 endif()
 
 target_add_resources(CruDemoMain cru/ui)
-target_link_libraries(CruDemoMain PRIVATE cru_demo_base CruUi)
+target_link_libraries(CruDemoMain PRIVATE CruDemoBase CruUi)

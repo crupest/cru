@@ -8,5 +8,5 @@ if(APPLE)
 	)
 endif()
 
-target_link_libraries(CruDemoSvgPath PRIVATE cru_demo_base)
+target_link_libraries(CruDemoSvgPath PRIVATE CruDemoBase)
 

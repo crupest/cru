@@ -1,7 +1,7 @@
 add_executable(CruXmlTest
 	ParserTest.cpp
 )
-target_link_libraries(CruXmlTest PRIVATE CruXml cru_test_base)
+target_link_libraries(CruXmlTest PRIVATE CruXml CruTestBase)
 
 if (WIN32)
 	add_custom_command(TARGET CruXmlTest POST_BUILD
