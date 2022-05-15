@@ -4,6 +4,7 @@ if (UNIX)
 
 	add_library(CruPlatformGraphicsCairo SHARED
 		CairoBrush.cpp
+		CairoGeometry.cpp
 		CairoGraphicsFactory.cpp
 		CairoResource.cpp
 	)
