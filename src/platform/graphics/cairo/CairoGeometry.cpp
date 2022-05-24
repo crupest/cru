@@ -3,9 +3,11 @@
 
 namespace cru::platform::graphics::cairo {
 CairoGeometry::CairoGeometry(CairoGraphicsFactory* factory,
-                             cairo_path_t* cairo_path, bool auto_destroy)
+                             cairo_path_t* cairo_path, const Matrix& transform,
+                             bool auto_destroy)
     : CairoResource(factory),
       cairo_path_(cairo_path),
+      transform_(transform),
       auto_destroy_(auto_destroy) {
   Expects(cairo_path);
 }
@@ -39,7 +41,7 @@ Rect CairoGeometry::GetBounds() {
 }
 
 std::unique_ptr<IGeometry> CairoGeometry::Transform(const Matrix& matrix) {
-  throw Exception(u"Not implemented");
+
 }
 
 std::unique_ptr<IGeometry> CairoGeometry::CreateStrokeGeometry(float width) {

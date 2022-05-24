@@ -8,4 +8,8 @@ if (WIN32)
 	add_subdirectory(graphics/direct2d)
 endif()
 
+if (UNIX)
+    add_subdirectory(graphics/cairo)
+endif()
+
 catch_discover_tests(CruPlatformBaseTest)

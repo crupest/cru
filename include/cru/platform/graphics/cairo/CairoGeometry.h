@@ -9,7 +9,8 @@ class CRU_PLATFORM_GRAPHICS_CAIRO_API CairoGeometry : public CairoResource,
                                                       public virtual IGeometry {
  public:
   CairoGeometry(CairoGraphicsFactory* factory, cairo_path_t* cairo_path,
-                bool auto_destroy);
+                const Matrix& transform = Matrix::Identity(),
+                bool auto_destroy = true);
   ~CairoGeometry();
 
   bool FillContains(const Point& point) override;
@@ -21,6 +22,7 @@ class CRU_PLATFORM_GRAPHICS_CAIRO_API CairoGeometry : public CairoResource,
 
  private:
   cairo_path_t* cairo_path_;
+  Matrix transform_;
   bool auto_destroy_;
 };
 
