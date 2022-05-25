@@ -13,6 +13,7 @@ class CRU_PLATFORM_GRAPHICS_CAIRO_API CairoGeometry : public CairoResource,
                 bool auto_destroy = true);
   ~CairoGeometry();
 
+  bool StrokeContains(float width, const Point& point) override;
   bool FillContains(const Point& point) override;
   Rect GetBounds() override;
   std::unique_ptr<IGeometry> Transform(const Matrix& matrix) override;

@@ -7,6 +7,11 @@
 #include <unordered_set>
 
 namespace cru::platform::graphics {
+bool IGeometry::StrokeContains(float width, const Point& point) {
+  auto geometry = CreateStrokeGeometry(width);
+  return geometry->FillContains(point);
+}
+
 constexpr float PI = 3.14159265358979323846f;
 
 using std::abs;

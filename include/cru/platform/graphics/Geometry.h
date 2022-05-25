@@ -5,6 +5,12 @@
 
 namespace cru::platform::graphics {
 struct CRU_PLATFORM_GRAPHICS_API IGeometry : virtual IGraphicsResource {
+  /**
+   *  \remarks Because I designed CreateStrokeGeometry first, which might be not
+   * that rational. So the default implementation calls that method and do the
+   * test. New implementation should override this.
+   */
+  virtual bool StrokeContains(float width, const Point& point);
   virtual bool FillContains(const Point& point) = 0;
   virtual Rect GetBounds() = 0;
   virtual std::unique_ptr<IGeometry> Transform(const Matrix& matrix) = 0;
