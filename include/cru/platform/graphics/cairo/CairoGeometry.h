@@ -29,5 +29,28 @@ class CRU_PLATFORM_GRAPHICS_CAIRO_API CairoGeometry : public CairoResource,
 
 class CRU_PLATFORM_GRAPHICS_CAIRO_API CairoGeometryBuilder
     : public CairoResource,
-      public virtual IGeometryBuilder {};
+      public virtual IGeometryBuilder {
+ public:
+  explicit CairoGeometryBuilder(CairoGraphicsFactory* factory);
+  ~CairoGeometryBuilder() override;
+
+ public:
+  Point GetCurrentPosition() override;
+
+  void MoveTo(const Point& point) override;
+  void LineTo(const Point& point) override;
+  void CubicBezierTo(const Point& start_control_point,
+                     const Point& end_control_point,
+                     const Point& end_point) override;
+  void QuadraticBezierTo(const Point& control_point,
+                         const Point& end_point) override;
+
+  void CloseFigure(bool close) override;
+
+  std::unique_ptr<IGeometry> Build() override;
+
+ private:
+  cairo_surface_t* surface_;
+  cairo_t* cairo_;
+};
 }  // namespace cru::platform::graphics::cairo
