@@ -3,6 +3,8 @@
 #include "../Font.h"
 #include "CairoResource.h"
 
+#include <pango/pango.h>
+
 namespace cru::platform::graphics::cairo {
 class PangoFont : public CairoResource, public virtual IFont {
  public:
@@ -14,8 +16,13 @@ class PangoFont : public CairoResource, public virtual IFont {
   String GetFontName() override;
   float GetFontSize() override;
 
+  PangoFontDescription* GetPangoFontDescription() {
+    return pango_font_description_;
+  }
+
  private:
   String font_family_;
   float font_size_;
+  PangoFontDescription* pango_font_description_;
 };
 }  // namespace cru::platform::graphics::cairo
