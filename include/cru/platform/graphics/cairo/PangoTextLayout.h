@@ -1,11 +1,14 @@
 #pragma once
 #include "../TextLayout.h"
 #include "CairoResource.h"
+#include "PangoFont.h"
+
+#include <pango/pango.h>
 
 namespace cru::platform::graphics::cairo {
 class PangoTextLayout : public CairoResource, public virtual ITextLayout {
  public:
-  explicit PangoTextLayout(CairoGraphicsFactory* factory);
+  PangoTextLayout(CairoGraphicsFactory* factory, std::shared_ptr<IFont> font);
 
   ~PangoTextLayout() override;
 
@@ -34,5 +37,8 @@ class PangoTextLayout : public CairoResource, public virtual ITextLayout {
 
  private:
   String text_;
+  std::shared_ptr<PangoFont> font_;
+
+  PangoLayout* pango_layout_;
 };
 }  // namespace cru::platform::graphics::cairo
