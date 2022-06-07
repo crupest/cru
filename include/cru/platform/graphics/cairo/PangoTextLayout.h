@@ -36,7 +36,15 @@ class PangoTextLayout : public CairoResource, public virtual ITextLayout {
   TextHitTestResult HitTest(const Point& point) override;
 
  private:
+  Index FromUtf8IndexToUtf16Index(Index index);
+  Index FromUtf16IndexToUtf8Index(Index index);
+
+ private:
   String text_;
+  std::string utf8_text_;
+
+  bool edit_mode_ = false;
+
   std::shared_ptr<PangoFont> font_;
 
   PangoLayout* pango_layout_;
