@@ -5,7 +5,8 @@
 #include <vector>
 
 namespace cru::platform::graphics::cairo {
-class CairoPainter : public CairoResource, public virtual IPainter {
+class CRU_PLATFORM_GRAPHICS_CAIRO_API CairoPainter : public CairoResource,
+                                                     public virtual IPainter {
  public:
   CairoPainter(CairoGraphicsFactory* factory, cairo_t* cairo,
                bool auto_release);

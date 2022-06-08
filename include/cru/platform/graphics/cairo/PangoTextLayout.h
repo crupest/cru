@@ -6,7 +6,9 @@
 #include <pango/pango.h>
 
 namespace cru::platform::graphics::cairo {
-class PangoTextLayout : public CairoResource, public virtual ITextLayout {
+class CRU_PLATFORM_GRAPHICS_CAIRO_API PangoTextLayout
+    : public CairoResource,
+      public virtual ITextLayout {
  public:
   PangoTextLayout(CairoGraphicsFactory* factory, std::shared_ptr<IFont> font);
 
