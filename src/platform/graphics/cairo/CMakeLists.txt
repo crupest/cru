@@ -11,7 +11,7 @@ if (UNIX)
 	find_path(GLIB_HEADER_DIR NAMES glib.h PATH_SUFFIXES glib glib-2.0 REQUIRED)
 	find_path(GLIBCONFIG_HEADER_DIR NAMES glibconfig.h HINTS ${LIB_ARCH_DIR} PATH_SUFFIXES glib glib/include glib-2.0 glib-2.0/include REQUIRED)
 	find_path(HARFBUZZ_HEADER_DIR NAMES hb.h PATH_SUFFIXES harfbuzz REQUIRED)
-	find_path(PANGO_HEADER_DIR NAMES pango PATH_SUFFIXES pango-1.0 REQUIRED)
+	find_path(PANGO_HEADER_DIR NAMES pango PATH_SUFFIXES pango pango-1.0 REQUIRED)
 	
 	add_library(CruPlatformGraphicsCairo SHARED
 	    Base.cpp

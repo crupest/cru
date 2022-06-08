@@ -3,7 +3,7 @@
 #ifdef CRU_PLATFORM_WINDOWS
 #include "cru/platform/graphics/direct2d/Factory.h"
 #include "cru/platform/gui/win/UiApplication.h"
-#elifdef CRU_PLATFORM_OSX
+#elif defined(CRU_PLATFORM_OSX)
 #include "cru/platform/graphics/quartz/Factory.h"
 #include "cru/platform/gui/osx/UiApplication.h"
 #else
