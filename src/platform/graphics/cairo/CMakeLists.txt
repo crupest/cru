@@ -16,6 +16,7 @@ if (UNIX)
 		CairoBrush.cpp
 		CairoGeometry.cpp
 		CairoGraphicsFactory.cpp
+		CairoPainter.cpp
 		CairoResource.cpp
 		PangoFont.cpp
 		PangoTextLayout.cpp
