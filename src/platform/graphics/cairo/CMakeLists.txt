@@ -1,7 +1,6 @@
 if (UNIX)
 	set(LIB_ARCH_DIR ${CMAKE_SYSTEM_PREFIX_PATH})
 	list(TRANSFORM LIB_ARCH_DIR APPEND "/lib/${CMAKE_LIBRARY_ARCHITECTURE}")
-	message("${LIB_ARCH_DIR}")
 
 	find_library(LIB_CAIRO cairo REQUIRED)
 	find_library(LIB_GOBJECT NAMES gobject gobject-2.0 REQUIRED)
