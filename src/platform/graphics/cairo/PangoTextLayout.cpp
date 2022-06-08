@@ -1,6 +1,8 @@
 #include "cru/platform/graphics/cairo/PangoTextLayout.h"
 #include "cru/common/StringUtil.h"
 #include "cru/platform/Check.h"
+#include "cru/platform/GraphicsBase.h"
+#include "cru/platform/graphics/Base.h"
 #include "cru/platform/graphics/cairo/CairoGraphicsFactory.h"
 #include "cru/platform/graphics/cairo/PangoFont.h"
 
@@ -84,6 +86,77 @@ Index PangoTextLayout::FromUtf16IndexToUtf8Index(Index index) {
   }
 
   return iter.GetPosition();
+}
+
+Rect PangoTextLayout::GetTextBounds(bool includingTrailingSpace) {
+  PangoRectangle rectangle;
+  pango_layout_get_extents(pango_layout_, nullptr, &rectangle);
+  return Rect(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
+}
+
+std::vector<Rect> PangoTextLayout::TextRangeRect(const TextRange& text_range) {
+  auto tr = text_range.Normalize();
+  auto utf8_start_index = FromUtf16IndexToUtf8Index(tr.GetStart());
+  auto utf8_end_index = FromUtf16IndexToUtf8Index(tr.GetEnd());
+
+  int start_line_index, end_line_index, start_x_pos, end_x_pos;
+  pango_layout_index_to_line_x(pango_layout_, utf8_start_index, false,
+                               &start_line_index, &start_x_pos);
+  pango_layout_index_to_line_x(pango_layout_, utf8_end_index, false,
+                               &end_line_index, &end_x_pos);
+
+  if (start_line_index == end_line_index) {
+    auto line = pango_layout_get_line(pango_layout_, start_line_index);
+    PangoRectangle rectangle;
+    pango_layout_line_get_extents(line, nullptr, &rectangle);
+    return {Rect(rectangle.x + start_x_pos, rectangle.y,
+                 end_x_pos - start_x_pos, rectangle.height)};
+  } else {
+    std::vector<Rect> result;
+
+    PangoRectangle rectangle;
+
+    auto start_line = pango_layout_get_line(pango_layout_, start_line_index);
+    pango_layout_line_get_extents(start_line, nullptr, &rectangle);
+    result.push_back(Rect(rectangle.x + start_x_pos, rectangle.y,
+                          rectangle.width - start_x_pos, rectangle.height));
+
+    for (int line_index = start_line_index + 1; line_index < end_line_index;
+         line_index++) {
+      auto line = pango_layout_get_line(pango_layout_, line_index);
+      pango_layout_line_get_extents(line, nullptr, &rectangle);
+      result.push_back(
+          Rect(rectangle.x, rectangle.y, rectangle.width, rectangle.height));
+    }
+
+    auto end_line = pango_layout_get_line(pango_layout_, end_line_index);
+    pango_layout_line_get_extents(end_line, nullptr, &rectangle);
+    result.push_back(
+        Rect(rectangle.x, rectangle.y, end_x_pos, rectangle.height));
+
+    return result;
+  }
+}
+
+Rect PangoTextLayout::TextSinglePoint(Index position, bool trailing) {
+  auto utf8_index = FromUtf16IndexToUtf8Index(position);
+  int line_index, x_pos;
+  pango_layout_index_to_line_x(pango_layout_, utf8_index, trailing, &line_index,
+                               &x_pos);
+
+  auto line = pango_layout_get_line(pango_layout_, line_index);
+  PangoRectangle rectangle;
+  pango_layout_line_get_extents(line, nullptr, &rectangle);
+
+  return Rect(rectangle.x + x_pos, rectangle.y, 0, rectangle.height);
+}
+
+TextHitTestResult PangoTextLayout::HitTest(const Point& point) {
+  int index, trailing;
+  auto inside_text = pango_layout_xy_to_index(pango_layout_, point.x, point.y,
+                                              &index, &trailing);
+  return TextHitTestResult{FromUtf8IndexToUtf16Index(index), trailing != 0,
+                           inside_text != 0};
 }
 
 }  // namespace cru::platform::graphics::cairo
