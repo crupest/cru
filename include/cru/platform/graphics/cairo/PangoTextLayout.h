@@ -35,6 +35,8 @@ class PangoTextLayout : public CairoResource, public virtual ITextLayout {
   Rect TextSinglePoint(Index position, bool trailing) override;
   TextHitTestResult HitTest(const Point& point) override;
 
+  PangoLayout* GetPangoLayout() { return pango_layout_; }
+
  private:
   Index FromUtf8IndexToUtf16Index(Index index);
   Index FromUtf16IndexToUtf8Index(Index index);

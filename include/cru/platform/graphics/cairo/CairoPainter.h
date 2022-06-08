@@ -2,6 +2,8 @@
 #include "../Painter.h"
 #include "CairoResource.h"
 
+#include <vector>
+
 namespace cru::platform::graphics::cairo {
 class CairoPainter : public CairoResource, public virtual IPainter {
  public:
@@ -35,11 +37,9 @@ class CairoPainter : public CairoResource, public virtual IPainter {
   void DrawImage(const Point& offset, IImage* image) override;
 
   void PushLayer(const Rect& bounds) override;
-
   void PopLayer() override;
 
   void PushState() override;
-
   void PopState() override;
 
   void EndDraw() override;
@@ -51,5 +51,7 @@ class CairoPainter : public CairoResource, public virtual IPainter {
 
   cairo_t* cairo_;
   bool auto_release_;
+
+  std::vector<Rect> layer_stack_;
 };
 }  // namespace cru::platform::graphics::cairo

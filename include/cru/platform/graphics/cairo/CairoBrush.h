@@ -10,6 +10,8 @@ class CRU_PLATFORM_GRAPHICS_CAIRO_API CairoBrush : public CairoResource,
  public:
   explicit CairoBrush(CairoGraphicsFactory* factory);
   ~CairoBrush() override;
+
+  virtual cairo_pattern_t* GetCairoPattern() = 0;
 };
 
 class CRU_PLATFORM_GRAPHICS_CAIRO_API CairoSolidColorBrush
@@ -23,7 +25,7 @@ class CRU_PLATFORM_GRAPHICS_CAIRO_API CairoSolidColorBrush
   Color GetColor() override;
   void SetColor(const Color& color) override;
 
-  cairo_pattern_t* GetCairoPattern() const { return pattern_; }
+  cairo_pattern_t* GetCairoPattern() override { return pattern_; }
 
  private:
   Color color_;

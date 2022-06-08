@@ -1,7 +1,14 @@
 #include "cru/platform/graphics/cairo/CairoPainter.h"
+#include "cru/common/Exception.h"
+#include "cru/platform/Check.h"
 #include "cru/platform/Exception.h"
 #include "cru/platform/graphics/cairo/Base.h"
+#include "cru/platform/graphics/cairo/CairoBrush.h"
+#include "cru/platform/graphics/cairo/CairoGeometry.h"
 #include "cru/platform/graphics/cairo/CairoResource.h"
+#include "cru/platform/graphics/cairo/PangoTextLayout.h"
+
+#include <pango/pangocairo.h>
 
 namespace cru::platform::graphics::cairo {
 CairoPainter::CairoPainter(CairoGraphicsFactory* factory, cairo_t* cairo,
@@ -39,6 +46,182 @@ void CairoPainter::Clear(const Color& color) {
                         color.GetFloatBlue(), color.GetFloatAlpha());
   cairo_paint(cairo_);
 }
+
+void CairoPainter::DrawLine(const Point& start, const Point& end, IBrush* brush,
+                            float width) {
+  CheckValidation();
+  auto cairo_brush = CheckPlatform<CairoBrush>(brush, GetPlatformId());
+  auto cairo_pattern = cairo_brush->GetCairoPattern();
+  cairo_save(cairo_);
+  cairo_set_source(cairo_, cairo_pattern);
+  cairo_set_line_width(cairo_, width);
+  cairo_new_path(cairo_);
+  cairo_move_to(cairo_, start.x, start.y);
+  cairo_line_to(cairo_, end.x, end.y);
+  cairo_stroke(cairo_);
+  cairo_restore(cairo_);
+}
+
+void CairoPainter::StrokeRectangle(const Rect& rectangle, IBrush* brush,
+                                   float width) {
+  CheckValidation();
+  auto cairo_brush = CheckPlatform<CairoBrush>(brush, GetPlatformId());
+  auto cairo_pattern = cairo_brush->GetCairoPattern();
+  cairo_save(cairo_);
+  cairo_set_source(cairo_, cairo_pattern);
+  cairo_set_line_width(cairo_, width);
+  cairo_new_path(cairo_);
+  cairo_rectangle(cairo_, rectangle.left, rectangle.top, rectangle.width,
+                  rectangle.height);
+  cairo_stroke(cairo_);
+  cairo_restore(cairo_);
+}
+
+void CairoPainter::FillRectangle(const Rect& rectangle, IBrush* brush) {
+  CheckValidation();
+  auto cairo_brush = CheckPlatform<CairoBrush>(brush, GetPlatformId());
+  auto cairo_pattern = cairo_brush->GetCairoPattern();
+  cairo_save(cairo_);
+  cairo_set_source(cairo_, cairo_pattern);
+  cairo_new_path(cairo_);
+  cairo_rectangle(cairo_, rectangle.left, rectangle.top, rectangle.width,
+                  rectangle.height);
+  cairo_fill(cairo_);
+  cairo_restore(cairo_);
+}
+
+void CairoPainter::StrokeEllipse(const Rect& outline_rect, IBrush* brush,
+                                 float width) {
+  CheckValidation();
+  auto cairo_brush = CheckPlatform<CairoBrush>(brush, GetPlatformId());
+  auto cairo_pattern = cairo_brush->GetCairoPattern();
+  cairo_save(cairo_);
+  cairo_set_source(cairo_, cairo_pattern);
+  cairo_set_line_width(cairo_, width);
+  {
+    auto center = outline_rect.GetCenter();
+    cairo_matrix_t save_matrix;
+    cairo_get_matrix(cairo_, &save_matrix);
+    cairo_translate(cairo_, center.x, center.y);
+    cairo_scale(cairo_, 1, outline_rect.height / outline_rect.width);
+    cairo_translate(cairo_, -center.x, -center.y);
+    cairo_new_path(cairo_);
+    cairo_arc(cairo_, center.x, center.y, outline_rect.width / 2.0, 0,
+              2 * M_PI);
+    cairo_set_matrix(cairo_, &save_matrix);
+  }
+  cairo_stroke(cairo_);
+  cairo_restore(cairo_);
+}
+
+void CairoPainter::FillEllipse(const Rect& outline_rect, IBrush* brush) {
+  CheckValidation();
+  auto cairo_brush = CheckPlatform<CairoBrush>(brush, GetPlatformId());
+  auto cairo_pattern = cairo_brush->GetCairoPattern();
+  cairo_save(cairo_);
+  cairo_set_source(cairo_, cairo_pattern);
+  {
+    auto center = outline_rect.GetCenter();
+    cairo_matrix_t save_matrix;
+    cairo_get_matrix(cairo_, &save_matrix);
+    cairo_translate(cairo_, center.x, center.y);
+    cairo_scale(cairo_, 1, outline_rect.height / outline_rect.width);
+    cairo_translate(cairo_, -center.x, -center.y);
+    cairo_new_path(cairo_);
+    cairo_arc(cairo_, center.x, center.y, outline_rect.width / 2.0, 0,
+              2 * M_PI);
+    cairo_set_matrix(cairo_, &save_matrix);
+  }
+  cairo_fill(cairo_);
+  cairo_restore(cairo_);
+}
+
+void CairoPainter::StrokeGeometry(IGeometry* geometry, IBrush* brush,
+                                  float width) {
+  CheckValidation();
+  auto cairo_geometry = CheckPlatform<CairoGeometry>(geometry, GetPlatformId());
+  auto cairo_brush = CheckPlatform<CairoBrush>(brush, GetPlatformId());
+
+  auto cairo_path = cairo_geometry->GetCairoPath();
+  auto cairo_pattern = cairo_brush->GetCairoPattern();
+
+  cairo_save(cairo_);
+  cairo_set_source(cairo_, cairo_pattern);
+  cairo_set_line_width(cairo_, width);
+  cairo_new_path(cairo_);
+  cairo_append_path(cairo_, cairo_path);
+  cairo_stroke(cairo_);
+  cairo_restore(cairo_);
+}
+
+void CairoPainter::FillGeometry(IGeometry* geometry, IBrush* brush) {
+  CheckValidation();
+  auto cairo_geometry = CheckPlatform<CairoGeometry>(geometry, GetPlatformId());
+  auto cairo_brush = CheckPlatform<CairoBrush>(brush, GetPlatformId());
+
+  auto cairo_path = cairo_geometry->GetCairoPath();
+  auto cairo_pattern = cairo_brush->GetCairoPattern();
+
+  cairo_save(cairo_);
+  cairo_set_source(cairo_, cairo_pattern);
+  cairo_new_path(cairo_);
+  cairo_append_path(cairo_, cairo_path);
+  cairo_fill(cairo_);
+  cairo_restore(cairo_);
+}
+
+void CairoPainter::DrawText(const Point& offset, ITextLayout* text_layout,
+                            IBrush* brush) {
+  CheckValidation();
+
+  auto pango_text_layout =
+      CheckPlatform<PangoTextLayout>(text_layout, GetPlatformId());
+
+  auto cairo_brush = CheckPlatform<CairoBrush>(brush, GetPlatformId());
+  auto cairo_pattern = cairo_brush->GetCairoPattern();
+
+  cairo_save(cairo_);
+  cairo_set_source(cairo_, cairo_pattern);
+  pango_cairo_show_layout(cairo_, pango_text_layout->GetPangoLayout());
+  cairo_restore(cairo_);
+}
+
+void CairoPainter::DrawImage(const Point& offset, IImage* image) {
+  throw Exception(u"Not implemented.");
+}
+
+void CairoPainter::PushLayer(const Rect& bounds) {
+  CheckValidation();
+  layer_stack_.push_back(bounds);
+  cairo_reset_clip(cairo_);
+  cairo_new_path(cairo_);
+  cairo_rectangle(cairo_, bounds.left, bounds.top, bounds.width, bounds.height);
+  cairo_clip(cairo_);
+}
+
+void CairoPainter::PopLayer() {
+  CheckValidation();
+  layer_stack_.pop_back();
+  cairo_reset_clip(cairo_);
+  if (!layer_stack_.empty()) {
+    auto clip = layer_stack_.back();
+    cairo_new_path(cairo_);
+    cairo_rectangle(cairo_, clip.left, clip.top, clip.width, clip.height);
+    cairo_clip(cairo_);
+  }
+}
+
+void CairoPainter::PushState() {
+  CheckValidation();
+  cairo_save(cairo_);
+}
+
+void CairoPainter::PopState() {
+  CheckValidation();
+  cairo_restore(cairo_);
+}
+
+void CairoPainter::EndDraw() { valid_ = false; }
 
 void CairoPainter::CheckValidation() {
   if (!valid_) {
