@@ -45,6 +45,10 @@ class CairoPainter : public CairoResource, public virtual IPainter {
   void EndDraw() override;
 
  private:
+  void CheckValidation();
+
+  bool valid_ = true;
+
   cairo_t* cairo_;
   bool auto_release_;
 };
