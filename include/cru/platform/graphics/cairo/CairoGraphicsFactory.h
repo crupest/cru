@@ -19,6 +19,19 @@ class CRU_PLATFORM_GRAPHICS_CAIRO_API CairoGraphicsFactory
   cairo_t* GetDefaultCairo() { return default_cairo_; }
   PangoContext* GetDefaultPangoContext() { return default_pango_context_; }
 
+ public:
+  std::unique_ptr<ISolidColorBrush> CreateSolidColorBrush() override;
+
+  std::unique_ptr<IGeometryBuilder> CreateGeometryBuilder() override;
+
+  std::unique_ptr<IFont> CreateFont(String font_family,
+                                    float font_size) override;
+
+  std::unique_ptr<ITextLayout> CreateTextLayout(std::shared_ptr<IFont> font,
+                                                String text) override;
+
+  IImageFactory* GetImageFactory() override;
+
  private:
   cairo_surface_t* default_cairo_surface_;
   cairo_t* default_cairo_;
