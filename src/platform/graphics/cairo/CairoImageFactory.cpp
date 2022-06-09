@@ -14,6 +14,29 @@ bool IsPngHeader(const std::byte* buffer, int size) {
   return png_sig_cmp(reinterpret_cast<png_const_bytep>(buffer), 0, size) == 0;
 }
 
+std::uint32_t Mul(std::uint32_t v, float a) {
+  if (a == 0.f) return v;
+  return static_cast<std::uint32_t>(v * a);
+}
+
+std::uint32_t ConvertPngPixelToCairo(std::uint32_t source) {
+  unsigned char* source_bytes = reinterpret_cast<unsigned char*>(&source);
+
+  std::uint32_t result = 0;
+
+  std::uint32_t alpha = source_bytes[3];
+
+  float a = source_bytes[3] / 255.f;
+
+  result |= alpha << 24;
+
+  result |= Mul(static_cast<std::uint32_t>(source_bytes[0]), a) << 16;
+  result |= Mul(static_cast<std::uint32_t>(source_bytes[1]), a) << 8;
+  result |= Mul(static_cast<std::uint32_t>(source_bytes[2]), a);
+
+  return result;
+}
+
 std::unique_ptr<CairoImage> DecodePng(CairoGraphicsFactory* factory,
                                       io::Stream* stream) {
   png_structp png_ptr = nullptr;
@@ -69,16 +92,12 @@ std::unique_ptr<CairoImage> DecodePng(CairoGraphicsFactory* factory,
   auto cairo_surface_data = cairo_image_surface_get_data(cairo_surface);
 
   for (int row = 0; row < height; row++) {
-    auto row_p = row_pointers[row];
-    auto cairo_row_data = cairo_surface_data + row * cairo_surface_stride;
-    memcpy(cairo_row_data, row_p, width * 4);
+    auto row_pointer = reinterpret_cast<std::uint32_t*>(row_pointers[row]);
+    auto cairo_row_data = reinterpret_cast<std::uint32_t*>(
+        cairo_surface_data + row * cairo_surface_stride);
+
     for (int col = 0; col < width; col++) {
-      std::uint8_t* pixel =
-          reinterpret_cast<std::uint8_t*>(cairo_row_data + col * 4);
-      float alpha = pixel[0] / 255.f;
-      pixel[1] *= alpha;
-      pixel[2] *= alpha;
-      pixel[3] *= alpha;
+      cairo_row_data[col] = ConvertPngPixelToCairo(row_pointer[col]);
     }
   }
 
@@ -88,7 +107,7 @@ std::unique_ptr<CairoImage> DecodePng(CairoGraphicsFactory* factory,
 }
 
 std::uint8_t Div(std::uint32_t v, float a) {
-  if (a == 0.f) return 255;
+  if (a == 0.f) return v;
   std::uint32_t temp = static_cast<std::uint32_t>(v / a);
   if (temp > 255) temp = 255;
   return temp;
@@ -150,15 +169,12 @@ void EncodePng(cairo_surface_t* cairo_surface, io::Stream* stream) {
   buffer.resize(width * height * 4);
 
   for (int row = 0; row < height; row++) {
-    auto buffer_row = buffer.data() + row * width * 4;
-    auto cairo_row_data = cairo_surface_data + row * cairo_surface_stride;
+    auto buffer_row =
+        reinterpret_cast<std::uint32_t*>(buffer.data() + row * width * 4);
+    auto cairo_row_data = reinterpret_cast<std::uint32_t*>(
+        cairo_surface_data + row * cairo_surface_stride);
     for (int col = 0; col < width; col++) {
-      std::uint32_t* source_pixel =
-          reinterpret_cast<std::uint32_t*>(cairo_row_data + col * 4);
-      std::uint32_t* target_pixel =
-          reinterpret_cast<std::uint32_t*>(buffer_row + col * 4);
-
-      *target_pixel = ConvertCairoPixelToPng(*source_pixel);
+      buffer_row[col] = ConvertCairoPixelToPng(cairo_row_data[col]);
     }
   }
 
