@@ -20,6 +20,7 @@ if (UNIX)
 		CairoGeometry.cpp
 		CairoGraphicsFactory.cpp
 		CairoImage.cpp
+		CairoImageFactory.cpp
 		CairoPainter.cpp
 		CairoResource.cpp
 		PangoFont.cpp
