@@ -46,7 +46,8 @@ std::unique_ptr<IImage> CairoImage::CreateWithRect(const Rect& rect) {
 
 std::unique_ptr<IPainter> CairoImage::CreatePainter() {
   auto cairo = cairo_create(cairo_surface_);
-  return std::make_unique<CairoPainter>(GetCairoGraphicsFactory(), cairo, true);
+  return std::make_unique<CairoPainter>(GetCairoGraphicsFactory(), cairo, true,
+                                        cairo_surface_);
 }
 
 }  // namespace cru::platform::graphics::cairo

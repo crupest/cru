@@ -13,8 +13,11 @@
 
 namespace cru::platform::graphics::cairo {
 CairoPainter::CairoPainter(CairoGraphicsFactory* factory, cairo_t* cairo,
-                           bool auto_release)
-    : CairoResource(factory), cairo_(cairo), auto_release_(auto_release) {}
+                           bool auto_release, cairo_surface_t* cairo_surface)
+    : CairoResource(factory),
+      cairo_(cairo),
+      auto_release_(auto_release),
+      cairo_surface_(cairo_surface) {}
 
 CairoPainter::~CairoPainter() {
   if (auto_release_) {
@@ -230,7 +233,12 @@ void CairoPainter::PopState() {
   cairo_restore(cairo_);
 }
 
-void CairoPainter::EndDraw() { valid_ = false; }
+void CairoPainter::EndDraw() {
+  if (cairo_surface_ != nullptr) {
+    cairo_surface_flush(cairo_surface_);
+  }
+  valid_ = false;
+}
 
 void CairoPainter::CheckValidation() {
   if (!valid_) {

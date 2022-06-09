@@ -8,8 +8,8 @@ namespace cru::platform::graphics::cairo {
 class CRU_PLATFORM_GRAPHICS_CAIRO_API CairoPainter : public CairoResource,
                                                      public virtual IPainter {
  public:
-  CairoPainter(CairoGraphicsFactory* factory, cairo_t* cairo,
-               bool auto_release);
+  CairoPainter(CairoGraphicsFactory* factory, cairo_t* cairo, bool auto_release,
+               cairo_surface_t* cairo_surface = nullptr);
   ~CairoPainter();
 
  public:
@@ -52,6 +52,8 @@ class CRU_PLATFORM_GRAPHICS_CAIRO_API CairoPainter : public CairoResource,
 
   cairo_t* cairo_;
   bool auto_release_;
+
+  cairo_surface_t* cairo_surface_;
 
   std::vector<Rect> layer_stack_;
 };
