@@ -5,7 +5,6 @@
 #include "cru/platform/graphics/cairo/CairoResource.h"
 
 #include <png.h>
-#include <iostream>
 #include <memory>
 
 namespace cru::platform::graphics::cairo {
@@ -149,8 +148,6 @@ void EncodePng(cairo_surface_t* cairo_surface, io::Stream* stream) {
           reinterpret_cast<std::uint32_t*>(cairo_row_data + col * 4);
       std::uint32_t* target_pixel =
           reinterpret_cast<std::uint32_t*>(buffer_row + col * 4);
-
-      std::cout << source_pixel << '\n';
 
       *target_pixel = ConvertPargbToRgba(*source_pixel);
     }
