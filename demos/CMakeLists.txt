@@ -19,6 +19,7 @@ elseif(APPLE)
 	add_subdirectory(InputMethod)
 	add_subdirectory(SvgPath)
 elseif(UNIX)
+	add_subdirectory(graphics)
 	add_subdirectory(xcb)
 endif()
 

@@ -181,6 +181,7 @@ void CairoImageFactory::EncodeToStream(IImage* image, io::Stream* stream,
 
   if (format == ImageFormat::Png) {
     EncodePng(cairo_image->GetCairoSurface(), stream);
+    return;
   }
 
   throw Exception(u"Not implemented. Currently only support png.");

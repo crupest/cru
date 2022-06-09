@@ -1,6 +1,7 @@
 #include "cru/platform/graphics/cairo/CairoGraphicsFactory.h"
 #include "cru/platform/graphics/cairo/CairoBrush.h"
 #include "cru/platform/graphics/cairo/CairoGeometry.h"
+#include "cru/platform/graphics/cairo/CairoImageFactory.h"
 #include "cru/platform/graphics/cairo/CairoResource.h"
 #include "cru/platform/graphics/cairo/PangoFont.h"
 #include "cru/platform/graphics/cairo/PangoTextLayout.h"
@@ -11,6 +12,8 @@ CairoGraphicsFactory::CairoGraphicsFactory() : CairoResource(this) {
       cairo_image_surface_create(CAIRO_FORMAT_ARGB32, 100, 100);
   default_cairo_ = cairo_create(default_cairo_surface_);
   default_pango_context_ = pango_context_new();
+
+  image_factory_ = std::make_unique<CairoImageFactory>(this);
 }
 
 CairoGraphicsFactory::~CairoGraphicsFactory() {
@@ -41,5 +44,7 @@ std::unique_ptr<ITextLayout> CairoGraphicsFactory::CreateTextLayout(
   return text_layout;
 }
 
-IImageFactory* CairoGraphicsFactory::GetImageFactory() { return nullptr; }
+IImageFactory* CairoGraphicsFactory::GetImageFactory() {
+  return image_factory_.get();
+}
 }  // namespace cru::platform::graphics::cairo

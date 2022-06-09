@@ -7,6 +7,8 @@
 #include <pango/pango.h>
 
 namespace cru::platform::graphics::cairo {
+class CairoImageFactory;
+
 class CRU_PLATFORM_GRAPHICS_CAIRO_API CairoGraphicsFactory
     : public CairoResource,
       public virtual IGraphicsFactory {
@@ -36,5 +38,7 @@ class CRU_PLATFORM_GRAPHICS_CAIRO_API CairoGraphicsFactory
   cairo_surface_t* default_cairo_surface_;
   cairo_t* default_cairo_;
   PangoContext* default_pango_context_;
+
+  std::unique_ptr<CairoImageFactory> image_factory_;
 };
 }  // namespace cru::platform::graphics::cairo
