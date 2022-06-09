@@ -16,7 +16,7 @@ int main() {
 
   {
     auto brush =
-        graphics_factory->CreateSolidColorBrush(cru::platform::colors::black);
+        graphics_factory->CreateSolidColorBrush(cru::platform::colors::skyblue);
     auto painter = image->CreatePainter();
     painter->FillEllipse(cru::platform::Rect{200, 200, 100, 100}, brush.get());
     painter->EndDraw();

@@ -87,20 +87,24 @@ std::unique_ptr<CairoImage> DecodePng(CairoGraphicsFactory* factory,
   return cairo_image;
 }
 
-std::uint32_t Div(std::uint32_t v, float a) {
+std::uint8_t Div(std::uint32_t v, float a) {
   if (a == 0.f) return 255;
-  std::uint32_t result = static_cast<std::uint32_t>(v / a);
-  if (result > 255) result = 255;
-  return result;
+  std::uint32_t temp = static_cast<std::uint32_t>(v / a);
+  if (temp > 255) temp = 255;
+  return temp;
 }
 
-std::uint32_t ConvertPargbToRgba(std::uint32_t source) {
+std::uint32_t ConvertCairoPixelToPng(std::uint32_t source) {
   std::uint32_t result = 0;
-  result |= (source & 0xFF000000) >> 24;
-  float a = 1.f - result / 255.f;
-  result |= Div((source & 0x00FF0000) >> 16, a) << 24;
-  result |= Div((source & 0x0000FF00) >> 8, a) << 16;
-  result |= Div(source & 0x000000FF, a) << 8;
+  unsigned char* result_bytes = reinterpret_cast<unsigned char*>(&result);
+
+  result_bytes[3] = (source & 0xFF000000) >> 24;
+  float a = result_bytes[3] / 255.f;
+
+  result_bytes[0] = Div((source & 0x00FF0000) >> 16, a);
+  result_bytes[1] = Div((source & 0x0000FF00) >> 8, a);
+  result_bytes[2] = Div(source & 0x000000FF, a);
+
   return result;
 }
 
@@ -154,7 +158,7 @@ void EncodePng(cairo_surface_t* cairo_surface, io::Stream* stream) {
       std::uint32_t* target_pixel =
           reinterpret_cast<std::uint32_t*>(buffer_row + col * 4);
 
-      *target_pixel = ConvertPargbToRgba(*source_pixel);
+      *target_pixel = ConvertCairoPixelToPng(*source_pixel);
     }
   }
 
@@ -167,8 +171,7 @@ void EncodePng(cairo_surface_t* cairo_surface, io::Stream* stream) {
 
   png_set_rows(png_ptr, info_ptr, row_pointer.data());
 
-  png_write_png(png_ptr, info_ptr,
-                PNG_TRANSFORM_SWAP_ALPHA | PNG_TRANSFORM_GRAY_TO_RGB, nullptr);
+  png_write_png(png_ptr, info_ptr, 0, nullptr);
 
   png_destroy_write_struct(&png_ptr, &info_ptr);
 }
