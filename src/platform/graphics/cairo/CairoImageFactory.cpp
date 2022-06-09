@@ -87,15 +87,20 @@ std::unique_ptr<CairoImage> DecodePng(CairoGraphicsFactory* factory,
   return cairo_image;
 }
 
-inline std::uint32_t Mul(std::uint32_t v, float a) { return v * a; }
+std::uint32_t Div(std::uint32_t v, float a) {
+  if (a == 0.f) return 255;
+  std::uint32_t result = static_cast<std::uint32_t>(v / a);
+  if (result > 255) result = 255;
+  return result;
+}
 
 std::uint32_t ConvertPargbToRgba(std::uint32_t source) {
   std::uint32_t result = 0;
   result |= (source & 0xFF000000) >> 24;
   float a = 1.f - result / 255.f;
-  result |= Mul((source & 0x00FF0000) >> 16, a) << 24;
-  result |= Mul((source & 0x0000FF00) >> 8, a) << 16;
-  result |= Mul(source & 0x000000FF, a) << 8;
+  result |= Div((source & 0x00FF0000) >> 16, a) << 24;
+  result |= Div((source & 0x0000FF00) >> 8, a) << 16;
+  result |= Div(source & 0x000000FF, a) << 8;
   return result;
 }
 
