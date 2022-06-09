@@ -5,6 +5,7 @@
 #include "cru/platform/graphics/cairo/Base.h"
 #include "cru/platform/graphics/cairo/CairoBrush.h"
 #include "cru/platform/graphics/cairo/CairoGeometry.h"
+#include "cru/platform/graphics/cairo/CairoImage.h"
 #include "cru/platform/graphics/cairo/CairoResource.h"
 #include "cru/platform/graphics/cairo/PangoTextLayout.h"
 
@@ -187,7 +188,15 @@ void CairoPainter::DrawText(const Point& offset, ITextLayout* text_layout,
 }
 
 void CairoPainter::DrawImage(const Point& offset, IImage* image) {
-  throw Exception(u"Not implemented.");
+  CheckValidation();
+  auto cairo_image = CheckPlatform<CairoImage>(image, GetPlatformId());
+  cairo_save(cairo_);
+  cairo_set_source_surface(cairo_, cairo_image->GetCairoSurface(), 0, 0);
+  cairo_new_path(cairo_);
+  cairo_rectangle(cairo_, offset.x, offset.y, image->GetWidth(),
+                  image->GetHeight());
+  cairo_fill(cairo_);
+  cairo_restore(cairo_);
 }
 
 void CairoPainter::PushLayer(const Rect& bounds) {
