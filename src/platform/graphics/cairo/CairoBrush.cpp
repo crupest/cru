@@ -10,8 +10,8 @@ CairoBrush::~CairoBrush() {}
 CairoSolidColorBrush::CairoSolidColorBrush(CairoGraphicsFactory* factory)
     : CairoBrush(factory), color_(colors::black) {
   pattern_ =
-      cairo_pattern_create_rgba(color_.red / 255.0, color_.green / 255.0,
-                                color_.blue / 255.0, color_.alpha / 255.0);
+      cairo_pattern_create_rgba(color_.GetFloatRed(), color_.GetFloatGreen(),
+                                color_.GetFloatBlue(), color_.GetFloatAlpha());
 }
 
 CairoSolidColorBrush::~CairoSolidColorBrush() {
@@ -24,7 +24,7 @@ void CairoSolidColorBrush::SetColor(const Color& color) {
   color_ = color;
   cairo_pattern_destroy(pattern_);
   pattern_ =
-      cairo_pattern_create_rgba(color_.red / 255.0, color_.green / 255.0,
-                                color_.blue / 255.0, color_.alpha / 255.0);
+      cairo_pattern_create_rgba(color_.GetFloatRed(), color_.GetFloatGreen(),
+                                color_.GetFloatBlue(), color_.GetFloatAlpha());
 }
 }  // namespace cru::platform::graphics::cairo
