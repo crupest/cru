@@ -5,6 +5,7 @@
 #include "cru/platform/graphics/cairo/CairoResource.h"
 
 #include <png.h>
+#include <iostream>
 #include <memory>
 
 namespace cru::platform::graphics::cairo {
@@ -87,6 +88,18 @@ std::unique_ptr<CairoImage> DecodePng(CairoGraphicsFactory* factory,
   return cairo_image;
 }
 
+inline std::uint32_t Mul(std::uint32_t v, float a) { return v * a; }
+
+std::uint32_t ConvertPargbToRgba(std::uint32_t source) {
+  std::uint32_t result = 0;
+  result |= (source & 0xFF000000) >> 24;
+  float a = 1.f - result / 255.f;
+  result |= Mul((source & 0x00FF0000) >> 16, a) << 24;
+  result |= Mul((source & 0x0000FF00) >> 8, a) << 16;
+  result |= Mul(source & 0x000000FF, a) << 8;
+  return result;
+}
+
 void EncodePng(cairo_surface_t* cairo_surface, io::Stream* stream) {
   auto width = cairo_image_surface_get_width(cairo_surface);
   auto height = cairo_image_surface_get_height(cairo_surface);
@@ -131,14 +144,15 @@ void EncodePng(cairo_surface_t* cairo_surface, io::Stream* stream) {
   for (int row = 0; row < height; row++) {
     auto buffer_row = buffer.data() + row * width * 4;
     auto cairo_row_data = cairo_surface_data + row * cairo_surface_stride;
-    memcpy(buffer_row, cairo_row_data, width * 4);
     for (int col = 0; col < width; col++) {
-      std::uint8_t* pixel =
-          reinterpret_cast<std::uint8_t*>(buffer_row + col * 4);
-      float alpha = pixel[0] / 255.f;
-      pixel[1] /= alpha;
-      pixel[2] /= alpha;
-      pixel[3] /= alpha;
+      std::uint32_t* source_pixel =
+          reinterpret_cast<std::uint32_t*>(cairo_row_data + col * 4);
+      std::uint32_t* target_pixel =
+          reinterpret_cast<std::uint32_t*>(buffer_row + col * 4);
+
+      std::cout << source_pixel << '\n';
+
+      *target_pixel = ConvertPargbToRgba(*source_pixel);
     }
   }
 
