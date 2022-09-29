@@ -38,6 +38,16 @@ if (APPLE)
 	)
 endif()
 
+if (EMSCRIPTEN)
+	target_compile_options(CruBase PUBLIC "-fwasm-exceptions")
+	target_link_options(CruBase PUBLIC "-fwasm-exceptions")
+
+	target_sources(CruBase PRIVATE
+		platform/web/WebException.cpp
+		platform/web/WebFileStream.cpp
+	)
+endif()
+
 if (WIN32)
 	target_sources(CruBase PRIVATE
 		platform/win/BridgeComStream.cpp
