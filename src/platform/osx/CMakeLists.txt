@@ -1,4 +1,4 @@
-add_library(CruPlatformBaseOsx SHARED
+add_library(CruPlatformBaseOsx
 	Resource.cpp
 )
 

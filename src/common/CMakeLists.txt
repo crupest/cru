@@ -1,4 +1,4 @@
-add_library(CruBase SHARED
+add_library(CruBase
 	Base.cpp
 	Exception.cpp
 	Format.cpp
@@ -17,7 +17,7 @@ target_compile_definitions(CruBase PRIVATE CRU_BASE_EXPORT_API)
 target_include_directories(CruBase PUBLIC ${CRU_INCLUDE_DIR})
 target_compile_definitions(CruBase PUBLIC $<$<CONFIG:Debug>:CRU_DEBUG>)
 
-if (UNIX)
+if (UNIX AND NOT EMSCRIPTEN)
 	target_sources(CruBase PRIVATE
 		platform/unix/ErrnoException.cpp
 		platform/unix/UnixFileStream.cpp
@@ -55,6 +55,8 @@ if (WIN32)
 	target_compile_definitions(CruBase PUBLIC CRU_PLATFORM_WINDOWS)
 elseif(APPLE)
 	target_compile_definitions(CruBase PUBLIC CRU_PLATFORM_OSX)
+elseif(EMSCRIPTEN)
+	target_compile_definitions(CruBase PUBLIC CRU_PLATFORM_EMSCRIPTEN)
 else()
 	target_compile_definitions(CruBase PUBLIC CRU_PLATFORM_LINUX)
 endif()

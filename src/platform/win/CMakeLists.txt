@@ -1,4 +1,4 @@
-add_library(CruWinBase SHARED
+add_library(CruWinBase
 	ForDllExport.cpp
 )
 target_compile_definitions(CruWinBase PUBLIC UNICODE _UNICODE) # use unicode

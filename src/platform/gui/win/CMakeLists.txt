@@ -1,4 +1,4 @@
-add_library(CruPlatformGuiWin SHARED
+add_library(CruPlatformGuiWin
 	Clipboard.cpp
 	Cursor.cpp
 	GodWindow.cpp

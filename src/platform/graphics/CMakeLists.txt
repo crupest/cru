@@ -1,4 +1,4 @@
-add_library(CruPlatformGraphics SHARED
+add_library(CruPlatformGraphics
 	ForDllExport.cpp
 	Geometry.cpp
 	Image.cpp

@@ -1,5 +1,13 @@
 cmake_minimum_required(VERSION 3.21)
 
+set(CRU_DEFAULT_BUILD_SHARED_LIBS ON)
+if (EMSCRIPTEN)
+	# Webassembly has no idea about static/dynamic libraries.
+	set(CRU_DEFAULT_BUILD_SHARED_LIBS OFF)
+endif()
+
+option(BUILD_SHARED_LIBS "Try to build shared libraries as default" CRU_DEFAULT_BUILD_SHARED_LIBS)
+
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_EXTENSIONS OFF)
 

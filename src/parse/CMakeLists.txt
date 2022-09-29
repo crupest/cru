@@ -1,4 +1,4 @@
-add_library(CruParse SHARED
+add_library(CruParse
 	Grammar.cpp
 	Nonterminal.cpp
 	ParsingAlgorithm.cpp

@@ -1,4 +1,4 @@
-add_library(CruUi SHARED
+add_library(CruUi
 	DeleteLater.cpp
 	Helper.cpp
 	ThemeManager.cpp

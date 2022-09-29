@@ -1,4 +1,4 @@
-add_library(CruPlatformGui SHARED
+add_library(CruPlatformGui
 	Keyboard.cpp
 	Menu.cpp
 	UiApplication.cpp

@@ -1,4 +1,4 @@
-add_library(CruPlatformBase SHARED
+add_library(CruPlatformBase
 	ForDllExport.cpp
 	Color.cpp
 	GraphicsBase.cpp

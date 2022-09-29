@@ -1,4 +1,4 @@
-add_library(CruPlatformGuiOsx SHARED
+add_library(CruPlatformGuiOsx
 	Clipboard.mm
 	Cursor.mm
 	InputMethod.mm

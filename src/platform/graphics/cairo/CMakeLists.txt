@@ -1,4 +1,4 @@
-if (UNIX)
+if (UNIX AND NOT EMSCRIPTEN) # It's so great to see emscripten is somewhat UNIX!
 	foreach(PP IN LISTS CMAKE_SYSTEM_PREFIX_PATH)
 		cmake_path(APPEND PP "lib" ${CMAKE_LIBRARY_ARCHITECTURE})
 		list(APPEND LIB_ARCH_DIR ${PP})
@@ -16,7 +16,7 @@ if (UNIX)
 
 	find_library(LIB_PNG png REQUIRED)
 	
-	add_library(CruPlatformGraphicsCairo SHARED
+	add_library(CruPlatformGraphicsCairo
 	    Base.cpp
 		CairoBrush.cpp
 		CairoGeometry.cpp

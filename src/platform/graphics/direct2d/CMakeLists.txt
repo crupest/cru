@@ -1,4 +1,4 @@
-add_library(CruPlatformGraphicsDirect2d SHARED
+add_library(CruPlatformGraphicsDirect2d
 	Brush.cpp
 	Font.cpp
 	Geometry.cpp

@@ -1,4 +1,4 @@
-add_library(CruXml SHARED
+add_library(CruXml
 	XmlNode.cpp
 	XmlParser.cpp
 )

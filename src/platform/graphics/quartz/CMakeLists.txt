@@ -1,4 +1,4 @@
-add_library(CruPlatformGraphicsQuartz SHARED
+add_library(CruPlatformGraphicsQuartz
 	Brush.cpp
 	Convert.cpp
 	Factory.cpp

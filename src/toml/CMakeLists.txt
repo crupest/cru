@@ -1,4 +1,4 @@
-add_library(CruToml SHARED
+add_library(CruToml
 	TomlDocument.cpp
 	TomlParser.cpp
 )
