@@ -12,7 +12,8 @@ struct OpenFileFlags {
   static constexpr OpenFileFlag Read{0x1};
   static constexpr OpenFileFlag Write{0x2};
   static constexpr OpenFileFlag Append{0x4};
-  static constexpr OpenFileFlag Create{0x8};
-  static constexpr OpenFileFlag Truncate{0x10};
+  static constexpr OpenFileFlag Truncate{0x8};
+  static constexpr OpenFileFlag Create{0x10};
+  static constexpr OpenFileFlag Exclusive{0x20};
 };
 }  // namespace cru::io

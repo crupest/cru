@@ -1,10 +1,12 @@
 #pragma once
 
+#include <_stdio.h>
 #include "../../PreConfig.h"
 
 #ifdef CRU_PLATFORM_EMSCRIPTEN
 
 #include "../../io/Stream.h"
+#include "cru/common/io/OpenFileFlag.h"
 
 namespace cru::platform::web {
 /**
@@ -14,7 +16,29 @@ namespace cru::platform::web {
  */
 class WebFileStream : public io::Stream {
  public:
- // TODO: go on this!
+  WebFileStream(String path, io::OpenFileFlag flags);
+
+  ~WebFileStream() override;
+
+ public:
+  bool CanSeek() override;
+  Index Seek(Index offset, SeekOrigin origin = SeekOrigin::Current) override;
+
+  bool CanRead() override;
+  Index Read(std::byte* buffer, Index offset, Index size) override;
+  using Stream::Read;
+
+  bool CanWrite() override;
+  Index Write(const std::byte* buffer, Index offset, Index size) override;
+  using Stream::Write;
+
+  void Close() override;
+
+ private:
+  String path_;
+  io::OpenFileFlag flags_;
+
+  FILE* file_;
 };
 }  // namespace cru::platform::web
 
