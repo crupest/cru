@@ -8,7 +8,7 @@ if (WIN32)
 	add_subdirectory(graphics/direct2d)
 endif()
 
-if (UNIX)
+if (UNIX AND NOT EMSCRIPTEN)
     add_subdirectory(graphics/cairo)
 endif()
 

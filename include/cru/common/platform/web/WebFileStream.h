@@ -1,6 +1,5 @@
 #pragma once
 
-#include <_stdio.h>
 #include "../../PreConfig.h"
 
 #ifdef CRU_PLATFORM_EMSCRIPTEN

@@ -7,7 +7,7 @@ add_executable(CruBaseTest
 )
 target_link_libraries(CruBaseTest PRIVATE CruBase CruTestBase)
 
-if (UNIX)
+if (UNIX AND NOT EMSCRIPTEN)
 	target_sources(CruBaseTest PRIVATE
 		platform/unix/UnixFileStreamTest.cpp
 	)
