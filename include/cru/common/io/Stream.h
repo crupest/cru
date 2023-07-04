@@ -2,12 +2,23 @@
 
 #include "../Base.h"
 
+#include "../Exception.h"
 #include "../String.h"
 
 #include <cstddef>
 #include <vector>
 
 namespace cru::io {
+class CRU_BASE_API StreamAlreadyClosedException : public Exception {
+ public:
+  using Exception::Exception;
+
+  CRU_DEFAULT_COPY(StreamAlreadyClosedException)
+  CRU_DEFAULT_MOVE(StreamAlreadyClosedException)
+
+  CRU_DEFAULT_DESTRUCTOR(StreamAlreadyClosedException)
+};
+
 class CRU_BASE_API Stream : public Object {
  public:
   enum class SeekOrigin { Current, Begin, End };
