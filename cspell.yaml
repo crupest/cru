@@ -1,0 +1,19 @@
+dictionaryDefinitions:
+  - name: cru-words
+    path: './cru-words.txt'
+    addWords: true
+
+dictionaries:
+  - cpp
+  - python
+  - css
+  - cru-words
+
+words:
+  - crupest
+
+ignorePaths:
+  - /build
+  - /lib
+  - compile_commands.json
+
