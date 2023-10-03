@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Stream.h"
+#include "OpenFileFlag.h"
 
 #include <cstdio>
 
@@ -10,6 +11,8 @@ class CRU_BASE_API CFileStream : public Stream {
   CFileStream(const char* path, const char* mode);
   explicit CFileStream(std::FILE* file, bool readable = true,
                        bool writable = true, bool auto_close = true);
+
+  CFileStream(String path, OpenFileFlag flags); // To make it a FileStream
 
   CRU_DELETE_COPY(CFileStream)
   CRU_DELETE_MOVE(CFileStream)

@@ -17,6 +17,11 @@
  * (TODO: Currently the problem is that when I implemented for Windows and UNIX
  * I didn't take this into consideration so I have to fix this inconsistency
  * later.)
+ *
+ * The requirement of FileStream:
+ * 1. It must be derived from Stream, of course.
+ * 2. It must have a constructor FileStream(String path, io::OpenFlag flags), so
+ * user can construct one with the same interface.
  */
 
 #pragma once

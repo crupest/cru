@@ -1,5 +1,6 @@
 #include "cru/common/io/CFileStream.h"
 #include "cru/common/Exception.h"
+#include "cru/common/io/OpenFileFlag.h"
 #include "cru/common/io/Stream.h"
 
 #include <cstdio>
@@ -43,6 +44,28 @@ CFileStream::CFileStream(std::FILE* file, bool readable, bool writable,
     throw Exception(u"File is NULL.");
   }
 }
+
+namespace {
+std::string ConvertOpenFileFlagToCFileFlag(OpenFileFlag flags) {
+  std::string result;
+  bool need_read = flags & OpenFileFlags::Read;
+  bool need_write = flags & OpenFileFlags::Write;
+  bool append = flags & OpenFileFlags::Append;
+
+  if (!need_write) {
+    // No need to write? The simplest
+    return "r";
+  }
+
+  // Now we need writing.
+  if (!need_read) {
+
+  }
+
+}
+}  // namespace
+
+CFileStream::CFileStream(String path, OpenFileFlag flags) {}
 
 CFileStream::~CFileStream() {
   if (auto_close_ && file_ != nullptr) {
