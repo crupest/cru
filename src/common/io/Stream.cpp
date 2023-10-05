@@ -1,4 +1,5 @@
 #include "cru/common/io/Stream.h"
+#include "cru/common/Exception.h"
 #include "cru/common/Format.h"
 
 #include <utility>
@@ -21,6 +22,9 @@ void StreamOperationNotSupportedException::CheckRead(bool readable) {
 void StreamOperationNotSupportedException::CheckWrite(bool writable) {
   if (!writable) throw StreamOperationNotSupportedException(u"write");
 }
+
+StreamAlreadyClosedException::StreamAlreadyClosedException()
+    : Exception(u"Stream is already closed.") {}
 
 void StreamAlreadyClosedException::Check(bool closed) {
   if (closed) throw StreamAlreadyClosedException();

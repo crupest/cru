@@ -2,10 +2,12 @@
 #include "cru/common/Exception.h"
 #include "cru/common/Format.h"
 #include "cru/common/io/Stream.h"
+#include "cru/common/log/Logger.h"
 
 #include <fcntl.h>
 #include <sys/fcntl.h>
 #include <unistd.h>
+#include <cerrno>
 
 namespace cru::platform::unix {
 using namespace cru::io;
@@ -56,7 +58,15 @@ UnixFileStream::UnixFileStream(int fd, bool can_seek, bool can_read,
   auto_close_ = auto_close;
 }
 
-UnixFileStream::~UnixFileStream() { Close(); }
+UnixFileStream::~UnixFileStream() {
+  if (auto_close_ && file_descriptor_ >= 0) {
+    if (::close(file_descriptor_) == -1) {
+      // We are in destructor, so we can not throw.
+      CRU_LOG_WARN(u"Failed to close file descriptor {}, errno {}.",
+                   file_descriptor_, errno);
+    }
+  }
+}
 
 bool UnixFileStream::CanSeek() {
   CheckClosed();

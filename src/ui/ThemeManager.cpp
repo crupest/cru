@@ -2,7 +2,6 @@
 
 #include "Helper.h"
 #include "cru/common/StringUtil.h"
-#include "cru/common/io/FileStream.h"
 #include "cru/common/io/Resource.h"
 #include "cru/platform/graphics/Brush.h"
 #include "cru/platform/graphics/Factory.h"

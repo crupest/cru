@@ -97,6 +97,7 @@ bool CFileStream::CanRead() {
 
 Index CFileStream::Read(std::byte* buffer, Index offset, Index size) {
   CheckClosed();
+  StreamOperationNotSupportedException::CheckRead(readable_);
   auto count = std::fread(buffer + offset, 1, size, file_);
   return count;
 }
@@ -108,6 +109,7 @@ bool CFileStream::CanWrite() {
 
 Index CFileStream::Write(const std::byte* buffer, Index offset, Index size) {
   CheckClosed();
+  StreamOperationNotSupportedException::CheckWrite(writable_);
   auto count = std::fwrite(buffer + offset, 1, size, file_);
   return count;
 }
@@ -125,8 +127,6 @@ void CFileStream::Close() {
 }
 
 void CFileStream::CheckClosed() {
-  if (file_ == nullptr) {
-    throw StreamAlreadyClosedException(u"File is closed.");
-  }
+  StreamAlreadyClosedException::Check(file_ == nullptr);
 }
 }  // namespace cru::io

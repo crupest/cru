@@ -8,6 +8,9 @@
 
 namespace cru::platform::unix {
 class UnixFileStream : public io::Stream {
+ private:
+  static constexpr auto kLogTag = u"cru::platform::unix::UnixFileStream";
+
  public:
   UnixFileStream(const char* path, int oflag);
   UnixFileStream(int fd, bool can_seek, bool can_read, bool can_write,
@@ -31,6 +34,8 @@ class UnixFileStream : public io::Stream {
   using Stream::Write;
 
   void Close() override;
+
+  int GetFileDescriptor() const { return file_descriptor_; }
 
  private:
   void CheckClosed();

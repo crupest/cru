@@ -24,9 +24,11 @@ class CRU_BASE_API CFileStream : public Stream {
 
   bool CanRead() override;
   Index Read(std::byte* buffer, Index offset, Index size) override;
+  using Stream::Read;
 
   bool CanWrite() override;
   Index Write(const std::byte* buffer, Index offset, Index size) override;
+  using Stream::Write;
 
   void Flush() override;
 
