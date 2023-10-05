@@ -1,5 +1,4 @@
-#include "cru/common/io/FileStream.h"
-#include "cru/common/io/OpenFileFlag.h"
+#include "cru/common/io/CFileStream.h"
 #include "cru/platform/Color.h"
 #include "cru/platform/bootstrap/Bootstrap.h"
 #include "cru/platform/graphics/Factory.h"
@@ -22,10 +21,7 @@ int main() {
     painter->EndDraw();
   }
 
-  cru::io::FileStream file_stream(u"./test_image.png",
-                                  cru::io::OpenFileFlags::Write |
-                                      cru::io::OpenFileFlags::Create |
-                                      cru::io::OpenFileFlags::Truncate);
+  cru::io::CFileStream file_stream("./test_image.png", "w");
 
   graphics_factory->GetImageFactory()->EncodeToStream(
       image.get(), &file_stream, cru::platform::graphics::ImageFormat::Png,

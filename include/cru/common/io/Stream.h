@@ -9,6 +9,27 @@
 #include <vector>
 
 namespace cru::io {
+class CRU_BASE_API StreamOperationNotSupportedException : public Exception {
+ public:
+  explicit StreamOperationNotSupportedException(String operation);
+
+  CRU_DEFAULT_COPY(StreamOperationNotSupportedException)
+  CRU_DEFAULT_MOVE(StreamOperationNotSupportedException)
+
+  CRU_DEFAULT_DESTRUCTOR(StreamOperationNotSupportedException)
+
+ public:
+  String GetOperation() const { return operation_; }
+
+ public:
+  static void CheckSeek(bool seekable);
+  static void CheckRead(bool readable);
+  static void CheckWrite(bool writable);
+
+ private:
+  String operation_;
+};
+
 class CRU_BASE_API StreamAlreadyClosedException : public Exception {
  public:
   using Exception::Exception;
@@ -17,6 +38,8 @@ class CRU_BASE_API StreamAlreadyClosedException : public Exception {
   CRU_DEFAULT_MOVE(StreamAlreadyClosedException)
 
   CRU_DEFAULT_DESTRUCTOR(StreamAlreadyClosedException)
+
+  static void Check(bool closed);
 };
 
 class CRU_BASE_API Stream : public Object {

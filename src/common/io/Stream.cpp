@@ -1,6 +1,31 @@
 #include "cru/common/io/Stream.h"
+#include "cru/common/Format.h"
+
+#include <utility>
 
 namespace cru::io {
+StreamOperationNotSupportedException::StreamOperationNotSupportedException(
+    String operation)
+    : operation_(std::move(operation)) {
+  SetMessage(Format(u"Stream operation {} not supported.", operation_));
+}
+
+void StreamOperationNotSupportedException::CheckSeek(bool seekable) {
+  if (!seekable) throw StreamOperationNotSupportedException(u"seek");
+}
+
+void StreamOperationNotSupportedException::CheckRead(bool readable) {
+  if (!readable) throw StreamOperationNotSupportedException(u"read");
+}
+
+void StreamOperationNotSupportedException::CheckWrite(bool writable) {
+  if (!writable) throw StreamOperationNotSupportedException(u"write");
+}
+
+void StreamAlreadyClosedException::Check(bool closed) {
+  if (closed) throw StreamAlreadyClosedException();
+}
+
 Index Stream::Tell() { return Seek(0, SeekOrigin::Current); }
 
 void Stream::Rewind() { Seek(0, SeekOrigin::Begin); }

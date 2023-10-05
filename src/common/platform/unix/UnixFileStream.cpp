@@ -1,45 +1,24 @@
 #include "cru/common/platform/unix/UnixFileStream.h"
 #include "cru/common/Format.h"
-#include "cru/common/io/OpenFileFlag.h"
+#include "cru/common/io/Stream.h"
 #include "cru/common/platform/unix/ErrnoException.h"
 
 #include <fcntl.h>
+#include <sys/fcntl.h>
 #include <unistd.h>
 
 namespace cru::platform::unix {
 using namespace cru::io;
 
 namespace {
-int MapOpenFileFlag(OpenFileFlag flags) {
-  int result = 0;
-  if (flags & OpenFileFlags::Read) {
-    if (flags & OpenFileFlags::Write) {
-      result |= O_RDWR;
-    } else {
-      result |= O_RDONLY;
-    }
-  } else {
-    if (flags & OpenFileFlags::Write) {
-      result |= O_WRONLY;
-    } else {
-      throw Exception(u"Invalid open file flag.");
-    }
-  }
-
-  if (flags & OpenFileFlags::Append) {
-    result |= O_APPEND;
-  }
-
-  if (flags & OpenFileFlags::Create) {
-    result |= O_CREAT;
-  }
-
-  if (flags & OpenFileFlags::Truncate) {
-    result |= O_TRUNC;
-  }
-
-  return result;
+bool OflagCanSeek([[maybe_unused]] int oflag) {
+  // Treat every file seekable.
+  return true;
 }
+
+bool OflagCanRead(int oflag) { return oflag & O_RDONLY || oflag & O_RDWR; }
+
+bool OflagCanWrite(int oflag) { return oflag & O_WRONLY || oflag & O_RDWR; }
 
 int MapSeekOrigin(Stream::SeekOrigin origin) {
   switch (origin) {
@@ -55,26 +34,38 @@ int MapSeekOrigin(Stream::SeekOrigin origin) {
 }
 }  // namespace
 
-UnixFileStream::~UnixFileStream() { Close(); }
-
-UnixFileStream::UnixFileStream(String path, OpenFileFlag flags)
-    : path_(std::move(path)), flags_(flags) {
-  auto p = path_.ToUtf8();
-  file_descriptor_ =
-      ::open(p.c_str(), MapOpenFileFlag(flags_), S_IRUSR | S_IWUSR);
+UnixFileStream::UnixFileStream(const char *path, int oflag) {
+  file_descriptor_ = ::open(path, oflag);
   if (file_descriptor_ == -1) {
-    throw ErrnoException(
-        Format(u"Failed to open file {} with flags {}.", path_, flags_.value));
+    throw ErrnoException(Format(u"Failed to open file {} with oflag {}.",
+                                String::FromUtf8(path), oflag));
   }
+
+  can_seek_ = OflagCanSeek(oflag);
+  can_read_ = OflagCanRead(oflag);
+  can_write_ = OflagCanWrite(oflag);
+  auto_close_ = true;
 }
+
+UnixFileStream::UnixFileStream(int fd, bool can_seek, bool can_read,
+                               bool can_write, bool auto_close) {
+  file_descriptor_ = fd;
+  can_seek_ = can_seek;
+  can_read_ = can_read;
+  can_write_ = can_write;
+  auto_close_ = auto_close;
+}
+
+UnixFileStream::~UnixFileStream() { Close(); }
 
 bool UnixFileStream::CanSeek() {
   CheckClosed();
-  return true;
+  return can_seek_;
 }
 
 Index UnixFileStream::Seek(Index offset, SeekOrigin origin) {
   CheckClosed();
+  StreamOperationNotSupportedException::CheckSeek(can_seek_);
   off_t result = ::lseek(file_descriptor_, offset, MapSeekOrigin(origin));
   if (result == -1) {
     throw ErrnoException(u"Failed to seek file.");
@@ -84,11 +75,12 @@ Index UnixFileStream::Seek(Index offset, SeekOrigin origin) {
 
 bool UnixFileStream::CanRead() {
   CheckClosed();
-  return flags_ & OpenFileFlags::Read;
+  return can_read_;
 }
 
 Index UnixFileStream::Read(std::byte *buffer, Index offset, Index size) {
   CheckClosed();
+  StreamOperationNotSupportedException::CheckRead(can_read_);
   auto result = ::read(file_descriptor_, buffer + offset, size);
   if (result == -1) {
     throw ErrnoException(u"Failed to read file.");
@@ -98,11 +90,12 @@ Index UnixFileStream::Read(std::byte *buffer, Index offset, Index size) {
 
 bool UnixFileStream::CanWrite() {
   CheckClosed();
-  return flags_ & OpenFileFlags::Write;
+  return can_write_;
 }
 
 Index UnixFileStream::Write(const std::byte *buffer, Index offset, Index size) {
   CheckClosed();
+  StreamOperationNotSupportedException::CheckWrite(can_write_);
   auto result = ::write(file_descriptor_, buffer + offset, size);
   if (result == -1) {
     throw ErrnoException(u"Failed to write file.");
@@ -111,16 +104,14 @@ Index UnixFileStream::Write(const std::byte *buffer, Index offset, Index size) {
 }
 
 void UnixFileStream::Close() {
-  if (closed_) return;
+  if (file_descriptor_ < 0) return;
   if (::close(file_descriptor_) == -1) {
     throw ErrnoException(u"Failed to close file.");
   }
-  closed_ = true;
+  file_descriptor_ = -1;
 }
 
 void UnixFileStream::CheckClosed() {
-  if (closed_) {
-    throw Exception(u"File is closed.");
-  }
+  StreamAlreadyClosedException::Check(file_descriptor_ < 0);
 }
 }  // namespace cru::platform::unix

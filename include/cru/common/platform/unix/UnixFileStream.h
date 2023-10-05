@@ -4,14 +4,14 @@
 
 #ifdef CRU_PLATFORM_UNIX
 
-#include "../../String.h"
-#include "../../io/OpenFileFlag.h"
 #include "../../io/Stream.h"
 
 namespace cru::platform::unix {
 class UnixFileStream : public io::Stream {
  public:
-  UnixFileStream(String path, io::OpenFileFlag flags);
+  UnixFileStream(const char* path, int oflag);
+  UnixFileStream(int fd, bool can_seek, bool can_read, bool can_write,
+                 bool auto_close);
 
   CRU_DELETE_COPY(UnixFileStream)
   CRU_DELETE_MOVE(UnixFileStream)
@@ -36,10 +36,11 @@ class UnixFileStream : public io::Stream {
   void CheckClosed();
 
  private:
-  String path_;
-  io::OpenFileFlag flags_;
-  int file_descriptor_;
-  bool closed_ = false;
+  int file_descriptor_;  // -1 for no file descriptor
+  bool can_seek_;
+  bool can_read_;
+  bool can_write_;
+  bool auto_close_;
 };
 }  // namespace cru::platform::unix
 
