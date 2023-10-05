@@ -1,5 +1,5 @@
 #include "cru/ui/ThemeResourceDictionary.h"
-#include "cru/common/io/FileStream.h"
+#include "cru/common/io/CFileStream.h"
 #include "cru/common/log/Logger.h"
 #include "cru/xml/XmlNode.h"
 #include "cru/xml/XmlParser.h"
@@ -8,7 +8,7 @@ namespace cru::ui {
 
 std::unique_ptr<ThemeResourceDictionary> ThemeResourceDictionary::FromFile(
     const String& file_path) {
-  io::FileStream stream(file_path, io::OpenFileFlags::Read);
+  io::CFileStream stream(file_path.ToUtf8().c_str(), "r");
   auto xml_string = stream.ReadAllAsString();
   auto parser = xml::XmlParser(xml_string);
   return std::make_unique<ThemeResourceDictionary>(parser.Parse(), false);
