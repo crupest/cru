@@ -1,7 +1,7 @@
 #include "cru/common/platform/unix/UnixFileStream.h"
+#include "cru/common/Exception.h"
 #include "cru/common/Format.h"
 #include "cru/common/io/Stream.h"
-#include "cru/common/platform/unix/ErrnoException.h"
 
 #include <fcntl.h>
 #include <sys/fcntl.h>

@@ -21,7 +21,6 @@ target_compile_definitions(CruBase PUBLIC $<$<CONFIG:Debug>:CRU_DEBUG>)
 
 if (UNIX AND NOT EMSCRIPTEN)
 	target_sources(CruBase PRIVATE
-		platform/unix/ErrnoException.cpp
 		platform/unix/UnixFileStream.cpp
 	)
 
