@@ -11,11 +11,14 @@ using OpenFileFlag = Bitmask<details::OpenFileFlagTag>;
 struct OpenFileFlags {
   /**
    * \brief for reading
+   * If the file does not exist, FileNotExistException should be thrown.
    */
   static constexpr OpenFileFlag Read{0x1};
 
   /**
    * \brief for writing
+   * If the file does not exist and Create is not specified,
+   * FileNotExistException should be thrown.
    */
   static constexpr OpenFileFlag Write{0x2};
 
@@ -34,7 +37,8 @@ struct OpenFileFlags {
 
   /**
    * \brief when writing, if the file does not exist, create one
-   * Only effective for writing.
+   * Only effective for writing. When file does not exist, FileNotExistException
+   * will NOT be thrown and a new file will be created.
    */
   static constexpr OpenFileFlag Create{0x10};
 
@@ -43,4 +47,10 @@ struct OpenFileFlags {
    */
   static constexpr OpenFileFlag Exclusive{0x20};
 };
+
+/**
+ * Append, Truncate, Create must be used with Write.
+ * Append and Truncate must not be used together.
+ */
+bool CheckOpenFileFlag(OpenFileFlag flags);
 }  // namespace cru::io

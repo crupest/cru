@@ -20,6 +20,9 @@ class CRU_BASE_API Exception : public std::exception {
 
   const char* what() const noexcept override;
 
+ protected:
+  void SetMessage(String message) { message_ = std::move(message); }
+
  private:
   String message_;
   mutable std::string utf8_message_;

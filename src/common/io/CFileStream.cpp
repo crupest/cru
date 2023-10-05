@@ -46,22 +46,41 @@ CFileStream::CFileStream(std::FILE* file, bool readable, bool writable,
 }
 
 namespace {
-std::string ConvertOpenFileFlagToCFileFlag(OpenFileFlag flags) {
+/**
+ *  Generally the fopen will return a NULL ptr if the file does not exist. Then
+ * we must throw FileNotExistException. However, there are cases we have to
+ * check existence explicitly before. The case is OpenFileFlags::Write is
+ * specified but OpenFileFlags::Create is not, in which fopen usually create a
+ * new file automatically but we want a FileNotExistException to be thrown.
+ */
+std::string ConvertOpenFileFlagToCFileFlag(OpenFileFlag flags,
+                                           bool* explicit_check_exist) {
+  *explicit_check_exist = false;
+
   std::string result;
+
   bool need_read = flags & OpenFileFlags::Read;
   bool need_write = flags & OpenFileFlags::Write;
-  bool append = flags & OpenFileFlags::Append;
 
   if (!need_write) {
     // No need to write? The simplest
+    // Note even OpenFileFlags::Create is set, we still have to check exist.
     return "r";
   }
 
   // Now we need writing.
-  if (!need_read) {
 
+  bool create = OpenFileFlags::Create;
+
+  if (!create) {
+    *explicit_check_exist = true;
   }
 
+  bool append = flags & OpenFileFlags::Append;
+
+  if (!need_read) {
+    return "w";
+  }
 }
 }  // namespace
 

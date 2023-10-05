@@ -1,6 +1,6 @@
 #include "cru/common/Base.h"
 
-#include <stdexcept>
+#include <exception>
 
 namespace cru {
 void UnreachableCode() { std::terminate(); }

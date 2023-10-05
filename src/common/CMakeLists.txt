@@ -7,6 +7,7 @@ add_library(CruBase
 	StringToNumberConverter.cpp
 	StringUtil.cpp
 	io/CFileStream.cpp
+	io/FileNotExistException.cpp
 	io/Stream.cpp
 	io/Resource.cpp
 	io/MemoryStream.cpp
