@@ -44,7 +44,6 @@ if (EMSCRIPTEN)
 
 	target_sources(CruBase PRIVATE
 		platform/web/WebException.cpp
-		platform/web/WebFileStream.cpp
 	)
 endif()
 
