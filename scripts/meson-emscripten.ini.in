@@ -25,3 +25,6 @@ neon = 'disabled'
 a64-neon = 'disabled'
 iwmmxt = 'disabled'
 mips-dspr2 = 'disabled'
+tests = 'disabled'
+demos = 'disabled'
+
