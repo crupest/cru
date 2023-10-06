@@ -1,0 +1,27 @@
+[constants]
+emscripten = '${EMSCRIPTEN_TOOLCHAIN}'
+
+[binaries]
+c = emscripten / 'emcc'
+cpp = emscripten / 'em++'
+c_ld = emscripten / 'emcc'
+cpp_ld = emscripten / 'emcc'
+ar = emscripten / 'emar'
+nm = emscripten / 'emnm'
+ranlid =emscripten / 'emranlib'
+strip = emscripten / 'emstrip'
+
+[built-in options]
+default_library = 'static'
+
+[pixman:project options]
+loongson-mmi = 'disabled'
+mmx = 'disabled'
+sse2 = 'disabled'
+ssse3 = 'disabled'
+vmx = 'disabled'
+arm-simd = 'disabled'
+neon = 'disabled'
+a64-neon = 'disabled'
+iwmmxt = 'disabled'
+mips-dspr2 = 'disabled'

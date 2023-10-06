@@ -50,3 +50,6 @@ endfunction()
 add_subdirectory(src)
 add_subdirectory(test)
 add_subdirectory(demos)
+
+include(scripts/cmake/cairo.cmake)
+
