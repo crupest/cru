@@ -11,7 +11,7 @@ if(WIN32)
 	add_subdirectory(InputMethod)
 	add_subdirectory(SvgPath)
 elseif(APPLE)
-	add_subdirectory(graphics)
+	add_subdirectory(Graphics/DrawCircle)
 
 	add_subdirectory(main)
 	add_subdirectory(ScrollView)

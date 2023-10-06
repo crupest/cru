@@ -1,15 +1,13 @@
 #include "cru/common/io/CFileStream.h"
 #include "cru/platform/Color.h"
-#include "cru/platform/bootstrap/Bootstrap.h"
 #include "cru/platform/graphics/Factory.h"
 #include "cru/platform/graphics/ImageFactory.h"
 #include "cru/platform/graphics/Painter.h"
 
 #include <memory>
 
-int main() {
-  std::unique_ptr<cru::platform::graphics::IGraphicsFactory> graphics_factory(
-      cru::platform::bootstrap::CreateGraphicsFactory());
+namespace cru::demos::graphics {
+  void DrawCircle(platform::graphics::IGraphicsFactory* graphics_factory) {
 
   auto image = graphics_factory->GetImageFactory()->CreateBitmap(500, 500);
 
@@ -26,6 +24,6 @@ int main() {
   graphics_factory->GetImageFactory()->EncodeToStream(
       image.get(), &file_stream, cru::platform::graphics::ImageFormat::Png,
       1.0f);
-
-  return 0;
+  }
 }
+

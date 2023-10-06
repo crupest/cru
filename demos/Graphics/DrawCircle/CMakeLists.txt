@@ -1,0 +1,5 @@
+add_executable(CruDemoGraphicsDrawCircle DrawCircle.cpp PlatformMain.cpp)
+add_executable(CruDemoGraphicsDrawCircleCairo DrawCircle.cpp CairoMain.cpp)
+
+target_link_libraries(CruDemoGraphicsDrawCircle PRIVATE CruDemoBase)
+target_link_libraries(CruDemoGraphicsDrawCircleCairo PRIVATE CruDemoBase CruPlatformGraphicsCairo)
