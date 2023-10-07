@@ -4,7 +4,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(CRU_DEFAULT_BUILD_SHARED_LIBS ON)
 if (EMSCRIPTEN)
-	# Webassembly has no idea about static/dynamic libraries.
+	# WebAssembly has no idea about static/dynamic libraries.
 	set(CRU_DEFAULT_BUILD_SHARED_LIBS OFF)
 endif()
 
