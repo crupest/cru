@@ -1,13 +1,12 @@
 #pragma once
-#include "cru/common/Base.h"
-#include "cru/platform/Base.h"
+#include "Base.h"
 
+#include "cru/common/Base.h"
 #include "cru/common/Format.h"
 #include "cru/common/String.h"
 
 #include <cstdint>
 #include <optional>
-#include <string_view>
 #include <unordered_map>
 
 namespace cru::platform {

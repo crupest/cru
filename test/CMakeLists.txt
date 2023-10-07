@@ -9,7 +9,7 @@ endif()
 
 function(cru_catch_discover_tests target)
 	if (EMSCRIPTEN)
-		message("Emscripten, not do catch_discover_tests for " target)
+		message("Emscripten, not do catch_discover_tests for " ${target})
 	else()
 		catch_discover_tests(target)
 	endif()
