@@ -7,6 +7,6 @@
 namespace cru::platform::graphics::web_canvas {
 class WebCanvasPainter: public WebCanvasResource, public virtual IPainter {
   public:
-    WebCanvasPainter(WebCanvasGraphicsFactory* factory);
+    WebCanvasPainter(WebCanvasGraphicsFactory* factory, emscripten::val context);
 };
 }
