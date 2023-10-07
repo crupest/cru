@@ -4,10 +4,10 @@ find_program(NINJA ninja REQUIRED)
 set(CAIRO_BUILD_DIR ${CMAKE_BINARY_DIR}/cairo/build)
 set(CAIRO_INSTALL_DIR ${CMAKE_BINARY_DIR}/cairo/install)
 
-set(CAIRO_MESON_SETUP meson setup ${CAIRO_BUILD_DIR} --prefix=${CAIRO_INSTALL_DIR} --reconfigure)
+set(CAIRO_MESON_SETUP meson setup ${CAIRO_BUILD_DIR} --prefix=${CAIRO_INSTALL_DIR})
 
 if(EMSCRIPTEN)
-    FILE(REAL_PATH ${CMAKE_C_COMPILER}/.. EMSCRIPTEN_TOOLCHAIN)
+    cmake_path(GET CMAKE_C_COMPILER PARENT_PATH EMSCRIPTEN_TOOLCHAIN)
     set(EMSCRIPTEN_CROSS_FILE_TEMPLATE ${PROJECT_SOURCE_DIR}/scripts/meson-emscripten.ini.in)
     set(EMSCRIPTEN_CROSS_FILE ${CAIRO_BUILD_DIR}/emscripten.ini)
     configure_file(${EMSCRIPTEN_CROSS_FILE_TEMPLATE} ${EMSCRIPTEN_CROSS_FILE})
@@ -15,7 +15,7 @@ if(EMSCRIPTEN)
 endif()
 
 add_custom_target(
-    cairo
+    cairo-build
     COMMAND mkdir -p ${CAIRO_BUILD_DIR} ${CAIRO_INSTALL_DIR}
     COMMAND ${CAIRO_MESON_SETUP}
     COMMAND ninja -C ${CAIRO_BUILD_DIR}

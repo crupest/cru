@@ -1,5 +1,6 @@
 [constants]
 emscripten = '${EMSCRIPTEN_TOOLCHAIN}'
+emscripten_flags = ['-W', '-Wno-unused-parameter', '-matomics', '-mbulk-memory']
 
 [binaries]
 c = emscripten / 'emcc'
@@ -8,11 +9,13 @@ c_ld = emscripten / 'emcc'
 cpp_ld = emscripten / 'emcc'
 ar = emscripten / 'emar'
 nm = emscripten / 'emnm'
-ranlid =emscripten / 'emranlib'
+ranlid = emscripten / 'emranlib'
 strip = emscripten / 'emstrip'
 
 [built-in options]
 default_library = 'static'
+c_args = emscripten_flags 
+cpp_args = emscripten_flags 
 
 [pixman:project options]
 loongson-mmi = 'disabled'
@@ -25,6 +28,4 @@ neon = 'disabled'
 a64-neon = 'disabled'
 iwmmxt = 'disabled'
 mips-dspr2 = 'disabled'
-tests = 'disabled'
-demos = 'disabled'
 
