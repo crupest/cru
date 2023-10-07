@@ -36,6 +36,9 @@ endif()
 
 if (EMSCRIPTEN)
 	add_dependencies(CruPlatformGraphicsCairo build-meson-projects)
-	target_link_libraries(CruPlatformGraphicsCairo PUBLIC CruPlatformGraphics PUBLIC ${MESON_PROJECTS_INSTALL_DIR}/lib/libcairo.a)
+	target_link_libraries(CruPlatformGraphicsCairo PUBLIC CruPlatformGraphics PUBLIC
+		${MESON_PROJECTS_INSTALL_DIR}/lib/libcairo.a 
+		${MESON_PROJECTS_INSTALL_DIR}/lib/libpango.a
+	)
 	target_include_directories(CruPlatformGraphicsCairo PUBLIC ${MESON_PROJECTS_INSTALL_DIR}/include)
 endif()
