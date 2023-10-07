@@ -4,11 +4,13 @@
 #include "cru/platform/Resource.h"
 
 namespace cru::platform::graphics::web_canvas {
+class WebCanvasGraphicsFactory;
+
 class WebCanvasResource : public Object, public virtual IPlatformResource {
  public:
   static const String kPlatformId;
 
-  WebCanvasResource();
+  explicit WebCanvasResource(WebCanvasGraphicsFactory* factory);
 
   CRU_DELETE_COPY(WebCanvasResource)
   CRU_DELETE_MOVE(WebCanvasResource)
@@ -17,5 +19,10 @@ class WebCanvasResource : public Object, public virtual IPlatformResource {
 
  public:
   String GetPlatformId() const override;
+
+  WebCanvasGraphicsFactory* GetFactory() const { return factory_; }
+
+ private:
+  WebCanvasGraphicsFactory* factory_;
 };
 }  // namespace cru::platform::graphics::web_canvas

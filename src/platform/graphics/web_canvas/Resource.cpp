@@ -3,7 +3,8 @@
 namespace cru::platform::graphics::web_canvas {
 const String WebCanvasResource::kPlatformId = u"WebCanvas";
 
-WebCanvasResource::WebCanvasResource() {}
+WebCanvasResource::WebCanvasResource(WebCanvasGraphicsFactory* factory)
+    : factory_(factory) {}
 
 WebCanvasResource::~WebCanvasResource() {}
 

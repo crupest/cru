@@ -1,6 +1,7 @@
 add_library(CruPlatformGraphicsWebCanvas
 	Brush.cpp
 	Factory.cpp
+	Painter.cpp
 	Resource.cpp
 )
 
