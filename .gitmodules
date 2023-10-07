@@ -7,6 +7,3 @@
 [submodule "lib/Catch2"]
 	path = lib/Catch2
 	url = https://github.com/catchorg/Catch2.git
-[submodule "lib/cairo"]
-	path = lib/cairo
-	url = https://gitlab.freedesktop.org/cairo/cairo.git

@@ -47,7 +47,7 @@ function(target_add_resources target res_dir)
 	endforeach(RES_FILE)
 endfunction()
 
-include(scripts/cmake/cairo.cmake)
+include(scripts/cmake/meson-projects.cmake)
 
 add_subdirectory(src)
 add_subdirectory(test)

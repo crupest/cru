@@ -35,7 +35,7 @@ if (UNIX AND NOT EMSCRIPTEN) # It's so great to see emscripten is somewhat UNIX!
 endif()
 
 if (EMSCRIPTEN)
-	add_dependencies(CruPlatformGraphicsCairo cairo-build)
-	target_link_libraries(CruPlatformGraphicsCairo PUBLIC CruPlatformGraphics PUBLIC ${CAIRO_INSTALL_DIR}/lib/libcairo.a)
-	target_include_directories(CruPlatformGraphicsCairo PUBLIC ${CAIRO_INSTALL_DIR}/include)
+	add_dependencies(CruPlatformGraphicsCairo build-meson-projects)
+	target_link_libraries(CruPlatformGraphicsCairo PUBLIC CruPlatformGraphics PUBLIC ${MESON_PROJECTS_INSTALL_DIR}/lib/libcairo.a)
+	target_include_directories(CruPlatformGraphicsCairo PUBLIC ${MESON_PROJECTS_INSTALL_DIR}/include)
 endif()

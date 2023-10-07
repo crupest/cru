@@ -1,0 +1,5 @@
+*
+!.gitignore
+!cairo.wrap
+!pango.wrap
+
