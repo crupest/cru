@@ -1,7 +1,19 @@
 include(Catch)
 
 add_library(CruTestBase INTERFACE)
-target_link_libraries(CruTestBase INTERFACE Catch2::Catch2WithMain)
+if (EMSCRIPTEN)
+	target_link_libraries(CruTestBase INTERFACE Catch2::Catch2)
+else()
+	target_link_libraries(CruTestBase INTERFACE Catch2::Catch2WithMain)
+endif()
+
+function(cru_catch_discover_tests target)
+	if (EMSCRIPTEN)
+		message("Emscripten, not do catch_discover_tests for " target)
+	else()
+		catch_discover_tests(target)
+	endif()
+endfunction()
 
 add_subdirectory(common)
 add_subdirectory(platform)

@@ -3,4 +3,4 @@ add_executable(CruXmlTest
 )
 target_link_libraries(CruXmlTest PRIVATE CruXml CruTestBase)
 
-catch_discover_tests(CruXmlTest)
+cru_catch_discover_tests(CruXmlTest)

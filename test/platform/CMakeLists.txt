@@ -12,4 +12,4 @@ if (UNIX AND NOT EMSCRIPTEN)
     add_subdirectory(graphics/cairo)
 endif()
 
-catch_discover_tests(CruPlatformBaseTest)
+cru_catch_discover_tests(CruPlatformBaseTest)

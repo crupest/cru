@@ -3,4 +3,4 @@ add_executable(CruTomlTest
 )
 target_link_libraries(CruTomlTest PRIVATE CruToml CruTestBase)
 
-catch_discover_tests(CruTomlTest)
+cru_catch_discover_tests(CruTomlTest)

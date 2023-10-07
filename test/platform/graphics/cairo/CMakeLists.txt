@@ -3,4 +3,4 @@ add_executable(CruPlatformGraphicsCairoTest
 )
 target_link_libraries(CruPlatformGraphicsCairoTest PRIVATE CruPlatformGraphicsCairo CruTestBase)
 
-catch_discover_tests(CruPlatformGraphicsCairoTest)
+cru_catch_discover_tests(CruPlatformGraphicsCairoTest)

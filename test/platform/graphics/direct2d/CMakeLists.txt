@@ -3,4 +3,4 @@ add_executable(CruPlatformGraphicsDirect2dTest
 )
 target_link_libraries(CruPlatformGraphicsDirect2dTest PRIVATE CruPlatformGraphicsDirect2d CruTestBase)
 
-catch_discover_tests(CruPlatformGraphicsDirect2dTest)
+cru_catch_discover_tests(CruPlatformGraphicsDirect2dTest)

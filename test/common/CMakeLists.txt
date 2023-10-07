@@ -20,4 +20,4 @@ if (WIN32)
 	)
 endif()
 
-catch_discover_tests(CruBaseTest)
+cru_catch_discover_tests(CruBaseTest)
