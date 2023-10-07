@@ -1,3 +1,16 @@
+add_library(CruPlatformGraphicsCairo
+	Base.cpp
+	CairoBrush.cpp
+	CairoGeometry.cpp
+	CairoGraphicsFactory.cpp
+	CairoImage.cpp
+	CairoImageFactory.cpp
+	CairoPainter.cpp
+	CairoResource.cpp
+	PangoFont.cpp
+	PangoTextLayout.cpp
+)
+
 if (UNIX AND NOT EMSCRIPTEN) # It's so great to see emscripten is somewhat UNIX!
 	foreach(PP IN LISTS CMAKE_SYSTEM_PREFIX_PATH)
 		cmake_path(APPEND PP "lib" ${CMAKE_LIBRARY_ARCHITECTURE})
@@ -16,19 +29,13 @@ if (UNIX AND NOT EMSCRIPTEN) # It's so great to see emscripten is somewhat UNIX!
 
 	find_library(LIB_PNG png REQUIRED)
 	
-	add_library(CruPlatformGraphicsCairo
-	    Base.cpp
-		CairoBrush.cpp
-		CairoGeometry.cpp
-		CairoGraphicsFactory.cpp
-		CairoImage.cpp
-		CairoImageFactory.cpp
-		CairoPainter.cpp
-		CairoResource.cpp
-		PangoFont.cpp
-		PangoTextLayout.cpp
-	)
 	target_compile_definitions(CruPlatformGraphicsCairo PRIVATE CRU_PLATFORM_GRAPHICS_CAIRO_EXPORT_API)
 	target_link_libraries(CruPlatformGraphicsCairo PUBLIC CruPlatformGraphics PUBLIC ${LIB_GOBJECT} ${LIB_CAIRO} ${LIB_PANGO} ${LIB_PANGOCAIRO} ${LIB_PNG})
 	target_include_directories(CruPlatformGraphicsCairo PUBLIC ${CAIRO_HEADER_DIR} ${GLIB_HEADER_DIR} ${GLIBCONFIG_HEADER_DIR} ${HARFBUZZ_HEADER_DIR} ${PANGO_HEADER_DIR})
+endif()
+
+if (EMSCRIPTEN)
+	add_dependencies(CruPlatformGraphicsCairo cairo-build)
+	target_link_libraries(CruPlatformGraphicsCairo PUBLIC CruPlatformGraphics PUBLIC ${CAIRO_INSTALL_DIR}/lib/libcairo.a)
+	target_include_directories(CruPlatformGraphicsCairo PUBLIC ${CAIRO_INSTALL_DIR}/include)
 endif()

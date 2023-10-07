@@ -20,6 +20,7 @@ elseif (APPLE)
 	add_subdirectory(gui/osx)
 elseif (EMSCRIPTEN)
 	add_subdirectory(web)
+	add_subdirectory(graphics/cairo)
 	add_subdirectory(graphics/web_canvas)
 endif()
 
