@@ -3,6 +3,7 @@ add_library(CruPlatformGraphicsWebCanvas
 	Factory.cpp
 	Painter.cpp
 	Resource.cpp
+	WebCanvasRef.cpp
 )
 
 target_link_libraries(CruPlatformGraphicsWebCanvas PUBLIC CruPlatformBaseWeb CruPlatformGraphics)
