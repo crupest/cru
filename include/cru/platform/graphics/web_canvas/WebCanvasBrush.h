@@ -2,12 +2,16 @@
 #include "../Brush.h"
 #include "WebCanvasResource.h"
 
+#include <emscripten/val.h>
+
 namespace cru::platform::graphics::web_canvas {
 class WebCanvasBrush : public WebCanvasResource, public virtual IBrush {
  public:
   explicit WebCanvasBrush(WebCanvasGraphicsFactory* factory);
 
   ~WebCanvasBrush() override;
+
+  virtual emscripten::val GetStyle() = 0;
 };
 
 class WebCanvasSolidColorBrush : public WebCanvasBrush,
@@ -23,6 +27,8 @@ class WebCanvasSolidColorBrush : public WebCanvasBrush,
   void SetColor(const Color& color) override;
 
   String GetCssColor() const;
+
+  emscripten::val GetStyle() override;
 
  private:
   Color color_;

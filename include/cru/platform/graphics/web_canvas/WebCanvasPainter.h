@@ -1,5 +1,7 @@
 #pragma once
+#include "../Brush.h"
 #include "../Painter.h"
+#include "WebCanvasBrush.h"
 #include "WebCanvasRef.h"
 #include "WebCanvasResource.h"
 
@@ -30,8 +32,17 @@ class WebCanvasPainter : public WebCanvasResource, public virtual IPainter {
 
   void Clear(const Color& color) override;
 
+  void DrawLine(const Point& start, const Point& end, IBrush* brush,
+                float width) override;
+
   emscripten::val GetCanvas2DContext() const { return context_; }
   WebCanvasRef GetCanvas();
+
+  void SetStrokeStyle(IBrush* brush, float width = 0.0f);
+  void SetFillStyle(IBrush* brush);
+
+ private:
+  WebCanvasBrush* ConvertBrush(IBrush* brush) const;
 
  private:
   Matrix current_transform_;
