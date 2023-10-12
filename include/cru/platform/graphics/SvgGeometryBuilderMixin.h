@@ -1,28 +1,22 @@
 #pragma once
 
 #include "Geometry.h"
-#include "cru/common/Base.h"
 #include "cru/common/Format.h"
 
 #include <utility>
 
 namespace cru::platform::graphics {
 /**
- * \remarks This class is purely a helper for some platforms, especially web
- * canvas. It constructs a path data of svg of a list of commands. It can't
- * generate a Geometry. Calling Build will throw a PlatformUnsupportedException.
- * Instead, use GetPathData to get svg path data and use it to do other things.
+ * \remarks This class is a helper mixin for some platforms, especially web
+ * canvas. It constructs a svg data by recording commands. Use GetPathData to
+ * get svg path data and use it to build real geometry.
  */
-class CRU_PLATFORM_GRAPHICS_API SvgGeometryBuilder
-    : public Object,
-      public virtual IGeometryBuilder {
+class CRU_PLATFORM_GRAPHICS_API SvgGeometryBuilderMixin
+    : public virtual IGeometryBuilder {
  public:
-  SvgGeometryBuilder();
+  SvgGeometryBuilderMixin();
 
-  CRU_DELETE_COPY(SvgGeometryBuilder)
-  CRU_DELETE_MOVE(SvgGeometryBuilder)
-
-  ~SvgGeometryBuilder() override;
+  ~SvgGeometryBuilderMixin() override;
 
   Point GetCurrentPosition() override;
 
@@ -51,12 +45,12 @@ class CRU_PLATFORM_GRAPHICS_API SvgGeometryBuilder
 
   void CloseFigure(bool close) override;
 
-  std::unique_ptr<IGeometry> Build() override;
-
-  String GetPathData() const { return current_; }
-
   void ParseAndApplySvgPathData(StringView path_d) override;
 
+ protected:
+  String GetPathData() const { return current_; }
+
+ private:
   template <typename... Args>
   void Append(StringView format, Args&&... args) {
     current_ += Format(format, std::forward<Args>(args)...);

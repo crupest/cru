@@ -4,9 +4,11 @@
 #include "cru/platform/web/Js.h"
 
 namespace cru::platform::graphics::web_canvas {
+bool WebCanvasGeometry::StrokeContains(float width, const Point& point) {}
+
 WebCanvasGeometryBuilder::WebCanvasGeometryBuilder(
     WebCanvasGraphicsFactory* factory)
-    : WebCanvasResource(factory) {
-  path2d_ = web::js::Construct("Path2D");
-}
+    : WebCanvasResource(factory) {}
+
+WebCanvasGeometryBuilder::~WebCanvasGeometryBuilder() {}
 }  // namespace cru::platform::graphics::web_canvas

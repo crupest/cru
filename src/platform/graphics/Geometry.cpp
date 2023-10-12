@@ -1,6 +1,7 @@
 #include "cru/platform/graphics/Geometry.h"
 
 #include "cru/common/Exception.h"
+#include "cru/platform/Exception.h"
 #include "cru/platform/graphics/Factory.h"
 
 #include <cmath>
@@ -10,6 +11,13 @@ namespace cru::platform::graphics {
 bool IGeometry::StrokeContains(float width, const Point& point) {
   auto geometry = CreateStrokeGeometry(width);
   return geometry->FillContains(point);
+}
+
+std::unique_ptr<IGeometry> IGeometry::CreateStrokeGeometry(
+    [[maybe_unused]] float width) {
+  throw PlatformUnsupportedException(GetPlatformId(), u"CreateStrokeGeometry",
+                                     u"Create stroke geometry of a geometry is "
+                                     u"not supported on this platform.");
 }
 
 void IGeometryBuilder::RelativeMoveTo(const Point& offset) {
