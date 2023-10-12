@@ -13,4 +13,8 @@ WebCanvasRef::WebCanvasRef(emscripten::val canvas_val)
 int WebCanvasRef::GetWidth() const { return val_["width"].as<int>(); }
 
 int WebCanvasRef::GetHeight() const { return val_["height"].as<int>(); }
+
+void WebCanvasRef::Save() const { val_.call<void>("save"); }
+
+void WebCanvasRef::Restore() const { val_.call<void>("restore"); }
 }  // namespace cru::platform::graphics::web_canvas

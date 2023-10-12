@@ -10,14 +10,20 @@
 namespace cru::platform::graphics::web_canvas {
 class WebCanvasGeometry : public WebCanvasResource, public virtual IGeometry {
  public:
-  WebCanvasGeometry(WebCanvasGraphicsFactory* factory, emscripten::val path2d);
+  WebCanvasGeometry(WebCanvasGraphicsFactory* factory, emscripten::val canvas,
+                    emscripten::val path2d);
   ~WebCanvasGeometry() override;
 
   bool StrokeContains(float width, const Point& point) override;
-  virtual bool FillContains(const Point& point) = 0;
-  virtual Rect GetBounds() = 0;
-  virtual std::unique_ptr<IGeometry> Transform(const Matrix& matrix) = 0;
+
+  bool FillContains(const Point& point) override;
+
+  Rect GetBounds() override;
+
+  std::unique_ptr<IGeometry> Transform(const Matrix& matrix) override;
+
  private:
+  emscripten::val canvas_;
   emscripten::val path2d_;
 };
 
@@ -27,10 +33,14 @@ class WebCanvasGeometry : public WebCanvasResource, public virtual IGeometry {
 class WebCanvasGeometryBuilder : public WebCanvasResource,
                                  public SvgGeometryBuilderMixin {
  public:
-  WebCanvasGeometryBuilder(WebCanvasGraphicsFactory* factory);
+  WebCanvasGeometryBuilder(WebCanvasGraphicsFactory* factory,
+                           emscripten::val canvas);
 
   ~WebCanvasGeometryBuilder() override;
 
   std::unique_ptr<IGeometry> Build() override;
+
+ private:
+  emscripten::val canvas_;
 };
 }  // namespace cru::platform::graphics::web_canvas

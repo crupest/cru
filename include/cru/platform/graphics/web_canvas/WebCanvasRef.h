@@ -18,6 +18,9 @@ namespace cru::platform::graphics::web_canvas {
       int GetWidth() const;
       int GetHeight() const;
 
+      void Save() const;
+      void Restore() const;
+
     private:
       emscripten::val val_;
   };

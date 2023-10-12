@@ -7,18 +7,11 @@ namespace cru::platform::graphics {
 /**
  * \remarks Geometry implementation is a disaster zone of platform problems.
  * Here are some notes. For geometry object:
- * 1. Some platforms just lack the concept of geometry, like web canvas. Even if
- * there is one, it usually has limited capabilities. They only allow you to
- * create path right on the context and use it directly. The geometry itself
- * can't be separated from context and stored independently, not to mention run
- * some functions. You can't even create a geometry from current state of
- * context. In one word, context -x-> geometry, geometry is weak.
- * 2. Doing hit test right on the geometry is not supported on some platform.
- * The geometry needs to be put on the context first.
- * 3. Transform a geometry to create a new geometry is not supported on some
- * platforms. You can transform the context, but no for geometry itself
- * independently.
- * 4. Create a geometry of a stroke of another geometry is not suppored more
+ * 1. Some platforms just lack the concept of geometry. Even if there is one, it
+ * usually has limited capabilities.
+ * 2. Doing hit test right on the geometry out of context is not supported on
+ * some platform. The geometry needs to be put on the context first.
+ * 3. Create a geometry of a stroke of another geometry is not suppored more
  * widely.
  *
  * Workarounds:
@@ -26,15 +19,7 @@ namespace cru::platform::graphics {
  * so far, record the commands and replay it on context when it is used.
  * 2. If the geometry can't do hit test itself, always attach a canvas with it,
  * and when do hit test, put it on context first.
- * 3. If transform a geometry to create a new geometry is not supported, zip the
- * original geometry and a transform matrix. When it is used on context, restore
- * geometry and matrix the same time.
- * 4. There is no good workaround for 4, so don't use it, maybe.
- *
- * Also note for 3, even we can workaround like that, but there are cases it
- * does not work. Like if we add the support for adding an existing path to a
- * new path, transform can only be performed on context and we can't construct a
- * geometry from context, then it fails.
+ * 3. There is no good workaround for 4, so don't use it, maybe.
  *
  * For geometry builder:
  * It is hard to conclude the common commands of all platforms. Some have this,
