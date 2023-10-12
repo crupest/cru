@@ -257,11 +257,6 @@ extern const std::unordered_map<StringView, Color> predefined_name_color_map;
 
 std::optional<Color> GetPredefinedColorByName(StringView name);
 
-inline String ToString(const Color& color) {
-  return cru::Format(u"rgba({}, {}, {}, {})", color.red, color.green,
-                     color.blue, color.alpha);
-}
-
 struct CRU_PLATFORM_API HslColor {
   HslColor() = default;
   HslColor(float h, float s, float l, float a = 1.0f)
@@ -276,3 +271,10 @@ struct CRU_PLATFORM_API HslColor {
   float a;
 };
 }  // namespace cru::platform
+
+namespace cru {
+inline String ToString(const platform::Color& color) {
+  return cru::Format(u"rgba({}, {}, {}, {})", color.red, color.green,
+                     color.blue, color.alpha);
+}
+}  // namespace cru
