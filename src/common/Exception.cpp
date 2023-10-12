@@ -19,6 +19,15 @@ const char* Exception::what() const noexcept {
   return utf8_message_.c_str();
 }
 
+void Exception::AppendMessage(StringView additional_message) {
+  message_ += u" ";
+  message_ += additional_message;
+}
+
+void Exception::AppendMessage(std::optional<StringView> additional_message) {
+  if (additional_message) AppendMessage(*additional_message);
+}
+
 ErrnoException::ErrnoException(const String& message)
     : ErrnoException(message, errno) {}
 

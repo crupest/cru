@@ -1,6 +1,8 @@
 #pragma once
 #include "String.h"
 
+#include <optional>
+
 namespace cru {
 #ifdef _MSC_VER
 #pragma warning(disable : 4275)
@@ -22,6 +24,9 @@ class CRU_BASE_API Exception : public std::exception {
 
  protected:
   void SetMessage(String message) { message_ = std::move(message); }
+
+  void AppendMessage(StringView additional_message);
+  void AppendMessage(std::optional<StringView> additional_message);
 
  private:
   String message_;

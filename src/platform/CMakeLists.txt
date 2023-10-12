@@ -1,6 +1,7 @@
 add_library(CruPlatformBase
 	ForDllExport.cpp
 	Color.cpp
+	Exception.cpp
 	GraphicsBase.cpp
 )
 target_link_libraries(CruPlatformBase PUBLIC CruBase)

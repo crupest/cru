@@ -2,7 +2,6 @@
 #include "Exception.h"
 #include "Resource.h"
 
-#include "cru/common/Format.h"
 #include "cru/common/String.h"
 
 #include <memory>
@@ -15,10 +14,9 @@ TTarget* CheckPlatform(IPlatformResource* resource,
   if (resource == nullptr) return nullptr;
   const auto result = dynamic_cast<TTarget*>(resource);
   if (result == nullptr) {
-    throw UnsupportPlatformException(Format(
-        u"Try to convert resource to target platform failed. Platform id of "
-        "resource to convert: {} . Target platform id: {} .",
-        resource->GetPlatformId(), target_platform));
+    throw PlatformNotMatchException(
+        resource->GetPlatformId(), target_platform,
+        u"Try to convert resource to target platform failed.");
   }
   return result;
 }
@@ -31,10 +29,9 @@ std::shared_ptr<TTarget> CheckPlatform(const std::shared_ptr<TSource>& resource,
                 "TSource must be a subclass of INativeResource.");
   const auto result = std::dynamic_pointer_cast<TTarget>(resource);
   if (result == nullptr) {
-    throw UnsupportPlatformException(Format(
-        u"Try to convert resource to target platform failed. Platform id of "
-        "resource to convert: {} . Target platform id: {} .",
-        resource->GetPlatformId(), target_platform));
+    throw PlatformNotMatchException(
+        resource->GetPlatformId(), target_platform,
+        u"Try to convert resource to target platform failed.");
   }
   return result;
 }
