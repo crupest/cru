@@ -59,6 +59,29 @@ void WebCanvasPainter::DrawLine(const Point& start, const Point& end,
   context_.call<void>("stroke");
 }
 
+void WebCanvasPainter::StrokeRectangle(const Rect& rectangle, IBrush* brush,
+                                       float width) {
+  SetStrokeStyle(brush, width);
+  context_.call<void>("strokeRect", rectangle.left, rectangle.top,
+                      rectangle.width, rectangle.height);
+}
+
+void WebCanvasPainter::FillRectangle(const Rect& rectangle, IBrush* brush) {
+  SetFillStyle(brush);
+  context_.call<void>("fillRect", rectangle.left, rectangle.top,
+                      rectangle.width, rectangle.height);
+}
+
+void WebCanvasPainter::StrokeEllipse(const Rect& outline_rect, IBrush* brush,
+                                     float width) {
+  SetStrokeStyle(brush);
+  // TODO: Need to use path.
+}
+void WebCanvasPainter::FillEllipse(const Rect& outline_rect, IBrush* brush) {
+  SetFillStyle(brush);
+  // TODO: Need to use path.
+}
+
 void WebCanvasPainter::SetStrokeStyle(IBrush* brush, float width) {
   context_.set("strokeStyle", ConvertBrush(brush)->GetStyle());
   if (width > 0) {

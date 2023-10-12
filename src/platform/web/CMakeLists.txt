@@ -1,5 +1,5 @@
 add_library(CruPlatformBaseWeb
-	JsUtility.cpp
+	Js.cpp
 	Resource.cpp
 )
 

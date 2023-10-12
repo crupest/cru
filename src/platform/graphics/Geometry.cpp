@@ -12,6 +12,37 @@ bool IGeometry::StrokeContains(float width, const Point& point) {
   return geometry->FillContains(point);
 }
 
+void IGeometryBuilder::RelativeMoveTo(const Point& offset) {
+  MoveTo(GetCurrentPosition() + offset);
+}
+
+void IGeometryBuilder::RelativeLineTo(const Point& offset) {
+  LineTo(GetCurrentPosition() + offset);
+}
+
+void IGeometryBuilder::RelativeCubicBezierTo(const Point& start_control_offset,
+                                             const Point& end_control_offset,
+                                             const Point& end_offset) {
+  auto current_position = GetCurrentPosition();
+  CubicBezierTo(current_position + start_control_offset,
+                current_position + end_control_offset,
+                current_position + end_offset);
+}
+
+void IGeometryBuilder::RelativeQuadraticBezierTo(const Point& control_offset,
+                                                 const Point& end_offset) {
+  auto current_position = GetCurrentPosition();
+  QuadraticBezierTo(current_position + control_offset,
+                    current_position + end_offset);
+}
+
+void IGeometryBuilder::RelativeArcTo(const Point& radius, float angle,
+                                     bool is_large_arc, bool is_clockwise,
+                                     const Point& end_offset) {
+  ArcTo(radius, angle, is_large_arc, is_clockwise,
+        GetCurrentPosition() + end_offset);
+}
+
 constexpr float PI = 3.14159265358979323846f;
 
 using std::abs;

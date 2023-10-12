@@ -35,6 +35,14 @@ class WebCanvasPainter : public WebCanvasResource, public virtual IPainter {
   void DrawLine(const Point& start, const Point& end, IBrush* brush,
                 float width) override;
 
+  void StrokeRectangle(const Rect& rectangle, IBrush* brush,
+                       float width) override;
+
+  void FillRectangle(const Rect& rectangle, IBrush* brush) override;
+  void StrokeEllipse(const Rect& outline_rect, IBrush* brush,
+                     float width) override;
+  void FillEllipse(const Rect& outline_rect, IBrush* brush) override;
+
   emscripten::val GetCanvas2DContext() const { return context_; }
   WebCanvasRef GetCanvas();
 
