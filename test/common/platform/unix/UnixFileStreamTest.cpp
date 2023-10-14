@@ -20,7 +20,7 @@ TEST_CASE("UnixFileStream Work", "[stream]") {
   file.Write("abc", 3);
   file.Close();
 
-  UnixFileStream file2(temp_file_path.c_str(), OpenFileFlags::Read);
+  UnixFileStream file2(temp_file_path.c_str(), O_RDONLY);
   auto buffer = std::make_unique<std::byte[]>(3);
   file2.Read(buffer.get(), 3);
   REQUIRE(std::string_view(reinterpret_cast<const char*>(buffer.get()), 3) ==

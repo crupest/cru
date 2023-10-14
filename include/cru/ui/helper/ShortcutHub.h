@@ -1,18 +1,14 @@
 #pragma once
 #include "../Base.h"
 
-#include "../events/UiEvents.h"
+#include "../events/KeyEventArgs.h"
 #include "cru/common/Base.h"
 #include "cru/common/Event.h"
 #include "cru/platform/gui/Keyboard.h"
 
 #include <cstddef>
 #include <functional>
-#include <memory>
 #include <optional>
-#include <string>
-#include <string_view>
-#include <type_traits>
 #include <unordered_map>
 #include <vector>
 
@@ -74,7 +70,7 @@ struct hash<cru::ui::helper::ShortcutKeyBind> {
   std::size_t operator()(const cru::ui::helper::ShortcutKeyBind& value) const {
     std::size_t result = 0;
     cru::hash_combine(result, static_cast<int>(value.GetKey()));
-    cru::hash_combine(result, static_cast<int>(value.GetModifier()));
+    cru::hash_combine(result, value.GetModifier());
     return result;
   }
 };
