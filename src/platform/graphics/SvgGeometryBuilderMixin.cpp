@@ -108,14 +108,14 @@ void SvgGeometryBuilderMixin::Append(bool flag) {
 }
 
 void SvgGeometryBuilderMixin::Append(float number) {
-  current_ += ToString(number);
+  current_ += cru::ToString(number);
   current_ += u' ';
 }
 
 void SvgGeometryBuilderMixin::Append(const Point& point) {
-  current_ += ToString(point.x);
+  current_ += cru::ToString(point.x);
   current_ += u',';
-  current_ += ToString(point.y);
+  current_ += cru::ToString(point.y);
   current_ += u' ';
 }
 }  // namespace cru::platform::graphics

@@ -5,7 +5,11 @@
 #include "cru/common/Range.h"
 #include "cru/common/String.h"
 
+#include <cstdint>
 #include <limits>
+#include <optional>
+#include <string>
+#include <utility>
 
 namespace cru::platform {
 struct Size;
@@ -43,6 +47,10 @@ constexpr bool operator!=(const Point& left, const Point& right) {
   return !(left == right);
 }
 
+inline String ToString(const Point& point) {
+  return Format(u"(x: {}, y: {})", point.x, point.y);
+}
+
 struct CRU_PLATFORM_API Size final {
   static const Size kMax;
   static const Size kZero;
@@ -78,6 +86,10 @@ constexpr bool operator==(const Size& left, const Size& right) {
 
 constexpr bool operator!=(const Size& left, const Size& right) {
   return !(left == right);
+}
+
+inline String ToString(const Size& size) {
+  return Format(u"(width: {}, height: {})", size.width, size.height);
 }
 
 struct Thickness final {
@@ -278,14 +290,3 @@ constexpr bool operator!=(const Ellipse& left, const Ellipse& right) {
 
 using TextRange = Range;
 }  // namespace cru::platform
-
-namespace cru {
-
-inline String ToString(const platform::Point& point) {
-  return Format(u"(x: {}, y: {})", point.x, point.y);
-}
-inline String ToString(const platform::Size& size) {
-  return Format(u"(width: {}, height: {})", size.width, size.height);
-}
-
-}  // namespace cru

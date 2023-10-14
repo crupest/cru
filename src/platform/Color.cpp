@@ -2,13 +2,9 @@
 
 #include <gsl/gsl>
 
-#include <algorithm>
 #include <cmath>
 #include <cstdint>
 #include <optional>
-#include <stdexcept>
-#include <string>
-#include <string_view>
 
 namespace cru::platform {
 String Color::ToString() const {

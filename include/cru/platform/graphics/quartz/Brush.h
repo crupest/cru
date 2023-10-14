@@ -6,8 +6,6 @@
 
 #include <CoreGraphics/CoreGraphics.h>
 
-#include <functional>
-
 namespace cru::platform::graphics::quartz {
 class QuartzBrush : public OsxQuartzResource, public virtual IBrush {
  public:
