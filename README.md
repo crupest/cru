@@ -10,8 +10,6 @@ It is **under heavy construction**.
 
 Check the code or fire a issue if you have any problem.
 
-[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/crupest/cru)
-
 ## build
 
 _cru_ is built with [_CMake_](https://cmake.org/).
@@ -26,6 +24,6 @@ _cru_ is built with [_CMake_](https://cmake.org/).
 
 - `demo/` contains sources of demo excutable targets. They are mostly used for integrated tests but can also be used for demonstration.
 
-- `docs/` contains docs-related things.
+- `lib/` other libraries being used.
 
 - `tools/` contains some codes of tools I wrote for development. However most of them are not used now.
