@@ -18,7 +18,11 @@ bool OflagCanSeek([[maybe_unused]] int oflag) {
   return true;
 }
 
-bool OflagCanRead(int oflag) { return oflag & O_RDONLY || oflag & O_RDWR; }
+bool OflagCanRead(int oflag) {
+  // There is a problem: O_RDONLY is 0. So we must test it specially.
+  // If it is not write-only. Then it can read.
+  return !(oflag & O_WRONLY);
+}
 
 bool OflagCanWrite(int oflag) { return oflag & O_WRONLY || oflag & O_RDWR; }
 
@@ -36,11 +40,12 @@ int MapSeekOrigin(Stream::SeekOrigin origin) {
 }
 }  // namespace
 
-UnixFileStream::UnixFileStream(const char *path, int oflag) {
-  file_descriptor_ = ::open(path, oflag);
+UnixFileStream::UnixFileStream(const char *path, int oflag, mode_t mode) {
+  file_descriptor_ = ::open(path, oflag, mode);
   if (file_descriptor_ == -1) {
-    throw ErrnoException(Format(u"Failed to open file {} with oflag {}.",
-                                String::FromUtf8(path), oflag));
+    throw ErrnoException(
+        Format(u"Failed to open file {} with oflag {}, mode {}.",
+               String::FromUtf8(path), oflag, mode));
   }
 
   can_seek_ = OflagCanSeek(oflag);

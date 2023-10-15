@@ -1,4 +1,3 @@
-#include "cru/common/io/OpenFileFlag.h"
 #include "cru/common/platform/unix/UnixFileStream.h"
 
 #include <catch2/catch_test_macros.hpp>

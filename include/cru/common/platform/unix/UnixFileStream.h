@@ -12,7 +12,7 @@ class UnixFileStream : public io::Stream {
   static constexpr auto kLogTag = u"cru::platform::unix::UnixFileStream";
 
  public:
-  UnixFileStream(const char* path, int oflag);
+  UnixFileStream(const char* path, int oflag, mode_t mode = 0660);
   UnixFileStream(int fd, bool can_seek, bool can_read, bool can_write,
                  bool auto_close);
 
