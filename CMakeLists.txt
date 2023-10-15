@@ -8,7 +8,7 @@ if (EMSCRIPTEN)
 	set(CRU_DEFAULT_BUILD_SHARED_LIBS OFF)
 endif()
 
-option(BUILD_SHARED_LIBS "Try to build shared libraries as default" CRU_DEFAULT_BUILD_SHARED_LIBS)
+option(BUILD_SHARED_LIBS "Try to build shared libraries as default" ${CRU_DEFAULT_BUILD_SHARED_LIBS})
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_EXTENSIONS OFF)
