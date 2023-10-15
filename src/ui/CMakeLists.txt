@@ -24,6 +24,8 @@ add_library(CruUi
 	controls/TextHostControlService.cpp
 	controls/TreeView.cpp
 	controls/Window.cpp
+	document/DocumentElement.cpp
+	document/DocumentElementType.cpp
 	events/MouseEventArgs.cpp
 	helper/ClickDetector.cpp
 	helper/ShortcutHub.cpp
