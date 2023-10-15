@@ -47,7 +47,8 @@ function(target_add_resources target res_dir)
 	endforeach(RES_FILE)
 endfunction()
 
-include(scripts/cmake/meson-projects.cmake)
+# We don't use meson at present. Enable it in future.
+# include(scripts/cmake/meson-projects.cmake)
 
 add_subdirectory(src)
 add_subdirectory(test)
