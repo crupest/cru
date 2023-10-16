@@ -8,10 +8,12 @@ if (EMSCRIPTEN)
 	set(CRU_DEFAULT_BUILD_SHARED_LIBS OFF)
 endif()
 
-option(BUILD_SHARED_LIBS "Try to build shared libraries as default" ${CRU_DEFAULT_BUILD_SHARED_LIBS})
+option(CRU_BUILD_SHARED_LIBS "Try to build shared libraries as default" ${CRU_DEFAULT_BUILD_SHARED_LIBS})
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_EXTENSIONS OFF)
+
+set(BUILD_SHARED_LIBS ${CRU_BUILD_SHARED_LIBS})
 
 project(cru)
 
@@ -19,7 +21,11 @@ if (APPLE)
 	include_directories(BEFORE SYSTEM "/usr/local/include")
 endif()
 
+# Catch2 must be compiled as static library
+set(BUILD_SHARED_LIBS OFF)
 add_subdirectory(lib/Catch2)
+set(BUILD_SHARED_LIBS ${CRU_BUILD_SHARED_LIBS})
+
 add_subdirectory(lib/double-conversion)
 add_subdirectory(lib/GSL)
 
