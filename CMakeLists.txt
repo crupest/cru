@@ -1,14 +1,18 @@
 cmake_minimum_required(VERSION 3.21)
 
+# This make option variable not override normal variable.
+set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
+# Note the next line won't work because cmake policy is scoped and won't affect subdir.
+# cmake_policy(SET CMP0077 NEW)
+
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-set(CRU_DEFAULT_BUILD_SHARED_LIBS ON)
+# We default to build shared libs.
+set(BUILD_SHARED_LIBS ON)
 if (EMSCRIPTEN)
 	# WebAssembly has no idea about static/dynamic libraries.
-	set(CRU_DEFAULT_BUILD_SHARED_LIBS OFF)
+	set(BUILD_SHARED_LIBS OFF)
 endif()
-
-option(BUILD_SHARED_LIBS "Try to build shared libraries as default" ${CRU_DEFAULT_BUILD_SHARED_LIBS})
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -19,7 +23,12 @@ if (APPLE)
 	include_directories(BEFORE SYSTEM "/usr/local/include")
 endif()
 
+# Catch2 requires static link.
+set(OLD_BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})
+set(BUILD_SHARED_LIBS OFF)
 add_subdirectory(lib/Catch2)
+set(BUILD_SHARED_LIBS ${OLD_BUILD_SHARED_LIBS})
+
 add_subdirectory(lib/double-conversion)
 add_subdirectory(lib/GSL)
 
