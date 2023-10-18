@@ -57,7 +57,7 @@ class CRU_UI_API WindowHost : public Object, public SelfResolvable<WindowHost> {
   }
 
   void Relayout();
-  void RelayoutWithSize(const Size& available_size = Size::Infinate(),
+  void RelayoutWithSize(const Size& available_size = Size::Infinite(),
                         bool set_window_size_to_fit_content = false);
 
   void Repaint();

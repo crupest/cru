@@ -180,7 +180,7 @@ void WindowHost::SetLayoutPreferToFillWindow(bool value) {
 
 void WindowHost::Relayout() {
   const auto available_size =
-      native_window_ ? native_window_->GetClientSize() : Size::Infinate();
+      native_window_ ? native_window_->GetClientSize() : Size::Infinite();
   RelayoutWithSize(available_size);
 }
 

@@ -5,11 +5,7 @@
 #include "cru/common/Range.h"
 #include "cru/common/String.h"
 
-#include <cstdint>
 #include <limits>
-#include <optional>
-#include <string>
-#include <utility>
 
 namespace cru::platform {
 struct Size;
@@ -61,7 +57,7 @@ struct CRU_PLATFORM_API Size final {
   explicit constexpr Size(const Point& point)
       : width(point.x), height(point.y) {}
 
-  constexpr static Size Infinate() {
+  constexpr static Size Infinite() {
     return Size{std::numeric_limits<float>::max(),
                 std::numeric_limits<float>::max()};
   }
