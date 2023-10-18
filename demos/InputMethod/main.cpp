@@ -1,4 +1,5 @@
 #include "cru/platform/Color.h"
+#include "cru/platform/GraphicsBase.h"
 #include "cru/platform/bootstrap/Bootstrap.h"
 #include "cru/platform/graphics/Factory.h"
 #include "cru/platform/graphics/Font.h"
@@ -7,12 +8,20 @@
 #include "cru/platform/gui/UiApplication.h"
 #include "cru/platform/gui/Window.h"
 
-int main() {
-  using namespace cru;
-  using namespace cru::platform;
-  using namespace cru::platform::graphics;
-  using namespace cru::platform::gui;
+#include <optional>
 
+using namespace cru;
+using namespace cru::platform;
+using namespace cru::platform::graphics;
+using namespace cru::platform::gui;
+
+struct InputMethodState {
+  CompositionText composition_text;
+  Rect cursor_rect;
+  TextRange colored_text_range;
+};
+
+int main() {
   IUiApplication* application = bootstrap::CreateUiApplication();
 
   auto graphics_factory = application->GetGraphicsFactory();
@@ -33,22 +42,30 @@ int main() {
 
   std::shared_ptr<IFont> font = graphics_factory->CreateFont(String{}, 30);
 
-  float window_width = 10000;
-
   auto prompt_text_layout =
       graphics_factory->CreateTextLayout(font,
                                          u"Ctrl+1: Enable IME\n"
                                          u"Ctrl+2: Disable IME\n"
                                          u"Ctrl+3: Complete composition.\n"
                                          u"Ctrl+4: Cancel composition.");
+  float anchor_y;
 
-  std::optional<CompositionText> optional_composition_text;
   String committed_text;
+  auto text_layout = graphics_factory->CreateTextLayout(font, u"");
+  std::optional<InputMethodState> state;
+
+  auto update_text_layout_width = [&prompt_text_layout, &anchor_y,
+                                   &text_layout](float width) {
+    prompt_text_layout->SetMaxWidth(width);
+    text_layout->SetMaxWidth(width);
+    anchor_y = prompt_text_layout->GetTextBounds().height;
+  };
+
+  update_text_layout_width(window->GetClientSize().width);
 
   window->ResizeEvent()->AddHandler(
-      [&prompt_text_layout, &window_width](const Size& size) {
-        prompt_text_layout->SetMaxWidth(size.width);
-        window_width = size.width;
+      [&update_text_layout_width](const Size& size) {
+        update_text_layout_width(size.width);
       });
 
   window->PaintEvent()->AddHandler([&](auto) {
@@ -57,16 +74,8 @@ int main() {
 
     painter->DrawText(Point{}, prompt_text_layout.get(), brush.get());
 
-    const auto anchor_y = prompt_text_layout->GetTextBounds().height;
-
-    auto text_layout = graphics_factory->CreateTextLayout(
-        font, committed_text + (optional_composition_text
-                                    ? optional_composition_text->text
-                                    : u""));
-    text_layout->SetMaxWidth(window_width);
-
-    if (optional_composition_text) {
-      const auto& composition_text = *optional_composition_text;
+    if (state) {
+      const auto& composition_text = state->composition_text;
 
       for (int i = 0; i < static_cast<int>(composition_text.clauses.size());
            i++) {
@@ -85,19 +94,13 @@ int main() {
 
     painter->DrawText(Point{0, anchor_y}, text_layout.get(), brush.get());
 
-    if (optional_composition_text) {
-      const auto& composition_text = *optional_composition_text;
+    if (state) {
+      const auto& composition_text = state->composition_text;
+      const auto& cursor_rect = state->cursor_rect;
 
-      const auto cursor_pos = composition_text.selection.position +
-                              gsl::narrow_cast<int>(committed_text.size());
-
-      const auto cursor_lefttop =
-          text_layout->TextSinglePoint(cursor_pos, false);
-
-      painter->FillRectangle(
-          Rect{cursor_lefttop.left, cursor_lefttop.top + anchor_y, 3,
-               cursor_lefttop.height},
-          brush.get());
+      painter->FillRectangle(Rect{cursor_rect.left, cursor_rect.top + anchor_y,
+                                  3, cursor_rect.height},
+                             brush.get());
     }
 
     painter->EndDraw();
@@ -131,15 +134,30 @@ int main() {
         window->RequestRepaint();
       });
 
-  input_method_context->CompositionEvent()->AddHandler(
-      [window, &input_method_context, &optional_composition_text](auto) {
-        optional_composition_text = input_method_context->GetCompositionText();
-        window->RequestRepaint();
-      });
+  input_method_context->CompositionEvent()->AddHandler([window,
+                                                        &input_method_context,
+                                                        &committed_text,
+                                                        &anchor_y, &state,
+                                                        &text_layout](auto) {
+    const auto composition_text = input_method_context->GetCompositionText();
+    state.emplace();
+    state->composition_text = input_method_context->GetCompositionText();
+
+    text_layout->SetText(committed_text + composition_text.text);
+
+    const auto cursor_pos = composition_text.selection.position +
+                            gsl::narrow_cast<int>(committed_text.size());
+    state->cursor_rect = text_layout->TextSinglePoint(cursor_pos, false);
+
+    input_method_context->SetCandidateWindowPosition(
+        {state->cursor_rect.left, anchor_y + state->cursor_rect.GetBottom()});
+
+    window->RequestRepaint();
+  });
 
   input_method_context->CompositionEndEvent()->AddHandler(
-      [window, &optional_composition_text](auto) {
-        optional_composition_text = std::nullopt;
+      [window, &state](auto) {
+        state = std::nullopt;
         window->RequestRepaint();
       });
 

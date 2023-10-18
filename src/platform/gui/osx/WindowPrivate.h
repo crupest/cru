@@ -2,9 +2,9 @@
 #include "cru/platform/gui/osx/Window.h"
 
 #include "cru/common/Event.h"
-#include "cru/platform/gui/osx/Cursor.h"
 #include "cru/platform/gui/TimerHelper.h"
 #include "cru/platform/gui/Window.h"
+#include "cru/platform/gui/osx/Cursor.h"
 
 #import <AppKit/AppKit.h>
 
@@ -64,9 +64,9 @@ class OsxWindowPrivate {
   OsxWindow* GetWindow() { return osx_window_; }
   NSWindow* GetNSWindow() { return window_; }
 
- private:
   Size GetScreenSize();
 
+ private:
   void CreateWindow();
 
   void UpdateCursor();

@@ -1,4 +1,5 @@
 emscripten
+clangd
 
 # cmake
 endfunction

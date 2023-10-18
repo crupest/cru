@@ -5,17 +5,17 @@
 #include "InputMethodPrivate.h"
 #include "cru/common/Range.h"
 #include "cru/common/log/Logger.h"
-#include "cru/platform/osx/Convert.h"
+#include "cru/platform/Check.h"
+#include "cru/platform/graphics/NullPainter.h"
 #include "cru/platform/graphics/quartz/Convert.h"
 #include "cru/platform/graphics/quartz/Painter.h"
+#include "cru/platform/gui/TimerHelper.h"
 #include "cru/platform/gui/osx/Cursor.h"
 #include "cru/platform/gui/osx/InputMethod.h"
 #include "cru/platform/gui/osx/Keyboard.h"
 #include "cru/platform/gui/osx/Resource.h"
 #include "cru/platform/gui/osx/UiApplication.h"
-#include "cru/platform/Check.h"
-#include "cru/platform/graphics/NullPainter.h"
-#include "cru/platform/gui/TimerHelper.h"
+#include "cru/platform/osx/Convert.h"
 
 #include <AppKit/AppKit.h>
 #include <Foundation/Foundation.h>
@@ -28,8 +28,8 @@ namespace {
 constexpr int key_down_debug = 0;
 }
 
-using cru::platform::osx::Convert;
 using cru::platform::graphics::quartz::Convert;
+using cru::platform::osx::Convert;
 
 namespace cru::platform::gui::osx {
 namespace {
@@ -39,7 +39,7 @@ inline NSWindowStyleMask CalcWindowStyleMask(WindowStyleFlag flag) {
              : NSWindowStyleMaskTitled | NSWindowStyleMaskClosable |
                    NSWindowStyleMaskMiniaturizable | NSWindowStyleMaskResizable;
 }
-}
+}  // namespace
 
 namespace details {
 OsxWindowPrivate::OsxWindowPrivate(OsxWindow* osx_window) : osx_window_(osx_window) {
@@ -213,7 +213,7 @@ Rect OsxWindowPrivate::RetrieveContentRect() {
   return cru::platform::graphics::quartz::Convert(rect);
 }
 
-}
+}  // namespace details
 
 OsxWindow::OsxWindow(OsxUiApplication* ui_application)
     : OsxGuiResource(ui_application), p_(new details::OsxWindowPrivate(this)) {}
@@ -400,7 +400,7 @@ IEvent<NativeKeyEventArgs>* OsxWindow::KeyDownEvent() { return &p_->key_down_eve
 IEvent<NativeKeyEventArgs>* OsxWindow::KeyUpEvent() { return &p_->key_up_event_; }
 
 IInputMethodContext* OsxWindow::GetInputMethodContext() { return p_->input_method_context_.get(); }
-}
+}  // namespace cru::platform::gui::osx
 
 namespace {
 cru::platform::gui::KeyModifier GetKeyModifier(NSEvent* event) {
@@ -415,7 +415,7 @@ cru::platform::gui::KeyModifier GetKeyModifier(NSEvent* event) {
     key_modifier |= cru::platform::gui::KeyModifiers::command;
   return key_modifier;
 }
-}
+}  // namespace
 
 @implementation CruWindow {
   cru::platform::gui::osx::details::OsxWindowPrivate* _p;
@@ -597,7 +597,7 @@ const std::unordered_set<KeyCode> input_context_handle_codes{
     KeyCode::Equal,
     KeyCode::GraveAccent,
 };
-}
+}  // namespace
 
 const std::unordered_set<KeyCode> input_context_handle_codes_when_has_text{
     KeyCode::Backspace, KeyCode::Space, KeyCode::Return, KeyCode::Left,
@@ -738,20 +738,28 @@ const std::unordered_set<KeyCode> input_context_handle_codes_when_has_text{
   // cru::CRU_LOG_DEBUG(u"CruView", u"Finish composition: {}, replacement range: ({}, {})", ss,
   //                    replacementRange.location, replacementRange.length);
 
+  _input_context_p->RaiseTextEvent(ss);
   _input_context_p->RaiseCompositionEvent();
   _input_context_p->RaiseCompositionEndEvent();
-  _input_context_p->RaiseTextEvent(ss);
 }
 
 - (NSUInteger)characterIndexForPoint:(NSPoint)point {
   return NSNotFound;
 }
 
+// The key to composition window. It is in screen coordinate.
 - (NSRect)firstRectForCharacterRange:(NSRange)range actualRange:(NSRangePointer)actualRange {
+  const auto window_rect = _p->GetWindow()->GetClientRect();
+  auto position = _input_context_p->GetCandidateWindowPosition();
+
+  position.x += window_rect.left;
+  position.y += window_rect.top;
+  position.y = _p->GetScreenSize().height - position.y;
+
   NSRect result;
-  result.origin.x = _input_context_p->GetCandidateWindowPosition().x;
-  result.origin.y = _input_context_p->GetCandidateWindowPosition().y;
-  result.size.height = 16;
+  result.origin.x = position.x;
+  result.origin.y = position.y;
+  result.size.height = 0;
   result.size.width = 0;
   return result;
 }
