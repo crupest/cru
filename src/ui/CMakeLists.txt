@@ -26,6 +26,7 @@ add_library(CruUi
 	controls/Window.cpp
 	document/DocumentElement.cpp
 	document/DocumentElementType.cpp
+	document/TextDocumentElement.cpp
 	events/MouseEventArgs.cpp
 	helper/ClickDetector.cpp
 	helper/ShortcutHub.cpp
