@@ -63,12 +63,13 @@ add_subdirectory(test)
 add_subdirectory(demos)
 
 set(CLANGD_FILE ${CMAKE_BINARY_DIR}/clangd)
+
 if(EMSCRIPTEN)
 	execute_process(COMMAND ${CMAKE_C_COMPILER} --cflags OUTPUT_VARIABLE CLANGD_FLAGS_TO_ADD)
 	separate_arguments(CLANGD_FLAGS_TO_ADD UNIX_COMMAND "${CLANGD_FLAGS_TO_ADD}")
 	list(JOIN CLANGD_FLAGS_TO_ADD ", " CLANGD_FLAGS_TO_ADD)
-	set(CLANGD_TEMPLATE ${PROJECT_SOURCE_DIR}/scripts/clangd.in)
-	configure_file(${CLANGD_TEMPLATE} ${CLANGD_FILE})
-else()
-	file(WRITE ${CLANGD_FILE} "")
 endif()
+
+set(CLANGD_TEMPLATE ${PROJECT_SOURCE_DIR}/scripts/clangd.in)
+configure_file(${CLANGD_TEMPLATE} ${CLANGD_FILE})
+

@@ -5,6 +5,7 @@
 #include "io/Stream.h"
 
 #include <chrono>
+#include <condition_variable>
 #include <mutex>
 #include <optional>
 #include <thread>
@@ -36,6 +37,12 @@ class CRU_BASE_API SubProcessException : public Exception {
   ~SubProcessException() override;
 };
 
+class CRU_BASE_API SubProcessFailedToStartException : public Exception {
+ public:
+  SubProcessFailedToStartException(String message = {});
+  ~SubProcessFailedToStartException() override;
+};
+
 struct PlatformSubProcessStartInfo {
   String program;
   std::vector<String> arguments;
@@ -50,8 +57,8 @@ struct PlatformSubProcessExitResult {
  * @brief Base class of a platform process. It is one-time, which means it
  * starts and exits and can't start again.
  * @remarks
- * If an object of this class is destructed before the process ends, the process
- * will be killed.
+ * If an object of this class is destructed before the process exits, the
+ * process will be killed.
  */
 class PlatformSubProcessBase : public Object {
  public:
@@ -61,40 +68,37 @@ class PlatformSubProcessBase : public Object {
   ~PlatformSubProcessBase() override;
 
   /**
-   * @brief Create and start a real process. If the program can't be created or
-   * start, an exception will be thrown.
-   *
-   * @remarks This method will hold the data lock during running. It ensures
-   * after return, the process already tries to start and status is definitely
-   * not `Prepare` but `FailedToStart` or `Running` or `Exit`. So it is safe to
-   * use `GetStatus` to check whether the process tries to start, aka, this
-   * method has been called or not.
+   * @brief Create and start a real process. If the process can't be created or
+   * start, `SubProcessFailedToStartException` will be thrown. If this function
+   * is already called once, `SubProcessException` will be thrown. Ensure only
+   * call this method once.
    */
   void Start();
 
   /**
-   * @brief Wait for the process to exit for at most `wait_time`. If the process
-   * already exits, it will return immediately. If the process has not started
-   * or failed to start, it will throw. Ensure `Start` is called and does not
-   * throw before call this.
+   * @brief Wait for the process to exit optionally for at most `wait_time`. If
+   * the process already exits, it will return immediately. If the process has
+   * not started or failed to start, `SubProcessException` will be thrown.
+   * Ensure `Start` is called and does not throw before calling this.
    *
    * @remarks You may wish this returns bool to indicate whether it is timeout
    * or the process exits. But no, even if it is timeout, the process may also
-   * exits due to task schedule.
+   * have exited due to task schedule.
    */
   void Wait(std::optional<std::chrono::milliseconds> wait_time);
 
   /**
    * @brief kill the process if it is running. If the process already exits,
-   * nothing will happen. If the process has not started or failed to start, it
-   * will throw. Ensure `Start` is called and does not throw before call this.
+   * nothing will happen. If the process has not started or failed to start,
+   * `SubProcessException` will be throw. Ensure `Start` is called and does not
+   * throw before calling this.
    */
   void Kill();
 
   /**
    * @brief Get the status of the process.
    * 1. If the process has tried to start, aka `Start` is called, then this
-   * method must return `Running`, `FailedToStart`.
+   * method will return one of `Running`, `FailedToStart`, `Exited`.
    * 2. If it returns `Prepare`, `Start` is not called.
    * 3. It does NOT guarantee that this return `Running` and the process is
    * actually running. Because there might be a window that the process exits
@@ -102,19 +106,15 @@ class PlatformSubProcessBase : public Object {
    */
   PlatformSubProcessStatus GetStatus();
 
+  /**
+   * @brief Get the exit result. If the process is not started, failed to start
+   * or running, `SubProcessException` will be thrown.
+   */
   PlatformSubProcessExitResult GetExitResult();
+
   io::Stream* GetStdinStream();
   io::Stream* GetStdoutStream();
   io::Stream* GetStderrStream();
-
-  bool IsAutoDeleteAfterProcessExit() const;
-
-  /**
-   * @brief If auto delete, this instance will delete it self after the process
-   * exits. The delete will be called at another thread. You must ensure this
-   * object is created by new.
-   */
-  void SetAutoDeleteAfterProcessExit(bool auto_delete);
 
  protected:
   /**
@@ -123,8 +123,8 @@ class PlatformSubProcessBase : public Object {
    *
    * Implementation should fill internal data of the new process and start it.
    *
-   * This method will be called on this thread with data lock hold. It will only
-   * called once in first call of `Start`.
+   * This method will be called only once in first call of `Start` on this
+   * thread with lock hold.
    */
   virtual void PlatformCreateProcess() = 0;
 
@@ -134,52 +134,32 @@ class PlatformSubProcessBase : public Object {
    * Implementation should wait for the real process forever, after that, fill
    * internal data and returns exit result.
    *
-   * This method will be called on another thread. It will only be called once
-   * after a success call of `Start`. It is safe to write internal data in this
-   * method because process lock will be hold and we won't write to internal.
+   * This method will be called only once on another thread after
+   * `PlatformCreateProcess` returns successfully
    */
   virtual PlatformSubProcessExitResult PlatformWaitForProcess() = 0;
 
   /**
    * @brief Kill the process immediately.
    *
-   * This method will be called on this thread. It will only be called once
-   * after a success call of `Start`. There will be a window that the window
-   * already exits but the status has not been updated and this is called. So
-   * handle this gracefully and write to internal data carefully.
+   * This method will be called only once on this thread given
+   * `PlatformCreateProcess` returns successfullyThere will be a window that the
+   * window already exits but the status has not been updated and this is
+   * called. So handle this gracefully and write to internal data carefully.
    */
   virtual void PlatformKillProcess() = 0;
 
- private:
-  auto CreateDataLockGuard() {
-    return std::lock_guard<std::unique_lock<std::mutex>>(data_lock_);
-  }
-
-  auto CreateProcessLockGuard() {
-    return std::lock_guard<std::unique_lock<std::timed_mutex>>(process_lock_);
-  }
-
  protected:
   PlatformSubProcessStartInfo start_info_;
+  PlatformSubProcessExitResult exit_result_;
 
  private:
-  bool auto_delete_;
-
   PlatformSubProcessStatus status_;
 
-  std::mutex data_mutex_;
-  /**
-   * Lock for protecting data of this class.
-   */
-  std::unique_lock<std::mutex> data_lock_;
   std::thread process_thread_;
-
-  std::timed_mutex process_mutex_;
-  /**
-   * Lock for protecting internal data of sub-class, and used for detect whether
-   * process is running.
-   */
-  std::unique_lock<std::timed_mutex> process_lock_;
+  std::mutex process_mutex_;
+  std::unique_lock<std::mutex> process_lock_;
+  std::condition_variable process_condition_variable_;
 };
 
 class CRU_BASE_API SubProcess : public Object {
