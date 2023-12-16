@@ -1,5 +1,6 @@
 emscripten
 clangd
+IWYU
 
 # cmake
 endfunction

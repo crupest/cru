@@ -4,8 +4,5 @@
 
 build
 
-vcpkg_installed
-vcpkg
-
 compile_commands.json
-.clangd
+

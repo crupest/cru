@@ -2,7 +2,6 @@
 #include "PreConfig.h"
 
 #include <memory>
-#include <type_traits>
 
 namespace cru {
 template <typename T>

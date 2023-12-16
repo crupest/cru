@@ -1,9 +1,9 @@
 #pragma once
 
-#include <double-conversion/double-conversion.h>
 #include "Exception.h"
 #include "String.h"
 
+#include <double-conversion/double-conversion.h>
 #include <charconv>
 
 namespace cru {

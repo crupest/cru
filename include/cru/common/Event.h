@@ -5,7 +5,6 @@
 
 #include <algorithm>
 #include <functional>
-#include <initializer_list>
 #include <memory>
 #include <utility>
 #include <vector>

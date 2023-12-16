@@ -6,6 +6,7 @@ add_library(CruBase
 	String.cpp
 	StringToNumberConverter.cpp
 	StringUtil.cpp
+	SubProcess.cpp
 	io/CFileStream.cpp
 	io/Stream.cpp
 	io/Resource.cpp

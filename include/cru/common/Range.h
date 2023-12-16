@@ -3,23 +3,22 @@
 
 namespace cru {
 struct Range final {
-  constexpr static Range FromTwoSides(gsl::index start, gsl::index end) {
+  constexpr static Range FromTwoSides(Index start, Index end) {
     return Range(start, end - start);
   }
 
-  constexpr static Range FromTwoSides(gsl::index start, gsl::index end,
-                                      gsl::index offset) {
+  constexpr static Range FromTwoSides(Index start, Index end, Index offset) {
     return Range(start + offset, end - start);
   }
 
   constexpr Range() = default;
-  constexpr Range(const gsl::index position, const gsl::index count = 0)
+  constexpr Range(const Index position, const Index count = 0)
       : position(position), count(count) {}
 
-  gsl::index GetStart() const { return position; }
-  gsl::index GetEnd() const { return position + count; }
+  Index GetStart() const { return position; }
+  Index GetEnd() const { return position + count; }
 
-  void ChangeEnd(gsl::index new_end) { count = new_end - position; }
+  void ChangeEnd(Index new_end) { count = new_end - position; }
 
   Range Normalize() const {
     auto result = *this;
@@ -30,14 +29,14 @@ struct Range final {
     return result;
   }
 
-  Range CoerceInto(gsl::index min, gsl::index max) const {
-    auto coerce = [min, max](gsl::index index) {
+  Range CoerceInto(Index min, Index max) const {
+    auto coerce = [min, max](Index index) {
       return index > max ? max : (index < min ? min : index);
     };
     return Range::FromTwoSides(coerce(GetStart()), coerce(GetEnd()));
   }
 
-  gsl::index position = 0;
-  gsl::index count = 0;
+  Index position = 0;
+  Index count = 0;
 };
 }  // namespace cru
