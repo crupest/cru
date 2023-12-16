@@ -9,8 +9,7 @@ namespace cru {
 #endif
 class CRU_BASE_API Exception : public std::exception {
  public:
-  Exception();
-  explicit Exception(String message);
+  explicit Exception(String message = {});
 
   CRU_DEFAULT_COPY(Exception)
   CRU_DEFAULT_MOVE(Exception)
@@ -40,9 +39,11 @@ class CRU_BASE_API TextEncodeException : public Exception {
 
 class ErrnoException : public Exception {
  public:
-  ErrnoException() : ErrnoException(String{}) {}
-  explicit ErrnoException(const String& message);
-  ErrnoException(const String& message, int errno_code);
+  /**
+   * @brief will retrieve errno automatically.
+   */
+  explicit ErrnoException(String message = {});
+  ErrnoException(String message, int errno_code);
 
   CRU_DELETE_COPY(ErrnoException)
   CRU_DELETE_MOVE(ErrnoException)

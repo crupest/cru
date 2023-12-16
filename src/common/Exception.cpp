@@ -5,8 +5,6 @@
 #include <cerrno>
 
 namespace cru {
-Exception::Exception() {}
-
 Exception::Exception(String message) : message_(std::move(message)) {}
 
 Exception::~Exception() {}
@@ -28,10 +26,10 @@ void Exception::AppendMessage(std::optional<StringView> additional_message) {
   if (additional_message) AppendMessage(*additional_message);
 }
 
-ErrnoException::ErrnoException(const String& message)
+ErrnoException::ErrnoException(String message)
     : ErrnoException(message, errno) {}
 
-ErrnoException::ErrnoException(const String& message, int errno_code)
+ErrnoException::ErrnoException(String message, int errno_code)
     : Exception(Format(u"{}. Errno is {}.", message, errno_code)),
       errno_code_(errno_code) {}
 }  // namespace cru
