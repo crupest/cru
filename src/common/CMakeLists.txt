@@ -22,6 +22,7 @@ target_compile_definitions(CruBase PUBLIC $<$<CONFIG:Debug>:CRU_DEBUG>)
 if (UNIX AND NOT EMSCRIPTEN)
 	target_sources(CruBase PRIVATE
 		platform/unix/UnixFileStream.cpp
+		platform/unix/UnixFileStream.cpp
 	)
 
 	if (NOT APPLE)

@@ -32,7 +32,7 @@ class CRU_BASE_API StreamOperationNotSupportedException : public Exception {
 
 class CRU_BASE_API StreamAlreadyClosedException : public Exception {
  public:
-   StreamAlreadyClosedException();
+  StreamAlreadyClosedException();
 
   CRU_DEFAULT_COPY(StreamAlreadyClosedException)
   CRU_DEFAULT_MOVE(StreamAlreadyClosedException)
