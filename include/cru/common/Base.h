@@ -1,5 +1,5 @@
 #pragma once
-#include "PreConfig.h"
+#include "PreConfig.h" // IWYU pragma: keep 
 
 #ifdef CRU_PLATFORM_WINDOWS
 #ifdef CRU_BASE_EXPORT_API
