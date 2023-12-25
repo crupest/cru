@@ -42,6 +42,7 @@ class ProxyStream : public Stream {
   void Close() override;
 
  private:
+  void CheckClosed();
   void DoClose();
 
  private:
