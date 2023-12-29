@@ -28,8 +28,6 @@ class ObjectResolver {
     return *this->shared_object_ptr_;
   }
 
-  explicit operator bool() const { return this->IsValid(); }
-
  private:
   void SetResolvedObject(T* o) {
     assert(IsValid());
@@ -43,14 +41,14 @@ class ObjectResolver {
 template <typename T>
 class SelfResolvable {
  public:
-  SelfResolvable() : resolver_(static_cast<T*>(this)) {}
+  SelfResolvable() : resolver_(CastToSubClass()) {}
   SelfResolvable(const SelfResolvable&) = delete;
   SelfResolvable& operator=(const SelfResolvable&) = delete;
 
   // Resolvers to old object will resolve to new object.
   SelfResolvable(SelfResolvable&& other)
       : resolver_(std::move(other.resolver_)) {
-    this->resolver_.SetResolvedObject(this);
+    this->resolver_.SetResolvedObject(CastToSubClass());
   }
 
   // Old resolvers for this object will resolve to nullptr.
@@ -58,7 +56,7 @@ class SelfResolvable {
   SelfResolvable& operator=(SelfResolvable&& other) {
     if (this != &other) {
       this->resolver_ = std::move(other.resolver_);
-      this->resolver_.SetResolvedObject(this);
+      this->resolver_.SetResolvedObject(CastToSubClass());
     }
     return *this;
   }
@@ -70,6 +68,9 @@ class SelfResolvable {
   }
 
   ObjectResolver<T> CreateResolver() { return resolver_; }
+
+ private:
+  T* CastToSubClass() { return static_cast<T*>(this); }
 
  private:
   ObjectResolver<T> resolver_;
