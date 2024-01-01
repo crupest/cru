@@ -51,7 +51,8 @@ class EventHandlerToken {
   static_assert(is_event2_v<TEvent2>, "TEvent2 must be Event2 class.");
 
  public:
-  EventHandlerToken(ObjectResolver<TEvent2> event_resolver, int token_value);
+  EventHandlerToken(ObjectResolver<TEvent2> event_resolver, int token_value)
+      : event_resolver_(std::move(event_resolver)), token_value_(token_value) {}
 
   ObjectResolver<TEvent2> GetEventResolver() const { return event_resolver_; }
   int GetTokenValue() const { return token_value_; }
@@ -82,17 +83,17 @@ class Event2 : public SelfResolvable<Event2<TArgument, TResult>> {
  public:
   using HandlerToken = EventHandlerToken<Event2>;
   using Context = EventContext<TArgument, TResult>;
-  using Handler = std::function<void(Context&)>;
+  using Handler = std::function<void(Context*)>;
   using SpyOnlyHandler = std::function<void()>;
 
   template <typename TFunc>
   static std::enable_if_t<std::invocable<TFunc>, Handler> WrapAsHandler(
       TFunc&& handler) {
-    return Handler([h = std::forward<TFunc>(handler)](Context&) { h(); });
+    return Handler([h = std::forward<TFunc>(handler)](Context*) { h(); });
   }
 
   template <typename TFunc>
-  static std::enable_if_t<std::invocable<TFunc, Context&>, Handler>
+  static std::enable_if_t<std::invocable<TFunc, Context*>, Handler>
   WrapAsHandler(TFunc&& handler) {
     return Handler(std::forward<TFunc>(handler));
   }
@@ -138,19 +139,19 @@ class Event2 : public SelfResolvable<Event2<TArgument, TResult>> {
 
   TResult Raise() {
     Context context;
-    RunInContext(context);
+    RunInContext(&context);
     return context.TakeResult();
   }
 
   TResult Raise(TArgument argument) {
     Context context(std::move(argument));
-    RunInContext(context);
+    RunInContext(&context);
     return context.TakeResult();
   }
 
   TResult Raise(TArgument argument, TResult result) {
     Context context(std::move(argument), std::move(result));
-    RunInContext(context);
+    RunInContext(&context);
     return context.TakeResult();
   }
 

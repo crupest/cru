@@ -1,4 +1,5 @@
 add_executable(CruBaseTest
+	Event2Test.cpp
 	HandlerRegistryTest.cpp
 	PropertyTreeTest.cpp
 	SelfResolvableTest.cpp
