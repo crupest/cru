@@ -4,16 +4,39 @@
 
 using cru::Event2;
 
-TEST_CASE("Event2 handlers should work.", "[event2]") {
+TEST_CASE("Event2", "[event2]") {
   Event2 event;
 
   int counter = 0;
 
   auto handler = [&counter] { counter++; };
+  auto token = event.AddHandler(handler);
 
-  event.AddHandler(handler);
+  auto handler2 = [&counter](decltype(event)::Context* context) { counter++; };
 
-  event.Raise();
+  SECTION("two handlers should work.") {
+    event.Raise();
+    REQUIRE(counter == 1);
+    event.Raise();
+    REQUIRE(counter == 2);
 
-  REQUIRE(counter == 1);
+    event.AddHandler(handler2);
+    event.Raise();
+    REQUIRE(counter == 4);
+  }
+
+  SECTION("handler revoker should work.") {
+    token.RevokeHandler();
+    event.Raise();
+    REQUIRE(counter == 0);
+
+    token = event.AddHandler(handler);
+    event.AddHandler(handler2);
+    event.Raise();
+    REQUIRE(counter == 2);
+
+    token.RevokeHandler();
+    event.Raise();
+    REQUIRE(counter == 3);
+  }
 }

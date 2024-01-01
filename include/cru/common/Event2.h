@@ -188,7 +188,7 @@ template <typename TEvent2>
 void EventHandlerToken<TEvent2>::RevokeHandler() const {
   auto event = this->event_resolver_.Resolve();
   if (event) {
-    event->RevokeHandler(this->token_value);
+    event->RevokeHandler(this->token_value_);
   }
 }
 }  // namespace cru
