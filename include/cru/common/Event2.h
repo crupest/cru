@@ -10,6 +10,13 @@
 #include <vector>
 
 namespace cru {
+class Event2Base {
+ public:
+  virtual ~Event2Base() = default;
+
+  virtual void RevokeHandler(int token_value) = 0;
+};
+
 template <typename TArgument, typename TResult>
 class EventContext {
  public:
@@ -46,20 +53,19 @@ constexpr bool is_event2_v = false;
 template <typename TArgument, typename TResult>
 constexpr bool is_event2_v<Event2<TArgument, TResult>> = true;
 
-template <typename TEvent2>
 class EventHandlerToken {
-  static_assert(is_event2_v<TEvent2>, "TEvent2 must be Event2 class.");
-
  public:
-  EventHandlerToken(ObjectResolver<TEvent2> event_resolver, int token_value)
+  EventHandlerToken(ObjectResolver<Event2Base> event_resolver, int token_value)
       : event_resolver_(std::move(event_resolver)), token_value_(token_value) {}
 
-  ObjectResolver<TEvent2> GetEventResolver() const { return event_resolver_; }
+  ObjectResolver<Event2Base> GetEventResolver() const {
+    return event_resolver_;
+  }
   int GetTokenValue() const { return token_value_; }
-  void RevokeHandler() const;
+  inline void RevokeHandler() const;
 
  private:
-  ObjectResolver<TEvent2> event_resolver_;
+  ObjectResolver<Event2Base> event_resolver_;
   int token_value_;
 };
 
@@ -79,9 +85,10 @@ struct Event2BehaviorFlags {
 
 template <typename TArgument = std::nullptr_t,
           typename TResult = std::nullptr_t>
-class Event2 : public SelfResolvable<Event2<TArgument, TResult>> {
+class Event2 : public Event2Base,
+               public SelfResolvable<Event2<TArgument, TResult>> {
  public:
-  using HandlerToken = EventHandlerToken<Event2>;
+  using HandlerToken = EventHandlerToken;
   using Context = EventContext<TArgument, TResult>;
   using Handler = std::function<void(Context*)>;
   using SpyOnlyHandler = std::function<void()>;
@@ -122,7 +129,7 @@ class Event2 : public SelfResolvable<Event2<TArgument, TResult>> {
     return HandlerToken(this->CreateResolver(), token);
   }
 
-  void RevokeHandler(int token_value) {
+  void RevokeHandler(int token_value) override {
     auto iter = this->handlers_.cbegin();
     auto end = this->handlers_.cend();
     for (; iter != end; ++iter) {
@@ -184,8 +191,7 @@ class Event2 : public SelfResolvable<Event2<TArgument, TResult>> {
   Event2BehaviorFlag flags_;
 };
 
-template <typename TEvent2>
-void EventHandlerToken<TEvent2>::RevokeHandler() const {
+inline void EventHandlerToken::RevokeHandler() const {
   auto event = this->event_resolver_.Resolve();
   if (event) {
     event->RevokeHandler(this->token_value_);
