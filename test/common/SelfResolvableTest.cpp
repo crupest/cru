@@ -6,13 +6,22 @@
 #include <memory>
 
 namespace {
+class SelfResolvableTestClassBase {
+ public:
+  SelfResolvableTestClassBase() = default;
+  CRU_DELETE_COPY(SelfResolvableTestClassBase)
+  CRU_DEFAULT_MOVE(SelfResolvableTestClassBase)
+  virtual ~SelfResolvableTestClassBase() = default;
+};
+
 class SelfResolvableTestClass
-    : public cru::SelfResolvable<SelfResolvableTestClass> {
+    : public SelfResolvableTestClassBase,
+      public cru::SelfResolvable<SelfResolvableTestClass> {
  public:
   SelfResolvableTestClass() : ptr_(new int(123)) {}
   CRU_DELETE_COPY(SelfResolvableTestClass)
   CRU_DEFAULT_MOVE(SelfResolvableTestClass)
-  ~SelfResolvableTestClass() = default;
+  ~SelfResolvableTestClass() override = default;
 
  private:
   std::shared_ptr<int> ptr_;
@@ -74,3 +83,28 @@ TEST_CASE("SelfResolvable object moved should work.", "[self-resolvable]") {
   REQUIRE(resolver_move.Resolve() == &moved_object);
 }
 
+TEST_CASE("SelfResolvable should work for casted type.", "[self-resolvable]") {
+  auto test_object = new SelfResolvableTestClass();
+
+  cru::ObjectResolver<SelfResolvableTestClassBase> base_resolver =
+      test_object->CreateResolver();
+
+  REQUIRE(base_resolver.Resolve() == test_object);
+
+  auto base_resolver2 = base_resolver;
+  REQUIRE(base_resolver2.Resolve() == test_object);
+
+  auto base_resolver3 = std::move(base_resolver2);
+  REQUIRE(base_resolver3.Resolve() == test_object);
+
+  auto moved_object = new SelfResolvableTestClass(std::move(*test_object));
+  delete test_object;
+
+  REQUIRE(base_resolver.Resolve() == moved_object);
+  REQUIRE(base_resolver3.Resolve() == moved_object);
+
+  delete moved_object;
+
+  REQUIRE(base_resolver.Resolve() == nullptr);
+  REQUIRE(base_resolver3.Resolve() == nullptr);
+}
