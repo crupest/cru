@@ -39,4 +39,16 @@ TEST_CASE("Event2", "[event2]") {
     event.Raise();
     REQUIRE(counter == 3);
   }
+
+  SECTION("stop handling should work.") {
+    auto short_circuit_handler = [&counter](decltype(event)::Context* context) {
+      context->SetStopHandling();
+    };
+
+    event.AddHandler(short_circuit_handler);
+    event.AddHandler(handler2);
+
+    event.Raise();
+    REQUIRE(counter == 1);
+  }
 }
