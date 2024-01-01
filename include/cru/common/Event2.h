@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cru/common/Bitmask.h>
 #include <cru/common/SelfResolvable.h>
 
 #include <cstddef>
@@ -23,7 +24,9 @@ class EventContext {
 
   TResult& GetResult() { return result_; }
   const TResult& GetResult() const { return result_; }
-  void SetResult(TResult&& result) { result_ = std::forward<TResult>(result); }
+  void SetResult(const TResult& result) { result_ = result; }
+  void SetResult(TResult&& result) { result_ = std::move(result); }
+  TResult TakeResult() { return std::move(result_); }
 
   bool GetStopHandling() const { return stop_handling_; }
   void SetStopHandling(bool stop = true) { stop_handling_ = stop; }
@@ -59,6 +62,20 @@ class EventHandlerToken {
   int token_value_;
 };
 
+namespace details {
+struct Event2BehaviorFlagTag {};
+}  // namespace details
+using Event2BehaviorFlag = Bitmask<details::Event2BehaviorFlagTag>;
+
+struct Event2BehaviorFlags {
+  /**
+   * @brief Make a copy of handler list before invoking handlers. So the event
+   * object or its owner can be destroyed during running handlers.
+   */
+  static constexpr Event2BehaviorFlag CopyHandlers =
+      Event2BehaviorFlag::FromOffset(1);
+};
+
 template <typename TArgument = std::nullptr_t,
           typename TResult = std::nullptr_t>
 class Event2 : public SelfResolvable<Event2<TArgument, TResult>> {
@@ -82,11 +99,12 @@ class Event2 : public SelfResolvable<Event2<TArgument, TResult>> {
 
  private:
   struct HandlerData {
-    int token_value_;
-    Handler handler_;
+    int token_value;
+    Handler handler;
   };
 
  public:
+  explicit Event2(Event2BehaviorFlag flags = {}) : flags_(flags) {}
   Event2(const Event2&) = delete;
   Event2(Event2&&) = delete;
   Event2& operator=(const Event2&) = delete;
@@ -94,23 +112,82 @@ class Event2 : public SelfResolvable<Event2<TArgument, TResult>> {
   ~Event2() override = default;
 
  public:
-  
+  template <typename TFunc>
+  HandlerToken AddHandler(TFunc&& handler) {
+    auto token = this->current_token_value_++;
+    auto real_handler = WrapAsHandler(std::forward<TFunc>(handler));
+    HandlerData handler_data{token, std::move(real_handler)};
+    this->handlers_.push_back(std::move(handler_data));
+    return HandlerToken(this->CreateResolver(), token);
+  }
 
-  void RevokeHandler(int token_value);
+  void RevokeHandler(int token_value) {
+    auto iter = this->handlers_.cbegin();
+    auto end = this->handlers_.cend();
+    for (; iter != end; ++iter) {
+      if (iter->token_value == token_value) {
+        this->handlers_.erase(iter);
+        break;
+      }
+    }
+  }
+
   void RevokeHandler(const HandlerToken& token) {
     return RevokeHandler(token.GetTokenValue());
+  }
+
+  TResult Raise() {
+    Context context;
+    RunInContext(context);
+    return context.TakeResult();
+  }
+
+  TResult Raise(TArgument argument) {
+    Context context(std::move(argument));
+    RunInContext(context);
+    return context.TakeResult();
+  }
+
+  TResult Raise(TArgument argument, TResult result) {
+    Context context(std::move(argument), std::move(result));
+    RunInContext(context);
+    return context.TakeResult();
+  }
+
+ private:
+  void RunInContext(Context* context) {
+    if (this->flags_ & Event2BehaviorFlags::CopyHandlers) {
+      std::vector<Handler> handlers_copy;
+      for (const auto& handler : this->handlers_) {
+        handlers_copy.push_back(handler.handler);
+      }
+      for (const auto& handler : handlers_copy) {
+        if (context->GetStopHandling()) {
+          break;
+        }
+        handler(context);
+      }
+    } else {
+      for (const auto& handler : this->handlers_) {
+        if (context->GetStopHandling()) {
+          break;
+        }
+        handler.handler(context);
+      }
+    }
   }
 
  private:
   int current_token_value_ = 1;
   std::vector<HandlerData> handlers_;
+  Event2BehaviorFlag flags_;
 };
 
 template <typename TEvent2>
 void EventHandlerToken<TEvent2>::RevokeHandler() const {
   auto event = this->event_resolver_.Resolve();
   if (event) {
-    event->RevokeHandler(this->token_value_);
+    event->RevokeHandler(this->token_value);
   }
 }
 }  // namespace cru

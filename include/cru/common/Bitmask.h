@@ -1,6 +1,4 @@
 #pragma once
-#include "Base.h"
-
 #include <functional>
 
 namespace cru {
@@ -11,10 +9,9 @@ struct Bitmask final {
   constexpr Bitmask() : value(0) {}
   constexpr explicit Bitmask(TUnderlying value) : value(value) {}
 
-  CRU_DEFAULT_COPY(Bitmask)
-  CRU_DEFAULT_MOVE(Bitmask)
-
-  ~Bitmask() = default;
+  static constexpr Bitmask FromOffset(int offset) {
+    return Bitmask(static_cast<TUnderlying>(1u << offset));
+  }
 
   Bitmask operator|(Bitmask rhs) const { return Bitmask(value | rhs.value); }
   Bitmask operator&(Bitmask rhs) const { return Bitmask(value & rhs.value); }
