@@ -27,16 +27,16 @@ class CRU_UI_API StyleRuleSet : public Object, public model::IListChangeNotify {
   std::shared_ptr<StyleRuleSet> GetParent() const { return parent_; }
   void SetParent(std::shared_ptr<StyleRuleSet> parent);
 
-  gsl::index GetSize() const { return static_cast<gsl::index>(rules_.size()); }
+  Index GetSize() const { return static_cast<Index>(rules_.size()); }
   const std::vector<StyleRule>& GetRules() const { return rules_; }
 
   void AddStyleRule(StyleRule rule) {
     AddStyleRule(std::move(rule), GetSize());
   }
 
-  void AddStyleRule(StyleRule rule, gsl::index index);
+  void AddStyleRule(StyleRule rule, Index index);
 
-  void RemoveStyleRule(gsl::index index, gsl::index count = 1);
+  void RemoveStyleRule(Index index, Index count = 1);
 
   const StyleRule& GetStyleRule(Index index) const { return rules_[index]; }
   void SetStyleRule(Index index, StyleRule rule);
@@ -45,7 +45,7 @@ class CRU_UI_API StyleRuleSet : public Object, public model::IListChangeNotify {
 
   void Set(const StyleRuleSet& other, bool set_parent = false);
 
-  const StyleRule& operator[](gsl::index index) const { return rules_[index]; }
+  const StyleRule& operator[](Index index) const { return rules_[index]; }
 
   // Triggered whenever a change happened to this (rule add or remove, parent
   // change ...). Subscribe to this and update style change listeners and style.

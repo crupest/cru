@@ -47,7 +47,7 @@ void TextBlock::SetTextColor(const Color& color) {
       GetUiApplication()->GetGraphicsFactory()->CreateSolidColorBrush(color));
 }
 
-gsl::not_null<render::TextRenderObject*> TextBlock::GetTextRenderObject() {
+render::TextRenderObject* TextBlock::GetTextRenderObject() {
   return text_render_object_.get();
 }
 }  // namespace cru::ui::controls

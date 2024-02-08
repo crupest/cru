@@ -48,13 +48,11 @@ class CRU_UI_API Menu : public Component {
  public:
   controls::Control* GetRootControl() override { return &container_; }
 
-  gsl::index GetItemCount() const {
-    return static_cast<gsl::index>(items_.size());
-  }
+  Index GetItemCount() const { return static_cast<Index>(items_.size()); }
 
   void AddItem(Component* component) { AddItemAt(component, GetItemCount()); }
-  void AddItemAt(Component* component, gsl::index index);
-  Component* RemoveItemAt(gsl::index index);
+  void AddItemAt(Component* component, Index index);
+  Component* RemoveItemAt(Index index);
   void ClearItems();
 
   void AddTextItem(String text, std::function<void()> on_click) {

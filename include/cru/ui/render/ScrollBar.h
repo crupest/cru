@@ -12,7 +12,6 @@
 #include "cru/ui/controls/Control.h"
 #include "cru/ui/helper/ClickDetector.h"
 
-#include <gsl/pointers>
 #include <memory>
 #include <optional>
 #include <unordered_map>
@@ -45,8 +44,7 @@ String CRU_UI_API GenerateScrollBarThemeColorKey(ScrollBarBrushUsageKind usage,
 
 class CRU_UI_API ScrollBar : public Object {
  public:
-  ScrollBar(gsl::not_null<ScrollRenderObject*> render_object,
-            Direction direction);
+  ScrollBar(ScrollRenderObject* render_object, Direction direction);
 
   CRU_DELETE_COPY(ScrollBar)
   CRU_DELETE_MOVE(ScrollBar)
@@ -69,12 +67,11 @@ class CRU_UI_API ScrollBar : public Object {
   void InstallHandlers(controls::Control* control);
   void UninstallHandlers() { InstallHandlers(nullptr); }
 
-  gsl::not_null<std::shared_ptr<platform::graphics::IBrush>>
-  GetCollapsedThumbBrush();
+  std::shared_ptr<platform::graphics::IBrush> GetCollapsedThumbBrush();
   // Brush could be nullptr to use the theme brush.
   void SetCollapsedThumbBrush(
       std::shared_ptr<platform::graphics::IBrush> brush);
-  gsl::not_null<std::shared_ptr<platform::graphics::IBrush>> GetBrush(
+  std::shared_ptr<platform::graphics::IBrush> GetBrush(
       ScrollBarBrushUsageKind usage, ScrollBarBrushStateKind state);
   // Brush could be nullptr to use the theme brush.
   void SetBrush(ScrollBarBrushUsageKind usage, ScrollBarBrushStateKind state,
@@ -83,14 +80,14 @@ class CRU_UI_API ScrollBar : public Object {
  protected:
   void OnDraw(platform::graphics::IPainter* painter, bool expand);
 
-  virtual void DrawUpArrow(
-      platform::graphics::IPainter* painter, const Rect& area,
-      gsl::not_null<platform::graphics::IBrush*> arrow_brush,
-      gsl::not_null<platform::graphics::IBrush*> background_brush) = 0;
-  virtual void DrawDownArrow(
-      platform::graphics::IPainter* painter, const Rect& area,
-      gsl::not_null<platform::graphics::IBrush*> arrow_brush,
-      gsl::not_null<platform::graphics::IBrush*> background_brush) = 0;
+  virtual void DrawUpArrow(platform::graphics::IPainter* painter,
+                           const Rect& area,
+                           platform::graphics::IBrush* arrow_brush,
+                           platform::graphics::IBrush* background_brush) = 0;
+  virtual void DrawDownArrow(platform::graphics::IPainter* painter,
+                             const Rect& area,
+                             platform::graphics::IBrush* arrow_brush,
+                             platform::graphics::IBrush* background_brush) = 0;
 
   std::optional<ScrollBarAreaKind> ExpandedHitTest(const Point& point);
 
@@ -119,7 +116,7 @@ class CRU_UI_API ScrollBar : public Object {
   ScrollBarBrushStateKind GetState(ScrollBarAreaKind area);
 
  protected:
-  gsl::not_null<ScrollRenderObject*> render_object_;
+  ScrollRenderObject* render_object_;
 
   std::unique_ptr<platform::graphics::IGeometry> arrow_geometry_;
 
@@ -154,8 +151,7 @@ class CRU_UI_API ScrollBar : public Object {
 
 class CRU_UI_API HorizontalScrollBar : public ScrollBar {
  public:
-  explicit HorizontalScrollBar(
-      gsl::not_null<ScrollRenderObject*> render_object);
+  explicit HorizontalScrollBar(ScrollRenderObject* render_object);
 
   CRU_DELETE_COPY(HorizontalScrollBar)
   CRU_DELETE_MOVE(HorizontalScrollBar)
@@ -163,14 +159,12 @@ class CRU_UI_API HorizontalScrollBar : public ScrollBar {
   ~HorizontalScrollBar() override = default;
 
  protected:
-  void DrawUpArrow(
-      platform::graphics::IPainter* painter, const Rect& area,
-      gsl::not_null<platform::graphics::IBrush*> arrow_brush,
-      gsl::not_null<platform::graphics::IBrush*> background_brush) override;
-  void DrawDownArrow(
-      platform::graphics::IPainter* painter, const Rect& area,
-      gsl::not_null<platform::graphics::IBrush*> arrow_brush,
-      gsl::not_null<platform::graphics::IBrush*> background_brush) override;
+  void DrawUpArrow(platform::graphics::IPainter* painter, const Rect& area,
+                   platform::graphics::IBrush* arrow_brush,
+                   platform::graphics::IBrush* background_brush) override;
+  void DrawDownArrow(platform::graphics::IPainter* painter, const Rect& area,
+                     platform::graphics::IBrush* arrow_brush,
+                     platform::graphics::IBrush* background_brush) override;
 
   bool IsShowBar() override;
 
@@ -187,7 +181,7 @@ class CRU_UI_API HorizontalScrollBar : public ScrollBar {
 
 class CRU_UI_API VerticalScrollBar : public ScrollBar {
  public:
-  explicit VerticalScrollBar(gsl::not_null<ScrollRenderObject*> render_object);
+  explicit VerticalScrollBar(ScrollRenderObject* render_object);
 
   CRU_DELETE_COPY(VerticalScrollBar)
   CRU_DELETE_MOVE(VerticalScrollBar)
@@ -195,14 +189,12 @@ class CRU_UI_API VerticalScrollBar : public ScrollBar {
   ~VerticalScrollBar() override = default;
 
  protected:
-  void DrawUpArrow(
-      platform::graphics::IPainter* painter, const Rect& area,
-      gsl::not_null<platform::graphics::IBrush*> arrow_brush,
-      gsl::not_null<platform::graphics::IBrush*> background_brush) override;
-  void DrawDownArrow(
-      platform::graphics::IPainter* painter, const Rect& area,
-      gsl::not_null<platform::graphics::IBrush*> arrow_brush,
-      gsl::not_null<platform::graphics::IBrush*> background_brush) override;
+  void DrawUpArrow(platform::graphics::IPainter* painter, const Rect& area,
+                   platform::graphics::IBrush* arrow_brush,
+                   platform::graphics::IBrush* background_brush) override;
+  void DrawDownArrow(platform::graphics::IPainter* painter, const Rect& area,
+                     platform::graphics::IBrush* arrow_brush,
+                     platform::graphics::IBrush* background_brush) override;
 
   bool IsShowBar() override;
 
@@ -220,7 +212,7 @@ class CRU_UI_API VerticalScrollBar : public ScrollBar {
 // A delegate to draw scrollbar and register related events.
 class CRU_UI_API ScrollBarDelegate : public Object {
  public:
-  explicit ScrollBarDelegate(gsl::not_null<ScrollRenderObject*> render_object);
+  explicit ScrollBarDelegate(ScrollRenderObject* render_object);
 
   CRU_DELETE_COPY(ScrollBarDelegate)
   CRU_DELETE_MOVE(ScrollBarDelegate)
@@ -244,7 +236,7 @@ class CRU_UI_API ScrollBarDelegate : public Object {
   void UninstallHandlers() { InstallHandlers(nullptr); }
 
  private:
-  gsl::not_null<ScrollRenderObject*> render_object_;
+  ScrollRenderObject* render_object_;
 
   HorizontalScrollBar horizontal_bar_;
   VerticalScrollBar vertical_bar_;

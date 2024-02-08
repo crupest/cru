@@ -39,7 +39,7 @@ class CRU_WIN_GUI_API WinInputMethodContext
   CRU_DEFINE_CLASS_LOG_TAG(u"WinInputMethodContext")
 
  public:
-  WinInputMethodContext(gsl::not_null<WinNativeWindow*> window);
+  WinInputMethodContext(WinNativeWindow* window);
 
   CRU_DELETE_COPY(WinInputMethodContext)
   CRU_DELETE_MOVE(WinInputMethodContext)

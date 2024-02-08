@@ -29,7 +29,7 @@ class CRU_UI_API TextBox : public NoChildControl,
 
   render::RenderObject* GetRenderObject() const override;
 
-  gsl::not_null<render::TextRenderObject*> GetTextRenderObject() override;
+  render::TextRenderObject* GetTextRenderObject() override;
   render::ScrollRenderObject* GetScrollRenderObject() override;
 
   bool GetMultiLine() const;

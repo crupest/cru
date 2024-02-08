@@ -37,14 +37,14 @@ Menu::~Menu() {
   }
 }
 
-void Menu::AddItemAt(Component* item, gsl::index index) {
+void Menu::AddItemAt(Component* item, Index index) {
   Expects(index >= 0 && index <= GetItemCount());
 
   items_.insert(items_.cbegin() + index, item);
   container_.AddChildAt(item->GetRootControl(), index);
 }
 
-Component* Menu::RemoveItemAt(gsl::index index) {
+Component* Menu::RemoveItemAt(Index index) {
   Expects(index >= 0 && index < GetItemCount());
 
   Component* item = items_[index];
@@ -65,7 +65,7 @@ void Menu::ClearItems() {
   container_.ClearChildren();
 }
 
-void Menu::AddTextItemAt(String text, gsl::index index,
+void Menu::AddTextItemAt(String text, Index index,
                          std::function<void()> on_click) {
   MenuItem* item = new MenuItem(std::move(text));
   item->SetOnClick([this, index, on_click = std::move(on_click)] {

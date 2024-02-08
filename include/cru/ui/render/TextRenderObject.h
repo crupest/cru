@@ -51,7 +51,7 @@ class CRU_UI_API TextRenderObject : public RenderObject {
   Index GetLineIndexFromCharIndex(Index char_index);
   float GetLineHeight(Index line_index);
   std::vector<Rect> TextRangeRect(const TextRange& text_range);
-  Rect TextSinglePoint(gsl::index position, bool trailing);
+  Rect TextSinglePoint(Index position, bool trailing);
   platform::graphics::TextHitTestResult TextHitTest(const Point& point);
 
   std::optional<TextRange> GetSelectionRange() const {
@@ -70,8 +70,8 @@ class CRU_UI_API TextRenderObject : public RenderObject {
 
   // Caret position can be any value. When it is negative, 0 is used. When it
   // exceeds the size of the string, the size of the string is used.
-  gsl::index GetCaretPosition() const { return caret_position_; }
-  void SetCaretPosition(gsl::index position);
+  Index GetCaretPosition() const { return caret_position_; }
+  void SetCaretPosition(Index position);
 
   // Lefttop relative to content lefttop.
   Rect GetCaretRectInContent();
@@ -115,7 +115,7 @@ class CRU_UI_API TextRenderObject : public RenderObject {
   std::shared_ptr<platform::graphics::IBrush> selection_brush_;
 
   bool draw_caret_ = false;
-  gsl::index caret_position_ = 0;
+  Index caret_position_ = 0;
   std::shared_ptr<platform::graphics::IBrush> caret_brush_;
   float caret_width_ = default_caret_width;
 

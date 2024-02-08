@@ -144,8 +144,7 @@ CompositionText GetCompositionInfo(HIMC imm_context) {
 
 }  // namespace
 
-WinInputMethodContext::WinInputMethodContext(
-    gsl::not_null<WinNativeWindow*> window)
+WinInputMethodContext::WinInputMethodContext(WinNativeWindow* window)
     : native_window_(window) {
   event_guard_ += window->NativeMessageEvent()->AddHandler(
       std::bind(&WinInputMethodContext::OnWindowNativeMessage, this,

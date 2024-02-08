@@ -1,5 +1,10 @@
 #pragma once
-#include "PreConfig.h" // IWYU pragma: keep 
+#include "PreConfig.h"  // IWYU pragma: keep
+
+#include <cassert>
+#include <cstddef>
+#include <functional>
+#include <memory>
 
 #ifdef CRU_PLATFORM_WINDOWS
 #ifdef CRU_BASE_EXPORT_API
@@ -10,8 +15,6 @@
 #else
 #define CRU_BASE_API
 #endif
-
-#include <gsl/gsl>
 
 #define CRU_UNUSED(entity) static_cast<void>(entity);
 
@@ -83,7 +86,18 @@ struct CRU_BASE_API Interface {
 
 [[noreturn]] void CRU_BASE_API UnreachableCode();
 
-using Index = gsl::index;
+using Index = std::ptrdiff_t;
+
+inline void Expects(bool condition) { assert(condition); }
+inline void Ensures(bool condition) { assert(condition); }
+template <typename T>
+inline void Expects(const std::shared_ptr<T>& ptr) {
+  assert(ptr != nullptr);
+}
+template <typename T>
+inline void Ensures(const std::shared_ptr<T>& ptr) {
+  assert(ptr != nullptr);
+}
 
 // https://www.boost.org/doc/libs/1_54_0/doc/html/hash/reference.html#boost.hash_combine
 template <class T>

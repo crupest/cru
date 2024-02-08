@@ -77,7 +77,7 @@ std::vector<Rect> TextRenderObject::TextRangeRect(const TextRange& text_range) {
   return text_layout_->TextRangeRect(text_range);
 }
 
-Rect TextRenderObject::TextSinglePoint(gsl::index position, bool trailing) {
+Rect TextRenderObject::TextSinglePoint(Index position, bool trailing) {
   return text_layout_->TextSinglePoint(position, trailing);
 }
 
@@ -107,7 +107,7 @@ void TextRenderObject::SetDrawCaret(bool draw_caret) {
   }
 }
 
-void TextRenderObject::SetCaretPosition(gsl::index position) {
+void TextRenderObject::SetCaretPosition(Index position) {
   if (position != caret_position_) {
     caret_position_ = position;
     if (draw_caret_) {
@@ -136,7 +136,7 @@ void TextRenderObject::SetCaretWidth(const float width) {
 
 Rect TextRenderObject::GetCaretRectInContent() {
   auto caret_pos = this->caret_position_;
-  gsl::index text_size = this->GetText().size();
+  Index text_size = this->GetText().size();
   if (caret_pos < 0) {
     caret_pos = 0;
   } else if (caret_pos > text_size) {

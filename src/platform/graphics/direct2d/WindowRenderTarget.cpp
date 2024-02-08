@@ -4,8 +4,8 @@
 #include "cru/platform/graphics/direct2d/Factory.h"
 
 namespace cru::platform::graphics::direct2d {
-D2DWindowRenderTarget::D2DWindowRenderTarget(
-    gsl::not_null<DirectGraphicsFactory*> factory, HWND hwnd)
+D2DWindowRenderTarget::D2DWindowRenderTarget(DirectGraphicsFactory* factory,
+                                             HWND hwnd)
     : factory_(factory), hwnd_(hwnd) {
   const auto d3d11_device = factory->GetD3D11Device();
   const auto dxgi_factory = factory->GetDxgiFactory();

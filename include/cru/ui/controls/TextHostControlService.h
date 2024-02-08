@@ -23,7 +23,7 @@ namespace cru::ui::controls {
 constexpr int k_default_caret_blink_duration = 500;
 
 struct CRU_UI_API ITextHostControl : virtual Interface {
-  virtual gsl::not_null<render::TextRenderObject*> GetTextRenderObject() = 0;
+  virtual render::TextRenderObject* GetTextRenderObject() = 0;
   // May return nullptr.
   virtual render::ScrollRenderObject* GetScrollRenderObject() = 0;
 };
@@ -48,8 +48,8 @@ class TextControlMovePattern : public Object {
   static std::vector<TextControlMovePattern> kDefaultPatterns;
 
   using MoveFunction =
-      std::function<gsl::index(TextHostControlService* service, StringView text,
-                               gsl::index current_position)>;
+      std::function<Index(TextHostControlService* service, StringView text,
+                          Index current_position)>;
 
   TextControlMovePattern(String name, helper::ShortcutKeyBind key_bind,
                          MoveFunction move_function)
@@ -65,8 +65,8 @@ class TextControlMovePattern : public Object {
  public:
   String GetName() const { return name_; }
   helper::ShortcutKeyBind GetKeyBind() const { return key_bind_; }
-  gsl::index Move(TextHostControlService* service, StringView text,
-                  gsl::index current_position) const {
+  Index Move(TextHostControlService* service, StringView text,
+             Index current_position) const {
     return move_function_(service, text, current_position);
   }
 
@@ -80,7 +80,7 @@ class CRU_UI_API TextHostControlService : public Object {
   CRU_DEFINE_CLASS_LOG_TAG(u"TextControlService")
 
  public:
-  TextHostControlService(gsl::not_null<Control*> control);
+  TextHostControlService(Control* control);
 
   CRU_DELETE_COPY(TextHostControlService)
   CRU_DELETE_MOVE(TextHostControlService)
@@ -105,13 +105,12 @@ class CRU_UI_API TextHostControlService : public Object {
   StringView GetTextView() { return this->text_; }
   void SetText(String text, bool stop_composition = false);
 
-  void InsertText(gsl::index position, StringView text,
+  void InsertText(Index position, StringView text,
                   bool stop_composition = false);
-  void DeleteChar(gsl::index position, bool stop_composition = false);
+  void DeleteChar(Index position, bool stop_composition = false);
 
   // Return the position of deleted character.
-  gsl::index DeleteCharPrevious(gsl::index position,
-                                bool stop_composition = false);
+  Index DeleteCharPrevious(Index position, bool stop_composition = false);
   void DeleteText(TextRange range, bool stop_composition = false);
 
   void CancelComposition();
@@ -124,17 +123,17 @@ class CRU_UI_API TextHostControlService : public Object {
   int GetCaretBlinkDuration() { return caret_blink_duration_; }
   void SetCaretBlinkDuration(int milliseconds);
 
-  gsl::index GetCaretPosition() { return selection_.GetEnd(); }
+  Index GetCaretPosition() { return selection_.GetEnd(); }
   TextRange GetSelection() { return selection_; }
 
   StringView GetSelectedText();
 
-  void SetSelection(gsl::index caret_position);
+  void SetSelection(Index caret_position);
   void SetSelection(TextRange selection, bool scroll_to_caret = true);
 
   void SelectAll();
 
-  void ChangeSelectionEnd(gsl::index new_end);
+  void ChangeSelectionEnd(Index new_end);
   void AbortSelection();
 
   void DeleteSelectedText();
@@ -150,7 +149,7 @@ class CRU_UI_API TextHostControlService : public Object {
 
   IEvent<std::nullptr_t>* TextChangeEvent() { return &text_change_event_; }
 
-  gsl::not_null<render::TextRenderObject*> GetTextRenderObject();
+  render::TextRenderObject* GetTextRenderObject();
   render::ScrollRenderObject* GetScrollRenderObject();
 
  private:
@@ -192,8 +191,8 @@ class CRU_UI_API TextHostControlService : public Object {
   void OpenContextMenu(const Point& position, ContextMenuItem items);
 
  private:
-  gsl::not_null<Control*> control_;
-  gsl::not_null<ITextHostControl*> text_host_control_;
+  Control* control_;
+  ITextHostControl* text_host_control_;
 
   Event<std::nullptr_t> text_change_event_;
 

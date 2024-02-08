@@ -47,7 +47,7 @@ class CRU_UI_API TextBlock : public NoChildControl,
   }
   void SetTextColor(const Color& color);
 
-  gsl::not_null<render::TextRenderObject*> GetTextRenderObject() override;
+  render::TextRenderObject* GetTextRenderObject() override;
   render::ScrollRenderObject* GetScrollRenderObject() override {
     return nullptr;
   }

@@ -37,7 +37,7 @@ void StyleRuleSet::SetParent(std::shared_ptr<StyleRuleSet> parent) {
   RaiseChangeEvent();
 }
 
-void StyleRuleSet::AddStyleRule(StyleRule rule, gsl::index index) {
+void StyleRuleSet::AddStyleRule(StyleRule rule, Index index) {
   Expects(index >= 0 && index <= GetSize());
 
   rules_.insert(rules_.cbegin() + index, std::move(rule));
@@ -45,7 +45,7 @@ void StyleRuleSet::AddStyleRule(StyleRule rule, gsl::index index) {
   RaiseChangeEvent(model::ListChange::ItemAdd(index));
 }
 
-void StyleRuleSet::RemoveStyleRule(gsl::index index, gsl::index count) {
+void StyleRuleSet::RemoveStyleRule(Index index, Index count) {
   Expects(index >= 0);
   Expects(count >= 0 && index + count <= GetSize());
 

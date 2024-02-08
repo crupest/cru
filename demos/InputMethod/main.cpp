@@ -146,7 +146,7 @@ int main() {
     text_layout->SetText(committed_text + composition_text.text);
 
     const auto cursor_pos = composition_text.selection.position +
-                            gsl::narrow_cast<int>(committed_text.size());
+                            static_cast<int>(committed_text.size());
     state->cursor_rect = text_layout->TextSinglePoint(cursor_pos, false);
 
     input_method_context->SetCandidateWindowPosition(

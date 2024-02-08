@@ -29,7 +29,7 @@ namespace cru::ui::controls {
 TextControlMovePattern TextControlMovePattern::kLeft(
     u"Left", helper::ShortcutKeyBind(platform::gui::KeyCode::Left),
     [](TextHostControlService* service, StringView text,
-       gsl::index current_position) {
+       Index current_position) {
       CRU_UNUSED(service)
       Utf16PreviousCodePoint(text, current_position, &current_position);
       return current_position;
@@ -37,7 +37,7 @@ TextControlMovePattern TextControlMovePattern::kLeft(
 TextControlMovePattern TextControlMovePattern::kRight(
     u"Right", helper::ShortcutKeyBind(platform::gui::KeyCode::Right),
     [](TextHostControlService* service, StringView text,
-       gsl::index current_position) {
+       Index current_position) {
       CRU_UNUSED(service)
       Utf16NextCodePoint(text, current_position, &current_position);
       return current_position;
@@ -47,7 +47,7 @@ TextControlMovePattern TextControlMovePattern::kCtrlLeft(
     helper::ShortcutKeyBind(platform::gui::KeyCode::Left,
                             platform::gui::KeyModifiers::ctrl),
     [](TextHostControlService* service, StringView text,
-       gsl::index current_position) {
+       Index current_position) {
       CRU_UNUSED(service)
       return Utf16PreviousWord(text, current_position);
     });
@@ -56,14 +56,14 @@ TextControlMovePattern TextControlMovePattern::kCtrlRight(
     helper::ShortcutKeyBind(platform::gui::KeyCode::Right,
                             platform::gui::KeyModifiers::ctrl),
     [](TextHostControlService* service, StringView text,
-       gsl::index current_position) {
+       Index current_position) {
       CRU_UNUSED(service)
       return Utf16NextWord(text, current_position);
     });
 TextControlMovePattern TextControlMovePattern::kUp(
     u"Up", helper::ShortcutKeyBind(platform::gui::KeyCode::Up),
     [](TextHostControlService* service, StringView text,
-       gsl::index current_position) {
+       Index current_position) {
       CRU_UNUSED(text)
       auto text_render_object = service->GetTextRenderObject();
       auto rect = text_render_object->TextSinglePoint(current_position, false);
@@ -74,7 +74,7 @@ TextControlMovePattern TextControlMovePattern::kUp(
 TextControlMovePattern TextControlMovePattern::kDown(
     u"Down", helper::ShortcutKeyBind(platform::gui::KeyCode::Down),
     [](TextHostControlService* service, StringView text,
-       gsl::index current_position) {
+       Index current_position) {
       CRU_UNUSED(text)
       auto text_render_object = service->GetTextRenderObject();
       auto rect = text_render_object->TextSinglePoint(current_position, false);
@@ -85,7 +85,7 @@ TextControlMovePattern TextControlMovePattern::kDown(
 TextControlMovePattern TextControlMovePattern::kHome(
     u"Home(Line Begin)", helper::ShortcutKeyBind(platform::gui::KeyCode::Home),
     [](TextHostControlService* service, StringView text,
-       gsl::index current_position) {
+       Index current_position) {
       CRU_UNUSED(service)
       return Utf16BackwardUntil(text, current_position,
                                 [](CodePoint c) { return c == u'\n'; });
@@ -93,7 +93,7 @@ TextControlMovePattern TextControlMovePattern::kHome(
 TextControlMovePattern TextControlMovePattern::kEnd(
     u"End(Line End)", helper::ShortcutKeyBind(platform::gui::KeyCode::End),
     [](TextHostControlService* service, StringView text,
-       gsl::index current_position) {
+       Index current_position) {
       CRU_UNUSED(service)
       return Utf16ForwardUntil(text, current_position,
                                [](CodePoint c) { return c == u'\n'; });
@@ -103,7 +103,7 @@ TextControlMovePattern TextControlMovePattern::kCtrlHome(
     helper::ShortcutKeyBind(platform::gui::KeyCode::Home,
                             platform::gui::KeyModifiers::ctrl),
     [](TextHostControlService* service, StringView text,
-       gsl::index current_position) {
+       Index current_position) {
       CRU_UNUSED(service)
       CRU_UNUSED(text)
       CRU_UNUSED(current_position)
@@ -114,7 +114,7 @@ TextControlMovePattern TextControlMovePattern::kCtrlEnd(
     helper::ShortcutKeyBind(platform::gui::KeyCode::End,
                             platform::gui::KeyModifiers::ctrl),
     [](TextHostControlService* service, StringView text,
-       gsl::index current_position) {
+       Index current_position) {
       CRU_UNUSED(service)
       CRU_UNUSED(text)
       CRU_UNUSED(current_position)
@@ -123,7 +123,7 @@ TextControlMovePattern TextControlMovePattern::kCtrlEnd(
 TextControlMovePattern TextControlMovePattern::kPageUp(
     u"PageUp", helper::ShortcutKeyBind(platform::gui::KeyCode::PageUp),
     [](TextHostControlService* service, StringView text,
-       gsl::index current_position) {
+       Index current_position) {
       CRU_UNUSED(service)
       CRU_UNUSED(text)
       // TODO: Implement this.
@@ -132,7 +132,7 @@ TextControlMovePattern TextControlMovePattern::kPageUp(
 TextControlMovePattern TextControlMovePattern::kPageDown(
     u"PageDown", helper::ShortcutKeyBind(platform::gui::KeyCode::PageDown),
     [](TextHostControlService* service, StringView text,
-       gsl::index current_position) {
+       Index current_position) {
       CRU_UNUSED(service)
       CRU_UNUSED(text)
       // TODO: Implement this.
@@ -147,9 +147,9 @@ std::vector<TextControlMovePattern> TextControlMovePattern::kDefaultPatterns = {
     TextControlMovePattern::kCtrlHome, TextControlMovePattern::kCtrlEnd,
     TextControlMovePattern::kPageUp,   TextControlMovePattern::kPageDown};
 
-TextHostControlService::TextHostControlService(gsl::not_null<Control*> control)
+TextHostControlService::TextHostControlService(Control* control)
     : control_(control),
-      text_host_control_(dynamic_cast<ITextHostControl*>(control.get())) {
+      text_host_control_(dynamic_cast<ITextHostControl*>(control)) {
   context_menu_ = MakeDeleteLaterPtr<components::PopupMenu>();
 
   SetUpShortcuts();
@@ -224,7 +224,7 @@ void TextHostControlService::SetText(String text, bool stop_composition) {
   text_change_event_.Raise(nullptr);
 }
 
-void TextHostControlService::InsertText(gsl::index position, StringView text,
+void TextHostControlService::InsertText(Index position, StringView text,
                                         bool stop_composition) {
   if (!Utf16IsValidInsertPosition(this->text_, position)) {
     CRU_LOG_ERROR(u"Invalid text insert position.");
@@ -238,21 +238,20 @@ void TextHostControlService::InsertText(gsl::index position, StringView text,
   text_change_event_.Raise(nullptr);
 }
 
-void TextHostControlService::DeleteChar(gsl::index position,
-                                        bool stop_composition) {
+void TextHostControlService::DeleteChar(Index position, bool stop_composition) {
   if (!Utf16IsValidInsertPosition(this->text_, position)) {
     CRU_LOG_ERROR(u"Invalid text delete position.");
     return;
   }
-  if (position == static_cast<gsl::index>(this->text_.size())) return;
+  if (position == static_cast<Index>(this->text_.size())) return;
   Index next;
   Utf16NextCodePoint(this->text_, position, &next);
   this->DeleteText(TextRange::FromTwoSides(position, next), stop_composition);
 }
 
 // Return the position of deleted character.
-gsl::index TextHostControlService::DeleteCharPrevious(gsl::index position,
-                                                      bool stop_composition) {
+Index TextHostControlService::DeleteCharPrevious(Index position,
+                                                 bool stop_composition) {
   if (!Utf16IsValidInsertPosition(this->text_, position)) {
     CRU_LOG_ERROR(u"Invalid text delete position.");
     return 0;
@@ -345,8 +344,7 @@ void TextHostControlService::ScrollToCaret() {
   }
 }
 
-gsl::not_null<render::TextRenderObject*>
-TextHostControlService::GetTextRenderObject() {
+render::TextRenderObject* TextHostControlService::GetTextRenderObject() {
   return this->text_host_control_->GetTextRenderObject();
 }
 
@@ -359,7 +357,7 @@ StringView TextHostControlService::GetSelectedText() {
   return GetTextView().substr(selection.position, selection.count);
 }
 
-void TextHostControlService::SetSelection(gsl::index caret_position) {
+void TextHostControlService::SetSelection(Index caret_position) {
   this->SetSelection(TextRange{caret_position, 0});
 }
 

@@ -73,4 +73,4 @@ else()
 	target_compile_definitions(CruBase PUBLIC CRU_PLATFORM_LINUX)
 endif()
 
-target_link_libraries(CruBase PUBLIC GSL double-conversion)
+target_link_libraries(CruBase PUBLIC double-conversion)

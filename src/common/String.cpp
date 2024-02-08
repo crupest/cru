@@ -6,7 +6,6 @@
 
 #include <double-conversion/double-conversion.h>
 #include <double-conversion/string-to-double.h>
-#include <gsl/gsl>
 
 #include <algorithm>
 #include <cmath>

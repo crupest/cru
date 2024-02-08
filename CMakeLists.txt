@@ -32,7 +32,6 @@ set(BUILD_SHARED_LIBS OFF)
 add_subdirectory(lib/Catch2)
 set(BUILD_SHARED_LIBS ${OLD_BUILD_SHARED_LIBS})
 add_subdirectory(lib/double-conversion)
-add_subdirectory(lib/GSL)
 
 enable_testing()
 

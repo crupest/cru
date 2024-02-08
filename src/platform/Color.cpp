@@ -1,7 +1,5 @@
 #include "cru/platform/Color.h"
 
-#include <gsl/gsl>
-
 #include <cmath>
 #include <cstdint>
 #include <optional>
@@ -61,9 +59,8 @@ std::optional<Color> Color::Parse(StringView string,
     if (!g) return std::nullopt;
     auto b = get_num_for_two_digit(string.substr(5, 2));
     if (!b) return std::nullopt;
-    return Color(gsl::narrow_cast<std::uint8_t>(*r),
-                 gsl::narrow_cast<std::uint8_t>(*g),
-                 gsl::narrow_cast<std::uint8_t>(*b));
+    return Color(static_cast<std::uint8_t>(*r), static_cast<std::uint8_t>(*g),
+                 static_cast<std::uint8_t>(*b));
   } else if (string_size == 9) {
     if (string[0] != u'#') return std::nullopt;
     auto r = get_num_for_two_digit(string.substr(1, 2));
@@ -74,9 +71,8 @@ std::optional<Color> Color::Parse(StringView string,
     if (!b) return std::nullopt;
     auto a = get_num_for_two_digit(string.substr(7, 2));
     if (!a) return std::nullopt;
-    return Color(
-        gsl::narrow_cast<std::uint8_t>(*r), gsl::narrow_cast<std::uint8_t>(*g),
-        gsl::narrow_cast<std::uint8_t>(*b), gsl::narrow_cast<std::uint8_t>(*a));
+    return Color(static_cast<std::uint8_t>(*r), static_cast<std::uint8_t>(*g),
+                 static_cast<std::uint8_t>(*b), static_cast<std::uint8_t>(*a));
   } else {
     return std::nullopt;
   }

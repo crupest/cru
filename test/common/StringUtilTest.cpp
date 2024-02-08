@@ -3,12 +3,13 @@
 
 #include <catch2/catch_test_macros.hpp>
 
+using cru::Index;
 using cru::k_invalid_code_point;
 
 TEST_CASE("StringUtil Utf8NextCodePoint", "[string]") {
   using cru::Utf8NextCodePoint;
   std::string_view text = "aπ你🤣!";
-  gsl::index current = 0;
+  Index current = 0;
   REQUIRE(Utf8NextCodePoint(text.data(), text.size(), current, &current) ==
           0x0061);
   REQUIRE(Utf8NextCodePoint(text.data(), text.size(), current, &current) ==
@@ -21,13 +22,13 @@ TEST_CASE("StringUtil Utf8NextCodePoint", "[string]") {
           0x0021);
   REQUIRE(Utf8NextCodePoint(text.data(), text.size(), current, &current) ==
           k_invalid_code_point);
-  REQUIRE(current == static_cast<gsl::index>(text.size()));
+  REQUIRE(current == static_cast<Index>(text.size()));
 }
 
 TEST_CASE("StringUtil Utf16NextCodePoint", "[string]") {
   using cru::Utf16NextCodePoint;
   std::u16string_view text = u"aπ你🤣!";
-  gsl::index current = 0;
+  Index current = 0;
   REQUIRE(Utf16NextCodePoint(text.data(), text.size(), current, &current) ==
           0x0061);
   REQUIRE(Utf16NextCodePoint(text.data(), text.size(), current, &current) ==
@@ -40,13 +41,13 @@ TEST_CASE("StringUtil Utf16NextCodePoint", "[string]") {
           0x0021);
   REQUIRE(Utf16NextCodePoint(text.data(), text.size(), current, &current) ==
           k_invalid_code_point);
-  REQUIRE(current == static_cast<gsl::index>(text.size()));
+  REQUIRE(current == static_cast<Index>(text.size()));
 }
 
 TEST_CASE("StringUtil Utf16PreviousCodePoint", "[string]") {
   using cru::Utf16PreviousCodePoint;
   std::u16string_view text = u"aπ你🤣!";
-  gsl::index current = text.size();
+  Index current = text.size();
   REQUIRE(Utf16PreviousCodePoint(text.data(), text.size(), current, &current) ==
           0x0021);
   REQUIRE(Utf16PreviousCodePoint(text.data(), text.size(), current, &current) ==

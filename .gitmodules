@@ -1,9 +1,6 @@
 [submodule "lib/double-conversion"]
 	path = lib/double-conversion
 	url = https://github.com/google/double-conversion.git
-[submodule "lib/GSL"]
-	path = lib/GSL
-	url = https://github.com/microsoft/GSL.git
 [submodule "lib/Catch2"]
 	path = lib/Catch2
 	url = https://github.com/catchorg/Catch2.git

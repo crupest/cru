@@ -71,14 +71,14 @@ long long WinUiApplication::SetImmediate(std::function<void()> action) {
 long long WinUiApplication::SetTimeout(std::chrono::milliseconds milliseconds,
                                        std::function<void()> action) {
   return this->timer_manager_->SetTimer(TimerType::Timeout,
-                                        gsl::narrow<int>(milliseconds.count()),
+                                        static_cast<int>(milliseconds.count()),
                                         std::move(action));
 }
 
 long long WinUiApplication::SetInterval(std::chrono::milliseconds milliseconds,
                                         std::function<void()> action) {
   return this->timer_manager_->SetTimer(TimerType::Interval,
-                                        gsl::narrow<int>(milliseconds.count()),
+                                        static_cast<int>(milliseconds.count()),
                                         std::move(action));
 }
 

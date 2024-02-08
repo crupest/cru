@@ -22,7 +22,7 @@ long long TimerManager::SetTimer(TimerType type, int period,
                        std::move(action)};
   if (type == TimerType::Immediate) {
     if (!::PostMessageW(god_window_->GetHandle(), kSetImmediateWindowMessageId,
-                        gsl::narrow<UINT_PTR>(id), 0)) {
+                        static_cast<UINT_PTR>(id), 0)) {
       throw Win32Error(
           ::GetLastError(),
           u"Failed to post window message to god window for set immediate.");
@@ -46,7 +46,7 @@ void TimerManager::CancelTimer(long long id) {
 }
 
 void TimerManager::CreateNativeTimer(TimerInfo* info) {
-  info->native_timer_id = gsl::narrow<UINT_PTR>(info->id);
+  info->native_timer_id = static_cast<UINT_PTR>(info->id);
   ::SetTimer(god_window_->GetHandle(), info->native_timer_id, info->period,
              nullptr);
 }

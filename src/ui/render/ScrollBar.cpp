@@ -84,8 +84,7 @@ std::unique_ptr<platform::graphics::IGeometry> CreateScrollBarArrowGeometry() {
 }
 }  // namespace
 
-ScrollBar::ScrollBar(gsl::not_null<ScrollRenderObject*> render_object,
-                     Direction direction)
+ScrollBar::ScrollBar(ScrollRenderObject* render_object, Direction direction)
     : render_object_(render_object), direction_(direction) {
   arrow_geometry_ = CreateScrollBarArrowGeometry();
 }
@@ -260,12 +259,11 @@ void ScrollBar::InstallHandlers(controls::Control* control) {
   }
 }
 
-gsl::not_null<std::shared_ptr<platform::graphics::IBrush>>
+std::shared_ptr<platform::graphics::IBrush>
 ScrollBar::GetCollapsedThumbBrush() {
-  return collapsed_thumb_brush_
-             ? gsl::not_null(collapsed_thumb_brush_)
-             : gsl::not_null(ThemeManager::GetInstance()->GetResourceBrush(
-                   u"scrollbar.collapse-thumb.color"));
+  return collapsed_thumb_brush_ ? collapsed_thumb_brush_
+                                : ThemeManager::GetInstance()->GetResourceBrush(
+                                      u"scrollbar.collapse-thumb.color");
 }
 
 void ScrollBar::SetCollapsedThumbBrush(
@@ -275,12 +273,12 @@ void ScrollBar::SetCollapsedThumbBrush(
   render_object_->InvalidatePaint();
 }
 
-gsl::not_null<std::shared_ptr<platform::graphics::IBrush>> ScrollBar::GetBrush(
+std::shared_ptr<platform::graphics::IBrush> ScrollBar::GetBrush(
     ScrollBarBrushUsageKind usage, ScrollBarBrushStateKind state) {
   auto b = brushes_[usage][state];
-  return b ? gsl::not_null(b)
-           : gsl::not_null(ThemeManager::GetInstance()->GetResourceBrush(
-                 GenerateScrollBarThemeColorKey(usage, state)));
+  return b ? b
+           : ThemeManager::GetInstance()->GetResourceBrush(
+                 GenerateScrollBarThemeColorKey(usage, state));
 }
 
 // Brush could be nullptr to use the theme brush.
@@ -300,7 +298,7 @@ void ScrollBar::OnDraw(platform::graphics::IPainter* painter,
       auto thumb_state = GetState(ScrollBarAreaKind::Thumb);
       painter->FillRectangle(
           *thumb_rect,
-          GetBrush(ScrollBarBrushUsageKind::Thumb, thumb_state).get().get());
+          GetBrush(ScrollBarBrushUsageKind::Thumb, thumb_state).get());
     }
 
     auto up_slot_rect = GetExpandedAreaRect(ScrollBarAreaKind::UpSlot);
@@ -308,23 +306,23 @@ void ScrollBar::OnDraw(platform::graphics::IPainter* painter,
     if (up_slot_rect)
       painter->FillRectangle(
           *up_slot_rect,
-          GetBrush(ScrollBarBrushUsageKind::Slot, up_slot_state).get().get());
+          GetBrush(ScrollBarBrushUsageKind::Slot, up_slot_state).get());
 
     auto down_slot_rect = GetExpandedAreaRect(ScrollBarAreaKind::DownSlot);
     auto down_slot_state = GetState(ScrollBarAreaKind::DownSlot);
     if (down_slot_rect)
       painter->FillRectangle(
           *down_slot_rect,
-          GetBrush(ScrollBarBrushUsageKind::Slot, down_slot_state).get().get());
+          GetBrush(ScrollBarBrushUsageKind::Slot, down_slot_state).get());
 
     auto up_arrow_rect = GetExpandedAreaRect(ScrollBarAreaKind::UpArrow);
     auto up_arrow_state = GetState(ScrollBarAreaKind::UpArrow);
     if (up_arrow_rect)
       this->DrawUpArrow(
           painter, *up_arrow_rect,
-          GetBrush(ScrollBarBrushUsageKind::Arrow, up_arrow_state).get().get(),
+          GetBrush(ScrollBarBrushUsageKind::Arrow, up_arrow_state).get(),
           GetBrush(ScrollBarBrushUsageKind::ArrowBackground, up_arrow_state)
-              .get()
+
               .get());
 
     auto down_arrow_rect = GetExpandedAreaRect(ScrollBarAreaKind::DownArrow);
@@ -332,17 +330,13 @@ void ScrollBar::OnDraw(platform::graphics::IPainter* painter,
     if (down_arrow_rect)
       this->DrawDownArrow(
           painter, *down_arrow_rect,
-          GetBrush(ScrollBarBrushUsageKind::Arrow, down_arrow_state)
-              .get()
-              .get(),
+          GetBrush(ScrollBarBrushUsageKind::Arrow, down_arrow_state).get(),
           GetBrush(ScrollBarBrushUsageKind::ArrowBackground, down_arrow_state)
-              .get()
               .get());
   } else {
     auto optional_rect = GetCollapsedThumbRect();
     if (optional_rect) {
-      painter->FillRectangle(*optional_rect,
-                             GetCollapsedThumbBrush().get().get());
+      painter->FillRectangle(*optional_rect, GetCollapsedThumbBrush().get());
     }
   }
 }
@@ -416,33 +410,32 @@ ScrollBarBrushStateKind ScrollBar::GetState(ScrollBarAreaKind area) {
   }
 }
 
-HorizontalScrollBar::HorizontalScrollBar(
-    gsl::not_null<ScrollRenderObject*> render_object)
+HorizontalScrollBar::HorizontalScrollBar(ScrollRenderObject* render_object)
     : ScrollBar(render_object, Direction::Horizontal) {}
 
 void HorizontalScrollBar::DrawUpArrow(
     platform::graphics::IPainter* painter, const Rect& area,
-    gsl::not_null<platform::graphics::IBrush*> arrow_brush,
-    gsl::not_null<platform::graphics::IBrush*> background_brush) {
-  painter->FillRectangle(area, background_brush.get());
+    platform::graphics::IBrush* arrow_brush,
+    platform::graphics::IBrush* background_brush) {
+  painter->FillRectangle(area, background_brush);
 
   platform::graphics::util::WithTransform(
       painter, Matrix::Translation(area.GetCenter()),
       [this, arrow_brush](platform::graphics::IPainter* painter) {
-        painter->FillGeometry(arrow_geometry_.get(), arrow_brush.get());
+        painter->FillGeometry(arrow_geometry_.get(), arrow_brush);
       });
 }
 
 void HorizontalScrollBar::DrawDownArrow(
     platform::graphics::IPainter* painter, const Rect& area,
-    gsl::not_null<platform::graphics::IBrush*> arrow_brush,
-    gsl::not_null<platform::graphics::IBrush*> background_brush) {
-  painter->FillRectangle(area, background_brush.get());
+    platform::graphics::IBrush* arrow_brush,
+    platform::graphics::IBrush* background_brush) {
+  painter->FillRectangle(area, background_brush);
 
   platform::graphics::util::WithTransform(
       painter, Matrix::Rotation(180) * Matrix::Translation(area.GetCenter()),
       [this, arrow_brush](platform::graphics::IPainter* painter) {
-        painter->FillGeometry(arrow_geometry_.get(), arrow_brush.get());
+        painter->FillGeometry(arrow_geometry_.get(), arrow_brush);
       });
 }
 
@@ -565,33 +558,32 @@ bool HorizontalScrollBar::CanScrollDown() {
   return render_object_->HorizontalCanScrollDown();
 }
 
-VerticalScrollBar::VerticalScrollBar(
-    gsl::not_null<ScrollRenderObject*> render_object)
+VerticalScrollBar::VerticalScrollBar(ScrollRenderObject* render_object)
     : ScrollBar(render_object, Direction::Vertical) {}
 
 void VerticalScrollBar::DrawUpArrow(
     platform::graphics::IPainter* painter, const Rect& area,
-    gsl::not_null<platform::graphics::IBrush*> arrow_brush,
-    gsl::not_null<platform::graphics::IBrush*> background_brush) {
-  painter->FillRectangle(area, background_brush.get());
+    platform::graphics::IBrush* arrow_brush,
+    platform::graphics::IBrush* background_brush) {
+  painter->FillRectangle(area, background_brush);
 
   platform::graphics::util::WithTransform(
       painter, Matrix::Rotation(90) * Matrix::Translation(area.GetCenter()),
       [this, arrow_brush](platform::graphics::IPainter* painter) {
-        painter->FillGeometry(arrow_geometry_.get(), arrow_brush.get());
+        painter->FillGeometry(arrow_geometry_.get(), arrow_brush);
       });
 }
 
 void VerticalScrollBar::DrawDownArrow(
     platform::graphics::IPainter* painter, const Rect& area,
-    gsl::not_null<platform::graphics::IBrush*> arrow_brush,
-    gsl::not_null<platform::graphics::IBrush*> background_brush) {
-  painter->FillRectangle(area, background_brush.get());
+    platform::graphics::IBrush* arrow_brush,
+    platform::graphics::IBrush* background_brush) {
+  painter->FillRectangle(area, background_brush);
 
   platform::graphics::util::WithTransform(
       painter, Matrix::Rotation(270) * Matrix::Translation(area.GetCenter()),
       [this, arrow_brush](platform::graphics::IPainter* painter) {
-        painter->FillGeometry(arrow_geometry_.get(), arrow_brush.get());
+        painter->FillGeometry(arrow_geometry_.get(), arrow_brush);
       });
 }
 
@@ -712,8 +704,7 @@ bool VerticalScrollBar::CanScrollDown() {
   return render_object_->VerticalCanScrollDown();
 }
 
-ScrollBarDelegate::ScrollBarDelegate(
-    gsl::not_null<ScrollRenderObject*> render_object)
+ScrollBarDelegate::ScrollBarDelegate(ScrollRenderObject* render_object)
     : render_object_(render_object),
       horizontal_bar_(render_object),
       vertical_bar_(render_object) {

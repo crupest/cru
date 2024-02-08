@@ -471,7 +471,7 @@ cru::platform::gui::KeyModifier GetKeyModifier(NSEvent* event) {
 - (void)drawRect:(NSRect)dirtyRect {
   auto cg_context = [[NSGraphicsContext currentContext] CGContext];
   auto layer = _p->GetDrawLayer();
-  Ensures(layer);
+  cru::Ensures(layer);
   CGContextDrawLayerAtPoint(cg_context, CGPointMake(0, 0), layer);
 }
 

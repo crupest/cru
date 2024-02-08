@@ -28,7 +28,7 @@ struct IPainter;
 struct ITextLayout;
 
 struct TextHitTestResult {
-  gsl::index position;
+  Index position;
   bool trailing;
   bool inside_text;
 };
