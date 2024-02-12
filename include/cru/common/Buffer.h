@@ -2,10 +2,10 @@
 
 #include "Base.h"
 
-#include <list>
-
 namespace cru {
 class Buffer final {
+  friend void swap(Buffer& left, Buffer& right) noexcept;
+
  public:
   explicit Buffer(Index size);
 
@@ -19,10 +19,12 @@ class Buffer final {
 
  private:
   Index GetBufferSize() const { return size_; }
-  Index GetUsedSize() const { return used_size_; }
-  Index GetRestSize() const { return GetBufferSize() - GetUsedSize(); }
+  Index GetUsedSize() const { return used_end_ - used_begin_; }
   bool IsNull() const { return ptr_ == nullptr; }
-  bool IsFull() const { return GetBufferSize() == GetUsedSize(); }
+  bool IsUsedReachEnd() const { return used_end_ == size_; }
+
+  Index GetUsedBegin() const { return used_begin_; }
+  Index GetUsedEnd() const { return used_end_; }
 
   std::byte* GetPtr() { return GetPtrAt(0); }
   const std::byte* GetPtr() const { return GetPtrAt(0); }
@@ -33,22 +35,23 @@ class Buffer final {
   std::byte& GetRefAt(Index index) { return *GetPtrAt(index); }
   const std::byte& GetRefAt(Index index) const { return *GetPtrAt(index); }
 
-  std::byte* GetUsedEndPtr() { return GetPtrAt(GetUsedSize()); }
-  const std::byte* GetUsedEndPtr() const { return GetPtrAt(GetUsedSize()); }
+  std::byte* GetUsedBeginPtr() { return GetPtrAt(GetUsedBegin()); }
+  const std::byte* GetUsedBeginPtr() const { return GetPtrAt(GetUsedBegin()); }
+  std::byte* GetUsedEndPtr() { return GetPtrAt(GetUsedEnd()); }
+  const std::byte* GetUsedEndPtr() const { return GetPtrAt(GetUsedEnd()); }
 
   std::byte GetByteAt(Index index) const { return ptr_[index]; }
   void SetByteAt(Index index, std::byte value) { ptr_[index] = value; }
 
-  void AssignBytes(std::byte* src, Index src_size) {
-    return AssignBytes(0, src, 0, src_size);
+  void AssignBytes(std::byte* src, Index src_size, bool use_memmove = false) {
+    return AssignBytes(0, src, 0, src_size, use_memmove);
   }
-  void AssignBytes(Index dst_offset, std::byte* src, Index src_size) {
-    return AssignBytes(dst_offset, src, 0, src_size);
+  void AssignBytes(Index dst_offset, std::byte* src, Index src_size,
+                   bool use_memmove = false) {
+    return AssignBytes(dst_offset, src, 0, src_size, use_memmove);
   }
   void AssignBytes(Index dst_offset, std::byte* src, Index src_offset,
-                   Index src_size);
-
-  void SetUsedSize(Index new_size);
+                   Index src_size, bool use_memmove = false);
 
   /**
    * @brief Change the size of the buffer.
@@ -61,6 +64,16 @@ class Buffer final {
   void ResizeBuffer(Index new_size, bool preserve_used);
 
   /**
+   * @brief Append data to the front of used bytes and increase used size.
+   * @return The actual size of data saved.
+   *
+   * If there is no enough space left for new data, the rest space will be
+   * written and the size of it will be returned, leaving exceeded data not
+   * saved.
+   */
+  Index PushFront(std::byte* other, Index other_size, bool use_memmove = false);
+
+  /**
    * @brief Append data to the back of used bytes and increase used size.
    * @return The actual size of data saved.
    *
@@ -68,11 +81,20 @@ class Buffer final {
    * written and the size of it will be returned, leaving exceeded data not
    * saved.
    */
-  Index PushEnd(std::byte* other, Index other_size);
+  Index PushBack(std::byte* other, Index other_size, bool use_memmove = false);
 
   /**
-   * @brief Decrease used data size.
-   * @return The actual size decreased.
+   * @brief Move forward the used-begin ptr.
+   * @return The actual size moved forward.
+   *
+   * If given size is bigger than current used size, the used size will be
+   * returned and set to 0.
+   */
+  Index PopFront(Index size);
+
+  /**
+   * @brief Move backward the used-end ptr.
+   * @return The actual size moved backward.
    *
    * If given size is bigger than current used size, the used size will be
    * returned and set to 0.
@@ -90,24 +112,9 @@ class Buffer final {
  private:
   std::byte* ptr_;
   Index size_;
-  Index used_size_;
+  Index used_begin_;
+  Index used_end_;
 };
 
-void swap(Buffer& left, Buffer& right);
-
-class BufferList {
- public:
-  explicit BufferList(Index buffer_size);
-
-  BufferList(const BufferList& other);
-  BufferList(BufferList&& other);
-
-  BufferList& operator=(const BufferList& other);
-  BufferList& operator=(BufferList&& other);
-
-  ~BufferList();
-
- private:
-  std::list<Buffer> buffers_;
-};
+void swap(Buffer& left, Buffer& right) noexcept;
 }  // namespace cru

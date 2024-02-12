@@ -24,28 +24,6 @@ class ConcurrentQueue {
   ConcurrentQueue(const ConcurrentQueue&) = delete;
   ConcurrentQueue& operator=(const ConcurrentQueue&) = delete;
 
-  ConcurrentQueue(ConcurrentQueue&& other)
-      : head_(other.head_),
-        tail_(other.tail_),
-        mutex_(std::move(other.mutex_)),
-        condition_variable_(std::move(other.condition_variable_)) {
-    other.head_ = nullptr;
-    other.tail_ = nullptr;
-  }
-
-  ConcurrentQueue& operator=(ConcurrentQueue&& other) {
-    if (this != &other) {
-      head_ = other.head_;
-      tail_ = other.tail_;
-      mutex_ = std::move(other.mutex_);
-      condition_variable_ = std::move(other.condition_variable_);
-      other.head_ = nullptr;
-      other.tail_ = nullptr;
-      return *this;
-    }
-    return *this;
-  }
-
   ~ConcurrentQueue() {
     if (head_) {
       auto node = head_;

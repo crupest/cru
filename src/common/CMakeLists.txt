@@ -9,6 +9,7 @@ add_library(CruBase
 	StringUtil.cpp
 	SubProcess.cpp
 	io/AutoReadStream.cpp
+	io/BufferStream.cpp
 	io/CFileStream.cpp
 	io/Stream.cpp
 	io/ProxyStream.cpp

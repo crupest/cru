@@ -1,6 +1,7 @@
 #include "cru/common/Buffer.h"
-#include <cstring>
 #include "cru/common/Exception.h"
+
+#include <cstring>
 
 namespace cru {
 namespace {
@@ -15,11 +16,11 @@ Buffer::Buffer(Index size) {
   CheckSize(size);
   if (size == 0) {
     ptr_ = nullptr;
-    size_ = used_size_ = 0;
+    size_ = used_begin_ = used_end_ = 0;
   } else {
     ptr_ = new std::byte[size];
     size_ = size;
-    used_size_ = 0;
+    used_begin_ = used_end_ = 0;
   }
 }
 
@@ -46,17 +47,16 @@ Buffer& Buffer::operator=(Buffer&& other) noexcept {
 Buffer::~Buffer() { Delete_(); }
 
 void Buffer::AssignBytes(Index dst_offset, std::byte* src, Index src_offset,
-                         Index src_size) {
-  std::memcpy(ptr_ + dst_offset, src + src_offset, src_size);
+                         Index src_size, bool use_memmove) {
+  (use_memmove ? std::memmove : std::memcpy)(ptr_ + dst_offset,
+                                             src + src_offset, src_size);
 }
-
-void Buffer::SetUsedSize(Index new_size) { used_size_ = new_size; }
 
 void Buffer::ResizeBuffer(Index new_size, bool preserve_used) {
   if (new_size == 0) {
     Delete_();
     ptr_ = nullptr;
-    size_ = used_size_ = 0;
+    size_ = used_begin_ = used_end_ = 0;
     return;
   }
 
@@ -64,61 +64,88 @@ void Buffer::ResizeBuffer(Index new_size, bool preserve_used) {
 
   ptr_ = new std::byte[new_size];
   size_ = new_size;
+  used_begin_ = std::min(new_size, used_begin_);
+  used_end_ = std::min(new_size, used_end_);
 
   if (old_ptr) {
-    if (preserve_used) {
-      auto copy_size = std::min(used_size_, new_size);
-      std::memcpy(ptr_, old_ptr, copy_size);
-      used_size_ = copy_size;
+    if (preserve_used && used_begin_ < used_end_) {
+      std::memcpy(ptr_ + used_begin_, old_ptr + used_begin_,
+                  used_end_ - used_begin_);
     }
     delete[] old_ptr;
   }
 }
 
-Index Buffer::PushEnd(std::byte* other, Index other_size) {
-  auto copy_size = std::min(GetRestSize(), other_size);
+Index Buffer::PushFront(std::byte* other, Index other_size, bool use_memmove) {
+  auto copy_size = std::min(used_begin_, other_size);
 
   if (copy_size) {
-    std::memcpy(GetUsedEndPtr(), other, copy_size);
-    used_size_ += copy_size;
+    used_begin_ -= copy_size;
+    (use_memmove ? std::memmove : std::memcpy)(ptr_ + used_begin_, other,
+                                               copy_size);
   }
 
   return copy_size;
 }
 
-Index Buffer::PopEnd(Index size) {
-  if (used_size_ < size) {
-    used_size_ = 0;
-    return used_size_;
-  } else {
-    used_size_ -= size;
-    return size;
+Index Buffer::PushBack(std::byte* other, Index other_size, bool use_memmove) {
+  auto copy_size = std::min(size_ - used_end_, other_size);
+
+  if (copy_size) {
+    (use_memmove ? std::memmove : std::memcpy)(ptr_ + used_end_, other,
+                                               copy_size);
+    used_end_ += copy_size;
   }
+
+  return copy_size;
+}
+
+Index Buffer::PopFront(Index size) {
+  auto move = std::min(used_begin_, size);
+  used_begin_ -= move;
+  return move;
+}
+
+Index Buffer::PopEnd(Index size) {
+  auto move = std::min(size_ - used_end_, size);
+  used_end_ += move;
+  return move;
 }
 
 void Buffer::Copy_(const Buffer& other) {
   if (other.ptr_ == nullptr) {
     ptr_ = nullptr;
-    size_ = used_size_ = 0;
+    size_ = used_begin_ = used_end_ = 0;
   } else {
     ptr_ = new std::byte[other.size_];
     size_ = other.size_;
-    used_size_ = other.used_size_;
-    std::memcpy(ptr_, other.ptr_, used_size_);
+    used_begin_ = other.used_begin_;
+    used_end_ = other.used_end_;
+    std::memcpy(ptr_ + used_begin_, other.ptr_ + used_begin_,
+                used_end_ - used_begin_);
   }
 }
 
 void Buffer::Move_(Buffer&& other) noexcept {
   ptr_ = other.ptr_;
   size_ = other.size_;
-  used_size_ = other.used_size_;
+  used_begin_ = other.used_begin_;
+  used_end_ = other.used_end_;
   other.ptr_ = nullptr;
-  other.size_ = other.used_size_ = 0;
+  other.size_ = other.used_begin_ = other.used_end_ = 0;
 }
 
 void Buffer::Delete_() noexcept {
   if (ptr_) {
     delete[] ptr_;
   }
+}
+
+void swap(Buffer& left, Buffer& right) noexcept {
+  using std::swap;
+  swap(left.ptr_, right.ptr_);
+  swap(left.size_, right.size_);
+  swap(left.used_begin_, right.used_begin_);
+  swap(left.used_end_, right.used_end_);
 }
 }  // namespace cru

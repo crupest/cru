@@ -1,13 +1,12 @@
 #pragma once
 
-#include "Stream.h"
 #include "../Buffer.h"
+#include "Stream.h"
 
 #include <condition_variable>
 #include <list>
 #include <mutex>
 #include <thread>
-#include <vector>
 
 namespace cru::io {
 struct AutoReadStreamOptions {
@@ -38,9 +37,7 @@ struct AutoReadStreamOptions {
  */
 class CRU_BASE_API AutoReadStream : public Stream {
  private:
-   class BufferBlock {
-     
-   };
+  class BufferBlock {};
 
  public:
   /**
