@@ -17,6 +17,11 @@ class PosixSpawnSubProcess : public PlatformSubProcessBase {
   explicit PosixSpawnSubProcess(const PlatformSubProcessStartInfo& start_info);
   ~PosixSpawnSubProcess();
 
+ protected:
+  void PlatformCreateProcess() override;
+  PlatformSubProcessExitResult PlatformWaitForProcess() override;
+  void PlatformKillProcess() override;
+
  private:
   pid_t pid_;
   int exit_code_;

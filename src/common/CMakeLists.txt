@@ -1,5 +1,6 @@
 add_library(CruBase
 	Base.cpp
+	Buffer.cpp
 	Exception.cpp
 	Format.cpp
 	PropertyTree.cpp
@@ -7,6 +8,7 @@ add_library(CruBase
 	StringToNumberConverter.cpp
 	StringUtil.cpp
 	SubProcess.cpp
+	io/AutoReadStream.cpp
 	io/CFileStream.cpp
 	io/Stream.cpp
 	io/ProxyStream.cpp

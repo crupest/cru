@@ -23,4 +23,11 @@ PosixSpawnSubProcess::PosixSpawnSubProcess(
 
 PosixSpawnSubProcess::~PosixSpawnSubProcess() {}
 
+void PosixSpawnSubProcess::PlatformCreateProcess() {
+  
+}
+
+PlatformSubProcessExitResult PosixSpawnSubProcess::PlatformWaitForProcess() {}
+
+void PosixSpawnSubProcess::PlatformKillProcess() {}
 }  // namespace cru::platform::unix
