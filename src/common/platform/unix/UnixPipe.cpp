@@ -2,14 +2,23 @@
 #include "cru/common/Exception.h"
 #include "cru/common/log/Logger.h"
 
+#include <fcntl.h>
+#include <sys/fcntl.h>
 #include <unistd.h>
 
 namespace cru::platform::unix {
-UnixPipe::UnixPipe(Usage usage) : usage_(usage) {
+UnixPipe::UnixPipe(Usage usage, UnixPipeFlag flags)
+    : usage_(usage), flags_(flags) {
   int fds[2];
   if (pipe(fds) != 0) {
     throw ErrnoException(u"Failed to create unix pipe.");
   }
+
+  if (flags & UnixPipeFlags::NonBlock) {
+    fcntl(fds[0], F_SETFL, O_NONBLOCK);
+    fcntl(fds[1], F_SETFL, O_NONBLOCK);
+  }
+
   read_fd_ = fds[0];
   write_fd_ = fds[1];
 }

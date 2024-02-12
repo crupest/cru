@@ -5,8 +5,17 @@
 #ifdef CRU_PLATFORM_UNIX
 
 #include "../../Base.h"
+#include "../../Bitmask.h"
 
 namespace cru::platform::unix {
+namespace details {
+struct UnixPipeFlagTag;
+}
+using UnixPipeFlag = Bitmask<details::UnixPipeFlagTag>;
+struct UnixPipeFlags {
+  constexpr static auto NonBlock = UnixPipeFlag::FromOffset(1);
+};
+
 /**
  * @brief an unix pipe, commonly for communication of parent process and child
  * process.
@@ -32,7 +41,7 @@ class UnixPipe : public Object {
     Receive,
   };
 
-  explicit UnixPipe(Usage usage);
+  explicit UnixPipe(Usage usage, UnixPipeFlag flags = {});
 
   CRU_DELETE_COPY(UnixPipe)
   CRU_DELETE_MOVE(UnixPipe)
@@ -51,6 +60,7 @@ class UnixPipe : public Object {
 
  private:
   Usage usage_;
+  UnixPipeFlag flags_;
   int read_fd_;
   int write_fd_;
 };
