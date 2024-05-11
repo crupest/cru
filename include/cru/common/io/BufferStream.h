@@ -31,13 +31,18 @@ struct BufferStreamOptions {
    * @brief Total size limit of saved data in buffer. Use default value if < 0.
    * No limit if == 0.
    *
-   * The size will be ceil(total_size_limit / block_size). When the buffer is
+   * The size will be floor(total_size_limit / block_size). When the buffer is
    * filled, it will block and wait for user to read to get free space of buffer
    * to continue read.
    */
   Index total_size_limit = 0;
 };
 
+/**
+ * @brief SPSC (Single Producer Single Consumer) buffer stream.
+ *
+ * If used by multiple producer or multiple consumer, the behavior is undefined.
+ */
 class BufferStream : public Stream {
  public:
   /**
@@ -50,7 +55,7 @@ class BufferStream : public Stream {
    * Actually I have no ideas about the best value for this. May change it later
    * when I get some ideas.
    */
-  constexpr static Index kDefaultTotalSizeLimit = 1024;
+  constexpr static Index kDefaultTotalSizeLimit = 1024 * 1024;
 
  public:
   BufferStream(const BufferStreamOptions& options);
@@ -63,17 +68,10 @@ class BufferStream : public Stream {
   bool CanRead() override;
   Index Read(std::byte* buffer, Index offset, Index size) override;
 
-  bool CanWrite() = 0;
-  Index Write(const std::byte* buffer, Index offset, Index size) = 0;
-
-  virtual void Flush();
-
-  virtual void Close();
+  bool CanWrite() override;
+  Index Write(const std::byte* buffer, Index offset, Index size) override;
 
   void SetEof();
-
- private:
-  bool CheckClosed();
 
  private:
   Index block_size_;

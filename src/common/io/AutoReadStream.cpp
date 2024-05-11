@@ -31,6 +31,5 @@ void AutoReadStream::BackgroundThreadRun() {
   }
   stream_->Read();
 }
-}
 
 }  // namespace cru::io

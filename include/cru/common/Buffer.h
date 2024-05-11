@@ -23,6 +23,9 @@ class Buffer final {
   bool IsNull() const { return ptr_ == nullptr; }
   bool IsUsedReachEnd() const { return used_end_ == size_; }
 
+  Index GetFrontFree() const { return used_begin_; }
+  Index GetBackFree() const { return size_ - used_end_; }
+
   Index GetUsedBegin() const { return used_begin_; }
   Index GetUsedEnd() const { return used_end_; }
 
