@@ -17,6 +17,12 @@ class WriteAfterEofException : public Exception {
 
 struct BufferStreamOptions {
   /**
+   * Actually I have no ideas about the best value for this. May change it later
+   * when I get some ideas.
+   */
+  constexpr static Index kDefaultBlockSize = 1024;
+
+  /**
    * @brief The size of a single buffer allocated each time new space is needed.
    * Use default value if <= 0.
    *
@@ -28,14 +34,19 @@ struct BufferStreamOptions {
   Index block_size = 0;
 
   /**
-   * @brief Total size limit of saved data in buffer. Use default value if < 0.
-   * No limit if == 0.
+   * @brief Total size limit of saved data in buffer. No limit if <= 0.
    *
    * The size will be floor(total_size_limit / block_size). When the buffer is
    * filled, it will block and wait for user to read to get free space of buffer
    * to continue read.
    */
   Index total_size_limit = 0;
+
+  Index GetBlockSizeOrDefault() const {
+    return block_size <= 0 ? kDefaultBlockSize : block_size;
+  }
+
+  Index GetMaxBlockCount() const { return total_size_limit / block_size; }
 };
 
 /**
@@ -44,19 +55,6 @@ struct BufferStreamOptions {
  * If used by multiple producer or multiple consumer, the behavior is undefined.
  */
 class BufferStream : public Stream {
- public:
-  /**
-   * Actually I have no ideas about the best value for this. May change it later
-   * when I get some ideas.
-   */
-  constexpr static Index kDefaultBlockSize = 1024;
-
-  /**
-   * Actually I have no ideas about the best value for this. May change it later
-   * when I get some ideas.
-   */
-  constexpr static Index kDefaultTotalSizeLimit = 1024 * 1024;
-
  public:
   BufferStream(const BufferStreamOptions& options);
 
@@ -67,16 +65,17 @@ class BufferStream : public Stream {
 
   bool CanRead() override;
   Index Read(std::byte* buffer, Index offset, Index size) override;
+  using Stream::Read;
 
   bool CanWrite() override;
   Index Write(const std::byte* buffer, Index offset, Index size) override;
+  using Stream::Write;
 
   void SetEof();
 
  private:
   Index block_size_;
-  Index total_size_limit_;
-  Index block_count_limit_;
+  Index max_block_count_;
 
   std::list<Buffer> buffer_list_;
   bool eof_;

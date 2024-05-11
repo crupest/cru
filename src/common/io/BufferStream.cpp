@@ -3,11 +3,8 @@
 
 namespace cru::io {
 BufferStream::BufferStream(const BufferStreamOptions& options) {
-  block_size_ =
-      options.block_size <= 0 ? kDefaultBlockSize : options.block_size;
-  total_size_limit_ = options.total_size_limit < 0 ? kDefaultTotalSizeLimit
-                                                   : options.total_size_limit;
-  block_count_limit_ = total_size_limit_ / block_size_;
+  block_size_ = options.GetBlockSizeOrDefault();
+  max_block_count_ = options.GetMaxBlockCount();
 
   eof_ = false;
 }
@@ -33,7 +30,7 @@ Index BufferStream::Read(std::byte* buffer, Index offset, Index size) {
     return 0;
   }
 
-  auto full = buffer_list_.size() == block_count_limit_;
+  auto full = max_block_count_ > 0 && buffer_list_.size() == max_block_count_;
 
   Index read = 0;
 
@@ -50,7 +47,7 @@ Index BufferStream::Read(std::byte* buffer, Index offset, Index size) {
     }
   }
 
-  if (full && buffer_list_.size() < block_count_limit_) {
+  if (full && buffer_list_.size() < max_block_count_) {
     // By convention, there should be at most one producer waiting. So
     // notify_one and notify_all should be the same.
     condition_variable_.notify_one();
@@ -70,7 +67,7 @@ Index BufferStream::Write(const std::byte* buffer, Index offset, Index size) {
   }
 
   condition_variable_.wait(lock, [this] {
-    return buffer_list_.size() < block_count_limit_ ||
+    return buffer_list_.size() < max_block_count_ ||
            buffer_list_.back().GetBackFree() > 0;
   });
 
@@ -78,8 +75,11 @@ Index BufferStream::Write(const std::byte* buffer, Index offset, Index size) {
 
   Index written = 0;
 
-  while (buffer_list_.size() != block_count_limit_) {
+  while (true) {
     if (buffer_list_.back().GetBackFree() == 0) {
+      if (max_block_count_ > 0 && buffer_list_.size() == max_block_count_) {
+        break;
+      }
       buffer_list_.push_back(Buffer(block_size_));
     }
     auto& stream_buffer = buffer_list_.back();

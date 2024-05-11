@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../Buffer.h"
+#include "BufferStream.h"
 #include "Stream.h"
 
 #include <condition_variable>
@@ -11,24 +12,21 @@
 namespace cru::io {
 struct AutoReadStreamOptions {
   /**
-   * @brief The size of a single buffer allocated each time new space is needed.
-   * Use default value if <= 0.
-   *
-   * When current buffer is full and there is no space for following data, a new
-   * buffer will be allocated and appended to the buffer list. Note if sum size
-   * of all buffers reaches the total_buffer_size, no more buffer will be
-   * allocated but wait.
+   * @brief Will be passed to BufferStreamOptions::block_size.
    */
-  int buffer_block_size = 0;
+  Index block_size = 0;
 
   /**
-   * @brief Total size limit of saved data in buffer. Use default value if < 0.
-   * No limit if == 0.
-   *
-   * When the buffer is filled, it will block and wait for user to read to get
-   * free space of buffer to continue read.
+   * @brief Will be passed to BufferStreamOptions::total_size_limit.
    */
-  int total_buffer_size = 0;
+  Index total_size_limit = 0;
+
+  BufferStreamOptions GetBufferStreamOptions() const {
+    BufferStreamOptions options;
+    options.block_size = block_size;
+    options.total_size_limit = total_size_limit;
+    return options;
+  }
 };
 
 /**
@@ -36,9 +34,6 @@ struct AutoReadStreamOptions {
  * background thread.
  */
 class CRU_BASE_API AutoReadStream : public Stream {
- private:
-  class BufferBlock {};
-
  public:
   /**
    * @brief Wrap a stream and auto read it in background.
@@ -56,15 +51,15 @@ class CRU_BASE_API AutoReadStream : public Stream {
   bool CanSeek() override;
   Index Seek(Index offset, SeekOrigin origin = SeekOrigin::Current) override;
 
-  bool CanRead() = 0;
-  virtual Index Read(std::byte* buffer, Index offset, Index size) = 0;
+  bool CanRead() override;
+  Index Read(std::byte* buffer, Index offset, Index size) override;
 
   bool CanWrite() override;
   Index Write(const std::byte* buffer, Index offset, Index size) override;
 
   void Flush() override;
 
-  void Close() = 0;
+  void Close() override;
 
  private:
   void BackgroundThreadRun();
@@ -73,12 +68,9 @@ class CRU_BASE_API AutoReadStream : public Stream {
   Stream* stream_;
   bool auto_delete_;
 
-  int buffer_block_size_;
-  int total_buffer_size_;
-
-  std::mutex buffer_mutex_;
-  std::condition_variable buffer_condition_variable_;
-  std::list<Buffer> buffer_list_;
+  Index size_per_read_;
+  std::unique_ptr<BufferStream> buffer_stream_;
+  std::mutex buffer_stream_mutex_;
 
   std::thread background_thread_;
 };
