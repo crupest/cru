@@ -17,7 +17,7 @@ class Buffer final {
 
   ~Buffer();
 
- private:
+ public:
   Index GetBufferSize() const { return size_; }
   Index GetUsedSize() const { return used_end_ - used_begin_; }
   bool IsNull() const { return ptr_ == nullptr; }
@@ -71,7 +71,8 @@ class Buffer final {
    * written and the size of it will be returned, leaving exceeded data not
    * saved.
    */
-  Index PushFront(std::byte* other, Index other_size, bool use_memmove = false);
+  Index PushFront(const std::byte* other, Index other_size,
+                  bool use_memmove = false);
 
   /**
    * @brief Append data to the back of used bytes and increase used size.
@@ -81,7 +82,8 @@ class Buffer final {
    * written and the size of it will be returned, leaving exceeded data not
    * saved.
    */
-  Index PushBack(std::byte* other, Index other_size, bool use_memmove = false);
+  Index PushBack(const std::byte* other, Index other_size,
+                 bool use_memmove = false);
 
   /**
    * @brief Move forward the used-begin ptr.
@@ -93,6 +95,16 @@ class Buffer final {
   Index PopFront(Index size);
 
   /**
+   * @brief Pop front data of used bytes into another buffer.
+   * @return The actual size popped.
+   *
+   * If given size is bigger than current used size, then only current used size
+   * of bytes will be popped. If given size is smaller than current used size,
+   * then only given size of bytes will be popped.
+   */
+  Index PopFront(std::byte* buffer, Index size, bool use_memmove = false);
+
+  /**
    * @brief Move backward the used-end ptr.
    * @return The actual size moved backward.
    *
@@ -100,6 +112,16 @@ class Buffer final {
    * returned and set to 0.
    */
   Index PopEnd(Index size);
+
+  /**
+   * @brief Pop back data of used bytes into another buffer.
+   * @return The actual size popped.
+   *
+   * If given size is bigger than current used size, then only current used size
+   * of bytes will be popped. If given size is smaller than current used size,
+   * then only given size of bytes will be popped.
+   */
+  Index PopEnd(std::byte* buffer, Index size, bool use_memmove = false);
 
   operator std::byte*() { return GetPtr(); }
   operator const std::byte*() const { return GetPtr(); }

@@ -1,8 +1,8 @@
 #pragma once
 
 #include "../Buffer.h"
-#include "Stream.h"
 #include "../Exception.h"
+#include "Stream.h"
 
 #include <condition_variable>
 #include <list>
@@ -10,9 +10,9 @@
 
 namespace cru::io {
 class WriteAfterEofException : public Exception {
-  public:
+ public:
   using Exception::Exception;
-  ~WriteAfterEofException() override = default;  
+  ~WriteAfterEofException() override = default;
 };
 
 struct BufferStreamOptions {

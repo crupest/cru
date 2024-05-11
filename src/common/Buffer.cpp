@@ -76,7 +76,8 @@ void Buffer::ResizeBuffer(Index new_size, bool preserve_used) {
   }
 }
 
-Index Buffer::PushFront(std::byte* other, Index other_size, bool use_memmove) {
+Index Buffer::PushFront(const std::byte* other, Index other_size,
+                        bool use_memmove) {
   auto copy_size = std::min(used_begin_, other_size);
 
   if (copy_size) {
@@ -88,7 +89,8 @@ Index Buffer::PushFront(std::byte* other, Index other_size, bool use_memmove) {
   return copy_size;
 }
 
-Index Buffer::PushBack(std::byte* other, Index other_size, bool use_memmove) {
+Index Buffer::PushBack(const std::byte* other, Index other_size,
+                       bool use_memmove) {
   auto copy_size = std::min(size_ - used_end_, other_size);
 
   if (copy_size) {
@@ -106,10 +108,34 @@ Index Buffer::PopFront(Index size) {
   return move;
 }
 
+Index Buffer::PopFront(std::byte* buffer, Index size, bool use_memmove) {
+  auto pop_size = std::min(GetUsedSize(), size);
+
+  if (pop_size) {
+    used_begin_ += pop_size;
+    (use_memmove ? std::memmove : std::memcpy)(
+        buffer, GetUsedBeginPtr() - pop_size, pop_size);
+  }
+
+  return pop_size;
+}
+
 Index Buffer::PopEnd(Index size) {
   auto move = std::min(size_ - used_end_, size);
   used_end_ += move;
   return move;
+}
+
+Index Buffer::PopEnd(std::byte* buffer, Index size, bool use_memmove) {
+  auto pop_size = std::min(GetUsedSize(), size);
+
+  if (pop_size) {
+    used_end_ -= pop_size;
+    (use_memmove ? std::memmove : std::memcpy)(buffer, GetUsedEndPtr(),
+                                               pop_size);
+  }
+
+  return pop_size;
 }
 
 void Buffer::Copy_(const Buffer& other) {
