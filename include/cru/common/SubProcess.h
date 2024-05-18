@@ -112,9 +112,9 @@ class PlatformSubProcessBase : public Object {
    */
   PlatformSubProcessExitResult GetExitResult();
 
-  io::Stream* GetStdinStream();
-  io::Stream* GetStdoutStream();
-  io::Stream* GetStderrStream();
+  virtual io::Stream* GetStdinStream() = 0;
+  virtual io::Stream* GetStdoutStream() = 0;
+  virtual io::Stream* GetStderrStream() = 0;
 
  protected:
   /**

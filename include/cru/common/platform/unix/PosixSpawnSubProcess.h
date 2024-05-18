@@ -5,6 +5,7 @@
 #ifdef CRU_PLATFORM_UNIX
 
 #include "../../SubProcess.h"
+#include "../../io/AutoReadStream.h"
 
 #include "UnixFileStream.h"
 #include "UnixPipe.h"
@@ -16,6 +17,10 @@ class PosixSpawnSubProcess : public PlatformSubProcessBase {
  public:
   explicit PosixSpawnSubProcess(const PlatformSubProcessStartInfo& start_info);
   ~PosixSpawnSubProcess();
+
+  io::Stream* GetStdinStream() override;
+  io::Stream* GetStdoutStream() override;
+  io::Stream* GetStderrStream() override;
 
  protected:
   void PlatformCreateProcess() override;
@@ -33,6 +38,9 @@ class PosixSpawnSubProcess : public PlatformSubProcessBase {
   std::unique_ptr<UnixFileStream> stdin_stream_;
   std::unique_ptr<UnixFileStream> stdout_stream_;
   std::unique_ptr<UnixFileStream> stderr_stream_;
+
+  std::unique_ptr<io::AutoReadStream> stdout_buffer_stream_;
+  std::unique_ptr<io::AutoReadStream> stderr_buffer_stream_;
 };
 }  // namespace cru::platform::unix
 

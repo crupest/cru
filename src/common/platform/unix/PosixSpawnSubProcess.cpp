@@ -19,13 +19,28 @@ PosixSpawnSubProcess::PosixSpawnSubProcess(
       stdout_pipe_.GetSelfFileDescriptor(), false, true, false, false);
   stderr_stream_ = std::make_unique<UnixFileStream>(
       stderr_pipe_.GetSelfFileDescriptor(), false, true, false, false);
+
+  stdout_buffer_stream_ =
+      std::make_unique<io::AutoReadStream>(stdout_stream_.get(), false);
+  stderr_buffer_stream_ =
+      std::make_unique<io::AutoReadStream>(stdout_stream_.get(), false);
 }
 
 PosixSpawnSubProcess::~PosixSpawnSubProcess() {}
 
-void PosixSpawnSubProcess::PlatformCreateProcess() {
-  
+io::Stream* PosixSpawnSubProcess::GetStdinStream() {
+  return stdin_stream_.get();
 }
+
+io::Stream* PosixSpawnSubProcess::GetStdoutStream() {
+  return stdout_buffer_stream_.get();
+}
+
+io::Stream* PosixSpawnSubProcess::GetStderrStream() {
+  return stderr_buffer_stream_.get();
+}
+
+void PosixSpawnSubProcess::PlatformCreateProcess() {}
 
 PlatformSubProcessExitResult PosixSpawnSubProcess::PlatformWaitForProcess() {}
 
