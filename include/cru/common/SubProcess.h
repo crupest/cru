@@ -13,7 +13,7 @@
 #include <vector>
 
 namespace cru {
-enum class PlatformSubProcessStatus {
+enum class SubProcessStatus {
   /**
    * @brief The process has not been created and started.
    */
@@ -43,14 +43,40 @@ class CRU_BASE_API SubProcessFailedToStartException
   using SubProcessException::SubProcessException;
 };
 
-struct PlatformSubProcessStartInfo {
+class CRU_BASE_API SubProcessInternalException : public SubProcessException {
+ public:
+  using SubProcessException::SubProcessException;
+};
+
+struct SubProcessStartInfo {
   String program;
   std::vector<String> arguments;
   std::unordered_map<String, String> environments;
 };
 
-struct PlatformSubProcessExitResult {
+enum class SubProcessExitType {
+  Unknown,
+  Normal,
+  Signal,
+};
+
+struct SubProcessExitResult {
+  SubProcessExitType exit_type;
   int exit_code;
+  int exit_signal;
+  bool has_core_dump;
+
+  static SubProcessExitResult Unknown() {
+    return {SubProcessExitType::Unknown, 0, 0, false};
+  }
+
+  static SubProcessExitResult Normal(int exit_code) {
+    return {SubProcessExitType::Normal, exit_code, 0, false};
+  }
+
+  static SubProcessExitResult Signal(int exit_signal, bool has_core_dump) {
+    return {SubProcessExitType::Normal, 0, exit_signal, has_core_dump};
+  }
 };
 
 /**
@@ -62,8 +88,7 @@ struct PlatformSubProcessExitResult {
  */
 class PlatformSubProcessBase : public Object {
  public:
-  explicit PlatformSubProcessBase(
-      const PlatformSubProcessStartInfo& start_info);
+  explicit PlatformSubProcessBase(const SubProcessStartInfo& start_info);
 
   ~PlatformSubProcessBase() override;
 
@@ -104,13 +129,13 @@ class PlatformSubProcessBase : public Object {
    * actually running. Because there might be a window that the process exits
    * already but status is not updated.
    */
-  PlatformSubProcessStatus GetStatus();
+  SubProcessStatus GetStatus();
 
   /**
    * @brief Get the exit result. If the process is not started, failed to start
    * or running, `SubProcessException` will be thrown.
    */
-  PlatformSubProcessExitResult GetExitResult();
+  SubProcessExitResult GetExitResult();
 
   virtual io::Stream* GetStdinStream() = 0;
   virtual io::Stream* GetStdoutStream() = 0;
@@ -137,7 +162,7 @@ class PlatformSubProcessBase : public Object {
    * This method will be called only once on another thread after
    * `PlatformCreateProcess` returns successfully
    */
-  virtual PlatformSubProcessExitResult PlatformWaitForProcess() = 0;
+  virtual SubProcessExitResult PlatformWaitForProcess() = 0;
 
   /**
    * @brief Kill the process immediately.
@@ -150,11 +175,11 @@ class PlatformSubProcessBase : public Object {
   virtual void PlatformKillProcess() = 0;
 
  protected:
-  PlatformSubProcessStartInfo start_info_;
-  PlatformSubProcessExitResult exit_result_;
+  SubProcessStartInfo start_info_;
+  SubProcessExitResult exit_result_;
 
  private:
-  PlatformSubProcessStatus status_;
+  SubProcessStatus status_;
 
   std::thread process_thread_;
   std::mutex process_mutex_;

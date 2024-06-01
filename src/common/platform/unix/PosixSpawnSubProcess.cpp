@@ -4,15 +4,18 @@
 #include "cru/common/Guard.h"
 #include "cru/common/String.h"
 #include "cru/common/SubProcess.h"
+#include "cru/common/log/Logger.h"
 
+#include <signal.h>
 #include <spawn.h>
+#include <sys/wait.h>
 #include <unistd.h>
 #include <memory>
 #include <unordered_map>
 
 namespace cru::platform::unix {
 PosixSpawnSubProcess::PosixSpawnSubProcess(
-    const PlatformSubProcessStartInfo& start_info)
+    const SubProcessStartInfo& start_info)
     : PlatformSubProcessBase(start_info),
       pid_(0),
       exit_code_(0),
@@ -128,7 +131,36 @@ void PosixSpawnSubProcess::PlatformCreateProcess() {
   check_error(u"Failed to call posix_spawnp.");
 }
 
-PlatformSubProcessExitResult PosixSpawnSubProcess::PlatformWaitForProcess() {}
+SubProcessExitResult PosixSpawnSubProcess::PlatformWaitForProcess() {
+  int wstatus;
 
-void PosixSpawnSubProcess::PlatformKillProcess() {}
+  while (waitpid(pid_, &wstatus, 0) == -1) {
+    if (errno == EINTR) {
+      CRU_LOG_INFO(u"Waitpid is interrupted by a signal. Call it again.");
+      continue;
+    }
+
+    std::unique_ptr<ErrnoException> inner(new ErrnoException({}, errno));
+
+    throw SubProcessInternalException(
+        u"Failed to call waitpid on a subprocess.", std::move(inner));
+  }
+
+  if (WIFEXITED(wstatus)) {
+    return SubProcessExitResult::Normal(WEXITSTATUS(wstatus));
+  } else if (WIFEXITED(wstatus)) {
+    return SubProcessExitResult::Signal(WTERMSIG(wstatus), WCOREDUMP(wstatus));
+  } else {
+    return SubProcessExitResult::Unknown();
+  }
+}
+
+void PosixSpawnSubProcess::PlatformKillProcess() {
+  int error = kill(pid_, SIGKILL);
+  if (error != 0) {
+    std::unique_ptr<ErrnoException> inner(new ErrnoException({}, errno));
+    throw SubProcessInternalException(u"Failed to call kill on a subprocess.",
+                                      std::move(inner));
+  }
+}
 }  // namespace cru::platform::unix

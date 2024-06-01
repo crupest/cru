@@ -4,6 +4,7 @@
 
 #ifdef CRU_PLATFORM_UNIX
 
+#include "../../Base.h"
 #include "../../SubProcess.h"
 #include "../../io/AutoReadStream.h"
 
@@ -14,8 +15,10 @@
 
 namespace cru::platform::unix {
 class PosixSpawnSubProcess : public PlatformSubProcessBase {
+  CRU_DEFINE_CLASS_LOG_TAG(u"PosixSpawnSubProcess")
+
  public:
-  explicit PosixSpawnSubProcess(const PlatformSubProcessStartInfo& start_info);
+  explicit PosixSpawnSubProcess(const SubProcessStartInfo& start_info);
   ~PosixSpawnSubProcess();
 
   io::Stream* GetStdinStream() override;
@@ -24,7 +27,7 @@ class PosixSpawnSubProcess : public PlatformSubProcessBase {
 
  protected:
   void PlatformCreateProcess() override;
-  PlatformSubProcessExitResult PlatformWaitForProcess() override;
+  SubProcessExitResult PlatformWaitForProcess() override;
   void PlatformKillProcess() override;
 
  private:
