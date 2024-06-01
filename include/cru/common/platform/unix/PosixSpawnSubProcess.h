@@ -18,7 +18,7 @@ class PosixSpawnSubProcess : public PlatformSubProcessBase {
   CRU_DEFINE_CLASS_LOG_TAG(u"PosixSpawnSubProcess")
 
  public:
-  explicit PosixSpawnSubProcess(const SubProcessStartInfo& start_info);
+  explicit PosixSpawnSubProcess(SubProcessStartInfo start_info);
   ~PosixSpawnSubProcess();
 
   io::Stream* GetStdinStream() override;

@@ -1,14 +1,28 @@
 #include "cru/common/SubProcess.h"
+#include <exception>
 #include "cru/common/Exception.h"
+#include "cru/common/log/Logger.h"
+
+#ifdef CRU_PLATFORM_UNIX
+#include "cru/common/platform/unix/PosixSpawnSubProcess.h"
+#endif
 
 #include <mutex>
 
 namespace cru {
-PlatformSubProcessBase::PlatformSubProcessBase(
-    const SubProcessStartInfo& start_info)
-    : start_info_(start_info), process_lock_(process_mutex_, std::defer_lock) {}
+PlatformSubProcessBase::PlatformSubProcessBase(SubProcessStartInfo start_info)
+    : start_info_(std::move(start_info)),
+      delete_self_(false),
+      process_lock_(process_mutex_, std::defer_lock) {}
 
-PlatformSubProcessBase::~PlatformSubProcessBase() {}
+PlatformSubProcessBase::~PlatformSubProcessBase() {
+  std::lock_guard lock_guard(process_lock_);
+  if (status_ == SubProcessStatus::Running) {
+    CRU_LOG_ERROR(
+        u"PlatformSubProcessBase is destroyed but process is still running.");
+    std::terminate();
+  }
+}
 
 void PlatformSubProcessBase::Start() {
   std::lock_guard lock_guard(process_lock_);
@@ -30,6 +44,9 @@ void PlatformSubProcessBase::Start() {
         status_ = SubProcessStatus::Exited;
       }
       this->process_condition_variable_.notify_all();
+      if (this->delete_self_) {
+        delete this;
+      }
     });
 
     process_thread_.detach();
@@ -110,4 +127,67 @@ SubProcessExitResult PlatformSubProcessBase::GetExitResult() {
 
   return exit_result_;
 }
+
+void PlatformSubProcessBase::SetDeleteSelfOnExit(bool enable) {
+  std::lock_guard lock_guard(process_lock_);
+  delete_self_ = enable;
+}
+
+#ifdef CRU_PLATFORM_UNIX
+using PlatformSubProcess = platform::unix::PosixSpawnSubProcess;
+#endif
+
+SubProcess::SubProcess(SubProcessStartInfo start_info) {
+  platform_process_.reset(new PlatformSubProcess(std::move(start_info)));
+  platform_process_->Start();
+}
+
+SubProcess::~SubProcess() {}
+
+void SubProcess::Wait(std::optional<std::chrono::milliseconds> wait_time) {
+  CheckValid();
+  platform_process_->Wait(wait_time);
+}
+
+void SubProcess::Kill() {
+  CheckValid();
+  platform_process_->Kill();
+}
+
+SubProcessStatus SubProcess::GetStatus() {
+  CheckValid();
+  return platform_process_->GetStatus();
+}
+
+SubProcessExitResult SubProcess::GetExitResult() {
+  CheckValid();
+  return platform_process_->GetExitResult();
+}
+
+io::Stream* SubProcess::GetStdinStream() {
+  CheckValid();
+  return platform_process_->GetStdinStream();
+}
+
+io::Stream* SubProcess::GetStdoutStream() {
+  CheckValid();
+  return platform_process_->GetStdoutStream();
+}
+
+io::Stream* SubProcess::GetStderrStream() {
+  CheckValid();
+  return platform_process_->GetStderrStream();
+}
+
+void SubProcess::Detach() {
+  auto p = platform_process_.release();
+  p->SetDeleteSelfOnExit(true);
+}
+
+void SubProcess::CheckValid() const {
+  if (!IsValid()) {
+    throw SubProcessException(u"SubProcess instance is invalid.");
+  }
+}
+
 }  // namespace cru

@@ -14,9 +14,8 @@
 #include <unordered_map>
 
 namespace cru::platform::unix {
-PosixSpawnSubProcess::PosixSpawnSubProcess(
-    const SubProcessStartInfo& start_info)
-    : PlatformSubProcessBase(start_info),
+PosixSpawnSubProcess::PosixSpawnSubProcess(SubProcessStartInfo start_info)
+    : PlatformSubProcessBase(std::move(start_info)),
       pid_(0),
       exit_code_(0),
       stdin_pipe_(UnixPipe::Usage::Send),

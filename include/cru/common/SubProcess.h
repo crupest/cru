@@ -87,8 +87,10 @@ struct SubProcessExitResult {
  * process will be killed.
  */
 class PlatformSubProcessBase : public Object {
+  CRU_DEFINE_CLASS_LOG_TAG(u"PlatformSubProcessBase")
+
  public:
-  explicit PlatformSubProcessBase(const SubProcessStartInfo& start_info);
+  explicit PlatformSubProcessBase(SubProcessStartInfo start_info);
 
   ~PlatformSubProcessBase() override;
 
@@ -141,6 +143,8 @@ class PlatformSubProcessBase : public Object {
   virtual io::Stream* GetStdoutStream() = 0;
   virtual io::Stream* GetStderrStream() = 0;
 
+  void SetDeleteSelfOnExit(bool enable);
+
  protected:
   /**
    * @brief Create and start a real process. If the program can't be created or
@@ -181,6 +185,8 @@ class PlatformSubProcessBase : public Object {
  private:
   SubProcessStatus status_;
 
+  bool delete_self_;
+
   std::thread process_thread_;
   std::mutex process_mutex_;
   std::unique_lock<std::mutex> process_lock_;
@@ -188,16 +194,38 @@ class PlatformSubProcessBase : public Object {
 };
 
 class CRU_BASE_API SubProcess : public Object {
+  CRU_DEFINE_CLASS_LOG_TAG(u"SubProcess")
+
  public:
-  SubProcess();
+  SubProcess(SubProcessStartInfo start_info);
 
   CRU_DELETE_COPY(SubProcess)
 
-  SubProcess(SubProcess&& other);
-  SubProcess& operator=(SubProcess&& other);
+  SubProcess(SubProcess&& other) = default;
+  SubProcess& operator=(SubProcess&& other) = default;
 
   ~SubProcess();
 
+ public:
+  void Wait(std::optional<std::chrono::milliseconds> wait_time);
+  void Kill();
+
+  SubProcessStatus GetStatus();
+  SubProcessExitResult GetExitResult();
+
+  io::Stream* GetStdinStream();
+  io::Stream* GetStdoutStream();
+  io::Stream* GetStderrStream();
+
+  void Detach();
+
+  bool IsValid() const { return platform_process_ != nullptr; }
+  explicit operator bool() const { return IsValid(); }
+
  private:
+  void CheckValid() const;
+
+ private:
+  std::unique_ptr<PlatformSubProcessBase> platform_process_;
 };
 }  // namespace cru
