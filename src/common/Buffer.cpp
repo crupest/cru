@@ -89,6 +89,15 @@ Index Buffer::PushFront(const std::byte* other, Index other_size,
   return copy_size;
 }
 
+bool Buffer::PushBack(std::byte b) {
+  if (IsUsedReachEnd()) {
+    return false;
+  }
+  ptr_[used_end_] = b;
+  used_end_++;
+  return true;
+}
+
 Index Buffer::PushBack(const std::byte* other, Index other_size,
                        bool use_memmove) {
   auto copy_size = std::min(size_ - used_end_, other_size);
@@ -136,6 +145,16 @@ Index Buffer::PopEnd(std::byte* buffer, Index size, bool use_memmove) {
   }
 
   return pop_size;
+}
+
+std::byte* Buffer::Detach(Index* size) {
+  auto ptr = this->ptr_;
+  if (size) {
+    *size = this->size_;
+  }
+  this->ptr_ = nullptr;
+  this->size_ = this->used_begin_ = this->used_end_ = 0;
+  return ptr;
 }
 
 void Buffer::Copy_(const Buffer& other) {

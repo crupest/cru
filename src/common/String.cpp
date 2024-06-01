@@ -1,5 +1,6 @@
 #include "cru/common/String.h"
 
+#include "cru/common/Buffer.h"
 #include "cru/common/Exception.h"
 #include "cru/common/StringToNumberConverter.h"
 #include "cru/common/StringUtil.h"
@@ -31,7 +32,8 @@ String String::FromUtf8(const char* str, Index size) {
   String result;
   Utf8CodePointIterator iter(str, size);
   for (auto cp : iter) {
-    Utf16EncodeCodePointAppend(cp, result);
+    Utf16EncodeCodePointAppend(
+        cp, std::bind(&String::push_back, result, std::placeholders::_1));
   }
   return result;
 }
@@ -260,6 +262,10 @@ bool String::EndWith(StringView str) const { return View().EndWith(str); }
 
 std::string String::ToUtf8() const { return View().ToUtf8(); }
 
+Buffer String::ToUtf8Buffer(bool end_zero) const {
+  return View().ToUtf8Buffer();
+}
+
 String& String::TrimStart() {
   if (size_ == 0) return *this;
 
@@ -293,7 +299,9 @@ String& String::Trim() {
 }
 
 void String::AppendCodePoint(CodePoint code_point) {
-  if (!Utf16EncodeCodePointAppend(code_point, *this)) {
+  if (!Utf16EncodeCodePointAppend(
+          code_point,
+          std::bind(&String::push_back, *this, std::placeholders::_1))) {
     throw TextEncodeException(u"Code point out of range.");
   }
 }
@@ -523,9 +531,28 @@ Range StringView::RangeFromCodePointToCodeUnit(Range code_point_range) const {
 std::string StringView::ToUtf8() const {
   std::string result;
   for (auto cp : CodePointIterator()) {
-    Utf8EncodeCodePointAppend(cp, result);
+    Utf8EncodeCodePointAppend(
+        cp, std::bind(&std::string::push_back, result, std::placeholders::_1));
   }
   return result;
+}
+
+Buffer StringView::ToUtf8Buffer(bool end_zero) const {
+  const Index grow_step = 10;
+  Buffer buffer(grow_step);  // Maybe another init value is more reasonable.
+  auto push_back = [&buffer](char c) {
+    if (buffer.IsUsedReachEnd()) {
+      buffer.ResizeBuffer(buffer.GetBufferSize() + grow_step, true);
+    }
+    buffer.PushBack(static_cast<std::byte>(c));
+  };
+  for (auto cp : CodePointIterator()) {
+    Utf8EncodeCodePointAppend(cp, push_back);
+  }
+  if (end_zero) {
+    push_back(0);
+  }
+  return std::move(buffer);
 }
 
 int StringView::ParseToInt(Index* processed_characters_count, unsigned flags,

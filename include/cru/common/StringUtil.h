@@ -2,6 +2,7 @@
 #include "Base.h"
 
 #include <functional>
+#include <type_traits>
 
 namespace cru {
 using CodePoint = std::int32_t;
@@ -123,18 +124,19 @@ inline std::enable_if_t<std::is_unsigned_v<UInt>, ReturnType> ExtractBits(
 }
 }  // namespace details
 
-template <typename TStr>
-bool Utf8EncodeCodePointAppend(CodePoint code_point, TStr& str) {
-  auto write_continue_byte = [&str](std::uint8_t byte6) {
-    str.push_back((1u << 7) + (((1u << 6) - 1) & byte6));
+template <typename CharWriter>
+std::enable_if_t<std::is_invocable_v<CharWriter, char>, bool>
+Utf8EncodeCodePointAppend(CodePoint code_point, CharWriter&& writer) {
+  auto write_continue_byte = [&writer](std::uint8_t byte6) {
+    writer((1u << 7) + (((1u << 6) - 1) & byte6));
   };
 
   if (code_point >= 0 && code_point <= 0x007F) {
-    str.push_back(static_cast<char>(code_point));
+    writer(static_cast<char>(code_point));
     return true;
   } else if (code_point >= 0x0080 && code_point <= 0x07FF) {
     std::uint32_t unsigned_code_point = code_point;
-    str.push_back(
+    writer(
         static_cast<char>(details::ExtractBits<std::uint32_t, 5, std::uint8_t>(
                               (unsigned_code_point >> 6)) +
                           0b11000000));
@@ -143,7 +145,7 @@ bool Utf8EncodeCodePointAppend(CodePoint code_point, TStr& str) {
     return true;
   } else if (code_point >= 0x0800 && code_point <= 0xFFFF) {
     std::uint32_t unsigned_code_point = code_point;
-    str.push_back(
+    writer(
         static_cast<char>(details::ExtractBits<std::uint32_t, 4, std::uint8_t>(
                               (unsigned_code_point >> (6 * 2))) +
                           0b11100000));
@@ -154,7 +156,7 @@ bool Utf8EncodeCodePointAppend(CodePoint code_point, TStr& str) {
     return true;
   } else if (code_point >= 0x10000 && code_point <= 0x10FFFF) {
     std::uint32_t unsigned_code_point = code_point;
-    str.push_back(
+    writer(
         static_cast<char>(details::ExtractBits<std::uint32_t, 3, std::uint8_t>(
                               (unsigned_code_point >> (6 * 3))) +
                           0b11110000));
@@ -170,18 +172,19 @@ bool Utf8EncodeCodePointAppend(CodePoint code_point, TStr& str) {
   }
 }
 
-template <typename TStr>
-bool Utf16EncodeCodePointAppend(CodePoint code_point, TStr& str) {
+template <typename CharWriter>
+std::enable_if_t<std::is_invocable_v<CharWriter, char16_t>, bool>
+Utf16EncodeCodePointAppend(CodePoint code_point, CharWriter&& writer) {
   if ((code_point >= 0 && code_point <= 0xD7FF) ||
       (code_point >= 0xE000 && code_point <= 0xFFFF)) {
-    str.push_back(static_cast<char16_t>(code_point));
+    writer(static_cast<char16_t>(code_point));
     return true;
   } else if (code_point >= 0x10000 && code_point <= 0x10FFFF) {
     std::uint32_t u = code_point - 0x10000;
-    str.push_back(static_cast<char16_t>(
+    writer(static_cast<char16_t>(
         details::ExtractBits<std::uint32_t, 10, std::uint32_t>(u >> 10) +
         0xD800u));
-    str.push_back(static_cast<char16_t>(
+    writer(static_cast<char16_t>(
         details::ExtractBits<std::uint32_t, 10, std::uint32_t>(u) + 0xDC00u));
     return true;
   } else {

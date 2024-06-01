@@ -9,6 +9,7 @@
 #include <mutex>
 #include <optional>
 #include <thread>
+#include <unordered_map>
 #include <vector>
 
 namespace cru {
@@ -33,20 +34,19 @@ enum class PlatformSubProcessStatus {
 
 class CRU_BASE_API SubProcessException : public Exception {
  public:
-  SubProcessException(String message = {});
-  ~SubProcessException() override;
+  using Exception::Exception;
 };
 
-class CRU_BASE_API SubProcessFailedToStartException : public Exception {
+class CRU_BASE_API SubProcessFailedToStartException
+    : public SubProcessException {
  public:
-  SubProcessFailedToStartException(String message = {});
-  ~SubProcessFailedToStartException() override;
+  using SubProcessException::SubProcessException;
 };
 
 struct PlatformSubProcessStartInfo {
   String program;
   std::vector<String> arguments;
-  std::vector<String> environments;
+  std::unordered_map<String, String> environments;
 };
 
 struct PlatformSubProcessExitResult {

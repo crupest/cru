@@ -1,6 +1,7 @@
 #pragma once
 #include "String.h"
 
+#include <exception>
 #include <optional>
 
 namespace cru {
@@ -9,15 +10,15 @@ namespace cru {
 #endif
 class CRU_BASE_API Exception : public std::exception {
  public:
-  explicit Exception(String message = {});
-
-  CRU_DEFAULT_COPY(Exception)
-  CRU_DEFAULT_MOVE(Exception)
+  explicit Exception(String message = {},
+                     std::unique_ptr<std::exception> inner = nullptr);
 
   ~Exception() override;
 
  public:
   String GetMessage() const { return message_; }
+
+  std::exception* GetInner() const noexcept { return inner_.get(); }
 
   const char* what() const noexcept override;
 
@@ -30,6 +31,7 @@ class CRU_BASE_API Exception : public std::exception {
  private:
   String message_;
   mutable std::string utf8_message_;
+  std::unique_ptr<std::exception> inner_;
 };
 
 class CRU_BASE_API TextEncodeException : public Exception {

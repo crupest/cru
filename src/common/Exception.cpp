@@ -5,7 +5,8 @@
 #include <cerrno>
 
 namespace cru {
-Exception::Exception(String message) : message_(std::move(message)) {}
+Exception::Exception(String message, std::unique_ptr<std::exception> inner)
+    : message_(std::move(message)), inner_(std::move(inner)) {}
 
 Exception::~Exception() {}
 

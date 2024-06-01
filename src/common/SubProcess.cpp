@@ -4,17 +4,6 @@
 #include <mutex>
 
 namespace cru {
-SubProcessException::SubProcessException(String message)
-    : Exception(std::move(message)) {}
-
-SubProcessException::~SubProcessException() {}
-
-SubProcessFailedToStartException::SubProcessFailedToStartException(
-    String message)
-    : Exception(std::move(message)) {}
-
-SubProcessFailedToStartException::~SubProcessFailedToStartException() {}
-
 PlatformSubProcessBase::PlatformSubProcessBase(
     const PlatformSubProcessStartInfo& start_info)
     : start_info_(start_info), process_lock_(process_mutex_, std::defer_lock) {}

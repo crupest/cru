@@ -34,9 +34,6 @@ class CRU_PLATFORM_API ReuseException : public Exception {
  public:
   using Exception::Exception;  // inherit constructors
 
-  CRU_DEFAULT_COPY(ReuseException)
-  CRU_DEFAULT_MOVE(ReuseException)
-
   CRU_DEFAULT_DESTRUCTOR(ReuseException)
 };
 

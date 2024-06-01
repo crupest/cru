@@ -13,9 +13,6 @@ class CRU_BASE_API StreamOperationNotSupportedException : public Exception {
  public:
   explicit StreamOperationNotSupportedException(String operation);
 
-  CRU_DEFAULT_COPY(StreamOperationNotSupportedException)
-  CRU_DEFAULT_MOVE(StreamOperationNotSupportedException)
-
   CRU_DEFAULT_DESTRUCTOR(StreamOperationNotSupportedException)
 
  public:
@@ -33,9 +30,6 @@ class CRU_BASE_API StreamOperationNotSupportedException : public Exception {
 class CRU_BASE_API StreamAlreadyClosedException : public Exception {
  public:
   StreamAlreadyClosedException();
-
-  CRU_DEFAULT_COPY(StreamAlreadyClosedException)
-  CRU_DEFAULT_MOVE(StreamAlreadyClosedException)
 
   CRU_DEFAULT_DESTRUCTOR(StreamAlreadyClosedException)
 

@@ -77,6 +77,8 @@ class Buffer final {
   Index PushFront(const std::byte* other, Index other_size,
                   bool use_memmove = false);
 
+  bool PushBack(std::byte b);
+
   /**
    * @brief Append data to the back of used bytes and increase used size.
    * @return The actual size of data saved.
@@ -128,6 +130,15 @@ class Buffer final {
 
   operator std::byte*() { return GetPtr(); }
   operator const std::byte*() const { return GetPtr(); }
+
+  /**
+   * @brief Detach internal buffer and return it.
+   * @param size If not null, size of the buffer is written to it.
+   * @return The buffer pointer. May be nullptr.
+   *
+   * After detach, you are responsible to delete[] it.
+   */
+  std::byte* Detach(Index* size = nullptr);
 
  private:
   void Copy_(const Buffer& other);

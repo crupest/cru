@@ -1,6 +1,7 @@
 #pragma once
 #include "Base.h"
 
+#include "Buffer.h"
 #include "Range.h"
 #include "StringToNumberConverter.h"
 #include "StringUtil.h"
@@ -241,6 +242,7 @@ class CRU_BASE_API String {
   String Format(T&&... args) const;
 
   std::string ToUtf8() const;
+  Buffer ToUtf8Buffer(bool end_zero = true) const;
 
   int Compare(const String& other) const;
   int CaseInsensitiveCompare(const String& other) const;
@@ -374,6 +376,7 @@ class CRU_BASE_API StringView {
   std::vector<double> ParseToDoubleList(value_type separator = u' ') const;
 
   std::string ToUtf8() const;
+  Buffer ToUtf8Buffer(bool end_zero = true) const;
 
  private:
   const char16_t* ptr_;
