@@ -6,6 +6,7 @@ add_executable(CruBaseTest
 	StringTest.cpp
 	StringToNumberConverterTest.cpp
 	StringUtilTest.cpp
+	SubProcessTest.cpp
 )
 target_link_libraries(CruBaseTest PRIVATE CruBase CruTestBase)
 

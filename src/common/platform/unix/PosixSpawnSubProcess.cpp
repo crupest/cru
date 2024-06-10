@@ -119,8 +119,11 @@ void PosixSpawnSubProcess::PlatformCreateProcess() {
 #endif
 
   auto exe = start_info_.program.ToUtf8();
+  std::vector<String> arguments{start_info_.program};
+  arguments.insert(arguments.cend(), start_info_.arguments.cbegin(),
+                   start_info_.arguments.cend());
 
-  auto argv = CreateCstrArray(start_info_.arguments);
+  auto argv = CreateCstrArray(arguments);
   Guard argv_guard([argv] { DestroyCstrArray(argv); });
 
   auto envp = CreateCstrArray(start_info_.environments);

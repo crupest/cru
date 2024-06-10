@@ -197,6 +197,11 @@ class CRU_BASE_API SubProcess : public Object {
   CRU_DEFINE_CLASS_LOG_TAG(u"SubProcess")
 
  public:
+  static SubProcess Create(
+      String program, std::vector<String> arguments = {},
+      std::unordered_map<String, String> environments = {});
+
+ public:
   SubProcess(SubProcessStartInfo start_info);
 
   CRU_DELETE_COPY(SubProcess)

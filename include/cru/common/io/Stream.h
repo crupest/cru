@@ -64,10 +64,10 @@ class CRU_BASE_API Stream : public Object {
   Index Write(const char* buffer, Index offset, Index size);
   Index Write(const char* buffer, Index size);
 
-  virtual std::vector<std::byte> ReadAll();
+  virtual Buffer ReadToEnd(Index grow_size = 256);
 
   // Utf8 encoding.
-  String ReadAllAsString();
+  String ReadToEndAsUtf8String();
 
   virtual void Flush();
 

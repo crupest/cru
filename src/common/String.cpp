@@ -33,9 +33,17 @@ String String::FromUtf8(const char* str, Index size) {
   Utf8CodePointIterator iter(str, size);
   for (auto cp : iter) {
     Utf16EncodeCodePointAppend(
-        cp, std::bind(&String::push_back, result, std::placeholders::_1));
+        cp, std::bind(&String::push_back, std::ref(result), std::placeholders::_1));
   }
   return result;
+}
+
+String String::FromUtf8(const std::byte* str, Index size) {
+  return String::FromUtf8(reinterpret_cast<const char*>(str), size);
+}
+
+String String::FromUtf8(const Buffer& buffer) {
+  return String::FromUtf8(buffer.GetUsedBeginPtr(), buffer.GetUsedSize());
 }
 
 String String::FromStdPath(const std::filesystem::path& path) {
@@ -301,7 +309,7 @@ String& String::Trim() {
 void String::AppendCodePoint(CodePoint code_point) {
   if (!Utf16EncodeCodePointAppend(
           code_point,
-          std::bind(&String::push_back, *this, std::placeholders::_1))) {
+          std::bind(&String::push_back, this, std::placeholders::_1))) {
     throw TextEncodeException(u"Code point out of range.");
   }
 }
@@ -532,7 +540,7 @@ std::string StringView::ToUtf8() const {
   std::string result;
   for (auto cp : CodePointIterator()) {
     Utf8EncodeCodePointAppend(
-        cp, std::bind(&std::string::push_back, result, std::placeholders::_1));
+        cp, std::bind(&std::string::push_back, std::ref(result), std::placeholders::_1));
   }
   return result;
 }

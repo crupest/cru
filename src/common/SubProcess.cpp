@@ -137,6 +137,15 @@ void PlatformSubProcessBase::SetDeleteSelfOnExit(bool enable) {
 using PlatformSubProcess = platform::unix::PosixSpawnSubProcess;
 #endif
 
+SubProcess SubProcess::Create(String program, std::vector<String> arguments,
+                              std::unordered_map<String, String> environments) {
+  SubProcessStartInfo start_info;
+  start_info.program = std::move(program);
+  start_info.arguments = std::move(arguments);
+  start_info.environments = std::move(environments);
+  return SubProcess(std::move(start_info));
+}
+
 SubProcess::SubProcess(SubProcessStartInfo start_info) {
   platform_process_.reset(new PlatformSubProcess(std::move(start_info)));
   platform_process_->Start();

@@ -58,17 +58,23 @@ Index Stream::Write(const char* buffer, Index size) {
   return Write(reinterpret_cast<const std::byte*>(buffer), size);
 }
 
-std::vector<std::byte> Stream::ReadAll() {
-  std::vector<std::byte> buffer;
-  buffer.resize(GetSize());
-  Read(buffer.data(), 0, buffer.size());
+Buffer Stream::ReadToEnd(Index grow_size) {
+  Buffer buffer(grow_size);
+  while (true) {
+    auto read = Read(buffer.GetUsedEndPtr(), buffer.GetBackFree());
+    if (read == 0) {
+      break;
+    }
+    if (buffer.IsUsedReachEnd()) {
+      buffer.ResizeBuffer(buffer.GetBufferSize() + grow_size, true);
+    }
+  }
   return buffer;
 }
 
-String Stream::ReadAllAsString() {
-  auto buffer = ReadAll();
-  return String::FromUtf8(reinterpret_cast<const char*>(buffer.data()),
-                          buffer.size());
+String Stream::ReadToEndAsUtf8String() {
+  auto buffer = ReadToEnd();
+  return String::FromUtf8(buffer);
 }
 
 void Stream::Flush() {}

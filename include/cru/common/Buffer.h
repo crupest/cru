@@ -7,6 +7,7 @@ class Buffer final {
   friend void swap(Buffer& left, Buffer& right) noexcept;
 
  public:
+  Buffer();
   explicit Buffer(Index size);
 
   Buffer(const Buffer& other);

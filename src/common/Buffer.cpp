@@ -12,6 +12,11 @@ void CheckSize(Index size) {
 }
 }  // namespace
 
+Buffer::Buffer() {
+  ptr_ = nullptr;
+  size_ = used_begin_ = used_end_ = 0;
+}
+
 Buffer::Buffer(Index size) {
   CheckSize(size);
   if (size == 0) {

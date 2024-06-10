@@ -35,9 +35,11 @@ class CRU_BASE_API String {
  public:
   static String FromUtf8(const char* str);
   static String FromUtf8(const char* str, Index size);
+  static String FromUtf8(const std::byte* str, Index size);
   static String FromUtf8(std::string_view str) {
     return FromUtf8(str.data(), str.size());
   }
+  static String FromUtf8(const Buffer& buffer);
 
   static String FromUtf16(const char16_t* str) { return String(str); }
   static String FromUtf16(const char16_t* str, Index size) {
