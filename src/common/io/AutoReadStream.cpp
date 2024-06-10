@@ -6,6 +6,7 @@ namespace cru::io {
 AutoReadStream::AutoReadStream(Stream* stream, bool auto_delete,
                                const AutoReadStreamOptions& options) {
   auto buffer_stream_options = options.GetBufferStreamOptions();
+  stream_ = stream;
   size_per_read_ = buffer_stream_options.GetBlockSizeOrDefault();
   buffer_stream_ = std::make_unique<BufferStream>(buffer_stream_options);
   background_thread_ = std::thread(&AutoReadStream::BackgroundThreadRun, this);

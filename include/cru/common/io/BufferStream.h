@@ -46,7 +46,9 @@ struct BufferStreamOptions {
     return block_size <= 0 ? kDefaultBlockSize : block_size;
   }
 
-  Index GetMaxBlockCount() const { return total_size_limit / block_size; }
+  Index GetMaxBlockCount() const {
+    return total_size_limit / GetBlockSizeOrDefault();
+  }
 };
 
 /**

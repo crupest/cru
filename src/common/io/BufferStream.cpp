@@ -67,7 +67,7 @@ Index BufferStream::Write(const std::byte* buffer, Index offset, Index size) {
   }
 
   condition_variable_.wait(lock, [this] {
-    return buffer_list_.size() < max_block_count_ ||
+    return max_block_count_ <= 0 || buffer_list_.size() < max_block_count_ ||
            buffer_list_.back().GetBackFree() > 0;
   });
 

@@ -58,6 +58,8 @@ void Buffer::AssignBytes(Index dst_offset, std::byte* src, Index src_offset,
 }
 
 void Buffer::ResizeBuffer(Index new_size, bool preserve_used) {
+  CheckSize(new_size);
+
   if (new_size == 0) {
     Delete_();
     ptr_ = nullptr;
@@ -83,6 +85,8 @@ void Buffer::ResizeBuffer(Index new_size, bool preserve_used) {
 
 Index Buffer::PushFront(const std::byte* other, Index other_size,
                         bool use_memmove) {
+  CheckSize(other_size);
+
   auto copy_size = std::min(used_begin_, other_size);
 
   if (copy_size) {
@@ -105,6 +109,8 @@ bool Buffer::PushBack(std::byte b) {
 
 Index Buffer::PushBack(const std::byte* other, Index other_size,
                        bool use_memmove) {
+  CheckSize(other_size);
+
   auto copy_size = std::min(size_ - used_end_, other_size);
 
   if (copy_size) {
@@ -117,12 +123,16 @@ Index Buffer::PushBack(const std::byte* other, Index other_size,
 }
 
 Index Buffer::PopFront(Index size) {
+  CheckSize(size);
+
   auto move = std::min(used_begin_, size);
   used_begin_ -= move;
   return move;
 }
 
 Index Buffer::PopFront(std::byte* buffer, Index size, bool use_memmove) {
+  CheckSize(size);
+
   auto pop_size = std::min(GetUsedSize(), size);
 
   if (pop_size) {
