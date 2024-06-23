@@ -1,5 +1,7 @@
 #include "cru/common/io/MemoryStream.h"
 
+#include <cstring>
+
 namespace cru::io {
 MemoryStream::~MemoryStream() {
   if (release_func_) {

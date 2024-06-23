@@ -1,25 +1,6 @@
 #include "cru/common/Format.h"
-#include <double-conversion/utils.h>
 
 namespace cru {
-
-double_conversion::DoubleToStringConverter kDefaultDoubleToStringConverter(
-    0, "infinity", "nan", 'e', -6, 21, 6, 1);
-
-String ToString(float value, StringView option) {
-  char buffer[50];
-  double_conversion::StringBuilder string_builder(buffer, sizeof(buffer));
-  kDefaultDoubleToStringConverter.ToShortestSingle(value, &string_builder);
-  return String::FromUtf8(std::string_view(buffer, string_builder.position()));
-}
-
-String ToString(double value, StringView option) {
-  char buffer[50];
-  double_conversion::StringBuilder string_builder(buffer, sizeof(buffer));
-  kDefaultDoubleToStringConverter.ToShortestSingle(value, &string_builder);
-  return String::FromUtf8(std::string_view(buffer, string_builder.position()));
-}
-
 namespace details {
 FormatToken ParsePlaceHolder(String place_holder_string) {
   if (place_holder_string.empty()) {

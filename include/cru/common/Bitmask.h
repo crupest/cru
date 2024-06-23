@@ -1,4 +1,5 @@
 #pragma once
+
 #include <functional>
 
 namespace cru {
@@ -12,6 +13,8 @@ struct Bitmask final {
   static constexpr Bitmask FromOffset(int offset) {
     return Bitmask(static_cast<TUnderlying>(1u << offset));
   }
+
+  constexpr bool Has(Bitmask rhs) const { return (value & rhs.value) != 0; }
 
   Bitmask operator|(Bitmask rhs) const { return Bitmask(value | rhs.value); }
   Bitmask operator&(Bitmask rhs) const { return Bitmask(value & rhs.value); }
@@ -34,7 +37,7 @@ struct Bitmask final {
   bool operator!=(Bitmask rhs) const { return this->value != rhs.value; }
 
   explicit operator TUnderlying() const { return value; }
-  explicit operator bool() const { return value != 0; }
+  operator bool() const { return value != 0; }
 
   TUnderlying value;
 };

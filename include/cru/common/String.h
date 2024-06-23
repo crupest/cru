@@ -6,7 +6,6 @@
 #include "StringToNumberConverter.h"
 #include "StringUtil.h"
 
-#include <double-conversion/double-conversion.h>
 #include <filesystem>
 #include <initializer_list>
 #include <iterator>
@@ -221,16 +220,14 @@ class CRU_BASE_API String {
       Index* processed_characters_count, unsigned flags, int base) const;
 
   int ParseToInt(Index* processed_characters_count = nullptr,
-                 unsigned flags = StringToNumberFlags::kNoFlags,
-                 int base = 0) const;
+                 StringToNumberFlag flags = {}, int base = 0) const;
   long long ParseToLongLong(Index* processed_characters_count = nullptr,
-                            unsigned flags = StringToNumberFlags::kNoFlags,
-                            int base = 0) const;
+                            StringToNumberFlag flags = {}, int base = 0) const;
 
   float ParseToFloat(Index* processed_characters_count = nullptr,
-                     unsigned flags = StringToNumberFlags::kNoFlags) const;
+                     StringToNumberFlag flags = {}) const;
   double ParseToDouble(Index* processed_characters_count = nullptr,
-                       unsigned flags = StringToNumberFlags::kNoFlags) const;
+                       StringToNumberFlag flags = {}) const;
   std::vector<float> ParseToFloatList(value_type separator = u' ') const;
   std::vector<double> ParseToDoubleList(value_type separator = u' ') const;
 
@@ -260,6 +257,8 @@ class CRU_BASE_API String {
   Index size_ = 0;      // not including trailing '\0'
   Index capacity_ = 0;  // always 1 smaller than real buffer size
 };
+
+std::ostream& CRU_BASE_API operator<<(std::ostream& os, const String& value);
 
 class CRU_BASE_API StringView {
  public:
@@ -357,23 +356,24 @@ class CRU_BASE_API StringView {
 
   template <typename TInteger>
   std::enable_if_t<std::is_signed_v<TInteger>, TInteger> ParseToInteger(
-      Index* processed_characters_count, unsigned flags, int base) const {
-    auto result = StringToIntegerConverterImpl(flags, base)
-                      .Parse(data(), size(), processed_characters_count);
+      Index* processed_characters_count, StringToNumberFlag flags,
+      int base) const {
+    auto utf8_string = ToUtf8();
+    auto result = StringToIntegerConverter(flags, base)
+                      .Parse(utf8_string.data(), utf8_string.size(),
+                             processed_characters_count);
     return result.negate ? -result.value : result.value;
   }
 
   int ParseToInt(Index* processed_characters_count = nullptr,
-                 unsigned flags = StringToNumberFlags::kNoFlags,
-                 int base = 0) const;
+                 StringToNumberFlag flags = {}, int base = 0) const;
   long long ParseToLongLong(Index* processed_characters_count = nullptr,
-                            unsigned flags = StringToNumberFlags::kNoFlags,
-                            int base = 0) const;
+                            StringToNumberFlag flags = {}, int base = 0) const;
 
   float ParseToFloat(Index* processed_characters_count = nullptr,
-                     unsigned flags = StringToNumberFlags::kNoFlags) const;
+                     StringToNumberFlag flags = {}) const;
   double ParseToDouble(Index* processed_characters_count = nullptr,
-                       unsigned flags = StringToNumberFlags::kNoFlags) const;
+                       StringToNumberFlag flags = {}) const;
   std::vector<float> ParseToFloatList(value_type separator = u' ') const;
   std::vector<double> ParseToDoubleList(value_type separator = u' ') const;
 
