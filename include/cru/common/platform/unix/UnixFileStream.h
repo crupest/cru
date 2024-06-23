@@ -2,7 +2,9 @@
 
 #include "../../PreConfig.h"
 
-#ifdef CRU_PLATFORM_UNIX
+#ifndef CRU_PLATFORM_UNIX
+#error "This file can only be included on unix."
+#endif
 
 #include "../../io/Stream.h"
 
@@ -48,5 +50,3 @@ class UnixFileStream : public io::Stream {
   bool auto_close_;
 };
 }  // namespace cru::platform::unix
-
-#endif

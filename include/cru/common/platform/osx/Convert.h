@@ -1,6 +1,9 @@
 #pragma once
 #include "../../PreConfig.h"
-#ifdef CRU_PLATFORM_OSX
+
+#ifndef CRU_PLATFORM_OSX
+#error "This file can only be included on osx."
+#endif
 
 #include "../../String.h"
 
@@ -13,5 +16,3 @@ String Convert(CFStringRef string);
 CFRange Convert(const Range& range);
 Range Convert(const CFRange& range);
 }  // namespace cru::platform::osx
-
-#endif

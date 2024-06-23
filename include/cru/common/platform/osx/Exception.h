@@ -1,6 +1,9 @@
 #pragma once
 #include "../../PreConfig.h"
-#ifdef CRU_PLATFORM_OSX
+
+#ifndef CRU_PLATFORM_OSX
+#error "This file can only be included on osx."
+#endif
 
 #include "../Exception.h"
 
@@ -10,5 +13,3 @@ class OsxException : public PlatformException {
   using PlatformException::PlatformException;
 };
 }  // namespace cru::platform::osx
-
-#endif

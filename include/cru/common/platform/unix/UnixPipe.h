@@ -2,7 +2,9 @@
 
 #include "../../PreConfig.h"
 
-#ifdef CRU_PLATFORM_UNIX
+#ifndef CRU_PLATFORM_UNIX
+#error "This file can only be included on unix."
+#endif
 
 #include "../../Base.h"
 #include "../../Bitmask.h"
@@ -65,5 +67,3 @@ class UnixPipe : public Object {
   int write_fd_;
 };
 }  // namespace cru::platform::unix
-
-#endif
