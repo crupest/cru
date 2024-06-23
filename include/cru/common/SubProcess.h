@@ -65,6 +65,10 @@ struct SubProcessExitResult {
   int exit_signal;
   bool has_core_dump;
 
+  bool IsSuccess() const {
+    return exit_type == SubProcessExitType::Normal && exit_code == 0;
+  }
+
   static SubProcessExitResult Unknown() {
     return {SubProcessExitType::Unknown, 0, 0, false};
   }
@@ -139,7 +143,6 @@ class PlatformSubProcess : public Object {
         : start_info(std::move(start_info)), impl(std::move(impl)) {}
 
     std::mutex mutex;
-    std::unique_lock<std::mutex> lock{mutex, std::defer_lock};
     std::condition_variable condition_variable;
     SubProcessStartInfo start_info;
     SubProcessExitResult exit_result;
@@ -205,6 +208,7 @@ class PlatformSubProcess : public Object {
 
  private:
   std::shared_ptr<State> state_;
+  std::unique_lock<std::mutex> lock_;
 };
 
 class CRU_BASE_API SubProcess : public Object {
@@ -212,6 +216,10 @@ class CRU_BASE_API SubProcess : public Object {
 
  public:
   static SubProcess Create(
+      String program, std::vector<String> arguments = {},
+      std::unordered_map<String, String> environments = {});
+
+  static SubProcessExitResult Call(
       String program, std::vector<String> arguments = {},
       std::unordered_map<String, String> environments = {});
 

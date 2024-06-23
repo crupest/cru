@@ -15,12 +15,13 @@ using ThisPlatformSubProcessImpl = platform::unix::PosixSpawnSubProcessImpl;
 PlatformSubProcess::PlatformSubProcess(
     SubProcessStartInfo start_info,
     std::shared_ptr<IPlatformSubProcessImpl> impl)
-    : state_(new State(std::move(start_info), std::move(impl))) {}
+    : state_(new State(std::move(start_info), std::move(impl))),
+      lock_(state_->mutex, std::defer_lock) {}
 
 PlatformSubProcess::~PlatformSubProcess() {}
 
 void PlatformSubProcess::Start() {
-  std::lock_guard lock_guard(this->state_->lock);
+  std::lock_guard lock_guard(this->lock_);
 
   if (this->state_->status != SubProcessStatus::Prepare) {
     throw SubProcessException(u"The process has already tried to start.");
@@ -31,7 +32,7 @@ void PlatformSubProcess::Start() {
     this->state_->status = SubProcessStatus::Running;
 
     auto thread = std::thread([state = state_] {
-      std::lock_guard lock_guard(state->lock);
+      std::unique_lock lock(state->mutex);
       state->exit_result = state->impl->PlatformWaitForProcess();
       state->status = SubProcessStatus::Exited;
       state->condition_variable.notify_all();
@@ -47,7 +48,7 @@ void PlatformSubProcess::Start() {
 
 void PlatformSubProcess::Wait(
     std::optional<std::chrono::milliseconds> wait_time) {
-  std::lock_guard lock_guard(this->state_->lock);
+  std::lock_guard lock_guard(this->lock_);
 
   if (this->state_->status == SubProcessStatus::Prepare) {
     throw SubProcessException(
@@ -68,15 +69,15 @@ void PlatformSubProcess::Wait(
   };
 
   if (wait_time) {
-    this->state_->condition_variable.wait_for(this->state_->lock, *wait_time,
+    this->state_->condition_variable.wait_for(this->lock_, *wait_time,
                                               predicate);
   } else {
-    this->state_->condition_variable.wait(this->state_->lock, predicate);
+    this->state_->condition_variable.wait(this->lock_, predicate);
   }
 }
 
 void PlatformSubProcess::Kill() {
-  std::lock_guard lock_guard(this->state_->lock);
+  std::lock_guard lock_guard(this->lock_);
 
   if (this->state_->status == SubProcessStatus::Prepare) {
     throw SubProcessException(u"The process does not start. Can't kill it.");
@@ -99,12 +100,12 @@ void PlatformSubProcess::Kill() {
 }
 
 SubProcessStatus PlatformSubProcess::GetStatus() {
-  std::lock_guard lock_guard(this->state_->lock);
+  std::lock_guard lock_guard(this->lock_);
   return this->state_->status;
 }
 
 SubProcessExitResult PlatformSubProcess::GetExitResult() {
-  std::lock_guard lock_guard(this->state_->lock);
+  std::lock_guard lock_guard(this->lock_);
 
   if (this->state_->status == SubProcessStatus::Prepare) {
     throw SubProcessException(
@@ -143,6 +144,15 @@ SubProcess SubProcess::Create(String program, std::vector<String> arguments,
   start_info.arguments = std::move(arguments);
   start_info.environments = std::move(environments);
   return SubProcess(std::move(start_info));
+}
+
+SubProcessExitResult SubProcess::Call(
+    String program, std::vector<String> arguments,
+    std::unordered_map<String, String> environments) {
+  auto process =
+      Create(std::move(program), std::move(arguments), std::move(environments));
+  process.Wait();
+  return process.GetExitResult();
 }
 
 SubProcess::SubProcess(SubProcessStartInfo start_info) {
