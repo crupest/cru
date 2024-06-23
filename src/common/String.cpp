@@ -33,7 +33,8 @@ String String::FromUtf8(const char* str, Index size) {
   Utf8CodePointIterator iter(str, size);
   for (auto cp : iter) {
     Utf16EncodeCodePointAppend(
-        cp, std::bind(&String::push_back, std::ref(result), std::placeholders::_1));
+        cp,
+        std::bind(&String::push_back, std::ref(result), std::placeholders::_1));
   }
   return result;
 }
@@ -330,23 +331,23 @@ Range String::RangeFromCodePointToCodeUnit(Range code_point_range) const {
   return View().RangeFromCodePointToCodeUnit(code_point_range);
 }
 
-int String::ParseToInt(Index* processed_characters_count, unsigned flags,
-                       int base) const {
+int String::ParseToInt(Index* processed_characters_count,
+                       StringToNumberFlag flags, int base) const {
   return View().ParseToInt(processed_characters_count, flags, base);
 }
 
 long long String::ParseToLongLong(Index* processed_characters_count,
-                                  unsigned flags, int base) const {
+                                  StringToNumberFlag flags, int base) const {
   return View().ParseToLongLong(processed_characters_count, flags, base);
 }
 
 float String::ParseToFloat(Index* processed_characters_count,
-                           unsigned flags) const {
+                           StringToNumberFlag flags) const {
   return View().ParseToFloat(processed_characters_count, flags);
 }
 
 double String::ParseToDouble(Index* processed_characters_count,
-                             unsigned flags) const {
+                             StringToNumberFlag flags) const {
   return View().ParseToDouble(processed_characters_count, flags);
 }
 
@@ -356,6 +357,11 @@ std::vector<float> String::ParseToFloatList(value_type separator) const {
 
 std::vector<double> String::ParseToDoubleList(value_type separator) const {
   return View().ParseToDoubleList(separator);
+}
+
+std::ostream& operator<<(std::ostream& os, const String& value) {
+  os << value.ToUtf8();
+  return os;
 }
 
 namespace {
@@ -540,7 +546,8 @@ std::string StringView::ToUtf8() const {
   std::string result;
   for (auto cp : CodePointIterator()) {
     Utf8EncodeCodePointAppend(
-        cp, std::bind(&std::string::push_back, std::ref(result), std::placeholders::_1));
+        cp, std::bind(&std::string::push_back, std::ref(result),
+                      std::placeholders::_1));
   }
   return result;
 }
@@ -563,17 +570,18 @@ Buffer StringView::ToUtf8Buffer(bool end_zero) const {
   return buffer;
 }
 
-int StringView::ParseToInt(Index* processed_characters_count, unsigned flags,
-                           int base) const {
+int StringView::ParseToInt(Index* processed_characters_count,
+                           StringToNumberFlag flags, int base) const {
   return ParseToInteger<int>(processed_characters_count, flags, base);
 }
 
 long long StringView::ParseToLongLong(Index* processed_characters_count,
-                                      unsigned flags, int base) const {
+                                      StringToNumberFlag flags,
+                                      int base) const {
   return ParseToInteger<long long>(processed_characters_count, flags, base);
 }
 
-static int MapStringToDoubleFlags(int flags) {
+static int MapStringToDoubleFlags(StringToNumberFlag flags) {
   int f = double_conversion::StringToDoubleConverter::ALLOW_CASE_INSENSIBILITY;
   if (flags & StringToNumberFlags::kAllowLeadingSpaces) {
     f |= double_conversion::StringToDoubleConverter::ALLOW_LEADING_SPACES;
@@ -588,12 +596,12 @@ static int MapStringToDoubleFlags(int flags) {
 }
 
 static double_conversion::StringToDoubleConverter CreateStringToDoubleConverter(
-    int flags) {
+    StringToNumberFlag flags) {
   return {MapStringToDoubleFlags(flags), 0.0, NAN, "inf", "nan"};
 }
 
 float StringView::ParseToFloat(Index* processed_characters_count,
-                               unsigned flags) const {
+                               StringToNumberFlag flags) const {
   int pcc;
   auto result = CreateStringToDoubleConverter(flags).StringToFloat(
       reinterpret_cast<const uc16*>(ptr_), static_cast<int>(size_), &pcc);
@@ -609,7 +617,7 @@ float StringView::ParseToFloat(Index* processed_characters_count,
 }
 
 double StringView::ParseToDouble(Index* processed_characters_count,
-                                 unsigned flags) const {
+                                 StringToNumberFlag flags) const {
   int pcc;
   auto result = CreateStringToDoubleConverter(flags).StringToDouble(
       reinterpret_cast<const uc16*>(ptr_), static_cast<int>(size_), &pcc);

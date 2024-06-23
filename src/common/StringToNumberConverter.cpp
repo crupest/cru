@@ -2,7 +2,7 @@
 #include "cru/common/Exception.h"
 
 namespace cru {
-bool StringToIntegerConverterImpl::CheckParams() const {
+bool StringToIntegerConverter::CheckParams() const {
   return base == 0 || base >= 2 & base <= 36;
 }
 
@@ -10,24 +10,20 @@ static bool IsSpace(char c) {
   return c == ' ' || c == '\t' || c == '\n' || c == '\r';
 }
 
-namespace {
-template <typename T>
-StringToIntegerConverterImplResult GenericParseInteger(
-    const StringToIntegerConverterImpl* converter, const T* const str,
-    const Index size, Index* processed_characters_count) {
+StringToIntegerResult StringToIntegerConverter::Parse(
+    const char* const str, const Index size,
+    Index* processed_characters_count) const {
   if (str == nullptr) throw std::invalid_argument("Invalid str.");
   if (size < 0) throw std::invalid_argument("Invalid size.");
-  if (!converter->CheckParams())
-    throw std::invalid_argument("Invalid parsing flags.");
+  if (!CheckParams()) throw std::invalid_argument("Invalid parsing flags.");
 
-  const bool throw_on_error =
-      (converter->flags & StringToNumberFlags::kThrowOnError) != 0;
+  const bool throw_on_error = flags.Has(StringToNumberFlags::kThrowOnError);
 
   auto const end = str + size;
 
   auto current = str;
 
-  if (converter->flags & StringToNumberFlags::kAllowLeadingSpaces) {
+  if (flags & StringToNumberFlags::kAllowLeadingSpaces) {
     while (current != end && IsSpace(*current)) {
       current++;
     }
@@ -64,9 +60,9 @@ StringToIntegerConverterImplResult GenericParseInteger(
     }
   }
 
-  int base = converter->base;
+  int real_base = base;
 
-  if (base == 0) {
+  if (real_base == 0) {
     if (*current == '0') {
       ++current;
       if (current == end) {
@@ -76,15 +72,15 @@ StringToIntegerConverterImplResult GenericParseInteger(
         return {negate, 0};
       } else if (*current == 'x' || *current == 'X') {
         ++current;
-        base = 16;
+        real_base = 16;
       } else if (*current == 'b' || *current == 'B') {
         ++current;
-        base = 2;
+        real_base = 2;
       } else {
-        base = 8;
+        real_base = 8;
       }
     } else {
-      base = 10;
+      real_base = 10;
     }
   }
 
@@ -100,7 +96,7 @@ StringToIntegerConverterImplResult GenericParseInteger(
   }
 
   const bool allow_leading_zero =
-      converter->flags & StringToNumberFlags::kAllowLeadingZeroForInteger;
+      flags.Has(StringToNumberFlags::kAllowLeadingZeroForInteger);
 
   while (current != end && *current == '0') {
     current++;
@@ -114,21 +110,22 @@ StringToIntegerConverterImplResult GenericParseInteger(
   }
 
   const bool allow_trailing_junk =
-      converter->flags & StringToNumberFlags::kAllowTrailingJunk;
+      flags.Has(StringToNumberFlags::kAllowTrailingJunk);
   const bool allow_trailing_spaces =
-      converter->flags & StringToNumberFlags::kAllowTrailingSpaces;
+      flags.Has(StringToNumberFlags::kAllowTrailingSpaces);
+
   unsigned long long result = 0;
 
   while (current != end) {
     const char c = *current;
-    if (c >= '0' && c <= (base > 10 ? '9' : base + '0' - 1)) {
-      result = result * base + c - '0';
+    if (c >= '0' && c <= (real_base > 10 ? '9' : real_base + '0' - 1)) {
+      result = result * real_base + c - '0';
       current++;
-    } else if (base > 10 && c >= 'a' && c <= (base + 'a' - 10 - 1)) {
-      result = result * base + c - 'a' + 10;
+    } else if (real_base > 10 && c >= 'a' && c <= (real_base + 'a' - 10 - 1)) {
+      result = result * real_base + c - 'a' + 10;
       current++;
-    } else if (base > 10 && c >= 'A' && c <= (base + 'A' - 10 - 1)) {
-      result = result * base + c - 'A' + 10;
+    } else if (real_base > 10 && c >= 'A' && c <= (real_base + 'A' - 10 - 1)) {
+      result = result * real_base + c - 'A' + 10;
       current++;
     } else if (allow_trailing_junk) {
       break;
@@ -169,17 +166,5 @@ StringToIntegerConverterImplResult GenericParseInteger(
 
   return {negate, result};
 }
-}  // namespace
 
-StringToIntegerConverterImplResult StringToIntegerConverterImpl::Parse(
-    const char* const str, const Index size,
-    Index* processed_characters_count) const {
-  return GenericParseInteger(this, str, size, processed_characters_count);
-}
-
-StringToIntegerConverterImplResult StringToIntegerConverterImpl::Parse(
-    const char16_t* const str, const Index size,
-    Index* processed_characters_count) const {
-  return GenericParseInteger(this, str, size, processed_characters_count);
-}
 }  // namespace cru

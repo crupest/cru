@@ -231,7 +231,7 @@ class CRU_BASE_API SubProcess : public Object {
   SubProcess(SubProcess&& other) = default;
   SubProcess& operator=(SubProcess&& other) = default;
 
-  ~SubProcess();
+  ~SubProcess() override;
 
  public:
   void Wait(std::optional<std::chrono::milliseconds> wait_time = std::nullopt);

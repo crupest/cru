@@ -7,8 +7,8 @@
 #include <unistd.h>
 
 namespace cru::platform::unix {
-UnixPipe::UnixPipe(Usage usage, UnixPipeFlag flags)
-    : usage_(usage), flags_(flags) {
+UnixPipe::UnixPipe(Usage usage, bool auto_close, UnixPipeFlag flags)
+    : usage_(usage), auto_close_(auto_close), flags_(flags) {
   int fds[2];
   if (pipe(fds) != 0) {
     throw ErrnoException(u"Failed to create unix pipe.");
@@ -40,8 +40,12 @@ int UnixPipe::GetOtherFileDescriptor() {
 }
 
 UnixPipe::~UnixPipe() {
-  if (close(GetSelfFileDescriptor()) != 0) {
-    CRU_LOG_ERROR(u"Failed to close unix pipe file descriptor.");
+  if (auto_close_) {
+    auto self_fd = GetSelfFileDescriptor();
+    if (::close(self_fd) != 0) {
+      CRU_LOG_ERROR(u"Failed to close unix pipe file descriptor {}, errno {}.",
+                    self_fd, errno);
+    }
   }
 }
 }  // namespace cru::platform::unix

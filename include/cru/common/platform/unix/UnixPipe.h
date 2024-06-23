@@ -43,7 +43,7 @@ class UnixPipe : public Object {
     Receive,
   };
 
-  explicit UnixPipe(Usage usage, UnixPipeFlag flags = {});
+  explicit UnixPipe(Usage usage, bool auto_close, UnixPipeFlag flags = {});
 
   CRU_DELETE_COPY(UnixPipe)
   CRU_DELETE_MOVE(UnixPipe)
@@ -62,6 +62,7 @@ class UnixPipe : public Object {
 
  private:
   Usage usage_;
+  bool auto_close_;
   UnixPipeFlag flags_;
   int read_fd_;
   int write_fd_;

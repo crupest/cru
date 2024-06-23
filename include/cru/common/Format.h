@@ -3,8 +3,10 @@
 #include "Exception.h"
 #include "String.h"
 
-#include <double-conversion/double-conversion.h>
-#include <charconv>
+#include <cassert>
+#include <cstdio>
+#include <type_traits>
+#include <vector>
 
 namespace cru {
 inline String ToString(bool value) {
@@ -12,30 +14,39 @@ inline String ToString(bool value) {
 }
 
 template <typename T>
-std::enable_if_t<std::is_integral_v<T>, String> ToString(T value) {
-  std::array<char, 50> buffer;
-  auto result =
-      std::to_chars(buffer.data(), buffer.data() + buffer.size(), value);
+inline constexpr std::nullptr_t kPrintfFormatSpecifierOfType = nullptr;
 
-  if (result.ec == std::errc{}) {
-  } else {
-    throw std::invalid_argument("Failed to convert value to chars.");
-  }
+#define CRU_DEFINE_PRINTF_FORMAT_SPECIFIER_OF_TYPE(type, specifier) \
+  template <>                                                       \
+  inline constexpr const char* kPrintfFormatSpecifierOfType<type> = specifier;
 
-  auto size = result.ptr - buffer.data();
-  auto b = new char16_t[size + 1];
-  b[size] = 0;
-  std::copy(buffer.data(), result.ptr, b);
-  return String::FromBuffer(b, size, size);
+CRU_DEFINE_PRINTF_FORMAT_SPECIFIER_OF_TYPE(signed char, "%c")
+CRU_DEFINE_PRINTF_FORMAT_SPECIFIER_OF_TYPE(unsigned char, "%c")
+CRU_DEFINE_PRINTF_FORMAT_SPECIFIER_OF_TYPE(signed short, "%hd")
+CRU_DEFINE_PRINTF_FORMAT_SPECIFIER_OF_TYPE(unsigned short, "%hu")
+CRU_DEFINE_PRINTF_FORMAT_SPECIFIER_OF_TYPE(signed int, "%d")
+CRU_DEFINE_PRINTF_FORMAT_SPECIFIER_OF_TYPE(unsigned int, "%u")
+CRU_DEFINE_PRINTF_FORMAT_SPECIFIER_OF_TYPE(signed long, "%ld")
+CRU_DEFINE_PRINTF_FORMAT_SPECIFIER_OF_TYPE(unsigned long, "%lu")
+CRU_DEFINE_PRINTF_FORMAT_SPECIFIER_OF_TYPE(signed long long, "%lld")
+CRU_DEFINE_PRINTF_FORMAT_SPECIFIER_OF_TYPE(unsigned long long, "%llu")
+CRU_DEFINE_PRINTF_FORMAT_SPECIFIER_OF_TYPE(float, "%f")
+CRU_DEFINE_PRINTF_FORMAT_SPECIFIER_OF_TYPE(double, "%f")
+
+#undef CRU_DEFINE_PRINTF_FORMAT_SPECIFIER_OF_TYPE
+
+template <typename T>
+std::enable_if_t<
+    !std::is_null_pointer_v<decltype(kPrintfFormatSpecifierOfType<T>)>, String>
+ToString(T value) {
+  auto size = std::snprintf(nullptr, 0, kPrintfFormatSpecifierOfType<T>, value);
+  assert(size > 0);
+  std::vector<char> buffer(size + 1);
+  size = std::snprintf(buffer.data(), size + 1, kPrintfFormatSpecifierOfType<T>,
+                       value);
+  assert(size > 0);
+  return String::FromUtf8(buffer.data(), size);
 }
-
-extern double_conversion::DoubleToStringConverter
-    kDefaultDoubleToStringConverter;
-
-String CRU_BASE_API ToString(float value, StringView option);
-String CRU_BASE_API ToString(double value, StringView option);
-inline String ToString(float value) { return ToString(value, u""); }
-inline String ToString(double value) { return ToString(value, u""); }
 
 template <typename T>
 String ToString(const T& value, StringView option) {

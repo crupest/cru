@@ -1,41 +1,63 @@
 #pragma once
 #include "Base.h"
+#include "Bitmask.h"
 
+#include <cstddef>
 #include <ostream>
 
 namespace cru {
-struct CRU_BASE_API StringToNumberFlags {
-  constexpr static unsigned kNoFlags = 0;
-  constexpr static unsigned kAllowLeadingSpaces = 1 << 0;
-  constexpr static unsigned kAllowTrailingSpaces = 1 << 1;
-  constexpr static unsigned kAllowTrailingJunk = 1 << 2;
-  constexpr static unsigned kAllowLeadingZeroForInteger = 1 << 2;
-  constexpr static unsigned kThrowOnError = 1 << 3;
+namespace details {
+struct StringToNumberFlagTag {};
+}  // namespace details
+
+using StringToNumberFlag = Bitmask<details::StringToNumberFlagTag>;
+
+struct StringToNumberFlags {
+  constexpr static StringToNumberFlag kAllowLeadingSpaces =
+      StringToNumberFlag::FromOffset(0);
+  constexpr static StringToNumberFlag kAllowTrailingSpaces =
+      StringToNumberFlag::FromOffset(1);
+  constexpr static StringToNumberFlag kAllowTrailingJunk =
+      StringToNumberFlag::FromOffset(2);
+  constexpr static StringToNumberFlag kAllowLeadingZeroForInteger =
+      StringToNumberFlag::FromOffset(3);
+  constexpr static StringToNumberFlag kThrowOnError =
+      StringToNumberFlag::FromOffset(4);
 };
 
-struct CRU_BASE_API StringToIntegerConverterImplResult {
-  StringToIntegerConverterImplResult() = default;
-  StringToIntegerConverterImplResult(bool negate, unsigned long long value)
+template <typename TResult>
+struct IStringToNumberConverter : virtual Interface {
+  virtual TResult Parse(const char* str, Index size,
+                        Index* processed_characters_count) const = 0;
+
+  template <std::size_t Size>
+  TResult Parse(const char (&str)[Size],
+                Index* processed_characters_count) const {
+    return Parse(str, Size - 1, processed_characters_count);
+  }
+};
+
+struct CRU_BASE_API StringToIntegerResult {
+  StringToIntegerResult() = default;
+  StringToIntegerResult(bool negate, unsigned long long value)
       : negate(negate), value(value) {}
 
   bool negate;
   unsigned long long value;
 };
 
-inline bool CRU_BASE_API
-operator==(const StringToIntegerConverterImplResult& left,
-           const StringToIntegerConverterImplResult& right) {
+inline bool CRU_BASE_API operator==(const StringToIntegerResult& left,
+                                    const StringToIntegerResult& right) {
   return left.negate == right.negate && left.value == right.value;
 }
 
-inline bool CRU_BASE_API
-operator!=(const StringToIntegerConverterImplResult& left,
-           const StringToIntegerConverterImplResult& right) {
+inline bool CRU_BASE_API operator!=(const StringToIntegerResult& left,
+                                    const StringToIntegerResult& right) {
   return !(left == right);
 }
 
-inline std::ostream& operator<<(
-    std::ostream& stream, const StringToIntegerConverterImplResult& result) {
+inline std::ostream& CRU_BASE_API
+operator<<(std::ostream& stream, const StringToIntegerResult& result) {
   return stream << "StringToIntegerConverterImplResult("
                 << (result.negate ? "-" : "") << result.value << ")";
 }
@@ -43,9 +65,10 @@ inline std::ostream& operator<<(
 /**
  * \brief A converter that convert number into long long.
  */
-struct CRU_BASE_API StringToIntegerConverterImpl {
+struct CRU_BASE_API StringToIntegerConverter
+    : IStringToNumberConverter<StringToIntegerResult> {
  public:
-  explicit StringToIntegerConverterImpl(unsigned flags, int base = 0)
+  explicit StringToIntegerConverter(StringToNumberFlag flags, int base = 0)
       : flags(flags), base(base) {}
 
   bool CheckParams() const;
@@ -57,19 +80,11 @@ struct CRU_BASE_API StringToIntegerConverterImpl {
    * \param processed_characters_count The number of characters that were
    * processed. Or nullptr to not retrieve.
    */
-  StringToIntegerConverterImplResult Parse(
-      const char* str, Index size, Index* processed_characters_count) const;
+  StringToIntegerResult Parse(const char* str, Index size,
+                              Index* processed_characters_count) const override;
+  using IStringToNumberConverter<StringToIntegerResult>::Parse;
 
-  StringToIntegerConverterImplResult Parse(
-      const char16_t* str, Index size, Index* processed_characters_count) const;
-
-  template <std::size_t Size>
-  StringToIntegerConverterImplResult Parse(
-      const char (&str)[Size], Index* processed_characters_count) const {
-    return Parse(str, Size - 1, processed_characters_count);
-  }
-
-  unsigned flags;
+  StringToNumberFlag flags;
   /**
    * \brief The base of the number used for parse or 0 for auto detect.
    * \remarks Base can only be of range [2, 36] or 0. If base is 0, decimal is
@@ -79,5 +94,14 @@ struct CRU_BASE_API StringToIntegerConverterImpl {
    * error.
    */
   int base;
+};
+
+struct CRU_BASE_API StringToFloatConverter {
+  StringToFloatConverter(StringToNumberFlag flags) : flags(flags) {}
+
+  double Parse(const char* str, Index size,
+               Index* processed_characters_count) const;
+
+  StringToNumberFlag flags;
 };
 }  // namespace cru
