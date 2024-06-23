@@ -2,7 +2,9 @@
 
 #include "../../PreConfig.h"
 
-#ifdef CRU_PLATFORM_UNIX
+#ifndef CRU_PLATFORM_UNIX
+#error "This file can only be included on unix."
+#endif
 
 #include "../../Base.h"
 #include "../../SubProcess.h"
@@ -46,5 +48,3 @@ class PosixSpawnSubProcess : public PlatformSubProcessBase {
   std::unique_ptr<io::AutoReadStream> stderr_buffer_stream_;
 };
 }  // namespace cru::platform::unix
-
-#endif

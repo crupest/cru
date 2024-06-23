@@ -13,7 +13,7 @@ struct TextStyleTag {};
 using TextStyle = Bitmask<details::TextStyleTag>;
 
 struct TextStyles {
-  static constexpr TextStyle Normal;
+  static constexpr TextStyle Normal{0x0};
   static constexpr TextStyle Bold{0x1};
   static constexpr TextStyle Italic{0x2};
 };

@@ -24,14 +24,11 @@ class MeasureLength final {
 
   constexpr MeasureLength() : MeasureLength(tag_not_specify) {}
   constexpr MeasureLength(tag_not_specify_t) : length_(-1) {}
-  constexpr MeasureLength(float length) : length_(length) {
-    Expects(length >= 0);
-  }
+  constexpr MeasureLength(float length) : length_(length) {}
 
   MeasureLength(const MeasureLength& other) = default;
   constexpr MeasureLength& operator=(const MeasureLength& other) = default;
   constexpr MeasureLength& operator=(float length) {
-    Expects(length >= 0);
     length_ = length;
     return *this;
   }

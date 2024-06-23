@@ -9,7 +9,9 @@ AutoReadStream::AutoReadStream(Stream* stream, bool auto_delete,
   stream_ = stream;
   size_per_read_ = buffer_stream_options.GetBlockSizeOrDefault();
   buffer_stream_ = std::make_unique<BufferStream>(buffer_stream_options);
-  background_thread_ = std::thread(&AutoReadStream::BackgroundThreadRun, this);
+  auto background_thread =
+      std::thread(&AutoReadStream::BackgroundThreadRun, this);
+  background_thread.detach();
 }
 
 AutoReadStream::~AutoReadStream() {
@@ -43,10 +45,15 @@ void AutoReadStream::Flush() { stream_->Flush(); }
 void AutoReadStream::Close() { stream_->Close(); }
 
 void AutoReadStream::BackgroundThreadRun() {
+  auto resolver = CreateResolver();
   std::vector<std::byte> buffer(size_per_read_);
   while (true) {
     try {
       auto read = stream_->Read(buffer.data(), buffer.size());
+      auto self = resolver.Resolve();
+      if (!self) {
+        break;
+      }
       if (read == 0) {
         buffer_stream_->SetEof();
         break;

@@ -62,6 +62,7 @@ Buffer Stream::ReadToEnd(Index grow_size) {
   Buffer buffer(grow_size);
   while (true) {
     auto read = Read(buffer.GetUsedEndPtr(), buffer.GetBackFree());
+    buffer.PushBackCount(read);
     if (read == 0) {
       break;
     }

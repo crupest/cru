@@ -107,6 +107,15 @@ void PosixSpawnSubProcess::PlatformCreateProcess() {
   error = posix_spawn_file_actions_adddup2(
       &file_actions, stderr_pipe_.GetOtherFileDescriptor(), STDERR_FILENO);
   check_error(u"Failed to call posix_spawn_file_actions_adddup2 on stderr.");
+  error = posix_spawn_file_actions_addclose(
+      &file_actions, stdin_pipe_.GetSelfFileDescriptor());
+  check_error(u"Failed to call posix_spawn_file_actions_addclose on stdin.");
+  error = posix_spawn_file_actions_addclose(
+      &file_actions, stdout_pipe_.GetSelfFileDescriptor());
+  check_error(u"Failed to call posix_spawn_file_actions_addclose on stdout.");
+  error = posix_spawn_file_actions_addclose(
+      &file_actions, stderr_pipe_.GetSelfFileDescriptor());
+  check_error(u"Failed to call posix_spawn_file_actions_addclose on stderr.");
 
   posix_spawnattr_t attr;
   error = posix_spawnattr_init(&attr);
@@ -131,6 +140,13 @@ void PosixSpawnSubProcess::PlatformCreateProcess() {
 
   error = posix_spawnp(&pid_, exe.c_str(), &file_actions, &attr, argv, envp);
   check_error(u"Failed to call posix_spawnp.");
+
+  error = ::close(stdin_pipe_.GetOtherFileDescriptor());
+  check_error(u"Failed to close stdin.");
+  error = ::close(stdout_pipe_.GetOtherFileDescriptor());
+  check_error(u"Failed to close stdout.");
+  error = ::close(stderr_pipe_.GetOtherFileDescriptor());
+  check_error(u"Failed to close stderr.");
 }
 
 SubProcessExitResult PosixSpawnSubProcess::PlatformWaitForProcess() {

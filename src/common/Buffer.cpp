@@ -27,6 +27,7 @@ Buffer::Buffer(Index size) {
     size_ = size;
     used_begin_ = used_end_ = 0;
   }
+  AssertValid();
 }
 
 Buffer::Buffer(const Buffer& other) { Copy_(other); }
@@ -53,12 +54,19 @@ Buffer::~Buffer() { Delete_(); }
 
 void Buffer::AssignBytes(Index dst_offset, std::byte* src, Index src_offset,
                          Index src_size, bool use_memmove) {
+  CheckSize(src_size);
+
+  AssertValid();
+
   (use_memmove ? std::memmove : std::memcpy)(ptr_ + dst_offset,
                                              src + src_offset, src_size);
+  AssertValid();
 }
 
 void Buffer::ResizeBuffer(Index new_size, bool preserve_used) {
   CheckSize(new_size);
+
+  AssertValid();
 
   if (new_size == 0) {
     Delete_();
@@ -81,11 +89,15 @@ void Buffer::ResizeBuffer(Index new_size, bool preserve_used) {
     }
     delete[] old_ptr;
   }
+
+  AssertValid();
 }
 
 Index Buffer::PushFront(const std::byte* other, Index other_size,
                         bool use_memmove) {
   CheckSize(other_size);
+
+  AssertValid();
 
   auto copy_size = std::min(used_begin_, other_size);
 
@@ -95,21 +107,27 @@ Index Buffer::PushFront(const std::byte* other, Index other_size,
                                                copy_size);
   }
 
+  AssertValid();
+
   return copy_size;
 }
 
 bool Buffer::PushBack(std::byte b) {
+  AssertValid();
   if (IsUsedReachEnd()) {
     return false;
   }
   ptr_[used_end_] = b;
   used_end_++;
+  AssertValid();
   return true;
 }
 
 Index Buffer::PushBack(const std::byte* other, Index other_size,
                        bool use_memmove) {
   CheckSize(other_size);
+
+  AssertValid();
 
   auto copy_size = std::min(size_ - used_end_, other_size);
 
@@ -119,19 +137,35 @@ Index Buffer::PushBack(const std::byte* other, Index other_size,
     used_end_ += copy_size;
   }
 
+  AssertValid();
+
   return copy_size;
+}
+
+void Buffer::PushBackCount(Index count) {
+  if (count < 0 || count > GetBackFree()) {
+    throw Exception(u"Count out of range in PushBackCount.");
+  }
+  used_end_ += count;
 }
 
 Index Buffer::PopFront(Index size) {
   CheckSize(size);
 
+  AssertValid();
+
   auto move = std::min(used_begin_, size);
   used_begin_ -= move;
+
+  AssertValid();
+
   return move;
 }
 
 Index Buffer::PopFront(std::byte* buffer, Index size, bool use_memmove) {
   CheckSize(size);
+
+  AssertValid();
 
   auto pop_size = std::min(GetUsedSize(), size);
 
@@ -141,16 +175,29 @@ Index Buffer::PopFront(std::byte* buffer, Index size, bool use_memmove) {
         buffer, GetUsedBeginPtr() - pop_size, pop_size);
   }
 
+  AssertValid();
+
   return pop_size;
 }
 
 Index Buffer::PopEnd(Index size) {
+  CheckSize(size);
+
+  AssertValid();
+
   auto move = std::min(size_ - used_end_, size);
   used_end_ += move;
+
+  AssertValid();
+
   return move;
 }
 
 Index Buffer::PopEnd(std::byte* buffer, Index size, bool use_memmove) {
+  CheckSize(size);
+
+  AssertValid();
+
   auto pop_size = std::min(GetUsedSize(), size);
 
   if (pop_size) {
@@ -159,16 +206,23 @@ Index Buffer::PopEnd(std::byte* buffer, Index size, bool use_memmove) {
                                                pop_size);
   }
 
+  AssertValid();
+
   return pop_size;
 }
 
 std::byte* Buffer::Detach(Index* size) {
+  AssertValid();
+
   auto ptr = this->ptr_;
   if (size) {
     *size = this->size_;
   }
   this->ptr_ = nullptr;
   this->size_ = this->used_begin_ = this->used_end_ = 0;
+
+  AssertValid();
+
   return ptr;
 }
 
@@ -184,6 +238,7 @@ void Buffer::Copy_(const Buffer& other) {
     std::memcpy(ptr_ + used_begin_, other.ptr_ + used_begin_,
                 used_end_ - used_begin_);
   }
+  AssertValid();
 }
 
 void Buffer::Move_(Buffer&& other) noexcept {
@@ -193,12 +248,23 @@ void Buffer::Move_(Buffer&& other) noexcept {
   used_end_ = other.used_end_;
   other.ptr_ = nullptr;
   other.size_ = other.used_begin_ = other.used_end_ = 0;
+  AssertValid();
 }
 
 void Buffer::Delete_() noexcept {
   if (ptr_) {
     delete[] ptr_;
   }
+}
+
+void Buffer::AssertValid() {
+  assert(size_ >= 0);
+  assert(used_begin_ >= 0);
+  assert(used_begin_ <= size_);
+  assert(used_end_ >= 0);
+  assert(used_end_ <= size_);
+  assert(used_end_ >= used_begin_);
+  assert((ptr_ == nullptr && size_ == 0) || (ptr_ != nullptr && size_ > 0));
 }
 
 void swap(Buffer& left, Buffer& right) noexcept {

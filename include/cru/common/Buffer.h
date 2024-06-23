@@ -91,6 +91,8 @@ class Buffer final {
   Index PushBack(const std::byte* other, Index other_size,
                  bool use_memmove = false);
 
+  void PushBackCount(Index count);
+
   /**
    * @brief Move forward the used-begin ptr.
    * @return The actual size moved forward.
@@ -145,6 +147,8 @@ class Buffer final {
   void Copy_(const Buffer& other);
   void Move_(Buffer&& other) noexcept;
   void Delete_() noexcept;
+
+  void AssertValid();
 
  private:
   std::byte* ptr_;

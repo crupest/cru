@@ -560,7 +560,7 @@ Buffer StringView::ToUtf8Buffer(bool end_zero) const {
   if (end_zero) {
     push_back(0);
   }
-  return std::move(buffer);
+  return buffer;
 }
 
 int StringView::ParseToInt(Index* processed_characters_count, unsigned flags,

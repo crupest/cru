@@ -1,11 +1,9 @@
 #pragma once
 
-#include "../Buffer.h"
+#include "../SelfResolvable.h"
 #include "BufferStream.h"
 #include "Stream.h"
 
-#include <condition_variable>
-#include <list>
 #include <mutex>
 #include <thread>
 
@@ -33,7 +31,8 @@ struct AutoReadStreamOptions {
  * @brief A stream that wraps another stream and auto read it into a buffer in a
  * background thread.
  */
-class CRU_BASE_API AutoReadStream : public Stream {
+class CRU_BASE_API AutoReadStream : public Stream,
+                                    public SelfResolvable<AutoReadStream> {
  public:
   /**
    * @brief Wrap a stream and auto read it in background.
@@ -71,7 +70,5 @@ class CRU_BASE_API AutoReadStream : public Stream {
   Index size_per_read_;
   std::unique_ptr<BufferStream> buffer_stream_;
   std::mutex buffer_stream_mutex_;
-
-  std::thread background_thread_;
 };
 }  // namespace cru::io

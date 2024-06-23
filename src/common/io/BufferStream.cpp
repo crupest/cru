@@ -75,6 +75,10 @@ Index BufferStream::Write(const std::byte* buffer, Index offset, Index size) {
 
   Index written = 0;
 
+  if (empty) {
+    buffer_list_.push_back(Buffer(block_size_));
+  }
+
   while (true) {
     if (buffer_list_.back().GetBackFree() == 0) {
       if (max_block_count_ > 0 && buffer_list_.size() == max_block_count_) {

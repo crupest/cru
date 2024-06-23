@@ -1,3 +1,5 @@
+// IWYU pragma: always_keep
+
 #pragma once
 
 #ifdef _MSC_VER

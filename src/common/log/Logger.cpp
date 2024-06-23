@@ -1,9 +1,8 @@
 #include "cru/common/log/Logger.h"
 #include "cru/common/log/StdioLogTarget.h"
 
-#include <array>
-#include <cstdlib>
 #include <ctime>
+#include <algorithm>
 
 #ifdef CRU_PLATFORM_WINDOWS
 #include "cru/common/platform/win/DebugLogTarget.h"
