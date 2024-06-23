@@ -14,9 +14,8 @@
 #include <unordered_map>
 
 namespace cru::platform::unix {
-PosixSpawnSubProcess::PosixSpawnSubProcess(SubProcessStartInfo start_info)
-    : PlatformSubProcessBase(std::move(start_info)),
-      pid_(0),
+PosixSpawnSubProcessImpl::PosixSpawnSubProcessImpl()
+    : pid_(0),
       exit_code_(0),
       stdin_pipe_(UnixPipe::Usage::Send),
       stdout_pipe_(UnixPipe::Usage::Receive),
@@ -34,17 +33,17 @@ PosixSpawnSubProcess::PosixSpawnSubProcess(SubProcessStartInfo start_info)
       std::make_unique<io::AutoReadStream>(stderr_stream_.get(), false);
 }
 
-PosixSpawnSubProcess::~PosixSpawnSubProcess() {}
+PosixSpawnSubProcessImpl::~PosixSpawnSubProcessImpl() {}
 
-io::Stream* PosixSpawnSubProcess::GetStdinStream() {
+io::Stream* PosixSpawnSubProcessImpl::GetStdinStream() {
   return stdin_stream_.get();
 }
 
-io::Stream* PosixSpawnSubProcess::GetStdoutStream() {
+io::Stream* PosixSpawnSubProcessImpl::GetStdoutStream() {
   return stdout_buffer_stream_.get();
 }
 
-io::Stream* PosixSpawnSubProcess::GetStderrStream() {
+io::Stream* PosixSpawnSubProcessImpl::GetStderrStream() {
   return stderr_buffer_stream_.get();
 }
 
@@ -82,7 +81,8 @@ void DestroyCstrArray(char** argv) {
 }
 }  // namespace
 
-void PosixSpawnSubProcess::PlatformCreateProcess() {
+void PosixSpawnSubProcessImpl::PlatformCreateProcess(
+    const SubProcessStartInfo& start_info) {
   int error;
   auto check_error = [&error](String message) {
     if (error == 0) return;
@@ -127,15 +127,15 @@ void PosixSpawnSubProcess::PlatformCreateProcess() {
   check_error(u"Failed to set flag POSIX_SPAWN_CLOEXEC_DEFAULT (osx).");
 #endif
 
-  auto exe = start_info_.program.ToUtf8();
-  std::vector<String> arguments{start_info_.program};
-  arguments.insert(arguments.cend(), start_info_.arguments.cbegin(),
-                   start_info_.arguments.cend());
+  auto exe = start_info.program.ToUtf8();
+  std::vector<String> arguments{start_info.program};
+  arguments.insert(arguments.cend(), start_info.arguments.cbegin(),
+                   start_info.arguments.cend());
 
   auto argv = CreateCstrArray(arguments);
   Guard argv_guard([argv] { DestroyCstrArray(argv); });
 
-  auto envp = CreateCstrArray(start_info_.environments);
+  auto envp = CreateCstrArray(start_info.environments);
   Guard envp_guard([envp] { DestroyCstrArray(envp); });
 
   error = posix_spawnp(&pid_, exe.c_str(), &file_actions, &attr, argv, envp);
@@ -149,7 +149,7 @@ void PosixSpawnSubProcess::PlatformCreateProcess() {
   check_error(u"Failed to close stderr.");
 }
 
-SubProcessExitResult PosixSpawnSubProcess::PlatformWaitForProcess() {
+SubProcessExitResult PosixSpawnSubProcessImpl::PlatformWaitForProcess() {
   int wstatus;
 
   while (waitpid(pid_, &wstatus, 0) == -1) {
@@ -173,7 +173,7 @@ SubProcessExitResult PosixSpawnSubProcess::PlatformWaitForProcess() {
   }
 }
 
-void PosixSpawnSubProcess::PlatformKillProcess() {
+void PosixSpawnSubProcessImpl::PlatformKillProcess() {
   int error = kill(pid_, SIGKILL);
   if (error != 0) {
     std::unique_ptr<ErrnoException> inner(new ErrnoException({}, errno));
