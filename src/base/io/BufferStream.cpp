@@ -15,8 +15,12 @@ BufferStream::~BufferStream() { DoClose(); }
 Index BufferStream::DoRead(std::byte* buffer, Index offset, Index size) {
   std::unique_lock lock(mutex_);
 
-  condition_variable_.wait(lock,
-                           [this] { return !buffer_list_.empty() || eof_; });
+  condition_variable_.wait(
+      lock, [this] { return GetClosed() || !buffer_list_.empty() || eof_; });
+
+  if (GetClosed()) {
+    StreamClosedException::Check(true);
+  }
 
   if (buffer_list_.empty() && eof_) {
     return 0;
@@ -57,9 +61,14 @@ Index BufferStream::DoWrite(const std::byte* buffer, Index offset, Index size) {
   }
 
   condition_variable_.wait(lock, [this] {
-    return max_block_count_ <= 0 || buffer_list_.size() < max_block_count_ ||
+    return GetClosed() || max_block_count_ <= 0 ||
+           buffer_list_.size() < max_block_count_ ||
            buffer_list_.back().GetBackFree() > 0;
   });
+
+  if (GetClosed()) {
+    StreamClosedException::Check(true);
+  }
 
   auto empty = buffer_list_.empty();
 
@@ -105,5 +114,10 @@ void BufferStream::SetEof() {
   }
 }
 
-void BufferStream::DoClose() { CRU_STREAM_BEGIN_CLOSE }
+void BufferStream::DoClose() {
+  CRU_STREAM_BEGIN_CLOSE
+  SetClosed(true);
+  condition_variable_.notify_all();
+  buffer_list_.clear();
+}
 }  // namespace cru::io

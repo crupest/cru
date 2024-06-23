@@ -28,9 +28,9 @@ PosixSpawnSubProcessImpl::PosixSpawnSubProcessImpl()
       stderr_pipe_.GetSelfFileDescriptor(), false, true, false, true);
 
   stdout_buffer_stream_ =
-      std::make_unique<io::AutoReadStream>(stdout_stream_.get(), false);
+      std::make_unique<io::AutoReadStream>(stdout_stream_.get(), true, false);
   stderr_buffer_stream_ =
-      std::make_unique<io::AutoReadStream>(stderr_stream_.get(), false);
+      std::make_unique<io::AutoReadStream>(stderr_stream_.get(), true, false);
 }
 
 PosixSpawnSubProcessImpl::~PosixSpawnSubProcessImpl() {}

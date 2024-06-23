@@ -26,11 +26,11 @@ class CRU_BASE_API StreamOperationNotSupportedException : public Exception {
   String operation_;
 };
 
-class CRU_BASE_API StreamAlreadyClosedException : public Exception {
+class CRU_BASE_API StreamClosedException : public Exception {
  public:
-  StreamAlreadyClosedException();
+  StreamClosedException();
 
-  CRU_DEFAULT_DESTRUCTOR(StreamAlreadyClosedException)
+  CRU_DEFAULT_DESTRUCTOR(StreamClosedException)
 
   static void Check(bool closed);
 };
@@ -117,7 +117,7 @@ class CRU_BASE_API Stream : public Object {
 
   bool GetClosed() { return closed_; }
   void SetClosed(bool closed) { closed_ = closed; }
-  void CheckClosed() { StreamAlreadyClosedException::Check(closed_); }
+  void CheckClosed() { StreamClosedException::Check(closed_); }
 
  private:
   std::optional<SupportedOperations> supported_operations_;

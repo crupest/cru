@@ -39,7 +39,7 @@ class CRU_BASE_API AutoReadStream : public Stream {
    * @param options Options to modify the behavior.
    */
   AutoReadStream(
-      Stream* stream, bool auto_delete,
+      Stream* stream, bool auto_close, bool auto_delete,
       const AutoReadStreamOptions& options = AutoReadStreamOptions());
 
   ~AutoReadStream() override;
@@ -47,7 +47,7 @@ class CRU_BASE_API AutoReadStream : public Stream {
  public:
   CRU_STREAM_IMPLEMENT_CLOSE_BY_DO_CLOSE
 
-  void BeginToDrop(bool auto_delete = true);
+  void BeginToDrop(bool auto_close = true, bool auto_delete = true);
 
  protected:
   Index DoRead(std::byte* buffer, Index offset, Index size) override;
@@ -61,11 +61,11 @@ class CRU_BASE_API AutoReadStream : public Stream {
 
  private:
   Stream* stream_;
+  bool auto_close_;
   bool auto_delete_;
 
   Index size_per_read_;
   std::unique_ptr<BufferStream> buffer_stream_;
-  std::mutex buffer_stream_mutex_;
 
   std::thread background_thread_;
 };

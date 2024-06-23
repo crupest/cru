@@ -90,7 +90,9 @@ void CFileStream::DoFlush() { std::fflush(file_); }
 
 void CFileStream::DoClose() {
   CRU_STREAM_BEGIN_CLOSE
-  std::fclose(file_);
+  if (auto_close_ && !std::fclose(file_)) {
+    throw Exception(u"Failed to close FILE.");
+  }
   file_ = nullptr;
 }
 }  // namespace cru::io

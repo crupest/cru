@@ -23,11 +23,11 @@ void StreamOperationNotSupportedException::CheckWrite(bool writable) {
   if (!writable) throw StreamOperationNotSupportedException(u"write");
 }
 
-StreamAlreadyClosedException::StreamAlreadyClosedException()
+StreamClosedException::StreamClosedException()
     : Exception(u"Stream is already closed.") {}
 
-void StreamAlreadyClosedException::Check(bool closed) {
-  if (closed) throw StreamAlreadyClosedException();
+void StreamClosedException::Check(bool closed) {
+  if (closed) throw StreamClosedException();
 }
 
 Stream::Stream(SupportedOperations supported_operations)

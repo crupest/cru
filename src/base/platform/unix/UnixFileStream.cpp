@@ -61,15 +61,7 @@ UnixFileStream::UnixFileStream(int fd, bool can_seek, bool can_read,
   auto_close_ = auto_close;
 }
 
-UnixFileStream::~UnixFileStream() {
-  if (auto_close_ && file_descriptor_ >= 0) {
-    if (::close(file_descriptor_) == -1) {
-      // We are in destructor, so we can not throw.
-      CRU_LOG_WARN(u"Failed to close file descriptor {}, errno {}.",
-                   file_descriptor_, errno);
-    }
-  }
-}
+UnixFileStream::~UnixFileStream() { DoClose(); }
 
 Index UnixFileStream::DoSeek(Index offset, SeekOrigin origin) {
   off_t result = ::lseek(file_descriptor_, offset, MapSeekOrigin(origin));
