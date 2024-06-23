@@ -17,32 +17,23 @@ class CRU_BASE_API CFileStream : public Stream {
   ~CFileStream() override;
 
  public:
-  bool CanSeek() override;
-  Index Seek(Index offset, SeekOrigin origin = SeekOrigin::Current) override;
-  Index Tell() override;
-  void Rewind() override;
-
-  bool CanRead() override;
-  Index Read(std::byte* buffer, Index offset, Index size) override;
-  using Stream::Read;
-
-  bool CanWrite() override;
-  Index Write(const std::byte* buffer, Index offset, Index size) override;
-  using Stream::Write;
-
-  void Flush() override;
-
-  void Close() override;
+  CRU_STREAM_IMPLEMENT_CLOSE_BY_DO_CLOSE
 
   std::FILE* GetHandle() const;
 
+ protected:
+  Index DoSeek(Index offset, SeekOrigin origin) override;
+  Index DoTell() override;
+  void DoRewind() override;
+  Index DoRead(std::byte* buffer, Index offset, Index size) override;
+  Index DoWrite(const std::byte* buffer, Index offset, Index size) override;
+  void DoFlush() override;
+
  private:
-  void CheckClosed();
+  void DoClose();
 
  private:
   std::FILE* file_;
-  bool readable_;
-  bool writable_;
   bool auto_close_;
 };
 }  // namespace cru::io

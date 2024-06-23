@@ -1,10 +1,10 @@
 #pragma once
 
-#include "../SelfResolvable.h"
 #include "BufferStream.h"
 #include "Stream.h"
 
 #include <mutex>
+#include <thread>
 
 namespace cru::io {
 struct AutoReadStreamOptions {
@@ -30,8 +30,7 @@ struct AutoReadStreamOptions {
  * @brief A stream that wraps another stream and auto read it into a buffer in a
  * background thread.
  */
-class CRU_BASE_API AutoReadStream : public Stream,
-                                    public SelfResolvable<AutoReadStream> {
+class CRU_BASE_API AutoReadStream : public Stream {
  public:
   /**
    * @brief Wrap a stream and auto read it in background.
@@ -46,20 +45,18 @@ class CRU_BASE_API AutoReadStream : public Stream,
   ~AutoReadStream() override;
 
  public:
-  bool CanSeek() override;
-  Index Seek(Index offset, SeekOrigin origin = SeekOrigin::Current) override;
+  CRU_STREAM_IMPLEMENT_CLOSE_BY_DO_CLOSE
 
-  bool CanRead() override;
-  Index Read(std::byte* buffer, Index offset, Index size) override;
+  void BeginToDrop(bool auto_delete = true);
 
-  bool CanWrite() override;
-  Index Write(const std::byte* buffer, Index offset, Index size) override;
-
-  void Flush() override;
-
-  void Close() override;
+ protected:
+  Index DoRead(std::byte* buffer, Index offset, Index size) override;
+  Index DoWrite(const std::byte* buffer, Index offset, Index size) override;
+  void DoFlush() override;
 
  private:
+  void DoClose();
+
   void BackgroundThreadRun();
 
  private:
@@ -69,5 +66,7 @@ class CRU_BASE_API AutoReadStream : public Stream,
   Index size_per_read_;
   std::unique_ptr<BufferStream> buffer_stream_;
   std::mutex buffer_stream_mutex_;
+
+  std::thread background_thread_;
 };
 }  // namespace cru::io

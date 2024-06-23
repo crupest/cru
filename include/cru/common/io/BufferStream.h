@@ -59,21 +59,18 @@ struct BufferStreamOptions {
 class BufferStream : public Stream {
  public:
   BufferStream(const BufferStreamOptions& options);
-
   ~BufferStream() override;
 
-  bool CanSeek() override;
-  Index Seek(Index offset, SeekOrigin origin = SeekOrigin::Current) override;
-
-  bool CanRead() override;
-  Index Read(std::byte* buffer, Index offset, Index size) override;
-  using Stream::Read;
-
-  bool CanWrite() override;
-  Index Write(const std::byte* buffer, Index offset, Index size) override;
-  using Stream::Write;
+  CRU_STREAM_IMPLEMENT_CLOSE_BY_DO_CLOSE
 
   void SetEof();
+
+ protected:
+  Index DoRead(std::byte* buffer, Index offset, Index size) override;
+  Index DoWrite(const std::byte* buffer, Index offset, Index size) override;
+
+ private:
+  void DoClose();
 
  private:
   Index block_size_;

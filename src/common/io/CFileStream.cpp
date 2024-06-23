@@ -24,9 +24,8 @@ static bool ModeCanWrite(const char* mode) {
 }
 
 CFileStream::CFileStream(const char* path, const char* mode)
-    : file_(std::fopen(path, mode)),
-      readable_(ModeCanRead(mode)),
-      writable_(ModeCanWrite(mode)),
+    : Stream(true, ModeCanRead(mode), ModeCanWrite(mode)),
+      file_(std::fopen(path, mode)),
       auto_close_(true) {
   if (file_ == nullptr) {
     throw ErrnoException(u"Cannot open file.");
@@ -35,10 +34,7 @@ CFileStream::CFileStream(const char* path, const char* mode)
 
 CFileStream::CFileStream(std::FILE* file, bool readable, bool writable,
                          bool auto_close)
-    : file_(file),
-      readable_(readable),
-      writable_(writable),
-      auto_close_(auto_close) {
+    : Stream(true, readable, writable), file_(file), auto_close_(auto_close) {
   if (file_ == nullptr) {
     throw Exception(u"File is NULL.");
   }
@@ -48,11 +44,6 @@ CFileStream::~CFileStream() {
   if (auto_close_ && file_ != nullptr) {
     std::fclose(file_);
   }
-}
-
-bool CFileStream::CanSeek() {
-  CheckClosed();
-  return true;
 }
 
 static int ConvertOriginFlag(Stream::SeekOrigin origin) {
@@ -68,16 +59,14 @@ static int ConvertOriginFlag(Stream::SeekOrigin origin) {
   }
 }
 
-Index CFileStream::Seek(Index offset, SeekOrigin origin) {
-  CheckClosed();
+Index CFileStream::DoSeek(Index offset, SeekOrigin origin) {
   if (std::fseek(file_, offset, ConvertOriginFlag(origin))) {
     throw ErrnoException(u"Seek failed.");
   }
-  return Tell();
+  return DoTell();
 }
 
-Index CFileStream::Tell() {
-  CheckClosed();
+Index CFileStream::DoTell() {
   long position = std::ftell(file_);
   if (position == -1) {
     throw ErrnoException(u"Tell failed.");
@@ -85,48 +74,23 @@ Index CFileStream::Tell() {
   return position;
 }
 
-void CFileStream::Rewind() {
-  CheckClosed();
-  std::rewind(file_);
-}
+void CFileStream::DoRewind() { std::rewind(file_); }
 
-bool CFileStream::CanRead() {
-  CheckClosed();
-  return readable_;
-}
-
-Index CFileStream::Read(std::byte* buffer, Index offset, Index size) {
-  CheckClosed();
-  StreamOperationNotSupportedException::CheckRead(readable_);
+Index CFileStream::DoRead(std::byte* buffer, Index offset, Index size) {
   auto count = std::fread(buffer + offset, 1, size, file_);
   return count;
 }
 
-bool CFileStream::CanWrite() {
-  CheckClosed();
-  return writable_;
-}
-
-Index CFileStream::Write(const std::byte* buffer, Index offset, Index size) {
-  CheckClosed();
-  StreamOperationNotSupportedException::CheckWrite(writable_);
+Index CFileStream::DoWrite(const std::byte* buffer, Index offset, Index size) {
   auto count = std::fwrite(buffer + offset, 1, size, file_);
   return count;
 }
 
-void CFileStream::Flush() {
-  CheckClosed();
-  std::fflush(file_);
-}
+void CFileStream::DoFlush() { std::fflush(file_); }
 
-void CFileStream::Close() {
-  if (file_ != nullptr) {
-    std::fclose(file_);
-    file_ = nullptr;
-  }
-}
-
-void CFileStream::CheckClosed() {
-  StreamAlreadyClosedException::Check(file_ == nullptr);
+void CFileStream::DoClose() {
+  CRU_STREAM_BEGIN_CLOSE
+  std::fclose(file_);
+  file_ = nullptr;
 }
 }  // namespace cru::io

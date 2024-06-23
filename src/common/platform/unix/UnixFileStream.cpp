@@ -48,18 +48,16 @@ UnixFileStream::UnixFileStream(const char *path, int oflag, mode_t mode) {
                String::FromUtf8(path), oflag, mode));
   }
 
-  can_seek_ = OflagCanSeek(oflag);
-  can_read_ = OflagCanRead(oflag);
-  can_write_ = OflagCanWrite(oflag);
+  SetSupportedOperations(
+      {OflagCanSeek(oflag), OflagCanRead(oflag), OflagCanWrite(oflag)});
+
   auto_close_ = true;
 }
 
 UnixFileStream::UnixFileStream(int fd, bool can_seek, bool can_read,
-                               bool can_write, bool auto_close) {
+                               bool can_write, bool auto_close)
+    : Stream(can_seek, can_read, can_write) {
   file_descriptor_ = fd;
-  can_seek_ = can_seek;
-  can_read_ = can_read;
-  can_write_ = can_write;
   auto_close_ = auto_close;
 }
 
@@ -73,14 +71,7 @@ UnixFileStream::~UnixFileStream() {
   }
 }
 
-bool UnixFileStream::CanSeek() {
-  CheckClosed();
-  return can_seek_;
-}
-
-Index UnixFileStream::Seek(Index offset, SeekOrigin origin) {
-  CheckClosed();
-  StreamOperationNotSupportedException::CheckSeek(can_seek_);
+Index UnixFileStream::DoSeek(Index offset, SeekOrigin origin) {
   off_t result = ::lseek(file_descriptor_, offset, MapSeekOrigin(origin));
   if (result == -1) {
     throw ErrnoException(u"Failed to seek file.");
@@ -88,14 +79,7 @@ Index UnixFileStream::Seek(Index offset, SeekOrigin origin) {
   return result;
 }
 
-bool UnixFileStream::CanRead() {
-  CheckClosed();
-  return can_read_;
-}
-
-Index UnixFileStream::Read(std::byte *buffer, Index offset, Index size) {
-  CheckClosed();
-  StreamOperationNotSupportedException::CheckRead(can_read_);
+Index UnixFileStream::DoRead(std::byte *buffer, Index offset, Index size) {
   auto result = ::read(file_descriptor_, buffer + offset, size);
   if (result == -1) {
     throw ErrnoException(u"Failed to read file.");
@@ -103,14 +87,8 @@ Index UnixFileStream::Read(std::byte *buffer, Index offset, Index size) {
   return result;
 }
 
-bool UnixFileStream::CanWrite() {
-  CheckClosed();
-  return can_write_;
-}
-
-Index UnixFileStream::Write(const std::byte *buffer, Index offset, Index size) {
-  CheckClosed();
-  StreamOperationNotSupportedException::CheckWrite(can_write_);
+Index UnixFileStream::DoWrite(const std::byte *buffer, Index offset,
+                              Index size) {
   auto result = ::write(file_descriptor_, buffer + offset, size);
   if (result == -1) {
     throw ErrnoException(u"Failed to write file.");
@@ -118,15 +96,11 @@ Index UnixFileStream::Write(const std::byte *buffer, Index offset, Index size) {
   return result;
 }
 
-void UnixFileStream::Close() {
-  if (file_descriptor_ < 0) return;
-  if (::close(file_descriptor_) == -1) {
+void UnixFileStream::DoClose() {
+  CRU_STREAM_BEGIN_CLOSE
+  if (auto_close_ && ::close(file_descriptor_) == -1) {
     throw ErrnoException(u"Failed to close file.");
   }
   file_descriptor_ = -1;
-}
-
-void UnixFileStream::CheckClosed() {
-  StreamAlreadyClosedException::Check(file_descriptor_ < 0);
 }
 }  // namespace cru::platform::unix

@@ -2,25 +2,17 @@
 #include "cru/common/io/Stream.h"
 
 namespace cru::io {
-BufferStream::BufferStream(const BufferStreamOptions& options) {
+BufferStream::BufferStream(const BufferStreamOptions& options)
+    : Stream(false, true, true) {
   block_size_ = options.GetBlockSizeOrDefault();
   max_block_count_ = options.GetMaxBlockCount();
 
   eof_ = false;
 }
 
-BufferStream::~BufferStream() {}
+BufferStream::~BufferStream() { DoClose(); }
 
-bool BufferStream::CanSeek() { return false; }
-
-Index BufferStream::Seek(Index offset, SeekOrigin origin) {
-  throw StreamOperationNotSupportedException(
-      u"BufferStream does not support seeking.");
-}
-
-bool BufferStream::CanRead() { return true; }
-
-Index BufferStream::Read(std::byte* buffer, Index offset, Index size) {
+Index BufferStream::DoRead(std::byte* buffer, Index offset, Index size) {
   std::unique_lock lock(mutex_);
 
   condition_variable_.wait(lock,
@@ -56,9 +48,7 @@ Index BufferStream::Read(std::byte* buffer, Index offset, Index size) {
   return read;
 }
 
-bool BufferStream::CanWrite() { return true; }
-
-Index BufferStream::Write(const std::byte* buffer, Index offset, Index size) {
+Index BufferStream::DoWrite(const std::byte* buffer, Index offset, Index size) {
   std::unique_lock lock(mutex_);
 
   if (eof_) {
@@ -115,4 +105,5 @@ void BufferStream::SetEof() {
   }
 }
 
+void BufferStream::DoClose() { CRU_STREAM_BEGIN_CLOSE }
 }  // namespace cru::io

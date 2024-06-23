@@ -6,7 +6,6 @@
 #include "../String.h"
 
 #include <cstddef>
-#include <vector>
 
 namespace cru::io {
 class CRU_BASE_API StreamOperationNotSupportedException : public Exception {
@@ -36,11 +35,37 @@ class CRU_BASE_API StreamAlreadyClosedException : public Exception {
   static void Check(bool closed);
 };
 
+#define CRU_STREAM_IMPLEMENT_CLOSE_BY_DO_CLOSE \
+  void Close() override { DoClose(); }
+
+#define CRU_STREAM_BEGIN_CLOSE \
+  if (GetClosed()) return;     \
+  CloseGuard close_guard(this);
+
+/**
+ * All stream is thread-unsafe by default unless being documented.
+ */
 class CRU_BASE_API Stream : public Object {
+ protected:
+  struct SupportedOperations {
+    std::optional<bool> can_seek;
+    std::optional<bool> can_read;
+    std::optional<bool> can_write;
+  };
+
+  struct CloseGuard {
+    explicit CloseGuard(Stream* stream) : stream(stream) {}
+    ~CloseGuard() { stream->SetClosed(true); }
+    Stream* stream;
+  };
+
+ protected:
+  explicit Stream(SupportedOperations supported_operations = {});
+  Stream(std::optional<bool> can_seek, std::optional<bool> can_read,
+         std::optional<bool> can_write);
+
  public:
   enum class SeekOrigin { Current, Begin, End };
-
-  Stream() = default;
 
   CRU_DELETE_COPY(Stream)
   CRU_DELETE_MOVE(Stream)
@@ -48,29 +73,54 @@ class CRU_BASE_API Stream : public Object {
   ~Stream() override = default;
 
  public:
-  virtual bool CanSeek() = 0;
-  virtual Index Seek(Index offset, SeekOrigin origin = SeekOrigin::Current) = 0;
-  virtual Index Tell();
-  virtual void Rewind();
-  virtual Index GetSize();
+  bool CanSeek();
+  Index Seek(Index offset, SeekOrigin origin = SeekOrigin::Current);
+  Index Tell();
+  void Rewind();
+  Index GetSize();
 
-  virtual bool CanRead() = 0;
-  virtual Index Read(std::byte* buffer, Index offset, Index size) = 0;
-  virtual Index Read(std::byte* buffer, Index size);
+  bool CanRead();
+  Index Read(std::byte* buffer, Index offset, Index size);
+  Index Read(std::byte* buffer, Index size);
+  Index Read(char* buffer, Index offset, Index size);
+  Index Read(char* buffer, Index size);
 
-  virtual bool CanWrite() = 0;
-  virtual Index Write(const std::byte* buffer, Index offset, Index size) = 0;
-  virtual Index Write(const std::byte* buffer, Index size);
+  bool CanWrite();
+  Index Write(const std::byte* buffer, Index offset, Index size);
+  Index Write(const std::byte* buffer, Index size);
   Index Write(const char* buffer, Index offset, Index size);
   Index Write(const char* buffer, Index size);
+
+  void Flush();
+  virtual void Close() = 0;
 
   virtual Buffer ReadToEnd(Index grow_size = 256);
 
   // Utf8 encoding.
   String ReadToEndAsUtf8String();
 
-  virtual void Flush();
+ protected:
+  virtual bool DoCanSeek();
+  virtual bool DoCanRead();
+  virtual bool DoCanWrite();
+  virtual Index DoSeek(Index offset, SeekOrigin origin);
+  virtual Index DoTell();
+  virtual void DoRewind();
+  virtual Index DoGetSize();
+  virtual Index DoRead(std::byte* buffer, Index offset, Index size);
+  virtual Index DoWrite(const std::byte* buffer, Index offset, Index size);
+  virtual void DoFlush();
 
-  virtual void Close();
+  void SetSupportedOperations(SupportedOperations supported_operations) {
+    supported_operations_ = std::move(supported_operations);
+  }
+
+  bool GetClosed() { return closed_; }
+  void SetClosed(bool closed) { closed_ = closed; }
+  void CheckClosed() { StreamAlreadyClosedException::Check(closed_); }
+
+ private:
+  std::optional<SupportedOperations> supported_operations_;
+  bool closed_;
 };
 }  // namespace cru::io

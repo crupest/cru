@@ -22,31 +22,21 @@ class ProxyStream : public Stream {
  public:
   explicit ProxyStream(ProxyStreamHandlers handlers);
 
-  CRU_DELETE_COPY(ProxyStream)
-  CRU_DELETE_MOVE(ProxyStream)
-
   ~ProxyStream() override;
 
  public:
-  bool CanSeek() override;
-  Index Seek(Index offset, SeekOrigin origin = SeekOrigin::Current) override;
+  CRU_STREAM_IMPLEMENT_CLOSE_BY_DO_CLOSE
 
-  bool CanRead() override;
-  Index Read(std::byte* buffer, Index offset, Index size) override;
-
-  bool CanWrite() override;
-  Index Write(const std::byte* buffer, Index offset, Index size) override;
-
-  void Flush() override;
-
-  void Close() override;
+ protected:
+  Index DoSeek(Index offset, SeekOrigin origin) override;
+  Index DoRead(std::byte* buffer, Index offset, Index size) override;
+  Index DoWrite(const std::byte* buffer, Index offset, Index size) override;
+  void DoFlush() override;
 
  private:
-  void CheckClosed();
   void DoClose();
 
  private:
-  bool closed_;
   ProxyStreamHandlers handlers_;
 };
 }  // namespace cru::io

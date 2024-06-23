@@ -1,17 +1,31 @@
 #include "cru/common/io/MemoryStream.h"
 
 #include <cstring>
+#include "cru/common/Exception.h"
+#include "cru/common/io/Stream.h"
 
 namespace cru::io {
-MemoryStream::~MemoryStream() {
-  if (release_func_) {
-    release_func_(buffer_, size_);
+MemoryStream::MemoryStream(
+    std::byte* buffer, Index size, bool read_only,
+    std::function<void(std::byte* buffer, Index size)> release_func)
+    : Stream(true, true, !read_only),
+      buffer_(buffer),
+      size_(size),
+      position_(0),
+      release_func_(std::move(release_func)) {
+  if (!buffer) {
+    throw Exception(u"Buffer is nullptr");
+  }
+  if (size <= 0) {
+    throw Exception(u"Size is 0 or negative.");
   }
 }
 
-bool MemoryStream::CanSeek() { return true; }
+MemoryStream::~MemoryStream() {}
 
-Index MemoryStream::Seek(Index offset, SeekOrigin origin) {
+void MemoryStream::Close() { DoClose(); }
+
+Index MemoryStream::DoSeek(Index offset, SeekOrigin origin) {
   switch (origin) {
     case SeekOrigin::Current:
       position_ += offset;
@@ -26,34 +40,35 @@ Index MemoryStream::Seek(Index offset, SeekOrigin origin) {
   return position_;
 }
 
-bool MemoryStream::CanRead() { return true; }
-
-Index MemoryStream::Read(std::byte *buffer, Index offset, Index size) {
+Index MemoryStream::DoRead(std::byte* buffer, Index offset, Index size) {
   if (position_ + size > size_) {
     size = size_ - position_;
   }
   if (size <= 0) {
     return 0;
   }
-  std::memcpy(buffer + offset, buffer_ + position_, size);
+  std::memmove(buffer + offset, buffer_ + position_, size);
   position_ += size;
   return size;
 }
 
-bool MemoryStream::CanWrite() { return !read_only_; }
-
-Index MemoryStream::Write(const std::byte *buffer, Index offset, Index size) {
-  if (read_only_) {
-    return 0;
-  }
+Index MemoryStream::DoWrite(const std::byte* buffer, Index offset, Index size) {
   if (position_ + size > size_) {
     size = size_ - position_;
   }
   if (size <= 0) {
     return 0;
   }
-  std::memcpy(buffer_ + position_, buffer + offset, size);
+  std::memmove(buffer_ + position_, buffer + offset, size);
   position_ += size;
   return size;
 }
+
+void MemoryStream::DoClose() {
+  CRU_STREAM_BEGIN_CLOSE
+  release_func_(buffer_, size_);
+  buffer_ = nullptr;
+  release_func_ = {};
+}
+
 }  // namespace cru::io
