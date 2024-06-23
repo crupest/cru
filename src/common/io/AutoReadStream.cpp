@@ -1,6 +1,8 @@
 #include "cru/common/io/AutoReadStream.h"
 #include "cru/common/io/Stream.h"
 
+#include <thread>
+
 namespace cru::io {
 
 AutoReadStream::AutoReadStream(Stream* stream, bool auto_delete,
