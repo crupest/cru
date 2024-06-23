@@ -188,9 +188,9 @@ class PlatformSubProcessBase : public Object {
   bool delete_self_;
 
   std::thread process_thread_;
-  std::mutex process_mutex_;
-  std::unique_lock<std::mutex> process_lock_;
-  std::condition_variable process_condition_variable_;
+  std::recursive_mutex process_mutex_;
+  std::unique_lock<std::recursive_mutex> process_lock_;
+  std::condition_variable_any process_condition_variable_;
 };
 
 class CRU_BASE_API SubProcess : public Object {
@@ -212,7 +212,7 @@ class CRU_BASE_API SubProcess : public Object {
   ~SubProcess();
 
  public:
-  void Wait(std::optional<std::chrono::milliseconds> wait_time);
+  void Wait(std::optional<std::chrono::milliseconds> wait_time = std::nullopt);
   void Kill();
 
   SubProcessStatus GetStatus();

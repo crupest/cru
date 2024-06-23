@@ -31,7 +31,7 @@ PosixSpawnSubProcess::PosixSpawnSubProcess(SubProcessStartInfo start_info)
   stdout_buffer_stream_ =
       std::make_unique<io::AutoReadStream>(stdout_stream_.get(), false);
   stderr_buffer_stream_ =
-      std::make_unique<io::AutoReadStream>(stdout_stream_.get(), false);
+      std::make_unique<io::AutoReadStream>(stderr_stream_.get(), false);
 }
 
 PosixSpawnSubProcess::~PosixSpawnSubProcess() {}

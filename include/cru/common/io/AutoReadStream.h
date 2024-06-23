@@ -5,7 +5,6 @@
 #include "Stream.h"
 
 #include <mutex>
-#include <thread>
 
 namespace cru::io {
 struct AutoReadStreamOptions {
