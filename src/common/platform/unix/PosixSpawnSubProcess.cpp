@@ -35,18 +35,6 @@ PosixSpawnSubProcessImpl::PosixSpawnSubProcessImpl()
 
 PosixSpawnSubProcessImpl::~PosixSpawnSubProcessImpl() {}
 
-io::Stream* PosixSpawnSubProcessImpl::GetStdinStream() {
-  return stdin_stream_.get();
-}
-
-io::Stream* PosixSpawnSubProcessImpl::GetStdoutStream() {
-  return stdout_buffer_stream_.get();
-}
-
-io::Stream* PosixSpawnSubProcessImpl::GetStderrStream() {
-  return stderr_buffer_stream_.get();
-}
-
 namespace {
 char** CreateCstrArray(const std::vector<String>& argv) {
   std::vector<Buffer> utf8_argv;
@@ -180,5 +168,17 @@ void PosixSpawnSubProcessImpl::PlatformKillProcess() {
     throw SubProcessInternalException(u"Failed to call kill on a subprocess.",
                                       std::move(inner));
   }
+}
+
+io::Stream* PosixSpawnSubProcessImpl::GetStdinStream() {
+  return stdin_stream_.get();
+}
+
+io::Stream* PosixSpawnSubProcessImpl::GetStdoutStream() {
+  return stdout_buffer_stream_.get();
+}
+
+io::Stream* PosixSpawnSubProcessImpl::GetStderrStream() {
+  return stderr_buffer_stream_.get();
 }
 }  // namespace cru::platform::unix

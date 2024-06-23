@@ -16,20 +16,21 @@
 #include <spawn.h>
 
 namespace cru::platform::unix {
-class PosixSpawnSubProcessImpl {
+class PosixSpawnSubProcessImpl : public Object,
+                                 public virtual IPlatformSubProcessImpl {
   CRU_DEFINE_CLASS_LOG_TAG(u"PosixSpawnSubProcess")
 
  public:
   explicit PosixSpawnSubProcessImpl();
   ~PosixSpawnSubProcessImpl();
 
-  io::Stream* GetStdinStream();
-  io::Stream* GetStdoutStream();
-  io::Stream* GetStderrStream();
+  void PlatformCreateProcess(const SubProcessStartInfo& start_info) override;
+  SubProcessExitResult PlatformWaitForProcess() override;
+  void PlatformKillProcess() override;
 
-  void PlatformCreateProcess(const SubProcessStartInfo& start_info);
-  SubProcessExitResult PlatformWaitForProcess();
-  void PlatformKillProcess();
+  io::Stream* GetStdinStream() override;
+  io::Stream* GetStdoutStream() override;
+  io::Stream* GetStderrStream() override;
 
  private:
   pid_t pid_;
@@ -46,6 +47,4 @@ class PosixSpawnSubProcessImpl {
   std::unique_ptr<io::AutoReadStream> stdout_buffer_stream_;
   std::unique_ptr<io::AutoReadStream> stderr_buffer_stream_;
 };
-
-using PosixSpawnSubProcess = PlatformSubProcess<PosixSpawnSubProcessImpl>;
 }  // namespace cru::platform::unix
