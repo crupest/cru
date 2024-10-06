@@ -1,6 +1,6 @@
 #pragma once
 #include "Component.h"
-#include "cru/common/Base.h"
+#include "cru/base/Base.h"
 #include "cru/ui/controls/Button.h"
 #include "cru/ui/controls/Control.h"
 #include "cru/ui/controls/FlexLayout.h"

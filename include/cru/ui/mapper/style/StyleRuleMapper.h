@@ -1,7 +1,7 @@
 #pragma once
 #include "../Mapper.h"
-#include "cru/common/Base.h"
-#include "cru/common/ClonablePtr.h"
+#include "cru/base/Base.h"
+#include "cru/base/ClonablePtr.h"
 #include "cru/ui/style/StyleRule.h"
 #include "cru/xml/XmlNode.h"
 

@@ -1,7 +1,7 @@
 #pragma once
 #include "../Base.h"
 #include "ApplyBorderStyleInfo.h"
-#include "cru/common/ClonablePtr.h"
+#include "cru/base/ClonablePtr.h"
 #include "cru/platform/graphics/Brush.h"
 #include "cru/platform/gui/Cursor.h"
 #include "cru/ui/render/MeasureRequirement.h"

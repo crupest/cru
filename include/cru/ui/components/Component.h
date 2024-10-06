@@ -1,7 +1,7 @@
 #pragma once
 #include "../Base.h"
 #include "../DeleteLater.h"
-#include "cru/common/SelfResolvable.h"
+#include "cru/base/SelfResolvable.h"
 
 namespace cru::ui::components {
 /**

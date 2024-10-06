@@ -1,5 +1,5 @@
-#include "cru/common/Exception.h"
-#include "cru/common/StringToNumberConverter.h"
+#include "cru/base/Exception.h"
+#include "cru/base/StringToNumberConverter.h"
 
 #include <catch2/catch_test_macros.hpp>
 

@@ -1,7 +1,7 @@
 #include "cru/ui/render/BorderRenderObject.h"
 
 #include "../Helper.h"
-#include "cru/common/log/Logger.h"
+#include "cru/base/log/Logger.h"
 #include "cru/platform/graphics/Factory.h"
 #include "cru/platform/graphics/Geometry.h"
 #include "cru/platform/graphics/Painter.h"

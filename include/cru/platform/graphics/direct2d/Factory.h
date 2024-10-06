@@ -3,7 +3,7 @@
 
 #include "ImageFactory.h"
 
-#include "cru/common/platform/win/ComAutoInit.h"
+#include "cru/base/platform/win/ComAutoInit.h"
 #include "cru/platform/graphics/Base.h"
 #include "cru/platform/graphics/Factory.h"
 

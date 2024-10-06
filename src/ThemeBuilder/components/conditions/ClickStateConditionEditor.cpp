@@ -1,5 +1,5 @@
 #include "ClickStateConditionEditor.h"
-#include "cru/common/ClonablePtr.h"
+#include "cru/base/ClonablePtr.h"
 #include "cru/ui/helper/ClickDetector.h"
 #include "cru/ui/style/Condition.h"
 

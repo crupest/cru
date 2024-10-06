@@ -5,7 +5,7 @@
 #include "CompoundConditionEditor.h"
 #include "FocusConditionEditor.h"
 #include "NoConditionEditor.h"
-#include "cru/common/Exception.h"
+#include "cru/base/Exception.h"
 #include "cru/ui/controls/FlexLayout.h"
 
 namespace cru::theme_builder::components::conditions {

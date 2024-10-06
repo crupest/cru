@@ -1,7 +1,7 @@
-#include "cru/common/io/OpenFileFlag.h"
-#include "cru/common/platform/win/Exception.h"
-#include "cru/common/platform/win/StreamConvert.h"
-#include "cru/common/platform/win/Win32FileStream.h"
+#include "cru/base/io/OpenFileFlag.h"
+#include "cru/base/platform/win/Exception.h"
+#include "cru/base/platform/win/StreamConvert.h"
+#include "cru/base/platform/win/Win32FileStream.h"
 
 #include <catch2/catch_test_macros.hpp>
 

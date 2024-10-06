@@ -2,7 +2,7 @@
 #include "Exception.h"
 #include "Resource.h"
 
-#include "cru/common/String.h"
+#include "cru/base/String.h"
 
 #include <memory>
 #include <type_traits>

@@ -1,5 +1,5 @@
-#include "cru/common/String.h"
-#include "cru/common/SubProcess.h"
+#include "cru/base/String.h"
+#include "cru/base/SubProcess.h"
 
 #include <catch2/catch_test_macros.hpp>
 

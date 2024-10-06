@@ -1,6 +1,6 @@
 #pragma once
 
-#include "cru/common/Exception.h"
+#include "cru/base/Exception.h"
 #include "cru/toml/TomlDocument.h"
 
 #include <optional>

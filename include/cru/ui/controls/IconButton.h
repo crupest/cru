@@ -8,7 +8,7 @@
 #include "IBorderControl.h"
 #include "IClickableControl.h"
 #include "IContentBrushControl.h"
-#include "cru/common/Event.h"
+#include "cru/base/Event.h"
 #include "cru/platform/graphics/Brush.h"
 
 namespace cru::ui::controls {

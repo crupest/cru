@@ -1,5 +1,5 @@
 #pragma once
-#include "cru/common/Event.h"
+#include "cru/base/Event.h"
 #include "cru/ui/components/Component.h"
 
 namespace cru::theme_builder::components {

@@ -1,7 +1,7 @@
 #pragma once
 #include "../properties/CheckBoxPropertyEditor.h"
 #include "ConditionEditor.h"
-#include "cru/common/ClonablePtr.h"
+#include "cru/base/ClonablePtr.h"
 #include "cru/ui/style/Condition.h"
 
 namespace cru::theme_builder::components::conditions {

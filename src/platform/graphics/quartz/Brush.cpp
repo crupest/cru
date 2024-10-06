@@ -1,6 +1,6 @@
 #include "cru/platform/graphics/quartz/Brush.h"
-#include "cru/common/String.h"
-#include "cru/common/Format.h"
+#include "cru/base/String.h"
+#include "cru/base/Format.h"
 
 namespace cru::platform::graphics::quartz {
 QuartzSolidColorBrush::QuartzSolidColorBrush(IGraphicsFactory* graphics_factory,

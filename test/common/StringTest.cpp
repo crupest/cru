@@ -1,5 +1,5 @@
-#include "cru/common/Format.h"
-#include "cru/common/String.h"
+#include "cru/base/Format.h"
+#include "cru/base/String.h"
 
 #include <catch2/catch_test_macros.hpp>
 

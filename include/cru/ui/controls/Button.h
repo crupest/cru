@@ -5,7 +5,7 @@
 #include "../render/BorderRenderObject.h"
 #include "IBorderControl.h"
 #include "IClickableControl.h"
-#include "cru/common/Event.h"
+#include "cru/base/Event.h"
 
 namespace cru::ui::controls {
 class CRU_UI_API Button : public SingleChildControl<render::BorderRenderObject>,

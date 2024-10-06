@@ -1,7 +1,7 @@
 #include "cru/ui/style/Styler.h"
 
 #include "../Helper.h"
-#include "cru/common/ClonablePtr.h"
+#include "cru/base/ClonablePtr.h"
 #include "cru/platform/gui/Cursor.h"
 #include "cru/platform/gui/UiApplication.h"
 #include "cru/ui/controls/Control.h"

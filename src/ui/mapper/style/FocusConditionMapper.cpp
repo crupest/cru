@@ -1,4 +1,4 @@
-#include "cru/common/ClonablePtr.h"
+#include "cru/base/ClonablePtr.h"
 #include "cru/ui/mapper/style/FocusConditionMapper.h"
 #include "cru/ui/style/Condition.h"
 #include "cru/xml/XmlNode.h"

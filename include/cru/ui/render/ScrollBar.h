@@ -1,6 +1,6 @@
 #pragma once
-#include "cru/common/Base.h"
-#include "cru/common/Event.h"
+#include "cru/base/Base.h"
+#include "cru/base/Event.h"
 #include "cru/platform/graphics/Base.h"
 #include "cru/platform/graphics/Brush.h"
 #include "cru/platform/graphics/Geometry.h"

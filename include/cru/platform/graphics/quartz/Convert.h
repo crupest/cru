@@ -1,7 +1,7 @@
 #pragma once
-#include "cru/common/Range.h"
-#include "cru/common/String.h"
-#include "cru/common/io/Stream.h"
+#include "cru/base/Range.h"
+#include "cru/base/String.h"
+#include "cru/base/io/Stream.h"
 #include "cru/platform/Matrix.h"
 
 #include <CoreGraphics/CoreGraphics.h>

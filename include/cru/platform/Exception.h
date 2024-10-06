@@ -1,8 +1,8 @@
 #pragma once
 #include "Base.h"
-#include "cru/common/Base.h"
-#include "cru/common/Exception.h"
-#include "cru/common/platform/Exception.h"
+#include "cru/base/Base.h"
+#include "cru/base/Exception.h"
+#include "cru/base/platform/Exception.h"
 
 #include <optional>
 

@@ -1,6 +1,6 @@
 #pragma once
 #include "Editor.h"
-#include "cru/common/Event.h"
+#include "cru/base/Event.h"
 #include "cru/ui/controls/Container.h"
 #include "cru/ui/controls/FlexLayout.h"
 #include "cru/ui/controls/IconButton.h"

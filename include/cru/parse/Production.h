@@ -1,5 +1,5 @@
 #pragma once
-#include "cru/common/String.h"
+#include "cru/base/String.h"
 
 #include "Nonterminal.h"
 #include "Terminal.h"

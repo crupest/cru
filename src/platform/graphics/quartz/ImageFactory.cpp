@@ -1,6 +1,6 @@
 #include "cru/platform/graphics/quartz/ImageFactory.h"
-#include "cru/common/Exception.h"
-#include "cru/common/platform/osx/Convert.h"
+#include "cru/base/Exception.h"
+#include "cru/base/platform/osx/Convert.h"
 #include "cru/platform/graphics/quartz/Convert.h"
 #include "cru/platform/graphics/quartz/Image.h"
 #include "cru/platform/Check.h"

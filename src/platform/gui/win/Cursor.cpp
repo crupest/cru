@@ -1,6 +1,6 @@
 #include "cru/platform/gui/win/Cursor.h"
 
-#include "cru/common/log/Logger.h"
+#include "cru/base/log/Logger.h"
 #include "cru/platform/gui/win/Exception.h"
 
 #include <stdexcept>

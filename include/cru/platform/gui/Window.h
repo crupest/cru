@@ -3,7 +3,7 @@
 
 #include "Keyboard.h"
 
-#include "cru/common/Event.h"
+#include "cru/base/Event.h"
 
 #include <string_view>
 

@@ -2,8 +2,8 @@
 
 #include "XmlNode.h"
 
-#include "cru/common/Exception.h"
-#include "cru/common/String.h"
+#include "cru/base/Exception.h"
+#include "cru/base/String.h"
 
 #include <optional>
 

@@ -1,7 +1,7 @@
 #pragma once
 #include "RenderObject.h"
 
-#include "cru/common/Event.h"
+#include "cru/base/Event.h"
 
 namespace cru::ui::render {
 class CanvasPaintEventArgs {

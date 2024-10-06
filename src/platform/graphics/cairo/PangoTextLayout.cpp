@@ -1,5 +1,5 @@
 #include "cru/platform/graphics/cairo/PangoTextLayout.h"
-#include "cru/common/StringUtil.h"
+#include "cru/base/StringUtil.h"
 #include "cru/platform/Check.h"
 #include "cru/platform/GraphicsBase.h"
 #include "cru/platform/graphics/Base.h"

@@ -1,6 +1,6 @@
 #include "cru/platform/graphics/direct2d/Font.h"
 
-#include "cru/common/Format.h"
+#include "cru/base/Format.h"
 #include "cru/platform/graphics/direct2d/Exception.h"
 #include "cru/platform/graphics/direct2d/Factory.h"
 

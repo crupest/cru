@@ -4,7 +4,7 @@
 #include "ConditionEditor.h"
 #include "FocusConditionEditor.h"
 #include "NoConditionEditor.h"
-#include "cru/common/ClonablePtr.h"
+#include "cru/base/ClonablePtr.h"
 #include "cru/platform/Color.h"
 #include "cru/ui/Base.h"
 #include "cru/ui/ThemeManager.h"

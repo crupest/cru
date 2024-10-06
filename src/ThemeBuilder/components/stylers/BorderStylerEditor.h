@@ -4,7 +4,7 @@
 #include "../properties/OptionalPropertyEditor.h"
 #include "../properties/ThicknessPropertyEditor.h"
 #include "StylerEditor.h"
-#include "cru/common/ClonablePtr.h"
+#include "cru/base/ClonablePtr.h"
 
 namespace cru::theme_builder::components::stylers {
 class BorderStylerEditor : public StylerEditor {

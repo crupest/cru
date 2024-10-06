@@ -1,7 +1,7 @@
 #pragma once
 #include "LayoutControl.h"
 
-#include "cru/common/Event.h"
+#include "cru/base/Event.h"
 #include "cru/platform/gui/Window.h"
 #include "cru/ui/host/WindowHost.h"
 #include "cru/ui/render/StackLayoutRenderObject.h"

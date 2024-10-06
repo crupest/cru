@@ -1,6 +1,6 @@
 #include "cru/ui/controls/Control.h"
 
-#include "cru/common/log/Logger.h"
+#include "cru/base/log/Logger.h"
 #include "cru/platform/gui/Cursor.h"
 #include "cru/platform/gui/UiApplication.h"
 #include "cru/ui/host/WindowHost.h"

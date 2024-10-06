@@ -1,6 +1,6 @@
 #include "cru/platform/graphics/direct2d/Factory.h"
 
-#include "cru/common/log/Logger.h"
+#include "cru/base/log/Logger.h"
 #include "cru/platform/graphics/direct2d/Brush.h"
 #include "cru/platform/graphics/direct2d/Exception.h"
 #include "cru/platform/graphics/direct2d/Font.h"

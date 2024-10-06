@@ -1,7 +1,7 @@
 #include "cru/parse/Grammar.h"
-#include "cru/common/String.h"
+#include "cru/base/String.h"
 #include "cru/parse/Symbol.h"
-#include "cru/common/Format.h"
+#include "cru/base/Format.h"
 
 #include <algorithm>
 #include <iterator>

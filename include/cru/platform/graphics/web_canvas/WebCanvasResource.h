@@ -1,6 +1,6 @@
 #pragma once
 
-#include "cru/common/Base.h"
+#include "cru/base/Base.h"
 #include "cru/platform/Resource.h"
 
 namespace cru::platform::graphics::web_canvas {

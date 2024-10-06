@@ -1,8 +1,8 @@
 #pragma once
 #include "../properties/SelectPropertyEditor.h"
 #include "ConditionEditor.h"
-#include "cru/common/ClonablePtr.h"
-#include "cru/common/Event.h"
+#include "cru/base/ClonablePtr.h"
+#include "cru/base/Event.h"
 #include "cru/ui/style/Condition.h"
 
 namespace cru::theme_builder::components::conditions {

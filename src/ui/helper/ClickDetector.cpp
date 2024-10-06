@@ -1,6 +1,6 @@
 #include "cru/ui/helper/ClickDetector.h"
 
-#include "cru/common/log/Logger.h"
+#include "cru/base/log/Logger.h"
 #include "cru/ui/DebugFlags.h"
 #include "cru/ui/controls/Control.h"
 #include "cru/ui/host/WindowHost.h"

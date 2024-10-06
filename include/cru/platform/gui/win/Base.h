@@ -1,7 +1,7 @@
 #pragma once
 #include "cru/platform/win/WinPreConfig.h"
 
-#include "cru/common/Base.h"
+#include "cru/base/Base.h"
 
 #ifdef CRU_PLATFORM_WINDOWS
 #ifdef CRU_WIN_GUI_EXPORT_API

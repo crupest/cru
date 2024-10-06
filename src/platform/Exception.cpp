@@ -1,5 +1,5 @@
 #include "cru/platform/Exception.h"
-#include "cru/common/Format.h"
+#include "cru/base/Format.h"
 
 #include <optional>
 

@@ -1,7 +1,7 @@
 #include "cru/platform/graphics/direct2d/TextLayout.h"
 #include <dwrite.h>
 
-#include "cru/common/log/Logger.h"
+#include "cru/base/log/Logger.h"
 #include "cru/platform/Check.h"
 #include "cru/platform/graphics/direct2d/Exception.h"
 #include "cru/platform/graphics/direct2d/Factory.h"

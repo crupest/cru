@@ -1,6 +1,6 @@
 #pragma once
 #include "Resource.h"
-#include "cru/common/Base.h"
+#include "cru/base/Base.h"
 #include "cru/platform/graphics/quartz/ImageFactory.h"
 #include "cru/platform/graphics/Factory.h"
 #include "cru/platform/graphics/ImageFactory.h"

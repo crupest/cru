@@ -1,6 +1,6 @@
 #include "cru/platform/graphics/direct2d/Painter.h"
 
-#include "cru/common/log/Logger.h"
+#include "cru/base/log/Logger.h"
 #include "cru/platform/Check.h"
 #include "cru/platform/graphics/direct2d/Brush.h"
 #include "cru/platform/graphics/direct2d/ConvertUtil.h"

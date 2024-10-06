@@ -1,5 +1,5 @@
 #include "components/MainWindow.h"
-#include "cru/common/io/Resource.h"
+#include "cru/base/io/Resource.h"
 #include "cru/platform/bootstrap/Bootstrap.h"
 #include "cru/ui/ThemeManager.h"
 #include "cru/ui/ThemeResourceDictionary.h"

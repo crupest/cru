@@ -1,8 +1,8 @@
 #include "cru/platform/gui/osx/UiApplication.h"
 
 #include "ClipboardPrivate.h"
-#include "cru/common/log/Logger.h"
-#include "cru/common/platform/osx/Convert.h"
+#include "cru/base/log/Logger.h"
+#include "cru/base/platform/osx/Convert.h"
 #include "cru/platform/graphics/quartz/Factory.h"
 #include "cru/platform/gui/osx/Clipboard.h"
 #include "cru/platform/gui/osx/Cursor.h"

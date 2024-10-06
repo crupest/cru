@@ -1,6 +1,6 @@
 #include "cru/ui/helper/ShortcutHub.h"
 
-#include "cru/common/log/Logger.h"
+#include "cru/base/log/Logger.h"
 #include "cru/ui/DebugFlags.h"
 #include "cru/ui/controls/Control.h"
 

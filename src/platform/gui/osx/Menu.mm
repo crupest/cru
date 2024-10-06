@@ -2,7 +2,7 @@
 #import "MenuPrivate.h"
 
 #include "KeyboardPrivate.h"
-#include "cru/common/platform/osx/Convert.h"
+#include "cru/base/platform/osx/Convert.h"
 
 #import <AppKit/NSApplication.h>
 

@@ -1,8 +1,8 @@
 #pragma once
 #include "../Base.h"
-#include "cru/common/Base.h"
-#include "cru/common/ClonablePtr.h"
-#include "cru/common/Event.h"
+#include "cru/base/Base.h"
+#include "cru/base/ClonablePtr.h"
+#include "cru/base/Event.h"
 #include "cru/ui/controls/IClickableControl.h"
 #include "cru/ui/helper/ClickDetector.h"
 

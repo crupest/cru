@@ -1,5 +1,5 @@
 #include "cru/platform/graphics/quartz/Image.h"
-#include "cru/common/Exception.h"
+#include "cru/base/Exception.h"
 #include "cru/platform/graphics/quartz/Convert.h"
 #include "cru/platform/graphics/quartz/Painter.h"
 

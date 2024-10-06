@@ -1,5 +1,5 @@
 #include "cru/platform/graphics/cairo/CairoPainter.h"
-#include "cru/common/Exception.h"
+#include "cru/base/Exception.h"
 #include "cru/platform/Check.h"
 #include "cru/platform/Exception.h"
 #include "cru/platform/graphics/cairo/Base.h"

@@ -2,7 +2,7 @@
 #include "../Editor.h"
 #include "../properties/FontPropertyEditor.h"
 #include "StylerEditor.h"
-#include "cru/common/ClonablePtr.h"
+#include "cru/base/ClonablePtr.h"
 #include "cru/ui/style/Styler.h"
 
 namespace cru::theme_builder::components::stylers {

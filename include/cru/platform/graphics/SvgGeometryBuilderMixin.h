@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Geometry.h"
-#include "cru/common/Format.h"
+#include "cru/base/Format.h"
 
 #include <utility>
 

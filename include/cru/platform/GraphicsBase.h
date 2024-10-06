@@ -1,9 +1,9 @@
 #pragma once
 #include "Base.h"
 
-#include "cru/common/Format.h"
-#include "cru/common/Range.h"
-#include "cru/common/String.h"
+#include "cru/base/Format.h"
+#include "cru/base/Range.h"
+#include "cru/base/String.h"
 
 #include <limits>
 

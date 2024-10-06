@@ -1,6 +1,6 @@
 #pragma once
 #include "Mapper.h"
-#include "cru/common/Base.h"
+#include "cru/base/Base.h"
 #include "cru/platform/graphics/Font.h"
 
 namespace cru::ui::mapper {

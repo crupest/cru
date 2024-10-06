@@ -1,7 +1,7 @@
 #include "cru/platform/gui/win/InputMethod.h"
 
-#include "cru/common/StringUtil.h"
-#include "cru/common/log/Logger.h"
+#include "cru/base/StringUtil.h"
+#include "cru/base/log/Logger.h"
 #include "cru/platform/Check.h"
 #include "cru/platform/gui/DebugFlags.h"
 #include "cru/platform/gui/win/Exception.h"

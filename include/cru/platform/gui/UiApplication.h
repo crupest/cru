@@ -1,7 +1,7 @@
 #pragma once
 #include "Base.h"
 
-#include "cru/common/Bitmask.h"
+#include "cru/base/Bitmask.h"
 #include "cru/platform/gui/Menu.h"
 
 #include "SaveOpenDialogOptions.h"

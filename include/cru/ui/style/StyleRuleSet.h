@@ -1,7 +1,7 @@
 #pragma once
 #include "StyleRule.h"
-#include "cru/common/Base.h"
-#include "cru/common/Event.h"
+#include "cru/base/Base.h"
+#include "cru/base/Event.h"
 #include "cru/ui/model/IListChangeNotify.h"
 
 #include <cstddef>

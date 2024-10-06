@@ -3,8 +3,8 @@
 
 #include "CursorPrivate.h"
 #include "InputMethodPrivate.h"
-#include "cru/common/Range.h"
-#include "cru/common/log/Logger.h"
+#include "cru/base/Range.h"
+#include "cru/base/log/Logger.h"
 #include "cru/platform/Check.h"
 #include "cru/platform/graphics/NullPainter.h"
 #include "cru/platform/graphics/quartz/Convert.h"

@@ -1,7 +1,7 @@
 #pragma once
 #include "UiEventArgs.h"
 
-#include "cru/common/Event.h"
+#include "cru/base/Event.h"
 
 namespace cru::ui::events {
 // TEventArgs must not be a reference type. This class help add reference.

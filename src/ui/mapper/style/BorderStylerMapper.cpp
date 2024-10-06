@@ -1,5 +1,5 @@
 #include "cru/ui/mapper/style/BorderStylerMapper.h"
-#include "cru/common/ClonablePtr.h"
+#include "cru/base/ClonablePtr.h"
 #include "cru/ui/mapper/MapperRegistry.h"
 #include "cru/ui/style/ApplyBorderStyleInfo.h"
 #include "cru/ui/style/Styler.h"

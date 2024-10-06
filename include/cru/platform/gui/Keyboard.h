@@ -1,5 +1,5 @@
 #pragma once
-#include "cru/common/Bitmask.h"
+#include "cru/base/Bitmask.h"
 #include "cru/platform/gui/Base.h"
 
 #include <string>

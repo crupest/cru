@@ -1,6 +1,6 @@
 #pragma once
 #include "Base.h"
-#include "cru/common/Event.h"
+#include "cru/base/Event.h"
 #include "cru/ui/ThemeResourceDictionary.h"
 
 #include <vector>

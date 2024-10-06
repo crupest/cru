@@ -1,6 +1,6 @@
 #pragma once
 
-#include "cru/common/Base.h"
+#include "cru/base/Base.h"
 
 #include <emscripten/val.h>
 

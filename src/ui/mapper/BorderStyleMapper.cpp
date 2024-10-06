@@ -1,6 +1,6 @@
 #include "cru/ui/mapper/BorderStyleMapper.h"
 #include "../Helper.h"
-#include "cru/common/log/Logger.h"
+#include "cru/base/log/Logger.h"
 #include "cru/platform/graphics/Brush.h"
 #include "cru/platform/graphics/Factory.h"
 #include "cru/ui/mapper/MapperRegistry.h"

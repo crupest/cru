@@ -1,7 +1,7 @@
 #include "cru/platform/gui/osx/Clipboard.h"
 #include "ClipboardPrivate.h"
 
-#include "cru/common/log/Logger.h"
+#include "cru/base/log/Logger.h"
 #include "cru/platform/osx/Convert.h"
 
 #include <memory>

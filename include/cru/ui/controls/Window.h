@@ -2,7 +2,7 @@
 #include "cru/platform/gui/Base.h"
 #include "cru/ui/controls/RootControl.h"
 
-#include "cru/common/Base.h"
+#include "cru/base/Base.h"
 
 namespace cru::ui::controls {
 class CRU_UI_API Window final : public RootControl {

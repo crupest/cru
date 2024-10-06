@@ -1,8 +1,8 @@
 #pragma once
 #include "Base.h"
 
-#include "cru/common/Base.h"
-#include "cru/common/String.h"
+#include "cru/base/Base.h"
+#include "cru/base/String.h"
 
 namespace cru::platform {
 struct CRU_PLATFORM_API IPlatformResource : virtual Interface {

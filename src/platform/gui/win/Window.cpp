@@ -1,7 +1,7 @@
 #include "cru/platform/gui/win/Window.h"
 
 #include "WindowManager.h"
-#include "cru/common/log/Logger.h"
+#include "cru/base/log/Logger.h"
 #include "cru/platform/Check.h"
 #include "cru/platform/graphics/NullPainter.h"
 #include "cru/platform/gui/Base.h"

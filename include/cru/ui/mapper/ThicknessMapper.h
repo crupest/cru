@@ -2,7 +2,7 @@
 #include "Mapper.h"
 
 #include "../Base.h"
-#include "cru/common/Base.h"
+#include "cru/base/Base.h"
 #include "cru/xml/XmlNode.h"
 
 namespace cru::ui::mapper {

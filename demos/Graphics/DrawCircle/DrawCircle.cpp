@@ -1,4 +1,4 @@
-#include "cru/common/io/CFileStream.h"
+#include "cru/base/io/CFileStream.h"
 #include "cru/platform/Color.h"
 #include "cru/platform/graphics/Factory.h"
 #include "cru/platform/graphics/ImageFactory.h"

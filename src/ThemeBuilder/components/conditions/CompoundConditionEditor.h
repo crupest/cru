@@ -1,7 +1,7 @@
 #pragma once
 #include "ConditionEditor.h"
-#include "cru/common/ClonablePtr.h"
-#include "cru/common/Event.h"
+#include "cru/base/ClonablePtr.h"
+#include "cru/base/Event.h"
 #include "cru/ui/components/Component.h"
 #include "cru/ui/components/PopupButton.h"
 #include "cru/ui/controls/Button.h"

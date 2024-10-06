@@ -1,8 +1,8 @@
 #include "cru/ui/host/WindowHost.h"
 
 #include "RoutedEventDispatch.h"
-#include "cru/common/Base.h"
-#include "cru/common/log/Logger.h"
+#include "cru/base/Base.h"
+#include "cru/base/log/Logger.h"
 #include "cru/platform/graphics/Painter.h"
 #include "cru/platform/gui/InputMethod.h"
 #include "cru/platform/gui/UiApplication.h"

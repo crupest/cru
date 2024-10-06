@@ -1,4 +1,4 @@
-#include "cru/common/Event2.h"
+#include "cru/base/Event2.h"
 
 #include <catch2/catch_test_macros.hpp>
 

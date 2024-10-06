@@ -1,6 +1,6 @@
 #include "cru/ui/controls/RootControl.h"
 
-#include "cru/common/Base.h"
+#include "cru/base/Base.h"
 #include "cru/platform/gui/Base.h"
 #include "cru/platform/gui/Window.h"
 #include "cru/ui/Base.h"

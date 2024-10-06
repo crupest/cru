@@ -1,6 +1,6 @@
 #pragma once
 #include "../style/ApplyBorderStyleInfo.h"
-#include "cru/common/Base.h"
+#include "cru/base/Base.h"
 
 namespace cru::ui::controls {
 struct CRU_UI_API IBorderControl : virtual Interface {

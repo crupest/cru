@@ -2,7 +2,7 @@
 #include "SingleChildRenderObject.h"
 
 #include "ScrollBar.h"
-#include "cru/common/Event.h"
+#include "cru/base/Event.h"
 #include "cru/ui/render/RenderObject.h"
 
 #include <memory>

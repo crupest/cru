@@ -2,8 +2,8 @@
 #include "Base.h"
 
 #include "WindowNativeMessageEventArgs.h"
-#include "cru/common/Event.h"
-#include "cru/common/String.h"
+#include "cru/base/Event.h"
+#include "cru/base/String.h"
 
 #include <memory>
 

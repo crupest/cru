@@ -1,6 +1,6 @@
 #pragma once
 #include "StylerEditor.h"
-#include "cru/common/ClonablePtr.h"
+#include "cru/base/ClonablePtr.h"
 #include "cru/ui/DeleteLater.h"
 #include "cru/ui/components/PopupButton.h"
 #include "cru/ui/controls/FlexLayout.h"

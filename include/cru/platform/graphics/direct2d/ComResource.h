@@ -1,7 +1,7 @@
 #pragma once
 #include "Base.h"
 
-#include "cru/common/Base.h"
+#include "cru/base/Base.h"
 
 namespace cru::platform::graphics::direct2d {
 template <typename TInterface>

@@ -1,5 +1,5 @@
-#include "cru/common/Base.h"
-#include "cru/common/SelfResolvable.h"
+#include "cru/base/Base.h"
+#include "cru/base/SelfResolvable.h"
 
 #include <catch2/catch_test_macros.hpp>
 

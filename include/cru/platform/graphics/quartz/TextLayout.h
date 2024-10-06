@@ -2,7 +2,7 @@
 #include "Resource.h"
 
 #include "Font.h"
-#include "cru/common/Base.h"
+#include "cru/base/Base.h"
 #include "cru/platform/graphics/TextLayout.h"
 
 #include <memory>

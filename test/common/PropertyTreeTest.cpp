@@ -1,4 +1,4 @@
-#include "cru/common/PropertyTree.h"
+#include "cru/base/PropertyTree.h"
 
 #include <catch2/catch_test_macros.hpp>
 

@@ -1,5 +1,5 @@
 #include "cru/ui/mapper/style/ContentBrushStylerMapper.h"
-#include "cru/common/ClonablePtr.h"
+#include "cru/base/ClonablePtr.h"
 #include "cru/platform/graphics/Brush.h"
 #include "cru/ui/mapper/MapperRegistry.h"
 #include "cru/ui/style/Styler.h"

@@ -1,8 +1,8 @@
 #include "cru/ui/ThemeManager.h"
 
 #include "Helper.h"
-#include "cru/common/StringUtil.h"
-#include "cru/common/io/Resource.h"
+#include "cru/base/StringUtil.h"
+#include "cru/base/io/Resource.h"
 #include "cru/platform/graphics/Brush.h"
 #include "cru/platform/graphics/Factory.h"
 #include "cru/platform/gui/UiApplication.h"

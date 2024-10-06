@@ -1,7 +1,7 @@
 #pragma once
 #include "cru/platform/gui/osx/Window.h"
 
-#include "cru/common/Event.h"
+#include "cru/base/Event.h"
 #include "cru/platform/gui/TimerHelper.h"
 #include "cru/platform/gui/Window.h"
 #include "cru/platform/gui/osx/Cursor.h"

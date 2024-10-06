@@ -2,8 +2,8 @@
 
 #include "../Base.h"
 #include "DocumentElement.h"
-#include "cru/common/Base.h"
-#include "cru/common/Bitmask.h"
+#include "cru/base/Base.h"
+#include "cru/base/Bitmask.h"
 
 namespace cru::ui::document {
 namespace details {

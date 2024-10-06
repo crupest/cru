@@ -1,4 +1,4 @@
-#include "cru/common/HandlerRegistry.h"
+#include "cru/base/HandlerRegistry.h"
 
 #include <catch2/catch_test_macros.hpp>
 

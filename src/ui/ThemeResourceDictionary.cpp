@@ -1,6 +1,6 @@
 #include "cru/ui/ThemeResourceDictionary.h"
-#include "cru/common/io/CFileStream.h"
-#include "cru/common/log/Logger.h"
+#include "cru/base/io/CFileStream.h"
+#include "cru/base/log/Logger.h"
 #include "cru/xml/XmlNode.h"
 #include "cru/xml/XmlParser.h"
 

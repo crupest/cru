@@ -1,6 +1,6 @@
 #include "cru/platform/graphics/direct2d/ImageFactory.h"
-#include "cru/common/platform/win/Exception.h"
-#include "cru/common/platform/win/StreamConvert.h"
+#include "cru/base/platform/win/Exception.h"
+#include "cru/base/platform/win/StreamConvert.h"
 #include "cru/platform/Check.h"
 #include "cru/platform/graphics/direct2d/Exception.h"
 #include "cru/platform/graphics/direct2d/Factory.h"

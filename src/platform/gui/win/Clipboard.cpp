@@ -1,5 +1,5 @@
 #include "cru/platform/gui/win/Clipboard.h"
-#include "cru/common/log/Logger.h"
+#include "cru/base/log/Logger.h"
 #include "cru/platform/gui/win/GodWindow.h"
 #include "cru/platform/gui/win/UiApplication.h"
 

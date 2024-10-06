@@ -2,8 +2,8 @@
 #include "../Base.h"
 
 #include "../events/KeyEventArgs.h"
-#include "cru/common/Base.h"
-#include "cru/common/Event.h"
+#include "cru/base/Base.h"
+#include "cru/base/Event.h"
 #include "cru/platform/gui/Keyboard.h"
 
 #include <cstddef>

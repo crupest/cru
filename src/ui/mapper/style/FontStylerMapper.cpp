@@ -1,5 +1,5 @@
 #include "cru/ui/mapper/style/FontStylerMapper.h"
-#include "cru/common/ClonablePtr.h"
+#include "cru/base/ClonablePtr.h"
 #include "cru/ui/mapper/MapperRegistry.h"
 
 namespace cru::ui::mapper::style {

@@ -1,5 +1,5 @@
 #include "BorderStylerEditor.h"
-#include "cru/common/ClonablePtr.h"
+#include "cru/base/ClonablePtr.h"
 #include "cru/platform/graphics/Brush.h"
 #include "cru/platform/graphics/Factory.h"
 #include "cru/platform/gui/UiApplication.h"

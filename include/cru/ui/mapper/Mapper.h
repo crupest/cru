@@ -1,8 +1,8 @@
 #pragma once
 #include "../Base.h"
 
-#include "cru/common/ClonablePtr.h"
-#include "cru/common/Exception.h"
+#include "cru/base/ClonablePtr.h"
+#include "cru/base/Exception.h"
 #include "cru/xml/XmlNode.h"
 
 #include <memory>

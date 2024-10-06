@@ -1,7 +1,7 @@
 #include "cru/ui/render/ScrollBar.h"
 
 #include "../Helper.h"
-#include "cru/common/Base.h"
+#include "cru/base/Base.h"
 #include "cru/platform/GraphicsBase.h"
 #include "cru/platform/graphics/Factory.h"
 #include "cru/platform/graphics/Geometry.h"

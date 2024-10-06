@@ -4,7 +4,7 @@
 #include "../events/UiEvents.h"
 #include "../render/RenderObject.h"
 #include "../style/StyleRuleSet.h"
-#include "cru/common/SelfResolvable.h"
+#include "cru/base/SelfResolvable.h"
 #include "cru/ui/render/MeasureRequirement.h"
 
 namespace cru::ui::controls {

@@ -2,7 +2,7 @@
 #include "../Base.h"
 
 #include "../render/RenderObject.h"
-#include "cru/common/Event.h"
+#include "cru/base/Event.h"
 #include "cru/platform/gui/Cursor.h"
 #include "cru/platform/gui/UiApplication.h"
 #include "cru/platform/gui/Window.h"

@@ -1,5 +1,5 @@
 #include "cru/ui/mapper/style/AndConditionMapper.h"
-#include "cru/common/ClonablePtr.h"
+#include "cru/base/ClonablePtr.h"
 #include "cru/ui/mapper/MapperRegistry.h"
 #include "cru/ui/mapper/style/IConditionMapper.h"
 #include "cru/ui/style/Condition.h"

@@ -1,6 +1,6 @@
 #pragma once
 #include "../Base.h"
-#include "cru/common/Event.h"
+#include "cru/base/Event.h"
 
 namespace cru::ui::controls {
 struct CRU_UI_API ICheckableControl : virtual Interface {

@@ -1,7 +1,7 @@
 #pragma once
 #include "Base.h"
 
-#include "cru/common/Base.h"
+#include "cru/base/Base.h"
 
 namespace cru::platform::gui::win {
 struct CRU_WIN_GUI_API WindowNativeMessage {

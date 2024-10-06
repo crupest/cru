@@ -1,2 +1,2 @@
 #pragma once
-#include "cru/common/platform/win/WinPreConfig.h"
+#include "cru/base/platform/win/WinPreConfig.h"

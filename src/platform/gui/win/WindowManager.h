@@ -1,7 +1,7 @@
 #pragma once
 #include "cru/platform/win/WinPreConfig.h"
 
-#include "cru/common/Base.h"
+#include "cru/base/Base.h"
 
 #include <map>
 #include <memory>
