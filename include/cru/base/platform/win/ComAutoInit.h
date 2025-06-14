@@ -1,6 +1,5 @@
 #pragma once
 
-#include "../../PreConfig.h"
 #ifdef CRU_PLATFORM_WINDOWS
 
 #include "WinPreConfig.h"

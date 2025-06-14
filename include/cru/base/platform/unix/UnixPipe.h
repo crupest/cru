@@ -1,7 +1,5 @@
 #pragma once
 
-#include "../../PreConfig.h"
-
 #ifndef CRU_PLATFORM_UNIX
 #error "This file can only be included on unix."
 #endif

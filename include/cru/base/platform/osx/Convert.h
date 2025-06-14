@@ -1,5 +1,4 @@
 #pragma once
-#include "../../PreConfig.h"
 
 #ifndef CRU_PLATFORM_OSX
 #error "This file can only be included on osx."

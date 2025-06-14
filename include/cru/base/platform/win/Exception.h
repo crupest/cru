@@ -1,6 +1,7 @@
 #pragma once
-#include "../../PreConfig.h"
-#ifdef CRU_PLATFORM_WINDOWS
+#ifndef CRU_PLATFORM_WINDOWS
+#error "This file can only be used on Windows."
+#endif
 
 #include "WinPreConfig.h"
 

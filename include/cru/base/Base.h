@@ -1,6 +1,4 @@
 #pragma once
-#include "PreConfig.h"  // IWYU pragma: keep
-
 #include <cassert>
 #include <cstddef>
 #include <functional>

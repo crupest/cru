@@ -1,7 +1,5 @@
 #pragma once
 
-#include "../../PreConfig.h"
-
 #ifdef CRU_PLATFORM_EMSCRIPTEN
 
 #include "../Exception.h"

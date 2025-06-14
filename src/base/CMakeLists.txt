@@ -67,14 +67,27 @@ if (WIN32)
 	target_link_libraries(CruBase PUBLIC Shlwapi.lib)
 endif()
 
+if (MSVC)
+	target_compile_options(CruBase PUBLIC /wd4250 /wd4251)
+endif()
+
 if (WIN32)
-	target_compile_definitions(CruBase PUBLIC CRU_PLATFORM_WINDOWS)
+	target_compile_definitions(CruBase PUBLIC
+		CRU_PLATFORM_WINDOWS
+		_CRT_SECURE_NO_WARNINGS
+	)
 elseif(APPLE)
-	target_compile_definitions(CruBase PUBLIC CRU_PLATFORM_OSX)
+	target_compile_definitions(CruBase PUBLIC
+		CRU_PLATFORM_OSX
+		CRU_PLATFORM_UNIX
+	)
 elseif(EMSCRIPTEN)
 	target_compile_definitions(CruBase PUBLIC CRU_PLATFORM_EMSCRIPTEN)
 else()
-	target_compile_definitions(CruBase PUBLIC CRU_PLATFORM_LINUX)
+	target_compile_definitions(CruBase PUBLIC
+		CRU_PLATFORM_LINUX
+		CRU_PLATFORM_UNIX
+	)
 endif()
 
 target_link_libraries(CruBase PUBLIC double-conversion)
