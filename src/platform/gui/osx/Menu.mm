@@ -1,14 +1,11 @@
 #include "cru/platform/gui/osx/Menu.h"
-#import "MenuPrivate.h"
 
+#import "MenuPrivate.h"
 #include "KeyboardPrivate.h"
-#include "cru/base/platform/osx/Convert.h"
 
 #import <AppKit/NSApplication.h>
 
 namespace cru::platform::gui::osx {
-using platform::osx::Convert;
-
 namespace {
 std::unique_ptr<OsxMenu> application_menu = nullptr;
 }
@@ -62,9 +59,12 @@ OsxMenuItem::OsxMenuItem(IUiApplication* ui_application) : OsxGuiResource(ui_app
 
 OsxMenuItem::~OsxMenuItem() { delete p_; }
 
-String OsxMenuItem::GetTitle() { return Convert((CFStringRef)[p_->menu_item_ title]); }
+String OsxMenuItem::GetTitle() { return ::cru::String::FromCFStringRef((CFStringRef)[p_->menu_item_ title]); }
 
-void OsxMenuItem::SetTitle(String title) { [p_->menu_item_ setTitle:(NSString*)Convert(title)]; }
+void OsxMenuItem::SetTitle(String title) {
+  auto cf_title = title.ToCFStringRef();
+  [p_->menu_item_ setTitle:(NSString*)(cf_title.ref)];
+}
 
 bool OsxMenuItem::IsEnabled() { return [p_->menu_item_ isEnabled]; }
 

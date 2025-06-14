@@ -1,19 +1,14 @@
 #include "cru/platform/graphics/quartz/TextLayout.h"
 #include "cru/base/Base.h"
 #include "cru/base/Format.h"
-#include "cru/base/StringUtil.h"
-#include "cru/platform/osx/Convert.h"
 #include "cru/platform/graphics/quartz/Convert.h"
 #include "cru/platform/graphics/quartz/Resource.h"
 #include "cru/platform/Check.h"
 #include "cru/platform/graphics/Base.h"
 
-#include <algorithm>
 #include <limits>
 
 namespace cru::platform::graphics::quartz {
-using cru::platform::osx::Convert;
-
 OsxCTTextLayout::OsxCTTextLayout(IGraphicsFactory* graphics_factory,
                                  std::shared_ptr<OsxCTFont> font,
                                  const String& str)
@@ -76,15 +71,14 @@ void OsxCTTextLayout::DoSetText(String text) {
     }
   }
 
-  CFStringRef s = Convert(actual_text_);
+  auto s = actual_text_.ToCFStringRef();
   cf_attributed_text_ = CFAttributedStringCreateMutable(nullptr, 0);
-  CFAttributedStringReplaceString(cf_attributed_text_, CFRangeMake(0, 0), s);
+  CFAttributedStringReplaceString(cf_attributed_text_, CFRangeMake(0, 0), s.ref);
   Ensures(cf_attributed_text_);
   CFAttributedStringSetAttribute(
       cf_attributed_text_,
       CFRangeMake(0, CFAttributedStringGetLength(cf_attributed_text_)),
       kCTFontAttributeName, font_->GetCTFont());
-  CFRelease(s);
 }
 
 void OsxCTTextLayout::SetText(String new_text) {
@@ -411,7 +405,7 @@ std::vector<CGRect> OsxCTTextLayout::DoTextRangeRect(
     auto line = lines_[i];
     auto line_origin = line_origins_[i];
 
-    Range range = Convert(CTLineGetStringRange(line));
+    Range range = Range::FromCFRange(CTLineGetStringRange(line));
     range = range.CoerceInto(r.GetStart(), r.GetEnd());
 
     if (range.count) {

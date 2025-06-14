@@ -4,7 +4,6 @@
 #include "InputMethodPrivate.h"
 #include "WindowPrivate.h"
 #include "cru/base/log/Logger.h"
-#include "cru/platform/osx/Convert.h"
 #include "cru/platform/gui/osx/Window.h"
 
 namespace cru::platform::gui::osx {

@@ -38,11 +38,6 @@ endif()
 if (APPLE)
 	find_library(CORE_FOUNDATION CoreFoundation REQUIRED)
 	target_link_libraries(CruBase PUBLIC ${CORE_FOUNDATION})
-
-	target_sources(CruBase PRIVATE
-		platform/osx/Convert.cpp
-		platform/osx/Exception.cpp
-	)
 endif()
 
 if (EMSCRIPTEN)

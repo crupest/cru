@@ -14,6 +14,11 @@
 #include <type_traits>
 #include <vector>
 
+#ifdef CRU_PLATFORM_OSX
+#include <CoreFoundation/CoreFoundation.h>
+#include <cru/base/Osx.h>
+#endif
+
 namespace cru {
 class StringView;
 
@@ -237,6 +242,11 @@ class CRU_BASE_API String {
   }
 #endif
 
+#ifdef CRU_PLATFORM_OSX
+  CFWrapper<CFStringRef> ToCFStringRef() const;
+  static String FromCFStringRef(CFStringRef string);
+#endif
+
   template <typename... T>
   String Format(T&&... args) const;
 
@@ -379,6 +389,10 @@ class CRU_BASE_API StringView {
 
   std::string ToUtf8() const;
   Buffer ToUtf8Buffer(bool end_zero = true) const;
+
+#ifdef CRU_PLATFORM_OSX
+  CFWrapper<CFStringRef> ToCFStringRef() const;
+#endif
 
  private:
   const char16_t* ptr_;

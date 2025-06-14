@@ -2,13 +2,14 @@
 #include "cru/platform/Matrix.h"
 
 #include <catch2/catch_test_macros.hpp>
-#include "catch2/catch_approx.hpp"
+#include <catch2/catch_approx.hpp>
 
 using Catch::Approx;
 using cru::platform::Matrix;
-using cru::platform::Point;
 
 TEST_CASE("Matrix Rotation", "[matrix]") {
+  using cru::platform::Point;
+
   Point p(1, 1);
 
   Point p90 = Matrix::Rotation(90).TransformPoint(p);
@@ -25,6 +26,8 @@ TEST_CASE("Matrix Rotation", "[matrix]") {
 }
 
 TEST_CASE("Matrix TranslationAndRotation", "[matrix]") {
+  using cru::platform::Point;
+
   Point p =
       (Matrix::Translation(1, 1) * Matrix::Rotation(90)).TransformPoint({1, 1});
   REQUIRE(p.x == Approx(-2));
@@ -32,6 +35,8 @@ TEST_CASE("Matrix TranslationAndRotation", "[matrix]") {
 }
 
 TEST_CASE("Matrix RotationAndTranslation", "[matrix]") {
+  using cru::platform::Point;
+
   Point p =
       (Matrix::Rotation(90) * Matrix::Translation(1, 1)).TransformPoint({1, 1});
   REQUIRE(p.x == Approx(0));

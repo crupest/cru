@@ -2,7 +2,6 @@
 
 #include "ClipboardPrivate.h"
 #include "cru/base/log/Logger.h"
-#include "cru/base/platform/osx/Convert.h"
 #include "cru/platform/graphics/quartz/Factory.h"
 #include "cru/platform/gui/osx/Clipboard.h"
 #include "cru/platform/gui/osx/Cursor.h"
@@ -30,9 +29,6 @@
 @end
 
 namespace cru::platform::gui::osx {
-
-using cru::platform::osx::Convert;
-
 namespace details {
 class OsxUiApplicationPrivate {
   friend OsxUiApplication;
@@ -182,15 +178,15 @@ graphics::IGraphicsFactory* OsxUiApplication::GetGraphicsFactory() {
 
 std::optional<String> OsxUiApplication::ShowSaveDialog(SaveDialogOptions options) {
   NSSavePanel* panel = [NSSavePanel savePanel];
-  [panel setTitle:(NSString*)Convert(options.title)];
-  [panel setPrompt:(NSString*)Convert(options.prompt)];
-  [panel setMessage:(NSString*)Convert(options.message)];
+  [panel setTitle:(NSString*)options.title.ToCFStringRef().ref];
+  [panel setPrompt:(NSString*)options.prompt.ToCFStringRef().ref];
+  [panel setMessage:(NSString*)options.message.ToCFStringRef().ref];
 
   NSMutableArray* allowed_content_types = [NSMutableArray array];
 
   for (const auto& file_type : options.allowed_file_types) {
     [allowed_content_types
-        addObject:[UTType typeWithFilenameExtension:(NSString*)Convert(file_type)]];
+        addObject:[UTType typeWithFilenameExtension:(NSString*)file_type.ToCFStringRef().ref]];
   }
 
   [panel setAllowedContentTypes:allowed_content_types];
@@ -198,7 +194,7 @@ std::optional<String> OsxUiApplication::ShowSaveDialog(SaveDialogOptions options
 
   auto model_result = [panel runModal];
   if (model_result == NSModalResponseOK) {
-    return Convert((CFStringRef)[[panel URL] path]);
+    return ::cru::String::FromCFStringRef((CFStringRef)[[panel URL] path]);
   } else {
     return std::nullopt;
   }
@@ -206,15 +202,15 @@ std::optional<String> OsxUiApplication::ShowSaveDialog(SaveDialogOptions options
 
 std::optional<std::vector<String>> OsxUiApplication::ShowOpenDialog(OpenDialogOptions options) {
   NSOpenPanel* panel = [NSOpenPanel openPanel];
-  [panel setTitle:(NSString*)Convert(options.title)];
-  [panel setPrompt:(NSString*)Convert(options.prompt)];
-  [panel setMessage:(NSString*)Convert(options.message)];
+  [panel setTitle:(NSString*)options.title.ToCFStringRef().ref];
+  [panel setPrompt:(NSString*)options.prompt.ToCFStringRef().ref];
+  [panel setMessage:(NSString*)options.message.ToCFStringRef().ref];
 
   NSMutableArray* allowed_content_types = [NSMutableArray array];
 
   for (const auto& file_type : options.allowed_file_types) {
     [allowed_content_types
-        addObject:[UTType typeWithFilenameExtension:(NSString*)Convert(file_type)]];
+        addObject:[UTType typeWithFilenameExtension:(NSString*)file_type.ToCFStringRef().ref]];
   }
 
   [panel setAllowedContentTypes:allowed_content_types];
@@ -228,7 +224,7 @@ std::optional<std::vector<String>> OsxUiApplication::ShowOpenDialog(OpenDialogOp
   if (model_result == NSModalResponseOK) {
     std::vector<String> result;
     for (NSURL* url in [panel URLs]) {
-      result.push_back(Convert((CFStringRef)[url path]));
+      result.push_back(::cru::String::FromCFStringRef((CFStringRef)[url path]));
     }
     return result;
   } else {

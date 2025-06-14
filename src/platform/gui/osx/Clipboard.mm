@@ -1,14 +1,11 @@
-#include "cru/platform/gui/osx/Clipboard.h"
-#include "ClipboardPrivate.h"
-
 #include "cru/base/log/Logger.h"
-#include "cru/platform/osx/Convert.h"
+#include "cru/platform/gui/osx/Clipboard.h"
+
+#include "ClipboardPrivate.h"
 
 #include <memory>
 
 namespace cru::platform::gui::osx {
-using cru::platform::osx::Convert;
-
 OsxClipboard::OsxClipboard(cru::platform::gui::IUiApplication* ui_application,
                            std::unique_ptr<details::OsxClipboardPrivate> p)
     : OsxGuiResource(ui_application), p_(std::move(p)) {}
@@ -33,14 +30,15 @@ String OsxClipboardPrivate::GetText() {
     if (result.count == 0) {
       return u"";
     } else {
-      return Convert((CFStringRef)result[0]);
+      return ::cru::String::FromCFStringRef((CFStringRef)result[0]);
     }
   }
 }
 
 void OsxClipboardPrivate::SetText(String text) {
+  auto cf_string = text.ToCFStringRef();
   [pasteboard_ clearContents];
-  [pasteboard_ writeObjects:@[ (NSString*)Convert(text) ]];
+  [pasteboard_ writeObjects:@[ (NSString*)cf_string.ref ]];
 }
 }
 }  // namespace cru::platform::gui::osx

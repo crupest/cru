@@ -1,6 +1,5 @@
 #include "cru/platform/graphics/quartz/ImageFactory.h"
 #include "cru/base/Exception.h"
-#include "cru/base/platform/osx/Convert.h"
 #include "cru/platform/graphics/quartz/Convert.h"
 #include "cru/platform/graphics/quartz/Image.h"
 #include "cru/platform/Check.h"
@@ -9,8 +8,6 @@
 #include <ImageIO/ImageIO.h>
 
 namespace cru::platform::graphics::quartz {
-using cru::platform::osx::Convert;
-
 QuartzImageFactory::QuartzImageFactory(IGraphicsFactory* graphics_factory)
     : OsxQuartzResource(graphics_factory) {}
 
@@ -54,10 +51,10 @@ void QuartzImageFactory::EncodeToStream(IImage* image, io::Stream* stream,
   auto quartz_image = CheckPlatform<QuartzImage>(image, GetPlatformId());
   auto cg_image = quartz_image->GetCGImage();
 
-  CFStringRef uti = Convert(GetImageFormatUniformTypeIdentifier(format));
+  auto uti = GetImageFormatUniformTypeIdentifier(format).ToCFStringRef();
   CGDataConsumerRef data_consumer = ConvertStreamToCGDataConsumer(stream);
   CGImageDestinationRef destination =
-      CGImageDestinationCreateWithDataConsumer(data_consumer, uti, 1, nullptr);
+      CGImageDestinationCreateWithDataConsumer(data_consumer, uti.ref, 1, nullptr);
 
   CFMutableDictionaryRef properties =
       CFDictionaryCreateMutable(nullptr, 0, nullptr, nullptr);
@@ -76,7 +73,6 @@ void QuartzImageFactory::EncodeToStream(IImage* image, io::Stream* stream,
   CFRelease(properties);
   CFRelease(destination);
   CFRelease(data_consumer);
-  CFRelease(uti);
 }
 
 std::unique_ptr<IImage> QuartzImageFactory::CreateBitmap(int width,

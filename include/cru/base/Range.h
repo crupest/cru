@@ -1,6 +1,10 @@
 #pragma once
 #include "Base.h"
 
+#ifdef CRU_PLATFORM_OSX
+#include <CoreFoundation/CoreFoundation.h>
+#endif
+
 namespace cru {
 struct Range final {
   constexpr static Range FromTwoSides(Index start, Index end) {
@@ -35,6 +39,14 @@ struct Range final {
     };
     return Range::FromTwoSides(coerce(GetStart()), coerce(GetEnd()));
   }
+
+#ifdef CRU_PLATFORM_OSX
+  CFRange ToCFRange() const { return CFRangeMake(this->position, this->count); }
+
+  static Range FromCFRange(const CFRange& range) {
+    return Range(range.location, range.length);
+  }
+#endif
 
   Index position = 0;
   Index count = 0;

@@ -9,7 +9,8 @@ if (WIN32)
 endif()
 
 if (UNIX AND NOT EMSCRIPTEN)
-    add_subdirectory(graphics/cairo)
+	# TODO: Re-enable this!
+	# add_subdirectory(graphics/cairo)
 endif()
 
 cru_catch_discover_tests(CruPlatformBaseTest)
