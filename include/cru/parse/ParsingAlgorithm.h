@@ -11,8 +11,6 @@ class CRU_PARSE_API ParsingAlgorithm {
  public:
   ParsingAlgorithm() = default;
 
-  CRU_DELETE_COPY(ParsingAlgorithm)
-  CRU_DELETE_MOVE(ParsingAlgorithm)
 
   virtual ~ParsingAlgorithm() = default;
 

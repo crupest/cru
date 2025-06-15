@@ -7,8 +7,6 @@ class CRU_UI_API SingleChildRenderObject : public RenderObject {
 
  public:
   SingleChildRenderObject() = default;
-  CRU_DELETE_COPY(SingleChildRenderObject)
-  CRU_DELETE_MOVE(SingleChildRenderObject)
   ~SingleChildRenderObject() override = default;
 
   RenderObject* GetChild() const { return child_; }

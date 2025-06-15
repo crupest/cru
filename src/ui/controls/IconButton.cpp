@@ -1,8 +1,8 @@
 #include "cru/ui/controls/IconButton.h"
 
 #include "../Helper.h"
-#include "cru/platform/graphics/Factory.h"
-#include "cru/platform/graphics/Geometry.h"
+#include "cru/graphics/Factory.h"
+#include "cru/graphics/Geometry.h"
 #include "cru/ui/ThemeManager.h"
 
 namespace cru::ui::controls {
@@ -34,7 +34,7 @@ void IconButton::SetIconFillColor(const Color& color) {
 
 void IconButton::SetIconWithSvgPathDataString(
     StringView icon_svg_path_data_string, const Rect& view_port) {
-  SetIconGeometry(platform::graphics::CreateGeometryFromSvgPathData(
+  SetIconGeometry(graphics::CreateGeometryFromSvgPathData(
                       GetGraphicsFactory(), icon_svg_path_data_string),
                   view_port);
 }

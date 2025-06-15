@@ -1,7 +1,7 @@
 #pragma once
 #include "Base.h"
 
-#include "cru/base/String.h"
+#include <cru/String.h>
 
 namespace cru::parse {
 class Grammar;
@@ -11,8 +11,6 @@ class CRU_PARSE_API Symbol : public Object {
  public:
   explicit Symbol(Grammar* grammar, String name);
 
-  CRU_DELETE_COPY(Symbol)
-  CRU_DELETE_MOVE(Symbol)
 
   ~Symbol() override;
 

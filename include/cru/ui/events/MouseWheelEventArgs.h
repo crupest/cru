@@ -1,7 +1,7 @@
 #pragma once
 #include "MouseEventArgs.h"
 
-#include "cru/platform/gui/Keyboard.h"
+#include "cru/gui/Keyboard.h"
 
 namespace cru::ui::events {
 class CRU_UI_API MouseWheelEventArgs : public MouseEventArgs {
@@ -12,11 +12,6 @@ class CRU_UI_API MouseWheelEventArgs : public MouseEventArgs {
       : MouseEventArgs(sender, original_sender, point),
         delta_(delta),
         key_modifier_(key_modifier) {}
-  MouseWheelEventArgs(const MouseWheelEventArgs& other) = default;
-  MouseWheelEventArgs(MouseWheelEventArgs&& other) = default;
-  MouseWheelEventArgs& operator=(const MouseWheelEventArgs& other) = default;
-  MouseWheelEventArgs& operator=(MouseWheelEventArgs&& other) = default;
-  ~MouseWheelEventArgs() override = default;
 
   // Positive means down; Negative means up.
   float GetDelta() const { return delta_; }
@@ -26,4 +21,4 @@ class CRU_UI_API MouseWheelEventArgs : public MouseEventArgs {
   float delta_;
   platform::gui::KeyModifier key_modifier_;
 };
-}  // namespace cru::ui::event
+}  // namespace cru::ui::events

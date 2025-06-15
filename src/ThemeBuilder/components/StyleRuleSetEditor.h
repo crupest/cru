@@ -14,8 +14,6 @@ class StyleRuleSetEditor : public ui::components::Component {
  public:
   StyleRuleSetEditor();
 
-  CRU_DELETE_COPY(StyleRuleSetEditor)
-  CRU_DELETE_MOVE(StyleRuleSetEditor)
 
   ~StyleRuleSetEditor() override;
 

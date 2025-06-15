@@ -1,8 +1,8 @@
 #pragma once
 #include "../Base.h"
 
-#include "cru/base/ClonablePtr.h"
-#include "cru/base/Exception.h"
+#include <cru/CopyPtr.h>
+#include <cru/Exception.h>
 #include "cru/xml/XmlNode.h"
 
 #include <memory>
@@ -18,8 +18,6 @@ class CRU_UI_API MapperBase : public Object {
  public:
   explicit MapperBase(std::type_index type_index);
 
-  CRU_DELETE_COPY(MapperBase)
-  CRU_DELETE_MOVE(MapperBase)
 
   ~MapperBase() override = default;
 
@@ -59,8 +57,6 @@ class CRU_UI_API BasicMapper : public MapperBase {
 
   BasicMapper() : MapperBase(typeid(T)) {}
 
-  CRU_DELETE_COPY(BasicMapper)
-  CRU_DELETE_MOVE(BasicMapper)
 
   ~BasicMapper() override = default;
 
@@ -93,5 +89,5 @@ template <typename T>
 using BasicSharedPtrMapper = BasicMapper<std::shared_ptr<T>>;
 
 template <typename T>
-using BasicClonablePtrMapper = BasicMapper<ClonablePtr<T>>;
+using BasicCopyPtrMapper = BasicMapper<CopyPtr<T>>;
 }  // namespace cru::ui::mapper

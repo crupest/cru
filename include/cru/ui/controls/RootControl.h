@@ -1,8 +1,8 @@
 #pragma once
 #include "LayoutControl.h"
 
-#include "cru/base/Event.h"
-#include "cru/platform/gui/Window.h"
+#include <cru/Event.h>
+#include "cru/gui/Window.h"
 #include "cru/ui/host/WindowHost.h"
 #include "cru/ui/render/StackLayoutRenderObject.h"
 
@@ -13,8 +13,6 @@ class CRU_UI_API RootControl
   explicit RootControl(Control* attached_control);
 
  public:
-  CRU_DELETE_COPY(RootControl)
-  CRU_DELETE_MOVE(RootControl)
   ~RootControl() override;
 
  public:

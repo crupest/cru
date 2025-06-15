@@ -1,6 +1,6 @@
 #include "cru/ui/controls/Container.h"
 
-#include "cru/platform/graphics/Factory.h"
+#include "cru/graphics/Factory.h"
 #include "cru/ui/render/BorderRenderObject.h"
 #include "cru/ui/render/RenderObject.h"
 

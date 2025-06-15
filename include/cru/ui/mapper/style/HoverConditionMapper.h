@@ -5,7 +5,7 @@
 
 namespace cru::ui::mapper::style {
 class CRU_UI_API HoverConditionMapper
-    : public BasicClonablePtrMapper<ui::style::HoverCondition>,
+    : public BasicCopyPtrMapper<ui::style::HoverCondition>,
       public virtual IConditionMapper {
  public:
   CRU_DEFAULT_CONSTRUCTOR_DESTRUCTOR(HoverConditionMapper)
@@ -14,13 +14,13 @@ class CRU_UI_API HoverConditionMapper
   bool SupportMapFromXml() override { return true; }
   bool XmlElementIsOfThisType(xml::XmlElementNode* node) override;
 
-  ClonablePtr<ui::style::Condition> MapConditionFromXml(
+  CopyPtr<ui::style::Condition> MapConditionFromXml(
       xml::XmlElementNode* node) override {
     return MapFromXml(node);
   }
 
  protected:
-  ClonablePtr<ui::style::HoverCondition> DoMapFromXml(
+  CopyPtr<ui::style::HoverCondition> DoMapFromXml(
       xml::XmlElementNode* node) override;
 };
 }  // namespace cru::ui::mapper::style

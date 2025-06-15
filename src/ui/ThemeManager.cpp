@@ -1,11 +1,11 @@
 #include "cru/ui/ThemeManager.h"
 
 #include "Helper.h"
-#include "cru/base/StringUtil.h"
-#include "cru/base/io/Resource.h"
-#include "cru/platform/graphics/Brush.h"
-#include "cru/platform/graphics/Factory.h"
-#include "cru/platform/gui/UiApplication.h"
+#include <cru/StringUtil.h>
+#include <cru/Resource.h>
+#include "cru/graphics/Brush.h"
+#include "cru/graphics/Factory.h"
+#include "cru/gui/UiApplication.h"
 #include "cru/ui/ThemeResourceDictionary.h"
 #include "cru/ui/style/StyleRuleSet.h"
 #include "cru/xml/XmlParser.h"
@@ -18,7 +18,7 @@ ThemeManager* ThemeManager::GetInstance() {
 
 ThemeManager::ThemeManager() {
   std::filesystem::path resourses_file =
-      cru::io::GetResourceDir() / "cru/ui/DefaultResources.xml";
+      cru::GetResourceDir() / "cru/ui/DefaultResources.xml";
 
   if (!std::filesystem::exists(resourses_file)) {
     throw Exception(u"Default resources file not found.");
@@ -52,14 +52,14 @@ String ThemeManager::GetResourceString(const String& key) {
   return GetResource<String>(key);
 }
 
-std::shared_ptr<platform::graphics::IBrush> ThemeManager::GetResourceBrush(
+std::shared_ptr<graphics::IBrush> ThemeManager::GetResourceBrush(
     const String& key) {
-  return GetResource<std::shared_ptr<platform::graphics::IBrush>>(key);
+  return GetResource<std::shared_ptr<graphics::IBrush>>(key);
 }
 
-std::shared_ptr<platform::graphics::IFont> ThemeManager::GetResourceFont(
+std::shared_ptr<graphics::IFont> ThemeManager::GetResourceFont(
     const String& key) {
-  return GetResource<std::shared_ptr<platform::graphics::IFont>>(key);
+  return GetResource<std::shared_ptr<graphics::IFont>>(key);
 }
 
 std::shared_ptr<style::StyleRuleSet> ThemeManager::GetResourceStyleRuleSet(

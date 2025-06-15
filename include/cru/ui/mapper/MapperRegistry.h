@@ -12,8 +12,6 @@ class CRU_UI_API MapperRegistry {
 
   MapperRegistry();
 
-  CRU_DELETE_COPY(MapperRegistry)
-  CRU_DELETE_MOVE(MapperRegistry)
 
   ~MapperRegistry();
 
@@ -35,8 +33,8 @@ class CRU_UI_API MapperRegistry {
   }
 
   template <typename T>
-  BasicClonablePtrMapper<T>* GetClonablePtrMapper() const {
-    return GetMapper<ClonablePtr<T>>();
+  BasicCopyPtrMapper<T>* GetCopyPtrMapper() const {
+    return GetMapper<CopyPtr<T>>();
   }
 
   template <typename T>

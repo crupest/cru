@@ -1,8 +1,8 @@
 #include "cru/ui/mapper/BrushMapper.h"
 #include "../Helper.h"
-#include "cru/platform/Color.h"
-#include "cru/platform/graphics/Brush.h"
-#include "cru/platform/graphics/Factory.h"
+#include "cru/graphics/Color.h"
+#include "cru/graphics/Brush.h"
+#include "cru/graphics/Factory.h"
 #include "cru/ui/mapper/ColorMapper.h"
 #include "cru/ui/mapper/MapperRegistry.h"
 #include "cru/xml/XmlNode.h"
@@ -16,7 +16,7 @@ bool BrushMapper::XmlElementIsOfThisType(xml::XmlElementNode* node) {
          node->GetTag().CaseInsensitiveEqual(u"Brush");
 }
 
-std::shared_ptr<platform::graphics::IBrush> BrushMapper::DoMapFromXml(
+std::shared_ptr<graphics::IBrush> BrushMapper::DoMapFromXml(
     xml::XmlElementNode* node) {
   auto color_mapper = MapperRegistry::GetInstance()->GetMapper<Color>();
 

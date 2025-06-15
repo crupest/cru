@@ -1,7 +1,7 @@
 #pragma once
 #include "StyleRule.h"
-#include "cru/base/Base.h"
-#include "cru/base/Event.h"
+#include <cru/Base.h>
+#include <cru/Event.h>
 #include "cru/ui/model/IListChangeNotify.h"
 
 #include <cstddef>
@@ -18,8 +18,6 @@ class CRU_UI_API StyleRuleSet : public Object, public model::IListChangeNotify {
   StyleRuleSet() = default;
   explicit StyleRuleSet(std::shared_ptr<StyleRuleSet> parent);
 
-  CRU_DELETE_COPY(StyleRuleSet)
-  CRU_DELETE_MOVE(StyleRuleSet)
 
   ~StyleRuleSet() override = default;
 
@@ -77,8 +75,6 @@ class CRU_UI_API StyleRuleSetBind {
   StyleRuleSetBind(controls::Control* control,
                    std::shared_ptr<StyleRuleSet> ruleset);
 
-  CRU_DELETE_COPY(StyleRuleSetBind)
-  CRU_DELETE_MOVE(StyleRuleSetBind)
 
   ~StyleRuleSetBind() = default;
 

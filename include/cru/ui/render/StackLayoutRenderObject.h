@@ -32,8 +32,6 @@ class CRU_UI_API StackLayoutRenderObject
 
  public:
   StackLayoutRenderObject() = default;
-  CRU_DELETE_COPY(StackLayoutRenderObject)
-  CRU_DELETE_MOVE(StackLayoutRenderObject)
   ~StackLayoutRenderObject() = default;
 
   String GetName() const override { return u"StackLayoutRenderObject"; }

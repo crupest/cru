@@ -1,6 +1,6 @@
 #include "ContentBrushStylerEditor.h"
-#include "cru/platform/graphics/Factory.h"
-#include "cru/platform/gui/UiApplication.h"
+#include "cru/graphics/Factory.h"
+#include "cru/gui/UiApplication.h"
 #include "cru/ui/style/Styler.h"
 
 namespace cru::theme_builder::components::stylers {
@@ -12,7 +12,7 @@ ContentBrushStylerEditor::ContentBrushStylerEditor() {
 
 ContentBrushStylerEditor::~ContentBrushStylerEditor() {}
 
-ClonablePtr<ui::style::ContentBrushStyler> ContentBrushStylerEditor::GetValue()
+CopyPtr<ui::style::ContentBrushStyler> ContentBrushStylerEditor::GetValue()
     const {
   return ui::style::ContentBrushStyler::Create(
       platform::gui::IUiApplication::GetInstance()
@@ -23,7 +23,7 @@ ClonablePtr<ui::style::ContentBrushStyler> ContentBrushStylerEditor::GetValue()
 void ContentBrushStylerEditor::SetValue(ui::style::ContentBrushStyler* value,
                                         bool trigger_change) {
   color_editor_.SetValue(
-      std::dynamic_pointer_cast<platform::graphics::ISolidColorBrush>(
+      std::dynamic_pointer_cast<graphics::ISolidColorBrush>(
           value->GetBrush())
           ->GetColor(),
       trigger_change);

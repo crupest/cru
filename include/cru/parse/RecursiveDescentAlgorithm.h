@@ -7,8 +7,6 @@ class CRU_PARSE_API RecursiveDescentAlgorithm : public ParsingAlgorithm {
  public:
   RecursiveDescentAlgorithm() = default;
 
-  CRU_DELETE_COPY(RecursiveDescentAlgorithm)
-  CRU_DELETE_MOVE(RecursiveDescentAlgorithm)
 
   ~RecursiveDescentAlgorithm() override = default;
 

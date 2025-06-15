@@ -1,14 +1,13 @@
 #include "cru/ui/render/ScrollBar.h"
 
 #include "../Helper.h"
-#include "cru/base/Base.h"
-#include "cru/platform/GraphicsBase.h"
-#include "cru/platform/graphics/Factory.h"
-#include "cru/platform/graphics/Geometry.h"
-#include "cru/platform/graphics/Painter.h"
-#include "cru/platform/graphics/util/Painter.h"
-#include "cru/platform/gui/Base.h"
-#include "cru/platform/gui/Cursor.h"
+#include <cru/Base.h>
+#include "cru/graphics/Factory.h"
+#include "cru/graphics/Geometry.h"
+#include "cru/graphics/Painter.h"
+#include "cru/graphics/util/Painter.h"
+#include "cru/gui/Base.h"
+#include "cru/gui/Cursor.h"
 #include "cru/ui/Base.h"
 #include "cru/ui/ThemeManager.h"
 #include "cru/ui/events/UiEvents.h"
@@ -74,7 +73,7 @@ String GenerateScrollBarThemeColorKey(ScrollBarBrushUsageKind usage,
 }
 
 namespace {
-std::unique_ptr<platform::graphics::IGeometry> CreateScrollBarArrowGeometry() {
+std::unique_ptr<graphics::IGeometry> CreateScrollBarArrowGeometry() {
   auto geometry_builder = GetGraphicsFactory()->CreateGeometryBuilder();
   geometry_builder->MoveTo({-kScrollBarArrowHeight / 2, 0});
   geometry_builder->LineTo({kScrollBarArrowHeight / 2, kScrollBarArrowHeight});
@@ -110,7 +109,7 @@ void ScrollBar::SetExpanded(bool value) {
   render_object_->InvalidatePaint();
 }
 
-void ScrollBar::Draw(platform::graphics::IPainter* painter) {
+void ScrollBar::Draw(graphics::IPainter* painter) {
   if (is_enabled_) {
     OnDraw(painter, is_expanded_);
   }
@@ -259,7 +258,7 @@ void ScrollBar::InstallHandlers(controls::Control* control) {
   }
 }
 
-std::shared_ptr<platform::graphics::IBrush>
+std::shared_ptr<graphics::IBrush>
 ScrollBar::GetCollapsedThumbBrush() {
   return collapsed_thumb_brush_ ? collapsed_thumb_brush_
                                 : ThemeManager::GetInstance()->GetResourceBrush(
@@ -267,13 +266,13 @@ ScrollBar::GetCollapsedThumbBrush() {
 }
 
 void ScrollBar::SetCollapsedThumbBrush(
-    std::shared_ptr<platform::graphics::IBrush> brush) {
+    std::shared_ptr<graphics::IBrush> brush) {
   if (brush == collapsed_thumb_brush_) return;
   collapsed_thumb_brush_ = std::move(brush);
   render_object_->InvalidatePaint();
 }
 
-std::shared_ptr<platform::graphics::IBrush> ScrollBar::GetBrush(
+std::shared_ptr<graphics::IBrush> ScrollBar::GetBrush(
     ScrollBarBrushUsageKind usage, ScrollBarBrushStateKind state) {
   auto b = brushes_[usage][state];
   return b ? b
@@ -284,13 +283,13 @@ std::shared_ptr<platform::graphics::IBrush> ScrollBar::GetBrush(
 // Brush could be nullptr to use the theme brush.
 void ScrollBar::SetBrush(ScrollBarBrushUsageKind usage,
                          ScrollBarBrushStateKind state,
-                         std::shared_ptr<platform::graphics::IBrush> brush) {
+                         std::shared_ptr<graphics::IBrush> brush) {
   if (brushes_[usage][state] == brush) return;
   brushes_[usage][state] = std::move(brush);
   render_object_->InvalidatePaint();
 }
 
-void ScrollBar::OnDraw(platform::graphics::IPainter* painter,
+void ScrollBar::OnDraw(graphics::IPainter* painter,
                        bool is_expanded) {
   if (is_expanded) {
     auto thumb_rect = GetExpandedAreaRect(ScrollBarAreaKind::Thumb);
@@ -414,27 +413,27 @@ HorizontalScrollBar::HorizontalScrollBar(ScrollRenderObject* render_object)
     : ScrollBar(render_object, Direction::Horizontal) {}
 
 void HorizontalScrollBar::DrawUpArrow(
-    platform::graphics::IPainter* painter, const Rect& area,
-    platform::graphics::IBrush* arrow_brush,
-    platform::graphics::IBrush* background_brush) {
+    graphics::IPainter* painter, const Rect& area,
+    graphics::IBrush* arrow_brush,
+    graphics::IBrush* background_brush) {
   painter->FillRectangle(area, background_brush);
 
-  platform::graphics::util::WithTransform(
+  graphics::util::WithTransform(
       painter, Matrix::Translation(area.GetCenter()),
-      [this, arrow_brush](platform::graphics::IPainter* painter) {
+      [this, arrow_brush](graphics::IPainter* painter) {
         painter->FillGeometry(arrow_geometry_.get(), arrow_brush);
       });
 }
 
 void HorizontalScrollBar::DrawDownArrow(
-    platform::graphics::IPainter* painter, const Rect& area,
-    platform::graphics::IBrush* arrow_brush,
-    platform::graphics::IBrush* background_brush) {
+    graphics::IPainter* painter, const Rect& area,
+    graphics::IBrush* arrow_brush,
+    graphics::IBrush* background_brush) {
   painter->FillRectangle(area, background_brush);
 
-  platform::graphics::util::WithTransform(
+  graphics::util::WithTransform(
       painter, Matrix::Rotation(180) * Matrix::Translation(area.GetCenter()),
-      [this, arrow_brush](platform::graphics::IPainter* painter) {
+      [this, arrow_brush](graphics::IPainter* painter) {
         painter->FillGeometry(arrow_geometry_.get(), arrow_brush);
       });
 }
@@ -562,27 +561,27 @@ VerticalScrollBar::VerticalScrollBar(ScrollRenderObject* render_object)
     : ScrollBar(render_object, Direction::Vertical) {}
 
 void VerticalScrollBar::DrawUpArrow(
-    platform::graphics::IPainter* painter, const Rect& area,
-    platform::graphics::IBrush* arrow_brush,
-    platform::graphics::IBrush* background_brush) {
+    graphics::IPainter* painter, const Rect& area,
+    graphics::IBrush* arrow_brush,
+    graphics::IBrush* background_brush) {
   painter->FillRectangle(area, background_brush);
 
-  platform::graphics::util::WithTransform(
+  graphics::util::WithTransform(
       painter, Matrix::Rotation(90) * Matrix::Translation(area.GetCenter()),
-      [this, arrow_brush](platform::graphics::IPainter* painter) {
+      [this, arrow_brush](graphics::IPainter* painter) {
         painter->FillGeometry(arrow_geometry_.get(), arrow_brush);
       });
 }
 
 void VerticalScrollBar::DrawDownArrow(
-    platform::graphics::IPainter* painter, const Rect& area,
-    platform::graphics::IBrush* arrow_brush,
-    platform::graphics::IBrush* background_brush) {
+    graphics::IPainter* painter, const Rect& area,
+    graphics::IBrush* arrow_brush,
+    graphics::IBrush* background_brush) {
   painter->FillRectangle(area, background_brush);
 
-  platform::graphics::util::WithTransform(
+  graphics::util::WithTransform(
       painter, Matrix::Rotation(270) * Matrix::Translation(area.GetCenter()),
-      [this, arrow_brush](platform::graphics::IPainter* painter) {
+      [this, arrow_brush](graphics::IPainter* painter) {
         painter->FillGeometry(arrow_geometry_.get(), arrow_brush);
       });
 }
@@ -714,7 +713,7 @@ ScrollBarDelegate::ScrollBarDelegate(ScrollRenderObject* render_object)
       [this](auto scroll) { this->scroll_attempt_event_.Raise(scroll); });
 }
 
-void ScrollBarDelegate::DrawScrollBar(platform::graphics::IPainter* painter) {
+void ScrollBarDelegate::DrawScrollBar(graphics::IPainter* painter) {
   horizontal_bar_.Draw(painter);
   vertical_bar_.Draw(painter);
 }

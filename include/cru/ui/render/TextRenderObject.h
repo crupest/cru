@@ -25,10 +25,10 @@ class CRU_UI_API TextRenderObject : public RenderObject {
   constexpr static float default_caret_width = 2;
 
  public:
-  TextRenderObject(std::shared_ptr<platform::graphics::IBrush> brush,
-                   std::shared_ptr<platform::graphics::IFont> font,
-                   std::shared_ptr<platform::graphics::IBrush> selection_brush,
-                   std::shared_ptr<platform::graphics::IBrush> caret_brush);
+  TextRenderObject(std::shared_ptr<graphics::IBrush> brush,
+                   std::shared_ptr<graphics::IFont> font,
+                   std::shared_ptr<graphics::IBrush> selection_brush,
+                   std::shared_ptr<graphics::IBrush> caret_brush);
   TextRenderObject(const TextRenderObject& other) = delete;
   TextRenderObject(TextRenderObject&& other) = delete;
   TextRenderObject& operator=(const TextRenderObject& other) = delete;
@@ -38,11 +38,11 @@ class CRU_UI_API TextRenderObject : public RenderObject {
   String GetText() const;
   void SetText(String new_text);
 
-  std::shared_ptr<platform::graphics::IBrush> GetBrush() { return brush_; }
-  void SetBrush(std::shared_ptr<platform::graphics::IBrush> new_brush);
+  std::shared_ptr<graphics::IBrush> GetBrush() { return brush_; }
+  void SetBrush(std::shared_ptr<graphics::IBrush> new_brush);
 
-  std::shared_ptr<platform::graphics::IFont> GetFont() const;
-  void SetFont(std::shared_ptr<platform::graphics::IFont> font);
+  std::shared_ptr<graphics::IFont> GetFont() const;
+  void SetFont(std::shared_ptr<graphics::IFont> font);
 
   bool IsEditMode();
   void SetEditMode(bool enable);
@@ -52,17 +52,17 @@ class CRU_UI_API TextRenderObject : public RenderObject {
   float GetLineHeight(Index line_index);
   std::vector<Rect> TextRangeRect(const TextRange& text_range);
   Rect TextSinglePoint(Index position, bool trailing);
-  platform::graphics::TextHitTestResult TextHitTest(const Point& point);
+  graphics::TextHitTestResult TextHitTest(const Point& point);
 
   std::optional<TextRange> GetSelectionRange() const {
     return selection_range_;
   }
   void SetSelectionRange(std::optional<TextRange> new_range);
 
-  std::shared_ptr<platform::graphics::IBrush> GetSelectionBrush() const {
+  std::shared_ptr<graphics::IBrush> GetSelectionBrush() const {
     return selection_brush_;
   }
-  void SetSelectionBrush(std::shared_ptr<platform::graphics::IBrush> new_brush);
+  void SetSelectionBrush(std::shared_ptr<graphics::IBrush> new_brush);
 
   bool IsDrawCaret() const { return draw_caret_; }
   void SetDrawCaret(bool draw_caret);
@@ -78,10 +78,10 @@ class CRU_UI_API TextRenderObject : public RenderObject {
   // Lefttop relative to render object lefttop.
   Rect GetCaretRect();
 
-  std::shared_ptr<platform::graphics::IBrush> GetCaretBrush() const {
+  std::shared_ptr<graphics::IBrush> GetCaretBrush() const {
     return caret_brush_;
   }
-  void GetCaretBrush(std::shared_ptr<platform::graphics::IBrush> brush);
+  void GetCaretBrush(std::shared_ptr<graphics::IBrush> brush);
 
   float GetCaretWidth() const { return caret_width_; }
   void SetCaretWidth(float width);
@@ -95,7 +95,7 @@ class CRU_UI_API TextRenderObject : public RenderObject {
 
   String GetName() const override { return u"TextRenderObject"; }
 
-  void Draw(platform::graphics::IPainter* painter) override;
+  void Draw(graphics::IPainter* painter) override;
 
  protected:
   // See remarks of this class.
@@ -107,16 +107,16 @@ class CRU_UI_API TextRenderObject : public RenderObject {
   void OnLayoutContent(const Rect& content_rect) override;
 
  private:
-  std::shared_ptr<platform::graphics::IBrush> brush_;
-  std::shared_ptr<platform::graphics::IFont> font_;
-  std::unique_ptr<platform::graphics::ITextLayout> text_layout_;
+  std::shared_ptr<graphics::IBrush> brush_;
+  std::shared_ptr<graphics::IFont> font_;
+  std::unique_ptr<graphics::ITextLayout> text_layout_;
 
   std::optional<TextRange> selection_range_ = std::nullopt;
-  std::shared_ptr<platform::graphics::IBrush> selection_brush_;
+  std::shared_ptr<graphics::IBrush> selection_brush_;
 
   bool draw_caret_ = false;
   Index caret_position_ = 0;
-  std::shared_ptr<platform::graphics::IBrush> caret_brush_;
+  std::shared_ptr<graphics::IBrush> caret_brush_;
   float caret_width_ = default_caret_width;
 
   bool is_measure_including_trailing_space_ = false;

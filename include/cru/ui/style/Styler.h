@@ -1,9 +1,9 @@
 #pragma once
 #include "../Base.h"
 #include "ApplyBorderStyleInfo.h"
-#include "cru/base/ClonablePtr.h"
-#include "cru/platform/graphics/Brush.h"
-#include "cru/platform/gui/Cursor.h"
+#include <cru/CopyPtr.h>
+#include "cru/graphics/Brush.h"
+#include "cru/gui/Cursor.h"
 #include "cru/ui/render/MeasureRequirement.h"
 
 #include <memory>
@@ -12,7 +12,7 @@
 namespace cru::ui::style {
 /**
  * \brief The base class for all styler implementations.
- * \remarks Styler should be immutable. And we use cru::ClonablePtr to wrap it
+ * \remarks Styler should be immutable. And we use cru::CopyPtr to wrap it
  * in order to get both polymorphic and value semantics.
  */
 class CRU_UI_API Styler : public Object {
@@ -25,17 +25,17 @@ class CRU_UI_API Styler : public Object {
 class CRU_UI_API CompoundStyler : public Styler {
  public:
   template <typename... S>
-  static ClonablePtr<CompoundStyler> Create(ClonablePtr<S>... s) {
-    return ClonablePtr<CompoundStyler>(
-        new CompoundStyler(std::vector<ClonablePtr<Styler>>{std::move(s)...}));
+  static CopyPtr<CompoundStyler> Create(CopyPtr<S>... s) {
+    return CopyPtr<CompoundStyler>(
+        new CompoundStyler(std::vector<CopyPtr<Styler>>{std::move(s)...}));
   }
 
-  static ClonablePtr<CompoundStyler> Create(
-      std::vector<ClonablePtr<Styler>> stylers) {
-    return ClonablePtr<CompoundStyler>(new CompoundStyler(std::move(stylers)));
+  static CopyPtr<CompoundStyler> Create(
+      std::vector<CopyPtr<Styler>> stylers) {
+    return CopyPtr<CompoundStyler>(new CompoundStyler(std::move(stylers)));
   }
 
-  explicit CompoundStyler(std::vector<ClonablePtr<Styler>> stylers)
+  explicit CompoundStyler(std::vector<CopyPtr<Styler>> stylers)
       : stylers_(std::move(stylers)) {}
 
   void Apply(controls::Control* control) const override {
@@ -44,24 +44,24 @@ class CRU_UI_API CompoundStyler : public Styler {
     }
   }
 
-  std::vector<ClonablePtr<Styler>> GetChildren() const { return stylers_; }
+  std::vector<CopyPtr<Styler>> GetChildren() const { return stylers_; }
 
   virtual CompoundStyler* Clone() const override {
     return new CompoundStyler(stylers_);
   }
 
  private:
-  std::vector<ClonablePtr<Styler>> stylers_;
+  std::vector<CopyPtr<Styler>> stylers_;
 };
 
 class CRU_UI_API BorderStyler : public Styler {
  public:
-  static ClonablePtr<BorderStyler> Create() {
-    return ClonablePtr<BorderStyler>(new BorderStyler());
+  static CopyPtr<BorderStyler> Create() {
+    return CopyPtr<BorderStyler>(new BorderStyler());
   }
 
-  static ClonablePtr<BorderStyler> Create(ApplyBorderStyleInfo style) {
-    return ClonablePtr<BorderStyler>(new BorderStyler(std::move(style)));
+  static CopyPtr<BorderStyler> Create(ApplyBorderStyleInfo style) {
+    return CopyPtr<BorderStyler>(new BorderStyler(std::move(style)));
   }
 
   BorderStyler() = default;
@@ -79,12 +79,12 @@ class CRU_UI_API BorderStyler : public Styler {
 
 class CRU_UI_API CursorStyler : public Styler {
  public:
-  static ClonablePtr<CursorStyler> Create(
+  static CopyPtr<CursorStyler> Create(
       std::shared_ptr<platform::gui::ICursor> cursor) {
-    return ClonablePtr<CursorStyler>(new CursorStyler(std::move(cursor)));
+    return CopyPtr<CursorStyler>(new CursorStyler(std::move(cursor)));
   }
 
-  static ClonablePtr<CursorStyler> Create(platform::gui::SystemCursorType type);
+  static CopyPtr<CursorStyler> Create(platform::gui::SystemCursorType type);
 
   explicit CursorStyler(std::shared_ptr<platform::gui::ICursor> cursor)
       : cursor_(std::move(cursor)) {}
@@ -101,8 +101,8 @@ class CRU_UI_API CursorStyler : public Styler {
 
 class CRU_UI_API PreferredSizeStyler : public Styler {
  public:
-  static ClonablePtr<PreferredSizeStyler> Create(render::MeasureSize size) {
-    return ClonablePtr<PreferredSizeStyler>(new PreferredSizeStyler(size));
+  static CopyPtr<PreferredSizeStyler> Create(render::MeasureSize size) {
+    return CopyPtr<PreferredSizeStyler>(new PreferredSizeStyler(size));
   }
 
   explicit PreferredSizeStyler(render::MeasureSize size) : size_(size) {}
@@ -121,8 +121,8 @@ class CRU_UI_API PreferredSizeStyler : public Styler {
 
 class CRU_UI_API MarginStyler : public Styler {
  public:
-  static ClonablePtr<MarginStyler> Create(const Thickness& margin) {
-    return ClonablePtr<MarginStyler>(new MarginStyler(margin));
+  static CopyPtr<MarginStyler> Create(const Thickness& margin) {
+    return CopyPtr<MarginStyler>(new MarginStyler(margin));
   }
 
   explicit MarginStyler(const Thickness& margin) : margin_(margin) {}
@@ -139,8 +139,8 @@ class CRU_UI_API MarginStyler : public Styler {
 
 class CRU_UI_API PaddingStyler : public Styler {
  public:
-  static ClonablePtr<PaddingStyler> Create(const Thickness& padding) {
-    return ClonablePtr<PaddingStyler>(new PaddingStyler(padding));
+  static CopyPtr<PaddingStyler> Create(const Thickness& padding) {
+    return CopyPtr<PaddingStyler>(new PaddingStyler(padding));
   }
 
   explicit PaddingStyler(const Thickness& padding) : padding_(padding) {}
@@ -157,13 +157,13 @@ class CRU_UI_API PaddingStyler : public Styler {
 
 class CRU_UI_API ContentBrushStyler : public Styler {
  public:
-  static ClonablePtr<ContentBrushStyler> Create(
-      std::shared_ptr<platform::graphics::IBrush> brush) {
-    return ClonablePtr<ContentBrushStyler>(
+  static CopyPtr<ContentBrushStyler> Create(
+      std::shared_ptr<graphics::IBrush> brush) {
+    return CopyPtr<ContentBrushStyler>(
         new ContentBrushStyler(std::move(brush)));
   }
 
-  explicit ContentBrushStyler(std::shared_ptr<platform::graphics::IBrush> brush)
+  explicit ContentBrushStyler(std::shared_ptr<graphics::IBrush> brush)
       : brush_(std::move(brush)) {}
 
   void Apply(controls::Control* control) const override;
@@ -172,31 +172,31 @@ class CRU_UI_API ContentBrushStyler : public Styler {
     return new ContentBrushStyler(brush_);
   }
 
-  std::shared_ptr<platform::graphics::IBrush> GetBrush() const {
+  std::shared_ptr<graphics::IBrush> GetBrush() const {
     return brush_;
   }
 
  private:
-  std::shared_ptr<platform::graphics::IBrush> brush_;
+  std::shared_ptr<graphics::IBrush> brush_;
 };
 
 class CRU_UI_API FontStyler : public Styler {
  public:
-  static ClonablePtr<FontStyler> Create(
-      std::shared_ptr<platform::graphics::IFont> font) {
-    return ClonablePtr<FontStyler>(new FontStyler(std::move(font)));
+  static CopyPtr<FontStyler> Create(
+      std::shared_ptr<graphics::IFont> font) {
+    return CopyPtr<FontStyler>(new FontStyler(std::move(font)));
   }
 
-  explicit FontStyler(std::shared_ptr<platform::graphics::IFont> font)
+  explicit FontStyler(std::shared_ptr<graphics::IFont> font)
       : font_(std::move(font)) {}
 
   void Apply(controls::Control* control) const override;
 
   FontStyler* Clone() const override { return new FontStyler(font_); }
 
-  std::shared_ptr<platform::graphics::IFont> GetFont() const { return font_; }
+  std::shared_ptr<graphics::IFont> GetFont() const { return font_; }
 
  private:
-  std::shared_ptr<platform::graphics::IFont> font_;
+  std::shared_ptr<graphics::IFont> font_;
 };
 }  // namespace cru::ui::style

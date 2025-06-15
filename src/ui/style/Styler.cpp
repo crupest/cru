@@ -1,9 +1,9 @@
 #include "cru/ui/style/Styler.h"
 
 #include "../Helper.h"
-#include "cru/base/ClonablePtr.h"
-#include "cru/platform/gui/Cursor.h"
-#include "cru/platform/gui/UiApplication.h"
+#include <cru/CopyPtr.h>
+#include "cru/gui/Cursor.h"
+#include "cru/gui/UiApplication.h"
 #include "cru/ui/controls/Control.h"
 #include "cru/ui/controls/IBorderControl.h"
 #include "cru/ui/controls/IContentBrushControl.h"
@@ -20,7 +20,7 @@ void BorderStyler::Apply(controls::Control *control) const {
   }
 }
 
-ClonablePtr<CursorStyler> CursorStyler::Create(
+CopyPtr<CursorStyler> CursorStyler::Create(
     platform::gui::SystemCursorType type) {
   return Create(GetUiApplication()->GetCursorManager()->GetSystemCursor(type));
 }

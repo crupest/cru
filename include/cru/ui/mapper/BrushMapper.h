@@ -1,11 +1,11 @@
 #pragma once
 #include "Mapper.h"
-#include "cru/base/Base.h"
-#include "cru/platform/graphics/Brush.h"
+#include <cru/Base.h>
+#include "cru/graphics/Brush.h"
 #include "cru/xml/XmlNode.h"
 
 namespace cru::ui::mapper {
-class BrushMapper : public BasicSharedPtrMapper<platform::graphics::IBrush> {
+class BrushMapper : public BasicSharedPtrMapper<graphics::IBrush> {
  public:
   CRU_DEFAULT_CONSTRUCTOR_DESTRUCTOR(BrushMapper)
 
@@ -14,7 +14,7 @@ class BrushMapper : public BasicSharedPtrMapper<platform::graphics::IBrush> {
   bool XmlElementIsOfThisType(xml::XmlElementNode* node) override;
 
  protected:
-  std::shared_ptr<platform::graphics::IBrush> DoMapFromXml(
+  std::shared_ptr<graphics::IBrush> DoMapFromXml(
       xml::XmlElementNode* node) override;
 };
 }  // namespace cru::ui::mapper

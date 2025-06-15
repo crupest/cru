@@ -1,6 +1,6 @@
 #include "cru/ui/mapper/style/ClickStateConditionMapper.h"
-#include "cru/base/ClonablePtr.h"
-#include "cru/base/Exception.h"
+#include <cru/CopyPtr.h>
+#include <cru/Exception.h>
 #include "cru/ui/helper/ClickDetector.h"
 #include "cru/ui/style/Condition.h"
 
@@ -10,7 +10,7 @@ bool ClickStateConditionMapper::XmlElementIsOfThisType(
   return node->GetTag().CaseInsensitiveEqual(u"ClickStateCondition");
 }
 
-ClonablePtr<ui::style::ClickStateCondition>
+CopyPtr<ui::style::ClickStateCondition>
 ClickStateConditionMapper::DoMapFromXml(xml::XmlElementNode *node) {
   auto state = helper::ClickState::None;
   auto value_attr = node->GetOptionalAttributeValueCaseInsensitive(u"value");

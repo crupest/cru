@@ -1,6 +1,6 @@
 #pragma once
 #include "Base.h"
-#include "cru/base/Event.h"
+#include <cru/Event.h>
 #include "cru/ui/ThemeResourceDictionary.h"
 
 #include <vector>
@@ -15,8 +15,6 @@ class CRU_UI_API ThemeManager : public Object {
   ThemeManager();
 
  public:
-  CRU_DELETE_COPY(ThemeManager)
-  CRU_DELETE_MOVE(ThemeManager)
 
   ~ThemeManager() override;
 
@@ -39,10 +37,10 @@ class CRU_UI_API ThemeManager : public Object {
 
   String GetResourceString(const String& key);
 
-  std::shared_ptr<platform::graphics::IBrush> GetResourceBrush(
+  std::shared_ptr<graphics::IBrush> GetResourceBrush(
       const String& key);
 
-  std::shared_ptr<platform::graphics::IFont> GetResourceFont(const String& key);
+  std::shared_ptr<graphics::IFont> GetResourceFont(const String& key);
 
   std::shared_ptr<style::StyleRuleSet> GetResourceStyleRuleSet(
       const String& key);

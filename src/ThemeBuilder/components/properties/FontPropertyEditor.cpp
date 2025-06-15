@@ -1,7 +1,7 @@
 #include "FontPropertyEditor.h"
-#include "cru/platform/graphics/Factory.h"
-#include "cru/platform/graphics/Font.h"
-#include "cru/platform/gui/UiApplication.h"
+#include "cru/graphics/Factory.h"
+#include "cru/graphics/Font.h"
+#include "cru/gui/UiApplication.h"
 #include "cru/ui/controls/FlexLayout.h"
 #include "cru/ui/render/FlexLayoutRenderObject.h"
 
@@ -39,7 +39,7 @@ FontPropertyEditor::~FontPropertyEditor() {}
 
 Control* FontPropertyEditor::GetRootControl() { return &main_container_; }
 
-std::shared_ptr<platform::graphics::IFont> FontPropertyEditor::GetValue()
+std::shared_ptr<graphics::IFont> FontPropertyEditor::GetValue()
     const {
   return platform::gui::IUiApplication::GetInstance()
       ->GetGraphicsFactory()
@@ -47,7 +47,7 @@ std::shared_ptr<platform::graphics::IFont> FontPropertyEditor::GetValue()
 }
 
 void FontPropertyEditor::SetValue(
-    std::shared_ptr<platform::graphics::IFont> value, bool trigger_change) {
+    std::shared_ptr<graphics::IFont> value, bool trigger_change) {
   SuppressNextChangeEvent();
   font_family_text_.SetText(value->GetFontName());
   SuppressNextChangeEvent();

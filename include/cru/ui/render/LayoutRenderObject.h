@@ -1,7 +1,7 @@
 #pragma once
 #include "RenderObject.h"
 
-#include "cru/platform/graphics/Painter.h"
+#include "cru/graphics/Painter.h"
 
 namespace cru::ui::render {
 template <typename TChildLayoutData>
@@ -19,8 +19,6 @@ class LayoutRenderObject : public RenderObject {
   LayoutRenderObject() = default;
 
  public:
-  CRU_DELETE_COPY(LayoutRenderObject)
-  CRU_DELETE_MOVE(LayoutRenderObject)
 
   ~LayoutRenderObject() override = default;
 
@@ -64,7 +62,7 @@ class LayoutRenderObject : public RenderObject {
     InvalidateLayout();
   }
 
-  void Draw(platform::graphics::IPainter* painter) override {
+  void Draw(graphics::IPainter* painter) override {
     for (const auto& child : children_) {
       painter->PushState();
       painter->ConcatTransform(

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "cru/base/Exception.h"
+#include <cru/Exception.h>
 #include "cru/toml/TomlDocument.h"
 
 #include <optional>
@@ -16,8 +16,6 @@ class CRU_TOML_API TomlParser {
  public:
   explicit TomlParser(String input);
 
-  CRU_DELETE_COPY(TomlParser)
-  CRU_DELETE_MOVE(TomlParser)
 
   ~TomlParser();
 

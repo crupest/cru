@@ -10,8 +10,6 @@ class CRU_UI_API ScrollView
   static constexpr StringView kControlType = u"ScrollView";
 
   ScrollView();
-  CRU_DELETE_COPY(ScrollView)
-  CRU_DELETE_MOVE(ScrollView)
   ~ScrollView() override;
 
  public:

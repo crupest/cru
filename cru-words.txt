@@ -2,6 +2,13 @@ emscripten
 clangd
 IWYU
 
+harfbuzz
+glibconfig
+gobject
+cairo
+pango
+pangocairo
+
 # cmake
 endfunction
 

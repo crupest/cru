@@ -14,8 +14,6 @@ class CRU_PARSE_API ParsingAlgorithmContext {
  public:
   ParsingAlgorithmContext(Grammar* grammar, const ParsingAlgorithm* algorithm);
 
-  CRU_DELETE_COPY(ParsingAlgorithmContext)
-  CRU_DELETE_MOVE(ParsingAlgorithmContext)
 
   virtual ~ParsingAlgorithmContext();
 

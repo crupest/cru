@@ -1,6 +1,6 @@
 #pragma once
 #include "../Editor.h"
-#include "cru/platform/graphics/Font.h"
+#include "cru/graphics/Font.h"
 #include "cru/ui/components/Input.h"
 #include "cru/ui/controls/Control.h"
 #include "cru/ui/controls/FlexLayout.h"
@@ -10,7 +10,7 @@
 namespace cru::theme_builder::components::properties {
 class FontPropertyEditor : public Editor {
  public:
-  using PropertyType = std::shared_ptr<platform::graphics::IFont>;
+  using PropertyType = std::shared_ptr<graphics::IFont>;
 
   FontPropertyEditor();
   ~FontPropertyEditor() override;
@@ -20,8 +20,8 @@ class FontPropertyEditor : public Editor {
   String GetLabelText() const { return label_.GetText(); }
   void SetLabelText(String label) { label_.SetText(std::move(label)); }
 
-  std::shared_ptr<platform::graphics::IFont> GetValue() const;
-  void SetValue(std::shared_ptr<platform::graphics::IFont> value,
+  std::shared_ptr<graphics::IFont> GetValue() const;
+  void SetValue(std::shared_ptr<graphics::IFont> value,
                 bool trigger_change = true);
 
  private:

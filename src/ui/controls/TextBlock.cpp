@@ -1,8 +1,8 @@
 #include "cru/ui/controls/TextBlock.h"
 
 #include "../Helper.h"
-#include "cru/platform/graphics/Factory.h"
-#include "cru/platform/gui/UiApplication.h"
+#include "cru/graphics/Factory.h"
+#include "cru/gui/UiApplication.h"
 #include "cru/ui/ThemeManager.h"
 #include "cru/ui/render/CanvasRenderObject.h"
 #include "cru/ui/render/StackLayoutRenderObject.h"

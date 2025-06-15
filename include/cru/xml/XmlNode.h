@@ -2,7 +2,7 @@
 
 #include "Base.h"
 
-#include "cru/base/String.h"
+#include <cru/String.h>
 
 #include <algorithm>
 #include <optional>
@@ -24,8 +24,6 @@ class CRU_XML_API XmlNode {
   explicit XmlNode(Type type) : type_(type) {}
 
  public:
-  CRU_DELETE_COPY(XmlNode)
-  CRU_DELETE_MOVE(XmlNode)
 
   virtual ~XmlNode() = default;
 
@@ -56,8 +54,6 @@ class CRU_XML_API XmlTextNode : public XmlNode {
   explicit XmlTextNode(String text)
       : XmlNode(Type::Text), text_(std::move(text)) {}
 
-  CRU_DELETE_COPY(XmlTextNode)
-  CRU_DELETE_MOVE(XmlTextNode)
 
   ~XmlTextNode() override = default;
 
@@ -80,8 +76,6 @@ class CRU_XML_API XmlElementNode : public XmlNode {
         tag_(std::move(tag)),
         attributes_(std::move(attributes)) {}
 
-  CRU_DELETE_COPY(XmlElementNode)
-  CRU_DELETE_MOVE(XmlElementNode)
 
   ~XmlElementNode() override;
 
@@ -144,8 +138,6 @@ class CRU_XML_API XmlCommentNode : public XmlNode {
   explicit XmlCommentNode(String text)
       : XmlNode(Type::Comment), text_(std::move(text)) {}
 
-  CRU_DELETE_COPY(XmlCommentNode)
-  CRU_DELETE_MOVE(XmlCommentNode)
 
   ~XmlCommentNode() override;
 

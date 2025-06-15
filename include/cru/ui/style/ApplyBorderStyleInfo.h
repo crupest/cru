@@ -8,12 +8,12 @@ struct CRU_UI_API ApplyBorderStyleInfo {
   ApplyBorderStyleInfo() = default;
 
   explicit ApplyBorderStyleInfo(
-      std::optional<std::shared_ptr<platform::graphics::IBrush>> border_brush,
+      std::optional<std::shared_ptr<graphics::IBrush>> border_brush,
       std::optional<Thickness> border_thickness = std::nullopt,
       std::optional<CornerRadius> border_radius = std::nullopt,
-      std::optional<std::shared_ptr<platform::graphics::IBrush>>
+      std::optional<std::shared_ptr<graphics::IBrush>>
           foreground_brush = std::nullopt,
-      std::optional<std::shared_ptr<platform::graphics::IBrush>>
+      std::optional<std::shared_ptr<graphics::IBrush>>
           background_brush = std::nullopt)
       : border_brush(std::move(border_brush)),
         border_thickness(std::move(border_thickness)),
@@ -21,10 +21,10 @@ struct CRU_UI_API ApplyBorderStyleInfo {
         foreground_brush(std::move(foreground_brush)),
         background_brush(std::move(background_brush)) {}
 
-  std::optional<std::shared_ptr<platform::graphics::IBrush>> border_brush;
+  std::optional<std::shared_ptr<graphics::IBrush>> border_brush;
   std::optional<Thickness> border_thickness;
   std::optional<CornerRadius> border_radius;
-  std::optional<std::shared_ptr<platform::graphics::IBrush>> foreground_brush;
-  std::optional<std::shared_ptr<platform::graphics::IBrush>> background_brush;
+  std::optional<std::shared_ptr<graphics::IBrush>> foreground_brush;
+  std::optional<std::shared_ptr<graphics::IBrush>> background_brush;
 };
 }  // namespace cru::ui::style

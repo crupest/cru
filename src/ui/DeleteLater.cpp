@@ -1,7 +1,7 @@
 #include "cru/ui/DeleteLater.h"
 
 #include "Helper.h"
-#include "cru/platform/gui/UiApplication.h"
+#include "cru/gui/UiApplication.h"
 
 namespace cru::ui {
 DeleteLaterImpl::~DeleteLaterImpl() {}

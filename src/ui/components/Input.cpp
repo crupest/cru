@@ -1,7 +1,7 @@
 #include "cru/ui/components/Input.h"
 #include <cmath>
 #include <optional>
-#include "cru/base/StringToNumberConverter.h"
+#include <cru/StringToNumberConverter.h>
 #include "cru/ui/controls/Control.h"
 
 namespace cru::ui::components {

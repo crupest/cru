@@ -1,7 +1,7 @@
 #pragma once
 #include "Base.h"
 
-#include "cru/base/Base.h"
+#include <cru/Base.h>
 #include "cru/xml/XmlNode.h"
 #include "mapper/MapperRegistry.h"
 #include "style/StyleRuleSet.h"
@@ -36,8 +36,6 @@ class CRU_UI_API ThemeResourceDictionary : public Object {
   explicit ThemeResourceDictionary(xml::XmlElementNode* xml_root,
                                    bool clone = true);
 
-  CRU_DELETE_COPY(ThemeResourceDictionary)
-  CRU_DELETE_MOVE(ThemeResourceDictionary)
 
   ~ThemeResourceDictionary() override;
 

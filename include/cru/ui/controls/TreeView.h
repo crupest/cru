@@ -14,8 +14,6 @@ class CRU_UI_API TreeViewItem : public Object {
   ~TreeViewItem() override;
 
  public:
-  CRU_DELETE_COPY(TreeViewItem)
-  CRU_DELETE_MOVE(TreeViewItem)
 
   TreeView* GetTreeView() { return tree_view_; }
   TreeViewItem* GetParent() { return parent_; }
@@ -55,8 +53,6 @@ class CRU_UI_API TreeView : public Control {
   constexpr static StringView kControlType = u"TreeView";
 
   TreeView();
-  CRU_DELETE_COPY(TreeView)
-  CRU_DELETE_MOVE(TreeView)
   ~TreeView() override;
 
   String GetControlType() const override { return kControlType.ToString(); }

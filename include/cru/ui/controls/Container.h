@@ -12,8 +12,6 @@ class CRU_UI_API Container
 
  public:
   Container();
-  CRU_DELETE_COPY(Container)
-  CRU_DELETE_MOVE(Container)
 
   ~Container() override;
 
@@ -25,19 +23,19 @@ class CRU_UI_API Container
     GetContainerRenderObject()->SetBorderEnabled(enabled);
   }
 
-  std::shared_ptr<platform::graphics::IBrush> GetForegroundBrush() const {
+  std::shared_ptr<graphics::IBrush> GetForegroundBrush() const {
     return GetContainerRenderObject()->GetForegroundBrush();
   }
   void SetForegroundBrush(
-      const std::shared_ptr<platform::graphics::IBrush>& brush) {
+      const std::shared_ptr<graphics::IBrush>& brush) {
     GetContainerRenderObject()->SetForegroundBrush(brush);
   }
 
-  std::shared_ptr<platform::graphics::IBrush> GetBackgroundBrush() const {
+  std::shared_ptr<graphics::IBrush> GetBackgroundBrush() const {
     return GetContainerRenderObject()->GetBackgroundBrush();
   }
   void SetBackgroundBrush(
-      const std::shared_ptr<platform::graphics::IBrush>& brush) {
+      const std::shared_ptr<graphics::IBrush>& brush) {
     GetContainerRenderObject()->SetBackgroundBrush(brush);
   }
 

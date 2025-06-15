@@ -1,8 +1,8 @@
 #pragma once
 #include "../Base.h"
-#include "cru/base/Base.h"
-#include "cru/base/ClonablePtr.h"
-#include "cru/base/Event.h"
+#include <cru/Base.h>
+#include <cru/CopyPtr.h>
+#include <cru/Event.h>
 #include "cru/ui/controls/IClickableControl.h"
 #include "cru/ui/helper/ClickDetector.h"
 
@@ -23,8 +23,8 @@ class CRU_UI_API Condition : public Object {
 
 class CRU_UI_API NoCondition : public Condition {
  public:
-  static ClonablePtr<NoCondition> Create() {
-    return ClonablePtr<NoCondition>(new NoCondition);
+  static CopyPtr<NoCondition> Create() {
+    return CopyPtr<NoCondition>(new NoCondition);
   };
 
   std::vector<IBaseEvent*> ChangeOn(controls::Control*) const override {
@@ -38,23 +38,23 @@ class CRU_UI_API NoCondition : public Condition {
 
 class CRU_UI_API CompoundCondition : public Condition {
  public:
-  explicit CompoundCondition(std::vector<ClonablePtr<Condition>> conditions);
+  explicit CompoundCondition(std::vector<CopyPtr<Condition>> conditions);
 
   std::vector<IBaseEvent*> ChangeOn(controls::Control* control) const override;
 
-  std::vector<ClonablePtr<Condition>> GetChildren() const {
+  std::vector<CopyPtr<Condition>> GetChildren() const {
     return conditions_;
   }
 
  protected:
-  std::vector<ClonablePtr<Condition>> conditions_;
+  std::vector<CopyPtr<Condition>> conditions_;
 };
 
 class CRU_UI_API AndCondition : public CompoundCondition {
  public:
-  static ClonablePtr<AndCondition> Create(
-      std::vector<ClonablePtr<Condition>> conditions) {
-    return ClonablePtr<AndCondition>(new AndCondition(std::move(conditions)));
+  static CopyPtr<AndCondition> Create(
+      std::vector<CopyPtr<Condition>> conditions) {
+    return CopyPtr<AndCondition>(new AndCondition(std::move(conditions)));
   }
 
   using CompoundCondition::CompoundCondition;
@@ -66,9 +66,9 @@ class CRU_UI_API AndCondition : public CompoundCondition {
 
 class CRU_UI_API OrCondition : public CompoundCondition {
  public:
-  static ClonablePtr<OrCondition> Create(
-      std::vector<ClonablePtr<Condition>> conditions) {
-    return ClonablePtr<OrCondition>(new OrCondition(std::move(conditions)));
+  static CopyPtr<OrCondition> Create(
+      std::vector<CopyPtr<Condition>> conditions) {
+    return CopyPtr<OrCondition>(new OrCondition(std::move(conditions)));
   }
 
   using CompoundCondition::CompoundCondition;
@@ -80,8 +80,8 @@ class CRU_UI_API OrCondition : public CompoundCondition {
 
 class CRU_UI_API FocusCondition : public Condition {
  public:
-  static ClonablePtr<FocusCondition> Create(bool has_focus) {
-    return ClonablePtr<FocusCondition>(new FocusCondition(has_focus));
+  static CopyPtr<FocusCondition> Create(bool has_focus) {
+    return CopyPtr<FocusCondition>(new FocusCondition(has_focus));
   }
 
   explicit FocusCondition(bool has_focus);
@@ -101,8 +101,8 @@ class CRU_UI_API FocusCondition : public Condition {
 
 class CRU_UI_API HoverCondition : public Condition {
  public:
-  static ClonablePtr<HoverCondition> Create(bool hover) {
-    return ClonablePtr<HoverCondition>(new HoverCondition(hover));
+  static CopyPtr<HoverCondition> Create(bool hover) {
+    return CopyPtr<HoverCondition>(new HoverCondition(hover));
   }
 
   explicit HoverCondition(bool hover) : hover_(hover) {}
@@ -118,9 +118,9 @@ class CRU_UI_API HoverCondition : public Condition {
 
 class CRU_UI_API ClickStateCondition : public Condition {
  public:
-  static ClonablePtr<ClickStateCondition> Create(
+  static CopyPtr<ClickStateCondition> Create(
       helper::ClickState click_state) {
-    return ClonablePtr<ClickStateCondition>(
+    return CopyPtr<ClickStateCondition>(
         new ClickStateCondition(click_state));
   }
 
@@ -141,8 +141,8 @@ class CRU_UI_API ClickStateCondition : public Condition {
 
 class CRU_UI_API CheckedCondition : public Condition {
  public:
-  static ClonablePtr<CheckedCondition> Create(bool checked) {
-    return ClonablePtr<CheckedCondition>(new CheckedCondition(checked));
+  static CopyPtr<CheckedCondition> Create(bool checked) {
+    return CopyPtr<CheckedCondition>(new CheckedCondition(checked));
   }
 
   explicit CheckedCondition(bool checked);

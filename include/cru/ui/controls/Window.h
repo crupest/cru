@@ -1,8 +1,8 @@
 #pragma once
-#include "cru/platform/gui/Base.h"
+#include "cru/gui/Base.h"
 #include "cru/ui/controls/RootControl.h"
 
-#include "cru/base/Base.h"
+#include <cru/Base.h>
 
 namespace cru::ui::controls {
 class CRU_UI_API Window final : public RootControl {
@@ -11,8 +11,6 @@ class CRU_UI_API Window final : public RootControl {
 
  public:
   explicit Window(Control* attached_control = nullptr);
-  CRU_DELETE_COPY(Window)
-  CRU_DELETE_MOVE(Window)
   ~Window() override;
 
  public:

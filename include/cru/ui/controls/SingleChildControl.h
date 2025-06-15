@@ -10,8 +10,6 @@ class SingleChildControl : public Control {
   }
 
  public:
-  CRU_DELETE_COPY(SingleChildControl)
-  CRU_DELETE_MOVE(SingleChildControl)
 
   ~SingleChildControl() override { SetChild(nullptr); }
 

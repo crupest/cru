@@ -1,6 +1,6 @@
 #include "CursorStylerEditor.h"
-#include "cru/platform/gui/Cursor.h"
-#include "cru/platform/gui/UiApplication.h"
+#include "cru/gui/Cursor.h"
+#include "cru/gui/UiApplication.h"
 
 namespace cru::theme_builder::components::stylers {
 CursorStylerEditor::CursorStylerEditor() {
@@ -16,7 +16,7 @@ CursorStylerEditor::CursorStylerEditor() {
 
 CursorStylerEditor::~CursorStylerEditor() {}
 
-ClonablePtr<ui::style::CursorStyler> CursorStylerEditor::GetValue() {
+CopyPtr<ui::style::CursorStyler> CursorStylerEditor::GetValue() {
   auto cursor_manager =
       platform::gui::IUiApplication::GetInstance()->GetCursorManager();
 

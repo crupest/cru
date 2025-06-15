@@ -1,7 +1,7 @@
 #include "cru/ui/render/GeometryRenderObject.h"
-#include "cru/platform/graphics/Brush.h"
-#include "cru/platform/graphics/Geometry.h"
-#include "cru/platform/graphics/Painter.h"
+#include "cru/graphics/Brush.h"
+#include "cru/graphics/Geometry.h"
+#include "cru/graphics/Painter.h"
 #include "cru/ui/render/RenderObject.h"
 
 namespace cru::ui::render {
@@ -9,13 +9,13 @@ GeometryRenderObject::GeometryRenderObject() {}
 
 GeometryRenderObject::~GeometryRenderObject() {}
 
-std::shared_ptr<platform::graphics::IGeometry>
+std::shared_ptr<graphics::IGeometry>
 GeometryRenderObject::GetGeometry() const {
   return geometry_;
 }
 
 void GeometryRenderObject::SetGeometry(
-    std::shared_ptr<platform::graphics::IGeometry> geometry,
+    std::shared_ptr<graphics::IGeometry> geometry,
     std::optional<Rect> view_port) {
   geometry_ = std::move(geometry);
   if (view_port) {
@@ -32,24 +32,24 @@ void GeometryRenderObject::SetViewPort(const Rect& view_port) {
   InvalidatePaint();
 }
 
-std::shared_ptr<platform::graphics::IBrush> GeometryRenderObject::GetFillBrush()
+std::shared_ptr<graphics::IBrush> GeometryRenderObject::GetFillBrush()
     const {
   return fill_brush_;
 }
 
 void GeometryRenderObject::SetFillBrush(
-    std::shared_ptr<platform::graphics::IBrush> brush) {
+    std::shared_ptr<graphics::IBrush> brush) {
   fill_brush_ = std::move(brush);
   InvalidatePaint();
 }
 
-std::shared_ptr<platform::graphics::IBrush>
+std::shared_ptr<graphics::IBrush>
 GeometryRenderObject::GetStrokeBrush() const {
   return stroke_brush_;
 }
 
 void GeometryRenderObject::SetStrokeBrush(
-    std::shared_ptr<platform::graphics::IBrush> brush) {
+    std::shared_ptr<graphics::IBrush> brush) {
   stroke_brush_ = std::move(brush);
   InvalidatePaint();
 }
@@ -61,7 +61,7 @@ void GeometryRenderObject::SetStrokeWidth(float width) {
   InvalidatePaint();
 }
 
-void GeometryRenderObject::Draw(platform::graphics::IPainter* painter) {
+void GeometryRenderObject::Draw(graphics::IPainter* painter) {
   if (!geometry_) return;
 
   painter->PushState();

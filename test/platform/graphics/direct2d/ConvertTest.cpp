@@ -1,12 +1,12 @@
-#include "cru/platform/Matrix.h"
-#include "cru/platform/graphics/direct2d/ConvertUtil.h"
+#include "cru/Matrix.h"
+#include "cru/graphics/direct2d/ConvertUtil.h"
 
 #include <catch2/catch_test_macros.hpp>
 #include "catch2/catch_approx.hpp"
 
 using Catch::Approx;
 using cru::platform::Matrix;
-using cru::platform::graphics::direct2d::Convert;
+using cru::graphics::direct2d::Convert;
 
 TEST_CASE("MatrixConvert Rotation", "[matrix]") {
   auto matrix = Convert(Matrix::Rotation(90));

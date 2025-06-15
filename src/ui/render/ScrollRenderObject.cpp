@@ -1,6 +1,6 @@
 #include "cru/ui/render/ScrollRenderObject.h"
 
-#include "cru/platform/graphics/Painter.h"
+#include "cru/graphics/Painter.h"
 #include "cru/ui/controls/Control.h"
 #include "cru/ui/render/RenderObject.h"
 #include "cru/ui/render/ScrollBar.h"
@@ -81,7 +81,7 @@ RenderObject* ScrollRenderObject::HitTest(const Point& point) {
   return rect.IsPointInside(point) ? this : nullptr;
 }  // namespace cru::ui::render
 
-void ScrollRenderObject::Draw(platform::graphics::IPainter* painter) {
+void ScrollRenderObject::Draw(graphics::IPainter* painter) {
   if (auto child = GetChild()) {
     painter->PushLayer(this->GetContentRect());
     const auto offset = child->GetOffset();

@@ -5,7 +5,7 @@
 
 namespace cru::ui::mapper::style {
 class CRU_UI_API PreferredSizeStylerMapper
-    : public BasicClonablePtrMapper<ui::style::PreferredSizeStyler>,
+    : public BasicCopyPtrMapper<ui::style::PreferredSizeStyler>,
       public virtual IStylerMapper {
  public:
   CRU_DEFAULT_CONSTRUCTOR_DESTRUCTOR(PreferredSizeStylerMapper)
@@ -14,13 +14,13 @@ class CRU_UI_API PreferredSizeStylerMapper
   bool SupportMapFromXml() override { return true; }
   bool XmlElementIsOfThisType(xml::XmlElementNode* node) override;
 
-  ClonablePtr<ui::style::Styler> MapStylerFromXml(
+  CopyPtr<ui::style::Styler> MapStylerFromXml(
       xml::XmlElementNode* node) override {
     return MapFromXml(node);
   }
 
  protected:
-  ClonablePtr<ui::style::PreferredSizeStyler> DoMapFromXml(
+  CopyPtr<ui::style::PreferredSizeStyler> DoMapFromXml(
       xml::XmlElementNode* node) override;
 };
 }  // namespace cru::ui::mapper::style

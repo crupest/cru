@@ -1,7 +1,7 @@
 #include "cru/ui/mapper/style/StyleRuleMapper.h"
-#include "cru/base/ClonablePtr.h"
-#include "cru/base/Exception.h"
-#include "cru/base/log/Logger.h"
+#include <cru/CopyPtr.h>
+#include <cru/Exception.h>
+#include <cru/Logger.h>
 #include "cru/ui/mapper/MapperRegistry.h"
 #include "cru/ui/mapper/style/IConditionMapper.h"
 #include "cru/ui/mapper/style/IStylerMapper.h"
@@ -15,15 +15,15 @@ bool StyleRuleMapper::XmlElementIsOfThisType(xml::XmlElementNode* node) {
   return node->GetTag().CaseInsensitiveEqual(u"StyleRule");
 }
 
-ClonablePtr<ui::style::StyleRule> StyleRuleMapper::DoMapFromXml(
+CopyPtr<ui::style::StyleRule> StyleRuleMapper::DoMapFromXml(
     xml::XmlElementNode* node) {
   std::vector<IConditionMapper*> condition_mappers =
       MapperRegistry::GetInstance()->GetMappersByInterface<IConditionMapper>();
   std::vector<IStylerMapper*> styler_mappers =
       MapperRegistry::GetInstance()->GetMappersByInterface<IStylerMapper>();
 
-  std::vector<ClonablePtr<Condition>> conditions;
-  std::vector<ClonablePtr<Styler>> stylers;
+  std::vector<CopyPtr<Condition>> conditions;
+  std::vector<CopyPtr<Styler>> stylers;
 
   for (auto child : node->GetChildren()) {
     if (child->GetType() == xml::XmlNode::Type::Element) {

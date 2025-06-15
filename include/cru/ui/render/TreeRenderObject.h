@@ -1,6 +1,6 @@
 #pragma once
 #include "RenderObject.h"
-#include "cru/platform/graphics/Painter.h"
+#include "cru/graphics/Painter.h"
 
 namespace cru::ui::render {
 class TreeRenderObject;
@@ -13,8 +13,6 @@ class CRU_UI_API TreeRenderObjectItem : public Object {
                                 TreeRenderObjectItem* parent);
 
  public:
-  CRU_DELETE_COPY(TreeRenderObjectItem)
-  CRU_DELETE_MOVE(TreeRenderObjectItem)
   ~TreeRenderObjectItem() override;
 
   RenderObject* GetRenderObject() { return render_object_; }
@@ -53,8 +51,6 @@ class CRU_UI_API TreeRenderObject : public RenderObject {
 
  public:
   TreeRenderObject();
-  CRU_DELETE_COPY(TreeRenderObject)
-  CRU_DELETE_MOVE(TreeRenderObject)
   ~TreeRenderObject() override;
 
   String GetName() const override { return u"TreeRenderObject"; }
@@ -66,7 +62,7 @@ class CRU_UI_API TreeRenderObject : public RenderObject {
 
   RenderObject* HitTest(const Point& point) override;
 
-  void Draw(platform::graphics::IPainter* painter) override;
+  void Draw(graphics::IPainter* painter) override;
 
  protected:
   Size OnMeasureContent(const MeasureRequirement& requirement,

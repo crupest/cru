@@ -1,5 +1,5 @@
 #include "cru/ui/components/Menu.h"
-#include "cru/platform/gui/Window.h"
+#include "cru/gui/Window.h"
 #include "cru/ui/ThemeManager.h"
 #include "cru/ui/controls/Button.h"
 #include "cru/ui/controls/Control.h"
@@ -8,7 +8,6 @@
 #include "cru/ui/controls/TextBlock.h"
 #include "cru/ui/helper/ClickDetector.h"
 #include "cru/ui/host/WindowHost.h"
-#include "cru/ui/style/StyleRuleSet.h"
 
 namespace cru::ui::components {
 MenuItem::MenuItem() {

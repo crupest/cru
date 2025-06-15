@@ -1,4 +1,4 @@
-#include "cru/base/ClonablePtr.h"
+#include <cru/CopyPtr.h>
 #include "cru/ui/mapper/style/FocusConditionMapper.h"
 #include "cru/ui/style/Condition.h"
 #include "cru/xml/XmlNode.h"
@@ -8,7 +8,7 @@ bool FocusConditionMapper::XmlElementIsOfThisType(xml::XmlElementNode* node) {
   return node->GetTag().CaseInsensitiveEqual(u"FocusCondition");
 }
 
-ClonablePtr<ui::style::FocusCondition> FocusConditionMapper::DoMapFromXml(
+CopyPtr<ui::style::FocusCondition> FocusConditionMapper::DoMapFromXml(
     xml::XmlElementNode* node) {
   auto value = node->GetAttributeValueCaseInsensitive(u"value");
   if (value.CaseInsensitiveEqual(u"true")) {

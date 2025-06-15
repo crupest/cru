@@ -1,6 +1,6 @@
 #pragma once
 #include "Component.h"
-#include "cru/base/Base.h"
+#include <cru/Base.h>
 #include "cru/ui/controls/Button.h"
 #include "cru/ui/controls/Control.h"
 #include "cru/ui/controls/FlexLayout.h"
@@ -16,8 +16,6 @@ class CRU_UI_API MenuItem : public Component {
   MenuItem();
   explicit MenuItem(String text);
 
-  CRU_DELETE_COPY(MenuItem)
-  CRU_DELETE_MOVE(MenuItem)
 
   ~MenuItem();
 
@@ -40,8 +38,6 @@ class CRU_UI_API Menu : public Component {
  public:
   Menu();
 
-  CRU_DELETE_COPY(Menu)
-  CRU_DELETE_MOVE(Menu)
 
   ~Menu();
 
@@ -75,8 +71,6 @@ class CRU_UI_API PopupMenu : public Component {
  public:
   explicit PopupMenu(controls::Control* attached_control = nullptr);
 
-  CRU_DELETE_COPY(PopupMenu)
-  CRU_DELETE_MOVE(PopupMenu)
 
   ~PopupMenu();
 

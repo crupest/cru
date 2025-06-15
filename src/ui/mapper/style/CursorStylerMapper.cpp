@@ -1,6 +1,6 @@
 #include "cru/ui/mapper/style/CursorStylerMapper.h"
-#include "cru/base/ClonablePtr.h"
-#include "cru/platform/gui/Cursor.h"
+#include <cru/CopyPtr.h>
+#include "cru/gui/Cursor.h"
 #include "cru/ui/mapper/MapperRegistry.h"
 #include "cru/ui/style/Styler.h"
 
@@ -9,7 +9,7 @@ bool CursorStylerMapper::XmlElementIsOfThisType(xml::XmlElementNode* node) {
   return node->GetTag().CaseInsensitiveEqual(u"CursorStyler");
 }
 
-ClonablePtr<ui::style::CursorStyler> CursorStylerMapper::DoMapFromXml(
+CopyPtr<ui::style::CursorStyler> CursorStylerMapper::DoMapFromXml(
     xml::XmlElementNode* node) {
   auto cursor_mapper =
       MapperRegistry::GetInstance()->GetSharedPtrMapper<platform::gui::ICursor>();

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../helper/ClickDetector.h"
-#include "cru/base/Event.h"
+#include <cru/Event.h>
 
 namespace cru::ui::controls {
 struct CRU_UI_API IClickableControl : virtual Interface {

@@ -2,7 +2,7 @@
 #include "../Base.h"
 
 #include "MeasureRequirement.h"
-#include "cru/base/String.h"
+#include <cru/String.h>
 
 namespace cru::ui::render {
 struct BoxConstraint {
@@ -51,7 +51,7 @@ struct BoxConstraint {
  * To write a custom RenderObject, override following methods:
  *
  * public:
- *  void Draw(platform::graphics::IPainter* painter) override;
+ *  void Draw(graphics::IPainter* painter) override;
  *  RenderObject* HitTest(const Point& point) override;
  * protected:
  *  Size OnMeasureContent(const MeasureRequirement& requirement, const
@@ -65,8 +65,6 @@ class CRU_UI_API RenderObject : public Object {
   RenderObject() = default;
 
  public:
-  CRU_DELETE_COPY(RenderObject)
-  CRU_DELETE_MOVE(RenderObject)
   ~RenderObject() override = default;
 
   controls::Control* GetAttachedControl() const { return control_; }
@@ -131,7 +129,7 @@ class CRU_UI_API RenderObject : public Object {
   virtual Rect GetPaddingRect() const;
   virtual Rect GetContentRect() const;
 
-  virtual void Draw(platform::graphics::IPainter* painter) = 0;
+  virtual void Draw(graphics::IPainter* painter) = 0;
 
   // Param point must be relative the lefttop of render object including margin.
   // Add offset before pass point to children.

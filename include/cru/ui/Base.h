@@ -1,7 +1,8 @@
 #pragma once
-#include "cru/base/Base.h"
-#include "cru/platform/graphics/Base.h"
-#include "cru/platform/gui/Base.h"
+#include <cru/Base.h>
+#include <cru/graphics/Base.h>
+#include <cru/graphics/Color.h>
+#include <cru/graphics/Matrix.h>
 
 #ifdef CRU_PLATFORM_WINDOWS
 #ifdef CRU_UI_EXPORT_API

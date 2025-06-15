@@ -1,12 +1,12 @@
 #include "cru/ui/host/WindowHost.h"
 
 #include "RoutedEventDispatch.h"
-#include "cru/base/Base.h"
-#include "cru/base/log/Logger.h"
-#include "cru/platform/graphics/Painter.h"
-#include "cru/platform/gui/InputMethod.h"
-#include "cru/platform/gui/UiApplication.h"
-#include "cru/platform/gui/Window.h"
+#include <cru/Base.h>
+#include <cru/Logger.h>
+#include "cru/graphics/Painter.h"
+#include "cru/gui/InputMethod.h"
+#include "cru/gui/UiApplication.h"
+#include "cru/gui/Window.h"
 #include "cru/ui/Base.h"
 #include "cru/ui/DebugFlags.h"
 #include "cru/ui/host/LayoutPaintCycler.h"

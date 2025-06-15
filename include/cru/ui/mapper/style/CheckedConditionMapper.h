@@ -5,7 +5,7 @@
 
 namespace cru::ui::mapper::style {
 class CRU_UI_API CheckedConditionMapper
-    : public BasicClonablePtrMapper<ui::style::CheckedCondition>,
+    : public BasicCopyPtrMapper<ui::style::CheckedCondition>,
       public virtual IConditionMapper {
  public:
   CRU_DEFAULT_CONSTRUCTOR_DESTRUCTOR(CheckedConditionMapper)
@@ -14,13 +14,13 @@ class CRU_UI_API CheckedConditionMapper
   bool SupportMapFromXml() override { return true; }
   bool XmlElementIsOfThisType(xml::XmlElementNode* node) override;
 
-  ClonablePtr<ui::style::Condition> MapConditionFromXml(
+  CopyPtr<ui::style::Condition> MapConditionFromXml(
       xml::XmlElementNode* node) override {
     return MapFromXml(node);
   }
 
  protected:
-  ClonablePtr<ui::style::CheckedCondition> DoMapFromXml(
+  CopyPtr<ui::style::CheckedCondition> DoMapFromXml(
       xml::XmlElementNode* node) override;
 };
 }  // namespace cru::ui::mapper::style

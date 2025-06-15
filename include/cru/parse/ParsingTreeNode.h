@@ -8,8 +8,6 @@ class CRU_PARSE_API ParsingTreeNode {
  public:
   ParsingTreeNode(Symbol* symbol, Production* production);
 
-  CRU_DELETE_COPY(ParsingTreeNode)
-  CRU_DELETE_MOVE(ParsingTreeNode)
 
   // In destructor, it will delete all children.
   ~ParsingTreeNode();

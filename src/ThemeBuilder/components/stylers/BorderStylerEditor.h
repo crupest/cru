@@ -4,7 +4,7 @@
 #include "../properties/OptionalPropertyEditor.h"
 #include "../properties/ThicknessPropertyEditor.h"
 #include "StylerEditor.h"
-#include "cru/base/ClonablePtr.h"
+#include <cru/CopyPtr.h>
 
 namespace cru::theme_builder::components::stylers {
 class BorderStylerEditor : public StylerEditor {
@@ -12,14 +12,14 @@ class BorderStylerEditor : public StylerEditor {
   BorderStylerEditor();
   ~BorderStylerEditor() override;
 
-  ClonablePtr<ui::style::BorderStyler> GetValue();
+  CopyPtr<ui::style::BorderStyler> GetValue();
   void SetValue(ui::style::BorderStyler* styler, bool trigger_change = true);
-  void SetValue(const ClonablePtr<ui::style::BorderStyler>& styler,
+  void SetValue(const CopyPtr<ui::style::BorderStyler>& styler,
                 bool trigger_change = true) {
     SetValue(styler.get(), trigger_change);
   }
 
-  ClonablePtr<ui::style::Styler> GetStyler() override { return GetValue(); }
+  CopyPtr<ui::style::Styler> GetStyler() override { return GetValue(); }
 
  private:
   properties::OptionalPropertyEditor<properties::CornerRadiusPropertyEditor>

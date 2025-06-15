@@ -1,7 +1,7 @@
 #pragma once
 #include "../Base.h"
 
-#include "cru/base/Event.h"
+#include <cru/Event.h>
 
 namespace cru::ui::helper {
 class ClickDetector;
@@ -14,11 +14,6 @@ class CRU_UI_API ClickEventArgs : Object {
         down_point_(down_point),
         up_point_(up_point),
         button_(button) {}
-
-  CRU_DEFAULT_COPY(ClickEventArgs)
-  CRU_DEFAULT_MOVE(ClickEventArgs)
-
-  ~ClickEventArgs() override = default;
 
   controls::Control* GetSender() const { return sender_; }
   Point GetDownPoint() const { return down_point_; }
@@ -46,8 +41,6 @@ class ClickDetector : public Object {
  public:
   explicit ClickDetector(controls::Control* control);
 
-  CRU_DELETE_COPY(ClickDetector)
-  CRU_DELETE_MOVE(ClickDetector)
 
   ~ClickDetector() override = default;
 

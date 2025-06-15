@@ -1,6 +1,6 @@
 #pragma once
-#include "cru/base/SelfResolvable.h"
-#include "cru/base/log/Logger.h"
+#include <cru/SelfResolvable.h>
+#include <cru/Logger.h>
 #include "cru/ui/DebugFlags.h"
 #include "cru/ui/controls/Control.h"
 #include "cru/ui/host/WindowHost.h"

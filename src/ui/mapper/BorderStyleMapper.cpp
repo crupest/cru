@@ -1,8 +1,8 @@
 #include "cru/ui/mapper/BorderStyleMapper.h"
 #include "../Helper.h"
-#include "cru/base/log/Logger.h"
-#include "cru/platform/graphics/Brush.h"
-#include "cru/platform/graphics/Factory.h"
+#include <cru/Logger.h>
+#include "cru/graphics/Brush.h"
+#include "cru/graphics/Factory.h"
 #include "cru/ui/mapper/MapperRegistry.h"
 #include "cru/ui/style/ApplyBorderStyleInfo.h"
 #include "cru/xml/XmlNode.h"
@@ -29,7 +29,7 @@ ApplyBorderStyleInfo BorderStyleMapper::DoMapFromXml(
           MapperRegistry::GetInstance()->GetMapper<CornerRadius>();
       auto brush_mapper =
           MapperRegistry::GetInstance()
-              ->GetSharedPtrMapper<platform::graphics::IBrush>();
+              ->GetSharedPtrMapper<graphics::IBrush>();
       if (thickness_mapper->XmlElementIsOfThisType(c)) {
         result.border_thickness = thickness_mapper->MapFromXml(c);
       } else if (corner_radius_mapper->XmlElementIsOfThisType(c)) {

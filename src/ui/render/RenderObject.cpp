@@ -1,8 +1,8 @@
 #include "cru/ui/render/RenderObject.h"
 
-#include "cru/base/Exception.h"
-#include "cru/base/log/Logger.h"
-#include "cru/platform/GraphicsBase.h"
+#include <cru/Exception.h>
+#include <cru/Logger.h>
+#include "cru/GraphicsBase.h"
 #include "cru/ui/DebugFlags.h"
 #include "cru/ui/controls/Control.h"
 #include "cru/ui/host/WindowHost.h"

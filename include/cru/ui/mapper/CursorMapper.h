@@ -1,6 +1,6 @@
 #pragma once
 #include "Mapper.h"
-#include "cru/platform/gui/Cursor.h"
+#include "cru/gui/Cursor.h"
 #include "cru/xml/XmlNode.h"
 
 namespace cru::ui::mapper {

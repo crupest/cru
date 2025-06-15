@@ -1,5 +1,5 @@
 #pragma once
-#include "cru/base/String.h"
+#include <cru/String.h>
 
 #include "Nonterminal.h"
 #include "Terminal.h"
@@ -12,8 +12,6 @@ class CRU_PARSE_API Production : public Object {
   Production(Grammar* grammar, String name, Nonterminal* left,
              std::vector<Symbol*> right);
 
-  CRU_DELETE_COPY(Production)
-  CRU_DELETE_MOVE(Production)
 
   ~Production() override;
 

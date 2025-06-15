@@ -1,6 +1,6 @@
 #include "components/MainWindow.h"
-#include "cru/base/io/Resource.h"
-#include "cru/platform/bootstrap/Bootstrap.h"
+#include <cru/Resource.h>
+#include "cru/bootstrap/Bootstrap.h"
 #include "cru/ui/ThemeManager.h"
 #include "cru/ui/ThemeResourceDictionary.h"
 
@@ -8,7 +8,7 @@ int main() {
   using namespace cru::theme_builder::components;
   using namespace cru::ui;
 
-  auto resource_dir = cru::io::GetResourceDir();
+  auto resource_dir = cru::GetResourceDir();
 
   ThemeManager::GetInstance()->PrependThemeResourceDictionary(
       ThemeResourceDictionary::FromFile(

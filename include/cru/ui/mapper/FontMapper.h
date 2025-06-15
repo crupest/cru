@@ -1,10 +1,10 @@
 #pragma once
 #include "Mapper.h"
-#include "cru/base/Base.h"
-#include "cru/platform/graphics/Font.h"
+#include <cru/Base.h>
+#include "cru/graphics/Font.h"
 
 namespace cru::ui::mapper {
-class FontMapper : public BasicSharedPtrMapper<platform::graphics::IFont> {
+class FontMapper : public BasicSharedPtrMapper<graphics::IFont> {
  public:
   CRU_DEFAULT_CONSTRUCTOR_DESTRUCTOR(FontMapper)
 
@@ -13,7 +13,7 @@ class FontMapper : public BasicSharedPtrMapper<platform::graphics::IFont> {
   bool XmlElementIsOfThisType(xml::XmlElementNode* node) override;
 
  protected:
-  std::shared_ptr<platform::graphics::IFont> DoMapFromXml(
+  std::shared_ptr<graphics::IFont> DoMapFromXml(
       xml::XmlElementNode* node) override;
 };
 }  // namespace cru::ui::mapper

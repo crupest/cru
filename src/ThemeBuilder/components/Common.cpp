@@ -1,12 +1,12 @@
 #include "Common.h"
-#include "cru/platform/Color.h"
-#include "cru/platform/graphics/Factory.h"
-#include "cru/platform/gui/UiApplication.h"
+#include "cru/graphics/Color.h"
+#include "cru/graphics/Factory.h"
+#include "cru/gui/UiApplication.h"
 
 #include <random>
 
 namespace cru::theme_builder::components {
-std::unique_ptr<platform::graphics::ISolidColorBrush>
+std::unique_ptr<graphics::ISolidColorBrush>
 CreateRandomEditorBackgroundBrush() {
   static float current_hue = 0.0f;
   current_hue += 23.f;

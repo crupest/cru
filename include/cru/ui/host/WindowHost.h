@@ -2,10 +2,10 @@
 #include "../Base.h"
 
 #include "../render/RenderObject.h"
-#include "cru/base/Event.h"
-#include "cru/platform/gui/Cursor.h"
-#include "cru/platform/gui/UiApplication.h"
-#include "cru/platform/gui/Window.h"
+#include <cru/Event.h>
+#include "cru/gui/Cursor.h"
+#include "cru/gui/UiApplication.h"
+#include "cru/gui/Window.h"
 
 #include <functional>
 #include <memory>
@@ -32,8 +32,6 @@ class CRU_UI_API WindowHost : public Object, public SelfResolvable<WindowHost> {
  public:
   explicit WindowHost(controls::Control* root_control);
 
-  CRU_DELETE_COPY(WindowHost)
-  CRU_DELETE_MOVE(WindowHost)
 
   ~WindowHost() override;
 

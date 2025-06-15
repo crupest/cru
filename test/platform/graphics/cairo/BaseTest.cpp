@@ -1,4 +1,4 @@
-#include "cru/platform/graphics/cairo/Base.h"
+#include "cru/graphics/cairo/Base.h"
 
 #include <cairo/cairo.h>
 #include <catch2/catch_test_macros.hpp>
@@ -8,8 +8,8 @@ using Catch::Approx;
 
 TEST_CASE("Cairo Matrix Convert", "[matrix]") {
   using namespace cru::platform;
-  using namespace cru::platform::graphics;
-  using namespace cru::platform::graphics::cairo;
+  using namespace cru::graphics;
+  using namespace cru::graphics::cairo;
 
   SECTION("Cairo to cru should work") {
     cairo_matrix_t cairo_matrix;

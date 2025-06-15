@@ -2,9 +2,9 @@
 #include "../Base.h"
 
 #include "../events/KeyEventArgs.h"
-#include "cru/base/Base.h"
-#include "cru/base/Event.h"
-#include "cru/platform/gui/Keyboard.h"
+#include <cru/Base.h>
+#include <cru/Event.h>
+#include "cru/gui/Keyboard.h"
 
 #include <cstddef>
 #include <functional>
@@ -20,11 +20,6 @@ class ShortcutKeyBind {
       platform::gui::KeyCode key,
       platform::gui::KeyModifier modifier = platform::gui::KeyModifiers::none)
       : key_(key), modifier_(modifier) {}
-
-  CRU_DEFAULT_COPY(ShortcutKeyBind)
-  CRU_DEFAULT_MOVE(ShortcutKeyBind)
-
-  ~ShortcutKeyBind() = default;
 
   platform::gui::KeyCode GetKey() const { return key_; }
   platform::gui::KeyModifier GetModifier() const { return modifier_; }
@@ -98,8 +93,6 @@ class CRU_UI_API ShortcutHub : public Object {
  public:
   ShortcutHub() = default;
 
-  CRU_DELETE_COPY(ShortcutHub)
-  CRU_DELETE_MOVE(ShortcutHub)
 
   ~ShortcutHub() override = default;
 

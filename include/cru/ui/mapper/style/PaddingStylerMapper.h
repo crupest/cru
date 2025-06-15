@@ -5,7 +5,7 @@
 
 namespace cru::ui::mapper::style {
 class CRU_UI_API PaddingStylerMapper
-    : public BasicClonablePtrMapper<ui::style::PaddingStyler>,
+    : public BasicCopyPtrMapper<ui::style::PaddingStyler>,
       public virtual IStylerMapper {
  public:
   PaddingStylerMapper();
@@ -14,13 +14,13 @@ class CRU_UI_API PaddingStylerMapper
  public:
   bool SupportMapFromXml() override { return true; }
 
-  ClonablePtr<ui::style::Styler> MapStylerFromXml(
+  CopyPtr<ui::style::Styler> MapStylerFromXml(
       xml::XmlElementNode* node) override {
     return MapFromXml(node);
   }
 
  protected:
-  ClonablePtr<ui::style::PaddingStyler> DoMapFromXml(
+  CopyPtr<ui::style::PaddingStyler> DoMapFromXml(
       xml::XmlElementNode* node) override;
 };
 }  // namespace cru::ui::mapper::style

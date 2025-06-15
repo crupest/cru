@@ -1,5 +1,5 @@
 #include "cru/ui/render/TreeRenderObject.h"
-#include "cru/platform/graphics/Painter.h"
+#include "cru/graphics/Painter.h"
 #include "cru/ui/render/MeasureRequirement.h"
 #include "cru/ui/render/RenderObject.h"
 
@@ -78,7 +78,7 @@ RenderObject* TreeRenderObject::HitTest(const Point& point) {
 }
 
 void TreeRenderObjectItemDraw(TreeRenderObjectItem* item,
-                              platform::graphics::IPainter* painter) {
+                              graphics::IPainter* painter) {
   auto render_object = item->GetRenderObject();
   if (render_object) {
     painter->PushState();
@@ -92,7 +92,7 @@ void TreeRenderObjectItemDraw(TreeRenderObjectItem* item,
   }
 }
 
-void TreeRenderObject::Draw(platform::graphics::IPainter* painter) {
+void TreeRenderObject::Draw(graphics::IPainter* painter) {
   TreeRenderObjectItemDraw(root_item_, painter);
 }
 

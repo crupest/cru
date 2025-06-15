@@ -11,8 +11,6 @@ class CRU_PARSE_API RecursiveDescentAlgorithmContext : public ParsingAlgorithmCo
   RecursiveDescentAlgorithmContext(Grammar* grammar,
                                    const RecursiveDescentAlgorithm* algorithm);
 
-  CRU_DELETE_COPY(RecursiveDescentAlgorithmContext)
-  CRU_DELETE_MOVE(RecursiveDescentAlgorithmContext)
 
   ~RecursiveDescentAlgorithmContext() override;
 

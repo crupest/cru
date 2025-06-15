@@ -1,7 +1,7 @@
 #pragma once
 #include "RootControl.h"
 
-#include "cru/platform/gui/Base.h"
+#include "cru/gui/Base.h"
 
 #include <memory>
 
@@ -12,8 +12,6 @@ class CRU_UI_API Popup : public RootControl {
 
   explicit Popup(Control* attached_control = nullptr);
 
-  CRU_DELETE_COPY(Popup)
-  CRU_DELETE_MOVE(Popup)
 
   ~Popup() override;
 

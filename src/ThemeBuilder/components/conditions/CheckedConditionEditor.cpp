@@ -1,5 +1,5 @@
 #include "CheckedConditionEditor.h"
-#include "cru/base/ClonablePtr.h"
+#include <cru/CopyPtr.h>
 #include "cru/ui/style/Condition.h"
 
 namespace cru::theme_builder::components::conditions {
@@ -14,7 +14,7 @@ CheckedConditionEditor::CheckedConditionEditor() {
 
 CheckedConditionEditor::~CheckedConditionEditor() {}
 
-ClonablePtr<ui::style::CheckedCondition> CheckedConditionEditor::GetValue()
+CopyPtr<ui::style::CheckedCondition> CheckedConditionEditor::GetValue()
     const {
   return ui::style::CheckedCondition::Create(checked_check_box_.GetValue());
 }

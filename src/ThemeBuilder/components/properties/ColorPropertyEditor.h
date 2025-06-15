@@ -1,6 +1,6 @@
 #pragma once
 #include "../Editor.h"
-#include "cru/platform/graphics/Base.h"
+#include "cru/graphics/Base.h"
 #include "cru/ui/controls/Container.h"
 #include "cru/ui/controls/FlexLayout.h"
 #include "cru/ui/controls/TextBlock.h"
@@ -29,7 +29,7 @@ class ColorPropertyEditor : public Editor {
   ui::controls::FlexLayout container_;
   ui::controls::TextBlock label_;
   ui::controls::Container color_cube_;
-  std::shared_ptr<platform::graphics::ISolidColorBrush> color_cube_brush_;
+  std::shared_ptr<graphics::ISolidColorBrush> color_cube_brush_;
   ui::controls::TextBox color_text_;
   bool is_color_text_valid_;
 };

@@ -1,7 +1,7 @@
 #pragma once
-#include "cru/platform/graphics/Factory.h"
+#include "cru/graphics/Factory.h"
 
 namespace cru::demos::graphics {
-  void DrawCircle(platform::graphics::IGraphicsFactory* graphics_factory);
+  void DrawCircle(graphics::IGraphicsFactory* graphics_factory);
 }
 

@@ -1,6 +1,6 @@
 #pragma once
 #include "../../Base.h"
-#include "cru/base/ClonablePtr.h"
+#include <cru/CopyPtr.h>
 #include "cru/ui/mapper/Mapper.h"
 #include "cru/ui/style/Styler.h"
 #include "cru/xml/XmlNode.h"
@@ -11,7 +11,7 @@ struct CRU_UI_API IStylerMapper : virtual Interface {
     return dynamic_cast<MapperBase*>(this)->XmlElementIsOfThisType(node);
   }
 
-  virtual ClonablePtr<ui::style::Styler> MapStylerFromXml(
+  virtual CopyPtr<ui::style::Styler> MapStylerFromXml(
       xml::XmlElementNode* node) = 0;
 };
 }  // namespace cru::ui::mapper::style

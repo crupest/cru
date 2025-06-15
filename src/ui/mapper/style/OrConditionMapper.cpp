@@ -1,5 +1,5 @@
 #include "cru/ui/mapper/style/OrConditionMapper.h"
-#include "cru/base/ClonablePtr.h"
+#include <cru/CopyPtr.h>
 #include "cru/ui/mapper/MapperRegistry.h"
 #include "cru/ui/mapper/style/IConditionMapper.h"
 #include "cru/ui/style/Condition.h"
@@ -10,9 +10,9 @@ bool OrConditionMapper::XmlElementIsOfThisType(xml::XmlElementNode *node) {
   return node->GetTag().CaseInsensitiveEqual(u"OrCondition");
 }
 
-ClonablePtr<ui::style::OrCondition> OrConditionMapper::DoMapFromXml(
+CopyPtr<ui::style::OrCondition> OrConditionMapper::DoMapFromXml(
     xml::XmlElementNode *node) {
-  std::vector<ClonablePtr<ui::style::Condition>> conditions;
+  std::vector<CopyPtr<ui::style::Condition>> conditions;
   auto condition_mappers =
       MapperRegistry::GetInstance()->GetMappersByInterface<IConditionMapper>();
   for (auto child : node->GetChildren()) {

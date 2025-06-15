@@ -9,7 +9,7 @@ bool PreferredSizeStylerMapper::XmlElementIsOfThisType(
   return node->GetTag().CaseInsensitiveEqual(u"PreferredSizeStyler");
 }
 
-ClonablePtr<ui::style::PreferredSizeStyler>
+CopyPtr<ui::style::PreferredSizeStyler>
 PreferredSizeStylerMapper::DoMapFromXml(xml::XmlElementNode* node) {
   render::MeasureSize size;
 

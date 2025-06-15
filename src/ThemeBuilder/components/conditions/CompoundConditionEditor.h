@@ -1,7 +1,7 @@
 #pragma once
 #include "ConditionEditor.h"
-#include "cru/base/ClonablePtr.h"
-#include "cru/base/Event.h"
+#include <cru/CopyPtr.h>
+#include <cru/Event.h>
 #include "cru/ui/components/Component.h"
 #include "cru/ui/components/PopupButton.h"
 #include "cru/ui/controls/Button.h"
@@ -16,8 +16,8 @@ class CompoundConditionEditor : public ConditionEditor {
   ~CompoundConditionEditor();
 
  protected:
-  std::vector<ClonablePtr<ui::style::Condition>> GetChildren();
-  void SetChildren(std::vector<ClonablePtr<ui::style::Condition>> children,
+  std::vector<CopyPtr<ui::style::Condition>> GetChildren();
+  void SetChildren(std::vector<CopyPtr<ui::style::Condition>> children,
                    bool trigger_change = true);
 
  private:
@@ -32,18 +32,18 @@ class AndConditionEditor : public CompoundConditionEditor {
   ~AndConditionEditor() override = default;
 
  public:
-  ClonablePtr<ui::style::AndCondition> GetValue() {
+  CopyPtr<ui::style::AndCondition> GetValue() {
     return ui::style::AndCondition::Create(GetChildren());
   }
   void SetValue(ui::style::AndCondition* value, bool trigger_change = true) {
     SetChildren(value->GetChildren(), trigger_change);
   }
-  void SetValue(const ClonablePtr<ui::style::AndCondition>& value,
+  void SetValue(const CopyPtr<ui::style::AndCondition>& value,
                 bool trigger_change = true) {
     SetValue(value.get(), trigger_change);
   }
 
-  ClonablePtr<ui::style::Condition> GetCondition() override {
+  CopyPtr<ui::style::Condition> GetCondition() override {
     return GetValue();
   }
 };
@@ -54,18 +54,18 @@ class OrConditionEditor : public CompoundConditionEditor {
   ~OrConditionEditor() override = default;
 
  public:
-  ClonablePtr<ui::style::OrCondition> GetValue() {
+  CopyPtr<ui::style::OrCondition> GetValue() {
     return ui::style::OrCondition::Create(GetChildren());
   }
   void SetValue(ui::style::OrCondition* value, bool trigger_change = true) {
     SetChildren(value->GetChildren(), trigger_change);
   }
-  void SetValue(const ClonablePtr<ui::style::OrCondition>& value,
+  void SetValue(const CopyPtr<ui::style::OrCondition>& value,
                 bool trigger_change = true) {
     SetValue(value.get(), trigger_change);
   }
 
-  ClonablePtr<ui::style::Condition> GetCondition() override {
+  CopyPtr<ui::style::Condition> GetCondition() override {
     return GetValue();
   }
 };

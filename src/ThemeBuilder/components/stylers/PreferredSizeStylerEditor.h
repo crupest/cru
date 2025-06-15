@@ -1,7 +1,7 @@
 #pragma once
 #include "../properties/MeasureLengthPropertyEditor.h"
 #include "StylerEditor.h"
-#include "cru/base/ClonablePtr.h"
+#include <cru/CopyPtr.h>
 #include "cru/ui/style/Styler.h"
 
 namespace cru::theme_builder::components::stylers {
@@ -10,15 +10,15 @@ class PreferredSizeStylerEditor : public StylerEditor {
   PreferredSizeStylerEditor();
   ~PreferredSizeStylerEditor() override;
 
-  ClonablePtr<ui::style::PreferredSizeStyler> GetValue();
+  CopyPtr<ui::style::PreferredSizeStyler> GetValue();
   void SetValue(ui::style::PreferredSizeStyler* styler,
                 bool trigger_change = true);
-  void SetValue(const ClonablePtr<ui::style::PreferredSizeStyler>& styler,
+  void SetValue(const CopyPtr<ui::style::PreferredSizeStyler>& styler,
                 bool trigger_change = true) {
     SetValue(styler.get(), trigger_change);
   }
 
-  ClonablePtr<ui::style::Styler> GetStyler() override { return GetValue(); }
+  CopyPtr<ui::style::Styler> GetStyler() override { return GetValue(); }
 
  private:
   properties::MeasureLengthPropertyEditor width_editor_;

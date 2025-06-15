@@ -2,8 +2,8 @@
 
 #include "XmlNode.h"
 
-#include "cru/base/Exception.h"
-#include "cru/base/String.h"
+#include <cru/Exception.h>
+#include <cru/String.h>
 
 #include <optional>
 
@@ -17,8 +17,6 @@ class CRU_XML_API XmlParser {
  public:
   explicit XmlParser(String xml);
 
-  CRU_DELETE_COPY(XmlParser)
-  CRU_DELETE_MOVE(XmlParser)
 
   ~XmlParser();
 

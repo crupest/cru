@@ -11,6 +11,6 @@ struct IUiApplication;
 }  // namespace cru::platform
 
 namespace cru::ui {
-cru::platform::graphics::IGraphicsFactory* GetGraphicsFactory();
+cru::graphics::IGraphicsFactory* GetGraphicsFactory();
 cru::platform::gui::IUiApplication* GetUiApplication();
 }  // namespace cru::ui

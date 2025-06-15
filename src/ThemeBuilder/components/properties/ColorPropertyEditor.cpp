@@ -1,5 +1,5 @@
 #include "ColorPropertyEditor.h"
-#include "cru/platform/graphics/Factory.h"
+#include "cru/graphics/Factory.h"
 #include "cru/ui/Base.h"
 #include "cru/ui/ThemeManager.h"
 

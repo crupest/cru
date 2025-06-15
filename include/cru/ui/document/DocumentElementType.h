@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../Base.h"
-#include "cru/base/String.h"
+#include <cru/String.h>
 
 #include <vector>
 

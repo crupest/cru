@@ -1,5 +1,5 @@
 #include "ClickStateConditionEditor.h"
-#include "cru/base/ClonablePtr.h"
+#include <cru/CopyPtr.h>
 #include "cru/ui/helper/ClickDetector.h"
 #include "cru/ui/style/Condition.h"
 
@@ -55,7 +55,7 @@ ClickStateConditionEditor::ClickStateConditionEditor() {
 
 ClickStateConditionEditor::~ClickStateConditionEditor() {}
 
-ClonablePtr<ui::style::ClickStateCondition>
+CopyPtr<ui::style::ClickStateCondition>
 ClickStateConditionEditor::GetValue() const {
   return ui::style::ClickStateCondition::Create(
       ConvertIndexToClickState(click_state_select_.GetSelectedIndex()));

@@ -1,18 +1,17 @@
-#include "cru/platform/Color.h"
-#include "cru/platform/GraphicsBase.h"
-#include "cru/platform/bootstrap/Bootstrap.h"
-#include "cru/platform/graphics/Factory.h"
-#include "cru/platform/graphics/Font.h"
-#include "cru/platform/graphics/Painter.h"
-#include "cru/platform/gui/InputMethod.h"
-#include "cru/platform/gui/UiApplication.h"
-#include "cru/platform/gui/Window.h"
+#include "cru/graphics/Color.h"
+#include "cru/bootstrap/Bootstrap.h"
+#include "cru/graphics/Factory.h"
+#include "cru/graphics/Font.h"
+#include "cru/graphics/Painter.h"
+#include "cru/gui/InputMethod.h"
+#include "cru/gui/UiApplication.h"
+#include "cru/gui/Window.h"
 
 #include <optional>
 
 using namespace cru;
 using namespace cru::platform;
-using namespace cru::platform::graphics;
+using namespace cru::graphics;
 using namespace cru::platform::gui;
 
 struct InputMethodState {

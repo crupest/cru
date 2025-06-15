@@ -6,7 +6,7 @@
 #include "MarginStylerEditor.h"
 #include "PaddingStylerEditor.h"
 #include "PreferredSizeStylerEditor.h"
-#include "cru/base/ClonablePtr.h"
+#include <cru/CopyPtr.h>
 #include "cru/ui/ThemeManager.h"
 #include "cru/ui/style/Styler.h"
 
@@ -78,8 +78,8 @@ CompoundStylerEditor::CompoundStylerEditor() {
 
 CompoundStylerEditor::~CompoundStylerEditor() {}
 
-ClonablePtr<ui::style::CompoundStyler> CompoundStylerEditor::GetValue() {
-  std::vector<ClonablePtr<ui::style::Styler>> children_styler;
+CopyPtr<ui::style::CompoundStyler> CompoundStylerEditor::GetValue() {
+  std::vector<CopyPtr<ui::style::Styler>> children_styler;
   for (auto& child : children_) {
     children_styler.push_back(child->GetStyler());
   }

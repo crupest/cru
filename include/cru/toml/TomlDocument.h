@@ -2,19 +2,14 @@
 
 #include "Base.h"
 
-#include "cru/base/Base.h"
-#include "cru/base/String.h"
+#include <cru/Base.h>
+#include <cru/String.h>
 
 #include <optional>
 #include <unordered_map>
 
 namespace cru::toml {
 class CRU_TOML_API TomlSection {
- public:
-  CRU_DEFAULT_CONSTRUCTOR_DESTRUCTOR(TomlSection)
-  CRU_DEFAULT_COPY(TomlSection)
-  CRU_DEFAULT_MOVE(TomlSection)
-
  public:
   std::optional<String> GetValue(const String& key) const;
   void SetValue(const String& key, String value);
@@ -32,11 +27,6 @@ class CRU_TOML_API TomlSection {
 };
 
 class CRU_TOML_API TomlDocument {
- public:
-  CRU_DEFAULT_CONSTRUCTOR_DESTRUCTOR(TomlDocument)
-  CRU_DEFAULT_COPY(TomlDocument)
-  CRU_DEFAULT_MOVE(TomlDocument)
-
  public:
   TomlSection* GetSection(const String& name);
   TomlSection* GetSectionOrCreate(const String& name);

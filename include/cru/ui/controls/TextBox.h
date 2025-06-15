@@ -7,7 +7,7 @@
 #include "IContentBrushControl.h"
 #include "IFontControl.h"
 #include "TextHostControlService.h"
-#include "cru/platform/graphics/Brush.h"
+#include "cru/graphics/Brush.h"
 
 #include <memory>
 
@@ -21,8 +21,6 @@ class CRU_UI_API TextBox : public NoChildControl,
   static constexpr StringView control_type = u"TextBox";
 
   TextBox();
-  CRU_DELETE_COPY(TextBox)
-  CRU_DELETE_MOVE(TextBox)
   ~TextBox() override;
 
   String GetControlType() const final { return control_type.ToString(); }
@@ -45,26 +43,26 @@ class CRU_UI_API TextBox : public NoChildControl,
     return service_->TextChangeEvent();
   }
 
-  std::shared_ptr<platform::graphics::IFont> GetFont() const override {
+  std::shared_ptr<graphics::IFont> GetFont() const override {
     return text_render_object_->GetFont();
   }
-  void SetFont(std::shared_ptr<platform::graphics::IFont> font) override {
+  void SetFont(std::shared_ptr<graphics::IFont> font) override {
     text_render_object_->SetFont(std::move(font));
   }
 
-  std::shared_ptr<platform::graphics::IBrush> GetTextBrush() const {
+  std::shared_ptr<graphics::IBrush> GetTextBrush() const {
     return text_render_object_->GetBrush();
   }
-  void SetTextBrush(std::shared_ptr<platform::graphics::IBrush> brush) {
+  void SetTextBrush(std::shared_ptr<graphics::IBrush> brush) {
     text_render_object_->SetBrush(std::move(brush));
   }
 
-  std::shared_ptr<platform::graphics::IBrush> GetContentBrush() const override {
+  std::shared_ptr<graphics::IBrush> GetContentBrush() const override {
     return GetTextBrush();
   }
 
   void SetContentBrush(
-      std::shared_ptr<platform::graphics::IBrush> brush) override {
+      std::shared_ptr<graphics::IBrush> brush) override {
     SetTextBrush(std::move(brush));
   }
 

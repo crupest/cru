@@ -1,10 +1,10 @@
 #include "cru/ui/render/BorderRenderObject.h"
 
 #include "../Helper.h"
-#include "cru/base/log/Logger.h"
-#include "cru/platform/graphics/Factory.h"
-#include "cru/platform/graphics/Geometry.h"
-#include "cru/platform/graphics/Painter.h"
+#include <cru/Logger.h>
+#include "cru/graphics/Factory.h"
+#include "cru/graphics/Geometry.h"
+#include "cru/graphics/Painter.h"
 #include "cru/ui/DebugFlags.h"
 #include "cru/ui/render/RenderObject.h"
 
@@ -32,7 +32,7 @@ void BorderRenderObject::SetBorderEnabled(bool enabled) {
 }
 
 void BorderRenderObject::SetBorderBrush(
-    std::shared_ptr<platform::graphics::IBrush> brush) {
+    std::shared_ptr<graphics::IBrush> brush) {
   if (brush == border_brush_) return;
   border_brush_ = std::move(brush);
   InvalidatePaint();
@@ -51,14 +51,14 @@ void BorderRenderObject::SetBorderRadius(const CornerRadius radius) {
 }
 
 void BorderRenderObject::SetForegroundBrush(
-    std::shared_ptr<platform::graphics::IBrush> brush) {
+    std::shared_ptr<graphics::IBrush> brush) {
   if (brush == foreground_brush_) return;
   foreground_brush_ = std::move(brush);
   InvalidatePaint();
 }
 
 void BorderRenderObject::SetBackgroundBrush(
-    std::shared_ptr<platform::graphics::IBrush> brush) {
+    std::shared_ptr<graphics::IBrush> brush) {
   if (brush == background_brush_) return;
   background_brush_ = std::move(brush);
   InvalidatePaint();
@@ -79,7 +79,7 @@ RenderObject* BorderRenderObject::HitTest(const Point& point) {
   }
 }
 
-void BorderRenderObject::Draw(platform::graphics::IPainter* painter) {
+void BorderRenderObject::Draw(graphics::IPainter* painter) {
   if constexpr (debug_flags::draw) {
     CRU_LOG_DEBUG(
         u"BorderRenderObject draw, background: {}, foreground: {}.",
@@ -196,7 +196,7 @@ void BorderRenderObject::RecreateGeometry() {
                             r.left_bottom - Point{t.left, t.bottom},
                             r.right_bottom - Point{t.right, t.bottom});
 
-  auto f = [](platform::graphics::IGeometryBuilder* builder, const Rect& rect,
+  auto f = [](graphics::IGeometryBuilder* builder, const Rect& rect,
               const CornerRadius& corner) {
     builder->MoveTo(Point(rect.left + corner.left_top.x, rect.top));
     builder->LineTo(Point(rect.GetRight() - corner.right_top.x, rect.top));
@@ -224,7 +224,7 @@ void BorderRenderObject::RecreateGeometry() {
                         size.width - margin.GetHorizontalTotal(),
                         size.height - margin.GetVerticalTotal()};
   const auto graph_factory = GetGraphicsFactory();
-  std::unique_ptr<platform::graphics::IGeometryBuilder> builder{
+  std::unique_ptr<graphics::IGeometryBuilder> builder{
       graph_factory->CreateGeometryBuilder()};
   f(builder.get(), outer_rect, outer_radius);
   border_outer_geometry_ = builder->Build();

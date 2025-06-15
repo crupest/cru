@@ -10,17 +10,15 @@ class CRU_UI_API BorderRenderObject : public SingleChildRenderObject {
 
  public:
   BorderRenderObject();
-  CRU_DELETE_COPY(BorderRenderObject)
-  CRU_DELETE_MOVE(BorderRenderObject)
   ~BorderRenderObject() override;
 
   bool IsBorderEnabled() const { return is_border_enabled_; }
   void SetBorderEnabled(bool enabled);
 
-  std::shared_ptr<platform::graphics::IBrush> GetBorderBrush() {
+  std::shared_ptr<graphics::IBrush> GetBorderBrush() {
     return border_brush_;
   }
-  void SetBorderBrush(std::shared_ptr<platform::graphics::IBrush> brush);
+  void SetBorderBrush(std::shared_ptr<graphics::IBrush> brush);
 
   Thickness GetBorderThickness() const { return border_thickness_; }
   void SetBorderThickness(const Thickness thickness);
@@ -28,22 +26,22 @@ class CRU_UI_API BorderRenderObject : public SingleChildRenderObject {
   CornerRadius GetBorderRadius() { return border_radius_; }
   void SetBorderRadius(const CornerRadius radius);
 
-  std::shared_ptr<platform::graphics::IBrush> GetForegroundBrush() {
+  std::shared_ptr<graphics::IBrush> GetForegroundBrush() {
     return foreground_brush_;
   }
 
-  void SetForegroundBrush(std::shared_ptr<platform::graphics::IBrush> brush);
+  void SetForegroundBrush(std::shared_ptr<graphics::IBrush> brush);
 
-  std::shared_ptr<platform::graphics::IBrush> GetBackgroundBrush() {
+  std::shared_ptr<graphics::IBrush> GetBackgroundBrush() {
     return background_brush_;
   }
 
-  void SetBackgroundBrush(std::shared_ptr<platform::graphics::IBrush> brush);
+  void SetBackgroundBrush(std::shared_ptr<graphics::IBrush> brush);
 
   void ApplyBorderStyle(const style::ApplyBorderStyleInfo& style);
 
   RenderObject* HitTest(const Point& point) override;
-  void Draw(platform::graphics::IPainter* painter) override;
+  void Draw(graphics::IPainter* painter) override;
 
   Thickness GetTotalSpaceThickness() const override;
   Thickness GetInnerSpaceThickness() const override;
@@ -67,19 +65,19 @@ class CRU_UI_API BorderRenderObject : public SingleChildRenderObject {
  private:
   bool is_border_enabled_ = false;
 
-  std::shared_ptr<platform::graphics::IBrush> border_brush_;
+  std::shared_ptr<graphics::IBrush> border_brush_;
   Thickness border_thickness_;
   CornerRadius border_radius_;
 
-  std::shared_ptr<platform::graphics::IBrush> foreground_brush_;
-  std::shared_ptr<platform::graphics::IBrush> background_brush_;
+  std::shared_ptr<graphics::IBrush> foreground_brush_;
+  std::shared_ptr<graphics::IBrush> background_brush_;
 
   // The ring. Used for painting.
-  std::unique_ptr<platform::graphics::IGeometry> geometry_;
+  std::unique_ptr<graphics::IGeometry> geometry_;
   // Area including inner area of the border. Used for painting foreground and
   // background.
-  std::unique_ptr<platform::graphics::IGeometry> border_inner_geometry_;
+  std::unique_ptr<graphics::IGeometry> border_inner_geometry_;
   // Area including border ring and inner area. Used for hit test.
-  std::unique_ptr<platform::graphics::IGeometry> border_outer_geometry_;
+  std::unique_ptr<graphics::IGeometry> border_outer_geometry_;
 };
 }  // namespace cru::ui::render

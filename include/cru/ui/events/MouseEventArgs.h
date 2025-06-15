@@ -11,11 +11,6 @@ class CRU_UI_API MouseEventArgs : public UiEventArgs {
   MouseEventArgs(Object* sender, Object* original_sender,
                  const std::optional<Point>& point = std::nullopt)
       : UiEventArgs(sender, original_sender), point_(point) {}
-  MouseEventArgs(const MouseEventArgs& other) = default;
-  MouseEventArgs(MouseEventArgs&& other) = default;
-  MouseEventArgs& operator=(const MouseEventArgs& other) = default;
-  MouseEventArgs& operator=(MouseEventArgs&& other) = default;
-  ~MouseEventArgs() override = default;
 
   // This point is relative to window client lefttop.
   Point GetPoint() const { return point_.value_or(Point{}); }

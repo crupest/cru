@@ -1,16 +1,14 @@
 #pragma once
 #include "Base.h"
 
-#include "cru/base/Base.h"
-#include "cru/base/String.h"
+#include <cru/Base.h>
+#include <cru/String.h>
 
 namespace cru::parse {
 class CRU_PARSE_API TokenType : public Object {
  public:
   explicit TokenType(String name);
 
-  CRU_DELETE_COPY(TokenType)
-  CRU_DELETE_MOVE(TokenType)
 
   ~TokenType() override;
 

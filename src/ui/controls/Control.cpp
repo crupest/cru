@@ -1,8 +1,8 @@
 #include "cru/ui/controls/Control.h"
 
-#include "cru/base/log/Logger.h"
-#include "cru/platform/gui/Cursor.h"
-#include "cru/platform/gui/UiApplication.h"
+#include <cru/Logger.h>
+#include "cru/gui/Cursor.h"
+#include "cru/gui/UiApplication.h"
 #include "cru/ui/host/WindowHost.h"
 #include "cru/ui/render/RenderObject.h"
 #include "cru/ui/style/StyleRuleSet.h"

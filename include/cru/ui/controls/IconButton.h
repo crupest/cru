@@ -8,8 +8,8 @@
 #include "IBorderControl.h"
 #include "IClickableControl.h"
 #include "IContentBrushControl.h"
-#include "cru/base/Event.h"
-#include "cru/platform/graphics/Brush.h"
+#include <cru/Event.h>
+#include "cru/graphics/Brush.h"
 
 namespace cru::ui::controls {
 class CRU_UI_API IconButton : public NoChildControl,
@@ -47,10 +47,10 @@ class CRU_UI_API IconButton : public NoChildControl,
     container_render_object_->ApplyBorderStyle(style);
   }
 
-  std::shared_ptr<platform::graphics::IGeometry> GetIconGeometry() const {
+  std::shared_ptr<graphics::IGeometry> GetIconGeometry() const {
     return geometry_render_object_->GetGeometry();
   }
-  void SetIconGeometry(std::shared_ptr<platform::graphics::IGeometry> geometry,
+  void SetIconGeometry(std::shared_ptr<graphics::IGeometry> geometry,
                        std::optional<Rect> view_port = std::nullopt) {
     geometry_render_object_->SetGeometry(std::move(geometry), view_port);
   }
@@ -62,17 +62,17 @@ class CRU_UI_API IconButton : public NoChildControl,
     geometry_render_object_->SetViewPort(view_port);
   }
 
-  std::shared_ptr<platform::graphics::IBrush> GetIconFillBrush() const {
+  std::shared_ptr<graphics::IBrush> GetIconFillBrush() const {
     return geometry_render_object_->GetFillBrush();
   }
-  void SetIconFillBrush(std::shared_ptr<platform::graphics::IBrush> brush) {
+  void SetIconFillBrush(std::shared_ptr<graphics::IBrush> brush) {
     geometry_render_object_->SetFillBrush(std::move(brush));
   }
 
-  std::shared_ptr<platform::graphics::IBrush> GetIconStrokeBrush() const {
+  std::shared_ptr<graphics::IBrush> GetIconStrokeBrush() const {
     return geometry_render_object_->GetStrokeBrush();
   }
-  void SetIconStrokeBrush(std::shared_ptr<platform::graphics::IBrush> brush) {
+  void SetIconStrokeBrush(std::shared_ptr<graphics::IBrush> brush) {
     geometry_render_object_->SetStrokeBrush(std::move(brush));
   }
 
@@ -89,12 +89,12 @@ class CRU_UI_API IconButton : public NoChildControl,
   void SetIconWithSvgPathDataStringResourceKey(
       StringView icon_svg_path_data_string_resource_key, const Rect& view_port);
 
-  std::shared_ptr<platform::graphics::IBrush> GetContentBrush() const override {
+  std::shared_ptr<graphics::IBrush> GetContentBrush() const override {
     return GetIconFillBrush();
   }
 
   void SetContentBrush(
-      std::shared_ptr<platform::graphics::IBrush> brush) override {
+      std::shared_ptr<graphics::IBrush> brush) override {
     SetIconFillBrush(std::move(brush));
   }
 

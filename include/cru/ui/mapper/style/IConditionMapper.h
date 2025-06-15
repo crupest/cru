@@ -1,6 +1,6 @@
 #pragma once
 #include "../../Base.h"
-#include "cru/base/ClonablePtr.h"
+#include <cru/CopyPtr.h>
 #include "cru/ui/mapper/Mapper.h"
 #include "cru/ui/style/Condition.h"
 #include "cru/xml/XmlNode.h"
@@ -11,7 +11,7 @@ struct CRU_UI_API IConditionMapper : virtual Interface {
     return dynamic_cast<MapperBase*>(this)->XmlElementIsOfThisType(node);
   }
 
-  virtual ClonablePtr<ui::style::Condition> MapConditionFromXml(
+  virtual CopyPtr<ui::style::Condition> MapConditionFromXml(
       xml::XmlElementNode* node) = 0;
 };
 }  // namespace cru::ui::mapper::style

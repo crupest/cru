@@ -1,4 +1,4 @@
-#include "cru/platform/Color.h"
+#include "cru/graphics/Color.h"
 
 #include <catch2/catch_test_macros.hpp>
 

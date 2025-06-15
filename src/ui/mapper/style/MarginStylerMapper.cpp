@@ -8,7 +8,7 @@ MarginStylerMapper::MarginStylerMapper() { SetAllowedTags({u"MarginStyler"}); }
 
 MarginStylerMapper::~MarginStylerMapper() {}
 
-ClonablePtr<ui::style::MarginStyler> MarginStylerMapper::DoMapFromXml(
+CopyPtr<ui::style::MarginStyler> MarginStylerMapper::DoMapFromXml(
     xml::XmlElementNode* node) {
   Thickness thickness;
 

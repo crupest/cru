@@ -1,9 +1,9 @@
 #include "cru/ui/controls/Button.h"
 
 #include "../Helper.h"
-#include "cru/platform/graphics/Brush.h"
-#include "cru/platform/gui/Cursor.h"
-#include "cru/platform/gui/UiApplication.h"
+#include "cru/graphics/Brush.h"
+#include "cru/gui/Cursor.h"
+#include "cru/gui/UiApplication.h"
 #include "cru/ui/ThemeManager.h"
 #include "cru/ui/helper/ClickDetector.h"
 #include "cru/ui/render/BorderRenderObject.h"

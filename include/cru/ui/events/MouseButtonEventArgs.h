@@ -1,7 +1,7 @@
 #pragma once
 #include "MouseEventArgs.h"
 
-#include "cru/platform/gui/Keyboard.h"
+#include "cru/gui/Keyboard.h"
 
 namespace cru::ui::events {
 
@@ -19,11 +19,6 @@ class CRU_UI_API MouseButtonEventArgs : public MouseEventArgs {
       : MouseEventArgs(sender, original_sender),
         button_(button),
         key_modifier_(key_modifier) {}
-  MouseButtonEventArgs(const MouseButtonEventArgs& other) = default;
-  MouseButtonEventArgs(MouseButtonEventArgs&& other) = default;
-  MouseButtonEventArgs& operator=(const MouseButtonEventArgs& other) = default;
-  MouseButtonEventArgs& operator=(MouseButtonEventArgs&& other) = default;
-  ~MouseButtonEventArgs() override = default;
 
   MouseButton GetButton() const { return button_; }
   platform::gui::KeyModifier GetKeyModifier() const { return key_modifier_; }
@@ -32,4 +27,4 @@ class CRU_UI_API MouseButtonEventArgs : public MouseEventArgs {
   MouseButton button_;
   platform::gui::KeyModifier key_modifier_;
 };
-}  // namespace cru::ui::event
+}  // namespace cru::ui::events

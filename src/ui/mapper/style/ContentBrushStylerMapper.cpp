@@ -1,6 +1,6 @@
 #include "cru/ui/mapper/style/ContentBrushStylerMapper.h"
-#include "cru/base/ClonablePtr.h"
-#include "cru/platform/graphics/Brush.h"
+#include <cru/CopyPtr.h>
+#include "cru/graphics/Brush.h"
 #include "cru/ui/mapper/MapperRegistry.h"
 #include "cru/ui/style/Styler.h"
 #include "cru/xml/XmlNode.h"
@@ -12,12 +12,12 @@ ContentBrushStylerMapper::ContentBrushStylerMapper() {
 
 ContentBrushStylerMapper::~ContentBrushStylerMapper() {}
 
-ClonablePtr<ui::style::ContentBrushStyler>
+CopyPtr<ui::style::ContentBrushStyler>
 ContentBrushStylerMapper::DoMapFromXml(xml::XmlElementNode* node) {
   auto brush_mapper = MapperRegistry::GetInstance()
-                          ->GetSharedPtrMapper<platform::graphics::IBrush>();
+                          ->GetSharedPtrMapper<graphics::IBrush>();
 
-  std::shared_ptr<platform::graphics::IBrush> brush;
+  std::shared_ptr<graphics::IBrush> brush;
 
   for (auto child_node : node->GetChildren()) {
     if (child_node->IsElementNode()) {

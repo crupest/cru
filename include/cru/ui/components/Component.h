@@ -1,7 +1,7 @@
 #pragma once
 #include "../Base.h"
 #include "../DeleteLater.h"
-#include "cru/base/SelfResolvable.h"
+#include <cru/SelfResolvable.h>
 
 namespace cru::ui::components {
 /**
@@ -15,8 +15,6 @@ class CRU_UI_API Component : public Object,
  public:
   Component() = default;
 
-  CRU_DELETE_COPY(Component)
-  CRU_DELETE_MOVE(Component)
 
   ~Component() = default;
 

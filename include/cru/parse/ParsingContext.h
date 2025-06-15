@@ -10,8 +10,6 @@ class CRU_PARSE_API ParsingContext {
   ParsingContext(const ParsingAlgorithmContext* parsing_algorithm_context,
                  std::vector<Terminal*> input);
 
-  CRU_DELETE_COPY(ParsingContext)
-  CRU_DELETE_MOVE(ParsingContext)
 
   ~ParsingContext();
 

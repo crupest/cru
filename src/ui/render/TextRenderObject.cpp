@@ -1,10 +1,10 @@
 #include "cru/ui/render/TextRenderObject.h"
 
 #include "../Helper.h"
-#include "cru/base/log/Logger.h"
-#include "cru/platform/graphics/Factory.h"
-#include "cru/platform/graphics/Painter.h"
-#include "cru/platform/graphics/TextLayout.h"
+#include <cru/Logger.h>
+#include "cru/graphics/Factory.h"
+#include "cru/graphics/Painter.h"
+#include "cru/graphics/TextLayout.h"
 #include "cru/ui/DebugFlags.h"
 #include "cru/ui/render/RenderObject.h"
 
@@ -13,10 +13,10 @@
 
 namespace cru::ui::render {
 TextRenderObject::TextRenderObject(
-    std::shared_ptr<platform::graphics::IBrush> brush,
-    std::shared_ptr<platform::graphics::IFont> font,
-    std::shared_ptr<platform::graphics::IBrush> selection_brush,
-    std::shared_ptr<platform::graphics::IBrush> caret_brush) {
+    std::shared_ptr<graphics::IBrush> brush,
+    std::shared_ptr<graphics::IFont> font,
+    std::shared_ptr<graphics::IBrush> selection_brush,
+    std::shared_ptr<graphics::IBrush> caret_brush) {
   Expects(brush);
   Expects(font);
   Expects(selection_brush);
@@ -41,18 +41,18 @@ void TextRenderObject::SetText(String new_text) {
 }
 
 void TextRenderObject::SetBrush(
-    std::shared_ptr<platform::graphics::IBrush> new_brush) {
+    std::shared_ptr<graphics::IBrush> new_brush) {
   Expects(new_brush);
   new_brush.swap(brush_);
   InvalidatePaint();
 }
 
-std::shared_ptr<platform::graphics::IFont> TextRenderObject::GetFont() const {
+std::shared_ptr<graphics::IFont> TextRenderObject::GetFont() const {
   return text_layout_->GetFont();
 }
 
 void TextRenderObject::SetFont(
-    std::shared_ptr<platform::graphics::IFont> font) {
+    std::shared_ptr<graphics::IFont> font) {
   Expects(font);
   text_layout_->SetFont(std::move(font));
 }
@@ -81,7 +81,7 @@ Rect TextRenderObject::TextSinglePoint(Index position, bool trailing) {
   return text_layout_->TextSinglePoint(position, trailing);
 }
 
-platform::graphics::TextHitTestResult TextRenderObject::TextHitTest(
+graphics::TextHitTestResult TextRenderObject::TextHitTest(
     const Point& point) {
   return text_layout_->HitTest(point);
 }
@@ -92,7 +92,7 @@ void TextRenderObject::SetSelectionRange(std::optional<TextRange> new_range) {
 }
 
 void TextRenderObject::SetSelectionBrush(
-    std::shared_ptr<platform::graphics::IBrush> new_brush) {
+    std::shared_ptr<graphics::IBrush> new_brush) {
   Expects(new_brush);
   new_brush.swap(selection_brush_);
   if (selection_range_ && selection_range_->count) {
@@ -117,7 +117,7 @@ void TextRenderObject::SetCaretPosition(Index position) {
 }
 
 void TextRenderObject::GetCaretBrush(
-    std::shared_ptr<platform::graphics::IBrush> brush) {
+    std::shared_ptr<graphics::IBrush> brush) {
   Expects(brush);
   brush.swap(caret_brush_);
   if (draw_caret_) {
@@ -175,7 +175,7 @@ RenderObject* TextRenderObject::HitTest(const Point& point) {
   return padding_rect.IsPointInside(point) ? this : nullptr;
 }
 
-void TextRenderObject::Draw(platform::graphics::IPainter* painter) {
+void TextRenderObject::Draw(graphics::IPainter* painter) {
   if constexpr (debug_flags::draw) {
     CRU_LOG_DEBUG(
         u"Begin to paint, total_offset: {}, size: {}, text_layout: "

@@ -1,5 +1,5 @@
 #include "cru/ui/mapper/style/HoverConditionMapper.h"
-#include "cru/base/ClonablePtr.h"
+#include <cru/CopyPtr.h>
 #include "cru/ui/style/Condition.h"
 
 namespace cru::ui::mapper::style {
@@ -9,7 +9,7 @@ bool HoverConditionMapper::XmlElementIsOfThisType(xml::XmlElementNode* node) {
   return node->GetTag().CaseInsensitiveEqual(u"HoverCondition");
 }
 
-ClonablePtr<HoverCondition> HoverConditionMapper::DoMapFromXml(
+CopyPtr<HoverCondition> HoverConditionMapper::DoMapFromXml(
     xml::XmlElementNode* node) {
   auto value = node->GetAttributeValueCaseInsensitive(u"value");
   if (value.CaseInsensitiveEqual(u"true")) {

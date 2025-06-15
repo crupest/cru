@@ -1,5 +1,5 @@
-#include "cru/platform/GraphicsBase.h"
-#include "cru/platform/Matrix.h"
+#include "cru/GraphicsBase.h"
+#include "cru/Matrix.h"
 
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/catch_approx.hpp>

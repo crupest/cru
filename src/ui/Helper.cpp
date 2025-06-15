@@ -1,10 +1,10 @@
 #include "Helper.h"
 
-#include "cru/platform/graphics/Factory.h"
-#include "cru/platform/gui/UiApplication.h"
+#include "cru/graphics/Factory.h"
+#include "cru/gui/UiApplication.h"
 
 namespace cru::ui {
-using cru::platform::graphics::IGraphicsFactory;
+using cru::graphics::IGraphicsFactory;
 using cru::platform::gui::IUiApplication;
 
 IGraphicsFactory* GetGraphicsFactory() {

@@ -2,7 +2,7 @@
 #include "SingleChildRenderObject.h"
 
 #include "ScrollBar.h"
-#include "cru/base/Event.h"
+#include <cru/Event.h>
 #include "cru/ui/render/RenderObject.h"
 
 #include <memory>
@@ -21,8 +21,6 @@ class CRU_UI_API ScrollRenderObject : public SingleChildRenderObject {
  public:
   ScrollRenderObject();
 
-  CRU_DELETE_COPY(ScrollRenderObject)
-  CRU_DELETE_MOVE(ScrollRenderObject)
 
   ~ScrollRenderObject() override = default;
 
@@ -70,7 +68,7 @@ class CRU_UI_API ScrollRenderObject : public SingleChildRenderObject {
   bool VerticalCanScrollUp();
   bool VerticalCanScrollDown();
 
-  void Draw(platform::graphics::IPainter* painter) override;
+  void Draw(graphics::IPainter* painter) override;
 
  protected:
   // Logic:

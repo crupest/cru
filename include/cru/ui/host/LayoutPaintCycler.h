@@ -1,8 +1,8 @@
 #pragma once
 #include "../Base.h"
 
-#include "cru/platform/gui/TimerHelper.h"
-#include "cru/platform/gui/UiApplication.h"
+#include "cru/gui/TimerHelper.h"
+#include "cru/gui/UiApplication.h"
 
 #include <chrono>
 
@@ -11,8 +11,6 @@ class CRU_UI_API LayoutPaintCycler {
  public:
   explicit LayoutPaintCycler(WindowHost* host);
 
-  CRU_DELETE_COPY(LayoutPaintCycler)
-  CRU_DELETE_MOVE(LayoutPaintCycler)
 
   ~LayoutPaintCycler();
 

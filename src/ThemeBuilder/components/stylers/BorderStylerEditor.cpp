@@ -1,8 +1,8 @@
 #include "BorderStylerEditor.h"
-#include "cru/base/ClonablePtr.h"
-#include "cru/platform/graphics/Brush.h"
-#include "cru/platform/graphics/Factory.h"
-#include "cru/platform/gui/UiApplication.h"
+#include <cru/CopyPtr.h>
+#include "cru/graphics/Brush.h"
+#include "cru/graphics/Factory.h"
+#include "cru/gui/UiApplication.h"
 #include "cru/ui/style/ApplyBorderStyleInfo.h"
 #include "cru/ui/style/Styler.h"
 
@@ -29,7 +29,7 @@ BorderStylerEditor::BorderStylerEditor() {
 
 BorderStylerEditor::~BorderStylerEditor() {}
 
-ClonablePtr<ui::style::BorderStyler> BorderStylerEditor::GetValue() {
+CopyPtr<ui::style::BorderStyler> BorderStylerEditor::GetValue() {
   auto graphics_factory =
       platform::gui::IUiApplication::GetInstance()->GetGraphicsFactory();
 
@@ -66,7 +66,7 @@ void BorderStylerEditor::SetValue(ui::style::BorderStyler* styler,
   brush_editor_.SetEnabled(border_style.border_brush.has_value(), false);
   if (border_style.border_brush.has_value()) {
     brush_editor_.GetEditor()->SetValue(
-        std::dynamic_pointer_cast<platform::graphics::ISolidColorBrush>(
+        std::dynamic_pointer_cast<graphics::ISolidColorBrush>(
             border_style.border_brush.value())
             ->GetColor(),
         false);
@@ -76,7 +76,7 @@ void BorderStylerEditor::SetValue(ui::style::BorderStyler* styler,
                                       false);
   if (border_style.foreground_brush.has_value()) {
     foreground_brush_editor_.GetEditor()->SetValue(
-        std::dynamic_pointer_cast<platform::graphics::ISolidColorBrush>(
+        std::dynamic_pointer_cast<graphics::ISolidColorBrush>(
             border_style.foreground_brush.value())
             ->GetColor(),
         false);
@@ -86,7 +86,7 @@ void BorderStylerEditor::SetValue(ui::style::BorderStyler* styler,
                                       false);
   if (border_style.background_brush.has_value()) {
     background_brush_editor_.GetEditor()->SetValue(
-        std::dynamic_pointer_cast<platform::graphics::ISolidColorBrush>(
+        std::dynamic_pointer_cast<graphics::ISolidColorBrush>(
             border_style.background_brush.value())
             ->GetColor(),
         false);

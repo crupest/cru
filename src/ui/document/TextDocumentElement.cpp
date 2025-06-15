@@ -1,5 +1,5 @@
 #include "cru/ui/document/TextDocumentElement.h"
-#include "cru/base/String.h"
+#include <cru/String.h>
 #include "cru/ui/document/DocumentElement.h"
 #include "cru/ui/document/DocumentElementType.h"
 
