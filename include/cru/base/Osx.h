@@ -1,9 +1,12 @@
 #pragma once
 
+// TODO: Move This file to platform dir.
+
 #ifndef __APPLE__
 #error "This header can only be included on OSX platforms."
 #endif
 
+#include "Range.h"
 #include "String.h"
 
 #include <CoreFoundation/CoreFoundation.h>
@@ -26,6 +29,10 @@ class CFWrapper {
   }
 };
 
+// TODO: Remove "Ref" in name.
 CFWrapper<CFStringRef> ToCFStringRef(StringView string);
 String FromCFStringRef(CFStringRef string);
+
+CFRange ToCFRange(const Range& range);
+Range FromCFRange(const CFRange& range);
 }  // namespace cru

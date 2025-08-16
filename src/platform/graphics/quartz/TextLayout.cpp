@@ -406,7 +406,7 @@ std::vector<CGRect> OsxCTTextLayout::DoTextRangeRect(
     auto line = lines_[i];
     auto line_origin = line_origins_[i];
 
-    Range range = Range::FromCFRange(CTLineGetStringRange(line));
+    Range range = FromCFRange(CTLineGetStringRange(line));
     range = range.CoerceInto(r.GetStart(), r.GetEnd());
 
     if (range.count) {

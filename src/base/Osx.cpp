@@ -18,4 +18,12 @@ String FromCFStringRef(CFStringRef string) {
 
   return result;
 }
+
+CFRange ToCFRange(const Range& range) {
+  return CFRangeMake(range.position, range.count);
+}
+
+Range FromCFRange(const CFRange& range) {
+  return Range(range.location, range.length);
+}
 }  // namespace cru
