@@ -1,9 +1,10 @@
 #include "cru/platform/graphics/quartz/ImageFactory.h"
 #include "cru/base/Exception.h"
-#include "cru/platform/graphics/quartz/Convert.h"
-#include "cru/platform/graphics/quartz/Image.h"
+#include "cru/base/Osx.h"
 #include "cru/platform/Check.h"
 #include "cru/platform/graphics/Image.h"
+#include "cru/platform/graphics/quartz/Convert.h"
+#include "cru/platform/graphics/quartz/Image.h"
 
 #include <ImageIO/ImageIO.h>
 
@@ -51,10 +52,10 @@ void QuartzImageFactory::EncodeToStream(IImage* image, io::Stream* stream,
   auto quartz_image = CheckPlatform<QuartzImage>(image, GetPlatformId());
   auto cg_image = quartz_image->GetCGImage();
 
-  auto uti = GetImageFormatUniformTypeIdentifier(format).ToCFStringRef();
+  auto uti = ToCFStringRef(GetImageFormatUniformTypeIdentifier(format));
   CGDataConsumerRef data_consumer = ConvertStreamToCGDataConsumer(stream);
-  CGImageDestinationRef destination =
-      CGImageDestinationCreateWithDataConsumer(data_consumer, uti.ref, 1, nullptr);
+  CGImageDestinationRef destination = CGImageDestinationCreateWithDataConsumer(
+      data_consumer, uti.ref, 1, nullptr);
 
   CFMutableDictionaryRef properties =
       CFDictionaryCreateMutable(nullptr, 0, nullptr, nullptr);

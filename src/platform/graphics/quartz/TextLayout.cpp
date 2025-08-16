@@ -1,5 +1,6 @@
 #include "cru/platform/graphics/quartz/TextLayout.h"
 #include "cru/base/Base.h"
+#include "cru/base/Osx.h"
 #include "cru/base/Format.h"
 #include "cru/platform/graphics/quartz/Convert.h"
 #include "cru/platform/graphics/quartz/Resource.h"
@@ -71,7 +72,7 @@ void OsxCTTextLayout::DoSetText(String text) {
     }
   }
 
-  auto s = actual_text_.ToCFStringRef();
+  auto s = ToCFStringRef(actual_text_);
   cf_attributed_text_ = CFAttributedStringCreateMutable(nullptr, 0);
   CFAttributedStringReplaceString(cf_attributed_text_, CFRangeMake(0, 0), s.ref);
   Ensures(cf_attributed_text_);

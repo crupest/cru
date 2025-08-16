@@ -1,12 +1,13 @@
 #include "cru/platform/graphics/quartz/Font.h"
 
+#include "cru/base/Osx.h"
 #include "cru/platform/graphics/quartz/Resource.h"
 
 namespace cru::platform::graphics::quartz {
 OsxCTFont::OsxCTFont(IGraphicsFactory* graphics_factory, const String& name,
                      float size)
     : OsxQuartzResource(graphics_factory), name_(name) {
-  auto n = name.ToCFStringRef();
+  auto n = ToCFStringRef(name);
 
   if (name.empty()) {
     ct_font_ =

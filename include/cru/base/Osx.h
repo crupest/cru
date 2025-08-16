@@ -1,8 +1,10 @@
 #pragma once
 
-#ifndef CRU_PLATFORM_OSX
-#error "This header can only be included on OSX."
+#ifndef __APPLE__
+#error "This header can only be included on OSX platforms."
 #endif
+
+#include "String.h"
 
 #include <CoreFoundation/CoreFoundation.h>
 
@@ -23,4 +25,7 @@ class CFWrapper {
     return ref;
   }
 };
+
+CFWrapper<CFStringRef> ToCFStringRef(StringView string);
+String FromCFStringRef(CFStringRef string);
 }  // namespace cru

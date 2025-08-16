@@ -1,7 +1,8 @@
 #include "cru/platform/gui/osx/Menu.h"
 
-#import "MenuPrivate.h"
 #include "KeyboardPrivate.h"
+#import "MenuPrivate.h"
+#include "cru/base/Osx.h"
 
 #import <AppKit/NSApplication.h>
 
@@ -51,7 +52,7 @@ void OsxMenuPrivate::AttachToNative(NSMenu* native_menu) {
     items_.push_back(item);
   }
 }
-}
+}  // namespace details
 
 OsxMenuItem::OsxMenuItem(IUiApplication* ui_application) : OsxGuiResource(ui_application) {
   p_ = new details::OsxMenuItemPrivate(this);
@@ -59,10 +60,10 @@ OsxMenuItem::OsxMenuItem(IUiApplication* ui_application) : OsxGuiResource(ui_app
 
 OsxMenuItem::~OsxMenuItem() { delete p_; }
 
-String OsxMenuItem::GetTitle() { return ::cru::String::FromCFStringRef((CFStringRef)[p_->menu_item_ title]); }
+String OsxMenuItem::GetTitle() { return FromCFStringRef((CFStringRef)[p_->menu_item_ title]); }
 
 void OsxMenuItem::SetTitle(String title) {
-  auto cf_title = title.ToCFStringRef();
+  auto cf_title = ToCFStringRef(title);
   [p_->menu_item_ setTitle:(NSString*)(cf_title.ref)];
 }
 
@@ -160,7 +161,7 @@ void OsxMenu::RemoveItemAt(int index) {
     p_->menu_ = nullptr;
   }
 }
-}
+}  // namespace cru::platform::gui::osx
 
 @implementation CruOsxMenuItemClickHandler {
   cru::platform::gui::osx::details::OsxMenuItemPrivate* p_;

@@ -3,6 +3,7 @@
 
 #include "CursorPrivate.h"
 #include "InputMethodPrivate.h"
+#include "cru/base/Osx.h"
 #include "cru/base/Range.h"
 #include "cru/base/log/Logger.h"
 #include "cru/platform/Check.h"
@@ -27,6 +28,8 @@ namespace {
 constexpr int key_down_debug = 0;
 }
 
+using ::cru::FromCFStringRef;
+using ::cru::ToCFStringRef;
 using cru::platform::graphics::quartz::Convert;
 namespace cru::platform::gui::osx {
 namespace {
@@ -185,7 +188,7 @@ void OsxWindowPrivate::CreateWindow() {
                                          frame:Rect(Point{}, content_rect_.GetSize())];
 
   [window_ setContentView:content_view];
-  [window_ setTitle:(NSString*)title_.ToCFStringRef().ref];
+  [window_ setTitle:(NSString*)ToCFStringRef(title_).ref];
 
   draw_layer_ = CreateLayer(Convert(content_rect_.GetSize()));
 
@@ -253,7 +256,7 @@ void OsxWindow::SetTitle(String title) {
   p_->title_ = title;
 
   if (p_->window_) {
-    [p_->window_ setTitle:(NSString*)title.ToCFStringRef().ref];
+    [p_->window_ setTitle:(NSString*)ToCFStringRef(title).ref];
   }
 }
 
@@ -664,7 +667,7 @@ const std::unordered_set<KeyCode> input_context_handle_codes_when_has_text{
     s = CFAttributedStringGetString(as);
   }
 
-  auto ss = ::cru::String::FromCFStringRef(s);
+  auto ss = FromCFStringRef(s);
 
   // cru::CRU_LOG_DEBUG(u"CruView",
   //                    u"Received setMarkedText string: {}, selected range: ({}, {}), "
@@ -684,7 +687,7 @@ const std::unordered_set<KeyCode> input_context_handle_codes_when_has_text{
           withAttributedString:[[NSAttributedString alloc] initWithString:(NSString*)s]];
 
   cru::platform::gui::CompositionText composition_text;
-  composition_text.text = ::cru::String::FromCFStringRef((CFStringRef)[_input_context_text string]);
+  composition_text.text = FromCFStringRef((CFStringRef)[_input_context_text string]);
   composition_text.selection.position = ss.IndexFromCodePointToCodeUnit(selectedRange.location);
   composition_text.selection.count =
       ss.IndexFromCodePointToCodeUnit(selectedRange.location + selectedRange.length) -
@@ -725,7 +728,7 @@ const std::unordered_set<KeyCode> input_context_handle_codes_when_has_text{
 
   _input_context_text = nil;
   _input_context_p->SetCompositionText(cru::platform::gui::CompositionText());
-  auto ss = ::cru::String::FromCFStringRef(s);
+  auto ss = FromCFStringRef(s);
 
   // cru::CRU_LOG_DEBUG(u"CruView", u"Finish composition: {}, replacement range: ({}, {})", ss,
   //                    replacementRange.location, replacementRange.length);

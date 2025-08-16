@@ -673,28 +673,4 @@ String ToUpper(StringView s) {
   return result;
 }
 
-
-#ifdef CRU_PLATFORM_OSX
-CFWrapper<CFStringRef> StringView::ToCFStringRef() const {
-  return CFWrapper<CFStringRef>(CFStringCreateWithBytes(
-      nullptr, reinterpret_cast<const UInt8*>(this->data()),
-      this->size() * sizeof(std::uint16_t), kCFStringEncodingUTF16, false));
-}
-
-CFWrapper<CFStringRef> String::ToCFStringRef() const {
-  return StringView(*this).ToCFStringRef();
-}
-
-String String::FromCFStringRef(CFStringRef string) {
-  auto length = CFStringGetLength(string);
-
-  String result;
-
-  for (int i = 0; i < length; i++) {
-    result.AppendCodePoint(CFStringGetCharacterAtIndex(string, i));
-  }
-
-  return result;
-}
-#endif
 }  // namespace cru

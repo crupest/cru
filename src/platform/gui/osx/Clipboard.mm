@@ -1,5 +1,6 @@
-#include "cru/base/log/Logger.h"
 #include "cru/platform/gui/osx/Clipboard.h"
+#include "cru/base/Osx.h"
+#include "cru/base/log/Logger.h"
 
 #include "ClipboardPrivate.h"
 
@@ -30,15 +31,15 @@ String OsxClipboardPrivate::GetText() {
     if (result.count == 0) {
       return u"";
     } else {
-      return ::cru::String::FromCFStringRef((CFStringRef)result[0]);
+      return FromCFStringRef((CFStringRef)result[0]);
     }
   }
 }
 
 void OsxClipboardPrivate::SetText(String text) {
-  auto cf_string = text.ToCFStringRef();
+  auto cf_string = ToCFStringRef(text);
   [pasteboard_ clearContents];
   [pasteboard_ writeObjects:@[ (NSString*)cf_string.ref ]];
 }
-}
+}  // namespace details
 }  // namespace cru::platform::gui::osx

@@ -1,16 +1,17 @@
 #include "cru/platform/gui/osx/UiApplication.h"
 
 #include "ClipboardPrivate.h"
+#include "cru/base/Osx.h"
 #include "cru/base/log/Logger.h"
+#include "cru/platform/graphics/Factory.h"
 #include "cru/platform/graphics/quartz/Factory.h"
+#include "cru/platform/gui/Base.h"
+#include "cru/platform/gui/UiApplication.h"
+#include "cru/platform/gui/Window.h"
 #include "cru/platform/gui/osx/Clipboard.h"
 #include "cru/platform/gui/osx/Cursor.h"
 #include "cru/platform/gui/osx/Menu.h"
 #include "cru/platform/gui/osx/Window.h"
-#include "cru/platform/graphics/Factory.h"
-#include "cru/platform/gui/Base.h"
-#include "cru/platform/gui/UiApplication.h"
-#include "cru/platform/gui/Window.h"
 
 #include <AppKit/NSApplication.h>
 #include <Foundation/NSRunLoop.h>
@@ -70,7 +71,7 @@ void OsxUiApplicationPrivate::CallQuitHandlers() {
     handler();
   }
 }
-}
+}  // namespace details
 
 OsxUiApplication::OsxUiApplication()
     : OsxGuiResource(this), p_(new details::OsxUiApplicationPrivate(this)) {
@@ -178,15 +179,15 @@ graphics::IGraphicsFactory* OsxUiApplication::GetGraphicsFactory() {
 
 std::optional<String> OsxUiApplication::ShowSaveDialog(SaveDialogOptions options) {
   NSSavePanel* panel = [NSSavePanel savePanel];
-  [panel setTitle:(NSString*)options.title.ToCFStringRef().ref];
-  [panel setPrompt:(NSString*)options.prompt.ToCFStringRef().ref];
-  [panel setMessage:(NSString*)options.message.ToCFStringRef().ref];
+  [panel setTitle:(NSString*)ToCFStringRef(options.title).ref];
+  [panel setPrompt:(NSString*)ToCFStringRef(options.prompt).ref];
+  [panel setMessage:(NSString*)ToCFStringRef(options.message).ref];
 
   NSMutableArray* allowed_content_types = [NSMutableArray array];
 
   for (const auto& file_type : options.allowed_file_types) {
     [allowed_content_types
-        addObject:[UTType typeWithFilenameExtension:(NSString*)file_type.ToCFStringRef().ref]];
+        addObject:[UTType typeWithFilenameExtension:(NSString*)ToCFStringRef(file_type).ref]];
   }
 
   [panel setAllowedContentTypes:allowed_content_types];
@@ -194,7 +195,7 @@ std::optional<String> OsxUiApplication::ShowSaveDialog(SaveDialogOptions options
 
   auto model_result = [panel runModal];
   if (model_result == NSModalResponseOK) {
-    return ::cru::String::FromCFStringRef((CFStringRef)[[panel URL] path]);
+    return FromCFStringRef((CFStringRef)[[panel URL] path]);
   } else {
     return std::nullopt;
   }
@@ -202,15 +203,15 @@ std::optional<String> OsxUiApplication::ShowSaveDialog(SaveDialogOptions options
 
 std::optional<std::vector<String>> OsxUiApplication::ShowOpenDialog(OpenDialogOptions options) {
   NSOpenPanel* panel = [NSOpenPanel openPanel];
-  [panel setTitle:(NSString*)options.title.ToCFStringRef().ref];
-  [panel setPrompt:(NSString*)options.prompt.ToCFStringRef().ref];
-  [panel setMessage:(NSString*)options.message.ToCFStringRef().ref];
+  [panel setTitle:(NSString*)ToCFStringRef(options.title).ref];
+  [panel setPrompt:(NSString*)ToCFStringRef(options.prompt).ref];
+  [panel setMessage:(NSString*)ToCFStringRef(options.message).ref];
 
   NSMutableArray* allowed_content_types = [NSMutableArray array];
 
   for (const auto& file_type : options.allowed_file_types) {
     [allowed_content_types
-        addObject:[UTType typeWithFilenameExtension:(NSString*)file_type.ToCFStringRef().ref]];
+        addObject:[UTType typeWithFilenameExtension:(NSString*)ToCFStringRef(file_type).ref]];
   }
 
   [panel setAllowedContentTypes:allowed_content_types];
@@ -224,7 +225,7 @@ std::optional<std::vector<String>> OsxUiApplication::ShowOpenDialog(OpenDialogOp
   if (model_result == NSModalResponseOK) {
     std::vector<String> result;
     for (NSURL* url in [panel URLs]) {
-      result.push_back(::cru::String::FromCFStringRef((CFStringRef)[url path]));
+      result.push_back(FromCFStringRef((CFStringRef)[url path]));
     }
     return result;
   } else {
@@ -237,7 +238,7 @@ void OsxUiApplication::UnregisterWindow(OsxWindow* window) {
       std::remove(p_->windows_.begin(), p_->windows_.end(), static_cast<INativeWindow*>(window)),
       p_->windows_.cend());
 }
-}
+}  // namespace cru::platform::gui::osx
 
 @implementation CruAppDelegate {
   cru::platform::gui::osx::details::OsxUiApplicationPrivate* _p;
