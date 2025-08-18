@@ -17,7 +17,6 @@ add_library(CruBase
 	io/MemoryStream.cpp
 	log/Logger.cpp
 	log/StdioLogTarget.cpp
-	platform/Exception.cpp
 )
 target_compile_definitions(CruBase PRIVATE CRU_BASE_EXPORT_API)
 target_include_directories(CruBase PUBLIC ${CRU_INCLUDE_DIR})

@@ -2,7 +2,6 @@
 #include "Base.h"
 #include "cru/base/Base.h"
 #include "cru/base/Exception.h"
-#include "cru/base/platform/Exception.h"
 
 #include <optional>
 

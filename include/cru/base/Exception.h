@@ -34,6 +34,13 @@ class CRU_BASE_API Exception : public std::exception {
   std::unique_ptr<std::exception> inner_;
 };
 
+class CRU_BASE_API PlatformException : public Exception {
+ public:
+  using Exception::Exception;  // inherit constructors
+
+  CRU_DEFAULT_DESTRUCTOR(PlatformException)
+};
+
 class CRU_BASE_API TextEncodeException : public Exception {
  public:
   using Exception::Exception;
