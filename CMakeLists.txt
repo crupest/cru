@@ -7,13 +7,6 @@ set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-# We default to build shared libs.
-set(BUILD_SHARED_LIBS ON)
-if (EMSCRIPTEN)
-	# WebAssembly has no idea about static/dynamic libraries.
-	set(BUILD_SHARED_LIBS OFF)
-endif()
-
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
@@ -26,11 +19,7 @@ if (APPLE)
 	include_directories(BEFORE SYSTEM "/usr/local/include")
 endif()
 
-# Catch2 requires static link.
-set(OLD_BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})
-set(BUILD_SHARED_LIBS OFF)
 add_subdirectory(lib/Catch2)
-set(BUILD_SHARED_LIBS ${OLD_BUILD_SHARED_LIBS})
 add_subdirectory(lib/double-conversion)
 
 enable_testing()
