@@ -29,8 +29,7 @@ class CFWrapper {
   }
 };
 
-// TODO: Remove "Ref" in name.
-CFWrapper<CFStringRef> ToCFStringRef(StringView string);
+CFWrapper<CFStringRef> ToCFString(StringView string);
 String FromCFStringRef(CFStringRef string);
 
 CFRange ToCFRange(const Range& range);

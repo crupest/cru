@@ -1,7 +1,7 @@
 #include "cru/base/Osx.h"
 
 namespace cru {
-CFWrapper<CFStringRef> ToCFStringRef(StringView string) {
+CFWrapper<CFStringRef> ToCFString(StringView string) {
   return CFWrapper<CFStringRef>(CFStringCreateWithBytes(
       nullptr, reinterpret_cast<const UInt8*>(string.data()),
       string.size() * sizeof(std::uint16_t), kCFStringEncodingUTF16, false));

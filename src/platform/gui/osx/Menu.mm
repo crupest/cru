@@ -63,7 +63,7 @@ OsxMenuItem::~OsxMenuItem() { delete p_; }
 String OsxMenuItem::GetTitle() { return FromCFStringRef((CFStringRef)[p_->menu_item_ title]); }
 
 void OsxMenuItem::SetTitle(String title) {
-  auto cf_title = ToCFStringRef(title);
+  auto cf_title = ToCFString(title);
   [p_->menu_item_ setTitle:(NSString*)(cf_title.ref)];
 }
 

@@ -7,7 +7,7 @@ namespace cru::platform::graphics::quartz {
 OsxCTFont::OsxCTFont(IGraphicsFactory* graphics_factory, const String& name,
                      float size)
     : OsxQuartzResource(graphics_factory), name_(name) {
-  auto n = ToCFStringRef(name);
+  auto n = ToCFString(name);
 
   if (name.empty()) {
     ct_font_ =

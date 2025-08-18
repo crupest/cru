@@ -37,7 +37,7 @@ String OsxClipboardPrivate::GetText() {
 }
 
 void OsxClipboardPrivate::SetText(String text) {
-  auto cf_string = ToCFStringRef(text);
+  auto cf_string = ToCFString(text);
   [pasteboard_ clearContents];
   [pasteboard_ writeObjects:@[ (NSString*)cf_string.ref ]];
 }

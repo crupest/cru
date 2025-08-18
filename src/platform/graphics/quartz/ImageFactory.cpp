@@ -52,7 +52,7 @@ void QuartzImageFactory::EncodeToStream(IImage* image, io::Stream* stream,
   auto quartz_image = CheckPlatform<QuartzImage>(image, GetPlatformId());
   auto cg_image = quartz_image->GetCGImage();
 
-  auto uti = ToCFStringRef(GetImageFormatUniformTypeIdentifier(format));
+  auto uti = ToCFString(GetImageFormatUniformTypeIdentifier(format));
   CGDataConsumerRef data_consumer = ConvertStreamToCGDataConsumer(stream);
   CGImageDestinationRef destination = CGImageDestinationCreateWithDataConsumer(
       data_consumer, uti.ref, 1, nullptr);

@@ -29,7 +29,7 @@ constexpr int key_down_debug = 0;
 }
 
 using ::cru::FromCFStringRef;
-using ::cru::ToCFStringRef;
+using ::cru::ToCFString;
 using cru::platform::graphics::quartz::Convert;
 namespace cru::platform::gui::osx {
 namespace {
@@ -188,7 +188,7 @@ void OsxWindowPrivate::CreateWindow() {
                                          frame:Rect(Point{}, content_rect_.GetSize())];
 
   [window_ setContentView:content_view];
-  [window_ setTitle:(NSString*)ToCFStringRef(title_).ref];
+  [window_ setTitle:(NSString*)ToCFString(title_).ref];
 
   draw_layer_ = CreateLayer(Convert(content_rect_.GetSize()));
 
@@ -256,7 +256,7 @@ void OsxWindow::SetTitle(String title) {
   p_->title_ = title;
 
   if (p_->window_) {
-    [p_->window_ setTitle:(NSString*)ToCFStringRef(title).ref];
+    [p_->window_ setTitle:(NSString*)ToCFString(title).ref];
   }
 }
 

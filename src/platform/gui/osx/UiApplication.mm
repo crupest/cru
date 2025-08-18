@@ -179,15 +179,15 @@ graphics::IGraphicsFactory* OsxUiApplication::GetGraphicsFactory() {
 
 std::optional<String> OsxUiApplication::ShowSaveDialog(SaveDialogOptions options) {
   NSSavePanel* panel = [NSSavePanel savePanel];
-  [panel setTitle:(NSString*)ToCFStringRef(options.title).ref];
-  [panel setPrompt:(NSString*)ToCFStringRef(options.prompt).ref];
-  [panel setMessage:(NSString*)ToCFStringRef(options.message).ref];
+  [panel setTitle:(NSString*)ToCFString(options.title).ref];
+  [panel setPrompt:(NSString*)ToCFString(options.prompt).ref];
+  [panel setMessage:(NSString*)ToCFString(options.message).ref];
 
   NSMutableArray* allowed_content_types = [NSMutableArray array];
 
   for (const auto& file_type : options.allowed_file_types) {
     [allowed_content_types
-        addObject:[UTType typeWithFilenameExtension:(NSString*)ToCFStringRef(file_type).ref]];
+        addObject:[UTType typeWithFilenameExtension:(NSString*)ToCFString(file_type).ref]];
   }
 
   [panel setAllowedContentTypes:allowed_content_types];
@@ -203,15 +203,15 @@ std::optional<String> OsxUiApplication::ShowSaveDialog(SaveDialogOptions options
 
 std::optional<std::vector<String>> OsxUiApplication::ShowOpenDialog(OpenDialogOptions options) {
   NSOpenPanel* panel = [NSOpenPanel openPanel];
-  [panel setTitle:(NSString*)ToCFStringRef(options.title).ref];
-  [panel setPrompt:(NSString*)ToCFStringRef(options.prompt).ref];
-  [panel setMessage:(NSString*)ToCFStringRef(options.message).ref];
+  [panel setTitle:(NSString*)ToCFString(options.title).ref];
+  [panel setPrompt:(NSString*)ToCFString(options.prompt).ref];
+  [panel setMessage:(NSString*)ToCFString(options.message).ref];
 
   NSMutableArray* allowed_content_types = [NSMutableArray array];
 
   for (const auto& file_type : options.allowed_file_types) {
     [allowed_content_types
-        addObject:[UTType typeWithFilenameExtension:(NSString*)ToCFStringRef(file_type).ref]];
+        addObject:[UTType typeWithFilenameExtension:(NSString*)ToCFString(file_type).ref]];
   }
 
   [panel setAllowedContentTypes:allowed_content_types];
