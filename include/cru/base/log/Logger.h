@@ -8,6 +8,7 @@
 #include <memory>
 #include <mutex>
 #include <thread>
+#include <utility>
 #include <vector>
 
 namespace cru::log {
@@ -69,6 +70,36 @@ class CRU_BASE_API Logger : public Object {
 
   std::thread log_thread_;
 };
+
+class CRU_BASE_API LoggerCppStream : public Object2 {
+ public:
+  explicit LoggerCppStream(Logger* logger, LogLevel level, String tag);
+  ~LoggerCppStream() override = default;
+
+  LoggerCppStream WithLevel(LogLevel level) const;
+  LoggerCppStream WithTag(String tag) const;
+
+ private:
+  void Consume(StringView str);
+
+ public:
+  LoggerCppStream& operator<<(StringView str) {
+    this->Consume(str);
+    return *this;
+  }
+
+  template <typename T>
+  LoggerCppStream& operator<<(T&& arg) {
+    this->Consume(ToString(std::forward<T>(arg)));
+    return *this;
+  }
+
+ private:
+  Logger* logger_;
+  LogLevel level_;
+  String tag_;
+};
+
 }  // namespace cru::log
 
 #define CRU_LOG_TAG_DEBUG(...)                                          \

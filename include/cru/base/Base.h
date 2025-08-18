@@ -75,6 +75,16 @@ class CRU_BASE_API Object {
   virtual ~Object() = default;
 };
 
+class CRU_BASE_API Object2 {
+ public:
+  Object2() = default;
+  Object2(const Object2&) = delete;
+  Object2& operator=(const Object2&) = delete;
+  Object2(Object2&&) = delete;
+  Object2& operator=(Object2&&) = delete;
+  virtual ~Object2() = default;
+};
+
 struct CRU_BASE_API Interface {
   Interface() = default;
   CRU_DELETE_COPY(Interface)

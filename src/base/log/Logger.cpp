@@ -1,8 +1,8 @@
 #include "cru/base/log/Logger.h"
 #include "cru/base/log/StdioLogTarget.h"
 
-#include <ctime>
 #include <algorithm>
+#include <ctime>
 
 #ifdef CRU_PLATFORM_WINDOWS
 #include "cru/base/platform/win/DebugLogTarget.h"
@@ -84,5 +84,20 @@ void Logger::Log(LogInfo log_info) {
   }
 #endif
   log_queue_.Push(std::move(log_info));
+}
+
+LoggerCppStream::LoggerCppStream(Logger *logger, LogLevel level, String tag)
+    : logger_(logger), level_(level), tag_(std::move(tag)) {}
+
+LoggerCppStream LoggerCppStream::WithLevel(LogLevel level) const {
+  return LoggerCppStream(this->logger_, level, this->tag_);
+}
+
+LoggerCppStream LoggerCppStream::WithTag(String tag) const {
+  return LoggerCppStream(this->logger_, this->level_, std::move(tag));
+}
+
+void LoggerCppStream::Consume(StringView str) {
+  this->logger_->Log(this->level_, this->tag_, str.ToString());
 }
 }  // namespace cru::log
