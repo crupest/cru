@@ -227,7 +227,7 @@ void TextHostControlService::SetText(String text, bool stop_composition) {
 void TextHostControlService::InsertText(Index position, StringView text,
                                         bool stop_composition) {
   if (!Utf16IsValidInsertPosition(this->text_, position)) {
-    CRU_LOG_ERROR(u"Invalid text insert position.");
+    CRU_LOG_TAG_ERROR(u"Invalid text insert position.");
     return;
   }
   this->text_.insert(this->text_.cbegin() + position, text);
@@ -240,7 +240,7 @@ void TextHostControlService::InsertText(Index position, StringView text,
 
 void TextHostControlService::DeleteChar(Index position, bool stop_composition) {
   if (!Utf16IsValidInsertPosition(this->text_, position)) {
-    CRU_LOG_ERROR(u"Invalid text delete position.");
+    CRU_LOG_TAG_ERROR(u"Invalid text delete position.");
     return;
   }
   if (position == static_cast<Index>(this->text_.size())) return;
@@ -253,7 +253,7 @@ void TextHostControlService::DeleteChar(Index position, bool stop_composition) {
 Index TextHostControlService::DeleteCharPrevious(Index position,
                                                  bool stop_composition) {
   if (!Utf16IsValidInsertPosition(this->text_, position)) {
-    CRU_LOG_ERROR(u"Invalid text delete position.");
+    CRU_LOG_TAG_ERROR(u"Invalid text delete position.");
     return 0;
   }
   if (position == 0) return 0;
@@ -269,11 +269,11 @@ void TextHostControlService::DeleteText(TextRange range,
   if (range.count == 0) return;
   range = range.Normalize();
   if (!Utf16IsValidInsertPosition(this->text_, range.GetStart())) {
-    CRU_LOG_ERROR(u"Invalid text delete start position.");
+    CRU_LOG_TAG_ERROR(u"Invalid text delete start position.");
     return;
   }
   if (!Utf16IsValidInsertPosition(this->text_, range.GetStart())) {
-    CRU_LOG_ERROR(u"Invalid text delete end position.");
+    CRU_LOG_TAG_ERROR(u"Invalid text delete end position.");
     return;
   }
   this->text_.erase(this->text_.cbegin() + range.GetStart(),
@@ -465,7 +465,7 @@ void TextHostControlService::UpdateInputMethodPosition() {
     right_bottom.y += 5;
 
     if constexpr (debug_flags::text_service) {
-      CRU_LOG_DEBUG(u"Calculate input method candidate window position: {}.",
+      CRU_LOG_TAG_DEBUG(u"Calculate input method candidate window position: {}.",
                     right_bottom);
     }
 

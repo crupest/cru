@@ -634,7 +634,7 @@ const std::unordered_set<KeyCode> input_context_handle_codes_when_has_text{
 }
 
 - (void)keyUp:(NSEvent*)event {
-  // cru::CRU_LOG_DEBUG(u"CruView", u"Recieved key up.");
+  // cru::CRU_LOG_TAG_DEBUG(u"CruView", u"Recieved key up.");
 
   auto key_modifier = GetKeyModifier(event);
   auto c = cru::platform::gui::osx::KeyCodeFromOsxToCru(event.keyCode);
@@ -669,7 +669,7 @@ const std::unordered_set<KeyCode> input_context_handle_codes_when_has_text{
 
   auto ss = FromCFStringRef(s);
 
-  // cru::CRU_LOG_DEBUG(u"CruView",
+  // cru::CRU_LOG_TAG_DEBUG(u"CruView",
   //                    u"Received setMarkedText string: {}, selected range: ({}, {}), "
   //                    u"replacement range: ({}, {}).",
   //                    ss, selectedRange.location, selectedRange.length, replacementRange.location,
@@ -730,7 +730,7 @@ const std::unordered_set<KeyCode> input_context_handle_codes_when_has_text{
   _input_context_p->SetCompositionText(cru::platform::gui::CompositionText());
   auto ss = FromCFStringRef(s);
 
-  // cru::CRU_LOG_DEBUG(u"CruView", u"Finish composition: {}, replacement range: ({}, {})", ss,
+  // cru::CRU_LOG_TAG_DEBUG(u"CruView", u"Finish composition: {}, replacement range: ({}, {})", ss,
   //                    replacementRange.location, replacementRange.length);
 
   _input_context_p->RaiseTextEvent(ss);

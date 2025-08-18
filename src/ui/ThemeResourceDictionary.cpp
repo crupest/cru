@@ -47,10 +47,10 @@ void ThemeResourceDictionary::UpdateResourceMap(xml::XmlElementNode* xml_root) {
 
         resource_map_[entry.name] = std::move(entry);
       } else {
-        CRU_LOG_DEBUG(u"Ignore unknown element {} of theme.", c->GetTag());
+        CRU_LOG_TAG_DEBUG(u"Ignore unknown element {} of theme.", c->GetTag());
       }
     } else {
-      CRU_LOG_DEBUG(u"Ignore text or comment node of theme.");
+      CRU_LOG_TAG_DEBUG(u"Ignore text or comment node of theme.");
     }
   }
 }

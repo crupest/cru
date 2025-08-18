@@ -43,7 +43,7 @@ GodWindow::GodWindow(WinUiApplication* application) {
 GodWindow::~GodWindow() {
   if (!::DestroyWindow(hwnd_)) {
     // Although this could be "safely" ignore.
-    CRU_LOG_WARN(u"Failed to destroy god window.");
+    CRU_LOG_TAG_WARN(u"Failed to destroy god window.");
   }
 }
 

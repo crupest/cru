@@ -22,7 +22,7 @@ D2DDeviceContextPainter::D2DDeviceContextPainter(
 
 D2DDeviceContextPainter::~D2DDeviceContextPainter() {
   if (is_drawing_) {
-    CRU_LOG_INFO(u"You may forget to call EndDraw before destroying painter.");
+    CRU_LOG_TAG_INFO(u"You may forget to call EndDraw before destroying painter.");
   }
 
   if (release_) {

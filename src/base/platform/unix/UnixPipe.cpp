@@ -43,7 +43,7 @@ UnixPipe::~UnixPipe() {
   if (auto_close_) {
     auto self_fd = GetSelfFileDescriptor();
     if (::close(self_fd) != 0) {
-      CRU_LOG_ERROR(u"Failed to close unix pipe file descriptor {}, errno {}.",
+      CRU_LOG_TAG_ERROR(u"Failed to close unix pipe file descriptor {}, errno {}.",
                     self_fd, errno);
     }
   }

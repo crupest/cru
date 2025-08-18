@@ -34,7 +34,7 @@ void DispatchEvent(
 
   if (original_sender == last_receiver) {
     if constexpr (debug_flags::routed_event)
-      CRU_LOG_DEBUG(
+      CRU_LOG_TAG_DEBUG(
           u"Routed event {} no need to dispatch (original_sender == "
           "last_receiver). Original sender is {}.",
           event_name, original_sender->GetControlType());
@@ -64,7 +64,7 @@ void DispatchEvent(
       log += u" -> ";
     }
     log += i->Resolve()->GetControlType();
-    CRU_LOG_DEBUG(log);
+    CRU_LOG_TAG_DEBUG(log);
   }
 
   auto handled = false;
@@ -82,7 +82,7 @@ void DispatchEvent(
     if (event_args.IsHandled()) {
       handled = true;
       if constexpr (debug_flags::routed_event)
-        CRU_LOG_DEBUG(
+        CRU_LOG_TAG_DEBUG(
             u"Routed event is short-circuit in TUNNEL at {}-st control (count "
             u"from parent).",
             count);
@@ -102,7 +102,7 @@ void DispatchEvent(
           ->Raise(event_args);
       if (event_args.IsHandled()) {
         if constexpr (debug_flags::routed_event)
-          CRU_LOG_DEBUG(
+          CRU_LOG_TAG_DEBUG(
               u"Routed event is short-circuit in BUBBLE at {}-st control "
               u"(count from parent).",
               count);
@@ -121,7 +121,7 @@ void DispatchEvent(
   }
 
   if constexpr (debug_flags::routed_event)
-    CRU_LOG_DEBUG(u"Routed event dispatch finished.");
+    CRU_LOG_TAG_DEBUG(u"Routed event dispatch finished.");
 
   WindowHost::LeaveEventHandling();
 }

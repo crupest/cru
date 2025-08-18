@@ -207,7 +207,7 @@ bool WinNativeWindow::ReleaseMouse() {
 
 void WinNativeWindow::RequestRepaint() {
   if constexpr (DebugFlags::paint) {
-    CRU_LOG_DEBUG(u"A repaint is requested.");
+    CRU_LOG_TAG_DEBUG(u"A repaint is requested.");
   }
   if (!::InvalidateRect(hwnd_, nullptr, FALSE))
     throw Win32Error(::GetLastError(), u"Failed to invalidate window.");
@@ -234,7 +234,7 @@ void WinNativeWindow::SetCursor(std::shared_ptr<ICursor> cursor) {
 
   if (!::SetClassLongPtrW(hwnd_, GCLP_HCURSOR,
                           reinterpret_cast<LONG_PTR>(cursor_->GetHandle()))) {
-    CRU_LOG_WARN(
+    CRU_LOG_TAG_WARN(
         u"Failed to set cursor because failed to set class long. Last "
         u"error code: {}.",
         ::GetLastError());
@@ -244,7 +244,7 @@ void WinNativeWindow::SetCursor(std::shared_ptr<ICursor> cursor) {
   if (GetVisibility() != WindowVisibilityType::Show) return;
 
   auto lg = [](StringView reason) {
-    CRU_LOG_WARN(
+    CRU_LOG_TAG_WARN(
 
         u"Failed to set cursor because {} when window is visible. (We need to "
         u"update cursor if it is inside the window.) Last error code: {}.",
@@ -477,7 +477,7 @@ void WinNativeWindow::RecreateWindow() {
   if (dpi == 0)
     throw Win32Error(::GetLastError(), u"Failed to get dpi of window.");
   dpi_ = static_cast<float>(dpi);
-  CRU_LOG_DEBUG(u"Dpi of window is {}.", dpi_);
+  CRU_LOG_TAG_DEBUG(u"Dpi of window is {}.", dpi_);
 
   window_manager->RegisterWindow(hwnd_, this);
 
@@ -507,7 +507,7 @@ void WinNativeWindow::OnPaintInternal() {
   paint_event_.Raise(nullptr);
   ValidateRect(hwnd_, nullptr);
   if constexpr (DebugFlags::paint) {
-    CRU_LOG_DEBUG(u"A repaint is finished.");
+    CRU_LOG_TAG_DEBUG(u"A repaint is finished.");
   }
 }
 

@@ -119,7 +119,7 @@ void RenderObject::Measure(const MeasureRequirement& requirement,
       preferred_size.OverrideBy(preferred_size_);
 
   if constexpr (cru::ui::debug_flags::layout) {
-    CRU_LOG_DEBUG(u"{} Measure begins :\nrequirement: {}\npreferred size: {}",
+    CRU_LOG_TAG_DEBUG(u"{} Measure begins :\nrequirement: {}\npreferred size: {}",
                   this->GetDebugPathInTree(), requirement.ToDebugString(),
                   preferred_size.ToDebugString());
   }
@@ -127,7 +127,7 @@ void RenderObject::Measure(const MeasureRequirement& requirement,
   desired_size_ = OnMeasureCore(merged_requirement, merged_preferred_size);
 
   if constexpr (cru::ui::debug_flags::layout) {
-    CRU_LOG_DEBUG(u"{} Measure ends :\nresult size: {}",
+    CRU_LOG_TAG_DEBUG(u"{} Measure ends :\nresult size: {}",
                   this->GetDebugPathInTree(), desired_size_);
   }
 
@@ -144,7 +144,7 @@ Size RenderObject::Measure1(const BoxConstraint& constraint) {
 
 void RenderObject::Layout(const Point& offset) {
   if constexpr (cru::ui::debug_flags::layout) {
-    CRU_LOG_DEBUG(u"{} Layout :\noffset: {} size: {}",
+    CRU_LOG_TAG_DEBUG(u"{} Layout :\noffset: {} size: {}",
                   this->GetDebugPathInTree(), offset, desired_size_);
   }
   offset_ = offset;
@@ -192,13 +192,13 @@ Size RenderObject::OnMeasureCore1(const BoxConstraint& constraint) {
 
   if (space_size.width > merged_constraint.max.width) {
     space_size.width = merged_constraint.max.width;
-    CRU_LOG_WARN(u"{} space width is over constraint.max.width",
+    CRU_LOG_TAG_WARN(u"{} space width is over constraint.max.width",
                  this->GetDebugPathInTree());
   }
 
   if (space_size.height > merged_constraint.max.height) {
     space_size.height = merged_constraint.max.height;
-    CRU_LOG_WARN(u"{} space height is over constraint.max.height",
+    CRU_LOG_TAG_WARN(u"{} space height is over constraint.max.height",
                  this->GetDebugPathInTree());
   }
 

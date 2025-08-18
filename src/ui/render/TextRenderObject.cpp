@@ -177,7 +177,7 @@ RenderObject* TextRenderObject::HitTest(const Point& point) {
 
 void TextRenderObject::Draw(platform::graphics::IPainter* painter) {
   if constexpr (debug_flags::draw) {
-    CRU_LOG_DEBUG(
+    CRU_LOG_TAG_DEBUG(
         u"Begin to paint, total_offset: {}, size: {}, text_layout: "
         u"{}, brush: {}.",
         this->GetTotalOffset(), this->GetDesiredSize(),

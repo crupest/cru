@@ -162,7 +162,7 @@ SubProcessExitResult PosixSpawnSubProcessImpl::PlatformWaitForProcess() {
 
   while (waitpid(pid_, &wstatus, 0) == -1) {
     if (errno == EINTR) {
-      CRU_LOG_INFO(u"Waitpid is interrupted by a signal. Call it again.");
+      CRU_LOG_TAG_INFO(u"Waitpid is interrupted by a signal. Call it again.");
       continue;
     }
 

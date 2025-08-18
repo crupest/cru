@@ -71,18 +71,18 @@ class CRU_BASE_API Logger : public Object {
 };
 }  // namespace cru::log
 
-#define CRU_LOG_DEBUG(...)                                              \
+#define CRU_LOG_TAG_DEBUG(...)                                          \
   cru::log::Logger::GetInstance()->FormatLog(cru::log::LogLevel::Debug, \
                                              kLogTag, __VA_ARGS__)
 
-#define CRU_LOG_INFO(...)                                              \
+#define CRU_LOG_TAG_INFO(...)                                          \
   cru::log::Logger::GetInstance()->FormatLog(cru::log::LogLevel::Info, \
                                              kLogTag, __VA_ARGS__)
 
-#define CRU_LOG_WARN(...)                                              \
+#define CRU_LOG_TAG_WARN(...)                                          \
   cru::log::Logger::GetInstance()->FormatLog(cru::log::LogLevel::Warn, \
                                              kLogTag, __VA_ARGS__)
 
-#define CRU_LOG_ERROR(...)                                              \
+#define CRU_LOG_TAG_ERROR(...)                                          \
   cru::log::Logger::GetInstance()->FormatLog(cru::log::LogLevel::Error, \
                                              kLogTag, __VA_ARGS__)
