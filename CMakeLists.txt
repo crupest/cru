@@ -1,17 +1,9 @@
 cmake_minimum_required(VERSION 3.21)
 
-# This make option variable not override normal variable.
-set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
-# Note the next line won't work because cmake policy is scoped and won't affect subdir.
-# cmake_policy(SET CMP0077 NEW)
-
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_EXTENSIONS OFF)
-
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
 project(cru)
 
