@@ -40,6 +40,4 @@ if(APPLE)
 	)
 endif()
 
-target_add_resources(CruThemeBuilder cru/ui)
-target_add_resources(CruThemeBuilder cru/theme_builder)
 target_link_libraries(CruThemeBuilder PRIVATE CruPlatformBootstrap CruUi)
