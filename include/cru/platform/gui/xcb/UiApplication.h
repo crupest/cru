@@ -60,5 +60,6 @@ class XcbUiApplication : public XcbResource, public virtual IUiApplication {
 
  private:
   xcb_connection_t* xcb_;
+  xcb_screen_t* screen_;
 };
 }  // namespace cru::platform::gui::xcb
