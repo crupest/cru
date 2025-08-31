@@ -5,22 +5,21 @@
 #include <cerrno>
 
 namespace cru {
-Exception::Exception(String message, std::unique_ptr<std::exception> inner)
+Exception::Exception(std::string message, std::unique_ptr<std::exception> inner)
     : message_(std::move(message)), inner_(std::move(inner)) {}
+
+Exception::Exception(StringView message, std::unique_ptr<std::exception> inner)
+    : message_(message.ToUtf8()), inner_(std::move(inner)) {}
 
 Exception::~Exception() {}
 
 const char* Exception::what() const noexcept {
-  if (!message_.empty() && utf8_message_.empty()) {
-    utf8_message_ = message_.ToUtf8();
-  }
-
-  return utf8_message_.c_str();
+  return message_.c_str();
 }
 
 void Exception::AppendMessage(StringView additional_message) {
-  message_ += u" ";
-  message_ += additional_message;
+  message_ += " ";
+  message_ += additional_message.ToUtf8();
 }
 
 void Exception::AppendMessage(std::optional<StringView> additional_message) {
