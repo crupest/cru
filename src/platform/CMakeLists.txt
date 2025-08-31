@@ -26,6 +26,7 @@ elseif (EMSCRIPTEN)
 	add_subdirectory(graphics/web_canvas)
 elseif (UNIX)
 	add_subdirectory(graphics/cairo)
+	add_subdirectory(gui/xcb)
 endif()
 
 add_subdirectory(bootstrap)

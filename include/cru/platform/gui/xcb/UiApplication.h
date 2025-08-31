@@ -1,33 +1,17 @@
 #pragma once
+#include "../UiApplication.h"
 #include "Base.h"
 
-#include "cru/base/Bitmask.h"
-#include "cru/platform/gui/Menu.h"
+#include <xcb/xcb.h>
 
-#include "SaveOpenDialogOptions.h"
-
-#include <chrono>
-#include <functional>
-#include <memory>
-#include <vector>
-
-namespace cru::platform::gui {
-// The entry point of a ui application.
-struct CRU_PLATFORM_GUI_API IUiApplication : public virtual IPlatformResource {
+namespace cru::platform::gui::xcb {
+class XcbUiApplication : public XcbResource, public virtual IUiApplication {
  public:
-  static IUiApplication* GetInstance() { return instance; }
+  XcbUiApplication();
+  ~XcbUiApplication();
 
- private:
-  static IUiApplication* instance;
+  void CheckXcbConnectionError();
 
- protected:
-  IUiApplication();
-
- public:
-  ~IUiApplication() override;
-
-  // Block current thread and run the message loop. Return the exit code when
-  // message loop gets a quit message (possibly posted by method RequestQuit).
   virtual int Run() = 0;
 
   // Post a quit message with given quit code.
@@ -64,14 +48,17 @@ struct CRU_PLATFORM_GUI_API IUiApplication : public virtual IPlatformResource {
   virtual IMenu* GetApplicationMenu();
 
   /**
-   * \todo Implement on Windows/X11.
+   * \todo Implement on Windows.
    */
   virtual std::optional<String> ShowSaveDialog(SaveDialogOptions options);
 
   /**
-   * \todo Implement on Windows/X11.
+   * \todo Implement on Windows.
    */
   virtual std::optional<std::vector<String>> ShowOpenDialog(
       OpenDialogOptions options);
+
+ private:
+  xcb_connection_t* xcb_;
 };
-}  // namespace cru::platform::gui
+}  // namespace cru::platform::gui::xcb
