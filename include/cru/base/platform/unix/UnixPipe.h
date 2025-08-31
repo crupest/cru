@@ -1,6 +1,6 @@
 #pragma once
 
-#ifndef CRU_PLATFORM_UNIX
+#if !defined(__unix)
 #error "This file can only be included on unix."
 #endif
 
