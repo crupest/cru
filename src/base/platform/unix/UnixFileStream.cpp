@@ -2,12 +2,10 @@
 #include "cru/base/Exception.h"
 #include "cru/base/Format.h"
 #include "cru/base/io/Stream.h"
-#include "cru/base/log/Logger.h"
 
 #include <fcntl.h>
 #include <sys/fcntl.h>
 #include <unistd.h>
-#include <cerrno>
 
 namespace cru::platform::unix {
 using namespace cru::io;
@@ -41,7 +39,7 @@ int MapSeekOrigin(Stream::SeekOrigin origin) {
 }  // namespace
 
 UnixFileStream::UnixFileStream(const char *path, int oflag, mode_t mode) {
-  file_descriptor_ = ::open(path, oflag, mode);
+  file_descriptor_ = UnixFileDescriptor(::open(path, oflag, mode));
   if (file_descriptor_ == -1) {
     throw ErrnoException(
         Format(u"Failed to open file {} with oflag {}, mode {}.",
@@ -50,16 +48,11 @@ UnixFileStream::UnixFileStream(const char *path, int oflag, mode_t mode) {
 
   SetSupportedOperations(
       {OflagCanSeek(oflag), OflagCanRead(oflag), OflagCanWrite(oflag)});
-
-  auto_close_ = true;
 }
 
-UnixFileStream::UnixFileStream(int fd, bool can_seek, bool can_read,
-                               bool can_write, bool auto_close)
-    : Stream(can_seek, can_read, can_write) {
-  file_descriptor_ = fd;
-  auto_close_ = auto_close;
-}
+UnixFileStream::UnixFileStream(UnixFileDescriptor fd, bool can_seek,
+                               bool can_read, bool can_write)
+    : Stream(can_seek, can_read, can_write), file_descriptor_(std::move(fd)) {}
 
 UnixFileStream::~UnixFileStream() { DoClose(); }
 
@@ -90,9 +83,8 @@ Index UnixFileStream::DoWrite(const std::byte *buffer, Index offset,
 
 void UnixFileStream::DoClose() {
   CRU_STREAM_BEGIN_CLOSE
-  if (auto_close_ && ::close(file_descriptor_) == -1) {
-    throw ErrnoException(u"Failed to close file.");
+  if (file_descriptor_) {
+    file_descriptor_ = {};
   }
-  file_descriptor_ = -1;
 }
 }  // namespace cru::platform::unix

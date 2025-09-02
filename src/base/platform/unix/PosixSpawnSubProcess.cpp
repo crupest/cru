@@ -14,24 +14,7 @@
 #include <unordered_map>
 
 namespace cru::platform::unix {
-PosixSpawnSubProcessImpl::PosixSpawnSubProcessImpl()
-    : pid_(0),
-      exit_code_(0),
-      stdin_pipe_(UnixPipe::Usage::Send, false),
-      stdout_pipe_(UnixPipe::Usage::Receive, false),
-      stderr_pipe_(UnixPipe::Usage::Receive, false) {
-  stdin_stream_ = std::make_unique<UnixFileStream>(
-      stdin_pipe_.GetSelfFileDescriptor(), false, false, true, true);
-  stdout_stream_ = std::make_unique<UnixFileStream>(
-      stdout_pipe_.GetSelfFileDescriptor(), false, true, false, true);
-  stderr_stream_ = std::make_unique<UnixFileStream>(
-      stderr_pipe_.GetSelfFileDescriptor(), false, true, false, true);
-
-  stdout_buffer_stream_ =
-      std::make_unique<io::AutoReadStream>(stdout_stream_.get(), true, false);
-  stderr_buffer_stream_ =
-      std::make_unique<io::AutoReadStream>(stderr_stream_.get(), true, false);
-}
+PosixSpawnSubProcessImpl::PosixSpawnSubProcessImpl() : pid_(0), exit_code_(0) {}
 
 PosixSpawnSubProcessImpl::~PosixSpawnSubProcessImpl() {}
 
@@ -71,8 +54,7 @@ void DestroyCstrArray(char** argv) {
 
 void PosixSpawnSubProcessImpl::PlatformCreateProcess(
     const SubProcessStartInfo& start_info) {
-  int error;
-  auto check_error = [&error](String message) {
+  auto check_error = [](int error, String message) {
     if (error == 0) return;
     std::unique_ptr<ErrnoException> inner(new ErrnoException({}, error));
     throw SubProcessFailedToStartException(std::move(message),
@@ -80,54 +62,45 @@ void PosixSpawnSubProcessImpl::PlatformCreateProcess(
   };
 
   posix_spawn_file_actions_t file_actions;
-  error = posix_spawn_file_actions_init(&file_actions);
-  check_error(u"Failed to call posix_spawn_file_actions_init.");
+  check_error(posix_spawn_file_actions_init(&file_actions),
+              u"Failed to call posix_spawn_file_actions_init.");
   Guard file_actions_guard(
       [&file_actions] { posix_spawn_file_actions_destroy(&file_actions); });
 
-  // dup2 stdin/stdout/stderr
-  error = posix_spawn_file_actions_adddup2(
-      &file_actions, stdin_pipe_.GetOtherFileDescriptor(), STDIN_FILENO);
-  check_error(u"Failed to call posix_spawn_file_actions_adddup2 on stdin.");
-  error = posix_spawn_file_actions_adddup2(
-      &file_actions, stdout_pipe_.GetOtherFileDescriptor(), STDOUT_FILENO);
-  check_error(u"Failed to call posix_spawn_file_actions_adddup2 on stdout.");
-  error = posix_spawn_file_actions_adddup2(
-      &file_actions, stderr_pipe_.GetOtherFileDescriptor(), STDERR_FILENO);
-  check_error(u"Failed to call posix_spawn_file_actions_adddup2 on stderr.");
+  auto add_dup2 = [&check_error, &file_actions](int from, int to,
+                                                StringView name) {
+    check_error(
+        posix_spawn_file_actions_adddup2(&file_actions, from, to),
+        Format(u"Failed to call posix_spawn_file_actions_adddup2 on {}.",
+               name));
+  };
 
-  error = posix_spawn_file_actions_addclose(
-      &file_actions, stdin_pipe_.GetOtherFileDescriptor());
-  check_error(
-      u"Failed to call posix_spawn_file_actions_addclose on self fd of stdin.");
-  error = posix_spawn_file_actions_addclose(
-      &file_actions, stdout_pipe_.GetOtherFileDescriptor());
-  check_error(
-      u"Failed to call posix_spawn_file_actions_addclose on self fd stdout.");
-  error = posix_spawn_file_actions_addclose(
-      &file_actions, stderr_pipe_.GetOtherFileDescriptor());
-  check_error(
-      u"Failed to call posix_spawn_file_actions_addclose on self fd stderr.");
+  auto add_close = [&check_error, &file_actions](
+                       UniDirectionalUnixPipeResult& pipe, StringView name) {
+    check_error(posix_spawn_file_actions_addclose(&file_actions, pipe.read),
+                Format(u"Failed to call posix_spawn_file_actions_addclose on "
+                       u"read end of pipe {}.",
+                       name));
+    check_error(posix_spawn_file_actions_addclose(&file_actions, pipe.write),
+                Format(u"Failed to call posix_spawn_file_actions_addclose on "
+                       u"write end of pipe {}.",
+                       name));
+  };
 
-  error = posix_spawn_file_actions_addclose(
-      &file_actions, stdin_pipe_.GetSelfFileDescriptor());
-  check_error(
-      u"Failed to call posix_spawn_file_actions_addclose on parent fd of "
-      u"stdin.");
-  error = posix_spawn_file_actions_addclose(
-      &file_actions, stdout_pipe_.GetSelfFileDescriptor());
-  check_error(
-      u"Failed to call posix_spawn_file_actions_addclose on parent fd of "
-      u"stdout.");
-  error = posix_spawn_file_actions_addclose(
-      &file_actions, stderr_pipe_.GetSelfFileDescriptor());
-  check_error(
-      u"Failed to call posix_spawn_file_actions_addclose on parent fd of "
-      u"stderr.");
+  auto my_stdin = OpenUniDirectionalPipe();
+  auto my_stdout = OpenUniDirectionalPipe();
+  auto my_stderr = OpenUniDirectionalPipe();
+
+  add_dup2(my_stdin.read, STDIN_FILENO, u"stdin");
+  add_dup2(my_stdout.write, STDOUT_FILENO, u"stdout");
+  add_dup2(my_stderr.write, STDERR_FILENO, u"stderr");
+  add_close(my_stdin, u"stdin");
+  add_close(my_stdout, u"stdout");
+  add_close(my_stderr, u"stderr");
 
   posix_spawnattr_t attr;
-  error = posix_spawnattr_init(&attr);
-  check_error(u"Failed to call posix_spawnattr_init.");
+  check_error(posix_spawnattr_init(&attr),
+              u"Failed to call posix_spawnattr_init.");
   Guard attr_guard([&attr] { posix_spawnattr_destroy(&attr); });
 
 #ifdef CRU_PLATFORM_OSX
@@ -146,15 +119,21 @@ void PosixSpawnSubProcessImpl::PlatformCreateProcess(
   auto envp = CreateCstrArray(start_info.environments);
   Guard envp_guard([envp] { DestroyCstrArray(envp); });
 
-  error = posix_spawnp(&pid_, exe.c_str(), &file_actions, &attr, argv, envp);
-  check_error(u"Failed to call posix_spawnp.");
+  check_error(
+      posix_spawnp(&pid_, exe.c_str(), &file_actions, &attr, argv, envp),
+      u"Failed to call posix_spawnp.");
 
-  error = ::close(stdin_pipe_.GetOtherFileDescriptor());
-  check_error(u"Failed to close child stdin.");
-  error = ::close(stdout_pipe_.GetOtherFileDescriptor());
-  check_error(u"Failed to close child stdout.");
-  error = ::close(stderr_pipe_.GetOtherFileDescriptor());
-  check_error(u"Failed to close child stderr.");
+  stdin_stream_ = std::make_unique<UnixFileStream>(std::move(my_stdin.write),
+                                                   false, false, true);
+  stdout_stream_ = std::make_unique<UnixFileStream>(std::move(my_stdout.read),
+                                                    false, true, false);
+  stderr_stream_ = std::make_unique<UnixFileStream>(std::move(my_stderr.read),
+                                                    false, true, false);
+
+  stdout_buffer_stream_ =
+      std::make_unique<io::AutoReadStream>(stdout_stream_.get(), true, false);
+  stderr_buffer_stream_ =
+      std::make_unique<io::AutoReadStream>(stderr_stream_.get(), true, false);
 }
 
 SubProcessExitResult PosixSpawnSubProcessImpl::PlatformWaitForProcess() {

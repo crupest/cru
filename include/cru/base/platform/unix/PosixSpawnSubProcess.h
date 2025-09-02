@@ -9,7 +9,7 @@
 #include "../../io/AutoReadStream.h"
 
 #include "UnixFileStream.h"
-#include "UnixPipe.h"
+#include "UnixFile.h"
 
 #include <spawn.h>
 
@@ -33,10 +33,6 @@ class PosixSpawnSubProcessImpl : public Object,
  private:
   pid_t pid_;
   int exit_code_;
-
-  UnixPipe stdin_pipe_;
-  UnixPipe stdout_pipe_;
-  UnixPipe stderr_pipe_;
 
   std::unique_ptr<UnixFileStream> stdin_stream_;
   std::unique_ptr<UnixFileStream> stdout_stream_;

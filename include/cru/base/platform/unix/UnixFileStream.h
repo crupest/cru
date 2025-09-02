@@ -5,6 +5,7 @@
 #endif
 
 #include "../../io/Stream.h"
+#include "UnixFile.h"
 
 namespace cru::platform::unix {
 class UnixFileStream : public io::Stream {
@@ -13,8 +14,8 @@ class UnixFileStream : public io::Stream {
 
  public:
   UnixFileStream(const char* path, int oflag, mode_t mode = 0660);
-  UnixFileStream(int fd, bool can_seek, bool can_read, bool can_write,
-                 bool auto_close);
+  UnixFileStream(UnixFileDescriptor fd, bool can_seek, bool can_read,
+                 bool can_write);
   ~UnixFileStream() override;
 
  public:
@@ -31,7 +32,6 @@ class UnixFileStream : public io::Stream {
   void DoClose();
 
  private:
-  int file_descriptor_;  // -1 for no file descriptor
-  bool auto_close_;
+  UnixFileDescriptor file_descriptor_;
 };
 }  // namespace cru::platform::unix
