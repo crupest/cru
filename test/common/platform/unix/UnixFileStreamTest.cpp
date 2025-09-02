@@ -13,7 +13,7 @@ TEST_CASE("UnixFileStream Work", "[stream]") {
   auto temp_file_path =
       (std::filesystem::temp_directory_path() / "cru_test_temp.XXXXXX")
           .generic_string();
-  mktemp(temp_file_path.data());
+  mkstemp(temp_file_path.data());
 
   UnixFileStream file(temp_file_path.c_str(), O_WRONLY | O_CREAT);
   file.Write("abc", 3);

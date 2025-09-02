@@ -103,9 +103,9 @@ void PosixSpawnSubProcessImpl::PlatformCreateProcess(
               u"Failed to call posix_spawnattr_init.");
   Guard attr_guard([&attr] { posix_spawnattr_destroy(&attr); });
 
-#ifdef CRU_PLATFORM_OSX
-  error = posix_spawnattr_setflags(&attr, POSIX_SPAWN_CLOEXEC_DEFAULT);
-  check_error(u"Failed to set flag POSIX_SPAWN_CLOEXEC_DEFAULT (osx).");
+#ifdef __APPLE__
+  check_error(posix_spawnattr_setflags(&attr, POSIX_SPAWN_CLOEXEC_DEFAULT),
+              u"Failed to set flag POSIX_SPAWN_CLOEXEC_DEFAULT (osx).");
 #endif
 
   auto exe = start_info.program.ToUtf8();
