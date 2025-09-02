@@ -3,6 +3,7 @@
 #include "Base.h"
 
 #include <xcb/xcb.h>
+#include <functional>
 
 namespace cru::platform::gui::xcb {
 class XcbUiApplication : public XcbResource, public virtual IUiApplication {
@@ -12,12 +13,12 @@ class XcbUiApplication : public XcbResource, public virtual IUiApplication {
 
   void CheckXcbConnectionError();
 
-  virtual int Run() = 0;
+  int Run() override;
 
   // Post a quit message with given quit code.
   virtual void RequestQuit(int quit_code) = 0;
 
-  virtual void AddOnQuitHandler(std::function<void()> handler) = 0;
+  void AddOnQuitHandler(std::function<void()> handler) override;
 
   virtual bool IsQuitOnAllWindowClosed() = 0;
   virtual void SetQuitOnAllWindowClosed(bool quit_on_all_window_closed) = 0;
@@ -61,5 +62,8 @@ class XcbUiApplication : public XcbResource, public virtual IUiApplication {
  private:
   xcb_connection_t* xcb_;
   xcb_screen_t* screen_;
+
+  std::vector<std::function<void()>> quit_handlers_;
+  int exit_code_;
 };
 }  // namespace cru::platform::gui::xcb
