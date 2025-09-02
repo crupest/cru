@@ -1,6 +1,6 @@
 #pragma once
 
-#if !defined(__unix)
+#if !defined(__unix) && !defined(__APPLE__)
 #error "This file can only be included on unix."
 #endif
 
