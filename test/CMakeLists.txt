@@ -15,7 +15,7 @@ function(cru_catch_discover_tests target)
 	endif()
 endfunction()
 
-add_subdirectory(common)
+add_subdirectory(base)
 add_subdirectory(platform)
 add_subdirectory(xml)
 add_subdirectory(toml)
