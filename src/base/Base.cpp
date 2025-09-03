@@ -4,4 +4,5 @@
 
 namespace cru {
 void UnreachableCode() { std::terminate(); }
+void NotImplemented() { std::terminate(); }
 }  // namespace cru

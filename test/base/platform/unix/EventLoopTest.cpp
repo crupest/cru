@@ -1,4 +1,4 @@
-#include "cru/base/platform/unix/Timer.h"
+#include "cru/base/platform/unix/EventLoop.h"
 
 #include <catch2/catch_test_macros.hpp>
 

@@ -93,6 +93,7 @@ struct CRU_BASE_API Interface {
 };
 
 [[noreturn]] void CRU_BASE_API UnreachableCode();
+[[noreturn]] void CRU_BASE_API NotImplemented();
 
 using Index = std::ptrdiff_t;
 

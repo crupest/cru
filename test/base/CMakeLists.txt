@@ -25,7 +25,7 @@ target_compile_definitions(CruBaseTest PRIVATE
 
 if (UNIX AND NOT EMSCRIPTEN)
 	target_sources(CruBaseTest PRIVATE
-		platform/unix/TimerTest.cpp
+		platform/unix/EventLoopTest.cpp
 		platform/unix/UnixFileTest.cpp
 		platform/unix/UnixFileStreamTest.cpp
 	)
