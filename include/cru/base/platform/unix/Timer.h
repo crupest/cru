@@ -10,6 +10,7 @@
 
 #include <chrono>
 #include <thread>
+#include <unistd.h>
 
 namespace cru::platform::unix {
 class UnixTimerFile : public Object2 {
