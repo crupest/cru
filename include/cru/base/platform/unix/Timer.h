@@ -20,7 +20,7 @@ class UnixTimerFile : public Object2 {
     this->read_fd_ = std::move(fds.read);
     this->write_fd_ = std::move(fds.write);
 
-    this->thread_ = std::thread([this, &time] {
+    this->thread_ = std::thread([this, time] {
       std::this_thread::sleep_for(time);
       constexpr auto buffer = "";
       auto written = ::write(this->write_fd_, buffer, 1);
