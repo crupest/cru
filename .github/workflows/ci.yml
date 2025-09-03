@@ -60,3 +60,22 @@ jobs:
         working-directory: build
         run: |
           ctest -C Debug -T test --output-on-failure
+
+  linux-build:
+    name: Linux Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          submodules: true
+
+      - name: Build
+        run: |
+          cmake -DCMAKE_BUILD_TYPE=Debug -S. -Bbuild -G Ninja
+          cmake --build build --config Debug --target all
+
+      - name: Test
+        working-directory: build
+        run: |
+          ctest -C Debug -T test --output-on-failure
