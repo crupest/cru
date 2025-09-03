@@ -18,13 +18,13 @@ jobs:
     runs-on: macos-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
         with:
           submodules: true
 
-      - name: Setup Ninja
+      - name: Install Libraries
         run: |
-          brew install ninja cairo pango
+          brew install cairo pango
 
       - name: Build
         run: |
@@ -41,13 +41,9 @@ jobs:
     runs-on: windows-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
         with:
           submodules: true
-
-      - name: Setup Ninja
-        run: |
-          choco install ninja
 
       - name: Build
         run: |
@@ -70,7 +66,7 @@ jobs:
         with:
           submodules: true
 
-      - name: Setup Ninja
+      - name: Install Libraries
         run: |
           sudo apt update
           sudo apt install -y libpng-dev libcairo2-dev libpango1.0-dev libxcb1-dev

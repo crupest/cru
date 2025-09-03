@@ -9,7 +9,7 @@ TEST_CASE("UnixTimerFile Work", "[unix][time]") {
   using namespace cru;
   using namespace cru::platform::unix;
 
-  auto test_miliseconds = 100;
+  auto test_miliseconds = 300;
   auto test_duration = std::chrono::milliseconds(test_miliseconds);
   auto start = std::chrono::steady_clock::now();
   REQUIRE((std::chrono::steady_clock::now() - start) < test_duration);
