@@ -70,6 +70,11 @@ jobs:
         with:
           submodules: true
 
+      - name: Setup Ninja
+        run: |
+          apt update
+          apt install -y libpng-dev libcairo2-dev libpango1.0-dev libxcb1-dev
+
       - name: Build
         run: |
           cmake -DCMAKE_BUILD_TYPE=Debug -S. -Bbuild -G Ninja
