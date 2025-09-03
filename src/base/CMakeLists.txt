@@ -25,6 +25,7 @@ target_compile_definitions(CruBase PUBLIC $<$<CONFIG:Debug>:CRU_DEBUG>)
 if (UNIX AND NOT EMSCRIPTEN)
 	target_sources(CruBase PRIVATE
 		platform/unix/PosixSpawnSubProcess.cpp
+		platform/unix/Timer.cpp
 		platform/unix/UnixFile.cpp
 		platform/unix/UnixFileStream.cpp
 	)
