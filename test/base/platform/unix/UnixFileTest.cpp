@@ -1,12 +1,12 @@
 
-#include "cru/base/platform/unix/UnixFileStream.h"
+#include "cru/base/platform/unix/UnixFile.h"
 
 #include <catch2/catch_test_macros.hpp>
 
 #include <fcntl.h>
 #include <filesystem>
 
-TEST_CASE("UnixFile Work", "[unix]") {
+TEST_CASE("UnixFile Auto Close", "[unix]") {
   using namespace cru;
   using namespace cru::platform::unix;
 
@@ -35,4 +35,14 @@ TEST_CASE("UnixFile Work", "[unix]") {
   REQUIRE(calledTimes == 1);
 
   std::filesystem::remove(temp_file_path);
+}
+
+TEST_CASE("UnixFile NonBlock Read", "[unix]") {
+  using namespace cru;
+  using namespace cru::platform::unix;
+
+  char buffer[1];
+
+  auto pipe = OpenUniDirectionalPipe(UnixPipeFlags::NonBlock);
+  REQUIRE(pipe.read.Read(buffer, 1) == -1);
 }

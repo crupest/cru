@@ -98,7 +98,7 @@ ssize_t UnixFileDescriptor::Read(void* buffer, size_t size) {
 
 void UnixFileDescriptor::SetFileDescriptorFlags(int flags) {
   EnsureValid();
-  if (::fcntl(GetValue(), F_SETFL, flags) != -1) {
+  if (::fcntl(GetValue(), F_SETFL, flags) == -1) {
     throw ErrnoException("Failed to set flags on file descriptor.");
   }
 }
