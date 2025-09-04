@@ -6,6 +6,7 @@
 
 #include "../../Bitmask.h"
 
+#include <sys/types.h>
 #include <functional>
 
 namespace cru::platform::unix {
@@ -36,6 +37,7 @@ class UnixFileDescriptor {
   explicit operator bool() const { return this->IsValid(); }
   operator int() const { return this->GetValue(); }
 
+  ssize_t Read(void* buffer, size_t size);
   void SetFileDescriptorFlags(int flags);
 
  private:

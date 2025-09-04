@@ -3,8 +3,9 @@
 #include "cru/base/log/Logger.h"
 
 #include <fcntl.h>
-#include <sys/fcntl.h>
+#include <sys/types.h>
 #include <unistd.h>
+#include <cerrno>
 
 namespace cru::platform::unix {
 
@@ -68,7 +69,7 @@ int UnixFileDescriptor::GetValue() const {
 void UnixFileDescriptor::Close() {
   EnsureValid();
   if (!this->DoClose()) {
-    throw ErrnoException(u"Failed to call close on file descriptor.");
+    throw ErrnoException("Failed to call close on file descriptor.");
   }
   descriptor_ = -1;
   auto_close_ = false;
@@ -82,17 +83,30 @@ bool UnixFileDescriptor::DoClose() {
   }
 }
 
+ssize_t UnixFileDescriptor::Read(void* buffer, size_t size) {
+  EnsureValid();
+  auto result = ::read(GetValue(), buffer, size);
+  if (result == -1) {
+    if (errno == EAGAIN || errno == EWOULDBLOCK) {
+      return -1;
+    } else {
+      throw ErrnoException("Failed to read on file descriptor.");
+    }
+  }
+  return result;
+}
+
 void UnixFileDescriptor::SetFileDescriptorFlags(int flags) {
   EnsureValid();
   if (::fcntl(GetValue(), F_SETFL, flags) != -1) {
-    throw ErrnoException(u"Failed to set flags on file descriptor.");
+    throw ErrnoException("Failed to set flags on file descriptor.");
   }
 }
 
 UniDirectionalUnixPipeResult OpenUniDirectionalPipe(UnixPipeFlag flags) {
   int fds[2];
   if (::pipe(fds) != 0) {
-    throw ErrnoException(u"Failed to create unix pipe.");
+    throw ErrnoException("Failed to create unix pipe.");
   }
 
   UnixFileDescriptor read(fds[0]), write(fds[1]);

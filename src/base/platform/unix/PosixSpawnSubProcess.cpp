@@ -56,7 +56,7 @@ void PosixSpawnSubProcessImpl::PlatformCreateProcess(
     const SubProcessStartInfo& start_info) {
   auto check_error = [](int error, String message) {
     if (error == 0) return;
-    std::unique_ptr<ErrnoException> inner(new ErrnoException({}, error));
+    std::unique_ptr<ErrnoException> inner(new ErrnoException(error));
     throw SubProcessFailedToStartException(std::move(message),
                                            std::move(inner));
   };
@@ -145,7 +145,7 @@ SubProcessExitResult PosixSpawnSubProcessImpl::PlatformWaitForProcess() {
       continue;
     }
 
-    std::unique_ptr<ErrnoException> inner(new ErrnoException({}, errno));
+    std::unique_ptr<ErrnoException> inner(new ErrnoException(errno));
 
     throw SubProcessInternalException(
         u"Failed to call waitpid on a subprocess.", std::move(inner));
@@ -163,7 +163,7 @@ SubProcessExitResult PosixSpawnSubProcessImpl::PlatformWaitForProcess() {
 void PosixSpawnSubProcessImpl::PlatformKillProcess() {
   int error = kill(pid_, SIGKILL);
   if (error != 0) {
-    std::unique_ptr<ErrnoException> inner(new ErrnoException({}, errno));
+    std::unique_ptr<ErrnoException> inner(new ErrnoException(errno));
     throw SubProcessInternalException(u"Failed to call kill on a subprocess.",
                                       std::move(inner));
   }

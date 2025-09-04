@@ -3,6 +3,7 @@
 
 #include <exception>
 #include <optional>
+#include <string_view>
 
 namespace cru {
 #ifdef _MSC_VER
@@ -53,16 +54,18 @@ class CRU_BASE_API TextEncodeException : public Exception {
 
 class ErrnoException : public Exception {
  public:
+  ErrnoException();
+  explicit ErrnoException(int error_code);
   /**
    * @brief will retrieve errno automatically.
    */
-  explicit ErrnoException(String message = {});
-  ErrnoException(String message, int errno_code);
-
-  CRU_DELETE_COPY(ErrnoException)
-  CRU_DELETE_MOVE(ErrnoException)
-
-  ~ErrnoException() override = default;
+  explicit ErrnoException(std::string_view message);
+  ErrnoException(std::string_view message, int errno_code);
+  /**
+   * @brief will retrieve errno automatically.
+   */
+  explicit ErrnoException(StringView message);
+  ErrnoException(StringView message, int errno_code);
 
   int GetErrnoCode() const { return errno_code_; }
 
