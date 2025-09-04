@@ -54,17 +54,19 @@ UnixFileDescriptor& UnixFileDescriptor::operator=(
 
 bool UnixFileDescriptor::IsValid() const { return this->descriptor_ >= 0; }
 
-int UnixFileDescriptor::GetValue() const {
+void UnixFileDescriptor::EnsureValid() const {
   if (!this->IsValid()) {
-    throw Exception("Can't get value of an invalid unix file descriptor.");
+    throw Exception("Can't do operation on an invalid unix file descriptor.");
   }
+}
+
+int UnixFileDescriptor::GetValue() const {
+  EnsureValid();
   return this->descriptor_;
 }
 
 void UnixFileDescriptor::Close() {
-  if (!this->IsValid()) {
-    throw Exception("Can't close an invalid unix file descriptor.");
-  }
+  EnsureValid();
   if (!this->DoClose()) {
     throw ErrnoException(u"Failed to call close on file descriptor.");
   }
@@ -80,17 +82,26 @@ bool UnixFileDescriptor::DoClose() {
   }
 }
 
+void UnixFileDescriptor::SetFileDescriptorFlags(int flags) {
+  EnsureValid();
+  if (::fcntl(GetValue(), F_SETFL, flags) != -1) {
+    throw ErrnoException(u"Failed to set flags on file descriptor.");
+  }
+}
+
 UniDirectionalUnixPipeResult OpenUniDirectionalPipe(UnixPipeFlag flags) {
   int fds[2];
   if (::pipe(fds) != 0) {
     throw ErrnoException(u"Failed to create unix pipe.");
   }
 
+  UnixFileDescriptor read(fds[0]), write(fds[1]);
+
   if (flags & UnixPipeFlags::NonBlock) {
-    ::fcntl(fds[0], F_SETFL, O_NONBLOCK);
-    ::fcntl(fds[1], F_SETFL, O_NONBLOCK);
+    read.SetFileDescriptorFlags(O_NONBLOCK);
+    write.SetFileDescriptorFlags(O_NONBLOCK);
   }
 
-  return {UnixFileDescriptor(fds[0]), UnixFileDescriptor(fds[1])};
+  return {std::move(read), std::move(write)};
 }
 }  // namespace cru::platform::unix

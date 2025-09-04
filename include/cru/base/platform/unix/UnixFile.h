@@ -26,6 +26,7 @@ class UnixFileDescriptor {
   UnixFileDescriptor& operator=(UnixFileDescriptor&& other) noexcept;
 
   bool IsValid() const;
+  void EnsureValid() const;
   int GetValue() const;
   void Close();
 
@@ -34,6 +35,8 @@ class UnixFileDescriptor {
 
   explicit operator bool() const { return this->IsValid(); }
   operator int() const { return this->GetValue(); }
+
+  void SetFileDescriptorFlags(int flags);
 
  private:
   bool DoClose();
