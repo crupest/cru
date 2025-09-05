@@ -37,6 +37,10 @@ int UnixEventLoop::Run() {
       continue;
     }
 
+    while (ReadTimerPipe()) {
+      continue;
+    }
+
     if (!timers_.empty()) {
       poll_timeout =
           std::ranges::min_element(timers_, [](const TimerData &left,
@@ -89,4 +93,32 @@ int UnixEventLoop::SetTimer(std::function<void()> action,
   return tag;
 }
 
+bool UnixEventLoop::ReadTimerPipe() {
+  TimerData *pointer;
+  constexpr size_t pointer_size = sizeof(decltype(pointer));
+  auto rest = pointer_size;
+  while (true) {
+    auto result = timer_pipe_read_end_.Read(&pointer, rest);
+
+    if (result == -1) {  // If no data.
+      if (rest == pointer_size) {
+        return false;
+      } else {
+        continue;  // Try read again (might spin), as we are in the middle of
+                   // reading a pointer.
+      }
+    }
+
+    if (result == 0) {
+      throw Exception("Unexpected EOF of the timer pipe.");
+    }
+
+    rest -= result;
+  }
+
+  timers_.push_back(std::move(*pointer));
+  delete pointer;
+
+  return true;
+}
 }  // namespace cru::platform::unix

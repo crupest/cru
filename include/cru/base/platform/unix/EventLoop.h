@@ -84,10 +84,18 @@ class UnixEventLoop : public Object2 {
           action(std::move(action)) {}
   };
 
+private:
+  bool ReadTimerPipe();
+
+private:  
+
   std::thread::id running_thread_;
 
   std::atomic_int timer_tag_;
   std::vector<TimerData> timers_;
+
+  UnixFileDescriptor timer_pipe_read_end_;
+  UnixFileDescriptor timer_pipe_write_end_;
 
   std::optional<int> exit_code_;
 };
