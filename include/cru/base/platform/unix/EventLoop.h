@@ -1,6 +1,5 @@
 #pragma once
 
-#include <optional>
 #if !defined(__unix) && !defined(__APPLE__)
 #error "This file can only be included on unix."
 #endif
@@ -9,9 +8,12 @@
 #include "../../Exception.h"
 #include "UnixFile.h"
 
+#include <poll.h>
 #include <unistd.h>
 #include <chrono>
+#include <optional>
 #include <thread>
+#include <utility>
 
 namespace cru::platform::unix {
 class UnixTimerFile : public Object2 {
@@ -84,12 +86,18 @@ class UnixEventLoop : public Object2 {
           action(std::move(action)) {}
   };
 
-private:
+ private:
+  bool CheckPoll();
+  bool CheckTimer();
   bool ReadTimerPipe();
 
-private:  
-
+ private:
   std::thread::id running_thread_;
+
+  std::vector<pollfd> polls_;
+  std::vector<
+      std::function<void(decltype(std::declval<pollfd>().revents) revent)>>
+      poll_actions_;
 
   std::atomic_int timer_tag_;
   std::vector<TimerData> timers_;

@@ -41,6 +41,10 @@ class UnixFileDescriptor {
    * If O_NONBLOCK is set and EAGAIN or EWOULDBLOCK is returned, -1 is returned.
    */
   ssize_t Read(void* buffer, size_t size);
+  /**
+   * If O_NONBLOCK is set and EAGAIN or EWOULDBLOCK is returned, -1 is returned.
+   */
+  ssize_t Write(const void* buffer, size_t size);
   void SetFileDescriptorFlags(int flags);
 
  private:

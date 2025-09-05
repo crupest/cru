@@ -96,6 +96,19 @@ ssize_t UnixFileDescriptor::Read(void* buffer, size_t size) {
   return result;
 }
 
+ssize_t UnixFileDescriptor::Write(const void* buffer, size_t size) {
+  EnsureValid();
+  auto result = ::write(GetValue(), buffer, size);
+  if (result == -1) {
+    if (errno == EAGAIN || errno == EWOULDBLOCK) {
+      return -1;
+    } else {
+      throw ErrnoException("Failed to write on file descriptor.");
+    }
+  }
+  return result;
+}
+
 void UnixFileDescriptor::SetFileDescriptorFlags(int flags) {
   EnsureValid();
   if (::fcntl(GetValue(), F_SETFL, flags) == -1) {

@@ -9,31 +9,26 @@
 namespace cru::platform::unix {
 int UnixTimerFile::GetReadFd() const { return this->read_fd_; }
 
-UnixEventLoop::UnixEventLoop() : timer_tag_(1) {}
+UnixEventLoop::UnixEventLoop() : timer_tag_(1), polls_(1), poll_actions_(1) {
+  auto timer_pipe = OpenUniDirectionalPipe(UnixPipeFlags::NonBlock);
+  timer_pipe_read_end_ = std::move(timer_pipe.read);
+  timer_pipe_write_end_ = std::move(timer_pipe.write);
+  polls_[0].fd = timer_pipe_read_end_;
+  polls_[0].events = POLLIN;
+  poll_actions_[0] = [](auto _) {};
+}
 
 int UnixEventLoop::Run() {
   running_thread_ = std::this_thread::get_id();
 
-  pollfd poll_fds[1];
-
   while (!exit_code_) {
     int poll_timeout = -1;
 
-    auto iter = std::ranges::find_if(timers_, [](const TimerData &timer) {
-      return timer.timeout <= std::chrono::milliseconds::zero();
-    });
-    if (iter != timers_.end()) {
-      auto &timer = *iter;
-      if (timer.repeat) {
-        while (timer.timeout <= std::chrono::milliseconds::zero()) {
-          timer.timeout += timer.original_timeout;
-          timer.action();
-        }
-      } else {
-        auto action = timer.action;
-        timers_.erase(iter);
-        action();
-      }
+    while (CheckPoll()) {
+      continue;
+    }
+
+    while (CheckTimer()) {
       continue;
     }
 
@@ -51,9 +46,10 @@ int UnixEventLoop::Run() {
 
     auto start = std::chrono::steady_clock::now();
 
-    ::poll(poll_fds, sizeof poll_fds / sizeof *poll_fds, poll_timeout);
-
-    // TODO: A Big Implement to handle X events.
+    auto result = ::poll(polls_.data(), polls_.size(), poll_timeout);
+    if (result < 0) {
+      throw Exception("Failed to poll in event loop.");
+    }
 
     auto end = std::chrono::steady_clock::now();
     auto time =
@@ -87,10 +83,53 @@ int UnixEventLoop::SetTimer(std::function<void()> action,
     timers_.push_back(
         TimerData(tag, std::move(timeout), repeat, std::move(action)));
   } else {
-    // TODO: Implement
+    auto timer =
+        new TimerData(tag, std::move(timeout), repeat, std::move(action));
+    timer_pipe_write_end_.Write(&timer, sizeof(decltype(timer)));
   }
 
   return tag;
+}
+
+bool UnixEventLoop::CheckPoll() {
+  auto iter = std::ranges::find_if(
+      polls_, [](const pollfd &poll_fd) { return poll_fd.revents != 0; });
+
+  if (iter == polls_.cend()) {
+    return false;
+  }
+
+  auto &revents = iter->revents;
+  if (revents != 0) {
+    poll_actions_[iter - polls_.cbegin()](revents);
+  }
+  revents = 0;
+
+  return true;
+}
+
+bool UnixEventLoop::CheckTimer() {
+  auto iter = std::ranges::find_if(timers_, [](const TimerData &timer) {
+    return timer.timeout <= std::chrono::milliseconds::zero();
+  });
+
+  if (iter == timers_.end()) {
+    return false;
+  }
+
+  auto &timer = *iter;
+  if (timer.repeat) {
+    while (timer.timeout <= std::chrono::milliseconds::zero()) {
+      timer.timeout += timer.original_timeout;
+      timer.action();
+    }
+  } else {
+    auto action = timer.action;
+    timers_.erase(iter);
+    action();
+  }
+
+  return true;
 }
 
 bool UnixEventLoop::ReadTimerPipe() {
