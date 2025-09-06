@@ -1,6 +1,8 @@
 #include "cru/platform/graphics/SvgGeometryBuilderMixin.h"
 #include "cru/platform/Exception.h"
 
+#include "cru/base/Format.h"
+
 namespace cru::platform::graphics {
 SvgGeometryBuilderMixin::SvgGeometryBuilderMixin() {}
 

@@ -1,4 +1,5 @@
 #include "ThicknessPropertyEditor.h"
+#include "cru/base/Format.h"
 #include "cru/ui/mapper/MapperRegistry.h"
 #include "cru/ui/mapper/ThicknessMapper.h"
 

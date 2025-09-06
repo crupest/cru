@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Geometry.h"
-#include "cru/base/Format.h"
 
+#include <format>
 #include <utility>
 
 namespace cru::platform::graphics {
@@ -53,7 +53,8 @@ class CRU_PLATFORM_GRAPHICS_API SvgGeometryBuilderMixin
  private:
   template <typename... Args>
   void Append(StringView format, Args&&... args) {
-    current_ += Format(format, std::forward<Args>(args)...);
+    current_ += String::FromUtf8(
+        std::format(format.ToUtf8(), std::forward<Args>(args)...));
     current_ += u' ';
   }
 

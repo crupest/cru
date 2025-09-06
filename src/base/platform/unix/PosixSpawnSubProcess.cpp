@@ -1,6 +1,5 @@
 #include "cru/base/platform/unix/PosixSpawnSubProcess.h"
 #include "cru/base/Exception.h"
-#include "cru/base/Format.h"
 #include "cru/base/Guard.h"
 #include "cru/base/String.h"
 #include "cru/base/SubProcess.h"
@@ -10,7 +9,9 @@
 #include <spawn.h>
 #include <sys/wait.h>
 #include <unistd.h>
+#include <format>
 #include <memory>
+#include <string_view>
 #include <unordered_map>
 
 namespace cru::platform::unix {
@@ -35,7 +36,7 @@ char** CreateCstrArray(const std::vector<String>& argv) {
 char** CreateCstrArray(const std::unordered_map<String, String>& envp) {
   std::vector<String> str_array;
   for (auto& [key, value] : envp) {
-    str_array.push_back(cru::Format(u"{}={}", key, value));
+    str_array.push_back(key + u"=" + value);
   }
   return CreateCstrArray(str_array);
 }
@@ -54,7 +55,7 @@ void DestroyCstrArray(char** argv) {
 
 void PosixSpawnSubProcessImpl::PlatformCreateProcess(
     const SubProcessStartInfo& start_info) {
-  auto check_error = [](int error, String message) {
+  auto check_error = [](int error, std::string message) {
     if (error == 0) return;
     std::unique_ptr<ErrnoException> inner(new ErrnoException(error));
     throw SubProcessFailedToStartException(std::move(message),
@@ -63,49 +64,52 @@ void PosixSpawnSubProcessImpl::PlatformCreateProcess(
 
   posix_spawn_file_actions_t file_actions;
   check_error(posix_spawn_file_actions_init(&file_actions),
-              u"Failed to call posix_spawn_file_actions_init.");
+              "Failed to call posix_spawn_file_actions_init.");
   Guard file_actions_guard(
       [&file_actions] { posix_spawn_file_actions_destroy(&file_actions); });
 
   auto add_dup2 = [&check_error, &file_actions](int from, int to,
-                                                StringView name) {
+                                                std::string_view name) {
     check_error(
         posix_spawn_file_actions_adddup2(&file_actions, from, to),
-        Format(u"Failed to call posix_spawn_file_actions_adddup2 on {}.",
-               name));
+        std::format("Failed to call posix_spawn_file_actions_adddup2 on {}.",
+                    name));
   };
 
   auto add_close = [&check_error, &file_actions](
-                       UniDirectionalUnixPipeResult& pipe, StringView name) {
-    check_error(posix_spawn_file_actions_addclose(&file_actions, pipe.read),
-                Format(u"Failed to call posix_spawn_file_actions_addclose on "
-                       u"read end of pipe {}.",
-                       name));
-    check_error(posix_spawn_file_actions_addclose(&file_actions, pipe.write),
-                Format(u"Failed to call posix_spawn_file_actions_addclose on "
-                       u"write end of pipe {}.",
-                       name));
+                       UniDirectionalUnixPipeResult& pipe,
+                       std::string_view name) {
+    check_error(
+        posix_spawn_file_actions_addclose(&file_actions, pipe.read),
+        std::format("Failed to call posix_spawn_file_actions_addclose on "
+                    "read end of pipe {}.",
+                    name));
+    check_error(
+        posix_spawn_file_actions_addclose(&file_actions, pipe.write),
+        std::format("Failed to call posix_spawn_file_actions_addclose on "
+                    "write end of pipe {}.",
+                    name));
   };
 
   auto my_stdin = OpenUniDirectionalPipe();
   auto my_stdout = OpenUniDirectionalPipe();
   auto my_stderr = OpenUniDirectionalPipe();
 
-  add_dup2(my_stdin.read, STDIN_FILENO, u"stdin");
-  add_dup2(my_stdout.write, STDOUT_FILENO, u"stdout");
-  add_dup2(my_stderr.write, STDERR_FILENO, u"stderr");
-  add_close(my_stdin, u"stdin");
-  add_close(my_stdout, u"stdout");
-  add_close(my_stderr, u"stderr");
+  add_dup2(my_stdin.read, STDIN_FILENO, "stdin");
+  add_dup2(my_stdout.write, STDOUT_FILENO, "stdout");
+  add_dup2(my_stderr.write, STDERR_FILENO, "stderr");
+  add_close(my_stdin, "stdin");
+  add_close(my_stdout, "stdout");
+  add_close(my_stderr, "stderr");
 
   posix_spawnattr_t attr;
   check_error(posix_spawnattr_init(&attr),
-              u"Failed to call posix_spawnattr_init.");
+              "Failed to call posix_spawnattr_init.");
   Guard attr_guard([&attr] { posix_spawnattr_destroy(&attr); });
 
 #ifdef __APPLE__
   check_error(posix_spawnattr_setflags(&attr, POSIX_SPAWN_CLOEXEC_DEFAULT),
-              u"Failed to set flag POSIX_SPAWN_CLOEXEC_DEFAULT (osx).");
+              "Failed to set flag POSIX_SPAWN_CLOEXEC_DEFAULT (osx).");
 #endif
 
   auto exe = start_info.program.ToUtf8();
@@ -121,7 +125,7 @@ void PosixSpawnSubProcessImpl::PlatformCreateProcess(
 
   check_error(
       posix_spawnp(&pid_, exe.c_str(), &file_actions, &attr, argv, envp),
-      u"Failed to call posix_spawnp.");
+      "Failed to call posix_spawnp.");
 
   stdin_stream_ = std::make_unique<UnixFileStream>(std::move(my_stdin.write),
                                                    false, false, true);

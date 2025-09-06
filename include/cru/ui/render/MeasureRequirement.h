@@ -4,7 +4,9 @@
 #include "cru/base/String.h"
 
 #include <algorithm>
+#include <format>
 #include <limits>
+#include <string>
 
 namespace cru::ui::render {
 constexpr Size Min(const Size& left, const Size& right) {
@@ -111,9 +113,12 @@ class MeasureLength final {
     }
   }
 
-  String ToDebugString() const {
-    return IsSpecified() ? ToString(GetLengthOrUndefined()) : u"UNSPECIFIED";
+  std::string ToDebugStringUtf8() const {
+    return IsSpecified() ? std::to_string(GetLengthOrUndefined())
+                         : "UNSPECIFIED";
   }
+
+  String ToDebugString() const { return String::FromUtf8(ToDebugStringUtf8()); }
 
  private:
   // -1 for not specify
@@ -163,9 +168,12 @@ struct MeasureSize {
     };
   }
 
-  String ToDebugString() const {
-    return Format(u"({}, {})", width.ToDebugString(), height.ToDebugString());
+  std::string ToDebugStringUtf8() const {
+    return std::format("({}, {})", width.ToDebugStringUtf8(),
+                       height.ToDebugStringUtf8());
   }
+
+  String ToDebugString() const { return String::FromUtf8(ToDebugStringUtf8()); }
 
   constexpr static MeasureSize NotSpecified() {
     return MeasureSize{MeasureLength::NotSpecified(),
@@ -233,10 +241,12 @@ struct MeasureRequirement {
     return result;
   }
 
-  String ToDebugString() const {
-    return Format(u"{{min: {}, max: {}}}", min.ToDebugString(),
-                  max.ToDebugString());
+  std::string ToDebugStringUtf8() const {
+    return std::format("{{min: {}, max: {}}}", min.ToDebugStringUtf8(),
+                       max.ToDebugStringUtf8());
   }
+
+  String ToDebugString() const { return String::FromUtf8(ToDebugStringUtf8()); }
 
   constexpr static MeasureRequirement Merge(const MeasureRequirement& left,
                                             const MeasureRequirement& right) {

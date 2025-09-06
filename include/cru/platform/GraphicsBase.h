@@ -1,10 +1,10 @@
 #pragma once
 #include "Base.h"
 
-#include "cru/base/Format.h"
 #include "cru/base/Range.h"
 #include "cru/base/String.h"
 
+#include <format>
 #include <limits>
 
 namespace cru::platform {
@@ -44,7 +44,7 @@ constexpr bool operator!=(const Point& left, const Point& right) {
 }
 
 inline String ToString(const Point& point) {
-  return Format(u"(x: {}, y: {})", point.x, point.y);
+  return String::FromUtf8(std::format("(x: {}, y: {})", point.x, point.y));
 }
 
 struct CRU_PLATFORM_API Size final {
@@ -85,7 +85,8 @@ constexpr bool operator!=(const Size& left, const Size& right) {
 }
 
 inline String ToString(const Size& size) {
-  return Format(u"(width: {}, height: {})", size.width, size.height);
+  return String::FromUtf8(
+      std::format("(width: {}, height: {})", size.width, size.height));
 }
 
 struct Thickness final {

@@ -10,12 +10,16 @@
 namespace cru::io {
 class CRU_BASE_API StreamOperationNotSupportedException : public Exception {
  public:
-  explicit StreamOperationNotSupportedException(String operation);
-
-  CRU_DEFAULT_DESTRUCTOR(StreamOperationNotSupportedException)
+  explicit StreamOperationNotSupportedException(StringView operation);
+  explicit StreamOperationNotSupportedException(std::string operation);
 
  public:
-  String GetOperation() const { return operation_; }
+  [[deprecated("Use GetOperationUtf8 instead.")]]
+  String GetOperation() const {
+    return String::FromUtf8(operation_);
+  }
+
+  std::string GetOperationUtf8() const { return operation_; }
 
  public:
   static void CheckSeek(bool seekable);
@@ -23,7 +27,7 @@ class CRU_BASE_API StreamOperationNotSupportedException : public Exception {
   static void CheckWrite(bool writable);
 
  private:
-  String operation_;
+  std::string operation_;
 };
 
 class CRU_BASE_API StreamClosedException : public Exception {

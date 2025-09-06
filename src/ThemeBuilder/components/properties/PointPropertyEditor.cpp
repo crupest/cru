@@ -1,7 +1,8 @@
 #include "PointPropertyEditor.h"
-#include "cru/base/Format.h"
 #include "cru/ui/mapper/MapperRegistry.h"
 #include "cru/ui/mapper/PointMapper.h"
+
+#include <format>
 
 namespace cru::theme_builder::components::properties {
 PointPropertyEditor::PointPropertyEditor() {
@@ -33,6 +34,6 @@ void PointPropertyEditor::SetValue(const ui::Point& point,
 }
 
 String PointPropertyEditor::ConvertPointToString(const ui::Point& point) {
-  return Format(u"{} {}", point.x, point.y);
+  return String::FromUtf8(std::format("{} {}", point.x, point.y));
 }
 }  // namespace cru::theme_builder::components::properties

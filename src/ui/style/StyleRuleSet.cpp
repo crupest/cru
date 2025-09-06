@@ -1,5 +1,6 @@
 #include "cru/ui/style/StyleRuleSet.h"
 #include "cru/base/Event.h"
+#include "cru/base/Exception.h"
 #include "cru/ui/controls/Control.h"
 #include "cru/ui/model/IListChangeNotify.h"
 

@@ -1,7 +1,8 @@
 #include "MeasureLengthPropertyEditor.h"
-#include "cru/base/Format.h"
 #include "cru/ui/mapper/MapperRegistry.h"
 #include "cru/ui/render/MeasureRequirement.h"
+
+#include <string>
 
 namespace cru::theme_builder::components::properties {
 MeasureLengthPropertyEditor::MeasureLengthPropertyEditor() {
@@ -32,6 +33,7 @@ void MeasureLengthPropertyEditor::SetValue(
   if (!trigger_change) SuppressNextChangeEvent();
   text_.SetText(measure_length_.IsNotSpecified()
                     ? u"unspecified"
-                    : ToString(measure_length_.GetLengthOrUndefined()));
+                    : String::FromUtf8(std::to_string(
+                          measure_length_.GetLengthOrUndefined())));
 }
 }  // namespace cru::theme_builder::components::properties

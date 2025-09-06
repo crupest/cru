@@ -1,11 +1,11 @@
 #include "cru/base/platform/unix/UnixFileStream.h"
 #include "cru/base/Exception.h"
-#include "cru/base/Format.h"
 #include "cru/base/io/Stream.h"
 
 #include <fcntl.h>
 #include <sys/fcntl.h>
 #include <unistd.h>
+#include <format>
 
 namespace cru::platform::unix {
 using namespace cru::io;
@@ -41,9 +41,8 @@ int MapSeekOrigin(Stream::SeekOrigin origin) {
 UnixFileStream::UnixFileStream(const char *path, int oflag, mode_t mode) {
   file_descriptor_ = UnixFileDescriptor(::open(path, oflag, mode));
   if (file_descriptor_ == -1) {
-    throw ErrnoException(
-        Format(u"Failed to open file {} with oflag {}, mode {}.",
-               String::FromUtf8(path), oflag, mode));
+    throw ErrnoException(std::format(
+        "Failed to open file {} with oflag {}, mode {}.", path, oflag, mode));
   }
 
   SetSupportedOperations(

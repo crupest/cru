@@ -1,44 +1,61 @@
 #include "cru/platform/Exception.h"
-#include "cru/base/Format.h"
+#include "cru/base/Exception.h"
 
+#include <format>
 #include <optional>
+#include <string_view>
 
 namespace cru::platform {
 PlatformNotMatchException::PlatformNotMatchException(
-    String resource_platform, String target_platform,
-    std::optional<StringView> additional_message)
-    : resource_platform_(std::move(resource_platform)),
+    std::string resource_platform, std::string target_platform,
+    std::optional<std::string> additional_message)
+    : PlatformException(std::format(
+          "Resource platform '{}' does not match target platform '{}'.",
+          resource_platform_, target_platform_)),
+      resource_platform_(std::move(resource_platform)),
       target_platform_(std::move(target_platform)) {
-  SetMessage(
-      Format(u"Resource platform '{}' does not match target platform '{}'.",
-             resource_platform_, target_platform_));
-
   AppendMessage(additional_message);
 }
+
+PlatformNotMatchException::PlatformNotMatchException(
+    StringView resource_platform, StringView target_platform,
+    std::optional<StringView> additional_message)
+    : PlatformNotMatchException(
+          resource_platform.ToUtf8(), target_platform.ToUtf8(),
+          additional_message.has_value()
+              ? std::make_optional(additional_message->ToUtf8())
+              : std::nullopt) {}
 
 PlatformNotMatchException::~PlatformNotMatchException() {}
 
-String PlatformNotMatchException::GetResourcePlatform() const {
-  return resource_platform_;
-}
-
-String PlatformNotMatchException::GetTargetPlatform() const {
-  return target_platform_;
-}
-
 PlatformUnsupportedException::PlatformUnsupportedException(
-    String platform, String operation,
-    std::optional<StringView> additional_message)
-    : platform_(std::move(platform)), operation_(std::move(operation)) {
-  SetMessage(Format(u"Operation '{}' is not supported on platform '{}'.",
-                    operation_, platform_));
+    std::string platform, std::string operation,
+    std::optional<std::string_view> additional_message)
+    : PlatformException(
+          std::format("Operation '{}' is not supported on platform '{}'.",
+                      operation, platform)),
+      platform_(std::move(platform)),
+      operation_(std::move(operation)) {
   AppendMessage(additional_message);
 }
 
+PlatformUnsupportedException::PlatformUnsupportedException(
+    StringView platform, StringView operation,
+    std::optional<StringView> additional_message)
+    : PlatformUnsupportedException(
+          platform.ToUtf8(), operation.ToUtf8(),
+          additional_message.has_value()
+              ? std::make_optional(additional_message->ToUtf8())
+              : std::nullopt) {}
+
 PlatformUnsupportedException::~PlatformUnsupportedException() {}
 
-String PlatformUnsupportedException::GetPlatform() const { return platform_; }
+String PlatformUnsupportedException::GetPlatform() const {
+  return String::FromUtf8(platform_);
+}
 
-String PlatformUnsupportedException::GetOperation() const { return operation_; }
+String PlatformUnsupportedException::GetOperation() const {
+  return String::FromUtf8(operation_);
+}
 
 }  // namespace cru::platform

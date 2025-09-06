@@ -1,9 +1,9 @@
 #include "cru/parse/Grammar.h"
 #include "cru/base/String.h"
 #include "cru/parse/Symbol.h"
-#include "cru/base/Format.h"
 
 #include <algorithm>
+#include <format>
 #include <iterator>
 #include <unordered_map>
 #include <unordered_set>
@@ -154,8 +154,9 @@ void Grammar::EliminateLeftRecursions() {
             new_right.insert(new_right.cbegin(), jp->GetRight().cbegin(),
                              jp->GetRight().cend());
             CreateProduction(
-                Format(u"Merge of {} and {} (Eliminate Left Recursion)",
-                       production->GetName(), jp->GetName()),
+                String::FromUtf8(std::format(
+                    "Merge of {} and {} (Eliminate Left Recursion)",
+                    production->GetName().ToUtf8(), jp->GetName().ToUtf8())),
                 ni, std::move(new_right));
           }
         }

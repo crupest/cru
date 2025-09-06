@@ -1,5 +1,7 @@
 #include "cru/platform/gui/UiApplication.h"
 
+#include "cru/base/Exception.h"
+
 namespace cru::platform::gui {
 IUiApplication* IUiApplication::instance = nullptr;
 

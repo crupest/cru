@@ -1,8 +1,10 @@
 #include "cru/ui/components/Input.h"
-#include <cmath>
-#include <optional>
+#include "cru/base/Format.h"
 #include "cru/base/StringToNumberConverter.h"
 #include "cru/ui/controls/Control.h"
+
+#include <cmath>
+#include <optional>
 
 namespace cru::ui::components {
 Input::Input() : last_validate_result_{true, u"Good value"} {

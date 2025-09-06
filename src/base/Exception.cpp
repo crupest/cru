@@ -17,9 +17,20 @@ Exception::~Exception() {}
 
 const char* Exception::what() const noexcept { return message_.c_str(); }
 
-void Exception::AppendMessage(StringView additional_message) {
+void Exception::AppendMessage(std::string_view additional_message) {
   message_ += " ";
-  message_ += additional_message.ToUtf8();
+  message_ += additional_message;
+}
+
+void Exception::AppendMessage(
+    std::optional<std::string_view> additional_message) {
+  if (additional_message) AppendMessage(*additional_message);
+}
+
+void Exception::SetMessage(StringView message) { SetMessage(message.ToUtf8()); }
+
+void Exception::AppendMessage(StringView additional_message) {
+  AppendMessage(std::string_view(additional_message.ToUtf8()));
 }
 
 void Exception::AppendMessage(std::optional<StringView> additional_message) {

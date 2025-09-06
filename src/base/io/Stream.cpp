@@ -1,15 +1,18 @@
 #include "cru/base/io/Stream.h"
 #include "cru/base/Exception.h"
-#include "cru/base/Format.h"
 
+#include <format>
 #include <utility>
 
 namespace cru::io {
 StreamOperationNotSupportedException::StreamOperationNotSupportedException(
-    String operation)
-    : operation_(std::move(operation)) {
-  SetMessage(Format(u"Stream operation {} not supported.", operation_));
-}
+    StringView operation)
+    : StreamOperationNotSupportedException(operation.ToUtf8()) {}
+
+StreamOperationNotSupportedException::StreamOperationNotSupportedException(
+    std::string operation)
+    : Exception(std::format("Stream operation {} not supported.", operation)),
+      operation_(std::move(operation)) {}
 
 void StreamOperationNotSupportedException::CheckSeek(bool seekable) {
   if (!seekable) throw StreamOperationNotSupportedException(u"seek");

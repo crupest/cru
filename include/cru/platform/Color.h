@@ -2,10 +2,10 @@
 #include "Base.h"
 
 #include "cru/base/Base.h"
-#include "cru/base/Format.h"
 #include "cru/base/String.h"
 
 #include <cstdint>
+#include <format>
 #include <optional>
 #include <unordered_map>
 
@@ -258,8 +258,8 @@ extern const std::unordered_map<StringView, Color> predefined_name_color_map;
 std::optional<Color> GetPredefinedColorByName(StringView name);
 
 inline String ToString(const Color& color) {
-  return cru::Format(u"rgba({}, {}, {}, {})", color.red, color.green,
-                     color.blue, color.alpha);
+  return String::FromUtf8(std::format("rgba({}, {}, {}, {})", color.red,
+                                      color.green, color.blue, color.alpha));
 }
 
 struct CRU_PLATFORM_API HslColor {

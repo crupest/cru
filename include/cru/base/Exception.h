@@ -30,9 +30,15 @@ class CRU_BASE_API Exception : public std::exception {
   const char* what() const noexcept override;
 
  protected:
-  void SetMessage(StringView message) { message_ = message.ToUtf8(); }
+  void SetMessage(std::string message) { message_ = std::move(message); }
+  void AppendMessage(std::string_view additional_message);
+  void AppendMessage(std::optional<std::string_view> additional_message);
 
+  [[deprecated("Use void SetMessage(std::string message) instead.")]]
+  void SetMessage(StringView message);
+  [[deprecated("Use void AppendMessage(std::string_view additional_message) instead.")]]
   void AppendMessage(StringView additional_message);
+  [[deprecated("Use void AppendMessage(std::optional<std::string_view> additional_message) instead.")]]
   void AppendMessage(std::optional<StringView> additional_message);
 
  private:
