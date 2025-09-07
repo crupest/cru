@@ -1,11 +1,10 @@
 #pragma once
 #include "../Base.h"
 
-#include "../Format.h"
 #include "../String.h"
 #include "../concurrent/ConcurrentQueue.h"
 
-#include <format>
+#include <format>  // IWYU pragma: keep
 #include <memory>
 #include <mutex>
 #include <thread>

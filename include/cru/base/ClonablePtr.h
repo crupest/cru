@@ -103,7 +103,7 @@ class ClonablePtr {
     }
   }
 
-  int Compare(nullptr_t) const noexcept { return ptr_ ? 1 : 0; }
+  int Compare(std::nullptr_t) const noexcept { return ptr_ ? 1 : 0; }
 
  private:
   std::unique_ptr<element_type> ptr_;
