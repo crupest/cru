@@ -93,7 +93,7 @@ void ShortcutHub::OnKeyDown(events::KeyEventArgs& event) {
                         key_bind.ToString().ToUtf8());
     }
     CRU_LOG_TAG_DEBUG("Begin to handle shortcut for key bind {}.",
-                      key_bind.ToString());
+                      key_bind.ToString().ToUtf8());
   }
 
   for (const auto& shortcut : shortcut_list) {

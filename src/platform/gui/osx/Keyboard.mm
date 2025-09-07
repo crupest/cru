@@ -1,8 +1,9 @@
 #include "cru/platform/gui/osx/Keyboard.h"
+#import "KeyboardPrivate.h"
+#include "cru/base/Exception.h"
 
 #import <AppKit/NSText.h>
 #import <Carbon/Carbon.h>
-#import "KeyboardPrivate.h"
 
 namespace cru::platform::gui::osx {
 KeyCode KeyCodeFromOsxToCru(unsigned short n) {
@@ -280,4 +281,4 @@ NSEventModifierFlags ConvertKeyModifier(KeyModifier k) {
   }
   return flags;
 }
-}
+}  // namespace cru::platform::gui::osx

@@ -43,8 +43,12 @@ constexpr bool operator!=(const Point& left, const Point& right) {
   return !(left == right);
 }
 
+inline std::string ToUtf8String(const Point& point) {
+  return std::format("(x: {}, y: {})", point.x, point.y);
+}
+
 inline String ToString(const Point& point) {
-  return String::FromUtf8(std::format("(x: {}, y: {})", point.x, point.y));
+  return String::FromUtf8(ToUtf8String(point));
 }
 
 struct CRU_PLATFORM_API Size final {
@@ -84,9 +88,12 @@ constexpr bool operator!=(const Size& left, const Size& right) {
   return !(left == right);
 }
 
+inline std::string ToUtf8String(const Size& size) {
+  return std::format("(width: {}, height: {})", size.width, size.height);
+}
+
 inline String ToString(const Size& size) {
-  return String::FromUtf8(
-      std::format("(width: {}, height: {})", size.width, size.height));
+  return String::FromUtf8(ToUtf8String(size));
 }
 
 struct Thickness final {
@@ -287,3 +294,24 @@ constexpr bool operator!=(const Ellipse& left, const Ellipse& right) {
 
 using TextRange = Range;
 }  // namespace cru::platform
+
+template <typename T>
+struct ImplementFormatterByToUtf8String {
+  template <class ParseContext>
+  constexpr ParseContext::iterator parse(ParseContext& ctx) const {
+    return ctx.end();
+  }
+
+  template <class FmtContext>
+  FmtContext::iterator format(const T& object, FmtContext& ctx) const {
+    return std::ranges::copy(ToUtf8String(object), ctx.out()).out;
+  }
+};
+
+template <>
+struct std::formatter<cru::platform::Point, char>
+    : ImplementFormatterByToUtf8String<cru::platform::Point> {};
+
+template <>
+struct std::formatter<cru::platform::Size, char>
+    : ImplementFormatterByToUtf8String<cru::platform::Size> {};

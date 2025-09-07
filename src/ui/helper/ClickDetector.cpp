@@ -5,7 +5,7 @@
 #include "cru/ui/controls/Control.h"
 #include "cru/ui/host/WindowHost.h"
 
-#include <optional>
+#include <string>
 
 namespace cru::ui::helper {
 Point ClickEventArgs::GetDownPointOfScreen() const {
@@ -58,7 +58,8 @@ ClickDetector::ClickDetector(controls::Control* control) {
                 this->state_ == ClickState::Hover) {
               if (!this->control_->CaptureMouse()) {
                 if constexpr (debug_flags::click_detector) {
-                  CRU_LOG_TAG_DEBUG("Failed to capture mouse when begin click.");
+                  CRU_LOG_TAG_DEBUG(
+                      "Failed to capture mouse when begin click.");
                 }
                 return;
               }
@@ -123,16 +124,16 @@ void ClickDetector::SetTriggerButton(MouseButton trigger_button) {
 
 void ClickDetector::SetState(ClickState state) {
   if constexpr (debug_flags::click_detector) {
-    auto to_string = [](ClickState state) -> std::u16string_view {
+    auto to_string = [](ClickState state) -> const char* {
       switch (state) {
         case ClickState::None:
-          return u"None";
+          return "None";
         case ClickState::Hover:
-          return u"Hover";
+          return "Hover";
         case ClickState::Press:
-          return u"Press";
+          return "Press";
         case ClickState::PressInactive:
-          return u"PressInvactive";
+          return "PressInactive";
         default:
           UnreachableCode();
       }

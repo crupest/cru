@@ -64,7 +64,7 @@ void DispatchEvent(
       log += " -> ";
     }
     log += i->Resolve()->GetControlType().ToUtf8();
-    CRU_LOG_TAG_DEBUG(log);
+    CRU_LOG_TAG_DEBUG("{}", log);
   }
 
   auto handled = false;

@@ -466,7 +466,7 @@ void TextHostControlService::UpdateInputMethodPosition() {
 
     if constexpr (debug_flags::text_service) {
       CRU_LOG_TAG_DEBUG("Calculate input method candidate window position: {}.",
-                    right_bottom);
+                        right_bottom);
     }
 
     input_method_context->SetCandidateWindowPosition(right_bottom);

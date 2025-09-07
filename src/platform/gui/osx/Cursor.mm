@@ -1,9 +1,10 @@
 #include "cru/platform/gui/osx/Cursor.h"
 #include "CursorPrivate.h"
+#include "cru/base/Exception.h"
 
-#include "cru/platform/gui/osx/Resource.h"
 #include "cru/platform/gui/Cursor.h"
 #include "cru/platform/gui/UiApplication.h"
+#include "cru/platform/gui/osx/Resource.h"
 
 #include <memory>
 
@@ -28,7 +29,7 @@ OsxCursorPrivate::OsxCursorPrivate(OsxCursor* cursor, SystemCursorType cursor_ty
 }
 
 OsxCursorPrivate::~OsxCursorPrivate() {}
-}
+}  // namespace details
 
 OsxCursor::OsxCursor(IUiApplication* ui_application, SystemCursorType cursor_type)
     : OsxGuiResource(ui_application) {
@@ -68,7 +69,7 @@ OsxCursorManagerPrivate::OsxCursorManagerPrivate(OsxCursorManager* cursor_manage
 }
 
 OsxCursorManagerPrivate::~OsxCursorManagerPrivate() {}
-}
+}  // namespace details
 
 OsxCursorManager::OsxCursorManager(IUiApplication* ui_application)
     : OsxGuiResource(ui_application) {
@@ -89,4 +90,4 @@ std::shared_ptr<ICursor> OsxCursorManager::GetSystemCursor(SystemCursorType type
       throw Exception(u"Unknown system cursor type.");
   }
 }
-}
+}  // namespace cru::platform::gui::osx
