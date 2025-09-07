@@ -45,14 +45,17 @@ class UnixTimerFile : public Object2 {
 };
 
 class UnixEventLoop : public Object2 {
+  CRU_DEFINE_CLASS_LOG_TAG("cru::platform::unix::UnixEventLoop")
  public:
   UnixEventLoop();
+  ~UnixEventLoop() override;
 
   int Run();
   void RequestQuit(int exit_code = 0);
 
   int SetTimer(std::function<void()> action, std::chrono::milliseconds timeout,
                bool repeat);
+  void CancelTimer(int id);
 
   int SetImmediate(std::function<void()> action) {
     return this->SetTimer(std::move(action), std::chrono::milliseconds::zero(),
@@ -90,6 +93,8 @@ class UnixEventLoop : public Object2 {
   bool CheckPoll();
   bool CheckTimer();
   bool ReadTimerPipe();
+
+  void RemoveTimer(int id);
 
  private:
   std::thread::id running_thread_;

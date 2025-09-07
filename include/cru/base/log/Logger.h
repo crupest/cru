@@ -1,9 +1,9 @@
 #pragma once
 #include "../Base.h"
 
-#include "../concurrent/ConcurrentQueue.h"
-
+#include <condition_variable>
 #include <format>  // IWYU pragma: keep
+#include <list>
 #include <memory>
 #include <mutex>
 #include <thread>
@@ -55,12 +55,17 @@ class CRU_BASE_API Logger : public Object2 {
   }
 
  private:
-  concurrent::ConcurrentQueue<LogInfo> log_queue_;
+  void LogThreadRun();
+
+ private:
+  std::mutex log_queue_mutex_;
+  std::condition_variable log_queue_condition_variable_;
+  std::list<LogInfo> log_queue_;
+  bool log_stop_;
+  std::thread log_thread_;
 
   std::mutex target_list_mutex_;
   std::vector<std::unique_ptr<ILogTarget>> target_list_;
-
-  std::thread log_thread_;
 };
 
 class CRU_BASE_API LoggerCppStream : public Object2 {

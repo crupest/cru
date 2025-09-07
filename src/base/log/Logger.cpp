@@ -2,8 +2,11 @@
 #include "cru/base/log/StdioLogTarget.h"
 
 #include <algorithm>
+#include <condition_variable>
 #include <ctime>
 #include <format>
+#include <memory>
+#include <mutex>
 
 #ifdef CRU_PLATFORM_WINDOWS
 #include "cru/base/platform/win/DebugLogTarget.h"
@@ -65,18 +68,16 @@ std::string MakeLogFinalMessage(const LogInfo &log_info) {
 }
 }  // namespace
 
-Logger::Logger()
-    : log_thread_([this] {
-        while (true) {
-          auto log_info = log_queue_.Pull();
-          std::lock_guard<std::mutex> lock_guard{target_list_mutex_};
-          for (const auto &target : target_list_) {
-            target->Write(log_info.level, MakeLogFinalMessage(log_info));
-          }
-        }
-      }) {}
+Logger::Logger() : log_stop_(false), log_thread_(&Logger::LogThreadRun, this) {}
 
-Logger::~Logger() { log_thread_.detach(); }
+Logger::~Logger() {
+  {
+    std::unique_lock lock(log_queue_mutex_);
+    log_stop_ = true;
+    log_queue_condition_variable_.notify_one();
+  }
+  log_thread_.join();
+}
 
 void Logger::Log(LogInfo log_info) {
 #ifndef CRU_DEBUG
@@ -84,7 +85,41 @@ void Logger::Log(LogInfo log_info) {
     return;
   }
 #endif
-  log_queue_.Push(std::move(log_info));
+
+  std::unique_lock lock(log_queue_mutex_);
+  log_queue_.push_back(std::move(log_info));
+  log_queue_condition_variable_.notify_one();
+}
+void Logger::LogThreadRun() {
+  while (true) {
+    std::list<LogInfo> queue;
+    bool stop = false;
+    std::vector<ILogTarget *> target_list;
+
+    {
+      std::unique_lock lock(log_queue_mutex_);
+      log_queue_condition_variable_.wait(
+          lock, [this] { return !log_queue_.empty() || log_stop_; });
+      std::swap(queue, log_queue_);
+      stop = log_stop_;
+    }
+
+    {
+      std::lock_guard<std::mutex> lock_guard(target_list_mutex_);
+      for (const auto &target : target_list_) {
+        target_list.push_back(target.get());
+      }
+    }
+
+    for (const auto &target : target_list) {
+      for (auto &log_info : queue) {
+        target->Write(log_info.level, MakeLogFinalMessage(log_info));
+      }
+    }
+
+    // TODO: Should still wait for queue to be cleared.
+    if (stop) return;
+  }
 }
 
 LoggerCppStream::LoggerCppStream(Logger *logger, LogLevel level,
@@ -102,4 +137,5 @@ LoggerCppStream LoggerCppStream::WithTag(std::string tag) const {
 void LoggerCppStream::Consume(std::string_view str) {
   this->logger_->Log(this->level_, this->tag_, std::string(str));
 }
+
 }  // namespace cru::log

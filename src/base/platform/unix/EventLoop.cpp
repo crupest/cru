@@ -1,5 +1,6 @@
 #include "cru/base/platform/unix/EventLoop.h"
 #include "cru/base/Exception.h"
+#include "cru/base/log/Logger.h"
 
 #include <poll.h>
 #include <algorithm>
@@ -18,7 +19,11 @@ UnixEventLoop::UnixEventLoop() : timer_tag_(1), polls_(1), poll_actions_(1) {
   poll_actions_[0] = [](auto _) {};
 }
 
+UnixEventLoop::~UnixEventLoop() { CRU_LOG_TAG_DEBUG("Event loop destroyed."); }
+
 int UnixEventLoop::Run() {
+  CRU_LOG_TAG_DEBUG("Event loop started.");
+
   running_thread_ = std::this_thread::get_id();
 
   while (!exit_code_) {
@@ -63,7 +68,12 @@ int UnixEventLoop::Run() {
   return exit_code_.value();
 }
 
-void UnixEventLoop::RequestQuit(int exit_code) {}
+void UnixEventLoop::RequestQuit(int exit_code) {
+  exit_code_ = exit_code;
+  if (std::this_thread::get_id() != running_thread_) {
+    SetImmediate([] {});
+  }
+}
 
 int UnixEventLoop::SetTimer(std::function<void()> action,
                             std::chrono::milliseconds timeout, bool repeat) {
@@ -91,6 +101,14 @@ int UnixEventLoop::SetTimer(std::function<void()> action,
   return tag;
 }
 
+void UnixEventLoop::CancelTimer(int id) {
+  if (std::this_thread::get_id() == running_thread_) {
+    RemoveTimer(id);
+  } else {
+    SetImmediate([this, id] { RemoveTimer(id); });
+  }
+}
+
 bool UnixEventLoop::CheckPoll() {
   auto iter = std::ranges::find_if(
       polls_, [](const pollfd &poll_fd) { return poll_fd.revents != 0; });
@@ -116,6 +134,8 @@ bool UnixEventLoop::CheckTimer() {
   if (iter == timers_.end()) {
     return false;
   }
+
+  CRU_LOG_TAG_INFO("A timer is to be executed.");
 
   auto &timer = *iter;
   if (timer.repeat) {
@@ -158,6 +178,17 @@ bool UnixEventLoop::ReadTimerPipe() {
   timers_.push_back(std::move(*pointer));
   delete pointer;
 
+  CRU_LOG_TAG_INFO("A timer from pipe is received.");
+
   return true;
 }
+
+void UnixEventLoop::RemoveTimer(int id) {
+  auto iter = std::ranges::find_if(
+      timers_, [id](const TimerData &timer) { return timer.id == id; });
+  if (iter != timers_.cend()) {
+    timers_.erase(iter);
+  }
+}
+
 }  // namespace cru::platform::unix
