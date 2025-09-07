@@ -7,10 +7,10 @@
 constexpr auto NO_MESSAGE = "No message.";
 
 namespace cru {
-Exception::Exception(std::string message, std::unique_ptr<std::exception> inner)
+Exception::Exception(std::string message, std::shared_ptr<std::exception> inner)
     : message_(std::move(message)), inner_(std::move(inner)) {}
 
-Exception::Exception(StringView message, std::unique_ptr<std::exception> inner)
+Exception::Exception(StringView message, std::shared_ptr<std::exception> inner)
     : message_(message.ToUtf8()), inner_(std::move(inner)) {}
 
 Exception::~Exception() {}
