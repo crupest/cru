@@ -117,5 +117,5 @@ inline void hash_combine(std::size_t& s, const T& v) {
 
 #define CRU_DEFINE_CLASS_LOG_TAG(tag) \
  private:                             \
-  constexpr static const char16_t* kLogTag = tag;
+  constexpr static const char* kLogTag = tag;
 }  // namespace cru

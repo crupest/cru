@@ -19,7 +19,7 @@ struct AfterLayoutEventArgs {};
 // The bridge between control tree and native window.
 class CRU_UI_API WindowHost : public Object, public SelfResolvable<WindowHost> {
   friend controls::Control;
-  CRU_DEFINE_CLASS_LOG_TAG(u"WindowHost")
+  CRU_DEFINE_CLASS_LOG_TAG("WindowHost")
 
  private:
   static int event_handling_depth_;

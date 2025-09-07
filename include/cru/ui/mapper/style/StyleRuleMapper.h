@@ -7,7 +7,7 @@
 
 namespace cru::ui::mapper::style {
 class CRU_UI_API StyleRuleMapper : public BasicClonablePtrMapper<ui::style::StyleRule> {
-  CRU_DEFINE_CLASS_LOG_TAG(u"StyleRuleMapper")
+  CRU_DEFINE_CLASS_LOG_TAG("StyleRuleMapper")
  public:
   CRU_DEFAULT_CONSTRUCTOR_DESTRUCTOR(StyleRuleMapper)
 

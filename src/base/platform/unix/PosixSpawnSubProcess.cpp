@@ -145,14 +145,14 @@ SubProcessExitResult PosixSpawnSubProcessImpl::PlatformWaitForProcess() {
 
   while (waitpid(pid_, &wstatus, 0) == -1) {
     if (errno == EINTR) {
-      CRU_LOG_TAG_INFO(u"Waitpid is interrupted by a signal. Call it again.");
+      CRU_LOG_TAG_INFO("Waitpid is interrupted by a signal. Call it again.");
       continue;
     }
 
     std::unique_ptr<ErrnoException> inner(new ErrnoException(errno));
 
-    throw SubProcessInternalException(
-        u"Failed to call waitpid on a subprocess.", std::move(inner));
+    throw SubProcessInternalException("Failed to call waitpid on a subprocess.",
+                                      std::move(inner));
   }
 
   if (WIFEXITED(wstatus)) {

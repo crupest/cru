@@ -19,10 +19,10 @@ UnixFileDescriptor::UnixFileDescriptor(int descriptor, bool auto_close,
       close_(std::move(close)) {}
 
 UnixFileDescriptor::~UnixFileDescriptor() {
-  constexpr auto kLogTag = u"cru::platform::unix::UnixFileDescriptor";
+  constexpr auto kLogTag = "cru::platform::unix::UnixFileDescriptor";
   if (this->IsValid() && this->IsAutoClose()) {
     if (!this->DoClose()) {
-      CRU_LOG_TAG_ERROR(u"Failed to close file descriptor {}, errno {}.",
+      CRU_LOG_TAG_ERROR("Failed to close file descriptor {}, errno {}.",
                         descriptor_, errno);
     }
   }

@@ -134,7 +134,7 @@ struct IPlatformSubProcessImpl : virtual Interface {
  * leak.
  */
 class PlatformSubProcess : public Object {
-  CRU_DEFINE_CLASS_LOG_TAG(u"PlatformSubProcess")
+  CRU_DEFINE_CLASS_LOG_TAG("PlatformSubProcess")
 
  private:
   struct State {
@@ -212,7 +212,7 @@ class PlatformSubProcess : public Object {
 };
 
 class CRU_BASE_API SubProcess : public Object {
-  CRU_DEFINE_CLASS_LOG_TAG(u"SubProcess")
+  CRU_DEFINE_CLASS_LOG_TAG("SubProcess")
 
  public:
   static SubProcess Create(

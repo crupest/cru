@@ -23,7 +23,7 @@ class CRU_UI_API Control : public Object,
                            public DeleteLaterImpl {
   friend class RootControl;
 
-  CRU_DEFINE_CLASS_LOG_TAG(u"Control")
+  CRU_DEFINE_CLASS_LOG_TAG("Control")
 
  protected:
   Control();

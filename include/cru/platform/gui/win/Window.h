@@ -11,7 +11,7 @@
 namespace cru::platform::gui::win {
 class CRU_WIN_GUI_API WinNativeWindow : public WinNativeResource,
                                         public virtual INativeWindow {
-  CRU_DEFINE_CLASS_LOG_TAG(u"WinNativeWindow")
+  CRU_DEFINE_CLASS_LOG_TAG("WinNativeWindow")
 
  public:
   explicit WinNativeWindow(WinUiApplication* application);

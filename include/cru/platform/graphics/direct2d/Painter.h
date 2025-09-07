@@ -12,7 +12,7 @@ class CRU_WIN_GRAPHICS_DIRECT_API D2DDeviceContextPainter
     : public DirectResource,
       public virtual IPainter,
       public virtual IComResource<ID2D1DeviceContext1> {
-  CRU_DEFINE_CLASS_LOG_TAG(u"D2DDeviceContextPainter")
+  CRU_DEFINE_CLASS_LOG_TAG("D2DDeviceContextPainter")
  public:
   explicit D2DDeviceContextPainter(ID2D1DeviceContext1* device_context,
                                    bool release = false);

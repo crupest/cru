@@ -7,7 +7,7 @@
 namespace cru::platform::gui::osx {
 namespace details {
 class OsxClipboardPrivate : public Object {
-  CRU_DEFINE_CLASS_LOG_TAG(u"OsxClipboardPrivate")
+  CRU_DEFINE_CLASS_LOG_TAG("OsxClipboardPrivate")
  public:
   explicit OsxClipboardPrivate(NSPasteboard* pasteboard);
 

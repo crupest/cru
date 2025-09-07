@@ -11,7 +11,7 @@
 namespace cru::platform::graphics::quartz {
 class QuartzCGContextPainter : public OsxQuartzResource,
                                public virtual IPainter {
-  CRU_DEFINE_CLASS_LOG_TAG(u"QuartzCGContextPainter")
+  CRU_DEFINE_CLASS_LOG_TAG("QuartzCGContextPainter")
 
  public:
   explicit QuartzCGContextPainter(

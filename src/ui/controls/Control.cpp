@@ -31,7 +31,7 @@ Control::Control() {
 Control::~Control() {
   if (host::WindowHost::IsInEventHandling()) {
     CRU_LOG_TAG_ERROR(
-        u"Control destroyed during event handling. Please use DeleteLater.");
+        "Control destroyed during event handling. Please use DeleteLater.");
   }
 
   in_destruction_ = true;

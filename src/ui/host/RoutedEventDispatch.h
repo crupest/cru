@@ -26,7 +26,7 @@ void DispatchEvent(
     const String& event_name, controls::Control* const original_sender,
     events::RoutedEvent<EventArgs>* (controls::Control::*event_ptr)(),
     controls::Control* const last_receiver, Args&&... args) {
-  constexpr auto kLogTag = u"DispatchEvent";
+  constexpr auto kLogTag = "DispatchEvent";
 
   if (original_sender == nullptr) return;
 
@@ -35,9 +35,9 @@ void DispatchEvent(
   if (original_sender == last_receiver) {
     if constexpr (debug_flags::routed_event)
       CRU_LOG_TAG_DEBUG(
-          u"Routed event {} no need to dispatch (original_sender == "
+          "Routed event {} no need to dispatch (original_sender == "
           "last_receiver). Original sender is {}.",
-          event_name, original_sender->GetControlType());
+          event_name.ToUtf8(), original_sender->GetControlType().ToUtf8());
     return;
   }
 
@@ -54,16 +54,16 @@ void DispatchEvent(
   }
 
   if constexpr (debug_flags::routed_event) {
-    String log = u"Dispatch routed event ";
-    log += event_name;
-    log += u". Path (parent first): ";
+    std::string log = "Dispatch routed event ";
+    log += event_name.ToUtf8();
+    log += ". Path (parent first): ";
     auto i = receive_list.crbegin();
     const auto end = --receive_list.crend();
     for (; i != end; ++i) {
-      log += i->Resolve()->GetControlType();
-      log += u" -> ";
+      log += i->Resolve()->GetControlType().ToUtf8();
+      log += " -> ";
     }
-    log += i->Resolve()->GetControlType();
+    log += i->Resolve()->GetControlType().ToUtf8();
     CRU_LOG_TAG_DEBUG(log);
   }
 
@@ -83,8 +83,8 @@ void DispatchEvent(
       handled = true;
       if constexpr (debug_flags::routed_event)
         CRU_LOG_TAG_DEBUG(
-            u"Routed event is short-circuit in TUNNEL at {}-st control (count "
-            u"from parent).",
+            "Routed event is short-circuit in TUNNEL at {}-st control (count "
+            "from parent).",
             count);
       break;
     }
@@ -103,8 +103,8 @@ void DispatchEvent(
       if (event_args.IsHandled()) {
         if constexpr (debug_flags::routed_event)
           CRU_LOG_TAG_DEBUG(
-              u"Routed event is short-circuit in BUBBLE at {}-st control "
-              u"(count from parent).",
+              "Routed event is short-circuit in BUBBLE at {}-st control "
+              "(count from parent).",
               count);
         break;
       }
@@ -121,7 +121,7 @@ void DispatchEvent(
   }
 
   if constexpr (debug_flags::routed_event)
-    CRU_LOG_TAG_DEBUG(u"Routed event dispatch finished.");
+    CRU_LOG_TAG_DEBUG("Routed event dispatch finished.");
 
   WindowHost::LeaveEventHandling();
 }

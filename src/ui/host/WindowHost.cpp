@@ -202,7 +202,7 @@ void WindowHost::RelayoutWithSize(const Size& available_size,
   for (auto& action : after_layout_stable_action_) action();
   after_layout_event_.Raise(AfterLayoutEventArgs{});
   after_layout_stable_action_.clear();
-  if constexpr (debug_flags::layout) CRU_LOG_TAG_DEBUG(u"A relayout is finished.");
+  if constexpr (debug_flags::layout) CRU_LOG_TAG_DEBUG("A relayout is finished.");
 }
 
 void WindowHost::Repaint() {

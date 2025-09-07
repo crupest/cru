@@ -59,7 +59,7 @@ struct BoxConstraint {
  * content_rect) override;
  */
 class CRU_UI_API RenderObject : public Object {
-  CRU_DEFINE_CLASS_LOG_TAG(u"RenderObject")
+  CRU_DEFINE_CLASS_LOG_TAG("RenderObject")
 
  protected:
   RenderObject() = default;

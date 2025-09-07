@@ -41,7 +41,7 @@ enum class ClickState {
 };
 
 class ClickDetector : public Object {
-  CRU_DEFINE_CLASS_LOG_TAG(u"ClickDetector")
+  CRU_DEFINE_CLASS_LOG_TAG("ClickDetector")
 
  public:
   explicit ClickDetector(controls::Control* control);

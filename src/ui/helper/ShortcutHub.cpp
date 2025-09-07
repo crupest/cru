@@ -64,7 +64,7 @@ const std::vector<ShortcutInfo>& ShortcutHub::GetShortcutByKeyBind(
 
 void ShortcutHub::Install(controls::Control* control) {
   if (!event_guard_.IsEmpty()) {
-    CRU_LOG_TAG_ERROR(u"Shortcut hub is already installed. Failed to install.");
+    CRU_LOG_TAG_ERROR("Shortcut hub is already installed. Failed to install.");
     return;
   }
 
@@ -74,7 +74,7 @@ void ShortcutHub::Install(controls::Control* control) {
 
 void ShortcutHub::Uninstall() {
   if (event_guard_.IsEmpty()) {
-    CRU_LOG_TAG_WARN(u"Shortcut hub is not installed. Failed to uninstall.");
+    CRU_LOG_TAG_WARN("Shortcut hub is not installed. Failed to uninstall.");
     return;
   }
 
@@ -89,17 +89,18 @@ void ShortcutHub::OnKeyDown(events::KeyEventArgs& event) {
 
   if constexpr (debug_flags::shortcut) {
     if (shortcut_list.empty()) {
-      CRU_LOG_TAG_DEBUG(u"No shortcut for key bind {}.", key_bind.ToString());
+      CRU_LOG_TAG_DEBUG("No shortcut for key bind {}.",
+                        key_bind.ToString().ToUtf8());
     }
-    CRU_LOG_TAG_DEBUG(u"Begin to handle shortcut for key bind {}.",
-                  key_bind.ToString());
+    CRU_LOG_TAG_DEBUG("Begin to handle shortcut for key bind {}.",
+                      key_bind.ToString());
   }
 
   for (const auto& shortcut : shortcut_list) {
     auto is_handled = shortcut.handler();
     if (is_handled) {
       if constexpr (debug_flags::shortcut) {
-        CRU_LOG_TAG_DEBUG(u"Handle {} handled it.", shortcut.name);
+        CRU_LOG_TAG_DEBUG("Handle {} handled it.", shortcut.name.ToUtf8());
       }
 
       handled = true;
@@ -108,23 +109,24 @@ void ShortcutHub::OnKeyDown(events::KeyEventArgs& event) {
       break;
     } else {
       if constexpr (debug_flags::shortcut) {
-        CRU_LOG_TAG_DEBUG(u"Handle {} didn't handle it.", shortcut.name);
+        CRU_LOG_TAG_DEBUG("Handle {} didn't handle it.",
+                          shortcut.name.ToUtf8());
       }
     }
   }
 
   if constexpr (debug_flags::shortcut) {
     if (!shortcut_list.empty()) {
-      CRU_LOG_TAG_DEBUG(u"End handling shortcut for key bind {}.",
-                    key_bind.ToString());
+      CRU_LOG_TAG_DEBUG("End handling shortcut for key bind {}.",
+                        key_bind.ToString().ToUtf8());
     }
   }
 
   if (!handled) {
     if constexpr (debug_flags::shortcut) {
       CRU_LOG_TAG_DEBUG(
-          u"Raise fallback event for unhandled shortcut of key bind {}.",
-          key_bind.ToString());
+          "Raise fallback event for unhandled shortcut of key bind {}.",
+          key_bind.ToString().ToUtf8());
     }
     fallback_event_.Raise(event);
   }

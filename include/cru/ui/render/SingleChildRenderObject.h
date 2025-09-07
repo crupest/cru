@@ -3,7 +3,7 @@
 
 namespace cru::ui::render {
 class CRU_UI_API SingleChildRenderObject : public RenderObject {
-  CRU_DEFINE_CLASS_LOG_TAG(u"SingleChildRenderObject")
+  CRU_DEFINE_CLASS_LOG_TAG("SingleChildRenderObject")
 
  public:
   SingleChildRenderObject() = default;

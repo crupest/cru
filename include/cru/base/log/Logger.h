@@ -5,6 +5,7 @@
 #include "../String.h"
 #include "../concurrent/ConcurrentQueue.h"
 
+#include <format>
 #include <memory>
 #include <mutex>
 #include <thread>
@@ -15,35 +16,26 @@ namespace cru::log {
 enum class LogLevel { Debug, Info, Warn, Error };
 
 struct CRU_BASE_API LogInfo {
-  LogInfo(LogLevel level, String tag, String message)
+  LogInfo(LogLevel level, std::string tag, std::string message)
       : level(level), tag(std::move(tag)), message(std::move(message)) {}
 
-  CRU_DEFAULT_COPY(LogInfo)
-  CRU_DEFAULT_MOVE(LogInfo)
-
-  ~LogInfo() = default;
-
   LogLevel level;
-  String tag;
-  String message;
+  std::string tag;
+  std::string message;
 };
 
 struct CRU_BASE_API ILogTarget : virtual Interface {
   // Write the string s. LogLevel is just a helper. It has no effect on the
   // content to write.
-  virtual void Write(LogLevel level, StringView s) = 0;
+  virtual void Write(LogLevel level, std::string s) = 0;
 };
 
-class CRU_BASE_API Logger : public Object {
+class CRU_BASE_API Logger : public Object2 {
  public:
   static Logger* GetInstance();
 
  public:
   Logger();
-
-  CRU_DELETE_COPY(Logger)
-  CRU_DELETE_MOVE(Logger)
-
   ~Logger() override;
 
  public:
@@ -51,16 +43,10 @@ class CRU_BASE_API Logger : public Object {
   void RemoveLogTarget(ILogTarget* source);
 
  public:
-  void Log(LogLevel level, String tag, String message) {
+  void Log(LogLevel level, std::string tag, std::string message) {
     Log(LogInfo(level, std::move(tag), std::move(message)));
   }
   void Log(LogInfo log_info);
-
-  template <typename... Args>
-  void FormatLog(LogLevel level, String tag, StringView format,
-                 Args&&... args) {
-    Log(level, std::move(tag), Format(format, std::forward<Args>(args)...));
-  }
 
  private:
   concurrent::ConcurrentQueue<LogInfo> log_queue_;
@@ -73,17 +59,17 @@ class CRU_BASE_API Logger : public Object {
 
 class CRU_BASE_API LoggerCppStream : public Object2 {
  public:
-  explicit LoggerCppStream(Logger* logger, LogLevel level, String tag);
+  explicit LoggerCppStream(Logger* logger, LogLevel level, std::string tag);
   ~LoggerCppStream() override = default;
 
   LoggerCppStream WithLevel(LogLevel level) const;
-  LoggerCppStream WithTag(String tag) const;
+  LoggerCppStream WithTag(std::string tag) const;
 
  private:
-  void Consume(StringView str);
+  void Consume(std::string_view str);
 
  public:
-  LoggerCppStream& operator<<(StringView str) {
+  LoggerCppStream& operator<<(std::string_view str) {
     this->Consume(str);
     return *this;
   }
@@ -97,23 +83,23 @@ class CRU_BASE_API LoggerCppStream : public Object2 {
  private:
   Logger* logger_;
   LogLevel level_;
-  String tag_;
+  std::string tag_;
 };
 
 }  // namespace cru::log
 
-#define CRU_LOG_TAG_DEBUG(...)                                          \
-  cru::log::Logger::GetInstance()->FormatLog(cru::log::LogLevel::Debug, \
-                                             kLogTag, __VA_ARGS__)
+#define CRU_LOG_TAG_DEBUG(...)                                             \
+  cru::log::Logger::GetInstance()->Log(cru::log::LogLevel::Debug, kLogTag, \
+                                       std::format(__VA_ARGS__))
 
-#define CRU_LOG_TAG_INFO(...)                                          \
-  cru::log::Logger::GetInstance()->FormatLog(cru::log::LogLevel::Info, \
-                                             kLogTag, __VA_ARGS__)
+#define CRU_LOG_TAG_INFO(...)                                             \
+  cru::log::Logger::GetInstance()->Log(cru::log::LogLevel::Info, kLogTag, \
+                                       std::format(__VA_ARGS__))
 
-#define CRU_LOG_TAG_WARN(...)                                          \
-  cru::log::Logger::GetInstance()->FormatLog(cru::log::LogLevel::Warn, \
-                                             kLogTag, __VA_ARGS__)
+#define CRU_LOG_TAG_WARN(...)                                             \
+  cru::log::Logger::GetInstance()->Log(cru::log::LogLevel::Warn, kLogTag, \
+                                       std::format(__VA_ARGS__))
 
-#define CRU_LOG_TAG_ERROR(...)                                          \
-  cru::log::Logger::GetInstance()->FormatLog(cru::log::LogLevel::Error, \
-                                             kLogTag, __VA_ARGS__)
+#define CRU_LOG_TAG_ERROR(...)                                             \
+  cru::log::Logger::GetInstance()->Log(cru::log::LogLevel::Error, kLogTag, \
+                                       std::format(__VA_ARGS__))

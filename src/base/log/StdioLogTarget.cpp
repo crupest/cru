@@ -7,20 +7,19 @@ StdioLogTarget::StdioLogTarget() {}
 
 StdioLogTarget::~StdioLogTarget() {}
 
-void StdioLogTarget::Write(log::LogLevel level, StringView s) {
+void StdioLogTarget::Write(log::LogLevel level, std::string message) {
 #ifdef CRU_PLATFORM_WINDOWS
+  String s = String::FromUtf8(message);
   if (level == log::LogLevel::Error) {
     std::wcerr.write(reinterpret_cast<const wchar_t*>(s.data()), s.size());
   } else {
     std::wcout.write(reinterpret_cast<const wchar_t*>(s.data()), s.size());
   }
 #else
-  std::string m = s.ToUtf8();
-
   if (level == log::LogLevel::Error) {
-    std::cerr << m;
+    std::cerr << message;
   } else {
-    std::cout << m;
+    std::cout << message;
   }
 #endif
 }

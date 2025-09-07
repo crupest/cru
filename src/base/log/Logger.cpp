@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <ctime>
+#include <format>
 
 #ifdef CRU_PLATFORM_WINDOWS
 #include "cru/base/platform/win/DebugLogTarget.h"
@@ -35,32 +36,32 @@ void Logger::RemoveLogTarget(ILogTarget *target) {
 }
 
 namespace {
-String LogLevelToString(LogLevel level) {
+const char *LogLevelToString(LogLevel level) {
   switch (level) {
     case LogLevel::Debug:
-      return u"DEBUG";
+      return "DEBUG";
     case LogLevel::Info:
-      return u"INFO";
+      return "INFO";
     case LogLevel::Warn:
-      return u"WARN";
+      return "WARN";
     case LogLevel::Error:
-      return u"ERROR";
+      return "ERROR";
     default:
       std::terminate();
   }
 }
 
-String GetLogTime() {
+std::string GetLogTime() {
   auto time = std::time(nullptr);
   auto calendar = std::localtime(&time);
-  return Format(u"{}:{}:{}", calendar->tm_hour, calendar->tm_min,
-                calendar->tm_sec);
+  return std::format("{}:{}:{}", calendar->tm_hour, calendar->tm_min,
+                     calendar->tm_sec);
 }
 
-String MakeLogFinalMessage(const LogInfo &log_info) {
-  return Format(u"[{}] {} {}: {}\n", GetLogTime(),
-                LogLevelToString(log_info.level), log_info.tag,
-                log_info.message);
+std::string MakeLogFinalMessage(const LogInfo &log_info) {
+  return std::format("[{}] {} {}: {}\n", GetLogTime(),
+                     LogLevelToString(log_info.level), log_info.tag,
+                     log_info.message);
 }
 }  // namespace
 
@@ -86,18 +87,19 @@ void Logger::Log(LogInfo log_info) {
   log_queue_.Push(std::move(log_info));
 }
 
-LoggerCppStream::LoggerCppStream(Logger *logger, LogLevel level, String tag)
+LoggerCppStream::LoggerCppStream(Logger *logger, LogLevel level,
+                                 std::string tag)
     : logger_(logger), level_(level), tag_(std::move(tag)) {}
 
 LoggerCppStream LoggerCppStream::WithLevel(LogLevel level) const {
   return LoggerCppStream(this->logger_, level, this->tag_);
 }
 
-LoggerCppStream LoggerCppStream::WithTag(String tag) const {
+LoggerCppStream LoggerCppStream::WithTag(std::string tag) const {
   return LoggerCppStream(this->logger_, this->level_, std::move(tag));
 }
 
-void LoggerCppStream::Consume(StringView str) {
-  this->logger_->Log(this->level_, this->tag_, str.ToString());
+void LoggerCppStream::Consume(std::string_view str) {
+  this->logger_->Log(this->level_, this->tag_, std::string(str));
 }
 }  // namespace cru::log

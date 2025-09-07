@@ -82,11 +82,13 @@ RenderObject* BorderRenderObject::HitTest(const Point& point) {
 void BorderRenderObject::Draw(platform::graphics::IPainter* painter) {
   if constexpr (debug_flags::draw) {
     CRU_LOG_TAG_DEBUG(
-        u"BorderRenderObject draw, background: {}, foreground: {}.",
-        background_brush_ == nullptr ? u"NONE"
-                                     : background_brush_->GetDebugString(),
-        foreground_brush_ == nullptr ? u"NONE"
-                                     : foreground_brush_->GetDebugString());
+        "BorderRenderObject draw, background: {}, foreground: {}.",
+        background_brush_ == nullptr
+            ? "NONE"
+            : background_brush_->GetDebugString().ToUtf8(),
+        foreground_brush_ == nullptr
+            ? "NONE"
+            : foreground_brush_->GetDebugString().ToUtf8());
   }
 
   if (background_brush_ != nullptr)
@@ -95,7 +97,7 @@ void BorderRenderObject::Draw(platform::graphics::IPainter* painter) {
 
   if (is_border_enabled_) {
     if (border_brush_ == nullptr) {
-      CRU_LOG_TAG_WARN(u"Border is enabled but border brush is null.");
+      CRU_LOG_TAG_WARN("Border is enabled but border brush is null.");
     } else {
       painter->FillGeometry(geometry_.get(), border_brush_.get());
     }

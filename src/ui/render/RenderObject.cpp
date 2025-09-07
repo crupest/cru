@@ -119,16 +119,16 @@ void RenderObject::Measure(const MeasureRequirement& requirement,
       preferred_size.OverrideBy(preferred_size_);
 
   if constexpr (cru::ui::debug_flags::layout) {
-    CRU_LOG_TAG_DEBUG(u"{} Measure begins :\nrequirement: {}\npreferred size: {}",
-                  this->GetDebugPathInTree(), requirement.ToDebugString(),
-                  preferred_size.ToDebugString());
+    CRU_LOG_TAG_DEBUG("{} Measure begins :\nrequirement: {}\npreferred size: {}",
+                  this->GetDebugPathInTree().ToUtf8(), requirement.ToDebugString().ToUtf8(),
+                  preferred_size.ToDebugString().ToUtf8());
   }
 
   desired_size_ = OnMeasureCore(merged_requirement, merged_preferred_size);
 
   if constexpr (cru::ui::debug_flags::layout) {
-    CRU_LOG_TAG_DEBUG(u"{} Measure ends :\nresult size: {}",
-                  this->GetDebugPathInTree(), desired_size_);
+    CRU_LOG_TAG_DEBUG("{} Measure ends :\nresult size: {}",
+                  this->GetDebugPathInTree().ToUtf8(), desired_size_);
   }
 
   Ensures(desired_size_.width >= 0);
@@ -144,8 +144,8 @@ Size RenderObject::Measure1(const BoxConstraint& constraint) {
 
 void RenderObject::Layout(const Point& offset) {
   if constexpr (cru::ui::debug_flags::layout) {
-    CRU_LOG_TAG_DEBUG(u"{} Layout :\noffset: {} size: {}",
-                  this->GetDebugPathInTree(), offset, desired_size_);
+    CRU_LOG_TAG_DEBUG("{} Layout :\noffset: {} size: {}",
+                  this->GetDebugPathInTree().ToUtf8(), offset, desired_size_);
   }
   offset_ = offset;
   size_ = desired_size_;
@@ -192,14 +192,14 @@ Size RenderObject::OnMeasureCore1(const BoxConstraint& constraint) {
 
   if (space_size.width > merged_constraint.max.width) {
     space_size.width = merged_constraint.max.width;
-    CRU_LOG_TAG_WARN(u"{} space width is over constraint.max.width",
-                 this->GetDebugPathInTree());
+    CRU_LOG_TAG_WARN("{} space width is over constraint.max.width",
+                 this->GetDebugPathInTree().ToUtf8());
   }
 
   if (space_size.height > merged_constraint.max.height) {
     space_size.height = merged_constraint.max.height;
-    CRU_LOG_TAG_WARN(u"{} space height is over constraint.max.height",
-                 this->GetDebugPathInTree());
+    CRU_LOG_TAG_WARN("{} space height is over constraint.max.height",
+                 this->GetDebugPathInTree().ToUtf8());
   }
 
   BoxConstraint content_constraint{merged_constraint.max - space_size,

@@ -16,7 +16,7 @@ WinCursor::~WinCursor() {
     if (!::DestroyCursor(handle_)) {
       // This is not a fetal error but might still need notice because it may
       // cause leak.
-      CRU_LOG_TAG_WARN(u"Failed to destroy a cursor. Last error code: {}",
+      CRU_LOG_TAG_WARN("Failed to destroy a cursor. Last error code: {}",
                    ::GetLastError());
     }
   }

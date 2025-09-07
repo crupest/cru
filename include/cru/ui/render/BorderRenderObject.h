@@ -6,7 +6,7 @@
 
 namespace cru::ui::render {
 class CRU_UI_API BorderRenderObject : public SingleChildRenderObject {
-  CRU_DEFINE_CLASS_LOG_TAG(u"BorderRenderObject")
+  CRU_DEFINE_CLASS_LOG_TAG("BorderRenderObject")
 
  public:
   BorderRenderObject();
