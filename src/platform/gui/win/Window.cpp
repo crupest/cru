@@ -245,10 +245,9 @@ void WinNativeWindow::SetCursor(std::shared_ptr<ICursor> cursor) {
 
   auto lg = [](StringView reason) {
     CRU_LOG_TAG_WARN(
-
-        u"Failed to set cursor because {} when window is visible. (We need to "
-        u"update cursor if it is inside the window.) Last error code: {}.",
-        reason, ::GetLastError());
+        "Failed to set cursor because {} when window is visible. (We need to "
+        "update cursor if it is inside the window.) Last error code: {}.",
+        reason.ToUtf8(), ::GetLastError());
   };
 
   ::POINT point;

@@ -14,7 +14,8 @@ namespace cru::platform::win {
 using namespace cru::io;
 
 Win32FileStream::Win32FileStream(String path, OpenFileFlag flags)
-    : path_(std::move(path)),
+    : Stream(true, true, true),
+      path_(std::move(path)),
       flags_(flags),
       p_(new details::Win32FileStreamPrivate()) {
   DWORD grfMode = STGM_SHARE_DENY_NONE;
@@ -46,15 +47,11 @@ Win32FileStream::Win32FileStream(String path, OpenFileFlag flags)
 }
 
 Win32FileStream::~Win32FileStream() {
-  Close();
+  DoClose();
   delete p_;
 }
 
-bool Win32FileStream::CanSeek() { return true; }
-
-Index Win32FileStream::Seek(Index offset, SeekOrigin origin) {
-  CheckClosed();
-
+Index Win32FileStream::DoSeek(Index offset, SeekOrigin origin) {
   DWORD dwOrigin = 0;
 
   if (origin == SeekOrigin::Current) {
@@ -74,23 +71,13 @@ Index Win32FileStream::Seek(Index offset, SeekOrigin origin) {
   return n_new_offset.QuadPart;
 }
 
-bool Win32FileStream::CanRead() { return true; }
-
-Index Win32FileStream::Read(std::byte* buffer, Index offset, Index size) {
-  if (size < 0) {
-    throw Exception(u"Size must be greater than 0.");
-  }
-
-  CheckClosed();
-
+Index Win32FileStream::DoRead(std::byte* buffer, Index offset, Index size) {
   ULONG n_read;
   ThrowIfFailed(p_->stream_->Read(buffer + offset, size, &n_read));
   return n_read;
 }
 
-bool Win32FileStream::CanWrite() { return true; }
-
-Index Win32FileStream::Write(const std::byte* buffer, Index offset,
+Index Win32FileStream::DoWrite(const std::byte* buffer, Index offset,
                              Index size) {
   if (size < 0) {
     throw Exception(u"Size must be greater than 0.");
@@ -104,19 +91,13 @@ Index Win32FileStream::Write(const std::byte* buffer, Index offset,
   return n_written;
 }
 
-void Win32FileStream::Close() {
-  if (closed_) return;
+void Win32FileStream::DoClose() {
+  CRU_STREAM_BEGIN_CLOSE
 
-  if (p_->stream_) {
+    if (p_->stream_) {
     p_->stream_->Release();
     p_->stream_ = nullptr;
   }
 
-  closed_ = true;
 }
-
-void Win32FileStream::CheckClosed() {
-  if (closed_) throw Exception(u"Stream is closed.");
-}
-
 }  // namespace cru::platform::win

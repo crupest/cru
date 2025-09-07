@@ -257,8 +257,8 @@ class CRU_BASE_API String {
   Index size_ = 0;      // not including trailing '\0'
   Index capacity_ = 0;  // always 1 smaller than real buffer size
 };
-
-std::ostream& CRU_BASE_API operator<<(std::ostream& os, const String& value);
+CRU_BASE_API 
+std::ostream& operator<<(std::ostream& os, const String& value);
 
 class CRU_BASE_API StringView {
  public:

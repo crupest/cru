@@ -23,6 +23,7 @@
 #include <optional>
 #include <stdexcept>
 #include <string>
+#include <array>
 
 namespace cru::ui::render {
 using namespace std::chrono_literals;

@@ -1,6 +1,8 @@
 #pragma once
 
-#ifdef CRU_PLATFORM_WINDOWS
+#ifndef _WIN32
+#error "This file can only be used on Windows."
+#endif
 
 #include "WinPreConfig.h"
 
@@ -10,15 +12,6 @@ namespace cru::platform::win {
 
 class CRU_BASE_API WinDebugLogTarget : public ::cru::log::ILogTarget {
  public:
-  WinDebugLogTarget() = default;
-
-  CRU_DELETE_COPY(WinDebugLogTarget)
-  CRU_DELETE_MOVE(WinDebugLogTarget)
-
-  ~WinDebugLogTarget() = default;
-
-  void Write(::cru::log::LogLevel level, StringView s) override;
+  void Write(::cru::log::LogLevel level, std::string s) override;
 };
 }  // namespace cru::platform::win
-
-#endif

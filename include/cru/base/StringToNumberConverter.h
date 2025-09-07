@@ -56,8 +56,7 @@ inline bool CRU_BASE_API operator!=(const StringToIntegerResult& left,
   return !(left == right);
 }
 
-inline std::ostream& CRU_BASE_API
-operator<<(std::ostream& stream, const StringToIntegerResult& result) {
+CRU_BASE_API inline std::ostream& operator<<(std::ostream& stream, const StringToIntegerResult& result) {
   return stream << "StringToIntegerConverterImplResult("
                 << (result.negate ? "-" : "") << result.value << ")";
 }

@@ -171,11 +171,11 @@ Index Stream::DoGetSize() {
 }
 
 Index Stream::DoRead(std::byte* buffer, Index offset, Index size) {
-  throw Exception(u"Stream is readable but DoSeek is not implemented.");
+  throw Exception(u"Stream is readable but DoRead is not implemented.");
 }
 
 Index Stream::DoWrite(const std::byte* buffer, Index offset, Index size) {
-  throw Exception(u"Stream is writable but DoSeek is not implemented.");
+  throw Exception(u"Stream is writable but DoWrite is not implemented.");
 }
 
 void Stream::DoFlush() {}

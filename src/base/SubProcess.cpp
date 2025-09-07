@@ -7,11 +7,6 @@
 #endif
 
 namespace cru {
-
-#ifdef CRU_PLATFORM_UNIX
-using ThisPlatformSubProcessImpl = platform::unix::PosixSpawnSubProcessImpl;
-#endif
-
 PlatformSubProcess::PlatformSubProcess(
     SubProcessStartInfo start_info,
     std::shared_ptr<IPlatformSubProcessImpl> impl)
@@ -156,8 +151,14 @@ SubProcessExitResult SubProcess::Call(
 }
 
 SubProcess::SubProcess(SubProcessStartInfo start_info) {
+  
+#ifdef CRU_PLATFORM_UNIX
   platform_process_.reset(new PlatformSubProcess(
-      std::move(start_info), std::make_shared<ThisPlatformSubProcessImpl>()));
+    std::move(start_info),
+    std::make_shared<platform::unix::PosixSpawnSubProcessImpl>()));
+#else
+  NotImplemented();
+#endif
   platform_process_->Start();
 }
 

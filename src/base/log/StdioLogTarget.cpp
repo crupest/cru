@@ -1,5 +1,9 @@
 #include "cru/base/log/StdioLogTarget.h"
 
+#ifdef _WIN32
+#include "cru/base/String.h"
+#endif
+
 #include <iostream>
 
 namespace cru::log {

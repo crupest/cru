@@ -14,12 +14,12 @@ inline String HResultMakeMessage(HRESULT h_result,
 }
 
 HResultError::HResultError(HRESULT h_result)
-    : PlatformException(HResultMakeMessage(h_result, std::nullopt)),
+    : Exception(HResultMakeMessage(h_result, std::nullopt)),
       h_result_(h_result) {}
 
 HResultError::HResultError(HRESULT h_result,
                            std::string_view additional_message)
-    : PlatformException(HResultMakeMessage(
+    : Exception(HResultMakeMessage(
           h_result, String::FromUtf8(additional_message.data(),
                                      additional_message.size()))),
       h_result_(h_result) {}
@@ -33,6 +33,6 @@ Win32Error::Win32Error(String message)
     : Win32Error(::GetLastError(), message) {}
 
 Win32Error::Win32Error(DWORD error_code, String message)
-    : PlatformException(Win32MakeMessage(error_code, message)),
+    : Exception(Win32MakeMessage(error_code, message)),
       error_code_(error_code) {}
 }  // namespace cru::platform::win
