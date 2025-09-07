@@ -1,6 +1,7 @@
 #pragma once
 #include "Base.h"
 
+#include "cru/base/Format.h"
 #include "cru/base/Range.h"
 #include "cru/base/String.h"
 
@@ -295,23 +296,10 @@ constexpr bool operator!=(const Ellipse& left, const Ellipse& right) {
 using TextRange = Range;
 }  // namespace cru::platform
 
-template <typename T>
-struct ImplementFormatterByToUtf8String {
-  template <class ParseContext>
-  constexpr ParseContext::iterator parse(ParseContext& ctx) const {
-    return ctx.end();
-  }
-
-  template <class FmtContext>
-  FmtContext::iterator format(const T& object, FmtContext& ctx) const {
-    return std::ranges::copy(ToUtf8String(object), ctx.out()).out;
-  }
-};
-
 template <>
 struct std::formatter<cru::platform::Point, char>
-    : ImplementFormatterByToUtf8String<cru::platform::Point> {};
+    : cru::ImplementFormatterByToUtf8String<cru::platform::Point> {};
 
 template <>
 struct std::formatter<cru::platform::Size, char>
-    : ImplementFormatterByToUtf8String<cru::platform::Size> {};
+    : cru::ImplementFormatterByToUtf8String<cru::platform::Size> {};

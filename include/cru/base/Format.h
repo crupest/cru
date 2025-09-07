@@ -151,4 +151,17 @@ template <typename... T>
 String String::Format(T&&... args) const {
   return cru::Format(*this, std::forward<T>(args)...);
 }
+
+template <typename T>
+struct ImplementFormatterByToUtf8String {
+  template <class ParseContext>
+  constexpr ParseContext::iterator parse(ParseContext& ctx) const {
+    return ctx.end();
+  }
+
+  template <class FmtContext>
+  FmtContext::iterator format(const T& object, FmtContext& ctx) const {
+    return std::ranges::copy(ToUtf8String(object), ctx.out()).out;
+  }
+};
 }  // namespace cru
