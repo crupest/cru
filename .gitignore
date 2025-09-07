@@ -3,6 +3,6 @@
 .cache
 
 build
+build-clang
 
 compile_commands.json
-

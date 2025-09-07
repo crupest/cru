@@ -1,7 +1,6 @@
 #pragma once
 #include "../Base.h"
 
-#include "../String.h"
 #include "../concurrent/ConcurrentQueue.h"
 
 #include <format>  // IWYU pragma: keep
@@ -47,6 +46,14 @@ class CRU_BASE_API Logger : public Object2 {
   }
   void Log(LogInfo log_info);
 
+  template <typename... Args>
+  void FormatLog(LogLevel level, std::string tag,
+                 std::string_view message_format, Args&&... args) {
+    // Clang is buggy in consteval, so we can't use std::format for now.
+    Log(level, std::move(tag),
+        std::vformat(message_format, std::make_format_args(args...)));
+  }
+
  private:
   concurrent::ConcurrentQueue<LogInfo> log_queue_;
 
@@ -87,18 +94,18 @@ class CRU_BASE_API LoggerCppStream : public Object2 {
 
 }  // namespace cru::log
 
-#define CRU_LOG_TAG_DEBUG(...)                                             \
-  cru::log::Logger::GetInstance()->Log(cru::log::LogLevel::Debug, kLogTag, \
-                                       std::format(__VA_ARGS__))
+#define CRU_LOG_TAG_DEBUG(...)                                          \
+  cru::log::Logger::GetInstance()->FormatLog(cru::log::LogLevel::Debug, \
+                                             kLogTag, __VA_ARGS__)
 
-#define CRU_LOG_TAG_INFO(...)                                             \
-  cru::log::Logger::GetInstance()->Log(cru::log::LogLevel::Info, kLogTag, \
-                                       std::format(__VA_ARGS__))
+#define CRU_LOG_TAG_INFO(...)                                          \
+  cru::log::Logger::GetInstance()->FormatLog(cru::log::LogLevel::Info, \
+                                             kLogTag, __VA_ARGS__)
 
-#define CRU_LOG_TAG_WARN(...)                                             \
-  cru::log::Logger::GetInstance()->Log(cru::log::LogLevel::Warn, kLogTag, \
-                                       std::format(__VA_ARGS__))
+#define CRU_LOG_TAG_WARN(...)                                          \
+  cru::log::Logger::GetInstance()->FormatLog(cru::log::LogLevel::Warn, \
+                                             kLogTag, __VA_ARGS__)
 
-#define CRU_LOG_TAG_ERROR(...)                                             \
-  cru::log::Logger::GetInstance()->Log(cru::log::LogLevel::Error, kLogTag, \
-                                       std::format(__VA_ARGS__))
+#define CRU_LOG_TAG_ERROR(...)                                          \
+  cru::log::Logger::GetInstance()->FormatLog(cru::log::LogLevel::Error, \
+                                             kLogTag, __VA_ARGS__)
