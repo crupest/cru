@@ -47,7 +47,15 @@ class UnixTimerFile : public Object2 {
 class UnixEventLoop : public Object2 {
   CRU_DEFINE_CLASS_LOG_TAG("cru::platform::unix::UnixEventLoop")
  public:
+  using PollHandler =
+      std::function<void(decltype(std::declval<pollfd>().revents) revent)>;
+
   UnixEventLoop();
+
+  /**
+   * The only thread-safe function.
+   */
+  void QueueAction(std::function<void()> action);
 
   int Run();
   void RequestQuit(int exit_code = 0);
@@ -71,6 +79,9 @@ class UnixEventLoop : public Object2 {
     return this->SetTimer(std::move(action), std::move(interval), true);
   }
 
+  void AddPoll(int fd, PollHandler action);
+  void RemovePoll(int fd);
+
  private:
   struct TimerData {
     int id;
@@ -91,23 +102,19 @@ class UnixEventLoop : public Object2 {
  private:
   bool CheckPoll();
   bool CheckTimer();
-  bool ReadTimerPipe();
-
-  void RemoveTimer(int id);
+  bool CheckActionPipe();
 
  private:
   std::optional<std::thread::id> running_thread_;
 
   std::vector<pollfd> polls_;
-  std::vector<
-      std::function<void(decltype(std::declval<pollfd>().revents) revent)>>
-      poll_actions_;
+  std::vector<PollHandler> poll_actions_;
 
-  std::atomic_int timer_tag_;
+  int timer_tag_;
   std::vector<TimerData> timers_;
 
-  UnixFileDescriptor timer_pipe_read_end_;
-  UnixFileDescriptor timer_pipe_write_end_;
+  UnixFileDescriptor action_pipe_read_end_;
+  UnixFileDescriptor action_pipe_write_end_;
 
   std::optional<int> exit_code_;
 };

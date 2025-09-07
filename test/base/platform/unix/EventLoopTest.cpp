@@ -25,7 +25,7 @@ TEST_CASE("UnixTimerFile Work", "[unix][time]") {
   REQUIRE(delay < std::chrono::milliseconds(500));
 }
 
-TEST_CASE("UnixEventLoop Timer", "[unix][time]") {
+TEST_CASE("UnixEventLoop Work", "[unix][time]") {
   using namespace cru;
   using namespace cru::platform::unix;
 
@@ -34,6 +34,8 @@ TEST_CASE("UnixEventLoop Timer", "[unix][time]") {
   auto test_miliseconds = 300;
   auto test_duration = std::chrono::milliseconds(test_miliseconds);
   auto start = std::chrono::steady_clock::now();
+
+  auto test_pipe = OpenUniDirectionalPipe();
 
   int counter = 0;
 

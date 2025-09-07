@@ -1,21 +1,32 @@
 #include "cru/base/platform/unix/EventLoop.h"
+#include "cru/base/Base.h"
 #include "cru/base/Exception.h"
 
 #include <poll.h>
 #include <algorithm>
 #include <chrono>
+#include <functional>
 #include <thread>
 
 namespace cru::platform::unix {
 int UnixTimerFile::GetReadFd() const { return this->read_fd_; }
 
 UnixEventLoop::UnixEventLoop() : polls_(1), poll_actions_(1), timer_tag_(1) {
-  auto timer_pipe = OpenUniDirectionalPipe(UnixPipeFlags::NonBlock);
-  timer_pipe_read_end_ = std::move(timer_pipe.read);
-  timer_pipe_write_end_ = std::move(timer_pipe.write);
-  polls_[0].fd = timer_pipe_read_end_;
+  auto action_pipe = OpenUniDirectionalPipe(UnixPipeFlags::NonBlock);
+  action_pipe_read_end_ = std::move(action_pipe.read);
+  action_pipe_write_end_ = std::move(action_pipe.write);
+  polls_[0].fd = action_pipe_read_end_;
   polls_[0].events = POLLIN;
   poll_actions_[0] = [](auto _) {};
+}
+
+void UnixEventLoop::QueueAction(std::function<void()> action) {
+  if (std::this_thread::get_id() == running_thread_) {
+    action();
+  } else {
+    auto pointer = new std::function<void()>(std::move(action));
+    action_pipe_write_end_.Write(&pointer, sizeof(decltype(pointer)));
+  }
 }
 
 int UnixEventLoop::Run() {
@@ -32,7 +43,7 @@ int UnixEventLoop::Run() {
       continue;
     }
 
-    while (ReadTimerPipe()) {
+    while (CheckActionPipe()) {
       continue;
     }
 
@@ -63,12 +74,7 @@ int UnixEventLoop::Run() {
   return exit_code_.value();
 }
 
-void UnixEventLoop::RequestQuit(int exit_code) {
-  exit_code_ = exit_code;
-  if (std::this_thread::get_id() != running_thread_) {
-    SetImmediate([] {});
-  }
-}
+void UnixEventLoop::RequestQuit(int exit_code) { exit_code_ = exit_code; }
 
 int UnixEventLoop::SetTimer(std::function<void()> action,
                             std::chrono::milliseconds timeout, bool repeat) {
@@ -84,23 +90,17 @@ int UnixEventLoop::SetTimer(std::function<void()> action,
 
   auto tag = timer_tag_++;
 
-  if (std::this_thread::get_id() == running_thread_) {
-    timers_.push_back(
-        TimerData(tag, std::move(timeout), repeat, std::move(action)));
-  } else {
-    auto timer =
-        new TimerData(tag, std::move(timeout), repeat, std::move(action));
-    timer_pipe_write_end_.Write(&timer, sizeof(decltype(timer)));
-  }
+  timers_.push_back(
+      TimerData(tag, std::move(timeout), repeat, std::move(action)));
 
   return tag;
 }
 
 void UnixEventLoop::CancelTimer(int id) {
-  if (std::this_thread::get_id() == running_thread_) {
-    RemoveTimer(id);
-  } else {
-    SetImmediate([this, id] { RemoveTimer(id); });
+  auto iter = std::ranges::find_if(
+      timers_, [id](const TimerData &timer) { return timer.id == id; });
+  if (iter != timers_.cend()) {
+    timers_.erase(iter);
   }
 }
 
@@ -145,12 +145,12 @@ bool UnixEventLoop::CheckTimer() {
   return true;
 }
 
-bool UnixEventLoop::ReadTimerPipe() {
-  TimerData *pointer;
+bool UnixEventLoop::CheckActionPipe() {
+  std::function<void()> *pointer;
   constexpr size_t pointer_size = sizeof(decltype(pointer));
   auto rest = pointer_size;
   while (rest > 0) {
-    auto result = timer_pipe_read_end_.Read(&pointer, rest);
+    auto result = action_pipe_read_end_.Read(&pointer, rest);
 
     if (result == -1) {  // If no data.
       if (rest == pointer_size) {
@@ -168,18 +168,22 @@ bool UnixEventLoop::ReadTimerPipe() {
     rest -= result;
   }
 
-  timers_.push_back(std::move(*pointer));
+  (*pointer)();
   delete pointer;
 
   return true;
 }
 
-void UnixEventLoop::RemoveTimer(int id) {
-  auto iter = std::ranges::find_if(
-      timers_, [id](const TimerData &timer) { return timer.id == id; });
-  if (iter != timers_.cend()) {
-    timers_.erase(iter);
+void UnixEventLoop::AddPoll(int fd, PollHandler action) {
+  for (const auto &poll_fd : polls_) {
+    if (poll_fd.fd == fd) {
+      throw Exception("The file descriptor is already in poll list.");
+    }
   }
+
+  NotImplemented();
 }
+
+void UnixEventLoop::RemovePoll(int fd) { NotImplemented(); }
 
 }  // namespace cru::platform::unix
