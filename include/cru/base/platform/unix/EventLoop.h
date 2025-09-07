@@ -48,7 +48,6 @@ class UnixEventLoop : public Object2 {
   CRU_DEFINE_CLASS_LOG_TAG("cru::platform::unix::UnixEventLoop")
  public:
   UnixEventLoop();
-  ~UnixEventLoop() override;
 
   int Run();
   void RequestQuit(int exit_code = 0);
@@ -97,7 +96,7 @@ class UnixEventLoop : public Object2 {
   void RemoveTimer(int id);
 
  private:
-  std::thread::id running_thread_;
+  std::optional<std::thread::id> running_thread_;
 
   std::vector<pollfd> polls_;
   std::vector<

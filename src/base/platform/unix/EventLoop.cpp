@@ -1,6 +1,5 @@
 #include "cru/base/platform/unix/EventLoop.h"
 #include "cru/base/Exception.h"
-#include "cru/base/log/Logger.h"
 
 #include <poll.h>
 #include <algorithm>
@@ -10,7 +9,7 @@
 namespace cru::platform::unix {
 int UnixTimerFile::GetReadFd() const { return this->read_fd_; }
 
-UnixEventLoop::UnixEventLoop() : timer_tag_(1), polls_(1), poll_actions_(1) {
+UnixEventLoop::UnixEventLoop() : polls_(1), poll_actions_(1), timer_tag_(1) {
   auto timer_pipe = OpenUniDirectionalPipe(UnixPipeFlags::NonBlock);
   timer_pipe_read_end_ = std::move(timer_pipe.read);
   timer_pipe_write_end_ = std::move(timer_pipe.write);
@@ -19,11 +18,7 @@ UnixEventLoop::UnixEventLoop() : timer_tag_(1), polls_(1), poll_actions_(1) {
   poll_actions_[0] = [](auto _) {};
 }
 
-UnixEventLoop::~UnixEventLoop() { CRU_LOG_TAG_DEBUG("Event loop destroyed."); }
-
 int UnixEventLoop::Run() {
-  CRU_LOG_TAG_DEBUG("Event loop started.");
-
   running_thread_ = std::this_thread::get_id();
 
   while (!exit_code_) {
@@ -135,8 +130,6 @@ bool UnixEventLoop::CheckTimer() {
     return false;
   }
 
-  CRU_LOG_TAG_INFO("A timer is to be executed.");
-
   auto &timer = *iter;
   if (timer.repeat) {
     while (timer.timeout <= std::chrono::milliseconds::zero()) {
@@ -156,7 +149,7 @@ bool UnixEventLoop::ReadTimerPipe() {
   TimerData *pointer;
   constexpr size_t pointer_size = sizeof(decltype(pointer));
   auto rest = pointer_size;
-  while (true) {
+  while (rest > 0) {
     auto result = timer_pipe_read_end_.Read(&pointer, rest);
 
     if (result == -1) {  // If no data.
@@ -177,8 +170,6 @@ bool UnixEventLoop::ReadTimerPipe() {
 
   timers_.push_back(std::move(*pointer));
   delete pointer;
-
-  CRU_LOG_TAG_INFO("A timer from pipe is received.");
 
   return true;
 }
