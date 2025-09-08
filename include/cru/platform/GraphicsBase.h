@@ -53,8 +53,8 @@ inline String ToString(const Point& point) {
 }
 
 struct Size final {
-  static const Size kMax;
-  static const Size kZero;
+  static CRU_PLATFORM_API const Size kMax;
+  static CRU_PLATFORM_API const Size kZero;
 
   constexpr Size() = default;
   constexpr Size(const float width, const float height)

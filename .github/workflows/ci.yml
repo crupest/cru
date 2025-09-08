@@ -32,9 +32,8 @@ jobs:
           cmake --build build --config Debug --target all
 
       - name: Test
-        working-directory: build
         run: |
-          ctest -C Debug -T test --output-on-failure
+          ctest --test-dir build -C Debug --output-on-failure
 
   windows-build:
     name: Windows Build
@@ -53,9 +52,29 @@ jobs:
           cmake --build build --config Debug --target all
 
       - name: Test
-        working-directory: build
         run: |
-          ctest -C Debug -T test --output-on-failure
+          ctest --test-dir build -C Debug --output-on-failure
+
+  windows-build-dynamic:
+    name: Windows Build (Dynamic Linking)
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          submodules: true
+
+      - name: Build
+        run: |
+          . tools/Use-VC.ps1
+          Use-VC
+          cmake -DCMAKE_BUILD_TYPE=Debug -DBUILD_SHARED_LIBS=1 -S. -Bbuild-dynamic -G Ninja
+          cmake --build build-dynamic --config Debug --target all
+
+      - name: Test
+        run: |
+          ctest --test-dir build-dynamic -C Debug --output-on-failure
+
 
   linux-build:
     name: Linux Build
@@ -77,6 +96,5 @@ jobs:
           cmake --build build --config Debug --target all
 
       - name: Test
-        working-directory: build
         run: |
-          ctest -C Debug -T test --output-on-failure
+          ctest --test-dir build -C Debug --output-on-failure

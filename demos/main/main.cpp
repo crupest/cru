@@ -45,12 +45,12 @@ int main() {
 
   window.AddChild(&flex_layout);
 
-  TextBlock text_block(u"Hello World from CruUI!", true);
-  flex_layout.AddChild(&text_block);
+  auto text_block = TextBlock::Create(u"Hello World from CruUI!", true);
+  flex_layout.AddChild(text_block.get());
 
-  TextBlock button_text_block(u"OK");
+  auto button_text_block = TextBlock::Create(u"OK");
   Button button;
-  button.SetChild(&button_text_block);
+  button.SetChild(button_text_block.get());
   flex_layout.AddChild(&button);
 
   TextBox text_box;

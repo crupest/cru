@@ -16,6 +16,14 @@ class CRU_UI_API TextBlock : public NoChildControl,
  public:
   static constexpr StringView kControlType = u"TextBlock";
 
+  static std::unique_ptr<TextBlock> Create(String text,
+    bool selectable = false) {
+    auto c = std::make_unique<TextBlock>();
+    c->SetText(std::move(text));
+    c->SetSelectable(selectable);
+    return std::move(c);
+  }
+
  public:
   TextBlock();
   TextBlock(const TextBlock& other) = delete;
@@ -23,11 +31,6 @@ class CRU_UI_API TextBlock : public NoChildControl,
   TextBlock& operator=(const TextBlock& other) = delete;
   TextBlock& operator=(TextBlock&& other) = delete;
   ~TextBlock() override;
-
-  TextBlock(String text, bool selectable = false) : TextBlock() {
-    SetText(std::move(text));
-    SetSelectable(selectable);
-  }
 
   String GetControlType() const final { return kControlType.ToString(); }
 

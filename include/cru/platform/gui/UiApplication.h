@@ -15,10 +15,7 @@ namespace cru::platform::gui {
 // The entry point of a ui application.
 struct CRU_PLATFORM_GUI_API IUiApplication : public virtual IPlatformResource {
  public:
-  static IUiApplication* GetInstance() { return instance; }
-
- private:
-  static IUiApplication* instance;
+  static IUiApplication* GetInstance();
 
  protected:
   IUiApplication();

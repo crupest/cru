@@ -18,7 +18,7 @@ int main() {
   ScrollView scroll_view;
   window.AddChild(&scroll_view);
 
-  TextBlock text_block(
+  auto text_block = TextBlock::Create(
       uR"([Verse 1]
 The snow glows white on the mountain tonight
 Not a footprint to be seen
@@ -78,7 +78,7 @@ Let the storm rage on!
 The cold never bothered me anyway)",
       true);
 
-  scroll_view.SetChild(&text_block);
+  scroll_view.SetChild(text_block.get());
 
   window.GetWindowHost()->GetNativeWindow()->SetVisibility(
       cru::platform::gui::WindowVisibilityType::Show);

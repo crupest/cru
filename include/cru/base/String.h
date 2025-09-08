@@ -65,7 +65,7 @@ class CRU_BASE_API String {
 #endif
 
  public:
-  String() = default;
+  String();
 
   String(const_pointer str);
   String(const_pointer str, size_type size);
@@ -75,7 +75,7 @@ class CRU_BASE_API String {
       : String(reinterpret_cast<const_pointer>(str), size - 1) {}
 
   template <typename Iter>
-  String(Iter start, Iter end) {
+  String(Iter start, Iter end): String() {
     for (; start != end; start++) {
       append(*start);
     }
@@ -250,12 +250,9 @@ class CRU_BASE_API String {
   }
 
  private:
-  static char16_t kEmptyBuffer[1];
-
- private:
-  char16_t* buffer_ = kEmptyBuffer;
-  Index size_ = 0;      // not including trailing '\0'
-  Index capacity_ = 0;  // always 1 smaller than real buffer size
+  char16_t* buffer_;
+  Index size_;      // not including trailing '\0'
+  Index capacity_;  // always 1 smaller than real buffer size
 };
 CRU_BASE_API 
 std::ostream& operator<<(std::ostream& os, const String& value);

@@ -3,7 +3,12 @@
 #include "cru/base/Exception.h"
 
 namespace cru::platform::gui {
-IUiApplication* IUiApplication::instance = nullptr;
+
+namespace {
+IUiApplication* instance = nullptr;
+}
+
+IUiApplication* IUiApplication::GetInstance() { return instance; }
 
 IUiApplication::IUiApplication() {
   if (instance) {

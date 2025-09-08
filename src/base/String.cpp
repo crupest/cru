@@ -54,7 +54,13 @@ String String::FromStdPath(const std::filesystem::path& path) {
   return String::FromUtf8(path.string());
 }
 
-char16_t String::kEmptyBuffer[1] = {0};
+namespace {
+char16_t kEmptyBuffer[1] = {0};
+}
+
+String::String()
+    : buffer_(kEmptyBuffer),
+      size_(0), capacity_(0) {}
 
 String::String(const_pointer str) : String(str, GetStrSize(str)) {}
 
@@ -83,7 +89,11 @@ String::String(const wchar_t* str, Index size)
 #endif
 
 String::String(const String& other) {
-  if (other.size_ == 0) return;
+  if (other.size_ == 0) {
+    this->buffer_ = kEmptyBuffer;
+    this->size_ = this->capacity_ = 0;
+    return;
+  }
   this->buffer_ = new value_type[other.size_ + 1];
   std::memcpy(this->buffer_, other.buffer_, other.size_ * sizeof(value_type));
   this->buffer_[other.size_] = 0;
