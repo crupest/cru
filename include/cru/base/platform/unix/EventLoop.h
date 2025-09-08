@@ -47,8 +47,9 @@ class UnixTimerFile : public Object2 {
 class UnixEventLoop : public Object2 {
   CRU_DEFINE_CLASS_LOG_TAG("cru::platform::unix::UnixEventLoop")
  public:
-  using PollHandler =
-      std::function<void(decltype(std::declval<pollfd>().revents) revent)>;
+  using PollEvents = decltype(std::declval<pollfd>().events);
+  using PollRevents = decltype(std::declval<pollfd>().revents);
+  using PollHandler = std::function<void(PollEvents revent)>;
 
   UnixEventLoop();
 
@@ -79,7 +80,7 @@ class UnixEventLoop : public Object2 {
     return this->SetTimer(std::move(action), std::move(interval), true);
   }
 
-  void AddPoll(int fd, PollHandler action);
+  void SetPoll(int fd, PollEvents events, PollHandler action);
   void RemovePoll(int fd);
 
  private:

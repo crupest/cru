@@ -1,5 +1,4 @@
 #include "cru/base/platform/unix/EventLoop.h"
-#include "cru/base/Base.h"
 #include "cru/base/Exception.h"
 
 #include <poll.h>
@@ -174,16 +173,30 @@ bool UnixEventLoop::CheckActionPipe() {
   return true;
 }
 
-void UnixEventLoop::AddPoll(int fd, PollHandler action) {
-  for (const auto &poll_fd : polls_) {
+void UnixEventLoop::SetPoll(int fd, PollEvents events, PollHandler action) {
+  for (auto &poll_fd : polls_) {
     if (poll_fd.fd == fd) {
-      throw Exception("The file descriptor is already in poll list.");
+      poll_fd.events = events;
+      return;
     }
   }
 
-  NotImplemented();
+  pollfd poll_fd;
+  poll_fd.fd = fd;
+  poll_fd.events = events;
+  poll_fd.revents = 0;
+  polls_.push_back(poll_fd);
+  poll_actions_.push_back(std::move(action));
 }
 
-void UnixEventLoop::RemovePoll(int fd) { NotImplemented(); }
+void UnixEventLoop::RemovePoll(int fd) {
+  auto iter = std::ranges::find_if(
+      polls_, [fd](const pollfd &poll_fd) { return poll_fd.fd == fd; });
+  if (iter != polls_.cend()) {
+    auto index = iter - polls_.cbegin();
+    polls_.erase(iter);
+    poll_actions_.erase(poll_actions_.cbegin() + index);
+  }
+}
 
 }  // namespace cru::platform::unix

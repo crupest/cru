@@ -25,7 +25,7 @@ TEST_CASE("UnixTimerFile Work", "[unix][time]") {
   REQUIRE(delay < std::chrono::milliseconds(500));
 }
 
-TEST_CASE("UnixEventLoop Work", "[unix][time]") {
+TEST_CASE("UnixEventLoop Timer Work", "[unix][time]") {
   using namespace cru;
   using namespace cru::platform::unix;
 
@@ -77,4 +77,34 @@ TEST_CASE("UnixEventLoop Work", "[unix][time]") {
   auto exit_code = loop.Run();
   REQUIRE(exit_code == 0);
   REQUIRE(counter == 2);
+}
+
+TEST_CASE("UnixEventLoop Poll Work", "[unix][time]") {
+  using namespace cru;
+  using namespace cru::platform::unix;
+
+  UnixEventLoop loop;
+
+  auto test_pipe = OpenUniDirectionalPipe();
+
+  bool triggered = false;
+
+  loop.SetPoll(test_pipe.read, POLLIN, [&loop, &triggered](auto revent) {
+    REQUIRE(revent & POLLIN);
+    REQUIRE(!triggered);
+    triggered = true;
+    loop.RequestQuit();
+  });
+
+  loop.SetTimeout(
+      [&test_pipe] {
+        auto buffer = "";
+        test_pipe.write.Write(buffer, 1);
+      },
+      std::chrono::milliseconds(300));
+
+  auto exit_code = loop.Run();
+
+  REQUIRE(exit_code == 0);
+  REQUIRE(triggered);
 }
