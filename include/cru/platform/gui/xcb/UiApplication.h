@@ -8,6 +8,8 @@
 #include <functional>
 
 namespace cru::platform::gui::xcb {
+class XcbWindow;
+
 class XcbUiApplication : public XcbResource, public virtual IUiApplication {
  public:
   XcbUiApplication();
@@ -17,12 +19,12 @@ class XcbUiApplication : public XcbResource, public virtual IUiApplication {
 
   int Run() override;
 
-  virtual void RequestQuit(int quit_code) = 0;
+  void RequestQuit(int quit_code) override;
 
   void AddOnQuitHandler(std::function<void()> handler) override;
 
-  virtual bool IsQuitOnAllWindowClosed() = 0;
-  virtual void SetQuitOnAllWindowClosed(bool quit_on_all_window_closed) = 0;
+  bool IsQuitOnAllWindowClosed() override;
+  void SetQuitOnAllWindowClosed(bool quit_on_all_window_closed) override;
 
   long long SetImmediate(std::function<void()> action) override;
   long long SetTimeout(std::chrono::milliseconds milliseconds,
@@ -55,12 +57,17 @@ class XcbUiApplication : public XcbResource, public virtual IUiApplication {
   virtual std::optional<std::vector<String>> ShowOpenDialog(
       OpenDialogOptions options);
 
+  private:
+  void HandleXEvents();
+
  private:
   xcb_connection_t* xcb_;
   xcb_screen_t* screen_;
 
   cru::platform::unix::UnixEventLoop event_loop_;
   std::vector<std::function<void()>> quit_handlers_;
-  int exit_code_;
+
+  bool is_quit_on_all_window_closed_;
+  std::vector<XcbWindow*> windows_;
 };
 }  // namespace cru::platform::gui::xcb
