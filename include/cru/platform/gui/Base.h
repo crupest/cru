@@ -5,7 +5,7 @@
 
 #include "../Resource.h"
 
-#ifdef CRU_PLATFORM_WINDOWS
+#ifdef CRU_IS_DLL
 #ifdef CRU_PLATFORM_GUI_EXPORT_API
 #define CRU_PLATFORM_GUI_API __declspec(dllexport)
 #else

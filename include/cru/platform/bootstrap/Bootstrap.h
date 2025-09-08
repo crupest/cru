@@ -2,7 +2,7 @@
 #include "cru/platform/graphics/Factory.h"
 #include "cru/platform/gui/UiApplication.h"
 
-#ifdef CRU_PLATFORM_WINDOWS
+#ifdef CRU_IS_DLL
 #ifdef CRU_PLATFORM_BOOTSTRAP_EXPORT_API
 #define CRU_PLATFORM_BOOTSTRAP_API __declspec(dllexport)
 #else

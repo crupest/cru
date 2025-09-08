@@ -4,7 +4,7 @@
 #include <functional>
 #include <memory>
 
-#ifdef CRU_PLATFORM_WINDOWS
+#ifdef CRU_IS_DLL
 #ifdef CRU_BASE_EXPORT_API
 #define CRU_BASE_API __declspec(dllexport)
 #else

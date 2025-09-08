@@ -4,7 +4,7 @@
 #include "../Matrix.h"
 #include "../Resource.h"
 
-#ifdef CRU_PLATFORM_WINDOWS
+#ifdef CRU_IS_DLL
 #ifdef CRU_PLATFORM_GRAPHICS_EXPORT_API
 #define CRU_PLATFORM_GRAPHICS_API __declspec(dllexport)
 #else

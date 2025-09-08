@@ -52,7 +52,7 @@ inline String ToString(const Point& point) {
   return String::FromUtf8(ToUtf8String(point));
 }
 
-struct CRU_PLATFORM_API Size final {
+struct Size final {
   static const Size kMax;
   static const Size kZero;
 

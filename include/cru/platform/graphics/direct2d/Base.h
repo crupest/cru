@@ -7,7 +7,7 @@
 #include <dxgi1_2.h>
 #include <wrl/client.h>
 
-#ifdef CRU_PLATFORM_WINDOWS
+#ifdef CRU_IS_DLL
 #ifdef CRU_WIN_GRAPHICS_DIRECT_EXPORT_API
 #define CRU_WIN_GRAPHICS_DIRECT_API __declspec(dllexport)
 #else

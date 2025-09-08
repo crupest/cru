@@ -2,7 +2,7 @@
 
 #include "WinPreConfig.h"
 
-#ifdef CRU_PLATFORM_WINDOWS
+#ifdef CRU_IS_DLL
 #ifdef CRU_WIN_EXPORT_API
 #define CRU_WIN_API __declspec(dllexport)
 #else

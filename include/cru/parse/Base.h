@@ -1,6 +1,6 @@
 #pragma once
 
-#ifdef CRU_PLATFORM_WINDOWS
+#ifdef CRU_IS_DLL
 #ifdef CRU_PARSE_EXPORT_API
 #define CRU_PARSE_API __declspec(dllexport)
 #else

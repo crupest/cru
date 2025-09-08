@@ -1,8 +1,11 @@
 .DS_Store
 
+.vs
+
 .cache
 
 build
 build-clang
+build-dynamic
 
 compile_commands.json
