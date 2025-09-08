@@ -2,6 +2,8 @@
 #include "../UiApplication.h"
 #include "Base.h"
 
+#include <cru/base/platform/unix/EventLoop.h>
+
 #include <xcb/xcb.h>
 #include <functional>
 
@@ -15,7 +17,6 @@ class XcbUiApplication : public XcbResource, public virtual IUiApplication {
 
   int Run() override;
 
-  // Post a quit message with given quit code.
   virtual void RequestQuit(int quit_code) = 0;
 
   void AddOnQuitHandler(std::function<void()> handler) override;
@@ -23,17 +24,12 @@ class XcbUiApplication : public XcbResource, public virtual IUiApplication {
   virtual bool IsQuitOnAllWindowClosed() = 0;
   virtual void SetQuitOnAllWindowClosed(bool quit_on_all_window_closed) = 0;
 
-  // Timer id should always be positive (not 0) and never the same. So it's ok
-  // to use negative value (or 0) to represent no timer.
-  virtual long long SetImmediate(std::function<void()> action) = 0;
-  virtual long long SetTimeout(std::chrono::milliseconds milliseconds,
-                               std::function<void()> action) = 0;
-  virtual long long SetInterval(std::chrono::milliseconds milliseconds,
-                                std::function<void()> action) = 0;
-  // Implementation should guarantee calls on timer id already canceled have no
-  // effects and do not crash. Also canceling negative id or 0 should always
-  // result in no-op.
-  virtual void CancelTimer(long long id) = 0;
+  long long SetImmediate(std::function<void()> action) override;
+  long long SetTimeout(std::chrono::milliseconds milliseconds,
+                       std::function<void()> action) override;
+  long long SetInterval(std::chrono::milliseconds milliseconds,
+                        std::function<void()> action) override;
+  void CancelTimer(long long id) override;
 
   virtual std::vector<INativeWindow*> GetAllWindow() = 0;
 
@@ -63,6 +59,7 @@ class XcbUiApplication : public XcbResource, public virtual IUiApplication {
   xcb_connection_t* xcb_;
   xcb_screen_t* screen_;
 
+  cru::platform::unix::UnixEventLoop event_loop_;
   std::vector<std::function<void()>> quit_handlers_;
   int exit_code_;
 };

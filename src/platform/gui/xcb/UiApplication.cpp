@@ -35,4 +35,22 @@ int XcbUiApplication::Run() {
 void XcbUiApplication::AddOnQuitHandler(std::function<void()> handler) {
   this->quit_handlers_.push_back(std::move(handler));
 }
+
+long long XcbUiApplication::SetImmediate(std::function<void()> action) {
+  return event_loop_.SetImmediate(std::move(action));
+}
+
+long long XcbUiApplication::SetTimeout(std::chrono::milliseconds milliseconds,
+                                       std::function<void()> action) {
+  return event_loop_.SetTimeout(std::move(action), std::move(milliseconds));
+}
+
+long long XcbUiApplication::SetInterval(std::chrono::milliseconds milliseconds,
+                                        std::function<void()> action) {
+  return event_loop_.SetInterval(std::move(action), std::move(milliseconds));
+}
+
+void XcbUiApplication::CancelTimer(long long id) {
+  return event_loop_.CancelTimer(static_cast<int>(id));
+}
 }  // namespace cru::platform::gui::xcb
