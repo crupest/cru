@@ -3,9 +3,16 @@
 #include "../Window.h"
 #include "Base.h"
 
+#include <xcb/xcb.h>
+
 namespace cru::platform::gui::xcb {
+class XcbUiApplication;
+
 class XcbWindow : public XcbResource, public virtual INativeWindow {
  public:
+  explicit XcbWindow(XcbUiApplication* application);
+  ~XcbWindow() override;
+
   virtual void Close() = 0;
 
   virtual INativeWindow* GetParent() = 0;
@@ -68,5 +75,9 @@ class XcbWindow : public XcbResource, public virtual INativeWindow {
   virtual IEvent<NativeKeyEventArgs>* KeyUpEvent() = 0;
 
   virtual IInputMethodContext* GetInputMethodContext() = 0;
+
+ private:
+  XcbUiApplication* application_;
+  xcb_window_t xcb_window_;
 };
 }  // namespace cru::platform::gui::xcb

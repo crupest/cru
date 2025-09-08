@@ -79,4 +79,12 @@ void XcbUiApplication::HandleXEvents() {
     NotImplemented();
   }
 }
+
+void XcbUiApplication::RegisterWindow(XcbWindow *window) {
+  windows_.push_back(window);
+}
+
+void XcbUiApplication::UnregisterWindow(XcbWindow *window) {
+  std::erase(windows_, window);
+}
 }  // namespace cru::platform::gui::xcb

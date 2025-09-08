@@ -11,6 +11,8 @@ namespace cru::platform::gui::xcb {
 class XcbWindow;
 
 class XcbUiApplication : public XcbResource, public virtual IUiApplication {
+  friend XcbWindow;
+
  public:
   XcbUiApplication();
   ~XcbUiApplication();
@@ -57,8 +59,11 @@ class XcbUiApplication : public XcbResource, public virtual IUiApplication {
   virtual std::optional<std::vector<String>> ShowOpenDialog(
       OpenDialogOptions options);
 
-  private:
+ private:
   void HandleXEvents();
+
+  void RegisterWindow(XcbWindow* window);
+  void UnregisterWindow(XcbWindow* window);
 
  private:
   xcb_connection_t* xcb_;
