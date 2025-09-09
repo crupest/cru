@@ -9,25 +9,6 @@
 #include <cinttypes>
 #include <cstdint>
 
-namespace {
-// TODO: Remove this demo function.
-/* print names of modifiers present in mask */
-void print_modifiers(uint32_t mask) {
-  const char *MODIFIERS[] = {
-      "Shift", "Lock",    "Ctrl",    "Alt",     "Mod2",    "Mod3",   "Mod4",
-      "Mod5",  "Button1", "Button2", "Button3", "Button4", "Button5"};
-
-  printf("Modifier mask: ");
-  for (const char **modifier = MODIFIERS; mask; mask >>= 1, ++modifier) {
-    if (mask & 1) {
-      printf("%s", *modifier);
-    }
-  }
-  printf("\n");
-}
-
-}  // namespace
-
 namespace cru::platform::gui::xcb {
 
 namespace {
@@ -49,8 +30,8 @@ KeyModifier ConvertModifiers(uint32_t mask) {
   //     "Shift", "Lock",    "Ctrl",    "Alt",     "Mod2",    "Mod3",   "Mod4",
   //     "Mod5",  "Button1", "Button2", "Button3", "Button4", "Button5"};
   constexpr KeyModifier MODIFIERS[] = {
-      KeyModifiers::shift, KeyModifiers::none, KeyModifiers::ctrl,
-      KeyModifiers::alt,   KeyModifiers::none, KeyModifiers::none,
+      KeyModifiers::Shift, KeyModifiers::none, KeyModifiers::Ctrl,
+      KeyModifiers::Alt,   KeyModifiers::none, KeyModifiers::none,
       KeyModifiers::none,  KeyModifiers::none, KeyModifiers::none,
       KeyModifiers::none,  KeyModifiers::none, KeyModifiers::none,
       KeyModifiers::none,
