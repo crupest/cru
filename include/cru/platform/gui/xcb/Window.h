@@ -74,8 +74,8 @@ class XcbWindow : public XcbResource, public virtual INativeWindow {
   IEvent<NativeMouseButtonEventArgs>* MouseDownEvent() override;
   IEvent<NativeMouseButtonEventArgs>* MouseUpEvent() override;
   IEvent<NativeMouseWheelEventArgs>* MouseWheelEvent() override;
-  virtual IEvent<NativeKeyEventArgs>* KeyDownEvent() = 0;
-  virtual IEvent<NativeKeyEventArgs>* KeyUpEvent() = 0;
+  IEvent<NativeKeyEventArgs>* KeyDownEvent() override;
+  IEvent<NativeKeyEventArgs>* KeyUpEvent() override;
 
   virtual IInputMethodContext* GetInputMethodContext() = 0;
 
@@ -96,5 +96,7 @@ class XcbWindow : public XcbResource, public virtual INativeWindow {
   Event<NativeMouseButtonEventArgs> mouse_down_event_;
   Event<NativeMouseButtonEventArgs> mouse_up_event_;
   Event<NativeMouseWheelEventArgs> mouse_wheel_event_;
+  Event<NativeKeyEventArgs> key_down_event_;
+  Event<NativeKeyEventArgs> key_up_event_;
 };
 }  // namespace cru::platform::gui::xcb

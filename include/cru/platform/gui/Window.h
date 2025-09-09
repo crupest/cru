@@ -5,8 +5,6 @@
 
 #include "cru/base/Event.h"
 
-#include <string_view>
-
 namespace cru::platform::gui {
 namespace details {
 struct WindowStyleFlagTag;

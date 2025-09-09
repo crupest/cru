@@ -2,9 +2,6 @@
 #include "cru/base/Bitmask.h"
 #include "cru/platform/gui/Base.h"
 
-#include <string>
-#include <string_view>
-
 namespace cru::platform::gui {
 // Because of the complexity of keyboard layout, I only add code in US keyboard
 // layout, the most widely used layout in China. We should try to make it easy
@@ -126,6 +123,11 @@ struct KeyModifiers {
   static constexpr KeyModifier ctrl{0b10};
   static constexpr KeyModifier alt{0b100};
   static constexpr KeyModifier command{0b1000};
+  static constexpr KeyModifier None = KeyModifier::FromOffset(0);
+  static constexpr KeyModifier Shift = KeyModifier::FromOffset(1);
+  static constexpr KeyModifier Ctrl = KeyModifier::FromOffset(2);
+  static constexpr KeyModifier Alt = KeyModifier::FromOffset(3);
+  static constexpr KeyModifier Command = KeyModifier::FromOffset(4);
 };
 
 #ifdef CRU_PLATFORM_OSX

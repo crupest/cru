@@ -91,6 +91,12 @@ IEvent<NativeMouseWheelEventArgs> *XcbWindow::MouseWheelEvent() {
   return &mouse_wheel_event_;
 }
 
+IEvent<NativeKeyEventArgs> *XcbWindow::KeyDownEvent() {
+  return &key_down_event_;
+}
+
+IEvent<NativeKeyEventArgs> *XcbWindow::KeyUpEvent() { return &key_up_event_; }
+
 std::optional<xcb_window_t> XcbWindow::GetXcbWindow() { return xcb_window_; }
 
 xcb_window_t XcbWindow::DoCreateWindow() {
@@ -130,8 +136,7 @@ void XcbWindow::HandleEvent(xcb_generic_event_t *event) {
 
       if (bp->detail >= 4 && bp->detail <= 7) {
         NativeMouseWheelEventArgs args(30, Point(bp->event_x, bp->event_y),
-                                       GetCurrentKeyModifiers(application_),
-                                       false);
+                                       ConvertModifiers(bp->state), false);
         if (bp->detail == 5 || bp->detail == 7) {
           args.delta = -args.delta;
         }
@@ -144,7 +149,7 @@ void XcbWindow::HandleEvent(xcb_generic_event_t *event) {
 
       NativeMouseButtonEventArgs args(ConvertMouseButton(bp->detail),
                                       Point(bp->event_x, bp->event_y),
-                                      GetCurrentKeyModifiers(application_));
+                                      ConvertModifiers(bp->state));
       mouse_down_event_.Raise(std::move(args));
       break;
     }
@@ -152,7 +157,7 @@ void XcbWindow::HandleEvent(xcb_generic_event_t *event) {
       xcb_button_release_event_t *br = (xcb_button_release_event_t *)event;
       NativeMouseButtonEventArgs args(ConvertMouseButton(br->detail),
                                       Point(br->event_x, br->event_y),
-                                      GetCurrentKeyModifiers(application_));
+                                      ConvertModifiers(br->state));
       mouse_up_event_.Raise(std::move(args));
       break;
     }
@@ -179,16 +184,16 @@ void XcbWindow::HandleEvent(xcb_generic_event_t *event) {
     }
     case XCB_KEY_PRESS: {
       xcb_key_press_event_t *kp = (xcb_key_press_event_t *)event;
-      print_modifiers(kp->state);
-
-      printf("Key pressed in window %" PRIu32 "\n", kp->event);
+      NativeKeyEventArgs args(XorgKeycodeToCruKeyCode(application_, kp->detail),
+                              ConvertModifiers(kp->state));
+      key_down_event_.Raise(std::move(args));
       break;
     }
     case XCB_KEY_RELEASE: {
       xcb_key_release_event_t *kr = (xcb_key_release_event_t *)event;
-      print_modifiers(kr->state);
-
-      printf("Key released in window %" PRIu32 "\n", kr->event);
+      NativeKeyEventArgs args(XorgKeycodeToCruKeyCode(application_, kr->detail),
+                              ConvertModifiers(kr->state));
+      key_up_event_.Raise(std::move(args));
       break;
     }
     default:
