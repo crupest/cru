@@ -3,6 +3,7 @@
 #include "Base.h"
 
 #include <cru/base/platform/unix/EventLoop.h>
+#include <cru/platform/graphics/cairo/CairoGraphicsFactory.h>
 
 #include <xcb/xcb.h>
 #include <functional>
@@ -14,10 +15,13 @@ class XcbUiApplication : public XcbResource, public virtual IUiApplication {
   friend XcbWindow;
 
  public:
-  XcbUiApplication();
+  explicit XcbUiApplication(
+      graphics::cairo::CairoGraphicsFactory* cairo_factory = nullptr);
   ~XcbUiApplication();
 
  public:
+  graphics::cairo::CairoGraphicsFactory* GetCairoFactory();
+
   void CheckXcbConnectionError();
   xcb_connection_t* GetXcbConnection();
 
@@ -72,6 +76,9 @@ class XcbUiApplication : public XcbResource, public virtual IUiApplication {
   void UnregisterWindow(XcbWindow* window);
 
  private:
+  graphics::cairo::CairoGraphicsFactory* cairo_factory_;
+  bool release_cairo_factory_;
+
   xcb_connection_t* xcb_connection_;
   xcb_screen_t* screen_;
 

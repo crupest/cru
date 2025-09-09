@@ -1,13 +1,19 @@
 #include "cru/platform/gui/xcb/Window.h"
+#include "cru/platform/graphics/Painter.h"
+#include "cru/platform/graphics/cairo/CairoPainter.h"
 #include "cru/platform/gui/Base.h"
 #include "cru/platform/gui/Keyboard.h"
 #include "cru/platform/gui/Window.h"
 #include "cru/platform/gui/xcb/Keyboard.h"
 #include "cru/platform/gui/xcb/UiApplication.h"
 
+#include <cairo-xcb.h>
+#include <cairo.h>
 #include <xcb/xcb.h>
+#include <cassert>
 #include <cinttypes>
 #include <cstdint>
+#include <memory>
 #include <optional>
 
 namespace cru::platform::gui::xcb {
@@ -49,11 +55,23 @@ KeyModifier ConvertModifiers(uint32_t mask) {
 }  // namespace
 
 XcbWindow::XcbWindow(XcbUiApplication *application)
-    : application_(application) {
+    : application_(application),
+      xcb_window_(std::nullopt),
+      cairo_surface_(nullptr) {
   application->RegisterWindow(this);
 }
 
 XcbWindow::~XcbWindow() { application_->UnregisterWindow(this); }
+
+std::unique_ptr<graphics::IPainter> XcbWindow::BeginPaint() {
+  assert(cairo_surface_);
+
+  auto factory = application_->GetCairoFactory();
+  cairo_t *cairo = cairo_create(cairo_surface_);
+  auto painter =
+      new graphics::cairo::CairoPainter(factory, cairo, true, cairo_surface_);
+  return std::unique_ptr<graphics::IPainter>(painter);
+}
 
 IEvent<std::nullptr_t> *XcbWindow::CreateEvent() { return &create_event_; }
 
@@ -96,10 +114,13 @@ IEvent<NativeKeyEventArgs> *XcbWindow::KeyUpEvent() { return &key_up_event_; }
 std::optional<xcb_window_t> XcbWindow::GetXcbWindow() { return xcb_window_; }
 
 xcb_window_t XcbWindow::DoCreateWindow() {
+  assert(xcb_window_ == std::nullopt);
+  assert(cairo_surface_ == nullptr);
+
   auto connection = application_->GetXcbConnection();
   auto screen = application_->GetFirstXcbScreen();
 
-  auto xcb_window = xcb_generate_id(connection);
+  auto window = xcb_generate_id(connection);
 
   uint32_t mask = XCB_CW_EVENT_MASK;
   uint32_t values[1] = {
@@ -109,39 +130,58 @@ xcb_window_t XcbWindow::DoCreateWindow() {
       XCB_EVENT_MASK_ENTER_WINDOW | XCB_EVENT_MASK_LEAVE_WINDOW |
       XCB_EVENT_MASK_KEY_PRESS | XCB_EVENT_MASK_KEY_RELEASE};
 
-  xcb_create_window(connection, XCB_COPY_FROM_PARENT, xcb_window, screen->root,
-                    100, 100, 400, 200, 10, XCB_WINDOW_CLASS_INPUT_OUTPUT,
+  int width = 400, height = 200;
+
+  xcb_create_window(connection, XCB_COPY_FROM_PARENT, window, screen->root, 100,
+                    100, width, height, 10, XCB_WINDOW_CLASS_INPUT_OUTPUT,
                     screen->root_visual, mask, values);
-  current_size_ = {400, 200};
+  current_size_ = Size(width, height);
+
+  xcb_visualtype_t *visual_type;
+
+  for (xcb_depth_iterator_t depth_iter =
+           xcb_screen_allowed_depths_iterator(screen);
+       depth_iter.rem; xcb_depth_next(&depth_iter)) {
+    for (xcb_visualtype_iterator_t visual_iter =
+             xcb_depth_visuals_iterator(depth_iter.data);
+         visual_iter.rem; xcb_visualtype_next(&visual_iter)) {
+      if (screen->root_visual == visual_iter.data->visual_id) {
+        visual_type = visual_iter.data;
+        break;
+      }
+    }
+  }
+
+  cairo_surface_ =
+      cairo_xcb_surface_create(connection, window, visual_type, width, height);
 
   create_event_.Raise(nullptr);
 
-  return xcb_window;
+  return window;
 }
 
 void XcbWindow::HandleEvent(xcb_generic_event_t *event) {
   switch (event->response_type & ~0x80) {
     case XCB_EXPOSE: {
-      xcb_expose_event_t *expose = (xcb_expose_event_t *)event;
-
-      printf("Window %" PRIu32
-             " exposed. Region to be redrawn at location (%" PRIu16 ",%" PRIu16
-             "), with dimension (%" PRIu16 ",%" PRIu16 ")\n",
-             expose->window, expose->x, expose->y, expose->width,
-             expose->height);
+      paint_event_.Raise(nullptr);
       break;
     }
     case XCB_DESTROY_NOTIFY: {
       destroy_event_.Raise(nullptr);
+
+      cairo_surface_destroy(cairo_surface_);
+      cairo_surface_ = nullptr;
       xcb_window_ = std::nullopt;
       break;
     }
     case XCB_CONFIGURE_NOTIFY: {
       xcb_configure_notify_event_t *configure =
           (xcb_configure_notify_event_t *)event;
-      if (configure->width != current_size_.width ||
-          configure->height != current_size_.height) {
-        current_size_ = Size(configure->width, configure->height);
+      auto width = configure->width, height = configure->height;
+      if (width != current_size_.width || height != current_size_.height) {
+        current_size_ = Size(width, height);
+        assert(cairo_surface_);
+        cairo_xcb_surface_set_size(cairo_surface_, width, height);
         resize_event_.Raise(current_size_);
       }
       break;

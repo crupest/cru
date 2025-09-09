@@ -5,5 +5,7 @@ add_library(CruPlatformGuiX11
 	UiApplication.cpp
 	Window.cpp
 )
-target_link_libraries(CruPlatformGuiX11 PUBLIC CruPlatformGui ${LIBRARY_XCB} ${LIBRARY_CAIRO})
-
+target_link_libraries(CruPlatformGuiX11 PUBLIC
+	CruPlatformGui CruPlatformGraphicsCairo
+	${LIBRARY_XCB} ${LIBRARY_CAIRO}
+)

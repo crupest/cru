@@ -3,6 +3,7 @@
 #include "../Window.h"
 #include "Base.h"
 
+#include <cairo.h>
 #include <xcb/xcb.h>
 #include <cstddef>
 #include <optional>
@@ -59,8 +60,7 @@ class XcbWindow : public XcbResource, public virtual INativeWindow {
 
   virtual void RequestRepaint() = 0;
 
-  // Remember to call EndDraw on return value and destroy it.
-  virtual std::unique_ptr<graphics::IPainter> BeginPaint() = 0;
+  std::unique_ptr<graphics::IPainter> BeginPaint() override;
 
   IEvent<std::nullptr_t>* CreateEvent() override;
   IEvent<std::nullptr_t>* DestroyEvent() override;
@@ -91,6 +91,7 @@ class XcbWindow : public XcbResource, public virtual INativeWindow {
  private:
   XcbUiApplication* application_;
   std::optional<xcb_window_t> xcb_window_;
+  cairo_surface_t *cairo_surface_;
   Size current_size_;
 
   Event<std::nullptr_t> create_event_;

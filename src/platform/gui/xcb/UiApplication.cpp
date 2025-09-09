@@ -1,12 +1,21 @@
 #include "cru/platform/gui/xcb/UiApplication.h"
 
+#include "cru/platform/graphics/cairo/CairoGraphicsFactory.h"
 #include "cru/platform/gui/xcb/Window.h"
 
 #include <poll.h>
 #include <xcb/xcb.h>
 
 namespace cru::platform::gui::xcb {
-XcbUiApplication::XcbUiApplication() {
+XcbUiApplication::XcbUiApplication(
+    graphics::cairo::CairoGraphicsFactory *cairo_factory) {
+  release_cairo_factory_ = false;
+  if (cairo_factory == nullptr) {
+    cairo_factory = new graphics::cairo::CairoGraphicsFactory();
+    release_cairo_factory_ = true;
+  }
+  cairo_factory_ = cairo_factory;
+
   is_quit_on_all_window_closed_ = false;
 
   int screen_num;
@@ -21,7 +30,12 @@ XcbUiApplication::XcbUiApplication() {
   this->screen_ = iter.data;
 }
 
-XcbUiApplication::~XcbUiApplication() { xcb_disconnect(this->xcb_connection_); }
+XcbUiApplication::~XcbUiApplication() {
+  xcb_disconnect(this->xcb_connection_);
+  if (release_cairo_factory_) {
+    delete cairo_factory_;
+  }
+}
 
 void XcbUiApplication::CheckXcbConnectionError() {
   if (xcb_connection_has_error(this->xcb_connection_)) {
