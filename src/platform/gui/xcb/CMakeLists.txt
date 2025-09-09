@@ -1,6 +1,7 @@
 find_library(LIBRARY_CAIRO cairo REQUIRED)
 find_library(LIBRARY_XCB xcb REQUIRED)
 add_library(CruPlatformGuiX11
+	Keyboard.cpp
 	UiApplication.cpp
 	Window.cpp
 )

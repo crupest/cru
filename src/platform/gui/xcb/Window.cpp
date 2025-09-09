@@ -1,5 +1,8 @@
 #include "cru/platform/gui/xcb/Window.h"
+#include "cru/platform/gui/Base.h"
+#include "cru/platform/gui/Keyboard.h"
 #include "cru/platform/gui/Window.h"
+#include "cru/platform/gui/xcb/Keyboard.h"
 #include "cru/platform/gui/xcb/UiApplication.h"
 
 #include <xcb/xcb.h>
@@ -26,6 +29,43 @@ void print_modifiers(uint32_t mask) {
 }  // namespace
 
 namespace cru::platform::gui::xcb {
+
+namespace {
+MouseButton ConvertMouseButton(xcb_button_t button) {
+  switch (button) {
+    case 1:
+      return MouseButtons::Left;
+    case 2:
+      return MouseButtons::Middle;
+    case 3:
+      return MouseButtons::Right;
+    default:
+      return MouseButtons::None;
+  }
+}
+
+KeyModifier ConvertModifiers(uint32_t mask) {
+  // const char *MODIFIERS[] = {
+  //     "Shift", "Lock",    "Ctrl",    "Alt",     "Mod2",    "Mod3",   "Mod4",
+  //     "Mod5",  "Button1", "Button2", "Button3", "Button4", "Button5"};
+  constexpr KeyModifier MODIFIERS[] = {
+      KeyModifiers::shift, KeyModifiers::none, KeyModifiers::ctrl,
+      KeyModifiers::alt,   KeyModifiers::none, KeyModifiers::none,
+      KeyModifiers::none,  KeyModifiers::none, KeyModifiers::none,
+      KeyModifiers::none,  KeyModifiers::none, KeyModifiers::none,
+      KeyModifiers::none,
+  };
+
+  KeyModifier result;
+  for (auto iter = std::begin(MODIFIERS); mask; mask >>= 1, ++iter) {
+    if (mask & 1) {
+      result |= *iter;
+    }
+  }
+  return result;
+}
+}  // namespace
+
 XcbWindow::XcbWindow(XcbUiApplication *application)
     : application_(application) {
   application->RegisterWindow(this);
@@ -38,6 +78,18 @@ IEvent<MouseEnterLeaveType> *XcbWindow::MouseEnterLeaveEvent() {
 }
 
 IEvent<Point> *XcbWindow::MouseMoveEvent() { return &mouse_move_event_; }
+
+IEvent<NativeMouseButtonEventArgs> *XcbWindow::MouseDownEvent() {
+  return &mouse_down_event_;
+}
+
+IEvent<NativeMouseButtonEventArgs> *XcbWindow::MouseUpEvent() {
+  return &mouse_up_event_;
+}
+
+IEvent<NativeMouseWheelEventArgs> *XcbWindow::MouseWheelEvent() {
+  return &mouse_wheel_event_;
+}
 
 std::optional<xcb_window_t> XcbWindow::GetXcbWindow() { return xcb_window_; }
 
@@ -75,34 +127,33 @@ void XcbWindow::HandleEvent(xcb_generic_event_t *event) {
     }
     case XCB_BUTTON_PRESS: {
       xcb_button_press_event_t *bp = (xcb_button_press_event_t *)event;
-      print_modifiers(bp->state);
 
-      switch (bp->detail) {
-        case 4:
-          printf("Wheel Button up in window %" PRIu32
-                 ", at coordinates (%" PRIi16 ",%" PRIi16 ")\n",
-                 bp->event, bp->event_x, bp->event_y);
-          break;
-        case 5:
-          printf("Wheel Button down in window %" PRIu32
-                 ", at coordinates (%" PRIi16 ",%" PRIi16 ")\n",
-                 bp->event, bp->event_x, bp->event_y);
-          break;
-        default:
-          printf("Button %" PRIu8 " pressed in window %" PRIu32
-                 ", at coordinates (%" PRIi16 ",%" PRIi16 ")\n",
-                 bp->detail, bp->event, bp->event_x, bp->event_y);
-          break;
+      if (bp->detail >= 4 && bp->detail <= 7) {
+        NativeMouseWheelEventArgs args(30, Point(bp->event_x, bp->event_y),
+                                       GetCurrentKeyModifiers(application_),
+                                       false);
+        if (bp->detail == 5 || bp->detail == 7) {
+          args.delta = -args.delta;
+        }
+        if (bp->detail == 6 || bp->detail == 7) {
+          args.horizontal = true;
+        }
+        mouse_wheel_event_.Raise(std::move(args));
+        break;
       }
+
+      NativeMouseButtonEventArgs args(ConvertMouseButton(bp->detail),
+                                      Point(bp->event_x, bp->event_y),
+                                      GetCurrentKeyModifiers(application_));
+      mouse_down_event_.Raise(std::move(args));
       break;
     }
     case XCB_BUTTON_RELEASE: {
       xcb_button_release_event_t *br = (xcb_button_release_event_t *)event;
-      print_modifiers(br->state);
-
-      printf("Button %" PRIu8 " released in window %" PRIu32
-             ", at coordinates (%" PRIi16 ",%" PRIi16 ")\n",
-             br->detail, br->event, br->event_x, br->event_y);
+      NativeMouseButtonEventArgs args(ConvertMouseButton(br->detail),
+                                      Point(br->event_x, br->event_y),
+                                      GetCurrentKeyModifiers(application_));
+      mouse_up_event_.Raise(std::move(args));
       break;
     }
     case XCB_MOTION_NOTIFY: {
