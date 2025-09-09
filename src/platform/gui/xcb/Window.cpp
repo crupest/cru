@@ -73,6 +73,8 @@ XcbWindow::XcbWindow(XcbUiApplication *application)
 
 XcbWindow::~XcbWindow() { application_->UnregisterWindow(this); }
 
+IEvent<FocusChangeType> *XcbWindow::FocusEvent() { return &focus_event_; }
+
 IEvent<MouseEnterLeaveType> *XcbWindow::MouseEnterLeaveEvent() {
   return &mouse_enter_leave_event_;
 }
@@ -107,10 +109,11 @@ xcb_window_t XcbWindow::DoCreateWindow() {
 
   uint32_t mask = XCB_CW_EVENT_MASK;
   uint32_t values[1] = {
-      XCB_EVENT_MASK_EXPOSURE | XCB_EVENT_MASK_BUTTON_PRESS |
-      XCB_EVENT_MASK_BUTTON_RELEASE | XCB_EVENT_MASK_POINTER_MOTION |
-      XCB_EVENT_MASK_ENTER_WINDOW | XCB_EVENT_MASK_LEAVE_WINDOW |
-      XCB_EVENT_MASK_KEY_PRESS | XCB_EVENT_MASK_KEY_RELEASE};
+      XCB_EVENT_MASK_EXPOSURE | XCB_EVENT_MASK_FOCUS_CHANGE |
+      XCB_EVENT_MASK_BUTTON_PRESS | XCB_EVENT_MASK_BUTTON_RELEASE |
+      XCB_EVENT_MASK_POINTER_MOTION | XCB_EVENT_MASK_ENTER_WINDOW |
+      XCB_EVENT_MASK_LEAVE_WINDOW | XCB_EVENT_MASK_KEY_PRESS |
+      XCB_EVENT_MASK_KEY_RELEASE};
 
   xcb_create_window(connection, XCB_COPY_FROM_PARENT, xcb_window, screen->root,
                     100, 100, 400, 200, 10, XCB_WINDOW_CLASS_INPUT_OUTPUT,
@@ -129,6 +132,16 @@ void XcbWindow::HandleEvent(xcb_generic_event_t *event) {
              "), with dimension (%" PRIu16 ",%" PRIu16 ")\n",
              expose->window, expose->x, expose->y, expose->width,
              expose->height);
+      break;
+    }
+    case XCB_FOCUS_IN: {
+      xcb_focus_in_event_t *fi = (xcb_focus_in_event_t *)event;
+      focus_event_.Raise(FocusChangeType::Gain);
+      break;
+    }
+    case XCB_FOCUS_OUT: {
+      xcb_focus_out_event_t *fo = (xcb_focus_out_event_t *)event;
+      focus_event_.Raise(FocusChangeType::Lose);
       break;
     }
     case XCB_BUTTON_PRESS: {
@@ -209,6 +222,14 @@ std::optional<xcb_window_t> XcbWindow::GetEventWindow(
     case XCB_EXPOSE: {
       xcb_expose_event_t *expose = (xcb_expose_event_t *)event;
       return expose->window;
+    }
+    case XCB_FOCUS_IN: {
+      xcb_focus_in_event_t *fi = (xcb_focus_in_event_t *)event;
+      return fi->event;
+    }
+    case XCB_FOCUS_OUT: {
+      xcb_focus_out_event_t *fo = (xcb_focus_out_event_t *)event;
+      return fo->event;
     }
     case XCB_BUTTON_PRESS: {
       xcb_button_press_event_t *bp = (xcb_button_press_event_t *)event;
