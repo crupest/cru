@@ -59,6 +59,12 @@ IEvent<std::nullptr_t> *XcbWindow::CreateEvent() { return &create_event_; }
 
 IEvent<std::nullptr_t> *XcbWindow::DestroyEvent() { return &destroy_event_; }
 
+IEvent<std::nullptr_t> *XcbWindow::PaintEvent() { return &paint_event_; }
+
+IEvent<WindowVisibilityType> *XcbWindow::VisibilityChangeEvent() {
+  return &visibility_change_event_;
+}
+
 IEvent<Size> *XcbWindow::ResizeEvent() { return &resize_event_; }
 
 IEvent<FocusChangeType> *XcbWindow::FocusEvent() { return &focus_event_; }
@@ -138,6 +144,14 @@ void XcbWindow::HandleEvent(xcb_generic_event_t *event) {
         current_size_ = Size(configure->width, configure->height);
         resize_event_.Raise(current_size_);
       }
+      break;
+    }
+    case XCB_MAP_NOTIFY: {
+      visibility_change_event_.Raise(WindowVisibilityType::Show);
+      break;
+    }
+    case XCB_UNMAP_NOTIFY: {
+      visibility_change_event_.Raise(WindowVisibilityType::Hide);
       break;
     }
     case XCB_FOCUS_IN: {
@@ -235,6 +249,14 @@ std::optional<xcb_window_t> XcbWindow::GetEventWindow(
       xcb_configure_notify_event_t *configure =
           (xcb_configure_notify_event_t *)event;
       return configure->event;
+    }
+    case XCB_MAP_NOTIFY: {
+      xcb_map_notify_event_t *map = (xcb_map_notify_event_t *)event;
+      return map->event;
+    }
+    case XCB_UNMAP_NOTIFY: {
+      xcb_unmap_notify_event_t *unmap = (xcb_unmap_notify_event_t *)event;
+      return unmap->event;
     }
     case XCB_FOCUS_IN: {
       xcb_focus_in_event_t *fi = (xcb_focus_in_event_t *)event;
