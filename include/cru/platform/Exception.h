@@ -14,7 +14,7 @@ class CRU_PLATFORM_API PlatformNotMatchException : public PlatformException {
  public:
   PlatformNotMatchException(
       std::string resource_platform, std::string target_platform,
-      std::optional<std::string> additional_message = std::nullopt);
+      std::optional<std::string_view> additional_message = std::nullopt);
 
   PlatformNotMatchException(
       StringView resource_platform, StringView target_platform,

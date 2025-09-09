@@ -1,4 +1,5 @@
 #include "cru/platform/gui/xcb/Window.h"
+#include "cru/platform/Check.h"
 #include "cru/platform/graphics/Painter.h"
 #include "cru/platform/graphics/cairo/CairoPainter.h"
 #include "cru/platform/gui/Base.h"
@@ -57,11 +58,33 @@ KeyModifier ConvertModifiers(uint32_t mask) {
 XcbWindow::XcbWindow(XcbUiApplication *application)
     : application_(application),
       xcb_window_(std::nullopt),
-      cairo_surface_(nullptr) {
+      cairo_surface_(nullptr),
+      parent_(nullptr) {
   application->RegisterWindow(this);
 }
 
 XcbWindow::~XcbWindow() { application_->UnregisterWindow(this); }
+
+void XcbWindow::Close() {
+  if (xcb_window_) {
+    xcb_destroy_window(application_->GetXcbConnection(), *xcb_window_);
+  }
+}
+
+INativeWindow *XcbWindow::GetParent() { return parent_; }
+
+void XcbWindow::SetParent(INativeWindow *parent) {
+  parent_ = CheckPlatform<XcbWindow>(parent, GetPlatformIdUtf8());
+  if (xcb_window_) {
+    auto real_parent = application_->GetFirstXcbScreen()->root;
+    if (parent_ && parent_->xcb_window_) {
+      real_parent = *parent_->xcb_window_;
+    }
+    xcb_reparent_window(application_->GetXcbConnection(), *xcb_window_,
+                        real_parent, 0, 0);
+    // TODO: Maybe restore position?
+  }
+}
 
 std::unique_ptr<graphics::IPainter> XcbWindow::BeginPaint() {
   assert(cairo_surface_);

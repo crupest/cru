@@ -8,7 +8,7 @@
 namespace cru::platform {
 PlatformNotMatchException::PlatformNotMatchException(
     std::string resource_platform, std::string target_platform,
-    std::optional<std::string> additional_message)
+    std::optional<std::string_view> additional_message)
     : PlatformException(std::format(
           "Resource platform '{}' does not match target platform '{}'.",
           resource_platform_, target_platform_)),

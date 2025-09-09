@@ -11,5 +11,7 @@ struct CRU_PLATFORM_API IPlatformResource : virtual Interface {
   virtual String GetPlatformId() const = 0;
 
   virtual String GetDebugString() { return String(); }
+
+  virtual std::string GetPlatformIdUtf8() const;
 };
 }  // namespace cru::platform
