@@ -1,8 +1,9 @@
-#include <cru/platform/gui/xcb/UiApplication.h>
+#include "cru/platform/gui/xcb/UiApplication.h"
+
+#include "cru/platform/gui/xcb/Window.h"
 
 #include <poll.h>
 #include <xcb/xcb.h>
-#include "cru/base/Base.h"
 
 namespace cru::platform::gui::xcb {
 XcbUiApplication::XcbUiApplication() {
@@ -20,13 +21,19 @@ XcbUiApplication::XcbUiApplication() {
   this->screen_ = iter.data;
 }
 
-XcbUiApplication::~XcbUiApplication() { xcb_disconnect(this->xcb_); }
+XcbUiApplication::~XcbUiApplication() { xcb_disconnect(this->xcb_connection_); }
 
 void XcbUiApplication::CheckXcbConnectionError() {
-  if (xcb_connection_has_error(this->xcb_)) {
+  if (xcb_connection_has_error(this->xcb_connection_)) {
     throw XcbException("xcb_connection_has_error returned non-zero.");
   }
 }
+
+xcb_connection_t *XcbUiApplication::GetXcbConnection() {
+  return xcb_connection_;
+}
+
+xcb_screen_t *XcbUiApplication::GetFirstXcbScreen() { return screen_; }
 
 int XcbUiApplication::Run() {
   auto exit_code = event_loop_.Run();
@@ -75,8 +82,15 @@ void XcbUiApplication::CancelTimer(long long id) {
 
 void XcbUiApplication::HandleXEvents() {
   xcb_generic_event_t *event;
-  while ((event = xcb_poll_for_event(xcb_))) {
-    NotImplemented();
+  while ((event = xcb_poll_for_event(xcb_connection_))) {
+    auto event_xcb_window = XcbWindow::GetEventWindow(event);
+    for (auto window : windows_) {
+      if (window->GetXcbWindow() == event_xcb_window) {
+        window->HandleEvent(event);
+        break;
+      }
+    }
+    ::free(event);
   }
 }
 

@@ -17,8 +17,14 @@ class XcbUiApplication : public XcbResource, public virtual IUiApplication {
   XcbUiApplication();
   ~XcbUiApplication();
 
+ public:
   void CheckXcbConnectionError();
+  xcb_connection_t* GetXcbConnection();
 
+  // This API is weird, but before we have correct screen API, we still use it.
+  xcb_screen_t* GetFirstXcbScreen();
+
+ public:
   int Run() override;
 
   void RequestQuit(int quit_code) override;
@@ -66,7 +72,7 @@ class XcbUiApplication : public XcbResource, public virtual IUiApplication {
   void UnregisterWindow(XcbWindow* window);
 
  private:
-  xcb_connection_t* xcb_;
+  xcb_connection_t* xcb_connection_;
   xcb_screen_t* screen_;
 
   cru::platform::unix::UnixEventLoop event_loop_;

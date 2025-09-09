@@ -4,11 +4,14 @@
 #include "Base.h"
 
 #include <xcb/xcb.h>
+#include <optional>
 
 namespace cru::platform::gui::xcb {
 class XcbUiApplication;
 
 class XcbWindow : public XcbResource, public virtual INativeWindow {
+  friend XcbUiApplication;
+
  public:
   explicit XcbWindow(XcbUiApplication* application);
   ~XcbWindow() override;
@@ -66,8 +69,8 @@ class XcbWindow : public XcbResource, public virtual INativeWindow {
   virtual IEvent<Size>* ResizeEvent() = 0;
   virtual IEvent<FocusChangeType>* FocusEvent() = 0;
 
-  virtual IEvent<MouseEnterLeaveType>* MouseEnterLeaveEvent() = 0;
-  virtual IEvent<Point>* MouseMoveEvent() = 0;
+  IEvent<MouseEnterLeaveType>* MouseEnterLeaveEvent() override;
+  IEvent<Point>* MouseMoveEvent() override;
   virtual IEvent<NativeMouseButtonEventArgs>* MouseDownEvent() = 0;
   virtual IEvent<NativeMouseButtonEventArgs>* MouseUpEvent() = 0;
   virtual IEvent<NativeMouseWheelEventArgs>* MouseWheelEvent() = 0;
@@ -76,8 +79,19 @@ class XcbWindow : public XcbResource, public virtual INativeWindow {
 
   virtual IInputMethodContext* GetInputMethodContext() = 0;
 
+ public:
+  std::optional<xcb_window_t> GetXcbWindow();
+
+ private:
+  xcb_window_t DoCreateWindow();
+  void HandleEvent(xcb_generic_event_t* event);
+  static std::optional<xcb_window_t> GetEventWindow(xcb_generic_event_t* event);
+
  private:
   XcbUiApplication* application_;
-  xcb_window_t xcb_window_;
+  std::optional<xcb_window_t> xcb_window_;
+
+  Event<MouseEnterLeaveType> mouse_enter_leave_event_;
+  Event<Point> mouse_move_event_;
 };
 }  // namespace cru::platform::gui::xcb
