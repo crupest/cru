@@ -59,6 +59,8 @@ IEvent<std::nullptr_t> *XcbWindow::CreateEvent() { return &create_event_; }
 
 IEvent<std::nullptr_t> *XcbWindow::DestroyEvent() { return &destroy_event_; }
 
+IEvent<Size> *XcbWindow::ResizeEvent() { return &resize_event_; }
+
 IEvent<FocusChangeType> *XcbWindow::FocusEvent() { return &focus_event_; }
 
 IEvent<MouseEnterLeaveType> *XcbWindow::MouseEnterLeaveEvent() {
@@ -104,6 +106,7 @@ xcb_window_t XcbWindow::DoCreateWindow() {
   xcb_create_window(connection, XCB_COPY_FROM_PARENT, xcb_window, screen->root,
                     100, 100, 400, 200, 10, XCB_WINDOW_CLASS_INPUT_OUTPUT,
                     screen->root_visual, mask, values);
+  current_size_ = {400, 200};
 
   create_event_.Raise(nullptr);
 
@@ -125,6 +128,17 @@ void XcbWindow::HandleEvent(xcb_generic_event_t *event) {
     case XCB_DESTROY_NOTIFY: {
       destroy_event_.Raise(nullptr);
       xcb_window_ = std::nullopt;
+      break;
+    }
+    case XCB_CONFIGURE_NOTIFY: {
+      xcb_configure_notify_event_t *configure =
+          (xcb_configure_notify_event_t *)event;
+      if (configure->width != current_size_.width ||
+          configure->height != current_size_.height) {
+        current_size_ = Size(configure->width, configure->height);
+        resize_event_.Raise(current_size_);
+      }
+      break;
     }
     case XCB_FOCUS_IN: {
       focus_event_.Raise(FocusChangeType::Gain);
@@ -216,6 +230,11 @@ std::optional<xcb_window_t> XcbWindow::GetEventWindow(
     case XCB_DESTROY_NOTIFY: {
       xcb_destroy_notify_event_t *destroy = (xcb_destroy_notify_event_t *)event;
       return destroy->event;
+    }
+    case XCB_CONFIGURE_NOTIFY: {
+      xcb_configure_notify_event_t *configure =
+          (xcb_configure_notify_event_t *)event;
+      return configure->event;
     }
     case XCB_FOCUS_IN: {
       xcb_focus_in_event_t *fi = (xcb_focus_in_event_t *)event;

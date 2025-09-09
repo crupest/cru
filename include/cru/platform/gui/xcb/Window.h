@@ -67,7 +67,7 @@ class XcbWindow : public XcbResource, public virtual INativeWindow {
   virtual IEvent<std::nullptr_t>* PaintEvent() = 0;
 
   virtual IEvent<WindowVisibilityType>* VisibilityChangeEvent() = 0;
-  virtual IEvent<Size>* ResizeEvent() = 0;
+  IEvent<Size>* ResizeEvent() override;
   IEvent<FocusChangeType>* FocusEvent() override;
 
   IEvent<MouseEnterLeaveType>* MouseEnterLeaveEvent() override;
@@ -91,10 +91,12 @@ class XcbWindow : public XcbResource, public virtual INativeWindow {
  private:
   XcbUiApplication* application_;
   std::optional<xcb_window_t> xcb_window_;
+  Size current_size_;
 
   Event<std::nullptr_t> create_event_;
   Event<std::nullptr_t> destroy_event_;
 
+  Event<Size> resize_event_;
   Event<FocusChangeType> focus_event_;
   Event<MouseEnterLeaveType> mouse_enter_leave_event_;
   Event<Point> mouse_move_event_;
