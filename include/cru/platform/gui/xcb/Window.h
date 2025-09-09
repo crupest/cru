@@ -4,6 +4,7 @@
 #include "Base.h"
 
 #include <xcb/xcb.h>
+#include <cstddef>
 #include <optional>
 
 namespace cru::platform::gui::xcb {
@@ -61,8 +62,8 @@ class XcbWindow : public XcbResource, public virtual INativeWindow {
   // Remember to call EndDraw on return value and destroy it.
   virtual std::unique_ptr<graphics::IPainter> BeginPaint() = 0;
 
-  virtual IEvent<std::nullptr_t>* CreateEvent() = 0;
-  virtual IEvent<std::nullptr_t>* DestroyEvent() = 0;
+  IEvent<std::nullptr_t>* CreateEvent() override;
+  IEvent<std::nullptr_t>* DestroyEvent() override;
   virtual IEvent<std::nullptr_t>* PaintEvent() = 0;
 
   virtual IEvent<WindowVisibilityType>* VisibilityChangeEvent() = 0;
@@ -90,6 +91,9 @@ class XcbWindow : public XcbResource, public virtual INativeWindow {
  private:
   XcbUiApplication* application_;
   std::optional<xcb_window_t> xcb_window_;
+
+  Event<std::nullptr_t> create_event_;
+  Event<std::nullptr_t> destroy_event_;
 
   Event<FocusChangeType> focus_event_;
   Event<MouseEnterLeaveType> mouse_enter_leave_event_;

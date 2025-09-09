@@ -8,6 +8,7 @@
 #include <xcb/xcb.h>
 #include <cinttypes>
 #include <cstdint>
+#include <optional>
 
 namespace cru::platform::gui::xcb {
 
@@ -54,6 +55,10 @@ XcbWindow::XcbWindow(XcbUiApplication *application)
 
 XcbWindow::~XcbWindow() { application_->UnregisterWindow(this); }
 
+IEvent<std::nullptr_t> *XcbWindow::CreateEvent() { return &create_event_; }
+
+IEvent<std::nullptr_t> *XcbWindow::DestroyEvent() { return &destroy_event_; }
+
 IEvent<FocusChangeType> *XcbWindow::FocusEvent() { return &focus_event_; }
 
 IEvent<MouseEnterLeaveType> *XcbWindow::MouseEnterLeaveEvent() {
@@ -90,15 +95,17 @@ xcb_window_t XcbWindow::DoCreateWindow() {
 
   uint32_t mask = XCB_CW_EVENT_MASK;
   uint32_t values[1] = {
-      XCB_EVENT_MASK_EXPOSURE | XCB_EVENT_MASK_FOCUS_CHANGE |
-      XCB_EVENT_MASK_BUTTON_PRESS | XCB_EVENT_MASK_BUTTON_RELEASE |
-      XCB_EVENT_MASK_POINTER_MOTION | XCB_EVENT_MASK_ENTER_WINDOW |
-      XCB_EVENT_MASK_LEAVE_WINDOW | XCB_EVENT_MASK_KEY_PRESS |
-      XCB_EVENT_MASK_KEY_RELEASE};
+      XCB_EVENT_MASK_EXPOSURE | XCB_EVENT_MASK_STRUCTURE_NOTIFY |
+      XCB_EVENT_MASK_FOCUS_CHANGE | XCB_EVENT_MASK_BUTTON_PRESS |
+      XCB_EVENT_MASK_BUTTON_RELEASE | XCB_EVENT_MASK_POINTER_MOTION |
+      XCB_EVENT_MASK_ENTER_WINDOW | XCB_EVENT_MASK_LEAVE_WINDOW |
+      XCB_EVENT_MASK_KEY_PRESS | XCB_EVENT_MASK_KEY_RELEASE};
 
   xcb_create_window(connection, XCB_COPY_FROM_PARENT, xcb_window, screen->root,
                     100, 100, 400, 200, 10, XCB_WINDOW_CLASS_INPUT_OUTPUT,
                     screen->root_visual, mask, values);
+
+  create_event_.Raise(nullptr);
 
   return xcb_window;
 }
@@ -115,13 +122,15 @@ void XcbWindow::HandleEvent(xcb_generic_event_t *event) {
              expose->height);
       break;
     }
+    case XCB_DESTROY_NOTIFY: {
+      destroy_event_.Raise(nullptr);
+      xcb_window_ = std::nullopt;
+    }
     case XCB_FOCUS_IN: {
-      xcb_focus_in_event_t *fi = (xcb_focus_in_event_t *)event;
       focus_event_.Raise(FocusChangeType::Gain);
       break;
     }
     case XCB_FOCUS_OUT: {
-      xcb_focus_out_event_t *fo = (xcb_focus_out_event_t *)event;
       focus_event_.Raise(FocusChangeType::Lose);
       break;
     }
@@ -169,8 +178,8 @@ void XcbWindow::HandleEvent(xcb_generic_event_t *event) {
       break;
     }
     case XCB_LEAVE_NOTIFY: {
-      xcb_leave_notify_event_t *leave = (xcb_leave_notify_event_t *)event;
       // Should we do this?
+      // xcb_leave_notify_event_t *leave = (xcb_leave_notify_event_t *)event;
       // Point point(leave->event_x, leave->event_y);
       // mouse_move_event_.Raise(point);
       mouse_enter_leave_event_.Raise(MouseEnterLeaveType::Leave);
@@ -203,6 +212,10 @@ std::optional<xcb_window_t> XcbWindow::GetEventWindow(
     case XCB_EXPOSE: {
       xcb_expose_event_t *expose = (xcb_expose_event_t *)event;
       return expose->window;
+    }
+    case XCB_DESTROY_NOTIFY: {
+      xcb_destroy_notify_event_t *destroy = (xcb_destroy_notify_event_t *)event;
+      return destroy->event;
     }
     case XCB_FOCUS_IN: {
       xcb_focus_in_event_t *fi = (xcb_focus_in_event_t *)event;
