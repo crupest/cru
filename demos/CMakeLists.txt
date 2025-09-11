@@ -7,17 +7,11 @@ add_subdirectory(Graphics)
 if(WIN32)
 	add_subdirectory(main)
 	add_subdirectory(ScrollView)
-
 	add_subdirectory(InputMethod)
-	add_subdirectory(SvgPath)
 elseif(APPLE)
 	add_subdirectory(main)
 	add_subdirectory(ScrollView)
-
 	add_subdirectory(InputMethod)
-	add_subdirectory(SvgPath)
-elseif(EMSCRIPTEN)
-
 elseif(UNIX)
 	add_subdirectory(xcb)
 endif()
