@@ -89,6 +89,15 @@ void XcbWindow::SetStyleFlag(WindowStyleFlag flag) {
   }
 }
 
+String XcbWindow::GetTitle() { return String::FromUtf8(title_); }
+
+void XcbWindow::SetTitle(String title) {
+  title_ = title.ToUtf8();
+  if (xcb_window_) {
+    DoSetTitle(*xcb_window_);
+  }
+}
+
 std::unique_ptr<graphics::IPainter> XcbWindow::BeginPaint() {
   assert(cairo_surface_);
 
@@ -390,6 +399,15 @@ void XcbWindow::DoSetStyleFlags(xcb_window_t window) {
   xcb_change_property(application_->GetXcbConnection(), XCB_PROP_MODE_REPLACE,
                       window, application_->GetXcbAtom_NET_WM_WINDOW_TYPE(),
                       XCB_ATOM_ATOM, 32, atoms.size(), atoms.data());
+}
+
+void XcbWindow::DoSetTitle(xcb_window_t window) {
+  for (auto atom : {static_cast<xcb_atom_t>(XCB_ATOM_WM_NAME),
+                    application_->GetXcbAtom_NET_WM_NAME()}) {
+    xcb_change_property(application_->GetXcbConnection(), XCB_PROP_MODE_REPLACE,
+                        window, atom, XCB_ATOM_STRING, 8, title_.size(),
+                        title_.data());
+  }
 }
 
 }  // namespace cru::platform::gui::xcb

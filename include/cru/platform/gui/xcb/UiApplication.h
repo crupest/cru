@@ -31,6 +31,7 @@ class XcbUiApplication : public XcbResource, public virtual IUiApplication {
   xcb_screen_t* GetFirstXcbScreen();
 
   xcb_atom_t GetOrCreateXcbAtom(std::string name);
+  xcb_atom_t GetXcbAtom_NET_WM_NAME();
   xcb_atom_t GetXcbAtom_NET_WM_WINDOW_TYPE();
   xcb_atom_t GetXcbAtom_NET_WM_WINDOW_TYPE_NORMAL();
   xcb_atom_t GetXcbAtom_NET_WM_WINDOW_TYPE_UTILITY();
