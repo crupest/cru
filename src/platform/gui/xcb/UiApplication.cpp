@@ -49,6 +49,32 @@ xcb_connection_t *XcbUiApplication::GetXcbConnection() {
 
 xcb_screen_t *XcbUiApplication::GetFirstXcbScreen() { return screen_; }
 
+xcb_atom_t XcbUiApplication::GetOrCreateXcbAtom(std::string name) {
+  auto iter = xcb_atom_.find(name);
+  if (iter != xcb_atom_.cend()) {
+    return iter->second;
+  }
+
+  auto cookie =
+      xcb_intern_atom(xcb_connection_, false, name.size(), name.data());
+  auto reply = xcb_intern_atom_reply(xcb_connection_, cookie, nullptr);
+  auto atom = reply->atom;
+  xcb_atom_.emplace(std::move(name), atom);
+  return atom;
+}
+
+xcb_atom_t XcbUiApplication::GetXcbAtom_NET_WM_WINDOW_TYPE() {
+  return GetOrCreateXcbAtom("_NET_WM_WINDOW_TYPE");
+}
+
+xcb_atom_t XcbUiApplication::GetXcbAtom_NET_WM_WINDOW_TYPE_NORMAL() {
+  return GetOrCreateXcbAtom("_NET_WM_WINDOW_TYPE_NORMAL");
+}
+
+xcb_atom_t XcbUiApplication::GetXcbAtom_NET_WM_WINDOW_TYPE_UTILITY() {
+  return GetOrCreateXcbAtom("_NET_WM_WINDOW_TYPE_UTILITY");
+}
+
 int XcbUiApplication::Run() {
   auto exit_code = event_loop_.Run();
 

@@ -76,13 +76,16 @@ INativeWindow *XcbWindow::GetParent() { return parent_; }
 void XcbWindow::SetParent(INativeWindow *parent) {
   parent_ = CheckPlatform<XcbWindow>(parent, GetPlatformIdUtf8());
   if (xcb_window_) {
-    auto real_parent = application_->GetFirstXcbScreen()->root;
-    if (parent_ && parent_->xcb_window_) {
-      real_parent = *parent_->xcb_window_;
-    }
-    xcb_reparent_window(application_->GetXcbConnection(), *xcb_window_,
-                        real_parent, 0, 0);
-    // TODO: Maybe restore position?
+    DoSetParent(*xcb_window_);
+  }
+}
+
+WindowStyleFlag XcbWindow::GetStyleFlag() { return style_; }
+
+void XcbWindow::SetStyleFlag(WindowStyleFlag flag) {
+  style_ = flag;
+  if (xcb_window_) {
+    DoSetStyleFlags(*xcb_window_);
   }
 }
 
@@ -159,6 +162,9 @@ xcb_window_t XcbWindow::DoCreateWindow() {
                     100, width, height, 10, XCB_WINDOW_CLASS_INPUT_OUTPUT,
                     screen->root_visual, mask, values);
   current_size_ = Size(width, height);
+
+  DoSetStyleFlags(window);
+  DoSetParent(window);
 
   xcb_visualtype_t *visual_type;
 
@@ -361,4 +367,29 @@ std::optional<xcb_window_t> XcbWindow::GetEventWindow(
       return std::nullopt;
   }
 }
+
+void XcbWindow::DoSetParent(xcb_window_t window) {
+  auto real_parent =
+      application_->GetFirstXcbScreen()->root;  // init to desktop
+  if (parent_ && parent_->xcb_window_) {
+    real_parent = *parent_->xcb_window_;
+  }
+  xcb_reparent_window(application_->GetXcbConnection(), window, real_parent, 0,
+                      0);
+  // TODO: Maybe restore position?
+}
+
+void XcbWindow::DoSetStyleFlags(xcb_window_t window) {
+  std::vector<xcb_atom_t> atoms;
+  if (style_.Has(WindowStyleFlags::NoCaptionAndBorder)) {
+    atoms = {application_->GetXcbAtom_NET_WM_WINDOW_TYPE_UTILITY()};
+  } else {
+    atoms = {application_->GetXcbAtom_NET_WM_WINDOW_TYPE_NORMAL()};
+  }
+
+  xcb_change_property(application_->GetXcbConnection(), XCB_PROP_MODE_REPLACE,
+                      window, application_->GetXcbAtom_NET_WM_WINDOW_TYPE(),
+                      XCB_ATOM_ATOM, 32, atoms.size(), atoms.data());
+}
+
 }  // namespace cru::platform::gui::xcb

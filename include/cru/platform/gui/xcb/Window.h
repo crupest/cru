@@ -23,8 +23,8 @@ class XcbWindow : public XcbResource, public virtual INativeWindow {
   INativeWindow* GetParent() override;
   void SetParent(INativeWindow* parent) override;
 
-  virtual WindowStyleFlag GetStyleFlag() = 0;
-  virtual void SetStyleFlag(WindowStyleFlag flag) = 0;
+  WindowStyleFlag GetStyleFlag() override;
+  void SetStyleFlag(WindowStyleFlag flag) override;
 
   virtual String GetTitle() = 0;
   virtual void SetTitle(String title) = 0;
@@ -88,11 +88,15 @@ class XcbWindow : public XcbResource, public virtual INativeWindow {
   void HandleEvent(xcb_generic_event_t* event);
   static std::optional<xcb_window_t> GetEventWindow(xcb_generic_event_t* event);
 
+  void DoSetParent(xcb_window_t window);
+  void DoSetStyleFlags(xcb_window_t window);
+
  private:
   XcbUiApplication* application_;
   std::optional<xcb_window_t> xcb_window_;
   cairo_surface_t* cairo_surface_;
   Size current_size_;
+  WindowStyleFlag style_;
 
   XcbWindow* parent_;
 
