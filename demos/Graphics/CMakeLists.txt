@@ -1,0 +1,8 @@
+add_library(CruDemoGraphicsBase INTERFACE)
+target_link_libraries(CruDemoGraphicsBase INTERFACE CruPlatformGraphicsBootstrap)
+
+add_executable(CruDemoGraphicsDrawCircle DrawCircle.cpp)
+target_link_libraries(CruDemoGraphicsDrawCircle PRIVATE CruDemoGraphicsBase)
+
+add_executable(CruDemoGraphicsSvgPath SvgPath.cpp)
+target_link_libraries(CruDemoGraphicsSvgPath PRIVATE CruDemoGraphicsBase)
