@@ -1,6 +1,7 @@
 
 #include "cru/base/io/CFileStream.h"
 #include "cru/platform/Color.h"
+#include "cru/platform/Matrix.h"
 #include "cru/platform/bootstrap/GraphicsBootstrap.h"
 #include "cru/platform/graphics/Factory.h"
 #include "cru/platform/graphics/ImageFactory.h"
@@ -23,12 +24,11 @@ M6.5 0a.5.5 0 0 0 0 1H7v1.07a7.001 7.001 0 0 0-3.273 12.474l-.602.602a.5.5 0 0 0
   )");
   auto geometry = geometry_builder->Build();
 
-  auto image = graphics_factory->GetImageFactory()->CreateBitmap(1000, 1000);
+  auto image = graphics_factory->GetImageFactory()->CreateBitmap(160, 160);
   auto painter = image->CreatePainter();
 
-  painter->PushState();
+  painter->ConcatTransform(cru::platform::Matrix::Scale(10, 10));
   painter->FillGeometry(geometry.get(), brush.get());
-  painter->PopState();
   painter->EndDraw();
 
   cru::io::CFileStream file_stream("./svg-path-demo.png", "w");

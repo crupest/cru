@@ -258,33 +258,50 @@ void IGeometryBuilder::ParseAndApplySvgPathData(StringView path_d) {
     last_is_quad = false;
 
     switch (command) {
-      case 'M':
-        MoveTo(read_point());
+      case 'M': {
+        auto end = read_point();
+        MoveTo(end);
         break;
-      case 'm':
-        RelativeMoveTo(read_point());
+      }
+      case 'm': {
+        auto offset = read_point();
+        RelativeMoveTo(offset);
         break;
-      case 'L':
-        LineTo(read_point());
+      }
+      case 'L': {
+        auto end = read_point();
+        LineTo(end);
         break;
-      case 'l':
-        RelativeLineTo(read_point());
+      }
+      case 'l': {
+        auto offset = read_point();
+        RelativeLineTo(offset);
         break;
-      case 'H':
-        LineTo(read_number(), this->GetCurrentPosition().y);
+      }
+      case 'H': {
+        auto x = read_number();
+        LineTo(x, this->GetCurrentPosition().y);
         break;
-      case 'h':
-        RelativeLineTo(read_number(), 0);
+      }
+      case 'h': {
+        auto dx = read_number();
+        RelativeLineTo(dx, 0);
         break;
-      case 'V':
-        LineTo(GetCurrentPosition().x, read_number());
+      }
+      case 'V': {
+        auto y = read_number();
+        LineTo(GetCurrentPosition().x, y);
         break;
-      case 'v':
-        RelativeLineTo(0, read_number());
+      }
+      case 'v': {
+        auto dy = read_number();
+        RelativeLineTo(0, dy);
         break;
+      }
       case 'C': {
-        auto start_control_point = read_point(),
-             end_control_point = read_point(), end_point = read_point();
+        auto start_control_point = read_point();
+        auto end_control_point = read_point();
+        auto end_point = read_point();
         CubicBezierTo(start_control_point, end_control_point, end_point);
         last_is_cubic = true;
         last_control_point = end_control_point;
@@ -293,9 +310,9 @@ void IGeometryBuilder::ParseAndApplySvgPathData(StringView path_d) {
       }
       case 'c': {
         auto current_position = GetCurrentPosition();
-        auto start_control_point = current_position + read_point(),
-             end_control_point = current_position + read_point(),
-             end_point = current_position + read_point();
+        auto start_control_point = current_position + read_point();
+        auto end_control_point = current_position + read_point();
+        auto end_point = current_position + read_point();
         CubicBezierTo(start_control_point, end_control_point, end_point);
         last_is_cubic = true;
         last_control_point = end_control_point;
@@ -304,11 +321,12 @@ void IGeometryBuilder::ParseAndApplySvgPathData(StringView path_d) {
       }
       case 'S': {
         auto current_position = GetCurrentPosition();
-        auto start_control_point = last_is_cubic ? Point{last_end_point.x * 2,
-                                                         last_end_point.y * 2} -
-                                                       last_control_point
-                                                 : current_position,
-             end_control_point = read_point(), end_point = read_point();
+        auto start_control_point =
+            last_is_cubic ? Point{last_end_point.x * 2, last_end_point.y * 2} -
+                                last_control_point
+                          : current_position;
+        auto end_control_point = read_point();
+        auto end_point = read_point();
         CubicBezierTo(start_control_point, end_control_point, end_point);
         last_is_cubic = true;
         last_control_point = end_control_point;
@@ -317,12 +335,12 @@ void IGeometryBuilder::ParseAndApplySvgPathData(StringView path_d) {
       }
       case 's': {
         auto current_position = GetCurrentPosition();
-        auto start_control_point = last_is_cubic ? Point{last_end_point.x * 2,
-                                                         last_end_point.y * 2} -
-                                                       last_control_point
-                                                 : current_position,
-             end_control_point = current_position + read_point(),
-             end_point = current_position + read_point();
+        auto start_control_point =
+            last_is_cubic ? Point{last_end_point.x * 2, last_end_point.y * 2} -
+                                last_control_point
+                          : current_position;
+        auto end_control_point = current_position + read_point();
+        auto end_point = current_position + read_point();
         CubicBezierTo(start_control_point, end_control_point, end_point);
         last_is_cubic = true;
         last_control_point = end_control_point;
@@ -330,7 +348,8 @@ void IGeometryBuilder::ParseAndApplySvgPathData(StringView path_d) {
         break;
       }
       case 'Q': {
-        auto control_point = read_point(), end_point = read_point();
+        auto control_point = read_point();
+        auto end_point = read_point();
         QuadraticBezierTo(control_point, end_point);
         last_is_quad = true;
         last_control_point = control_point;
@@ -339,8 +358,8 @@ void IGeometryBuilder::ParseAndApplySvgPathData(StringView path_d) {
       }
       case 'q': {
         auto current_position = GetCurrentPosition();
-        auto control_point = current_position + read_point(),
-             end_point = current_position + read_point();
+        auto control_point = current_position + read_point();
+        auto end_point = current_position + read_point();
         QuadraticBezierTo(control_point, end_point);
         last_is_quad = true;
         last_control_point = control_point;
@@ -349,11 +368,11 @@ void IGeometryBuilder::ParseAndApplySvgPathData(StringView path_d) {
       }
       case 'T': {
         auto current_position = GetCurrentPosition();
-        auto control_point = last_is_quad ? Point{last_end_point.x * 2,
-                                                  last_end_point.y * 2} -
-                                                last_control_point
-                                          : current_position,
-             end_point = read_point();
+        auto control_point =
+            last_is_quad ? Point{last_end_point.x * 2, last_end_point.y * 2} -
+                               last_control_point
+                         : current_position;
+        auto end_point = read_point();
         QuadraticBezierTo(control_point, end_point);
         last_is_quad = true;
         last_control_point = control_point;
@@ -362,25 +381,35 @@ void IGeometryBuilder::ParseAndApplySvgPathData(StringView path_d) {
       }
       case 't': {
         auto current_position = GetCurrentPosition();
-        auto control_point = last_is_quad ? Point{last_end_point.x * 2,
-                                                  last_end_point.y * 2} -
-                                                last_control_point
-                                          : current_position,
-             end_point = current_position + read_point();
+        auto control_point =
+            last_is_quad ? Point{last_end_point.x * 2, last_end_point.y * 2} -
+                               last_control_point
+                         : current_position;
+        auto end_point = current_position + read_point();
         QuadraticBezierTo(control_point, end_point);
         last_is_quad = true;
         last_control_point = control_point;
         last_end_point = end_point;
         break;
       }
-      case 'A':
-        ArcTo({read_number(), read_number()}, read_number(), read_number(),
-              read_number(), read_point());
+      case 'A': {
+        Point radius(read_number(), read_number());
+        auto angle = read_number();
+        auto large_arc_flag = read_number();
+        auto sweep_flag = read_number();
+        auto end = read_point();
+        ArcTo(radius, angle, large_arc_flag, sweep_flag, end);
         break;
-      case 'a':
-        RelativeArcTo({read_number(), read_number()}, read_number(),
-                      read_number(), read_number(), read_point());
+      }
+      case 'a': {
+        Point radius(read_number(), read_number());
+        auto angle = read_number();
+        auto large_arc_flag = read_number();
+        auto sweep_flag = read_number();
+        auto offset = read_point();
+        RelativeArcTo(radius, angle, large_arc_flag, sweep_flag, offset);
         break;
+      }
       case 'Z':
       case 'z':
         CloseFigure(true);
