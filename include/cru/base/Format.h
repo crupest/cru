@@ -5,6 +5,7 @@
 
 #include <cassert>
 #include <cstdio>
+#include <format>
 #include <type_traits>
 #include <vector>
 
@@ -156,7 +157,12 @@ template <typename T>
 struct ImplementFormatterByToUtf8String {
   template <class ParseContext>
   constexpr ParseContext::iterator parse(ParseContext& ctx) const {
-    return ctx.end();
+    auto iter = ctx.begin();
+    if (*iter != '}') {
+      throw std::format_error(
+          "ImplementFormatterByToUtf8String does not accept format args.");
+    }
+    return iter;
   }
 
   template <class FmtContext>
