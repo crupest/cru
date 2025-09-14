@@ -2,11 +2,14 @@ add_library(CruPlatformGraphicsBootstrap
 	GraphicsBootstrap.cpp
 )
 
+target_compile_definitions(CruPlatformGraphicsBootstrap PRIVATE CRU_PLATFORM_GRAPHICS_BOOTSTRAP_EXPORT_API)
+
 add_library(CruPlatformBootstrap
 	Bootstrap.cpp
 )
 
 target_link_libraries(CruPlatformBootstrap PUBLIC CruPlatformGraphicsBootstrap)
+target_compile_definitions(CruPlatformBootstrap PRIVATE CRU_PLATFORM_BOOTSTRAP_EXPORT_API)
 
 if(WIN32)
 	target_link_libraries(CruPlatformGraphicsBootstrap PUBLIC CruPlatformGraphicsDirect2d)
@@ -21,5 +24,3 @@ else()
 	target_link_libraries(CruPlatformGraphicsBootstrap PUBLIC CruPlatformGraphicsCairo)
 	target_link_libraries(CruPlatformBootstrap PUBLIC CruPlatformGraphicsCairo)
 endif()
-
-target_compile_definitions(CruPlatformBootstrap PRIVATE CRU_PLATFORM_BOOTSTRAP_EXPORT_API)
