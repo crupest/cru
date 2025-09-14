@@ -9,7 +9,7 @@ add_library(CruPlatformBootstrap
 target_link_libraries(CruPlatformBootstrap PUBLIC CruPlatformGraphicsBootstrap)
 
 if(WIN32)
-	target_link_libraries(CruPlatformGraphicsBootstrap PUBLIC CruPlatformGraphicsDirect)
+	target_link_libraries(CruPlatformGraphicsBootstrap PUBLIC CruPlatformGraphicsDirect2d)
 	target_link_libraries(CruPlatformBootstrap PUBLIC CruPlatformGuiWin)
 elseif(APPLE)
 	target_link_libraries(CruPlatformGraphicsBootstrap PUBLIC CruPlatformGraphicsQuartz)
