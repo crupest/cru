@@ -63,22 +63,6 @@ xcb_atom_t XcbUiApplication::GetOrCreateXcbAtom(std::string name) {
   return atom;
 }
 
-xcb_atom_t XcbUiApplication::GetXcbAtom_NET_WM_NAME() {
-  return GetOrCreateXcbAtom("_NET_WM_NAME");
-}
-
-xcb_atom_t XcbUiApplication::GetXcbAtom_NET_WM_WINDOW_TYPE() {
-  return GetOrCreateXcbAtom("_NET_WM_WINDOW_TYPE");
-}
-
-xcb_atom_t XcbUiApplication::GetXcbAtom_NET_WM_WINDOW_TYPE_NORMAL() {
-  return GetOrCreateXcbAtom("_NET_WM_WINDOW_TYPE_NORMAL");
-}
-
-xcb_atom_t XcbUiApplication::GetXcbAtom_NET_WM_WINDOW_TYPE_UTILITY() {
-  return GetOrCreateXcbAtom("_NET_WM_WINDOW_TYPE_UTILITY");
-}
-
 int XcbUiApplication::Run() {
   auto exit_code = event_loop_.Run();
 

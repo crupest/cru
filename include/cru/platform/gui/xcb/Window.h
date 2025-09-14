@@ -29,8 +29,8 @@ class XcbWindow : public XcbResource, public virtual INativeWindow {
   String GetTitle() override;
   void SetTitle(String title) override;
 
-  virtual WindowVisibilityType GetVisibility() = 0;
-  virtual void SetVisibility(WindowVisibilityType visibility) = 0;
+  WindowVisibilityType GetVisibility() override;
+  void SetVisibility(WindowVisibilityType visibility) override;
 
   virtual Size GetClientSize() = 0;
   virtual void SetClientSize(const Size& size) = 0;
@@ -92,6 +92,11 @@ class XcbWindow : public XcbResource, public virtual INativeWindow {
   void DoSetStyleFlags(xcb_window_t window);
   void DoSetTitle(xcb_window_t window);
 
+  void* XcbGetProperty(xcb_window_t window, xcb_atom_t property,
+                       xcb_atom_t type, std::uint32_t offset,
+                       std::uint32_t length,
+                       std::uint32_t* out_length = nullptr);
+
  private:
   XcbUiApplication* application_;
   std::optional<xcb_window_t> xcb_window_;
@@ -99,6 +104,7 @@ class XcbWindow : public XcbResource, public virtual INativeWindow {
   Size current_size_;
   WindowStyleFlag style_;
   std::string title_;
+  bool mapped_;
 
   XcbWindow* parent_;
 

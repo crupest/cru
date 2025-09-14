@@ -31,10 +31,18 @@ class XcbUiApplication : public XcbResource, public virtual IUiApplication {
   xcb_screen_t* GetFirstXcbScreen();
 
   xcb_atom_t GetOrCreateXcbAtom(std::string name);
-  xcb_atom_t GetXcbAtom_NET_WM_NAME();
-  xcb_atom_t GetXcbAtom_NET_WM_WINDOW_TYPE();
-  xcb_atom_t GetXcbAtom_NET_WM_WINDOW_TYPE_NORMAL();
-  xcb_atom_t GetXcbAtom_NET_WM_WINDOW_TYPE_UTILITY();
+
+#define CRU_XCB_UI_APPLICATION_DEFINE_XCB_ATOM(name) \
+  xcb_atom_t GetXcbAtom##name() { return GetOrCreateXcbAtom(#name); }
+
+  CRU_XCB_UI_APPLICATION_DEFINE_XCB_ATOM(WM_NAME)
+  CRU_XCB_UI_APPLICATION_DEFINE_XCB_ATOM(WM_STATE)
+  CRU_XCB_UI_APPLICATION_DEFINE_XCB_ATOM(_NET_WM_NAME)
+  CRU_XCB_UI_APPLICATION_DEFINE_XCB_ATOM(_NET_WM_WINDOW_TYPE)
+  CRU_XCB_UI_APPLICATION_DEFINE_XCB_ATOM(_NET_WM_WINDOW_TYPE_NORMAL)
+  CRU_XCB_UI_APPLICATION_DEFINE_XCB_ATOM(_NET_WM_WINDOW_TYPE_UTILITY)
+
+#undef CRU_XCB_UI_APPLICATION_DEFINE_XCB_ATOM
 
  public:
   int Run() override;

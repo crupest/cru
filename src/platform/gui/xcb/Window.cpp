@@ -1,4 +1,5 @@
 #include "cru/platform/gui/xcb/Window.h"
+#include "cru/base/Base.h"
 #include "cru/platform/Check.h"
 #include "cru/platform/graphics/Painter.h"
 #include "cru/platform/graphics/cairo/CairoPainter.h"
@@ -98,6 +99,84 @@ void XcbWindow::SetTitle(String title) {
   }
 }
 
+namespace {
+constexpr int WithdrawnState = 0;
+constexpr int NormalState = 1;
+constexpr int IconicState = 3;
+}  // namespace
+
+WindowVisibilityType XcbWindow::GetVisibility() {
+  if (!xcb_window_) return WindowVisibilityType::Hide;
+  auto value = static_cast<std::uint32_t *>(
+      XcbGetProperty(*xcb_window_, application_->GetXcbAtomWM_STATE(),
+                     application_->GetXcbAtomWM_STATE(), 0, 1));
+  if (value != nullptr && *value == IconicState) {
+    return WindowVisibilityType::Minimize;
+  }
+  if (!mapped_) return WindowVisibilityType::Hide;
+  return WindowVisibilityType::Show;
+}
+
+void XcbWindow::SetVisibility(WindowVisibilityType visibility) {
+  auto update_wm_state = [this, visibility] {
+    auto atom = application_->GetXcbAtomWM_STATE();
+    auto window = *xcb_window_;
+
+    std::uint32_t value[2];
+    switch (visibility) {
+      case WindowVisibilityType::Show:
+        value[0] = NormalState;
+        break;
+      case WindowVisibilityType::Minimize:
+        value[0] = IconicState;
+        break;
+      case WindowVisibilityType::Hide:
+        value[0] = WithdrawnState;
+        break;
+      default:
+        UnreachableCode();
+    }
+
+    auto old_value = static_cast<std::uint32_t *>(
+        XcbGetProperty(*xcb_window_, atom, atom, 0, 2));
+    if (old_value) value[1] = old_value[1];
+    UnreachableCode();
+
+    xcb_change_property(application_->GetXcbConnection(), XCB_PROP_MODE_REPLACE,
+                        window, atom, atom, 32, sizeof(value) / sizeof(*value),
+                        value);
+  };
+
+  switch (visibility) {
+    case WindowVisibilityType::Show: {
+      if (!xcb_window_) {
+        DoCreateWindow();
+      }
+      update_wm_state();
+      xcb_map_window(application_->GetXcbConnection(), *xcb_window_);
+      break;
+    }
+    case WindowVisibilityType::Minimize: {
+      if (!xcb_window_) {
+        DoCreateWindow();
+      }
+      update_wm_state();
+      xcb_unmap_window(application_->GetXcbConnection(), *xcb_window_);
+      break;
+    }
+    case WindowVisibilityType::Hide: {
+      if (!xcb_window_) {
+        return;
+      }
+      update_wm_state();
+      xcb_unmap_window(application_->GetXcbConnection(), *xcb_window_);
+      break;
+    }
+    default:
+      UnreachableCode();
+  }
+}
+
 std::unique_ptr<graphics::IPainter> XcbWindow::BeginPaint() {
   assert(cairo_surface_);
 
@@ -172,6 +251,8 @@ xcb_window_t XcbWindow::DoCreateWindow() {
                     screen->root_visual, mask, values);
   current_size_ = Size(width, height);
 
+  xcb_window_ = window;
+
   DoSetStyleFlags(window);
   DoSetParent(window);
 
@@ -226,10 +307,12 @@ void XcbWindow::HandleEvent(xcb_generic_event_t *event) {
     }
     case XCB_MAP_NOTIFY: {
       visibility_change_event_.Raise(WindowVisibilityType::Show);
+      mapped_ = true;
       break;
     }
     case XCB_UNMAP_NOTIFY: {
       visibility_change_event_.Raise(WindowVisibilityType::Hide);
+      mapped_ = false;
       break;
     }
     case XCB_FOCUS_IN: {
@@ -410,4 +493,20 @@ void XcbWindow::DoSetTitle(xcb_window_t window) {
   }
 }
 
+void *XcbWindow::XcbGetProperty(xcb_window_t window, xcb_atom_t property,
+                                xcb_atom_t type, std::uint32_t offset,
+                                std::uint32_t length,
+                                std::uint32_t *out_length) {
+  auto cookie = xcb_get_property(application_->GetXcbConnection(), false,
+                                 window, property, type, offset, length);
+  auto reply =
+      xcb_get_property_reply(application_->GetXcbConnection(), cookie, NULL);
+  if (reply->type == XCB_ATOM_NONE) {
+    return nullptr;
+  }
+  if (out_length != nullptr) {
+    *out_length = xcb_get_property_value_length(reply);
+  }
+  return xcb_get_property_value(reply);
+}
 }  // namespace cru::platform::gui::xcb
