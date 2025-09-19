@@ -21,7 +21,7 @@ int main() {
     painter->EndDraw();
   }
 
-  cru::io::CFileStream file_stream("draw-circle-demo.png", "w");
+  cru::io::CFileStream file_stream("draw-circle-demo.png", "wb");
 
   graphics_factory->GetImageFactory()->EncodeToStream(
       image.get(), &file_stream, cru::platform::graphics::ImageFormat::Png,
