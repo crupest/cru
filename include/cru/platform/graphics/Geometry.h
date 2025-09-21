@@ -63,6 +63,24 @@ struct CRU_PLATFORM_GRAPHICS_API IGeometry : virtual IGraphicsResource {
  * virtual so it can override them.
  */
 struct CRU_PLATFORM_GRAPHICS_API IGeometryBuilder : virtual IGraphicsResource {
+ private:
+  constexpr static auto kLogTag = "cru::platform::graphics::IGeometryBuilder";
+
+ public:
+  struct ArcInfo {
+    Point center;
+    float radius_x;
+    float radius_y;
+    // In radian.
+    float start_angle;
+    // In radian.
+    float end_angle;
+  };
+
+  static ArcInfo CalculateArcInfo(const Point& start_point, const Point& radius,
+                                  float angle, bool is_large_arc,
+                                  bool is_clockwise, const Point& end_point);
+
   virtual Point GetCurrentPosition() = 0;
 
   virtual void MoveTo(const Point& point) = 0;
@@ -86,7 +104,7 @@ struct CRU_PLATFORM_GRAPHICS_API IGeometryBuilder : virtual IGraphicsResource {
                                          const Point& end_offset);
 
   virtual void ArcTo(const Point& radius, float angle, bool is_large_arc,
-                     bool is_clockwise, const Point& end_point);
+                     bool is_clockwise, const Point& end_point) = 0;
   virtual void RelativeArcTo(const Point& radius, float angle,
                              bool is_large_arc, bool is_clockwise,
                              const Point& end_offset);

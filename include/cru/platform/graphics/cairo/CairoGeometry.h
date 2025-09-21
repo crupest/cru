@@ -31,6 +31,10 @@ class CRU_PLATFORM_GRAPHICS_CAIRO_API CairoGeometry : public CairoResource,
 class CRU_PLATFORM_GRAPHICS_CAIRO_API CairoGeometryBuilder
     : public CairoResource,
       public virtual IGeometryBuilder {
+ private:
+  constexpr static auto kLogTag =
+      "cru::platform::graphics::cairo::CairoGeometryBuilder";
+
  public:
   explicit CairoGeometryBuilder(CairoGraphicsFactory* factory);
   ~CairoGeometryBuilder() override;
@@ -45,7 +49,8 @@ class CRU_PLATFORM_GRAPHICS_CAIRO_API CairoGeometryBuilder
                      const Point& end_point) override;
   void QuadraticBezierTo(const Point& control_point,
                          const Point& end_point) override;
-
+  void ArcTo(const Point& radius, float angle, bool is_large_arc,
+             bool is_clockwise, const Point& end_point) override;
   void CloseFigure(bool close) override;
 
   std::unique_ptr<IGeometry> Build() override;

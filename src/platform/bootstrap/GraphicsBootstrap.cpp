@@ -91,7 +91,7 @@ CRU_PLATFORM_GRAPHICS_BOOTSTRAP_API cru::platform::graphics::IGraphicsFactory*
 CreateGraphicsFactory() {
   auto env_platform = std::getenv("CRU_GRAPHICS_PLATFORM");
   std::vector<std::string> platforms;
-  if (env_platform) {
+  if (env_platform && !cru::string::Trim(env_platform).empty()) {
     platforms =
         cru::string::Split(env_platform, ";",
                            cru::string::SplitOptions::RemoveEmptyAndSpace |

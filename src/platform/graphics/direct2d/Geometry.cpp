@@ -9,6 +9,7 @@ D2DGeometryBuilder::D2DGeometryBuilder(DirectGraphicsFactory* factory)
     : DirectGraphicsResource(factory) {
   CheckHResult(factory->GetD2D1Factory()->CreatePathGeometry(&geometry_));
   CheckHResult(geometry_->Open(&geometry_sink_));
+  geometry_sink_->SetFillMode(D2D1_FILL_MODE_WINDING);
 }
 
 void D2DGeometryBuilder::CheckValidation() {

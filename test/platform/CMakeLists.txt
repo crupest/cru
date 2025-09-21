@@ -6,6 +6,8 @@ add_executable(CruPlatformBaseTest
 )
 target_link_libraries(CruPlatformBaseTest PRIVATE CruPlatformBase CruTestBase)
 
+add_subdirectory(graphics)
+
 if (WIN32)
 	add_subdirectory(graphics/direct2d)
 endif()
