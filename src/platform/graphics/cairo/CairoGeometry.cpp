@@ -1,8 +1,10 @@
 #include "cru/platform/graphics/cairo/CairoGeometry.h"
+#include "cru/base/log/Logger.h"
 #include "cru/platform/graphics/Geometry.h"
 #include "cru/platform/graphics/cairo/CairoGraphicsFactory.h"
 
 #include <cairo/cairo.h>
+#include <numbers>
 
 namespace cru::platform::graphics::cairo {
 CairoGeometry::CairoGeometry(CairoGraphicsFactory* factory,
@@ -113,6 +115,36 @@ void CairoGeometryBuilder::CubicBezierTo(const Point& start_control_point,
 void CairoGeometryBuilder::QuadraticBezierTo(const Point& control_point,
                                              const Point& end_point) {
   CubicBezierTo(control_point, control_point, end_point);
+}
+
+namespace {
+bool Near(const Point& p1, const Point& p2) {
+  return std::abs(p1.x - p2.x) < 0.0001 && std::abs(p1.y - p2.y) < 0.0001;
+}
+}  // namespace
+
+void CairoGeometryBuilder::ArcTo(const Point& radius, float angle,
+                                 bool is_large_arc, bool is_clockwise,
+                                 const Point& end_point) {
+  auto pos = GetCurrentPosition();
+  auto info = CalculateArcInfo(pos, radius, angle, is_large_arc, is_clockwise,
+                               end_point);
+
+  CruLogDebug(
+      kLogTag,
+      "Arc to {}, radius {}, angle {}, is_large_arc {}, is_clockwise {}, "
+      "end_point {}. Calculated, center {}, start_angle {}, end_angle {}.",
+      pos, radius, angle, is_large_arc, is_clockwise, end_point, info.center,
+      info.start_angle, info.end_angle);
+
+  cairo_new_sub_path(cairo_);
+  cairo_save(cairo_);
+  cairo_translate(cairo_, info.center.x, info.center.y);
+  cairo_scale(cairo_, radius.x, radius.y);
+  cairo_rotate(cairo_, angle * std::numbers::pi / 180.0);
+  cairo_arc(cairo_, 0, 0, 1, info.start_angle, info.end_angle);
+  cairo_restore(cairo_);
+  cairo_move_to(cairo_, end_point.x, end_point.y);
 }
 
 void CairoGeometryBuilder::CloseFigure(bool close) {

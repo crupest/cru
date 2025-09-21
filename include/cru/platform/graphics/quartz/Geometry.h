@@ -26,6 +26,10 @@ class QuartzGeometry : public OsxQuartzResource, public virtual IGeometry {
 
 class QuartzGeometryBuilder : public OsxQuartzResource,
                               public virtual IGeometryBuilder {
+ private:
+  constexpr static auto kLogTag =
+      "cru::platform::graphics::quartz::QuartzGeometryBuilder";
+
  public:
   explicit QuartzGeometryBuilder(IGraphicsFactory* graphics_factory);
 
@@ -43,6 +47,9 @@ class QuartzGeometryBuilder : public OsxQuartzResource,
                      const Point& end_point) override;
   void QuadraticBezierTo(const Point& control_point,
                          const Point& end_point) override;
+  void ArcTo(const Point& radius, float angle, bool is_large_arc,
+             bool is_clockwise, const Point& end_point) override;
+
   void CloseFigure(bool close) override;
 
   std::unique_ptr<IGeometry> Build() override;

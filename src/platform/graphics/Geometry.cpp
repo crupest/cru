@@ -1,10 +1,14 @@
 #include "cru/platform/graphics/Geometry.h"
-
 #include "cru/base/StringUtil.h"
+#include "cru/base/log/Logger.h"
+#include "cru/platform/GraphicsBase.h"
+#include "cru/platform/Matrix.h"
 #include "cru/platform/graphics/Factory.h"
 
 #include <cmath>
+#include <numbers>
 #include <unordered_set>
+#include <utility>
 
 namespace cru::platform::graphics {
 bool IGeometry::StrokeContains(float width, const Point& point) {
@@ -17,6 +21,48 @@ std::unique_ptr<IGeometry> IGeometry::CreateStrokeGeometry(
   throw PlatformUnsupportedException(GetPlatformId(), "CreateStrokeGeometry",
                                      "Create stroke geometry of a geometry is "
                                      "not supported on this platform.");
+}
+
+IGeometryBuilder::ArcInfo IGeometryBuilder::CalculateArcInfo(
+    const Point& start_point, const Point& radius, float angle,
+    bool is_large_arc, bool is_clockwise, const Point& end_point) {
+  using std::swap;
+
+  auto matrix =
+      Matrix::Rotation(-angle) * Matrix::Scale(1 / radius.x, 1 / radius.y);
+  auto s1 = matrix.TransformPoint(start_point),
+       s2 = matrix.TransformPoint(end_point);
+
+  if (!is_clockwise) {
+    std::swap(s1, s2);
+  }
+
+  auto mid = (s1 + s2) / 2;
+  auto d = s1.Distance(s2) / 2;
+  if (d > 1) {
+    CruLogWarn(kLogTag, "Invalid Arc.");
+    return {};
+  }
+
+  auto dc = std::sqrt(1 - d * d);
+  auto a = std::atan2(s1.x - s2.x, s2.y - s1.y);
+  Point center(mid.x - dc * std::cos(a), mid.y - dc * std::sin(a));
+
+  if (std::abs(center.x) < 0.000001) {
+    center.x = 0.f;
+  }
+  if (std::abs(center.y) < 0.000001) {
+    center.y = 0.f;
+  }
+
+  auto a1 = std::atan2(s1.y - center.y, s1.x - center.x);
+  auto a2 = std::atan2(s2.y - center.y, s2.x - center.x);
+  auto a3 = a2 > a1 ? a2 - a1 : std::numbers::pi_v<float> * 2 - (a1 - a2);
+  if ((a3 > std::numbers::pi_v<float>) != is_large_arc) {
+    std::swap(a1, a2);
+  }
+
+  return {matrix.Inverted()->TransformPoint(center), a1, a2};
 }
 
 void IGeometryBuilder::RelativeMoveTo(const Point& offset) {
@@ -233,9 +279,9 @@ void IGeometryBuilder::ParseAndApplySvgPathData(std::string_view path_d) {
       ++position;
     }
 
-
     auto result = cru::string::ParseToNumber<float>(
-        path_d.substr(position), cru::string::ParseToNumberFlags::AllowTrailingJunk);
+        path_d.substr(position),
+        cru::string::ParseToNumberFlags::AllowTrailingJunk);
 
     if (!result.valid) throw Exception("Invalid svg path data number.");
 
