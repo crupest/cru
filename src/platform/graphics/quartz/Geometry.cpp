@@ -68,6 +68,20 @@ void QuartzGeometryBuilder::QuadraticBezierTo(const Point &control_point,
                             control_point.y, end_point.x, end_point.y);
 }
 
+void QuartzGeometryBuilder::ArcTo(const Point &radius, float angle,
+                                  bool is_large_arc, bool is_clockwise,
+                                  const Point &end_point) {
+  auto info = CalculateArcInfo(GetCurrentPosition(), radius, angle,
+                               is_large_arc, is_clockwise, end_point);
+
+  auto matrix =
+      Matrix::Translation(info.center) * Matrix::Scale(radius.x, radius.y);
+  CGAffineTransform transform = Convert(matrix);
+
+  CGPathAddArc(cg_mutable_path_, &transform, 0, 0, 1, info.start_angle,
+               info.end_angle, true);
+}
+
 void QuartzGeometryBuilder::CloseFigure(bool close) {
   if (close) CGPathCloseSubpath(cg_mutable_path_);
 }

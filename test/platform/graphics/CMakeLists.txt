@@ -1,0 +1,6 @@
+add_executable(CruPlatformGraphicsTest
+	GeometryTest.cpp
+)
+target_link_libraries(CruPlatformGraphicsTest PRIVATE CruPlatformGraphics CruTestBase)
+
+cru_catch_discover_tests(CruPlatformGraphicsTest)

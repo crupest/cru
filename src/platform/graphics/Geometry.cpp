@@ -2,9 +2,12 @@
 
 #include "cru/base/Exception.h"
 #include "cru/platform/Exception.h"
+#include "cru/platform/GraphicsBase.h"
+#include "cru/platform/Matrix.h"
 #include "cru/platform/graphics/Factory.h"
 
 #include <cmath>
+#include <numbers>
 #include <unordered_set>
 
 namespace cru::platform::graphics {
@@ -18,6 +21,40 @@ std::unique_ptr<IGeometry> IGeometry::CreateStrokeGeometry(
   throw PlatformUnsupportedException(GetPlatformId(), u"CreateStrokeGeometry",
                                      u"Create stroke geometry of a geometry is "
                                      u"not supported on this platform.");
+}
+
+IGeometryBuilder::ArcInfo IGeometryBuilder::CalculateArcInfo(
+    const Point& start_point, const Point& radius, float angle,
+    bool is_large_arc, bool is_clockwise, const Point& end_point) {
+  auto matrix =
+      Matrix::Rotation(-angle) * Matrix::Scale(1 / radius.x, 1 / radius.y);
+  auto s1 = matrix.TransformPoint(start_point),
+       s2 = matrix.TransformPoint(end_point);
+  if (!is_clockwise) {
+    using std::swap;
+    swap(s1, s2);
+  }
+
+  auto mid = (s1 + s2) / 2;
+  auto d = Point::Distance(s1, s2) / 2;
+  auto dc = std::sqrt(1 - d * d);
+  auto a = std::atan2(s1.x - s2.x, s2.y - s1.y);
+  Point center(mid.x - dc * std::cos(a), mid.y - dc * std::sin(a));
+
+  if (std::abs(center.x) < 0.000001) {
+    center.x = 0.f;
+  }
+  if (std::abs(center.y) < 0.000001) {
+    center.y = 0.f;
+  }
+
+  auto start_angle = std::atan2(s1.y - center.y, s1.x - center.x);
+  auto end_angle = std::atan2(s2.y - center.y, s2.x - center.x);
+  if (end_angle < 0) {
+    end_angle += std::numbers::pi_v<float> * 2;
+  }
+
+  return {matrix.Inverted()->TransformPoint(center), start_angle, end_angle};
 }
 
 void IGeometryBuilder::RelativeMoveTo(const Point& offset) {

@@ -5,6 +5,7 @@
 #include "cru/base/Range.h"
 #include "cru/base/String.h"
 
+#include <cmath>
 #include <format>
 #include <limits>
 
@@ -24,6 +25,11 @@ struct Point final {
 
   constexpr Point Negate() const { return Point(-x, -y); }
 
+  static constexpr float Distance(const Point& p1, const Point& p2) {
+    auto dx = p1.x - p2.x, dy = p1.y - p2.y;
+    return std::sqrt(dx * dx + dy * dy);
+  }
+
   float x = 0;
   float y = 0;
 };
@@ -34,6 +40,10 @@ constexpr Point operator+(const Point& left, const Point& right) {
 
 constexpr Point operator-(const Point& left, const Point& right) {
   return Point(left.x - right.x, left.y - right.y);
+}
+
+constexpr Point operator/(const Point& point, float scale) {
+  return Point(point.x / scale, point.y / scale);
 }
 
 constexpr bool operator==(const Point& left, const Point& right) {
