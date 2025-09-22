@@ -13,6 +13,7 @@
 #include <cairo-xcb.h>
 #include <cairo.h>
 #include <xcb/xcb.h>
+#include <xcb/xproto.h>
 #include <cassert>
 #include <cinttypes>
 #include <cstdint>
@@ -261,6 +262,19 @@ bool XcbWindow::ReleaseMouse() {
 }
 
 void XcbWindow::SetCursor(std::shared_ptr<ICursor> cursor) { NotImplemented(); }
+
+void XcbWindow::SetToForeground() {
+  SetVisibility(WindowVisibilityType::Show);
+  assert(xcb_window_.has_value());
+  const static uint32_t values[] = {XCB_STACK_MODE_ABOVE};
+  xcb_configure_window(application_->GetXcbConnection(), *xcb_window_,
+                       XCB_CONFIG_WINDOW_STACK_MODE, values);
+}
+
+void XcbWindow::RequestRepaint() {
+  // TODO: true throttle
+  paint_event_.Raise(nullptr);
+}
 
 std::unique_ptr<graphics::IPainter> XcbWindow::BeginPaint() {
   assert(cairo_surface_);

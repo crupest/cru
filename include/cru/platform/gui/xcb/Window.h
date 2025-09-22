@@ -51,9 +51,9 @@ class XcbWindow : public XcbResource, public virtual INativeWindow {
 
   void SetCursor(std::shared_ptr<ICursor> cursor) override;
 
-  virtual void SetToForeground() = 0;
+  void SetToForeground() override;
 
-  virtual void RequestRepaint() = 0;
+  void RequestRepaint() override;
 
   std::unique_ptr<graphics::IPainter> BeginPaint() override;
 
