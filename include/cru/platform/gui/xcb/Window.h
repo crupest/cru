@@ -1,5 +1,6 @@
 
 #pragma once
+#include "../../GraphicsBase.h"
 #include "../Window.h"
 #include "Base.h"
 
@@ -38,13 +39,8 @@ class XcbWindow : public XcbResource, public virtual INativeWindow {
   Rect GetClientRect() override;
   void SetClientRect(const Rect& rect) override;
 
-  // Get the rect of the window containing frame.
-  // The lefttop of the rect is relative to screen lefttop.
-  virtual Rect GetWindowRect() = 0;
-
-  // Set the rect of the window containing frame.
-  // The lefttop of the rect is relative to screen lefttop.
-  virtual void SetWindowRect(const Rect& rect) = 0;
+  Rect GetWindowRect() override;
+  void SetWindowRect(const Rect& rect) override;
 
   virtual bool RequestFocus() = 0;
 
@@ -97,6 +93,11 @@ class XcbWindow : public XcbResource, public virtual INativeWindow {
                        xcb_atom_t type, std::uint32_t offset,
                        std::uint32_t length,
                        std::uint32_t* out_length = nullptr);
+
+  // Relative to screen lefttop.
+  Point GetXcbWindowPosition(xcb_window_t window);
+
+  std::optional<Thickness> Get_NET_FRAME_EXTENTS(xcb_window_t window);
 
  private:
   XcbUiApplication* application_;

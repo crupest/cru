@@ -206,10 +206,22 @@ struct Rect final {
                 height + thickness.GetVerticalTotal());
   }
 
-  constexpr Rect Shrink(const Thickness& thickness) const {
-    return Rect(left + thickness.left, top + thickness.top,
+  constexpr Rect Shrink(const Thickness& thickness,
+                        bool normalize = false) const {
+    Rect result(left + thickness.left, top + thickness.top,
                 width - thickness.GetHorizontalTotal(),
                 height - thickness.GetVerticalTotal());
+
+    if (normalize) {
+      if (result.width < 0) {
+        result.width = 0;
+      }
+      if (result.height < 0) {
+        result.height = 0;
+      }
+    }
+
+    return result;
   }
 
   constexpr bool IsPointInside(const Point& point) const {

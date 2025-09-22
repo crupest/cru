@@ -1,6 +1,7 @@
 #include "cru/platform/gui/xcb/Window.h"
 #include "cru/base/Base.h"
 #include "cru/platform/Check.h"
+#include "cru/platform/GraphicsBase.h"
 #include "cru/platform/graphics/Painter.h"
 #include "cru/platform/graphics/cairo/CairoPainter.h"
 #include "cru/platform/gui/Base.h"
@@ -188,17 +189,46 @@ Rect XcbWindow::GetClientRect() {
   if (!xcb_window_) {
     return Rect{};
   }
-  auto cookie =
-      xcb_get_geometry(application_->GetXcbConnection(), *xcb_window_);
+
+  auto window = *xcb_window_;
+
+  auto cookie = xcb_get_geometry(application_->GetXcbConnection(), window);
   auto reply =
       xcb_get_geometry_reply(application_->GetXcbConnection(), cookie, nullptr);
-  return Rect(reply->x + reply->border_width, reply->y + reply->border_width,
-              reply->width, reply->height);
+  auto position = GetXcbWindowPosition(window);
+
+  return Rect(position.x, position.y, reply->width, reply->height);
 }
 
 void XcbWindow::SetClientRect(const Rect &rect) {
   if (!xcb_window_) return;
   DoSetClientRect(*xcb_window_, rect);
+}
+
+Rect XcbWindow::GetWindowRect() {
+  if (!xcb_window_) return {};
+
+  auto client_rect = GetClientRect();
+  auto frame_properties = Get_NET_FRAME_EXTENTS(*xcb_window_);
+
+  if (frame_properties.has_value()) {
+    return client_rect.Expand(*frame_properties);
+  }
+
+  return client_rect;
+}
+
+void XcbWindow::SetWindowRect(const Rect &rect) {
+  if (!xcb_window_) return;
+
+  auto real_rect = rect;
+  auto frame_properties = Get_NET_FRAME_EXTENTS(*xcb_window_);
+
+  if (frame_properties.has_value()) {
+    real_rect = real_rect.Shrink(*frame_properties, true);
+  }
+
+  SetClientRect(real_rect);
 }
 
 std::unique_ptr<graphics::IPainter> XcbWindow::BeginPaint() {
@@ -518,10 +548,16 @@ void XcbWindow::DoSetTitle(xcb_window_t window) {
 }
 
 void XcbWindow::DoSetClientRect(xcb_window_t window, const Rect &rect) {
-  std::uint32_t values[4]{static_cast<std::uint32_t>(rect.left),
-                          static_cast<std::uint32_t>(rect.top),
-                          static_cast<std::uint32_t>(rect.width),
-                          static_cast<std::uint32_t>(rect.height)};
+  auto tree_cookie = xcb_query_tree(application_->GetXcbConnection(), window);
+  auto tree_reply = xcb_query_tree_reply(application_->GetXcbConnection(),
+                                         tree_cookie, nullptr);
+  auto parent_position = GetXcbWindowPosition(tree_reply->parent);
+
+  std::uint32_t values[4]{
+      static_cast<std::uint32_t>(rect.left - parent_position.x),
+      static_cast<std::uint32_t>(rect.top - parent_position.y),
+      static_cast<std::uint32_t>(rect.width),
+      static_cast<std::uint32_t>(rect.height)};
   xcb_configure_window(application_->GetXcbConnection(), window,
                        XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y |
                            XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT,
@@ -544,4 +580,41 @@ void *XcbWindow::XcbGetProperty(xcb_window_t window, xcb_atom_t property,
   }
   return xcb_get_property_value(reply);
 }
+
+std::optional<Thickness> XcbWindow::Get_NET_FRAME_EXTENTS(xcb_window_t window) {
+  auto frame_properties = static_cast<std::uint32_t *>(
+      XcbGetProperty(window, application_->GetXcbAtom_NET_FRAME_EXTENTS(),
+                     XCB_ATOM_CARDINAL, 0, 4));
+
+  if (frame_properties == nullptr) {
+    return std::nullopt;
+  }
+
+  return Thickness(frame_properties[0], frame_properties[2],
+                   frame_properties[1], frame_properties[3]);
+}
+
+Point XcbWindow::GetXcbWindowPosition(xcb_window_t window) {
+  Point result;
+
+  while (true) {
+    auto cookie = xcb_get_geometry(application_->GetXcbConnection(), window);
+    auto reply = xcb_get_geometry_reply(application_->GetXcbConnection(),
+                                        cookie, nullptr);
+    result.x += reply->x;
+    result.y += reply->y;
+
+    auto tree_cookie = xcb_query_tree(application_->GetXcbConnection(), window);
+    auto tree_reply = xcb_query_tree_reply(application_->GetXcbConnection(),
+                                           tree_cookie, nullptr);
+    window = tree_reply->parent;
+    // TODO: Multi-screen offset?
+    if (tree_reply->root == window || window == XCB_WINDOW_NONE) {
+      break;
+    }
+  }
+
+  return result;
+}
+
 }  // namespace cru::platform::gui::xcb
