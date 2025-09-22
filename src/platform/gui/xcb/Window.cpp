@@ -177,6 +177,30 @@ void XcbWindow::SetVisibility(WindowVisibilityType visibility) {
   }
 }
 
+Size XcbWindow::GetClientSize() { return GetClientRect().GetSize(); }
+
+void XcbWindow::SetClientSize(const Size &size) {
+  auto rect = GetClientRect();
+  SetClientRect(Rect(rect.GetLeftTop(), size));
+}
+
+Rect XcbWindow::GetClientRect() {
+  if (!xcb_window_) {
+    return Rect{};
+  }
+  auto cookie =
+      xcb_get_geometry(application_->GetXcbConnection(), *xcb_window_);
+  auto reply =
+      xcb_get_geometry_reply(application_->GetXcbConnection(), cookie, nullptr);
+  return Rect(reply->x + reply->border_width, reply->y + reply->border_width,
+              reply->width, reply->height);
+}
+
+void XcbWindow::SetClientRect(const Rect &rect) {
+  if (!xcb_window_) return;
+  DoSetClientRect(*xcb_window_, rect);
+}
+
 std::unique_ptr<graphics::IPainter> XcbWindow::BeginPaint() {
   assert(cairo_surface_);
 
@@ -491,6 +515,17 @@ void XcbWindow::DoSetTitle(xcb_window_t window) {
                         window, atom, XCB_ATOM_STRING, 8, title_.size(),
                         title_.data());
   }
+}
+
+void XcbWindow::DoSetClientRect(xcb_window_t window, const Rect &rect) {
+  std::uint32_t values[4]{static_cast<std::uint32_t>(rect.left),
+                          static_cast<std::uint32_t>(rect.top),
+                          static_cast<std::uint32_t>(rect.width),
+                          static_cast<std::uint32_t>(rect.height)};
+  xcb_configure_window(application_->GetXcbConnection(), window,
+                       XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y |
+                           XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT,
+                       values);
 }
 
 void *XcbWindow::XcbGetProperty(xcb_window_t window, xcb_atom_t property,

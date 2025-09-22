@@ -32,11 +32,11 @@ class XcbWindow : public XcbResource, public virtual INativeWindow {
   WindowVisibilityType GetVisibility() override;
   void SetVisibility(WindowVisibilityType visibility) override;
 
-  virtual Size GetClientSize() = 0;
-  virtual void SetClientSize(const Size& size) = 0;
+  Size GetClientSize() override;
+  void SetClientSize(const Size& size) override;
 
-  virtual Rect GetClientRect() = 0;
-  virtual void SetClientRect(const Rect& rect) = 0;
+  Rect GetClientRect() override;
+  void SetClientRect(const Rect& rect) override;
 
   // Get the rect of the window containing frame.
   // The lefttop of the rect is relative to screen lefttop.
@@ -91,6 +91,7 @@ class XcbWindow : public XcbResource, public virtual INativeWindow {
   void DoSetParent(xcb_window_t window);
   void DoSetStyleFlags(xcb_window_t window);
   void DoSetTitle(xcb_window_t window);
+  void DoSetClientRect(xcb_window_t window, const Rect& rect);
 
   void* XcbGetProperty(xcb_window_t window, xcb_atom_t property,
                        xcb_atom_t type, std::uint32_t offset,
