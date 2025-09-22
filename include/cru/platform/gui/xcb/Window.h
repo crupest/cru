@@ -49,7 +49,7 @@ class XcbWindow : public XcbResource, public virtual INativeWindow {
   bool CaptureMouse() override;
   bool ReleaseMouse() override;
 
-  virtual void SetCursor(std::shared_ptr<ICursor> cursor) = 0;
+  void SetCursor(std::shared_ptr<ICursor> cursor) override;
 
   virtual void SetToForeground() = 0;
 
@@ -73,7 +73,7 @@ class XcbWindow : public XcbResource, public virtual INativeWindow {
   IEvent<NativeKeyEventArgs>* KeyDownEvent() override;
   IEvent<NativeKeyEventArgs>* KeyUpEvent() override;
 
-  virtual IInputMethodContext* GetInputMethodContext() = 0;
+  IInputMethodContext* GetInputMethodContext() override;
 
  public:
   std::optional<xcb_window_t> GetXcbWindow();

@@ -260,6 +260,8 @@ bool XcbWindow::ReleaseMouse() {
   return true;
 }
 
+void XcbWindow::SetCursor(std::shared_ptr<ICursor> cursor) { NotImplemented(); }
+
 std::unique_ptr<graphics::IPainter> XcbWindow::BeginPaint() {
   assert(cairo_surface_);
 
@@ -307,6 +309,8 @@ IEvent<NativeKeyEventArgs> *XcbWindow::KeyDownEvent() {
 }
 
 IEvent<NativeKeyEventArgs> *XcbWindow::KeyUpEvent() { return &key_up_event_; }
+
+IInputMethodContext *XcbWindow::GetInputMethodContext() { NotImplemented(); }
 
 std::optional<xcb_window_t> XcbWindow::GetXcbWindow() { return xcb_window_; }
 
