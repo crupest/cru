@@ -42,7 +42,7 @@ class XcbWindow : public XcbResource, public virtual INativeWindow {
   Rect GetWindowRect() override;
   void SetWindowRect(const Rect& rect) override;
 
-  virtual bool RequestFocus() = 0;
+  bool RequestFocus() override;
 
   // Relative to client lefttop.
   virtual Point GetMousePosition() = 0;

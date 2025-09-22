@@ -231,6 +231,13 @@ void XcbWindow::SetWindowRect(const Rect &rect) {
   SetClientRect(real_rect);
 }
 
+bool XcbWindow::RequestFocus() {
+  if (!xcb_window_) return false;
+  xcb_set_input_focus(application_->GetXcbConnection(), XCB_NONE, *xcb_window_,
+                      XCB_CURRENT_TIME);
+  return true;
+}
+
 std::unique_ptr<graphics::IPainter> XcbWindow::BeginPaint() {
   assert(cairo_surface_);
 

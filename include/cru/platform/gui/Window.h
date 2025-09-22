@@ -72,6 +72,8 @@ struct INativeWindow : virtual IPlatformResource {
   // The lefttop of the rect is relative to screen lefttop.
   virtual void SetWindowRect(const Rect& rect) = 0;
 
+  // Return true if window gained the focus. But the return value should be
+  // ignored, since it does not guarantee anything.
   virtual bool RequestFocus() = 0;
 
   // Relative to client lefttop.
