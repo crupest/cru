@@ -44,11 +44,10 @@ class XcbWindow : public XcbResource, public virtual INativeWindow {
 
   bool RequestFocus() override;
 
-  // Relative to client lefttop.
-  virtual Point GetMousePosition() = 0;
+  Point GetMousePosition() override;
 
-  virtual bool CaptureMouse() = 0;
-  virtual bool ReleaseMouse() = 0;
+  bool CaptureMouse() override;
+  bool ReleaseMouse() override;
 
   virtual void SetCursor(std::shared_ptr<ICursor> cursor) = 0;
 

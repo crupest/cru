@@ -238,6 +238,28 @@ bool XcbWindow::RequestFocus() {
   return true;
 }
 
+Point XcbWindow::GetMousePosition() {
+  auto window = xcb_window_.value_or(application_->GetFirstXcbScreen()->root);
+  auto cookie = xcb_query_pointer(application_->GetXcbConnection(), window);
+  auto reply = xcb_query_pointer_reply(application_->GetXcbConnection(), cookie,
+                                       nullptr);
+  return Point(reply->win_x, reply->win_y);
+}
+
+bool XcbWindow::CaptureMouse() {
+  if (!xcb_window_) return false;
+  xcb_grab_pointer(application_->GetXcbConnection(), FALSE, *xcb_window_, 0,
+                   XCB_GRAB_MODE_ASYNC, XCB_GRAB_MODE_ASYNC, XCB_WINDOW_NONE,
+                   XCB_CURSOR_NONE, XCB_CURRENT_TIME);
+  return true;
+}
+
+bool XcbWindow::ReleaseMouse() {
+  if (!xcb_window_) return false;
+  xcb_ungrab_pointer(application_->xcb_connection_, XCB_CURRENT_TIME);
+  return true;
+}
+
 std::unique_ptr<graphics::IPainter> XcbWindow::BeginPaint() {
   assert(cairo_surface_);
 
