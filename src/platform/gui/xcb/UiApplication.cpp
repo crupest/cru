@@ -1,10 +1,12 @@
 #include "cru/platform/gui/xcb/UiApplication.h"
 
 #include "cru/platform/graphics/cairo/CairoGraphicsFactory.h"
+#include "cru/platform/gui/Window.h"
 #include "cru/platform/gui/xcb/Window.h"
 
 #include <poll.h>
 #include <xcb/xcb.h>
+#include <algorithm>
 
 namespace cru::platform::gui::xcb {
 XcbUiApplication::XcbUiApplication(
@@ -121,6 +123,21 @@ void XcbUiApplication::HandleXEvents() {
     ::free(event);
   }
 }
+
+std::vector<INativeWindow *> XcbUiApplication::GetAllWindow() {
+  std::vector<INativeWindow *> windows(windows_.size());
+  std::ranges::copy(windows_, windows.begin());
+  return windows;
+}
+
+INativeWindow *XcbUiApplication::CreateWindow() { return new XcbWindow(this); }
+
+cru::platform::graphics::IGraphicsFactory *
+XcbUiApplication::GetGraphicsFactory() {
+  return cairo_factory_;
+}
+
+IMenu *XcbUiApplication::GetApplicationMenu() { return nullptr; }
 
 void XcbUiApplication::RegisterWindow(XcbWindow *window) {
   windows_.push_back(window);

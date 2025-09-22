@@ -62,18 +62,18 @@ class XcbUiApplication : public XcbResource, public virtual IUiApplication {
                         std::function<void()> action) override;
   void CancelTimer(long long id) override;
 
-  virtual std::vector<INativeWindow*> GetAllWindow() = 0;
+  std::vector<INativeWindow*> GetAllWindow() override;
 
-  virtual INativeWindow* CreateWindow() = 0;
+  INativeWindow* CreateWindow() override;
 
-  virtual cru::platform::graphics::IGraphicsFactory* GetGraphicsFactory() = 0;
+  cru::platform::graphics::IGraphicsFactory* GetGraphicsFactory() override;
 
   virtual ICursorManager* GetCursorManager() = 0;
 
   virtual IClipboard* GetClipboard() = 0;
 
   // If return nullptr, it means the menu is not supported.
-  virtual IMenu* GetApplicationMenu();
+  IMenu* GetApplicationMenu() override;
 
   /**
    * \todo Implement on Windows.
