@@ -1,0 +1,5 @@
+add_library(CruDemoPlatformGuiBase INTERFACE)
+target_link_libraries(CruDemoPlatformGuiBase INTERFACE CruPlatformBootstrap)
+
+add_executable(CruDemoPlatformGuiEmptyWindow EmptyWindow.cpp)
+target_link_libraries(CruDemoPlatformGuiEmptyWindow PRIVATE CruDemoPlatformGuiBase)

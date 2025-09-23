@@ -2,7 +2,7 @@ add_library(CruDemoBase INTERFACE)
 
 target_link_libraries(CruDemoBase INTERFACE CruPlatformBootstrap)
 
-add_subdirectory(Graphics)
+add_subdirectory(platform)
 
 if(WIN32)
 	add_subdirectory(main)
