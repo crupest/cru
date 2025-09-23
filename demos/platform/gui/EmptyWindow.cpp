@@ -3,6 +3,7 @@
 #include "cru/platform/gui/UiApplication.h"
 #include "cru/platform/gui/Window.h"
 
+using cru::platform::gui::INativeWindow;
 using cru::platform::gui::IUiApplication;
 using cru::platform::gui::WindowVisibilityType;
 
@@ -11,9 +12,14 @@ int main() {
       cru::platform::bootstrap::CreateUiApplication());
 
   application->SetQuitOnAllWindowClosed(true);
-  auto window = application->CreateWindow();
-  window->SetVisibility(WindowVisibilityType::Show);
-  window->SetToForeground();
+
+  std::unique_ptr<INativeWindow> window1(application->CreateWindow());
+  window1->SetVisibility(WindowVisibilityType::Show);
+  window1->SetToForeground();
+
+  std::unique_ptr<INativeWindow> window2(application->CreateWindow());
+  window2->SetVisibility(WindowVisibilityType::Show);
+  window2->SetToForeground();
 
   return application->Run();
 }

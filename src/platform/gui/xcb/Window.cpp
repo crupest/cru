@@ -353,6 +353,13 @@ xcb_window_t XcbWindow::DoCreateWindow() {
 
   xcb_window_ = window;
 
+  std::vector<xcb_atom_t> wm_protocols{
+      application_->GetXcbAtomWM_DELETE_WINDOW()};
+  xcb_change_property(application_->GetXcbConnection(), XCB_PROP_MODE_REPLACE,
+                      window, application_->GetXcbAtomWM_PROTOCOLS(),
+                      XCB_ATOM_ATOM, 32, wm_protocols.size(),
+                      wm_protocols.data());
+
   DoSetStyleFlags(window);
   DoSetParent(window);
 
@@ -488,6 +495,16 @@ void XcbWindow::HandleEvent(xcb_generic_event_t *event) {
       key_up_event_.Raise(std::move(args));
       break;
     }
+    case XCB_CLIENT_MESSAGE: {
+      xcb_client_message_event_t *cm = (xcb_client_message_event_t *)event;
+      if (cm->data.data32[0] == application_->GetXcbAtomWM_DELETE_WINDOW() &&
+          xcb_window_.has_value()) {
+        xcb_destroy_window(application_->GetXcbConnection(),
+                           xcb_window_.value());
+        xcb_flush(application_->GetXcbConnection());
+      }
+      break;
+    }
     default:
       /* Unknown event type, ignore it */
       printf("Unknown event: %" PRIu8 "\n", event->response_type);
@@ -554,6 +571,10 @@ std::optional<xcb_window_t> XcbWindow::GetEventWindow(
     case XCB_KEY_RELEASE: {
       xcb_key_release_event_t *kr = (xcb_key_release_event_t *)event;
       return kr->event;
+    }
+    case XCB_CLIENT_MESSAGE: {
+      xcb_client_message_event_t *cm = (xcb_client_message_event_t *)event;
+      return cm->window;
     }
     default:
       return std::nullopt;
