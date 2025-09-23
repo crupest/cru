@@ -7,13 +7,13 @@
 namespace cru::platform::gui::xcb {
 class XcbResource : public Object, public virtual IPlatformResource {
  public:
-  static String kPlatformId;
+  static constexpr const char16_t* kPlatformId = u"XCB";
 
  protected:
   XcbResource() = default;
 
  public:
-  String GetPlatformId() const final { return kPlatformId; }
+  String GetPlatformId() const final { return String(kPlatformId); }
 };
 
 class XcbException : public PlatformException {

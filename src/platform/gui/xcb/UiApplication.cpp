@@ -1,5 +1,6 @@
 #include "cru/platform/gui/xcb/UiApplication.h"
 
+#include "cru/base/Base.h"
 #include "cru/platform/graphics/cairo/CairoGraphicsFactory.h"
 #include "cru/platform/gui/Window.h"
 #include "cru/platform/gui/xcb/Cursor.h"
@@ -23,6 +24,7 @@ XcbUiApplication::XcbUiApplication(
 
   int screen_num;
   xcb_connection_t *connection = xcb_connect(NULL, &screen_num);
+  xcb_connection_ = connection;
   this->CheckXcbConnectionError();
 
   event_loop_.SetPoll(xcb_get_file_descriptor(connection), POLLIN,
@@ -42,6 +44,10 @@ XcbUiApplication::~XcbUiApplication() {
   if (release_cairo_factory_) {
     delete cairo_factory_;
   }
+}
+
+graphics::cairo::CairoGraphicsFactory *XcbUiApplication::GetCairoFactory() {
+  return cairo_factory_;
 }
 
 void XcbUiApplication::CheckXcbConnectionError() {
@@ -143,6 +149,8 @@ XcbUiApplication::GetGraphicsFactory() {
 }
 
 ICursorManager *XcbUiApplication::GetCursorManager() { return cursor_manager_; }
+
+IClipboard *XcbUiApplication::GetClipboard() { NotImplemented(); }
 
 IMenu *XcbUiApplication::GetApplicationMenu() { return nullptr; }
 

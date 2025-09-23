@@ -13,6 +13,8 @@ elseif(APPLE)
 	add_subdirectory(ScrollView)
 	add_subdirectory(InputMethod)
 elseif(UNIX)
+	add_subdirectory(main)
+	add_subdirectory(ScrollView)
 	add_subdirectory(xcb)
 endif()
 

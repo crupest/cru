@@ -1,10 +1,11 @@
 #include "cru/platform/bootstrap/Bootstrap.h"
-#include "cru/base/Base.h"
 
 #if defined(_WIN32)
 #include "cru/platform/gui/win/UiApplication.h"
 #elif defined(__APPLE__)
 #include "cru/platform/gui/osx/UiApplication.h"
+#elif defined(__unix)
+#include "cru/platform/gui/xcb/UiApplication.h"
 #else
 #endif
 
@@ -15,7 +16,8 @@ cru::platform::gui::IUiApplication* CreateUiApplication() {
 #elif defined(__APPLE__)
   return new cru::platform::gui::osx::OsxUiApplication();
 #else
-  NotImplemented();
+  return new cru::platform::gui::xcb::XcbUiApplication();
 #endif
+  NotImplemented();
 }
 }  // namespace cru::platform::bootstrap

@@ -71,21 +71,10 @@ class XcbUiApplication : public XcbResource, public virtual IUiApplication {
 
   ICursorManager* GetCursorManager() override;
 
-  virtual IClipboard* GetClipboard() = 0;
+  IClipboard* GetClipboard() override;
 
   // If return nullptr, it means the menu is not supported.
   IMenu* GetApplicationMenu() override;
-
-  /**
-   * \todo Implement on Windows.
-   */
-  virtual std::optional<String> ShowSaveDialog(SaveDialogOptions options);
-
-  /**
-   * \todo Implement on Windows.
-   */
-  virtual std::optional<std::vector<String>> ShowOpenDialog(
-      OpenDialogOptions options);
 
  private:
   void HandleXEvents();
