@@ -27,6 +27,7 @@ class XcbUiApplication : public XcbResource, public virtual IUiApplication {
 
   void CheckXcbConnectionError();
   xcb_connection_t* GetXcbConnection();
+  void XcbFlush();
 
   // This API is weird, but before we have correct screen API, we still use it.
   xcb_screen_t* GetFirstXcbScreen();

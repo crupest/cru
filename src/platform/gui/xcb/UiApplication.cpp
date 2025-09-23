@@ -61,6 +61,8 @@ xcb_connection_t *XcbUiApplication::GetXcbConnection() {
   return xcb_connection_;
 }
 
+void XcbUiApplication::XcbFlush() { xcb_flush(xcb_connection_); }
+
 xcb_screen_t *XcbUiApplication::GetFirstXcbScreen() { return screen_; }
 
 xcb_atom_t XcbUiApplication::GetOrCreateXcbAtom(std::string name) {

@@ -72,6 +72,7 @@ XcbWindow::~XcbWindow() { application_->UnregisterWindow(this); }
 void XcbWindow::Close() {
   if (xcb_window_) {
     xcb_destroy_window(application_->GetXcbConnection(), *xcb_window_);
+    application_->XcbFlush();
   }
 }
 
@@ -82,6 +83,7 @@ void XcbWindow::SetParent(INativeWindow *parent) {
   if (xcb_window_) {
     DoSetParent(*xcb_window_);
   }
+  application_->XcbFlush();
 }
 
 WindowStyleFlag XcbWindow::GetStyleFlag() { return style_; }
@@ -91,6 +93,7 @@ void XcbWindow::SetStyleFlag(WindowStyleFlag flag) {
   if (xcb_window_) {
     DoSetStyleFlags(*xcb_window_);
   }
+  application_->XcbFlush();
 }
 
 String XcbWindow::GetTitle() { return String::FromUtf8(title_); }
@@ -100,6 +103,7 @@ void XcbWindow::SetTitle(String title) {
   if (xcb_window_) {
     DoSetTitle(*xcb_window_);
   }
+  application_->XcbFlush();
 }
 
 namespace {
@@ -177,6 +181,8 @@ void XcbWindow::SetVisibility(WindowVisibilityType visibility) {
     default:
       UnreachableCode();
   }
+
+  application_->XcbFlush();
 }
 
 Size XcbWindow::GetClientSize() { return GetClientRect().GetSize(); }
@@ -204,6 +210,7 @@ Rect XcbWindow::GetClientRect() {
 void XcbWindow::SetClientRect(const Rect &rect) {
   if (!xcb_window_) return;
   DoSetClientRect(*xcb_window_, rect);
+  application_->XcbFlush();
 }
 
 Rect XcbWindow::GetWindowRect() {
@@ -236,6 +243,7 @@ bool XcbWindow::RequestFocus() {
   if (!xcb_window_) return false;
   xcb_set_input_focus(application_->GetXcbConnection(), XCB_NONE, *xcb_window_,
                       XCB_CURRENT_TIME);
+  application_->XcbFlush();
   return true;
 }
 
@@ -252,12 +260,14 @@ bool XcbWindow::CaptureMouse() {
   xcb_grab_pointer(application_->GetXcbConnection(), FALSE, *xcb_window_, 0,
                    XCB_GRAB_MODE_ASYNC, XCB_GRAB_MODE_ASYNC, XCB_WINDOW_NONE,
                    XCB_CURSOR_NONE, XCB_CURRENT_TIME);
+  application_->XcbFlush();
   return true;
 }
 
 bool XcbWindow::ReleaseMouse() {
   if (!xcb_window_) return false;
   xcb_ungrab_pointer(application_->xcb_connection_, XCB_CURRENT_TIME);
+  application_->XcbFlush();
   return true;
 }
 
@@ -269,6 +279,7 @@ void XcbWindow::SetToForeground() {
   const static uint32_t values[] = {XCB_STACK_MODE_ABOVE};
   xcb_configure_window(application_->GetXcbConnection(), *xcb_window_,
                        XCB_CONFIG_WINDOW_STACK_MODE, values);
+  application_->XcbFlush();
 }
 
 void XcbWindow::RequestRepaint() {
