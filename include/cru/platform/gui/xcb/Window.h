@@ -19,6 +19,7 @@ class XcbWindow : public XcbResource, public virtual INativeWindow {
   explicit XcbWindow(XcbUiApplication* application);
   ~XcbWindow() override;
 
+  bool IsCreated() override;
   void Close() override;
 
   INativeWindow* GetParent() override;

@@ -34,15 +34,15 @@ int UnixEventLoop::Run() {
   while (!exit_code_) {
     int poll_timeout = -1;
 
-    while (CheckPoll()) {
+    if (CheckPoll()) {
       continue;
     }
 
-    while (CheckTimer()) {
+    if (CheckTimer()) {
       continue;
     }
 
-    while (CheckActionPipe()) {
+    if (CheckActionPipe()) {
       continue;
     }
 

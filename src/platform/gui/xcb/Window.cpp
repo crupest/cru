@@ -15,6 +15,7 @@
 #include <cairo.h>
 #include <xcb/xcb.h>
 #include <xcb/xproto.h>
+#include <algorithm>
 #include <cassert>
 #include <cinttypes>
 #include <cstdint>
@@ -68,6 +69,8 @@ XcbWindow::XcbWindow(XcbUiApplication *application)
 }
 
 XcbWindow::~XcbWindow() { application_->UnregisterWindow(this); }
+
+bool XcbWindow::IsCreated() { return xcb_window_.has_value(); }
 
 void XcbWindow::Close() {
   if (xcb_window_) {
@@ -410,6 +413,14 @@ void XcbWindow::HandleEvent(xcb_generic_event_t *event) {
       cairo_surface_destroy(cairo_surface_);
       cairo_surface_ = nullptr;
       xcb_window_ = std::nullopt;
+
+      if (application_->IsQuitOnAllWindowClosed() &&
+          std::ranges::none_of(
+              application_->GetAllWindow(),
+              [](INativeWindow *window) { return window->IsCreated(); })) {
+        application_->RequestQuit(0);
+      }
+
       break;
     }
     case XCB_CONFIGURE_NOTIFY: {
