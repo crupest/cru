@@ -12,6 +12,7 @@
 
 namespace cru::platform::gui::xcb {
 class XcbWindow;
+class XcbCursorManager;
 
 class XcbUiApplication : public XcbResource, public virtual IUiApplication {
   friend XcbWindow;
@@ -68,7 +69,7 @@ class XcbUiApplication : public XcbResource, public virtual IUiApplication {
 
   cru::platform::graphics::IGraphicsFactory* GetGraphicsFactory() override;
 
-  virtual ICursorManager* GetCursorManager() = 0;
+  ICursorManager* GetCursorManager() override;
 
   virtual IClipboard* GetClipboard() = 0;
 
@@ -105,5 +106,7 @@ class XcbUiApplication : public XcbResource, public virtual IUiApplication {
 
   bool is_quit_on_all_window_closed_;
   std::vector<XcbWindow*> windows_;
+
+  XcbCursorManager* cursor_manager_;
 };
 }  // namespace cru::platform::gui::xcb

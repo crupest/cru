@@ -2,6 +2,7 @@
 
 #include "cru/platform/graphics/cairo/CairoGraphicsFactory.h"
 #include "cru/platform/gui/Window.h"
+#include "cru/platform/gui/xcb/Cursor.h"
 #include "cru/platform/gui/xcb/Window.h"
 
 #include <poll.h>
@@ -30,9 +31,13 @@ XcbUiApplication::XcbUiApplication(
   const xcb_setup_t *setup = xcb_get_setup(connection);
   xcb_screen_iterator_t iter = xcb_setup_roots_iterator(setup);
   this->screen_ = iter.data;
+
+  cursor_manager_ = new XcbCursorManager(this);
 }
 
 XcbUiApplication::~XcbUiApplication() {
+  delete cursor_manager_;
+
   xcb_disconnect(this->xcb_connection_);
   if (release_cairo_factory_) {
     delete cairo_factory_;
@@ -136,6 +141,8 @@ cru::platform::graphics::IGraphicsFactory *
 XcbUiApplication::GetGraphicsFactory() {
   return cairo_factory_;
 }
+
+ICursorManager *XcbUiApplication::GetCursorManager() { return cursor_manager_; }
 
 IMenu *XcbUiApplication::GetApplicationMenu() { return nullptr; }
 
