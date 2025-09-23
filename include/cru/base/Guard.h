@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdlib>
 #include <functional>
 
 namespace cru {
@@ -23,4 +24,29 @@ struct Guard {
 
   ExitFunc on_exit;
 };
+
+template <typename T>
+struct FreeLater {
+  FreeLater(T* ptr) : ptr(ptr) {}
+  ~FreeLater() { ::free(ptr); }
+
+  FreeLater(const FreeLater& other) = delete;
+  FreeLater& operator=(const FreeLater& other) = delete;
+
+  FreeLater(FreeLater&& other) : ptr(other.ptr) { other.ptr = nullptr; }
+  FreeLater& operator=(FreeLater&& other) {
+    if (this != &other) {
+      ::free(ptr);
+      ptr = other.ptr;
+      other.ptr = nullptr;
+    }
+    return *this;
+  }
+
+  operator T*() const { return ptr; }
+  T* operator->() { return ptr; }
+
+  T* ptr;
+};
+
 }  // namespace cru

@@ -1,6 +1,7 @@
 #include "cru/platform/gui/xcb/UiApplication.h"
 
 #include "cru/base/Base.h"
+#include "cru/base/Guard.h"
 #include "cru/platform/graphics/cairo/CairoGraphicsFactory.h"
 #include "cru/platform/gui/Window.h"
 #include "cru/platform/gui/xcb/Cursor.h"
@@ -70,7 +71,8 @@ xcb_atom_t XcbUiApplication::GetOrCreateXcbAtom(std::string name) {
 
   auto cookie =
       xcb_intern_atom(xcb_connection_, false, name.size(), name.data());
-  auto reply = xcb_intern_atom_reply(xcb_connection_, cookie, nullptr);
+  auto reply =
+      FreeLater(xcb_intern_atom_reply(xcb_connection_, cookie, nullptr));
   auto atom = reply->atom;
   xcb_atom_.emplace(std::move(name), atom);
   return atom;

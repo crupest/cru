@@ -1,4 +1,5 @@
 #include "cru/platform/gui/xcb/Keyboard.h"
+#include "cru/base/Guard.h"
 #include "cru/platform/gui/Keyboard.h"
 #include "cru/platform/gui/xcb/UiApplication.h"
 
@@ -82,8 +83,8 @@ KeyCode XorgKeycodeToCruKeyCode(XcbUiApplication *application,
 
   // Get keyboard mapping
   auto mapping_cookie = xcb_get_keyboard_mapping(connection, keycode, 1);
-  auto *mapping_reply =
-      xcb_get_keyboard_mapping_reply(connection, mapping_cookie, NULL);
+  auto mapping_reply = FreeLater(
+      xcb_get_keyboard_mapping_reply(connection, mapping_cookie, NULL));
 
   if (!mapping_reply) {
     throw XcbException("Cannot get keyboard mapping.");
@@ -107,7 +108,8 @@ using KeymapBitset =
 
 KeymapBitset GetXorgKeymap(xcb_connection_t *connection) {
   auto keymap_cookie = xcb_query_keymap(connection);
-  auto keymap_reply = xcb_query_keymap_reply(connection, keymap_cookie, NULL);
+  auto keymap_reply =
+      FreeLater(xcb_query_keymap_reply(connection, keymap_cookie, NULL));
 
   if (!keymap_reply) {
     throw XcbException("Cannot get keymap.");
@@ -136,8 +138,8 @@ std::unordered_map<KeyCode, bool> GetKeyboardState(
   // Get keyboard mapping
   auto mapping_cookie = xcb_get_keyboard_mapping(connection, min_keycode,
                                                  max_keycode - min_keycode + 1);
-  auto *mapping_reply =
-      xcb_get_keyboard_mapping_reply(connection, mapping_cookie, NULL);
+  auto mapping_reply = FreeLater(
+      xcb_get_keyboard_mapping_reply(connection, mapping_cookie, NULL));
 
   if (!mapping_reply) {
     throw XcbException("Cannot get keyboard mapping.");
