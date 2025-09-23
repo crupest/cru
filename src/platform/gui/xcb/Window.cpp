@@ -142,7 +142,6 @@ void XcbWindow::SetVisibility(WindowVisibilityType visibility) {
     auto old_value = static_cast<std::uint32_t *>(
         XcbGetProperty(*xcb_window_, atom, atom, 0, 2));
     if (old_value) value[1] = old_value[1];
-    UnreachableCode();
 
     xcb_change_property(application_->GetXcbConnection(), XCB_PROP_MODE_REPLACE,
                         window, atom, atom, 32, sizeof(value) / sizeof(*value),
