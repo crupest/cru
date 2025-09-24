@@ -11,6 +11,7 @@
 
 namespace cru::platform::gui::xcb {
 class XcbUiApplication;
+class XcbCursor;
 
 class XcbWindow : public XcbResource, public virtual INativeWindow {
   friend XcbUiApplication;
@@ -88,6 +89,7 @@ class XcbWindow : public XcbResource, public virtual INativeWindow {
   void DoSetStyleFlags(xcb_window_t window);
   void DoSetTitle(xcb_window_t window);
   void DoSetClientRect(xcb_window_t window, const Rect& rect);
+  void DoSetCursor(xcb_window_t window, XcbCursor* cursor);
 
   void* XcbGetProperty(xcb_window_t window, xcb_atom_t property,
                        xcb_atom_t type, std::uint32_t offset,
@@ -107,6 +109,7 @@ class XcbWindow : public XcbResource, public virtual INativeWindow {
   WindowStyleFlag style_;
   std::string title_;
   bool mapped_;
+  std::shared_ptr<XcbCursor> cursor_;
 
   XcbWindow* parent_;
 

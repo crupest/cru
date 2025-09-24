@@ -3,11 +3,13 @@
 #include "cru/base/Guard.h"
 #include "cru/platform/Check.h"
 #include "cru/platform/GraphicsBase.h"
+#include "cru/platform/graphics/NullPainter.h"
 #include "cru/platform/graphics/Painter.h"
 #include "cru/platform/graphics/cairo/CairoPainter.h"
 #include "cru/platform/gui/Base.h"
 #include "cru/platform/gui/Keyboard.h"
 #include "cru/platform/gui/Window.h"
+#include "cru/platform/gui/xcb/Cursor.h"
 #include "cru/platform/gui/xcb/Keyboard.h"
 #include "cru/platform/gui/xcb/UiApplication.h"
 
@@ -274,7 +276,12 @@ bool XcbWindow::ReleaseMouse() {
   return true;
 }
 
-void XcbWindow::SetCursor(std::shared_ptr<ICursor> cursor) { NotImplemented(); }
+void XcbWindow::SetCursor(std::shared_ptr<ICursor> cursor) {
+  if (!xcb_window_) return;
+  auto xcb_cursor = CheckPlatform<XcbCursor>(cursor, GetPlatformId());
+  cursor_ = xcb_cursor;
+  DoSetCursor(*xcb_window_, xcb_cursor.get());
+}
 
 void XcbWindow::SetToForeground() {
   SetVisibility(WindowVisibilityType::Show);
@@ -291,7 +298,9 @@ void XcbWindow::RequestRepaint() {
 }
 
 std::unique_ptr<graphics::IPainter> XcbWindow::BeginPaint() {
-  assert(cairo_surface_);
+  if (!xcb_window_.has_value()) {
+    return std::make_unique<graphics::NullPainter>();
+  }
 
   auto factory = application_->GetCairoFactory();
   cairo_t *cairo = cairo_create(cairo_surface_);
@@ -377,6 +386,7 @@ xcb_window_t XcbWindow::DoCreateWindow() {
 
   DoSetStyleFlags(window);
   DoSetParent(window);
+  DoSetCursor(window, cursor_.get());
 
   xcb_visualtype_t *visual_type;
 
@@ -652,6 +662,13 @@ void XcbWindow::DoSetClientRect(xcb_window_t window, const Rect &rect) {
                        XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y |
                            XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT,
                        values);
+}
+
+void XcbWindow::DoSetCursor(xcb_window_t window, XcbCursor *cursor) {
+  std::uint32_t values[]{cursor ? cursor->GetXcbCursor() : XCB_CURSOR_NONE};
+  xcb_change_window_attributes(application_->GetXcbConnection(), window,
+                               XCB_CW_CURSOR, values);
+  application_->XcbFlush();
 }
 
 void *XcbWindow::XcbGetProperty(xcb_window_t window, xcb_atom_t property,
