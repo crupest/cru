@@ -10,7 +10,7 @@ PangoFont::PangoFont(CairoGraphicsFactory* factory, String font_family,
   auto font_family_str = font_family_.ToUtf8();
   pango_font_description_set_family(pango_font_description_,
                                     font_family_str.c_str());
-  pango_font_description_set_size(pango_font_description_, font_size);
+  pango_font_description_set_size(pango_font_description_, font_size * PANGO_SCALE);
 }
 
 PangoFont::~PangoFont() {

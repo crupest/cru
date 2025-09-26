@@ -6,13 +6,15 @@
 #include "cru/platform/graphics/cairo/CairoGraphicsFactory.h"
 #include "cru/platform/graphics/cairo/PangoFont.h"
 
+#include <pango/pangocairo.h>
+
 namespace cru::platform::graphics::cairo {
 PangoTextLayout::PangoTextLayout(CairoGraphicsFactory* factory,
                                  std::shared_ptr<IFont> font)
     : CairoResource(factory) {
   Expects(font);
   font_ = CheckPlatform<PangoFont>(font, GetPlatformId());
-  pango_layout_ = pango_layout_new(factory->GetDefaultPangoContext());
+  pango_layout_ = pango_cairo_create_layout(factory->GetDefaultCairo());
   pango_layout_set_font_description(pango_layout_,
                                     font_->GetPangoFontDescription());
 };

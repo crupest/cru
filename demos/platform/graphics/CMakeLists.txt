@@ -5,5 +5,8 @@ target_sources(CruDemoPlatformGraphicsBase INTERFACE Base.cpp)
 add_executable(CruDemoPlatformGraphicsDrawCircle DrawCircle.cpp)
 target_link_libraries(CruDemoPlatformGraphicsDrawCircle PRIVATE CruDemoPlatformGraphicsBase)
 
+add_executable(CruDemoPlatformGraphicsDrawText DrawText.cpp)
+target_link_libraries(CruDemoPlatformGraphicsDrawText PRIVATE CruDemoPlatformGraphicsBase)
+
 add_executable(CruDemoPlatformGraphicsSvgPath SvgPath.cpp)
 target_link_libraries(CruDemoPlatformGraphicsSvgPath PRIVATE CruDemoPlatformGraphicsBase)

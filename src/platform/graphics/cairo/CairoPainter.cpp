@@ -186,6 +186,8 @@ void CairoPainter::DrawText(const Point& offset, ITextLayout* text_layout,
 
   cairo_save(cairo_);
   cairo_set_source(cairo_, cairo_pattern);
+  cairo_move_to(cairo_, offset.x, offset.y);
+  pango_cairo_update_layout(cairo_, pango_text_layout->GetPangoLayout());
   pango_cairo_show_layout(cairo_, pango_text_layout->GetPangoLayout());
   cairo_restore(cairo_);
 }
