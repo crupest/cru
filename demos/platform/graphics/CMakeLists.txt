@@ -1,5 +1,6 @@
 add_library(CruDemoPlatformGraphicsBase INTERFACE)
 target_link_libraries(CruDemoPlatformGraphicsBase INTERFACE CruPlatformGraphicsBootstrap)
+target_sources(CruDemoPlatformGraphicsBase INTERFACE Base.cpp)
 
 add_executable(CruDemoPlatformGraphicsDrawCircle DrawCircle.cpp)
 target_link_libraries(CruDemoPlatformGraphicsDrawCircle PRIVATE CruDemoPlatformGraphicsBase)

@@ -1,22 +1,19 @@
 
-#include "cru/base/io/CFileStream.h"
+#include "Base.h"
 #include "cru/platform/Color.h"
 #include "cru/platform/Matrix.h"
-#include "cru/platform/bootstrap/GraphicsBootstrap.h"
 #include "cru/platform/graphics/Factory.h"
-#include "cru/platform/graphics/ImageFactory.h"
 #include "cru/platform/graphics/Painter.h"
 
 #include <memory>
 
 int main() {
-  std::unique_ptr<cru::platform::graphics::IGraphicsFactory> graphics_factory(
-      cru::platform::bootstrap::CreateGraphicsFactory());
+  CruPlatformGraphicsDemo demo("svg-path-demo.png", 160, 160);
 
   auto brush =
-      graphics_factory->CreateSolidColorBrush(cru::platform::colors::black);
+      demo.GetFactory()->CreateSolidColorBrush(cru::platform::colors::black);
 
-  auto geometry_builder = graphics_factory->CreateGeometryBuilder();
+  auto geometry_builder = demo.GetFactory()->CreateGeometryBuilder();
   geometry_builder->ParseAndApplySvgPathData(
       uR"(
 M8.5 5.5a.5.5 0 0 0-1 0v3.362l-1.429 2.38a.5.5 0 1 0 .858.515l1.5-2.5A.5.5 0 0 0 8.5 9V5.5z
@@ -24,18 +21,8 @@ M6.5 0a.5.5 0 0 0 0 1H7v1.07a7.001 7.001 0 0 0-3.273 12.474l-.602.602a.5.5 0 0 0
   )");
   auto geometry = geometry_builder->Build();
 
-  auto image = graphics_factory->GetImageFactory()->CreateBitmap(160, 160);
-  auto painter = image->CreatePainter();
-
-  painter->ConcatTransform(cru::platform::Matrix::Scale(10, 10));
-  painter->FillGeometry(geometry.get(), brush.get());
-  painter->EndDraw();
-
-  cru::io::CFileStream file_stream("./svg-path-demo.png", "wb");
-
-  graphics_factory->GetImageFactory()->EncodeToStream(
-      image.get(), &file_stream, cru::platform::graphics::ImageFormat::Png,
-      1.0f);
+  demo.GetPainter()->ConcatTransform(cru::platform::Matrix::Scale(10, 10));
+  demo.GetPainter()->FillGeometry(geometry.get(), brush.get());
 
   return 0;
 }
