@@ -9,6 +9,17 @@
 #include <pango/pangocairo.h>
 
 namespace cru::platform::graphics::cairo {
+namespace {
+Rect ConvertFromPango(const Rect& rect) {
+  auto result = rect;
+  result.left /= PANGO_SCALE;
+  result.top /= PANGO_SCALE;
+  result.width /= PANGO_SCALE;
+  result.height /= PANGO_SCALE;
+  return result;
+}
+}  // namespace
+
 PangoTextLayout::PangoTextLayout(CairoGraphicsFactory* factory,
                                  std::shared_ptr<IFont> font)
     : CairoResource(factory) {
@@ -39,11 +50,11 @@ void PangoTextLayout::SetFont(std::shared_ptr<IFont> font) {
 }
 
 void PangoTextLayout::SetMaxWidth(float max_width) {
-  return pango_layout_set_width(pango_layout_, max_width);
+  return pango_layout_set_width(pango_layout_, max_width * PANGO_SCALE);
 }
 
 void PangoTextLayout::SetMaxHeight(float max_height) {
-  return pango_layout_set_height(pango_layout_, max_height);
+  return pango_layout_set_height(pango_layout_, max_height * PANGO_SCALE);
 }
 
 bool PangoTextLayout::IsEditMode() { return edit_mode_; }
@@ -66,7 +77,7 @@ float PangoTextLayout::GetLineHeight(Index line_index) {
   auto line = pango_layout_get_line_readonly(pango_layout_, line_index);
   int height;
   pango_layout_line_get_height(line, &height);
-  return height;
+  return static_cast<float>(height) / PANGO_SCALE;
 }
 
 Index PangoTextLayout::FromUtf8IndexToUtf16Index(Index index) {
@@ -93,7 +104,8 @@ Index PangoTextLayout::FromUtf16IndexToUtf8Index(Index index) {
 Rect PangoTextLayout::GetTextBounds(bool includingTrailingSpace) {
   PangoRectangle rectangle;
   pango_layout_get_extents(pango_layout_, nullptr, &rectangle);
-  return Rect(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
+  return ConvertFromPango(
+      Rect(rectangle.x, rectangle.y, rectangle.width, rectangle.height));
 }
 
 std::vector<Rect> PangoTextLayout::TextRangeRect(const TextRange& text_range) {
@@ -111,8 +123,8 @@ std::vector<Rect> PangoTextLayout::TextRangeRect(const TextRange& text_range) {
     auto line = pango_layout_get_line(pango_layout_, start_line_index);
     PangoRectangle rectangle;
     pango_layout_line_get_extents(line, nullptr, &rectangle);
-    return {Rect(rectangle.x + start_x_pos, rectangle.y,
-                 end_x_pos - start_x_pos, rectangle.height)};
+    return {ConvertFromPango(Rect(rectangle.x + start_x_pos, rectangle.y,
+                                  end_x_pos - start_x_pos, rectangle.height))};
   } else {
     std::vector<Rect> result;
 
@@ -136,6 +148,10 @@ std::vector<Rect> PangoTextLayout::TextRangeRect(const TextRange& text_range) {
     result.push_back(
         Rect(rectangle.x, rectangle.y, end_x_pos, rectangle.height));
 
+    for (auto& r : result) {
+      r = ConvertFromPango(r);
+    }
+
     return result;
   }
 }
@@ -150,13 +166,15 @@ Rect PangoTextLayout::TextSinglePoint(Index position, bool trailing) {
   PangoRectangle rectangle;
   pango_layout_line_get_extents(line, nullptr, &rectangle);
 
-  return Rect(rectangle.x + x_pos, rectangle.y, 0, rectangle.height);
+  return ConvertFromPango(
+      Rect(rectangle.x + x_pos, rectangle.y, 0, rectangle.height));
 }
 
 TextHitTestResult PangoTextLayout::HitTest(const Point& point) {
   int index, trailing;
-  auto inside_text = pango_layout_xy_to_index(pango_layout_, point.x, point.y,
-                                              &index, &trailing);
+  auto inside_text =
+      pango_layout_xy_to_index(pango_layout_, point.x * PANGO_SCALE,
+                               point.y * PANGO_SCALE, &index, &trailing);
   return TextHitTestResult{FromUtf8IndexToUtf16Index(index), trailing != 0,
                            inside_text != 0};
 }

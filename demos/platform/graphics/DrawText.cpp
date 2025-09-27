@@ -4,6 +4,7 @@
 #include "cru/platform/graphics/Font.h"
 #include "cru/platform/graphics/Painter.h"
 
+#include <iostream>
 #include <memory>
 
 int main() {
@@ -16,6 +17,11 @@ int main() {
       demo.GetFactory()->CreateFont(u"", 24));
   auto text_layout = demo.GetFactory()->CreateTextLayout(font, u"Hello world!");
   demo.GetPainter()->DrawText({0, 0}, text_layout.get(), brush.get());
+
+  auto bounds = text_layout->GetTextBounds();
+  std::cout << "Bounds of text:\n\tx: " << bounds.left
+            << "\n\ty: " << bounds.top << "\n\twidth: " << bounds.width
+            << "\n\theight: " << bounds.height << std::endl;
 
   return 0;
 }
