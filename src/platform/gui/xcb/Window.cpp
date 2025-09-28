@@ -262,17 +262,21 @@ Point XcbWindow::GetMousePosition() {
 
 bool XcbWindow::CaptureMouse() {
   if (!xcb_window_) return false;
-  xcb_grab_pointer(application_->GetXcbConnection(), FALSE, *xcb_window_, 0,
-                   XCB_GRAB_MODE_ASYNC, XCB_GRAB_MODE_ASYNC, XCB_WINDOW_NONE,
-                   XCB_CURSOR_NONE, XCB_CURRENT_TIME);
-  application_->XcbFlush();
+  // KDE handles grabbing automatically.
+  //
+  // xcb_grab_pointer(application_->GetXcbConnection(), TRUE, *xcb_window_, 0,
+  //                  XCB_GRAB_MODE_ASYNC, XCB_GRAB_MODE_ASYNC, XCB_WINDOW_NONE,
+  //                  XCB_CURSOR_NONE, XCB_CURRENT_TIME);
+  // application_->XcbFlush();
   return true;
 }
 
 bool XcbWindow::ReleaseMouse() {
   if (!xcb_window_) return false;
-  xcb_ungrab_pointer(application_->xcb_connection_, XCB_CURRENT_TIME);
-  application_->XcbFlush();
+  // KDE handles grabbing automatically.
+  //
+  // xcb_ungrab_pointer(application_->xcb_connection_, XCB_CURRENT_TIME);
+  // application_->XcbFlush();
   return true;
 }
 
@@ -347,7 +351,7 @@ IEvent<NativeKeyEventArgs> *XcbWindow::KeyDownEvent() {
 
 IEvent<NativeKeyEventArgs> *XcbWindow::KeyUpEvent() { return &key_up_event_; }
 
-IInputMethodContext *XcbWindow::GetInputMethodContext() { NotImplemented(); }
+IInputMethodContext *XcbWindow::GetInputMethodContext() { return nullptr; }
 
 std::optional<xcb_window_t> XcbWindow::GetXcbWindow() { return xcb_window_; }
 
