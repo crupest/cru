@@ -543,8 +543,6 @@ void XcbWindow::HandleEvent(xcb_generic_event_t *event) {
       break;
     }
     default:
-      /* Unknown event type, ignore it */
-      printf("Unknown event: %" PRIu8 "\n", event->response_type);
       break;
   }
 }
