@@ -40,12 +40,8 @@ constexpr bool operator==(const Point& left, const Point& right) {
   return left.x == right.x && left.y == right.y;
 }
 
-constexpr bool operator!=(const Point& left, const Point& right) {
-  return !(left == right);
-}
-
 inline std::string ToUtf8String(const Point& point) {
-  return std::format("(x: {}, y: {})", point.x, point.y);
+  return std::format("Point(x: {}, y: {})", point.x, point.y);
 }
 
 inline String ToString(const Point& point) {
@@ -85,12 +81,8 @@ constexpr bool operator==(const Size& left, const Size& right) {
   return left.width == right.width && left.height == right.height;
 }
 
-constexpr bool operator!=(const Size& left, const Size& right) {
-  return !(left == right);
-}
-
 inline std::string ToUtf8String(const Size& size) {
-  return std::format("(width: {}, height: {})", size.width, size.height);
+  return std::format("Size(width: {}, height: {})", size.width, size.height);
 }
 
 inline String ToString(const Size& size) {
@@ -147,10 +139,6 @@ constexpr Thickness operator+(const Thickness& left, const Thickness& right) {
 constexpr bool operator==(const Thickness& left, const Thickness& right) {
   return left.left == right.left && left.top == right.top &&
          left.right == right.right && left.bottom == right.bottom;
-}
-
-constexpr bool operator!=(const Thickness& left, const Thickness& right) {
-  return !(left == right);
 }
 
 struct Rect final {
@@ -253,8 +241,13 @@ constexpr bool operator==(const Rect& left, const Rect& right) {
          left.width == right.width && left.height == right.height;
 }
 
-constexpr bool operator!=(const Rect& left, const Rect& right) {
-  return !(left == right);
+inline std::string ToUtf8String(const Rect& rect) {
+  return std::format("Rect(left: {}, top: {}, width: {}, height: {})",
+                     rect.left, rect.top, rect.width, rect.height);
+}
+
+inline String ToString(const Rect& rect) {
+  return String::FromUtf8(ToUtf8String(rect));
 }
 
 struct RoundedRect final {
@@ -271,10 +264,6 @@ struct RoundedRect final {
 constexpr bool operator==(const RoundedRect& left, const RoundedRect& right) {
   return left.rect == right.rect && left.radius_x == right.radius_x &&
          left.radius_y == right.radius_y;
-}
-
-constexpr bool operator!=(const RoundedRect& left, const RoundedRect& right) {
-  return !(left == right);
 }
 
 struct Ellipse final {
@@ -301,10 +290,6 @@ constexpr bool operator==(const Ellipse& left, const Ellipse& right) {
          left.radius_y == right.radius_y;
 }
 
-constexpr bool operator!=(const Ellipse& left, const Ellipse& right) {
-  return !(left == right);
-}
-
 using TextRange = Range;
 }  // namespace cru::platform
 
@@ -315,3 +300,7 @@ struct std::formatter<cru::platform::Point, char>
 template <>
 struct std::formatter<cru::platform::Size, char>
     : cru::ImplementFormatterByToUtf8String<cru::platform::Size> {};
+
+template <>
+struct std::formatter<cru::platform::Rect, char>
+    : cru::ImplementFormatterByToUtf8String<cru::platform::Rect> {};

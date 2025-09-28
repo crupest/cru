@@ -103,7 +103,7 @@ Index PangoTextLayout::FromUtf16IndexToUtf8Index(Index index) {
 
 Rect PangoTextLayout::GetTextBounds(bool includingTrailingSpace) {
   PangoRectangle rectangle;
-  pango_layout_get_extents(pango_layout_, &rectangle, nullptr);
+  pango_layout_get_extents(pango_layout_, nullptr, &rectangle);
   return ConvertFromPango(
       Rect(rectangle.x, rectangle.y, rectangle.width, rectangle.height));
 }
@@ -112,6 +112,7 @@ std::vector<Rect> PangoTextLayout::TextRangeRect(const TextRange& text_range) {
   auto tr = text_range.Normalize();
   auto utf8_start_index = FromUtf16IndexToUtf8Index(tr.GetStart());
   auto utf8_end_index = FromUtf16IndexToUtf8Index(tr.GetEnd());
+  PangoRectangle rectangle;
 
   int start_line_index, end_line_index, start_x_pos, end_x_pos;
   pango_layout_index_to_line_x(pango_layout_, utf8_start_index, false,
@@ -119,37 +120,40 @@ std::vector<Rect> PangoTextLayout::TextRangeRect(const TextRange& text_range) {
   pango_layout_index_to_line_x(pango_layout_, utf8_end_index, false,
                                &end_line_index, &end_x_pos);
 
+  pango_layout_index_to_pos(pango_layout_, utf8_start_index, &rectangle);
+  auto top = rectangle.y;
+
   if (start_line_index == end_line_index) {
     auto line = pango_layout_get_line(pango_layout_, start_line_index);
-    PangoRectangle rectangle;
-    pango_layout_line_get_extents(line, &rectangle, nullptr);
-    return {ConvertFromPango(Rect(rectangle.x + start_x_pos, rectangle.y,
-                                  end_x_pos - start_x_pos, rectangle.height))};
+    pango_layout_line_get_extents(line, nullptr, &rectangle);
+    auto rect =
+        ConvertFromPango(Rect(rectangle.x + start_x_pos, top,
+                              end_x_pos - start_x_pos, rectangle.height));
+    return {rect};
   } else {
     std::vector<Rect> result;
 
-    PangoRectangle rectangle;
-
     auto start_line = pango_layout_get_line(pango_layout_, start_line_index);
-    pango_layout_line_get_extents(start_line, &rectangle, nullptr);
-    result.push_back(Rect(rectangle.x + start_x_pos, rectangle.y,
+    pango_layout_line_get_extents(start_line, nullptr, &rectangle);
+    result.push_back(Rect(rectangle.x + start_x_pos, top,
                           rectangle.width - start_x_pos, rectangle.height));
+    top += rectangle.height;
 
     for (int line_index = start_line_index + 1; line_index < end_line_index;
          line_index++) {
       auto line = pango_layout_get_line(pango_layout_, line_index);
-      pango_layout_line_get_extents(line, &rectangle, nullptr);
+      pango_layout_line_get_extents(line, nullptr, &rectangle);
       result.push_back(
-          Rect(rectangle.x, rectangle.y, rectangle.width, rectangle.height));
+          Rect(rectangle.x, top, rectangle.width, rectangle.height));
+      top += rectangle.height;
     }
 
     auto end_line = pango_layout_get_line(pango_layout_, end_line_index);
-    pango_layout_line_get_extents(end_line, &rectangle, nullptr);
-    result.push_back(
-        Rect(rectangle.x, rectangle.y, end_x_pos, rectangle.height));
+    pango_layout_line_get_extents(end_line, nullptr, &rectangle);
+    result.push_back(Rect(rectangle.x, top, end_x_pos, rectangle.height));
 
-    for (auto& r : result) {
-      r = ConvertFromPango(r);
+    for (auto& rect : result) {
+      rect = ConvertFromPango(rect);
     }
 
     return result;
@@ -164,7 +168,7 @@ Rect PangoTextLayout::TextSinglePoint(Index position, bool trailing) {
 
   auto line = pango_layout_get_line(pango_layout_, line_index);
   PangoRectangle rectangle;
-  pango_layout_line_get_extents(line, &rectangle, nullptr);
+  pango_layout_line_get_extents(line, nullptr, &rectangle);
 
   return ConvertFromPango(
       Rect(rectangle.x + x_pos, rectangle.y, 0, rectangle.height));
