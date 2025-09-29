@@ -90,6 +90,7 @@ void Logger::Log(LogInfo log_info) {
   log_queue_.push_back(std::move(log_info));
   log_queue_condition_variable_.notify_one();
 }
+
 void Logger::LogThreadRun() {
   while (true) {
     std::list<LogInfo> queue;
@@ -115,6 +116,7 @@ void Logger::LogThreadRun() {
       for (auto &log_info : queue) {
         target->Write(log_info.level, MakeLogFinalMessage(log_info));
       }
+      queue.clear();
     }
 
     // TODO: Should still wait for queue to be cleared.

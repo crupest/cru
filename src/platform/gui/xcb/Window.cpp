@@ -302,7 +302,8 @@ void XcbWindow::SetToForeground() {
 
 void XcbWindow::RequestRepaint() {
   // TODO: true throttle
-  paint_event_.Raise(nullptr);
+  repaint_canceler_.Reset(
+      application_->SetImmediate([this] { paint_event_.Raise(nullptr); }));
 }
 
 std::unique_ptr<graphics::IPainter> XcbWindow::BeginPaint() {

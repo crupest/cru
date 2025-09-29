@@ -2,6 +2,7 @@
 
 #include "../InputMethod.h"
 #include "Base.h"
+#include <cru/base/Base.h>
 
 #include <xcb-imdkit/imclient.h>
 #include <xcb/xcb.h>
@@ -12,6 +13,8 @@ class XcbUiApplication;
 class XcbWindow;
 
 class XcbXimInputMethodManager : public XcbResource {
+  CRU_DEFINE_CLASS_LOG_TAG("cru::platform::gui::xcb::XcbXimInputMethodManager")
+
   friend XcbUiApplication;
 
  public:
@@ -33,6 +36,8 @@ class XcbXimInputMethodManager : public XcbResource {
 
 class XcbXimInputMethodContext : public XcbResource,
                                  public virtual IInputMethodContext {
+  CRU_DEFINE_CLASS_LOG_TAG("cru::platform::gui::xcb::XcbXimInputMethodContext")
+
   friend XcbXimInputMethodManager;
 
  public:

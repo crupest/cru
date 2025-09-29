@@ -1,9 +1,11 @@
 #include "cru/platform/gui/xcb/Keyboard.h"
 #include "cru/base/Guard.h"
+#include "cru/base/StringUtil.h"
 #include "cru/platform/gui/Keyboard.h"
 #include "cru/platform/gui/xcb/UiApplication.h"
 
 #include <xcb/xcb.h>
+#include <xcb/xproto.h>
 #include <bitset>
 #include <climits>
 #include <unordered_map>
@@ -74,8 +76,8 @@ KeyCode XorgKeysymToKeyCode(xcb_keysym_t keysym) {
   }
 }
 
-KeyCode XorgKeycodeToCruKeyCode(XcbUiApplication *application,
-                                xcb_keycode_t keycode) {
+std::vector<xcb_keysym_t> XorgKeycodeToKeysyms(XcbUiApplication *application,
+                                               xcb_keycode_t keycode) {
   auto connection = application->GetXcbConnection();
   auto setup = xcb_get_setup(connection);
   auto min_keycode = setup->min_keycode;
@@ -93,12 +95,39 @@ KeyCode XorgKeycodeToCruKeyCode(XcbUiApplication *application,
   auto keysyms_per_keycode = mapping_reply->keysyms_per_keycode;
   auto *keysyms = xcb_get_keyboard_mapping_keysyms(mapping_reply);
 
+  std::vector<xcb_keysym_t> result;
   for (int i = 0; i < keysyms_per_keycode; i++) {
-    auto result = XorgKeysymToKeyCode(keysyms[i]);
+    result.push_back(keysyms[i]);
+  }
+  return result;
+}
+
+KeyCode XorgKeycodeToCruKeyCode(XcbUiApplication *application,
+                                xcb_keycode_t keycode) {
+  auto keysyms = XorgKeycodeToKeysyms(application, keycode);
+
+  for (auto keysym : keysyms) {
+    auto result = XorgKeysymToKeyCode(keysym);
     if (result != KeyCode::Unknown) return result;
   }
 
   return KeyCode::Unknown;
+}
+
+std::string XorgKeysymToUtf8(xcb_keysym_t keysym) {
+  if (0x20 <= keysym && keysym <= 0x7e || 0xa0 <= keysym && keysym <= 0xff) {
+    return std::string{static_cast<char>(keysym)};
+  }
+
+  if (0x01000100 <= keysym && keysym <= 0x0110FFFF) {
+    auto code_point = keysym - 0x01000000;
+    std::string result;
+    Utf8EncodeCodePointAppend(keysym,
+                              [&result](char c) { result.push_back(c); });
+    return result;
+  }
+
+  return {};
 }
 
 namespace {

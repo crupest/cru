@@ -2,6 +2,7 @@
 #pragma once
 #include "../../GraphicsBase.h"
 #include "../Window.h"
+#include "../TimerHelper.h"
 #include "Base.h"
 
 #include <cairo.h>
@@ -116,6 +117,8 @@ class XcbWindow : public XcbResource, public virtual INativeWindow {
 
   XcbWindow* parent_;
   XcbXimInputMethodContext* input_method_;
+
+  TimerAutoCanceler repaint_canceler_;
 
   Event<std::nullptr_t> create_event_;
   Event<std::nullptr_t> destroy_event_;
