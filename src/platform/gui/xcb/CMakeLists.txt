@@ -1,7 +1,7 @@
-find_library(LIBRARY_CAIRO cairo REQUIRED)
 find_library(LIBRARY_XCB xcb REQUIRED)
 find_library(LIBRARY_XCB_CURSOR xcb-cursor REQUIRED)
 find_library(LIBRARY_XCB_IMDKIT xcb-imdkit REQUIRED)
+find_library(LIBRARY_XKBCOMMON xkbcommon REQUIRED)
 add_library(CruPlatformGuiXcb
 	Cursor.cpp
 	InputMethod.cpp
@@ -11,5 +11,5 @@ add_library(CruPlatformGuiXcb
 )
 target_link_libraries(CruPlatformGuiXcb PUBLIC
 	CruPlatformGui CruPlatformGraphicsCairo
-	${LIBRARY_XCB} ${LIBRARY_XCB_CURSOR} ${LIBRARY_XCB_IMDKIT} ${LIBRARY_CAIRO}
+	${LIBRARY_XCB} ${LIBRARY_XCB_CURSOR} ${LIBRARY_XCB_IMDKIT} ${LIBRARY_XCB_XKBCOMMON}
 )

@@ -7,6 +7,7 @@
 #include <xcb/xcb.h>
 #include <xcb/xproto.h>
 #include <bitset>
+#include <cctype>
 #include <climits>
 #include <unordered_map>
 #include <utility>
@@ -114,9 +115,10 @@ KeyCode XorgKeycodeToCruKeyCode(XcbUiApplication *application,
   return KeyCode::Unknown;
 }
 
-std::string XorgKeysymToUtf8(xcb_keysym_t keysym) {
+std::string XorgKeysymToUtf8(xcb_keysym_t keysym, bool upper) {
   if (0x20 <= keysym && keysym <= 0x7e || 0xa0 <= keysym && keysym <= 0xff) {
-    return std::string{static_cast<char>(keysym)};
+    return std::string{
+        static_cast<char>(upper ? std::toupper(keysym) : keysym)};
   }
 
   if (0x01000100 <= keysym && keysym <= 0x0110FFFF) {

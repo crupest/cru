@@ -57,23 +57,6 @@ XcbXimInputMethodManager::XcbXimInputMethodManager(
                 }
               }
             }
-          },
-      .preedit_start =
-          [](xcb_xim_t *im, xcb_xic_t ic, void *user_data) {
-
-          },
-      .preedit_draw =
-          [](xcb_xim_t *im, xcb_xic_t ic, xcb_im_preedit_draw_fr_t *frame,
-             void *user_data) {
-            auto manager = static_cast<XcbXimInputMethodManager *>(user_data);
-            CompositionText text;
-            if (!(frame->status & 1)) {
-              text.text = String::FromUtf8(
-                  reinterpret_cast<const std::byte *>(frame->preedit_string),
-                  frame->length_of_preedit_string);
-              text.selection = frame->caret;
-            }
-            manager->DispatchComposition(im, ic, std::move(text));
           }};
 
   xcb_compound_text_init();
@@ -235,7 +218,7 @@ void XcbXimInputMethodContext::CreateIc(xcb_window_t window) {
   };
 
   uint32_t input_style =
-      XCB_IM_PreeditArea | XCB_IM_PreeditCallbacks | XCB_IM_StatusNothing;
+      XCB_IM_PreeditArea | XCB_IM_PreeditPosition | XCB_IM_StatusNothing;
   xcb_xim_create_ic(manager_->GetXcbXim(), XimCreateIcCallback, this,
                     XCB_XIM_XNInputStyle, &input_style, XCB_XIM_XNClientWindow,
                     &window, XCB_XIM_XNFocusWindow, &window, NULL);
