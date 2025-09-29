@@ -12,6 +12,7 @@
 namespace cru::platform::gui::xcb {
 class XcbUiApplication;
 class XcbCursor;
+class XcbXimInputMethodContext;
 
 class XcbWindow : public XcbResource, public virtual INativeWindow {
   friend XcbUiApplication;
@@ -79,6 +80,8 @@ class XcbWindow : public XcbResource, public virtual INativeWindow {
 
  public:
   std::optional<xcb_window_t> GetXcbWindow();
+  XcbUiApplication* GetXcbUiApplication();
+  bool HasFocus();
 
  private:
   xcb_window_t DoCreateWindow();
@@ -112,6 +115,7 @@ class XcbWindow : public XcbResource, public virtual INativeWindow {
   std::shared_ptr<XcbCursor> cursor_;
 
   XcbWindow* parent_;
+  XcbXimInputMethodContext* input_method_;
 
   Event<std::nullptr_t> create_event_;
   Event<std::nullptr_t> destroy_event_;

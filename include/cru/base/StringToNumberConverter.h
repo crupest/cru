@@ -14,15 +14,15 @@ using StringToNumberFlag = Bitmask<details::StringToNumberFlagTag>;
 
 struct StringToNumberFlags {
   constexpr static StringToNumberFlag kAllowLeadingSpaces =
-      StringToNumberFlag::FromOffset(0);
-  constexpr static StringToNumberFlag kAllowTrailingSpaces =
       StringToNumberFlag::FromOffset(1);
-  constexpr static StringToNumberFlag kAllowTrailingJunk =
+  constexpr static StringToNumberFlag kAllowTrailingSpaces =
       StringToNumberFlag::FromOffset(2);
-  constexpr static StringToNumberFlag kAllowLeadingZeroForInteger =
+  constexpr static StringToNumberFlag kAllowTrailingJunk =
       StringToNumberFlag::FromOffset(3);
-  constexpr static StringToNumberFlag kThrowOnError =
+  constexpr static StringToNumberFlag kAllowLeadingZeroForInteger =
       StringToNumberFlag::FromOffset(4);
+  constexpr static StringToNumberFlag kThrowOnError =
+      StringToNumberFlag::FromOffset(5);
 };
 
 template <typename TResult>

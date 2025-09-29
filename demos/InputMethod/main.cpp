@@ -23,6 +23,7 @@ struct InputMethodState {
 
 int main() {
   IUiApplication* application = bootstrap::CreateUiApplication();
+  application->SetQuitOnAllWindowClosed(true);
 
   auto graphics_factory = application->GetGraphicsFactory();
 

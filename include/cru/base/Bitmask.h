@@ -10,8 +10,10 @@ struct Bitmask final {
   constexpr Bitmask() : value(0) {}
   constexpr explicit Bitmask(TUnderlying value) : value(value) {}
 
+  // Start from 1.
   static constexpr Bitmask FromOffset(int offset) {
-    return Bitmask(static_cast<TUnderlying>(1u << offset));
+    if (offset == 0) return {};
+    return Bitmask(static_cast<TUnderlying>(1u << (offset - 1)));
   }
 
   constexpr bool Has(Bitmask rhs) const { return (value & rhs.value) != 0; }

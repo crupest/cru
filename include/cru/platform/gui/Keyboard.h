@@ -118,16 +118,16 @@ struct TagKeyModifier {};
 using KeyModifier = Bitmask<details::TagKeyModifier>;
 
 struct KeyModifiers {
-  static constexpr KeyModifier none{0};
-  static constexpr KeyModifier shift{0b1};
-  static constexpr KeyModifier ctrl{0b10};
-  static constexpr KeyModifier alt{0b100};
-  static constexpr KeyModifier command{0b1000};
   static constexpr KeyModifier None = KeyModifier::FromOffset(0);
   static constexpr KeyModifier Shift = KeyModifier::FromOffset(1);
   static constexpr KeyModifier Ctrl = KeyModifier::FromOffset(2);
   static constexpr KeyModifier Alt = KeyModifier::FromOffset(3);
   static constexpr KeyModifier Command = KeyModifier::FromOffset(4);
+  static constexpr KeyModifier none = None;
+  static constexpr KeyModifier shift = Shift;
+  static constexpr KeyModifier ctrl = Ctrl;
+  static constexpr KeyModifier alt = Alt;
+  static constexpr KeyModifier command = Command;
 };
 
 #ifdef CRU_PLATFORM_OSX

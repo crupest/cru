@@ -88,7 +88,7 @@ jobs:
       - name: Install Libraries
         run: |
           sudo apt update
-          sudo apt install -y libpng-dev libcairo2-dev libpango1.0-dev libxcb1-dev libxcb-cursor-dev
+          sudo apt install -y libpng-dev libcairo2-dev libpango1.0-dev libxcb1-dev libxcb-cursor-dev libxcb-imdkit-dev
 
       - name: Build
         run: |

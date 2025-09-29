@@ -5,6 +5,7 @@
 #include "cru/platform/graphics/cairo/CairoGraphicsFactory.h"
 #include "cru/platform/gui/Window.h"
 #include "cru/platform/gui/xcb/Cursor.h"
+#include "cru/platform/gui/xcb/InputMethod.h"
 #include "cru/platform/gui/xcb/Window.h"
 
 #include <poll.h>
@@ -36,9 +37,11 @@ XcbUiApplication::XcbUiApplication(
   this->screen_ = iter.data;
 
   cursor_manager_ = new XcbCursorManager(this);
+  input_method_manager_ = new XcbXimInputMethodManager(this);
 }
 
 XcbUiApplication::~XcbUiApplication() {
+  delete input_method_manager_;
   delete cursor_manager_;
 
   xcb_disconnect(this->xcb_connection_);
@@ -78,6 +81,10 @@ xcb_atom_t XcbUiApplication::GetOrCreateXcbAtom(std::string name) {
   auto atom = reply->atom;
   xcb_atom_.emplace(std::move(name), atom);
   return atom;
+}
+
+XcbXimInputMethodManager *XcbUiApplication::GetXcbXimInputMethodManager() {
+  return input_method_manager_;
 }
 
 int XcbUiApplication::Run() {
@@ -128,11 +135,13 @@ void XcbUiApplication::CancelTimer(long long id) {
 void XcbUiApplication::HandleXEvents() {
   xcb_generic_event_t *event;
   while ((event = xcb_poll_for_event(xcb_connection_))) {
-    auto event_xcb_window = XcbWindow::GetEventWindow(event);
-    for (auto window : windows_) {
-      if (window->GetXcbWindow() == event_xcb_window) {
-        window->HandleEvent(event);
-        break;
+    if (!input_method_manager_->HandleXEvent(event)) {
+      auto event_xcb_window = XcbWindow::GetEventWindow(event);
+      for (auto window : windows_) {
+        if (window->GetXcbWindow() == event_xcb_window) {
+          window->HandleEvent(event);
+          break;
+        }
       }
     }
     ::free(event);

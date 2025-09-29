@@ -10,16 +10,15 @@
 #include "cru/platform/gui/Keyboard.h"
 #include "cru/platform/gui/Window.h"
 #include "cru/platform/gui/xcb/Cursor.h"
+#include "cru/platform/gui/xcb/InputMethod.h"
 #include "cru/platform/gui/xcb/Keyboard.h"
 #include "cru/platform/gui/xcb/UiApplication.h"
 
 #include <cairo-xcb.h>
 #include <cairo.h>
 #include <xcb/xcb.h>
-#include <xcb/xproto.h>
 #include <algorithm>
 #include <cassert>
-#include <cinttypes>
 #include <cstdint>
 #include <memory>
 #include <optional>
@@ -68,9 +67,14 @@ XcbWindow::XcbWindow(XcbUiApplication *application)
       cairo_surface_(nullptr),
       parent_(nullptr) {
   application->RegisterWindow(this);
+  input_method_ = new XcbXimInputMethodContext(
+      application->GetXcbXimInputMethodManager(), this);
 }
 
-XcbWindow::~XcbWindow() { application_->UnregisterWindow(this); }
+XcbWindow::~XcbWindow() {
+  delete input_method_;
+  application_->UnregisterWindow(this);
+}
 
 bool XcbWindow::IsCreated() { return xcb_window_.has_value(); }
 
@@ -351,9 +355,21 @@ IEvent<NativeKeyEventArgs> *XcbWindow::KeyDownEvent() {
 
 IEvent<NativeKeyEventArgs> *XcbWindow::KeyUpEvent() { return &key_up_event_; }
 
-IInputMethodContext *XcbWindow::GetInputMethodContext() { return nullptr; }
+IInputMethodContext *XcbWindow::GetInputMethodContext() {
+  return input_method_;
+}
 
 std::optional<xcb_window_t> XcbWindow::GetXcbWindow() { return xcb_window_; }
+
+XcbUiApplication *XcbWindow::GetXcbUiApplication() { return application_; }
+
+bool XcbWindow::HasFocus() {
+  if (!xcb_window_) return false;
+  auto cookie = xcb_get_input_focus(application_->GetXcbConnection());
+  auto focus = xcb_get_input_focus_reply(application_->GetXcbConnection(),
+                                         cookie, nullptr);
+  return focus->focus == *xcb_window_;
+}
 
 xcb_window_t XcbWindow::DoCreateWindow() {
   assert(xcb_window_ == std::nullopt);
