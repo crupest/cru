@@ -7,7 +7,7 @@ add_subdirectory(main)
 add_subdirectory(ScrollView)
 add_subdirectory(InputMethod)
 
-if(UNIX)
+if(UNIX AND NOT APPLE)
 	add_subdirectory(xcb)
 endif()
 
