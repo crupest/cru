@@ -43,7 +43,7 @@ struct NativeKeyEventArgs {
 
 // Represents a native window, which exposes some low-level events and
 // operations.
-struct INativeWindow : virtual IPlatformResource {
+struct CRU_PLATFORM_GUI_API INativeWindow : virtual IPlatformResource {
   virtual bool IsCreated();
   virtual void Close() = 0;
 
