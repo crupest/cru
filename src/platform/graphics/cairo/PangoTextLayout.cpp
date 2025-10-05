@@ -162,16 +162,23 @@ std::vector<Rect> PangoTextLayout::TextRangeRect(const TextRange& text_range) {
 
 Rect PangoTextLayout::TextSinglePoint(Index position, bool trailing) {
   auto utf8_index = FromUtf16IndexToUtf8Index(position);
-  int line_index, x_pos;
+  int line_index, x_pos, y_pos = 0;
   pango_layout_index_to_line_x(pango_layout_, utf8_index, trailing, &line_index,
                                &x_pos);
+
+  for (int i = 0; i < line_index; i++) {
+    auto line = pango_layout_get_line(pango_layout_, line_index);
+    PangoRectangle rectangle;
+    pango_layout_line_get_extents(line, nullptr, &rectangle);
+    y_pos += rectangle.height;
+  }
 
   auto line = pango_layout_get_line(pango_layout_, line_index);
   PangoRectangle rectangle;
   pango_layout_line_get_extents(line, nullptr, &rectangle);
 
   return ConvertFromPango(
-      Rect(rectangle.x + x_pos, rectangle.y, 0, rectangle.height));
+      Rect(rectangle.x + x_pos, y_pos, 0, rectangle.height));
 }
 
 TextHitTestResult PangoTextLayout::HitTest(const Point& point) {

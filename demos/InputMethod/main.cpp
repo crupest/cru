@@ -119,7 +119,7 @@ int main() {
                             static_cast<int>(committed_text.size());
     auto cursor_rect = text_layout->TextSinglePoint(cursor_pos, false);
     input_method_context->SetCandidateWindowPosition(
-        {cursor_rect.left, cursor_rect.GetBottom()});
+        {cursor_rect.left, y + cursor_rect.GetBottom()});
     window->RequestRepaint();
   };
 
