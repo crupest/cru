@@ -14,6 +14,7 @@ namespace cru::platform::gui::xcb {
 class XcbWindow;
 class XcbCursorManager;
 class XcbXimInputMethodManager;
+class XcbKeyboardManager;
 
 class XcbUiApplication : public XcbResource, public virtual IUiApplication {
   friend XcbWindow;
@@ -51,6 +52,7 @@ class XcbUiApplication : public XcbResource, public virtual IUiApplication {
 #undef CRU_XCB_UI_APPLICATION_DEFINE_XCB_ATOM
 
   XcbXimInputMethodManager* GetXcbXimInputMethodManager();
+  XcbKeyboardManager* GetXcbKeyboardManager();
 
  public:
   int Run() override;
@@ -104,5 +106,6 @@ class XcbUiApplication : public XcbResource, public virtual IUiApplication {
 
   XcbCursorManager* cursor_manager_;
   XcbXimInputMethodManager* input_method_manager_;
+  XcbKeyboardManager* keyboard_manager_;
 };
 }  // namespace cru::platform::gui::xcb

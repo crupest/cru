@@ -1,8 +1,8 @@
 #pragma once
 
+#include <cru/base/Base.h>
 #include "../InputMethod.h"
 #include "Base.h"
-#include <cru/base/Base.h>
 
 #include <xcb-imdkit/imclient.h>
 #include <xcb/xcb.h>
@@ -28,10 +28,13 @@ class XcbXimInputMethodManager : public XcbResource {
   void DispatchComposition(xcb_xim_t* im, xcb_xic_t ic, CompositionText text);
 
   bool HandleXEvent(xcb_generic_event_t* event);
+  void SetXimServerUnprocessedXEventCallback(
+      std::function<void(xcb_key_press_event_t* event)> callback);
 
  private:
   XcbUiApplication* application_;
   xcb_xim_t* im_;
+  std::function<void(xcb_key_press_event_t* event)> forward_event_callback_;
 };
 
 class XcbXimInputMethodContext : public XcbResource,

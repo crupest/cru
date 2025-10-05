@@ -28,8 +28,11 @@ XcbXimInputMethodManager::XcbXimInputMethodManager(
             if ((event->response_type & ~0x80) == XCB_KEY_PRESS) {
               manager->DispatchCommit(
                   im, ic,
-                  XorgKeysymToUtf8(XorgKeycodeToKeysyms(manager->application_,
-                                                        event->detail)[0]));
+                  manager->application_->GetXcbKeyboardManager()->KeycodeToUtf8(
+                      event->detail));
+            } else {
+              if (manager->forward_event_callback_)
+                manager->forward_event_callback_(event);
             }
           },
       .commit_string =
@@ -41,7 +44,8 @@ XcbXimInputMethodManager::XcbXimInputMethodManager(
             if (flag & XCB_XIM_LOOKUP_KEYSYM) {
               std::string text;
               for (int i = 0; i < nKeySym; i++) {
-                text += XorgKeysymToUtf8(keysym[i]);
+                text += manager->application_->GetXcbKeyboardManager()
+                            ->KeysymToUtf8(keysym[i]);
               }
               manager->DispatchCommit(im, ic, std::move(text));
             }
@@ -113,9 +117,15 @@ bool XcbXimInputMethodManager::HandleXEvent(xcb_generic_event_t *event) {
     if (context->ic_ && (((event->response_type & ~0x80) == XCB_KEY_PRESS) ||
                          ((event->response_type & ~0x80) == XCB_KEY_RELEASE))) {
       xcb_xim_forward_event(im_, *context->ic_, (xcb_key_press_event_t *)event);
+      return true;
     }
   }
   return false;
+}
+
+void XcbXimInputMethodManager::SetXimServerUnprocessedXEventCallback(
+    std::function<void(xcb_key_press_event_t *event)> callback) {
+  forward_event_callback_ = std::move(callback);
 }
 
 XcbXimInputMethodContext::XcbXimInputMethodContext(

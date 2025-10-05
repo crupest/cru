@@ -1,13 +1,13 @@
 #include "cru/platform/gui/xcb/Keyboard.h"
+#include "cru/base/Exception.h"
 #include "cru/base/Guard.h"
-#include "cru/base/StringUtil.h"
 #include "cru/platform/gui/Keyboard.h"
 #include "cru/platform/gui/xcb/UiApplication.h"
 
 #include <xcb/xcb.h>
-#include <xcb/xproto.h>
+#include <xkbcommon/xkbcommon-x11.h>
+#include <xkbcommon/xkbcommon.h>
 #include <bitset>
-#include <cctype>
 #include <climits>
 #include <unordered_map>
 #include <utility>
@@ -15,7 +15,7 @@
 namespace cru::platform::gui::xcb {
 // Refer to
 // https://www.x.org/releases/X11R7.7/doc/xproto/x11protocol.html#keysym_encoding
-KeyCode XorgKeysymToKeyCode(xcb_keysym_t keysym) {
+KeyCode XorgKeysymToCruKeyCode(xcb_keysym_t keysym) {
   if (keysym >= 'A' && keysym <= 'Z') {
     return KeyCode(static_cast<int>(KeyCode::A) + (keysym - 'A'));
   }
@@ -108,28 +108,11 @@ KeyCode XorgKeycodeToCruKeyCode(XcbUiApplication *application,
   auto keysyms = XorgKeycodeToKeysyms(application, keycode);
 
   for (auto keysym : keysyms) {
-    auto result = XorgKeysymToKeyCode(keysym);
+    auto result = XorgKeysymToCruKeyCode(keysym);
     if (result != KeyCode::Unknown) return result;
   }
 
   return KeyCode::Unknown;
-}
-
-std::string XorgKeysymToUtf8(xcb_keysym_t keysym, bool upper) {
-  if (0x20 <= keysym && keysym <= 0x7e || 0xa0 <= keysym && keysym <= 0xff) {
-    return std::string{
-        static_cast<char>(upper ? std::toupper(keysym) : keysym)};
-  }
-
-  if (0x01000100 <= keysym && keysym <= 0x0110FFFF) {
-    auto code_point = keysym - 0x01000000;
-    std::string result;
-    Utf8EncodeCodePointAppend(keysym,
-                              [&result](char c) { result.push_back(c); });
-    return result;
-  }
-
-  return {};
 }
 
 namespace {
@@ -186,7 +169,7 @@ std::unordered_map<KeyCode, bool> GetKeyboardState(
   for (xcb_keycode_t i = min_keycode; i <= max_keycode; i++) {
     auto keysyms_for_this = keysyms + (i - min_keycode) * keysyms_per_keycode;
     for (int j = 0; j < keysyms_per_keycode; j++) {
-      auto keycode = XorgKeysymToKeyCode(keysyms_for_this[j]);
+      auto keycode = XorgKeysymToCruKeyCode(keysyms_for_this[j]);
       if (keycode != KeyCode::Unknown) {
         result[keycode] = keymap[i];
       }
@@ -211,4 +194,66 @@ KeyModifier GetCurrentKeyModifiers(XcbUiApplication *application) {
   }
   return result;
 }
+
+XcbKeyboardManager::XcbKeyboardManager(XcbUiApplication *application)
+    : application_(application) {
+  xkb_x11_setup_xkb_extension(
+      application->GetXcbConnection(), XKB_X11_MIN_MAJOR_XKB_VERSION,
+      XKB_X11_MIN_MINOR_XKB_VERSION, XKB_X11_SETUP_XKB_EXTENSION_NO_FLAGS,
+      nullptr, nullptr, nullptr, nullptr);
+
+  xkb_context_ = xkb_context_new(XKB_CONTEXT_NO_FLAGS);
+  if (!xkb_context_) {
+    throw PlatformException("Failed to call xkb_context_new.");
+  }
+
+  auto device_id =
+      xkb_x11_get_core_keyboard_device_id(application->GetXcbConnection());
+  if (device_id == -1) {
+    throw PlatformException(
+        "Failed to call xkb_x11_get_core_keyboard_device_id.");
+  }
+
+  xkb_keymap_ = xkb_x11_keymap_new_from_device(
+      xkb_context_, application->GetXcbConnection(), device_id,
+      XKB_KEYMAP_COMPILE_NO_FLAGS);
+  if (!xkb_keymap_) {
+    throw PlatformException("Failed to call xkb_x11_keymap_new_from_device.");
+  }
+
+  xkb_state_ = xkb_x11_state_new_from_device(
+      xkb_keymap_, application->GetXcbConnection(), device_id);
+  if (!xkb_state_) {
+    throw PlatformException("Failed to call xkb_x11_state_new_from_device.");
+  }
+}
+
+XcbKeyboardManager::~XcbKeyboardManager() {
+  xkb_state_unref(xkb_state_);
+  xkb_keymap_unref(xkb_keymap_);
+  xkb_context_unref(xkb_context_);
+}
+
+std::string XcbKeyboardManager::KeycodeToUtf8(xcb_keycode_t keycode) {
+  auto size = xkb_state_key_get_utf8(xkb_state_, keycode, NULL, 0);
+  if (size <= 0) {
+    return {};
+  }
+  std::string buffer(size + 1, 0);
+  xkb_state_key_get_utf8(xkb_state_, keycode, buffer.data(), size + 1);
+  buffer.resize(size);
+  return buffer;
+}
+
+std::string XcbKeyboardManager::KeysymToUtf8(xcb_keysym_t keysym) {
+  auto size = xkb_keysym_to_utf8(keysym, NULL, 0);
+  if (size <= 0) {
+    return {};
+  }
+  std::string buffer(size + 1, 0);
+  xkb_keysym_to_utf8(keysym, buffer.data(), size + 1);
+  buffer.resize(size);
+  return buffer;
+}
+
 }  // namespace cru::platform::gui::xcb

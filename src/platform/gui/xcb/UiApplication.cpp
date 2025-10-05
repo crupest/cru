@@ -6,6 +6,7 @@
 #include "cru/platform/gui/Window.h"
 #include "cru/platform/gui/xcb/Cursor.h"
 #include "cru/platform/gui/xcb/InputMethod.h"
+#include "cru/platform/gui/xcb/Keyboard.h"
 #include "cru/platform/gui/xcb/Window.h"
 
 #include <poll.h>
@@ -38,9 +39,11 @@ XcbUiApplication::XcbUiApplication(
 
   cursor_manager_ = new XcbCursorManager(this);
   input_method_manager_ = new XcbXimInputMethodManager(this);
+  keyboard_manager_ = new XcbKeyboardManager(this);
 }
 
 XcbUiApplication::~XcbUiApplication() {
+  delete keyboard_manager_;
   delete input_method_manager_;
   delete cursor_manager_;
 
@@ -85,6 +88,10 @@ xcb_atom_t XcbUiApplication::GetOrCreateXcbAtom(std::string name) {
 
 XcbXimInputMethodManager *XcbUiApplication::GetXcbXimInputMethodManager() {
   return input_method_manager_;
+}
+
+XcbKeyboardManager *XcbUiApplication::GetXcbKeyboardManager() {
+  return keyboard_manager_;
 }
 
 int XcbUiApplication::Run() {
