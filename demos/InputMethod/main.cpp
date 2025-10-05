@@ -1,5 +1,6 @@
 #include "cru/platform/Color.h"
 #include "cru/platform/GraphicsBase.h"
+#include "cru/platform/Matrix.h"
 #include "cru/platform/bootstrap/Bootstrap.h"
 #include "cru/platform/graphics/Factory.h"
 #include "cru/platform/graphics/Font.h"
@@ -8,18 +9,10 @@
 #include "cru/platform/gui/UiApplication.h"
 #include "cru/platform/gui/Window.h"
 
-#include <optional>
-
 using namespace cru;
 using namespace cru::platform;
 using namespace cru::platform::graphics;
 using namespace cru::platform::gui;
-
-struct InputMethodState {
-  CompositionText composition_text;
-  Rect cursor_rect;
-  TextRange colored_text_range;
-};
 
 int main() {
   IUiApplication* application = bootstrap::CreateUiApplication();
@@ -49,61 +42,51 @@ int main() {
                                          u"Ctrl+2: Disable IME\n"
                                          u"Ctrl+3: Complete composition.\n"
                                          u"Ctrl+4: Cancel composition.");
-  float anchor_y;
-
   String committed_text;
   auto text_layout = graphics_factory->CreateTextLayout(font, u"");
-  std::optional<InputMethodState> state;
+  CompositionText composition_text;
 
-  auto update_text_layout_width = [&prompt_text_layout, &anchor_y,
-                                   &text_layout](float width) {
-    prompt_text_layout->SetMaxWidth(width);
-    text_layout->SetMaxWidth(width);
-    anchor_y = prompt_text_layout->GetTextBounds().height;
+  auto update_text_layout_width = [&prompt_text_layout,
+                                   &text_layout](const Size& size) {
+    prompt_text_layout->SetMaxWidth(size.width);
+    text_layout->SetMaxWidth(size.width);
   };
 
-  update_text_layout_width(window->GetClientSize().width);
+  update_text_layout_width(window->GetClientSize());
+  window->ResizeEvent()->AddHandler(update_text_layout_width);
 
-  window->ResizeEvent()->AddHandler(
-      [&update_text_layout_width](const Size& size) {
-        update_text_layout_width(size.width);
-      });
-
-  window->PaintEvent()->AddHandler([&](auto) {
+  window->PaintEvent()->AddSpyOnlyHandler([&]() {
     auto painter = window->BeginPaint();
     painter->Clear(colors::white);
 
     painter->DrawText(Point{}, prompt_text_layout.get(), brush.get());
+    painter->PushState();
+    painter->ConcatTransform(
+        Matrix::Translation(0, prompt_text_layout->GetTextBounds().height));
 
-    if (state) {
-      const auto& composition_text = state->composition_text;
-
-      for (int i = 0; i < static_cast<int>(composition_text.clauses.size());
-           i++) {
-        const auto& clause = composition_text.clauses[i];
-        auto rects = text_layout->TextRangeRect(TextRange::FromTwoSides(
-            clause.start, clause.end, committed_text.size()));
-        const auto& b = clause.target
-                            ? target_clause_brush
-                            : (i % 2 ? odd_clause_brush : even_clause_brush);
-        for (auto& rect : rects) {
-          rect.top += anchor_y;
-          painter->FillRectangle(rect, b.get());
-        }
+    for (int i = 0; i < static_cast<int>(composition_text.clauses.size());
+         i++) {
+      const auto& clause = composition_text.clauses[i];
+      auto rects = text_layout->TextRangeRect(TextRange::FromTwoSides(
+          clause.start, clause.end, committed_text.size()));
+      const auto& b = clause.target
+                          ? target_clause_brush
+                          : (i % 2 ? odd_clause_brush : even_clause_brush);
+      for (auto& rect : rects) {
+        painter->FillRectangle(rect, b.get());
       }
     }
 
-    painter->DrawText(Point{0, anchor_y}, text_layout.get(), brush.get());
+    painter->DrawText(Point{}, text_layout.get(), brush.get());
 
-    if (state) {
-      const auto& composition_text = state->composition_text;
-      const auto& cursor_rect = state->cursor_rect;
+    const auto cursor_pos = composition_text.selection.position +
+                            static_cast<int>(committed_text.size());
+    auto cursor_rect = text_layout->TextSinglePoint(cursor_pos, false);
+    painter->FillRectangle(
+        Rect{cursor_rect.left, cursor_rect.top, 3, cursor_rect.height},
+        brush.get());
 
-      painter->FillRectangle(Rect{cursor_rect.left, cursor_rect.top + anchor_y,
-                                  3, cursor_rect.height},
-                             brush.get());
-    }
-
+    painter->PopState();
     painter->EndDraw();
   });
 
@@ -129,38 +112,31 @@ int main() {
         }
       });
 
-  input_method_context->TextEvent()->AddHandler(
-      [window, &committed_text](const StringView& c) {
-        committed_text += c;
-        window->RequestRepaint();
-      });
-
-  input_method_context->CompositionEvent()->AddHandler([window,
-                                                        &input_method_context,
-                                                        &committed_text,
-                                                        &anchor_y, &state,
-                                                        &text_layout](auto) {
-    const auto composition_text = input_method_context->GetCompositionText();
-    state.emplace();
-    state->composition_text = input_method_context->GetCompositionText();
-
+  auto update_state = [&] {
     text_layout->SetText(committed_text + composition_text.text);
-
+    auto y = prompt_text_layout->GetTextBounds().height;
     const auto cursor_pos = composition_text.selection.position +
                             static_cast<int>(committed_text.size());
-    state->cursor_rect = text_layout->TextSinglePoint(cursor_pos, false);
-
+    auto cursor_rect = text_layout->TextSinglePoint(cursor_pos, false);
     input_method_context->SetCandidateWindowPosition(
-        {state->cursor_rect.left, anchor_y + state->cursor_rect.GetBottom()});
-
+        {cursor_rect.left, cursor_rect.GetBottom()});
     window->RequestRepaint();
+  };
+
+  input_method_context->TextEvent()->AddHandler([&](const StringView& c) {
+    committed_text += c;
+    update_state();
   });
 
-  input_method_context->CompositionEndEvent()->AddHandler(
-      [window, &state](auto) {
-        state = std::nullopt;
-        window->RequestRepaint();
-      });
+  input_method_context->CompositionEvent()->AddHandler([&](auto) {
+    composition_text = input_method_context->GetCompositionText();
+    update_state();
+  });
+
+  input_method_context->CompositionEndEvent()->AddHandler([&](auto) {
+    composition_text = {};
+    update_state();
+  });
 
   window->SetVisibility(WindowVisibilityType::Show);
 
