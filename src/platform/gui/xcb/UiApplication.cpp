@@ -4,6 +4,7 @@
 #include "cru/base/Guard.h"
 #include "cru/platform/graphics/cairo/CairoGraphicsFactory.h"
 #include "cru/platform/gui/Window.h"
+#include "cru/platform/gui/xcb/Clipboard.h"
 #include "cru/platform/gui/xcb/Cursor.h"
 #include "cru/platform/gui/xcb/InputMethod.h"
 #include "cru/platform/gui/xcb/Keyboard.h"
@@ -40,9 +41,11 @@ XcbUiApplication::XcbUiApplication(
   cursor_manager_ = new XcbCursorManager(this);
   input_method_manager_ = new XcbXimInputMethodManager(this);
   keyboard_manager_ = new XcbKeyboardManager(this);
+  clipboard_ = new XcbClipboard(this);
 }
 
 XcbUiApplication::~XcbUiApplication() {
+  delete clipboard_;
   delete keyboard_manager_;
   delete input_method_manager_;
   delete cursor_manager_;
@@ -170,7 +173,7 @@ XcbUiApplication::GetGraphicsFactory() {
 
 ICursorManager *XcbUiApplication::GetCursorManager() { return cursor_manager_; }
 
-IClipboard *XcbUiApplication::GetClipboard() { NotImplemented(); }
+IClipboard *XcbUiApplication::GetClipboard() { return clipboard_; }
 
 IMenu *XcbUiApplication::GetApplicationMenu() { return nullptr; }
 

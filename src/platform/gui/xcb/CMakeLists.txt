@@ -4,6 +4,7 @@ find_library(LIBRARY_XCB_IMDKIT xcb-imdkit REQUIRED)
 find_library(LIBRARY_XKBCOMMON xkbcommon REQUIRED)
 find_library(LIBRARY_XKBCOMMON_X11 xkbcommon-x11 REQUIRED)
 add_library(CruPlatformGuiXcb
+	Clipboard.cpp
 	Cursor.cpp
 	InputMethod.cpp
 	Keyboard.cpp

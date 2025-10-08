@@ -15,6 +15,7 @@ class XcbWindow;
 class XcbCursorManager;
 class XcbXimInputMethodManager;
 class XcbKeyboardManager;
+class XcbClipboard;
 
 class XcbUiApplication : public XcbResource, public virtual IUiApplication {
   friend XcbWindow;
@@ -107,5 +108,6 @@ class XcbUiApplication : public XcbResource, public virtual IUiApplication {
   XcbCursorManager* cursor_manager_;
   XcbXimInputMethodManager* input_method_manager_;
   XcbKeyboardManager* keyboard_manager_;
+  XcbClipboard* clipboard_;
 };
 }  // namespace cru::platform::gui::xcb
