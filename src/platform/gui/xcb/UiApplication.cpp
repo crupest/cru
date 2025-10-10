@@ -32,7 +32,7 @@ XcbUiApplication::XcbUiApplication(
   this->CheckXcbConnectionError();
 
   event_loop_.SetPoll(xcb_get_file_descriptor(connection), POLLIN,
-                      [this](auto) { HandleXEvents(); });
+                      [this](auto) { PollAllXEvents(); });
 
   const xcb_setup_t *setup = xcb_get_setup(connection);
   xcb_screen_iterator_t iter = xcb_setup_roots_iterator(setup);
@@ -40,6 +40,11 @@ XcbUiApplication::XcbUiApplication(
 
   cursor_manager_ = new XcbCursorManager(this);
   input_method_manager_ = new XcbXimInputMethodManager(this);
+  input_method_manager_->SetXimServerUnprocessedXEventCallback(
+      [this](xcb_key_press_event_t *event) {
+        DispatchXEventToWindows((xcb_generic_event_t *)event);
+      });
+
   keyboard_manager_ = new XcbKeyboardManager(this);
   clipboard_ = new XcbClipboard(this);
 }
@@ -142,17 +147,21 @@ void XcbUiApplication::CancelTimer(long long id) {
   return event_loop_.CancelTimer(static_cast<int>(id));
 }
 
-void XcbUiApplication::HandleXEvents() {
+void XcbUiApplication::DispatchXEventToWindows(xcb_generic_event_t *event) {
+  auto event_xcb_window = XcbWindow::GetEventWindow(event);
+  for (auto window : windows_) {
+    if (window->GetXcbWindow() == event_xcb_window) {
+      window->HandleEvent(event);
+      break;
+    }
+  }
+}
+
+void XcbUiApplication::PollAllXEvents() {
   xcb_generic_event_t *event;
   while ((event = xcb_poll_for_event(xcb_connection_))) {
     if (!input_method_manager_->HandleXEvent(event)) {
-      auto event_xcb_window = XcbWindow::GetEventWindow(event);
-      for (auto window : windows_) {
-        if (window->GetXcbWindow() == event_xcb_window) {
-          window->HandleEvent(event);
-          break;
-        }
-      }
+      DispatchXEventToWindows(event);
     }
     ::free(event);
   }

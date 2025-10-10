@@ -86,7 +86,8 @@ class XcbUiApplication : public XcbResource, public virtual IUiApplication {
   IMenu* GetApplicationMenu() override;
 
  private:
-  void HandleXEvents();
+  void DispatchXEventToWindows(xcb_generic_event_t* event);
+  void PollAllXEvents();
 
   void RegisterWindow(XcbWindow* window);
   void UnregisterWindow(XcbWindow* window);

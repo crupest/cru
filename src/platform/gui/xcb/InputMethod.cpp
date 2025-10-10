@@ -26,13 +26,20 @@ XcbXimInputMethodManager::XcbXimInputMethodManager(
              void *user_data) {
             auto manager = static_cast<XcbXimInputMethodManager *>(user_data);
             if ((event->response_type & ~0x80) == XCB_KEY_PRESS) {
-              manager->DispatchCommit(
-                  im, ic,
+              auto text =
                   manager->application_->GetXcbKeyboardManager()->KeycodeToUtf8(
-                      event->detail));
+                      event->detail);
+              if (text.empty() || text == "\b") {
+                if (manager->forward_event_callback_) {
+                  manager->forward_event_callback_(event);
+                }
+              } else {
+                manager->DispatchCommit(im, ic, std::move(text));
+              }
             } else {
-              if (manager->forward_event_callback_)
+              if (manager->forward_event_callback_) {
                 manager->forward_event_callback_(event);
+              }
             }
           },
       .commit_string =
@@ -81,7 +88,7 @@ xcb_xim_t *XcbXimInputMethodManager::GetXcbXim() { return im_; }
 
 void XcbXimInputMethodManager::DispatchCommit(xcb_xim_t *im, xcb_xic_t ic,
                                               std::string text) {
-  CRU_LOG_TAG_INFO("IC {} dispatch commit string: {}", ic, text);
+  CRU_LOG_TAG_DEBUG("IC {} dispatch commit string: {}", ic, text);
   for (auto window : application_->GetAllWindow()) {
     auto input_method_context = window->GetInputMethodContext();
     auto context = CheckPlatform<XcbXimInputMethodContext>(input_method_context,
@@ -185,7 +192,7 @@ static void EmptyXimDestroyIcCallback(xcb_xim_t *im, xcb_xic_t ic,
 void XcbXimInputMethodContext::SetCandidateWindowPosition(const Point &point) {
   if (!ic_) return;
 
-  CRU_LOG_TAG_INFO("IC {} set candidate window position: {}", *ic_, point);
+  CRU_LOG_TAG_DEBUG("IC {} set candidate window position: {}", *ic_, point);
 
   xcb_point_t spot;
   spot.x = point.x;
@@ -221,7 +228,7 @@ void XcbXimInputMethodContext::CreateIc(xcb_window_t window) {
   auto XimCreateIcCallback = [](xcb_xim_t *im, xcb_xic_t ic, void *user_data) {
     auto context = static_cast<XcbXimInputMethodContext *>(user_data);
     context->ic_ = ic;
-    CRU_LOG_TAG_INFO("IC {} is created.", ic);
+    CRU_LOG_TAG_DEBUG("IC {} is created.", ic);
     if (context->window_->HasFocus()) {
       xcb_xim_set_ic_focus(context->manager_->GetXcbXim(), ic);
     }
@@ -232,14 +239,14 @@ void XcbXimInputMethodContext::CreateIc(xcb_window_t window) {
   xcb_xim_create_ic(manager_->GetXcbXim(), XimCreateIcCallback, this,
                     XCB_XIM_XNInputStyle, &input_style, XCB_XIM_XNClientWindow,
                     &window, XCB_XIM_XNFocusWindow, &window, NULL);
-  CRU_LOG_TAG_INFO("Create XIM IC.");
+  CRU_LOG_TAG_DEBUG("Create XIM IC.");
 }
 
 void XcbXimInputMethodContext::DestroyIc() {
   if (!ic_) return;
   xcb_xim_destroy_ic(manager_->GetXcbXim(), *ic_, EmptyXimDestroyIcCallback,
                      this);
-  CRU_LOG_TAG_INFO("Destroy XIM IC.");
+  CRU_LOG_TAG_DEBUG("Destroy XIM IC.");
   ic_ = std::nullopt;
 }
 
