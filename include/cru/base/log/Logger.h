@@ -6,7 +6,9 @@
 #include <list>
 #include <memory>
 #include <mutex>
+#include <string_view>
 #include <thread>
+#include <unordered_set>
 #include <utility>
 #include <vector>
 
@@ -40,6 +42,11 @@ class CRU_BASE_API Logger : public Object2 {
   void AddLogTarget(std::unique_ptr<ILogTarget> source);
   void RemoveLogTarget(ILogTarget* source);
 
+  void AddDebugTag(std::string tag);
+  void RemoveDebugTag(const std::string& tag);
+  void LoadDebugTagFromEnv(const char* env_var = "CRU_LOG_DEBUG",
+                           std::string sep = ",");
+
  public:
   void Log(LogLevel level, std::string tag, std::string message) {
     Log(LogInfo(level, std::move(tag), std::move(message)));
@@ -59,6 +66,7 @@ class CRU_BASE_API Logger : public Object2 {
 
  private:
   std::mutex log_queue_mutex_;
+  std::unordered_set<std::string> debug_tags_;
   std::condition_variable log_queue_condition_variable_;
   std::list<LogInfo> log_queue_;
   bool log_stop_;

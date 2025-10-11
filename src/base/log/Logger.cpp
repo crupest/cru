@@ -1,8 +1,10 @@
 #include "cru/base/log/Logger.h"
+#include "cru/base/StringUtil.h"
 #include "cru/base/log/StdioLogTarget.h"
 
 #include <algorithm>
 #include <condition_variable>
+#include <cstdlib>
 #include <ctime>
 #include <format>
 #include <memory>
@@ -68,7 +70,9 @@ std::string MakeLogFinalMessage(const LogInfo &log_info) {
 }
 }  // namespace
 
-Logger::Logger() : log_stop_(false), log_thread_(&Logger::LogThreadRun, this) {}
+Logger::Logger() : log_stop_(false), log_thread_(&Logger::LogThreadRun, this) {
+  LoadDebugTagFromEnv();
+}
 
 Logger::~Logger() {
   {
@@ -79,29 +83,43 @@ Logger::~Logger() {
   log_thread_.join();
 }
 
-void Logger::Log(LogInfo log_info) {
-#ifndef CRU_DEBUG
-  if (log_info.level == LogLevel::Debug) {
-    return;
-  }
-#endif
+void Logger::AddDebugTag(std::string tag) {
+  std::unique_lock lock(log_queue_mutex_);
+  debug_tags_.insert(std::move(tag));
+}
 
+void Logger::RemoveDebugTag(const std::string &tag) {
+  std::unique_lock lock(log_queue_mutex_);
+  debug_tags_.erase(tag);
+}
+
+void Logger::LoadDebugTagFromEnv(const char *env_var, std::string sep) {
+  auto env = std::getenv(env_var);
+  if (env != nullptr) {
+    for (auto tag : Split(std::string(env), sep)) {
+      AddDebugTag(std::move(tag));
+    }
+  }
+}
+
+void Logger::Log(LogInfo log_info) {
   std::unique_lock lock(log_queue_mutex_);
   log_queue_.push_back(std::move(log_info));
   log_queue_condition_variable_.notify_one();
 }
 
 void Logger::LogThreadRun() {
+  std::list<LogInfo> queue;
+  bool stop = false;
+
   while (true) {
-    std::list<LogInfo> queue;
-    bool stop = false;
     std::vector<ILogTarget *> target_list;
 
     {
       std::unique_lock lock(log_queue_mutex_);
       log_queue_condition_variable_.wait(
           lock, [this] { return !log_queue_.empty() || log_stop_; });
-      std::swap(queue, log_queue_);
+      queue = std::move(log_queue_);
       stop = log_stop_;
     }
 
@@ -114,6 +132,13 @@ void Logger::LogThreadRun() {
 
     for (const auto &target : target_list) {
       for (auto &log_info : queue) {
+        if (log_info.level == LogLevel::Debug &&
+            std::ranges::none_of(debug_tags_,
+                                 [&log_info](const std::string &tag) {
+                                   return log_info.tag.starts_with(tag);
+                                 })) {
+          continue;
+        }
         target->Write(log_info.level, MakeLogFinalMessage(log_info));
       }
       queue.clear();

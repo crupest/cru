@@ -1,10 +1,57 @@
 #pragma once
 #include "Base.h"
+#include "Bitmask.h"
 
 #include <functional>
+#include <stdexcept>
 #include <type_traits>
+#include <vector>
 
 namespace cru {
+namespace details {
+struct SplitOptionsTag {};
+}  // namespace details
+using SplitOption = Bitmask<details::SplitOptionsTag>;
+struct SplitOptions {
+  static constexpr SplitOption RemoveEmpty = SplitOption::FromOffset(1);
+};
+
+template <typename TString>
+std::vector<TString> Split(const TString& str, const TString& sep,
+                           SplitOption options = {}) {
+  using size_type = typename TString::size_type;
+
+  if (sep.empty()) throw std::invalid_argument("Sep can't be empty.");
+  if (str.empty()) return {};
+
+  size_type current_pos = 0;
+  std::vector<TString> result;
+
+  while (current_pos != TString::npos) {
+    if (current_pos == str.size()) {
+      if (!options.Has(SplitOptions::RemoveEmpty)) {
+        result.push_back({});
+      }
+      break;
+    }
+
+    auto next_pos = str.find(sep, current_pos);
+    auto sub = str.substr(current_pos, next_pos - current_pos);
+    if (!(options.Has(SplitOptions::RemoveEmpty) && sub.empty())) {
+      result.push_back(sub);
+    }
+    current_pos =
+        next_pos == TString::npos ? TString::npos : next_pos + sep.size();
+  }
+
+  return result;
+}
+
+inline std::vector<std::string> Split(const char* str, const std::string& sep,
+                                      SplitOption options = {}) {
+  return Split<std::string>(std::string(str), sep, options);
+}
+
 using CodePoint = std::int32_t;
 constexpr CodePoint k_invalid_code_point = -1;
 

@@ -6,6 +6,14 @@
 using cru::Index;
 using cru::k_invalid_code_point;
 
+TEST_CASE("StringUtil Split", "[string]") {
+  using cru::Split;
+  REQUIRE(Split("abc", "b") == std::vector<std::string>{"a", "c"});
+  REQUIRE(Split("abcd", "bc") == std::vector<std::string>{"a", "d"});
+  REQUIRE(Split("abcdbcd", "bc") == std::vector<std::string>{"a", "d", "d"});
+  REQUIRE(Split("aaa", "a") == std::vector<std::string>{"", "", "", ""});
+}
+
 TEST_CASE("StringUtil Utf8NextCodePoint", "[string]") {
   using cru::Utf8NextCodePoint;
   std::string_view text = "aπ你🤣!";

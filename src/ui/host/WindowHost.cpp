@@ -21,13 +21,8 @@ using platform::gui::INativeWindow;
 using platform::gui::IUiApplication;
 
 namespace event_names {
-#ifdef CRU_DEBUG
-// clang-format off
-#define CRU_DEFINE_EVENT_NAME(name) constexpr const char16_t* name = CRU_MAKE_UNICODE_LITERAL(name);
-// clang-format on
-#else
-#define CRU_DEFINE_EVENT_NAME(name) constexpr const char16_t* name = u"";
-#endif
+#define CRU_DEFINE_EVENT_NAME(name) \
+  constexpr const char16_t* name = CRU_MAKE_UNICODE_LITERAL(name);
 
 CRU_DEFINE_EVENT_NAME(LoseFocus)
 CRU_DEFINE_EVENT_NAME(GainFocus)
@@ -202,7 +197,8 @@ void WindowHost::RelayoutWithSize(const Size& available_size,
   for (auto& action : after_layout_stable_action_) action();
   after_layout_event_.Raise(AfterLayoutEventArgs{});
   after_layout_stable_action_.clear();
-  if constexpr (debug_flags::layout) CRU_LOG_TAG_DEBUG("A relayout is finished.");
+  if constexpr (debug_flags::layout)
+    CRU_LOG_TAG_DEBUG("A relayout is finished.");
 }
 
 void WindowHost::Repaint() {
