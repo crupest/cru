@@ -1,6 +1,7 @@
 #include "cru/platform/gui/xcb/Window.h"
 #include "cru/base/Base.h"
 #include "cru/base/Guard.h"
+#include "cru/base/log/Logger.h"
 #include "cru/platform/Check.h"
 #include "cru/platform/GraphicsBase.h"
 #include "cru/platform/graphics/NullPainter.h"
@@ -69,6 +70,11 @@ XcbWindow::XcbWindow(XcbUiApplication *application)
   application->RegisterWindow(this);
   input_method_ = new XcbXimInputMethodContext(
       application->GetXcbXimInputMethodManager(), this);
+
+  paint_event_.AddSpyOnlyHandler([this] {
+    if (xcb_window_)
+      CRU_LOG_TAG_DEBUG("{:#x} Paint event triggered.", *xcb_window_);
+  });
 }
 
 XcbWindow::~XcbWindow() {
@@ -301,6 +307,8 @@ void XcbWindow::SetToForeground() {
 }
 
 void XcbWindow::RequestRepaint() {
+  if (!xcb_window_.has_value()) return;
+  CRU_LOG_TAG_DEBUG("{:#x} Repaint requested.", *xcb_window_);
   // TODO: true throttle
   repaint_canceler_.Reset(
       application_->SetImmediate([this] { paint_event_.Raise(nullptr); }));
@@ -428,6 +436,8 @@ xcb_window_t XcbWindow::DoCreateWindow() {
       cairo_xcb_surface_create(connection, window, visual_type, width, height);
 
   create_event_.Raise(nullptr);
+  resize_event_.Raise(current_size_);
+  RequestRepaint();
 
   return window;
 }
@@ -435,7 +445,7 @@ xcb_window_t XcbWindow::DoCreateWindow() {
 void XcbWindow::HandleEvent(xcb_generic_event_t *event) {
   switch (event->response_type & ~0x80) {
     case XCB_EXPOSE: {
-      paint_event_.Raise(nullptr);
+      RequestRepaint();
       break;
     }
     case XCB_DESTROY_NOTIFY: {
@@ -459,6 +469,8 @@ void XcbWindow::HandleEvent(xcb_generic_event_t *event) {
           (xcb_configure_notify_event_t *)event;
       auto width = configure->width, height = configure->height;
       if (width != current_size_.width || height != current_size_.height) {
+        CRU_LOG_TAG_DEBUG("{:#x} Size changed {} x {}.", *xcb_window_, width,
+                          height);
         current_size_ = Size(width, height);
         assert(cairo_surface_);
         cairo_xcb_surface_set_size(cairo_surface_, width, height);
@@ -573,20 +585,20 @@ std::optional<xcb_window_t> XcbWindow::GetEventWindow(
     }
     case XCB_DESTROY_NOTIFY: {
       xcb_destroy_notify_event_t *destroy = (xcb_destroy_notify_event_t *)event;
-      return destroy->event;
+      return destroy->window;
     }
     case XCB_CONFIGURE_NOTIFY: {
       xcb_configure_notify_event_t *configure =
           (xcb_configure_notify_event_t *)event;
-      return configure->event;
+      return configure->window;
     }
     case XCB_MAP_NOTIFY: {
       xcb_map_notify_event_t *map = (xcb_map_notify_event_t *)event;
-      return map->event;
+      return map->window;
     }
     case XCB_UNMAP_NOTIFY: {
       xcb_unmap_notify_event_t *unmap = (xcb_unmap_notify_event_t *)event;
-      return unmap->event;
+      return unmap->window;
     }
     case XCB_FOCUS_IN: {
       xcb_focus_in_event_t *fi = (xcb_focus_in_event_t *)event;

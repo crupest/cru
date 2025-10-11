@@ -1,5 +1,6 @@
 #include "cru/platform/graphics/cairo/CairoPainter.h"
 #include "cru/base/Exception.h"
+#include "cru/base/log/Logger.h"
 #include "cru/platform/Check.h"
 #include "cru/platform/Exception.h"
 #include "cru/platform/graphics/cairo/Base.h"
@@ -237,6 +238,7 @@ void CairoPainter::PopState() {
 
 void CairoPainter::EndDraw() {
   if (cairo_surface_ != nullptr) {
+    CRU_LOG_TAG_DEBUG("Flush cairo painter.");
     cairo_surface_flush(cairo_surface_);
   }
   valid_ = false;

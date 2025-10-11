@@ -1,8 +1,9 @@
 
 #pragma once
+#include <cru/base/Base.h>
 #include "../../GraphicsBase.h"
-#include "../Window.h"
 #include "../TimerHelper.h"
+#include "../Window.h"
 #include "Base.h"
 
 #include <cairo.h>
@@ -16,6 +17,8 @@ class XcbCursor;
 class XcbXimInputMethodContext;
 
 class XcbWindow : public XcbResource, public virtual INativeWindow {
+  CRU_DEFINE_CLASS_LOG_TAG("cru::platform::gui::xcb::XcbWindow")
+
   friend XcbUiApplication;
 
  public:
