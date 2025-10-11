@@ -10,6 +10,7 @@
 #include "cru/platform/graphics/cairo/CairoResource.h"
 #include "cru/platform/graphics/cairo/PangoTextLayout.h"
 
+#include <cairo.h>
 #include <pango/pangocairo.h>
 
 namespace cru::platform::graphics::cairo {
@@ -240,6 +241,10 @@ void CairoPainter::EndDraw() {
   if (cairo_surface_ != nullptr) {
     CRU_LOG_TAG_DEBUG("Flush cairo painter.");
     cairo_surface_flush(cairo_surface_);
+    cairo_device_t* device = cairo_surface_get_device(cairo_surface_);
+    if (device) {
+      cairo_device_flush(device);
+    }
   }
   valid_ = false;
 }
