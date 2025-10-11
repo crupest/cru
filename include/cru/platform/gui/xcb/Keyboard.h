@@ -18,6 +18,12 @@ std::unordered_map<KeyCode, bool> GetKeyboardState(
     XcbUiApplication* application);
 KeyModifier GetCurrentKeyModifiers(XcbUiApplication* application);
 
+/**
+ * Used to convert state field of xcb_button_press_event_t,
+ * xcb_button_release_event_t, xcb_key_press_event_t, xcb_key_release_event_t.
+ */
+KeyModifier ConvertModifiersOfEvent(uint32_t mask);
+
 class XcbKeyboardManager {
  public:
   explicit XcbKeyboardManager(XcbUiApplication* application);

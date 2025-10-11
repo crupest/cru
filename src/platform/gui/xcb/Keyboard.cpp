@@ -195,6 +195,27 @@ KeyModifier GetCurrentKeyModifiers(XcbUiApplication *application) {
   return result;
 }
 
+KeyModifier ConvertModifiersOfEvent(uint32_t mask) {
+  // const char *MODIFIERS[] = {
+  //     "Shift", "Lock",    "Ctrl",    "Alt",     "Mod2",    "Mod3",   "Mod4",
+  //     "Mod5",  "Button1", "Button2", "Button3", "Button4", "Button5"};
+  constexpr KeyModifier MODIFIERS[] = {
+      KeyModifiers::Shift, KeyModifiers::none, KeyModifiers::Ctrl,
+      KeyModifiers::Alt,   KeyModifiers::none, KeyModifiers::none,
+      KeyModifiers::none,  KeyModifiers::none, KeyModifiers::none,
+      KeyModifiers::none,  KeyModifiers::none, KeyModifiers::none,
+      KeyModifiers::none,
+  };
+
+  KeyModifier result;
+  for (auto iter = std::begin(MODIFIERS); mask; mask >>= 1, ++iter) {
+    if (mask & 1) {
+      result |= *iter;
+    }
+  }
+  return result;
+}
+
 XcbKeyboardManager::XcbKeyboardManager(XcbUiApplication *application)
     : application_(application) {
   xkb_x11_setup_xkb_extension(

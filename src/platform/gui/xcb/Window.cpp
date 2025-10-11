@@ -39,27 +39,6 @@ MouseButton ConvertMouseButton(xcb_button_t button) {
       return MouseButtons::None;
   }
 }
-
-KeyModifier ConvertModifiers(uint32_t mask) {
-  // const char *MODIFIERS[] = {
-  //     "Shift", "Lock",    "Ctrl",    "Alt",     "Mod2",    "Mod3",   "Mod4",
-  //     "Mod5",  "Button1", "Button2", "Button3", "Button4", "Button5"};
-  constexpr KeyModifier MODIFIERS[] = {
-      KeyModifiers::Shift, KeyModifiers::none, KeyModifiers::Ctrl,
-      KeyModifiers::Alt,   KeyModifiers::none, KeyModifiers::none,
-      KeyModifiers::none,  KeyModifiers::none, KeyModifiers::none,
-      KeyModifiers::none,  KeyModifiers::none, KeyModifiers::none,
-      KeyModifiers::none,
-  };
-
-  KeyModifier result;
-  for (auto iter = std::begin(MODIFIERS); mask; mask >>= 1, ++iter) {
-    if (mask & 1) {
-      result |= *iter;
-    }
-  }
-  return result;
-}
 }  // namespace
 
 XcbWindow::XcbWindow(XcbUiApplication *application)
@@ -501,7 +480,8 @@ void XcbWindow::HandleEvent(xcb_generic_event_t *event) {
 
       if (bp->detail >= 4 && bp->detail <= 7) {
         NativeMouseWheelEventArgs args(30, Point(bp->event_x, bp->event_y),
-                                       ConvertModifiers(bp->state), false);
+                                       ConvertModifiersOfEvent(bp->state),
+                                       false);
         if (bp->detail == 5 || bp->detail == 7) {
           args.delta = -args.delta;
         }
@@ -514,7 +494,7 @@ void XcbWindow::HandleEvent(xcb_generic_event_t *event) {
 
       NativeMouseButtonEventArgs args(ConvertMouseButton(bp->detail),
                                       Point(bp->event_x, bp->event_y),
-                                      ConvertModifiers(bp->state));
+                                      ConvertModifiersOfEvent(bp->state));
       mouse_down_event_.Raise(std::move(args));
       break;
     }
@@ -522,7 +502,7 @@ void XcbWindow::HandleEvent(xcb_generic_event_t *event) {
       xcb_button_release_event_t *br = (xcb_button_release_event_t *)event;
       NativeMouseButtonEventArgs args(ConvertMouseButton(br->detail),
                                       Point(br->event_x, br->event_y),
-                                      ConvertModifiers(br->state));
+                                      ConvertModifiersOfEvent(br->state));
       mouse_up_event_.Raise(std::move(args));
       break;
     }
@@ -550,14 +530,14 @@ void XcbWindow::HandleEvent(xcb_generic_event_t *event) {
     case XCB_KEY_PRESS: {
       xcb_key_press_event_t *kp = (xcb_key_press_event_t *)event;
       NativeKeyEventArgs args(XorgKeycodeToCruKeyCode(application_, kp->detail),
-                              ConvertModifiers(kp->state));
+                              ConvertModifiersOfEvent(kp->state));
       key_down_event_.Raise(std::move(args));
       break;
     }
     case XCB_KEY_RELEASE: {
       xcb_key_release_event_t *kr = (xcb_key_release_event_t *)event;
       NativeKeyEventArgs args(XorgKeycodeToCruKeyCode(application_, kr->detail),
-                              ConvertModifiers(kr->state));
+                              ConvertModifiersOfEvent(kr->state));
       key_up_event_.Raise(std::move(args));
       break;
     }
