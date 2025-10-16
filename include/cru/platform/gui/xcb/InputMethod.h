@@ -11,11 +11,13 @@
 namespace cru::platform::gui::xcb {
 class XcbUiApplication;
 class XcbWindow;
+class XcbXimInputMethodContext;
 
 class XcbXimInputMethodManager : public XcbResource {
   CRU_DEFINE_CLASS_LOG_TAG("cru::platform::gui::xcb::XcbXimInputMethodManager")
 
   friend XcbUiApplication;
+  friend XcbXimInputMethodContext;
 
  public:
   XcbXimInputMethodManager(XcbUiApplication* application);
@@ -25,7 +27,6 @@ class XcbXimInputMethodManager : public XcbResource {
 
  private:
   void DispatchCommit(xcb_xim_t* im, xcb_xic_t ic, std::string text);
-  void DispatchComposition(xcb_xim_t* im, xcb_xic_t ic, CompositionText text);
 
   bool HandleXEvent(xcb_generic_event_t* event);
   void SetXimServerUnprocessedXEventCallback(
@@ -33,6 +34,7 @@ class XcbXimInputMethodManager : public XcbResource {
 
  private:
   XcbUiApplication* application_;
+  XcbXimInputMethodContext* focus_context_;
   xcb_xim_t* im_;
   std::function<void(xcb_key_press_event_t* event)> forward_event_callback_;
 };
@@ -68,6 +70,7 @@ class XcbXimInputMethodContext : public XcbResource,
 
  private:
   void CreateIc(xcb_window_t window);
+  void SetFocus();
   void DestroyIc();
 
  private:

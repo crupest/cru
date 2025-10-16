@@ -64,7 +64,7 @@ std::string GetLogTime() {
 }
 
 std::string MakeLogFinalMessage(const LogInfo &log_info) {
-  return std::format("[{}] {} {}: {}\n", GetLogTime(),
+  return std::format("[{}] {} {}: {}", GetLogTime(),
                      LogLevelToString(log_info.level), log_info.tag,
                      log_info.message);
 }

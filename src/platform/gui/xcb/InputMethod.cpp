@@ -3,6 +3,7 @@
 #include "cru/platform/Check.h"
 #include "cru/platform/gui/InputMethod.h"
 #include "cru/platform/gui/Keyboard.h"
+#include "cru/platform/gui/Window.h"
 #include "cru/platform/gui/xcb/Keyboard.h"
 #include "cru/platform/gui/xcb/UiApplication.h"
 #include "cru/platform/gui/xcb/Window.h"
@@ -18,19 +19,20 @@ void XimLogger(const char *, ...) {}
 
 XcbXimInputMethodManager::XcbXimInputMethodManager(
     XcbUiApplication *application)
-    : application_(application) {
+    : application_(application), focus_context_(nullptr) {
   auto XimOpenCallback = [](xcb_xim_t *im, void *user_data) {};
 
   xcb_xim_im_callback kXimCallbacks = {
       .forward_event =
           [](xcb_xim_t *im, xcb_xic_t ic, xcb_key_press_event_t *event,
              void *user_data) {
+            CRU_LOG_TAG_DEBUG("Key event forwarded back from XIM.");
             auto manager = static_cast<XcbXimInputMethodManager *>(user_data);
             if ((event->response_type & ~0x80) == XCB_KEY_PRESS) {
               auto text =
                   manager->application_->GetXcbKeyboardManager()->KeycodeToUtf8(
                       event->detail);
-              auto modifiers = ConvertModifiersOfEvent(event->detail);
+              auto modifiers = ConvertModifiersOfEvent(event->state);
               if (text.empty() || text == "\b" ||
                   modifiers.Has(KeyModifiers::Alt) ||
                   modifiers.Has(KeyModifiers::Ctrl)) {
@@ -81,6 +83,7 @@ XcbXimInputMethodManager::XcbXimInputMethodManager(
   xcb_xim_set_use_compound_text(im_, true);
   xcb_xim_set_use_utf8_string(im_, true);
   xcb_xim_open(im_, XimOpenCallback, true, this);
+  application->XcbFlush();
 }
 
 XcbXimInputMethodManager::~XcbXimInputMethodManager() {
@@ -93,43 +96,23 @@ xcb_xim_t *XcbXimInputMethodManager::GetXcbXim() { return im_; }
 void XcbXimInputMethodManager::DispatchCommit(xcb_xim_t *im, xcb_xic_t ic,
                                               std::string text) {
   CRU_LOG_TAG_DEBUG("IC {} dispatch commit string: {}", ic, text);
-  for (auto window : application_->GetAllWindow()) {
-    auto input_method_context = window->GetInputMethodContext();
-    auto context = CheckPlatform<XcbXimInputMethodContext>(input_method_context,
-                                                           GetPlatformIdUtf8());
-    if (context->ic_ == ic) {
-      context->composition_event_.Raise(nullptr);
-      context->composition_end_event_.Raise(nullptr);
-      context->text_event_.Raise(String::FromUtf8(text));
-    }
-  }
-}
-
-void XcbXimInputMethodManager::DispatchComposition(xcb_xim_t *im, xcb_xic_t ic,
-                                                   CompositionText text) {
-  for (auto window : application_->GetAllWindow()) {
-    auto input_method_context = window->GetInputMethodContext();
-    auto context = CheckPlatform<XcbXimInputMethodContext>(input_method_context,
-                                                           GetPlatformIdUtf8());
-    if (context->ic_ == ic) {
-      context->composition_text_ = std::move(text);
-      context->composition_event_.Raise(nullptr);
-    }
+  if (focus_context_) {
+    focus_context_->composition_event_.Raise(nullptr);
+    focus_context_->composition_end_event_.Raise(nullptr);
+    focus_context_->text_event_.Raise(String::FromUtf8(text));
   }
 }
 
 bool XcbXimInputMethodManager::HandleXEvent(xcb_generic_event_t *event) {
   if (xcb_xim_filter_event(im_, event)) return true;
-  for (auto window : application_->GetAllWindow()) {
-    auto input_method_context = window->GetInputMethodContext();
-    auto context = CheckPlatform<XcbXimInputMethodContext>(input_method_context,
-                                                           GetPlatformIdUtf8());
-    // Forward event to input method if IC is created.
-    if (context->ic_ && (((event->response_type & ~0x80) == XCB_KEY_PRESS) ||
-                         ((event->response_type & ~0x80) == XCB_KEY_RELEASE))) {
-      xcb_xim_forward_event(im_, *context->ic_, (xcb_key_press_event_t *)event);
-      return true;
-    }
+  if (focus_context_ && focus_context_->ic_ &&
+      (((event->response_type & ~0x80) == XCB_KEY_PRESS) ||
+       ((event->response_type & ~0x80) == XCB_KEY_RELEASE))) {
+    CRU_LOG_TAG_DEBUG("Forward key event to XIM.");
+    xcb_xim_forward_event(im_, *focus_context_->ic_,
+                          (xcb_key_press_event_t *)event);
+    application_->XcbFlush();
+    return true;
   }
   return false;
 }
@@ -150,12 +133,11 @@ XcbXimInputMethodContext::XcbXimInputMethodContext(
 
   window->DestroyEvent()->AddSpyOnlyHandler([this] { DestroyIc(); });
 
-  window->FocusEvent()->AddSpyOnlyHandler([this, window] {
-    auto input_method_context = window->GetInputMethodContext();
-    auto context = CheckPlatform<XcbXimInputMethodContext>(input_method_context,
-                                                           GetPlatformIdUtf8());
-    if (context->enabled_ && context->ic_) {
-      xcb_xim_set_ic_focus(context->manager_->GetXcbXim(), *context->ic_);
+  window->FocusEvent()->AddHandler([this, window](FocusChangeType type) {
+    auto context = CheckPlatform<XcbXimInputMethodContext>(
+        window->GetInputMethodContext(), GetPlatformIdUtf8());
+    if (type == FocusChangeType::Gain) {
+      SetFocus();
     }
   });
 }
@@ -188,6 +170,7 @@ void XcbXimInputMethodContext::CancelComposition() {
                                xcb_im_reset_ic_reply_fr_t *reply,
                                void *user_data) {};
   xcb_xim_reset_ic(manager_->GetXcbXim(), *ic_, XimResetIcCallback, this);
+  manager_->application_->XcbFlush();
 }
 
 static void EmptyXimDestroyIcCallback(xcb_xim_t *im, xcb_xic_t ic,
@@ -206,6 +189,7 @@ void XcbXimInputMethodContext::SetCandidateWindowPosition(const Point &point) {
   xcb_xim_set_ic_values(manager_->GetXcbXim(), *ic_, EmptyXimDestroyIcCallback,
                         this, XCB_XIM_XNPreeditAttributes, &nested, NULL);
   ::free(nested.data);
+  manager_->application_->XcbFlush();
 }
 
 CompositionText XcbXimInputMethodContext::GetCompositionText() {
@@ -232,9 +216,9 @@ void XcbXimInputMethodContext::CreateIc(xcb_window_t window) {
   auto XimCreateIcCallback = [](xcb_xim_t *im, xcb_xic_t ic, void *user_data) {
     auto context = static_cast<XcbXimInputMethodContext *>(user_data);
     context->ic_ = ic;
-    CRU_LOG_TAG_DEBUG("IC {} is created.", ic);
+    CRU_LOG_TAG_DEBUG("XIM IC {} is created.", ic);
     if (context->window_->HasFocus()) {
-      xcb_xim_set_ic_focus(context->manager_->GetXcbXim(), ic);
+      context->SetFocus();
     }
   };
 
@@ -244,14 +228,28 @@ void XcbXimInputMethodContext::CreateIc(xcb_window_t window) {
                     XCB_XIM_XNInputStyle, &input_style, XCB_XIM_XNClientWindow,
                     &window, XCB_XIM_XNFocusWindow, &window, NULL);
   CRU_LOG_TAG_DEBUG("Create XIM IC.");
+  manager_->application_->XcbFlush();
+}
+
+void XcbXimInputMethodContext::SetFocus() {
+  manager_->focus_context_ = this;
+  if (ic_) {
+    CRU_LOG_TAG_DEBUG("Focus XIM IC {}.", *ic_);
+    xcb_xim_set_ic_focus(manager_->GetXcbXim(), *ic_);
+    manager_->application_->XcbFlush();
+  }
 }
 
 void XcbXimInputMethodContext::DestroyIc() {
+  auto destroy_callback = [](xcb_xim_t *im, xcb_xic_t ic, void *user_data) {
+    CRU_LOG_TAG_DEBUG("XIM IC {} is destroyed.", ic);
+  };
+
   if (!ic_) return;
-  xcb_xim_destroy_ic(manager_->GetXcbXim(), *ic_, EmptyXimDestroyIcCallback,
-                     this);
-  CRU_LOG_TAG_DEBUG("Destroy XIM IC.");
+  xcb_xim_destroy_ic(manager_->GetXcbXim(), *ic_, destroy_callback, this);
+  CRU_LOG_TAG_DEBUG("Destroy XIM IC {}.", *ic_);
   ic_ = std::nullopt;
+  manager_->application_->XcbFlush();
 }
 
 }  // namespace cru::platform::gui::xcb

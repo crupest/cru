@@ -21,9 +21,9 @@ void StdioLogTarget::Write(log::LogLevel level, std::string message) {
   }
 #else
   if (level == log::LogLevel::Error) {
-    std::cerr << message;
+    std::cerr << message << std::endl;
   } else {
-    std::cout << message;
+    std::cout << message << std::endl;
   }
 #endif
 }
