@@ -120,6 +120,7 @@ void Logger::LogThreadRun() {
       log_queue_condition_variable_.wait(
           lock, [this] { return !log_queue_.empty() || log_stop_; });
       queue = std::move(log_queue_);
+      log_queue_ = {};
       stop = log_stop_;
     }
 

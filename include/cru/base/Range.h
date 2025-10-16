@@ -7,10 +7,6 @@ struct Range final {
     return Range(start, end - start);
   }
 
-  constexpr static Range FromTwoSides(Index start, Index end, Index offset) {
-    return Range(start + offset, end - start);
-  }
-
   constexpr Range() = default;
   constexpr Range(const Index position, const Index count = 0)
       : position(position), count(count) {}

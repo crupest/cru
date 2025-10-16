@@ -2,6 +2,7 @@
 #include "cru/base/log/Logger.h"
 #include "cru/platform/Check.h"
 #include "cru/platform/gui/InputMethod.h"
+#include "cru/platform/gui/Keyboard.h"
 #include "cru/platform/gui/xcb/Keyboard.h"
 #include "cru/platform/gui/xcb/UiApplication.h"
 #include "cru/platform/gui/xcb/Window.h"
@@ -29,7 +30,10 @@ XcbXimInputMethodManager::XcbXimInputMethodManager(
               auto text =
                   manager->application_->GetXcbKeyboardManager()->KeycodeToUtf8(
                       event->detail);
-              if (text.empty() || text == "\b") {
+              auto modifiers = ConvertModifiersOfEvent(event->detail);
+              if (text.empty() || text == "\b" ||
+                  modifiers.Has(KeyModifiers::Alt) ||
+                  modifiers.Has(KeyModifiers::Ctrl)) {
                 if (manager->forward_event_callback_) {
                   manager->forward_event_callback_(event);
                 }
