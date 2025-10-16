@@ -1,8 +1,9 @@
 #pragma once
 
 #include "Base.h"
-#include "String.h"
 
+#include <string>
+#include <string_view>
 #include <unordered_map>
 
 namespace cru {
@@ -10,54 +11,44 @@ class PropertyTree;
 
 class CRU_BASE_API PropertySubTreeRef {
  public:
-  static String CombineKey(StringView left, StringView right);
+  static std::string CombineKey(std::string_view left, std::string_view right);
 
-  explicit PropertySubTreeRef(PropertyTree* tree, String path = {});
-
-  CRU_DEFAULT_COPY(PropertySubTreeRef);
-  CRU_DEFAULT_MOVE(PropertySubTreeRef);
-
-  CRU_DEFAULT_DESTRUCTOR(PropertySubTreeRef);
+  explicit PropertySubTreeRef(PropertyTree* tree, std::string path = {});
 
  public:
   PropertyTree* GetTree() const { return tree_; }
 
-  String GetPath() const { return path_; }
-  void SetPath(String path) { path_ = std::move(path); }
+  std::string GetPath() const { return path_; }
+  void SetPath(std::string path) { path_ = std::move(path); }
 
   PropertySubTreeRef GetParent() const;
-  PropertySubTreeRef GetChild(const String& key) const;
+  PropertySubTreeRef GetChild(const std::string& key) const;
 
-  String GetValue(const String& key) const;
-  void SetValue(const String& key, String value);
-  void DeleteValue(const String& key);
+  std::string GetValue(const std::string& key) const;
+  void SetValue(const std::string& key, std::string value);
+  void DeleteValue(const std::string& key);
 
  private:
   PropertyTree* tree_;
-  String path_;
+  std::string path_;
 };
 
-class CRU_BASE_API PropertyTree {
+class CRU_BASE_API PropertyTree : public Object2 {
  public:
-  static String CombineKey(StringView left, StringView right);
+  static std::string CombineKey(std::string_view left, std::string_view right);
 
   PropertyTree() = default;
-  explicit PropertyTree(std::unordered_map<String, String> values);
-
-  CRU_DELETE_COPY(PropertyTree);
-  CRU_DELETE_MOVE(PropertyTree);
-
-  CRU_DEFAULT_DESTRUCTOR(PropertyTree);
+  explicit PropertyTree(std::unordered_map<std::string, std::string> values);
 
  public:
-  String GetValue(const String& key) const;
-  void SetValue(const String& key, String value);
-  void DeleteValue(const String& key);
+  std::string GetValue(const std::string& key) const;
+  void SetValue(const std::string& key, std::string value);
+  void DeleteValue(const std::string& key);
 
-  PropertySubTreeRef GetSubTreeRef(const String& path);
+  PropertySubTreeRef GetSubTreeRef(const std::string& path);
 
  private:
-  std::unordered_map<String, String> values_;
+  std::unordered_map<std::string, std::string> values_;
 };
 
 }  // namespace cru

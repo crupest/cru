@@ -1,13 +1,13 @@
 #include "cru/base/PropertyTree.h"
-#include <unordered_map>
 #include "cru/base/Exception.h"
 
 namespace cru {
-String PropertySubTreeRef::CombineKey(StringView left, StringView right) {
+std::string PropertySubTreeRef::CombineKey(std::string_view left,
+                                           std::string_view right) {
   return PropertyTree::CombineKey(left, right);
 }
 
-PropertySubTreeRef::PropertySubTreeRef(PropertyTree* tree, String path)
+PropertySubTreeRef::PropertySubTreeRef(PropertyTree* tree, std::string path)
     : tree_(tree), path_(std::move(path)) {
   Expects(tree);
 }
@@ -22,30 +22,32 @@ PropertySubTreeRef PropertySubTreeRef::GetParent() const {
   return PropertySubTreeRef(tree_, {});
 }
 
-PropertySubTreeRef PropertySubTreeRef::GetChild(const String& key) const {
+PropertySubTreeRef PropertySubTreeRef::GetChild(const std::string& key) const {
   return PropertySubTreeRef(tree_, CombineKey(path_, key));
 }
 
-String PropertySubTreeRef::GetValue(const String& key) const {
+std::string PropertySubTreeRef::GetValue(const std::string& key) const {
   return tree_->GetValue(CombineKey(path_, key));
 }
 
-void PropertySubTreeRef::SetValue(const String& key, String value) {
+void PropertySubTreeRef::SetValue(const std::string& key, std::string value) {
   tree_->SetValue(CombineKey(path_, key), std::move(value));
 }
 
-void PropertySubTreeRef::DeleteValue(const String& key) {
+void PropertySubTreeRef::DeleteValue(const std::string& key) {
   tree_->DeleteValue(CombineKey(path_, key));
 }
 
-String PropertyTree::CombineKey(StringView left, StringView right) {
-  return String(left) + String(left.empty() ? u"" : u".") + String(right);
+std::string PropertyTree::CombineKey(std::string_view left,
+                                     std::string_view right) {
+  return std::string(left) + std::string(left.empty() ? "" : ".") +
+         std::string(right);
 }
 
-PropertyTree::PropertyTree(std::unordered_map<String, String> values)
+PropertyTree::PropertyTree(std::unordered_map<std::string, std::string> values)
     : values_(std::move(values)) {}
 
-String PropertyTree::GetValue(const String& key) const {
+std::string PropertyTree::GetValue(const std::string& key) const {
   auto it = values_.find(key);
   if (it == values_.end()) {
     throw Exception(u"Property tree has no value.");
@@ -53,18 +55,18 @@ String PropertyTree::GetValue(const String& key) const {
   return it->second;
 }
 
-void PropertyTree::SetValue(const String& key, String value) {
+void PropertyTree::SetValue(const std::string& key, std::string value) {
   values_[key] = std::move(value);
 }
 
-void PropertyTree::DeleteValue(const String& key) {
+void PropertyTree::DeleteValue(const std::string& key) {
   auto it = values_.find(key);
   if (it != values_.end()) {
     values_.erase(it);
   }
 }
 
-PropertySubTreeRef PropertyTree::GetSubTreeRef(const String& path) {
+PropertySubTreeRef PropertyTree::GetSubTreeRef(const std::string& path) {
   return PropertySubTreeRef(this, path);
 }
 

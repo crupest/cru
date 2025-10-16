@@ -7,20 +7,20 @@ TEST_CASE("PropertyTree", "[property_tree]") {
   using cru::PropertyTree;
 
   PropertyTree tree({
-      {u"k1", u"v1"},
-      {u"k2", u"v2"},
-      {u"k3.sub", u"v3"},
+      {"k1", "v1"},
+      {"k2", "v2"},
+      {"k3.sub", "v3"},
   });
 
-  REQUIRE(tree.GetValue(u"k1") == u"v1");
-  REQUIRE(tree.GetValue(u"k2") == u"v2");
-  REQUIRE(tree.GetValue(u"k3.sub") == u"v3");
+  REQUIRE(tree.GetValue("k1") == "v1");
+  REQUIRE(tree.GetValue("k2") == "v2");
+  REQUIRE(tree.GetValue("k3.sub") == "v3");
 
-  PropertySubTreeRef sub_tree = tree.GetSubTreeRef(u"k3");
-  REQUIRE(sub_tree.GetValue(u"sub") == u"v3");
+  PropertySubTreeRef sub_tree = tree.GetSubTreeRef("k3");
+  REQUIRE(sub_tree.GetValue("sub") == "v3");
 
   PropertySubTreeRef root_tree = sub_tree.GetParent();
-  REQUIRE(root_tree.GetValue(u"k1") == u"v1");
-  REQUIRE(root_tree.GetValue(u"k2") == u"v2");
-  REQUIRE(root_tree.GetValue(u"k3.sub") == u"v3");
+  REQUIRE(root_tree.GetValue("k1") == "v1");
+  REQUIRE(root_tree.GetValue("k2") == "v2");
+  REQUIRE(root_tree.GetValue("k3.sub") == "v3");
 }
