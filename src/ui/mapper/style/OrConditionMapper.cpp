@@ -7,7 +7,7 @@
 
 namespace cru::ui::mapper::style {
 bool OrConditionMapper::XmlElementIsOfThisType(xml::XmlElementNode *node) {
-  return node->GetTag().CaseInsensitiveEqual(u"OrCondition");
+  return cru::string::CaseInsensitiveCompare(node->GetTag(), "OrCondition") == 0;
 }
 
 ClonablePtr<ui::style::OrCondition> OrConditionMapper::DoMapFromXml(

@@ -2,11 +2,11 @@
 
 namespace cru::ui::mapper {
 bool PointMapper::XmlElementIsOfThisType(xml::XmlElementNode* node) {
-  return node->GetTag().CaseInsensitiveCompare(u"Point") == 0;
+  return cru::string::CaseInsensitiveCompare(node->GetTag(), "Point") == 0;
 }
 
-Point PointMapper::DoMapFromString(String str) {
-  std::vector<float> values = str.ParseToFloatList();
+Point PointMapper::DoMapFromString(std::string str) {
+  std::vector<float> values = String::FromUtf8(str).ParseToFloatList();
   if (values.size() == 2) {
     return {values[0], values[1]};
   } else if (values.size() == 1) {
@@ -17,7 +17,7 @@ Point PointMapper::DoMapFromString(String str) {
 }
 
 Point PointMapper::DoMapFromXml(xml::XmlElementNode* node) {
-  auto value_attr = node->GetOptionalAttributeValueCaseInsensitive(u"value");
+  auto value_attr = node->GetOptionalAttributeValueCaseInsensitive("value");
   if (!value_attr) return {};
   return DoMapFromString(*value_attr);
 }

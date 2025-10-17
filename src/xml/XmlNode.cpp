@@ -31,7 +31,7 @@ XmlElementNode::~XmlElementNode() {
   }
 }
 
-void XmlElementNode::AddAttribute(String key, String value) {
+void XmlElementNode::AddAttribute(std::string key, std::string value) {
   attributes_[std::move(key)] = std::move(value);
 }
 

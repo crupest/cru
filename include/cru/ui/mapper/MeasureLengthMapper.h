@@ -14,7 +14,7 @@ class CRU_UI_API MeasureLengthMapper
   bool XmlElementIsOfThisType(xml::XmlElementNode* node) override;
 
  protected:
-  render::MeasureLength DoMapFromString(String str) override;
+  render::MeasureLength DoMapFromString(std::string str) override;
   render::MeasureLength DoMapFromXml(xml::XmlElementNode* node) override;
 };
 }  // namespace cru::ui::mapper

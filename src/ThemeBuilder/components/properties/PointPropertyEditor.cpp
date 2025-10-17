@@ -14,7 +14,7 @@ PointPropertyEditor::PointPropertyEditor() {
     auto point_mapper =
         ui::mapper::MapperRegistry::GetInstance()->GetMapper<ui::Point>();
     try {
-      auto point = point_mapper->MapFromString(text.ToString());
+      auto point = point_mapper->MapFromString(text.ToString().ToUtf8());
       point_ = point;
       is_text_valid_ = true;
       RaiseChangeEvent();

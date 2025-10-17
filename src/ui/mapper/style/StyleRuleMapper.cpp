@@ -12,7 +12,7 @@
 namespace cru::ui::mapper::style {
 using namespace ui::style;
 bool StyleRuleMapper::XmlElementIsOfThisType(xml::XmlElementNode* node) {
-  return node->GetTag().CaseInsensitiveEqual(u"StyleRule");
+  return cru::string::CaseInsensitiveCompare(node->GetTag(), "StyleRule") == 0;
 }
 
 ClonablePtr<ui::style::StyleRule> StyleRuleMapper::DoMapFromXml(
@@ -49,7 +49,7 @@ ClonablePtr<ui::style::StyleRule> StyleRuleMapper::DoMapFromXml(
       }
 
       if (!resolved) {
-        throw Exception("Unknown element in StyleRule: " + c->GetTag().ToUtf8());
+        throw Exception("Unknown element in StyleRule: " + c->GetTag());
       }
     }
   }

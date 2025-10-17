@@ -12,7 +12,7 @@ class CRU_UI_API PointMapper : public BasicMapper<Point> {
   bool XmlElementIsOfThisType(xml::XmlElementNode* node) override;
 
  protected:
-  Point DoMapFromString(String str) override;
+  Point DoMapFromString(std::string str) override;
   Point DoMapFromXml(xml::XmlElementNode* node) override;
 };
 }  // namespace cru::ui::mapper

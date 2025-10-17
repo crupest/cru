@@ -9,19 +9,19 @@ using cru::platform::gui::ICursor;
 using cru::platform::gui::SystemCursorType;
 
 bool CursorMapper::XmlElementIsOfThisType(xml::XmlElementNode *node) {
-  return node->GetTag().CaseInsensitiveCompare(u"Cursor") == 0;
+  return cru::string::CaseInsensitiveCompare(node->GetTag(), "Cursor") == 0;
 }
 
-std::shared_ptr<ICursor> CursorMapper::DoMapFromString(String str) {
+std::shared_ptr<ICursor> CursorMapper::DoMapFromString(std::string str) {
   if (str.empty()) return nullptr;
 
   auto cursor_manager = GetUiApplication()->GetCursorManager();
 
-  if (str.CaseInsensitiveCompare(u"arrow") == 0) {
+  if (cru::string::CaseInsensitiveCompare(str, "arrow") == 0) {
     return cursor_manager->GetSystemCursor(SystemCursorType::Arrow);
-  } else if (str.CaseInsensitiveCompare(u"hand") == 0) {
+  } else if (cru::string::CaseInsensitiveCompare(str, "hand") == 0) {
     return cursor_manager->GetSystemCursor(SystemCursorType::Hand);
-  } else if (str.CaseInsensitiveCompare(u"ibeam") == 0) {
+  } else if (cru::string::CaseInsensitiveCompare(str, "ibeam") == 0) {
     return cursor_manager->GetSystemCursor(SystemCursorType::IBeam);
   } else {
     throw Exception("Unsupported cursor type.");
@@ -29,7 +29,7 @@ std::shared_ptr<ICursor> CursorMapper::DoMapFromString(String str) {
 }
 
 std::shared_ptr<ICursor> CursorMapper::DoMapFromXml(xml::XmlElementNode *node) {
-  auto value_attr = node->GetOptionalAttributeValueCaseInsensitive(u"value");
+  auto value_attr = node->GetOptionalAttributeValueCaseInsensitive("value");
   if (!value_attr) return nullptr;
   return DoMapFromString(*value_attr);
 }

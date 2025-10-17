@@ -64,7 +64,7 @@ class CRU_UI_API BasicMapper : public MapperBase {
 
   ~BasicMapper() override = default;
 
-  virtual T MapFromString(String str) {
+  virtual T MapFromString(std::string str) {
     if (!SupportMapFromString()) {
       throw Exception("This mapper does not support map from string.");
     }
@@ -85,7 +85,7 @@ class CRU_UI_API BasicMapper : public MapperBase {
   }
 
  protected:
-  virtual T DoMapFromString(String str) { return {}; }
+  virtual T DoMapFromString(std::string str) { return {}; }
   virtual T DoMapFromXml(xml::XmlElementNode* node) { return {}; }
 };
 

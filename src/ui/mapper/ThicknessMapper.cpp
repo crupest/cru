@@ -3,11 +3,11 @@
 
 namespace cru::ui::mapper {
 bool ThicknessMapper::XmlElementIsOfThisType(xml::XmlElementNode* node) {
-  return node->GetTag().CaseInsensitiveCompare(u"Thickness") == 0;
+  return cru::string::CaseInsensitiveCompare(node->GetTag(), "Thickness") == 0;
 }
 
-Thickness ThicknessMapper::DoMapFromString(String str) {
-  std::vector<float> values = str.ParseToFloatList();
+Thickness ThicknessMapper::DoMapFromString(std::string str) {
+  std::vector<float> values = String::FromUtf8(str).ParseToFloatList();
   if (values.size() == 4) {
     return Thickness(values[0], values[1], values[2], values[3]);
   } else if (values.size() == 2) {
@@ -20,7 +20,7 @@ Thickness ThicknessMapper::DoMapFromString(String str) {
 }
 
 Thickness ThicknessMapper::DoMapFromXml(xml::XmlElementNode* node) {
-  auto value_attr = node->GetOptionalAttributeValueCaseInsensitive(u"value");
+  auto value_attr = node->GetOptionalAttributeValueCaseInsensitive("value");
   if (!value_attr) return {};
   return DoMapFromString(*value_attr);
 }

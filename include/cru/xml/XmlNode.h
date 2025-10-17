@@ -2,11 +2,9 @@
 
 #include "Base.h"
 
-#include "cru/base/String.h"
-
-#include <algorithm>
+#include <cru/base/Base.h>
+#include <cru/base/StringUtil.h>
 #include <optional>
-#include <unordered_map>
 #include <vector>
 
 namespace cru::xml {
@@ -53,7 +51,7 @@ class CRU_XML_API XmlNode {
 class CRU_XML_API XmlTextNode : public XmlNode {
  public:
   XmlTextNode() : XmlNode(Type::Text) {}
-  explicit XmlTextNode(String text)
+  explicit XmlTextNode(std::string text)
       : XmlNode(Type::Text), text_(std::move(text)) {}
 
   CRU_DELETE_COPY(XmlTextNode)
@@ -62,20 +60,20 @@ class CRU_XML_API XmlTextNode : public XmlNode {
   ~XmlTextNode() override = default;
 
  public:
-  String GetText() const { return text_; }
-  void SetText(String text) { text_ = std::move(text); }
+  std::string GetText() const { return text_; }
+  void SetText(std::string text) { text_ = std::move(text); }
 
   XmlNode* Clone() const override { return new XmlTextNode(text_); }
 
  private:
-  String text_;
+  std::string text_;
 };
 
 class CRU_XML_API XmlElementNode : public XmlNode {
  public:
   XmlElementNode() : XmlNode(Type::Element) {}
-  explicit XmlElementNode(String tag,
-                          std::unordered_map<String, String> attributes = {})
+  explicit XmlElementNode(std::string tag,
+                          std::unordered_map<std::string, std::string> attributes = {})
       : XmlNode(Type::Element),
         tag_(std::move(tag)),
         attributes_(std::move(attributes)) {}
@@ -86,24 +84,24 @@ class CRU_XML_API XmlElementNode : public XmlNode {
   ~XmlElementNode() override;
 
  public:
-  String GetTag() const { return tag_; }
-  void SetTag(String tag) { tag_ = std::move(tag); }
-  const std::unordered_map<String, String>& GetAttributes() const {
+  std::string GetTag() const { return tag_; }
+  void SetTag(std::string tag) { tag_ = std::move(tag); }
+  const std::unordered_map<std::string, std::string>& GetAttributes() const {
     return attributes_;
   }
-  void SetAttributes(std::unordered_map<String, String> attributes) {
+  void SetAttributes(std::unordered_map<std::string, std::string> attributes) {
     attributes_ = std::move(attributes);
   }
   const std::vector<XmlNode*> GetChildren() const { return children_; }
 
   Index GetChildCount() const { return children_.size(); }
-  String GetAttributeValue(const String& key) const {
+  std::string GetAttributeValue(const std::string& key) const {
     return attributes_.at(key);
   }
-  String GetAttributeValueCaseInsensitive(const String& key) const {
+  std::string GetAttributeValueCaseInsensitive(const std::string& key) const {
     return *GetOptionalAttributeValueCaseInsensitive(key);
   }
-  std::optional<String> GetOptionalAttributeValue(const String& key) const {
+  std::optional<std::string> GetOptionalAttributeValue(const std::string& key) const {
     auto it = attributes_.find(key);
     if (it == attributes_.end()) {
       return std::nullopt;
@@ -111,10 +109,10 @@ class CRU_XML_API XmlElementNode : public XmlNode {
 
     return it->second;
   }
-  std::optional<String> GetOptionalAttributeValueCaseInsensitive(
-      const String& key) const {
+  std::optional<std::string> GetOptionalAttributeValueCaseInsensitive(
+      const std::string& key) const {
     for (auto it = attributes_.begin(); it != attributes_.end(); ++it) {
-      if (it->first.CaseInsensitiveCompare(key) == 0) {
+      if (cru::string::CaseInsensitiveCompare(it->first, key) == 0) {
         return it->second;
       }
     }
@@ -124,7 +122,7 @@ class CRU_XML_API XmlElementNode : public XmlNode {
 
   XmlNode* GetChildAt(Index index) const { return children_[index]; }
 
-  void AddAttribute(String key, String value);
+  void AddAttribute(std::string key, std::string value);
   void AddChild(XmlNode* child);
 
   Index GetChildElementCount() const;
@@ -133,15 +131,15 @@ class CRU_XML_API XmlElementNode : public XmlNode {
   XmlNode* Clone() const override;
 
  private:
-  String tag_;
-  std::unordered_map<String, String> attributes_;
+  std::string tag_;
+  std::unordered_map<std::string, std::string> attributes_;
   std::vector<XmlNode*> children_;
 };
 
 class CRU_XML_API XmlCommentNode : public XmlNode {
  public:
   XmlCommentNode() : XmlNode(Type::Comment) {}
-  explicit XmlCommentNode(String text)
+  explicit XmlCommentNode(std::string text)
       : XmlNode(Type::Comment), text_(std::move(text)) {}
 
   CRU_DELETE_COPY(XmlCommentNode)
@@ -149,12 +147,12 @@ class CRU_XML_API XmlCommentNode : public XmlNode {
 
   ~XmlCommentNode() override;
 
-  String GetText() const { return text_; }
-  void SetText(String text) { text_ = std::move(text); }
+  std::string GetText() const { return text_; }
+  void SetText(std::string text) { text_ = std::move(text); }
 
   XmlNode* Clone() const override;
 
  private:
-  String text_;
+  std::string text_;
 };
 }  // namespace cru::xml

@@ -7,7 +7,7 @@
 
 namespace cru::ui::mapper::style {
 bool AndConditionMapper::XmlElementIsOfThisType(xml::XmlElementNode *node) {
-  return node->GetTag().CaseInsensitiveEqual(u"AndCondition");
+  return cru::string::CaseInsensitiveCompare(node->GetTag(), "AndCondition") == 0;
 }
 
 ClonablePtr<ui::style::AndCondition> AndConditionMapper::DoMapFromXml(

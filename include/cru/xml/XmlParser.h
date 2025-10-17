@@ -3,9 +3,6 @@
 #include "XmlNode.h"
 
 #include "cru/base/Exception.h"
-#include "cru/base/String.h"
-
-#include <optional>
 
 namespace cru::xml {
 class CRU_XML_API XmlParsingException : public Exception {
@@ -15,7 +12,7 @@ class CRU_XML_API XmlParsingException : public Exception {
 
 class CRU_XML_API XmlParser {
  public:
-  explicit XmlParser(String xml);
+  explicit XmlParser(std::string xml);
 
   CRU_DELETE_COPY(XmlParser)
   CRU_DELETE_MOVE(XmlParser)
@@ -28,19 +25,19 @@ class CRU_XML_API XmlParser {
   XmlElementNode* DoParse();
 
   char16_t Read1();
-  String ReadWithoutAdvance(int count = 1);
+  std::string ReadWithoutAdvance(int count = 1);
   void ReadSpacesAndDiscard();
-  String ReadSpaces();
-  String ReadIdenitifier();
-  String ReadAttributeString();
+  std::string ReadSpaces();
+  std::string ReadIdenitifier();
+  std::string ReadAttributeString();
 
  private:
-  String xml_;
+  std::string xml_;
 
   XmlElementNode* cache_ = nullptr;
 
   // Consider the while file enclosed by a single tag called $root.
-  XmlElementNode* pseudo_root_node_ = new XmlElementNode(u"$root");
+  XmlElementNode* pseudo_root_node_ = new XmlElementNode("$root");
   XmlElementNode* current_ = pseudo_root_node_;
   int current_position_ = 0;
 };

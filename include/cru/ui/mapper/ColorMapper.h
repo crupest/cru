@@ -13,7 +13,7 @@ class CRU_UI_API ColorMapper : public BasicMapper<Color> {
   bool XmlElementIsOfThisType(xml::XmlElementNode* node) override;
 
  protected:
-  Color DoMapFromString(String str) override;
+  Color DoMapFromString(std::string str) override;
   Color DoMapFromXml(xml::XmlElementNode* node) override;
 };
 }  // namespace cru::ui::mapper

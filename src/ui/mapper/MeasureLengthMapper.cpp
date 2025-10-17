@@ -1,19 +1,21 @@
 #include "cru/ui/mapper/MeasureLengthMapper.h"
+#include "cru/base/StringUtil.h"
 #include "cru/ui/render/MeasureRequirement.h"
 
 namespace cru::ui::mapper {
 bool MeasureLengthMapper::XmlElementIsOfThisType(xml::XmlElementNode* node) {
-  return node->GetTag().CaseInsensitiveEqual(u"MeasureLength");
+  return cru::string::CaseInsensitiveCompare(node->GetTag(), "MeasureLength") ==
+         0;
 }
 
-render::MeasureLength MeasureLengthMapper::DoMapFromString(String str) {
-  if (str.CaseInsensitiveEqual(u"notspecified")) {
+render::MeasureLength MeasureLengthMapper::DoMapFromString(std::string str) {
+  if (cru::string::CaseInsensitiveCompare(str, "notspecified") == 0) {
     return render::MeasureLength::NotSpecified();
   }
-  if (str.CaseInsensitiveEqual(u"unspecified")) {
+  if (cru::string::CaseInsensitiveCompare(str, "unspecified") == 0) {
     return render::MeasureLength::NotSpecified();
   }
-  auto value = str.ParseToFloat();
+  auto value = String::FromUtf8(str).ParseToFloat();
   if (value < 0) {
     return render::MeasureLength::NotSpecified();
   }
@@ -22,7 +24,7 @@ render::MeasureLength MeasureLengthMapper::DoMapFromString(String str) {
 
 render::MeasureLength MeasureLengthMapper::DoMapFromXml(
     xml::XmlElementNode* node) {
-  auto value_attr = node->GetOptionalAttributeValueCaseInsensitive(u"value");
+  auto value_attr = node->GetOptionalAttributeValueCaseInsensitive("value");
   if (!value_attr) return {};
   return DoMapFromString(*value_attr);
 }

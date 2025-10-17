@@ -10,7 +10,7 @@ using cru::ui::style::ApplyBorderStyleInfo;
 using cru::ui::style::BorderStyler;
 
 bool BorderStylerMapper::XmlElementIsOfThisType(xml::XmlElementNode* node) {
-  return node->GetTag().CaseInsensitiveEqual(u"BorderStyler");
+  return cru::string::CaseInsensitiveCompare(node->GetTag(), "BorderStyler") == 0;
 }
 
 ClonablePtr<BorderStyler> BorderStylerMapper::DoMapFromXml(

@@ -1,23 +1,25 @@
 #include "cru/ui/mapper/style/HoverConditionMapper.h"
 #include "cru/base/ClonablePtr.h"
+#include "cru/base/StringUtil.h"
 #include "cru/ui/style/Condition.h"
 
 namespace cru::ui::mapper::style {
 using namespace cru::ui::style;
 
 bool HoverConditionMapper::XmlElementIsOfThisType(xml::XmlElementNode* node) {
-  return node->GetTag().CaseInsensitiveEqual(u"HoverCondition");
+  return cru::string::CaseInsensitiveCompare(node->GetTag(),
+                                             "HoverCondition") == 0;
 }
 
 ClonablePtr<HoverCondition> HoverConditionMapper::DoMapFromXml(
     xml::XmlElementNode* node) {
-  auto value = node->GetAttributeValueCaseInsensitive(u"value");
-  if (value.CaseInsensitiveEqual(u"true")) {
+  auto value = node->GetAttributeValueCaseInsensitive("value");
+  if (cru::string::CaseInsensitiveCompare(value, "true") == 0) {
     return ui::style::HoverCondition::Create(true);
-  } else if (value.CaseInsensitiveEqual(u"false")) {
+  } else if (cru::string::CaseInsensitiveCompare(value, "false") == 0) {
     return ui::style::HoverCondition::Create(false);
   } else {
-    throw Exception("Invalid value for HoverCondition: " + value.ToUtf8());
+    throw Exception("Invalid value for HoverCondition: " + value);
   }
 }
 }  // namespace cru::ui::mapper::style

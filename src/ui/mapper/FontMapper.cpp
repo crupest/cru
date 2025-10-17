@@ -4,17 +4,19 @@
 
 namespace cru::ui::mapper {
 bool FontMapper::XmlElementIsOfThisType(xml::XmlElementNode* node) {
-  return node->GetTag().CaseInsensitiveEqual(u"font");
+  return cru::string::CaseInsensitiveCompare(node->GetTag(), "font") == 0;
 }
 
 std::shared_ptr<platform::graphics::IFont> FontMapper::DoMapFromXml(
     xml::XmlElementNode* node) {
-  auto font_family_attr = node->GetOptionalAttributeValue(u"family");
-  auto font_size_attr = node->GetOptionalAttributeValue(u"size");
+  auto font_family_attr = node->GetOptionalAttributeValue("family");
+  auto font_size_attr = node->GetOptionalAttributeValue("size");
 
-  auto font_family = font_family_attr.value_or(u"");
-  auto font_size = font_size_attr ? font_size_attr->ParseToFloat() : 24.0f;
+  auto font_family = font_family_attr.value_or("");
+  auto font_size =
+      font_size_attr ? String::FromUtf8(*font_size_attr).ParseToFloat() : 24.0f;
 
-  return GetGraphicsFactory()->CreateFont(font_family, font_size);
+  return GetGraphicsFactory()->CreateFont(String::FromUtf8(font_family),
+                                          font_size);
 }
 }  // namespace cru::ui::mapper

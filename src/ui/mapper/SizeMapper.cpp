@@ -2,11 +2,11 @@
 
 namespace cru::ui::mapper {
 bool SizeMapper::XmlElementIsOfThisType(xml::XmlElementNode* node) {
-  return node->GetTag().CaseInsensitiveCompare(u"Size") == 0;
+  return cru::string::CaseInsensitiveCompare(node->GetTag(), "Size") == 0;
 }
 
-Size SizeMapper::DoMapFromString(String str) {
-  std::vector<float> values = str.ParseToFloatList();
+Size SizeMapper::DoMapFromString(std::string str) {
+  std::vector<float> values = String::FromUtf8(str).ParseToFloatList();
   if (values.size() == 2) {
     return {values[0], values[1]};
   } else if (values.size() == 1) {
@@ -17,7 +17,7 @@ Size SizeMapper::DoMapFromString(String str) {
 }
 
 Size SizeMapper::DoMapFromXml(xml::XmlElementNode* node) {
-  auto value_attr = node->GetOptionalAttributeValueCaseInsensitive(u"value");
+  auto value_attr = node->GetOptionalAttributeValueCaseInsensitive("value");
   if (!value_attr) return {};
   return DoMapFromString(*value_attr);
 }

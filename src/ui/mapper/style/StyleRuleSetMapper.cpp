@@ -8,7 +8,7 @@ namespace cru::ui::mapper::style {
 using namespace cru::ui::style;
 
 bool StyleRuleSetMapper::XmlElementIsOfThisType(xml::XmlElementNode* node) {
-  return node->GetTag().CaseInsensitiveEqual(u"StyleRuleSet");
+  return cru::string::CaseInsensitiveCompare(node->GetTag(), "StyleRuleSet") == 0;
 }
 
 std::shared_ptr<ui::style::StyleRuleSet> StyleRuleSetMapper::DoMapFromXml(

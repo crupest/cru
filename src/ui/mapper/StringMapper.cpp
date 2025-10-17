@@ -6,11 +6,13 @@ StringMapper::StringMapper() { SetAllowedTags({u"String"}); }
 
 StringMapper::~StringMapper() {}
 
-String StringMapper::DoMapFromString(String str) { return std::move(str); }
+String StringMapper::DoMapFromString(std::string str) {
+  return String::FromUtf8(str);
+}
 
 String StringMapper::DoMapFromXml(xml::XmlElementNode* node) {
-  auto value_attr = node->GetOptionalAttributeValueCaseInsensitive(u"value");
-  if (value_attr) return *value_attr;
+  auto value_attr = node->GetOptionalAttributeValueCaseInsensitive("value");
+  if (value_attr) return String::FromUtf8(*value_attr);
   return {};
 }
 }  // namespace cru::ui::mapper

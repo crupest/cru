@@ -2,7 +2,46 @@
 #include "cru/base/Base.h"
 #include "cru/base/Exception.h"
 
+#include <algorithm>
+#include <cctype>
+#include <compare>
+
 namespace cru {
+namespace string {
+
+std::weak_ordering CaseInsensitiveCompare(std::string_view left,
+                                          std::string_view right) {
+  return std::lexicographical_compare_three_way(
+      left.cbegin(), left.cend(), right.cbegin(), right.cend(),
+      [](char left, char right) {
+        auto l = tolower(left), r = tolower(right);
+        return l < r ? std::weak_ordering::less
+                     : (l == r ? std::weak_ordering::equivalent
+                               : std::weak_ordering::greater);
+      });
+}
+
+std::string TrimBegin(std::string_view str) {
+  auto iter = std::find_if(str.cbegin(), str.cend(),
+                           [](char c) { return !std::isspace(c); });
+  return std::string(iter, str.cend());
+}
+
+std::string TrimEnd(std::string_view str) {
+  auto iter = std::find_if(str.crbegin(), str.crend(),
+                           [](char c) { return !std::isspace(c); });
+  return std::string(str.cbegin(), str.cend() - (iter - str.crbegin()));
+}
+
+std::string Trim(std::string_view str) {
+  auto iter1 = std::find_if(str.cbegin(), str.cend(),
+                            [](char c) { return !std::isspace(c); });
+  auto iter2 = std::find_if(str.crbegin(), str.crend(),
+                            [](char c) { return !std::isspace(c); });
+  return std::string(iter1, str.cend() - (iter2 - str.crbegin()));
+}
+}  // namespace string
+
 using details::ExtractBits;
 
 CodePoint Utf8NextCodePoint(const char* ptr, Index size, Index current,

@@ -6,7 +6,7 @@
 namespace cru::ui::mapper::style {
 bool PreferredSizeStylerMapper::XmlElementIsOfThisType(
     xml::XmlElementNode* node) {
-  return node->GetTag().CaseInsensitiveEqual(u"PreferredSizeStyler");
+  return cru::string::CaseInsensitiveCompare(node->GetTag(), "PreferredSizeStyler") == 0;
 }
 
 ClonablePtr<ui::style::PreferredSizeStyler>
@@ -16,12 +16,12 @@ PreferredSizeStylerMapper::DoMapFromXml(xml::XmlElementNode* node) {
   auto measure_length_mapper =
       MapperRegistry::GetInstance()->GetMapper<render::MeasureLength>();
 
-  auto width_attribute = node->GetOptionalAttributeValueCaseInsensitive(u"width");
+  auto width_attribute = node->GetOptionalAttributeValueCaseInsensitive("width");
   if (width_attribute) {
     size.width = measure_length_mapper->MapFromString(*width_attribute);
   }
 
-  auto height_attribute = node->GetOptionalAttributeValueCaseInsensitive(u"height");
+  auto height_attribute = node->GetOptionalAttributeValueCaseInsensitive("height");
   if (height_attribute) {
     size.height = measure_length_mapper->MapFromString(*height_attribute);
   }

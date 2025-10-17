@@ -15,7 +15,7 @@ MeasureLengthPropertyEditor::MeasureLengthPropertyEditor() {
                                      ->GetMapper<ui::render::MeasureLength>();
     try {
       auto measure_length =
-          measure_length_mapper->MapFromString(text.ToString());
+          measure_length_mapper->MapFromString(text.ToString().ToUtf8());
       measure_length_ = measure_length;
       is_text_valid_ = true;
       RaiseChangeEvent();

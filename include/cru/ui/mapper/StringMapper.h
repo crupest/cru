@@ -12,7 +12,7 @@ class CRU_UI_API StringMapper : public BasicMapper<String> {
   bool SupportMapFromXml() override { return true; }
 
  protected:
-  String DoMapFromString(String str) override;
+  String DoMapFromString(std::string str) override;
   String DoMapFromXml(xml::XmlElementNode* node) override;
 };
 }  // namespace cru::ui::mapper

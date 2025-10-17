@@ -1,8 +1,9 @@
 #include "cru/xml/XmlParser.h"
+#include "cru/base/StringUtil.h"
 #include "cru/xml/XmlNode.h"
 
 namespace cru::xml {
-XmlParser::XmlParser(String xml) : xml_(std::move(xml)) {}
+XmlParser::XmlParser(std::string xml) : xml_(std::move(xml)) {}
 
 XmlParser::~XmlParser() { delete pseudo_root_node_; }
 
@@ -20,7 +21,7 @@ char16_t XmlParser::Read1() {
   return xml_[current_position_++];
 }
 
-String XmlParser::ReadWithoutAdvance(int count) {
+std::string XmlParser::ReadWithoutAdvance(int count) {
   if (current_position_ + count > xml_.size()) {
     count = xml_.size() - current_position_;
   }
@@ -35,8 +36,8 @@ void XmlParser::ReadSpacesAndDiscard() {
   }
 }
 
-String XmlParser::ReadSpaces() {
-  String spaces;
+std::string XmlParser::ReadSpaces() {
+  std::string spaces;
   while (current_position_ < xml_.size() &&
          (xml_[current_position_] == ' ' || xml_[current_position_] == '\t' ||
           xml_[current_position_] == '\n' || xml_[current_position_] == '\r')) {
@@ -46,8 +47,8 @@ String XmlParser::ReadSpaces() {
   return spaces;
 }
 
-String XmlParser::ReadIdenitifier() {
-  String identifier;
+std::string XmlParser::ReadIdenitifier() {
+  std::string identifier;
   while (current_position_ < xml_.size() &&
          (xml_[current_position_] >= 'a' && xml_[current_position_] <= 'z' ||
           xml_[current_position_] >= 'A' && xml_[current_position_] <= 'Z' ||
@@ -59,12 +60,12 @@ String XmlParser::ReadIdenitifier() {
   return identifier;
 }
 
-String XmlParser::ReadAttributeString() {
+std::string XmlParser::ReadAttributeString() {
   if (Read1() != '"') {
     throw XmlParsingException("Expected \".");
   }
 
-  String string;
+  std::string string;
 
   while (true) {
     char16_t c = Read1();
@@ -87,15 +88,15 @@ XmlElementNode* XmlParser::DoParse() {
       break;
     }
 
-    if (ReadWithoutAdvance() == u"<") {
+    if (ReadWithoutAdvance() == "<") {
       current_position_ += 1;
 
-      if (ReadWithoutAdvance() == u"/") {
+      if (ReadWithoutAdvance() == "/") {
         current_position_ += 1;
 
         ReadSpacesAndDiscard();
 
-        String tag = ReadIdenitifier();
+        std::string tag = ReadIdenitifier();
 
         if (tag != current_->GetTag()) {
           throw XmlParsingException("Tag mismatch.");
@@ -108,23 +109,23 @@ XmlElementNode* XmlParser::DoParse() {
         }
 
         current_ = current_->GetParent();
-      } else if (ReadWithoutAdvance(3) == u"!--") {
+      } else if (ReadWithoutAdvance(3) == "!--") {
         current_position_ += 3;
 
-        String text;
+        std::string text;
         while (true) {
           auto str = ReadWithoutAdvance(3);
-          if (str == u"-->") break;
+          if (str == "-->") break;
           if (str.empty()) throw XmlParsingException("Unexpected end of xml");
           text += Read1();
         }
 
         current_position_ += 3;
-        current_->AddChild(new XmlCommentNode(text.Trim()));
+        current_->AddChild(new XmlCommentNode(cru::string::Trim(text)));
       } else {
         ReadSpacesAndDiscard();
 
-        String tag = ReadIdenitifier();
+        std::string tag = ReadIdenitifier();
 
         XmlElementNode* node = new XmlElementNode(tag);
 
@@ -133,10 +134,10 @@ XmlElementNode* XmlParser::DoParse() {
         while (true) {
           ReadSpacesAndDiscard();
           auto c = ReadWithoutAdvance();
-          if (c == u">") {
+          if (c == ">") {
             current_position_ += 1;
             break;
-          } else if (c == u"/") {
+          } else if (c == "/") {
             current_position_ += 1;
 
             if (Read1() != '>') {
@@ -146,7 +147,7 @@ XmlElementNode* XmlParser::DoParse() {
             is_self_closing = true;
             break;
           } else {
-            String attribute_name = ReadIdenitifier();
+            std::string attribute_name = ReadIdenitifier();
 
             ReadSpacesAndDiscard();
 
@@ -156,7 +157,7 @@ XmlElementNode* XmlParser::DoParse() {
 
             ReadSpacesAndDiscard();
 
-            String attribute_value = ReadAttributeString();
+            std::string attribute_value = ReadAttributeString();
 
             node->AddAttribute(attribute_name, attribute_value);
           }
@@ -170,15 +171,15 @@ XmlElementNode* XmlParser::DoParse() {
       }
 
     } else {
-      String text;
+      std::string text;
 
-      while (ReadWithoutAdvance() != u"<") {
+      while (ReadWithoutAdvance() != "<") {
         char16_t c = Read1();
 
         text += c;
       }
 
-      if (!text.empty()) current_->AddChild(new XmlTextNode(text.TrimEnd()));
+      if (!text.empty()) current_->AddChild(new XmlTextNode(cru::string::TrimEnd(text)));
     }
   }
 

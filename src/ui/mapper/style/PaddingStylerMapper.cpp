@@ -16,7 +16,8 @@ ClonablePtr<ui::style::PaddingStyler> PaddingStylerMapper::DoMapFromXml(
 
   auto thickness_mapper = MapperRegistry::GetInstance()->GetMapper<Thickness>();
 
-  auto value_attribute = node->GetOptionalAttributeValueCaseInsensitive(u"value");
+  auto value_attribute =
+      node->GetOptionalAttributeValueCaseInsensitive("value");
   if (value_attribute) {
     thickness = thickness_mapper->MapFromString(*value_attribute);
   }

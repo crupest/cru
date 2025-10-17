@@ -13,7 +13,7 @@ ThicknessPropertyEditor::ThicknessPropertyEditor() {
     auto thickness_mapper =
         ui::mapper::MapperRegistry::GetInstance()->GetMapper<ui::Thickness>();
     try {
-      auto thickness = thickness_mapper->MapFromString(text);
+      auto thickness = thickness_mapper->MapFromString(text.ToUtf8());
       thickness_ = thickness;
       is_text_valid_ = true;
       RaiseChangeEvent();

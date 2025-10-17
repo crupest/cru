@@ -1,4 +1,5 @@
 #include "cru/ui/mapper/Mapper.h"
+#include "cru/base/StringUtil.h"
 
 #include <typeindex>
 
@@ -8,7 +9,8 @@ MapperBase::MapperBase(std::type_index type_index)
 
 bool MapperBase::XmlElementIsOfThisType(xml::XmlElementNode* node) {
   for (const auto& tag : allowed_tags_) {
-    if (node->GetTag().CaseInsensitiveEqual(tag)) {
+    if (cru::string::CaseInsensitiveCompare(node->GetTag(), tag.ToUtf8()) ==
+        0) {
       return true;
     }
   }

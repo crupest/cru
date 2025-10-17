@@ -4,7 +4,7 @@
 
 namespace cru::ui::mapper::style {
 bool NoConditionMapper::XmlElementIsOfThisType(xml::XmlElementNode* node) {
-  return node->GetTag().CaseInsensitiveEqual(u"NoCondition");
+  return cru::string::CaseInsensitiveCompare(node->GetTag(), "NoCondition") == 0;
 }
 
 ClonablePtr<ui::style::NoCondition> NoConditionMapper::DoMapFromXml(

@@ -1,9 +1,9 @@
 #include "cru/ui/mapper/BrushMapper.h"
 #include "../Helper.h"
+#include "cru/base/StringUtil.h"
 #include "cru/platform/Color.h"
 #include "cru/platform/graphics/Brush.h"
 #include "cru/platform/graphics/Factory.h"
-#include "cru/ui/mapper/ColorMapper.h"
 #include "cru/ui/mapper/MapperRegistry.h"
 #include "cru/xml/XmlNode.h"
 
@@ -13,7 +13,7 @@ namespace cru::ui::mapper {
 bool BrushMapper::XmlElementIsOfThisType(xml::XmlElementNode* node) {
   auto color_mapper = MapperRegistry::GetInstance()->GetMapper<Color>();
   return color_mapper->XmlElementIsOfThisType(node) ||
-         node->GetTag().CaseInsensitiveEqual(u"Brush");
+         cru::string::CaseInsensitiveCompare(node->GetTag(), "Brush") == 0;
 }
 
 std::shared_ptr<platform::graphics::IBrush> BrushMapper::DoMapFromXml(

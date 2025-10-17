@@ -1,8 +1,6 @@
 #include "cru/ui/mapper/BorderStyleMapper.h"
-#include "../Helper.h"
-#include "cru/base/log/Logger.h"
+#include "cru/base/StringUtil.h"
 #include "cru/platform/graphics/Brush.h"
-#include "cru/platform/graphics/Factory.h"
 #include "cru/ui/mapper/MapperRegistry.h"
 #include "cru/ui/style/ApplyBorderStyleInfo.h"
 #include "cru/xml/XmlNode.h"
@@ -12,7 +10,8 @@ using namespace xml;
 using ui::style::ApplyBorderStyleInfo;
 
 bool BorderStyleMapper::XmlElementIsOfThisType(xml::XmlElementNode* node) {
-  return node->GetTag().CaseInsensitiveCompare(u"BorderStyle") == 0;
+  return cru::string::CaseInsensitiveCompare(node->GetTag(), "BorderStyle") ==
+         0;
 }
 
 ApplyBorderStyleInfo BorderStyleMapper::DoMapFromXml(
@@ -36,11 +35,12 @@ ApplyBorderStyleInfo BorderStyleMapper::DoMapFromXml(
         result.border_radius = corner_radius_mapper->MapFromXml(c);
       } else if (brush_mapper->XmlElementIsOfThisType(c)) {
         auto brush = brush_mapper->MapFromXml(c);
-        auto name = c->GetOptionalAttributeValueCaseInsensitive(u"name");
+        auto name = c->GetOptionalAttributeValueCaseInsensitive("name");
         if (name) {
-          if (name->CaseInsensitiveCompare(u"foreground") == 0) {
+          if (cru::string::CaseInsensitiveCompare(*name, "foreground") == 0) {
             result.foreground_brush = std::move(brush);
-          } else if (name->CaseInsensitiveCompare(u"background") == 0) {
+          } else if (cru::string::CaseInsensitiveCompare(*name, "background") ==
+                     0) {
             result.background_brush = std::move(brush);
           } else {
           }

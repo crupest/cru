@@ -14,7 +14,7 @@ class CRU_UI_API CursorMapper : public BasicSharedPtrMapper<platform::gui::ICurs
   bool XmlElementIsOfThisType(xml::XmlElementNode* node) override;
 
  protected:
-  std::shared_ptr<platform::gui::ICursor> DoMapFromString(String str) override;
+  std::shared_ptr<platform::gui::ICursor> DoMapFromString(std::string str) override;
   std::shared_ptr<platform::gui::ICursor> DoMapFromXml(
       xml::XmlElementNode* node) override;
 };

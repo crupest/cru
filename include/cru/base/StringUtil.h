@@ -2,12 +2,22 @@
 #include "Base.h"
 #include "Bitmask.h"
 
+#include <compare>
 #include <functional>
 #include <stdexcept>
+#include <string_view>
 #include <type_traits>
 #include <vector>
 
 namespace cru {
+namespace string {
+std::weak_ordering CaseInsensitiveCompare(std::string_view left,
+                                          std::string_view right);
+std::string TrimBegin(std::string_view str);
+std::string TrimEnd(std::string_view str);
+std::string Trim(std::string_view str);
+}  // namespace string
+
 namespace details {
 struct SplitOptionsTag {};
 }  // namespace details
