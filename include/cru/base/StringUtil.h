@@ -16,12 +16,12 @@
 #include <vector>
 
 namespace cru::string {
-std::weak_ordering CaseInsensitiveCompare(std::string_view left,
-                                          std::string_view right);
-std::string TrimBegin(std::string_view str);
-std::string TrimEnd(std::string_view str);
-std::string Trim(std::string_view str);
-bool IsSpace(std::string_view str);
+std::weak_ordering CRU_BASE_API CaseInsensitiveCompare(std::string_view left,
+                                                       std::string_view right);
+std::string CRU_BASE_API TrimBegin(std::string_view str);
+std::string CRU_BASE_API TrimEnd(std::string_view str);
+std::string CRU_BASE_API Trim(std::string_view str);
+bool CRU_BASE_API IsSpace(std::string_view str);
 
 namespace details {
 struct SplitOptionsTag {};
@@ -32,8 +32,9 @@ struct SplitOptions {
   static constexpr SplitOption RemoveSpace = SplitOption::FromOffset(2);
 };
 
-std::vector<std::string> Split(std::string_view str, std::string_view sep,
-                               SplitOption options = {});
+std::vector<std::string> CRU_BASE_API Split(std::string_view str,
+                                            std::string_view sep,
+                                            SplitOption options = {});
 
 namespace details {
 struct ParseToNumberFlagTag {};
@@ -376,13 +377,17 @@ using Utf8CodePointIterator = CodePointIterator<char, &Utf8NextCodePoint>;
 using Utf16CodePointIterator =
     CodePointIterator<Utf16CodeUnit, &Utf16NextCodePoint>;
 
-Index Utf8IndexCodeUnitToCodePoint(const Utf8CodeUnit* ptr, Index size, Index position);
-Index Utf8IndexCodePointToCodeUnit(const Utf8CodeUnit* ptr, Index size, Index position);
-Index Utf16IndexCodeUnitToCodePoint(const Utf16CodeUnit* ptr, Index size, Index position);
-Index Utf16IndexCodePointToCodeUnit(const Utf16CodeUnit* ptr, Index size, Index position);
+Index CRU_BASE_API Utf8IndexCodeUnitToCodePoint(const Utf8CodeUnit* ptr, Index size,
+                                   Index position);
+Index CRU_BASE_API Utf8IndexCodePointToCodeUnit(const Utf8CodeUnit* ptr, Index size,
+                                   Index position);
+Index CRU_BASE_API Utf16IndexCodeUnitToCodePoint(const Utf16CodeUnit* ptr, Index size,
+                                    Index position);
+Index CRU_BASE_API Utf16IndexCodePointToCodeUnit(const Utf16CodeUnit* ptr, Index size,
+                                    Index position);
 
 #ifdef _WIN32
-std::wstring ToUtf16(std::string_view str);
-std::string ToUtf8(std::wstring_view str);
+std::wstring CRU_BASE_API ToUtf16(std::string_view str);
+std::string CRU_BASE_API ToUtf8(std::wstring_view str);
 #endif
 }  // namespace cru::string
