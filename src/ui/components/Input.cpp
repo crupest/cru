@@ -1,8 +1,7 @@
 #include "cru/ui/components/Input.h"
-#include "cru/base/StringToNumberConverter.h"
+#include "cru/base/StringUtil.h"
 #include "cru/ui/controls/Control.h"
 
-#include <cmath>
 #include <optional>
 #include <string>
 
@@ -44,18 +43,18 @@ InputValidateResult Input::GetLastValidateResult() const {
 }
 
 InputValidateResult FloatInputValidator::Validate(std::string_view text) const {
-  auto result = String::FromUtf8(text).ParseToFloat(
-      nullptr, StringToNumberFlags::kAllowLeadingSpaces &
-                   StringToNumberFlags::kAllowTrailingSpaces);
-  if (std::isnan(result)) {
+  auto result = cru::string::ParseToNumber<float>(
+      text, cru::string::ParseToNumberFlags::AllowLeadingSpaces |
+                cru::string::ParseToNumberFlags::AllowTrailingSpaces);
+  if (!result.valid) {
     return InputValidateResult{false, "Invalid number."};
   }
 
-  if (min && result < *min) {
+  if (min && result.value < *min) {
     return InputValidateResult{false, "Value is less than minimum."};
   }
 
-  if (max && result > *max) {
+  if (max && result.value > *max) {
     return InputValidateResult{false, "Value is greater than maximum."};
   }
 
@@ -67,9 +66,11 @@ FloatInput::FloatInput() {
 
   ChangeEvent()->AddHandler([this](const InputChangeEventArgs& args) {
     if (args.valid) {
-      value_ = String::FromUtf8(args.text).ParseToFloat(
-          nullptr, StringToNumberFlags::kAllowLeadingSpaces &
-                       StringToNumberFlags::kAllowTrailingSpaces);
+      value_ = cru::string::ParseToNumber<float>(
+                   args.text,
+                   cru::string::ParseToNumberFlags::AllowLeadingSpaces |
+                       cru::string::ParseToNumberFlags::AllowTrailingSpaces)
+                   .value;
     }
   });
 }

@@ -1,6 +1,7 @@
 #include "cru/ui/mapper/FontMapper.h"
 #include "../Helper.h"
 #include "cru/base/String.h"
+#include "cru/base/StringUtil.h"
 #include "cru/platform/graphics/Factory.h"
 
 namespace cru::ui::mapper {
@@ -15,7 +16,8 @@ std::shared_ptr<platform::graphics::IFont> FontMapper::DoMapFromXml(
 
   auto font_family = font_family_attr.value_or("");
   auto font_size =
-      font_size_attr ? String::FromUtf8(*font_size_attr).ParseToFloat() : 24.0f;
+      font_size_attr ? cru::string::ParseToNumber<float>(*font_size_attr).value
+                     : 24.0f;
 
   return GetGraphicsFactory()->CreateFont(font_family, font_size);
 }

@@ -2,14 +2,9 @@
 
 #include "cru/base/Buffer.h"
 #include "cru/base/Exception.h"
-#include "cru/base/StringToNumberConverter.h"
 #include "cru/base/StringUtil.h"
 
-#include <double-conversion/double-conversion.h>
-#include <double-conversion/string-to-double.h>
-
 #include <algorithm>
-#include <cmath>
 #include <cstring>
 #include <functional>
 
@@ -344,34 +339,6 @@ Range String::RangeFromCodePointToCodeUnit(Range code_point_range) const {
   return View().RangeFromCodePointToCodeUnit(code_point_range);
 }
 
-int String::ParseToInt(Index* processed_characters_count,
-                       StringToNumberFlag flags, int base) const {
-  return View().ParseToInt(processed_characters_count, flags, base);
-}
-
-long long String::ParseToLongLong(Index* processed_characters_count,
-                                  StringToNumberFlag flags, int base) const {
-  return View().ParseToLongLong(processed_characters_count, flags, base);
-}
-
-float String::ParseToFloat(Index* processed_characters_count,
-                           StringToNumberFlag flags) const {
-  return View().ParseToFloat(processed_characters_count, flags);
-}
-
-double String::ParseToDouble(Index* processed_characters_count,
-                             StringToNumberFlag flags) const {
-  return View().ParseToDouble(processed_characters_count, flags);
-}
-
-std::vector<float> String::ParseToFloatList(value_type separator) const {
-  return View().ParseToFloatList(separator);
-}
-
-std::vector<double> String::ParseToDoubleList(value_type separator) const {
-  return View().ParseToDoubleList(separator);
-}
-
 std::ostream& operator<<(std::ostream& os, const String& value) {
   os << value.ToUtf8();
   return os;
@@ -581,94 +548,6 @@ Buffer StringView::ToUtf8Buffer(bool end_zero) const {
     push_back(0);
   }
   return buffer;
-}
-
-int StringView::ParseToInt(Index* processed_characters_count,
-                           StringToNumberFlag flags, int base) const {
-  return ParseToInteger<int>(processed_characters_count, flags, base);
-}
-
-long long StringView::ParseToLongLong(Index* processed_characters_count,
-                                      StringToNumberFlag flags,
-                                      int base) const {
-  return ParseToInteger<long long>(processed_characters_count, flags, base);
-}
-
-static int MapStringToDoubleFlags(StringToNumberFlag flags) {
-  int f = double_conversion::StringToDoubleConverter::ALLOW_CASE_INSENSIBILITY;
-  if (flags & StringToNumberFlags::kAllowLeadingSpaces) {
-    f |= double_conversion::StringToDoubleConverter::ALLOW_LEADING_SPACES;
-  }
-  if (flags & StringToNumberFlags::kAllowTrailingSpaces) {
-    f |= double_conversion::StringToDoubleConverter::ALLOW_TRAILING_SPACES;
-  }
-  if (flags & StringToNumberFlags::kAllowTrailingJunk) {
-    f |= double_conversion::StringToDoubleConverter::ALLOW_TRAILING_JUNK;
-  }
-  return f;
-}
-
-static double_conversion::StringToDoubleConverter CreateStringToDoubleConverter(
-    StringToNumberFlag flags) {
-  return {MapStringToDoubleFlags(flags), 0.0, NAN, "inf", "nan"};
-}
-
-float StringView::ParseToFloat(Index* processed_characters_count,
-                               StringToNumberFlag flags) const {
-  int pcc;
-  auto result = CreateStringToDoubleConverter(flags).StringToFloat(
-      reinterpret_cast<const uc16*>(ptr_), static_cast<int>(size_), &pcc);
-  if (processed_characters_count != nullptr) {
-    *processed_characters_count = pcc;
-  }
-
-  if (flags & StringToNumberFlags::kThrowOnError && std::isnan(result)) {
-    throw Exception("Result of string to float conversion is NaN");
-  }
-
-  return result;
-}
-
-double StringView::ParseToDouble(Index* processed_characters_count,
-                                 StringToNumberFlag flags) const {
-  int pcc;
-  auto result = CreateStringToDoubleConverter(flags).StringToDouble(
-      reinterpret_cast<const uc16*>(ptr_), static_cast<int>(size_), &pcc);
-  if (processed_characters_count != nullptr) {
-    *processed_characters_count = pcc;
-  }
-
-  if (flags & StringToNumberFlags::kThrowOnError && std::isnan(result)) {
-    throw Exception("Result of string to double conversion is NaN");
-  }
-
-  return result;
-}
-
-std::vector<float> StringView::ParseToFloatList(value_type separator) const {
-  std::vector<float> result;
-  auto list = Split(separator, true);
-  for (auto& item : list) {
-    auto value = item.ParseToFloat();
-    if (std::isnan(value)) {
-      throw Exception("Invalid double value.");
-    }
-    result.push_back(value);
-  }
-  return result;
-}
-
-std::vector<double> StringView::ParseToDoubleList(value_type separator) const {
-  std::vector<double> result;
-  auto list = Split(separator, true);
-  for (auto& item : list) {
-    auto value = item.ParseToDouble();
-    if (std::isnan(value)) {
-      throw Exception("Invalid double value.");
-    }
-    result.push_back(value);
-  }
-  return result;
 }
 
 String ToLower(StringView s) {

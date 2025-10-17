@@ -84,29 +84,3 @@ TEST_CASE("String FromUtf8", "[string]") {
 
   REQUIRE(cru::String::FromUtf8(utf8_text) == utf16_text);
 }
-
-TEST_CASE("StringView ParseToDouble", "[string]") {
-  using cru::StringToNumberFlags;
-  using cru::StringView;
-  REQUIRE(StringView(u"3.14159").ParseToDouble() == 3.14159);
-  REQUIRE(
-      StringView(u"   3.14159")
-          .ParseToDouble(nullptr, StringToNumberFlags::kAllowLeadingSpaces) ==
-      3.14159);
-  REQUIRE(StringView(u"   3.14159    ")
-              .ParseToDouble(nullptr,
-                             StringToNumberFlags::kAllowLeadingSpaces |
-                                 StringToNumberFlags::kAllowTrailingSpaces) ==
-          3.14159);
-}
-
-TEST_CASE("String ParseToDoubleList", "[string]") {
-  using cru::StringView;
-
-  auto list = StringView(u" 1.23 2.34 3.45 ").ParseToDoubleList();
-
-  REQUIRE(list.size() == 3);
-  REQUIRE(list[0] == 1.23);
-  REQUIRE(list[1] == 2.34);
-  REQUIRE(list[2] == 3.45);
-}

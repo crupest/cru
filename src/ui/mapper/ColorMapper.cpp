@@ -1,6 +1,5 @@
 #include "cru/ui/mapper/ColorMapper.h"
-
-#include <cru/base/String.h>
+#include "cru/base/StringUtil.h"
 
 namespace cru::ui::mapper {
 bool ColorMapper::XmlElementIsOfThisType(xml::XmlElementNode* node) {
@@ -25,7 +24,8 @@ Color ColorMapper::DoMapFromXml(xml::XmlElementNode* node) {
   auto alpha_value_attr =
       node->GetOptionalAttributeValueCaseInsensitive("alpha");
   if (alpha_value_attr) {
-    result.alpha = String::FromUtf8(*alpha_value_attr).ParseToDouble() * 255;
+    result.alpha =
+        cru::string::ParseToNumber<double>(*alpha_value_attr).value * 255;
   }
 
   return result;

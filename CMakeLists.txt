@@ -16,7 +16,6 @@ if (APPLE)
 endif()
 
 add_subdirectory(lib/Catch2)
-add_subdirectory(lib/double-conversion)
 
 enable_testing()
 

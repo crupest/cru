@@ -1,6 +1,5 @@
 #include "cru/ui/mapper/PointMapper.h"
-
-#include <cru/base/String.h>
+#include "cru/base/StringUtil.h"
 
 namespace cru::ui::mapper {
 bool PointMapper::XmlElementIsOfThisType(xml::XmlElementNode* node) {
@@ -8,7 +7,7 @@ bool PointMapper::XmlElementIsOfThisType(xml::XmlElementNode* node) {
 }
 
 Point PointMapper::DoMapFromString(std::string str) {
-  std::vector<float> values = String::FromUtf8(str).ParseToFloatList();
+  std::vector<float> values = cru::string::ParseToNumberList<float>(str);
   if (values.size() == 2) {
     return {values[0], values[1]};
   } else if (values.size() == 1) {

@@ -2,11 +2,15 @@
 #include "Base.h"
 #include "Bitmask.h"
 
+#include <algorithm>
+#include <cctype>
+#include <charconv>
 #include <compare>
 #include <format>
 #include <functional>
 #include <string>
 #include <string_view>
+#include <system_error>
 #include <type_traits>
 #include <vector>
 
@@ -30,6 +34,90 @@ struct SplitOptions {
 
 std::vector<std::string> Split(std::string_view str, std::string_view sep,
                                SplitOption options = {});
+
+namespace details {
+struct ParseToNumberFlagTag {};
+}  // namespace details
+
+using ParseToNumberFlag = Bitmask<details::ParseToNumberFlagTag>;
+
+struct ParseToNumberFlags {
+  constexpr static ParseToNumberFlag AllowLeadingSpaces =
+      ParseToNumberFlag::FromOffset(1);
+  constexpr static ParseToNumberFlag AllowTrailingSpaces =
+      ParseToNumberFlag::FromOffset(2);
+  constexpr static ParseToNumberFlag AllowTrailingJunk =
+      ParseToNumberFlag::FromOffset(3);
+};
+
+template <typename T>
+struct ParseToNumberResult {
+  bool valid;
+  T value;
+  Index processed_char_count;
+  std::string message;
+};
+
+template <typename T>
+ParseToNumberResult<T> ParseToNumber(std::string_view str,
+                                     ParseToNumberFlag flags = {}) {
+  ParseToNumberResult<T> result{};
+
+  const char* ptr = str.data();
+  const char* const begin = str.data();
+  const char* const end = str.data() + str.size();
+  if (flags.Has(ParseToNumberFlags::AllowLeadingSpaces)) {
+    while (ptr != str.data() + str.size() && isspace(*ptr)) {
+      ptr++;
+    }
+  }
+
+  if (ptr == end) {
+    result.valid = false;
+    result.message =
+        "Parsing reached the end (after reading all leading spaces).";
+    return result;
+  }
+
+  auto parse_result =
+      std::from_chars(ptr, str.data() + str.size(), result.value);
+  if (parse_result.ec == std::errc::invalid_argument) {
+    result.valid = false;
+    result.message = "Not a valid number.";
+    return result;
+  } else if (parse_result.ec == std::errc::result_out_of_range) {
+    result.valid = false;
+    result.message = "Value out of range.";
+    return result;
+  } else {
+    if (parse_result.ptr == end ||
+        flags.Has(ParseToNumberFlags::AllowTrailingJunk) ||
+        (flags.Has(ParseToNumberFlags::AllowTrailingSpaces) &&
+         IsSpace(std::string_view(parse_result.ptr, end)))) {
+      result.valid = true;
+      result.processed_char_count = parse_result.ptr - str.data();
+      return result;
+    } else {
+      result.valid = false;
+      result.message = "There are junk trailing characters.";
+      return result;
+    }
+  }
+}
+
+template <typename T>
+std::vector<T> ParseToNumberList(std::string_view str,
+                                 std::string_view separator = " ") {
+  auto segs = Split(str, separator, SplitOptions::RemoveSpace);
+  std::vector<T> result;
+  for (const auto& seg : segs) {
+    result.push_back(
+        ParseToNumber<T>(Trim(seg), ParseToNumberFlags::AllowLeadingSpaces |
+                                        ParseToNumberFlags::AllowTrailingSpaces)
+            .value);
+  }
+  return result;
+}
 
 template <typename T>
 struct ImplementFormatterByToString {

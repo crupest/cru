@@ -5,7 +5,6 @@ add_library(CruBase
 	Format.cpp
 	PropertyTree.cpp
 	String.cpp
-	StringToNumberConverter.cpp
 	StringUtil.cpp
 	SubProcess.cpp
 	io/AutoReadStream.cpp
@@ -85,5 +84,3 @@ else()
 		CRU_PLATFORM_UNIX
 	)
 endif()
-
-target_link_libraries(CruBase PUBLIC double-conversion)

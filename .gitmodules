@@ -1,6 +1,3 @@
-[submodule "lib/double-conversion"]
-	path = lib/double-conversion
-	url = https://github.com/google/double-conversion.git
 [submodule "lib/Catch2"]
 	path = lib/Catch2
 	url = https://github.com/catchorg/Catch2.git

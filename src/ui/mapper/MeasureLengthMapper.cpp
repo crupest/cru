@@ -15,7 +15,7 @@ render::MeasureLength MeasureLengthMapper::DoMapFromString(std::string str) {
   if (cru::string::CaseInsensitiveCompare(str, "unspecified") == 0) {
     return render::MeasureLength::NotSpecified();
   }
-  auto value = String::FromUtf8(str).ParseToFloat();
+  auto value = cru::string::ParseToNumber<float>(str).value;
   if (value < 0) {
     return render::MeasureLength::NotSpecified();
   }

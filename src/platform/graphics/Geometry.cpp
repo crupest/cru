@@ -1,7 +1,7 @@
 #include "cru/platform/graphics/Geometry.h"
 
 #include "cru/base/Exception.h"
-#include "cru/base/String.h"
+#include "cru/base/StringUtil.h"
 #include "cru/platform/Exception.h"
 #include "cru/platform/graphics/Factory.h"
 
@@ -235,17 +235,15 @@ void IGeometryBuilder::ParseAndApplySvgPathData(std::string_view path_d) {
       ++position;
     }
 
-    Index processed_count = 0;
 
-    auto result = String::FromUtf8(path_d.substr(position))
-                      .ParseToFloat(&processed_count,
-                                    StringToNumberFlags::kAllowTrailingJunk);
+    auto result = cru::string::ParseToNumber<float>(
+        path_d.substr(position), cru::string::ParseToNumberFlags::AllowTrailingJunk);
 
-    if (std::isnan(result)) throw Exception("Invalid svg path data number.");
+    if (!result.valid) throw Exception("Invalid svg path data number.");
 
-    position += processed_count;
+    position += result.processed_char_count;
 
-    return result;
+    return result.value;
   };
 
   auto read_point = [&] {

@@ -1,6 +1,6 @@
 #include "cru/ui/mapper/ThicknessMapper.h"
+#include "cru/base/StringUtil.h"
 #include "cru/xml/XmlNode.h"
-#include "cru/base/String.h"
 
 namespace cru::ui::mapper {
 bool ThicknessMapper::XmlElementIsOfThisType(xml::XmlElementNode* node) {
@@ -8,7 +8,7 @@ bool ThicknessMapper::XmlElementIsOfThisType(xml::XmlElementNode* node) {
 }
 
 Thickness ThicknessMapper::DoMapFromString(std::string str) {
-  std::vector<float> values = String::FromUtf8(str).ParseToFloatList();
+  std::vector<float> values = cru::string::ParseToNumberList<float>(str);
   if (values.size() == 4) {
     return Thickness(values[0], values[1], values[2], values[3]);
   } else if (values.size() == 2) {

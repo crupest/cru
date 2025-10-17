@@ -4,7 +4,6 @@ add_executable(CruBaseTest
 	PropertyTreeTest.cpp
 	SelfResolvableTest.cpp
 	StringTest.cpp
-	StringToNumberConverterTest.cpp
 	StringUtilTest.cpp
 	SubProcessTest.cpp
 )

@@ -3,7 +3,6 @@
 
 #include "Buffer.h"
 #include "Range.h"
-#include "StringToNumberConverter.h"
 #include "StringUtil.h"
 
 #include <filesystem>
@@ -11,7 +10,6 @@
 #include <iterator>
 #include <string>
 #include <string_view>
-#include <type_traits>
 #include <vector>
 
 namespace cru {
@@ -215,22 +213,6 @@ class CRU_BASE_API String {
   Range RangeFromCodeUnitToCodePoint(Range code_unit_range) const;
   Range RangeFromCodePointToCodeUnit(Range code_point_range) const;
 
-  template <typename TInteger>
-  std::enable_if_t<std::is_signed_v<TInteger>, TInteger> ParseToInteger(
-      Index* processed_characters_count, unsigned flags, int base) const;
-
-  int ParseToInt(Index* processed_characters_count = nullptr,
-                 StringToNumberFlag flags = {}, int base = 0) const;
-  long long ParseToLongLong(Index* processed_characters_count = nullptr,
-                            StringToNumberFlag flags = {}, int base = 0) const;
-
-  float ParseToFloat(Index* processed_characters_count = nullptr,
-                     StringToNumberFlag flags = {}) const;
-  double ParseToDouble(Index* processed_characters_count = nullptr,
-                       StringToNumberFlag flags = {}) const;
-  std::vector<float> ParseToFloatList(value_type separator = u' ') const;
-  std::vector<double> ParseToDoubleList(value_type separator = u' ') const;
-
 #ifdef CRU_PLATFORM_WINDOWS
   const wchar_t* WinCStr() const {
     return reinterpret_cast<const wchar_t*>(c_str());
@@ -351,29 +333,6 @@ class CRU_BASE_API StringView {
   Range RangeFromCodeUnitToCodePoint(Range code_unit_range) const;
   Range RangeFromCodePointToCodeUnit(Range code_point_range) const;
 
-  template <typename TInteger>
-  std::enable_if_t<std::is_signed_v<TInteger>, TInteger> ParseToInteger(
-      Index* processed_characters_count, StringToNumberFlag flags,
-      int base) const {
-    auto utf8_string = ToUtf8();
-    auto result = StringToIntegerConverter(flags, base)
-                      .Parse(utf8_string.data(), utf8_string.size(),
-                             processed_characters_count);
-    return result.negate ? -result.value : result.value;
-  }
-
-  int ParseToInt(Index* processed_characters_count = nullptr,
-                 StringToNumberFlag flags = {}, int base = 0) const;
-  long long ParseToLongLong(Index* processed_characters_count = nullptr,
-                            StringToNumberFlag flags = {}, int base = 0) const;
-
-  float ParseToFloat(Index* processed_characters_count = nullptr,
-                     StringToNumberFlag flags = {}) const;
-  double ParseToDouble(Index* processed_characters_count = nullptr,
-                       StringToNumberFlag flags = {}) const;
-  std::vector<float> ParseToFloatList(value_type separator = u' ') const;
-  std::vector<double> ParseToDoubleList(value_type separator = u' ') const;
-
   std::string ToUtf8() const;
   Buffer ToUtf8Buffer(bool end_zero = true) const;
 
@@ -463,12 +422,6 @@ inline Index Utf16NextWord(StringView str, Index position,
 
 String CRU_BASE_API ToLower(StringView s);
 String CRU_BASE_API ToUpper(StringView s);
-
-template <typename TInteger>
-std::enable_if_t<std::is_signed_v<TInteger>, TInteger> String::ParseToInteger(
-    Index* processed_characters_count, unsigned flags, int base) const {
-  View().ParseToInteger<TInteger>(processed_characters_count, flags, base);
-}
 
 }  // namespace cru
 
