@@ -7,7 +7,7 @@ using namespace cru::toml;
 
 TEST_CASE("CruTomlParserTest Simple", "[toml]") {
   TomlParser parser(
-      uR"(
+      R"(
 a1 = v1
 a2 = v2
 # comment
@@ -22,10 +22,10 @@ a5 = v5
 a6 = v6
   )");
   auto document = parser.Parse();
-  REQUIRE(document.GetSection(u"")->GetValue(u"a1") == u"v1");
-  REQUIRE(document.GetSection(u"")->GetValue(u"a2") == u"v2");
-  REQUIRE(document.GetSection(u"s1")->GetValue(u"a3") == u"v3");
-  REQUIRE(document.GetSection(u"s1")->GetValue(u"a4") == u"v4");
-  REQUIRE(document.GetSection(u"s2")->GetValue(u"a5") == u"v5");
-  REQUIRE(document.GetSection(u"s2")->GetValue(u"a6") == u"v6");
+  REQUIRE(document.GetSection("")->GetValue("a1") == "v1");
+  REQUIRE(document.GetSection("")->GetValue("a2") == "v2");
+  REQUIRE(document.GetSection("s1")->GetValue("a3") == "v3");
+  REQUIRE(document.GetSection("s1")->GetValue("a4") == "v4");
+  REQUIRE(document.GetSection("s2")->GetValue("a5") == "v5");
+  REQUIRE(document.GetSection("s2")->GetValue("a6") == "v6");
 }

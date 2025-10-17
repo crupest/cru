@@ -96,7 +96,7 @@ void Logger::RemoveDebugTag(const std::string &tag) {
 void Logger::LoadDebugTagFromEnv(const char *env_var, std::string sep) {
   auto env = std::getenv(env_var);
   if (env != nullptr) {
-    for (auto tag : Split(std::string(env), sep)) {
+    for (auto tag : cru::string::Split(std::string(env), sep)) {
       AddDebugTag(std::move(tag));
     }
   }

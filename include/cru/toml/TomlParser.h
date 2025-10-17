@@ -14,7 +14,7 @@ class CRU_TOML_API TomlParsingException : public Exception {
 
 class CRU_TOML_API TomlParser {
  public:
-  explicit TomlParser(String input);
+  explicit TomlParser(std::string input);
 
   CRU_DELETE_COPY(TomlParser)
   CRU_DELETE_MOVE(TomlParser)
@@ -29,7 +29,7 @@ class CRU_TOML_API TomlParser {
   void DoParse(TomlDocument& document);
 
  private:
-  String input_;
+  std::string input_;
 
   std::optional<TomlDocument> cache_;
 };

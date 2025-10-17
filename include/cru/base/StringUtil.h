@@ -5,6 +5,7 @@
 #include <compare>
 #include <functional>
 #include <stdexcept>
+#include <string>
 #include <string_view>
 #include <type_traits>
 #include <vector>
@@ -16,7 +17,7 @@ std::weak_ordering CaseInsensitiveCompare(std::string_view left,
 std::string TrimBegin(std::string_view str);
 std::string TrimEnd(std::string_view str);
 std::string Trim(std::string_view str);
-}  // namespace string
+bool IsSpace(std::string_view str);
 
 namespace details {
 struct SplitOptionsTag {};
@@ -24,43 +25,12 @@ struct SplitOptionsTag {};
 using SplitOption = Bitmask<details::SplitOptionsTag>;
 struct SplitOptions {
   static constexpr SplitOption RemoveEmpty = SplitOption::FromOffset(1);
+  static constexpr SplitOption RemoveSpace = SplitOption::FromOffset(2);
 };
 
-template <typename TString>
-std::vector<TString> Split(const TString& str, const TString& sep,
-                           SplitOption options = {}) {
-  using size_type = typename TString::size_type;
-
-  if (sep.empty()) throw std::invalid_argument("Sep can't be empty.");
-  if (str.empty()) return {};
-
-  size_type current_pos = 0;
-  std::vector<TString> result;
-
-  while (current_pos != TString::npos) {
-    if (current_pos == str.size()) {
-      if (!options.Has(SplitOptions::RemoveEmpty)) {
-        result.push_back({});
-      }
-      break;
-    }
-
-    auto next_pos = str.find(sep, current_pos);
-    auto sub = str.substr(current_pos, next_pos - current_pos);
-    if (!(options.Has(SplitOptions::RemoveEmpty) && sub.empty())) {
-      result.push_back(sub);
-    }
-    current_pos =
-        next_pos == TString::npos ? TString::npos : next_pos + sep.size();
-  }
-
-  return result;
-}
-
-inline std::vector<std::string> Split(const char* str, const std::string& sep,
-                                      SplitOption options = {}) {
-  return Split<std::string>(std::string(str), sep, options);
-}
+std::vector<std::string> Split(std::string_view str, std::string_view sep,
+                               SplitOption options = {});
+}  // namespace string
 
 using CodePoint = std::int32_t;
 constexpr CodePoint k_invalid_code_point = -1;

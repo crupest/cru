@@ -1,8 +1,9 @@
 #include "cru/toml/TomlParser.h"
+#include "cru/base/StringUtil.h"
 #include "cru/toml/TomlDocument.h"
 
 namespace cru::toml {
-TomlParser::TomlParser(String input) : input_(std::move(input)) {}
+TomlParser::TomlParser(std::string input) : input_(std::move(input)) {}
 
 TomlParser::~TomlParser() = default;
 
@@ -17,25 +18,25 @@ TomlDocument TomlParser::Parse() {
 }
 
 void TomlParser::DoParse(TomlDocument& document) {
-  std::vector<String> lines = input_.SplitToLines(true);
+  std::vector<std::string> lines = cru::string::Split(input_, "\n", cru::string::SplitOptions::RemoveSpace);
 
-  String current_section_name;
+  std::string current_section_name;
 
   for (auto& line : lines) {
-    line.Trim();
-    if (line.StartWith(u"[") && line.EndWith(u"]")) {
+    line = cru::string::Trim(line);
+    if (line.starts_with("[") && line.ends_with("]")) {
       current_section_name = line.substr(1, line.size() - 2);
-    } else if (line.StartWith(u"#")) {
+    } else if (line.starts_with("#")) {
       // Ignore comments.
     } else {
-      auto equal_index = line.Find(u'=');
+      auto equal_index = line.find('=');
 
-      if (equal_index == -1) {
-        throw TomlParsingException("Invalid TOML line: " + line.ToUtf8());
+      if (equal_index == std::string::npos) {
+        throw TomlParsingException("Invalid TOML line: " + line);
       }
 
-      auto key = line.substr(0, equal_index).Trim();
-      auto value = line.substr(equal_index + 1).Trim();
+      auto key = cru::string::Trim(line.substr(0, equal_index));
+      auto value = cru::string::Trim(line.substr(equal_index + 1));
 
       document.GetSectionOrCreate(current_section_name)->SetValue(key, value);
     }

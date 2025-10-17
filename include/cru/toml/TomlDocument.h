@@ -3,7 +3,6 @@
 #include "Base.h"
 
 #include "cru/base/Base.h"
-#include "cru/base/String.h"
 
 #include <optional>
 #include <unordered_map>
@@ -16,9 +15,9 @@ class CRU_TOML_API TomlSection {
   CRU_DEFAULT_MOVE(TomlSection)
 
  public:
-  std::optional<String> GetValue(const String& key) const;
-  void SetValue(const String& key, String value);
-  void DeleteValue(const String& key);
+  std::optional<std::string> GetValue(const std::string& key) const;
+  void SetValue(const std::string& key, std::string value);
+  void DeleteValue(const std::string& key);
 
   auto begin() { return values_.begin(); }
   auto end() { return values_.end(); }
@@ -28,7 +27,7 @@ class CRU_TOML_API TomlSection {
   auto cend() const { return values_.cend(); }
 
  private:
-  std::unordered_map<String, String> values_;
+  std::unordered_map<std::string, std::string> values_;
 };
 
 class CRU_TOML_API TomlDocument {
@@ -38,11 +37,11 @@ class CRU_TOML_API TomlDocument {
   CRU_DEFAULT_MOVE(TomlDocument)
 
  public:
-  TomlSection* GetSection(const String& name);
-  TomlSection* GetSectionOrCreate(const String& name);
-  const TomlSection* GetSection(const String& name) const;
-  void SetSection(const String& name, TomlSection section);
-  void DeleteSection(const String& name);
+  TomlSection* GetSection(const std::string& name);
+  TomlSection* GetSectionOrCreate(const std::string& name);
+  const TomlSection* GetSection(const std::string& name) const;
+  void SetSection(const std::string& name, TomlSection section);
+  void DeleteSection(const std::string& name);
 
   auto begin() { return sections_.begin(); }
   auto end() { return sections_.end(); }
@@ -52,6 +51,6 @@ class CRU_TOML_API TomlDocument {
   auto cend() const { return sections_.cend(); }
 
  private:
-  std::unordered_map<String, TomlSection> sections_;
+  std::unordered_map<std::string, TomlSection> sections_;
 };
 }  // namespace cru::toml

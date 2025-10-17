@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <cctype>
 #include <compare>
+#include <string_view>
 
 namespace cru {
 namespace string {
@@ -39,6 +40,43 @@ std::string Trim(std::string_view str) {
   auto iter2 = std::find_if(str.crbegin(), str.crend(),
                             [](char c) { return !std::isspace(c); });
   return std::string(iter1, str.cend() - (iter2 - str.crbegin()));
+}
+
+bool IsSpace(std::string_view str) {
+  return std::ranges::all_of(str, [](char c) { return std::isspace(c); });
+}
+
+std::vector<std::string> Split(std::string_view str, std::string_view sep,
+                               SplitOption options) {
+  using size_type = std::string_view::size_type;
+
+  if (sep.empty()) throw std::invalid_argument("Sep can't be empty.");
+  if (str.empty()) return {};
+
+  size_type current_pos = 0;
+  std::vector<std::string> result;
+
+  while (current_pos != std::string_view::npos) {
+    if (current_pos == str.size()) {
+      if (!options.Has(SplitOptions::RemoveEmpty)) {
+        result.push_back({});
+      }
+      break;
+    }
+
+    auto next_pos = str.find(sep, current_pos);
+    auto sub = str.substr(current_pos, next_pos == std::string_view::npos
+                                           ? std::string_view::npos
+                                           : next_pos - current_pos);
+    if (!(options.Has(SplitOptions::RemoveEmpty) && sub.empty() ||
+          options.Has(SplitOptions::RemoveSpace) && IsSpace(sub))) {
+      result.push_back(std::string(sub));
+    }
+    current_pos = next_pos == std::string_view::npos ? std::string_view::npos
+                                                     : next_pos + sep.size();
+  }
+
+  return result;
 }
 }  // namespace string
 

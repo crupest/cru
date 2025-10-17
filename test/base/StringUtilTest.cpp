@@ -7,7 +7,7 @@ using cru::Index;
 using cru::k_invalid_code_point;
 
 TEST_CASE("StringUtil Split", "[string]") {
-  using cru::Split;
+  using cru::string::Split;
   REQUIRE(Split("abc", "b") == std::vector<std::string>{"a", "c"});
   REQUIRE(Split("abcd", "bc") == std::vector<std::string>{"a", "d"});
   REQUIRE(Split("abcdbcd", "bc") == std::vector<std::string>{"a", "d", "d"});
