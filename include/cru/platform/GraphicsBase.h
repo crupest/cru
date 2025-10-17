@@ -1,9 +1,8 @@
 #pragma once
 #include "Base.h"
 
-#include "cru/base/Format.h"
-#include "cru/base/Range.h"
-#include "cru/base/String.h"
+#include <cru/base/Range.h>
+#include <cru/base/StringUtil.h>
 
 #include <format>
 #include <limits>
@@ -24,6 +23,10 @@ struct Point final {
 
   constexpr Point Negate() const { return Point(-x, -y); }
 
+  std::string ToString() const {
+    return std::format("Point(x: {}, y: {})", x, y);
+  }
+
   float x = 0;
   float y = 0;
 };
@@ -40,14 +43,6 @@ constexpr bool operator==(const Point& left, const Point& right) {
   return left.x == right.x && left.y == right.y;
 }
 
-inline std::string ToUtf8String(const Point& point) {
-  return std::format("Point(x: {}, y: {})", point.x, point.y);
-}
-
-inline String ToString(const Point& point) {
-  return String::FromUtf8(ToUtf8String(point));
-}
-
 struct Size final {
   static CRU_PLATFORM_API const Size kMax;
   static CRU_PLATFORM_API const Size kZero;
@@ -61,6 +56,10 @@ struct Size final {
   constexpr static Size Infinite() {
     return Size{std::numeric_limits<float>::max(),
                 std::numeric_limits<float>::max()};
+  }
+
+  std::string ToString() const {
+    return std::format("Size(width: {}, height: {})", width, height);
   }
 
   float width = 0;
@@ -79,14 +78,6 @@ constexpr Size operator-(const Size& left, const Size& right) {
 
 constexpr bool operator==(const Size& left, const Size& right) {
   return left.width == right.width && left.height == right.height;
-}
-
-inline std::string ToUtf8String(const Size& size) {
-  return std::format("Size(width: {}, height: {})", size.width, size.height);
-}
-
-inline String ToString(const Size& size) {
-  return String::FromUtf8(ToUtf8String(size));
 }
 
 struct Thickness final {
@@ -230,6 +221,11 @@ struct Rect final {
     return result;
   }
 
+  std::string ToString() const {
+    return std::format("Rect(left: {}, top: {}, width: {}, height: {})", left,
+                       top, width, height);
+  }
+
   float left = 0.0f;
   float top = 0.0f;
   float width = 0.0f;
@@ -239,15 +235,6 @@ struct Rect final {
 constexpr bool operator==(const Rect& left, const Rect& right) {
   return left.left == right.left && left.top == right.top &&
          left.width == right.width && left.height == right.height;
-}
-
-inline std::string ToUtf8String(const Rect& rect) {
-  return std::format("Rect(left: {}, top: {}, width: {}, height: {})",
-                     rect.left, rect.top, rect.width, rect.height);
-}
-
-inline String ToString(const Rect& rect) {
-  return String::FromUtf8(ToUtf8String(rect));
 }
 
 struct RoundedRect final {
@@ -295,12 +282,12 @@ using TextRange = Range;
 
 template <>
 struct std::formatter<cru::platform::Point, char>
-    : cru::ImplementFormatterByToUtf8String<cru::platform::Point> {};
+    : cru::string::ImplementFormatterByToString<cru::platform::Point> {};
 
 template <>
 struct std::formatter<cru::platform::Size, char>
-    : cru::ImplementFormatterByToUtf8String<cru::platform::Size> {};
+    : cru::string::ImplementFormatterByToString<cru::platform::Size> {};
 
 template <>
 struct std::formatter<cru::platform::Rect, char>
-    : cru::ImplementFormatterByToUtf8String<cru::platform::Rect> {};
+    : cru::string::ImplementFormatterByToString<cru::platform::Rect> {};

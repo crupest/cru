@@ -1,13 +1,11 @@
 #pragma once
 #include "Base.h"
 
-#include "cru/base/Base.h"
-#include "cru/base/String.h"
+#include <cru/base/Base.h>
 
 #include <cstdint>
-#include <format>
 #include <optional>
-#include <unordered_map>
+#include <string_view>
 
 namespace cru::platform {
 struct CRU_PLATFORM_API Color {
@@ -38,14 +36,14 @@ struct CRU_PLATFORM_API Color {
   float GetFloatBlue() const { return static_cast<float>(blue) / 255.f; }
   float GetFloatAlpha() const { return static_cast<float>(alpha) / 255.f; }
 
-  String ToString() const;
+  std::string ToString() const;
 
   std::uint8_t red;
   std::uint8_t green;
   std::uint8_t blue;
   std::uint8_t alpha;
 
-  static std::optional<Color> Parse(StringView string,
+  static std::optional<Color> Parse(std::string_view string,
                                     bool parse_predefined_color = true);
 };
 
@@ -251,16 +249,7 @@ struct std::hash<cru::platform::Color> {
 };
 
 namespace cru::platform {
-namespace details {
-extern const std::unordered_map<StringView, Color> predefined_name_color_map;
-}  // namespace details
-
-std::optional<Color> GetPredefinedColorByName(StringView name);
-
-inline String ToString(const Color& color) {
-  return String::FromUtf8(std::format("rgba({}, {}, {}, {})", color.red,
-                                      color.green, color.blue, color.alpha));
-}
+std::optional<Color> GetPredefinedColorByName(std::string_view name);
 
 struct CRU_PLATFORM_API HslColor {
   HslColor() = default;

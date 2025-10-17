@@ -3,8 +3,8 @@
 #include "Bitmask.h"
 
 #include <compare>
+#include <format>
 #include <functional>
-#include <stdexcept>
 #include <string>
 #include <string_view>
 #include <type_traits>
@@ -30,6 +30,25 @@ struct SplitOptions {
 
 std::vector<std::string> Split(std::string_view str, std::string_view sep,
                                SplitOption options = {});
+
+template <typename T>
+struct ImplementFormatterByToString {
+  template <class ParseContext>
+  constexpr ParseContext::iterator parse(ParseContext& ctx) const {
+    auto iter = ctx.begin();
+    if (*iter != '}') {
+      throw std::format_error(
+          "ImplementFormatterByToString does not accept format args.");
+    }
+    return iter;
+  }
+
+  template <class FmtContext>
+  FmtContext::iterator format(const T& object, FmtContext& ctx) const {
+    return std::ranges::copy(object.ToString(), ctx.out()).out;
+  }
+};
+
 }  // namespace string
 
 using CodePoint = std::int32_t;
