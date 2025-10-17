@@ -8,9 +8,6 @@
 
 #include "../../Exception.h"
 
-#include <stdexcept>
-#include <string_view>
-
 namespace cru::platform::win {
 class CRU_BASE_API HResultError : public Exception {
  public:
@@ -35,8 +32,8 @@ class CRU_BASE_API Win32Error : public Exception {
  public:
   // ::GetLastError is automatically called to get the error code.
   // The same as Win32Error(::GetLastError(), message)
-  explicit Win32Error(String message);
-  Win32Error(DWORD error_code, String message);
+  explicit Win32Error(std::string_view message);
+  Win32Error(DWORD error_code, std::string_view message);
 
   DWORD GetErrorCode() const { return error_code_; }
 

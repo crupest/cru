@@ -1,6 +1,7 @@
 #include "cru/platform/graphics/direct2d/TextLayout.h"
 #include <dwrite.h>
 
+#include "cru/base/StringUtil.h"
 #include "cru/base/log/Logger.h"
 #include "cru/platform/Check.h"
 #include "cru/platform/graphics/direct2d/Exception.h"
@@ -11,27 +12,28 @@
 
 namespace cru::platform::graphics::direct2d {
 DWriteTextLayout::DWriteTextLayout(DirectGraphicsFactory* factory,
-                                   std::shared_ptr<IFont> font, String text)
+                                   std::shared_ptr<IFont> font,
+                                   std::string text)
     : DirectGraphicsResource(factory), text_(std::move(text)) {
   Expects(font);
   font_ = CheckPlatform<DWriteFont>(font, GetPlatformId());
 
+  utf16_text_ = string::ToUtf16(text_);
   ThrowIfFailed(factory->GetDWriteFactory()->CreateTextLayout(
-      reinterpret_cast<const wchar_t*>(text_.c_str()),
-      static_cast<UINT32>(text_.size()), font_->GetComInterface(), max_width_,
-      max_height_, &text_layout_));
+      utf16_text_.c_str(), static_cast<UINT32>(utf16_text_.size()),
+      font_->GetComInterface(), max_width_, max_height_, &text_layout_));
 }
 
 DWriteTextLayout::~DWriteTextLayout() = default;
 
-String DWriteTextLayout::GetText() { return text_; }
+std::string DWriteTextLayout::GetText() { return text_; }
 
-void DWriteTextLayout::SetText(String new_text) {
+void DWriteTextLayout::SetText(std::string new_text) {
   text_ = std::move(new_text);
+  utf16_text_ = string::ToUtf16(text_);
   ThrowIfFailed(GetDirectFactory()->GetDWriteFactory()->CreateTextLayout(
-      reinterpret_cast<const wchar_t*>(text_.c_str()),
-      static_cast<UINT32>(text_.size()), font_->GetComInterface(), max_width_,
-      max_height_, &text_layout_));
+      utf16_text_.c_str(), static_cast<UINT32>(utf16_text_.size()),
+      font_->GetComInterface(), max_width_, max_height_, &text_layout_));
 }
 
 std::shared_ptr<IFont> DWriteTextLayout::GetFont() {
@@ -70,7 +72,7 @@ Index DWriteTextLayout::GetLineIndexFromCharIndex(Index char_index) {
 
   auto line_index = 0;
   for (Index i = 0; i < char_index; ++i) {
-    if (text_[i] == u'\n') {
+    if (text_[i] == '\n') {
       line_index++;
     }
   }
@@ -108,7 +110,19 @@ std::vector<Rect> DWriteTextLayout::TextRangeRect(
   if (text_range_arg.count == 0) {
     return {};
   }
-  const auto text_range = text_range_arg.Normalize();
+  const auto text_range =
+      Range::FromTwoSides(
+          string::Utf16IndexCodePointToCodeUnit(
+              reinterpret_cast<const char16_t*>(utf16_text_.data()),
+              utf16_text_.size(),
+              string::Utf8IndexCodeUnitToCodePoint(text_.data(), text_.size(),
+                                                   text_range_arg.GetStart())),
+          string::Utf16IndexCodePointToCodeUnit(
+              reinterpret_cast<const char16_t*>(utf16_text_.data()),
+              utf16_text_.size(),
+              string::Utf8IndexCodeUnitToCodePoint(text_.data(), text_.size(),
+                                                   text_range_arg.GetEnd())))
+          .Normalize();
 
   DWRITE_TEXT_METRICS text_metrics;
   ThrowIfFailed(text_layout_->GetMetrics(&text_metrics));
@@ -137,6 +151,10 @@ std::vector<Rect> DWriteTextLayout::TextRangeRect(
 }
 
 Rect DWriteTextLayout::TextSinglePoint(Index position, bool trailing) {
+  position = string::Utf16IndexCodePointToCodeUnit(
+      reinterpret_cast<const char16_t*>(utf16_text_.data()), utf16_text_.size(),
+      string::Utf8IndexCodeUnitToCodePoint(text_.data(), text_.size(),
+                                           position));
   DWRITE_HIT_TEST_METRICS metrics;
   FLOAT left;
   FLOAT top;
@@ -155,7 +173,11 @@ TextHitTestResult DWriteTextLayout::HitTest(const Point& point) {
                                            &metrics));
 
   TextHitTestResult result;
-  result.position = metrics.textPosition;
+  result.position = string::Utf8IndexCodePointToCodeUnit(
+      text_.data(), text_.size(),
+      string::Utf16IndexCodeUnitToCodePoint(
+          reinterpret_cast<const char16_t*>(utf16_text_.data()),
+          utf16_text_.size(), metrics.textPosition));
   result.trailing = trailing != 0;
   return result;
 }

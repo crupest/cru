@@ -6,6 +6,7 @@
 
 #include <optional>
 #include <unordered_map>
+#include <string>
 
 namespace cru::toml {
 class CRU_TOML_API TomlSection {

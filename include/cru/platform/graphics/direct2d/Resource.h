@@ -12,7 +12,7 @@ class CRU_WIN_GRAPHICS_DIRECT_API DirectResource
     : public Object,
       public virtual IPlatformResource {
  public:
-  static String kPlatformId;
+  static std::string kPlatformId;
 
  protected:
   DirectResource() = default;
@@ -24,7 +24,7 @@ class CRU_WIN_GRAPHICS_DIRECT_API DirectResource
   ~DirectResource() override = default;
 
  public:
-  String GetPlatformId() const final { return kPlatformId; }
+  std::string GetPlatformId() const final { return kPlatformId; }
 };
 
 class CRU_WIN_GRAPHICS_DIRECT_API DirectGraphicsResource

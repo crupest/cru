@@ -1,3 +1,4 @@
+#include "cru/base/StringUtil.h"
 #include "cru/base/io/OpenFileFlag.h"
 #include "cru/base/platform/win/Exception.h"
 #include "cru/base/platform/win/StreamConvert.h"
@@ -18,7 +19,7 @@ TEST_CASE("StreamConvert FileStreamWork", "[stream]") {
           .native();
   _wmktemp(temp_file_path.data());
 
-  String path = temp_file_path;
+  std::string path = string::ToUtf8(temp_file_path);
 
   Win32FileStream file(path, OpenFileFlags::Write | OpenFileFlags::Create);
   file.Write("abc", 3);

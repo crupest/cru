@@ -3,7 +3,7 @@
 #include "cru/platform/graphics/direct2d/Factory.h"
 
 namespace cru::platform::graphics::direct2d {
-String DirectResource::kPlatformId = u"Windows Direct";
+std::string DirectResource::kPlatformId = "Windows Direct";
 
 DirectGraphicsResource::DirectGraphicsResource(DirectGraphicsFactory* factory)
     : factory_(factory) {

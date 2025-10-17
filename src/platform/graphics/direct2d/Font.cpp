@@ -1,5 +1,6 @@
 #include "cru/platform/graphics/direct2d/Font.h"
 
+#include "cru/base/StringUtil.h"
 #include "cru/platform/graphics/direct2d/Exception.h"
 #include "cru/platform/graphics/direct2d/Factory.h"
 
@@ -7,7 +8,7 @@
 #include <utility>
 
 namespace cru::platform::graphics::direct2d {
-DWriteFont::DWriteFont(DirectGraphicsFactory* factory, String font_family,
+DWriteFont::DWriteFont(DirectGraphicsFactory* factory, std::string font_family,
                        float font_size)
     : DirectGraphicsResource(factory), font_family_(std::move(font_family)) {
   // Get locale
@@ -15,19 +16,19 @@ DWriteFont::DWriteFont(DirectGraphicsFactory* factory, String font_family,
   if (!::GetUserDefaultLocaleName(buffer.data(),
                                   static_cast<int>(buffer.size())))
     throw platform::win::Win32Error(
-        ::GetLastError(), u"Failed to get locale when create dwrite font.");
+        ::GetLastError(), "Failed to get locale when create dwrite font.");
 
   ThrowIfFailed(factory->GetDWriteFactory()->CreateTextFormat(
-      reinterpret_cast<const wchar_t*>(font_family_.c_str()), nullptr,
-      DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STYLE_NORMAL,
-      DWRITE_FONT_STRETCH_NORMAL, font_size, buffer.data(), &text_format_));
+      string::ToUtf16(font_family_).c_str(), nullptr, DWRITE_FONT_WEIGHT_NORMAL,
+      DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, font_size,
+      buffer.data(), &text_format_));
 
   ThrowIfFailed(text_format_->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING));
   ThrowIfFailed(
       text_format_->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_NEAR));
 }
 
-String DWriteFont::GetFontName() { return font_family_; }
+std::string DWriteFont::GetFontName() { return font_family_; }
 
 float DWriteFont::GetFontSize() { return text_format_->GetFontSize(); }
 }  // namespace cru::platform::graphics::direct2d

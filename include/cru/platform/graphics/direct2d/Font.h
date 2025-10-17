@@ -12,7 +12,7 @@ class CRU_WIN_GRAPHICS_DIRECT_API DWriteFont
       public virtual IFont,
       public virtual IComResource<IDWriteTextFormat> {
  public:
-  DWriteFont(DirectGraphicsFactory* factory, String font_family,
+  DWriteFont(DirectGraphicsFactory* factory, std::string font_family,
              float font_size);
 
   CRU_DELETE_COPY(DWriteFont)
@@ -25,11 +25,11 @@ class CRU_WIN_GRAPHICS_DIRECT_API DWriteFont
     return text_format_.Get();
   }
 
-  String GetFontName() override;
+  std::string GetFontName() override;
   float GetFontSize() override;
 
  private:
-  String font_family_;
+  std::string font_family_;
   Microsoft::WRL::ComPtr<IDWriteTextFormat> text_format_;
 };
 }  // namespace cru::platform::graphics::direct2d

@@ -23,6 +23,6 @@ WindowClass::WindowClass(std::wstring name, WNDPROC window_proc,
 
   atom_ = ::RegisterClassExW(&window_class);
   if (atom_ == 0)
-    throw Win32Error(::GetLastError(), u"Failed to create window class.");
+    throw Win32Error(::GetLastError(), "Failed to create window class.");
 }
 }  // namespace cru::platform::gui::win

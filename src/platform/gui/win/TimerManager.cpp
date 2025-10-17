@@ -4,7 +4,6 @@
 #include "cru/platform/gui/win/Exception.h"
 
 #include <functional>
-#include <type_traits>
 
 namespace cru::platform::gui::win {
 constexpr int kSetImmediateWindowMessageId = WM_USER + 2000;
@@ -25,7 +24,7 @@ long long TimerManager::SetTimer(TimerType type, int period,
                         static_cast<UINT_PTR>(id), 0)) {
       throw Win32Error(
           ::GetLastError(),
-          u"Failed to post window message to god window for set immediate.");
+          "Failed to post window message to god window for set immediate.");
     }
   } else {
     CreateNativeTimer(&timer_info);

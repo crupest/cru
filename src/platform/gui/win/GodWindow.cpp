@@ -37,7 +37,7 @@ GodWindow::GodWindow(WinUiApplication* application) {
                          HWND_MESSAGE, nullptr, h_instance, nullptr);
 
   if (hwnd_ == nullptr)
-    throw Win32Error(::GetLastError(), u"Failed to create god window.");
+    throw Win32Error(::GetLastError(), "Failed to create god window.");
 }
 
 GodWindow::~GodWindow() {

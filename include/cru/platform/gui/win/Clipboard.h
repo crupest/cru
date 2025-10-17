@@ -16,8 +16,8 @@ class WinClipboard : public WinNativeResource, public virtual IClipboard {
   ~WinClipboard() override;
 
  public:
-  String GetText() override;
-  void SetText(String text) override;
+  std::string GetText() override;
+  void SetText(std::string text) override;
 
  private:
   WinUiApplication* application_;

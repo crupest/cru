@@ -16,7 +16,7 @@ class CRU_WIN_GRAPHICS_DIRECT_API DWriteTextLayout
       public virtual IComResource<IDWriteTextLayout> {
  public:
   DWriteTextLayout(DirectGraphicsFactory* factory, std::shared_ptr<IFont> font,
-                   String text);
+                   std::string text);
 
   CRU_DELETE_COPY(DWriteTextLayout)
   CRU_DELETE_MOVE(DWriteTextLayout)
@@ -29,8 +29,8 @@ class CRU_WIN_GRAPHICS_DIRECT_API DWriteTextLayout
   }
 
  public:
-  String GetText() override;
-  void SetText(String new_text) override;
+  std::string GetText() override;
+  void SetText(std::string new_text) override;
 
   std::shared_ptr<IFont> GetFont() override;
   void SetFont(std::shared_ptr<IFont> font) override;
@@ -54,7 +54,8 @@ class CRU_WIN_GRAPHICS_DIRECT_API DWriteTextLayout
 
  private:
   bool edit_mode_ = false;
-  String text_;
+  std::string text_;
+  std::wstring utf16_text_;
   std::shared_ptr<DWriteFont> font_;
   float max_width_ = std::numeric_limits<float>::max();
   float max_height_ = std::numeric_limits<float>::max();

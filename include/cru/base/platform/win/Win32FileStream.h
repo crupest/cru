@@ -2,7 +2,6 @@
 
 #ifdef CRU_PLATFORM_WINDOWS
 
-#include "../../String.h"
 #include "../../io/OpenFileFlag.h"
 #include "../../io/Stream.h"
 
@@ -13,7 +12,7 @@ class Win32FileStreamPrivate;
 
 class CRU_BASE_API Win32FileStream : public io::Stream {
  public:
-  Win32FileStream(String path, io::OpenFileFlag flags);
+  Win32FileStream(std::string path, io::OpenFileFlag flags);
   ~Win32FileStream() override;
 
  protected:
@@ -22,7 +21,7 @@ class CRU_BASE_API Win32FileStream : public io::Stream {
   Index DoWrite(const std::byte* buffer, Index offset, Index size) override;
 
  public:
-  String GetPath() const { return path_; }
+  std::string GetPath() const { return path_; }
   io::OpenFileFlag GetOpenFileFlags() const { return flags_; }
 
   details::Win32FileStreamPrivate* GetPrivate_() { return p_; }
@@ -33,7 +32,7 @@ class CRU_BASE_API Win32FileStream : public io::Stream {
   void DoClose();
 
  private:
-  String path_;
+  std::string path_;
   io::OpenFileFlag flags_;
 
   details::Win32FileStreamPrivate* p_;

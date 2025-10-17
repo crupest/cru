@@ -4,6 +4,7 @@
 #include <exception>
 #include <optional>
 #include <string_view>
+#include <string>
 
 namespace cru {
 #ifdef _MSC_VER

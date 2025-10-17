@@ -66,9 +66,9 @@ KeyCode VirtualKeyToKeyCode(int virtual_key) {
 
 KeyModifier RetrieveKeyMofifier() {
   KeyModifier result{0};
-  if (::GetKeyState(VK_SHIFT) < 0) result |= KeyModifiers::shift;
-  if (::GetKeyState(VK_CONTROL) < 0) result |= KeyModifiers::ctrl;
-  if (::GetKeyState(VK_MENU) < 0) result |= KeyModifiers::alt;
+  if (::GetKeyState(VK_SHIFT) < 0) result |= KeyModifiers::Shift;
+  if (::GetKeyState(VK_CONTROL) < 0) result |= KeyModifiers::Ctrl;
+  if (::GetKeyState(VK_MENU) < 0) result |= KeyModifiers::Alt;
   return result;
 }
 }  // namespace cru::platform::gui::win

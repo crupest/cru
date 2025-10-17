@@ -380,4 +380,9 @@ Index Utf8IndexCodeUnitToCodePoint(const Utf8CodeUnit* ptr, Index size, Index po
 Index Utf8IndexCodePointToCodeUnit(const Utf8CodeUnit* ptr, Index size, Index position);
 Index Utf16IndexCodeUnitToCodePoint(const Utf16CodeUnit* ptr, Index size, Index position);
 Index Utf16IndexCodePointToCodeUnit(const Utf16CodeUnit* ptr, Index size, Index position);
+
+#ifdef _WIN32
+std::wstring ToUtf16(std::string_view str);
+std::string ToUtf8(std::wstring_view str);
+#endif
 }  // namespace cru::string

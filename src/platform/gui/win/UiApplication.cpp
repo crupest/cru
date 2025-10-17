@@ -2,15 +2,12 @@
 
 #include "TimerManager.h"
 #include "WindowManager.h"
-#include "cru/base/log/Logger.h"
-#include "cru/platform/Check.h"
 #include "cru/platform/graphics/direct2d/Factory.h"
 #include "cru/platform/gui/win/Base.h"
 #include "cru/platform/gui/win/Clipboard.h"
 #include "cru/platform/gui/win/Cursor.h"
 #include "cru/platform/gui/win/Exception.h"
 #include "cru/platform/gui/win/GodWindow.h"
-#include "cru/platform/gui/win/InputMethod.h"
 #include "cru/platform/gui/win/Window.h"
 
 namespace cru::platform::gui {
@@ -27,7 +24,7 @@ WinUiApplication::WinUiApplication() {
 
   instance_handle_ = ::GetModuleHandleW(nullptr);
   if (!instance_handle_)
-    throw Win32Error(u"Failed to get module(instance) handle.");
+    throw Win32Error("Failed to get module(instance) handle.");
 
   ::SetThreadDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE);
 

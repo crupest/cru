@@ -2,7 +2,6 @@
 #include "Resource.h"
 
 #include "WindowNativeMessageEventArgs.h"
-#include "cru/platform/gui/Base.h"
 #include "cru/platform/gui/Window.h"
 #include "cru/platform/graphics/direct2d/WindowRenderTarget.h"
 
@@ -30,8 +29,8 @@ class CRU_WIN_GUI_API WinNativeWindow : public WinNativeResource,
   WindowStyleFlag GetStyleFlag() override { return style_flag_; }
   void SetStyleFlag(WindowStyleFlag flag) override;
 
-  String GetTitle() override;
-  void SetTitle(String title) override;
+  std::string GetTitle() override;
+  void SetTitle(std::string title) override;
 
   WindowVisibilityType GetVisibility() override { return visibility_; }
   void SetVisibility(WindowVisibilityType visibility) override;
@@ -181,7 +180,7 @@ class CRU_WIN_GUI_API WinNativeWindow : public WinNativeResource,
   WindowStyleFlag style_flag_{};
   WindowVisibilityType visibility_ = WindowVisibilityType::Hide;
   Rect client_rect_{100, 100, 400, 300};
-  String title_;
+  std::string title_;
 
   HWND hwnd_ = nullptr;
   WinNativeWindow* parent_window_ = nullptr;

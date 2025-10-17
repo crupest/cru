@@ -9,7 +9,7 @@ namespace cru::ui {
 
 std::unique_ptr<ThemeResourceDictionary> ThemeResourceDictionary::FromFile(
     std::filesystem::path file_path) {
-  io::CFileStream stream(file_path.c_str(), "r");
+  io::CFileStream stream(file_path.generic_string().c_str(), "r");
   auto xml_string = stream.ReadToEndAsUtf8String();
   auto parser = xml::XmlParser(xml_string);
   return std::make_unique<ThemeResourceDictionary>(parser.Parse(), false);

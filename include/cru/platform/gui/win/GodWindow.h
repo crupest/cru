@@ -3,7 +3,6 @@
 
 #include "WindowNativeMessageEventArgs.h"
 #include "cru/base/Event.h"
-#include "cru/base/String.h"
 
 #include <memory>
 

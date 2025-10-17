@@ -1,14 +1,11 @@
 #pragma once
 #include "cru/base/Event.h"
-#include "cru/platform/win/WinPreConfig.h"
 
 #include "cru/base/Base.h"
 #include "cru/platform/gui/win/GodWindow.h"
 #include "cru/platform/gui/win/WindowNativeMessageEventArgs.h"
 
-#include <chrono>
 #include <functional>
-#include <optional>
 #include <unordered_map>
 
 namespace cru::platform::gui::win {

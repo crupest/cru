@@ -82,13 +82,13 @@ DirectGraphicsFactory::CreateGeometryBuilder() {
   return std::make_unique<D2DGeometryBuilder>(this);
 }
 
-std::unique_ptr<IFont> DirectGraphicsFactory::CreateFont(String font_family,
-                                                         float font_size) {
+std::unique_ptr<IFont> DirectGraphicsFactory::CreateFont(
+    std::string font_family, float font_size) {
   return std::make_unique<DWriteFont>(this, std::move(font_family), font_size);
 }
 
 std::unique_ptr<ITextLayout> DirectGraphicsFactory::CreateTextLayout(
-    std::shared_ptr<IFont> font, String text) {
+    std::shared_ptr<IFont> font, std::string text) {
   return std::make_unique<DWriteTextLayout>(this, std::move(font),
                                             std::move(text));
 }

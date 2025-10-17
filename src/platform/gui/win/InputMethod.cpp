@@ -2,9 +2,7 @@
 
 #include "cru/base/StringUtil.h"
 #include "cru/base/log/Logger.h"
-#include "cru/platform/Check.h"
 #include "cru/platform/gui/DebugFlags.h"
-#include "cru/platform/gui/win/Exception.h"
 #include "cru/platform/gui/win/Window.h"
 
 #include <vector>
@@ -104,19 +102,19 @@ CompositionClauses GetCompositionClauses(HIMC imm_context, int target_start,
   return result;
 }
 
-String GetString(HIMC imm_context) {
+std::wstring GetString(HIMC imm_context) {
   LONG string_size =
       ::ImmGetCompositionString(imm_context, GCS_COMPSTR, NULL, 0);
-  String result((string_size / sizeof(char16_t)), 0);
+  std::wstring result((string_size / sizeof(wchar_t)), 0);
   ::ImmGetCompositionString(imm_context, GCS_COMPSTR, result.data(),
                             string_size);
   return result;
 }
 
-String GetResultString(HIMC imm_context) {
+std::wstring GetResultString(HIMC imm_context) {
   LONG string_size =
       ::ImmGetCompositionString(imm_context, GCS_RESULTSTR, NULL, 0);
-  String result((string_size / sizeof(char16_t)), 0);
+  std::wstring result((string_size / sizeof(wchar_t)), 0);
   ::ImmGetCompositionString(imm_context, GCS_RESULTSTR, result.data(),
                             string_size);
   return result;
@@ -126,17 +124,35 @@ CompositionText GetCompositionInfo(HIMC imm_context) {
   // We only care about GCS_COMPATTR, GCS_COMPCLAUSE and GCS_CURSORPOS, and
   // convert them into underlines and selection range respectively.
 
-  auto text = GetString(imm_context);
+  auto utf16_text = GetString(imm_context);
+  auto text = string::ToUtf8(utf16_text);
 
-  int length = static_cast<int>(text.length());
+  int length = static_cast<int>(utf16_text.length());
   // Find out the range selected by the user.
   int target_start = length;
   int target_end = length;
   GetCompositionTargetRange(imm_context, &target_start, &target_end);
 
   auto clauses = GetCompositionClauses(imm_context, target_start, target_end);
+  for (auto& clause : clauses) {
+    clause.start = string::Utf8IndexCodePointToCodeUnit(
+        text.data(), text.size(),
+        string::Utf16IndexCodeUnitToCodePoint(
+            reinterpret_cast<const char16_t*>(utf16_text.data()),
+            utf16_text.size(), clause.start));
+    clause.end = string::Utf8IndexCodePointToCodeUnit(
+        text.data(), text.size(),
+        string::Utf16IndexCodeUnitToCodePoint(
+            reinterpret_cast<const char16_t*>(utf16_text.data()),
+            utf16_text.size(), clause.end));
+  }
 
-  int cursor = ::ImmGetCompositionString(imm_context, GCS_CURSORPOS, NULL, 0);
+  int cursor = string::Utf8IndexCodePointToCodeUnit(
+      text.data(), text.size(),
+      string::Utf16IndexCodeUnitToCodePoint(
+          reinterpret_cast<const char16_t*>(utf16_text.data()),
+          utf16_text.size(),
+          ::ImmGetCompositionString(imm_context, GCS_CURSORPOS, NULL, 0)));
 
   return CompositionText{std::move(text), std::move(clauses),
                          TextRange{cursor}};
@@ -215,7 +231,7 @@ IEvent<std::nullptr_t>* WinInputMethodContext::CompositionEvent() {
   return &composition_event_;
 }
 
-IEvent<StringView>* WinInputMethodContext::TextEvent() { return &text_event_; }
+IEvent<std::string>* WinInputMethodContext::TextEvent() { return &text_event_; }
 
 void WinInputMethodContext::OnWindowNativeMessage(
     WindowNativeMessageEventArgs& args) {
@@ -223,7 +239,7 @@ void WinInputMethodContext::OnWindowNativeMessage(
   switch (message.msg) {
     case WM_CHAR: {
       auto c = static_cast<char16_t>(message.w_param);
-      if (IsUtf16SurrogatePairCodeUnit(c)) {
+      if (cru::string::IsUtf16SurrogatePairCodeUnit(c)) {
         // I don't think this will happen because normal key strike without ime
         // should only trigger ascci character. If it is a charater from
         // supplementary planes, it should be handled with ime messages.
@@ -233,9 +249,7 @@ void WinInputMethodContext::OnWindowNativeMessage(
       } else {
         if (c != '\b') {            // ignore backspace
           if (c == '\r') c = '\n';  // Change \r to \n
-
-          char16_t s[1] = {c};
-          text_event_.Raise({s, 1});
+          text_event_.Raise(std::string{static_cast<char>(c)});
         }
       }
       args.HandleWithResult(0);
@@ -271,10 +285,10 @@ void WinInputMethodContext::OnWindowNativeMessage(
   }
 }
 
-String WinInputMethodContext::GetResultString() {
+std::string WinInputMethodContext::GetResultString() {
   auto himc = GetHIMC();
   auto result = win::GetResultString(himc.Get());
-  return result;
+  return string::ToUtf8(result);
 }
 
 AutoHIMC WinInputMethodContext::GetHIMC() {

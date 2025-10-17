@@ -404,4 +404,25 @@ Index Utf16IndexCodePointToCodeUnit(const Utf16CodeUnit* ptr, Index size,
                                                                      position);
 }
 
+#ifdef _WIN32
+std::wstring ToUtf16(std::string_view str) {
+  Utf8CodePointIterator iter(str.data(),str.size());
+  std::wstring result;
+  for (auto c : iter) {
+    Utf16EncodeCodePointAppend(c, [&result](char16_t c) { result += c; });
+  }
+  return result;
+}
+
+std::string ToUtf8(std::wstring_view str) {
+  Utf16CodePointIterator iter(reinterpret_cast<const char16_t*>( str.data()),str.size());
+  std::string result;
+  for (auto c : iter) {
+    Utf8EncodeCodePointAppend(c, [&result](char c) { result += c; });
+  }
+  return result;
+}
+
+#endif
+
 }  // namespace cru::string

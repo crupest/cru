@@ -7,7 +7,7 @@ namespace cru::platform::gui::win {
 class CRU_WIN_GUI_API WinNativeResource : public Object,
                                           public virtual IPlatformResource {
  public:
-  static String kPlatformId;
+  static std::string kPlatformId;
 
  protected:
   WinNativeResource() = default;
@@ -19,6 +19,6 @@ class CRU_WIN_GUI_API WinNativeResource : public Object,
   ~WinNativeResource() override = default;
 
  public:
-  String GetPlatformId() const final { return kPlatformId; }
+  std::string GetPlatformId() const final { return kPlatformId; }
 };
 }  // namespace cru::platform::gui::win

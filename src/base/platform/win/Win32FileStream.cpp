@@ -1,6 +1,7 @@
 #include "cru/base/platform/win/Win32FileStream.h"
 
 #include "Win32FileStreamPrivate.h"
+#include "cru/base/StringUtil.h"
 #include "cru/base/io/OpenFileFlag.h"
 #include "cru/base/platform/win/Exception.h"
 
@@ -8,12 +9,11 @@
 #include <coml2api.h>
 #include <shlwapi.h>
 #include <winnt.h>
-#include <filesystem>
 
 namespace cru::platform::win {
 using namespace cru::io;
 
-Win32FileStream::Win32FileStream(String path, OpenFileFlag flags)
+Win32FileStream::Win32FileStream(std::string path, OpenFileFlag flags)
     : Stream(true, true, true),
       path_(std::move(path)),
       flags_(flags),
@@ -40,7 +40,7 @@ Win32FileStream::Win32FileStream(String path, OpenFileFlag flags)
   IStream* stream;
 
   ThrowIfFailed(SHCreateStreamOnFileEx(
-      path_.WinCStr(), grfMode, FILE_ATTRIBUTE_NORMAL,
+      cru::string::ToUtf16(path_).c_str(), grfMode, FILE_ATTRIBUTE_NORMAL,
       flags & io::OpenFileFlags::Create ? TRUE : FALSE, NULL, &stream));
 
   p_->stream_ = stream;

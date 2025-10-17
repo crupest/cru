@@ -1,13 +1,14 @@
 #include "cru/platform/gui/win/Window.h"
 
 #include "WindowManager.h"
+#include "cru/base/StringUtil.h"
 #include "cru/base/log/Logger.h"
 #include "cru/platform/Check.h"
 #include "cru/platform/graphics/NullPainter.h"
-#include "cru/platform/gui/Base.h"
-#include "cru/platform/gui/DebugFlags.h"
-#include "cru/platform/gui/Window.h"
 #include "cru/platform/graphics/direct2d/WindowPainter.h"
+#include "cru/platform/gui/DebugFlags.h"
+#include "cru/platform/gui/Input.h"
+#include "cru/platform/gui/Window.h"
 #include "cru/platform/gui/win/Cursor.h"
 #include "cru/platform/gui/win/Exception.h"
 #include "cru/platform/gui/win/InputMethod.h"
@@ -42,7 +43,7 @@ Rect CalcWindowRectFromClient(const Rect& rect, WindowStyleFlag style_flag,
   r.right = DipToPixel(rect.GetRight(), dpi);
   r.bottom = DipToPixel(rect.GetBottom(), dpi);
   if (!AdjustWindowRectEx(&r, CalcWindowStyle(style_flag), FALSE, 0))
-    throw Win32Error(::GetLastError(), u"Failed to invoke AdjustWindowRectEx.");
+    throw Win32Error(::GetLastError(), "Failed to invoke AdjustWindowRectEx.");
 
   Rect result =
       Rect::FromVertices(PixelToDip(r.left, dpi), PixelToDip(r.top, dpi),
@@ -55,7 +56,7 @@ Rect CalcClientRectFromWindow(const Rect& rect, WindowStyleFlag style_flag,
   RECT o{100, 100, 500, 500};
   RECT s = o;
   if (!AdjustWindowRectEx(&s, CalcWindowStyle(style_flag), FALSE, 0))
-    throw Win32Error(::GetLastError(), u"Failed to invoke AdjustWindowRectEx.");
+    throw Win32Error(::GetLastError(), "Failed to invoke AdjustWindowRectEx.");
 
   Rect result = rect;
   result.Shrink(Thickness(PixelToDip(s.left - o.left, dpi),
@@ -87,13 +88,14 @@ void WinNativeWindow::SetParent(INativeWindow* parent) {
   }
 }
 
-String WinNativeWindow::GetTitle() { return title_; }
+std::string WinNativeWindow::GetTitle() { return title_; }
 
-void WinNativeWindow::SetTitle(String title) {
+void WinNativeWindow::SetTitle(std::string title) {
   title_ = title;
 
   if (hwnd_) {
-    ::SetWindowTextW(hwnd_, title_.WinCStr());
+    auto utf16_text = string::ToUtf16(title);
+    ::SetWindowTextW(hwnd_, utf16_text.c_str());
   }
 }
 
@@ -135,7 +137,7 @@ void WinNativeWindow::SetClientSize(const Size& size) {
 
     if (!SetWindowPos(hwnd_, nullptr, 0, 0, rect.right - rect.left,
                       rect.bottom - rect.top, SWP_NOZORDER | SWP_NOMOVE))
-      throw Win32Error(::GetLastError(), u"Failed to invoke SetWindowPos.");
+      throw Win32Error(::GetLastError(), "Failed to invoke SetWindowPos.");
   }
 }
 
@@ -150,7 +152,7 @@ void WinNativeWindow::SetClientRect(const Rect& rect) {
 
     if (!SetWindowPos(hwnd_, nullptr, 0, 0, r.right - r.left, r.bottom - r.top,
                       SWP_NOZORDER | SWP_NOMOVE))
-      throw Win32Error(::GetLastError(), u"Failed to invoke SetWindowPos.");
+      throw Win32Error(::GetLastError(), "Failed to invoke SetWindowPos.");
   }
 }
 
@@ -158,7 +160,7 @@ Rect WinNativeWindow::GetWindowRect() {
   if (hwnd_) {
     RECT rect;
     if (!::GetWindowRect(hwnd_, &rect))
-      throw Win32Error(::GetLastError(), u"Failed to invoke GetWindowRect.");
+      throw Win32Error(::GetLastError(), "Failed to invoke GetWindowRect.");
 
     return Rect::FromVertices(PixelToDip(rect.left), PixelToDip(rect.top),
                               PixelToDip(rect.right), PixelToDip(rect.bottom));
@@ -174,7 +176,7 @@ void WinNativeWindow::SetWindowRect(const Rect& rect) {
     if (!SetWindowPos(hwnd_, nullptr, DipToPixel(rect.left),
                       DipToPixel(rect.top), DipToPixel(rect.GetRight()),
                       DipToPixel(rect.GetBottom()), SWP_NOZORDER))
-      throw Win32Error(::GetLastError(), u"Failed to invoke SetWindowPos.");
+      throw Win32Error(::GetLastError(), "Failed to invoke SetWindowPos.");
   }
 }
 
@@ -189,9 +191,9 @@ bool WinNativeWindow::RequestFocus() {
 Point WinNativeWindow::GetMousePosition() {
   POINT p;
   if (!::GetCursorPos(&p))
-    throw Win32Error(::GetLastError(), u"Failed to get cursor position.");
+    throw Win32Error(::GetLastError(), "Failed to get cursor position.");
   if (!::ScreenToClient(hwnd_, &p))
-    throw Win32Error(::GetLastError(), u"Failed to call ScreenToClient.");
+    throw Win32Error(::GetLastError(), "Failed to call ScreenToClient.");
   return PixelToDip(p);
 }
 
@@ -210,9 +212,9 @@ void WinNativeWindow::RequestRepaint() {
     CRU_LOG_TAG_DEBUG("A repaint is requested.");
   }
   if (!::InvalidateRect(hwnd_, nullptr, FALSE))
-    throw Win32Error(::GetLastError(), u"Failed to invalidate window.");
+    throw Win32Error(::GetLastError(), "Failed to invalidate window.");
   if (!::UpdateWindow(hwnd_))
-    throw Win32Error(::GetLastError(), u"Failed to update window.");
+    throw Win32Error(::GetLastError(), "Failed to update window.");
 }
 
 std::unique_ptr<graphics::IPainter> WinNativeWindow::BeginPaint() {
@@ -243,34 +245,34 @@ void WinNativeWindow::SetCursor(std::shared_ptr<ICursor> cursor) {
 
   if (GetVisibility() != WindowVisibilityType::Show) return;
 
-  auto lg = [](StringView reason) {
+  auto lg = [](std::string_view reason) {
     CRU_LOG_TAG_WARN(
         "Failed to set cursor because {} when window is visible. (We need to "
         "update cursor if it is inside the window.) Last error code: {}.",
-        reason.ToUtf8(), ::GetLastError());
+        reason, ::GetLastError());
   };
 
   ::POINT point;
   if (!::GetCursorPos(&point)) {
-    lg(u"failed to get cursor pos");
+    lg("failed to get cursor pos");
     return;
   }
 
   ::RECT rect;
   if (!::GetClientRect(hwnd_, &rect)) {
-    lg(u"failed to get window's client rect");
+    lg("failed to get window's client rect");
     return;
   }
 
   ::POINT lefttop{rect.left, rect.top};
   ::POINT rightbottom{rect.right, rect.bottom};
   if (!::ClientToScreen(hwnd_, &lefttop)) {
-    lg(u"failed to call ClientToScreen on lefttop");
+    lg("failed to call ClientToScreen on lefttop");
     return;
   }
 
   if (!::ClientToScreen(hwnd_, &rightbottom)) {
-    lg(u"failed to call ClientToScreen on rightbottom");
+    lg("failed to call ClientToScreen on rightbottom");
     return;
   }
 
@@ -283,8 +285,7 @@ void WinNativeWindow::SetCursor(std::shared_ptr<ICursor> cursor) {
 void WinNativeWindow::SetToForeground() {
   if (hwnd_) {
     if (!::SetForegroundWindow(hwnd_))
-      throw Win32Error(::GetLastError(),
-                       u"Failed to set window to foreground.");
+      throw Win32Error(::GetLastError(), "Failed to set window to foreground.");
   }
 }
 
@@ -331,7 +332,7 @@ bool WinNativeWindow::HandleNativeWindowMessage(HWND hwnd, UINT msg,
       POINT point;
       point.x = GET_X_LPARAM(l_param);
       point.y = GET_Y_LPARAM(l_param);
-      OnMouseDownInternal(platform::gui::mouse_buttons::left, point);
+      OnMouseDownInternal(platform::gui::MouseButtons::Left, point);
       *result = 0;
       return true;
     }
@@ -339,7 +340,7 @@ bool WinNativeWindow::HandleNativeWindowMessage(HWND hwnd, UINT msg,
       POINT point;
       point.x = GET_X_LPARAM(l_param);
       point.y = GET_Y_LPARAM(l_param);
-      OnMouseUpInternal(platform::gui::mouse_buttons::left, point);
+      OnMouseUpInternal(platform::gui::MouseButtons::Left, point);
       *result = 0;
       return true;
     }
@@ -347,7 +348,7 @@ bool WinNativeWindow::HandleNativeWindowMessage(HWND hwnd, UINT msg,
       POINT point;
       point.x = GET_X_LPARAM(l_param);
       point.y = GET_Y_LPARAM(l_param);
-      OnMouseDownInternal(platform::gui::mouse_buttons::right, point);
+      OnMouseDownInternal(platform::gui::MouseButtons::Right, point);
       *result = 0;
       return true;
     }
@@ -355,7 +356,7 @@ bool WinNativeWindow::HandleNativeWindowMessage(HWND hwnd, UINT msg,
       POINT point;
       point.x = GET_X_LPARAM(l_param);
       point.y = GET_Y_LPARAM(l_param);
-      OnMouseUpInternal(platform::gui::mouse_buttons::right, point);
+      OnMouseUpInternal(platform::gui::MouseButtons::Right, point);
       *result = 0;
       return true;
     }
@@ -363,7 +364,7 @@ bool WinNativeWindow::HandleNativeWindowMessage(HWND hwnd, UINT msg,
       POINT point;
       point.x = GET_X_LPARAM(l_param);
       point.y = GET_Y_LPARAM(l_param);
-      OnMouseDownInternal(platform::gui::mouse_buttons::middle, point);
+      OnMouseDownInternal(platform::gui::MouseButtons::Middle, point);
       *result = 0;
       return true;
     }
@@ -371,7 +372,7 @@ bool WinNativeWindow::HandleNativeWindowMessage(HWND hwnd, UINT msg,
       POINT point;
       point.x = GET_X_LPARAM(l_param);
       point.y = GET_Y_LPARAM(l_param);
-      OnMouseUpInternal(platform::gui::mouse_buttons::middle, point);
+      OnMouseUpInternal(platform::gui::MouseButtons::Middle, point);
       *result = 0;
       return true;
     }
@@ -455,7 +456,7 @@ bool WinNativeWindow::HandleNativeWindowMessage(HWND hwnd, UINT msg,
 RECT WinNativeWindow::GetClientRectPixel() {
   RECT rect;
   if (!::GetClientRect(hwnd_, &rect))
-    throw Win32Error(::GetLastError(), u"Failed to invoke GetClientRect.");
+    throw Win32Error(::GetLastError(), "Failed to invoke GetClientRect.");
   return rect;
 }
 
@@ -470,11 +471,11 @@ void WinNativeWindow::RecreateWindow() {
       nullptr, application_->GetInstanceHandle(), nullptr);
 
   if (hwnd_ == nullptr)
-    throw Win32Error(::GetLastError(), u"Failed to create window.");
+    throw Win32Error(::GetLastError(), "Failed to create window.");
 
   auto dpi = ::GetDpiForWindow(hwnd_);
   if (dpi == 0)
-    throw Win32Error(::GetLastError(), u"Failed to get dpi of window.");
+    throw Win32Error(::GetLastError(), "Failed to get dpi of window.");
   dpi_ = static_cast<float>(dpi);
   CRU_LOG_TAG_DEBUG("Dpi of window is {}.", dpi_);
 
@@ -483,7 +484,8 @@ void WinNativeWindow::RecreateWindow() {
   SetCursor(application_->GetCursorManager()->GetSystemCursor(
       cru::platform::gui::SystemCursorType::Arrow));
 
-  ::SetWindowTextW(hwnd_, title_.WinCStr());
+  auto utf16_title = string::ToUtf16(title_);
+  ::SetWindowTextW(hwnd_, utf16_title.c_str());
 
   window_render_target_ =
       std::make_unique<graphics::direct2d::D2DWindowRenderTarget>(

@@ -66,12 +66,12 @@ class CRU_WIN_GUI_API WinInputMethodContext
 
   IEvent<std::nullptr_t>* CompositionEvent() override;
 
-  IEvent<StringView>* TextEvent() override;
+  IEvent<std::string>* TextEvent() override;
 
  private:
   void OnWindowNativeMessage(WindowNativeMessageEventArgs& args);
 
-  String GetResultString();
+  std::string GetResultString();
 
   AutoHIMC GetHIMC();
 
@@ -83,6 +83,6 @@ class CRU_WIN_GUI_API WinInputMethodContext
   Event<std::nullptr_t> composition_start_event_;
   Event<std::nullptr_t> composition_end_event_;
   Event<std::nullptr_t> composition_event_;
-  Event<StringView> text_event_;
+  Event<std::string> text_event_;
 };
 }  // namespace cru::platform::gui::win
