@@ -375,4 +375,9 @@ class CodePointIterator {
 using Utf8CodePointIterator = CodePointIterator<char, &Utf8NextCodePoint>;
 using Utf16CodePointIterator =
     CodePointIterator<Utf16CodeUnit, &Utf16NextCodePoint>;
+
+Index Utf8IndexCodeUnitToCodePoint(const Utf8CodeUnit* ptr, Index size, Index position);
+Index Utf8IndexCodePointToCodeUnit(const Utf8CodeUnit* ptr, Index size, Index position);
+Index Utf16IndexCodeUnitToCodePoint(const Utf16CodeUnit* ptr, Index size, Index position);
+Index Utf16IndexCodePointToCodeUnit(const Utf16CodeUnit* ptr, Index size, Index position);
 }  // namespace cru::string

@@ -21,11 +21,11 @@ class QuartzGraphicsFactory : public OsxQuartzResource,
 
   std::unique_ptr<IGeometryBuilder> CreateGeometryBuilder() override;
 
-  std::unique_ptr<IFont> CreateFont(String font_family,
+  std::unique_ptr<IFont> CreateFont(std::string font_family,
                                     float font_size) override;
 
   std::unique_ptr<ITextLayout> CreateTextLayout(std::shared_ptr<IFont> font,
-                                                String text) override;
+                                                std::string text) override;
 
   IImageFactory* GetImageFactory() override;
 

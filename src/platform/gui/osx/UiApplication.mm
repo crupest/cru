@@ -177,7 +177,7 @@ graphics::IGraphicsFactory* OsxUiApplication::GetGraphicsFactory() {
   return p_->quartz_graphics_factory_.get();
 }
 
-std::optional<String> OsxUiApplication::ShowSaveDialog(SaveDialogOptions options) {
+std::optional<std::string> OsxUiApplication::ShowSaveDialog(SaveDialogOptions options) {
   NSSavePanel* panel = [NSSavePanel savePanel];
   [panel setTitle:(NSString*)ToCFString(options.title).ref];
   [panel setPrompt:(NSString*)ToCFString(options.prompt).ref];
@@ -201,7 +201,7 @@ std::optional<String> OsxUiApplication::ShowSaveDialog(SaveDialogOptions options
   }
 }
 
-std::optional<std::vector<String>> OsxUiApplication::ShowOpenDialog(OpenDialogOptions options) {
+std::optional<std::vector<std::string>> OsxUiApplication::ShowOpenDialog(OpenDialogOptions options) {
   NSOpenPanel* panel = [NSOpenPanel openPanel];
   [panel setTitle:(NSString*)ToCFString(options.title).ref];
   [panel setPrompt:(NSString*)ToCFString(options.prompt).ref];
@@ -223,7 +223,7 @@ std::optional<std::vector<String>> OsxUiApplication::ShowOpenDialog(OpenDialogOp
 
   auto model_result = [panel runModal];
   if (model_result == NSModalResponseOK) {
-    std::vector<String> result;
+    std::vector<std::string> result;
     for (NSURL* url in [panel URLs]) {
       result.push_back(FromCFStringRef((CFStringRef)[url path]));
     }

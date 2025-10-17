@@ -1,5 +1,4 @@
 #include "cru/platform/graphics/quartz/Convert.h"
-#include <cstdint>
 
 namespace cru::platform::graphics::quartz {
 

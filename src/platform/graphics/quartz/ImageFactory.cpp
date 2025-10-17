@@ -30,14 +30,14 @@ std::unique_ptr<IImage> QuartzImageFactory::DecodeFromStream(
       new QuartzImage(GetGraphicsFactory(), this, cg_image, true));
 }
 
-static String GetImageFormatUniformTypeIdentifier(ImageFormat format) {
+static std::string GetImageFormatUniformTypeIdentifier(ImageFormat format) {
   switch (format) {
     case ImageFormat::Png:
-      return u"public.png";
+      return "public.png";
     case ImageFormat::Jpeg:
-      return u"public.jpeg";
+      return "public.jpeg";
     case ImageFormat::Gif:
-      return u"com.compuserve.gif";
+      return "com.compuserve.gif";
     default:
       throw Exception("Unknown image format.");
   }

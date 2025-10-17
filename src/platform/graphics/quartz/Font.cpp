@@ -4,8 +4,8 @@
 #include "cru/platform/graphics/quartz/Resource.h"
 
 namespace cru::platform::graphics::quartz {
-OsxCTFont::OsxCTFont(IGraphicsFactory* graphics_factory, const String& name,
-                     float size)
+OsxCTFont::OsxCTFont(IGraphicsFactory* graphics_factory,
+                     const std::string& name, float size)
     : OsxQuartzResource(graphics_factory), name_(name) {
   auto n = ToCFString(name);
 
@@ -20,6 +20,6 @@ OsxCTFont::OsxCTFont(IGraphicsFactory* graphics_factory, const String& name,
 
 OsxCTFont::~OsxCTFont() { CFRelease(ct_font_); }
 
-String OsxCTFont::GetFontName() { return name_; }
+std::string OsxCTFont::GetFontName() { return name_; }
 float OsxCTFont::GetFontSize() { return CTFontGetSize(ct_font_); }
 }  // namespace cru::platform::graphics::quartz

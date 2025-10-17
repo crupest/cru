@@ -10,6 +10,7 @@
 #include "cru/platform/graphics/NullPainter.h"
 #include "cru/platform/graphics/quartz/Convert.h"
 #include "cru/platform/graphics/quartz/Painter.h"
+#include "cru/platform/gui/Input.h"
 #include "cru/platform/gui/TimerHelper.h"
 #include "cru/platform/gui/osx/Cursor.h"
 #include "cru/platform/gui/osx/InputMethod.h"
@@ -29,7 +30,6 @@ constexpr int key_down_debug = 0;
 }
 
 using ::cru::FromCFStringRef;
-using ::cru::ToCFString;
 using cru::platform::graphics::quartz::Convert;
 namespace cru::platform::gui::osx {
 namespace {
@@ -250,9 +250,9 @@ void OsxWindow::SetStyleFlag(WindowStyleFlag flag) {
   }
 }
 
-String OsxWindow::GetTitle() { return p_->title_; }
+std::string OsxWindow::GetTitle() { return p_->title_; }
 
-void OsxWindow::SetTitle(String title) {
+void OsxWindow::SetTitle(std::string title) {
   p_->title_ = title;
 
   if (p_->window_) {
@@ -401,13 +401,13 @@ namespace {
 cru::platform::gui::KeyModifier GetKeyModifier(NSEvent* event) {
   cru::platform::gui::KeyModifier key_modifier;
   if (event.modifierFlags & NSEventModifierFlagControl)
-    key_modifier |= cru::platform::gui::KeyModifiers::ctrl;
+    key_modifier |= cru::platform::gui::KeyModifiers::Ctrl;
   if (event.modifierFlags & NSEventModifierFlagOption)
-    key_modifier |= cru::platform::gui::KeyModifiers::alt;
+    key_modifier |= cru::platform::gui::KeyModifiers::Alt;
   if (event.modifierFlags & NSEventModifierFlagShift)
-    key_modifier |= cru::platform::gui::KeyModifiers::shift;
+    key_modifier |= cru::platform::gui::KeyModifiers::Shift;
   if (event.modifierFlags & NSEventModifierFlagCommand)
-    key_modifier |= cru::platform::gui::KeyModifiers::command;
+    key_modifier |= cru::platform::gui::KeyModifiers::Command;
   return key_modifier;
 }
 }  // namespace
@@ -504,28 +504,28 @@ cru::platform::gui::KeyModifier GetKeyModifier(NSEvent* event) {
   auto key_modifier = GetKeyModifier(event);
   cru::platform::Point p(event.locationInWindow.x, event.locationInWindow.y);
 
-  _p->OnMouseDown(cru::platform::gui::mouse_buttons::left, p, key_modifier);
+  _p->OnMouseDown(cru::platform::gui::MouseButtons::Left, p, key_modifier);
 }
 
 - (void)mouseUp:(NSEvent*)event {
   auto key_modifier = GetKeyModifier(event);
   cru::platform::Point p(event.locationInWindow.x, event.locationInWindow.y);
 
-  _p->OnMouseUp(cru::platform::gui::mouse_buttons::left, p, key_modifier);
+  _p->OnMouseUp(cru::platform::gui::MouseButtons::Left, p, key_modifier);
 }
 
 - (void)rightMouseDown:(NSEvent*)event {
   auto key_modifier = GetKeyModifier(event);
   cru::platform::Point p(event.locationInWindow.x, event.locationInWindow.y);
 
-  _p->OnMouseDown(cru::platform::gui::mouse_buttons::right, p, key_modifier);
+  _p->OnMouseDown(cru::platform::gui::MouseButtons::Right, p, key_modifier);
 }
 
 - (void)rightMouseUp:(NSEvent*)event {
   auto key_modifier = GetKeyModifier(event);
   cru::platform::Point p(event.locationInWindow.x, event.locationInWindow.y);
 
-  _p->OnMouseUp(cru::platform::gui::mouse_buttons::right, p, key_modifier);
+  _p->OnMouseUp(cru::platform::gui::MouseButtons::Right, p, key_modifier);
 }
 
 - (void)scrollWheel:(NSEvent*)event {
@@ -611,17 +611,17 @@ const std::unordered_set<KeyCode> input_context_handle_codes_when_has_text{
 
   if (input_context->IsEnabled()) {
     if (input_context_handle_codes.count(c) &&
-        !(key_modifier & ~cru::platform::gui::KeyModifiers::shift)) {
+        !(key_modifier & ~cru::platform::gui::KeyModifiers::Shift)) {
       handled = [[self inputContext] handleEvent:event];
     } else if (input_context_handle_codes_when_has_text.count(c) && !key_modifier) {
       if (!input_context->GetCompositionText().text.empty()) {
         handled = [[self inputContext] handleEvent:event];
       } else {
         if (c == KeyCode::Return) {
-          _input_context_p->RaiseTextEvent(u"\n");
+          _input_context_p->RaiseTextEvent("\n");
           handled = true;
         } else if (c == KeyCode::Space) {
-          _input_context_p->RaiseTextEvent(u" ");
+          _input_context_p->RaiseTextEvent(" ");
           handled = true;
         }
       }
@@ -688,9 +688,11 @@ const std::unordered_set<KeyCode> input_context_handle_codes_when_has_text{
 
   cru::platform::gui::CompositionText composition_text;
   composition_text.text = FromCFStringRef((CFStringRef)[_input_context_text string]);
-  composition_text.selection.position = ss.IndexFromCodePointToCodeUnit(selectedRange.location);
+  composition_text.selection.position =
+      cru::string::Utf8IndexCodePointToCodeUnit(ss.data(), ss.size(), selectedRange.location);
   composition_text.selection.count =
-      ss.IndexFromCodePointToCodeUnit(selectedRange.location + selectedRange.length) -
+      cru::string::Utf8IndexCodePointToCodeUnit(ss.data(), ss.size(),
+                                                selectedRange.location + selectedRange.length) -
       composition_text.selection.position;
   _input_context_p->SetCompositionText(composition_text);
   _input_context_p->RaiseCompositionEvent();

@@ -7,9 +7,10 @@
 #endif
 
 #include "Range.h"
-#include "String.h"
 
 #include <CoreFoundation/CoreFoundation.h>
+#include <string>
+#include <string_view>
 
 namespace cru {
 template <typename CFClassRef>
@@ -29,8 +30,8 @@ class CFWrapper {
   }
 };
 
-CFWrapper<CFStringRef> ToCFString(StringView string);
-String FromCFStringRef(CFStringRef string);
+CFWrapper<CFStringRef> ToCFString(std::string_view string);
+std::string FromCFStringRef(CFStringRef string);
 
 CFRange ToCFRange(const Range& range);
 Range FromCFRange(const CFRange& range);

@@ -36,7 +36,7 @@ class QuartzSolidColorBrush : public QuartzBrush,
 
   void Select(CGContextRef context) override;
 
-  String GetDebugString() override;
+  std::string GetDebugString() override;
 
  private:
   Color color_;

@@ -22,8 +22,8 @@ class OsxClipboard : public OsxGuiResource, public virtual IClipboard {
   ~OsxClipboard() override;
 
  public:
-  String GetText() override;
-  void SetText(String text) override;
+  std::string GetText() override;
+  void SetText(std::string text) override;
 
  private:
   std::unique_ptr<details::OsxClipboardPrivate> p_;

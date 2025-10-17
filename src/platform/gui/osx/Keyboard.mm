@@ -267,16 +267,16 @@ NSString* ConvertKeyCodeToKeyEquivalent(KeyCode key_code) {
 
 NSEventModifierFlags ConvertKeyModifier(KeyModifier k) {
   NSEventModifierFlags flags = 0;
-  if (k & KeyModifiers::shift) {
+  if (k & KeyModifiers::Shift) {
     flags |= NSEventModifierFlagShift;
   }
-  if (k & KeyModifiers::ctrl) {
+  if (k & KeyModifiers::Ctrl) {
     flags |= NSEventModifierFlagControl;
   }
-  if (k & KeyModifiers::alt) {
+  if (k & KeyModifiers::Alt) {
     flags |= NSEventModifierFlagOption;
   }
-  if (k & KeyModifiers::command) {
+  if (k & KeyModifiers::Command) {
     flags |= NSEventModifierFlagCommand;
   }
   return flags;

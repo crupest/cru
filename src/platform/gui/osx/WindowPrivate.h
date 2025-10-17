@@ -83,7 +83,7 @@ class OsxWindowPrivate {
   INativeWindow* parent_ = nullptr;
   WindowStyleFlag style_flag_ = WindowStyleFlag{};
 
-  String title_;
+  std::string title_;
 
   Rect content_rect_;
 

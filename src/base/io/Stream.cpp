@@ -1,7 +1,9 @@
 #include "cru/base/io/Stream.h"
 #include "cru/base/Exception.h"
 
+#include <algorithm>
 #include <format>
+#include <iterator>
 #include <utility>
 
 namespace cru::io {
@@ -193,6 +195,10 @@ Buffer Stream::ReadToEnd(Index grow_size) {
 
 std::string Stream::ReadToEndAsUtf8String() {
   auto buffer = ReadToEnd();
-  return std::string(buffer.GetUsedBeginPtr(), buffer.GetUsedEndPtr());
+  std::string result;
+  std::transform(buffer.GetUsedBeginPtr(), buffer.GetUsedEndPtr(),
+                 std::back_inserter(result),
+                 [](std::byte c) { return static_cast<char>(c); });
+  return result;
 }
 }  // namespace cru::io

@@ -1,7 +1,7 @@
 #pragma once
 #include "cru/platform/osx/Resource.h"
 
-#include "cru/platform/gui/Base.h"
+#include <cru/platform/gui/UiApplication.h>
 
 namespace cru::platform::gui::osx {
 class OsxGuiResource : public platform::osx::OsxResource {
@@ -14,7 +14,7 @@ class OsxGuiResource : public platform::osx::OsxResource {
   ~OsxGuiResource() override = default;
 
  public:
-  String GetPlatformId() const override { return u"OSX GUI"; }
+  std::string GetPlatformId() const override { return "OSX GUI"; }
 
   IUiApplication* GetUiApplication() const { return ui_application_; }
 

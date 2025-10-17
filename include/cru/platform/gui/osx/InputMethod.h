@@ -46,7 +46,7 @@ class OsxInputMethodContext : public OsxGuiResource,
 
   IEvent<std::nullptr_t>* CompositionEvent() override;
 
-  IEvent<StringView>* TextEvent() override;
+  IEvent<std::string>* TextEvent() override;
 
   bool IsEnabled();
 

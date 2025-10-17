@@ -1,6 +1,5 @@
 #include "cru/platform/graphics/quartz/Brush.h"
-#include "cru/base/String.h"
-#include "cru/base/Format.h"
+#include <format>
 
 namespace cru::platform::graphics::quartz {
 QuartzSolidColorBrush::QuartzSolidColorBrush(IGraphicsFactory* graphics_factory,
@@ -30,7 +29,7 @@ void QuartzSolidColorBrush::Select(CGContextRef context) {
   CGContextSetFillColorWithColor(context, cg_color_);
 }
 
-String QuartzSolidColorBrush::GetDebugString() {
-  return Format(u"QuartzSolidColorBrush(Color: {})", color_);
+std::string QuartzSolidColorBrush::GetDebugString() {
+  return std::format("QuartzSolidColorBrush(Color: {})", color_);
 }
 }  // namespace cru::platform::graphics::quartz

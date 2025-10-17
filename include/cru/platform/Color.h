@@ -2,8 +2,10 @@
 #include "Base.h"
 
 #include <cru/base/Base.h>
+#include <cru/base/StringUtil.h>
 
 #include <cstdint>
+#include <format>
 #include <optional>
 #include <string_view>
 
@@ -247,6 +249,10 @@ struct std::hash<cru::platform::Color> {
     return seed;
   }
 };
+
+template <>
+struct std::formatter<cru::platform::Color, char>
+    : cru::string::ImplementFormatterByToString<cru::platform::Color> {};
 
 namespace cru::platform {
 std::optional<Color> GetPredefinedColorByName(std::string_view name);

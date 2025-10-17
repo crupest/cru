@@ -24,7 +24,7 @@ void OsxInputMethodContextPrivate::RaiseCompositionEndEvent() {
 }
 void OsxInputMethodContextPrivate::RaiseCompositionEvent() { composition_event_.Raise(nullptr); }
 
-void OsxInputMethodContextPrivate::RaiseTextEvent(StringView text) { text_event_.Raise(text); }
+void OsxInputMethodContextPrivate::RaiseTextEvent(std::string text) { text_event_.Raise(text); }
 
 void OsxInputMethodContextPrivate::PerformSel(SEL sel) {
   // [window_->p_->GetNSWindow() performSelector:sel];
@@ -77,7 +77,7 @@ IEvent<std::nullptr_t>* OsxInputMethodContext::CompositionEvent() {
   return &p_->composition_event_;
 }
 
-IEvent<StringView>* OsxInputMethodContext::TextEvent() { return &p_->text_event_; }
+IEvent<std::string>* OsxInputMethodContext::TextEvent() { return &p_->text_event_; }
 
 bool OsxInputMethodContext::IsEnabled() { return p_->is_enabled_; }
 }

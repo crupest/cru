@@ -1,6 +1,7 @@
 #include "cru/base/StringUtil.h"
 
 #include <catch2/catch_test_macros.hpp>
+#include <string_view>
 
 using cru::Index;
 using namespace cru::string;
@@ -125,6 +126,50 @@ TEST_CASE("StringUtil Utf16CodePointIterator", "[string]") {
                                               0x0021};
 
   REQUIRE(code_points == expected_code_points);
+}
+
+TEST_CASE("StringUtil Utf8IndexCodeUnitToCodePoint", "[string]") {
+  std::string_view text = "aπ你🤣!";
+  Index current = text.size();
+  REQUIRE(Utf8IndexCodeUnitToCodePoint(text.data(), text.size(), 0) == 0);
+  REQUIRE(Utf8IndexCodeUnitToCodePoint(text.data(), text.size(), 1) == 1);
+  REQUIRE(Utf8IndexCodeUnitToCodePoint(text.data(), text.size(), 3) == 2);
+  REQUIRE(Utf8IndexCodeUnitToCodePoint(text.data(), text.size(), 6) == 3);
+  REQUIRE(Utf8IndexCodeUnitToCodePoint(text.data(), text.size(), 10) == 4);
+  REQUIRE(Utf8IndexCodeUnitToCodePoint(text.data(), text.size(), 11) == 5);
+}
+
+TEST_CASE("StringUtil Utf8IndexCodePointToCodeUnit", "[string]") {
+  std::string_view text = "aπ你🤣!";
+  Index current = text.size();
+  REQUIRE(Utf8IndexCodePointToCodeUnit(text.data(), text.size(), 0) == 0);
+  REQUIRE(Utf8IndexCodePointToCodeUnit(text.data(), text.size(), 1) == 1);
+  REQUIRE(Utf8IndexCodePointToCodeUnit(text.data(), text.size(), 2) == 3);
+  REQUIRE(Utf8IndexCodePointToCodeUnit(text.data(), text.size(), 3) == 6);
+  REQUIRE(Utf8IndexCodePointToCodeUnit(text.data(), text.size(), 4) == 10);
+  REQUIRE(Utf8IndexCodePointToCodeUnit(text.data(), text.size(), 5) == 11);
+}
+
+TEST_CASE("StringUtil Utf16IndexCodeUnitToCodePoint", "[string]") {
+  std::u16string_view text = u"aπ你🤣!";
+  Index current = text.size();
+  REQUIRE(Utf16IndexCodeUnitToCodePoint(text.data(), text.size(), 0) == 0);
+  REQUIRE(Utf16IndexCodeUnitToCodePoint(text.data(), text.size(), 1) == 1);
+  REQUIRE(Utf16IndexCodeUnitToCodePoint(text.data(), text.size(), 2) == 2);
+  REQUIRE(Utf16IndexCodeUnitToCodePoint(text.data(), text.size(), 3) == 3);
+  REQUIRE(Utf16IndexCodeUnitToCodePoint(text.data(), text.size(), 5) == 4);
+  REQUIRE(Utf16IndexCodeUnitToCodePoint(text.data(), text.size(), 6) == 5);
+}
+
+TEST_CASE("StringUtil Utf16IndexCodePointToCodeUnit", "[string]") {
+  std::u16string_view text = u"aπ你🤣!";
+  Index current = text.size();
+  REQUIRE(Utf16IndexCodePointToCodeUnit(text.data(), text.size(), 0) == 0);
+  REQUIRE(Utf16IndexCodePointToCodeUnit(text.data(), text.size(), 1) == 1);
+  REQUIRE(Utf16IndexCodePointToCodeUnit(text.data(), text.size(), 2) == 2);
+  REQUIRE(Utf16IndexCodePointToCodeUnit(text.data(), text.size(), 3) == 3);
+  REQUIRE(Utf16IndexCodePointToCodeUnit(text.data(), text.size(), 4) == 5);
+  REQUIRE(Utf16IndexCodePointToCodeUnit(text.data(), text.size(), 5) == 6);
 }
 
 TEST_CASE("ParseToNumber Work", "[string]") {

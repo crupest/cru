@@ -60,9 +60,9 @@ OsxMenuItem::OsxMenuItem(IUiApplication* ui_application) : OsxGuiResource(ui_app
 
 OsxMenuItem::~OsxMenuItem() { delete p_; }
 
-String OsxMenuItem::GetTitle() { return FromCFStringRef((CFStringRef)[p_->menu_item_ title]); }
+std::string OsxMenuItem::GetTitle() { return FromCFStringRef((CFStringRef)[p_->menu_item_ title]); }
 
-void OsxMenuItem::SetTitle(String title) {
+void OsxMenuItem::SetTitle(std::string title) {
   auto cf_title = ToCFString(title);
   [p_->menu_item_ setTitle:(NSString*)(cf_title.ref)];
 }

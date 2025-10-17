@@ -357,4 +357,51 @@ Index Utf16NextWord(const Utf16CodeUnit* ptr, Index size, Index position,
       ptr, size, position, is_space);
 }
 
+template <typename CharType,
+          NextCodePointFunctionType<CharType> NextCodePointFunction>
+static Index IndexCodeUnitToCodePoint(const CharType* ptr, Index size,
+                                      Index position) {
+  CodePointIterator<CharType, NextCodePointFunction> iter(ptr, size);
+  Index result = 0;
+  while (!iter.IsPastEnd() && iter.GetPosition() < position) {
+    ++iter;
+    ++result;
+  }
+  return result;
+}
+
+template <typename CharType,
+          NextCodePointFunctionType<CharType> NextCodePointFunction>
+static Index IndexCodePointToCodeUnit(const CharType* ptr, Index size,
+                                      Index position) {
+  CodePointIterator<CharType, NextCodePointFunction> iter(ptr, size);
+  for (Index i = 0; i < position; i++) {
+    ++iter;
+  }
+  return iter.GetPosition();
+}
+
+Index Utf8IndexCodeUnitToCodePoint(const Utf8CodeUnit* ptr, Index size,
+                                   Index position) {
+  return IndexCodeUnitToCodePoint<Utf8CodeUnit, Utf8NextCodePoint>(ptr, size,
+                                                                   position);
+}
+
+Index Utf8IndexCodePointToCodeUnit(const Utf8CodeUnit* ptr, Index size,
+                                   Index position) {
+  return IndexCodePointToCodeUnit<Utf8CodeUnit, Utf8NextCodePoint>(ptr, size,
+                                                                   position);
+}
+
+Index Utf16IndexCodeUnitToCodePoint(const Utf16CodeUnit* ptr, Index size,
+                                    Index position) {
+  return IndexCodeUnitToCodePoint<Utf16CodeUnit, Utf16NextCodePoint>(ptr, size,
+                                                                     position);
+}
+Index Utf16IndexCodePointToCodeUnit(const Utf16CodeUnit* ptr, Index size,
+                                    Index position) {
+  return IndexCodePointToCodeUnit<Utf16CodeUnit, Utf16NextCodePoint>(ptr, size,
+                                                                     position);
+}
+
 }  // namespace cru::string

@@ -1,7 +1,7 @@
 #pragma once
-#include "cru/platform/osx/Resource.h"
 #include "cru/platform/graphics/Base.h"
 #include "cru/platform/graphics/Resource.h"
+#include "cru/platform/osx/Resource.h"
 
 namespace cru::platform::graphics::quartz {
 class OsxQuartzResource : public platform::osx::OsxResource,
@@ -15,7 +15,7 @@ class OsxQuartzResource : public platform::osx::OsxResource,
   ~OsxQuartzResource() override = default;
 
  public:
-  String GetPlatformId() const override { return u"OSX Quartz"; }
+  std::string GetPlatformId() const override { return "OSX Quartz"; }
 
   IGraphicsFactory* GetGraphicsFactory() override { return graphics_factory_; }
 

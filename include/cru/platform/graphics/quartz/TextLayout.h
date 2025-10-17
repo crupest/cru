@@ -11,7 +11,7 @@ namespace cru::platform::graphics::quartz {
 class OsxCTTextLayout : public OsxQuartzResource, public virtual ITextLayout {
  public:
   OsxCTTextLayout(IGraphicsFactory* graphics_factory,
-                  std::shared_ptr<OsxCTFont> font, const String& str);
+                  std::shared_ptr<OsxCTFont> font, const std::string& str);
 
   CRU_DELETE_COPY(OsxCTTextLayout)
   CRU_DELETE_MOVE(OsxCTTextLayout)
@@ -19,8 +19,8 @@ class OsxCTTextLayout : public OsxQuartzResource, public virtual ITextLayout {
   ~OsxCTTextLayout() override;
 
  public:
-  String GetText() override { return text_; }
-  void SetText(String new_text) override;
+  std::string GetText() override { return text_; }
+  void SetText(std::string new_text) override;
 
   std::shared_ptr<IFont> GetFont() override { return font_; }
   void SetFont(std::shared_ptr<IFont> font) override;
@@ -46,10 +46,10 @@ class OsxCTTextLayout : public OsxQuartzResource, public virtual ITextLayout {
 
   Matrix GetTransform() { return transform_; }
 
-  String GetDebugString() override;
+  std::string GetDebugString() override;
 
  private:
-  void DoSetText(String text);
+  void DoSetText(std::string text);
 
   void ReleaseResource();
   void RecreateFrame();
@@ -68,8 +68,8 @@ class OsxCTTextLayout : public OsxQuartzResource, public virtual ITextLayout {
 
   std::shared_ptr<OsxCTFont> font_;
 
-  String text_;
-  String actual_text_;
+  std::string text_;
+  std::string actual_text_;
   CFMutableAttributedStringRef cf_attributed_text_;
 
   CTFramesetterRef ct_framesetter_ = nullptr;

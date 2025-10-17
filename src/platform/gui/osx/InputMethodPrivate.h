@@ -24,7 +24,7 @@ class OsxInputMethodContextPrivate {
   void RaiseCompositionStartEvent();
   void RaiseCompositionEndEvent();
   void RaiseCompositionEvent();
-  void RaiseTextEvent(StringView text);
+  void RaiseTextEvent(std::string text);
 
   Point GetCandidateWindowPosition() const { return candidate_window_point_; }
   void SetCandidateWindowPosition(const Point& p) {
@@ -56,7 +56,7 @@ class OsxInputMethodContextPrivate {
   Event<std::nullptr_t> composition_start_event_;
   Event<std::nullptr_t> composition_event_;
   Event<std::nullptr_t> composition_end_event_;
-  Event<StringView> text_event_;
+  Event<std::string> text_event_;
 
   bool is_enabled_ = false;
 };

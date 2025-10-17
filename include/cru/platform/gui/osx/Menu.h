@@ -25,8 +25,8 @@ class OsxMenuItem : public OsxGuiResource, public virtual IMenuItem {
   ~OsxMenuItem() override;
 
  public:
-  String GetTitle() override;
-  void SetTitle(String title) override;
+  std::string GetTitle() override;
+  void SetTitle(std::string title) override;
   bool IsEnabled() override;
   void SetEnabled(bool enabled) override;
   IMenu* GetParentMenu() override;

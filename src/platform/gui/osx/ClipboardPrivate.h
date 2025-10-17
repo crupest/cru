@@ -17,8 +17,8 @@ class OsxClipboardPrivate : public Object {
   ~OsxClipboardPrivate();
 
  public:
-  String GetText();
-  void SetText(String text);
+  std::string GetText();
+  void SetText(std::string text);
 
  private:
   NSPasteboard* pasteboard_;

@@ -36,7 +36,7 @@ std::unique_ptr<IPainter> QuartzImage::CreatePainter() {
   if (!buffer_)
     throw Exception(
         "Failed to create painter for image because failed to get its "
-        u"buffer.");
+        "buffer.");
 
   auto width = CGImageGetWidth(image_);
   auto height = CGImageGetHeight(image_);

@@ -1,18 +1,19 @@
 #include "cru/platform/graphics/quartz/TextLayout.h"
 #include "cru/base/Base.h"
 #include "cru/base/Osx.h"
-#include "cru/base/Format.h"
-#include "cru/platform/graphics/quartz/Convert.h"
-#include "cru/platform/graphics/quartz/Resource.h"
+#include "cru/base/StringUtil.h"
 #include "cru/platform/Check.h"
 #include "cru/platform/graphics/Base.h"
+#include "cru/platform/graphics/quartz/Convert.h"
+#include "cru/platform/graphics/quartz/Resource.h"
 
+#include <format>
 #include <limits>
 
 namespace cru::platform::graphics::quartz {
 OsxCTTextLayout::OsxCTTextLayout(IGraphicsFactory* graphics_factory,
                                  std::shared_ptr<OsxCTFont> font,
-                                 const String& str)
+                                 const std::string& str)
     : OsxQuartzResource(graphics_factory),
       max_width_(std::numeric_limits<float>::max()),
       max_height_(std::numeric_limits<float>::max()),
@@ -35,7 +36,7 @@ void OsxCTTextLayout::SetFont(std::shared_ptr<IFont> font) {
   RecreateFrame();
 }
 
-void OsxCTTextLayout::DoSetText(String text) {
+void OsxCTTextLayout::DoSetText(std::string text) {
   text_ = std::move(text);
 
   if (text_.empty()) {
@@ -67,14 +68,15 @@ void OsxCTTextLayout::DoSetText(String text) {
       head_empty_line_count_ = 1;
       actual_text_ = {};
     } else {
-      actual_text_ = String(text_.cbegin() + head_empty_line_count_,
-                            text_.cend() - tail_empty_line_count_);
+      actual_text_ = std::string(text_.cbegin() + head_empty_line_count_,
+                                 text_.cend() - tail_empty_line_count_);
     }
   }
 
   auto s = ToCFString(actual_text_);
   cf_attributed_text_ = CFAttributedStringCreateMutable(nullptr, 0);
-  CFAttributedStringReplaceString(cf_attributed_text_, CFRangeMake(0, 0), s.ref);
+  CFAttributedStringReplaceString(cf_attributed_text_, CFRangeMake(0, 0),
+                                  s.ref);
   Ensures(cf_attributed_text_);
   CFAttributedStringSetAttribute(
       cf_attributed_text_,
@@ -82,7 +84,7 @@ void OsxCTTextLayout::DoSetText(String text) {
       kCTFontAttributeName, font_->GetCTFont());
 }
 
-void OsxCTTextLayout::SetText(String new_text) {
+void OsxCTTextLayout::SetText(std::string new_text) {
   if (new_text == text_) return;
 
   CFRelease(cf_attributed_text_);
@@ -199,10 +201,11 @@ TextHitTestResult OsxCTTextLayout::HitTest(const Point& point) {
   if (point.y >= th) {
     for (int i = 1; i <= tail_empty_line_count_; ++i) {
       if (point.y < th + i * font_->GetFontSize()) {
-        return {text_.size() - (tail_empty_line_count_ - i), false, false};
+        return {static_cast<Index>(text_.size() - (tail_empty_line_count_ - i)),
+                false, false};
       }
     }
-    return {text_.size(), false, false};
+    return {static_cast<Index>(text_.size()), false, false};
   }
 
   auto p = point;
@@ -236,24 +239,28 @@ TextHitTestResult OsxCTTextLayout::HitTest(const Point& point) {
       bool inside_text;
 
       if (pp.x < bounds.origin.x) {
-        po = actual_text_.IndexFromCodePointToCodeUnit(range.location);
+        po = cru::string::Utf8IndexCodePointToCodeUnit(
+            actual_text_.data(), actual_text_.size(), range.location);
         inside_text = false;
       } else if (pp.x > bounds.origin.x + bounds.size.width) {
-        po = actual_text_.IndexFromCodePointToCodeUnit(range.location +
-                                                       range.length);
+        po = cru::string::Utf8IndexCodePointToCodeUnit(
+            actual_text_.data(), actual_text_.size(),
+            range.location + range.length);
         inside_text = false;
       } else {
         int position = CTLineGetStringIndexForPosition(
             line,
             CGPointMake(pp.x - line_origins_[i].x, pp.y - line_origins_[i].y));
 
-        po = actual_text_.IndexFromCodePointToCodeUnit(position);
+        po = cru::string::Utf8IndexCodePointToCodeUnit(
+            actual_text_.data(), actual_text_.size(), position);
         inside_text = true;
       }
 
       if (po != 0 &&
-          po == actual_text_.IndexFromCodePointToCodeUnit(range.location +
-                                                          range.length) &&
+          po == cru::string::Utf8IndexCodePointToCodeUnit(
+                    actual_text_.data(), actual_text_.size(),
+                    range.location + range.length) &&
           actual_text_[po - 1] == u'\n') {
         --po;
       }
@@ -357,15 +364,16 @@ CTFrameRef OsxCTTextLayout::CreateFrameWithColor(const Color& color) {
   return frame;
 }
 
-String OsxCTTextLayout::GetDebugString() {
-  return Format(u"OsxCTTextLayout(text: {}, size: ({}, {}))", text_, max_width_,
-                max_height_);
+std::string OsxCTTextLayout::GetDebugString() {
+  return std::format("OsxCTTextLayout(text: {}, size: ({}, {}))", text_,
+                     max_width_, max_height_);
 }
 
 CGRect OsxCTTextLayout::DoGetTextBounds(bool includingTrailingSpace) {
   if (actual_text_.empty()) return CGRect{};
 
-  auto rects = DoTextRangeRect(TextRange{0, actual_text_.size()});
+  auto rects =
+      DoTextRangeRect(TextRange{0, static_cast<Index>(actual_text_.size())});
 
   float left = std::numeric_limits<float>::max();
   float bottom = std::numeric_limits<float>::max();
@@ -398,7 +406,12 @@ CGRect OsxCTTextLayout::DoGetTextBoundsIncludingEmptyLines(
 std::vector<CGRect> OsxCTTextLayout::DoTextRangeRect(
     const TextRange& text_range) {
   const auto r =
-      actual_text_.RangeFromCodeUnitToCodePoint(text_range).Normalize();
+      Range::FromTwoSides(
+          cru::string::Utf8IndexCodeUnitToCodePoint(
+              actual_text_.data(), actual_text_.size(), text_range.position),
+          cru::string::Utf8IndexCodeUnitToCodePoint(
+              actual_text_.data(), actual_text_.size(), text_range.GetEnd()))
+          .Normalize();
 
   std::vector<CGRect> results;
 
@@ -430,7 +443,8 @@ CGRect OsxCTTextLayout::DoTextSinglePoint(Index position, bool trailing) {
 
   if (actual_text_.empty()) return CGRectMake(0, 0, 0, font_->GetFontSize());
 
-  position = actual_text_.IndexFromCodeUnitToCodePoint(position);
+  position = cru::string::Utf8IndexCodeUnitToCodePoint(
+      actual_text_.data(), actual_text_.size(), position);
 
   for (int i = 0; i < line_count_; i++) {
     auto line = lines_[i];
