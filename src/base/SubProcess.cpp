@@ -19,7 +19,7 @@ void PlatformSubProcess::Start() {
   std::lock_guard lock_guard(this->lock_);
 
   if (this->state_->status != SubProcessStatus::Prepare) {
-    throw SubProcessException(u"The process has already tried to start.");
+    throw SubProcessException("The process has already tried to start.");
   }
 
   try {
@@ -36,8 +36,8 @@ void PlatformSubProcess::Start() {
     thread.detach();
   } catch (const std::exception& e) {
     this->state_->status = SubProcessStatus::FailedToStart;
-    throw SubProcessFailedToStartException(u"Sub-process failed to start. " +
-                                           String::FromUtf8(e.what()));
+    throw SubProcessFailedToStartException(
+        std::string("Sub-process failed to start. ") + e.what());
   }
 }
 
@@ -46,13 +46,12 @@ void PlatformSubProcess::Wait(
   std::lock_guard lock_guard(this->lock_);
 
   if (this->state_->status == SubProcessStatus::Prepare) {
-    throw SubProcessException(
-        u"The process does not start. Can't wait for it.");
+    throw SubProcessException("The process does not start. Can't wait for it.");
   }
 
   if (this->state_->status == SubProcessStatus::FailedToStart) {
     throw SubProcessException(
-        u"The process failed to start. Can't wait for it.");
+        "The process failed to start. Can't wait for it.");
   }
 
   if (this->state_->status == SubProcessStatus::Exited) {
@@ -75,11 +74,11 @@ void PlatformSubProcess::Kill() {
   std::lock_guard lock_guard(this->lock_);
 
   if (this->state_->status == SubProcessStatus::Prepare) {
-    throw SubProcessException(u"The process does not start. Can't kill it.");
+    throw SubProcessException("The process does not start. Can't kill it.");
   }
 
   if (this->state_->status == SubProcessStatus::FailedToStart) {
-    throw SubProcessException(u"The process failed to start. Can't kill it.");
+    throw SubProcessException("The process failed to start. Can't kill it.");
   }
 
   if (this->state_->status == SubProcessStatus::Exited) {
@@ -104,17 +103,16 @@ SubProcessExitResult PlatformSubProcess::GetExitResult() {
 
   if (this->state_->status == SubProcessStatus::Prepare) {
     throw SubProcessException(
-        u"The process does not start. Can't get exit result.");
+        "The process does not start. Can't get exit result.");
   }
 
   if (this->state_->status == SubProcessStatus::FailedToStart) {
     throw SubProcessException(
-        u"The process failed to start. Can't get exit result.");
+        "The process failed to start. Can't get exit result.");
   }
 
   if (this->state_->status == SubProcessStatus::Running) {
-    throw SubProcessException(
-        u"The process is running. Can't get exit result.");
+    throw SubProcessException("The process is running. Can't get exit result.");
   }
 
   return this->state_->exit_result;
@@ -132,8 +130,9 @@ io::Stream* PlatformSubProcess::GetStderrStream() {
   return this->state_->impl->GetStderrStream();
 }
 
-SubProcess SubProcess::Create(String program, std::vector<String> arguments,
-                              std::unordered_map<String, String> environments) {
+SubProcess SubProcess::Create(
+    std::string program, std::vector<std::string> arguments,
+    std::unordered_map<std::string, std::string> environments) {
   SubProcessStartInfo start_info;
   start_info.program = std::move(program);
   start_info.arguments = std::move(arguments);
@@ -142,8 +141,8 @@ SubProcess SubProcess::Create(String program, std::vector<String> arguments,
 }
 
 SubProcessExitResult SubProcess::Call(
-    String program, std::vector<String> arguments,
-    std::unordered_map<String, String> environments) {
+    std::string program, std::vector<std::string> arguments,
+    std::unordered_map<std::string, std::string> environments) {
   auto process =
       Create(std::move(program), std::move(arguments), std::move(environments));
   process.Wait();
@@ -151,11 +150,10 @@ SubProcessExitResult SubProcess::Call(
 }
 
 SubProcess::SubProcess(SubProcessStartInfo start_info) {
-  
 #ifdef CRU_PLATFORM_UNIX
   platform_process_.reset(new PlatformSubProcess(
-    std::move(start_info),
-    std::make_shared<platform::unix::PosixSpawnSubProcessImpl>()));
+      std::move(start_info),
+      std::make_shared<platform::unix::PosixSpawnSubProcessImpl>()));
 #else
   NotImplemented();
 #endif
@@ -203,7 +201,7 @@ void SubProcess::Detach() { auto p = platform_process_.release(); }
 
 void SubProcess::CheckValid() const {
   if (!IsValid()) {
-    throw SubProcessException(u"SubProcess instance is invalid.");
+    throw SubProcessException("SubProcess instance is invalid.");
   }
 }
 

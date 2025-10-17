@@ -12,7 +12,7 @@ Point PointMapper::DoMapFromString(String str) {
   } else if (values.size() == 1) {
     return {values[0], values[0]};
   } else {
-    throw Exception(u"Invalid Point string.");
+    throw Exception("Invalid Point string.");
   }
 }
 

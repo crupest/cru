@@ -2,13 +2,13 @@
 #include "Base.h"
 
 #include "cru/base/Base.h"
-#include "cru/base/Format.h"
 #include "cru/xml/XmlNode.h"
 #include "mapper/MapperRegistry.h"
 #include "style/StyleRuleSet.h"
 
 #include <any>
 #include <filesystem>
+#include <format>
 #include <typeindex>
 #include <typeinfo>
 
@@ -48,7 +48,7 @@ class CRU_UI_API ThemeResourceDictionary : public Object {
     auto find_result = resource_map_.find(key);
     if (find_result == resource_map_.cend()) {
       throw ThemeResourceKeyNotExistException(
-          Format(u"Theme resource key {} not exist.", key));
+          std::format("Theme resource key {} not exist.", key.ToUtf8()));
     }
 
     auto& cache = find_result->second.cache;

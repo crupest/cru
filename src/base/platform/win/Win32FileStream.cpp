@@ -29,7 +29,7 @@ Win32FileStream::Win32FileStream(String path, OpenFileFlag flags)
     if (flags & io::OpenFileFlags::Write) {
       grfMode |= STGM_WRITE;
     } else {
-      throw Exception(u"Stream must be readable or writable.");
+      throw Exception("Stream must be readable or writable.");
     }
   }
 
@@ -80,7 +80,7 @@ Index Win32FileStream::DoRead(std::byte* buffer, Index offset, Index size) {
 Index Win32FileStream::DoWrite(const std::byte* buffer, Index offset,
                              Index size) {
   if (size < 0) {
-    throw Exception(u"Size must be greater than 0.");
+    throw Exception("Size must be greater than 0.");
   }
 
   CheckClosed();

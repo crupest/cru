@@ -1,7 +1,6 @@
 #pragma once
 #include "Base.h"
 #include "Exception.h"
-#include "String.h"
 #include "io/Stream.h"
 
 #include <chrono>
@@ -48,9 +47,9 @@ class CRU_BASE_API SubProcessInternalException : public SubProcessException {
 };
 
 struct SubProcessStartInfo {
-  String program;
-  std::vector<String> arguments;
-  std::unordered_map<String, String> environments;
+  std::string program;
+  std::vector<std::string> arguments;
+  std::unordered_map<std::string, std::string> environments;
 };
 
 enum class SubProcessExitType {
@@ -216,12 +215,12 @@ class CRU_BASE_API SubProcess : public Object {
 
  public:
   static SubProcess Create(
-      String program, std::vector<String> arguments = {},
-      std::unordered_map<String, String> environments = {});
+      std::string program, std::vector<std::string> arguments = {},
+      std::unordered_map<std::string, std::string> environments = {});
 
   static SubProcessExitResult Call(
-      String program, std::vector<String> arguments = {},
-      std::unordered_map<String, String> environments = {});
+      std::string program, std::vector<std::string> arguments = {},
+      std::unordered_map<std::string, std::string> environments = {});
 
  public:
   SubProcess(SubProcessStartInfo start_info);

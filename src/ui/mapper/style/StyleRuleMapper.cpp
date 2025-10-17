@@ -49,7 +49,7 @@ ClonablePtr<ui::style::StyleRule> StyleRuleMapper::DoMapFromXml(
       }
 
       if (!resolved) {
-        throw Exception(u"Unknown element in StyleRule: " + c->GetTag());
+        throw Exception("Unknown element in StyleRule: " + c->GetTag().ToUtf8());
       }
     }
   }

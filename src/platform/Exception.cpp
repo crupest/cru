@@ -17,15 +17,6 @@ PlatformNotMatchException::PlatformNotMatchException(
   AppendMessage(additional_message);
 }
 
-PlatformNotMatchException::PlatformNotMatchException(
-    StringView resource_platform, StringView target_platform,
-    std::optional<StringView> additional_message)
-    : PlatformNotMatchException(
-          resource_platform.ToUtf8(), target_platform.ToUtf8(),
-          additional_message.has_value()
-              ? std::make_optional(additional_message->ToUtf8())
-              : std::nullopt) {}
-
 PlatformNotMatchException::~PlatformNotMatchException() {}
 
 PlatformUnsupportedException::PlatformUnsupportedException(
@@ -39,23 +30,5 @@ PlatformUnsupportedException::PlatformUnsupportedException(
   AppendMessage(additional_message);
 }
 
-PlatformUnsupportedException::PlatformUnsupportedException(
-    StringView platform, StringView operation,
-    std::optional<StringView> additional_message)
-    : PlatformUnsupportedException(
-          platform.ToUtf8(), operation.ToUtf8(),
-          additional_message.has_value()
-              ? std::make_optional(additional_message->ToUtf8())
-              : std::nullopt) {}
-
 PlatformUnsupportedException::~PlatformUnsupportedException() {}
-
-String PlatformUnsupportedException::GetPlatform() const {
-  return String::FromUtf8(platform_);
-}
-
-String PlatformUnsupportedException::GetOperation() const {
-  return String::FromUtf8(operation_);
-}
-
 }  // namespace cru::platform

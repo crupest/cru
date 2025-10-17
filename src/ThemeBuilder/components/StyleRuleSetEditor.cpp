@@ -107,7 +107,7 @@ void StyleRuleSetEditor::UpdateView(
         break;
       }
       case ui::model::ListChangeType::kItemMove: {
-        throw Exception(u"Not supported now!");
+        throw Exception("Not supported now!");
         break;
       }
       case ui::model::ListChangeType::kClear: {

@@ -16,7 +16,7 @@ ClonablePtr<ui::style::CheckedCondition> CheckedConditionMapper::DoMapFromXml(
   } else if (value.CaseInsensitiveEqual(u"false")) {
     return ui::style::CheckedCondition::Create(false);
   } else {
-    throw Exception(u"Invalid value for CheckedCondition: " + value);
+    throw Exception("Invalid value for CheckedCondition: " + value.ToUtf8());
   }
 }
 }  // namespace cru::ui::mapper::style

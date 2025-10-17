@@ -10,7 +10,7 @@ std::unique_ptr<ThemeResourceDictionary> ThemeResourceDictionary::FromFile(
     const String& file_path) {
   io::CFileStream stream(file_path.ToUtf8().c_str(), "r");
   auto xml_string = stream.ReadToEndAsUtf8String();
-  auto parser = xml::XmlParser(xml_string);
+  auto parser = xml::XmlParser(String::FromUtf8(xml_string));
   return std::make_unique<ThemeResourceDictionary>(parser.Parse(), false);
 }
 
@@ -25,7 +25,7 @@ ThemeResourceDictionary::~ThemeResourceDictionary() = default;
 
 void ThemeResourceDictionary::UpdateResourceMap(xml::XmlElementNode* xml_root) {
   if (!xml_root->GetTag().CaseInsensitiveEqual(u"Theme")) {
-    throw Exception(u"Root tag of theme must be 'Theme'.");
+    throw Exception("Root tag of theme must be 'Theme'.");
   }
 
   for (auto child : xml_root->GetChildren()) {
@@ -34,10 +34,10 @@ void ThemeResourceDictionary::UpdateResourceMap(xml::XmlElementNode* xml_root) {
       if (c->GetTag().CaseInsensitiveEqual(u"Resource")) {
         auto key_attr = c->GetOptionalAttributeValueCaseInsensitive(u"key");
         if (!key_attr) {
-          throw Exception(u"'key' attribute is required for resource.");
+          throw Exception("'key' attribute is required for resource.");
         }
         if (c->GetChildElementCount() != 1) {
-          throw Exception(u"Resource must have only one child element.");
+          throw Exception("Resource must have only one child element.");
         }
 
         ResourceEntry entry;

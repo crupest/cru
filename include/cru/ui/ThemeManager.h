@@ -35,7 +35,7 @@ class CRU_UI_API ThemeManager : public Object {
       }
     }
     throw ThemeResourceKeyNotExistException(
-        Format(u"Theme resource key {} not exist.", key));
+        std::format("Theme resource key {} not exist.", key.ToUtf8()));
   }
 
   String GetResourceString(const String& key);

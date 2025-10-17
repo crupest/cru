@@ -8,7 +8,7 @@ bool ColorMapper::XmlElementIsOfThisType(xml::XmlElementNode* node) {
 Color ColorMapper::DoMapFromString(String str) {
   auto c = Color::Parse(str);
   if (!c) {
-    throw Exception(u"Invalid color value.");
+    throw Exception("Invalid color value.");
   }
   return *c;
 }

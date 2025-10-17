@@ -1,24 +1,17 @@
 #pragma once
 
 #include "../Base.h"
-
+#include "../Buffer.h"
 #include "../Exception.h"
-#include "../String.h"
 
 #include <cstddef>
 
 namespace cru::io {
 class CRU_BASE_API StreamOperationNotSupportedException : public Exception {
  public:
-  explicit StreamOperationNotSupportedException(StringView operation);
   explicit StreamOperationNotSupportedException(std::string operation);
 
  public:
-  [[deprecated("Use GetOperationUtf8 instead.")]]
-  String GetOperation() const {
-    return String::FromUtf8(operation_);
-  }
-
   std::string GetOperationUtf8() const { return operation_; }
 
  public:
@@ -101,7 +94,7 @@ class CRU_BASE_API Stream : public Object {
   virtual Buffer ReadToEnd(Index grow_size = 256);
 
   // Utf8 encoding.
-  String ReadToEndAsUtf8String();
+  std::string ReadToEndAsUtf8String();
 
  protected:
   virtual bool DoCanSeek();

@@ -24,7 +24,7 @@ PangoTextLayout::PangoTextLayout(CairoGraphicsFactory* factory,
                                  std::shared_ptr<IFont> font)
     : CairoResource(factory) {
   Expects(font);
-  font_ = CheckPlatform<PangoFont>(font, GetPlatformId());
+  font_ = CheckPlatform<PangoFont>(font, GetPlatformIdUtf8());
   pango_layout_ = pango_cairo_create_layout(factory->GetDefaultCairo());
   pango_layout_set_font_description(pango_layout_,
                                     font_->GetPangoFontDescription());
@@ -44,7 +44,7 @@ std::shared_ptr<IFont> PangoTextLayout::GetFont() { return font_; }
 
 void PangoTextLayout::SetFont(std::shared_ptr<IFont> font) {
   Expects(font);
-  font_ = CheckPlatform<PangoFont>(font, GetPlatformId());
+  font_ = CheckPlatform<PangoFont>(font, GetPlatformIdUtf8());
   pango_layout_set_font_description(pango_layout_,
                                     font_->GetPangoFontDescription());
 }

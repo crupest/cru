@@ -128,7 +128,7 @@ void FormatAppendFromFormatTokenList(
         return;
       } else {
         throw Exception(
-            u"Currently do not support positional or named place holder.");
+            "Currently do not support positional or named place holder.");
       }
     } else {
       current += token.data;

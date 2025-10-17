@@ -64,7 +64,7 @@ void OsxWindowPrivate::OnWindowWillClose() {
     bool quit = true;
 
     for (auto window : all_window) {
-      auto w = CheckPlatform<OsxWindow>(window, osx_window_->GetPlatformId());
+      auto w = CheckPlatform<OsxWindow>(window, osx_window_->GetPlatformIdUtf8());
       if (w->p_->window_) {
         quit = false;
         break;
@@ -179,7 +179,7 @@ void OsxWindowPrivate::CreateWindow() {
   [window_ setDelegate:window_delegate_];
 
   if (parent_) {
-    auto parent = CheckPlatform<OsxWindow>(parent_, this->osx_window_->GetPlatformId());
+    auto parent = CheckPlatform<OsxWindow>(parent_, this->osx_window_->GetPlatformIdUtf8());
     [window_ setParentWindow:parent->p_->window_];
   }
 
@@ -231,7 +231,7 @@ void OsxWindow::Close() {
 INativeWindow* OsxWindow::GetParent() { return p_->parent_; }
 
 void OsxWindow::SetParent(INativeWindow* parent) {
-  auto p = CheckPlatform<OsxWindow>(parent, GetPlatformId());
+  auto p = CheckPlatform<OsxWindow>(parent, GetPlatformIdUtf8());
 
   p_->parent_ = parent;
 
@@ -366,7 +366,7 @@ bool OsxWindow::CaptureMouse() { return true; }
 bool OsxWindow::ReleaseMouse() { return true; }
 
 void OsxWindow::SetCursor(std::shared_ptr<ICursor> cursor) {
-  p_->cursor_ = CheckPlatform<OsxCursor>(cursor, GetPlatformId());
+  p_->cursor_ = CheckPlatform<OsxCursor>(cursor, GetPlatformIdUtf8());
   p_->UpdateCursor();
 }
 

@@ -21,7 +21,7 @@ ThemeManager::ThemeManager() {
       cru::io::GetResourceDir() / "cru/ui/DefaultResources.xml";
 
   if (!std::filesystem::exists(resourses_file)) {
-    throw Exception(u"Default resources file not found.");
+    throw Exception("Default resources file not found.");
   }
 
   PrependThemeResourceDictionary(

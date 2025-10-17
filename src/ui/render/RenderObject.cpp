@@ -239,7 +239,7 @@ void RenderObject::OnLayoutCore() {
 }
 
 Size RenderObject::OnMeasureContent1(const BoxConstraint& constraint) {
-  throw Exception(u"Not implemented.");
+  throw Exception("Not implemented.");
 }
 
 Rect RenderObject::GetPaddingRect() const {

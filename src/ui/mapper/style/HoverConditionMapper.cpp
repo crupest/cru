@@ -17,7 +17,7 @@ ClonablePtr<HoverCondition> HoverConditionMapper::DoMapFromXml(
   } else if (value.CaseInsensitiveEqual(u"false")) {
     return ui::style::HoverCondition::Create(false);
   } else {
-    throw Exception(u"Invalid value for HoverCondition: " + value);
+    throw Exception("Invalid value for HoverCondition: " + value.ToUtf8());
   }
 }
 }  // namespace cru::ui::mapper::style

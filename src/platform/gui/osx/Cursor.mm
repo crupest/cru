@@ -24,7 +24,7 @@ OsxCursorPrivate::OsxCursorPrivate(OsxCursor* cursor, SystemCursorType cursor_ty
       ns_cursor_ = [NSCursor IBeamCursor];
       break;
     default:
-      throw Exception(u"Unknown system cursor type.");
+      throw Exception("Unknown system cursor type.");
   }
 }
 
@@ -87,7 +87,7 @@ std::shared_ptr<ICursor> OsxCursorManager::GetSystemCursor(SystemCursorType type
     case SystemCursorType::IBeam:
       return p_->ibeam_cursor_;
     default:
-      throw Exception(u"Unknown system cursor type.");
+      throw Exception("Unknown system cursor type.");
   }
 }
 }  // namespace cru::platform::gui::osx

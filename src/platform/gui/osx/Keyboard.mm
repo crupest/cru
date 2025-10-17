@@ -260,7 +260,7 @@ NSString* ConvertKeyCodeToKeyEquivalent(KeyCode key_code) {
     CRU_DEFINE_KEYCODE_MAP(KeyCode::Backspace, @"\x08")
     CRU_DEFINE_KEYCODE_MAP(KeyCode::Delete, @"\x7F")
     default:
-      throw Exception(u"Failed to convert key code to key equivalent string.");
+      throw Exception("Failed to convert key code to key equivalent string.");
   }
 #undef CRU_DEFINE_KEYCODE_MAP
 }

@@ -49,7 +49,7 @@ std::filesystem::path GetResourceDir() {
     }
   }
 
-  throw Exception(u"Failed to find resource directory.");
+  throw Exception("Failed to find resource directory.");
 
 #endif
 

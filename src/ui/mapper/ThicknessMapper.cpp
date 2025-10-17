@@ -15,7 +15,7 @@ Thickness ThicknessMapper::DoMapFromString(String str) {
   } else if (values.size() == 1) {
     return Thickness(values[0], values[0], values[0], values[0]);
   } else {
-    throw Exception(u"Invalid Thickness string.");
+    throw Exception("Invalid Thickness string.");
   }
 }
 

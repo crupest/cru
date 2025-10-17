@@ -66,7 +66,7 @@ void QuartzCGContextPainter::DrawLine(const Point& start, const Point& end,
   CGContextMoveToPoint(cg_context_, start.x, start.y);
   CGContextAddLineToPoint(cg_context_, end.x, end.y);
 
-  QuartzBrush* b = CheckPlatform<QuartzBrush>(brush, GetPlatformId());
+  QuartzBrush* b = CheckPlatform<QuartzBrush>(brush, GetPlatformIdUtf8());
   b->Select(cg_context_);
   SetLineWidth(width);
 
@@ -77,7 +77,7 @@ void QuartzCGContextPainter::StrokeRectangle(const Rect& rectangle,
                                              IBrush* brush, float width) {
   Validate();
 
-  QuartzBrush* b = CheckPlatform<QuartzBrush>(brush, GetPlatformId());
+  QuartzBrush* b = CheckPlatform<QuartzBrush>(brush, GetPlatformIdUtf8());
   b->Select(cg_context_);
   CGContextStrokeRectWithWidth(cg_context_, Convert(rectangle), width);
 }
@@ -86,7 +86,7 @@ void QuartzCGContextPainter::FillRectangle(const Rect& rectangle,
                                            IBrush* brush) {
   Validate();
 
-  QuartzBrush* b = CheckPlatform<QuartzBrush>(brush, GetPlatformId());
+  QuartzBrush* b = CheckPlatform<QuartzBrush>(brush, GetPlatformIdUtf8());
   b->Select(cg_context_);
   CGContextFillRect(cg_context_, Convert(rectangle));
 }
@@ -95,7 +95,7 @@ void QuartzCGContextPainter::StrokeEllipse(const Rect& outline_rect,
                                            IBrush* brush, float width) {
   Validate();
 
-  QuartzBrush* b = CheckPlatform<QuartzBrush>(brush, GetPlatformId());
+  QuartzBrush* b = CheckPlatform<QuartzBrush>(brush, GetPlatformIdUtf8());
   b->Select(cg_context_);
   SetLineWidth(width);
 
@@ -106,7 +106,7 @@ void QuartzCGContextPainter::FillEllipse(const Rect& outline_rect,
                                          IBrush* brush) {
   Validate();
 
-  QuartzBrush* b = CheckPlatform<QuartzBrush>(brush, GetPlatformId());
+  QuartzBrush* b = CheckPlatform<QuartzBrush>(brush, GetPlatformIdUtf8());
   b->Select(cg_context_);
   CGContextFillEllipseInRect(cg_context_, Convert(outline_rect));
 }
@@ -115,8 +115,8 @@ void QuartzCGContextPainter::StrokeGeometry(IGeometry* geometry, IBrush* brush,
                                             float width) {
   Validate();
 
-  QuartzGeometry* g = CheckPlatform<QuartzGeometry>(geometry, GetPlatformId());
-  QuartzBrush* b = CheckPlatform<QuartzBrush>(brush, GetPlatformId());
+  QuartzGeometry* g = CheckPlatform<QuartzGeometry>(geometry, GetPlatformIdUtf8());
+  QuartzBrush* b = CheckPlatform<QuartzBrush>(brush, GetPlatformIdUtf8());
 
   b->Select(cg_context_);
   SetLineWidth(width);
@@ -129,8 +129,8 @@ void QuartzCGContextPainter::StrokeGeometry(IGeometry* geometry, IBrush* brush,
 void QuartzCGContextPainter::FillGeometry(IGeometry* geometry, IBrush* brush) {
   Validate();
 
-  QuartzGeometry* g = CheckPlatform<QuartzGeometry>(geometry, GetPlatformId());
-  QuartzBrush* b = CheckPlatform<QuartzBrush>(brush, GetPlatformId());
+  QuartzGeometry* g = CheckPlatform<QuartzGeometry>(geometry, GetPlatformIdUtf8());
+  QuartzBrush* b = CheckPlatform<QuartzBrush>(brush, GetPlatformIdUtf8());
 
   b->Select(cg_context_);
   CGContextBeginPath(cg_context_);
@@ -142,7 +142,7 @@ void QuartzCGContextPainter::DrawText(const Point& offset,
                                       ITextLayout* text_layout, IBrush* brush) {
   Validate();
 
-  auto tl = CheckPlatform<OsxCTTextLayout>(text_layout, GetPlatformId());
+  auto tl = CheckPlatform<OsxCTTextLayout>(text_layout, GetPlatformIdUtf8());
 
   Color color;
 
@@ -169,7 +169,7 @@ void QuartzCGContextPainter::DrawText(const Point& offset,
 
 void QuartzCGContextPainter::DrawImage(const Point& offset, IImage* image) {
   Validate();
-  auto i = CheckPlatform<QuartzImage>(image, GetPlatformId());
+  auto i = CheckPlatform<QuartzImage>(image, GetPlatformIdUtf8());
 
   auto cg_image = i->GetCGImage();
 
@@ -225,6 +225,6 @@ void QuartzCGContextPainter::DoEndDraw() {
 
 void QuartzCGContextPainter::Validate() {
   if (cg_context_ == nullptr)
-    throw ReuseException(u"QuartzCGContextPainter has already be released.");
+    throw ReuseException("QuartzCGContextPainter has already be released.");
 }
 }  // namespace cru::platform::graphics::quartz

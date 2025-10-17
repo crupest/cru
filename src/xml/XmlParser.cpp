@@ -15,7 +15,7 @@ XmlElementNode* XmlParser::Parse() {
 
 char16_t XmlParser::Read1() {
   if (current_position_ >= xml_.size()) {
-    throw XmlParsingException(u"Unexpected end of xml");
+    throw XmlParsingException("Unexpected end of xml");
   }
   return xml_[current_position_++];
 }
@@ -61,7 +61,7 @@ String XmlParser::ReadIdenitifier() {
 
 String XmlParser::ReadAttributeString() {
   if (Read1() != '"') {
-    throw XmlParsingException(u"Expected \".");
+    throw XmlParsingException("Expected \".");
   }
 
   String string;
@@ -98,13 +98,13 @@ XmlElementNode* XmlParser::DoParse() {
         String tag = ReadIdenitifier();
 
         if (tag != current_->GetTag()) {
-          throw XmlParsingException(u"Tag mismatch.");
+          throw XmlParsingException("Tag mismatch.");
         }
 
         ReadSpacesAndDiscard();
 
         if (Read1() != '>') {
-          throw XmlParsingException(u"Expected >.");
+          throw XmlParsingException("Expected >.");
         }
 
         current_ = current_->GetParent();
@@ -115,7 +115,7 @@ XmlElementNode* XmlParser::DoParse() {
         while (true) {
           auto str = ReadWithoutAdvance(3);
           if (str == u"-->") break;
-          if (str.empty()) throw XmlParsingException(u"Unexpected end of xml");
+          if (str.empty()) throw XmlParsingException("Unexpected end of xml");
           text += Read1();
         }
 
@@ -140,7 +140,7 @@ XmlElementNode* XmlParser::DoParse() {
             current_position_ += 1;
 
             if (Read1() != '>') {
-              throw XmlParsingException(u"Expected >.");
+              throw XmlParsingException("Expected >.");
             }
 
             is_self_closing = true;
@@ -151,7 +151,7 @@ XmlElementNode* XmlParser::DoParse() {
             ReadSpacesAndDiscard();
 
             if (Read1() != '=') {
-              throw XmlParsingException(u"Expected '='");
+              throw XmlParsingException("Expected '='");
             }
 
             ReadSpacesAndDiscard();
@@ -183,11 +183,11 @@ XmlElementNode* XmlParser::DoParse() {
   }
 
   if (current_ != pseudo_root_node_) {
-    throw XmlParsingException(u"Unexpected end of xml");
+    throw XmlParsingException("Unexpected end of xml");
   }
 
   if (pseudo_root_node_->GetChildren().size() != 1) {
-    throw XmlParsingException(u"Expected 1 node as root.");
+    throw XmlParsingException("Expected 1 node as root.");
   }
 
   return static_cast<XmlElementNode*>(pseudo_root_node_->GetChildren()[0]);

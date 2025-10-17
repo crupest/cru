@@ -9,7 +9,7 @@ FormatToken ParsePlaceHolder(String place_holder_string) {
 
   if (place_holder_string.StartWith(u":")) {
     if (place_holder_string.Find(u':', 1) != -1) {
-      throw Exception(u"Two ':' inside placeholder.");
+      throw Exception("Two ':' inside placeholder.");
     }
 
     return FormatToken::NonePlaceHolder(place_holder_string.substr(1));
@@ -27,7 +27,7 @@ FormatToken ParsePlaceHolder(String place_holder_string) {
 
     if (index != place_holder_string.size()) {
       if (place_holder_string[index] != ':') {
-        throw Exception(u"Invalid placeholder in format.");
+        throw Exception("Invalid placeholder in format.");
       }
 
       option = place_holder_string.substr(index + 1);
@@ -68,7 +68,7 @@ std::vector<FormatToken> ParseToFormatTokenList(StringView str) {
         is_in_place_holder = false;
       } else {
         if (is_in_place_holder) {
-          throw Exception(u"Invalid format string: '{' inside placeholder.");
+          throw Exception("Invalid format string: '{' inside placeholder.");
         }
 
         try_to_escape = true;
@@ -101,7 +101,7 @@ void FormatAppendFromFormatTokenList(
   for (Index i = index; i < static_cast<Index>(format_token_list.size()); i++) {
     const auto& token = format_token_list[i];
     if (token.type == FormatTokenType::PlaceHolder) {
-      throw Exception(u"More placeholder than args.");
+      throw Exception("More placeholder than args.");
     } else {
       current += token.data;
     }

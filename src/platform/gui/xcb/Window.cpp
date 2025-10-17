@@ -271,7 +271,7 @@ bool XcbWindow::ReleaseMouse() {
 
 void XcbWindow::SetCursor(std::shared_ptr<ICursor> cursor) {
   if (!xcb_window_) return;
-  auto xcb_cursor = CheckPlatform<XcbCursor>(cursor, GetPlatformId());
+  auto xcb_cursor = CheckPlatform<XcbCursor>(cursor, GetPlatformIdUtf8());
   cursor_ = xcb_cursor;
   DoSetCursor(*xcb_window_, xcb_cursor.get());
 }

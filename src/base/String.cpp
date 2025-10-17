@@ -324,7 +324,7 @@ void String::AppendCodePoint(CodePoint code_point) {
   if (!Utf16EncodeCodePointAppend(
           code_point,
           std::bind(&String::push_back, this, std::placeholders::_1))) {
-    throw TextEncodeException(u"Code point out of range.");
+    throw TextEncodeException("Code point out of range.");
   }
 }
 
@@ -623,7 +623,7 @@ float StringView::ParseToFloat(Index* processed_characters_count,
   }
 
   if (flags & StringToNumberFlags::kThrowOnError && std::isnan(result)) {
-    throw Exception(u"Result of string to float conversion is NaN");
+    throw Exception("Result of string to float conversion is NaN");
   }
 
   return result;
@@ -639,7 +639,7 @@ double StringView::ParseToDouble(Index* processed_characters_count,
   }
 
   if (flags & StringToNumberFlags::kThrowOnError && std::isnan(result)) {
-    throw Exception(u"Result of string to double conversion is NaN");
+    throw Exception("Result of string to double conversion is NaN");
   }
 
   return result;
@@ -651,7 +651,7 @@ std::vector<float> StringView::ParseToFloatList(value_type separator) const {
   for (auto& item : list) {
     auto value = item.ParseToFloat();
     if (std::isnan(value)) {
-      throw Exception(u"Invalid double value.");
+      throw Exception("Invalid double value.");
     }
     result.push_back(value);
   }
@@ -664,7 +664,7 @@ std::vector<double> StringView::ParseToDoubleList(value_type separator) const {
   for (auto& item : list) {
     auto value = item.ParseToDouble();
     if (std::isnan(value)) {
-      throw Exception(u"Invalid double value.");
+      throw Exception("Invalid double value.");
     }
     result.push_back(value);
   }

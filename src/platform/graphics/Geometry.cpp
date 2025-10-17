@@ -15,9 +15,9 @@ bool IGeometry::StrokeContains(float width, const Point& point) {
 
 std::unique_ptr<IGeometry> IGeometry::CreateStrokeGeometry(
     [[maybe_unused]] float width) {
-  throw PlatformUnsupportedException(GetPlatformId(), u"CreateStrokeGeometry",
-                                     u"Create stroke geometry of a geometry is "
-                                     u"not supported on this platform.");
+  throw PlatformUnsupportedException(GetPlatformIdUtf8(), "CreateStrokeGeometry",
+                                     "Create stroke geometry of a geometry is "
+                                     "not supported on this platform.");
 }
 
 void IGeometryBuilder::RelativeMoveTo(const Point& offset) {
@@ -227,7 +227,7 @@ void IGeometryBuilder::ParseAndApplySvgPathData(StringView path_d) {
 
   auto read_number = [&] {
     if (read_spaces()) {
-      throw Exception(u"Unexpected eof of svg path data command.");
+      throw Exception("Unexpected eof of svg path data command.");
     }
 
     if (path_d[position] == ',') {
@@ -239,7 +239,7 @@ void IGeometryBuilder::ParseAndApplySvgPathData(StringView path_d) {
     auto result = path_d.substr(position).ParseToFloat(
         &processed_count, StringToNumberFlags::kAllowTrailingJunk);
 
-    if (std::isnan(result)) throw Exception(u"Invalid svg path data number.");
+    if (std::isnan(result)) throw Exception("Invalid svg path data number.");
 
     position += processed_count;
 
@@ -415,7 +415,7 @@ void IGeometryBuilder::ParseAndApplySvgPathData(StringView path_d) {
         CloseFigure(true);
         break;
       default:
-        throw Exception(u"Invalid svg path command.");
+        throw Exception("Invalid svg path command.");
     }
     return true;
   };

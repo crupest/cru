@@ -10,8 +10,8 @@ SvgGeometryBuilderMixin::~SvgGeometryBuilderMixin() {}
 
 Point SvgGeometryBuilderMixin::GetCurrentPosition() {
   throw PlatformUnsupportedException(
-      GetPlatformId(), u"GetCurrentPosition",
-      u"Svg-based geometry does not support get current position.");
+      GetPlatformIdUtf8(), "GetCurrentPosition",
+      "Svg-based geometry does not support get current position.");
 }
 
 void SvgGeometryBuilderMixin::MoveTo(const Point& point) {

@@ -34,7 +34,7 @@ StringToIntegerResult StringToIntegerConverter::Parse(
       *processed_characters_count = 0;
     }
     if (throw_on_error) {
-      throw Exception(u"Empty string (after reading leading spaces).");
+      throw Exception("Empty string (after reading leading spaces).");
     } else {
       return {false, 0};
     }
@@ -54,7 +54,7 @@ StringToIntegerResult StringToIntegerConverter::Parse(
       *processed_characters_count = 0;
     }
     if (throw_on_error) {
-      throw Exception(u"Empty string (after reading sign).");
+      throw Exception("Empty string (after reading sign).");
     } else {
       return {false, 0};
     }
@@ -89,7 +89,7 @@ StringToIntegerResult StringToIntegerConverter::Parse(
       *processed_characters_count = 0;
     }
     if (throw_on_error) {
-      throw Exception(u"Empty string (after reading head base indicator).");
+      throw Exception("Empty string (after reading head base indicator).");
     } else {
       return {false, 0};
     }
@@ -136,7 +136,7 @@ StringToIntegerResult StringToIntegerConverter::Parse(
         *processed_characters_count = 0;
       }
       if (throw_on_error) {
-        throw Exception(String(u"Read invalid character '") + c + u"'.");
+        throw Exception(std::string("Read invalid character '") + c + "'.");
       } else {
         return {false, 0};
       }
@@ -153,7 +153,7 @@ StringToIntegerResult StringToIntegerConverter::Parse(
         *processed_characters_count = 0;
       }
       if (throw_on_error) {
-        throw Exception(u"There is trailing junk.");
+        throw Exception("There is trailing junk.");
       } else {
         return {false, 0};
       }

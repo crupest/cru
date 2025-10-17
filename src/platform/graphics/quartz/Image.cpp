@@ -35,7 +35,7 @@ std::unique_ptr<IImage> QuartzImage::CreateWithRect(const Rect& rect) {
 std::unique_ptr<IPainter> QuartzImage::CreatePainter() {
   if (!buffer_)
     throw Exception(
-        u"Failed to create painter for image because failed to get its "
+        "Failed to create painter for image because failed to get its "
         u"buffer.");
 
   auto width = CGImageGetWidth(image_);

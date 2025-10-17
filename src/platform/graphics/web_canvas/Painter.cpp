@@ -94,7 +94,7 @@ void WebCanvasPainter::SetFillStyle(IBrush* brush) {
 }
 
 WebCanvasBrush* WebCanvasPainter::ConvertBrush(IBrush* brush) const {
-  return CheckPlatform<WebCanvasBrush>(brush, GetPlatformId());
+  return CheckPlatform<WebCanvasBrush>(brush, GetPlatformIdUtf8());
 }
 
 WebCanvasRef WebCanvasPainter::GetCanvas() {

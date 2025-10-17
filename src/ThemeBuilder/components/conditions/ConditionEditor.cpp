@@ -44,7 +44,7 @@ std::unique_ptr<ConditionEditor> CreateConditionEditor(
     result->SetValue(checked_condition);
     return result;
   } else {
-    throw Exception(u"Unknown condition type");
+    throw Exception("Unknown condition type");
   }
 }
 }  // namespace cru::theme_builder::components::conditions

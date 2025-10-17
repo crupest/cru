@@ -31,7 +31,7 @@ void TomlParser::DoParse(TomlDocument& document) {
       auto equal_index = line.Find(u'=');
 
       if (equal_index == -1) {
-        throw TomlParsingException(u"Invalid TOML line: " + line);
+        throw TomlParsingException("Invalid TOML line: " + line.ToUtf8());
       }
 
       auto key = line.substr(0, equal_index).Trim();

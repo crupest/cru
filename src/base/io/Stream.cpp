@@ -6,28 +6,24 @@
 
 namespace cru::io {
 StreamOperationNotSupportedException::StreamOperationNotSupportedException(
-    StringView operation)
-    : StreamOperationNotSupportedException(operation.ToUtf8()) {}
-
-StreamOperationNotSupportedException::StreamOperationNotSupportedException(
     std::string operation)
     : Exception(std::format("Stream operation {} not supported.", operation)),
       operation_(std::move(operation)) {}
 
 void StreamOperationNotSupportedException::CheckSeek(bool seekable) {
-  if (!seekable) throw StreamOperationNotSupportedException(u"seek");
+  if (!seekable) throw StreamOperationNotSupportedException("seek");
 }
 
 void StreamOperationNotSupportedException::CheckRead(bool readable) {
-  if (!readable) throw StreamOperationNotSupportedException(u"read");
+  if (!readable) throw StreamOperationNotSupportedException("read");
 }
 
 void StreamOperationNotSupportedException::CheckWrite(bool writable) {
-  if (!writable) throw StreamOperationNotSupportedException(u"write");
+  if (!writable) throw StreamOperationNotSupportedException("write");
 }
 
 StreamClosedException::StreamClosedException()
-    : Exception(u"Stream is already closed.") {}
+    : Exception("Stream is already closed.") {}
 
 void StreamClosedException::Check(bool closed) {
   if (closed) throw StreamClosedException();
@@ -122,8 +118,8 @@ bool Stream::DoCanSeek() {
     return *supported_operations_->can_seek;
   } else {
     throw Exception(
-        u"Can seek is neither set in supported_operations nor implemeted in "
-        u"virtual function.");
+        "Can seek is neither set in supported_operations nor implemeted in "
+        "virtual function.");
   }
 }
 
@@ -132,8 +128,8 @@ bool Stream::DoCanRead() {
     return *supported_operations_->can_read;
   } else {
     throw Exception(
-        u"Can read is neither set in supported_operations nor implemeted in "
-        u"virtual function.");
+        "Can read is neither set in supported_operations nor implemeted in "
+        "virtual function.");
   }
 }
 
@@ -142,13 +138,13 @@ bool Stream::DoCanWrite() {
     return *supported_operations_->can_write;
   } else {
     throw Exception(
-        u"Can write is neither set in supported_operations nor implemeted in "
-        u"virtual function.");
+        "Can write is neither set in supported_operations nor implemeted in "
+        "virtual function.");
   }
 }
 
 Index Stream::DoSeek(Index offset, SeekOrigin origin) {
-  throw Exception(u"Stream is seekable but DoSeek is not implemented.");
+  throw Exception("Stream is seekable but DoSeek is not implemented.");
 }
 
 Index Stream::DoTell() {
@@ -171,11 +167,11 @@ Index Stream::DoGetSize() {
 }
 
 Index Stream::DoRead(std::byte* buffer, Index offset, Index size) {
-  throw Exception(u"Stream is readable but DoRead is not implemented.");
+  throw Exception("Stream is readable but DoRead is not implemented.");
 }
 
 Index Stream::DoWrite(const std::byte* buffer, Index offset, Index size) {
-  throw Exception(u"Stream is writable but DoWrite is not implemented.");
+  throw Exception("Stream is writable but DoWrite is not implemented.");
 }
 
 void Stream::DoFlush() {}
@@ -195,8 +191,8 @@ Buffer Stream::ReadToEnd(Index grow_size) {
   return buffer;
 }
 
-String Stream::ReadToEndAsUtf8String() {
+std::string Stream::ReadToEndAsUtf8String() {
   auto buffer = ReadToEnd();
-  return String::FromUtf8(buffer);
+  return std::string(buffer.GetUsedBeginPtr(), buffer.GetUsedEndPtr());
 }
 }  // namespace cru::io

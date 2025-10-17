@@ -24,11 +24,11 @@ IMenu* IUiApplication::GetApplicationMenu() { return nullptr; }
 
 std::optional<String> IUiApplication::ShowSaveDialog(
     SaveDialogOptions options) {
-  throw Exception(u"Not implemented.");
+  throw Exception("Not implemented.");
 }
 
 std::optional<std::vector<String>> IUiApplication::ShowOpenDialog(
     OpenDialogOptions options) {
-  throw Exception(u"Not implemented.");
+  throw Exception("Not implemented.");
 }
 }  // namespace cru::platform::gui

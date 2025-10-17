@@ -58,7 +58,7 @@ std::unique_ptr<StylerEditor> CreateStylerEditor(ui::style::Styler* styler) {
     editor->SetValue(font_styler);
     return editor;
   } else {
-    throw Exception(u"Unknown styler type");
+    throw Exception("Unknown styler type");
   }
 }
 }  // namespace cru::theme_builder::components::stylers

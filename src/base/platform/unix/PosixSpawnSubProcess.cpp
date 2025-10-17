@@ -1,7 +1,6 @@
 #include "cru/base/platform/unix/PosixSpawnSubProcess.h"
 #include "cru/base/Exception.h"
 #include "cru/base/Guard.h"
-#include "cru/base/String.h"
 #include "cru/base/SubProcess.h"
 #include "cru/base/log/Logger.h"
 
@@ -9,6 +8,7 @@
 #include <spawn.h>
 #include <sys/wait.h>
 #include <unistd.h>
+#include <cstring>
 #include <format>
 #include <memory>
 #include <string_view>
@@ -20,23 +20,25 @@ PosixSpawnSubProcessImpl::PosixSpawnSubProcessImpl() : pid_(0), exit_code_(0) {}
 PosixSpawnSubProcessImpl::~PosixSpawnSubProcessImpl() {}
 
 namespace {
-char** CreateCstrArray(const std::vector<String>& argv) {
-  std::vector<Buffer> utf8_argv;
-  for (const auto& arg : argv) {
-    utf8_argv.push_back(arg.ToUtf8Buffer());
+char** CreateCstrArray(const std::vector<std::string>& argv) {
+  auto argv_len = argv.size();
+  char** result = new char*[argv_len + 1];
+  for (int i = 0; i < argv.size(); i++) {
+    auto len = argv[i].size();
+    char* str = new char[len + 1];
+    result[i] = str;
+    std::memcpy(str, argv[i].data(), len);
+    str[len] = 0;
   }
-  char** result = new char*[utf8_argv.size() + 1];
-  for (int i = 0; i < utf8_argv.size(); i++) {
-    result[i] = reinterpret_cast<char*>(utf8_argv[i].Detach());
-  }
-  result[utf8_argv.size()] = nullptr;
+  result[argv_len] = nullptr;
   return result;
 }
 
-char** CreateCstrArray(const std::unordered_map<String, String>& envp) {
-  std::vector<String> str_array;
+char** CreateCstrArray(
+    const std::unordered_map<std::string, std::string>& envp) {
+  std::vector<std::string> str_array;
   for (auto& [key, value] : envp) {
-    str_array.push_back(key + u"=" + value);
+    str_array.push_back(key + "=" + value);
   }
   return CreateCstrArray(str_array);
 }
@@ -112,8 +114,8 @@ void PosixSpawnSubProcessImpl::PlatformCreateProcess(
               "Failed to set flag POSIX_SPAWN_CLOEXEC_DEFAULT (osx).");
 #endif
 
-  auto exe = start_info.program.ToUtf8();
-  std::vector<String> arguments{start_info.program};
+  auto exe = start_info.program;
+  std::vector<std::string> arguments{start_info.program};
   arguments.insert(arguments.cend(), start_info.arguments.cbegin(),
                    start_info.arguments.cend());
 
@@ -168,7 +170,7 @@ void PosixSpawnSubProcessImpl::PlatformKillProcess() {
   int error = kill(pid_, SIGKILL);
   if (error != 0) {
     std::unique_ptr<ErrnoException> inner(new ErrnoException(errno));
-    throw SubProcessInternalException(u"Failed to call kill on a subprocess.",
+    throw SubProcessInternalException("Failed to call kill on a subprocess.",
                                       std::move(inner));
   }
 }

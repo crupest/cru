@@ -66,7 +66,7 @@ class CRU_UI_API BasicMapper : public MapperBase {
 
   virtual T MapFromString(String str) {
     if (!SupportMapFromString()) {
-      throw Exception(u"This mapper does not support map from string.");
+      throw Exception("This mapper does not support map from string.");
     }
 
     return DoMapFromString(str);
@@ -74,11 +74,11 @@ class CRU_UI_API BasicMapper : public MapperBase {
 
   T MapFromXml(xml::XmlElementNode* node) {
     if (!SupportMapFromXml()) {
-      throw Exception(u"This mapper does not support map from xml.");
+      throw Exception("This mapper does not support map from xml.");
     }
 
     if (!XmlElementIsOfThisType(node)) {
-      throw Exception(u"This xml element is not of mapping type.");
+      throw Exception("This xml element is not of mapping type.");
     }
 
     return DoMapFromXml(node);

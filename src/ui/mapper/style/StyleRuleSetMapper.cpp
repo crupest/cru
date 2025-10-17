@@ -25,7 +25,7 @@ std::shared_ptr<ui::style::StyleRuleSet> StyleRuleSetMapper::DoMapFromXml(
         auto style_rule = style_rule_mapper->MapFromXml(c);
         result->AddStyleRule(*style_rule);
       } else {
-        throw Exception(u"StyleRuleSet can only contain StyleRule.");
+        throw Exception("StyleRuleSet can only contain StyleRule.");
       }
     }
   }

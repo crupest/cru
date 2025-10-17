@@ -27,7 +27,7 @@ StyleRuleSet::StyleRuleSet(std::shared_ptr<StyleRuleSet> parent) {
 void StyleRuleSet::SetParent(std::shared_ptr<StyleRuleSet> parent) {
   if (parent == parent_) return;
   if (CheckCycle(this, parent.get())) {
-    throw Exception(u"Cycle detected in StyleRuleSet parent.");
+    throw Exception("Cycle detected in StyleRuleSet parent.");
   }
   parent_change_event_guard_.Reset();
   parent_ = std::move(parent);

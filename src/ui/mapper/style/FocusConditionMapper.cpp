@@ -1,5 +1,5 @@
-#include "cru/base/ClonablePtr.h"
 #include "cru/ui/mapper/style/FocusConditionMapper.h"
+#include "cru/base/ClonablePtr.h"
 #include "cru/ui/style/Condition.h"
 #include "cru/xml/XmlNode.h"
 
@@ -16,7 +16,7 @@ ClonablePtr<ui::style::FocusCondition> FocusConditionMapper::DoMapFromXml(
   } else if (value.CaseInsensitiveEqual(u"false")) {
     return ui::style::FocusCondition::Create(false);
   } else {
-    throw Exception(u"Invalid value for FocusCondition: " + value);
+    throw Exception("Invalid value for FocusCondition: " + value.ToUtf8());
   }
 }
 }  // namespace cru::ui::mapper::style

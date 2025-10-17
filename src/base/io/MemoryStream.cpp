@@ -14,10 +14,10 @@ MemoryStream::MemoryStream(
       position_(0),
       release_func_(std::move(release_func)) {
   if (!buffer) {
-    throw Exception(u"Buffer is nullptr");
+    throw Exception("Buffer is nullptr");
   }
   if (size <= 0) {
-    throw Exception(u"Size is 0 or negative.");
+    throw Exception("Size is 0 or negative.");
   }
 }
 

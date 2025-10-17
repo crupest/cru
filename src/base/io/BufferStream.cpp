@@ -57,7 +57,7 @@ Index BufferStream::DoWrite(const std::byte* buffer, Index offset, Index size) {
 
   if (eof_) {
     throw WriteAfterEofException(
-        u"Stream has been set eof. Can't write to it any more.");
+        "Stream has been set eof. Can't write to it any more.");
   }
 
   condition_variable_.wait(lock, [this] {

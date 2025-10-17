@@ -1,5 +1,5 @@
 #pragma once
-#include "String.h"
+#include "Base.h"
 
 #include <exception>
 #include <optional>
@@ -13,16 +13,10 @@ class CRU_BASE_API Exception : public std::exception {
  public:
   explicit Exception(std::string message = "",
                      std::shared_ptr<std::exception> inner = nullptr);
-  explicit Exception(StringView message,
-                     std::shared_ptr<std::exception> inner = nullptr);
 
   ~Exception() override;
 
  public:
-  [[deprecated("Use GetUtf8Message.")]] String GetMessage() const {
-    return String::FromUtf8(message_);
-  }
-
   std::string GetUtf8Message() const { return this->message_; }
 
   std::exception* GetInner() const noexcept { return inner_.get(); }
@@ -34,16 +28,6 @@ class CRU_BASE_API Exception : public std::exception {
   void AppendMessage(const std::string& additional_message);
   void AppendMessage(std::string_view additional_message);
   void AppendMessage(std::optional<std::string_view> additional_message);
-
-  [[deprecated("Use void SetMessage(std::string message) instead.")]]
-  void SetMessage(StringView message);
-  [[deprecated(
-      "Use void AppendMessage(std::string_view additional_message) instead.")]]
-  void AppendMessage(StringView additional_message);
-  [[deprecated(
-      "Use void AppendMessage(std::optional<std::string_view> "
-      "additional_message) instead.")]]
-  void AppendMessage(std::optional<StringView> additional_message);
 
  private:
   std::string message_;
@@ -71,11 +55,6 @@ class ErrnoException : public Exception {
    */
   explicit ErrnoException(std::string_view message);
   ErrnoException(std::string_view message, int errno_code);
-  /**
-   * @brief will retrieve errno automatically.
-   */
-  explicit ErrnoException(StringView message);
-  ErrnoException(StringView message, int errno_code);
 
   int GetErrnoCode() const { return errno_code_; }
 

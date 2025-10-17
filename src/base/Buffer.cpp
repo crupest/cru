@@ -7,7 +7,7 @@ namespace cru {
 namespace {
 void CheckSize(Index size) {
   if (size < 0) {
-    throw Exception(u"Size of buffer can't be smaller than 0.");
+    throw Exception("Size of buffer can't be smaller than 0.");
   }
 }
 }  // namespace
@@ -144,7 +144,7 @@ Index Buffer::PushBack(const std::byte* other, Index other_size,
 
 void Buffer::PushBackCount(Index count) {
   if (count < 0 || count > GetBackFree()) {
-    throw Exception(u"Count out of range in PushBackCount.");
+    throw Exception("Count out of range in PushBackCount.");
   }
   used_end_ += count;
 }

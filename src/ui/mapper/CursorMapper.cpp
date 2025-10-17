@@ -24,7 +24,7 @@ std::shared_ptr<ICursor> CursorMapper::DoMapFromString(String str) {
   } else if (str.CaseInsensitiveCompare(u"ibeam") == 0) {
     return cursor_manager->GetSystemCursor(SystemCursorType::IBeam);
   } else {
-    throw Exception(u"Unsupported cursor type.");
+    throw Exception("Unsupported cursor type.");
   }
 }
 

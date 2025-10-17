@@ -50,7 +50,7 @@ PropertyTree::PropertyTree(std::unordered_map<std::string, std::string> values)
 std::string PropertyTree::GetValue(const std::string& key) const {
   auto it = values_.find(key);
   if (it == values_.end()) {
-    throw Exception(u"Property tree has no value.");
+    throw Exception("Property tree has no value.");
   }
   return it->second;
 }

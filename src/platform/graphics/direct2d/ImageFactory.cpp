@@ -67,14 +67,14 @@ GUID ConvertImageFormatToGUID(ImageFormat format) {
       format_guid = GUID_ContainerFormatGif;
       break;
     default:
-      throw Exception(u"Unknown image format");
+      throw Exception("Unknown image format");
   }
   return format_guid;
 }
 
 void WinImageFactory::EncodeToStream(IImage* image, io::Stream* stream,
                                      ImageFormat format, float quality) {
-  auto direct_image = CheckPlatform<Direct2DImage>(image, GetPlatformId());
+  auto direct_image = CheckPlatform<Direct2DImage>(image, GetPlatformIdUtf8());
 
   Microsoft::WRL::ComPtr<IStream> com_stream(
       platform::win::ConvertStreamToComStream(stream));
@@ -139,8 +139,8 @@ void WinImageFactory::EncodeToStream(IImage* image, io::Stream* stream,
 }
 
 std::unique_ptr<IImage> WinImageFactory::CreateBitmap(int width, int height) {
-  if (width <= 0) throw Exception(u"Bitmap width must be greater than 0.");
-  if (height <= 0) throw Exception(u"Bitmap height must be greater than 0.");
+  if (width <= 0) throw Exception("Bitmap width must be greater than 0.");
+  if (height <= 0) throw Exception("Bitmap height must be greater than 0.");
 
   auto graphics_factory = GetDirectFactory();
 

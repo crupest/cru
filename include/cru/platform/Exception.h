@@ -16,16 +16,7 @@ class CRU_PLATFORM_API PlatformNotMatchException : public PlatformException {
       std::string resource_platform, std::string target_platform,
       std::optional<std::string_view> additional_message = std::nullopt);
 
-  PlatformNotMatchException(
-      StringView resource_platform, StringView target_platform,
-      std::optional<StringView> additional_message = std::nullopt);
-
   ~PlatformNotMatchException() override;
-
-  [[deprecated("Use GetResourcePlatformUtf8 instead.")]]
-  String GetResourcePlatform() const;
-  [[deprecated("Use GetTargetPlatform instead.")]]
-  String GetTargetPlatform() const;
 
   std::string GetResourcePlatformUtf8() const { return resource_platform_; }
   std::string GetTargetPlatformUtf8() const { return target_platform_; }
@@ -52,15 +43,7 @@ class CRU_PLATFORM_API PlatformUnsupportedException : public PlatformException {
       std::string platform, std::string operation,
       std::optional<std::string_view> additional_message);
 
-  PlatformUnsupportedException(StringView platform, StringView operation,
-                               std::optional<StringView> additional_message);
-
   ~PlatformUnsupportedException() override;
-
-  [[deprecated("Use GetPlatformUtf8 instead.")]]
-  String GetPlatform() const;
-  [[deprecated("Use GetOperationUtf8 instead.")]]
-  String GetOperation() const;
 
   std::string GetPlatformUtf8() const { return platform_; }
   std::string GetOperationUtf8() const { return operation_; }

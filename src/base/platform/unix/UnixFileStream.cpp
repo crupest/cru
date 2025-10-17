@@ -33,7 +33,7 @@ int MapSeekOrigin(Stream::SeekOrigin origin) {
     case Stream::SeekOrigin::End:
       return SEEK_END;
     default:
-      throw Exception(u"Invalid seek origin.");
+      throw Exception("Invalid seek origin.");
   }
 }
 }  // namespace
@@ -58,7 +58,7 @@ UnixFileStream::~UnixFileStream() { DoClose(); }
 Index UnixFileStream::DoSeek(Index offset, SeekOrigin origin) {
   off_t result = ::lseek(file_descriptor_, offset, MapSeekOrigin(origin));
   if (result == -1) {
-    throw ErrnoException(u"Failed to seek file.");
+    throw ErrnoException("Failed to seek file.");
   }
   return result;
 }
@@ -66,7 +66,7 @@ Index UnixFileStream::DoSeek(Index offset, SeekOrigin origin) {
 Index UnixFileStream::DoRead(std::byte *buffer, Index offset, Index size) {
   auto result = ::read(file_descriptor_, buffer + offset, size);
   if (result == -1) {
-    throw ErrnoException(u"Failed to read file.");
+    throw ErrnoException("Failed to read file.");
   }
   return result;
 }
@@ -75,7 +75,7 @@ Index UnixFileStream::DoWrite(const std::byte *buffer, Index offset,
                               Index size) {
   auto result = ::write(file_descriptor_, buffer + offset, size);
   if (result == -1) {
-    throw ErrnoException(u"Failed to write file.");
+    throw ErrnoException("Failed to write file.");
   }
   return result;
 }

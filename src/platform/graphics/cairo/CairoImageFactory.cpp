@@ -207,19 +207,19 @@ std::unique_ptr<IImage> CairoImageFactory::DecodeFromStream(
     return DecodePng(GetCairoGraphicsFactory(), stream);
   }
 
-  throw Exception(u"Image format unknown. Currently only support png.");
+  throw Exception("Image format unknown. Currently only support png.");
 }
 
 void CairoImageFactory::EncodeToStream(IImage* image, io::Stream* stream,
                                        ImageFormat format, float quality) {
-  auto cairo_image = CheckPlatform<CairoImage>(image, GetPlatformId());
+  auto cairo_image = CheckPlatform<CairoImage>(image, GetPlatformIdUtf8());
 
   if (format == ImageFormat::Png) {
     EncodePng(cairo_image->GetCairoSurface(), stream);
     return;
   }
 
-  throw Exception(u"Not implemented. Currently only support png.");
+  throw Exception("Not implemented. Currently only support png.");
 }
 
 std::unique_ptr<IImage> CairoImageFactory::CreateBitmap(int width, int height) {

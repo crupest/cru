@@ -24,7 +24,7 @@ ClickStateConditionMapper::DoMapFromXml(xml::XmlElementNode *node) {
     } else if (value_attr->CaseInsensitiveEqual(u"pressinactive")) {
       state = helper::ClickState::PressInactive;
     } else {
-      throw Exception(u"Unknown click state: " + *value_attr);
+      throw Exception("Unknown click state: " + value_attr->ToUtf8());
     }
   }
 

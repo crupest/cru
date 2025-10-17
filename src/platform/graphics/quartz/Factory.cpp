@@ -33,7 +33,7 @@ std::unique_ptr<IFont> QuartzGraphicsFactory::CreateFont(String font_family,
 
 std::unique_ptr<ITextLayout> QuartzGraphicsFactory::CreateTextLayout(
     std::shared_ptr<IFont> font, String text) {
-  auto f = CheckPlatform<OsxCTFont>(font, GetPlatformId());
+  auto f = CheckPlatform<OsxCTFont>(font, GetPlatformIdUtf8());
   return std::make_unique<OsxCTTextLayout>(this, f, text);
 }
 

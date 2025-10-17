@@ -72,7 +72,7 @@ std::unique_ptr<IGeometry> CairoGeometry::Transform(const Matrix& matrix) {
 }
 
 std::unique_ptr<IGeometry> CairoGeometry::CreateStrokeGeometry(float width) {
-  throw Exception(u"Not implemented");
+  throw Exception("Not implemented");
 }
 
 CairoGeometryBuilder::CairoGeometryBuilder(CairoGraphicsFactory* factory)

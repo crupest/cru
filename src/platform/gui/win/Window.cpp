@@ -79,7 +79,7 @@ void WinNativeWindow::Close() {
 }
 
 void WinNativeWindow::SetParent(INativeWindow* parent) {
-  auto p = CheckPlatform<WinNativeWindow>(parent, GetPlatformId());
+  auto p = CheckPlatform<WinNativeWindow>(parent, GetPlatformIdUtf8());
   parent_window_ = p;
 
   if (hwnd_) {
@@ -228,7 +228,7 @@ void WinNativeWindow::SetCursor(std::shared_ptr<ICursor> cursor) {
     throw std::runtime_error("Can't use a nullptr as cursor.");
   }
 
-  cursor_ = CheckPlatform<WinCursor>(cursor, GetPlatformId());
+  cursor_ = CheckPlatform<WinCursor>(cursor, GetPlatformIdUtf8());
 
   if (hwnd_) return;
 

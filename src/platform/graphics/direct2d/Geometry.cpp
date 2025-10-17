@@ -17,7 +17,7 @@ D2DGeometryBuilder::D2DGeometryBuilder(DirectGraphicsFactory* factory)
 
 void D2DGeometryBuilder::CheckValidation() {
   if (!IsValid())
-    throw ReuseException(u"The geometry builder is already disposed.");
+    throw ReuseException("The geometry builder is already disposed.");
 }
 
 Point D2DGeometryBuilder::GetCurrentPosition() {

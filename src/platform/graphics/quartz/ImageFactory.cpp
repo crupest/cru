@@ -39,17 +39,17 @@ static String GetImageFormatUniformTypeIdentifier(ImageFormat format) {
     case ImageFormat::Gif:
       return u"com.compuserve.gif";
     default:
-      throw Exception(u"Unknown image format.");
+      throw Exception("Unknown image format.");
   }
 }
 
 void QuartzImageFactory::EncodeToStream(IImage* image, io::Stream* stream,
                                         ImageFormat format, float quality) {
   if (quality <= 0 || quality > 1) {
-    throw Exception(u"Invalid quality value.");
+    throw Exception("Invalid quality value.");
   }
 
-  auto quartz_image = CheckPlatform<QuartzImage>(image, GetPlatformId());
+  auto quartz_image = CheckPlatform<QuartzImage>(image, GetPlatformIdUtf8());
   auto cg_image = quartz_image->GetCGImage();
 
   auto uti = ToCFString(GetImageFormatUniformTypeIdentifier(format));
@@ -67,7 +67,7 @@ void QuartzImageFactory::EncodeToStream(IImage* image, io::Stream* stream,
   CGImageDestinationAddImage(destination, cg_image, properties);
 
   if (!CGImageDestinationFinalize(destination)) {
-    throw Exception(u"Failed to finalize image destination.");
+    throw Exception("Failed to finalize image destination.");
   }
 
   CFRelease(quality_wrap);
@@ -78,8 +78,8 @@ void QuartzImageFactory::EncodeToStream(IImage* image, io::Stream* stream,
 
 std::unique_ptr<IImage> QuartzImageFactory::CreateBitmap(int width,
                                                          int height) {
-  if (width <= 0) throw Exception(u"Image width should be greater than 0.");
-  if (height <= 0) throw Exception(u"Image height should be greater than 0.");
+  if (width <= 0) throw Exception("Image width should be greater than 0.");
+  if (height <= 0) throw Exception("Image height should be greater than 0.");
 
   CGColorSpaceRef color_space = CGColorSpaceCreateDeviceRGB();
 
