@@ -3,18 +3,31 @@
 #include <catch2/catch_test_macros.hpp>
 
 using cru::Index;
-using cru::k_invalid_code_point;
+using namespace cru::string;
 
 TEST_CASE("StringUtil Split", "[string]") {
-  using cru::string::Split;
   REQUIRE(Split("abc", "b") == std::vector<std::string>{"a", "c"});
   REQUIRE(Split("abcd", "bc") == std::vector<std::string>{"a", "d"});
   REQUIRE(Split("abcdbcd", "bc") == std::vector<std::string>{"a", "d", "d"});
   REQUIRE(Split("aaa", "a") == std::vector<std::string>{"", "", "", ""});
 }
 
+TEST_CASE("StringUtil Utf8ByteType", "[string]") {
+  REQUIRE(IsUtf8LeadingByte(0b00100000));
+  REQUIRE(IsUtf8LeadingByte(0b01000000));
+  REQUIRE(IsUtf8LeadingByte(0b11000000));
+  REQUIRE(IsUtf8LeadingByte(0b11100000));
+  REQUIRE(IsUtf8LeadingByte(0b11110000));
+  REQUIRE(!IsUtf8LeadingByte(0b10100000));
+  REQUIRE(!IsUtf8FollowingByte(0b00100000));
+  REQUIRE(!IsUtf8FollowingByte(0b01000000));
+  REQUIRE(!IsUtf8FollowingByte(0b11000000));
+  REQUIRE(!IsUtf8FollowingByte(0b11100000));
+  REQUIRE(!IsUtf8FollowingByte(0b11110000));
+  REQUIRE(IsUtf8FollowingByte(0b10100000));
+}
+
 TEST_CASE("StringUtil Utf8NextCodePoint", "[string]") {
-  using cru::Utf8NextCodePoint;
   std::string_view text = "aπ你🤣!";
   Index current = 0;
   REQUIRE(Utf8NextCodePoint(text.data(), text.size(), current, &current) ==
@@ -32,8 +45,25 @@ TEST_CASE("StringUtil Utf8NextCodePoint", "[string]") {
   REQUIRE(current == static_cast<Index>(text.size()));
 }
 
+TEST_CASE("StringUtil Utf8PreviousCodePoint", "[string]") {
+  std::string_view text = "aπ你🤣!";
+  Index current = text.size();
+  REQUIRE(Utf8PreviousCodePoint(text.data(), text.size(), current, &current) ==
+          0x0021);
+  REQUIRE(Utf8PreviousCodePoint(text.data(), text.size(), current, &current) ==
+          0x1F923);
+  REQUIRE(Utf8PreviousCodePoint(text.data(), text.size(), current, &current) ==
+          0x4F60);
+  REQUIRE(Utf8PreviousCodePoint(text.data(), text.size(), current, &current) ==
+          0x03C0);
+  REQUIRE(Utf8PreviousCodePoint(text.data(), text.size(), current, &current) ==
+          0x0061);
+  REQUIRE(Utf8PreviousCodePoint(text.data(), text.size(), current, &current) ==
+          k_invalid_code_point);
+  REQUIRE(current == 0);
+}
+
 TEST_CASE("StringUtil Utf16NextCodePoint", "[string]") {
-  using cru::Utf16NextCodePoint;
   std::u16string_view text = u"aπ你🤣!";
   Index current = 0;
   REQUIRE(Utf16NextCodePoint(text.data(), text.size(), current, &current) ==
@@ -52,7 +82,6 @@ TEST_CASE("StringUtil Utf16NextCodePoint", "[string]") {
 }
 
 TEST_CASE("StringUtil Utf16PreviousCodePoint", "[string]") {
-  using cru::Utf16PreviousCodePoint;
   std::u16string_view text = u"aπ你🤣!";
   Index current = text.size();
   REQUIRE(Utf16PreviousCodePoint(text.data(), text.size(), current, &current) ==
@@ -71,38 +100,34 @@ TEST_CASE("StringUtil Utf16PreviousCodePoint", "[string]") {
 }
 
 TEST_CASE("StringUtil Utf8CodePointIterator", "[string]") {
-  using cru::Utf8CodePointIterator;
   std::string_view text = "aπ你🤣!";
-  std::vector<cru::CodePoint> code_points;
+  std::vector<CodePoint> code_points;
 
   for (auto cp : Utf8CodePointIterator(text.data(), text.size())) {
     code_points.push_back(cp);
   }
 
-  std::vector<cru::CodePoint> expected_code_points{0x0061, 0x03C0, 0x4F60,
-                                                   0x1F923, 0x0021};
+  std::vector<CodePoint> expected_code_points{0x0061, 0x03C0, 0x4F60, 0x1F923,
+                                              0x0021};
 
   REQUIRE(code_points == expected_code_points);
 }
 
 TEST_CASE("StringUtil Utf16CodePointIterator", "[string]") {
-  using cru::Utf16CodePointIterator;
   std::u16string_view text = u"aπ你🤣!";
-  std::vector<cru::CodePoint> code_points;
+  std::vector<CodePoint> code_points;
 
   for (auto cp : Utf16CodePointIterator(text.data(), text.size())) {
     code_points.push_back(cp);
   }
 
-  std::vector<cru::CodePoint> expected_code_points{0x0061, 0x03C0, 0x4F60,
-                                                   0x1F923, 0x0021};
+  std::vector<CodePoint> expected_code_points{0x0061, 0x03C0, 0x4F60, 0x1F923,
+                                              0x0021};
 
   REQUIRE(code_points == expected_code_points);
 }
 
 TEST_CASE("ParseToNumber Work", "[string]") {
-  using namespace cru::string;
-
   auto r1 = ParseToNumber<int>("123");
   REQUIRE(r1.valid);
   REQUIRE(r1.value == 123);
@@ -121,8 +146,6 @@ TEST_CASE("ParseToNumber Work", "[string]") {
 }
 
 TEST_CASE("ParseToNumber AllowLeadingZeroFlag", "[string]") {
-  using namespace cru::string;
-
   auto r1 = ParseToNumber<int>("  123");
   REQUIRE(!r1.valid);
 
@@ -142,8 +165,6 @@ TEST_CASE("ParseToNumber AllowLeadingZeroFlag", "[string]") {
 }
 
 TEST_CASE("StringToIntegerConverterImpl AllowTrailingSpacesFlag", "[string]") {
-  using namespace cru::string;
-
   auto r1 = ParseToNumber<int>("123  ");
   REQUIRE(!r1.valid);
 
@@ -164,8 +185,6 @@ TEST_CASE("StringToIntegerConverterImpl AllowTrailingSpacesFlag", "[string]") {
 }
 
 TEST_CASE("StringToIntegerConverterImpl AllowTrailingJunk", "[string]") {
-  using namespace cru::string;
-
   auto r1 = ParseToNumber<int>("123ab");
   REQUIRE(!r1.valid);
 
@@ -185,8 +204,6 @@ TEST_CASE("StringToIntegerConverterImpl AllowTrailingJunk", "[string]") {
 }
 
 TEST_CASE("StringToIntegerConverterImpl CompositeFlags", "[string]") {
-  using namespace cru::string;
-
   auto r1 =
       ParseToNumber<int>("  123ab", ParseToNumberFlags::AllowLeadingSpaces |
                                         ParseToNumberFlags::AllowTrailingJunk);
@@ -203,8 +220,6 @@ TEST_CASE("StringToIntegerConverterImpl CompositeFlags", "[string]") {
 }
 
 TEST_CASE("String ParseToNumberList", "[string]") {
-  using namespace cru::string;
-
   auto r1 = ParseToNumberList<int>("123 456 789");
   REQUIRE(r1 == std::vector<int>{123, 456, 789});
 

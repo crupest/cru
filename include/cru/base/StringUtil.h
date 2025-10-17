@@ -6,6 +6,7 @@
 #include <cctype>
 #include <charconv>
 #include <compare>
+#include <cstdint>
 #include <format>
 #include <functional>
 #include <string>
@@ -14,8 +15,7 @@
 #include <type_traits>
 #include <vector>
 
-namespace cru {
-namespace string {
+namespace cru::string {
 std::weak_ordering CaseInsensitiveCompare(std::string_view left,
                                           std::string_view right);
 std::string TrimBegin(std::string_view str);
@@ -137,31 +137,157 @@ struct ImplementFormatterByToString {
   }
 };
 
-}  // namespace string
-
 using CodePoint = std::int32_t;
+using Utf8CodeUnit = char;
+using Utf16CodeUnit = char16_t;
 constexpr CodePoint k_invalid_code_point = -1;
 
-inline bool IsUtf16SurrogatePairCodeUnit(char16_t c) {
+inline bool IsUtf8LeadingByte(Utf8CodeUnit c) {
+  return !(c & 0b10000000) || c & 0b01000000;
+}
+
+inline bool IsUtf8FollowingByte(Utf8CodeUnit c) {
+  return !IsUtf8LeadingByte(c);
+}
+
+inline bool IsUtf16SurrogatePairCodeUnit(Utf16CodeUnit c) {
   return c >= 0xD800 && c <= 0xDFFF;
 }
 
-inline bool IsUtf16SurrogatePairLeading(char16_t c) {
+inline bool IsUtf16SurrogatePairLeading(Utf16CodeUnit c) {
   return c >= 0xD800 && c <= 0xDBFF;
 }
 
-inline bool IsUtf16SurrogatePairTrailing(char16_t c) {
+inline bool IsUtf16SurrogatePairTrailing(Utf16CodeUnit c) {
   return c >= 0xDC00 && c <= 0xDFFF;
 }
 
 CodePoint CRU_BASE_API Utf8NextCodePoint(const char* ptr, Index size,
                                          Index current, Index* next_position);
 
-CodePoint CRU_BASE_API Utf16NextCodePoint(const char16_t* ptr, Index size,
+CodePoint CRU_BASE_API Utf8PreviousCodePoint(const char* ptr, Index size,
+                                             Index current,
+                                             Index* previous_position);
+
+namespace details {
+template <typename Integer, int number_of_bit, typename ReturnType>
+inline ReturnType ExtractBits(Integer n) {
+  return static_cast<ReturnType>(n & ((1u << number_of_bit) - 1));
+}
+}  // namespace details
+
+template <typename CharWriter>
+std::enable_if_t<std::is_invocable_v<CharWriter, Utf8CodeUnit>, bool>
+Utf8EncodeCodePointAppend(CodePoint code_point, CharWriter&& writer) {
+  auto write_continue_byte = [&writer](Utf8CodeUnit byte6) {
+    writer((1u << 7) + (((1u << 6) - 1) & byte6));
+  };
+
+  if (code_point >= 0 && code_point <= 0x007F) {
+    writer(static_cast<Utf8CodeUnit>(code_point));
+    return true;
+  } else if (code_point >= 0x0080 && code_point <= 0x07FF) {
+    std::uint32_t unsigned_code_point = code_point;
+    writer(static_cast<Utf8CodeUnit>(
+        details::ExtractBits<std::uint32_t, 5, Utf8CodeUnit>(
+            (unsigned_code_point >> 6)) +
+        0b11000000));
+    write_continue_byte(details::ExtractBits<std::uint32_t, 6, Utf8CodeUnit>(
+        unsigned_code_point));
+    return true;
+  } else if (code_point >= 0x0800 && code_point <= 0xFFFF) {
+    std::uint32_t unsigned_code_point = code_point;
+    writer(static_cast<Utf8CodeUnit>(
+        details::ExtractBits<std::uint32_t, 4, Utf8CodeUnit>(
+            (unsigned_code_point >> (6 * 2))) +
+        0b11100000));
+    write_continue_byte(details::ExtractBits<std::uint32_t, 6, Utf8CodeUnit>(
+        unsigned_code_point >> 6));
+    write_continue_byte(details::ExtractBits<std::uint32_t, 6, Utf8CodeUnit>(
+        unsigned_code_point));
+    return true;
+  } else if (code_point >= 0x10000 && code_point <= 0x10FFFF) {
+    std::uint32_t unsigned_code_point = code_point;
+    writer(static_cast<Utf8CodeUnit>(
+        details::ExtractBits<std::uint32_t, 3, Utf8CodeUnit>(
+            (unsigned_code_point >> (6 * 3))) +
+        0b11110000));
+    write_continue_byte(details::ExtractBits<std::uint32_t, 6, Utf8CodeUnit>(
+        unsigned_code_point >> (6 * 2)));
+    write_continue_byte(details::ExtractBits<std::uint32_t, 6, Utf8CodeUnit>(
+        unsigned_code_point >> 6));
+    write_continue_byte(details::ExtractBits<std::uint32_t, 6, Utf8CodeUnit>(
+        unsigned_code_point));
+    return true;
+  } else {
+    return false;
+  }
+}
+
+bool CRU_BASE_API Utf8IsValidInsertPosition(const Utf8CodeUnit* ptr, Index size,
+                                            Index position);
+
+// Return position after the character making predicate returns true or 0 if no
+// character doing so.
+Index CRU_BASE_API
+Utf8BackwardUntil(const Utf8CodeUnit* ptr, Index size, Index position,
+                  const std::function<bool(CodePoint)>& predicate);
+// Return position before the character making predicate returns true or
+// str.size() if no character doing so.
+Index CRU_BASE_API
+Utf8ForwardUntil(const Utf8CodeUnit* ptr, Index size, Index position,
+                 const std::function<bool(CodePoint)>& predicate);
+
+Index CRU_BASE_API Utf8PreviousWord(const Utf8CodeUnit* ptr, Index size,
+                                    Index position, bool* is_space = nullptr);
+Index CRU_BASE_API Utf8NextWord(const Utf8CodeUnit* ptr, Index size,
+                                Index position, bool* is_space = nullptr);
+
+CodePoint CRU_BASE_API Utf16NextCodePoint(const Utf16CodeUnit* ptr, Index size,
                                           Index current, Index* next_position);
-CodePoint CRU_BASE_API Utf16PreviousCodePoint(const char16_t* ptr, Index size,
-                                              Index current,
+CodePoint CRU_BASE_API Utf16PreviousCodePoint(const Utf16CodeUnit* ptr,
+                                              Index size, Index current,
                                               Index* previous_position);
+
+template <typename CharWriter>
+std::enable_if_t<std::is_invocable_v<CharWriter, Utf16CodeUnit>, bool>
+Utf16EncodeCodePointAppend(CodePoint code_point, CharWriter&& writer) {
+  if ((code_point >= 0 && code_point <= 0xD7FF) ||
+      (code_point >= 0xE000 && code_point <= 0xFFFF)) {
+    writer(static_cast<Utf16CodeUnit>(code_point));
+    return true;
+  } else if (code_point >= 0x10000 && code_point <= 0x10FFFF) {
+    std::uint32_t u = code_point - 0x10000;
+    writer(static_cast<Utf16CodeUnit>(
+        details::ExtractBits<std::uint32_t, 10, std::uint32_t>(u >> 10) +
+        0xD800u));
+    writer(static_cast<Utf16CodeUnit>(
+        details::ExtractBits<std::uint32_t, 10, std::uint32_t>(u) + 0xDC00u));
+    return true;
+  } else {
+    return false;
+  }
+}
+
+// If given s is not a valid utf16 string, return value is UD.
+bool CRU_BASE_API Utf16IsValidInsertPosition(const Utf16CodeUnit* ptr,
+                                             Index size, Index position);
+
+// Return position after the character making predicate returns true or 0 if no
+// character doing so.
+Index CRU_BASE_API
+Utf16BackwardUntil(const Utf16CodeUnit* ptr, Index size, Index position,
+                   const std::function<bool(CodePoint)>& predicate);
+// Return position before the character making predicate returns true or
+// str.size() if no character doing so.
+Index CRU_BASE_API
+Utf16ForwardUntil(const Utf16CodeUnit* ptr, Index size, Index position,
+                  const std::function<bool(CodePoint)>& predicate);
+
+Index CRU_BASE_API Utf16PreviousWord(const Utf16CodeUnit* ptr, Index size,
+                                     Index position, bool* is_space = nullptr);
+Index CRU_BASE_API Utf16NextWord(const Utf16CodeUnit* ptr, Index size,
+                                 Index position, bool* is_space = nullptr);
 
 template <typename CharType>
 using NextCodePointFunctionType = CodePoint (*)(const CharType*, Index, Index,
@@ -247,138 +373,6 @@ class CodePointIterator {
 };
 
 using Utf8CodePointIterator = CodePointIterator<char, &Utf8NextCodePoint>;
-
-using Utf16CodePointIterator = CodePointIterator<char16_t, &Utf16NextCodePoint>;
-
-namespace details {
-template <typename UInt, int number_of_bit, typename ReturnType>
-inline std::enable_if_t<std::is_unsigned_v<UInt>, ReturnType> ExtractBits(
-    UInt n) {
-  return static_cast<ReturnType>(n & ((1u << number_of_bit) - 1));
-}
-}  // namespace details
-
-template <typename CharWriter>
-std::enable_if_t<std::is_invocable_v<CharWriter, char>, bool>
-Utf8EncodeCodePointAppend(CodePoint code_point, CharWriter&& writer) {
-  auto write_continue_byte = [&writer](std::uint8_t byte6) {
-    writer((1u << 7) + (((1u << 6) - 1) & byte6));
-  };
-
-  if (code_point >= 0 && code_point <= 0x007F) {
-    writer(static_cast<char>(code_point));
-    return true;
-  } else if (code_point >= 0x0080 && code_point <= 0x07FF) {
-    std::uint32_t unsigned_code_point = code_point;
-    writer(
-        static_cast<char>(details::ExtractBits<std::uint32_t, 5, std::uint8_t>(
-                              (unsigned_code_point >> 6)) +
-                          0b11000000));
-    write_continue_byte(details::ExtractBits<std::uint32_t, 6, std::uint8_t>(
-        unsigned_code_point));
-    return true;
-  } else if (code_point >= 0x0800 && code_point <= 0xFFFF) {
-    std::uint32_t unsigned_code_point = code_point;
-    writer(
-        static_cast<char>(details::ExtractBits<std::uint32_t, 4, std::uint8_t>(
-                              (unsigned_code_point >> (6 * 2))) +
-                          0b11100000));
-    write_continue_byte(details::ExtractBits<std::uint32_t, 6, std::uint8_t>(
-        unsigned_code_point >> 6));
-    write_continue_byte(details::ExtractBits<std::uint32_t, 6, std::uint8_t>(
-        unsigned_code_point));
-    return true;
-  } else if (code_point >= 0x10000 && code_point <= 0x10FFFF) {
-    std::uint32_t unsigned_code_point = code_point;
-    writer(
-        static_cast<char>(details::ExtractBits<std::uint32_t, 3, std::uint8_t>(
-                              (unsigned_code_point >> (6 * 3))) +
-                          0b11110000));
-    write_continue_byte(details::ExtractBits<std::uint32_t, 6, std::uint8_t>(
-        unsigned_code_point >> (6 * 2)));
-    write_continue_byte(details::ExtractBits<std::uint32_t, 6, std::uint8_t>(
-        unsigned_code_point >> 6));
-    write_continue_byte(details::ExtractBits<std::uint32_t, 6, std::uint8_t>(
-        unsigned_code_point));
-    return true;
-  } else {
-    return false;
-  }
-}
-
-template <typename CharWriter>
-std::enable_if_t<std::is_invocable_v<CharWriter, char16_t>, bool>
-Utf16EncodeCodePointAppend(CodePoint code_point, CharWriter&& writer) {
-  if ((code_point >= 0 && code_point <= 0xD7FF) ||
-      (code_point >= 0xE000 && code_point <= 0xFFFF)) {
-    writer(static_cast<char16_t>(code_point));
-    return true;
-  } else if (code_point >= 0x10000 && code_point <= 0x10FFFF) {
-    std::uint32_t u = code_point - 0x10000;
-    writer(static_cast<char16_t>(
-        details::ExtractBits<std::uint32_t, 10, std::uint32_t>(u >> 10) +
-        0xD800u));
-    writer(static_cast<char16_t>(
-        details::ExtractBits<std::uint32_t, 10, std::uint32_t>(u) + 0xDC00u));
-    return true;
-  } else {
-    return false;
-  }
-}
-
-// If given s is not a valid utf16 string, return value is UD.
-bool CRU_BASE_API Utf16IsValidInsertPosition(const char16_t* ptr, Index size,
-                                             Index position);
-
-// Return position after the character making predicate returns true or 0 if no
-// character doing so.
-Index CRU_BASE_API
-Utf16BackwardUntil(const char16_t* ptr, Index size, Index position,
-                   const std::function<bool(CodePoint)>& predicate);
-// Return position before the character making predicate returns true or
-// str.size() if no character doing so.
-Index CRU_BASE_API
-Utf16ForwardUntil(const char16_t* ptr, Index size, Index position,
-                  const std::function<bool(CodePoint)>& predicate);
-
-Index CRU_BASE_API Utf16PreviousWord(const char16_t* ptr, Index size,
-                                     Index position, bool* is_space = nullptr);
-Index CRU_BASE_API Utf16NextWord(const char16_t* ptr, Index size,
-                                 Index position, bool* is_space = nullptr);
-
-char16_t CRU_BASE_API ToLower(char16_t c);
-char16_t CRU_BASE_API ToUpper(char16_t c);
-
-bool CRU_BASE_API IsWhitespace(char16_t c);
-bool CRU_BASE_API IsDigit(char16_t c);
-
-Utf8CodePointIterator CRU_BASE_API CreateUtf8Iterator(const std::byte* buffer,
-                                                      Index size);
-Utf8CodePointIterator CRU_BASE_API
-CreateUtf8Iterator(const std::vector<std::byte>& buffer);
-
-CodePoint CRU_BASE_API Utf8NextCodePoint(std::string_view str, Index current,
-                                         Index* next_position);
-CodePoint CRU_BASE_API Utf8PreviousCodePoint(std::string_view str,
-                                             Index current,
-                                             Index* next_position);
-// Return position after the character making predicate returns true or 0 if no
-// character doing so.
-Index CRU_BASE_API
-Utf8BackwardUntil(std::string_view str, Index position,
-                  const std::function<bool(CodePoint)>& predicate);
-// Return position before the character making predicate returns true or
-// str.size() if no character doing so.
-Index CRU_BASE_API
-Utf8ForwardUntil(std::string_view str, Index position,
-                 const std::function<bool(CodePoint)>& predicate);
-
-bool CRU_BASE_API Utf8IsValidInsertPosition(std::string_view str,
-                                            Index position);
-
-Index CRU_BASE_API Utf8PreviousWord(std::string_view str, Index position,
-                                    bool* is_space = nullptr);
-Index CRU_BASE_API Utf8NextWord(std::string_view str, Index position,
-                                bool* is_space = nullptr);
-
-}  // namespace cru
+using Utf16CodePointIterator =
+    CodePointIterator<Utf16CodeUnit, &Utf16NextCodePoint>;
+}  // namespace cru::string
