@@ -8,7 +8,7 @@ namespace cru::ui::controls {
 class CRU_UI_API Container
     : public SingleChildControl<render::BorderRenderObject>,
       public virtual IBorderControl {
-  static constexpr StringView kControlType = u"Container";
+  static constexpr std::string_view kControlType = "Container";
 
  public:
   Container();
@@ -46,6 +46,6 @@ class CRU_UI_API Container
   }
 
  public:
-  String GetControlType() const final { return kControlType.ToString(); }
+  std::string GetControlType() const final { return std::string(kControlType); }
 };
 }  // namespace cru::ui::controls

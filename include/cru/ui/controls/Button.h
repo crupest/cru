@@ -12,7 +12,7 @@ class CRU_UI_API Button : public SingleChildControl<render::BorderRenderObject>,
                           public virtual IClickableControl,
                           public virtual IBorderControl {
  public:
-  static constexpr StringView kControlType = u"Button";
+  static constexpr std::string_view kControlType = "Button";
 
  public:
   Button();
@@ -22,7 +22,7 @@ class CRU_UI_API Button : public SingleChildControl<render::BorderRenderObject>,
   Button& operator=(Button&& other) = delete;
   ~Button() override;
 
-  String GetControlType() const final { return kControlType.ToString(); }
+  std::string GetControlType() const final { return std::string(kControlType); }
 
  public:
   helper::ClickState GetClickState() override {

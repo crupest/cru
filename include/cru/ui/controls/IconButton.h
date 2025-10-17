@@ -17,14 +17,14 @@ class CRU_UI_API IconButton : public NoChildControl,
                               public virtual IBorderControl,
                               public virtual IContentBrushControl {
  public:
-  static constexpr StringView kControlType = u"IconButton";
+  static constexpr std::string_view kControlType = "IconButton";
 
  public:
   IconButton();
   IconButton(std::string_view icon_svg_path_data_string, const Rect& view_port);
   ~IconButton() override;
 
-  String GetControlType() const final { return kControlType.ToString(); }
+  std::string GetControlType() const final { return std::string(kControlType); }
 
   render::RenderObject* GetRenderObject() const override {
     return container_render_object_.get();

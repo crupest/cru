@@ -57,7 +57,7 @@ class CRU_UI_API TreeRenderObject : public RenderObject {
   CRU_DELETE_MOVE(TreeRenderObject)
   ~TreeRenderObject() override;
 
-  String GetName() const override { return u"TreeRenderObject"; }
+  std::string GetName() const override { return "TreeRenderObject"; }
 
   TreeRenderObjectItem* GetRootItem() { return root_item_; }
 

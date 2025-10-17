@@ -1,10 +1,10 @@
 #pragma once
 #include "Mapper.h"
 
-#include <cru/base/String.h>
+#include <string>
 
 namespace cru::ui::mapper {
-class CRU_UI_API StringMapper : public BasicMapper<String> {
+class CRU_UI_API StringMapper : public BasicMapper<std::string> {
  public:
   StringMapper();
   ~StringMapper();
@@ -14,7 +14,7 @@ class CRU_UI_API StringMapper : public BasicMapper<String> {
   bool SupportMapFromXml() override { return true; }
 
  protected:
-  String DoMapFromString(std::string str) override;
-  String DoMapFromXml(xml::XmlElementNode* node) override;
+  std::string DoMapFromString(std::string str) override;
+  std::string DoMapFromXml(xml::XmlElementNode* node) override;
 };
 }  // namespace cru::ui::mapper

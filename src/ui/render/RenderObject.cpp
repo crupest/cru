@@ -119,16 +119,17 @@ void RenderObject::Measure(const MeasureRequirement& requirement,
       preferred_size.OverrideBy(preferred_size_);
 
   if constexpr (cru::ui::debug_flags::layout) {
-    CRU_LOG_TAG_DEBUG("{} Measure begins :\nrequirement: {}\npreferred size: {}",
-                  this->GetDebugPathInTree().ToUtf8(), requirement.ToDebugString().ToUtf8(),
-                  preferred_size.ToDebugString().ToUtf8());
+    CRU_LOG_TAG_DEBUG(
+        "{} Measure begins :\nrequirement: {}\npreferred size: {}",
+        this->GetDebugPathInTree(), requirement.ToDebugString(),
+        preferred_size.ToDebugString());
   }
 
   desired_size_ = OnMeasureCore(merged_requirement, merged_preferred_size);
 
   if constexpr (cru::ui::debug_flags::layout) {
     CRU_LOG_TAG_DEBUG("{} Measure ends :\nresult size: {}",
-                  this->GetDebugPathInTree().ToUtf8(), desired_size_);
+                      this->GetDebugPathInTree(), desired_size_);
   }
 
   Ensures(desired_size_.width >= 0);
@@ -145,7 +146,7 @@ Size RenderObject::Measure1(const BoxConstraint& constraint) {
 void RenderObject::Layout(const Point& offset) {
   if constexpr (cru::ui::debug_flags::layout) {
     CRU_LOG_TAG_DEBUG("{} Layout :\noffset: {} size: {}",
-                  this->GetDebugPathInTree().ToUtf8(), offset, desired_size_);
+                      this->GetDebugPathInTree(), offset, desired_size_);
   }
   offset_ = offset;
   size_ = desired_size_;
@@ -193,13 +194,13 @@ Size RenderObject::OnMeasureCore1(const BoxConstraint& constraint) {
   if (space_size.width > merged_constraint.max.width) {
     space_size.width = merged_constraint.max.width;
     CRU_LOG_TAG_WARN("{} space width is over constraint.max.width",
-                 this->GetDebugPathInTree().ToUtf8());
+                     this->GetDebugPathInTree());
   }
 
   if (space_size.height > merged_constraint.max.height) {
     space_size.height = merged_constraint.max.height;
     CRU_LOG_TAG_WARN("{} space height is over constraint.max.height",
-                 this->GetDebugPathInTree().ToUtf8());
+                     this->GetDebugPathInTree());
   }
 
   BoxConstraint content_constraint{merged_constraint.max - space_size,
@@ -284,20 +285,20 @@ void RenderObject::InvalidatePaint() {
   }
 }
 
-String kUnamedName(u"UNNAMED");
-String RenderObject::GetName() const { return kUnamedName; }
+std::string kUnamedName("UNNAMED");
+std::string RenderObject::GetName() const { return kUnamedName; }
 
-String RenderObject::GetDebugPathInTree() const {
-  std::vector<String> chain;
+std::string RenderObject::GetDebugPathInTree() const {
+  std::vector<std::string> chain;
   const RenderObject* parent = this;
   while (parent != nullptr) {
     chain.push_back(parent->GetName());
     parent = parent->GetParent();
   }
 
-  String result(chain.back());
+  std::string result(chain.back());
   for (auto iter = chain.crbegin() + 1; iter != chain.crend(); ++iter) {
-    result += u" -> ";
+    result += " -> ";
     result += *iter;
   }
 

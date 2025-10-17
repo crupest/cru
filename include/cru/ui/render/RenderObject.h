@@ -2,7 +2,6 @@
 #include "../Base.h"
 
 #include "MeasureRequirement.h"
-#include "cru/base/String.h"
 
 #include <cru/platform/graphics/Painter.h>
 
@@ -145,8 +144,8 @@ class CRU_UI_API RenderObject : public Object {
   void InvalidatePaint();
 
  public:
-  virtual String GetName() const;
-  String GetDebugPathInTree() const;
+  virtual std::string GetName() const;
+  std::string GetDebugPathInTree() const;
 
  protected:
   // Size measure including margin and padding. Please reduce margin and padding

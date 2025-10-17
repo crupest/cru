@@ -21,8 +21,7 @@ using platform::gui::INativeWindow;
 using platform::gui::IUiApplication;
 
 namespace event_names {
-#define CRU_DEFINE_EVENT_NAME(name) \
-  constexpr const char16_t* name = CRU_MAKE_UNICODE_LITERAL(name);
+#define CRU_DEFINE_EVENT_NAME(name) constexpr const char* name = #name;
 
 CRU_DEFINE_EVENT_NAME(LoseFocus)
 CRU_DEFINE_EVENT_NAME(GainFocus)

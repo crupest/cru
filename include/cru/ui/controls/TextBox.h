@@ -18,14 +18,14 @@ class CRU_UI_API TextBox : public NoChildControl,
                            public virtual IContentBrushControl,
                            public virtual IFontControl {
  public:
-  static constexpr StringView control_type = u"TextBox";
+  static constexpr std::string_view control_type = "TextBox";
 
   TextBox();
   CRU_DELETE_COPY(TextBox)
   CRU_DELETE_MOVE(TextBox)
   ~TextBox() override;
 
-  String GetControlType() const final { return control_type.ToString(); }
+  std::string GetControlType() const final { return std::string(control_type); }
 
   render::RenderObject* GetRenderObject() const override;
 

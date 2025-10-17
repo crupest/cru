@@ -7,7 +7,7 @@ namespace cru::ui::controls {
 class CRU_UI_API ScrollView
     : public SingleChildControl<render::ScrollRenderObject> {
  public:
-  static constexpr StringView kControlType = u"ScrollView";
+  static constexpr std::string_view kControlType = "ScrollView";
 
   ScrollView();
   CRU_DELETE_COPY(ScrollView)
@@ -15,6 +15,6 @@ class CRU_UI_API ScrollView
   ~ScrollView() override;
 
  public:
-  String GetControlType() const override { return kControlType.ToString(); }
+  std::string GetControlType() const override { return std::string(kControlType); }
 };
 }  // namespace cru::ui::controls

@@ -111,10 +111,10 @@ std::vector<T> ParseToNumberList(std::string_view str,
   auto segs = Split(str, separator, SplitOptions::RemoveSpace);
   std::vector<T> result;
   for (const auto& seg : segs) {
-    result.push_back(
-        ParseToNumber<T>(Trim(seg), ParseToNumberFlags::AllowLeadingSpaces |
-                                        ParseToNumberFlags::AllowTrailingSpaces)
-            .value);
+    auto r = ParseToNumber<T>(Trim(seg),
+                              ParseToNumberFlags::AllowLeadingSpaces |
+                                  ParseToNumberFlags::AllowTrailingSpaces);
+    result.push_back(r.value);
   }
   return result;
 }

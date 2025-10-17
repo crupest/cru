@@ -1,8 +1,6 @@
 #pragma once
 #include "../Base.h"
 
-#include "cru/base/String.h"
-
 #include <algorithm>
 #include <format>
 #include <limits>
@@ -113,12 +111,10 @@ class MeasureLength final {
     }
   }
 
-  std::string ToDebugStringUtf8() const {
+  std::string ToDebugString() const {
     return IsSpecified() ? std::to_string(GetLengthOrUndefined())
                          : "UNSPECIFIED";
   }
-
-  String ToDebugString() const { return String::FromUtf8(ToDebugStringUtf8()); }
 
  private:
   // -1 for not specify
@@ -168,12 +164,10 @@ struct MeasureSize {
     };
   }
 
-  std::string ToDebugStringUtf8() const {
-    return std::format("({}, {})", width.ToDebugStringUtf8(),
-                       height.ToDebugStringUtf8());
+  std::string ToDebugString() const {
+    return std::format("({}, {})", width.ToDebugString(),
+                       height.ToDebugString());
   }
-
-  String ToDebugString() const { return String::FromUtf8(ToDebugStringUtf8()); }
 
   constexpr static MeasureSize NotSpecified() {
     return MeasureSize{MeasureLength::NotSpecified(),
@@ -241,12 +235,10 @@ struct MeasureRequirement {
     return result;
   }
 
-  std::string ToDebugStringUtf8() const {
-    return std::format("{{min: {}, max: {}}}", min.ToDebugStringUtf8(),
-                       max.ToDebugStringUtf8());
+  std::string ToDebugString() const {
+    return std::format("{{min: {}, max: {}}}", min.ToDebugString(),
+                       max.ToDebugString());
   }
-
-  String ToDebugString() const { return String::FromUtf8(ToDebugStringUtf8()); }
 
   constexpr static MeasureRequirement Merge(const MeasureRequirement& left,
                                             const MeasureRequirement& right) {

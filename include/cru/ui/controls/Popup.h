@@ -8,7 +8,7 @@
 namespace cru::ui::controls {
 class CRU_UI_API Popup : public RootControl {
  public:
-  static constexpr StringView kControlType = u"Popup";
+  static constexpr std::string_view kControlType = "Popup";
 
   explicit Popup(Control* attached_control = nullptr);
 
@@ -17,6 +17,6 @@ class CRU_UI_API Popup : public RootControl {
 
   ~Popup() override;
 
-  String GetControlType() const override { return kControlType.ToString(); }
+  std::string GetControlType() const override { return std::string(kControlType); }
 };
 }  // namespace cru::ui::controls

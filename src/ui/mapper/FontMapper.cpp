@@ -1,6 +1,5 @@
 #include "cru/ui/mapper/FontMapper.h"
 #include "../Helper.h"
-#include "cru/base/String.h"
 #include "cru/base/StringUtil.h"
 #include "cru/platform/graphics/Factory.h"
 

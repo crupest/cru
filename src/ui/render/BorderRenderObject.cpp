@@ -244,5 +244,5 @@ void BorderRenderObject::RecreateGeometry() {
   builder.reset();
 }
 
-String BorderRenderObject::GetName() const { return u"BorderRenderObject"; }
+std::string BorderRenderObject::GetName() const { return "BorderRenderObject"; }
 }  // namespace cru::ui::render

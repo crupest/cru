@@ -4,12 +4,11 @@
 #include "cru/ui/render/LayoutHelper.h"
 
 #include <algorithm>
-#include <functional>
 #include <type_traits>
 
 namespace cru::ui::render {
-String FlexLayoutRenderObject::GetName() const {
-  return u"FlexLayoutRenderObject";
+std::string FlexLayoutRenderObject::GetName() const {
+  return "FlexLayoutRenderObject";
 }
 
 struct tag_horizontal_t {};

@@ -2,9 +2,7 @@ add_library(CruBase
 	Base.cpp
 	Buffer.cpp
 	Exception.cpp
-	Format.cpp
 	PropertyTree.cpp
-	String.cpp
 	StringUtil.cpp
 	SubProcess.cpp
 	io/AutoReadStream.cpp

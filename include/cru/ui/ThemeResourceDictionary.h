@@ -28,11 +28,7 @@ class CRU_UI_API ThemeResourceDictionary : public Object {
 
  public:
   static std::unique_ptr<ThemeResourceDictionary> FromFile(
-      const String& file_path);
-  static std::unique_ptr<ThemeResourceDictionary> FromFile(
-      std::filesystem::path file_path) {
-    return FromFile(String::FromStdPath(file_path));
-  }
+      std::filesystem::path file_path);
 
   explicit ThemeResourceDictionary(xml::XmlElementNode* xml_root,
                                    bool clone = true);

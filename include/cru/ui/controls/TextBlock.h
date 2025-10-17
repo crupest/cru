@@ -14,7 +14,7 @@ class CRU_UI_API TextBlock : public NoChildControl,
                              public virtual IFontControl,
                              public virtual IContentBrushControl {
  public:
-  static constexpr StringView kControlType = u"TextBlock";
+  static constexpr std::string_view kControlType = "TextBlock";
 
   static std::unique_ptr<TextBlock> Create(std::string text,
                                            bool selectable = false) {
@@ -32,7 +32,7 @@ class CRU_UI_API TextBlock : public NoChildControl,
   TextBlock& operator=(TextBlock&& other) = delete;
   ~TextBlock() override;
 
-  String GetControlType() const final { return kControlType.ToString(); }
+  std::string GetControlType() const final { return std::string(kControlType); }
 
   render::RenderObject* GetRenderObject() const override;
 

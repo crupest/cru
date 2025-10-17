@@ -16,9 +16,6 @@
 
 #define CRU_UNUSED(entity) static_cast<void>(entity);
 
-#define CRU__CONCAT(a, b) a##b
-#define CRU_MAKE_UNICODE_LITERAL(str) CRU__CONCAT(u, #str)
-
 #define CRU_DEFAULT_COPY(classname)      \
   classname(const classname&) = default; \
   classname& operator=(const classname&) = default;

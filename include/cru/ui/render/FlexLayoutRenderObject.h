@@ -104,7 +104,7 @@ class CRU_UI_API FlexLayoutRenderObject
   FlexLayoutRenderObject& operator=(FlexLayoutRenderObject&& other) = delete;
   ~FlexLayoutRenderObject() override = default;
 
-  String GetName() const override;
+  std::string GetName() const override;
 
   FlexDirection GetFlexDirection() const { return direction_; }
   void SetFlexDirection(FlexDirection direction) {

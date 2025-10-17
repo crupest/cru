@@ -93,7 +93,7 @@ class CRU_UI_API TextRenderObject : public RenderObject {
 
   RenderObject* HitTest(const Point& point) override;
 
-  String GetName() const override { return u"TextRenderObject"; }
+  std::string GetName() const override { return "TextRenderObject"; }
 
   void Draw(platform::graphics::IPainter* painter) override;
 

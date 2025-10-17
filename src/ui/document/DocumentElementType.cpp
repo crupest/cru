@@ -5,17 +5,17 @@
 
 namespace cru::ui::document {
 DocumentElementType::DocumentElementType(
-    String name, std::vector<DocumentElementType*> parents)
+    std::string name, std::vector<DocumentElementType*> parents)
     : name_(std::move(name)), parents_(std::move(parents)) {}
 
 DocumentElementType::~DocumentElementType() {}
 
 DocumentElementType* const DocumentElementTypes::kBaseElementType =
-    new DocumentElementType(u"Base", {});
+    new DocumentElementType("Base", {});
 
 DocumentElementType* const DocumentElementTypes::kRootElementType =
-    new DocumentElementType(u"Root", {kBaseElementType});
+    new DocumentElementType("Root", {kBaseElementType});
 
 DocumentElementType* const DocumentElementTypes::kTextElementType =
-    new DocumentElementType(u"Text", {kBaseElementType});
+    new DocumentElementType("Text", {kBaseElementType});
 }  // namespace cru::ui::document

@@ -20,7 +20,7 @@ ThemeManager::ThemeManager() {
   }
 
   PrependThemeResourceDictionary(
-      ThemeResourceDictionary::FromFile(String::FromStdPath(resourses_file)));
+      ThemeResourceDictionary::FromFile(resourses_file));
 }
 
 ThemeManager::~ThemeManager() {}
@@ -44,7 +44,7 @@ void ThemeManager::PrependThemeResourceDictionary(
 }
 
 std::string ThemeManager::GetResourceString(std::string_view key) {
-  return GetResource<String>(key).ToUtf8();
+  return GetResource<std::string>(key);
 }
 
 std::shared_ptr<platform::graphics::IBrush> ThemeManager::GetResourceBrush(

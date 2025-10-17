@@ -1,7 +1,6 @@
 #pragma once
 #include "Base.h"
 #include "cru/base/Event.h"
-#include "cru/base/Format.h"
 #include "cru/ui/ThemeResourceDictionary.h"
 
 #include <vector>
@@ -27,7 +26,7 @@ class CRU_UI_API ThemeManager : public Object {
       std::unique_ptr<ThemeResourceDictionary> theme_resource_dictionary);
 
   template <typename T>
-  T GetResource(std::string_view key) {
+  T GetResource(const std::string_view& key) {
     for (const auto& resource_dictionary : theme_resource_dictionary_list_) {
       try {
         return resource_dictionary->GetResource<T>(key);

@@ -12,12 +12,12 @@ class CRU_UI_API CheckBox : public NoChildControl,
                             public virtual ICheckableControl,
                             public virtual IClickableControl {
  public:
-  static constexpr StringView kControlType = u"CheckBox";
+  static constexpr std::string_view kControlType = "CheckBox";
 
   CheckBox();
   ~CheckBox() override;
 
-  String GetControlType() const override { return kControlType.ToString(); }
+  std::string GetControlType() const override { return std::string(kControlType); }
 
   render::RenderObject* GetRenderObject() const override {
     return container_render_object_.get();

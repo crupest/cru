@@ -3,7 +3,6 @@ add_executable(CruBaseTest
 	HandlerRegistryTest.cpp
 	PropertyTreeTest.cpp
 	SelfResolvableTest.cpp
-	StringTest.cpp
 	StringUtilTest.cpp
 	SubProcessTest.cpp
 )

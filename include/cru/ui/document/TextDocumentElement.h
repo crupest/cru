@@ -24,12 +24,12 @@ struct IDocumentLink : virtual Interface {
 
 class CRU_UI_API TextDocumentElement : public DocumentElement {
  public:
-  TextDocumentElement(String text, TextStyle style, IDocumentLink* link);
+  TextDocumentElement(std::string text, TextStyle style, IDocumentLink* link);
 
   ~TextDocumentElement() override;
 
-  String GetText() const { return text_; }
-  void SetText(String text);
+  std::string GetText() const { return text_; }
+  void SetText(std::string text);
 
   TextStyle GetStyle() const { return style_; }
   void SetStyle(TextStyle style);
@@ -38,7 +38,7 @@ class CRU_UI_API TextDocumentElement : public DocumentElement {
   void SetLink(IDocumentLink link);
 
  private:
-  String text_;
+  std::string text_;
   TextStyle style_;
   IDocumentLink* link_;
 };

@@ -23,7 +23,7 @@ namespace cru::ui::host {
 // as the rest arguments.
 template <typename EventArgs, typename... Args>
 void DispatchEvent(
-    const String& event_name, controls::Control* const original_sender,
+    const std::string& event_name, controls::Control* const original_sender,
     events::RoutedEvent<EventArgs>* (controls::Control::*event_ptr)(),
     controls::Control* const last_receiver, Args&&... args) {
   constexpr auto kLogTag = "DispatchEvent";
@@ -37,7 +37,7 @@ void DispatchEvent(
       CRU_LOG_TAG_DEBUG(
           "Routed event {} no need to dispatch (original_sender == "
           "last_receiver). Original sender is {}.",
-          event_name.ToUtf8(), original_sender->GetControlType().ToUtf8());
+          event_name, original_sender->GetControlType());
     return;
   }
 
@@ -55,15 +55,15 @@ void DispatchEvent(
 
   if constexpr (debug_flags::routed_event) {
     std::string log = "Dispatch routed event ";
-    log += event_name.ToUtf8();
+    log += event_name;
     log += ". Path (parent first): ";
     auto i = receive_list.crbegin();
     const auto end = --receive_list.crend();
     for (; i != end; ++i) {
-      log += i->Resolve()->GetControlType().ToUtf8();
+      log += i->Resolve()->GetControlType();
       log += " -> ";
     }
-    log += i->Resolve()->GetControlType().ToUtf8();
+    log += i->Resolve()->GetControlType();
     CRU_LOG_TAG_DEBUG("{}", log);
   }
 

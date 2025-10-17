@@ -36,7 +36,7 @@ class CRU_UI_API Control : public Object,
   ~Control() override;
 
  public:
-  virtual String GetControlType() const = 0;
+  virtual std::string GetControlType() const = 0;
 
   //*************** region: tree ***************
  public:

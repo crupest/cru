@@ -1,5 +1,4 @@
 #pragma once
-#include "cru/platform/gui/Base.h"
 #include "cru/ui/controls/RootControl.h"
 
 #include "cru/base/Base.h"
@@ -7,7 +6,7 @@
 namespace cru::ui::controls {
 class CRU_UI_API Window final : public RootControl {
  public:
-  static constexpr StringView control_type = u"Window";
+  static constexpr std::string_view control_type = "Window";
 
  public:
   explicit Window(Control* attached_control = nullptr);
@@ -16,6 +15,6 @@ class CRU_UI_API Window final : public RootControl {
   ~Window() override;
 
  public:
-  String GetControlType() const final { return control_type.ToString(); }
+  std::string GetControlType() const final { return std::string(control_type); }
 };
 }  // namespace cru::ui::controls

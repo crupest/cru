@@ -13,7 +13,7 @@ using render::FlexMainAlignment;
 class CRU_UI_API FlexLayout
     : public LayoutControl<render::FlexLayoutRenderObject> {
  public:
-  static constexpr StringView kControlType = u"FlexLayout";
+  static constexpr std::string_view kControlType = "FlexLayout";
 
  public:
   FlexLayout();
@@ -23,7 +23,7 @@ class CRU_UI_API FlexLayout
   FlexLayout& operator=(FlexLayout&& other) = delete;
   ~FlexLayout() override;
 
-  String GetControlType() const final { return kControlType.ToString(); }
+  std::string GetControlType() const final { return std::string(kControlType); }
 
   FlexMainAlignment GetContentMainAlign() const;
   void SetContentMainAlign(FlexMainAlignment value);

@@ -60,7 +60,7 @@ class CRU_UI_API ScrollRenderObject : public SingleChildRenderObject {
   // Param margin is just for convenience and it will just add to the rect.
   void ScrollToContain(const Rect& rect, const Thickness& margin = Thickness{});
 
-  String GetName() const override { return u"ScrollRenderObject"; }
+  std::string GetName() const override { return "ScrollRenderObject"; }
 
   bool IsMouseWheelScrollEnabled() const { return is_mouse_wheel_enabled_; }
   void SetMouseWheelScrollEnabled(bool enable);
