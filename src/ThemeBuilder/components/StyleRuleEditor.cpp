@@ -14,14 +14,14 @@ StyleRuleEditor::StyleRuleEditor() {
 
   main_layout_.AddChild(&head_layout_);
 
-  label_.SetText(u"Style Rule");
+  label_.SetText("Style Rule");
   head_layout_.AddChild(&label_);
   head_layout_.AddChild(&remove_button_);
 
   remove_button_.GetStyleRuleSet()->SetParent(
       ui::ThemeManager::GetInstance()->GetResourceStyleRuleSet(
-          u"cru.theme_builder.icon-button.style"));
-  remove_button_.SetIconWithSvgPathDataStringResourceKey(u"icon.close",
+          "cru.theme_builder.icon-button.style"));
+  remove_button_.SetIconWithSvgPathDataStringResourceKey("icon.close",
                                                          {0, 0, 16, 16});
   remove_button_.SetIconFillColor(ui::colors::red);
 

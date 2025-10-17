@@ -1,8 +1,23 @@
 #pragma once
-#include "cru/base/Bitmask.h"
-#include "cru/platform/gui/Base.h"
+#include "Base.h"
+
+#include <cru/base/Bitmask.h>
+
+#include <string>
 
 namespace cru::platform::gui {
+namespace details {
+struct TagMouseButton {};
+}  // namespace details
+
+using MouseButton = Bitmask<details::TagMouseButton>;
+struct MouseButtons {
+  constexpr static MouseButton None = MouseButton::FromOffset(0);
+  constexpr static MouseButton Left = MouseButton::FromOffset(1);
+  constexpr static MouseButton Middle = MouseButton::FromOffset(2);
+  constexpr static MouseButton Right = MouseButton::FromOffset(3);
+};
+
 // Because of the complexity of keyboard layout, I only add code in US keyboard
 // layout, the most widely used layout in China. We should try to make it easy
 // to add new keyboard layout.
@@ -123,20 +138,15 @@ struct KeyModifiers {
   static constexpr KeyModifier Ctrl = KeyModifier::FromOffset(2);
   static constexpr KeyModifier Alt = KeyModifier::FromOffset(3);
   static constexpr KeyModifier Command = KeyModifier::FromOffset(4);
-  static constexpr KeyModifier none = None;
-  static constexpr KeyModifier shift = Shift;
-  static constexpr KeyModifier ctrl = Ctrl;
-  static constexpr KeyModifier alt = Alt;
-  static constexpr KeyModifier command = Command;
 };
 
 #ifdef CRU_PLATFORM_OSX
-constexpr KeyModifier kKeyModifierCommand = KeyModifiers::command;
+constexpr KeyModifier kKeyModifierCommand = KeyModifiers::Command;
 #else
-constexpr KeyModifier kKeyModifierCommand = KeyModifiers::ctrl;
+constexpr KeyModifier kKeyModifierCommand = KeyModifiers::Ctrl;
 #endif
 
-CRU_PLATFORM_GUI_API String ToString(KeyCode key_code);
-CRU_PLATFORM_GUI_API String ToString(KeyModifier key_modifier,
-                                     StringView separator = u"+");
+CRU_PLATFORM_GUI_API std::string ToString(KeyCode key_code);
+CRU_PLATFORM_GUI_API std::string ToString(KeyModifier key_modifier,
+                                          std::string_view separator = "+");
 }  // namespace cru::platform::gui

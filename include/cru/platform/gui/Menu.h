@@ -1,7 +1,6 @@
 #pragma once
 #include "Base.h"
-
-#include "Keyboard.h"
+#include "Input.h"
 
 #include <functional>
 
@@ -9,8 +8,8 @@ namespace cru::platform::gui {
 struct IMenu;
 
 struct CRU_PLATFORM_GUI_API IMenuItem : virtual IPlatformResource {
-  virtual String GetTitle() = 0;
-  virtual void SetTitle(String title) = 0;
+  virtual std::string GetTitle() = 0;
+  virtual void SetTitle(std::string title) = 0;
   virtual bool IsEnabled() = 0;
   virtual void SetEnabled(bool enabled) = 0;
   virtual IMenu* GetParentMenu() = 0;

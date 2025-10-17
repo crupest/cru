@@ -1,7 +1,9 @@
 #pragma once
-#include "cru/base/Base.h"
-#include "cru/platform/graphics/Base.h"
-#include "cru/platform/gui/Base.h"
+#include <cru/base/Base.h>
+#include <cru/platform/Color.h>
+#include <cru/platform/GraphicsBase.h>
+#include <cru/platform/Matrix.h>
+#include <cru/platform/gui/Input.h>
 
 #ifdef CRU_IS_DLL
 #ifdef CRU_UI_EXPORT_API
@@ -25,8 +27,7 @@ using cru::platform::Size;
 using cru::platform::TextRange;
 using cru::platform::Thickness;
 using cru::platform::gui::MouseButton;
-
-namespace mouse_buttons = cru::platform::gui::mouse_buttons;
+using cru::platform::gui::MouseButtons;
 
 namespace colors = cru::platform::colors;
 

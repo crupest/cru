@@ -14,9 +14,9 @@ class CRU_PLATFORM_GRAPHICS_API NullPainter : public Object,
   ~NullPainter() override = default;
 
  public:
-  String GetPlatformId() const override { return u"NULL"; }
+  std::string GetPlatformId() const override { return "NULL"; }
 
-  String GetDebugString() override { return u"NullPainter"; }
+  std::string GetDebugString() override { return "NullPainter"; }
 
   Matrix GetTransform() override { return Matrix(); }
   void SetTransform(const Matrix& matrix) override { CRU_UNUSED(matrix) }

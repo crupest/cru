@@ -1,7 +1,7 @@
 #pragma once
 #include "MouseEventArgs.h"
 
-#include "cru/platform/gui/Keyboard.h"
+#include <cru/platform/gui/Input.h>
 
 namespace cru::ui::events {
 class CRU_UI_API MouseWheelEventArgs : public MouseEventArgs {
@@ -26,4 +26,4 @@ class CRU_UI_API MouseWheelEventArgs : public MouseEventArgs {
   float delta_;
   platform::gui::KeyModifier key_modifier_;
 };
-}  // namespace cru::ui::event
+}  // namespace cru::ui::events

@@ -9,12 +9,12 @@ using namespace cru::ui::controls;
 using namespace cru::platform::gui;
 
 MainWindow::MainWindow() {
-  window_.GetNativeWindow()->SetTitle(u"CruUI Theme Builder");
+  window_.GetNativeWindow()->SetTitle("CruUI Theme Builder");
   main_layout_.SetFlexDirection(FlexDirection::Horizontal);
   window_.AddChild(&main_layout_);
   main_layout_.AddChild(&preview_layout_);
 
-  preview_button_text_.SetText(u"Preview");
+  preview_button_text_.SetText("Preview");
   preview_button_.SetChild(&preview_button_text_);
   preview_layout_.AddChild(&preview_button_);
   preview_layout_.SetChildLayoutData(

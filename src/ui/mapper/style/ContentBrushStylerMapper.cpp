@@ -7,7 +7,7 @@
 
 namespace cru::ui::mapper::style {
 ContentBrushStylerMapper::ContentBrushStylerMapper() {
-  SetAllowedTags({u"ContentBrushStyler"});
+  SetAllowedTags({"ContentBrushStyler"});
 }
 
 ContentBrushStylerMapper::~ContentBrushStylerMapper() {}

@@ -6,10 +6,10 @@ namespace cru::theme_builder::components::properties {
 CornerRadiusPropertyEditor::CornerRadiusPropertyEditor() {
   container_.SetItemCrossAlign(ui::controls::FlexCrossAlignment::Start);
 
-  left_top_editor_.SetLabel(u"⌜");
-  right_top_editor_.SetLabel(u"⌝");
-  left_bottom_editor_.SetLabel(u"⌞");
-  right_bottom_editor_.SetLabel(u"⌟");
+  left_top_editor_.SetLabel("⌜");
+  right_top_editor_.SetLabel("⌝");
+  left_bottom_editor_.SetLabel("⌞");
+  right_bottom_editor_.SetLabel("⌟");
 
   container_.SetFlexDirection(ui::controls::FlexDirection::Vertical);
   container_.AddChild(left_top_editor_.GetRootControl());

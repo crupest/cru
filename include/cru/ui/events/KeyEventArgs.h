@@ -1,7 +1,7 @@
 #pragma once
 #include "UiEventArgs.h"
 
-#include "cru/platform/gui/Keyboard.h"
+#include "cru/platform/gui/Input.h"
 
 namespace cru::ui::events {
 class CRU_UI_API KeyEventArgs : public UiEventArgs {
@@ -26,4 +26,4 @@ class CRU_UI_API KeyEventArgs : public UiEventArgs {
   platform::gui::KeyModifier key_modifier_;
 };
 
-}  // namespace cru::ui::event
+}  // namespace cru::ui::events

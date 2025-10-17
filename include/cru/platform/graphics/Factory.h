@@ -1,10 +1,9 @@
 #pragma once
-#include "Resource.h"
+#include "Base.h"
 
 #include "Brush.h"
 #include "Font.h"
 #include "Geometry.h"
-#include "Image.h"
 #include "ImageFactory.h"
 #include "TextLayout.h"
 
@@ -15,11 +14,11 @@ struct CRU_PLATFORM_GRAPHICS_API IGraphicsFactory : virtual IPlatformResource {
 
   virtual std::unique_ptr<IGeometryBuilder> CreateGeometryBuilder() = 0;
 
-  virtual std::unique_ptr<IFont> CreateFont(String font_family,
+  virtual std::unique_ptr<IFont> CreateFont(std::string font_family,
                                             float font_size) = 0;
 
   virtual std::unique_ptr<ITextLayout> CreateTextLayout(
-      std::shared_ptr<IFont> font, String text) = 0;
+      std::shared_ptr<IFont> font, std::string text) = 0;
 
   std::unique_ptr<ISolidColorBrush> CreateSolidColorBrush(const Color& color) {
     std::unique_ptr<ISolidColorBrush> brush = CreateSolidColorBrush();

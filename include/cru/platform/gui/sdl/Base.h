@@ -8,13 +8,13 @@
 namespace cru::platform::gui::sdl {
 class SdlResource : public Object, public virtual IPlatformResource {
  public:
-  static constexpr const char16_t* kPlatformId = u"SDL";
+  static constexpr const char* kPlatformId = "SDL";
 
  protected:
   SdlResource() = default;
 
  public:
-  String GetPlatformId() const final { return String(kPlatformId); }
+  std::string GetPlatformId() const final { return kPlatformId; }
 };
 
 class SdlException : public PlatformException {

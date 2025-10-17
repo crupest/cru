@@ -31,7 +31,7 @@ OsxCTTextLayout::~OsxCTTextLayout() {
 }
 
 void OsxCTTextLayout::SetFont(std::shared_ptr<IFont> font) {
-  font_ = CheckPlatform<OsxCTFont>(font, GetPlatformIdUtf8());
+  font_ = CheckPlatform<OsxCTFont>(font, GetPlatformId());
   RecreateFrame();
 }
 

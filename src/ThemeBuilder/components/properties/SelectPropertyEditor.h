@@ -15,8 +15,8 @@ class SelectPropertyEditor : public Editor {
  public:
   ui::controls::Control* GetRootControl() override { return &container_; }
 
-  String GetLabel() const { return label_.GetText(); }
-  void SetLabel(String label) { label_.SetText(std::move(label)); }
+  std::string GetLabel() const { return label_.GetText(); }
+  void SetLabel(std::string label) { label_.SetText(std::move(label)); }
 
   Index GetSelectedIndex() const { return select_.GetSelectedIndex(); }
   void SetSelectedIndex(Index index, bool trigger_change = true) {
@@ -24,8 +24,8 @@ class SelectPropertyEditor : public Editor {
     select_.SetSelectedIndex(index);
   }
 
-  std::vector<String> GetItems() const { return select_.GetItems(); }
-  void SetItems(std::vector<String> items) {
+  std::vector<std::string> GetItems() const { return select_.GetItems(); }
+  void SetItems(std::vector<std::string> items) {
     select_.SetItems(std::move(items));
   }
 

@@ -12,7 +12,7 @@
 
 namespace cru::theme_builder::components::stylers {
 CompoundStylerEditor::CompoundStylerEditor() {
-  SetLabel(u"Compound Styler");
+  SetLabel("Compound Styler");
   GetContainer()->AddChild(&children_container_);
   children_container_.SetFlexDirection(ui::controls::FlexDirection::Vertical);
   children_container_.SetItemCrossAlign(
@@ -21,16 +21,16 @@ CompoundStylerEditor::CompoundStylerEditor() {
   GetHeadContainer()->AddChild(add_child_button_.GetRootControl());
   add_child_button_.GetButton()->GetStyleRuleSet()->SetParent(
       ui::ThemeManager::GetInstance()->GetResourceStyleRuleSet(
-          u"cru.theme_builder.icon-button.style"));
+          "cru.theme_builder.icon-button.style"));
   add_child_button_.GetButton()->SetIconWithSvgPathDataStringResourceKey(
-      u"icon.plus", {0, 0, 16, 16});
+      "icon.plus", {0, 0, 16, 16});
   add_child_button_.GetButton()->SetPreferredSize({24, 24});
   add_child_button_.GetButton()->SetPadding(ui::Thickness(2));
   add_child_button_.GetButton()->SetIconFillColor(ui::colors::green);
-  add_child_button_.SetMenuItems({u"Compound Styler", u"Border Styler",
-                                  u"Cursor Styler", u"Content Brush Styler",
-                                  u"Font Styler", u"Margin Styler",
-                                  u"Padding Styler", u"Preferred Size Styler"});
+  add_child_button_.SetMenuItems({"Compound Styler", "Border Styler",
+                                  "Cursor Styler", "Content Brush Styler",
+                                  "Font Styler", "Margin Styler",
+                                  "Padding Styler", "Preferred Size Styler"});
   add_child_button_.MenuItemSelectedEvent()->AddHandler([this](Index index) {
     std::unique_ptr<StylerEditor> editor;
     switch (index) {

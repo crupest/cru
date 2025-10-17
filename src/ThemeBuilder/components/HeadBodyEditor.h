@@ -19,8 +19,8 @@ class HeadBodyEditor : public Editor {
   ui::controls::FlexLayout* GetContainer() { return &container_; }
   ui::controls::FlexLayout* GetHeadContainer() { return &head_container_; }
 
-  String GetLabel() const { return label_.GetText(); }
-  void SetLabel(String label) { label_.SetText(std::move(label)); }
+  std::string GetLabel() const { return label_.GetText(); }
+  void SetLabel(std::string label) { label_.SetText(std::move(label)); }
 
   IEvent<std::nullptr_t>* RemoveEvent() { return &remove_event_; }
 

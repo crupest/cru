@@ -18,8 +18,8 @@ class MeasureLengthPropertyEditor : public Editor {
  public:
   ui::controls::Control* GetRootControl() override { return &container_; }
 
-  String GetLabel() const { return label_.GetText(); }
-  void SetLabel(String label) { label_.SetText(std::move(label)); }
+  std::string GetLabel() const { return label_.GetText(); }
+  void SetLabel(std::string label) { label_.SetText(std::move(label)); }
 
   PropertyType GetValue() const { return measure_length_; }
   void SetValue(const PropertyType& value, bool trigger_change = true);

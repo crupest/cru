@@ -9,8 +9,7 @@ MapperBase::MapperBase(std::type_index type_index)
 
 bool MapperBase::XmlElementIsOfThisType(xml::XmlElementNode* node) {
   for (const auto& tag : allowed_tags_) {
-    if (cru::string::CaseInsensitiveCompare(node->GetTag(), tag.ToUtf8()) ==
-        0) {
+    if (cru::string::CaseInsensitiveCompare(node->GetTag(), tag) == 0) {
       return true;
     }
   }

@@ -1,5 +1,5 @@
 #pragma once
-#include "cru/platform/gui/Keyboard.h"
+#include <cru/platform/gui/Input.h>
 
 namespace cru::platform::gui::osx {
 KeyCode KeyCodeFromOsxToCru(unsigned short n);

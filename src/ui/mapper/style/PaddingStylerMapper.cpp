@@ -5,7 +5,7 @@
 
 namespace cru::ui::mapper::style {
 PaddingStylerMapper::PaddingStylerMapper() {
-  SetAllowedTags({u"PaddingStyler"});
+  SetAllowedTags({"PaddingStyler"});
 }
 
 PaddingStylerMapper::~PaddingStylerMapper() {}

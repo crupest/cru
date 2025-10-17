@@ -17,8 +17,8 @@ class FontPropertyEditor : public Editor {
 
   ui::controls::Control* GetRootControl() override;
 
-  String GetLabelText() const { return label_.GetText(); }
-  void SetLabelText(String label) { label_.SetText(std::move(label)); }
+  std::string GetLabelText() const { return label_.GetText(); }
+  void SetLabelText(std::string label) { label_.SetText(std::move(label)); }
 
   std::shared_ptr<platform::graphics::IFont> GetValue() const;
   void SetValue(std::shared_ptr<platform::graphics::IFont> value,

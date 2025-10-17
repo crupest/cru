@@ -9,6 +9,7 @@
 #include "cru/platform/graphics/util/Painter.h"
 #include "cru/platform/gui/Base.h"
 #include "cru/platform/gui/Cursor.h"
+#include "cru/platform/gui/Input.h"
 #include "cru/ui/Base.h"
 #include "cru/ui/ThemeManager.h"
 #include "cru/ui/events/UiEvents.h"
@@ -38,39 +39,39 @@ constexpr std::array<ScrollBarAreaKind, 5> kScrollBarAreaKindList{
     ScrollBarAreaKind::UpSlot, ScrollBarAreaKind::DownSlot,
     ScrollBarAreaKind::Thumb};
 
-String GenerateScrollBarThemeColorKey(ScrollBarBrushUsageKind usage,
+std::string GenerateScrollBarThemeColorKey(ScrollBarBrushUsageKind usage,
                                       ScrollBarBrushStateKind state) {
-  String result = u"scrollbar.";
+  std::string result = "scrollbar.";
   switch (usage) {
     case ScrollBarBrushUsageKind::Arrow:
-      result.append(u"arrow");
+      result.append("arrow");
       break;
     case ScrollBarBrushUsageKind::ArrowBackground:
-      result.append(u"arrow-background");
+      result.append("arrow-background");
       break;
     case ScrollBarBrushUsageKind::Slot:
-      result.append(u"slot");
+      result.append("slot");
       break;
     case ScrollBarBrushUsageKind::Thumb:
-      result.append(u"thumb");
+      result.append("thumb");
       break;
   }
-  result.push_back(u'.');
+  result.push_back('.');
   switch (state) {
     case ScrollBarBrushStateKind::Normal:
-      result.append(u"normal");
+      result.append("normal");
       break;
     case ScrollBarBrushStateKind::Hover:
-      result.append(u"hover");
+      result.append("hover");
       break;
     case ScrollBarBrushStateKind::Press:
-      result.append(u"press");
+      result.append("press");
       break;
     case ScrollBarBrushStateKind::Disable:
-      result.append(u"disable");
+      result.append("disable");
       break;
   }
-  result.append(u".color");
+  result.append(".color");
   return result;
 }
 
@@ -123,7 +124,7 @@ void ScrollBar::InstallHandlers(controls::Control* control) {
     event_guard_ +=
         control->MouseDownEvent()->Tunnel()->PrependShortCircuitHandler(
             [control, this](events::MouseButtonEventArgs& event) {
-              if (event.GetButton() == mouse_buttons::left && IsEnabled() &&
+              if (event.GetButton() == MouseButtons::Left && IsEnabled() &&
                   IsExpanded()) {
                 auto hit_test_result =
                     ExpandedHitTest(event.GetPoint(render_object_));
@@ -182,7 +183,7 @@ void ScrollBar::InstallHandlers(controls::Control* control) {
                 render_object_->InvalidatePaint();
               }
 
-              if (event.GetButton() == mouse_buttons::left &&
+              if (event.GetButton() == MouseButtons::Left &&
                   move_thumb_start_) {
                 move_thumb_start_ = std::nullopt;
 
@@ -264,7 +265,7 @@ std::shared_ptr<platform::graphics::IBrush>
 ScrollBar::GetCollapsedThumbBrush() {
   return collapsed_thumb_brush_ ? collapsed_thumb_brush_
                                 : ThemeManager::GetInstance()->GetResourceBrush(
-                                      u"scrollbar.collapse-thumb.color");
+                                      "scrollbar.collapse-thumb.color");
 }
 
 void ScrollBar::SetCollapsedThumbBrush(

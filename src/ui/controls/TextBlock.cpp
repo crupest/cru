@@ -15,10 +15,10 @@ TextBlock::TextBlock() {
   const auto theme_manager = ThemeManager::GetInstance();
 
   text_render_object_ = std::make_unique<TextRenderObject>(
-      theme_manager->GetResourceBrush(u"text.brush"),
-      theme_manager->GetResourceFont(u"text.font"),
-      theme_manager->GetResourceBrush(u"text.selection.brush"),
-      theme_manager->GetResourceBrush(u"text.caret.brush"));
+      theme_manager->GetResourceBrush("text.brush"),
+      theme_manager->GetResourceFont("text.font"),
+      theme_manager->GetResourceBrush("text.selection.brush"),
+      theme_manager->GetResourceBrush("text.caret.brush"));
 
   text_render_object_->SetAttachedControl(this);
 
@@ -34,9 +34,11 @@ render::RenderObject* TextBlock::GetRenderObject() const {
   return text_render_object_.get();
 }
 
-String TextBlock::GetText() const { return service_->GetText(); }
+std::string TextBlock::GetText() const { return service_->GetText(); }
 
-void TextBlock::SetText(String text) { service_->SetText(std::move(text)); }
+void TextBlock::SetText(std::string text) {
+  service_->SetText(std::move(text));
+}
 
 bool TextBlock::IsSelectable() const { return service_->IsEnabled(); }
 

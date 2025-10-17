@@ -1,17 +1,13 @@
 #pragma once
 #include "Base.h"
 
-#include "cru/base/Base.h"
-#include "cru/base/String.h"
+#include <cru/base/Base.h>
+
+#include <string>
 
 namespace cru::platform {
 struct CRU_PLATFORM_API IPlatformResource : virtual Interface {
-  CRU_DEFAULT_CONSTRUCTOR_DESTRUCTOR(IPlatformResource)
-
-  virtual String GetPlatformId() const = 0;
-
-  virtual String GetDebugString() { return String(); }
-
-  virtual std::string GetPlatformIdUtf8() const;
+  virtual std::string GetPlatformId() const = 0;
+  virtual std::string GetDebugString() { return {}; }
 };
 }  // namespace cru::platform

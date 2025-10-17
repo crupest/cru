@@ -1,14 +1,5 @@
 #pragma once
-#include "cru/ui/Base.h"
-
-namespace cru::platform {
-namespace graphics {
-struct IGraphicsFactory;
-}
-namespace native {
-struct IUiApplication;
-}  // namespace native
-}  // namespace cru::platform
+#include <cru/platform/gui/UiApplication.h>
 
 namespace cru::ui {
 cru::platform::graphics::IGraphicsFactory* GetGraphicsFactory();

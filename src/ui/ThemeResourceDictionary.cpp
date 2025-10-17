@@ -43,7 +43,7 @@ void ThemeResourceDictionary::UpdateResourceMap(xml::XmlElementNode* xml_root) {
 
         ResourceEntry entry;
 
-        entry.name = String::FromUtf8(*key_attr);
+        entry.name = *key_attr;
         entry.xml_node = c->GetFirstChildElement();
 
         resource_map_[entry.name] = std::move(entry);

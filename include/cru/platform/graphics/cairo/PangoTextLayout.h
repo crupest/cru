@@ -15,8 +15,8 @@ class CRU_PLATFORM_GRAPHICS_CAIRO_API PangoTextLayout
   ~PangoTextLayout() override;
 
  public:
-  String GetText() override;
-  void SetText(String new_text) override;
+  std::string GetText() override;
+  void SetText(std::string new_text) override;
 
   std::shared_ptr<IFont> GetFont() override;
   void SetFont(std::shared_ptr<IFont> font) override;
@@ -40,12 +40,7 @@ class CRU_PLATFORM_GRAPHICS_CAIRO_API PangoTextLayout
   PangoLayout* GetPangoLayout() { return pango_layout_; }
 
  private:
-  Index FromUtf8IndexToUtf16Index(Index index);
-  Index FromUtf16IndexToUtf8Index(Index index);
-
- private:
-  String text_;
-  std::string utf8_text_;
+  std::string text_;
 
   bool edit_mode_ = false;
 

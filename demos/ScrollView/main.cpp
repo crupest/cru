@@ -19,7 +19,7 @@ int main() {
   window.AddChild(&scroll_view);
 
   auto text_block = TextBlock::Create(
-      uR"([Verse 1]
+      R"([Verse 1]
 The snow glows white on the mountain tonight
 Not a footprint to be seen
 A kingdom of isolation

@@ -14,7 +14,7 @@ namespace cru::ui::components {
 class CRU_UI_API MenuItem : public Component {
  public:
   MenuItem();
-  explicit MenuItem(String text);
+  explicit MenuItem(std::string text);
 
   CRU_DELETE_COPY(MenuItem)
   CRU_DELETE_MOVE(MenuItem)
@@ -24,7 +24,7 @@ class CRU_UI_API MenuItem : public Component {
  public:
   controls::Control* GetRootControl() override { return &container_; }
 
-  void SetText(String text);
+  void SetText(std::string text);
 
   void SetOnClick(std::function<void()> on_click) {
     on_click_ = std::move(on_click);
@@ -55,10 +55,10 @@ class CRU_UI_API Menu : public Component {
   Component* RemoveItemAt(Index index);
   void ClearItems();
 
-  void AddTextItem(String text, std::function<void()> on_click) {
+  void AddTextItem(std::string text, std::function<void()> on_click) {
     AddTextItemAt(std::move(text), GetItemCount(), std::move(on_click));
   }
-  void AddTextItemAt(String text, Index index, std::function<void()> on_click);
+  void AddTextItemAt(std::string text, Index index, std::function<void()> on_click);
 
   void SetOnItemClick(std::function<void(Index)> on_item_click) {
     on_item_click_ = std::move(on_item_click);

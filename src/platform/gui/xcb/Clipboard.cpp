@@ -7,7 +7,7 @@ XcbClipboard::XcbClipboard(XcbUiApplication* application)
 
 XcbClipboard::~XcbClipboard() {}
 
-String XcbClipboard::GetText() { return String{}; }
+std::string XcbClipboard::GetText() { return {}; }
 
-void XcbClipboard::SetText(String text) {}
+void XcbClipboard::SetText(std::string text) {}
 }  // namespace cru::platform::gui::xcb

@@ -15,7 +15,7 @@ Select::Select() {
 
 Select::~Select() {}
 
-void Select::SetItems(std::vector<String> items) {
+void Select::SetItems(std::vector<std::string> items) {
   items_ = items;
   popup_menu_.GetMenu()->ClearItems();
   for (Index i = 0; i < items.size(); i++) {

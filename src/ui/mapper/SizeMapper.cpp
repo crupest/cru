@@ -1,5 +1,7 @@
 #include "cru/ui/mapper/SizeMapper.h"
 
+#include <cru/base/String.h>
+
 namespace cru::ui::mapper {
 bool SizeMapper::XmlElementIsOfThisType(xml::XmlElementNode* node) {
   return cru::string::CaseInsensitiveCompare(node->GetTag(), "Size") == 0;

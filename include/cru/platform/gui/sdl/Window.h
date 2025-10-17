@@ -29,8 +29,8 @@ class SdlWindow : public SdlResource, public virtual INativeWindow {
   WindowStyleFlag GetStyleFlag() override;
   void SetStyleFlag(WindowStyleFlag flag) override;
 
-  String GetTitle() override;
-  void SetTitle(String title) override;
+  std::string GetTitle() override;
+  void SetTitle(std::string title) override;
 
   WindowVisibilityType GetVisibility() override;
   void SetVisibility(WindowVisibilityType visibility) override;

@@ -1,6 +1,5 @@
 #include "cru/platform/gui/xcb/Cursor.h"
 #include "cru/base/Exception.h"
-#include "cru/platform/gui/Cursor.h"
 #include "cru/platform/gui/xcb/UiApplication.h"
 
 #include <xcb/xcb.h>

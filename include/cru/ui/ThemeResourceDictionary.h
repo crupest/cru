@@ -44,11 +44,11 @@ class CRU_UI_API ThemeResourceDictionary : public Object {
 
  public:
   template <typename T>
-  T GetResource(const String& key) {
-    auto find_result = resource_map_.find(key);
+  T GetResource(std::string_view key) {
+    auto find_result = resource_map_.find(std::string(key));
     if (find_result == resource_map_.cend()) {
       throw ThemeResourceKeyNotExistException(
-          std::format("Theme resource key {} not exist.", key.ToUtf8()));
+          std::format("Theme resource key {} not exist.", key));
     }
 
     auto& cache = find_result->second.cache;
@@ -73,12 +73,12 @@ class CRU_UI_API ThemeResourceDictionary : public Object {
     CRU_DEFAULT_COPY(ResourceEntry)
     CRU_DEFAULT_MOVE(ResourceEntry)
 
-    String name;
+    std::string name;
     xml::XmlElementNode* xml_node;
     std::unordered_map<std::type_index, std::any> cache;
   };
 
   std::unique_ptr<xml::XmlElementNode> xml_root_;
-  std::unordered_map<String, ResourceEntry> resource_map_;
+  std::unordered_map<std::string, ResourceEntry> resource_map_;
 };
 }  // namespace cru::ui

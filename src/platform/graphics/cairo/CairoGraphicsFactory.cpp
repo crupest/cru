@@ -32,13 +32,13 @@ CairoGraphicsFactory::CreateGeometryBuilder() {
   return std::make_unique<CairoGeometryBuilder>(this);
 }
 
-std::unique_ptr<IFont> CairoGraphicsFactory::CreateFont(String font_family,
+std::unique_ptr<IFont> CairoGraphicsFactory::CreateFont(std::string font_family,
                                                         float font_size) {
   return std::make_unique<PangoFont>(this, std::move(font_family), font_size);
 }
 
 std::unique_ptr<ITextLayout> CairoGraphicsFactory::CreateTextLayout(
-    std::shared_ptr<IFont> font, String text) {
+    std::shared_ptr<IFont> font, std::string text) {
   auto text_layout = std::make_unique<PangoTextLayout>(this, std::move(font));
   text_layout->SetText(std::move(text));
   return text_layout;

@@ -83,12 +83,10 @@ void BorderRenderObject::Draw(platform::graphics::IPainter* painter) {
   if constexpr (debug_flags::draw) {
     CRU_LOG_TAG_DEBUG(
         "BorderRenderObject draw, background: {}, foreground: {}.",
-        background_brush_ == nullptr
-            ? "NONE"
-            : background_brush_->GetDebugString().ToUtf8(),
-        foreground_brush_ == nullptr
-            ? "NONE"
-            : foreground_brush_->GetDebugString().ToUtf8());
+        background_brush_ == nullptr ? "NONE"
+                                     : background_brush_->GetDebugString(),
+        foreground_brush_ == nullptr ? "NONE"
+                                     : foreground_brush_->GetDebugString());
   }
 
   if (background_brush_ != nullptr)

@@ -4,9 +4,9 @@
 
 namespace cru::theme_builder::components::conditions {
 CheckedConditionEditor::CheckedConditionEditor() {
-  SetLabel(u"Checked Condition");
+  SetLabel("Checked Condition");
 
-  checked_check_box_.SetLabel(u"Checked");
+  checked_check_box_.SetLabel("Checked");
   GetContainer()->AddChild(checked_check_box_.GetRootControl());
 
   ConnectChangeEvent(checked_check_box_);

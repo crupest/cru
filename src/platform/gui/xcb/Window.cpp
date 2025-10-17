@@ -7,12 +7,9 @@
 #include "cru/platform/graphics/NullPainter.h"
 #include "cru/platform/graphics/Painter.h"
 #include "cru/platform/graphics/cairo/CairoPainter.h"
-#include "cru/platform/gui/Base.h"
-#include "cru/platform/gui/Keyboard.h"
-#include "cru/platform/gui/Window.h"
 #include "cru/platform/gui/xcb/Cursor.h"
+#include "cru/platform/gui/xcb/Input.h"
 #include "cru/platform/gui/xcb/InputMethod.h"
-#include "cru/platform/gui/xcb/Keyboard.h"
 #include "cru/platform/gui/xcb/UiApplication.h"
 
 #include <cairo-xcb.h>
@@ -73,7 +70,7 @@ void XcbWindow::Close() {
 INativeWindow *XcbWindow::GetParent() { return parent_; }
 
 void XcbWindow::SetParent(INativeWindow *parent) {
-  parent_ = CheckPlatform<XcbWindow>(parent, GetPlatformIdUtf8());
+  parent_ = CheckPlatform<XcbWindow>(parent, GetPlatformId());
   if (xcb_window_) {
     DoSetParent(*xcb_window_);
   }
@@ -90,10 +87,10 @@ void XcbWindow::SetStyleFlag(WindowStyleFlag flag) {
   application_->XcbFlush();
 }
 
-String XcbWindow::GetTitle() { return String::FromUtf8(title_); }
+std::string XcbWindow::GetTitle() { return title_; }
 
-void XcbWindow::SetTitle(String title) {
-  title_ = title.ToUtf8();
+void XcbWindow::SetTitle(std::string title) {
+  title_ = std::move(title);
   if (xcb_window_) {
     DoSetTitle(*xcb_window_);
   }
@@ -271,7 +268,7 @@ bool XcbWindow::ReleaseMouse() {
 
 void XcbWindow::SetCursor(std::shared_ptr<ICursor> cursor) {
   if (!xcb_window_) return;
-  auto xcb_cursor = CheckPlatform<XcbCursor>(cursor, GetPlatformIdUtf8());
+  auto xcb_cursor = CheckPlatform<XcbCursor>(cursor, GetPlatformId());
   cursor_ = xcb_cursor;
   DoSetCursor(*xcb_window_, xcb_cursor.get());
 }

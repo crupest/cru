@@ -13,7 +13,7 @@ TTarget* CheckPlatform(IPlatformResource* resource,
   const auto result = dynamic_cast<TTarget*>(resource);
   if (result == nullptr) {
     throw PlatformNotMatchException(
-        resource->GetPlatformIdUtf8(), target_platform,
+        resource->GetPlatformId(), target_platform,
         "Try to convert resource to target platform failed.");
   }
   return result;
@@ -28,7 +28,7 @@ std::shared_ptr<TTarget> CheckPlatform(const std::shared_ptr<TSource>& resource,
   const auto result = std::dynamic_pointer_cast<TTarget>(resource);
   if (result == nullptr) {
     throw PlatformNotMatchException(
-        resource->GetPlatformIdUtf8(), target_platform,
+        resource->GetPlatformId(), target_platform,
         "Try to convert resource to target platform failed.");
   }
   return result;

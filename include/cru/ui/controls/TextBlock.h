@@ -16,8 +16,8 @@ class CRU_UI_API TextBlock : public NoChildControl,
  public:
   static constexpr StringView kControlType = u"TextBlock";
 
-  static std::unique_ptr<TextBlock> Create(String text,
-    bool selectable = false) {
+  static std::unique_ptr<TextBlock> Create(std::string text,
+                                           bool selectable = false) {
     auto c = std::make_unique<TextBlock>();
     c->SetText(std::move(text));
     c->SetSelectable(selectable);
@@ -36,8 +36,8 @@ class CRU_UI_API TextBlock : public NoChildControl,
 
   render::RenderObject* GetRenderObject() const override;
 
-  String GetText() const;
-  void SetText(String text);
+  std::string GetText() const;
+  void SetText(std::string text);
 
   bool IsSelectable() const;
   void SetSelectable(bool value);

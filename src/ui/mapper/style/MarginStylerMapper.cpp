@@ -4,7 +4,7 @@
 #include "cru/ui/style/Styler.h"
 
 namespace cru::ui::mapper::style {
-MarginStylerMapper::MarginStylerMapper() { SetAllowedTags({u"MarginStyler"}); }
+MarginStylerMapper::MarginStylerMapper() { SetAllowedTags({"MarginStyler"}); }
 
 MarginStylerMapper::~MarginStylerMapper() {}
 

@@ -14,7 +14,7 @@ DWriteTextLayout::DWriteTextLayout(DirectGraphicsFactory* factory,
                                    std::shared_ptr<IFont> font, String text)
     : DirectGraphicsResource(factory), text_(std::move(text)) {
   Expects(font);
-  font_ = CheckPlatform<DWriteFont>(font, GetPlatformIdUtf8());
+  font_ = CheckPlatform<DWriteFont>(font, GetPlatformId());
 
   ThrowIfFailed(factory->GetDWriteFactory()->CreateTextLayout(
       reinterpret_cast<const wchar_t*>(text_.c_str()),
@@ -39,7 +39,7 @@ std::shared_ptr<IFont> DWriteTextLayout::GetFont() {
 }
 
 void DWriteTextLayout::SetFont(std::shared_ptr<IFont> font) {
-  font_ = CheckPlatform<DWriteFont>(font, GetPlatformIdUtf8());
+  font_ = CheckPlatform<DWriteFont>(font, GetPlatformId());
   ThrowIfFailed(GetDirectFactory()->GetDWriteFactory()->CreateTextLayout(
       reinterpret_cast<const wchar_t*>(text_.c_str()),
       static_cast<UINT32>(text_.size()), font_->GetComInterface(), max_width_,

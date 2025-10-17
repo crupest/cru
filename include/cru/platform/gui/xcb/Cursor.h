@@ -1,8 +1,9 @@
 #pragma once
 
-#include <cru/base/io/Stream.h>
-#include "../Cursor.h"
 #include "Base.h"
+
+#include <cru/base/io/Stream.h>
+#include <cru/platform/gui/Cursor.h>
 
 #include <xcb/xcb.h>
 #include <xcb/xcb_cursor.h>

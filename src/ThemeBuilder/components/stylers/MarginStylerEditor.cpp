@@ -3,10 +3,10 @@
 
 namespace cru::theme_builder::components::stylers {
 MarginStylerEditor::MarginStylerEditor() {
-  SetLabel(u"Margin Styler");
+  SetLabel("Margin Styler");
   GetContainer()->AddChild(thickness_editor_.GetRootControl());
 
-  thickness_editor_.SetLabel(u"Thickness");
+  thickness_editor_.SetLabel("Thickness");
 
   ConnectChangeEvent(thickness_editor_);
 }

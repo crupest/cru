@@ -1,5 +1,5 @@
 add_library(CruPlatformGui
-	Keyboard.cpp
+	Input.cpp
 	Menu.cpp
 	UiApplication.cpp
 	Window.cpp

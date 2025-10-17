@@ -15,14 +15,14 @@ class PointPropertyEditor : public Editor {
  public:
   ui::controls::Control* GetRootControl() override { return &container_; }
 
-  String GetLabel() const { return label_.GetText(); }
-  void SetLabel(String label) { label_.SetText(std::move(label)); }
+  std::string GetLabel() const { return label_.GetText(); }
+  void SetLabel(std::string label) { label_.SetText(std::move(label)); }
 
   ui::Point GetValue() const { return point_; }
   void SetValue(const ui::Point& point, bool trigger_change = true);
 
  private:
-  static String ConvertPointToString(const ui::Point& point);
+  static std::string ConvertPointToString(const ui::Point& point);
 
  private:
   ui::Point point_;

@@ -3,12 +3,12 @@
 
 namespace cru::theme_builder::components::stylers {
 PreferredSizeStylerEditor::PreferredSizeStylerEditor() {
-  SetLabel(u"Preferred Size Styler");
+  SetLabel("Preferred Size Styler");
   GetContainer()->AddChild(width_editor_.GetRootControl());
   GetContainer()->AddChild(height_editor_.GetRootControl());
 
-  width_editor_.SetLabel(u"Width");
-  height_editor_.SetLabel(u"Height");
+  width_editor_.SetLabel("Width");
+  height_editor_.SetLabel("Height");
 
   ConnectChangeEvent(width_editor_);
   ConnectChangeEvent(height_editor_);

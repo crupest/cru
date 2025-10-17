@@ -29,9 +29,9 @@ int main() {
                   ->GetItemAt(0)
                   ->GetSubmenu()
                   ->CreateItemAt(0);
-    mi->SetTitle(u"Quit");
+    mi->SetTitle("Quit");
     mi->SetKeyboardShortcut(cru::platform::gui::KeyCode::Q,
-                            cru::platform::gui::KeyModifiers::command);
+                            cru::platform::gui::KeyModifiers::Command);
     mi->SetEnabled(true);
     mi->SetOnClickHandler([&]() { application->RequestQuit(0); });
   }
@@ -45,10 +45,10 @@ int main() {
 
   window.AddChild(&flex_layout);
 
-  auto text_block = TextBlock::Create(u"Hello World from CruUI!", true);
+  auto text_block = TextBlock::Create("Hello World from CruUI!", true);
   flex_layout.AddChild(text_block.get());
 
-  auto button_text_block = TextBlock::Create(u"OK");
+  auto button_text_block = TextBlock::Create("OK");
   Button button;
   button.SetChild(button_text_block.get());
   flex_layout.AddChild(&button);
@@ -58,12 +58,12 @@ int main() {
   flex_layout.AddChild(&text_box);
 
   PopupMenuTextButton popup_menu_text_button;
-  popup_menu_text_button.SetButtonText(u"Popup Menu Button");
-  popup_menu_text_button.SetMenuItems({u"Item 1", u"Item 2", u"Item 3"});
+  popup_menu_text_button.SetButtonText("Popup Menu Button");
+  popup_menu_text_button.SetMenuItems({"Item 1", "Item 2", "Item 3"});
   flex_layout.AddChild(popup_menu_text_button.GetRootControl());
 
   Select select;
-  select.SetItems({u"Item 1", u"Item 2", u"Item 3"});
+  select.SetItems({"Item 1", "Item 2", "Item 3"});
   flex_layout.AddChild(select.GetRootControl());
 
   window.GetWindowHost()->GetNativeWindow()->SetVisibility(

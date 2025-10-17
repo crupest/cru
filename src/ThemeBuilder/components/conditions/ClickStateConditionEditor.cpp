@@ -6,11 +6,11 @@
 namespace cru::theme_builder::components::conditions {
 using ui::helper::ClickState;
 namespace {
-const std::vector<String> kClickStates{
-    u"None",
-    u"Hover",
-    u"Press",
-    u"PressInactive",
+const std::vector<std::string> kClickStates{
+    "None",
+    "Hover",
+    "Press",
+    "PressInactive",
 };
 
 Index ConvertClickStateToIndex(ClickState click_state) {
@@ -43,10 +43,10 @@ ClickState ConvertIndexToClickState(Index index) {
 }  // namespace
 
 ClickStateConditionEditor::ClickStateConditionEditor() {
-  SetLabel(u"Click State Condition");
+  SetLabel("Click State Condition");
   GetContainer()->AddChild(click_state_select_.GetRootControl());
 
-  click_state_select_.SetLabel(u"Click State");
+  click_state_select_.SetLabel("Click State");
   click_state_select_.SetItems(kClickStates);
   click_state_select_.SetSelectedIndex(0, false);
 

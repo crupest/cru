@@ -1,8 +1,9 @@
 #pragma once
 
-#include <cru/base/Base.h>
-#include "../InputMethod.h"
 #include "Base.h"
+
+#include <cru/base/Base.h>
+#include <cru/platform/gui/InputMethod.h>
 
 #include <xcb-imdkit/imclient.h>
 #include <xcb/xcb.h>
@@ -66,7 +67,7 @@ class XcbXimInputMethodContext : public XcbResource,
   IEvent<std::nullptr_t>* CompositionStartEvent() override;
   IEvent<std::nullptr_t>* CompositionEndEvent() override;
   IEvent<std::nullptr_t>* CompositionEvent() override;
-  IEvent<StringView>* TextEvent() override;
+  IEvent<std::string>* TextEvent() override;
 
  private:
   void CreateIc(xcb_window_t window);
@@ -83,6 +84,6 @@ class XcbXimInputMethodContext : public XcbResource,
   Event<std::nullptr_t> composition_start_event_;
   Event<std::nullptr_t> composition_end_event_;
   Event<std::nullptr_t> composition_event_;
-  Event<StringView> text_event_;
+  Event<std::string> text_event_;
 };
 }  // namespace cru::platform::gui::xcb

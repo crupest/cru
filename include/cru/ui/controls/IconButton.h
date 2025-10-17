@@ -21,7 +21,7 @@ class CRU_UI_API IconButton : public NoChildControl,
 
  public:
   IconButton();
-  IconButton(StringView icon_svg_path_data_string, const Rect& view_port);
+  IconButton(std::string_view icon_svg_path_data_string, const Rect& view_port);
   ~IconButton() override;
 
   String GetControlType() const final { return kControlType.ToString(); }
@@ -84,10 +84,10 @@ class CRU_UI_API IconButton : public NoChildControl,
   }
 
   void SetIconFillColor(const Color& color);
-  void SetIconWithSvgPathDataString(StringView icon_svg_path_data_string,
+  void SetIconWithSvgPathDataString(std::string_view icon_svg_path_data_string,
                                     const Rect& view_port);
   void SetIconWithSvgPathDataStringResourceKey(
-      StringView icon_svg_path_data_string_resource_key, const Rect& view_port);
+      std::string_view icon_svg_path_data_string_resource_key, const Rect& view_port);
 
   std::shared_ptr<platform::graphics::IBrush> GetContentBrush() const override {
     return GetIconFillBrush();

@@ -1,13 +1,13 @@
 #include "cru/ui/components/Input.h"
-#include "cru/base/Format.h"
 #include "cru/base/StringToNumberConverter.h"
 #include "cru/ui/controls/Control.h"
 
 #include <cmath>
 #include <optional>
+#include <string>
 
 namespace cru::ui::components {
-Input::Input() : last_validate_result_{true, u"Good value"} {
+Input::Input() : last_validate_result_{true, "Good value"} {
   text_box_.TextChangeEvent()->AddSpyOnlyHandler([this] {
     auto text = text_box_.GetText();
     auto validate_result = Validate();
@@ -20,9 +20,9 @@ Input::~Input() {}
 
 controls::Control* Input::GetRootControl() { return &text_box_; }
 
-String Input::GetText() const { return text_box_.GetText(); }
+std::string Input::GetText() const { return text_box_.GetText(); }
 
-void Input::SetText(String text) { text_box_.SetText(std::move(text)); }
+void Input::SetText(std::string text) { text_box_.SetText(std::move(text)); }
 
 IInputValidator* Input::GetValidator() const { return validator_; }
 
@@ -35,7 +35,7 @@ InputValidateResult Input::Validate() {
   if (validator_)
     last_validate_result_ = validator_->Validate(text_box_.GetTextView());
   else
-    last_validate_result_ = {true, u"Good value"};
+    last_validate_result_ = {true, "Good value"};
   return last_validate_result_;
 }
 
@@ -43,23 +43,23 @@ InputValidateResult Input::GetLastValidateResult() const {
   return last_validate_result_;
 }
 
-InputValidateResult FloatInputValidator::Validate(StringView text) const {
-  auto result =
-      text.ParseToFloat(nullptr, StringToNumberFlags::kAllowLeadingSpaces &
-                                     StringToNumberFlags::kAllowTrailingSpaces);
+InputValidateResult FloatInputValidator::Validate(std::string_view text) const {
+  auto result = String::FromUtf8(text).ParseToFloat(
+      nullptr, StringToNumberFlags::kAllowLeadingSpaces &
+                   StringToNumberFlags::kAllowTrailingSpaces);
   if (std::isnan(result)) {
-    return InputValidateResult{false, u"Invalid number."};
+    return InputValidateResult{false, "Invalid number."};
   }
 
   if (min && result < *min) {
-    return InputValidateResult{false, u"Value is less than minimum."};
+    return InputValidateResult{false, "Value is less than minimum."};
   }
 
   if (max && result > *max) {
-    return InputValidateResult{false, u"Value is greater than maximum."};
+    return InputValidateResult{false, "Value is greater than maximum."};
   }
 
-  return InputValidateResult{true, u"Good number"};
+  return InputValidateResult{true, "Good number"};
 }
 
 FloatInput::FloatInput() {
@@ -67,7 +67,7 @@ FloatInput::FloatInput() {
 
   ChangeEvent()->AddHandler([this](const InputChangeEventArgs& args) {
     if (args.valid) {
-      value_ = args.text.ParseToFloat(
+      value_ = String::FromUtf8(args.text).ParseToFloat(
           nullptr, StringToNumberFlags::kAllowLeadingSpaces &
                        StringToNumberFlags::kAllowTrailingSpaces);
     }
@@ -78,7 +78,7 @@ FloatInput::~FloatInput() {}
 
 float FloatInput::GetValue() const { return value_; }
 
-void FloatInput::SetValue(float value) { SetText(ToString(value)); }
+void FloatInput::SetValue(float value) { SetText(std::to_string(value)); }
 
 std::optional<float> FloatInput::GetMin() const { return validator_.min; }
 

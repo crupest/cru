@@ -95,9 +95,10 @@ struct CRU_PLATFORM_GRAPHICS_API IGeometryBuilder : virtual IGraphicsResource {
 
   virtual std::unique_ptr<IGeometry> Build() = 0;
 
-  virtual void ParseAndApplySvgPathData(StringView path_d);
+  virtual void ParseAndApplySvgPathData(std::string_view path_d);
 };
 
 std::unique_ptr<IGeometry> CRU_PLATFORM_GRAPHICS_API
-CreateGeometryFromSvgPathData(IGraphicsFactory* factory, StringView path_d);
+CreateGeometryFromSvgPathData(IGraphicsFactory* factory,
+                              std::string_view path_d);
 }  // namespace cru::platform::graphics

@@ -1,6 +1,8 @@
 #pragma once
 #include "../Base.h"
 
+#include <cru/platform/graphics/Brush.h>
+
 #include <optional>
 
 namespace cru::ui::style {

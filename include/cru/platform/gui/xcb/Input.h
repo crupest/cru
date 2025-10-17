@@ -1,6 +1,6 @@
 #pragma once
 
-#include <cru/platform/gui/Keyboard.h>
+#include <cru/platform/gui/Input.h>
 
 #include <xcb/xcb.h>
 #include <xkbcommon/xkbcommon.h>

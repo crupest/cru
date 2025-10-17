@@ -1,6 +1,7 @@
 #include "cru/platform/graphics/Geometry.h"
 
 #include "cru/base/Exception.h"
+#include "cru/base/String.h"
 #include "cru/platform/Exception.h"
 #include "cru/platform/graphics/Factory.h"
 
@@ -15,7 +16,7 @@ bool IGeometry::StrokeContains(float width, const Point& point) {
 
 std::unique_ptr<IGeometry> IGeometry::CreateStrokeGeometry(
     [[maybe_unused]] float width) {
-  throw PlatformUnsupportedException(GetPlatformIdUtf8(), "CreateStrokeGeometry",
+  throw PlatformUnsupportedException(GetPlatformId(), "CreateStrokeGeometry",
                                      "Create stroke geometry of a geometry is "
                                      "not supported on this platform.");
 }
@@ -207,7 +208,7 @@ const std::unordered_set<char16_t> kSvgPathDataCommands = {
     'S', 's', 'Q', 'q', 'T', 't', 'A', 'a', 'Z', 'z'};
 }
 
-void IGeometryBuilder::ParseAndApplySvgPathData(StringView path_d) {
+void IGeometryBuilder::ParseAndApplySvgPathData(std::string_view path_d) {
   Index position = 0;
   const auto size = path_d.size();
 
@@ -236,8 +237,9 @@ void IGeometryBuilder::ParseAndApplySvgPathData(StringView path_d) {
 
     Index processed_count = 0;
 
-    auto result = path_d.substr(position).ParseToFloat(
-        &processed_count, StringToNumberFlags::kAllowTrailingJunk);
+    auto result = String::FromUtf8(path_d.substr(position))
+                      .ParseToFloat(&processed_count,
+                                    StringToNumberFlags::kAllowTrailingJunk);
 
     if (std::isnan(result)) throw Exception("Invalid svg path data number.");
 
@@ -252,7 +254,7 @@ void IGeometryBuilder::ParseAndApplySvgPathData(StringView path_d) {
     return Point(x, y);
   };
 
-  auto do_command = [&, this](char16_t command) {
+  auto do_command = [&, this](char command) {
     last_command = command;
     last_is_cubic = false;
     last_is_quad = false;
@@ -442,7 +444,7 @@ void IGeometryBuilder::ParseAndApplySvgPathData(StringView path_d) {
 }
 
 std::unique_ptr<IGeometry> CreateGeometryFromSvgPathData(
-    IGraphicsFactory* factory, StringView path_d) {
+    IGraphicsFactory* factory, std::string_view path_d) {
   auto builder = factory->CreateGeometryBuilder();
   builder->ParseAndApplySvgPathData(path_d);
   return builder->Build();

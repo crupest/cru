@@ -28,14 +28,16 @@ TextRenderObject::TextRenderObject(
   caret_brush.swap(caret_brush_);
 
   const auto graph_factory = GetGraphicsFactory();
-  text_layout_ = graph_factory->CreateTextLayout(font_, u"");
+  text_layout_ = graph_factory->CreateTextLayout(font_, "");
 }
 
 TextRenderObject::~TextRenderObject() = default;
 
-String TextRenderObject::GetText() const { return text_layout_->GetText(); }
+std::string TextRenderObject::GetText() const {
+  return text_layout_->GetText();
+}
 
-void TextRenderObject::SetText(String new_text) {
+void TextRenderObject::SetText(std::string new_text) {
   text_layout_->SetText(std::move(new_text));
   InvalidateLayout();
 }
@@ -181,8 +183,7 @@ void TextRenderObject::Draw(platform::graphics::IPainter* painter) {
         "Begin to paint, total_offset: {}, size: {}, text_layout: "
         "{}, brush: {}.",
         this->GetTotalOffset(), this->GetDesiredSize(),
-        this->text_layout_->GetDebugString().ToUtf8(),
-        this->brush_->GetDebugString().ToUtf8());
+        this->text_layout_->GetDebugString(), this->brush_->GetDebugString());
   }
 
   if (this->selection_range_.has_value()) {

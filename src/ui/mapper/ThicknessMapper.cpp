@@ -1,5 +1,6 @@
 #include "cru/ui/mapper/ThicknessMapper.h"
 #include "cru/xml/XmlNode.h"
+#include "cru/base/String.h"
 
 namespace cru::ui::mapper {
 bool ThicknessMapper::XmlElementIsOfThisType(xml::XmlElementNode* node) {

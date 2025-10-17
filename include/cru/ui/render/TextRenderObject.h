@@ -35,8 +35,8 @@ class CRU_UI_API TextRenderObject : public RenderObject {
   TextRenderObject& operator=(TextRenderObject&& other) = delete;
   ~TextRenderObject() override;
 
-  String GetText() const;
-  void SetText(String new_text);
+  std::string GetText() const;
+  void SetText(std::string new_text);
 
   std::shared_ptr<platform::graphics::IBrush> GetBrush() { return brush_; }
   void SetBrush(std::shared_ptr<platform::graphics::IBrush> new_brush);

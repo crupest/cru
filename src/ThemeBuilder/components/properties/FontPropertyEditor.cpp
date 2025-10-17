@@ -20,12 +20,12 @@ FontPropertyEditor::FontPropertyEditor() {
   font_family_container_.SetFlexDirection(FlexDirection::Horizontal);
   font_family_container_.AddChild(&font_family_label_);
   font_family_container_.AddChild(&font_family_text_);
-  font_family_label_.SetText(u"Font Family");
+  font_family_label_.SetText("Font Family");
 
   font_size_container_.SetFlexDirection(FlexDirection::Horizontal);
   font_size_container_.AddChild(&font_size_label_);
   font_size_container_.AddChild(font_size_input_.GetRootControl());
-  font_size_label_.SetText(u"Font Size");
+  font_size_label_.SetText("Font Size");
   font_size_input_.SetMin(0.0f);
 
   font_family_text_.TextChangeEvent()->AddSpyOnlyHandler(

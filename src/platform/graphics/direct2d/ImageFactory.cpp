@@ -74,7 +74,7 @@ GUID ConvertImageFormatToGUID(ImageFormat format) {
 
 void WinImageFactory::EncodeToStream(IImage* image, io::Stream* stream,
                                      ImageFormat format, float quality) {
-  auto direct_image = CheckPlatform<Direct2DImage>(image, GetPlatformIdUtf8());
+  auto direct_image = CheckPlatform<Direct2DImage>(image, GetPlatformId());
 
   Microsoft::WRL::ComPtr<IStream> com_stream(
       platform::win::ConvertStreamToComStream(stream));

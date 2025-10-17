@@ -18,10 +18,10 @@ TextBox::TextBox()
   auto theme_manager = ThemeManager::GetInstance();
 
   text_render_object_ = std::make_unique<TextRenderObject>(
-      theme_manager->GetResourceBrush(u"text.brush"),
-      theme_manager->GetResourceFont(u"text.font"),
-      theme_manager->GetResourceBrush(u"text.selection.brush"),
-      theme_manager->GetResourceBrush(u"text.caret.brush"));
+      theme_manager->GetResourceBrush("text.brush"),
+      theme_manager->GetResourceFont("text.font"),
+      theme_manager->GetResourceBrush("text.selection.brush"),
+      theme_manager->GetResourceBrush("text.caret.brush"));
   text_render_object_->SetEditMode(true);
 
   border_render_object_->SetChild(scroll_render_object_.get());
@@ -40,7 +40,7 @@ TextBox::TextBox()
   border_render_object_->SetBorderEnabled(true);
 
   GetStyleRuleSet()->SetParent(
-      theme_manager->GetResourceStyleRuleSet(u"textbox.style"));
+      theme_manager->GetResourceStyleRuleSet("textbox.style"));
 }
 
 TextBox::~TextBox() {}

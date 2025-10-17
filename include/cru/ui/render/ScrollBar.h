@@ -39,7 +39,7 @@ enum class ScrollBarAreaKind {
 enum class ScrollBarBrushUsageKind { Arrow, ArrowBackground, Slot, Thumb };
 enum class ScrollBarBrushStateKind { Normal, Hover, Press, Disable };
 
-String CRU_UI_API GenerateScrollBarThemeColorKey(ScrollBarBrushUsageKind usage,
+std::string CRU_UI_API GenerateScrollBarThemeColorKey(ScrollBarBrushUsageKind usage,
                                                  ScrollBarBrushStateKind state);
 
 class CRU_UI_API ScrollBar : public Object {

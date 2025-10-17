@@ -14,17 +14,17 @@ namespace cru::ui::components {
 MenuItem::MenuItem() {
   container_.SetChild(&text_);
   container_.GetStyleRuleSet()->SetParent(
-      ThemeManager::GetInstance()->GetResourceStyleRuleSet(u"menuitem.style"));
+      ThemeManager::GetInstance()->GetResourceStyleRuleSet("menuitem.style"));
   container_.ClickEvent()->AddHandler([this](const helper::ClickEventArgs&) {
     if (this->on_click_) this->on_click_();
   });
 }
 
-MenuItem::MenuItem(String text) : MenuItem() { SetText(std::move(text)); }
+MenuItem::MenuItem(std::string text) : MenuItem() { SetText(std::move(text)); }
 
 MenuItem::~MenuItem() {}
 
-void MenuItem::SetText(String text) { text_.SetText(std::move(text)); }
+void MenuItem::SetText(std::string text) { text_.SetText(std::move(text)); }
 
 Menu::Menu() {
   container_.SetFlexDirection(controls::FlexDirection::Vertical);
@@ -65,7 +65,7 @@ void Menu::ClearItems() {
   container_.ClearChildren();
 }
 
-void Menu::AddTextItemAt(String text, Index index,
+void Menu::AddTextItemAt(std::string text, Index index,
                          std::function<void()> on_click) {
   MenuItem* item = new MenuItem(std::move(text));
   item->SetOnClick([this, index, on_click = std::move(on_click)] {

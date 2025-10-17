@@ -1,8 +1,8 @@
 #include "cru/ui/controls/TextHostControlService.h"
 
+#include <cru/platform/gui/Input.h>
 #include "../Helper.h"
 #include "cru/base/Base.h"
-#include "cru/base/String.h"
 #include "cru/base/StringUtil.h"
 #include "cru/base/log/Logger.h"
 #include "cru/platform/graphics/Font.h"
@@ -10,7 +10,6 @@
 #include "cru/platform/gui/Clipboard.h"
 #include "cru/platform/gui/Cursor.h"
 #include "cru/platform/gui/InputMethod.h"
-#include "cru/platform/gui/Keyboard.h"
 #include "cru/platform/gui/UiApplication.h"
 #include "cru/platform/gui/Window.h"
 #include "cru/ui/Base.h"
@@ -27,42 +26,42 @@
 
 namespace cru::ui::controls {
 TextControlMovePattern TextControlMovePattern::kLeft(
-    u"Left", helper::ShortcutKeyBind(platform::gui::KeyCode::Left),
-    [](TextHostControlService* service, StringView text,
+    "Left", helper::ShortcutKeyBind(platform::gui::KeyCode::Left),
+    [](TextHostControlService* service, std::string_view text,
        Index current_position) {
       CRU_UNUSED(service)
-      Utf16PreviousCodePoint(text, current_position, &current_position);
+      Utf8PreviousCodePoint(text, current_position, &current_position);
       return current_position;
     });
 TextControlMovePattern TextControlMovePattern::kRight(
-    u"Right", helper::ShortcutKeyBind(platform::gui::KeyCode::Right),
-    [](TextHostControlService* service, StringView text,
+    "Right", helper::ShortcutKeyBind(platform::gui::KeyCode::Right),
+    [](TextHostControlService* service, std::string_view text,
        Index current_position) {
       CRU_UNUSED(service)
-      Utf16NextCodePoint(text, current_position, &current_position);
+      Utf8NextCodePoint(text, current_position, &current_position);
       return current_position;
     });
 TextControlMovePattern TextControlMovePattern::kCtrlLeft(
-    u"Ctrl+Left(Previous Word)",
+    "Ctrl+Left(Previous Word)",
     helper::ShortcutKeyBind(platform::gui::KeyCode::Left,
-                            platform::gui::KeyModifiers::ctrl),
-    [](TextHostControlService* service, StringView text,
+                            platform::gui::KeyModifiers::Ctrl),
+    [](TextHostControlService* service, std::string_view text,
        Index current_position) {
       CRU_UNUSED(service)
-      return Utf16PreviousWord(text, current_position);
+      return Utf8PreviousWord(text, current_position);
     });
 TextControlMovePattern TextControlMovePattern::kCtrlRight(
-    u"Ctrl+Right(Next Word)",
+    "Ctrl+Right(Next Word)",
     helper::ShortcutKeyBind(platform::gui::KeyCode::Right,
-                            platform::gui::KeyModifiers::ctrl),
-    [](TextHostControlService* service, StringView text,
+                            platform::gui::KeyModifiers::Ctrl),
+    [](TextHostControlService* service, std::string_view text,
        Index current_position) {
       CRU_UNUSED(service)
-      return Utf16NextWord(text, current_position);
+      return Utf8NextWord(text, current_position);
     });
 TextControlMovePattern TextControlMovePattern::kUp(
-    u"Up", helper::ShortcutKeyBind(platform::gui::KeyCode::Up),
-    [](TextHostControlService* service, StringView text,
+    "Up", helper::ShortcutKeyBind(platform::gui::KeyCode::Up),
+    [](TextHostControlService* service, std::string_view text,
        Index current_position) {
       CRU_UNUSED(text)
       auto text_render_object = service->GetTextRenderObject();
@@ -72,8 +71,8 @@ TextControlMovePattern TextControlMovePattern::kUp(
       return result.trailing ? result.position + 1 : result.position;
     });
 TextControlMovePattern TextControlMovePattern::kDown(
-    u"Down", helper::ShortcutKeyBind(platform::gui::KeyCode::Down),
-    [](TextHostControlService* service, StringView text,
+    "Down", helper::ShortcutKeyBind(platform::gui::KeyCode::Down),
+    [](TextHostControlService* service, std::string_view text,
        Index current_position) {
       CRU_UNUSED(text)
       auto text_render_object = service->GetTextRenderObject();
@@ -83,26 +82,26 @@ TextControlMovePattern TextControlMovePattern::kDown(
       return result.trailing ? result.position + 1 : result.position;
     });
 TextControlMovePattern TextControlMovePattern::kHome(
-    u"Home(Line Begin)", helper::ShortcutKeyBind(platform::gui::KeyCode::Home),
-    [](TextHostControlService* service, StringView text,
+    "Home(Line Begin)", helper::ShortcutKeyBind(platform::gui::KeyCode::Home),
+    [](TextHostControlService* service, std::string_view text,
        Index current_position) {
       CRU_UNUSED(service)
-      return Utf16BackwardUntil(text, current_position,
-                                [](CodePoint c) { return c == u'\n'; });
-    });
-TextControlMovePattern TextControlMovePattern::kEnd(
-    u"End(Line End)", helper::ShortcutKeyBind(platform::gui::KeyCode::End),
-    [](TextHostControlService* service, StringView text,
-       Index current_position) {
-      CRU_UNUSED(service)
-      return Utf16ForwardUntil(text, current_position,
+      return Utf8BackwardUntil(text, current_position,
                                [](CodePoint c) { return c == u'\n'; });
     });
+TextControlMovePattern TextControlMovePattern::kEnd(
+    "End(Line End)", helper::ShortcutKeyBind(platform::gui::KeyCode::End),
+    [](TextHostControlService* service, std::string_view text,
+       Index current_position) {
+      CRU_UNUSED(service)
+      return Utf8ForwardUntil(text, current_position,
+                              [](CodePoint c) { return c == u'\n'; });
+    });
 TextControlMovePattern TextControlMovePattern::kCtrlHome(
-    u"Ctrl+Home(Document Begin)",
+    "Ctrl+Home(Document Begin)",
     helper::ShortcutKeyBind(platform::gui::KeyCode::Home,
-                            platform::gui::KeyModifiers::ctrl),
-    [](TextHostControlService* service, StringView text,
+                            platform::gui::KeyModifiers::Ctrl),
+    [](TextHostControlService* service, std::string_view text,
        Index current_position) {
       CRU_UNUSED(service)
       CRU_UNUSED(text)
@@ -110,10 +109,10 @@ TextControlMovePattern TextControlMovePattern::kCtrlHome(
       return 0;
     });
 TextControlMovePattern TextControlMovePattern::kCtrlEnd(
-    u"Ctrl+End(Document End)",
+    "Ctrl+End(Document End)",
     helper::ShortcutKeyBind(platform::gui::KeyCode::End,
-                            platform::gui::KeyModifiers::ctrl),
-    [](TextHostControlService* service, StringView text,
+                            platform::gui::KeyModifiers::Ctrl),
+    [](TextHostControlService* service, std::string_view text,
        Index current_position) {
       CRU_UNUSED(service)
       CRU_UNUSED(text)
@@ -121,8 +120,8 @@ TextControlMovePattern TextControlMovePattern::kCtrlEnd(
       return text.size();
     });
 TextControlMovePattern TextControlMovePattern::kPageUp(
-    u"PageUp", helper::ShortcutKeyBind(platform::gui::KeyCode::PageUp),
-    [](TextHostControlService* service, StringView text,
+    "PageUp", helper::ShortcutKeyBind(platform::gui::KeyCode::PageUp),
+    [](TextHostControlService* service, std::string_view text,
        Index current_position) {
       CRU_UNUSED(service)
       CRU_UNUSED(text)
@@ -130,8 +129,8 @@ TextControlMovePattern TextControlMovePattern::kPageUp(
       return current_position;
     });
 TextControlMovePattern TextControlMovePattern::kPageDown(
-    u"PageDown", helper::ShortcutKeyBind(platform::gui::KeyCode::PageDown),
-    [](TextHostControlService* service, StringView text,
+    "PageDown", helper::ShortcutKeyBind(platform::gui::KeyCode::PageDown),
+    [](TextHostControlService* service, std::string_view text,
        Index current_position) {
       CRU_UNUSED(service)
       CRU_UNUSED(text)
@@ -214,7 +213,7 @@ void TextHostControlService::SetMultiLine(bool multi_line) {
   }
 }
 
-void TextHostControlService::SetText(String text, bool stop_composition) {
+void TextHostControlService::SetText(std::string text, bool stop_composition) {
   this->text_ = std::move(text);
   CoerceSelection();
   if (stop_composition) {
@@ -224,13 +223,14 @@ void TextHostControlService::SetText(String text, bool stop_composition) {
   text_change_event_.Raise(nullptr);
 }
 
-void TextHostControlService::InsertText(Index position, StringView text,
+void TextHostControlService::InsertText(Index position, std::string_view text,
                                         bool stop_composition) {
-  if (!Utf16IsValidInsertPosition(this->text_, position)) {
+  if (!Utf8IsValidInsertPosition(this->text_, position)) {
     CRU_LOG_TAG_ERROR("Invalid text insert position.");
     return;
   }
-  this->text_.insert(this->text_.cbegin() + position, text);
+  this->text_.insert(this->text_.cbegin() + position, text.cbegin(),
+                     text.cend());
   if (stop_composition) {
     CancelComposition();
   }
@@ -239,26 +239,26 @@ void TextHostControlService::InsertText(Index position, StringView text,
 }
 
 void TextHostControlService::DeleteChar(Index position, bool stop_composition) {
-  if (!Utf16IsValidInsertPosition(this->text_, position)) {
+  if (!Utf8IsValidInsertPosition(this->text_, position)) {
     CRU_LOG_TAG_ERROR("Invalid text delete position.");
     return;
   }
   if (position == static_cast<Index>(this->text_.size())) return;
   Index next;
-  Utf16NextCodePoint(this->text_, position, &next);
+  Utf8NextCodePoint(this->text_, position, &next);
   this->DeleteText(TextRange::FromTwoSides(position, next), stop_composition);
 }
 
 // Return the position of deleted character.
 Index TextHostControlService::DeleteCharPrevious(Index position,
                                                  bool stop_composition) {
-  if (!Utf16IsValidInsertPosition(this->text_, position)) {
+  if (!Utf8IsValidInsertPosition(this->text_, position)) {
     CRU_LOG_TAG_ERROR("Invalid text delete position.");
     return 0;
   }
   if (position == 0) return 0;
   Index previous;
-  Utf16PreviousCodePoint(this->text_, position, &previous);
+  Utf8PreviousCodePoint(this->text_, position, &previous);
   this->DeleteText(TextRange::FromTwoSides(previous, position),
                    stop_composition);
   return previous;
@@ -268,11 +268,11 @@ void TextHostControlService::DeleteText(TextRange range,
                                         bool stop_composition) {
   if (range.count == 0) return;
   range = range.Normalize();
-  if (!Utf16IsValidInsertPosition(this->text_, range.GetStart())) {
+  if (!Utf8IsValidInsertPosition(this->text_, range.GetStart())) {
     CRU_LOG_TAG_ERROR("Invalid text delete start position.");
     return;
   }
-  if (!Utf16IsValidInsertPosition(this->text_, range.GetStart())) {
+  if (!Utf8IsValidInsertPosition(this->text_, range.GetStart())) {
     CRU_LOG_TAG_ERROR("Invalid text delete end position.");
     return;
   }
@@ -352,7 +352,7 @@ render::ScrollRenderObject* TextHostControlService::GetScrollRenderObject() {
   return this->text_host_control_->GetScrollRenderObject();
 }
 
-StringView TextHostControlService::GetSelectedText() {
+std::string_view TextHostControlService::GetSelectedText() {
   auto selection = this->GetSelection().Normalize();
   return GetTextView().substr(selection.position, selection.count);
 }
@@ -372,7 +372,7 @@ void TextHostControlService::SetSelection(TextRange selection,
 }
 
 void TextHostControlService::SelectAll() {
-  this->SetSelection(TextRange{0, this->text_.size()});
+  this->SetSelection(TextRange{0, static_cast<Index>(this->text_.size())});
 }
 
 void TextHostControlService::ChangeSelectionEnd(Index new_end) {
@@ -389,7 +389,7 @@ void TextHostControlService::AbortSelection() {
   SetSelection(GetCaretPosition());
 }
 
-void TextHostControlService::ReplaceSelectedText(StringView text) {
+void TextHostControlService::ReplaceSelectedText(std::string_view text) {
   DeleteSelectedText();
   InsertText(GetSelection().GetStart(), text);
   SetSelection(GetSelection().GetStart() + text.size());
@@ -402,14 +402,14 @@ void TextHostControlService::DeleteSelectedText() {
 
 void TextHostControlService::Cut() {
   Copy();
-  ReplaceSelectedText(StringView{});
+  ReplaceSelectedText(std::string_view{});
 }
 
 void TextHostControlService::Copy() {
   auto selected_text = GetSelectedText();
   if (selected_text.size() == 0) return;
   auto clipboard = GetUiApplication()->GetClipboard();
-  clipboard->SetText(selected_text.ToString());
+  clipboard->SetText(std::string(selected_text));
 }
 
 void TextHostControlService::Paste() {
@@ -442,7 +442,8 @@ void TextHostControlService::SyncTextRenderObject() {
   if (composition_info) {
     const auto caret_position = GetCaretPosition();
     auto text = this->text_;
-    text.insert(text.cbegin() + caret_position, composition_info->text);
+    text.insert(text.cbegin() + caret_position, composition_info->text.cbegin(),
+                composition_info->text.cend());
     text_render_object->SetText(text);
     text_render_object->SetCaretPosition(caret_position +
                                          composition_info->selection.GetEnd());
@@ -477,7 +478,7 @@ void TextHostControlService::MouseDownHandler(
     events::MouseButtonEventArgs& args) {
   if (IsEnabled()) {
     this->control_->SetFocus();
-    if (args.GetButton() == mouse_buttons::left &&
+    if (args.GetButton() == MouseButtons::Left &&
         !this->mouse_move_selecting_) {
       if (!this->control_->CaptureMouse()) return;
       this->mouse_move_selecting_ = true;
@@ -487,7 +488,7 @@ void TextHostControlService::MouseDownHandler(
       const auto position = result.position + (result.trailing ? 1 : 0);
       SetSelection(position);
       args.SetHandled(true);
-    } else if (args.GetButton() == mouse_buttons::right) {
+    } else if (args.GetButton() == MouseButtons::Right) {
       // TODO: Finish context menu logic here.
 
       const Point p = args.GetPointToContent(GetTextRenderObject());
@@ -536,7 +537,7 @@ void TextHostControlService::MouseDownHandler(
 
 void TextHostControlService::MouseUpHandler(
     events::MouseButtonEventArgs& args) {
-  if (args.GetButton() == mouse_buttons::left && mouse_move_selecting_) {
+  if (args.GetButton() == MouseButtons::Left && mouse_move_selecting_) {
     this->control_->ReleaseMouse();
     this->mouse_move_selecting_ = false;
     args.SetHandled();
@@ -573,12 +574,13 @@ void TextHostControlService::GainFocusHandler(
     input_method_context_event_guard_ +=
         input_method_context->CompositionEndEvent()->AddHandler(sync);
     input_method_context_event_guard_ +=
-        input_method_context->TextEvent()->AddHandler([this](StringView text) {
-          if (!multi_line_ && text == u"\n") {
-            return;
-          }
-          this->ReplaceSelectedText(text);
-        });
+        input_method_context->TextEvent()->AddHandler(
+            [this](std::string_view text) {
+              if (!multi_line_ && text == "\n") {
+                return;
+              }
+              this->ReplaceSelectedText(text);
+            });
 
     host::WindowHost* window_host = control_->GetWindowHost();
     if (window_host)
@@ -606,7 +608,7 @@ void TextHostControlService::SetUpShortcuts() {
   using platform::gui::KeyModifiers;
   using platform::gui::kKeyModifierCommand;
 
-  shortcut_hub_.RegisterShortcut(u"Select All",
+  shortcut_hub_.RegisterShortcut("Select All",
                                  {KeyCode::A, kKeyModifierCommand}, [this] {
                                    if (IsEnabled()) {
                                      this->SelectAll();
@@ -615,7 +617,7 @@ void TextHostControlService::SetUpShortcuts() {
                                    return false;
                                  });
 
-  shortcut_hub_.RegisterShortcut(u"Cut", {KeyCode::X, kKeyModifierCommand},
+  shortcut_hub_.RegisterShortcut("Cut", {KeyCode::X, kKeyModifierCommand},
                                  [this] {
                                    if (IsEnabled() && IsEditable()) {
                                      this->Cut();
@@ -624,7 +626,7 @@ void TextHostControlService::SetUpShortcuts() {
                                    return false;
                                  });
 
-  shortcut_hub_.RegisterShortcut(u"Copy", {KeyCode::C, kKeyModifierCommand},
+  shortcut_hub_.RegisterShortcut("Copy", {KeyCode::C, kKeyModifierCommand},
                                  [this] {
                                    if (IsEnabled()) {
                                      this->Copy();
@@ -633,7 +635,7 @@ void TextHostControlService::SetUpShortcuts() {
                                    return false;
                                  });
 
-  shortcut_hub_.RegisterShortcut(u"Paste", {KeyCode::V, kKeyModifierCommand},
+  shortcut_hub_.RegisterShortcut("Paste", {KeyCode::V, kKeyModifierCommand},
                                  [this] {
                                    if (IsEnabled() && IsEditable()) {
                                      this->Paste();
@@ -642,7 +644,7 @@ void TextHostControlService::SetUpShortcuts() {
                                    return false;
                                  });
 
-  shortcut_hub_.RegisterShortcut(u"Backspace", KeyCode::Backspace, [this] {
+  shortcut_hub_.RegisterShortcut("Backspace", KeyCode::Backspace, [this] {
     if (!IsEnabled()) return false;
     if (!IsEditable()) return false;
     const auto selection = GetSelection();
@@ -654,7 +656,7 @@ void TextHostControlService::SetUpShortcuts() {
     return true;
   });
 
-  shortcut_hub_.RegisterShortcut(u"Delete", KeyCode::Delete, [this] {
+  shortcut_hub_.RegisterShortcut("Delete", KeyCode::Delete, [this] {
     if (!IsEnabled()) return false;
     if (!IsEditable()) return false;
     const auto selection = GetSelection();
@@ -669,7 +671,7 @@ void TextHostControlService::SetUpShortcuts() {
   for (const auto& pattern : TextControlMovePattern::kDefaultPatterns) {
     auto name = pattern.GetName();
     shortcut_hub_.RegisterShortcut(
-        u"Move " + name, pattern.GetKeyBind(), [this, &pattern] {
+        "Move " + name, pattern.GetKeyBind(), [this, &pattern] {
           auto text = this->GetTextView();
           auto caret = this->GetCaretPosition();
           auto new_position = pattern.Move(this, text, caret);
@@ -678,8 +680,8 @@ void TextHostControlService::SetUpShortcuts() {
         });
 
     shortcut_hub_.RegisterShortcut(
-        u"Move And Select " + name,
-        pattern.GetKeyBind().AddModifier(platform::gui::KeyModifiers::shift),
+        "Move And Select " + name,
+        pattern.GetKeyBind().AddModifier(platform::gui::KeyModifiers::Shift),
         [this, &pattern] {
           auto text = this->GetTextView();
           auto caret = this->GetCaretPosition();
@@ -695,16 +697,16 @@ void TextHostControlService::OpenContextMenu(const Point& position,
   context_menu_ = MakeDeleteLaterPtr<components::PopupMenu>();
   auto menu = context_menu_->GetMenu();
   if (items & ContextMenuItem::kSelectAll) {
-    menu->AddTextItem(u"Select All", [this] { this->SelectAll(); });
+    menu->AddTextItem("Select All", [this] { this->SelectAll(); });
   }
   if (items & ContextMenuItem::kCopy) {
-    menu->AddTextItem(u"Copy", [this] { this->Copy(); });
+    menu->AddTextItem("Copy", [this] { this->Copy(); });
   }
   if (items & ContextMenuItem::kCut) {
-    menu->AddTextItem(u"Cut", [this] { this->Cut(); });
+    menu->AddTextItem("Cut", [this] { this->Cut(); });
   }
   if (items & ContextMenuItem::kPaste) {
-    menu->AddTextItem(u"Paste", [this] { this->Paste(); });
+    menu->AddTextItem("Paste", [this] { this->Paste(); });
   }
   context_menu_->SetPosition(position);
   context_menu_->Show();

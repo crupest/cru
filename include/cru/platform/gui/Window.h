@@ -1,11 +1,16 @@
 #pragma once
 #include "Base.h"
 
-#include "Keyboard.h"
+#include "Input.h"
 
-#include "cru/base/Event.h"
+#include <cru/base/Event.h>
+#include <cru/platform/GraphicsBase.h>
+#include <cru/platform/graphics/Painter.h>
 
 namespace cru::platform::gui {
+class ICursor;
+class IInputMethodContext;
+
 namespace details {
 struct WindowStyleFlagTag;
 }
@@ -53,8 +58,8 @@ struct CRU_PLATFORM_GUI_API INativeWindow : virtual IPlatformResource {
   virtual WindowStyleFlag GetStyleFlag() = 0;
   virtual void SetStyleFlag(WindowStyleFlag flag) = 0;
 
-  virtual String GetTitle() = 0;
-  virtual void SetTitle(String title) = 0;
+  virtual std::string GetTitle() = 0;
+  virtual void SetTitle(std::string title) = 0;
 
   virtual WindowVisibilityType GetVisibility() = 0;
   virtual void SetVisibility(WindowVisibilityType visibility) = 0;

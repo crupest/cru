@@ -41,14 +41,14 @@ class CRU_UI_API MapperBase : public Object {
   virtual bool XmlElementIsOfThisType(xml::XmlElementNode* node);
 
  protected:
-  void SetAllowedTags(std::vector<String> allowed_tags) {
+  void SetAllowedTags(std::vector<std::string> allowed_tags) {
     allowed_tags_ = std::move(allowed_tags);
   }
 
  private:
   std::type_index type_index_;
 
-  std::vector<String> allowed_tags_;
+  std::vector<std::string> allowed_tags_;
 };
 
 template <typename T>

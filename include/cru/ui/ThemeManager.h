@@ -27,7 +27,7 @@ class CRU_UI_API ThemeManager : public Object {
       std::unique_ptr<ThemeResourceDictionary> theme_resource_dictionary);
 
   template <typename T>
-  T GetResource(const String& key) {
+  T GetResource(std::string_view key) {
     for (const auto& resource_dictionary : theme_resource_dictionary_list_) {
       try {
         return resource_dictionary->GetResource<T>(key);
@@ -35,18 +35,19 @@ class CRU_UI_API ThemeManager : public Object {
       }
     }
     throw ThemeResourceKeyNotExistException(
-        std::format("Theme resource key {} not exist.", key.ToUtf8()));
+        std::format("Theme resource key {} not exist.", key));
   }
 
-  String GetResourceString(const String& key);
+  std::string GetResourceString(std::string_view key);
 
   std::shared_ptr<platform::graphics::IBrush> GetResourceBrush(
-      const String& key);
+      std::string_view key);
 
-  std::shared_ptr<platform::graphics::IFont> GetResourceFont(const String& key);
+  std::shared_ptr<platform::graphics::IFont> GetResourceFont(
+      std::string_view key);
 
   std::shared_ptr<style::StyleRuleSet> GetResourceStyleRuleSet(
-      const String& key);
+      std::string_view key);
 
   IEvent<std::nullptr_t>* ThemeResourceChangeEvent() {
     return &theme_resource_change_event_;

@@ -1,10 +1,7 @@
 #include "cru/platform/gui/xcb/InputMethod.h"
 #include "cru/base/log/Logger.h"
 #include "cru/platform/Check.h"
-#include "cru/platform/gui/InputMethod.h"
-#include "cru/platform/gui/Keyboard.h"
-#include "cru/platform/gui/Window.h"
-#include "cru/platform/gui/xcb/Keyboard.h"
+#include "cru/platform/gui/xcb/Input.h"
 #include "cru/platform/gui/xcb/UiApplication.h"
 #include "cru/platform/gui/xcb/Window.h"
 
@@ -99,7 +96,7 @@ void XcbXimInputMethodManager::DispatchCommit(xcb_xim_t *im, xcb_xic_t ic,
   if (focus_context_) {
     focus_context_->composition_event_.Raise(nullptr);
     focus_context_->composition_end_event_.Raise(nullptr);
-    focus_context_->text_event_.Raise(String::FromUtf8(text));
+    focus_context_->text_event_.Raise(std::move(text));
   }
 }
 
@@ -135,7 +132,7 @@ XcbXimInputMethodContext::XcbXimInputMethodContext(
 
   window->FocusEvent()->AddHandler([this, window](FocusChangeType type) {
     auto context = CheckPlatform<XcbXimInputMethodContext>(
-        window->GetInputMethodContext(), GetPlatformIdUtf8());
+        window->GetInputMethodContext(), GetPlatformId());
     if (type == FocusChangeType::Gain) {
       SetFocus();
     }
@@ -208,7 +205,7 @@ IEvent<std::nullptr_t> *XcbXimInputMethodContext::CompositionEvent() {
   return &composition_event_;
 }
 
-IEvent<StringView> *XcbXimInputMethodContext::TextEvent() {
+IEvent<std::string> *XcbXimInputMethodContext::TextEvent() {
   return &text_event_;
 }
 

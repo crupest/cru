@@ -4,10 +4,10 @@
 
 namespace cru::theme_builder::components::conditions {
 FocusConditionEditor::FocusConditionEditor() {
-  SetLabel(u"Focus Condition");
+  SetLabel("Focus Condition");
   GetContainer()->AddChild(focus_check_box_.GetRootControl());
 
-  focus_check_box_.SetLabel(u"Focus");
+  focus_check_box_.SetLabel("Focus");
 
   ConnectChangeEvent(focus_check_box_);
 }

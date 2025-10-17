@@ -8,17 +8,17 @@
 
 namespace cru::theme_builder::components::stylers {
 BorderStylerEditor::BorderStylerEditor() {
-  SetLabel(u"Border Styler");
+  SetLabel("Border Styler");
   GetContainer()->AddChild(corner_radius_editor_.GetRootControl());
   GetContainer()->AddChild(thickness_editor_.GetRootControl());
   GetContainer()->AddChild(brush_editor_.GetRootControl());
   GetContainer()->AddChild(foreground_brush_editor_.GetRootControl());
   GetContainer()->AddChild(background_brush_editor_.GetRootControl());
 
-  thickness_editor_.GetEditor()->SetLabel(u"Thickness");
-  brush_editor_.GetEditor()->SetLabel(u"Border");
-  foreground_brush_editor_.GetEditor()->SetLabel(u"Foreground");
-  background_brush_editor_.GetEditor()->SetLabel(u"Background");
+  thickness_editor_.GetEditor()->SetLabel("Thickness");
+  brush_editor_.GetEditor()->SetLabel("Border");
+  foreground_brush_editor_.GetEditor()->SetLabel("Foreground");
+  background_brush_editor_.GetEditor()->SetLabel("Background");
 
   ConnectChangeEvent(corner_radius_editor_);
   ConnectChangeEvent(thickness_editor_);

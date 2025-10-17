@@ -13,8 +13,8 @@ class CRU_UI_API Select : public Component {
  public:
   ui::controls::Control* GetRootControl() override { return &button_; }
 
-  std::vector<String> GetItems() const { return items_; }
-  void SetItems(std::vector<String> items);
+  std::vector<std::string> GetItems() const { return items_; }
+  void SetItems(std::vector<std::string> items);
 
   Index GetSelectedIndex() const { return selected_index_; }
   void SetSelectedIndex(Index index);
@@ -23,7 +23,7 @@ class CRU_UI_API Select : public Component {
 
  private:
   Index selected_index_;
-  std::vector<String> items_;
+  std::vector<std::string> items_;
 
   ui::controls::Button button_;
   ui::controls::TextBlock button_text_;

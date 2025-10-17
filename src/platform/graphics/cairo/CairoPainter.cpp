@@ -56,7 +56,7 @@ void CairoPainter::Clear(const Color& color) {
 void CairoPainter::DrawLine(const Point& start, const Point& end, IBrush* brush,
                             float width) {
   CheckValidation();
-  auto cairo_brush = CheckPlatform<CairoBrush>(brush, GetPlatformIdUtf8());
+  auto cairo_brush = CheckPlatform<CairoBrush>(brush, GetPlatformId());
   auto cairo_pattern = cairo_brush->GetCairoPattern();
   cairo_save(cairo_);
   cairo_set_source(cairo_, cairo_pattern);
@@ -71,7 +71,7 @@ void CairoPainter::DrawLine(const Point& start, const Point& end, IBrush* brush,
 void CairoPainter::StrokeRectangle(const Rect& rectangle, IBrush* brush,
                                    float width) {
   CheckValidation();
-  auto cairo_brush = CheckPlatform<CairoBrush>(brush, GetPlatformIdUtf8());
+  auto cairo_brush = CheckPlatform<CairoBrush>(brush, GetPlatformId());
   auto cairo_pattern = cairo_brush->GetCairoPattern();
   cairo_save(cairo_);
   cairo_set_source(cairo_, cairo_pattern);
@@ -85,7 +85,7 @@ void CairoPainter::StrokeRectangle(const Rect& rectangle, IBrush* brush,
 
 void CairoPainter::FillRectangle(const Rect& rectangle, IBrush* brush) {
   CheckValidation();
-  auto cairo_brush = CheckPlatform<CairoBrush>(brush, GetPlatformIdUtf8());
+  auto cairo_brush = CheckPlatform<CairoBrush>(brush, GetPlatformId());
   auto cairo_pattern = cairo_brush->GetCairoPattern();
   cairo_save(cairo_);
   cairo_set_source(cairo_, cairo_pattern);
@@ -99,7 +99,7 @@ void CairoPainter::FillRectangle(const Rect& rectangle, IBrush* brush) {
 void CairoPainter::StrokeEllipse(const Rect& outline_rect, IBrush* brush,
                                  float width) {
   CheckValidation();
-  auto cairo_brush = CheckPlatform<CairoBrush>(brush, GetPlatformIdUtf8());
+  auto cairo_brush = CheckPlatform<CairoBrush>(brush, GetPlatformId());
   auto cairo_pattern = cairo_brush->GetCairoPattern();
   cairo_save(cairo_);
   cairo_set_source(cairo_, cairo_pattern);
@@ -122,7 +122,7 @@ void CairoPainter::StrokeEllipse(const Rect& outline_rect, IBrush* brush,
 
 void CairoPainter::FillEllipse(const Rect& outline_rect, IBrush* brush) {
   CheckValidation();
-  auto cairo_brush = CheckPlatform<CairoBrush>(brush, GetPlatformIdUtf8());
+  auto cairo_brush = CheckPlatform<CairoBrush>(brush, GetPlatformId());
   auto cairo_pattern = cairo_brush->GetCairoPattern();
   cairo_save(cairo_);
   cairo_set_source(cairo_, cairo_pattern);
@@ -145,8 +145,8 @@ void CairoPainter::FillEllipse(const Rect& outline_rect, IBrush* brush) {
 void CairoPainter::StrokeGeometry(IGeometry* geometry, IBrush* brush,
                                   float width) {
   CheckValidation();
-  auto cairo_geometry = CheckPlatform<CairoGeometry>(geometry, GetPlatformIdUtf8());
-  auto cairo_brush = CheckPlatform<CairoBrush>(brush, GetPlatformIdUtf8());
+  auto cairo_geometry = CheckPlatform<CairoGeometry>(geometry, GetPlatformId());
+  auto cairo_brush = CheckPlatform<CairoBrush>(brush, GetPlatformId());
 
   auto cairo_path = cairo_geometry->GetCairoPath();
   auto cairo_pattern = cairo_brush->GetCairoPattern();
@@ -162,8 +162,8 @@ void CairoPainter::StrokeGeometry(IGeometry* geometry, IBrush* brush,
 
 void CairoPainter::FillGeometry(IGeometry* geometry, IBrush* brush) {
   CheckValidation();
-  auto cairo_geometry = CheckPlatform<CairoGeometry>(geometry, GetPlatformIdUtf8());
-  auto cairo_brush = CheckPlatform<CairoBrush>(brush, GetPlatformIdUtf8());
+  auto cairo_geometry = CheckPlatform<CairoGeometry>(geometry, GetPlatformId());
+  auto cairo_brush = CheckPlatform<CairoBrush>(brush, GetPlatformId());
 
   auto cairo_path = cairo_geometry->GetCairoPath();
   auto cairo_pattern = cairo_brush->GetCairoPattern();
@@ -181,9 +181,9 @@ void CairoPainter::DrawText(const Point& offset, ITextLayout* text_layout,
   CheckValidation();
 
   auto pango_text_layout =
-      CheckPlatform<PangoTextLayout>(text_layout, GetPlatformIdUtf8());
+      CheckPlatform<PangoTextLayout>(text_layout, GetPlatformId());
 
-  auto cairo_brush = CheckPlatform<CairoBrush>(brush, GetPlatformIdUtf8());
+  auto cairo_brush = CheckPlatform<CairoBrush>(brush, GetPlatformId());
   auto cairo_pattern = cairo_brush->GetCairoPattern();
 
   cairo_save(cairo_);
@@ -196,7 +196,7 @@ void CairoPainter::DrawText(const Point& offset, ITextLayout* text_layout,
 
 void CairoPainter::DrawImage(const Point& offset, IImage* image) {
   CheckValidation();
-  auto cairo_image = CheckPlatform<CairoImage>(image, GetPlatformIdUtf8());
+  auto cairo_image = CheckPlatform<CairoImage>(image, GetPlatformId());
   cairo_save(cairo_);
   cairo_set_source_surface(cairo_, cairo_image->GetCairoSurface(), 0, 0);
   cairo_new_path(cairo_);

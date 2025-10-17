@@ -1,4 +1,5 @@
 #include "ThicknessPropertyEditor.h"
+#include <format>
 #include "cru/base/Format.h"
 #include "cru/ui/mapper/MapperRegistry.h"
 #include "cru/ui/mapper/ThicknessMapper.h"
@@ -13,7 +14,7 @@ ThicknessPropertyEditor::ThicknessPropertyEditor() {
     auto thickness_mapper =
         ui::mapper::MapperRegistry::GetInstance()->GetMapper<ui::Thickness>();
     try {
-      auto thickness = thickness_mapper->MapFromString(text.ToUtf8());
+      auto thickness = thickness_mapper->MapFromString(text);
       thickness_ = thickness;
       is_text_valid_ = true;
       RaiseChangeEvent();
@@ -29,7 +30,7 @@ ThicknessPropertyEditor::~ThicknessPropertyEditor() {}
 void ThicknessPropertyEditor::SetValue(const ui::Thickness &thickness,
                                        bool trigger_change) {
   if (!trigger_change) SuppressNextChangeEvent();
-  text_.SetText(Format(u"{} {} {} {}", thickness.left, thickness.top,
-                       thickness.right, thickness.bottom));
+  text_.SetText(std::format("{} {} {} {}", thickness.left, thickness.top,
+                            thickness.right, thickness.bottom));
 }
 }  // namespace cru::theme_builder::components::properties

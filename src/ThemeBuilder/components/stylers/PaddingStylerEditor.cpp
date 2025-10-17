@@ -3,10 +3,10 @@
 
 namespace cru::theme_builder::components::stylers {
 PaddingStylerEditor::PaddingStylerEditor() {
-  SetLabel(u"Padding Styler");
+  SetLabel("Padding Styler");
   GetContainer()->AddChild(thickness_editor_.GetRootControl());
 
-  thickness_editor_.SetLabel(u"Thickness");
+  thickness_editor_.SetLabel("Thickness");
 
   ConnectChangeEvent(thickness_editor_);
 }

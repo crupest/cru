@@ -14,7 +14,7 @@ PopupMenuTextButton::PopupMenuTextButton() : popup_menu_(&button_) {
 
 PopupMenuTextButton::~PopupMenuTextButton() {}
 
-void PopupMenuTextButton::SetMenuItems(std::vector<String> items) {
+void PopupMenuTextButton::SetMenuItems(std::vector<std::string> items) {
   popup_menu_.GetMenu()->ClearItems();
   for (Index i = 0; i < items.size(); i++) {
     popup_menu_.GetMenu()->AddTextItem(
@@ -31,7 +31,7 @@ PopupMenuIconButton::PopupMenuIconButton() : popup_menu_(&button_) {
 
 PopupMenuIconButton::~PopupMenuIconButton() {}
 
-void PopupMenuIconButton::SetMenuItems(std::vector<String> items) {
+void PopupMenuIconButton::SetMenuItems(std::vector<std::string> items) {
   popup_menu_.GetMenu()->ClearItems();
   for (Index i = 0; i < items.size(); i++) {
     popup_menu_.GetMenu()->AddTextItem(

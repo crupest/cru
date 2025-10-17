@@ -5,17 +5,17 @@
 namespace cru::ui::components {
 struct CRU_UI_API InputValidateResult {
   bool valid;
-  String message;
+  std::string message;
 };
 
 struct CRU_UI_API IInputValidator : public virtual Interface {
-  virtual InputValidateResult Validate(StringView text) const = 0;
+  virtual InputValidateResult Validate(std::string_view text) const = 0;
 };
 
 struct CRU_UI_API InputChangeEventArgs {
-  String text;
+  std::string text;
   bool valid;
-  String message;
+  std::string message;
 };
 
 class CRU_UI_API Input : public Component {
@@ -26,8 +26,8 @@ class CRU_UI_API Input : public Component {
  public:
   controls::Control* GetRootControl() override;
 
-  String GetText() const;
-  void SetText(String text);
+  std::string GetText() const;
+  void SetText(std::string text);
 
   IInputValidator* GetValidator() const;
   void SetValidator(IInputValidator* validator);
@@ -48,7 +48,7 @@ class CRU_UI_API Input : public Component {
 class CRU_UI_API FloatInputValidator : public Object,
                                        public virtual IInputValidator {
  public:
-  InputValidateResult Validate(StringView text) const override;
+  InputValidateResult Validate(std::string_view text) const override;
 
   std::optional<float> min;
   std::optional<float> max;

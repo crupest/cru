@@ -1,14 +1,9 @@
 #include "cru/ui/ThemeManager.h"
 
-#include "Helper.h"
-#include "cru/base/StringUtil.h"
 #include "cru/base/io/Resource.h"
 #include "cru/platform/graphics/Brush.h"
-#include "cru/platform/graphics/Factory.h"
-#include "cru/platform/gui/UiApplication.h"
 #include "cru/ui/ThemeResourceDictionary.h"
 #include "cru/ui/style/StyleRuleSet.h"
-#include "cru/xml/XmlParser.h"
 
 namespace cru::ui {
 ThemeManager* ThemeManager::GetInstance() {
@@ -48,22 +43,22 @@ void ThemeManager::PrependThemeResourceDictionary(
   theme_resource_change_event_.Raise(nullptr);
 }
 
-String ThemeManager::GetResourceString(const String& key) {
-  return GetResource<String>(key);
+std::string ThemeManager::GetResourceString(std::string_view key) {
+  return GetResource<String>(key).ToUtf8();
 }
 
 std::shared_ptr<platform::graphics::IBrush> ThemeManager::GetResourceBrush(
-    const String& key) {
+    std::string_view key) {
   return GetResource<std::shared_ptr<platform::graphics::IBrush>>(key);
 }
 
 std::shared_ptr<platform::graphics::IFont> ThemeManager::GetResourceFont(
-    const String& key) {
+    std::string_view key) {
   return GetResource<std::shared_ptr<platform::graphics::IFont>>(key);
 }
 
 std::shared_ptr<style::StyleRuleSet> ThemeManager::GetResourceStyleRuleSet(
-    const String& key) {
+    std::string_view key) {
   return GetResource<std::shared_ptr<style::StyleRuleSet>>(key);
 }
 }  // namespace cru::ui

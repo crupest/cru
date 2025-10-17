@@ -1,5 +1,7 @@
 #include "cru/ui/mapper/PointMapper.h"
 
+#include <cru/base/String.h>
+
 namespace cru::ui::mapper {
 bool PointMapper::XmlElementIsOfThisType(xml::XmlElementNode* node) {
   return cru::string::CaseInsensitiveCompare(node->GetTag(), "Point") == 0;

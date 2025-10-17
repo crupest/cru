@@ -11,6 +11,8 @@
 #include "cru/platform/gui/UiApplication.h"
 #include "cru/platform/gui/Window.h"
 
+#include <string>
+
 using namespace cru;
 using namespace cru::platform;
 using namespace cru::platform::graphics;
@@ -33,7 +35,7 @@ class DemoWindow {
   std::unique_ptr<INativeWindow> window_;
   std::unique_ptr<ITextLayout> prompt_text_layout_;
   std::unique_ptr<ITextLayout> committed_text_layout_;
-  String committed_text_;
+  std::string committed_text_;
   CompositionText composition_text_;
 };
 
@@ -47,11 +49,11 @@ DemoWindow::DemoWindow(IUiApplication* application, DemoBrushes* brushes,
 
   prompt_text_layout_ =
       graphics_factory->CreateTextLayout(font,
-                                         u"Ctrl+1: Enable IME\n"
-                                         u"Ctrl+2: Disable IME\n"
-                                         u"Ctrl+3: Complete composition.\n"
-                                         u"Ctrl+4: Cancel composition.");
-  committed_text_layout_ = graphics_factory->CreateTextLayout(font, u"");
+                                         "Ctrl+1: Enable IME\n"
+                                         "Ctrl+2: Disable IME\n"
+                                         "Ctrl+3: Complete composition.\n"
+                                         "Ctrl+4: Cancel composition.");
+  committed_text_layout_ = graphics_factory->CreateTextLayout(font, "");
 
   auto update_text_layout_width = [this](const Size& size) {
     prompt_text_layout_->SetMaxWidth(size.width);
@@ -102,7 +104,7 @@ DemoWindow::DemoWindow(IUiApplication* application, DemoBrushes* brushes,
 
   window_->KeyDownEvent()->AddHandler([this](const NativeKeyEventArgs& args) {
     auto input_method_context = window_->GetInputMethodContext();
-    if (args.modifier & KeyModifiers::ctrl) {
+    if (args.modifier & KeyModifiers::Ctrl) {
       switch (args.key) {
         case KeyCode::N1:
           input_method_context->EnableIME();
@@ -136,7 +138,7 @@ DemoWindow::DemoWindow(IUiApplication* application, DemoBrushes* brushes,
   };
 
   input_method_context->TextEvent()->AddHandler(
-      [this, update_state](const StringView& c) {
+      [this, update_state](const std::string& c) {
         committed_text_ += c;
         update_state();
       });
@@ -168,7 +170,7 @@ int main() {
                       graphics_factory->CreateSolidColorBrush(colors::green),
                       graphics_factory->CreateSolidColorBrush(colors::blue)};
 
-  std::shared_ptr<IFont> font = graphics_factory->CreateFont(String{}, 30);
+  std::shared_ptr<IFont> font = graphics_factory->CreateFont({}, 30);
 
   DemoWindow window1(application, &brushes, font);
   DemoWindow window2(application, &brushes, font);

@@ -89,18 +89,17 @@ void ShortcutHub::OnKeyDown(events::KeyEventArgs& event) {
 
   if constexpr (debug_flags::shortcut) {
     if (shortcut_list.empty()) {
-      CRU_LOG_TAG_DEBUG("No shortcut for key bind {}.",
-                        key_bind.ToString().ToUtf8());
+      CRU_LOG_TAG_DEBUG("No shortcut for key bind {}.", key_bind.ToString());
     }
     CRU_LOG_TAG_DEBUG("Begin to handle shortcut for key bind {}.",
-                      key_bind.ToString().ToUtf8());
+                      key_bind.ToString());
   }
 
   for (const auto& shortcut : shortcut_list) {
     auto is_handled = shortcut.handler();
     if (is_handled) {
       if constexpr (debug_flags::shortcut) {
-        CRU_LOG_TAG_DEBUG("Handle {} handled it.", shortcut.name.ToUtf8());
+        CRU_LOG_TAG_DEBUG("Handle {} handled it.", shortcut.name);
       }
 
       handled = true;
@@ -109,8 +108,7 @@ void ShortcutHub::OnKeyDown(events::KeyEventArgs& event) {
       break;
     } else {
       if constexpr (debug_flags::shortcut) {
-        CRU_LOG_TAG_DEBUG("Handle {} didn't handle it.",
-                          shortcut.name.ToUtf8());
+        CRU_LOG_TAG_DEBUG("Handle {} didn't handle it.", shortcut.name);
       }
     }
   }
@@ -118,7 +116,7 @@ void ShortcutHub::OnKeyDown(events::KeyEventArgs& event) {
   if constexpr (debug_flags::shortcut) {
     if (!shortcut_list.empty()) {
       CRU_LOG_TAG_DEBUG("End handling shortcut for key bind {}.",
-                        key_bind.ToString().ToUtf8());
+                        key_bind.ToString());
     }
   }
 
@@ -126,7 +124,7 @@ void ShortcutHub::OnKeyDown(events::KeyEventArgs& event) {
     if constexpr (debug_flags::shortcut) {
       CRU_LOG_TAG_DEBUG(
           "Raise fallback event for unhandled shortcut of key bind {}.",
-          key_bind.ToString().ToUtf8());
+          key_bind.ToString());
     }
     fallback_event_.Raise(event);
   }

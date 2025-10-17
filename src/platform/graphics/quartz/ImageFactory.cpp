@@ -49,7 +49,7 @@ void QuartzImageFactory::EncodeToStream(IImage* image, io::Stream* stream,
     throw Exception("Invalid quality value.");
   }
 
-  auto quartz_image = CheckPlatform<QuartzImage>(image, GetPlatformIdUtf8());
+  auto quartz_image = CheckPlatform<QuartzImage>(image, GetPlatformId());
   auto cg_image = quartz_image->GetCGImage();
 
   auto uti = ToCFString(GetImageFormatUniformTypeIdentifier(format));

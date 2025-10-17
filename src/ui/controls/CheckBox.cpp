@@ -11,7 +11,7 @@ CheckBox::CheckBox()
 
   container_render_object_->SetBorderEnabled(true);
   auto default_checkbox_style =
-      ThemeManager::GetInstance()->GetResourceStyleRuleSet(u"checkbox.style");
+      ThemeManager::GetInstance()->GetResourceStyleRuleSet("checkbox.style");
   GetStyleRuleSet()->SetParent(std::move(default_checkbox_style));
 
   click_detector_.ClickEvent()->AddHandler(

@@ -1,8 +1,8 @@
 #pragma once
-#include "../Color.h"
-#include "../GraphicsBase.h"
-#include "../Matrix.h"
-#include "../Resource.h"
+#include <cru/platform/Base.h>          // IWYU pragma: export
+#include <cru/platform/Color.h>         // IWYU pragma: export
+#include <cru/platform/GraphicsBase.h>  // IWYU pragma: export
+#include <cru/platform/Matrix.h>        // IWYU pragma: export
 
 #ifdef CRU_IS_DLL
 #ifdef CRU_PLATFORM_GRAPHICS_EXPORT_API

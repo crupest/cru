@@ -212,7 +212,7 @@ std::unique_ptr<IImage> CairoImageFactory::DecodeFromStream(
 
 void CairoImageFactory::EncodeToStream(IImage* image, io::Stream* stream,
                                        ImageFormat format, float quality) {
-  auto cairo_image = CheckPlatform<CairoImage>(image, GetPlatformIdUtf8());
+  auto cairo_image = CheckPlatform<CairoImage>(image, GetPlatformId());
 
   if (format == ImageFormat::Png) {
     EncodePng(cairo_image->GetCairoSurface(), stream);

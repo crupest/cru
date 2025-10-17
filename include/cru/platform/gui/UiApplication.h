@@ -1,17 +1,20 @@
 #pragma once
 #include "Base.h"
-
-#include "cru/base/Bitmask.h"
-#include "cru/platform/gui/Menu.h"
-
+#include "Menu.h"
 #include "SaveOpenDialogOptions.h"
+
+#include <cru/platform/graphics/Factory.h>
 
 #include <chrono>
 #include <functional>
-#include <memory>
 #include <vector>
 
 namespace cru::platform::gui {
+struct ICursorManager;
+struct INativeWindow;
+struct IInputMethodContext;
+struct IClipboard;
+
 // The entry point of a ui application.
 struct CRU_PLATFORM_GUI_API IUiApplication : public virtual IPlatformResource {
  public:
@@ -63,12 +66,12 @@ struct CRU_PLATFORM_GUI_API IUiApplication : public virtual IPlatformResource {
   /**
    * \todo Implement on Windows/X11.
    */
-  virtual std::optional<String> ShowSaveDialog(SaveDialogOptions options);
+  virtual std::optional<std::string> ShowSaveDialog(SaveDialogOptions options);
 
   /**
    * \todo Implement on Windows/X11.
    */
-  virtual std::optional<std::vector<String>> ShowOpenDialog(
+  virtual std::optional<std::vector<std::string>> ShowOpenDialog(
       OpenDialogOptions options);
 };
 }  // namespace cru::platform::gui

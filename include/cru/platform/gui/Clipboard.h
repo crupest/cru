@@ -3,7 +3,7 @@
 
 namespace cru::platform::gui {
 struct IClipboard : virtual IPlatformResource {
-  virtual String GetText() = 0;
-  virtual void SetText(String text) = 0;
+  virtual std::string GetText() = 0;
+  virtual void SetText(std::string text) = 0;
 };
 }  // namespace cru::platform::gui

@@ -10,11 +10,11 @@ PointPropertyEditor::PointPropertyEditor() {
   container_.AddChild(&text_);
 
   text_.TextChangeEvent()->AddHandler([this](std::nullptr_t) {
-    auto text = text_.GetTextView();
+    auto text = text_.GetText();
     auto point_mapper =
         ui::mapper::MapperRegistry::GetInstance()->GetMapper<ui::Point>();
     try {
-      auto point = point_mapper->MapFromString(text.ToString().ToUtf8());
+      auto point = point_mapper->MapFromString(text);
       point_ = point;
       is_text_valid_ = true;
       RaiseChangeEvent();
@@ -33,7 +33,7 @@ void PointPropertyEditor::SetValue(const ui::Point& point,
   text_.SetText(ConvertPointToString(point));
 }
 
-String PointPropertyEditor::ConvertPointToString(const ui::Point& point) {
-  return String::FromUtf8(std::format("{} {}", point.x, point.y));
+std::string PointPropertyEditor::ConvertPointToString(const ui::Point& point) {
+  return std::format("{} {}", point.x, point.y);
 }
 }  // namespace cru::theme_builder::components::properties

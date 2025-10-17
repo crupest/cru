@@ -37,9 +37,9 @@ class CRU_UI_API TextBox : public NoChildControl,
 
   void ApplyBorderStyle(const style::ApplyBorderStyleInfo& style) override;
 
-  String GetText() const { return service_->GetText(); }
-  StringView GetTextView() const { return service_->GetTextView(); }
-  void SetText(String text) { service_->SetText(std::move(text)); }
+  std::string GetText() const { return service_->GetText(); }
+  std::string_view GetTextView() const { return service_->GetTextView(); }
+  void SetText(std::string text) { service_->SetText(std::move(text)); }
 
   IEvent<std::nullptr_t>* TextChangeEvent() {
     return service_->TextChangeEvent();

@@ -1,5 +1,6 @@
 #include "cru/platform/gui/UiApplication.h"
 
+#include "cru/base/Base.h"
 #include "cru/base/Exception.h"
 
 namespace cru::platform::gui {
@@ -22,13 +23,13 @@ IUiApplication::~IUiApplication() { instance = nullptr; }
 
 IMenu* IUiApplication::GetApplicationMenu() { return nullptr; }
 
-std::optional<String> IUiApplication::ShowSaveDialog(
+std::optional<std::string> IUiApplication::ShowSaveDialog(
     SaveDialogOptions options) {
-  throw Exception("Not implemented.");
+  NotImplemented();
 }
 
-std::optional<std::vector<String>> IUiApplication::ShowOpenDialog(
+std::optional<std::vector<std::string>> IUiApplication::ShowOpenDialog(
     OpenDialogOptions options) {
-  throw Exception("Not implemented.");
+  NotImplemented();
 }
 }  // namespace cru::platform::gui

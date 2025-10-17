@@ -4,7 +4,7 @@
 #include "../events/KeyEventArgs.h"
 #include "cru/base/Base.h"
 #include "cru/base/Event.h"
-#include "cru/platform/gui/Keyboard.h"
+#include <cru/platform/gui/Input.h>
 
 #include <cstddef>
 #include <functional>
@@ -18,7 +18,7 @@ class ShortcutKeyBind {
  public:
   ShortcutKeyBind(
       platform::gui::KeyCode key,
-      platform::gui::KeyModifier modifier = platform::gui::KeyModifiers::none)
+      platform::gui::KeyModifier modifier = platform::gui::KeyModifiers::None)
       : key_(key), modifier_(modifier) {}
 
   CRU_DEFAULT_COPY(ShortcutKeyBind)
@@ -46,10 +46,10 @@ class ShortcutKeyBind {
     return !this->operator==(other);
   }
 
-  String ToString() const {
-    String result = u"(";
+  std::string ToString() const {
+    std::string result = "(";
     result += platform::gui::ToString(modifier_);
-    result += u")";
+    result += ")";
     result += platform::gui::ToString(key_);
     return result;
   }
@@ -59,7 +59,7 @@ class ShortcutKeyBind {
   platform::gui::KeyModifier modifier_;
 };
 
-inline String ToString(const ShortcutKeyBind& key_bind) {
+inline std::string ToString(const ShortcutKeyBind& key_bind) {
   return key_bind.ToString();
 }
 }  // namespace cru::ui::helper
@@ -79,7 +79,7 @@ struct hash<cru::ui::helper::ShortcutKeyBind> {
 namespace cru::ui::helper {
 struct Shortcut {
   // Just for debug.
-  String name;
+  std::string name;
   ShortcutKeyBind key_bind;
   // Return true if it consumes the shortcut. Or return false if it does not
   // handle the shortcut.
@@ -88,7 +88,7 @@ struct Shortcut {
 
 struct ShortcutInfo {
   int id;
-  String name;
+  std::string name;
   ShortcutKeyBind key_bind;
   std::function<bool()> handler;
 };
@@ -103,7 +103,7 @@ class CRU_UI_API ShortcutHub : public Object {
 
   ~ShortcutHub() override = default;
 
-  int RegisterShortcut(String name, ShortcutKeyBind bind,
+  int RegisterShortcut(std::string name, ShortcutKeyBind bind,
                        std::function<bool()> handler) {
     return RegisterShortcut({std::move(name), bind, std::move(handler)});
   }

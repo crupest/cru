@@ -1,12 +1,15 @@
 #pragma once
 #include "Base.h"
 
+#include <string>
+#include <vector>
+
 namespace cru::platform::gui {
 struct CRU_PLATFORM_GUI_API SaveDialogOptions {
-  String title;
-  String prompt;
-  String message;
-  std::vector<String> allowed_file_types;
+  std::string title;
+  std::string prompt;
+  std::string message;
+  std::vector<std::string> allowed_file_types;
   bool allow_all_file_types = false;
 };
 
@@ -20,29 +23,29 @@ template <typename T>
 struct CRU_PLATFORM_GUI_API SaveDialogOptionsBuilderTemplate {
   T options;
 
-  SaveDialogOptionsBuilderTemplate& SetTitle(String title) {
+  SaveDialogOptionsBuilderTemplate& SetTitle(std::string title) {
     options.title = std::move(title);
     return *this;
   }
 
-  SaveDialogOptionsBuilderTemplate& SetPrompt(String prompt) {
+  SaveDialogOptionsBuilderTemplate& SetPrompt(std::string prompt) {
     options.prompt = std::move(prompt);
     return *this;
   }
 
-  SaveDialogOptionsBuilderTemplate& SetMessage(String message) {
+  SaveDialogOptionsBuilderTemplate& SetMessage(std::string message) {
     options.message = std::move(message);
     return *this;
   }
 
   SaveDialogOptionsBuilderTemplate& SetAllowedFileTypes(
-      std::vector<String> allowed_file_types) {
+      std::vector<std::string> allowed_file_types) {
     options.allowed_file_types = std::move(allowed_file_types);
     return *this;
   }
 
   SaveDialogOptionsBuilderTemplate& AddAllowedFileType(
-      String allowed_file_type) {
+      std::string allowed_file_type) {
     options.allowed_file_types.push_back(allowed_file_type);
     return *this;
   }

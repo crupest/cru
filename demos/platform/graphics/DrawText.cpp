@@ -14,8 +14,8 @@ int main() {
       demo.GetFactory()->CreateSolidColorBrush(cru::platform::colors::skyblue);
 
   std::shared_ptr<cru::platform::graphics::IFont> font(
-      demo.GetFactory()->CreateFont(u"", 24));
-  auto text_layout = demo.GetFactory()->CreateTextLayout(font, u"Hello world!");
+      demo.GetFactory()->CreateFont("", 24));
+  auto text_layout = demo.GetFactory()->CreateTextLayout(font, "Hello world!");
   demo.GetPainter()->DrawText({0, 0}, text_layout.get(), brush.get());
 
   auto bounds = text_layout->GetTextBounds();

@@ -1,5 +1,7 @@
 #include "cru/ui/mapper/ColorMapper.h"
 
+#include <cru/base/String.h>
+
 namespace cru::ui::mapper {
 bool ColorMapper::XmlElementIsOfThisType(xml::XmlElementNode* node) {
   return cru::string::CaseInsensitiveCompare(node->GetTag(), "Color") == 0;

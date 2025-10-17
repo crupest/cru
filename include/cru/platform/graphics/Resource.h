@@ -1,6 +1,8 @@
 #pragma once
 #include "Base.h"
 
+#include <cru/platform/Resource.h>
+
 namespace cru::platform::graphics {
 struct IGraphicsFactory;
 

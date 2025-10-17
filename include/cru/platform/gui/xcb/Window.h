@@ -1,10 +1,9 @@
 
 #pragma once
-#include <cru/base/Base.h>
-#include "../../GraphicsBase.h"
-#include "../TimerHelper.h"
-#include "../Window.h"
 #include "Base.h"
+
+#include <cru/platform/gui/TimerHelper.h>
+#include <cru/platform/gui/Window.h>
 
 #include <cairo.h>
 #include <xcb/xcb.h>
@@ -34,8 +33,8 @@ class XcbWindow : public XcbResource, public virtual INativeWindow {
   WindowStyleFlag GetStyleFlag() override;
   void SetStyleFlag(WindowStyleFlag flag) override;
 
-  String GetTitle() override;
-  void SetTitle(String title) override;
+  std::string GetTitle() override;
+  void SetTitle(std::string title) override;
 
   WindowVisibilityType GetVisibility() override;
   void SetVisibility(WindowVisibilityType visibility) override;

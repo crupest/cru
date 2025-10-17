@@ -48,10 +48,10 @@ class TextControlMovePattern : public Object {
   static std::vector<TextControlMovePattern> kDefaultPatterns;
 
   using MoveFunction =
-      std::function<Index(TextHostControlService* service, StringView text,
-                          Index current_position)>;
+      std::function<Index(TextHostControlService* service,
+                          std::string_view text, Index current_position)>;
 
-  TextControlMovePattern(String name, helper::ShortcutKeyBind key_bind,
+  TextControlMovePattern(std::string name, helper::ShortcutKeyBind key_bind,
                          MoveFunction move_function)
       : name_(std::move(name)),
         key_bind_(key_bind),
@@ -63,15 +63,15 @@ class TextControlMovePattern : public Object {
   ~TextControlMovePattern() override = default;
 
  public:
-  String GetName() const { return name_; }
+  std::string GetName() const { return name_; }
   helper::ShortcutKeyBind GetKeyBind() const { return key_bind_; }
-  Index Move(TextHostControlService* service, StringView text,
+  Index Move(TextHostControlService* service, std::string_view text,
              Index current_position) const {
     return move_function_(service, text, current_position);
   }
 
  private:
-  String name_;
+  std::string name_;
   helper::ShortcutKeyBind key_bind_;
   MoveFunction move_function_;
 };
@@ -101,11 +101,11 @@ class CRU_UI_API TextHostControlService : public Object {
   // If text contains line feed characters, it will be converted to space.
   void SetMultiLine(bool multi_line);
 
-  String GetText() { return this->text_; }
-  StringView GetTextView() { return this->text_; }
-  void SetText(String text, bool stop_composition = false);
+  std::string GetText() { return this->text_; }
+  std::string_view GetTextView() { return this->text_; }
+  void SetText(std::string text, bool stop_composition = false);
 
-  void InsertText(Index position, StringView text,
+  void InsertText(Index position, std::string_view text,
                   bool stop_composition = false);
   void DeleteChar(Index position, bool stop_composition = false);
 
@@ -126,7 +126,7 @@ class CRU_UI_API TextHostControlService : public Object {
   Index GetCaretPosition() { return selection_.GetEnd(); }
   TextRange GetSelection() { return selection_; }
 
-  StringView GetSelectedText();
+  std::string_view GetSelectedText();
 
   void SetSelection(Index caret_position);
   void SetSelection(TextRange selection, bool scroll_to_caret = true);
@@ -139,7 +139,7 @@ class CRU_UI_API TextHostControlService : public Object {
   void DeleteSelectedText();
   // If some text is selected, then they are deleted first. Then insert text
   // into caret position.
-  void ReplaceSelectedText(StringView text);
+  void ReplaceSelectedText(std::string_view text);
 
   void ScrollToCaret();
 
@@ -199,7 +199,7 @@ class CRU_UI_API TextHostControlService : public Object {
   EventRevokerListGuard event_guard_;
   EventRevokerListGuard input_method_context_event_guard_;
 
-  String text_;
+  std::string text_;
   TextRange selection_;
 
   bool enable_ = false;

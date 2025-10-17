@@ -1,19 +1,19 @@
 #pragma once
 
 #include <cru/base/Exception.h>
-
-#include "../../Resource.h"
+#include <cru/platform/Resource.h>
+#include <cru/platform/gui/Base.h>
 
 namespace cru::platform::gui::xcb {
 class XcbResource : public Object, public virtual IPlatformResource {
  public:
-  static constexpr const char16_t* kPlatformId = u"XCB";
+  static constexpr const char* kPlatformId = "XCB";
 
  protected:
   XcbResource() = default;
 
  public:
-  String GetPlatformId() const final { return String(kPlatformId); }
+  std::string GetPlatformId() const final { return std::string(kPlatformId); }
 };
 
 class XcbException : public PlatformException {

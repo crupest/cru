@@ -1,6 +1,8 @@
 #pragma once
 #include "Mapper.h"
 
+#include <cru/base/String.h>
+
 namespace cru::ui::mapper {
 class CRU_UI_API StringMapper : public BasicMapper<String> {
  public:

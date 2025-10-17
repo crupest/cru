@@ -23,8 +23,8 @@ StyleRuleSetEditor::StyleRuleSetEditor() {
 
   add_button_.GetStyleRuleSet()->SetParent(
       ui::ThemeManager::GetInstance()->GetResourceStyleRuleSet(
-          u"cru.theme_builder.icon-button.style"));
-  add_button_.SetIconWithSvgPathDataStringResourceKey(u"icon.plus",
+          "cru.theme_builder.icon-button.style"));
+  add_button_.SetIconWithSvgPathDataStringResourceKey("icon.plus",
                                                       {0, 0, 16, 16});
   add_button_.SetPreferredSize({24, 24});
   add_button_.SetPadding(ui::Thickness(2));

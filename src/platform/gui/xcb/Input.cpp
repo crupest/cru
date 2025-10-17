@@ -1,7 +1,6 @@
-#include "cru/platform/gui/xcb/Keyboard.h"
+#include "cru/platform/gui/xcb/Input.h"
 #include "cru/base/Exception.h"
 #include "cru/base/Guard.h"
-#include "cru/platform/gui/Keyboard.h"
 #include "cru/platform/gui/xcb/UiApplication.h"
 
 #include <xcb/xcb.h>
@@ -200,11 +199,11 @@ KeyModifier ConvertModifiersOfEvent(uint32_t mask) {
   //     "Shift", "Lock",    "Ctrl",    "Alt",     "Mod2",    "Mod3",   "Mod4",
   //     "Mod5",  "Button1", "Button2", "Button3", "Button4", "Button5"};
   constexpr KeyModifier MODIFIERS[] = {
-      KeyModifiers::Shift, KeyModifiers::none, KeyModifiers::Ctrl,
-      KeyModifiers::Alt,   KeyModifiers::none, KeyModifiers::none,
-      KeyModifiers::none,  KeyModifiers::none, KeyModifiers::none,
-      KeyModifiers::none,  KeyModifiers::none, KeyModifiers::none,
-      KeyModifiers::none,
+      KeyModifiers::Shift, KeyModifiers::None, KeyModifiers::Ctrl,
+      KeyModifiers::Alt,   KeyModifiers::None, KeyModifiers::None,
+      KeyModifiers::None,  KeyModifiers::None, KeyModifiers::None,
+      KeyModifiers::None,  KeyModifiers::None, KeyModifiers::None,
+      KeyModifiers::None,
   };
 
   KeyModifier result;

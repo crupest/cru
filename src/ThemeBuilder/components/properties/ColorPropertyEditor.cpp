@@ -12,7 +12,7 @@ ColorPropertyEditor::ColorPropertyEditor() {
   color_cube_.SetBorderEnabled(true);
   color_cube_.GetStyleRuleSet()->SetParent(
       ui::ThemeManager::GetInstance()->GetResourceStyleRuleSet(
-          u"cru.theme_builder.color_cube.style"));
+          "cru.theme_builder.color_cube.style"));
 
   color_cube_brush_ = platform::gui::IUiApplication::GetInstance()
                           ->GetGraphicsFactory()
@@ -20,12 +20,12 @@ ColorPropertyEditor::ColorPropertyEditor() {
 
   color_cube_.SetForegroundBrush(color_cube_brush_);
 
-  color_text_.SetText(String::FromUtf8(color_.ToString()));
+  color_text_.SetText(color_.ToString());
   color_text_.SetMargin(ui::Thickness(10, 0, 0, 0));
 
   color_text_.TextChangeEvent()->AddHandler([this](std::nullptr_t) {
     auto text = color_text_.GetTextView();
-    auto color = ui::Color::Parse(text.ToUtf8());
+    auto color = ui::Color::Parse(text);
     if (color) {
       color_ = *color;
       color_cube_brush_->SetColor(*color);
@@ -43,6 +43,6 @@ ColorPropertyEditor::~ColorPropertyEditor() {}
 void ColorPropertyEditor::SetValue(const ui::Color &color,
                                    bool trigger_change) {
   if (!trigger_change) SuppressNextChangeEvent();
-  color_text_.SetText(String::FromUtf8(color.ToString()));
+  color_text_.SetText(color.ToString());
 }
 }  // namespace cru::theme_builder::components::properties

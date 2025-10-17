@@ -1,13 +1,12 @@
 #include "cru/platform/gui/xcb/UiApplication.h"
 
-#include "cru/base/Base.h"
 #include "cru/base/Guard.h"
 #include "cru/platform/graphics/cairo/CairoGraphicsFactory.h"
 #include "cru/platform/gui/Window.h"
 #include "cru/platform/gui/xcb/Clipboard.h"
 #include "cru/platform/gui/xcb/Cursor.h"
+#include "cru/platform/gui/xcb/Input.h"
 #include "cru/platform/gui/xcb/InputMethod.h"
-#include "cru/platform/gui/xcb/Keyboard.h"
 #include "cru/platform/gui/xcb/Window.h"
 
 #include <poll.h>

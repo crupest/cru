@@ -12,16 +12,16 @@ class TextPropertyEditor : public ui::components::Component {
 
   ui::controls::Control* GetRootControl() override { return &container_; }
 
-  String GetLabel() const { return label_.GetText(); }
-  void SetLabel(String label) { label_.SetText(std::move(label)); }
+  std::string GetLabel() const { return label_.GetText(); }
+  void SetLabel(std::string label) { label_.SetText(std::move(label)); }
 
-  String GetText() const { return editor_.GetText(); }
-  StringView GetTextView() const { return editor_.GetTextView(); }
-  void SetText(String text) { editor_.SetText(std::move(text)); }
+  std::string GetText() const { return editor_.GetText(); }
+  std::string_view GetTextView() const { return editor_.GetTextView(); }
+  void SetText(std::string text) { editor_.SetText(std::move(text)); }
 
  protected:
-  virtual bool Validate(StringView text, String* error_message);
-  virtual void OnTextChanged(StringView text);
+  virtual bool Validate(std::string_view text, std::string* error_message);
+  virtual void OnTextChanged(std::string_view text);
 
  private:
   ui::controls::FlexLayout container_;

@@ -269,4 +269,28 @@ Utf8CodePointIterator CRU_BASE_API CreateUtf8Iterator(const std::byte* buffer,
 Utf8CodePointIterator CRU_BASE_API
 CreateUtf8Iterator(const std::vector<std::byte>& buffer);
 
+CodePoint CRU_BASE_API Utf8NextCodePoint(std::string_view str, Index current,
+                                         Index* next_position);
+CodePoint CRU_BASE_API Utf8PreviousCodePoint(std::string_view str,
+                                             Index current,
+                                             Index* next_position);
+// Return position after the character making predicate returns true or 0 if no
+// character doing so.
+Index CRU_BASE_API
+Utf8BackwardUntil(std::string_view str, Index position,
+                  const std::function<bool(CodePoint)>& predicate);
+// Return position before the character making predicate returns true or
+// str.size() if no character doing so.
+Index CRU_BASE_API
+Utf8ForwardUntil(std::string_view str, Index position,
+                 const std::function<bool(CodePoint)>& predicate);
+
+bool CRU_BASE_API Utf8IsValidInsertPosition(std::string_view str,
+                                            Index position);
+
+Index CRU_BASE_API Utf8PreviousWord(std::string_view str, Index position,
+                                    bool* is_space = nullptr);
+Index CRU_BASE_API Utf8NextWord(std::string_view str, Index position,
+                                bool* is_space = nullptr);
+
 }  // namespace cru

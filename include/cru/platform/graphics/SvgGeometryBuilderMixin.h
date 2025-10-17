@@ -45,25 +45,24 @@ class CRU_PLATFORM_GRAPHICS_API SvgGeometryBuilderMixin
 
   void CloseFigure(bool close) override;
 
-  void ParseAndApplySvgPathData(StringView path_d) override;
+  void ParseAndApplySvgPathData(std::string_view path_d) override;
 
  protected:
-  String GetPathData() const { return current_; }
+  std::string GetPathData() const { return current_; }
 
  private:
   template <typename... Args>
-  void Append(StringView format, Args&&... args) {
-    current_ += String::FromUtf8(
-        std::format(format.ToUtf8(), std::forward<Args>(args)...));
-    current_ += u' ';
+  void Append(std::string_view format, Args&&... args) {
+    current_ += std::format(format, std::forward<Args>(args)...);
+    current_ += ' ';
   }
 
-  void AppendCommand(StringView command);
+  void AppendCommand(std::string_view command);
   void Append(bool flag);
   void Append(float number);
   void Append(const Point& point);
 
  private:
-  String current_;
+  std::string current_;
 };
 }  // namespace cru::platform::graphics

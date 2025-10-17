@@ -28,8 +28,8 @@ class OptionalPropertyEditor : public Editor {
 
   ui::controls::Control* GetRootControl() override { return &container_; }
 
-  String GetLabel() const { return label_.GetText(); }
-  void SetLabel(String label) { label_.SetText(std::move(label)); }
+  std::string GetLabel() const { return label_.GetText(); }
+  void SetLabel(std::string label) { label_.SetText(std::move(label)); }
 
   bool IsEnabled() const { return check_box_.IsChecked(); }
   void SetEnabled(bool enabled, bool trigger_change = true) {

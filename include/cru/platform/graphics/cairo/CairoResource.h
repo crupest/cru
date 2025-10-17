@@ -17,7 +17,7 @@ class CRU_PLATFORM_GRAPHICS_CAIRO_API CairoResource
 
   ~CairoResource() override;
 
-  String GetPlatformId() const override;
+  std::string GetPlatformId() const override;
   IGraphicsFactory* GetGraphicsFactory() override;
   CairoGraphicsFactory* GetCairoGraphicsFactory() const { return factory_; }
 

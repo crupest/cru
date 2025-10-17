@@ -17,10 +17,10 @@ IconButton::IconButton()
   container_render_object_->SetBorderEnabled(true);
   GetStyleRuleSet()->SetParent(
       ThemeManager::GetInstance()->GetResourceStyleRuleSet(
-          u"icon-button.style"));
+          "icon-button.style"));
 }
 
-IconButton::IconButton(StringView icon_svg_path_data_string,
+IconButton::IconButton(std::string_view icon_svg_path_data_string,
                        const Rect& view_port)
     : IconButton() {
   SetIconWithSvgPathDataString(icon_svg_path_data_string, view_port);
@@ -33,18 +33,18 @@ void IconButton::SetIconFillColor(const Color& color) {
 }
 
 void IconButton::SetIconWithSvgPathDataString(
-    StringView icon_svg_path_data_string, const Rect& view_port) {
+    std::string_view icon_svg_path_data_string, const Rect& view_port) {
   SetIconGeometry(platform::graphics::CreateGeometryFromSvgPathData(
                       GetGraphicsFactory(), icon_svg_path_data_string),
                   view_port);
 }
 
 void IconButton::SetIconWithSvgPathDataStringResourceKey(
-    StringView icon_svg_path_data_string_resource_key, const Rect& view_port) {
-  SetIconWithSvgPathDataString(
-      ThemeManager::GetInstance()->GetResourceString(
-          icon_svg_path_data_string_resource_key.ToString()),
-      view_port);
+    std::string_view icon_svg_path_data_string_resource_key,
+    const Rect& view_port) {
+  SetIconWithSvgPathDataString(ThemeManager::GetInstance()->GetResourceString(
+                                   icon_svg_path_data_string_resource_key),
+                               view_port);
 }
 
 }  // namespace cru::ui::controls

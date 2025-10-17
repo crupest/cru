@@ -14,7 +14,7 @@
 namespace cru::theme_builder::components::conditions {
 
 CompoundConditionEditor::CompoundConditionEditor() {
-  SetLabel(u"Compound Condition");
+  SetLabel("Compound Condition");
 
   GetContainer()->AddChild(&children_container_);
   children_container_.SetMargin({10, 0, 0, 0});
@@ -26,15 +26,15 @@ CompoundConditionEditor::CompoundConditionEditor() {
 
   add_child_button_.GetButton()->GetStyleRuleSet()->SetParent(
       ui::ThemeManager::GetInstance()->GetResourceStyleRuleSet(
-          u"cru.theme_builder.icon-button.style"));
+          "cru.theme_builder.icon-button.style"));
   add_child_button_.GetButton()->SetIconWithSvgPathDataStringResourceKey(
-      u"icon.plus", {0, 0, 16, 16});
+      "icon.plus", {0, 0, 16, 16});
   add_child_button_.GetButton()->SetPreferredSize({24, 24});
   add_child_button_.GetButton()->SetPadding(ui::Thickness(2));
   add_child_button_.GetButton()->SetIconFillColor(ui::colors::green);
-  add_child_button_.SetMenuItems({u"And Condition", u"Or Condition",
-                                  u"Click State Condition", u"Focus Condition",
-                                  u"Checked Condition", u"No Condition"});
+  add_child_button_.SetMenuItems({"And Condition", "Or Condition",
+                                  "Click State Condition", "Focus Condition",
+                                  "Checked Condition", "No Condition"});
   add_child_button_.MenuItemSelectedEvent()->AddHandler([this](Index index) {
     std::unique_ptr<ConditionEditor> editor;
     switch (index) {

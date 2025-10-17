@@ -10,8 +10,8 @@ class XcbClipboard : public XcbResource, public virtual IClipboard {
   explicit XcbClipboard(XcbUiApplication* application);
   ~XcbClipboard() override;
 
-  String GetText() override;
-  void SetText(String text) override;
+  std::string GetText() override;
+  void SetText(std::string text) override;
 
  private:
   XcbUiApplication* application_;

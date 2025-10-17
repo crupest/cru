@@ -17,8 +17,8 @@ class ColorPropertyEditor : public Editor {
  public:
   ui::controls::Control* GetRootControl() override { return &container_; }
 
-  String GetLabel() const { return label_.GetText(); }
-  void SetLabel(String label) { label_.SetText(std::move(label)); }
+  std::string GetLabel() const { return label_.GetText(); }
+  void SetLabel(std::string label) { label_.SetText(std::move(label)); }
 
   ui::Color GetValue() const { return color_; }
   void SetValue(const ui::Color& color, bool trigger_change = true);

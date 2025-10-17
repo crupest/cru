@@ -6,8 +6,8 @@ find_library(LIBRARY_XKBCOMMON_X11 xkbcommon-x11 REQUIRED)
 add_library(CruPlatformGuiXcb
 	Clipboard.cpp
 	Cursor.cpp
+	Input.cpp
 	InputMethod.cpp
-	Keyboard.cpp
 	UiApplication.cpp
 	Window.cpp
 )

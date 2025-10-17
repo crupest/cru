@@ -35,7 +35,7 @@ void SdlWindow::Close() {
 INativeWindow *SdlWindow::GetParent() { return parent_; }
 
 void SdlWindow::SetParent(INativeWindow *parent) {
-  parent_ = CheckPlatform<SdlWindow>(parent, GetPlatformIdUtf8());
+  parent_ = CheckPlatform<SdlWindow>(parent, GetPlatformId());
   NotImplemented();
 }
 
@@ -46,9 +46,9 @@ void SdlWindow::SetStyleFlag(WindowStyleFlag flag) {
   NotImplemented();
 }
 
-String SdlWindow::GetTitle() { NotImplemented(); }
+std::string SdlWindow::GetTitle() { NotImplemented(); }
 
-void SdlWindow::SetTitle(String title) { NotImplemented(); }
+void SdlWindow::SetTitle(std::string title) { NotImplemented(); }
 
 WindowVisibilityType SdlWindow::GetVisibility() { NotImplemented(); }
 

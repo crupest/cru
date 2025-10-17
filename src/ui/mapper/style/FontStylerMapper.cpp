@@ -3,7 +3,7 @@
 #include "cru/ui/mapper/MapperRegistry.h"
 
 namespace cru::ui::mapper::style {
-FontStylerMapper::FontStylerMapper() { SetAllowedTags({u"FontStyler"}); }
+FontStylerMapper::FontStylerMapper() { SetAllowedTags({"FontStyler"}); }
 
 FontStylerMapper::~FontStylerMapper() {}
 

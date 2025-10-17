@@ -4,6 +4,8 @@
 #include "MeasureRequirement.h"
 #include "cru/base/String.h"
 
+#include <cru/platform/graphics/Painter.h>
+
 namespace cru::ui::render {
 struct BoxConstraint {
   static const BoxConstraint kNotLimit;

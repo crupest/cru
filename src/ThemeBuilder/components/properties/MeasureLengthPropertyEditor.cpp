@@ -10,12 +10,12 @@ MeasureLengthPropertyEditor::MeasureLengthPropertyEditor() {
   container_.AddChild(&text_);
 
   text_.TextChangeEvent()->AddHandler([this](std::nullptr_t) {
-    auto text = text_.GetTextView();
+    auto text = text_.GetText();
     auto measure_length_mapper = ui::mapper::MapperRegistry::GetInstance()
                                      ->GetMapper<ui::render::MeasureLength>();
     try {
       auto measure_length =
-          measure_length_mapper->MapFromString(text.ToString().ToUtf8());
+          measure_length_mapper->MapFromString(text);
       measure_length_ = measure_length;
       is_text_valid_ = true;
       RaiseChangeEvent();
@@ -32,8 +32,7 @@ void MeasureLengthPropertyEditor::SetValue(
     const ui::render::MeasureLength& value, bool trigger_change) {
   if (!trigger_change) SuppressNextChangeEvent();
   text_.SetText(measure_length_.IsNotSpecified()
-                    ? u"unspecified"
-                    : String::FromUtf8(std::to_string(
-                          measure_length_.GetLengthOrUndefined())));
+                    ? "unspecified"
+                    : std::to_string(measure_length_.GetLengthOrUndefined()));
 }
 }  // namespace cru::theme_builder::components::properties
