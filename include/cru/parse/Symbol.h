@@ -1,7 +1,8 @@
 #pragma once
 #include "Base.h"
 
-#include "cru/base/String.h"
+#include <cru/base/Base.h>
+#include <string>
 
 namespace cru::parse {
 class Grammar;
@@ -9,7 +10,7 @@ class Grammar;
 // Base class of Terminal and Nonterminal.
 class CRU_PARSE_API Symbol : public Object {
  public:
-  explicit Symbol(Grammar* grammar, String name);
+  explicit Symbol(Grammar* grammar, std::string name);
 
   CRU_DELETE_COPY(Symbol)
   CRU_DELETE_MOVE(Symbol)
@@ -19,12 +20,12 @@ class CRU_PARSE_API Symbol : public Object {
  public:
   Grammar* GetGrammar() { return grammar_; }
 
-  String GetName() const { return name_; }
-  void SetName(String name) { name_ = std::move(name); }
+  std::string GetName() const { return name_; }
+  void SetName(std::string name) { name_ = std::move(name); }
 
  private:
   Grammar* grammar_;
 
-  String name_;
+  std::string name_;
 };
 }  // namespace cru::parse

@@ -1,15 +1,13 @@
 #pragma once
-#include "cru/base/String.h"
-
 #include "Nonterminal.h"
-#include "Terminal.h"
 
 #include <vector>
+#include <string>
 
 namespace cru::parse {
 class CRU_PARSE_API Production : public Object {
  public:
-  Production(Grammar* grammar, String name, Nonterminal* left,
+  Production(Grammar* grammar, std::string name, Nonterminal* left,
              std::vector<Symbol*> right);
 
   CRU_DELETE_COPY(Production)
@@ -20,8 +18,8 @@ class CRU_PARSE_API Production : public Object {
  public:
   Grammar* GetGrammar() const { return grammar_; }
 
-  String GetName() const { return name_; }
-  void SetName(String name) { name_ = std::move(name); }
+  std::string GetName() const { return name_; }
+  void SetName(std::string name) { name_ = std::move(name); }
 
   Nonterminal* GetLeft() const { return left_; }
   void SetLeft(Nonterminal* left);
@@ -35,7 +33,7 @@ class CRU_PARSE_API Production : public Object {
 
  private:
   Grammar* grammar_;
-  String name_;
+  std::string name_;
 
   Nonterminal* left_;
   std::vector<Symbol*> right_;

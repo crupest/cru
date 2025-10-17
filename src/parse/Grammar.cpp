@@ -1,5 +1,4 @@
 #include "cru/parse/Grammar.h"
-#include "cru/base/String.h"
 #include "cru/parse/Symbol.h"
 
 #include <algorithm>
@@ -25,21 +24,21 @@ void Grammar::SetStartSymbol(Nonterminal* start_symbol) {
   start_symbol_ = start_symbol;
 }
 
-Terminal* Grammar::CreateTerminal(String name) {
+Terminal* Grammar::CreateTerminal(std::string name) {
   auto terminal = new Terminal(this, std::move(name));
   terminals_.push_back(terminal);
   symbols_.push_back(terminal);
   return terminal;
 }
 
-Nonterminal* Grammar::CreateNonterminal(String name) {
+Nonterminal* Grammar::CreateNonterminal(std::string name) {
   auto nonterminal = new Nonterminal(this, std::move(name));
   nonterminals_.push_back(nonterminal);
   symbols_.push_back(nonterminal);
   return nonterminal;
 }
 
-Production* Grammar::CreateProduction(String name, Nonterminal* left,
+Production* Grammar::CreateProduction(std::string name, Nonterminal* left,
                                       std::vector<Symbol*> right) {
   Expects(left->GetGrammar() == this);
   Expects(std::all_of(right.cbegin(), right.cend(), [this](Symbol* symbol) {
@@ -154,9 +153,8 @@ void Grammar::EliminateLeftRecursions() {
             new_right.insert(new_right.cbegin(), jp->GetRight().cbegin(),
                              jp->GetRight().cend());
             CreateProduction(
-                String::FromUtf8(std::format(
-                    "Merge of {} and {} (Eliminate Left Recursion)",
-                    production->GetName().ToUtf8(), jp->GetName().ToUtf8())),
+                std::format("Merge of {} and {} (Eliminate Left Recursion)",
+                            production->GetName(), jp->GetName()),
                 ni, std::move(new_right));
           }
         }
@@ -176,29 +174,29 @@ void Grammar::EliminateLeftRecursions() {
       }
     }
 
-    auto ni_h = CreateNonterminal(ni->GetName() +
-                                  u" (Eliminate Left Recursion Helper)");
+    auto ni_h =
+        CreateNonterminal(ni->GetName() + " (Eliminate Left Recursion Helper)");
 
     for (auto p : i_nr_ps) {
       auto right = p->GetRight();
       right.push_back(ni_h);
-      CreateProduction(p->GetName() + u" (Eliminate Left Recursion Of " +
-                           ni->GetName() + u")",
-                       ni, std::move(right));
+      CreateProduction(
+          p->GetName() + " (Eliminate Left Recursion Of " + ni->GetName() + ")",
+          ni, std::move(right));
     }
 
     for (auto p : i_r_ps) {
       auto right = p->GetRight();
       right.erase(right.cbegin());
       right.push_back(ni_h);
-      CreateProduction(p->GetName() + u" (Eliminate Left Recursion Of " +
-                           ni->GetName() + u")",
-                       ni_h, std::move(right));
+      CreateProduction(
+          p->GetName() + " (Eliminate Left Recursion Of " + ni->GetName() + ")",
+          ni_h, std::move(right));
     }
 
-    CreateProduction(u"Empty Production (Eliminate Left Recursion Of " +
-                         ni->GetName() + u")",
-                     ni_h, std::vector<Symbol*>{});
+    CreateProduction(
+        "Empty Production (Eliminate Left Recursion Of " + ni->GetName() + ")",
+        ni_h, std::vector<Symbol*>{});
 
     for (auto p : i_r_ps) {
       RemoveProduction(p);
@@ -269,35 +267,35 @@ void Grammar::LeftFactor() {
           productions.end());
 
       auto helper_nonterminal =
-          CreateNonterminal(nonterminal->GetName() + u" (Left Factor Helper)");
+          CreateNonterminal(nonterminal->GetName() + " (Left Factor Helper)");
 
       for (auto p : productions_with_longest_common_prefix) {
         auto right = p->GetRight();
         right.erase(right.cbegin(),
                     right.cbegin() + longest_common_prefix.size());
-        CreateProduction(p->GetName() + u" (Left Factor Helper)",
+        CreateProduction(p->GetName() + " (Left Factor Helper)",
                          helper_nonterminal, std::move(right));
       }
 
       auto new_right = longest_common_prefix;
       new_right.push_back(helper_nonterminal);
 
-      CreateProduction(nonterminal->GetName() + u" (Left Factor)", nonterminal,
+      CreateProduction(nonterminal->GetName() + " (Left Factor)", nonterminal,
                        new_right);
     }
   }
 }
 
-String Grammar::ProductionsToString() const {
-  String result;
+std::string Grammar::ProductionsToString() const {
+  std::string result;
 
   for (const auto& production : productions_) {
-    result += production->GetName() + u" : ";
-    result += production->GetLeft()->GetName() + u" := ";
+    result += production->GetName() + " : ";
+    result += production->GetLeft()->GetName() + " := ";
     for (auto s : production->GetRight()) {
-      result += s->GetName() + u" ";
+      result += s->GetName() + " ";
     }
-    result += u"\n";
+    result += "\n";
   }
 
   return result;

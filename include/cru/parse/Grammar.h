@@ -1,5 +1,6 @@
 #pragma once
 #include "Production.h"
+#include "Terminal.h"
 
 #include <unordered_map>
 #include <vector>
@@ -17,9 +18,9 @@ class CRU_PARSE_API Grammar : public Object {
  public:
   void SetStartSymbol(Nonterminal* start_symbol);
 
-  Terminal* CreateTerminal(String name);
-  Nonterminal* CreateNonterminal(String name);
-  Production* CreateProduction(String name, Nonterminal* left,
+  Terminal* CreateTerminal(std::string name);
+  Nonterminal* CreateNonterminal(std::string name);
+  Production* CreateProduction(std::string name, Nonterminal* left,
                                std::vector<Symbol*> right);
 
   bool RemoveSymbol(Symbol* symbol);
@@ -50,7 +51,7 @@ class CRU_PARSE_API Grammar : public Object {
   void LeftFactor();
 
  public:
-  String ProductionsToString() const;
+  std::string ProductionsToString() const;
 
  private:
   Nonterminal* start_symbol_ = nullptr;

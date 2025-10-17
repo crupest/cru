@@ -6,16 +6,16 @@ int main() {
   using namespace cru::parse;
   Grammar grammar;
 
-  auto S = grammar.CreateNonterminal(u"S");
-  auto a = grammar.CreateTerminal(u"a");
+  auto S = grammar.CreateNonterminal("S");
+  auto a = grammar.CreateTerminal("a");
 
-  grammar.CreateProduction(u"S := S a", S, {S, a});
-  grammar.CreateProduction(u"S := a", S, {a});
+  grammar.CreateProduction("S := S a", S, {S, a});
+  grammar.CreateProduction("S := a", S, {a});
   grammar.SetStartSymbol(S);
 
   grammar.EliminateLeftRecursions();
 
-  std::cout << grammar.ProductionsToString().ToUtf8();
+  std::cout << grammar.ProductionsToString();
 
   return 0;
 }
