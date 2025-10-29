@@ -8,7 +8,7 @@
 #include "cru/platform/gui/Window.h"
 #include "cru/platform/gui/sdl/UiApplication.h"
 
-#include <SDL_video.h>
+#include <SDL3/SDL_video.h>
 #include <cairo-xcb.h>
 #include <cairo.h>
 #include <cassert>

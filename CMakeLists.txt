@@ -16,6 +16,7 @@ if (APPLE)
 endif()
 
 add_subdirectory(lib/Catch2)
+add_subdirectory(lib/SDL)
 
 enable_testing()
 

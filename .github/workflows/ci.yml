@@ -89,7 +89,7 @@ jobs:
         run: |
           sudo apt update
           sudo apt install -y libpng-dev libcairo2-dev libpango1.0-dev libxcb1-dev libxcb-cursor-dev \
-            libxkbcommon-dev libxcb-imdkit-dev libxkbcommon-x11-dev libsdl2-dev
+            libxkbcommon-dev libxcb-imdkit-dev libxkbcommon-x11-dev
 
       - name: Build
         run: |
