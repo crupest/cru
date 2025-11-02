@@ -59,6 +59,10 @@ class UnixEventLoop : public Object {
   void QueueAction(std::function<void()> action);
 
   int Run();
+
+  /**
+   * Thread-safe.
+   */
   void RequestQuit(int exit_code = 0);
 
   /**

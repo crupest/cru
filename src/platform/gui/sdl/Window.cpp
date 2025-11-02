@@ -3,7 +3,6 @@
 #include "cru/platform/GraphicsBase.h"
 #include "cru/platform/graphics/NullPainter.h"
 #include "cru/platform/graphics/Painter.h"
-#include "cru/platform/gui/Base.h"
 #include "cru/platform/gui/Window.h"
 #include "cru/platform/gui/sdl/UiApplication.h"
 

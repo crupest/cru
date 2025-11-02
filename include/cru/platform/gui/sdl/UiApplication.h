@@ -3,9 +3,12 @@
 #include "../UiApplication.h"
 #include "Base.h"
 
-#include <cru/base/platform/unix/EventLoop.h>
-#include <cru/platform/graphics/cairo/CairoGraphicsFactory.h>
+#include <cru/base/Timer.h>
+#include <cru/platform/graphics/Factory.h>
 
+#include <atomic>
+#include <chrono>
+#include <cstdint>
 #include <functional>
 
 namespace cru::platform::gui::sdl {
@@ -15,12 +18,8 @@ class SdlUiApplication : public SdlResource, public virtual IUiApplication {
   friend SdlWindow;
 
  public:
-  explicit SdlUiApplication(
-      graphics::cairo::CairoGraphicsFactory* cairo_factory = nullptr);
+  explicit SdlUiApplication(graphics::IGraphicsFactory* graphics_factory, bool release_graphics_factory);
   ~SdlUiApplication();
-
- public:
-  graphics::cairo::CairoGraphicsFactory* GetCairoFactory();
 
  public:
   int Run() override;
@@ -55,15 +54,21 @@ class SdlUiApplication : public SdlResource, public virtual IUiApplication {
  private:
   void RegisterWindow(SdlWindow* window);
   void UnregisterWindow(SdlWindow* window);
+  void RunOnMainThread(std::function<void()> action);
+  void PostEmptyEvent();
+  long long SetTimer(std::chrono::milliseconds milliseconds,
+                     std::function<void()> action, bool repeat);
 
  private:
-  graphics::cairo::CairoGraphicsFactory* cairo_factory_;
-  bool release_cairo_factory_;
+  graphics::IGraphicsFactory* graphics_factory_;
+  bool release_graphics_factory_;
 
-  cru::platform::unix::UnixEventLoop event_loop_;
+  std::uint32_t empty_event_type_;
+  TimerRegistry<std::function<void()>> timers_;
+  std::atomic_int quit_code_;
   std::vector<std::function<void()>> quit_handlers_;
 
   bool is_quit_on_all_window_closed_;
   std::vector<SdlWindow*> windows_;
 };
-}  // namespace cru::platform::gui::xcb
+}  // namespace cru::platform::gui::sdl

@@ -1,4 +1,5 @@
 add_library(CruPlatformGuiSdl
+	Base.cpp
 	UiApplication.cpp
 	Window.cpp
 )

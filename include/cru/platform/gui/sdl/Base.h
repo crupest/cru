@@ -19,4 +19,6 @@ class SdlException : public PlatformException {
  public:
   using PlatformException::PlatformException;
 };
+
+void CheckSdlReturn(bool success);
 }  // namespace cru::platform::gui::sdl
