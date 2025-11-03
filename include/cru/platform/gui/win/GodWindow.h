@@ -12,10 +12,6 @@ class CRU_WIN_GUI_API GodWindow : public Object {
 
  public:
   explicit GodWindow(WinUiApplication* application);
-
-  CRU_DELETE_COPY(GodWindow)
-  CRU_DELETE_MOVE(GodWindow)
-
   ~GodWindow() override;
 
   HWND GetHandle() const { return hwnd_; }

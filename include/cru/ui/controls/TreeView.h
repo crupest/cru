@@ -14,9 +14,6 @@ class CRU_UI_API TreeViewItem : public Object {
   ~TreeViewItem() override;
 
  public:
-  CRU_DELETE_COPY(TreeViewItem)
-  CRU_DELETE_MOVE(TreeViewItem)
-
   TreeView* GetTreeView() { return tree_view_; }
   TreeViewItem* GetParent() { return parent_; }
 

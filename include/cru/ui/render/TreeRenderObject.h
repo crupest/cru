@@ -13,8 +13,6 @@ class CRU_UI_API TreeRenderObjectItem : public Object {
                                 TreeRenderObjectItem* parent);
 
  public:
-  CRU_DELETE_COPY(TreeRenderObjectItem)
-  CRU_DELETE_MOVE(TreeRenderObjectItem)
   ~TreeRenderObjectItem() override;
 
   RenderObject* GetRenderObject() { return render_object_; }

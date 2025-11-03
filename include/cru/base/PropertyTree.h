@@ -33,7 +33,7 @@ class CRU_BASE_API PropertySubTreeRef {
   std::string path_;
 };
 
-class CRU_BASE_API PropertyTree : public Object2 {
+class CRU_BASE_API PropertyTree : public Object {
  public:
   static std::string CombineKey(std::string_view left, std::string_view right);
 

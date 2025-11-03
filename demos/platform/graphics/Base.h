@@ -8,7 +8,7 @@
 #include <memory>
 #include <string>
 
-class CruPlatformGraphicsDemo : public cru::Object2 {
+class CruPlatformGraphicsDemo : public cru::Object {
  public:
   CruPlatformGraphicsDemo(std::string file_name, int width, int height);
   ~CruPlatformGraphicsDemo() override;

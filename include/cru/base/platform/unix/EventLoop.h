@@ -17,7 +17,7 @@
 #include <utility>
 
 namespace cru::platform::unix {
-class UnixTimerFile : public Object2 {
+class UnixTimerFile : public Object {
  public:
   template <class Rep, class Period>
   explicit UnixTimerFile(std::chrono::duration<Rep, Period> time) {
@@ -45,7 +45,7 @@ class UnixTimerFile : public Object2 {
   std::thread thread_;
 };
 
-class UnixEventLoop : public Object2 {
+class UnixEventLoop : public Object {
   CRU_DEFINE_CLASS_LOG_TAG("cru::platform::unix::UnixEventLoop")
  public:
   using PollEvents = decltype(std::declval<pollfd>().events);

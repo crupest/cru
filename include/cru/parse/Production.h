@@ -9,10 +9,6 @@ class CRU_PARSE_API Production : public Object {
  public:
   Production(Grammar* grammar, std::string name, Nonterminal* left,
              std::vector<Symbol*> right);
-
-  CRU_DELETE_COPY(Production)
-  CRU_DELETE_MOVE(Production)
-
   ~Production() override;
 
  public:

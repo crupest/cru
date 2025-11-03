@@ -17,10 +17,6 @@ class CRU_UI_API StyleRuleSet : public Object, public model::IListChangeNotify {
  public:
   StyleRuleSet() = default;
   explicit StyleRuleSet(std::shared_ptr<StyleRuleSet> parent);
-
-  CRU_DELETE_COPY(StyleRuleSet)
-  CRU_DELETE_MOVE(StyleRuleSet)
-
   ~StyleRuleSet() override = default;
 
  public:

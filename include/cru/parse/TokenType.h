@@ -8,10 +8,6 @@ namespace cru::parse {
 class CRU_PARSE_API TokenType : public Object {
  public:
   explicit TokenType(std::string name);
-
-  CRU_DELETE_COPY(TokenType)
-  CRU_DELETE_MOVE(TokenType)
-
   ~TokenType() override;
 
  public:

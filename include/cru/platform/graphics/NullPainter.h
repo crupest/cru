@@ -7,10 +7,6 @@ namespace cru::platform::graphics {
 class NullPainter : public Object, public virtual IPainter {
  public:
   NullPainter() = default;
-
-  CRU_DELETE_COPY(NullPainter)
-  CRU_DELETE_MOVE(NullPainter)
-
   ~NullPainter() override = default;
 
  public:

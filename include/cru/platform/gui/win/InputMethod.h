@@ -11,7 +11,7 @@
 #include <imm.h>
 
 namespace cru::platform::gui::win {
-class CRU_WIN_GUI_API AutoHIMC : public Object {
+class CRU_WIN_GUI_API AutoHIMC {
   CRU_DEFINE_CLASS_LOG_TAG("AutoHIMC")
 
  public:

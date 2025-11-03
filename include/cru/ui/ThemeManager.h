@@ -15,9 +15,6 @@ class CRU_UI_API ThemeManager : public Object {
   ThemeManager();
 
  public:
-  CRU_DELETE_COPY(ThemeManager)
-  CRU_DELETE_MOVE(ThemeManager)
-
   ~ThemeManager() override;
 
   std::vector<ThemeResourceDictionary*> GetThemeResourceDictionaryList() const;

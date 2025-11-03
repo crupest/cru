@@ -20,11 +20,6 @@ class CRU_UI_API MouseButtonEventArgs : public MouseEventArgs {
       : MouseEventArgs(sender, original_sender),
         button_(button),
         key_modifier_(key_modifier) {}
-  MouseButtonEventArgs(const MouseButtonEventArgs& other) = default;
-  MouseButtonEventArgs(MouseButtonEventArgs&& other) = default;
-  MouseButtonEventArgs& operator=(const MouseButtonEventArgs& other) = default;
-  MouseButtonEventArgs& operator=(MouseButtonEventArgs&& other) = default;
-  ~MouseButtonEventArgs() override = default;
 
   platform::gui::MouseButton GetButton() const { return button_; }
   platform::gui::KeyModifier GetKeyModifier() const { return key_modifier_; }

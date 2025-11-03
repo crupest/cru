@@ -11,10 +11,6 @@ class WebCanvasResource : public Object, public virtual IPlatformResource {
   static const std::string kPlatformId;
 
   explicit WebCanvasResource(WebCanvasGraphicsFactory* factory);
-
-  CRU_DELETE_COPY(WebCanvasResource)
-  CRU_DELETE_MOVE(WebCanvasResource)
-
   ~WebCanvasResource() override;
 
  public:

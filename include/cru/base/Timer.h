@@ -12,7 +12,7 @@
 
 namespace cru {
 template <typename D>
-class TimerRegistry : public Object2 {
+class TimerRegistry : public Object {
  private:
   struct TimerData {
     int id;

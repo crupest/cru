@@ -45,10 +45,6 @@ class ClickDetector : public Object {
 
  public:
   explicit ClickDetector(controls::Control* control);
-
-  CRU_DELETE_COPY(ClickDetector)
-  CRU_DELETE_MOVE(ClickDetector)
-
   ~ClickDetector() override = default;
 
   controls::Control* GetControl() const { return control_; }

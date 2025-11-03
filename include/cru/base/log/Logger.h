@@ -30,7 +30,7 @@ struct CRU_BASE_API ILogTarget : virtual Interface {
   virtual void Write(LogLevel level, std::string s) = 0;
 };
 
-class CRU_BASE_API Logger : public Object2 {
+class CRU_BASE_API Logger : public Object {
  public:
   static Logger* GetInstance();
 
@@ -76,7 +76,7 @@ class CRU_BASE_API Logger : public Object2 {
   std::vector<std::unique_ptr<ILogTarget>> target_list_;
 };
 
-class CRU_BASE_API LoggerCppStream : public Object2 {
+class CRU_BASE_API LoggerCppStream : public Object {
  public:
   explicit LoggerCppStream(Logger* logger, LogLevel level, std::string tag);
   ~LoggerCppStream() override = default;

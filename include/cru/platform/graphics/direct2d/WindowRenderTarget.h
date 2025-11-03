@@ -6,10 +6,6 @@ namespace cru::platform::graphics::direct2d {
 class CRU_WIN_GRAPHICS_DIRECT_API D2DWindowRenderTarget : public Object {
  public:
   D2DWindowRenderTarget(DirectGraphicsFactory* factory, HWND hwnd);
-
-  CRU_DELETE_COPY(D2DWindowRenderTarget)
-  CRU_DELETE_MOVE(D2DWindowRenderTarget)
-
   ~D2DWindowRenderTarget() override = default;
 
  public:

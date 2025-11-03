@@ -29,10 +29,6 @@ class CRU_UI_API Control : public Object,
   Control();
 
  public:
-  Control(const Control& other) = delete;
-  Control(Control&& other) = delete;
-  Control& operator=(const Control& other) = delete;
-  Control& operator=(Control&& other) = delete;
   ~Control() override;
 
  public:

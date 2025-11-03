@@ -26,10 +26,6 @@ class CRU_PLATFORM_GRAPHICS_CAIRO_API CairoResource
       public virtual IGraphicsResource {
  public:
   explicit CairoResource(CairoGraphicsFactory* factory);
-
-  CRU_DELETE_COPY(CairoResource)
-  CRU_DELETE_MOVE(CairoResource)
-
   ~CairoResource() override;
 
   std::string GetPlatformId() const override;

@@ -11,10 +11,6 @@ class Grammar;
 class CRU_PARSE_API Symbol : public Object {
  public:
   explicit Symbol(Grammar* grammar, std::string name);
-
-  CRU_DELETE_COPY(Symbol)
-  CRU_DELETE_MOVE(Symbol)
-
   ~Symbol() override;
 
  public:

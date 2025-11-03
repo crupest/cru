@@ -12,11 +12,6 @@ class CRU_UI_API MouseWheelEventArgs : public MouseEventArgs {
       : MouseEventArgs(sender, original_sender, point),
         delta_(delta),
         key_modifier_(key_modifier) {}
-  MouseWheelEventArgs(const MouseWheelEventArgs& other) = default;
-  MouseWheelEventArgs(MouseWheelEventArgs&& other) = default;
-  MouseWheelEventArgs& operator=(const MouseWheelEventArgs& other) = default;
-  MouseWheelEventArgs& operator=(MouseWheelEventArgs&& other) = default;
-  ~MouseWheelEventArgs() override = default;
 
   // Positive means down; Negative means up.
   float GetDelta() const { return delta_; }

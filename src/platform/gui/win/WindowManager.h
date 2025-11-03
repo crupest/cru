@@ -15,10 +15,6 @@ class WindowClass;
 class WindowManager : public Object {
  public:
   WindowManager(WinUiApplication* application);
-
-  CRU_DELETE_COPY(WindowManager)
-  CRU_DELETE_MOVE(WindowManager)
-
   ~WindowManager() override;
 
   // Get the general window class for creating ordinary window.

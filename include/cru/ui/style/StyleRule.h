@@ -9,7 +9,7 @@ namespace cru::ui::style {
  * \brief An immutable style rule contains a condition and a styler.
  * \remarks This class is immutable and has value semantics.
  */
-class CRU_UI_API StyleRule : public Object {
+class CRU_UI_API StyleRule {
  public:
   static ClonablePtr<StyleRule> Create(ClonablePtr<Condition> condition,
                                        ClonablePtr<Styler> styler,
@@ -20,11 +20,6 @@ class CRU_UI_API StyleRule : public Object {
 
   StyleRule(ClonablePtr<Condition> condition, ClonablePtr<Styler> styler,
             std::string name = {});
-
-  CRU_DEFAULT_COPY(StyleRule)
-  CRU_DEFAULT_MOVE(StyleRule)
-
-  ~StyleRule() override = default;
 
  public:
   std::string GetName() const { return name_; }

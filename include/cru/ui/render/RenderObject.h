@@ -66,8 +66,6 @@ class CRU_UI_API RenderObject : public Object {
   RenderObject() = default;
 
  public:
-  CRU_DELETE_COPY(RenderObject)
-  CRU_DELETE_MOVE(RenderObject)
   ~RenderObject() override = default;
 
   controls::Control* GetAttachedControl() const { return control_; }

@@ -18,9 +18,6 @@ class CRU_WIN_GRAPHICS_DIRECT_API DirectResource
   DirectResource() = default;
 
  public:
-  CRU_DELETE_COPY(DirectResource)
-  CRU_DELETE_MOVE(DirectResource)
-
   ~DirectResource() override = default;
 
  public:

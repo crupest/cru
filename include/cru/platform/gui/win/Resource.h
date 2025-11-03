@@ -13,9 +13,6 @@ class CRU_WIN_GUI_API WinNativeResource : public Object,
   WinNativeResource() = default;
 
  public:
-  CRU_DELETE_COPY(WinNativeResource)
-  CRU_DELETE_MOVE(WinNativeResource)
-
   ~WinNativeResource() override = default;
 
  public:

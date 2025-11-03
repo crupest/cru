@@ -30,10 +30,6 @@ struct TimerInfo {
 class TimerManager : public Object {
  public:
   TimerManager(GodWindow* god_window);
-
-  CRU_DELETE_COPY(TimerManager)
-  CRU_DELETE_MOVE(TimerManager)
-
   ~TimerManager() override = default;
 
   // Period is in milliseconds. When type is immediate, it is not checked and

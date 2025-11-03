@@ -97,10 +97,6 @@ class CRU_UI_API ShortcutHub : public Object {
   CRU_DEFINE_CLASS_LOG_TAG("ShortcutHub")
  public:
   ShortcutHub() = default;
-
-  CRU_DELETE_COPY(ShortcutHub)
-  CRU_DELETE_MOVE(ShortcutHub)
-
   ~ShortcutHub() override = default;
 
   int RegisterShortcut(std::string name, ShortcutKeyBind bind,

@@ -64,9 +64,6 @@ class CRU_BASE_API Stream : public Object {
  public:
   enum class SeekOrigin { Current, Begin, End };
 
-  CRU_DELETE_COPY(Stream)
-  CRU_DELETE_MOVE(Stream)
-
   ~Stream() override = default;
 
  public:

@@ -11,13 +11,10 @@ struct CRU_WIN_GUI_API WindowNativeMessage {
   LPARAM l_param;
 };
 
-class CRU_WIN_GUI_API WindowNativeMessageEventArgs : public Object {
+class CRU_WIN_GUI_API WindowNativeMessageEventArgs {
  public:
   WindowNativeMessageEventArgs(const WindowNativeMessage& message)
       : message_(message) {}
-  CRU_DEFAULT_COPY(WindowNativeMessageEventArgs)
-  CRU_DEFAULT_MOVE(WindowNativeMessageEventArgs)
-  ~WindowNativeMessageEventArgs() override = default;
 
   const WindowNativeMessage& GetWindowMessage() const { return message_; }
 

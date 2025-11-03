@@ -17,10 +17,6 @@ class BasicMapper;
 class CRU_UI_API MapperBase : public Object {
  public:
   explicit MapperBase(std::type_index type_index);
-
-  CRU_DELETE_COPY(MapperBase)
-  CRU_DELETE_MOVE(MapperBase)
-
   ~MapperBase() override = default;
 
  public:

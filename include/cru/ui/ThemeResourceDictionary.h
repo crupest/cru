@@ -32,10 +32,6 @@ class CRU_UI_API ThemeResourceDictionary : public Object {
 
   explicit ThemeResourceDictionary(xml::XmlElementNode* xml_root,
                                    bool clone = true);
-
-  CRU_DELETE_COPY(ThemeResourceDictionary)
-  CRU_DELETE_MOVE(ThemeResourceDictionary)
-
   ~ThemeResourceDictionary() override;
 
  public:

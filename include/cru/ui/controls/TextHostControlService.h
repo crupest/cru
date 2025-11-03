@@ -30,7 +30,7 @@ struct CRU_UI_API ITextHostControl : virtual Interface {
 
 class TextHostControlService;
 
-class TextControlMovePattern : public Object {
+class TextControlMovePattern {
  public:
   static TextControlMovePattern kLeft;
   static TextControlMovePattern kRight;
@@ -57,11 +57,6 @@ class TextControlMovePattern : public Object {
         key_bind_(key_bind),
         move_function_(move_function) {}
 
-  CRU_DEFAULT_COPY(TextControlMovePattern)
-  CRU_DEFAULT_MOVE(TextControlMovePattern)
-
-  ~TextControlMovePattern() override = default;
-
  public:
   std::string GetName() const { return name_; }
   helper::ShortcutKeyBind GetKeyBind() const { return key_bind_; }
@@ -81,10 +76,6 @@ class CRU_UI_API TextHostControlService : public Object {
 
  public:
   TextHostControlService(Control* control);
-
-  CRU_DELETE_COPY(TextHostControlService)
-  CRU_DELETE_MOVE(TextHostControlService)
-
   ~TextHostControlService();
 
  public:

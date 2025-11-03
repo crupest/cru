@@ -45,10 +45,6 @@ std::string CRU_UI_API GenerateScrollBarThemeColorKey(ScrollBarBrushUsageKind us
 class CRU_UI_API ScrollBar : public Object {
  public:
   ScrollBar(ScrollRenderObject* render_object, Direction direction);
-
-  CRU_DELETE_COPY(ScrollBar)
-  CRU_DELETE_MOVE(ScrollBar)
-
   ~ScrollBar() override;
 
  public:
@@ -213,10 +209,6 @@ class CRU_UI_API VerticalScrollBar : public ScrollBar {
 class CRU_UI_API ScrollBarDelegate : public Object {
  public:
   explicit ScrollBarDelegate(ScrollRenderObject* render_object);
-
-  CRU_DELETE_COPY(ScrollBarDelegate)
-  CRU_DELETE_MOVE(ScrollBarDelegate)
-
   ~ScrollBarDelegate() override = default;
 
  public:

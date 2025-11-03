@@ -31,10 +31,6 @@ class CRU_UI_API WindowHost : public Object, public SelfResolvable<WindowHost> {
 
  public:
   explicit WindowHost(controls::Control* root_control);
-
-  CRU_DELETE_COPY(WindowHost)
-  CRU_DELETE_MOVE(WindowHost)
-
   ~WindowHost() override;
 
  public:

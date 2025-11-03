@@ -10,10 +10,6 @@ class OsxClipboardPrivate : public Object {
   CRU_DEFINE_CLASS_LOG_TAG("OsxClipboardPrivate")
  public:
   explicit OsxClipboardPrivate(NSPasteboard* pasteboard);
-
-  CRU_DELETE_COPY(OsxClipboardPrivate)
-  CRU_DELETE_MOVE(OsxClipboardPrivate)
-
   ~OsxClipboardPrivate();
 
  public:

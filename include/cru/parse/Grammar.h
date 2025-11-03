@@ -9,10 +9,6 @@ namespace cru::parse {
 class CRU_PARSE_API Grammar : public Object {
  public:
   Grammar();
-
-  CRU_DELETE_COPY(Grammar)
-  CRU_DELETE_MOVE(Grammar)
-
   ~Grammar() override;
 
  public:
