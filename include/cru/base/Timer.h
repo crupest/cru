@@ -106,9 +106,9 @@ class TimerRegistry : public Object2 {
         if (timer.repeat) {
           return UpdateResult{timer.id, timer.data};
         } else {
-          D data(std::move(timer.data));
+          UpdateResult result{timer.id, std::move(timer.data)};
           timers_.erase(iter);  // We will return, so it's safe to erase here.
-          return UpdateResult{timer.id, std::move(data)};
+          return result;
         }
       }
     }
