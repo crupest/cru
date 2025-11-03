@@ -21,7 +21,6 @@ AutoHIMC::AutoHIMC(AutoHIMC&& other)
 
 AutoHIMC& AutoHIMC::operator=(AutoHIMC&& other) {
   if (this != &other) {
-    Object::operator=(std::move(other));
     this->hwnd_ = other.hwnd_;
     this->handle_ = other.handle_;
     other.hwnd_ = nullptr;

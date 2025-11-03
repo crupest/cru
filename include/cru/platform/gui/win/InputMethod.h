@@ -22,7 +22,7 @@ class CRU_WIN_GUI_API AutoHIMC {
   AutoHIMC(AutoHIMC&& other);
   AutoHIMC& operator=(AutoHIMC&& other);
 
-  ~AutoHIMC() override;
+  ~AutoHIMC();
 
   HWND GetHwnd() const { return hwnd_; }
 
