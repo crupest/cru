@@ -1,6 +1,5 @@
 #include "cru/platform/graphics/quartz/Factory.h"
 
-#include "cru/platform/Check.h"
 #include "cru/platform/graphics/ImageFactory.h"
 #include "cru/platform/graphics/quartz/Brush.h"
 #include "cru/platform/graphics/quartz/Font.h"

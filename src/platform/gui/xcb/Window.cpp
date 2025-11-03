@@ -2,7 +2,6 @@
 #include "cru/base/Base.h"
 #include "cru/base/Guard.h"
 #include "cru/base/log/Logger.h"
-#include "cru/platform/Check.h"
 #include "cru/platform/GraphicsBase.h"
 #include "cru/platform/graphics/NullPainter.h"
 #include "cru/platform/graphics/Painter.h"

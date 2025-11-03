@@ -3,7 +3,6 @@
 
 #include "cru/base/StringUtil.h"
 #include "cru/base/log/Logger.h"
-#include "cru/platform/Check.h"
 #include "cru/platform/graphics/direct2d/Exception.h"
 #include "cru/platform/graphics/direct2d/Factory.h"
 #include "cru/platform/graphics/direct2d/Font.h"

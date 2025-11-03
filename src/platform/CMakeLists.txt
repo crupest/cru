@@ -1,7 +1,6 @@
 add_library(CruPlatformBase
 	Base.cpp
 	Color.cpp
-	Exception.cpp
 	GraphicsBase.cpp
 )
 target_link_libraries(CruPlatformBase PUBLIC CruBase)

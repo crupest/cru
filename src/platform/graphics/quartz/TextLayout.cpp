@@ -2,7 +2,6 @@
 #include "cru/base/Base.h"
 #include "cru/base/Osx.h"
 #include "cru/base/StringUtil.h"
-#include "cru/platform/Check.h"
 #include "cru/platform/graphics/Base.h"
 #include "cru/platform/graphics/quartz/Convert.h"
 #include "cru/platform/graphics/quartz/Resource.h"

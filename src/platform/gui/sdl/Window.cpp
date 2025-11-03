@@ -1,6 +1,5 @@
 #include "cru/platform/gui/sdl/Window.h"
 #include "cru/base/Base.h"
-#include "cru/platform/Check.h"
 #include "cru/platform/GraphicsBase.h"
 #include "cru/platform/graphics/NullPainter.h"
 #include "cru/platform/graphics/Painter.h"

@@ -1,6 +1,5 @@
 #include "cru/platform/gui/xcb/InputMethod.h"
 #include "cru/base/log/Logger.h"
-#include "cru/platform/Check.h"
 #include "cru/platform/gui/xcb/Input.h"
 #include "cru/platform/gui/xcb/UiApplication.h"
 #include "cru/platform/gui/xcb/Window.h"

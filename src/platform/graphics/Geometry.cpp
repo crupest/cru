@@ -2,7 +2,6 @@
 
 #include "cru/base/Exception.h"
 #include "cru/base/StringUtil.h"
-#include "cru/platform/Exception.h"
 #include "cru/platform/graphics/Factory.h"
 
 #include <cmath>

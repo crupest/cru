@@ -5,9 +5,7 @@
 #include "cru/platform/graphics/quartz/Geometry.h"
 #include "cru/platform/graphics/quartz/Image.h"
 #include "cru/platform/graphics/quartz/TextLayout.h"
-#include "cru/platform/Check.h"
 #include "cru/platform/Color.h"
-#include "cru/platform/Exception.h"
 
 namespace cru::platform::graphics::quartz {
 QuartzCGContextPainter::QuartzCGContextPainter(

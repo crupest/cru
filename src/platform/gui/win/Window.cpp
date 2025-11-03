@@ -3,7 +3,6 @@
 #include "WindowManager.h"
 #include "cru/base/StringUtil.h"
 #include "cru/base/log/Logger.h"
-#include "cru/platform/Check.h"
 #include "cru/platform/graphics/NullPainter.h"
 #include "cru/platform/graphics/direct2d/WindowPainter.h"
 #include "cru/platform/gui/DebugFlags.h"

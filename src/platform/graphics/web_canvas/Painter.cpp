@@ -1,4 +1,3 @@
-#include "cru/platform/Check.h"
 #include "cru/platform/graphics/Brush.h"
 #include "cru/platform/graphics/web_canvas/WebCanvasBrush.h"
 #include "cru/platform/graphics/web_canvas/WebCanvasGraphicsFactory.h"

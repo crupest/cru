@@ -1,7 +1,5 @@
 #include "cru/platform/graphics/cairo/CairoPainter.h"
 #include "cru/base/log/Logger.h"
-#include "cru/platform/Check.h"
-#include "cru/platform/Exception.h"
 #include "cru/platform/graphics/cairo/Base.h"
 #include "cru/platform/graphics/cairo/CairoBrush.h"
 #include "cru/platform/graphics/cairo/CairoGeometry.h"
