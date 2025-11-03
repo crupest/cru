@@ -1,5 +1,5 @@
 #pragma once
-#include "cru/platform/Resource.h"
+#include <cru/platform/Base.h>
 
 namespace cru::platform::osx {
 class OsxResource : public Object, public virtual IPlatformResource {

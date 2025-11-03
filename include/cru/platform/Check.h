@@ -1,6 +1,6 @@
 #pragma once
+#include "Base.h"
 #include "Exception.h"
-#include "Resource.h"
 
 #include <memory>
 #include <type_traits>

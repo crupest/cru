@@ -1,5 +1,5 @@
 #pragma once
-#include "Resource.h"
+#include "Base.h"
 
 namespace cru::platform::graphics {
 struct CRU_PLATFORM_GRAPHICS_API IBrush : virtual IGraphicsResource {};

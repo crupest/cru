@@ -1,7 +1,7 @@
 #pragma once
 #include "Base.h"
 
-#include "cru/platform/Resource.h"
+#include <cru/platform/Base.h>
 
 namespace cru::platform::gui::win {
 class CRU_WIN_GUI_API WinNativeResource : public Object,

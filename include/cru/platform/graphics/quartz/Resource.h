@@ -1,6 +1,5 @@
 #pragma once
 #include "cru/platform/graphics/Base.h"
-#include "cru/platform/graphics/Resource.h"
 #include "cru/platform/osx/Resource.h"
 
 namespace cru::platform::graphics::quartz {

@@ -1,6 +1,7 @@
 #pragma once
-#include "Resource.h"
-#include "cru/base/io/Stream.h"
+#include "Base.h"
+
+#include <cru/base/io/Stream.h>
 
 namespace cru::platform::graphics {
 enum class ImageFormat { Jpeg, Png, Gif };

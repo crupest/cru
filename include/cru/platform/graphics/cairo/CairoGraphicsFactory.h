@@ -1,7 +1,8 @@
 #pragma once
 
-#include "../Factory.h"
-#include "CairoResource.h"
+#include "Base.h"
+
+#include <cru/platform/graphics/Factory.h>
 
 #include <cairo/cairo.h>
 #include <pango/pango.h>

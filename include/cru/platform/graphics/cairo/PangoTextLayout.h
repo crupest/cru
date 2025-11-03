@@ -1,7 +1,8 @@
 #pragma once
-#include "../TextLayout.h"
-#include "CairoResource.h"
+#include "Base.h"
 #include "PangoFont.h"
+
+#include <cru/platform/graphics/TextLayout.h>
 
 #include <pango/pango.h>
 

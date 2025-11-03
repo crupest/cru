@@ -1,7 +1,7 @@
 #pragma once
 
 #include <cru/base/Exception.h>
-#include <cru/platform/Resource.h>
+#include <cru/platform/Base.h>
 #include <cru/platform/gui/Base.h>
 
 namespace cru::platform::gui::xcb {

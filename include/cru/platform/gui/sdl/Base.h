@@ -2,8 +2,7 @@
 #pragma once
 
 #include <cru/base/Exception.h>
-
-#include "../../Resource.h"
+#include <cru/platform/Base.h>
 
 namespace cru::platform::gui::sdl {
 class SdlResource : public Object, public virtual IPlatformResource {
@@ -21,4 +20,4 @@ class SdlException : public PlatformException {
  public:
   using PlatformException::PlatformException;
 };
-}  // namespace cru::platform::gui::xcb
+}  // namespace cru::platform::gui::sdl

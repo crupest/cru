@@ -1,14 +1,14 @@
 #pragma once
 
 #include "cru/base/Base.h"
-#include "cru/platform/Resource.h"
+#include "cru/platform/Base.h"
 
 namespace cru::platform::graphics::web_canvas {
 class WebCanvasGraphicsFactory;
 
 class WebCanvasResource : public Object, public virtual IPlatformResource {
  public:
-  static const String kPlatformId;
+  static const std::string kPlatformId;
 
   explicit WebCanvasResource(WebCanvasGraphicsFactory* factory);
 
@@ -18,7 +18,7 @@ class WebCanvasResource : public Object, public virtual IPlatformResource {
   ~WebCanvasResource() override;
 
  public:
-  String GetPlatformId() const override;
+  std::string GetPlatformId() const override;
 
   WebCanvasGraphicsFactory* GetFactory() const { return factory_; }
 

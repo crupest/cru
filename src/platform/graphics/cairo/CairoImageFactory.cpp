@@ -1,8 +1,8 @@
 #include "cru/platform/graphics/cairo/CairoImageFactory.h"
 #include "cru/base/Exception.h"
 #include "cru/platform/Check.h"
+#include "cru/platform/graphics/cairo/Base.h"
 #include "cru/platform/graphics/cairo/CairoImage.h"
-#include "cru/platform/graphics/cairo/CairoResource.h"
 
 #include <png.h>
 #include <memory>

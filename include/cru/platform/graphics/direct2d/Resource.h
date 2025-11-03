@@ -1,7 +1,7 @@
 #pragma once
 #include "Base.h"
 
-#include "cru/platform/graphics/Resource.h"
+#include "cru/platform/graphics/Base.h"
 
 #include <string_view>
 

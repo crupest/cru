@@ -1,6 +1,7 @@
 #pragma once
-#include "../ImageFactory.h"
-#include "CairoResource.h"
+#include "Base.h"
+
+#include <cru/platform/graphics/ImageFactory.h>
 
 namespace cru::platform::graphics::cairo {
 class CairoImageFactory : public CairoResource, public virtual IImageFactory {

@@ -1,7 +1,7 @@
 #pragma once
+#include "Base.h"
 
-#include "../Font.h"
-#include "CairoResource.h"
+#include <cru/platform/graphics/Font.h>
 
 #include <pango/pango.h>
 

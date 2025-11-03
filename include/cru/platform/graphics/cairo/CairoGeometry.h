@@ -1,6 +1,7 @@
 #pragma once
-#include "CairoResource.h"
-#include "cru/platform/graphics/Geometry.h"
+#include "Base.h"
+
+#include <cru/platform/graphics/Geometry.h>
 
 #include <cairo/cairo.h>
 

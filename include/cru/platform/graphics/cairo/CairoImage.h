@@ -1,6 +1,7 @@
 #pragma once
-#include "../Image.h"
-#include "CairoResource.h"
+#include "Base.h"
+
+#include <cru/platform/graphics/Image.h>
 
 namespace cru::platform::graphics::cairo {
 class CRU_PLATFORM_GRAPHICS_CAIRO_API CairoImage : public CairoResource,

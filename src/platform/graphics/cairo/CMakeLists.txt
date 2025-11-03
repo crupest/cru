@@ -6,7 +6,6 @@ add_library(CruPlatformGraphicsCairo
 	CairoImage.cpp
 	CairoImageFactory.cpp
 	CairoPainter.cpp
-	CairoResource.cpp
 	PangoFont.cpp
 	PangoTextLayout.cpp
 )

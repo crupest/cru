@@ -1,4 +1,4 @@
-#include "cru/platform/Resource.h"
+#include "cru/platform/Base.h"
 
 namespace cru::platform {
 std::string IPlatformResource::GetDebugString() { return {}; }

@@ -1,7 +1,8 @@
 #pragma once
+#include "Base.h"
+
 #include <cru/base/Base.h>
-#include "../Painter.h"
-#include "CairoResource.h"
+#include <cru/platform/graphics/Painter.h>
 
 #include <vector>
 

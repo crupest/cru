@@ -1,4 +1,6 @@
 #include "cru/platform/graphics/cairo/Base.h"
+#include "cru/platform/graphics/cairo/CairoGraphicsFactory.h"
+
 #include <cairo/cairo.h>
 
 namespace cru::platform::graphics::cairo {
@@ -15,4 +17,17 @@ Matrix Convert(const cairo_matrix_t* matrix) {
 }
 
 Matrix Convert(const cairo_matrix_t& matrix) { return Convert(&matrix); }
+
+static const std::string kCairoGraphicsPlatformId("cairo");
+
+CairoResource::CairoResource(CairoGraphicsFactory* factory)
+    : factory_(factory) {}
+
+CairoResource::~CairoResource() {}
+
+std::string CairoResource::GetPlatformId() const {
+  return kCairoGraphicsPlatformId;
+}
+
+IGraphicsFactory* CairoResource::GetGraphicsFactory() { return factory_; }
 }  // namespace cru::platform::graphics::cairo

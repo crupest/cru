@@ -32,4 +32,8 @@ struct TextHitTestResult {
   bool trailing;
   bool inside_text;
 };
+
+struct CRU_PLATFORM_GRAPHICS_API IGraphicsResource : virtual IPlatformResource {
+  virtual IGraphicsFactory* GetGraphicsFactory() = 0;
+};
 }  // namespace cru::platform::graphics

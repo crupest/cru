@@ -1,5 +1,5 @@
 #pragma once
-#include "Resource.h"
+#include "Base.h"
 
 #include <memory>
 

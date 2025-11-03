@@ -1,6 +1,7 @@
 #pragma once
 #include "Painter.h"
-#include "cru/base/Base.h"
+
+#include <cru/base/Base.h>
 
 namespace cru::platform::graphics {
 class NullPainter : public Object, public virtual IPainter {
