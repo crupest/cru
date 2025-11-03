@@ -10,7 +10,7 @@
 namespace cru::platform::unix {
 int UnixTimerFile::GetReadFd() const { return this->read_fd_; }
 
-UnixEventLoop::UnixEventLoop() : polls_(1), poll_actions_(1), timer_tag_(1) {
+UnixEventLoop::UnixEventLoop() : polls_(1), poll_actions_(1) {
   auto action_pipe = OpenUniDirectionalPipe(UnixPipeFlags::NonBlock);
   action_pipe_read_end_ = std::move(action_pipe.read);
   action_pipe_write_end_ = std::move(action_pipe.write);
@@ -38,7 +38,9 @@ int UnixEventLoop::Run() {
       continue;
     }
 
-    if (CheckTimer()) {
+    auto now = std::chrono::steady_clock::now();
+    if (auto result = timer_registry_.Update(now)) {
+      result->data();
       continue;
     }
 
@@ -46,72 +48,39 @@ int UnixEventLoop::Run() {
       continue;
     }
 
-    if (!timers_.empty()) {
-      poll_timeout =
-          std::ranges::min_element(timers_, [](const TimerData &left,
-                                               const TimerData &right) {
-            return left.timeout < right.timeout;
-          })->timeout.count();
+    if (auto next_timeout = timer_registry_.NextTimeout(now)) {
+      poll_timeout = next_timeout->count();
     }
-
-    auto start = std::chrono::steady_clock::now();
 
     auto result = ::poll(polls_.data(), polls_.size(), poll_timeout);
     if (result < 0) {
       throw Exception("Failed to poll in event loop.");
-    }
-
-    auto end = std::chrono::steady_clock::now();
-    auto time =
-        std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-
-    for (auto &timer : timers_) {
-      timer.timeout -= time;
     }
   }
 
   return exit_code_.value();
 }
 
-void UnixEventLoop::RequestQuit(int exit_code) { exit_code_ = exit_code; }
+void UnixEventLoop::RequestQuit(int exit_code) {
+  QueueAction([this, exit_code] { exit_code_ = exit_code; });
+}
 
 int UnixEventLoop::SetTimer(std::function<void()> action,
                             std::chrono::milliseconds timeout, bool repeat) {
-  if (repeat) {
-    if (timeout <= std::chrono::milliseconds::zero()) {
-      throw Exception("Interval must be bigger than 0.");
-    }
-  } else {
-    if (timeout < std::chrono::milliseconds::zero()) {
-      throw Exception("Timeout must be at least 0.");
-    }
-  }
-
-  auto tag = timer_tag_++;
-
-  timers_.push_back(
-      TimerData(tag, std::move(timeout), repeat, std::move(action)));
-
-  return tag;
+  return timer_registry_.Add(std::move(action), timeout, repeat);
 }
 
-void UnixEventLoop::CancelTimer(int id) {
-  auto iter = std::ranges::find_if(
-      timers_, [id](const TimerData &timer) { return timer.id == id; });
-  if (iter != timers_.cend()) {
-    timers_.erase(iter);
-  }
-}
+void UnixEventLoop::CancelTimer(int id) { timer_registry_.Remove(id); }
 
 bool UnixEventLoop::CheckPoll() {
   auto iter = std::ranges::find_if(
-      polls_, [](const pollfd &poll_fd) { return poll_fd.revents != 0; });
+      polls_, [](const pollfd& poll_fd) { return poll_fd.revents != 0; });
 
   if (iter == polls_.cend()) {
     return false;
   }
 
-  auto &revents = iter->revents;
+  auto& revents = iter->revents;
   if (revents != 0) {
     poll_actions_[iter - polls_.cbegin()](revents);
   }
@@ -120,32 +89,8 @@ bool UnixEventLoop::CheckPoll() {
   return true;
 }
 
-bool UnixEventLoop::CheckTimer() {
-  auto iter = std::ranges::find_if(timers_, [](const TimerData &timer) {
-    return timer.timeout <= std::chrono::milliseconds::zero();
-  });
-
-  if (iter == timers_.end()) {
-    return false;
-  }
-
-  auto &timer = *iter;
-  if (timer.repeat) {
-    while (timer.timeout <= std::chrono::milliseconds::zero()) {
-      timer.timeout += timer.original_timeout;
-      timer.action();
-    }
-  } else {
-    auto action = timer.action;
-    timers_.erase(iter);
-    action();
-  }
-
-  return true;
-}
-
 bool UnixEventLoop::CheckActionPipe() {
-  std::function<void()> *pointer;
+  std::function<void()>* pointer;
   constexpr size_t pointer_size = sizeof(decltype(pointer));
   auto rest = pointer_size;
   while (rest > 0) {
@@ -174,7 +119,7 @@ bool UnixEventLoop::CheckActionPipe() {
 }
 
 void UnixEventLoop::SetPoll(int fd, PollEvents events, PollHandler action) {
-  for (auto &poll_fd : polls_) {
+  for (auto& poll_fd : polls_) {
     if (poll_fd.fd == fd) {
       poll_fd.events = events;
       return;
@@ -191,7 +136,7 @@ void UnixEventLoop::SetPoll(int fd, PollEvents events, PollHandler action) {
 
 void UnixEventLoop::RemovePoll(int fd) {
   auto iter = std::ranges::find_if(
-      polls_, [fd](const pollfd &poll_fd) { return poll_fd.fd == fd; });
+      polls_, [fd](const pollfd& poll_fd) { return poll_fd.fd == fd; });
   if (iter != polls_.cend()) {
     auto index = iter - polls_.cbegin();
     polls_.erase(iter);

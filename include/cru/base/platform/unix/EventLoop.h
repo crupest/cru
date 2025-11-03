@@ -6,6 +6,7 @@
 
 #include "../../Base.h"
 #include "../../Exception.h"
+#include "../../Timer.h"
 #include "UnixFile.h"
 
 #include <poll.h>
@@ -54,27 +55,43 @@ class UnixEventLoop : public Object2 {
   UnixEventLoop();
 
   /**
-   * The only thread-safe function.
+   * Thread-safe.
    */
   void QueueAction(std::function<void()> action);
 
   int Run();
   void RequestQuit(int exit_code = 0);
 
+  /**
+   * Thread-safe.
+   */
   int SetTimer(std::function<void()> action, std::chrono::milliseconds timeout,
                bool repeat);
+
+  /**
+   * Thread-safe.
+   */
   void CancelTimer(int id);
 
+  /**
+   * Thread-safe.
+   */
   int SetImmediate(std::function<void()> action) {
     return this->SetTimer(std::move(action), std::chrono::milliseconds::zero(),
                           false);
   }
 
+  /**
+   * Thread-safe.
+   */
   int SetTimeout(std::function<void()> action,
                  std::chrono::milliseconds timeout) {
     return this->SetTimer(std::move(action), std::move(timeout), false);
   }
 
+  /**
+   * Thread-safe.
+   */
   int SetInterval(std::function<void()> action,
                   std::chrono::milliseconds interval) {
     return this->SetTimer(std::move(action), std::move(interval), true);
@@ -84,25 +101,7 @@ class UnixEventLoop : public Object2 {
   void RemovePoll(int fd);
 
  private:
-  struct TimerData {
-    int id;
-    std::chrono::milliseconds original_timeout;
-    std::chrono::milliseconds timeout;
-    bool repeat;
-    std::function<void()> action;
-
-    TimerData(int id, std::chrono::milliseconds timeout, bool repeat,
-              std::function<void()> action)
-        : id(id),
-          original_timeout(timeout),
-          timeout(timeout),
-          repeat(repeat),
-          action(std::move(action)) {}
-  };
-
- private:
   bool CheckPoll();
-  bool CheckTimer();
   bool CheckActionPipe();
 
  private:
@@ -111,8 +110,7 @@ class UnixEventLoop : public Object2 {
   std::vector<pollfd> polls_;
   std::vector<PollHandler> poll_actions_;
 
-  int timer_tag_;
-  std::vector<TimerData> timers_;
+  TimerRegistry<std::function<void()>> timer_registry_;
 
   UnixFileDescriptor action_pipe_read_end_;
   UnixFileDescriptor action_pipe_write_end_;

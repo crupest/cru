@@ -83,13 +83,13 @@ class TimerRegistry : public Object2 {
   }
 
   /**
-   * Returns 0 if there is no timer.
+   * Returns nullopt if there is no timer.
    */
-  std::chrono::milliseconds NextTimeout(
+  std::optional<std::chrono::milliseconds> NextTimeout(
       std::chrono::steady_clock::time_point now) {
     std::unique_lock lock(mutex_);
 
-    if (timers_.empty()) return std::chrono::milliseconds::zero();
+    if (timers_.empty()) return std::nullopt;
 
     return std::ranges::min(
         timers_ | std::views::transform([now](const TimerData& timer) {
