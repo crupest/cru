@@ -33,7 +33,7 @@ if (UNIX AND NOT EMSCRIPTEN)
 endif()
 
 if (APPLE)
-	target_sources(CruBase PRIVATE Osx.cpp)
+	target_sources(CruBase PRIVATE platform/osx/Base.cpp)
 	find_library(CORE_FOUNDATION CoreFoundation REQUIRED)
 	target_link_libraries(CruBase PUBLIC ${CORE_FOUNDATION})
 endif()

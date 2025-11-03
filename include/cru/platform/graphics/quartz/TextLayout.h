@@ -1,21 +1,16 @@
 #pragma once
-#include "Resource.h"
-
+#include "Base.h"
 #include "Font.h"
-#include "cru/base/Base.h"
-#include "cru/platform/graphics/TextLayout.h"
+
+#include <cru/platform/graphics/TextLayout.h>
 
 #include <memory>
 
 namespace cru::platform::graphics::quartz {
 class OsxCTTextLayout : public OsxQuartzResource, public virtual ITextLayout {
  public:
-  OsxCTTextLayout(IGraphicsFactory* graphics_factory,
-                  std::shared_ptr<OsxCTFont> font, const std::string& str);
-
-  CRU_DELETE_COPY(OsxCTTextLayout)
-  CRU_DELETE_MOVE(OsxCTTextLayout)
-
+  OsxCTTextLayout(IGraphicsFactory* graphics_factory, std::shared_ptr<OsxCTFont> font,
+                  const std::string& str);
   ~OsxCTTextLayout() override;
 
  public:
@@ -55,8 +50,7 @@ class OsxCTTextLayout : public OsxQuartzResource, public virtual ITextLayout {
   void RecreateFrame();
 
   CGRect DoGetTextBounds(bool includingTrailingSpace = false);
-  CGRect DoGetTextBoundsIncludingEmptyLines(
-      bool includingTrailingSpace = false);
+  CGRect DoGetTextBoundsIncludingEmptyLines(bool includingTrailingSpace = false);
   std::vector<CGRect> DoTextRangeRect(const TextRange& text_range);
   CGRect DoTextSinglePoint(Index position, bool trailing);
 

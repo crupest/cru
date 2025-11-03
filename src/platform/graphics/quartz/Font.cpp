@@ -1,7 +1,6 @@
 #include "cru/platform/graphics/quartz/Font.h"
 
-#include "cru/base/Osx.h"
-#include "cru/platform/graphics/quartz/Resource.h"
+#include "cru/base/platform/osx/Base.h"
 
 namespace cru::platform::graphics::quartz {
 OsxCTFont::OsxCTFont(IGraphicsFactory* graphics_factory,

@@ -1,7 +1,7 @@
 #pragma once
-#include "Resource.h"
-#include "cru/platform/graphics/Image.h"
-#include "cru/platform/graphics/ImageFactory.h"
+#include "Base.h"
+
+#include <cru/platform/graphics/Image.h>
 
 #include <CoreGraphics/CoreGraphics.h>
 
@@ -11,10 +11,6 @@ class QuartzImage : public OsxQuartzResource, public virtual IImage {
   QuartzImage(IGraphicsFactory* graphics_factory, IImageFactory* image_factory,
               CGImageRef image, bool auto_release,
               unsigned char* buffer = nullptr);
-
-  CRU_DELETE_COPY(QuartzImage)
-  CRU_DELETE_MOVE(QuartzImage)
-
   ~QuartzImage() override;
 
  public:

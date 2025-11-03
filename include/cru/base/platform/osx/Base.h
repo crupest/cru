@@ -6,7 +6,7 @@
 #error "This header can only be included on OSX platforms."
 #endif
 
-#include "Range.h"
+#include "../../Range.h"
 
 #include <CoreFoundation/CoreFoundation.h>
 #include <string>

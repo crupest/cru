@@ -1,7 +1,7 @@
 #pragma once
-#include "Resource.h"
+#include "Base.h"
 
-#include "cru/platform/gui/Menu.h"
+#include <cru/platform/gui/Menu.h>
 
 namespace cru::platform::gui::osx {
 namespace details {
@@ -19,9 +19,6 @@ class OsxMenuItem : public OsxGuiResource, public virtual IMenuItem {
   explicit OsxMenuItem(IUiApplication* ui_application);
 
  public:
-  CRU_DELETE_COPY(OsxMenuItem)
-  CRU_DELETE_MOVE(OsxMenuItem)
-
   ~OsxMenuItem() override;
 
  public:

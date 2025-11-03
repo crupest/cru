@@ -210,7 +210,7 @@ class PlatformSubProcess : public Object {
   std::unique_lock<std::mutex> lock_;
 };
 
-class CRU_BASE_API SubProcess : public Object {
+class CRU_BASE_API SubProcess {
   CRU_DEFINE_CLASS_LOG_TAG("SubProcess")
 
  public:
@@ -226,11 +226,9 @@ class CRU_BASE_API SubProcess : public Object {
   SubProcess(SubProcessStartInfo start_info);
 
   CRU_DELETE_COPY(SubProcess)
+  CRU_DEFAULT_MOVE(SubProcess)
 
-  SubProcess(SubProcess&& other) = default;
-  SubProcess& operator=(SubProcess&& other) = default;
-
-  ~SubProcess() override;
+  ~SubProcess();
 
  public:
   void Wait(std::optional<std::chrono::milliseconds> wait_time = std::nullopt);

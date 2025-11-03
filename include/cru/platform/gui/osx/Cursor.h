@@ -1,6 +1,7 @@
 #pragma once
-#include "Resource.h"
-#include "cru/platform/gui/Cursor.h"
+#include "Base.h"
+
+#include <cru/platform/gui/Cursor.h>
 
 #include <memory>
 
@@ -17,9 +18,6 @@ class OsxCursor : public OsxGuiResource, public virtual ICursor {
 
  public:
   OsxCursor(IUiApplication* ui_application, SystemCursorType cursor_type);
-  CRU_DELETE_COPY(OsxCursor)
-  CRU_DELETE_MOVE(OsxCursor)
-
   ~OsxCursor() override;
 
  private:
@@ -29,10 +27,6 @@ class OsxCursor : public OsxGuiResource, public virtual ICursor {
 class OsxCursorManager : public OsxGuiResource, public virtual ICursorManager {
  public:
   explicit OsxCursorManager(IUiApplication* ui_application);
-
-  CRU_DELETE_COPY(OsxCursorManager)
-  CRU_DELETE_MOVE(OsxCursorManager)
-
   ~OsxCursorManager() override;
 
   std::shared_ptr<ICursor> GetSystemCursor(SystemCursorType type) override;

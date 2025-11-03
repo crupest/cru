@@ -1,4 +1,5 @@
 #include "cru/platform/graphics/quartz/Brush.h"
+
 #include <format>
 
 namespace cru::platform::graphics::quartz {

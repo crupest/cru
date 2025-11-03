@@ -1,11 +1,9 @@
 #include "cru/platform/graphics/quartz/Painter.h"
 
 #include "cru/platform/graphics/quartz/Brush.h"
-#include "cru/platform/graphics/quartz/Convert.h"
 #include "cru/platform/graphics/quartz/Geometry.h"
 #include "cru/platform/graphics/quartz/Image.h"
 #include "cru/platform/graphics/quartz/TextLayout.h"
-#include "cru/platform/Color.h"
 
 namespace cru::platform::graphics::quartz {
 QuartzCGContextPainter::QuartzCGContextPainter(

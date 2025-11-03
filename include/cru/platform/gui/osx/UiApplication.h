@@ -1,6 +1,7 @@
 #pragma once
-#include "Resource.h"
-#include "cru/platform/gui/UiApplication.h"
+#include "Base.h"
+
+#include <cru/platform/gui/UiApplication.h>
 
 #include <functional>
 #include <memory>
@@ -18,10 +19,6 @@ class OsxUiApplication : public OsxGuiResource, public virtual IUiApplication {
 
  public:
   OsxUiApplication();
-
-  CRU_DELETE_COPY(OsxUiApplication)
-  CRU_DELETE_MOVE(OsxUiApplication)
-
   ~OsxUiApplication() override;
 
  public:

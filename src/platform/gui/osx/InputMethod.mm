@@ -1,10 +1,11 @@
 #include "cru/platform/gui/osx/InputMethod.h"
 
-#import <AppKit/AppKit.h>
 #include "InputMethodPrivate.h"
 #include "WindowPrivate.h"
 #include "cru/base/log/Logger.h"
 #include "cru/platform/gui/osx/Window.h"
+
+#import <AppKit/AppKit.h>
 
 namespace cru::platform::gui::osx {
 namespace details {

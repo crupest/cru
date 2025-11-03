@@ -1,10 +1,7 @@
 #include "cru/platform/graphics/quartz/TextLayout.h"
 #include "cru/base/Base.h"
-#include "cru/base/Osx.h"
 #include "cru/base/StringUtil.h"
-#include "cru/platform/graphics/Base.h"
-#include "cru/platform/graphics/quartz/Convert.h"
-#include "cru/platform/graphics/quartz/Resource.h"
+#include "cru/base/platform/osx/Base.h"
 
 #include <format>
 #include <limits>

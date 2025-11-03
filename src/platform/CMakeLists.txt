@@ -14,7 +14,6 @@ if (WIN32)
 	add_subdirectory(graphics/direct2d)
 	add_subdirectory(gui/win)
 elseif (APPLE)
-	add_subdirectory(osx)
 	add_subdirectory(graphics/quartz)
 	# TODO: Re-enable this!
 	# add_subdirectory(graphics/cairo)

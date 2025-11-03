@@ -1,19 +1,14 @@
 #pragma once
-#include "Resource.h"
-#include "cru/base/Base.h"
-#include "cru/platform/graphics/quartz/ImageFactory.h"
-#include "cru/platform/graphics/Factory.h"
-#include "cru/platform/graphics/ImageFactory.h"
+#include "Base.h"
+#include "ImageFactory.h"
+
+#include <cru/platform/graphics/Factory.h>
 
 namespace cru::platform::graphics::quartz {
 class QuartzGraphicsFactory : public OsxQuartzResource,
                               public virtual IGraphicsFactory {
  public:
   QuartzGraphicsFactory();
-
-  CRU_DELETE_COPY(QuartzGraphicsFactory)
-  CRU_DELETE_MOVE(QuartzGraphicsFactory)
-
   ~QuartzGraphicsFactory() override;
 
  public:

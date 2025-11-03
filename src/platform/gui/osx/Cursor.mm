@@ -2,10 +2,6 @@
 #include "CursorPrivate.h"
 #include "cru/base/Exception.h"
 
-#include "cru/platform/gui/Cursor.h"
-#include "cru/platform/gui/UiApplication.h"
-#include "cru/platform/gui/osx/Resource.h"
-
 #include <memory>
 
 namespace cru::platform::gui::osx {

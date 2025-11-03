@@ -3,18 +3,16 @@
 
 #include "CursorPrivate.h"
 #include "InputMethodPrivate.h"
-#include "cru/base/Osx.h"
+#include "cru/base/platform/osx/Base.h"
 #include "cru/base/Range.h"
 #include "cru/base/log/Logger.h"
 #include "cru/platform/graphics/NullPainter.h"
-#include "cru/platform/graphics/quartz/Convert.h"
 #include "cru/platform/graphics/quartz/Painter.h"
 #include "cru/platform/gui/Input.h"
 #include "cru/platform/gui/TimerHelper.h"
 #include "cru/platform/gui/osx/Cursor.h"
 #include "cru/platform/gui/osx/InputMethod.h"
 #include "cru/platform/gui/osx/Keyboard.h"
-#include "cru/platform/gui/osx/Resource.h"
 #include "cru/platform/gui/osx/UiApplication.h"
 
 #include <AppKit/AppKit.h>

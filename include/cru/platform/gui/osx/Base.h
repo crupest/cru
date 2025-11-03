@@ -1,16 +1,12 @@
 #pragma once
-#include "cru/platform/osx/Resource.h"
+#include <cru/platform/Base.h>
 
 #include <cru/platform/gui/UiApplication.h>
 
 namespace cru::platform::gui::osx {
-class OsxGuiResource : public platform::osx::OsxResource {
+class OsxGuiResource : public Object, public virtual IPlatformResource {
  public:
   explicit OsxGuiResource(IUiApplication* ui_application);
-
-  CRU_DELETE_COPY(OsxGuiResource)
-  CRU_DELETE_MOVE(OsxGuiResource)
-
   ~OsxGuiResource() override = default;
 
  public:

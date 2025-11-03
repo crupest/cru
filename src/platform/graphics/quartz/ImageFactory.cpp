@@ -1,8 +1,5 @@
 #include "cru/platform/graphics/quartz/ImageFactory.h"
-#include "cru/base/Exception.h"
-#include "cru/base/Osx.h"
-#include "cru/platform/graphics/Image.h"
-#include "cru/platform/graphics/quartz/Convert.h"
+#include "cru/base/platform/osx/Base.h"
 #include "cru/platform/graphics/quartz/Image.h"
 
 #include <ImageIO/ImageIO.h>

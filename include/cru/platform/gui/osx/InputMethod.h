@@ -1,7 +1,7 @@
 #pragma once
-#include "Resource.h"
+#include "Base.h"
 
-#include "cru/platform/gui/InputMethod.h"
+#include <cru/platform/gui/InputMethod.h>
 
 namespace cru::platform::gui::osx {
 class OsxWindow;
@@ -19,10 +19,6 @@ class OsxInputMethodContext : public OsxGuiResource,
 
  public:
   explicit OsxInputMethodContext(OsxWindow* window);
-
-  CRU_DELETE_COPY(OsxInputMethodContext)
-  CRU_DELETE_MOVE(OsxInputMethodContext)
-
   ~OsxInputMethodContext() override;
 
  public:

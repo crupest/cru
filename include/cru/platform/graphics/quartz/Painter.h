@@ -1,11 +1,9 @@
 #pragma once
-#include "Resource.h"
-#include "cru/base/Base.h"
-#include "cru/platform/graphics/Base.h"
-#include "cru/platform/graphics/Painter.h"
+#include "Base.h"
+
+#include <cru/platform/graphics/Painter.h>
 
 #include <CoreGraphics/CoreGraphics.h>
-
 #include <functional>
 
 namespace cru::platform::graphics::quartz {
@@ -18,10 +16,6 @@ class QuartzCGContextPainter : public OsxQuartzResource,
       IGraphicsFactory* graphics_factory, CGContextRef cg_context,
       bool auto_release, const Size& size,
       std::function<void(QuartzCGContextPainter*)> on_end_draw);
-
-  CRU_DELETE_COPY(QuartzCGContextPainter)
-  CRU_DELETE_MOVE(QuartzCGContextPainter)
-
   ~QuartzCGContextPainter() override;
 
  public:

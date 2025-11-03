@@ -1,5 +1,5 @@
 #include "cru/platform/gui/osx/Clipboard.h"
-#include "cru/base/Osx.h"
+#include "cru/base/platform/osx/Base.h"
 #include "cru/base/log/Logger.h"
 
 #include "ClipboardPrivate.h"

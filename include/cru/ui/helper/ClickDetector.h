@@ -15,11 +15,6 @@ class CRU_UI_API ClickEventArgs : Object {
         up_point_(up_point),
         button_(button) {}
 
-  CRU_DEFAULT_COPY(ClickEventArgs)
-  CRU_DEFAULT_MOVE(ClickEventArgs)
-
-  ~ClickEventArgs() override = default;
-
   controls::Control* GetSender() const { return sender_; }
   Point GetDownPoint() const { return down_point_; }
   Point GetDownPointOfScreen() const;

@@ -1,4 +1,4 @@
-#include "cru/platform/gui/osx/Resource.h"
+#include "cru/platform/gui/osx/Base.h"
 
 namespace cru::platform::gui::osx {
 OsxGuiResource::OsxGuiResource(IUiApplication* ui_application)

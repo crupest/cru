@@ -1,8 +1,7 @@
 #pragma once
-#include "Resource.h"
-#include "cru/platform/gui/Base.h"
-#include "cru/platform/gui/InputMethod.h"
-#include "cru/platform/gui/Window.h"
+#include "Base.h"
+
+#include <cru/platform/gui/Window.h>
 
 #include <memory>
 
@@ -21,10 +20,6 @@ class OsxWindow : public OsxGuiResource, public INativeWindow {
 
  public:
   OsxWindow(OsxUiApplication* ui_application);
-
-  CRU_DELETE_COPY(OsxWindow)
-  CRU_DELETE_MOVE(OsxWindow)
-
   ~OsxWindow() override;
 
  public:
