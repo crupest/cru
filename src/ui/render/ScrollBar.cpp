@@ -1,30 +1,24 @@
 #include "cru/ui/render/ScrollBar.h"
 
 #include "../Helper.h"
-#include "cru/base/Base.h"
 #include "cru/platform/GraphicsBase.h"
 #include "cru/platform/graphics/Factory.h"
 #include "cru/platform/graphics/Geometry.h"
 #include "cru/platform/graphics/Painter.h"
-#include "cru/platform/graphics/util/Painter.h"
-#include "cru/platform/gui/Base.h"
 #include "cru/platform/gui/Cursor.h"
-#include "cru/platform/gui/Input.h"
 #include "cru/ui/Base.h"
 #include "cru/ui/ThemeManager.h"
-#include "cru/ui/events/UiEvents.h"
-#include "cru/ui/helper/ClickDetector.h"
 #include "cru/ui/host/WindowHost.h"
 #include "cru/ui/render/ScrollRenderObject.h"
 
 #include <algorithm>
+#include <array>
 #include <cassert>
 #include <chrono>
 #include <memory>
 #include <optional>
 #include <stdexcept>
 #include <string>
-#include <array>
 
 namespace cru::ui::render {
 using namespace std::chrono_literals;
@@ -40,7 +34,7 @@ constexpr std::array<ScrollBarAreaKind, 5> kScrollBarAreaKindList{
     ScrollBarAreaKind::Thumb};
 
 std::string GenerateScrollBarThemeColorKey(ScrollBarBrushUsageKind usage,
-                                      ScrollBarBrushStateKind state) {
+                                           ScrollBarBrushStateKind state) {
   std::string result = "scrollbar.";
   switch (usage) {
     case ScrollBarBrushUsageKind::Arrow:
@@ -421,8 +415,8 @@ void HorizontalScrollBar::DrawUpArrow(
     platform::graphics::IBrush* background_brush) {
   painter->FillRectangle(area, background_brush);
 
-  platform::graphics::util::WithTransform(
-      painter, Matrix::Translation(area.GetCenter()),
+  painter->WithTransform(
+      Matrix::Translation(area.GetCenter()),
       [this, arrow_brush](platform::graphics::IPainter* painter) {
         painter->FillGeometry(arrow_geometry_.get(), arrow_brush);
       });
@@ -434,8 +428,8 @@ void HorizontalScrollBar::DrawDownArrow(
     platform::graphics::IBrush* background_brush) {
   painter->FillRectangle(area, background_brush);
 
-  platform::graphics::util::WithTransform(
-      painter, Matrix::Rotation(180) * Matrix::Translation(area.GetCenter()),
+  painter->WithTransform(
+      Matrix::Rotation(180) * Matrix::Translation(area.GetCenter()),
       [this, arrow_brush](platform::graphics::IPainter* painter) {
         painter->FillGeometry(arrow_geometry_.get(), arrow_brush);
       });
@@ -569,8 +563,8 @@ void VerticalScrollBar::DrawUpArrow(
     platform::graphics::IBrush* background_brush) {
   painter->FillRectangle(area, background_brush);
 
-  platform::graphics::util::WithTransform(
-      painter, Matrix::Rotation(90) * Matrix::Translation(area.GetCenter()),
+  painter->WithTransform(
+      Matrix::Rotation(90) * Matrix::Translation(area.GetCenter()),
       [this, arrow_brush](platform::graphics::IPainter* painter) {
         painter->FillGeometry(arrow_geometry_.get(), arrow_brush);
       });
@@ -582,8 +576,8 @@ void VerticalScrollBar::DrawDownArrow(
     platform::graphics::IBrush* background_brush) {
   painter->FillRectangle(area, background_brush);
 
-  platform::graphics::util::WithTransform(
-      painter, Matrix::Rotation(270) * Matrix::Translation(area.GetCenter()),
+  painter->WithTransform(
+      Matrix::Rotation(270) * Matrix::Translation(area.GetCenter()),
       [this, arrow_brush](platform::graphics::IPainter* painter) {
         painter->FillGeometry(arrow_geometry_.get(), arrow_brush);
       });

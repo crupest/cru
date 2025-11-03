@@ -1,4 +1,5 @@
 #pragma once
+#include <type_traits>
 #include "Base.h"
 
 namespace cru::platform::graphics {
@@ -42,5 +43,15 @@ struct CRU_PLATFORM_GRAPHICS_API IPainter : virtual IPlatformResource {
   virtual void PopState() = 0;
 
   virtual void EndDraw() = 0;
+
+  template <typename Fn>
+  std::enable_if_t<std::is_invocable_v<Fn, IPainter*>> WithTransform(
+      const Matrix& matrix, const Fn& action) {
+    const auto old = this->GetTransform();
+    this->PushState();
+    this->ConcatTransform(matrix);
+    action(this);
+    this->PopState();
+  }
 };
 }  // namespace cru::platform::graphics
