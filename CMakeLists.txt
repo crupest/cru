@@ -43,16 +43,13 @@ add_subdirectory(src)
 add_subdirectory(test)
 add_subdirectory(demos)
 
-set(CLANGD_FILE ${CMAKE_BINARY_DIR}/clangd)
-
 if(EMSCRIPTEN)
 	execute_process(COMMAND ${CMAKE_C_COMPILER} --cflags OUTPUT_VARIABLE CLANGD_FLAGS_TO_ADD)
 	separate_arguments(CLANGD_FLAGS_TO_ADD UNIX_COMMAND "${CLANGD_FLAGS_TO_ADD}")
 	list(JOIN CLANGD_FLAGS_TO_ADD ", " CLANGD_FLAGS_TO_ADD)
 endif()
 
-set(CLANGD_TEMPLATE ${PROJECT_SOURCE_DIR}/scripts/clangd.in)
-configure_file(${CLANGD_TEMPLATE} ${CLANGD_FILE})
+configure_file("${PROJECT_SOURCE_DIR}/scripts/clangd.in" "${CMAKE_BINARY_DIR}/clangd")
 
 function(cru_process_dir dir)
 	get_property(targets DIRECTORY "${dir}" PROPERTY BUILDSYSTEM_TARGETS)
