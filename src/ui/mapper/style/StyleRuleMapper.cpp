@@ -1,7 +1,5 @@
 #include "cru/ui/mapper/style/StyleRuleMapper.h"
 #include "cru/base/ClonablePtr.h"
-#include "cru/base/Exception.h"
-#include "cru/base/log/Logger.h"
 #include "cru/ui/mapper/MapperRegistry.h"
 #include "cru/ui/mapper/style/IConditionMapper.h"
 #include "cru/ui/mapper/style/IStylerMapper.h"

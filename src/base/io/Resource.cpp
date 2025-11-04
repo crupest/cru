@@ -1,6 +1,5 @@
 #include "cru/base/io/Resource.h"
 #include "cru/base/Base.h"
-#include "cru/base/Exception.h"
 
 #if defined(CRU_PLATFORM_OSX)
 #include <CoreFoundation/CoreFoundation.h>

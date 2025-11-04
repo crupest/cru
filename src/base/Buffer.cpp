@@ -1,5 +1,4 @@
 #include "cru/base/Buffer.h"
-#include "cru/base/Exception.h"
 
 #include <cstring>
 

@@ -1,6 +1,5 @@
 #pragma once
 #include "Base.h"
-#include "Exception.h"
 #include "io/Stream.h"
 
 #include <chrono>

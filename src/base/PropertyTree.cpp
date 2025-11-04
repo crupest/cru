@@ -1,5 +1,4 @@
 #include "cru/base/PropertyTree.h"
-#include "cru/base/Exception.h"
 
 namespace cru {
 std::string PropertySubTreeRef::CombineKey(std::string_view left,

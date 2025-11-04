@@ -6,7 +6,7 @@
 
 #include "WinPreConfig.h"
 
-#include "../../Exception.h"
+#include "../../Base.h"
 
 namespace cru::platform::win {
 class CRU_BASE_API HResultError : public Exception {

@@ -1,5 +1,4 @@
 #include "cru/base/io/Stream.h"
-#include "cru/base/Exception.h"
 
 #include <algorithm>
 #include <format>

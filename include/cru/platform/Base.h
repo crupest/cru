@@ -1,7 +1,6 @@
 #pragma once
 
 #include <cru/base/Base.h>
-#include <cru/base/Exception.h>
 
 #include <string>
 

@@ -1,7 +1,6 @@
 
 #pragma once
 
-#include <cru/base/Exception.h>
 #include <cru/platform/Base.h>
 
 namespace cru::platform::gui::sdl {

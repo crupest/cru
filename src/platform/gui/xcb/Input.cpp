@@ -1,5 +1,4 @@
 #include "cru/platform/gui/xcb/Input.h"
-#include "cru/base/Exception.h"
 #include "cru/base/Guard.h"
 #include "cru/platform/gui/xcb/UiApplication.h"
 

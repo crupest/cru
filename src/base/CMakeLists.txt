@@ -1,7 +1,6 @@
 add_library(CruBase
 	Base.cpp
 	Buffer.cpp
-	Exception.cpp
 	PropertyTree.cpp
 	StringUtil.cpp
 	SubProcess.cpp

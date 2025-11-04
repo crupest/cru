@@ -1,5 +1,4 @@
 #include "cru/base/platform/unix/PosixSpawnSubProcess.h"
-#include "cru/base/Exception.h"
 #include "cru/base/Guard.h"
 #include "cru/base/SubProcess.h"
 #include "cru/base/log/Logger.h"

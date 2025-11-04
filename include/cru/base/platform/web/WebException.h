@@ -2,7 +2,7 @@
 
 #ifdef CRU_PLATFORM_EMSCRIPTEN
 
-#include "../Exception.h"
+#include "../../Base.h"
 
 namespace cru::platform::web {
 class WebException : public PlatformException {

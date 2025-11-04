@@ -1,6 +1,5 @@
 #include "cru/ui/render/RenderObject.h"
 
-#include "cru/base/Exception.h"
 #include "cru/base/log/Logger.h"
 #include "cru/platform/GraphicsBase.h"
 #include "cru/ui/DebugFlags.h"

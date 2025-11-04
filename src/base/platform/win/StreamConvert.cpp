@@ -1,7 +1,6 @@
 #include "cru/base/platform/win/StreamConvert.h"
 #include "BrigdeComStream.h"
 #include "Win32FileStreamPrivate.h"
-#include "cru/base/Exception.h"
 #include "cru/base/io/MemoryStream.h"
 #include "cru/base/io/OpenFileFlag.h"
 #include "cru/base/platform/win/ComAutoInit.h"

@@ -1,5 +1,4 @@
 #include "cru/base/platform/unix/UnixFile.h"
-#include "cru/base/Exception.h"
 #include "cru/base/log/Logger.h"
 
 #include <fcntl.h>

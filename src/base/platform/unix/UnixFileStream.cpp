@@ -1,5 +1,4 @@
 #include "cru/base/platform/unix/UnixFileStream.h"
-#include "cru/base/Exception.h"
 #include "cru/base/io/Stream.h"
 
 #include <fcntl.h>

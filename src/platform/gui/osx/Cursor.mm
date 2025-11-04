@@ -1,6 +1,5 @@
 #include "cru/platform/gui/osx/Cursor.h"
 #include "CursorPrivate.h"
-#include "cru/base/Exception.h"
 
 #include <memory>
 

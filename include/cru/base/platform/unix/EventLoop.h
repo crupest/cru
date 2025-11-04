@@ -5,7 +5,6 @@
 #endif
 
 #include "../../Base.h"
-#include "../../Exception.h"
 #include "../../Timer.h"
 #include "UnixFile.h"
 

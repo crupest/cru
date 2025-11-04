@@ -1,5 +1,4 @@
 #include "cru/base/platform/unix/EventLoop.h"
-#include "cru/base/Exception.h"
 
 #include <poll.h>
 #include <algorithm>

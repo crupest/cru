@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Exception.h"
+#include "../Base.h"
 #include "TomlDocument.h"
 
 #include <optional>

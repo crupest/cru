@@ -1,6 +1,5 @@
 #include "cru/platform/gui/osx/Keyboard.h"
 #import "KeyboardPrivate.h"
-#include "cru/base/Exception.h"
 
 #import <AppKit/NSText.h>
 #import <Carbon/Carbon.h>

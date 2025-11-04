@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Exception.h"
+#include "../Base.h"
 #include "XmlNode.h"
 
 namespace cru::xml {

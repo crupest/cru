@@ -8,7 +8,6 @@
 #include "MarginStylerEditor.h"
 #include "PaddingStylerEditor.h"
 #include "PreferredSizeStylerEditor.h"
-#include "cru/base/Exception.h"
 #include "cru/ui/controls/FlexLayout.h"
 #include "cru/ui/render/FlexLayoutRenderObject.h"
 #include "cru/ui/style/Styler.h"

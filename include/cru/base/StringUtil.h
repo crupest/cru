@@ -18,6 +18,11 @@
 #include <vector>
 
 namespace cru::string {
+class CRU_BASE_API TextEncodeException : public Exception {
+ public:
+  using Exception::Exception;
+};
+
 std::weak_ordering CRU_BASE_API CaseInsensitiveCompare(std::string_view left,
                                                        std::string_view right);
 std::string CRU_BASE_API TrimBegin(std::string_view str);

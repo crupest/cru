@@ -1,5 +1,4 @@
 #include "StyleRuleSetEditor.h"
-#include "cru/base/Exception.h"
 #include "cru/ui/DeleteLater.h"
 #include "cru/ui/ThemeManager.h"
 #include "cru/ui/controls/FlexLayout.h"

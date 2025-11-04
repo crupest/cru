@@ -1,6 +1,5 @@
 #pragma once
 
-#include <cru/base/Exception.h>
 #include <cru/platform/Base.h>
 #include <cru/platform/gui/Base.h>
 

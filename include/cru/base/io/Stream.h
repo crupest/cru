@@ -2,7 +2,6 @@
 
 #include "../Base.h"
 #include "../Buffer.h"
-#include "../Exception.h"
 
 #include <cstddef>
 

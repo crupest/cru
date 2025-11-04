@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../Buffer.h"
-#include "../Exception.h"
 #include "Stream.h"
 
 #include <condition_variable>

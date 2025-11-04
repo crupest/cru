@@ -1,5 +1,4 @@
 #include "cru/platform/graphics/cairo/CairoImageFactory.h"
-#include "cru/base/Exception.h"
 #include "cru/platform/graphics/cairo/Base.h"
 #include "cru/platform/graphics/cairo/CairoImage.h"
 

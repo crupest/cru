@@ -1,6 +1,5 @@
 #include "cru/ui/mapper/style/ClickStateConditionMapper.h"
 #include "cru/base/ClonablePtr.h"
-#include "cru/base/Exception.h"
 #include "cru/base/StringUtil.h"
 #include "cru/ui/helper/ClickDetector.h"
 #include "cru/ui/style/Condition.h"

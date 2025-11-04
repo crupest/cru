@@ -1,5 +1,4 @@
 #include "cru/base/io/CFileStream.h"
-#include "cru/base/Exception.h"
 #include "cru/base/io/Stream.h"
 
 #include <cstdio>

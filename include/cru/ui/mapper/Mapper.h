@@ -2,7 +2,6 @@
 #include "../Base.h"
 
 #include "cru/base/ClonablePtr.h"
-#include "cru/base/Exception.h"
 #include "cru/base/xml/XmlNode.h"
 
 #include <memory>

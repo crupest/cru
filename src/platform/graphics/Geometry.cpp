@@ -1,6 +1,5 @@
 #include "cru/platform/graphics/Geometry.h"
 
-#include "cru/base/Exception.h"
 #include "cru/base/StringUtil.h"
 #include "cru/platform/graphics/Factory.h"
 

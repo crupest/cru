@@ -1,6 +1,5 @@
 #include "cru/base/StringUtil.h"
 #include "cru/base/Base.h"
-#include "cru/base/Exception.h"
 
 #include <algorithm>
 #include <cctype>

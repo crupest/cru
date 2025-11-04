@@ -1,7 +1,6 @@
 #include "cru/base/io/MemoryStream.h"
 
 #include <cstring>
-#include "cru/base/Exception.h"
 #include "cru/base/io/Stream.h"
 
 namespace cru::io {
