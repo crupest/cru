@@ -32,12 +32,3 @@ if (UNIX AND NOT EMSCRIPTEN) # It's so great to see emscripten is somewhat UNIX!
 	target_link_libraries(CruPlatformGraphicsCairo PUBLIC CruPlatformGraphics PUBLIC ${LIB_GOBJECT} ${LIB_CAIRO} ${LIB_PANGO} ${LIB_PANGOCAIRO} ${LIB_PNG})
 	target_include_directories(CruPlatformGraphicsCairo PUBLIC ${CAIRO_HEADER_DIR} ${GLIB_HEADER_DIR} ${GLIBCONFIG_HEADER_DIR} ${HARFBUZZ_HEADER_DIR} ${PANGO_HEADER_DIR})
 endif()
-
-if (EMSCRIPTEN)
-	add_dependencies(CruPlatformGraphicsCairo build-meson-projects)
-	target_link_libraries(CruPlatformGraphicsCairo PUBLIC CruPlatformGraphics PUBLIC
-		${MESON_PROJECTS_INSTALL_DIR}/lib/libcairo.a 
-		${MESON_PROJECTS_INSTALL_DIR}/lib/libpango.a
-	)
-	target_include_directories(CruPlatformGraphicsCairo PUBLIC ${MESON_PROJECTS_INSTALL_DIR}/include)
-endif()
