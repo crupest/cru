@@ -2,7 +2,7 @@
 #include "Base.h"
 
 #include "cru/base/Base.h"
-#include "cru/xml/XmlNode.h"
+#include "cru/base/xml/XmlNode.h"
 #include "mapper/MapperRegistry.h"
 #include "style/StyleRuleSet.h"
 

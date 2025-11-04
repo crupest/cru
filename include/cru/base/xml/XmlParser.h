@@ -1,16 +1,15 @@
 #pragma once
 
+#include "../Exception.h"
 #include "XmlNode.h"
 
-#include "cru/base/Exception.h"
-
 namespace cru::xml {
-class CRU_XML_API XmlParsingException : public Exception {
+class CRU_BASE_API XmlParsingException : public Exception {
  public:
   using Exception::Exception;
 };
 
-class CRU_XML_API XmlParser {
+class CRU_BASE_API XmlParser {
  public:
   explicit XmlParser(std::string xml);
 

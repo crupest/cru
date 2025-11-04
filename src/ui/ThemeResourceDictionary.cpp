@@ -2,8 +2,8 @@
 #include "cru/base/StringUtil.h"
 #include "cru/base/io/CFileStream.h"
 #include "cru/base/log/Logger.h"
-#include "cru/xml/XmlNode.h"
-#include "cru/xml/XmlParser.h"
+#include "cru/base/xml/XmlNode.h"
+#include "cru/base/xml/XmlParser.h"
 
 namespace cru::ui {
 

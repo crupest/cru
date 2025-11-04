@@ -1,5 +1,5 @@
 #include "cru/ui/mapper/StringMapper.h"
-#include "cru/xml/XmlNode.h"
+#include "cru/base/xml/XmlNode.h"
 
 namespace cru::ui::mapper {
 StringMapper::StringMapper() { SetAllowedTags({"String"}); }

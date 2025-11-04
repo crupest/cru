@@ -1,6 +1,6 @@
-#include "cru/xml/XmlParser.h"
+#include "cru/base/xml/XmlParser.h"
 #include "cru/base/StringUtil.h"
-#include "cru/xml/XmlNode.h"
+#include "cru/base/xml/XmlNode.h"
 
 namespace cru::xml {
 XmlParser::XmlParser(std::string xml) : xml_(std::move(xml)) {}
@@ -179,7 +179,8 @@ XmlElementNode* XmlParser::DoParse() {
         text += c;
       }
 
-      if (!text.empty()) current_->AddChild(new XmlTextNode(cru::string::TrimEnd(text)));
+      if (!text.empty())
+        current_->AddChild(new XmlTextNode(cru::string::TrimEnd(text)));
     }
   }
 

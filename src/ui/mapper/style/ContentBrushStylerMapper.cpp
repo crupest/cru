@@ -3,7 +3,7 @@
 #include "cru/platform/graphics/Brush.h"
 #include "cru/ui/mapper/MapperRegistry.h"
 #include "cru/ui/style/Styler.h"
-#include "cru/xml/XmlNode.h"
+#include "cru/base/xml/XmlNode.h"
 
 namespace cru::ui::mapper::style {
 ContentBrushStylerMapper::ContentBrushStylerMapper() {

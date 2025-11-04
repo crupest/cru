@@ -2,7 +2,7 @@
 #include "cru/base/ClonablePtr.h"
 #include "cru/base/StringUtil.h"
 #include "cru/ui/style/Condition.h"
-#include "cru/xml/XmlNode.h"
+#include "cru/base/xml/XmlNode.h"
 
 namespace cru::ui::mapper::style {
 bool FocusConditionMapper::XmlElementIsOfThisType(xml::XmlElementNode* node) {

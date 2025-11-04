@@ -1,4 +1,5 @@
-#include "cru/xml/XmlNode.h"
+#include "cru/base/xml/XmlNode.h"
+
 #include <algorithm>
 
 namespace cru::xml {
@@ -65,8 +66,6 @@ XmlNode* XmlElementNode::Clone() const {
 
   return node;
 }
-
-XmlCommentNode::~XmlCommentNode() {}
 
 XmlNode* XmlCommentNode::Clone() const {
   XmlCommentNode* node = new XmlCommentNode(text_);

@@ -3,7 +3,7 @@
 
 #include "cru/base/ClonablePtr.h"
 #include "cru/base/Exception.h"
-#include "cru/xml/XmlNode.h"
+#include "cru/base/xml/XmlNode.h"
 
 #include <memory>
 #include <type_traits>

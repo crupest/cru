@@ -79,4 +79,4 @@ add_library(CruUi
 	style/StyleRuleSet.cpp
 )
 target_compile_definitions(CruUi PRIVATE CRU_UI_EXPORT_API)
-target_link_libraries(CruUi PUBLIC CruPlatformGui CruXml)
+target_link_libraries(CruUi PUBLIC CruPlatformGui)
