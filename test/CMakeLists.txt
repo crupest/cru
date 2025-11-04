@@ -17,5 +17,4 @@ endfunction()
 
 add_subdirectory(base)
 add_subdirectory(platform)
-add_subdirectory(toml)
 add_subdirectory(ui)

@@ -14,6 +14,8 @@ add_library(CruBase
 	io/MemoryStream.cpp
 	log/Logger.cpp
 	log/StdioLogTarget.cpp
+	toml/TomlDocument.cpp
+	toml/TomlParser.cpp
 	xml/XmlNode.cpp
 	xml/XmlParser.cpp
 )

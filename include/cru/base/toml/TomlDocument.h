@@ -1,20 +1,13 @@
 #pragma once
 
-#include "Base.h"
-
-#include "cru/base/Base.h"
+#include "../Base.h"
 
 #include <optional>
 #include <unordered_map>
 #include <string>
 
 namespace cru::toml {
-class CRU_TOML_API TomlSection {
- public:
-  CRU_DEFAULT_CONSTRUCTOR_DESTRUCTOR(TomlSection)
-  CRU_DEFAULT_COPY(TomlSection)
-  CRU_DEFAULT_MOVE(TomlSection)
-
+class CRU_BASE_API TomlSection {
  public:
   std::optional<std::string> GetValue(const std::string& key) const;
   void SetValue(const std::string& key, std::string value);
@@ -31,12 +24,7 @@ class CRU_TOML_API TomlSection {
   std::unordered_map<std::string, std::string> values_;
 };
 
-class CRU_TOML_API TomlDocument {
- public:
-  CRU_DEFAULT_CONSTRUCTOR_DESTRUCTOR(TomlDocument)
-  CRU_DEFAULT_COPY(TomlDocument)
-  CRU_DEFAULT_MOVE(TomlDocument)
-
+class CRU_BASE_API TomlDocument {
  public:
   TomlSection* GetSection(const std::string& name);
   TomlSection* GetSectionOrCreate(const std::string& name);

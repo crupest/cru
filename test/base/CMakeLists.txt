@@ -6,6 +6,7 @@ add_executable(CruBaseTest
 	StringUtilTest.cpp
 	SubProcessTest.cpp
 	TimerTest.cpp
+	toml/ParserTest.cpp
 	xml/ParserTest.cpp
 )
 target_link_libraries(CruBaseTest PRIVATE CruBase CruTestBase)

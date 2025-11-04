@@ -1,6 +1,6 @@
-#include "cru/toml/TomlParser.h"
+#include "cru/base/toml/TomlParser.h"
 #include "cru/base/StringUtil.h"
-#include "cru/toml/TomlDocument.h"
+#include "cru/base/toml/TomlDocument.h"
 
 namespace cru::toml {
 TomlParser::TomlParser(std::string input) : input_(std::move(input)) {}
@@ -18,7 +18,8 @@ TomlDocument TomlParser::Parse() {
 }
 
 void TomlParser::DoParse(TomlDocument& document) {
-  std::vector<std::string> lines = cru::string::Split(input_, "\n", cru::string::SplitOptions::RemoveSpace);
+  std::vector<std::string> lines =
+      cru::string::Split(input_, "\n", cru::string::SplitOptions::RemoveSpace);
 
   std::string current_section_name;
 

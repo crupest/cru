@@ -1,4 +1,4 @@
-#include "cru/toml/TomlDocument.h"
+#include "cru/base/toml/TomlDocument.h"
 
 namespace cru::toml {
 std::optional<std::string> TomlSection::GetValue(const std::string& key) const {
@@ -44,6 +44,8 @@ void TomlDocument::SetSection(const std::string& name, TomlSection section) {
   sections_[name] = std::move(section);
 }
 
-void TomlDocument::DeleteSection(const std::string& name) { sections_.erase(name); }
+void TomlDocument::DeleteSection(const std::string& name) {
+  sections_.erase(name);
+}
 
 }  // namespace cru::toml

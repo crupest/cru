@@ -1,24 +1,20 @@
 #pragma once
 
-#include "cru/base/Exception.h"
-#include "cru/toml/TomlDocument.h"
+#include "../Exception.h"
+#include "TomlDocument.h"
 
 #include <optional>
 
 namespace cru::toml {
 // A very simple and tolerant TOML parser.
-class CRU_TOML_API TomlParsingException : public Exception {
+class CRU_BASE_API TomlParsingException : public Exception {
  public:
   using Exception::Exception;
 };
 
-class CRU_TOML_API TomlParser {
+class CRU_BASE_API TomlParser : public Object {
  public:
   explicit TomlParser(std::string input);
-
-  CRU_DELETE_COPY(TomlParser)
-  CRU_DELETE_MOVE(TomlParser)
-
   ~TomlParser();
 
  public:

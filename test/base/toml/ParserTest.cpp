@@ -1,5 +1,5 @@
-#include "cru/toml/TomlDocument.h"
-#include "cru/toml/TomlParser.h"
+#include "cru/base/toml/TomlDocument.h"
+#include "cru/base/toml/TomlParser.h"
 
 #include <catch2/catch_test_macros.hpp>
 
