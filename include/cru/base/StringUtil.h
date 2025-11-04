@@ -5,8 +5,10 @@
 #include <algorithm>
 #include <cctype>
 #include <charconv>
+#include <cmath>
 #include <compare>
 #include <cstdint>
+#include <cstdlib>
 #include <format>
 #include <functional>
 #include <string>
@@ -35,6 +37,52 @@ struct SplitOptions {
 std::vector<std::string> CRU_BASE_API Split(std::string_view str,
                                             std::string_view sep,
                                             SplitOption options = {});
+
+namespace details {
+template <typename T>
+std::enable_if_t<std::is_integral_v<T>, std::from_chars_result> from_chars(
+    const char* first, const char* last, T& value, int base = 10) {
+  return std::from_chars(first, last, value, base);
+}
+
+template <typename T, T (*StrToFunc)(const char* str, char** str_end),
+          bool (*IsOverflow)(T value)>
+std::enable_if_t<std::is_floating_point_v<T>, std::from_chars_result>
+float_from_chars_impl(const char* first, const char* last, T& value,
+                      std::chars_format fmt = std::chars_format::general) {
+  if (std::isspace(*first)) {
+    return std::from_chars_result{first, std::errc::invalid_argument};
+  }
+
+  std::string str(first, last);
+  auto c_str = str.c_str();
+  char* c_str_end;
+  auto parsed_value = StrToFunc(c_str, &c_str_end);
+  if (c_str == c_str_end) {
+    return std::from_chars_result{first, std::errc::invalid_argument};
+  }
+  if (IsOverflow(parsed_value)) {
+    return std::from_chars_result{first, std::errc::result_out_of_range};
+  }
+  value = parsed_value;
+  return std::from_chars_result{first + (c_str_end - c_str), {}};
+}
+
+#define CRU_DEFINE_FLOAT_FROM_CHARS(type, str_to_func, overflow_value)    \
+  inline std::from_chars_result from_chars(                               \
+      const char* first, const char* last, type& value,                   \
+      std::chars_format fmt = std::chars_format::general) {               \
+    return float_from_chars_impl<type, std::str_to_func, [](type value) { \
+      return value == overflow_value;                                     \
+    }>(first, last, value, fmt);                                          \
+  }
+
+CRU_DEFINE_FLOAT_FROM_CHARS(float, strtof, HUGE_VALF)
+CRU_DEFINE_FLOAT_FROM_CHARS(double, strtod, HUGE_VAL)
+CRU_DEFINE_FLOAT_FROM_CHARS(long double, strtold, HUGE_VALL)
+
+#undef CRU_DEFINE_FLOAT_FROM_CHARS
+}  // namespace details
 
 namespace details {
 struct ParseToNumberFlagTag {};
@@ -80,8 +128,8 @@ ParseToNumberResult<T> ParseToNumber(std::string_view str,
     return result;
   }
 
-  auto parse_result =
-      std::from_chars(ptr, str.data() + str.size(), result.value);
+  auto parse_result = ::cru::string::details::from_chars(
+      ptr, str.data() + str.size(), result.value);
   if (parse_result.ec == std::errc::invalid_argument) {
     result.valid = false;
     result.message = "Not a valid number.";
@@ -377,14 +425,14 @@ using Utf8CodePointIterator = CodePointIterator<char, &Utf8NextCodePoint>;
 using Utf16CodePointIterator =
     CodePointIterator<Utf16CodeUnit, &Utf16NextCodePoint>;
 
-Index CRU_BASE_API Utf8IndexCodeUnitToCodePoint(const Utf8CodeUnit* ptr, Index size,
-                                   Index position);
-Index CRU_BASE_API Utf8IndexCodePointToCodeUnit(const Utf8CodeUnit* ptr, Index size,
-                                   Index position);
-Index CRU_BASE_API Utf16IndexCodeUnitToCodePoint(const Utf16CodeUnit* ptr, Index size,
-                                    Index position);
-Index CRU_BASE_API Utf16IndexCodePointToCodeUnit(const Utf16CodeUnit* ptr, Index size,
-                                    Index position);
+Index CRU_BASE_API Utf8IndexCodeUnitToCodePoint(const Utf8CodeUnit* ptr,
+                                                Index size, Index position);
+Index CRU_BASE_API Utf8IndexCodePointToCodeUnit(const Utf8CodeUnit* ptr,
+                                                Index size, Index position);
+Index CRU_BASE_API Utf16IndexCodeUnitToCodePoint(const Utf16CodeUnit* ptr,
+                                                 Index size, Index position);
+Index CRU_BASE_API Utf16IndexCodePointToCodeUnit(const Utf16CodeUnit* ptr,
+                                                 Index size, Index position);
 
 #ifdef _WIN32
 std::wstring CRU_BASE_API ToUtf16(std::string_view str);
