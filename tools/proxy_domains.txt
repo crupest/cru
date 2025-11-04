@@ -1,6 +1,0 @@
-measonbuild.com
-github.com
-zlib.net
-download.gnome.org
-mirror.ossplanet.net
-

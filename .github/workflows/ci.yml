@@ -46,7 +46,7 @@ jobs:
 
       - name: Build
         run: |
-          . tools/Use-VC.ps1
+          . scripts/Use-VC.ps1
           Use-VC
           cmake -DCMAKE_BUILD_TYPE=Debug -S. -Bbuild -G Ninja
           cmake --build build --config Debug --target all
@@ -66,7 +66,7 @@ jobs:
 
       - name: Build
         run: |
-          . tools/Use-VC.ps1
+          . scripts/Use-VC.ps1
           Use-VC
           cmake -DCMAKE_BUILD_TYPE=Debug -DBUILD_SHARED_LIBS=1 -S. -Bbuild-dynamic -G Ninja
           cmake --build build-dynamic --config Debug --target all
