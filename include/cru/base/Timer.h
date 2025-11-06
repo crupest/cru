@@ -32,13 +32,17 @@ class TimerRegistry : public Object {
 
     std::chrono::milliseconds NextTimeout(
         std::chrono::steady_clock::time_point now) const {
-      return std::chrono::duration_cast<std::chrono::milliseconds>(
-          interval - (now - created) % interval);
+      return interval == std::chrono::milliseconds::zero()
+                 ? std::chrono::milliseconds::zero()
+                 : std::chrono::duration_cast<std::chrono::milliseconds>(
+                       interval - (now - created) % interval);
     }
 
     bool Update(std::chrono::steady_clock::time_point now) {
       auto next_trigger =
-          last_check - (last_check - created) % interval + interval;
+          interval == std::chrono::milliseconds::zero()
+              ? last_check
+              : last_check - (last_check - created) % interval + interval;
       if (now >= next_trigger) {
         last_check = next_trigger;
         return true;
