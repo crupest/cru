@@ -204,7 +204,7 @@ IEvent<std::nullptr_t> *XcbXimInputMethodContext::CompositionEvent() {
   return &composition_event_;
 }
 
-IEvent<std::string> *XcbXimInputMethodContext::TextEvent() {
+IEvent<const std::string&> *XcbXimInputMethodContext::TextEvent() {
   return &text_event_;
 }
 

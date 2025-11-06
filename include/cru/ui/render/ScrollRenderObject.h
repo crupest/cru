@@ -95,6 +95,6 @@ class CRU_UI_API ScrollRenderObject : public SingleChildRenderObject {
 
   bool is_mouse_wheel_enabled_ = true;
 
-  EventRevokerListGuard guard_;
+  EventHandlerRevokerListGuard guard_;
 };
 }  // namespace cru::ui::render

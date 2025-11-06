@@ -56,7 +56,7 @@ class OsxInputMethodContextPrivate {
   Event<std::nullptr_t> composition_start_event_;
   Event<std::nullptr_t> composition_event_;
   Event<std::nullptr_t> composition_end_event_;
-  Event<std::string> text_event_;
+  Event<const std::string&> text_event_;
 
   bool is_enabled_ = false;
 };

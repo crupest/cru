@@ -39,7 +39,7 @@ class CRU_UI_API IconButton : public NoChildControl,
     return click_detector_.StateChangeEvent();
   }
 
-  IEvent<helper::ClickEventArgs>* ClickEvent() {
+  IEvent<const helper::ClickEventArgs&>* ClickEvent() {
     return click_detector_.ClickEvent();
   }
 
@@ -87,7 +87,8 @@ class CRU_UI_API IconButton : public NoChildControl,
   void SetIconWithSvgPathDataString(std::string_view icon_svg_path_data_string,
                                     const Rect& view_port);
   void SetIconWithSvgPathDataStringResourceKey(
-      std::string_view icon_svg_path_data_string_resource_key, const Rect& view_port);
+      std::string_view icon_svg_path_data_string_resource_key,
+      const Rect& view_port);
 
   std::shared_ptr<platform::graphics::IBrush> GetContentBrush() const override {
     return GetIconFillBrush();

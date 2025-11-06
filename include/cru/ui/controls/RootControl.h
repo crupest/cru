@@ -28,7 +28,7 @@ class CRU_UI_API RootControl
 
   Control* attached_control_;
 
-  EventRevokerListGuard
+  EventHandlerRevokerListGuard
       gain_focus_on_create_and_destroy_when_lose_focus_event_guard_;
 };
 }  // namespace cru::ui::controls

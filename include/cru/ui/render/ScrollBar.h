@@ -136,7 +136,7 @@ class CRU_UI_API ScrollBar : public Object {
   std::optional<ScrollBarAreaKind> mouse_hover_;
   std::optional<ScrollBarAreaKind> mouse_press_;
 
-  EventRevokerListGuard event_guard_;
+  EventHandlerRevokerListGuard event_guard_;
 
   Event<Scroll> scroll_attempt_event_;
 

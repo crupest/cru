@@ -61,6 +61,6 @@ struct IInputMethodContext : virtual IPlatformResource {
   virtual IEvent<std::nullptr_t>* CompositionStartEvent() = 0;
   virtual IEvent<std::nullptr_t>* CompositionEndEvent() = 0;
   virtual IEvent<std::nullptr_t>* CompositionEvent() = 0;
-  virtual IEvent<std::string>* TextEvent() = 0;
+  virtual IEvent<const std::string&>* TextEvent() = 0;
 };
 }  // namespace cru::platform::gui

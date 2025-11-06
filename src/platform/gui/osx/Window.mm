@@ -379,17 +379,17 @@ IEvent<std::nullptr_t>* OsxWindow::PaintEvent() { return &p_->paint_event_; }
 IEvent<WindowVisibilityType>* OsxWindow::VisibilityChangeEvent() {
   return &p_->visibility_change_event_;
 }
-IEvent<Size>* OsxWindow::ResizeEvent() { return &p_->resize_event_; }
+IEvent<const Size&>* OsxWindow::ResizeEvent() { return &p_->resize_event_; }
 IEvent<FocusChangeType>* OsxWindow::FocusEvent() { return &p_->focus_event_; }
 IEvent<MouseEnterLeaveType>* OsxWindow::MouseEnterLeaveEvent() {
   return &p_->mouse_enter_leave_event_;
 }
-IEvent<Point>* OsxWindow::MouseMoveEvent() { return &p_->mouse_move_event_; }
-IEvent<NativeMouseButtonEventArgs>* OsxWindow::MouseDownEvent() { return &p_->mouse_down_event_; }
-IEvent<NativeMouseButtonEventArgs>* OsxWindow::MouseUpEvent() { return &p_->mouse_up_event_; }
-IEvent<NativeMouseWheelEventArgs>* OsxWindow::MouseWheelEvent() { return &p_->mouse_wheel_event_; }
-IEvent<NativeKeyEventArgs>* OsxWindow::KeyDownEvent() { return &p_->key_down_event_; }
-IEvent<NativeKeyEventArgs>* OsxWindow::KeyUpEvent() { return &p_->key_up_event_; }
+IEvent<const Point&>* OsxWindow::MouseMoveEvent() { return &p_->mouse_move_event_; }
+IEvent<const NativeMouseButtonEventArgs&>* OsxWindow::MouseDownEvent() { return &p_->mouse_down_event_; }
+IEvent<const NativeMouseButtonEventArgs&>* OsxWindow::MouseUpEvent() { return &p_->mouse_up_event_; }
+IEvent<const NativeMouseWheelEventArgs&>* OsxWindow::MouseWheelEvent() { return &p_->mouse_wheel_event_; }
+IEvent<const NativeKeyEventArgs&>* OsxWindow::KeyDownEvent() { return &p_->key_down_event_; }
+IEvent<const NativeKeyEventArgs&>* OsxWindow::KeyUpEvent() { return &p_->key_up_event_; }
 
 IInputMethodContext* OsxWindow::GetInputMethodContext() { return p_->input_method_context_.get(); }
 }  // namespace cru::platform::gui::osx

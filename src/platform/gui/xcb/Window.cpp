@@ -311,7 +311,7 @@ IEvent<WindowVisibilityType> *XcbWindow::VisibilityChangeEvent() {
   return &visibility_change_event_;
 }
 
-IEvent<Size> *XcbWindow::ResizeEvent() { return &resize_event_; }
+IEvent<const Size&> *XcbWindow::ResizeEvent() { return &resize_event_; }
 
 IEvent<FocusChangeType> *XcbWindow::FocusEvent() { return &focus_event_; }
 
@@ -319,25 +319,25 @@ IEvent<MouseEnterLeaveType> *XcbWindow::MouseEnterLeaveEvent() {
   return &mouse_enter_leave_event_;
 }
 
-IEvent<Point> *XcbWindow::MouseMoveEvent() { return &mouse_move_event_; }
+IEvent<const Point&> *XcbWindow::MouseMoveEvent() { return &mouse_move_event_; }
 
-IEvent<NativeMouseButtonEventArgs> *XcbWindow::MouseDownEvent() {
+IEvent<const NativeMouseButtonEventArgs&> *XcbWindow::MouseDownEvent() {
   return &mouse_down_event_;
 }
 
-IEvent<NativeMouseButtonEventArgs> *XcbWindow::MouseUpEvent() {
+IEvent<const NativeMouseButtonEventArgs&> *XcbWindow::MouseUpEvent() {
   return &mouse_up_event_;
 }
 
-IEvent<NativeMouseWheelEventArgs> *XcbWindow::MouseWheelEvent() {
+IEvent<const NativeMouseWheelEventArgs&> *XcbWindow::MouseWheelEvent() {
   return &mouse_wheel_event_;
 }
 
-IEvent<NativeKeyEventArgs> *XcbWindow::KeyDownEvent() {
+IEvent<const NativeKeyEventArgs&> *XcbWindow::KeyDownEvent() {
   return &key_down_event_;
 }
 
-IEvent<NativeKeyEventArgs> *XcbWindow::KeyUpEvent() { return &key_up_event_; }
+IEvent<const NativeKeyEventArgs&> *XcbWindow::KeyUpEvent() { return &key_up_event_; }
 
 IInputMethodContext *XcbWindow::GetInputMethodContext() {
   return input_method_;

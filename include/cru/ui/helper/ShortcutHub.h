@@ -131,6 +131,6 @@ class CRU_UI_API ShortcutHub : public Object {
 
   Event<events::KeyEventArgs&> fallback_event_;
 
-  EventRevokerListGuard event_guard_;
+  EventHandlerRevokerListGuard event_guard_;
 };
 }  // namespace cru::ui::helper

@@ -218,7 +218,7 @@ void ScrollRenderObject::InstallMouseWheelHandler(controls::Control* control) {
   guard_.Clear();
 
   if (control != nullptr) {
-    guard_ += control->MouseWheelEvent()->Bubble()->PrependShortCircuitHandler(
+    guard_ += control->MouseWheelEvent()->Bubble()->AddHandler(
         [this](events::MouseWheelEventArgs& args) {
           auto delta = args.GetDelta();
 
@@ -228,24 +228,19 @@ void ScrollRenderObject::InstallMouseWheelHandler(controls::Control* control) {
             if (VerticalCanScrollDown()) {
               ApplyScroll(
                   Scroll{Direction::Vertical, ScrollKind::Relative, delta});
-              return true;
             } else if (HorizontalCanScrollDown()) {
               ApplyScroll(
                   Scroll{Direction::Horizontal, ScrollKind::Relative, delta});
-              return true;
             }
           } else if (delta < 0) {
             if (VerticalCanScrollUp()) {
               ApplyScroll(
                   Scroll{Direction::Vertical, ScrollKind::Relative, delta});
-              return true;
             } else if (HorizontalCanScrollUp()) {
               ApplyScroll(
                   Scroll{Direction::Horizontal, ScrollKind::Relative, delta});
-              return true;
             }
           }
-          return false;
         });
   }
 }

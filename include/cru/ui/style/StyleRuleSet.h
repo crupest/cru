@@ -63,7 +63,7 @@ class CRU_UI_API StyleRuleSet : public Object, public model::IListChangeNotify {
   Event<model::ListChange> list_change_event_;
 
   std::shared_ptr<StyleRuleSet> parent_ = nullptr;
-  EventRevokerGuard parent_change_event_guard_;
+  EventHandlerRevokerGuard parent_change_event_guard_;
 
   std::vector<StyleRule> rules_;
 };
@@ -90,6 +90,6 @@ class CRU_UI_API StyleRuleSetBind {
   // child first, parent last.
   std::vector<StyleRuleSet*> ruleset_chain_cache_;
 
-  EventRevokerListGuard guard_;
+  EventHandlerRevokerListGuard guard_;
 };
 }  // namespace cru::ui::style

@@ -67,7 +67,7 @@ class XcbXimInputMethodContext : public XcbResource,
   IEvent<std::nullptr_t>* CompositionStartEvent() override;
   IEvent<std::nullptr_t>* CompositionEndEvent() override;
   IEvent<std::nullptr_t>* CompositionEvent() override;
-  IEvent<std::string>* TextEvent() override;
+  IEvent<const std::string&>* TextEvent() override;
 
  private:
   void CreateIc(xcb_window_t window);
@@ -84,6 +84,6 @@ class XcbXimInputMethodContext : public XcbResource,
   Event<std::nullptr_t> composition_start_event_;
   Event<std::nullptr_t> composition_end_event_;
   Event<std::nullptr_t> composition_event_;
-  Event<std::string> text_event_;
+  Event<const std::string&> text_event_;
 };
 }  // namespace cru::platform::gui::xcb

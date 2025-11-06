@@ -187,8 +187,8 @@ class CRU_UI_API TextHostControlService : public Object {
 
   Event<std::nullptr_t> text_change_event_;
 
-  EventRevokerListGuard event_guard_;
-  EventRevokerListGuard input_method_context_event_guard_;
+  EventHandlerRevokerListGuard event_guard_;
+  EventHandlerRevokerListGuard input_method_context_event_guard_;
 
   std::string text_;
   TextRange selection_;

@@ -11,58 +11,36 @@
 #include <vector>
 
 namespace cru {
-class EventRevoker;
+class EventHandlerRevoker;
 
-namespace details {
-template <class>
-inline constexpr bool always_false_v = false;
-
-// Base class of all Event<T...>.
-// It erases event args types and provides a
-// unified form to create event revoker and
-// revoke(remove) handler.
-class EventBase : public SelfResolvable<EventBase> {
-  friend EventRevoker;
+class EventBase : public Object, public SelfResolvable<EventBase> {
+  friend EventHandlerRevoker;
 
  protected:
-  using EventHandlerToken = long;
+  using EventHandlerToken = int;
 
-  EventBase() {}
-  CRU_DELETE_COPY(EventBase)
-  CRU_DEFAULT_MOVE(EventBase)
-  virtual ~EventBase() = default;
-
-  // Remove the handler with the given token. If the token
-  // corresponds to no handler (which might have be revoked
-  // before), then nothing will be done.
+  /**
+   * Remove the handler with the given token. If the token corresponds to no
+   * handler (which might have be revoked before), then nothing will be done.
+   */
   virtual void RemoveHandler(EventHandlerToken token) = 0;
 
-  // Create a revoker with the given token.
-  inline EventRevoker CreateRevoker(EventHandlerToken token);
+  inline EventHandlerRevoker CreateRevoker(EventHandlerToken token);
 };
-}  // namespace details
 
-// A non-copyable and movable event revoker.
-// Call function call operator to revoke the handler.
-class EventRevoker {
-  friend details::EventBase;
+class EventHandlerRevoker {
+  friend EventBase;
 
  private:
-  EventRevoker(ObjectResolver<details::EventBase>&& resolver,
-               details::EventBase::EventHandlerToken token)
+  EventHandlerRevoker(ObjectResolver<EventBase>&& resolver,
+               EventBase::EventHandlerToken token)
       : resolver_(std::move(resolver)), token_(token) {}
 
  public:
-  EventRevoker(const EventRevoker& other) = default;
-  EventRevoker(EventRevoker&& other) = default;
-  EventRevoker& operator=(const EventRevoker& other) = default;
-  EventRevoker& operator=(EventRevoker&& other) = default;
-  ~EventRevoker() = default;
-
-  // Revoke the registered handler. If the event has already
-  // been destroyed, then nothing will be done. If one of the
-  // copies calls this, then other copies's calls will have no
-  // effect. (They have the same token.)
+  /**
+   * Revoke the registered handler. If the event has already been destroyed or
+   * the handler is already revoked, nothing will be done.
+   */
   void operator()() const {
     if (const auto event = resolver_.Resolve()) {
       event->RemoveHandler(token_);
@@ -70,34 +48,17 @@ class EventRevoker {
   }
 
  private:
-  ObjectResolver<details::EventBase> resolver_;
-  details::EventBase::EventHandlerToken token_;
+  ObjectResolver<EventBase> resolver_;
+  EventBase::EventHandlerToken token_;
 };
 
-inline EventRevoker details::EventBase::CreateRevoker(EventHandlerToken token) {
-  return EventRevoker(CreateResolver(), token);
+inline EventHandlerRevoker EventBase::CreateRevoker(EventHandlerToken token) {
+  return EventHandlerRevoker(CreateResolver(), token);
 }
 
-// int -> int
-// Point -> const Point&
-// int& -> int&
-template <typename TRaw>
-using DeducedEventArgs = std::conditional_t<
-    std::is_lvalue_reference_v<TRaw>, TRaw,
-    std::conditional_t<std::is_scalar_v<TRaw>, TRaw, const TRaw&>>;
-
-struct IBaseEvent {
- protected:
-  IBaseEvent() = default;
-  CRU_DELETE_COPY(IBaseEvent)
-  CRU_DEFAULT_MOVE(IBaseEvent)
-  ~IBaseEvent() = default;  // Note that user can't destroy a Event via IEvent.
-                            // So destructor should be protected.
-
+struct IBaseEvent : public virtual Interface {
   using SpyOnlyHandler = std::function<void()>;
-
- public:
-  virtual EventRevoker AddSpyOnlyHandler(SpyOnlyHandler handler) = 0;
+  virtual EventHandlerRevoker AddSpyOnlyHandler(SpyOnlyHandler handler) = 0;
 };
 
 // Provides an interface of event.
@@ -106,77 +67,36 @@ struct IBaseEvent {
 // be able to emit the event.
 template <typename TEventArgs>
 struct IEvent : virtual IBaseEvent {
- public:
-  using EventArgs = DeducedEventArgs<TEventArgs>;
-  using EventHandler = std::function<void(EventArgs)>;
-  using ShortCircuitHandler = std::function<bool(EventArgs)>;
-
- protected:
-  IEvent() = default;
-  CRU_DELETE_COPY(IEvent)
-  CRU_DEFAULT_MOVE(IEvent)
-  ~IEvent() = default;  // Note that user can't destroy a Event via IEvent. So
-                        // destructor should be protected.
-
- public:
-  virtual EventRevoker AddHandler(EventHandler handler) = 0;
-  virtual EventRevoker AddShortCircuitHandler(ShortCircuitHandler handler) = 0;
-  virtual EventRevoker PrependShortCircuitHandler(
-      ShortCircuitHandler handler) = 0;
+  using Args = TEventArgs;
+  using Handler = std::function<void(Args)>;
+  virtual EventHandlerRevoker AddHandler(Handler handler) = 0;
 };
 
 // A non-copyable non-movable Event class.
 // It stores a list of event handlers.
 template <typename TEventArgs>
-class Event : public details::EventBase, public IEvent<TEventArgs> {
-  using typename IEvent<TEventArgs>::EventArgs;
+class Event : public EventBase, public IEvent<TEventArgs> {
+  using typename IEvent<TEventArgs>::Args;
 
   using typename IBaseEvent::SpyOnlyHandler;
-  using typename IEvent<TEventArgs>::EventHandler;
-  using typename IEvent<TEventArgs>::ShortCircuitHandler;
+  using typename IEvent<TEventArgs>::Handler;
 
  private:
   struct HandlerData {
-    HandlerData(EventHandlerToken token, ShortCircuitHandler handler)
+    HandlerData(EventHandlerToken token, Handler handler)
         : token(token), handler(std::move(handler)) {}
     EventHandlerToken token;
-    ShortCircuitHandler handler;
+    Handler handler;
   };
 
  public:
-  Event() = default;
-  CRU_DELETE_COPY(Event)
-  CRU_DEFAULT_MOVE(Event)
-  ~Event() = default;
-
-  EventRevoker AddSpyOnlyHandler(SpyOnlyHandler handler) override {
-    return AddShortCircuitHandler([handler = std::move(handler)](EventArgs) {
-      handler();
-      return false;
-    });
+  EventHandlerRevoker AddSpyOnlyHandler(SpyOnlyHandler handler) override {
+    return AddHandler([handler = std::move(handler)](Args) { handler(); });
   }
 
-  EventRevoker AddHandler(EventHandler handler) override {
-    return AddShortCircuitHandler(
-        [handler = std::move(handler)](EventArgs args) {
-          handler(args);
-          return false;
-        });
-  }
-
-  // Handler return true to short circuit following handlers.
-  EventRevoker AddShortCircuitHandler(ShortCircuitHandler handler) override {
+  EventHandlerRevoker AddHandler(Handler handler) override {
     const auto token = current_token_++;
     this->handler_data_list_.emplace_back(token, std::move(handler));
-    return CreateRevoker(token);
-  }
-
-  // Handler return true to short circuit following handlers.
-  EventRevoker PrependShortCircuitHandler(
-      ShortCircuitHandler handler) override {
-    const auto token = current_token_++;
-    this->handler_data_list_.emplace(this->handler_data_list_.cbegin(), token,
-                                     std::move(handler));
     return CreateRevoker(token);
   }
 
@@ -185,15 +105,14 @@ class Event : public details::EventBase, public IEvent<TEventArgs> {
   // deleted while being executed. Thanks to this behavior, all handlers will
   // be taken a snapshot when Raise is called, so even if you delete a handler
   // during this period, all handlers in the snapshot will be executed.
-  void Raise(EventArgs args) {
-    std::vector<ShortCircuitHandler> handlers;
+  void Raise(Args args) {
+    std::vector<Handler> handlers;
     handlers.reserve(this->handler_data_list_.size());
     for (const auto& data : this->handler_data_list_) {
       handlers.push_back(data.handler);
     }
     for (const auto& handler : handlers) {
-      auto short_circuit = handler(args);
-      if (short_circuit) return;
+      handler(args);
     }
   }
 
@@ -213,8 +132,8 @@ class Event : public details::EventBase, public IEvent<TEventArgs> {
 };
 
 namespace details {
-struct EventRevokerDestroyer {
-  void operator()(EventRevoker* p) {
+struct EventHandlerRevokerDestroyer {
+  void operator()(EventHandlerRevoker* p) {
     (*p)();
     delete p;
   }
@@ -222,51 +141,38 @@ struct EventRevokerDestroyer {
 }  // namespace details
 
 // A guard class for event revoker. Automatically revoke it when destroyed.
-class EventRevokerGuard {
+class EventHandlerRevokerGuard {
  public:
-  EventRevokerGuard() = default;
-  explicit EventRevokerGuard(EventRevoker&& revoker)
-      : revoker_(new EventRevoker(std::move(revoker))) {}
-  EventRevokerGuard(const EventRevokerGuard& other) = delete;
-  EventRevokerGuard(EventRevokerGuard&& other) = default;
-  EventRevokerGuard& operator=(const EventRevokerGuard& other) = delete;
-  EventRevokerGuard& operator=(EventRevokerGuard&& other) = default;
-  ~EventRevokerGuard() = default;
+  EventHandlerRevokerGuard() = default;
+  explicit EventHandlerRevokerGuard(EventHandlerRevoker&& revoker)
+      : revoker_(new EventHandlerRevoker(std::move(revoker))) {}
 
-  EventRevoker Get() {
+  EventHandlerRevoker Get() {
     // revoker is only null when this is moved
     // you shouldn't use a moved instance
     assert(revoker_);
     return *revoker_;
   }
 
-  EventRevoker Release() { return std::move(*revoker_.release()); }
+  EventHandlerRevoker Release() { return std::move(*revoker_.release()); }
 
   void Reset() { revoker_.reset(); }
 
-  void Reset(EventRevoker&& revoker) {
-    revoker_.reset(new EventRevoker(std::move(revoker)));
+  void Reset(EventHandlerRevoker&& revoker) {
+    revoker_.reset(new EventHandlerRevoker(std::move(revoker)));
   }
 
  private:
-  std::unique_ptr<EventRevoker, details::EventRevokerDestroyer> revoker_;
+  std::unique_ptr<EventHandlerRevoker, details::EventHandlerRevokerDestroyer> revoker_;
 };
 
-class EventRevokerListGuard {
+class EventHandlerRevokerListGuard {
  public:
-  EventRevokerListGuard() = default;
-  EventRevokerListGuard(const EventRevokerListGuard& other) = delete;
-  EventRevokerListGuard(EventRevokerListGuard&& other) = default;
-  EventRevokerListGuard& operator=(const EventRevokerListGuard& other) = delete;
-  EventRevokerListGuard& operator=(EventRevokerListGuard&& other) = default;
-  ~EventRevokerListGuard() = default;
-
- public:
-  void Add(EventRevoker&& revoker) {
-    event_revoker_guard_list_.push_back(EventRevokerGuard(std::move(revoker)));
+  void Add(EventHandlerRevoker&& revoker) {
+    event_revoker_guard_list_.push_back(EventHandlerRevokerGuard(std::move(revoker)));
   }
 
-  EventRevokerListGuard& operator+=(EventRevoker&& revoker) {
+  EventHandlerRevokerListGuard& operator+=(EventHandlerRevoker&& revoker) {
     this->Add(std::move(revoker));
     return *this;
   }
@@ -276,6 +182,6 @@ class EventRevokerListGuard {
   bool IsEmpty() const { return event_revoker_guard_list_.empty(); }
 
  private:
-  std::vector<EventRevokerGuard> event_revoker_guard_list_;
+  std::vector<EventHandlerRevokerGuard> event_revoker_guard_list_;
 };
 }  // namespace cru

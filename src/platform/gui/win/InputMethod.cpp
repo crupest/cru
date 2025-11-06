@@ -230,7 +230,7 @@ IEvent<std::nullptr_t>* WinInputMethodContext::CompositionEvent() {
   return &composition_event_;
 }
 
-IEvent<std::string>* WinInputMethodContext::TextEvent() { return &text_event_; }
+IEvent<const std::string&>* WinInputMethodContext::TextEvent() { return &text_event_; }
 
 void WinInputMethodContext::OnWindowNativeMessage(
     WindowNativeMessageEventArgs& args) {

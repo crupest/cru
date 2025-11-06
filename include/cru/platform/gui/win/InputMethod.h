@@ -66,7 +66,7 @@ class CRU_WIN_GUI_API WinInputMethodContext
 
   IEvent<std::nullptr_t>* CompositionEvent() override;
 
-  IEvent<std::string>* TextEvent() override;
+  IEvent<const std::string&>* TextEvent() override;
 
  private:
   void OnWindowNativeMessage(WindowNativeMessageEventArgs& args);
@@ -78,11 +78,11 @@ class CRU_WIN_GUI_API WinInputMethodContext
  private:
   WinNativeWindow* native_window_;
 
-  EventRevokerListGuard event_guard_;
+  EventHandlerRevokerListGuard event_guard_;
 
   Event<std::nullptr_t> composition_start_event_;
   Event<std::nullptr_t> composition_end_event_;
   Event<std::nullptr_t> composition_event_;
-  Event<std::string> text_event_;
+  Event<const std::string&> text_event_;
 };
 }  // namespace cru::platform::gui::win

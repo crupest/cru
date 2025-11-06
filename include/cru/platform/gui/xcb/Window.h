@@ -68,16 +68,16 @@ class XcbWindow : public XcbResource, public virtual INativeWindow {
   IEvent<std::nullptr_t>* PaintEvent() override;
 
   IEvent<WindowVisibilityType>* VisibilityChangeEvent() override;
-  IEvent<Size>* ResizeEvent() override;
+  IEvent<const Size&>* ResizeEvent() override;
   IEvent<FocusChangeType>* FocusEvent() override;
 
   IEvent<MouseEnterLeaveType>* MouseEnterLeaveEvent() override;
-  IEvent<Point>* MouseMoveEvent() override;
-  IEvent<NativeMouseButtonEventArgs>* MouseDownEvent() override;
-  IEvent<NativeMouseButtonEventArgs>* MouseUpEvent() override;
-  IEvent<NativeMouseWheelEventArgs>* MouseWheelEvent() override;
-  IEvent<NativeKeyEventArgs>* KeyDownEvent() override;
-  IEvent<NativeKeyEventArgs>* KeyUpEvent() override;
+  IEvent<const Point&>* MouseMoveEvent() override;
+  IEvent<const NativeMouseButtonEventArgs&>* MouseDownEvent() override;
+  IEvent<const NativeMouseButtonEventArgs&>* MouseUpEvent() override;
+  IEvent<const NativeMouseWheelEventArgs&>* MouseWheelEvent() override;
+  IEvent<const NativeKeyEventArgs&>* KeyDownEvent() override;
+  IEvent<const NativeKeyEventArgs&>* KeyUpEvent() override;
 
   IInputMethodContext* GetInputMethodContext() override;
 
@@ -127,14 +127,14 @@ class XcbWindow : public XcbResource, public virtual INativeWindow {
   Event<std::nullptr_t> paint_event_;
 
   Event<WindowVisibilityType> visibility_change_event_;
-  Event<Size> resize_event_;
+  Event<const Size&> resize_event_;
   Event<FocusChangeType> focus_event_;
   Event<MouseEnterLeaveType> mouse_enter_leave_event_;
-  Event<Point> mouse_move_event_;
-  Event<NativeMouseButtonEventArgs> mouse_down_event_;
-  Event<NativeMouseButtonEventArgs> mouse_up_event_;
-  Event<NativeMouseWheelEventArgs> mouse_wheel_event_;
-  Event<NativeKeyEventArgs> key_down_event_;
-  Event<NativeKeyEventArgs> key_up_event_;
+  Event<const Point&> mouse_move_event_;
+  Event<const NativeMouseButtonEventArgs&> mouse_down_event_;
+  Event<const NativeMouseButtonEventArgs&> mouse_up_event_;
+  Event<const NativeMouseWheelEventArgs&> mouse_wheel_event_;
+  Event<const NativeKeyEventArgs&> key_down_event_;
+  Event<const NativeKeyEventArgs&> key_up_event_;
 };
 }  // namespace cru::platform::gui::xcb

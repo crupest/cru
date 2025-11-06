@@ -78,7 +78,7 @@ IEvent<std::nullptr_t>* OsxInputMethodContext::CompositionEvent() {
   return &p_->composition_event_;
 }
 
-IEvent<std::string>* OsxInputMethodContext::TextEvent() { return &p_->text_event_; }
+IEvent<const std::string&>* OsxInputMethodContext::TextEvent() { return &p_->text_event_; }
 
 bool OsxInputMethodContext::IsEnabled() { return p_->is_enabled_; }
 }

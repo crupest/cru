@@ -46,7 +46,7 @@ class TimerManager : public Object {
  private:
   GodWindow* god_window_;
 
-  EventRevokerListGuard event_guard_;
+  EventHandlerRevokerListGuard event_guard_;
 
   long long next_id_ = 1;
   std::unordered_map<long long, TimerInfo> info_map_;

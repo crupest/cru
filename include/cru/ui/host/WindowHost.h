@@ -156,7 +156,7 @@ class CRU_UI_API WindowHost : public Object, public SelfResolvable<WindowHost> {
   Event<AfterLayoutEventArgs> after_layout_event_;
   std::vector<std::function<void()> > after_layout_stable_action_;
 
-  std::vector<EventRevokerGuard> event_revoker_guards_;
+  std::vector<EventHandlerRevokerGuard> event_revoker_guards_;
 
   controls::Control* mouse_hover_control_ = nullptr;
 

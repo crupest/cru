@@ -16,7 +16,7 @@ class CRU_UI_API RoutedEvent {
 
   using RawEventArgs = TEventArgs;
   using IEventType = IEvent<TEventArgs&>;
-  using EventArgs = typename IEventType::EventArgs;
+  using EventArgs = typename IEventType::Args;
 
   RoutedEvent() = default;
   RoutedEvent(const RoutedEvent& other) = delete;

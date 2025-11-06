@@ -69,19 +69,19 @@ class CRU_WIN_GUI_API WinNativeWindow : public WinNativeResource,
   IEvent<WindowVisibilityType>* VisibilityChangeEvent() override {
     return &visibility_change_event_;
   }
-  IEvent<Size>* ResizeEvent() override { return &resize_event_; }
+  IEvent<const Size&>* ResizeEvent() override { return &resize_event_; }
   IEvent<FocusChangeType>* FocusEvent() override { return &focus_event_; }
   IEvent<MouseEnterLeaveType>* MouseEnterLeaveEvent() override {
     return &mouse_enter_leave_event_;
   }
-  IEvent<Point>* MouseMoveEvent() override { return &mouse_move_event_; }
+  IEvent<const Point&>* MouseMoveEvent() override { return &mouse_move_event_; }
   IEvent<platform::gui::NativeMouseButtonEventArgs>* MouseDownEvent() override {
     return &mouse_down_event_;
   }
   IEvent<platform::gui::NativeMouseButtonEventArgs>* MouseUpEvent() override {
     return &mouse_up_event_;
   }
-  IEvent<NativeMouseWheelEventArgs>* MouseWheelEvent() override {
+  IEvent<const NativeMouseWheelEventArgs&>* MouseWheelEvent() override {
     return &mouse_wheel_event_;
   }
 
@@ -200,11 +200,11 @@ class CRU_WIN_GUI_API WinNativeWindow : public WinNativeResource,
   Event<std::nullptr_t> create_event_;
   Event<std::nullptr_t> destroy_event_;
   Event<std::nullptr_t> paint_event_;
-  Event<Size> resize_event_;
+  Event<const Size&> resize_event_;
   Event<WindowVisibilityType> visibility_change_event_;
   Event<FocusChangeType> focus_event_;
   Event<MouseEnterLeaveType> mouse_enter_leave_event_;
-  Event<Point> mouse_move_event_;
+  Event<const Point&> mouse_move_event_;
   Event<platform::gui::NativeMouseButtonEventArgs> mouse_down_event_;
   Event<platform::gui::NativeMouseButtonEventArgs> mouse_up_event_;
   Event<platform::gui::NativeMouseWheelEventArgs> mouse_wheel_event_;

@@ -102,16 +102,16 @@ struct CRU_PLATFORM_GUI_API INativeWindow : virtual IPlatformResource {
   virtual IEvent<std::nullptr_t>* PaintEvent() = 0;
 
   virtual IEvent<WindowVisibilityType>* VisibilityChangeEvent() = 0;
-  virtual IEvent<Size>* ResizeEvent() = 0;
+  virtual IEvent<const Size&>* ResizeEvent() = 0;
   virtual IEvent<FocusChangeType>* FocusEvent() = 0;
 
   virtual IEvent<MouseEnterLeaveType>* MouseEnterLeaveEvent() = 0;
-  virtual IEvent<Point>* MouseMoveEvent() = 0;
-  virtual IEvent<NativeMouseButtonEventArgs>* MouseDownEvent() = 0;
-  virtual IEvent<NativeMouseButtonEventArgs>* MouseUpEvent() = 0;
-  virtual IEvent<NativeMouseWheelEventArgs>* MouseWheelEvent() = 0;
-  virtual IEvent<NativeKeyEventArgs>* KeyDownEvent() = 0;
-  virtual IEvent<NativeKeyEventArgs>* KeyUpEvent() = 0;
+  virtual IEvent<const Point&>* MouseMoveEvent() = 0;
+  virtual IEvent<const NativeMouseButtonEventArgs&>* MouseDownEvent() = 0;
+  virtual IEvent<const NativeMouseButtonEventArgs&>* MouseUpEvent() = 0;
+  virtual IEvent<const NativeMouseWheelEventArgs&>* MouseWheelEvent() = 0;
+  virtual IEvent<const NativeKeyEventArgs&>* KeyDownEvent() = 0;
+  virtual IEvent<const NativeKeyEventArgs&>* KeyUpEvent() = 0;
 
   virtual IInputMethodContext* GetInputMethodContext() = 0;
 };

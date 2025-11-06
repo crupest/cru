@@ -93,9 +93,9 @@ namespace {
 template <typename T>
 inline void BindNativeEvent(
     WindowHost* host, INativeWindow* native_window, IEvent<T>* event,
-    void (WindowHost::*handler)(INativeWindow*, typename IEvent<T>::EventArgs),
-    std::vector<EventRevokerGuard>& guard_pool) {
-  guard_pool.push_back(EventRevokerGuard(event->AddHandler(
+    void (WindowHost::*handler)(INativeWindow*, typename IEvent<T>::Args),
+    std::vector<EventHandlerRevokerGuard>& guard_pool) {
+  guard_pool.push_back(EventHandlerRevokerGuard(event->AddHandler(
       std::bind(handler, host, native_window, std::placeholders::_1))));
 }
 }  // namespace

@@ -33,7 +33,7 @@ class CRU_UI_API Button : public SingleChildControl<render::BorderRenderObject>,
     return click_detector_.StateChangeEvent();
   }
 
-  IEvent<helper::ClickEventArgs>* ClickEvent() {
+  IEvent<const helper::ClickEventArgs&>* ClickEvent() {
     return click_detector_.ClickEvent();
   }
 

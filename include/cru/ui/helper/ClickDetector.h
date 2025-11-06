@@ -57,7 +57,7 @@ class ClickDetector : public Object {
   // deactivated.
   void SetTriggerButton(MouseButton trigger_button);
 
-  IEvent<ClickEventArgs>* ClickEvent() { return &event_; }
+  IEvent<const ClickEventArgs&>* ClickEvent() { return &event_; }
 
   IEvent<ClickState>* StateChangeEvent() { return &state_change_event_; }
 
@@ -72,10 +72,10 @@ class ClickDetector : public Object {
   bool enable_ = true;
   MouseButton trigger_button_ = MouseButtons::Left | MouseButtons::Right;
 
-  Event<ClickEventArgs> event_;
+  Event<const ClickEventArgs&> event_;
   Event<ClickState> state_change_event_;
 
-  std::vector<EventRevokerGuard> event_rovoker_guards_;
+  std::vector<EventHandlerRevokerGuard> event_rovoker_guards_;
 
   Point down_point_;
   MouseButton button_;
