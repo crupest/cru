@@ -1,24 +1,20 @@
 #pragma once
-#include "ComResource.h"
-#include "Resource.h"
+#include "Base.h"
 
-#include "cru/base/Base.h"
-#include "cru/platform/graphics/Painter.h"
+#include <cru/platform/graphics/Painter.h>
 
 #include <vector>
 
 namespace cru::platform::graphics::direct2d {
 class CRU_WIN_GRAPHICS_DIRECT_API D2DDeviceContextPainter
-    : public DirectResource,
+    : public DirectGraphicsResource,
       public virtual IPainter,
       public virtual IComResource<ID2D1DeviceContext1> {
   CRU_DEFINE_CLASS_LOG_TAG("D2DDeviceContextPainter")
  public:
-  explicit D2DDeviceContextPainter(ID2D1DeviceContext1* device_context,
+  explicit D2DDeviceContextPainter(DirectGraphicsFactory* graphics_factory,
+                                   ID2D1DeviceContext1* device_context,
                                    bool release = false);
-
-  CRU_DELETE_COPY(D2DDeviceContextPainter)
-  CRU_DELETE_MOVE(D2DDeviceContextPainter)
 
   ~D2DDeviceContextPainter() override;
 

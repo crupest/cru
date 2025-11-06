@@ -1,4 +1,4 @@
-#include "cru/base/platform/win/Exception.h"
+#include "cru/base/platform/win/Base.h"
 
 #include <format>
 #include <optional>

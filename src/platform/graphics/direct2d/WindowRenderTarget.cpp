@@ -1,6 +1,4 @@
 #include "cru/platform/graphics/direct2d/WindowRenderTarget.h"
-
-#include "cru/platform/graphics/direct2d/Exception.h"
 #include "cru/platform/graphics/direct2d/Factory.h"
 
 namespace cru::platform::graphics::direct2d {

@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Resource.h"
-#include "cru/platform/graphics/Image.h"
-#include "cru/platform/graphics/ImageFactory.h"
+#include "Base.h"
+
+#include <cru/platform/graphics/ImageFactory.h>
 
 namespace cru::platform::graphics::direct2d {
 class CRU_WIN_GRAPHICS_DIRECT_API WinImageFactory
@@ -11,12 +11,8 @@ class CRU_WIN_GRAPHICS_DIRECT_API WinImageFactory
  public:
   explicit WinImageFactory(DirectGraphicsFactory* graphics_factory);
 
-  CRU_DELETE_COPY(WinImageFactory)
-  CRU_DELETE_MOVE(WinImageFactory)
-
   ~WinImageFactory() override;
 
- public:
   std::unique_ptr<IImage> DecodeFromStream(io::Stream* stream) override;
 
   void EncodeToStream(IImage* image, io::Stream* stream, ImageFormat format,

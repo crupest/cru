@@ -3,10 +3,10 @@
 // https://chromium.googlesource.com/chromium/chromium/+/refs/heads/master/ui/base/win/ime_input.cc
 
 #pragma once
-#include "Resource.h"
-
+#include "Base.h"
 #include "WindowNativeMessageEventArgs.h"
-#include "cru/platform/gui/InputMethod.h"
+
+#include <cru/platform/gui/InputMethod.h>
 
 #include <imm.h>
 
@@ -40,9 +40,6 @@ class CRU_WIN_GUI_API WinInputMethodContext
 
  public:
   WinInputMethodContext(WinNativeWindow* window);
-
-  CRU_DELETE_COPY(WinInputMethodContext)
-  CRU_DELETE_MOVE(WinInputMethodContext)
 
   ~WinInputMethodContext() override;
 

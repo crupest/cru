@@ -6,7 +6,6 @@
 #include "cru/platform/gui/win/Base.h"
 #include "cru/platform/gui/win/Clipboard.h"
 #include "cru/platform/gui/win/Cursor.h"
-#include "cru/platform/gui/win/Exception.h"
 #include "cru/platform/gui/win/GodWindow.h"
 #include "cru/platform/gui/win/Window.h"
 

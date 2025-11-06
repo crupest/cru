@@ -1,8 +1,5 @@
 #include "TimerManager.h"
 
-#include "cru/platform/gui/win/Base.h"
-#include "cru/platform/gui/win/Exception.h"
-
 #include <functional>
 
 namespace cru::platform::gui::win {

@@ -3,7 +3,6 @@
 #include "Win32FileStreamPrivate.h"
 #include "cru/base/StringUtil.h"
 #include "cru/base/io/OpenFileFlag.h"
-#include "cru/base/platform/win/Exception.h"
 
 #include <Windows.h>
 #include <coml2api.h>

@@ -6,10 +6,7 @@ namespace cru::platform::graphics::direct2d {
 class CRU_WIN_GRAPHICS_DIRECT_API D2DWindowPainter
     : public graphics::direct2d::D2DDeviceContextPainter {
  public:
-  explicit D2DWindowPainter(D2DWindowRenderTarget* window);
-
-  CRU_DELETE_COPY(D2DWindowPainter)
-  CRU_DELETE_MOVE(D2DWindowPainter)
+  explicit D2DWindowPainter(DirectGraphicsFactory* graphics_factory, D2DWindowRenderTarget* window);
 
   ~D2DWindowPainter() override;
 

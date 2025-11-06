@@ -1,8 +1,4 @@
 #include "cru/platform/graphics/direct2d/Geometry.h"
-
-#include "cru/base/platform/win/Exception.h"
-#include "cru/platform/graphics/direct2d/ConvertUtil.h"
-#include "cru/platform/graphics/direct2d/Exception.h"
 #include "cru/platform/graphics/direct2d/Factory.h"
 
 #include <d2d1.h>

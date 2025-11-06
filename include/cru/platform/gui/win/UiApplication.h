@@ -1,8 +1,7 @@
 #pragma once
-#include "Resource.h"
+#include "Base.h"
 
-#include "cru/platform/gui/Base.h"
-#include "cru/platform/gui/UiApplication.h"
+#include <cru/platform/gui/UiApplication.h>
 
 #include <memory>
 
@@ -21,9 +20,6 @@ class CRU_WIN_GUI_API WinUiApplication : public WinNativeResource,
 
  public:
   WinUiApplication();
-
-  CRU_DELETE_COPY(WinUiApplication)
-  CRU_DELETE_MOVE(WinUiApplication)
 
   ~WinUiApplication() override;
 

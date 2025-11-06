@@ -1,8 +1,7 @@
 #pragma once
-#include "ComResource.h"
-#include "Resource.h"
+#include "Base.h"
 
-#include "cru/platform/graphics/Geometry.h"
+#include <cru/platform/graphics/Geometry.h>
 
 namespace cru::platform::graphics::direct2d {
 class CRU_WIN_GRAPHICS_DIRECT_API D2DGeometryBuilder
@@ -11,12 +10,6 @@ class CRU_WIN_GRAPHICS_DIRECT_API D2DGeometryBuilder
  public:
   explicit D2DGeometryBuilder(DirectGraphicsFactory* factory);
 
-  CRU_DELETE_COPY(D2DGeometryBuilder)
-  CRU_DELETE_MOVE(D2DGeometryBuilder)
-
-  ~D2DGeometryBuilder() override = default;
-
- public:
   Point GetCurrentPosition() override;
 
   void MoveTo(const Point& point) override;

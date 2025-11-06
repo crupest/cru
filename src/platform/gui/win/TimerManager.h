@@ -1,7 +1,6 @@
 #pragma once
-#include "cru/base/Event.h"
-
 #include "cru/base/Base.h"
+#include "cru/base/Event.h"
 #include "cru/platform/gui/win/GodWindow.h"
 #include "cru/platform/gui/win/WindowNativeMessageEventArgs.h"
 

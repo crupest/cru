@@ -1,7 +1,5 @@
 #include "cru/platform/gui/win/WindowClass.h"
 
-#include "cru/platform/gui/win/Exception.h"
-
 namespace cru::platform::gui::win {
 WindowClass::WindowClass(std::wstring name, WNDPROC window_proc,
                          HINSTANCE h_instance)

@@ -1,5 +1,5 @@
 #pragma once
-#include "Resource.h"
+#include "Base.h"
 
 #include "ImageFactory.h"
 
@@ -9,14 +9,10 @@
 
 namespace cru::platform::graphics::direct2d {
 class CRU_WIN_GRAPHICS_DIRECT_API DirectGraphicsFactory
-    : public DirectResource,
+    : public DirectGraphicsResource,
       public virtual IGraphicsFactory {
  public:
   DirectGraphicsFactory();
-
-  CRU_DELETE_COPY(DirectGraphicsFactory)
-  CRU_DELETE_MOVE(DirectGraphicsFactory)
-
   ~DirectGraphicsFactory() override;
 
  public:

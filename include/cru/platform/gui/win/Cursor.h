@@ -1,7 +1,7 @@
 #pragma once
-#include "Resource.h"
+#include "Base.h"
 
-#include "cru/platform/gui/Cursor.h"
+#include <cru/platform/gui/Cursor.h>
 
 #include <memory>
 
@@ -12,9 +12,6 @@ class CRU_WIN_GUI_API WinCursor : public WinNativeResource,
 
  public:
   WinCursor(HCURSOR handle, bool auto_destroy);
-
-  CRU_DELETE_COPY(WinCursor)
-  CRU_DELETE_MOVE(WinCursor)
 
   ~WinCursor() override;
 
@@ -30,9 +27,6 @@ class WinCursorManager : public WinNativeResource,
                          public virtual ICursorManager {
  public:
   WinCursorManager();
-
-  CRU_DELETE_COPY(WinCursorManager)
-  CRU_DELETE_MOVE(WinCursorManager)
 
   ~WinCursorManager() override = default;
 

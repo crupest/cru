@@ -1,6 +1,6 @@
 #include "cru/base/StringUtil.h"
 #include "cru/base/io/OpenFileFlag.h"
-#include "cru/base/platform/win/Exception.h"
+#include "cru/base/platform/win/Base.h"
 #include "cru/base/platform/win/StreamConvert.h"
 #include "cru/base/platform/win/Win32FileStream.h"
 

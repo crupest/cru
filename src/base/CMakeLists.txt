@@ -52,14 +52,17 @@ endif()
 
 if (WIN32)
 	target_sources(CruBase PRIVATE
+		platform/win/Base.cpp
 		platform/win/BridgeComStream.cpp
 		platform/win/ComAutoInit.cpp
 		platform/win/DebugLogTarget.cpp
-		platform/win/Exception.cpp
 		platform/win/StreamConvert.cpp
 		platform/win/Win32FileStream.cpp
 	)
-
+	target_compile_definitions(CruBase PUBLIC
+		UNICODE _UNICODE
+		_CRT_SECURE_NO_WARNINGS
+	)
 	target_link_libraries(CruBase PUBLIC Shlwapi.lib)
 endif()
 
@@ -70,7 +73,6 @@ endif()
 if (WIN32)
 	target_compile_definitions(CruBase PUBLIC
 		CRU_PLATFORM_WINDOWS
-		_CRT_SECURE_NO_WARNINGS
 	)
 elseif(APPLE)
 	target_compile_definitions(CruBase PUBLIC

@@ -1,7 +1,5 @@
 #include "cru/platform/graphics/direct2d/Font.h"
-
 #include "cru/base/StringUtil.h"
-#include "cru/platform/graphics/direct2d/Exception.h"
 #include "cru/platform/graphics/direct2d/Factory.h"
 
 #include <array>

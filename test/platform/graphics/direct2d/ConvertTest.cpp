@@ -1,5 +1,5 @@
 #include "cru/platform/Matrix.h"
-#include "cru/platform/graphics/direct2d/ConvertUtil.h"
+#include "cru/platform/graphics/direct2d/Base.h"
 
 #include <catch2/catch_test_macros.hpp>
 #include "catch2/catch_approx.hpp"

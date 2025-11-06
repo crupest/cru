@@ -1,8 +1,4 @@
 #include "cru/platform/graphics/direct2d/Image.h"
-#include <d2d1_1.h>
-#include "cru/base/platform/win/Exception.h"
-#include "cru/platform/graphics/direct2d/ConvertUtil.h"
-#include "cru/platform/graphics/direct2d/Exception.h"
 #include "cru/platform/graphics/direct2d/Factory.h"
 #include "cru/platform/graphics/direct2d/Painter.h"
 
@@ -39,7 +35,7 @@ std::unique_ptr<IImage> Direct2DImage::CreateWithRect(const Rect& rect) {
 std::unique_ptr<IPainter> Direct2DImage::CreatePainter() {
   auto device_context = GetDirectFactory()->CreateD2D1DeviceContext();
   device_context->SetTarget(d2d_bitmap_.Get());
-  return std::make_unique<D2DDeviceContextPainter>(device_context.Detach(),
-                                                   true);
+  return std::make_unique<D2DDeviceContextPainter>(
+      GetDirectFactory(), device_context.Detach(), true);
 }
 }  // namespace cru::platform::graphics::direct2d

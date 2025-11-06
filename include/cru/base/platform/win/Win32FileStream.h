@@ -1,6 +1,8 @@
 #pragma once
 
-#ifdef CRU_PLATFORM_WINDOWS
+#ifndef _WIN32
+#error "This file can only be included on Windows."
+#endif
 
 #include "../../io/OpenFileFlag.h"
 #include "../../io/Stream.h"
@@ -38,5 +40,3 @@ class CRU_BASE_API Win32FileStream : public io::Stream {
   details::Win32FileStreamPrivate* p_;
 };
 }  // namespace cru::platform::win
-
-#endif

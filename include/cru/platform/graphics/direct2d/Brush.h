@@ -1,8 +1,7 @@
 #pragma once
-#include "ComResource.h"
-#include "Resource.h"
+#include "Base.h"
 
-#include "cru/platform/graphics/Brush.h"
+#include <cru/platform/graphics/Brush.h>
 
 namespace cru::platform::graphics::direct2d {
 struct CRU_WIN_GRAPHICS_DIRECT_API ID2DBrush : virtual IBrush {
@@ -17,12 +16,6 @@ class CRU_WIN_GRAPHICS_DIRECT_API D2DSolidColorBrush
  public:
   explicit D2DSolidColorBrush(DirectGraphicsFactory* factory);
 
-  CRU_DELETE_COPY(D2DSolidColorBrush)
-  CRU_DELETE_MOVE(D2DSolidColorBrush)
-
-  ~D2DSolidColorBrush() override = default;
-
- public:
   Color GetColor() override { return color_; }
   void SetColor(const Color& color) override;
 

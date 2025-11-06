@@ -10,7 +10,6 @@ add_subdirectory(graphics)
 add_subdirectory(gui)
 
 if (WIN32)
-	add_subdirectory(win)
 	add_subdirectory(graphics/direct2d)
 	add_subdirectory(gui/win)
 elseif (APPLE)

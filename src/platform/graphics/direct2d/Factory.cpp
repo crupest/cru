@@ -1,19 +1,16 @@
 #include "cru/platform/graphics/direct2d/Factory.h"
-
-#include "cru/base/log/Logger.h"
+#include "cru/platform/graphics/direct2d/Base.h"
 #include "cru/platform/graphics/direct2d/Brush.h"
-#include "cru/platform/graphics/direct2d/Exception.h"
 #include "cru/platform/graphics/direct2d/Font.h"
 #include "cru/platform/graphics/direct2d/Geometry.h"
 #include "cru/platform/graphics/direct2d/ImageFactory.h"
 #include "cru/platform/graphics/direct2d/TextLayout.h"
 
-#include <cstdlib>
 #include <utility>
 
 namespace cru::platform::graphics::direct2d {
 
-DirectGraphicsFactory::DirectGraphicsFactory() {
+DirectGraphicsFactory::DirectGraphicsFactory() : DirectGraphicsResource(this) {
   // TODO: Detect repeated creation. Because I don't think we can create two d2d
   // and dwrite factory so we need to prevent the "probably dangerous" behavior.
 

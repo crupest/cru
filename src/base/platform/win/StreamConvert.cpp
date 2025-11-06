@@ -2,9 +2,7 @@
 #include "BrigdeComStream.h"
 #include "Win32FileStreamPrivate.h"
 #include "cru/base/io/MemoryStream.h"
-#include "cru/base/io/OpenFileFlag.h"
 #include "cru/base/platform/win/ComAutoInit.h"
-#include "cru/base/platform/win/Exception.h"
 #include "cru/base/platform/win/Win32FileStream.h"
 
 #include <shlwapi.h>

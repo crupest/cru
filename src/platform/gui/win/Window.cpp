@@ -9,7 +9,6 @@
 #include "cru/platform/gui/Input.h"
 #include "cru/platform/gui/Window.h"
 #include "cru/platform/gui/win/Cursor.h"
-#include "cru/platform/gui/win/Exception.h"
 #include "cru/platform/gui/win/InputMethod.h"
 #include "cru/platform/gui/win/Keyboard.h"
 #include "cru/platform/gui/win/UiApplication.h"
@@ -219,7 +218,7 @@ void WinNativeWindow::RequestRepaint() {
 std::unique_ptr<graphics::IPainter> WinNativeWindow::BeginPaint() {
   if (hwnd_)
     return std::make_unique<graphics::direct2d::D2DWindowPainter>(
-        window_render_target_.get());
+        application_->GetDirectFactory(), window_render_target_.get());
   else
     return std::make_unique<graphics::NullPainter>();
 }

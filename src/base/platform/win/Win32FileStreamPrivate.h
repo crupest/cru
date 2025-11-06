@@ -1,4 +1,4 @@
-#include "cru/base/platform/win/WinPreConfig.h"
+#include "cru/base/platform/win/Base.h"
 
 #include <objidl.h>
 

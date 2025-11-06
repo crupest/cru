@@ -1,10 +1,7 @@
 #pragma once
-#include "ComResource.h"
-#include "Resource.h"
+#include "Base.h"
 
-#include "cru/platform/graphics/Font.h"
-
-#include <string_view>
+#include <cru/platform/graphics/Font.h>
 
 namespace cru::platform::graphics::direct2d {
 class CRU_WIN_GRAPHICS_DIRECT_API DWriteFont
@@ -15,12 +12,6 @@ class CRU_WIN_GRAPHICS_DIRECT_API DWriteFont
   DWriteFont(DirectGraphicsFactory* factory, std::string font_family,
              float font_size);
 
-  CRU_DELETE_COPY(DWriteFont)
-  CRU_DELETE_MOVE(DWriteFont)
-
-  ~DWriteFont() override = default;
-
- public:
   IDWriteTextFormat* GetComInterface() const override {
     return text_format_.Get();
   }

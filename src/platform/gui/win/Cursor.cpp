@@ -1,7 +1,5 @@
 #include "cru/platform/gui/win/Cursor.h"
-
 #include "cru/base/log/Logger.h"
-#include "cru/platform/gui/win/Exception.h"
 
 #include <stdexcept>
 
@@ -17,7 +15,7 @@ WinCursor::~WinCursor() {
       // This is not a fetal error but might still need notice because it may
       // cause leak.
       CRU_LOG_TAG_WARN("Failed to destroy a cursor. Last error code: {}",
-                   ::GetLastError());
+                       ::GetLastError());
     }
   }
 }

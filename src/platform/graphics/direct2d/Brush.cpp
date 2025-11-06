@@ -1,7 +1,4 @@
 #include "cru/platform/graphics/direct2d/Brush.h"
-
-#include "cru/platform/graphics/direct2d/ConvertUtil.h"
-#include "cru/platform/graphics/direct2d/Exception.h"
 #include "cru/platform/graphics/direct2d/Factory.h"
 
 namespace cru::platform::graphics::direct2d {

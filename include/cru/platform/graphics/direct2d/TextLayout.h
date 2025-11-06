@@ -1,8 +1,7 @@
 #pragma once
-#include "ComResource.h"
-#include "Resource.h"
+#include "Base.h"
 
-#include "cru/platform/graphics/TextLayout.h"
+#include <cru/platform/graphics/TextLayout.h>
 
 #include <limits>
 #include <memory>
@@ -17,9 +16,6 @@ class CRU_WIN_GRAPHICS_DIRECT_API DWriteTextLayout
  public:
   DWriteTextLayout(DirectGraphicsFactory* factory, std::shared_ptr<IFont> font,
                    std::string text);
-
-  CRU_DELETE_COPY(DWriteTextLayout)
-  CRU_DELETE_MOVE(DWriteTextLayout)
 
   ~DWriteTextLayout() override;
 

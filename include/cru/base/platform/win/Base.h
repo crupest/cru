@@ -1,12 +1,18 @@
 #pragma once
 
 #ifndef _WIN32
-#error "This file can only be used on Windows."
+#error "This file can only be included on Windows."
 #endif
 
-#include "WinPreConfig.h"
-
 #include "../../Base.h"
+
+#define NOMINMAX
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
+#undef CreateWindow
+#undef DrawText
+#undef CreateFont
+#undef CreateEvent
 
 namespace cru::platform::win {
 class CRU_BASE_API HResultError : public Exception {

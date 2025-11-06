@@ -1,18 +1,16 @@
 #include "cru/platform/graphics/direct2d/Painter.h"
-
 #include "cru/base/log/Logger.h"
+#include "cru/platform/graphics/direct2d/Base.h"
 #include "cru/platform/graphics/direct2d/Brush.h"
-#include "cru/platform/graphics/direct2d/ConvertUtil.h"
-#include "cru/platform/graphics/direct2d/Exception.h"
 #include "cru/platform/graphics/direct2d/Geometry.h"
 #include "cru/platform/graphics/direct2d/Image.h"
 #include "cru/platform/graphics/direct2d/TextLayout.h"
 
-#include <type_traits>
-
 namespace cru::platform::graphics::direct2d {
 D2DDeviceContextPainter::D2DDeviceContextPainter(
-    ID2D1DeviceContext1* device_context, bool release) {
+    DirectGraphicsFactory* graphics_factory,
+    ID2D1DeviceContext1* device_context, bool release)
+    : DirectGraphicsResource(graphics_factory) {
   Expects(device_context);
   device_context_ = device_context;
   release_ = release;
@@ -21,7 +19,8 @@ D2DDeviceContextPainter::D2DDeviceContextPainter(
 
 D2DDeviceContextPainter::~D2DDeviceContextPainter() {
   if (is_drawing_) {
-    CRU_LOG_TAG_INFO("You may forget to call EndDraw before destroying painter.");
+    CRU_LOG_TAG_INFO(
+        "You may forget to call EndDraw before destroying painter.");
   }
 
   if (release_) {

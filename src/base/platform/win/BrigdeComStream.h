@@ -1,6 +1,5 @@
 #pragma once
-#include "cru/base/platform/win/WinPreConfig.h"
-
+#include "cru/base/platform/win/Base.h"
 #include "cru/base/io/Stream.h"
 
 #include <objidlbase.h>

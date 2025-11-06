@@ -1,9 +1,9 @@
 #pragma once
-#include "Resource.h"
-
+#include "Base.h"
 #include "WindowNativeMessageEventArgs.h"
-#include "cru/platform/gui/Window.h"
-#include "cru/platform/graphics/direct2d/WindowRenderTarget.h"
+
+#include <cru/platform/gui/Window.h>
+#include <cru/platform/graphics/direct2d/WindowRenderTarget.h>
 
 #include <memory>
 
@@ -14,9 +14,6 @@ class CRU_WIN_GUI_API WinNativeWindow : public WinNativeResource,
 
  public:
   explicit WinNativeWindow(WinUiApplication* application);
-
-  CRU_DELETE_COPY(WinNativeWindow)
-  CRU_DELETE_MOVE(WinNativeWindow)
 
   ~WinNativeWindow() override;
 

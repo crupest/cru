@@ -1,7 +1,5 @@
 #include "cru/platform/gui/win/GodWindow.h"
-
 #include "cru/base/log/Logger.h"
-#include "cru/platform/gui/win/Exception.h"
 #include "cru/platform/gui/win/UiApplication.h"
 #include "cru/platform/gui/win/WindowClass.h"
 

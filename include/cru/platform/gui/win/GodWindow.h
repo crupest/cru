@@ -1,8 +1,8 @@
 #pragma once
 #include "Base.h"
-
 #include "WindowNativeMessageEventArgs.h"
-#include "cru/base/Event.h"
+
+#include <cru/base/Event.h>
 
 #include <memory>
 

@@ -1,6 +1,7 @@
 #pragma once
-#include "Resource.h"
-#include "cru/platform/graphics/Image.h"
+#include "Base.h"
+
+#include <cru/platform/graphics/Image.h>
 
 namespace cru::platform::graphics::direct2d {
 class CRU_WIN_GRAPHICS_DIRECT_API Direct2DImage : public DirectGraphicsResource,
@@ -9,12 +10,8 @@ class CRU_WIN_GRAPHICS_DIRECT_API Direct2DImage : public DirectGraphicsResource,
   Direct2DImage(DirectGraphicsFactory* graphics_factory,
                 Microsoft::WRL::ComPtr<ID2D1Bitmap1> d2d_bitmap);
 
-  CRU_DELETE_COPY(Direct2DImage)
-  CRU_DELETE_MOVE(Direct2DImage)
-
   ~Direct2DImage() override;
 
- public:
   float GetWidth() override;
   float GetHeight() override;
 

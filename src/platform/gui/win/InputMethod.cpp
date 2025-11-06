@@ -1,5 +1,4 @@
 #include "cru/platform/gui/win/InputMethod.h"
-
 #include "cru/base/StringUtil.h"
 #include "cru/base/log/Logger.h"
 #include "cru/platform/gui/DebugFlags.h"
