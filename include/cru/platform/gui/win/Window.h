@@ -2,8 +2,8 @@
 #include "Base.h"
 #include "WindowNativeMessageEventArgs.h"
 
-#include <cru/platform/gui/Window.h>
 #include <cru/platform/graphics/direct2d/WindowRenderTarget.h>
+#include <cru/platform/gui/Window.h>
 
 #include <memory>
 
@@ -72,20 +72,20 @@ class CRU_WIN_GUI_API WinNativeWindow : public WinNativeResource,
     return &mouse_enter_leave_event_;
   }
   IEvent<const Point&>* MouseMoveEvent() override { return &mouse_move_event_; }
-  IEvent<platform::gui::NativeMouseButtonEventArgs>* MouseDownEvent() override {
+  IEvent<const NativeMouseButtonEventArgs&>* MouseDownEvent() override {
     return &mouse_down_event_;
   }
-  IEvent<platform::gui::NativeMouseButtonEventArgs>* MouseUpEvent() override {
+  IEvent<const NativeMouseButtonEventArgs&>* MouseUpEvent() override {
     return &mouse_up_event_;
   }
   IEvent<const NativeMouseWheelEventArgs&>* MouseWheelEvent() override {
     return &mouse_wheel_event_;
   }
 
-  IEvent<platform::gui::NativeKeyEventArgs>* KeyDownEvent() override {
+  IEvent<const NativeKeyEventArgs&>* KeyDownEvent() override {
     return &key_down_event_;
   }
-  IEvent<platform::gui::NativeKeyEventArgs>* KeyUpEvent() override {
+  IEvent<const NativeKeyEventArgs&>* KeyUpEvent() override {
     return &key_up_event_;
   }
 
@@ -202,11 +202,11 @@ class CRU_WIN_GUI_API WinNativeWindow : public WinNativeResource,
   Event<FocusChangeType> focus_event_;
   Event<MouseEnterLeaveType> mouse_enter_leave_event_;
   Event<const Point&> mouse_move_event_;
-  Event<platform::gui::NativeMouseButtonEventArgs> mouse_down_event_;
-  Event<platform::gui::NativeMouseButtonEventArgs> mouse_up_event_;
-  Event<platform::gui::NativeMouseWheelEventArgs> mouse_wheel_event_;
-  Event<platform::gui::NativeKeyEventArgs> key_down_event_;
-  Event<platform::gui::NativeKeyEventArgs> key_up_event_;
+  Event<const NativeMouseButtonEventArgs&> mouse_down_event_;
+  Event<const NativeMouseButtonEventArgs&> mouse_up_event_;
+  Event<const NativeMouseWheelEventArgs&> mouse_wheel_event_;
+  Event<const NativeKeyEventArgs&> key_down_event_;
+  Event<const NativeKeyEventArgs&> key_up_event_;
 
   Event<WindowNativeMessageEventArgs&> native_message_event_;
 };
