@@ -4,7 +4,7 @@
 
 #include <cairo/cairo.h>
 
-#ifdef CRU_PLATFORM_WINDOWS
+#ifdef CRU_IS_DLL
 #ifdef CRU_PLATFORM_GRAPHICS_CAIRO_EXPORT_API
 #define CRU_PLATFORM_GRAPHICS_CAIRO_API __declspec(dllexport)
 #else

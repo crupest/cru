@@ -9,7 +9,7 @@ StdioLogTarget::StdioLogTarget() {}
 StdioLogTarget::~StdioLogTarget() {}
 
 void StdioLogTarget::Write(log::LogLevel level, std::string message) {
-#ifdef CRU_PLATFORM_WINDOWS
+#ifdef _WIN32
   auto s = string::ToUtf16(message);
   if (level == log::LogLevel::Error) {
     std::wcerr << s << std::endl;

@@ -69,21 +69,3 @@ endif()
 if (MSVC)
 	target_compile_options(CruBase PUBLIC /wd4250 /wd4251)
 endif()
-
-if (WIN32)
-	target_compile_definitions(CruBase PUBLIC
-		CRU_PLATFORM_WINDOWS
-	)
-elseif(APPLE)
-	target_compile_definitions(CruBase PUBLIC
-		CRU_PLATFORM_OSX
-		CRU_PLATFORM_UNIX
-	)
-elseif(EMSCRIPTEN)
-	target_compile_definitions(CruBase PUBLIC CRU_PLATFORM_EMSCRIPTEN)
-else()
-	target_compile_definitions(CruBase PUBLIC
-		CRU_PLATFORM_LINUX
-		CRU_PLATFORM_UNIX
-	)
-endif()

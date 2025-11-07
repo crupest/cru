@@ -10,7 +10,7 @@
 #include <memory>
 #include <mutex>
 
-#ifdef CRU_PLATFORM_WINDOWS
+#ifdef _WIN32
 #include "cru/base/platform/win/DebugLogTarget.h"
 #endif
 
@@ -20,7 +20,7 @@ Logger *Logger::GetInstance() {
 
   logger.AddLogTarget(std::make_unique<StdioLogTarget>());
 
-#ifdef CRU_PLATFORM_WINDOWS
+#ifdef _WIN32
   logger.AddLogTarget(std::make_unique<platform::win::WinDebugLogTarget>());
 #endif
 

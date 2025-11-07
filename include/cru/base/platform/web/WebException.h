@@ -1,6 +1,6 @@
 #pragma once
 
-#ifdef CRU_PLATFORM_EMSCRIPTEN
+#ifdef __EMSCRIPTEN__
 
 #include "../../Base.h"
 

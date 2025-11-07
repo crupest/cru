@@ -140,7 +140,7 @@ struct KeyModifiers {
   static constexpr KeyModifier Command = KeyModifier::FromOffset(4);
 };
 
-#ifdef CRU_PLATFORM_OSX
+#ifdef __APPLE__
 constexpr KeyModifier kKeyModifierCommand = KeyModifiers::Command;
 #else
 constexpr KeyModifier kKeyModifierCommand = KeyModifiers::Ctrl;

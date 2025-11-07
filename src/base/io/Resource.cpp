@@ -1,9 +1,9 @@
 #include "cru/base/io/Resource.h"
 #include "cru/base/Base.h"
 
-#if defined(CRU_PLATFORM_OSX)
+#if defined(__APPLE__)
 #include <CoreFoundation/CoreFoundation.h>
-#elif defined(CRU_PLATFORM_WINDOWS)
+#elif defined(_WIN32)
 #include <Windows.h>
 #elif defined(__linux)
 #include <fstream>
@@ -14,7 +14,7 @@
 
 namespace cru::io {
 std::filesystem::path GetResourceDir() {
-#if defined(CRU_PLATFORM_OSX)
+#if defined(__APPLE__)
   CFBundleRef main_bundle = CFBundleGetMainBundle();
   CFURLRef bundle_url = CFBundleCopyBundleURL(main_bundle);
   CFStringRef cf_string_ref =
