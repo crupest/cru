@@ -133,7 +133,7 @@ void D2DDeviceContextPainter::PushLayer(const Rect& bounds) {
   CheckValidation();
 
   Microsoft::WRL::ComPtr<ID2D1Layer> layer;
-  ThrowIfFailed(device_context_->CreateLayer(&layer));
+  CheckHResult(device_context_->CreateLayer(&layer));
 
   device_context_->PushLayer(D2D1::LayerParameters(Convert(bounds)),
                              layer.Get());
@@ -167,7 +167,7 @@ void D2DDeviceContextPainter::PopState() {
 void D2DDeviceContextPainter::EndDraw() {
   if (is_drawing_) {
     is_drawing_ = false;
-    ThrowIfFailed(device_context_->EndDraw());
+    CheckHResult(device_context_->EndDraw());
     DoEndDraw();
   }
 }

@@ -29,7 +29,7 @@ D2DWindowRenderTarget::D2DWindowRenderTarget(DirectGraphicsFactory* factory,
   swap_chain_desc.Flags = 0;
 
   // Get the final swap chain for this window from the DXGI factory.
-  ThrowIfFailed(dxgi_factory->CreateSwapChainForHwnd(
+  CheckHResult(dxgi_factory->CreateSwapChainForHwnd(
       d3d11_device, hwnd, &swap_chain_desc, nullptr, nullptr,
       &dxgi_swap_chain_));
 
@@ -44,13 +44,13 @@ void D2DWindowRenderTarget::ResizeBuffer(const int width, const int height) {
   // In order to resize buffer, we need to untarget the buffer first.
   d2d1_device_context_->SetTarget(nullptr);
   target_bitmap_ = nullptr;
-  ThrowIfFailed(dxgi_swap_chain_->ResizeBuffers(0, width, height,
+  CheckHResult(dxgi_swap_chain_->ResizeBuffers(0, width, height,
                                                 DXGI_FORMAT_UNKNOWN, 0));
   CreateTargetBitmap();
 }
 
 void D2DWindowRenderTarget::Present() {
-  ThrowIfFailed(dxgi_swap_chain_->Present(1, 0));
+  CheckHResult(dxgi_swap_chain_->Present(1, 0));
 }
 
 void D2DWindowRenderTarget::CreateTargetBitmap() {
@@ -58,7 +58,7 @@ void D2DWindowRenderTarget::CreateTargetBitmap() {
 
   // Direct2D needs the dxgi version of the backbuffer surface pointer.
   Microsoft::WRL::ComPtr<IDXGISurface> dxgi_back_buffer;
-  ThrowIfFailed(
+  CheckHResult(
       dxgi_swap_chain_->GetBuffer(0, IID_PPV_ARGS(&dxgi_back_buffer)));
 
   float dpi_x, dpi_y;
@@ -71,7 +71,7 @@ void D2DWindowRenderTarget::CreateTargetBitmap() {
 
   // Get a D2D surface from the DXGI back buffer to use as the D2D render
   // target.
-  ThrowIfFailed(d2d1_device_context_->CreateBitmapFromDxgiSurface(
+  CheckHResult(d2d1_device_context_->CreateBitmapFromDxgiSurface(
       dxgi_back_buffer.Get(), &bitmap_properties, &target_bitmap_));
 
   d2d1_device_context_->SetTarget(target_bitmap_.Get());

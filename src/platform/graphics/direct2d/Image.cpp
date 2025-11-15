@@ -19,7 +19,7 @@ float Direct2DImage::GetHeight() { return d2d_bitmap_->GetSize().height; }
 std::unique_ptr<IImage> Direct2DImage::CreateWithRect(const Rect& rect) {
   auto device_context = GetDirectFactory()->CreateD2D1DeviceContext();
   Microsoft::WRL::ComPtr<ID2D1Bitmap1> bitmap;
-  ThrowIfFailed(device_context->CreateBitmap(
+  CheckHResult(device_context->CreateBitmap(
       D2D1::SizeU(rect.width, rect.height), nullptr, 0,
       D2D1::BitmapProperties1(D2D1_BITMAP_OPTIONS_TARGET,
                               D2D1::PixelFormat(DXGI_FORMAT_B8G8R8A8_UNORM,
@@ -28,7 +28,7 @@ std::unique_ptr<IImage> Direct2DImage::CreateWithRect(const Rect& rect) {
   device_context->SetTarget(bitmap.Get());
   device_context->BeginDraw();
   device_context->DrawBitmap(d2d_bitmap_.Get(), Convert(rect));
-  ThrowIfFailed(device_context->EndDraw());
+  CheckHResult(device_context->EndDraw());
   return std::make_unique<Direct2DImage>(GetDirectFactory(), std::move(bitmap));
 }
 

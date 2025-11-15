@@ -1,4 +1,4 @@
-#include "cru/base/io/OpenFileFlag.h"
+#include "cru/base/io/Base.h"
 
 namespace cru::io {
 bool CheckOpenFileFlag(OpenFileFlag flags) {

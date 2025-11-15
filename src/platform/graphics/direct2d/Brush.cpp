@@ -4,7 +4,7 @@
 namespace cru::platform::graphics::direct2d {
 D2DSolidColorBrush::D2DSolidColorBrush(DirectGraphicsFactory* factory)
     : DirectGraphicsResource(factory) {
-  ThrowIfFailed(factory->GetDefaultD2D1DeviceContext()->CreateSolidColorBrush(
+  CheckHResult(factory->GetDefaultD2D1DeviceContext()->CreateSolidColorBrush(
       Convert(color_), &brush_));
 }
 

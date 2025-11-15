@@ -5,6 +5,7 @@ add_library(CruBase
 	StringUtil.cpp
 	SubProcess.cpp
 	io/AutoReadStream.cpp
+	io/Base.cpp
 	io/BufferStream.cpp
 	io/CFileStream.cpp
 	io/Stream.cpp
@@ -56,8 +57,8 @@ if (WIN32)
 		platform/win/BridgeComStream.cpp
 		platform/win/ComAutoInit.cpp
 		platform/win/DebugLogTarget.cpp
-		platform/win/StreamConvert.cpp
-		platform/win/Win32FileStream.cpp
+		platform/win/Stream.cpp
+		platform/win/Win32SubProcess.cpp
 	)
 	target_compile_definitions(CruBase PUBLIC
 		UNICODE _UNICODE

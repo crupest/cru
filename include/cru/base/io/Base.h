@@ -1,8 +1,14 @@
 #pragma once
 
+#include "../Base.h"
 #include "../Bitmask.h"
 
 namespace cru::io {
+class CRU_BASE_API FileNotExistException : public Exception {
+ public:
+  using Exception::Exception;
+};
+
 namespace details {
 struct OpenFileFlagTag {};
 }  // namespace details

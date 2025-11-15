@@ -1,5 +1,5 @@
 #include "cru/platform/graphics/direct2d/ImageFactory.h"
-#include "cru/base/platform/win/StreamConvert.h"
+#include "cru/base/platform/win/Stream.h"
 #include "cru/platform/graphics/direct2d/Factory.h"
 #include "cru/platform/graphics/direct2d/Image.h"
 
@@ -14,7 +14,7 @@ WinImageFactory::WinImageFactory(DirectGraphicsFactory* graphics_factory)
   HRESULT hr =
       CoCreateInstance(CLSID_WICImagingFactory, NULL, CLSCTX_INPROC_SERVER,
                        IID_PPV_ARGS(&wic_imaging_factory_));
-  ThrowIfFailed(hr);
+  CheckHResult(hr);
 }
 
 WinImageFactory::~WinImageFactory() {}
@@ -25,17 +25,17 @@ std::unique_ptr<IImage> WinImageFactory::DecodeFromStream(io::Stream* stream) {
   HRESULT hr;
 
   Microsoft::WRL::ComPtr<IStream> com_stream(
-      platform::win::ConvertStreamToComStream(stream));
+      platform::win::ToComStream(stream));
 
   Microsoft::WRL::ComPtr<IWICBitmapDecoder> wic_bitmap_decoder;
   hr = wic_imaging_factory_->CreateDecoderFromStream(
       com_stream.Get(), NULL, WICDecodeMetadataCacheOnDemand,
       &wic_bitmap_decoder);
-  ThrowIfFailed(hr);
+  CheckHResult(hr);
 
   Microsoft::WRL::ComPtr<IWICBitmapFrameDecode> wic_bitmap_frame_decode;
   hr = wic_bitmap_decoder->GetFrame(0, &wic_bitmap_frame_decode);
-  ThrowIfFailed(hr);
+  CheckHResult(hr);
 
   auto d2d_context = graphics_factory->GetDefaultD2D1DeviceContext();
 
@@ -74,7 +74,7 @@ void WinImageFactory::EncodeToStream(IImage* image, io::Stream* stream,
   auto direct_image = CheckPlatform<Direct2DImage>(image, GetPlatformId());
 
   Microsoft::WRL::ComPtr<IStream> com_stream(
-      platform::win::ConvertStreamToComStream(stream));
+      platform::win::ToComStream(stream));
 
   auto d2d_bitmap = direct_image->GetD2DBitmap();
   auto size = d2d_bitmap->GetPixelSize();
@@ -85,36 +85,36 @@ void WinImageFactory::EncodeToStream(IImage* image, io::Stream* stream,
   Ensures(pixel_format.alphaMode == D2D1_ALPHA_MODE_PREMULTIPLIED);
 
   Microsoft::WRL::ComPtr<ID2D1Bitmap1> cpu_bitmap;
-  ThrowIfFailed(GetDirectFactory()->GetDefaultD2D1DeviceContext()->CreateBitmap(
+  CheckHResult(GetDirectFactory()->GetDefaultD2D1DeviceContext()->CreateBitmap(
       size, nullptr, 0,
       D2D1::BitmapProperties1(
           D2D1_BITMAP_OPTIONS_CANNOT_DRAW | D2D1_BITMAP_OPTIONS_CPU_READ,
           pixel_format, dpi_x, dpi_y),
       &cpu_bitmap));
 
-  ThrowIfFailed(cpu_bitmap->CopyFromBitmap(nullptr, d2d_bitmap.Get(), nullptr));
+  CheckHResult(cpu_bitmap->CopyFromBitmap(nullptr, d2d_bitmap.Get(), nullptr));
 
   D2D1_MAPPED_RECT mapped_rect;
-  ThrowIfFailed(cpu_bitmap->Map(D2D1_MAP_OPTIONS_READ, &mapped_rect));
+  CheckHResult(cpu_bitmap->Map(D2D1_MAP_OPTIONS_READ, &mapped_rect));
 
   Microsoft::WRL::ComPtr<IWICBitmap> wic_bitmap;
-  ThrowIfFailed(wic_imaging_factory_->CreateBitmapFromMemory(
+  CheckHResult(wic_imaging_factory_->CreateBitmapFromMemory(
       size.width, size.height, GUID_WICPixelFormat32bppPBGRA, mapped_rect.pitch,
       mapped_rect.pitch * size.height, mapped_rect.bits, &wic_bitmap));
 
-  ThrowIfFailed(cpu_bitmap->Unmap());
+  CheckHResult(cpu_bitmap->Unmap());
 
   Microsoft::WRL::ComPtr<IWICBitmapEncoder> wic_bitmap_encoder;
 
-  ThrowIfFailed(wic_imaging_factory_->CreateEncoder(
+  CheckHResult(wic_imaging_factory_->CreateEncoder(
       ConvertImageFormatToGUID(format), nullptr, &wic_bitmap_encoder));
 
-  ThrowIfFailed(wic_bitmap_encoder->Initialize(com_stream.Get(),
+  CheckHResult(wic_bitmap_encoder->Initialize(com_stream.Get(),
                                                WICBitmapEncoderNoCache));
 
   Microsoft::WRL::ComPtr<IWICBitmapFrameEncode> wic_bitmap_frame_encode;
   Microsoft::WRL::ComPtr<IPropertyBag2> property_bag;
-  ThrowIfFailed(wic_bitmap_encoder->CreateNewFrame(&wic_bitmap_frame_encode,
+  CheckHResult(wic_bitmap_encoder->CreateNewFrame(&wic_bitmap_frame_encode,
                                                    &property_bag));
 
   if (format == ImageFormat::Jpeg) {
@@ -124,15 +124,15 @@ void WinImageFactory::EncodeToStream(IImage* image, io::Stream* stream,
     VariantInit(&varValue);
     varValue.vt = VT_R4;
     varValue.fltVal = quality;
-    ThrowIfFailed(property_bag->Write(1, &option, &varValue));
+    CheckHResult(property_bag->Write(1, &option, &varValue));
   }
 
-  ThrowIfFailed(wic_bitmap_frame_encode->Initialize(property_bag.Get()));
-  ThrowIfFailed(wic_bitmap_frame_encode->SetResolution(dpi_x, dpi_y));
-  ThrowIfFailed(wic_bitmap_frame_encode->WriteSource(wic_bitmap.Get(), NULL));
-  ThrowIfFailed(wic_bitmap_frame_encode->Commit());
+  CheckHResult(wic_bitmap_frame_encode->Initialize(property_bag.Get()));
+  CheckHResult(wic_bitmap_frame_encode->SetResolution(dpi_x, dpi_y));
+  CheckHResult(wic_bitmap_frame_encode->WriteSource(wic_bitmap.Get(), NULL));
+  CheckHResult(wic_bitmap_frame_encode->Commit());
 
-  ThrowIfFailed(wic_bitmap_encoder->Commit());
+  CheckHResult(wic_bitmap_encoder->Commit());
 }
 
 std::unique_ptr<IImage> WinImageFactory::CreateBitmap(int width, int height) {
@@ -144,7 +144,7 @@ std::unique_ptr<IImage> WinImageFactory::CreateBitmap(int width, int height) {
   Microsoft::WRL::ComPtr<ID2D1Bitmap1> bitmap;
 
   auto d2d_context = graphics_factory->GetDefaultD2D1DeviceContext();
-  ThrowIfFailed(d2d_context->CreateBitmap(
+  CheckHResult(d2d_context->CreateBitmap(
       D2D1::SizeU(width, height), nullptr, 0,
       D2D1::BitmapProperties1(D2D1_BITMAP_OPTIONS_TARGET,
                               D2D1::PixelFormat(DXGI_FORMAT_B8G8R8A8_UNORM,

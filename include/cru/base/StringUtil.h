@@ -39,6 +39,22 @@ struct SplitOptions {
   static constexpr SplitOption RemoveSpace = SplitOption::FromOffset(2);
 };
 
+template <typename R>
+std::string Join(std::string_view sep, const R& range) {
+  bool start = true;
+  std::string result;
+  for (const auto& s : range) {
+    if (start) {
+      result += s;
+      start = false;
+    } else {
+      result += sep;
+      result += s;
+    }
+  }
+  return result;
+}
+
 std::vector<std::string> CRU_BASE_API Split(std::string_view str,
                                             std::string_view sep,
                                             SplitOption options = {});

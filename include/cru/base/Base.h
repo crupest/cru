@@ -129,7 +129,6 @@ class CRU_BASE_API Exception : public std::exception {
 
  protected:
   void SetMessage(std::string message) { message_ = std::move(message); }
-  void AppendMessage(const std::string& additional_message);
   void AppendMessage(std::string_view additional_message);
   void AppendMessage(std::optional<std::string_view> additional_message);
 

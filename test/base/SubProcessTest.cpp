@@ -5,10 +5,6 @@
 using cru::SubProcess;
 
 TEST_CASE("SubProcess", "[subprocess]") {
-#ifdef _WIN32
-  SKIP("SubProcess is not implemented on Windows for now.");
-#endif
-
   SECTION("echo should work.") {
     SubProcess process =
         SubProcess::Create(CRU_TEST_HELPER_ECHO_LOCATION, {"abc"});

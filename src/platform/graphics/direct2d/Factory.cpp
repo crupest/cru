@@ -27,33 +27,33 @@ DirectGraphicsFactory::DirectGraphicsFactory() : DirectGraphicsResource(this) {
 
   Microsoft::WRL::ComPtr<ID3D11DeviceContext> d3d11_device_context;
 
-  ThrowIfFailed(D3D11CreateDevice(
+  CheckHResult(D3D11CreateDevice(
       nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, creation_flags,
       feature_levels, ARRAYSIZE(feature_levels), D3D11_SDK_VERSION,
       &d3d11_device_, nullptr, &d3d11_device_context));
 
   Microsoft::WRL::ComPtr<IDXGIDevice> dxgi_device;
-  ThrowIfFailed(d3d11_device_->QueryInterface(dxgi_device.GetAddressOf()));
+  CheckHResult(d3d11_device_->QueryInterface(dxgi_device.GetAddressOf()));
 
-  ThrowIfFailed(D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED,
+  CheckHResult(D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED,
                                   IID_PPV_ARGS(&d2d1_factory_)));
 
-  ThrowIfFailed(d2d1_factory_->CreateDevice(dxgi_device.Get(), &d2d1_device_));
+  CheckHResult(d2d1_factory_->CreateDevice(dxgi_device.Get(), &d2d1_device_));
 
   d2d1_device_context_ = CreateD2D1DeviceContext();
 
   // Identify the physical adapter (GPU or card) this device is runs on.
   Microsoft::WRL::ComPtr<IDXGIAdapter> dxgi_adapter;
-  ThrowIfFailed(dxgi_device->GetAdapter(&dxgi_adapter));
+  CheckHResult(dxgi_device->GetAdapter(&dxgi_adapter));
 
   // Get the factory object that created the DXGI device.
-  ThrowIfFailed(dxgi_adapter->GetParent(IID_PPV_ARGS(&dxgi_factory_)));
+  CheckHResult(dxgi_adapter->GetParent(IID_PPV_ARGS(&dxgi_factory_)));
 
-  ThrowIfFailed(DWriteCreateFactory(
+  CheckHResult(DWriteCreateFactory(
       DWRITE_FACTORY_TYPE_SHARED, __uuidof(IDWriteFactory),
       reinterpret_cast<IUnknown**>(dwrite_factory_.GetAddressOf())));
 
-  ThrowIfFailed(dwrite_factory_->GetSystemFontCollection(
+  CheckHResult(dwrite_factory_->GetSystemFontCollection(
       &dwrite_system_font_collection_));
 
   image_factory_ = std::make_unique<WinImageFactory>(this);
@@ -64,7 +64,7 @@ DirectGraphicsFactory::~DirectGraphicsFactory() {}
 Microsoft::WRL::ComPtr<ID2D1DeviceContext1>
 DirectGraphicsFactory::CreateD2D1DeviceContext() {
   Microsoft::WRL::ComPtr<ID2D1DeviceContext1> d2d1_device_context;
-  ThrowIfFailed(d2d1_device_->CreateDeviceContext(
+  CheckHResult(d2d1_device_->CreateDeviceContext(
       D2D1_DEVICE_CONTEXT_OPTIONS_NONE, &d2d1_device_context));
   return d2d1_device_context;
 }

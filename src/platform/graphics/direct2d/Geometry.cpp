@@ -7,8 +7,8 @@
 namespace cru::platform::graphics::direct2d {
 D2DGeometryBuilder::D2DGeometryBuilder(DirectGraphicsFactory* factory)
     : DirectGraphicsResource(factory) {
-  ThrowIfFailed(factory->GetD2D1Factory()->CreatePathGeometry(&geometry_));
-  ThrowIfFailed(geometry_->Open(&geometry_sink_));
+  CheckHResult(factory->GetD2D1Factory()->CreatePathGeometry(&geometry_));
+  CheckHResult(geometry_->Open(&geometry_sink_));
 }
 
 void D2DGeometryBuilder::CheckValidation() {
@@ -72,7 +72,7 @@ void D2DGeometryBuilder::CloseFigure(bool close) {
 
 std::unique_ptr<IGeometry> D2DGeometryBuilder::Build() {
   CheckValidation();
-  ThrowIfFailed(geometry_sink_->Close());
+  CheckHResult(geometry_sink_->Close());
   geometry_sink_ = nullptr;
   auto geometry =
       std::make_unique<D2DGeometry>(GetDirectFactory(), std::move(geometry_));
@@ -86,20 +86,20 @@ D2DGeometry::D2DGeometry(DirectGraphicsFactory* factory,
 
 bool D2DGeometry::FillContains(const Point& point) {
   BOOL result;
-  ThrowIfFailed(geometry_->FillContainsPoint(
+  CheckHResult(geometry_->FillContainsPoint(
       Convert(point), D2D1::Matrix3x2F::Identity(), &result));
   return result != 0;
 }
 
 Rect D2DGeometry::GetBounds() {
   D2D1_RECT_F bounds;
-  ThrowIfFailed(geometry_->GetBounds(D2D1::Matrix3x2F::Identity(), &bounds));
+  CheckHResult(geometry_->GetBounds(D2D1::Matrix3x2F::Identity(), &bounds));
   return Convert(bounds);
 }
 
 std::unique_ptr<IGeometry> D2DGeometry::Transform(const Matrix& matrix) {
   Microsoft::WRL::ComPtr<ID2D1TransformedGeometry> d2d1_geometry;
-  ThrowIfFailed(GetDirectFactory()->GetD2D1Factory()->CreateTransformedGeometry(
+  CheckHResult(GetDirectFactory()->GetD2D1Factory()->CreateTransformedGeometry(
       geometry_.Get(), Convert(matrix), &d2d1_geometry));
   return std::make_unique<D2DGeometry>(GetDirectFactory(),
                                        std::move(d2d1_geometry));
@@ -107,11 +107,11 @@ std::unique_ptr<IGeometry> D2DGeometry::Transform(const Matrix& matrix) {
 
 std::unique_ptr<IGeometry> D2DGeometry::CreateStrokeGeometry(float width) {
   Microsoft::WRL::ComPtr<ID2D1PathGeometry> d2d1_geometry;
-  ThrowIfFailed(
+  CheckHResult(
       GetDirectFactory()->GetD2D1Factory()->CreatePathGeometry(&d2d1_geometry));
   Microsoft::WRL::ComPtr<ID2D1GeometrySink> d2d1_geometry_sink;
-  ThrowIfFailed(d2d1_geometry->Open(&d2d1_geometry_sink));
-  ThrowIfFailed(
+  CheckHResult(d2d1_geometry->Open(&d2d1_geometry_sink));
+  CheckHResult(
       geometry_->Widen(width, nullptr, nullptr, d2d1_geometry_sink.Get()));
   d2d1_geometry_sink->Close();
 

@@ -2,7 +2,9 @@
 
 #include <thread>
 
-#if defined(__APPLE__) || defined(__unix)
+#if defined(_WIN32)
+#include "cru/base/platform/win/Win32SubProcess.h"
+#elif defined(__APPLE__) || defined(__unix)
 #include "cru/base/platform/unix/PosixSpawnSubProcess.h"
 #endif
 
@@ -150,7 +152,11 @@ SubProcessExitResult SubProcess::Call(
 }
 
 SubProcess::SubProcess(SubProcessStartInfo start_info) {
-#if defined(__APPLE__) || defined(__unix)
+#if defined(_WIN32)
+  platform_process_.reset(new PlatformSubProcess(
+      std::move(start_info),
+      std::make_shared<platform::win::Win32SubProcessImpl>()));
+#elif defined(__APPLE__) || defined(__unix)
   platform_process_.reset(new PlatformSubProcess(
       std::move(start_info),
       std::make_shared<platform::unix::PosixSpawnSubProcessImpl>()));

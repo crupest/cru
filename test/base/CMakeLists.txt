@@ -32,8 +32,7 @@ endif()
 
 if (WIN32)
 	target_sources(CruBaseTest PRIVATE
-		platform/win/StreamConvertTest.cpp
-		platform/win/Win32FileStreamTest.cpp
+		platform/win/StreamTest.cpp
 	)
 endif()
 

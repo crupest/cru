@@ -113,7 +113,7 @@ class CRU_BASE_API Stream : public Object {
   void CheckClosed() { StreamClosedException::Check(closed_); }
 
  private:
-  std::optional<SupportedOperations> supported_operations_;
+  SupportedOperations supported_operations_;
   bool closed_;
 };
 }  // namespace cru::io

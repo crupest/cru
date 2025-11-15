@@ -115,32 +115,32 @@ void Stream::Flush() {
 }
 
 bool Stream::DoCanSeek() {
-  if (supported_operations_->can_seek) {
-    return *supported_operations_->can_seek;
+  if (supported_operations_.can_seek) {
+    return *supported_operations_.can_seek;
   } else {
     throw Exception(
-        "Can seek is neither set in supported_operations nor implemeted in "
-        "virtual function.");
+        "Can seek is neither set in supported_operations nor overriden by "
+        "derived class.");
   }
 }
 
 bool Stream::DoCanRead() {
-  if (supported_operations_->can_read) {
-    return *supported_operations_->can_read;
+  if (supported_operations_.can_read) {
+    return *supported_operations_.can_read;
   } else {
     throw Exception(
-        "Can read is neither set in supported_operations nor implemeted in "
-        "virtual function.");
+        "Can read is neither set in supported_operations nor overriden by "
+        "derived class.");
   }
 }
 
 bool Stream::DoCanWrite() {
-  if (supported_operations_->can_write) {
-    return *supported_operations_->can_write;
+  if (supported_operations_.can_write) {
+    return *supported_operations_.can_write;
   } else {
     throw Exception(
-        "Can write is neither set in supported_operations nor implemeted in "
-        "virtual function.");
+        "Can write is neither set in supported_operations nor overriden by "
+        "derived class.");
   }
 }
 

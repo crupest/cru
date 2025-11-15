@@ -21,7 +21,7 @@
 
 namespace cru::platform::graphics::direct2d {
 using platform::win::HResultError;
-using platform::win::ThrowIfFailed;
+using platform::win::CheckHResult;
 
 inline D2D1_MATRIX_3X2_F Convert(const platform::Matrix& matrix) {
   D2D1_MATRIX_3X2_F m;

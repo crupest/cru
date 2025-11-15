@@ -14,7 +14,7 @@ DWriteTextLayout::DWriteTextLayout(DirectGraphicsFactory* factory,
   font_ = CheckPlatform<DWriteFont>(font, GetPlatformId());
 
   utf16_text_ = string::ToUtf16(text_);
-  ThrowIfFailed(factory->GetDWriteFactory()->CreateTextLayout(
+  CheckHResult(factory->GetDWriteFactory()->CreateTextLayout(
       utf16_text_.c_str(), static_cast<UINT32>(utf16_text_.size()),
       font_->GetComInterface(), max_width_, max_height_, &text_layout_));
 }
@@ -26,7 +26,7 @@ std::string DWriteTextLayout::GetText() { return text_; }
 void DWriteTextLayout::SetText(std::string new_text) {
   text_ = std::move(new_text);
   utf16_text_ = string::ToUtf16(text_);
-  ThrowIfFailed(GetDirectFactory()->GetDWriteFactory()->CreateTextLayout(
+  CheckHResult(GetDirectFactory()->GetDWriteFactory()->CreateTextLayout(
       utf16_text_.c_str(), static_cast<UINT32>(utf16_text_.size()),
       font_->GetComInterface(), max_width_, max_height_, &text_layout_));
 }
@@ -37,7 +37,7 @@ std::shared_ptr<IFont> DWriteTextLayout::GetFont() {
 
 void DWriteTextLayout::SetFont(std::shared_ptr<IFont> font) {
   font_ = CheckPlatform<DWriteFont>(font, GetPlatformId());
-  ThrowIfFailed(GetDirectFactory()->GetDWriteFactory()->CreateTextLayout(
+  CheckHResult(GetDirectFactory()->GetDWriteFactory()->CreateTextLayout(
       reinterpret_cast<const wchar_t*>(text_.c_str()),
       static_cast<UINT32>(text_.size()), font_->GetComInterface(), max_width_,
       max_height_, &text_layout_));
@@ -45,12 +45,12 @@ void DWriteTextLayout::SetFont(std::shared_ptr<IFont> font) {
 
 void DWriteTextLayout::SetMaxWidth(float max_width) {
   max_width_ = max_width;
-  ThrowIfFailed(text_layout_->SetMaxWidth(max_width_));
+  CheckHResult(text_layout_->SetMaxWidth(max_width_));
 }
 
 void DWriteTextLayout::SetMaxHeight(float max_height) {
   max_height_ = max_height;
-  ThrowIfFailed(text_layout_->SetMaxHeight(max_height_));
+  CheckHResult(text_layout_->SetMaxHeight(max_height_));
 }
 
 bool DWriteTextLayout::IsEditMode() { return edit_mode_; }
@@ -93,7 +93,7 @@ Index DWriteTextLayout::GetLineCount() {
 
 Rect DWriteTextLayout::GetTextBounds(bool includingTrailingSpace) {
   DWRITE_TEXT_METRICS metrics;
-  ThrowIfFailed(text_layout_->GetMetrics(&metrics));
+  CheckHResult(text_layout_->GetMetrics(&metrics));
   return Rect{metrics.left, metrics.top,
               includingTrailingSpace ? metrics.widthIncludingTrailingWhitespace
                                      : metrics.width,
@@ -120,13 +120,13 @@ std::vector<Rect> DWriteTextLayout::TextRangeRect(
           .Normalize();
 
   DWRITE_TEXT_METRICS text_metrics;
-  ThrowIfFailed(text_layout_->GetMetrics(&text_metrics));
+  CheckHResult(text_layout_->GetMetrics(&text_metrics));
   const auto metrics_count =
       text_metrics.lineCount * text_metrics.maxBidiReorderingDepth;
 
   std::vector<DWRITE_HIT_TEST_METRICS> hit_test_metrics(metrics_count);
   UINT32 actual_count;
-  ThrowIfFailed(text_layout_->HitTestTextRange(
+  CheckHResult(text_layout_->HitTestTextRange(
       static_cast<UINT32>(text_range.position),
       static_cast<UINT32>(text_range.count), 0, 0, hit_test_metrics.data(),
       metrics_count, &actual_count));
@@ -153,7 +153,7 @@ Rect DWriteTextLayout::TextSinglePoint(Index position, bool trailing) {
   DWRITE_HIT_TEST_METRICS metrics;
   FLOAT left;
   FLOAT top;
-  ThrowIfFailed(text_layout_->HitTestTextPosition(static_cast<UINT32>(position),
+  CheckHResult(text_layout_->HitTestTextPosition(static_cast<UINT32>(position),
                                                   static_cast<BOOL>(trailing),
                                                   &left, &top, &metrics));
   return Rect{left, top, 0, GetFont()->GetFontSize()};
@@ -164,7 +164,7 @@ TextHitTestResult DWriteTextLayout::HitTest(const Point& point) {
   BOOL inside;
   DWRITE_HIT_TEST_METRICS metrics;
 
-  ThrowIfFailed(text_layout_->HitTestPoint(point.x, point.y, &trailing, &inside,
+  CheckHResult(text_layout_->HitTestPoint(point.x, point.y, &trailing, &inside,
                                            &metrics));
 
   TextHitTestResult result;
