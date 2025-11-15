@@ -82,10 +82,17 @@ class SdlWindow : public SdlResource, public virtual INativeWindow {
   SdlUiApplication* GetSdlUiApplication();
 
  private:
+  void DoCreate();
+  void DoSetParent(INativeWindow* parent);
+  void DoSetStyleFlag(WindowStyleFlag flag);
+  void DoSetTitle(const std::string& title);
+
+ private:
   SdlUiApplication* application_;
   std::optional<SDL_Window*> sdl_window_;
   SdlWindow* parent_;
   WindowStyleFlag style_;
+  std::string title_;
 
   Event<std::nullptr_t> create_event_;
   Event<std::nullptr_t> destroy_event_;
@@ -101,4 +108,4 @@ class SdlWindow : public SdlResource, public virtual INativeWindow {
   Event<const NativeKeyEventArgs&> key_down_event_;
   Event<const NativeKeyEventArgs&> key_up_event_;
 };
-}  // namespace cru::platform::gui::xcb
+}  // namespace cru::platform::gui::sdl
