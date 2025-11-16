@@ -81,8 +81,8 @@
                 <NoCondition />
                 <BorderStyler>
                     <BorderStyle>
-                        <Thickness value="5" />
-                        <CornerRadius all="5" />
+                        <Thickness value="1" />
+                        <CornerRadius all="2" />
                     </BorderStyle>
                 </BorderStyler>
             </StyleRule>
@@ -90,7 +90,7 @@
                 <ClickStateCondition value="none" />
                 <BorderStyler>
                     <BorderStyle>
-                        <Color value="#00bfff" />
+                        <Color value="#d2d2d2" />
                     </BorderStyle>
                 </BorderStyler>
                 <CursorStyler>
@@ -101,7 +101,7 @@
                 <ClickStateCondition value="hover" />
                 <BorderStyler>
                     <BorderStyle>
-                        <Color value="#47d1ff" />
+                        <Color value="#0078d4" />
                     </BorderStyle>
                 </BorderStyler>
                 <CursorStyler>
@@ -112,7 +112,7 @@
                 <ClickStateCondition value="press" />
                 <BorderStyler>
                     <BorderStyle>
-                        <Color value="#91e4ff" />
+                        <Color value="#06579b" />
                     </BorderStyle>
                 </BorderStyler>
                 <CursorStyler>
@@ -123,7 +123,7 @@
                 <ClickStateCondition value="pressinactive" />
                 <BorderStyler>
                     <BorderStyle>
-                        <Color value="#91e4ff" />
+                        <Color value="#06579b" />
                     </BorderStyle>
                 </BorderStyler>
                 <CursorStyler>
@@ -139,8 +139,8 @@
                 <NoCondition />
                 <BorderStyler>
                     <BorderStyle>
-                        <Thickness value="5" />
-                        <CornerRadius all="5" />
+                        <Thickness value="1" />
+                        <CornerRadius all="2" />
                     </BorderStyle>
                 </BorderStyler>
             </StyleRule>
@@ -148,7 +148,7 @@
                 <ClickStateCondition value="none" />
                 <BorderStyler>
                     <BorderStyle>
-                        <Color value="#00bfff" />
+                        <Color value="#d2d2d2" />
                     </BorderStyle>
                 </BorderStyler>
                 <CursorStyler>
@@ -159,7 +159,7 @@
                 <ClickStateCondition value="hover" />
                 <BorderStyler>
                     <BorderStyle>
-                        <Color value="#47d1ff" />
+                        <Color value="#0078d4" />
                     </BorderStyle>
                 </BorderStyler>
                 <CursorStyler>
@@ -170,7 +170,7 @@
                 <ClickStateCondition value="press" />
                 <BorderStyler>
                     <BorderStyle>
-                        <Color value="#91e4ff" />
+                        <Color value="#06579b" />
                     </BorderStyle>
                 </BorderStyler>
                 <CursorStyler>
@@ -181,7 +181,7 @@
                 <ClickStateCondition value="pressinactive" />
                 <BorderStyler>
                     <BorderStyle>
-                        <Color value="#91e4ff" />
+                        <Color value="#06579b" />
                     </BorderStyle>
                 </BorderStyler>
                 <CursorStyler>
