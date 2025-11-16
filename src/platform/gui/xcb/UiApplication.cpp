@@ -87,7 +87,7 @@ xcb_atom_t XcbUiApplication::GetOrCreateXcbAtom(std::string name) {
   auto cookie =
       xcb_intern_atom(xcb_connection_, false, name.size(), name.data());
   auto reply =
-      FreeLater(xcb_intern_atom_reply(xcb_connection_, cookie, nullptr));
+      AutoFreePtr(xcb_intern_atom_reply(xcb_connection_, cookie, nullptr));
   auto atom = reply->atom;
   xcb_atom_.emplace(std::move(name), atom);
   return atom;

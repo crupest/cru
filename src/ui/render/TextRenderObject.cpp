@@ -187,8 +187,7 @@ void TextRenderObject::Draw(platform::graphics::IPainter* painter) {
   }
 
   if (this->selection_range_.has_value()) {
-    const auto&& rects =
-        text_layout_->TextRangeRect(this->selection_range_.value());
+    const auto&& rects = text_layout_->TextRangeRect(*this->selection_range_);
     for (const auto& rect : rects)
       painter->FillRectangle(rect, this->GetSelectionBrush().get());
   }

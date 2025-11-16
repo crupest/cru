@@ -6,7 +6,6 @@
 #include "cru/platform/graphics/Geometry.h"
 #include "cru/platform/graphics/Painter.h"
 #include "cru/platform/gui/Cursor.h"
-#include "cru/platform/gui/TimerHelper.h"
 #include "cru/platform/gui/UiApplication.h"
 #include "cru/ui/Base.h"
 #include "cru/ui/controls/Control.h"

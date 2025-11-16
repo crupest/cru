@@ -1,7 +1,6 @@
 #pragma once
 #include "../render/TextRenderObject.h"
 #include "cru/platform/gui/InputMethod.h"
-#include "cru/platform/gui/TimerHelper.h"
 #include "cru/platform/gui/UiApplication.h"
 #include "cru/ui/DeleteLater.h"
 #include "cru/ui/controls/Control.h"

@@ -3,6 +3,7 @@
 #include "Menu.h"
 #include "SaveOpenDialogOptions.h"
 
+#include <cru/base/Guard.h>
 #include <cru/platform/graphics/Factory.h>
 
 #include <chrono>
@@ -74,4 +75,12 @@ struct CRU_PLATFORM_GUI_API IUiApplication : public virtual IPlatformResource {
   virtual std::optional<std::vector<std::string>> ShowOpenDialog(
       OpenDialogOptions options);
 };
+
+namespace details {
+inline void CancelTimer(long long id) noexcept {
+  IUiApplication::GetInstance()->CancelTimer(id);
+}
+}  // namespace details
+
+using TimerAutoCanceler = AutoDestruct<long long, details::CancelTimer>;
 }  // namespace cru::platform::gui

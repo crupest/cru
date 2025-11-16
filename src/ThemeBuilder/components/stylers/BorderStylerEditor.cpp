@@ -67,7 +67,7 @@ void BorderStylerEditor::SetValue(ui::style::BorderStyler* styler,
   if (border_style.border_brush.has_value()) {
     brush_editor_.GetEditor()->SetValue(
         std::dynamic_pointer_cast<platform::graphics::ISolidColorBrush>(
-            border_style.border_brush.value())
+            *border_style.border_brush)
             ->GetColor(),
         false);
   }
@@ -77,7 +77,7 @@ void BorderStylerEditor::SetValue(ui::style::BorderStyler* styler,
   if (border_style.foreground_brush.has_value()) {
     foreground_brush_editor_.GetEditor()->SetValue(
         std::dynamic_pointer_cast<platform::graphics::ISolidColorBrush>(
-            border_style.foreground_brush.value())
+            *border_style.foreground_brush)
             ->GetColor(),
         false);
   }
@@ -87,7 +87,7 @@ void BorderStylerEditor::SetValue(ui::style::BorderStyler* styler,
   if (border_style.background_brush.has_value()) {
     background_brush_editor_.GetEditor()->SetValue(
         std::dynamic_pointer_cast<platform::graphics::ISolidColorBrush>(
-            border_style.background_brush.value())
+            *border_style.background_brush)
             ->GetColor(),
         false);
   }

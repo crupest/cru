@@ -2,7 +2,7 @@
 #pragma once
 #include "Base.h"
 
-#include <cru/platform/gui/TimerHelper.h>
+#include <cru/platform/gui/UiApplication.h>
 #include <cru/platform/gui/Window.h>
 
 #include <cairo.h>

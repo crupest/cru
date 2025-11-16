@@ -6,8 +6,8 @@
 
 #include "../../Base.h"
 #include "../../Bitmask.h"
+#include "../../Guard.h"
 
-#include <optional>
 #include <string_view>
 
 #define NOMINMAX
@@ -54,80 +54,11 @@ inline void CheckWinReturn(BOOL r, std::string_view message = "") {
   }
 }
 
-template <typename H, void (*CloseFunc)(H handle) noexcept>
-class CRU_BASE_API TWin32Handle {
- public:
-  TWin32Handle() : handle_(std::nullopt), auto_close_(false) {}
-
-  TWin32Handle(H handle, bool auto_close)
-      : handle_(handle), auto_close_(auto_close) {}
-
-  CRU_DELETE_COPY(TWin32Handle)
-
-  TWin32Handle(TWin32Handle&& other) noexcept
-      : handle_(other.handle_), auto_close_(other.auto_close_) {
-    other.handle_ = std::nullopt;
-    other.auto_close_ = false;
-  }
-
-  TWin32Handle& operator=(TWin32Handle&& other) noexcept {
-    if (this != &other) {
-      DoClose();
-      handle_ = other.handle_;
-      auto_close_ = other.auto_close_;
-      other.handle_ = std::nullopt;
-      other.auto_close_ = false;
-    }
-    return *this;
-  }
-
-  ~TWin32Handle() { DoClose(); }
-
- public:
-  bool IsValid() const { return handle_.has_value(); }
-
-  void CheckValid(
-      std::optional<std::string_view> additional_message = std::nullopt) const {
-    if (!IsValid()) {
-      std::string message("The win32 handle is invalid.");
-      if (additional_message) {
-        message += " ";
-        message += *additional_message;
-      }
-      throw Exception(std::move(message));
-    }
-  }
-
-  H Get() const {
-    CheckValid();
-    return *handle_;
-  }
-
-  H Release() {
-    CheckValid();
-    auto handle = *handle_;
-    handle_ = std::nullopt;
-    auto_close_ = false;
-    return handle;
-  }
-
- private:
-  void DoClose() {
-    if (auto_close_ && handle_) {
-      CloseFunc(*handle_);
-    }
-  }
-
- private:
-  std::optional<H> handle_;
-  bool auto_close_;
-};
-
 namespace details {
 inline void MyCloseHandle(HANDLE handle) noexcept { ::CloseHandle(handle); }
 }  // namespace details
 
-using Win32Handle = TWin32Handle<HANDLE, details::MyCloseHandle>;
+using Win32Handle = AutoDestruct<HANDLE, details::MyCloseHandle>;
 
 struct UniDirectionalWin32PipeResult {
   Win32Handle read;

@@ -37,7 +37,7 @@ MouseButton ConvertMouseButton(xcb_button_t button) {
 }
 }  // namespace
 
-XcbWindow::XcbWindow(XcbUiApplication *application)
+XcbWindow::XcbWindow(XcbUiApplication* application)
     : application_(application),
       xcb_window_(std::nullopt),
       cairo_surface_(nullptr),
@@ -66,9 +66,9 @@ void XcbWindow::Close() {
   }
 }
 
-INativeWindow *XcbWindow::GetParent() { return parent_; }
+INativeWindow* XcbWindow::GetParent() { return parent_; }
 
-void XcbWindow::SetParent(INativeWindow *parent) {
+void XcbWindow::SetParent(INativeWindow* parent) {
   parent_ = CheckPlatform<XcbWindow>(parent, GetPlatformId());
   if (xcb_window_) {
     DoSetParent(*xcb_window_);
@@ -104,7 +104,7 @@ constexpr int IconicState = 3;
 
 WindowVisibilityType XcbWindow::GetVisibility() {
   if (!xcb_window_) return WindowVisibilityType::Hide;
-  auto value = static_cast<std::uint32_t *>(
+  auto value = static_cast<std::uint32_t*>(
       XcbGetProperty(*xcb_window_, application_->GetXcbAtomWM_STATE(),
                      application_->GetXcbAtomWM_STATE(), 0, 1));
   if (value != nullptr && *value == IconicState) {
@@ -134,7 +134,7 @@ void XcbWindow::SetVisibility(WindowVisibilityType visibility) {
         UnreachableCode();
     }
 
-    auto old_value = static_cast<std::uint32_t *>(
+    auto old_value = static_cast<std::uint32_t*>(
         XcbGetProperty(*xcb_window_, atom, atom, 0, 2));
     if (old_value) value[1] = old_value[1];
 
@@ -177,7 +177,7 @@ void XcbWindow::SetVisibility(WindowVisibilityType visibility) {
 
 Size XcbWindow::GetClientSize() { return GetClientRect().GetSize(); }
 
-void XcbWindow::SetClientSize(const Size &size) {
+void XcbWindow::SetClientSize(const Size& size) {
   auto rect = GetClientRect();
   SetClientRect(Rect(rect.GetLeftTop(), size));
 }
@@ -190,14 +190,14 @@ Rect XcbWindow::GetClientRect() {
   auto window = *xcb_window_;
 
   auto cookie = xcb_get_geometry(application_->GetXcbConnection(), window);
-  auto reply = FreeLater(xcb_get_geometry_reply(
+  auto reply = AutoFreePtr(xcb_get_geometry_reply(
       application_->GetXcbConnection(), cookie, nullptr));
   auto position = GetXcbWindowPosition(window);
 
   return Rect(position.x, position.y, reply->width, reply->height);
 }
 
-void XcbWindow::SetClientRect(const Rect &rect) {
+void XcbWindow::SetClientRect(const Rect& rect) {
   if (!xcb_window_) return;
   DoSetClientRect(*xcb_window_, rect);
   application_->XcbFlush();
@@ -216,7 +216,7 @@ Rect XcbWindow::GetWindowRect() {
   return client_rect;
 }
 
-void XcbWindow::SetWindowRect(const Rect &rect) {
+void XcbWindow::SetWindowRect(const Rect& rect) {
   if (!xcb_window_) return;
 
   auto real_rect = rect;
@@ -240,7 +240,7 @@ bool XcbWindow::RequestFocus() {
 Point XcbWindow::GetMousePosition() {
   auto window = xcb_window_.value_or(application_->GetFirstXcbScreen()->root);
   auto cookie = xcb_query_pointer(application_->GetXcbConnection(), window);
-  auto reply = FreeLater(xcb_query_pointer_reply(
+  auto reply = AutoFreePtr(xcb_query_pointer_reply(
       application_->GetXcbConnection(), cookie, nullptr));
   return Point(reply->win_x, reply->win_y);
 }
@@ -295,57 +295,59 @@ std::unique_ptr<graphics::IPainter> XcbWindow::BeginPaint() {
   }
 
   auto factory = application_->GetCairoFactory();
-  cairo_t *cairo = cairo_create(cairo_surface_);
+  cairo_t* cairo = cairo_create(cairo_surface_);
   auto painter =
       new graphics::cairo::CairoPainter(factory, cairo, true, cairo_surface_);
   return std::unique_ptr<graphics::IPainter>(painter);
 }
 
-IEvent<std::nullptr_t> *XcbWindow::CreateEvent() { return &create_event_; }
+IEvent<std::nullptr_t>* XcbWindow::CreateEvent() { return &create_event_; }
 
-IEvent<std::nullptr_t> *XcbWindow::DestroyEvent() { return &destroy_event_; }
+IEvent<std::nullptr_t>* XcbWindow::DestroyEvent() { return &destroy_event_; }
 
-IEvent<std::nullptr_t> *XcbWindow::PaintEvent() { return &paint_event_; }
+IEvent<std::nullptr_t>* XcbWindow::PaintEvent() { return &paint_event_; }
 
-IEvent<WindowVisibilityType> *XcbWindow::VisibilityChangeEvent() {
+IEvent<WindowVisibilityType>* XcbWindow::VisibilityChangeEvent() {
   return &visibility_change_event_;
 }
 
-IEvent<const Size&> *XcbWindow::ResizeEvent() { return &resize_event_; }
+IEvent<const Size&>* XcbWindow::ResizeEvent() { return &resize_event_; }
 
-IEvent<FocusChangeType> *XcbWindow::FocusEvent() { return &focus_event_; }
+IEvent<FocusChangeType>* XcbWindow::FocusEvent() { return &focus_event_; }
 
-IEvent<MouseEnterLeaveType> *XcbWindow::MouseEnterLeaveEvent() {
+IEvent<MouseEnterLeaveType>* XcbWindow::MouseEnterLeaveEvent() {
   return &mouse_enter_leave_event_;
 }
 
-IEvent<const Point&> *XcbWindow::MouseMoveEvent() { return &mouse_move_event_; }
+IEvent<const Point&>* XcbWindow::MouseMoveEvent() { return &mouse_move_event_; }
 
-IEvent<const NativeMouseButtonEventArgs&> *XcbWindow::MouseDownEvent() {
+IEvent<const NativeMouseButtonEventArgs&>* XcbWindow::MouseDownEvent() {
   return &mouse_down_event_;
 }
 
-IEvent<const NativeMouseButtonEventArgs&> *XcbWindow::MouseUpEvent() {
+IEvent<const NativeMouseButtonEventArgs&>* XcbWindow::MouseUpEvent() {
   return &mouse_up_event_;
 }
 
-IEvent<const NativeMouseWheelEventArgs&> *XcbWindow::MouseWheelEvent() {
+IEvent<const NativeMouseWheelEventArgs&>* XcbWindow::MouseWheelEvent() {
   return &mouse_wheel_event_;
 }
 
-IEvent<const NativeKeyEventArgs&> *XcbWindow::KeyDownEvent() {
+IEvent<const NativeKeyEventArgs&>* XcbWindow::KeyDownEvent() {
   return &key_down_event_;
 }
 
-IEvent<const NativeKeyEventArgs&> *XcbWindow::KeyUpEvent() { return &key_up_event_; }
+IEvent<const NativeKeyEventArgs&>* XcbWindow::KeyUpEvent() {
+  return &key_up_event_;
+}
 
-IInputMethodContext *XcbWindow::GetInputMethodContext() {
+IInputMethodContext* XcbWindow::GetInputMethodContext() {
   return input_method_;
 }
 
 std::optional<xcb_window_t> XcbWindow::GetXcbWindow() { return xcb_window_; }
 
-XcbUiApplication *XcbWindow::GetXcbUiApplication() { return application_; }
+XcbUiApplication* XcbWindow::GetXcbUiApplication() { return application_; }
 
 bool XcbWindow::HasFocus() {
   if (!xcb_window_) return false;
@@ -392,7 +394,7 @@ xcb_window_t XcbWindow::DoCreateWindow() {
   DoSetParent(window);
   DoSetCursor(window, cursor_.get());
 
-  xcb_visualtype_t *visual_type;
+  xcb_visualtype_t* visual_type;
 
   for (xcb_depth_iterator_t depth_iter =
            xcb_screen_allowed_depths_iterator(screen);
@@ -417,7 +419,7 @@ xcb_window_t XcbWindow::DoCreateWindow() {
   return window;
 }
 
-void XcbWindow::HandleEvent(xcb_generic_event_t *event) {
+void XcbWindow::HandleEvent(xcb_generic_event_t* event) {
   switch (event->response_type & ~0x80) {
     case XCB_EXPOSE: {
       RequestRepaint();
@@ -433,15 +435,15 @@ void XcbWindow::HandleEvent(xcb_generic_event_t *event) {
       if (application_->IsQuitOnAllWindowClosed() &&
           std::ranges::none_of(
               application_->GetAllWindow(),
-              [](INativeWindow *window) { return window->IsCreated(); })) {
+              [](INativeWindow* window) { return window->IsCreated(); })) {
         application_->RequestQuit(0);
       }
 
       break;
     }
     case XCB_CONFIGURE_NOTIFY: {
-      xcb_configure_notify_event_t *configure =
-          (xcb_configure_notify_event_t *)event;
+      xcb_configure_notify_event_t* configure =
+          (xcb_configure_notify_event_t*)event;
       auto width = configure->width, height = configure->height;
       if (width != current_size_.width || height != current_size_.height) {
         CRU_LOG_TAG_DEBUG("{:#x} Size changed {} x {}.", *xcb_window_, width,
@@ -472,7 +474,7 @@ void XcbWindow::HandleEvent(xcb_generic_event_t *event) {
       break;
     }
     case XCB_BUTTON_PRESS: {
-      xcb_button_press_event_t *bp = (xcb_button_press_event_t *)event;
+      xcb_button_press_event_t* bp = (xcb_button_press_event_t*)event;
 
       if (bp->detail >= 4 && bp->detail <= 7) {
         NativeMouseWheelEventArgs args(30, Point(bp->event_x, bp->event_y),
@@ -495,7 +497,7 @@ void XcbWindow::HandleEvent(xcb_generic_event_t *event) {
       break;
     }
     case XCB_BUTTON_RELEASE: {
-      xcb_button_release_event_t *br = (xcb_button_release_event_t *)event;
+      xcb_button_release_event_t* br = (xcb_button_release_event_t*)event;
       NativeMouseButtonEventArgs args(ConvertMouseButton(br->detail),
                                       Point(br->event_x, br->event_y),
                                       ConvertModifiersOfEvent(br->state));
@@ -503,13 +505,13 @@ void XcbWindow::HandleEvent(xcb_generic_event_t *event) {
       break;
     }
     case XCB_MOTION_NOTIFY: {
-      xcb_motion_notify_event_t *motion = (xcb_motion_notify_event_t *)event;
+      xcb_motion_notify_event_t* motion = (xcb_motion_notify_event_t*)event;
       Point point(motion->event_x, motion->event_y);
       mouse_move_event_.Raise(point);
       break;
     }
     case XCB_ENTER_NOTIFY: {
-      xcb_enter_notify_event_t *enter = (xcb_enter_notify_event_t *)event;
+      xcb_enter_notify_event_t* enter = (xcb_enter_notify_event_t*)event;
       mouse_enter_leave_event_.Raise(MouseEnterLeaveType::Enter);
       Point point(enter->event_x, enter->event_y);
       mouse_move_event_.Raise(point);
@@ -524,25 +526,24 @@ void XcbWindow::HandleEvent(xcb_generic_event_t *event) {
       break;
     }
     case XCB_KEY_PRESS: {
-      xcb_key_press_event_t *kp = (xcb_key_press_event_t *)event;
+      xcb_key_press_event_t* kp = (xcb_key_press_event_t*)event;
       NativeKeyEventArgs args(XorgKeycodeToCruKeyCode(application_, kp->detail),
                               ConvertModifiersOfEvent(kp->state));
       key_down_event_.Raise(std::move(args));
       break;
     }
     case XCB_KEY_RELEASE: {
-      xcb_key_release_event_t *kr = (xcb_key_release_event_t *)event;
+      xcb_key_release_event_t* kr = (xcb_key_release_event_t*)event;
       NativeKeyEventArgs args(XorgKeycodeToCruKeyCode(application_, kr->detail),
                               ConvertModifiersOfEvent(kr->state));
       key_up_event_.Raise(std::move(args));
       break;
     }
     case XCB_CLIENT_MESSAGE: {
-      xcb_client_message_event_t *cm = (xcb_client_message_event_t *)event;
+      xcb_client_message_event_t* cm = (xcb_client_message_event_t*)event;
       if (cm->data.data32[0] == application_->GetXcbAtomWM_DELETE_WINDOW() &&
           xcb_window_.has_value()) {
-        xcb_destroy_window(application_->GetXcbConnection(),
-                           xcb_window_.value());
+        xcb_destroy_window(application_->GetXcbConnection(), *xcb_window_);
         xcb_flush(application_->GetXcbConnection());
       }
       break;
@@ -553,67 +554,67 @@ void XcbWindow::HandleEvent(xcb_generic_event_t *event) {
 }
 
 std::optional<xcb_window_t> XcbWindow::GetEventWindow(
-    xcb_generic_event_t *event) {
+    xcb_generic_event_t* event) {
   switch (event->response_type & ~0x80) {
     case XCB_EXPOSE: {
-      xcb_expose_event_t *expose = (xcb_expose_event_t *)event;
+      xcb_expose_event_t* expose = (xcb_expose_event_t*)event;
       return expose->window;
     }
     case XCB_DESTROY_NOTIFY: {
-      xcb_destroy_notify_event_t *destroy = (xcb_destroy_notify_event_t *)event;
+      xcb_destroy_notify_event_t* destroy = (xcb_destroy_notify_event_t*)event;
       return destroy->window;
     }
     case XCB_CONFIGURE_NOTIFY: {
-      xcb_configure_notify_event_t *configure =
-          (xcb_configure_notify_event_t *)event;
+      xcb_configure_notify_event_t* configure =
+          (xcb_configure_notify_event_t*)event;
       return configure->window;
     }
     case XCB_MAP_NOTIFY: {
-      xcb_map_notify_event_t *map = (xcb_map_notify_event_t *)event;
+      xcb_map_notify_event_t* map = (xcb_map_notify_event_t*)event;
       return map->window;
     }
     case XCB_UNMAP_NOTIFY: {
-      xcb_unmap_notify_event_t *unmap = (xcb_unmap_notify_event_t *)event;
+      xcb_unmap_notify_event_t* unmap = (xcb_unmap_notify_event_t*)event;
       return unmap->window;
     }
     case XCB_FOCUS_IN: {
-      xcb_focus_in_event_t *fi = (xcb_focus_in_event_t *)event;
+      xcb_focus_in_event_t* fi = (xcb_focus_in_event_t*)event;
       return fi->event;
     }
     case XCB_FOCUS_OUT: {
-      xcb_focus_out_event_t *fo = (xcb_focus_out_event_t *)event;
+      xcb_focus_out_event_t* fo = (xcb_focus_out_event_t*)event;
       return fo->event;
     }
     case XCB_BUTTON_PRESS: {
-      xcb_button_press_event_t *bp = (xcb_button_press_event_t *)event;
+      xcb_button_press_event_t* bp = (xcb_button_press_event_t*)event;
       return bp->event;
     }
     case XCB_BUTTON_RELEASE: {
-      xcb_button_release_event_t *br = (xcb_button_release_event_t *)event;
+      xcb_button_release_event_t* br = (xcb_button_release_event_t*)event;
       return br->event;
     }
     case XCB_MOTION_NOTIFY: {
-      xcb_motion_notify_event_t *motion = (xcb_motion_notify_event_t *)event;
+      xcb_motion_notify_event_t* motion = (xcb_motion_notify_event_t*)event;
       return motion->event;
     }
     case XCB_ENTER_NOTIFY: {
-      xcb_enter_notify_event_t *enter = (xcb_enter_notify_event_t *)event;
+      xcb_enter_notify_event_t* enter = (xcb_enter_notify_event_t*)event;
       return enter->event;
     }
     case XCB_LEAVE_NOTIFY: {
-      xcb_leave_notify_event_t *leave = (xcb_leave_notify_event_t *)event;
+      xcb_leave_notify_event_t* leave = (xcb_leave_notify_event_t*)event;
       return leave->event;
     }
     case XCB_KEY_PRESS: {
-      xcb_key_press_event_t *kp = (xcb_key_press_event_t *)event;
+      xcb_key_press_event_t* kp = (xcb_key_press_event_t*)event;
       return kp->event;
     }
     case XCB_KEY_RELEASE: {
-      xcb_key_release_event_t *kr = (xcb_key_release_event_t *)event;
+      xcb_key_release_event_t* kr = (xcb_key_release_event_t*)event;
       return kr->event;
     }
     case XCB_CLIENT_MESSAGE: {
-      xcb_client_message_event_t *cm = (xcb_client_message_event_t *)event;
+      xcb_client_message_event_t* cm = (xcb_client_message_event_t*)event;
       return cm->window;
     }
     default:
@@ -654,9 +655,9 @@ void XcbWindow::DoSetTitle(xcb_window_t window) {
   }
 }
 
-void XcbWindow::DoSetClientRect(xcb_window_t window, const Rect &rect) {
+void XcbWindow::DoSetClientRect(xcb_window_t window, const Rect& rect) {
   auto tree_cookie = xcb_query_tree(application_->GetXcbConnection(), window);
-  auto tree_reply = FreeLater(xcb_query_tree_reply(
+  auto tree_reply = AutoFreePtr(xcb_query_tree_reply(
       application_->GetXcbConnection(), tree_cookie, nullptr));
   auto parent_position = GetXcbWindowPosition(tree_reply->parent);
 
@@ -671,20 +672,20 @@ void XcbWindow::DoSetClientRect(xcb_window_t window, const Rect &rect) {
                        values);
 }
 
-void XcbWindow::DoSetCursor(xcb_window_t window, XcbCursor *cursor) {
+void XcbWindow::DoSetCursor(xcb_window_t window, XcbCursor* cursor) {
   std::uint32_t values[]{cursor ? cursor->GetXcbCursor() : XCB_CURSOR_NONE};
   xcb_change_window_attributes(application_->GetXcbConnection(), window,
                                XCB_CW_CURSOR, values);
   application_->XcbFlush();
 }
 
-void *XcbWindow::XcbGetProperty(xcb_window_t window, xcb_atom_t property,
+void* XcbWindow::XcbGetProperty(xcb_window_t window, xcb_atom_t property,
                                 xcb_atom_t type, std::uint32_t offset,
                                 std::uint32_t length,
-                                std::uint32_t *out_length) {
+                                std::uint32_t* out_length) {
   auto cookie = xcb_get_property(application_->GetXcbConnection(), false,
                                  window, property, type, offset, length);
-  auto reply = FreeLater(
+  auto reply = AutoFreePtr(
       xcb_get_property_reply(application_->GetXcbConnection(), cookie, NULL));
   if (reply->type == XCB_ATOM_NONE) {
     return nullptr;
@@ -696,7 +697,7 @@ void *XcbWindow::XcbGetProperty(xcb_window_t window, xcb_atom_t property,
 }
 
 std::optional<Thickness> XcbWindow::Get_NET_FRAME_EXTENTS(xcb_window_t window) {
-  auto frame_properties = static_cast<std::uint32_t *>(
+  auto frame_properties = static_cast<std::uint32_t*>(
       XcbGetProperty(window, application_->GetXcbAtom_NET_FRAME_EXTENTS(),
                      XCB_ATOM_CARDINAL, 0, 4));
 
@@ -713,13 +714,13 @@ Point XcbWindow::GetXcbWindowPosition(xcb_window_t window) {
 
   while (true) {
     auto cookie = xcb_get_geometry(application_->GetXcbConnection(), window);
-    auto reply = FreeLater(xcb_get_geometry_reply(
+    auto reply = AutoFreePtr(xcb_get_geometry_reply(
         application_->GetXcbConnection(), cookie, nullptr));
     result.x += reply->x;
     result.y += reply->y;
 
     auto tree_cookie = xcb_query_tree(application_->GetXcbConnection(), window);
-    auto tree_reply = FreeLater(xcb_query_tree_reply(
+    auto tree_reply = AutoFreePtr(xcb_query_tree_reply(
         application_->GetXcbConnection(), tree_cookie, nullptr));
     window = tree_reply->parent;
     // TODO: Multi-screen offset?

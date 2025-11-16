@@ -57,7 +57,7 @@ int UnixEventLoop::Run() {
     }
   }
 
-  return exit_code_.value();
+  return *exit_code_;
 }
 
 void UnixEventLoop::RequestQuit(int exit_code) {

@@ -2,7 +2,7 @@
 #include "cru/platform/gui/osx/Window.h"
 
 #include "cru/base/Event.h"
-#include "cru/platform/gui/TimerHelper.h"
+#include "cru/platform/gui/UiApplication.h"
 #include "cru/platform/gui/osx/Cursor.h"
 
 #import <AppKit/AppKit.h>
