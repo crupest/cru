@@ -180,11 +180,11 @@ Rect OsxCTTextLayout::TextSinglePoint(Index position, bool trailing) {
 TextHitTestResult OsxCTTextLayout::HitTest(const Point& point) {
   if (point.y < head_empty_line_count_ * font_->GetFontSize()) {
     if (point.y < 0) {
-      return {0, false, false};
+      return {0, false, false, 0};
     } else {
       for (int i = 1; i <= head_empty_line_count_; ++i) {
         if (point.y < i * font_->GetFontSize()) {
-          return {i - 1, false, false};
+          return {i - 1, false, false, i - 1};
         }
       }
     }
@@ -197,11 +197,14 @@ TextHitTestResult OsxCTTextLayout::HitTest(const Point& point) {
   if (point.y >= th) {
     for (int i = 1; i <= tail_empty_line_count_; ++i) {
       if (point.y < th + i * font_->GetFontSize()) {
-        return {static_cast<Index>(text_.size() - (tail_empty_line_count_ - i)),
-                false, false};
+        return {
+            static_cast<Index>(text_.size() - (tail_empty_line_count_ - i)),
+            false, false,
+            static_cast<Index>(text_.size() - (tail_empty_line_count_ - i))};
       }
     }
-    return {static_cast<Index>(text_.size()), false, false};
+    return {static_cast<Index>(text_.size()), false, false,
+            static_cast<Index>(text_.size())};
   }
 
   auto p = point;
@@ -261,11 +264,12 @@ TextHitTestResult OsxCTTextLayout::HitTest(const Point& point) {
         --po;
       }
 
-      return {po + head_empty_line_count_, false, inside_text};
+      return {po + head_empty_line_count_, false, inside_text,
+              po + head_empty_line_count_};
     }
   }
 
-  return TextHitTestResult{0, false, false};
+  return TextHitTestResult{0, false, false, 0};
 }
 
 void OsxCTTextLayout::ReleaseResource() {

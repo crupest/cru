@@ -68,7 +68,7 @@ TextControlMovePattern TextControlMovePattern::kUp(
       auto rect = text_render_object->TextSinglePoint(current_position, false);
       rect.top -= 0.1f;
       auto result = text_render_object->TextHitTest(rect.GetLeftTop());
-      return result.trailing ? result.position + 1 : result.position;
+      return result.position_with_trailing;
     });
 TextControlMovePattern TextControlMovePattern::kDown(
     "Down", helper::ShortcutKeyBind(platform::gui::KeyCode::Down),
@@ -79,7 +79,7 @@ TextControlMovePattern TextControlMovePattern::kDown(
       auto rect = text_render_object->TextSinglePoint(current_position, false);
       rect.top += rect.height + 0.1f;
       auto result = text_render_object->TextHitTest(rect.GetLeftTop());
-      return result.trailing ? result.position + 1 : result.position;
+      return result.position_with_trailing;
     });
 TextControlMovePattern TextControlMovePattern::kHome(
     "Home(Line Begin)", helper::ShortcutKeyBind(platform::gui::KeyCode::Home),
@@ -241,7 +241,7 @@ void TextHostControlService::InsertText(Index position, std::string_view text,
 void TextHostControlService::DeleteChar(Index position, bool stop_composition) {
   if (!Utf8IsValidInsertPosition(this->text_.data(), this->text_.size(),
                                  position)) {
-    CRU_LOG_TAG_ERROR("Invalid text delete position.");
+    CRU_LOG_TAG_ERROR("Invalid text delete position {}.", position);
     return;
   }
   if (position == static_cast<Index>(this->text_.size())) return;
@@ -255,7 +255,7 @@ Index TextHostControlService::DeleteCharPrevious(Index position,
                                                  bool stop_composition) {
   if (!Utf8IsValidInsertPosition(this->text_.data(), this->text_.size(),
                                  position)) {
-    CRU_LOG_TAG_ERROR("Invalid text delete position.");
+    CRU_LOG_TAG_ERROR("Invalid text delete position {}.", position);
     return 0;
   }
   if (position == 0) return 0;
@@ -273,12 +273,12 @@ void TextHostControlService::DeleteText(TextRange range,
   range = range.Normalize();
   if (!Utf8IsValidInsertPosition(this->text_.data(), this->text_.size(),
                                  range.GetStart())) {
-    CRU_LOG_TAG_ERROR("Invalid text delete start position.");
+    CRU_LOG_TAG_ERROR("Invalid text delete start position {}.", range.GetStart());
     return;
   }
   if (!Utf8IsValidInsertPosition(this->text_.data(), this->text_.size(),
-                                 range.GetStart())) {
-    CRU_LOG_TAG_ERROR("Invalid text delete end position.");
+                                 range.GetEnd())) {
+    CRU_LOG_TAG_ERROR("Invalid text delete end position {}.", range.GetEnd());
     return;
   }
   this->text_.erase(this->text_.cbegin() + range.GetStart(),
@@ -490,7 +490,7 @@ void TextHostControlService::MouseDownHandler(
       const auto text_render_object = this->GetTextRenderObject();
       const auto result = text_render_object->TextHitTest(
           args.GetPointToContent(text_render_object));
-      const auto position = result.position + (result.trailing ? 1 : 0);
+      const auto position = result.position_with_trailing;
       SetSelection(position);
       args.SetHandled(true);
     } else if (args.GetButton() == MouseButtons::Right) {
@@ -525,7 +525,7 @@ void TextHostControlService::MouseDownHandler(
       const auto text_render_object = this->GetTextRenderObject();
       const auto result = text_render_object->TextHitTest(
           args.GetPointToContent(text_render_object));
-      const auto position = result.position + (result.trailing ? 1 : 0);
+      const auto position = result.position_with_trailing;
       SetSelection(position);
 
       ContextMenuItem items = ContextMenuItem::kSelectAll;
@@ -554,7 +554,7 @@ void TextHostControlService::MouseMoveHandler(events::MouseEventArgs& args) {
     const auto text_render_object = this->GetTextRenderObject();
     const auto result = text_render_object->TextHitTest(
         args.GetPointToContent(text_render_object));
-    const auto position = result.position + (result.trailing ? 1 : 0);
+    const auto position = result.position_with_trailing;
     ChangeSelectionEnd(position);
     args.SetHandled();
   }

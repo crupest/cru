@@ -160,7 +160,19 @@ TextHitTestResult PangoTextLayout::HitTest(const Point& point) {
   auto inside_text =
       pango_layout_xy_to_index(pango_layout_, point.x * PANGO_SCALE,
                                point.y * PANGO_SCALE, &index, &trailing);
-  return TextHitTestResult{index, trailing != 0, inside_text != 0};
+
+  TextHitTestResult result{index, trailing != 0, inside_text != 0};
+
+  if (result.trailing) {
+    Index position_with_trailing;
+    string::Utf8NextCodePoint(text_.data(), text_.size(), result.position,
+                              &position_with_trailing);
+    result.position_with_trailing = position_with_trailing;
+  } else {
+    result.position_with_trailing = result.position;
+  }
+
+  return result;
 }
 
 }  // namespace cru::platform::graphics::cairo

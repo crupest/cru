@@ -31,6 +31,7 @@ struct TextHitTestResult {
   Index position;
   bool trailing;
   bool inside_text;
+  Index position_with_trailing;
 };
 
 struct CRU_PLATFORM_GRAPHICS_API IGraphicsResource : virtual IPlatformResource {

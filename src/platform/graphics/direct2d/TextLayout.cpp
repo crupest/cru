@@ -154,8 +154,8 @@ Rect DWriteTextLayout::TextSinglePoint(Index position, bool trailing) {
   FLOAT left;
   FLOAT top;
   CheckHResult(text_layout_->HitTestTextPosition(static_cast<UINT32>(position),
-                                                  static_cast<BOOL>(trailing),
-                                                  &left, &top, &metrics));
+                                                 static_cast<BOOL>(trailing),
+                                                 &left, &top, &metrics));
   return Rect{left, top, 0, GetFont()->GetFontSize()};
 }
 
@@ -165,7 +165,7 @@ TextHitTestResult DWriteTextLayout::HitTest(const Point& point) {
   DWRITE_HIT_TEST_METRICS metrics;
 
   CheckHResult(text_layout_->HitTestPoint(point.x, point.y, &trailing, &inside,
-                                           &metrics));
+                                          &metrics));
 
   TextHitTestResult result;
   result.position = string::Utf8IndexCodePointToCodeUnit(
@@ -174,6 +174,16 @@ TextHitTestResult DWriteTextLayout::HitTest(const Point& point) {
           reinterpret_cast<const char16_t*>(utf16_text_.data()),
           utf16_text_.size(), metrics.textPosition));
   result.trailing = trailing != 0;
+
+  if (result.trailing) {
+    Index position_with_trailing;
+    string::Utf8NextCodePoint(text_.data(), text_.size(), result.position,
+                              &position_with_trailing);
+    result.position_with_trailing = position_with_trailing;
+  } else {
+    result.position_with_trailing = result.position;
+  }
+
   return result;
 }
 }  // namespace cru::platform::graphics::direct2d
