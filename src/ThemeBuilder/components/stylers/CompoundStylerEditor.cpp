@@ -7,6 +7,7 @@
 #include "PaddingStylerEditor.h"
 #include "PreferredSizeStylerEditor.h"
 #include "cru/base/ClonePtr.h"
+#include "cru/ui/DeleteLater.h"
 #include "cru/ui/ThemeManager.h"
 #include "cru/ui/style/Styler.h"
 
@@ -69,7 +70,7 @@ CompoundStylerEditor::CompoundStylerEditor() {
         this->children_container_.RemoveChildAt(index);
         RaiseChangeEvent();
       });
-      children_.push_back(std::move(editor));
+      children_.push_back(ui::ToDeleteLaterPtr(std::move(editor)));
       children_container_.AddChild(editor->GetRootControl());
       RaiseChangeEvent();
     }
@@ -98,7 +99,7 @@ void CompoundStylerEditor::SetValue(ui::style::CompoundStyler* value,
       this->children_container_.RemoveChildAt(index);
       RaiseChangeEvent();
     });
-    children_.push_back(std::move(editor));
+    children_.push_back(ui::ToDeleteLaterPtr(std::move(editor)));
     children_container_.AddChild(children_.back()->GetRootControl());
   }
 }

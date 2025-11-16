@@ -7,6 +7,7 @@
 #include "cru/base/ClonePtr.h"
 #include "cru/platform/Color.h"
 #include "cru/ui/Base.h"
+#include "cru/ui/DeleteLater.h"
 #include "cru/ui/ThemeManager.h"
 #include "cru/ui/controls/FlexLayout.h"
 #include "cru/ui/style/Condition.h"
@@ -67,7 +68,7 @@ CompoundConditionEditor::CompoundConditionEditor() {
         this->children_container_.RemoveChildAt(index);
         RaiseChangeEvent();
       });
-      children_.push_back(std::move(editor));
+      children_.push_back(ui::ToDeleteLaterPtr(std::move(editor)));
       children_container_.AddChild(children_.back()->GetRootControl());
       RaiseChangeEvent();
     }
@@ -86,8 +87,7 @@ CompoundConditionEditor::GetChildren() {
 }
 
 void CompoundConditionEditor::SetChildren(
-    std::vector<ClonePtr<ui::style::Condition>> children,
-    bool trigger_change) {
+    std::vector<ClonePtr<ui::style::Condition>> children, bool trigger_change) {
   children_container_.ClearChildren();
   children_.clear();
   for (const auto& condition : children) {
@@ -99,7 +99,7 @@ void CompoundConditionEditor::SetChildren(
       this->children_container_.RemoveChildAt(index);
       RaiseChangeEvent();
     });
-    children_.push_back(std::move(editor));
+    children_.push_back(ui::ToDeleteLaterPtr(std::move(editor)));
     children_container_.AddChild(children_.back()->GetRootControl());
   }
   if (trigger_change) {

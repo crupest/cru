@@ -1,7 +1,7 @@
 #pragma once
 #include "UiEventArgs.h"
 
-#include "cru/base/Event.h"
+#include <cru/base/Event.h>
 
 namespace cru::ui::events {
 // TEventArgs must not be a reference type. This class help add reference.
@@ -14,21 +14,10 @@ class CRU_UI_API RoutedEvent {
   static_assert(!std::is_reference_v<TEventArgs>,
                 "TEventArgs must not be reference.");
 
-  using RawEventArgs = TEventArgs;
-  using IEventType = IEvent<TEventArgs&>;
-  using EventArgs = typename IEventType::Args;
-
-  RoutedEvent() = default;
-  RoutedEvent(const RoutedEvent& other) = delete;
-  RoutedEvent(RoutedEvent&& other) = delete;
-  RoutedEvent& operator=(const RoutedEvent& other) = delete;
-  RoutedEvent& operator=(RoutedEvent&& other) = delete;
-  ~RoutedEvent() = default;
+  using EventArgs = TEventArgs&;
 
   IEvent<TEventArgs&>* Direct() { return &direct_; }
-
   IEvent<TEventArgs&>* Bubble() { return &bubble_; }
-
   IEvent<TEventArgs&>* Tunnel() { return &tunnel_; }
 
  private:

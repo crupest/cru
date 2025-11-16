@@ -150,8 +150,6 @@ std::vector<TextControlMovePattern> TextControlMovePattern::kDefaultPatterns = {
 TextHostControlService::TextHostControlService(Control* control)
     : control_(control),
       text_host_control_(dynamic_cast<ITextHostControl*>(control)) {
-  context_menu_ = MakeDeleteLaterPtr<components::PopupMenu>();
-
   SetUpShortcuts();
 
   SetupOneHandler(&Control::MouseMoveEvent,
@@ -701,7 +699,7 @@ void TextHostControlService::SetUpShortcuts() {
 
 void TextHostControlService::OpenContextMenu(const Point& position,
                                              ContextMenuItem items) {
-  context_menu_ = MakeDeleteLaterPtr<components::PopupMenu>();
+  context_menu_ = MakeDeleteLater<components::PopupMenu>();
   auto menu = context_menu_->GetMenu();
   if (items & ContextMenuItem::kSelectAll) {
     menu->AddTextItem("Select All", [this] { this->SelectAll(); });

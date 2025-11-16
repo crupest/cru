@@ -4,7 +4,6 @@
 #include "cru/base/Base.h"
 #include "cru/base/log/Logger.h"
 #include "cru/platform/graphics/Painter.h"
-#include "cru/platform/gui/InputMethod.h"
 #include "cru/platform/gui/UiApplication.h"
 #include "cru/platform/gui/Window.h"
 #include "cru/ui/Base.h"

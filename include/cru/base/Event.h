@@ -16,7 +16,11 @@ class EventHandlerRevoker;
 class EventBase : public Object, public SelfResolvable<EventBase> {
   friend EventHandlerRevoker;
 
+ public:
+  CRU_DELETE_COPY(EventBase)
+
  protected:
+  EventBase() = default;
   using EventHandlerToken = int;
 
   /**
@@ -33,7 +37,7 @@ class EventHandlerRevoker {
 
  private:
   EventHandlerRevoker(ObjectResolver<EventBase>&& resolver,
-               EventBase::EventHandlerToken token)
+                      EventBase::EventHandlerToken token)
       : resolver_(std::move(resolver)), token_(token) {}
 
  public:
@@ -163,13 +167,15 @@ class EventHandlerRevokerGuard {
   }
 
  private:
-  std::unique_ptr<EventHandlerRevoker, details::EventHandlerRevokerDestroyer> revoker_;
+  std::unique_ptr<EventHandlerRevoker, details::EventHandlerRevokerDestroyer>
+      revoker_;
 };
 
 class EventHandlerRevokerListGuard {
  public:
   void Add(EventHandlerRevoker&& revoker) {
-    event_revoker_guard_list_.push_back(EventHandlerRevokerGuard(std::move(revoker)));
+    event_revoker_guard_list_.push_back(
+        EventHandlerRevokerGuard(std::move(revoker)));
   }
 
   EventHandlerRevokerListGuard& operator+=(EventHandlerRevoker&& revoker) {

@@ -1,65 +1,42 @@
 #pragma once
 #include "Base.h"
 
+#include <cru/base/Guard.h>
 #include <memory>
 #include <utility>
 
 namespace cru::ui {
 class CRU_UI_API DeleteLaterImpl {
  public:
+  DeleteLaterImpl();
   virtual ~DeleteLaterImpl();
   void DeleteLater();
 
  protected:
   virtual void OnPrepareDelete();
-};
-
-template <typename T>
-class DeleteLaterPtr {
- public:
-  DeleteLaterPtr() = default;
-
-  DeleteLaterPtr(const DeleteLaterPtr& other) = delete;
-  DeleteLaterPtr& operator=(const DeleteLaterPtr& other) = delete;
-
-  DeleteLaterPtr(DeleteLaterPtr&& other) noexcept : ptr_(other.ptr_) {
-    other.ptr_ = nullptr;
-  }
-
-  DeleteLaterPtr& operator=(DeleteLaterPtr&& other) noexcept {
-    if (this != &other) {
-      if (ptr_ != nullptr) {
-        ptr_->DeleteLater();
-      }
-
-      ptr_ = other.ptr_;
-      other.ptr_ = nullptr;
-    }
-    return *this;
-  }
-
-  ~DeleteLaterPtr() {
-    if (ptr_ != nullptr) {
-      ptr_->DeleteLater();
-    }
-  }
-
-  explicit DeleteLaterPtr(T* ptr) : ptr_(ptr) {}
-  DeleteLaterPtr(std::unique_ptr<T>&& ptr) : ptr_(ptr.release()) {}
-
-  T& operator*() const { return *ptr_; }
-  T* operator->() const { return ptr_; }
-
-  explicit operator bool() const { return ptr_ != nullptr; }
-
-  T* get() const { return ptr_; }
 
  private:
-  T* ptr_ = nullptr;
+  bool delete_later_scheduled_;
 };
 
-template <typename T, typename... Args>
-DeleteLaterPtr<T> MakeDeleteLaterPtr(Args&&... args) {
-  return DeleteLaterPtr<T>(new T(std::forward<Args>(args)...));
+namespace details {
+template <typename T>
+struct DeleteLaterPtrDeleter {
+  void operator()(T* p) const noexcept { p->DeleteLater(); }
+};
+}  // namespace details
+
+template <typename T>
+using DeleteLaterPtr = std::unique_ptr<T, details::DeleteLaterPtrDeleter<T>>;
+
+template <typename T>
+DeleteLaterPtr<T> ToDeleteLaterPtr(std::unique_ptr<T>&& p) {
+  return DeleteLaterPtr<T>(p.release());
 }
+
+template <typename T, typename... Args>
+DeleteLaterPtr<T> MakeDeleteLater(Args&&... args) {
+  return DeleteLaterPtr<T>(std::forward<Args>(args)...);
+}
+
 }  // namespace cru::ui

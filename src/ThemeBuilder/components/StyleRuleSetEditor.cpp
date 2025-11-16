@@ -66,7 +66,7 @@ void StyleRuleSetEditor::UpdateView(
         for (auto i = change->position; i < change->position + change->count;
              ++i) {
           const auto& rule = style_rule_set->GetStyleRule(i);
-          auto style_rule_editor = ui::MakeDeleteLaterPtr<StyleRuleEditor>();
+          auto style_rule_editor = ui::MakeDeleteLater<StyleRuleEditor>();
           style_rule_editor->SetValue(rule, false);
           style_rule_editor->RemoveEvent()->AddSpyOnlyHandler(
               [this, editor = style_rule_editor.get()] {
