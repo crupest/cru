@@ -91,13 +91,14 @@ PopupMenu::~PopupMenu() {}
 controls::Control* PopupMenu::GetRootControl() { return &popup_; }
 
 void PopupMenu::SetPosition(const Point& position) {
-  popup_.GetWindowHost()->GetNativeWindow()->SetClientRect(Rect{position, {}});
+  auto window = popup_.GetWindowHost()->GetNativeWindow();
+  window->SetClientRect(Rect{position, window->GetClientSize()});
 }
 
 void PopupMenu::Show() {
-  popup_.GetWindowHost()->RelayoutWithSize(Size::Infinite(), true);
   auto native_window = popup_.GetWindowHost()->GetNativeWindow();
   native_window->SetVisibility(platform::gui::WindowVisibilityType::Show);
+  popup_.GetWindowHost()->RelayoutWithSize(Size::Infinite(), true);
   native_window->RequestFocus();
   native_window->SetToForeground();
 }

@@ -273,7 +273,8 @@ void TextHostControlService::DeleteText(TextRange range,
   range = range.Normalize();
   if (!Utf8IsValidInsertPosition(this->text_.data(), this->text_.size(),
                                  range.GetStart())) {
-    CRU_LOG_TAG_ERROR("Invalid text delete start position {}.", range.GetStart());
+    CRU_LOG_TAG_ERROR("Invalid text delete start position {}.",
+                      range.GetStart());
     return;
   }
   if (!Utf8IsValidInsertPosition(this->text_.data(), this->text_.size(),
@@ -701,6 +702,7 @@ void TextHostControlService::OpenContextMenu(const Point& position,
                                              ContextMenuItem items) {
   CRU_LOG_TAG_DEBUG("Open context menu.");
   auto menu = context_menu_->GetMenu();
+  menu->ClearItems();
   if (items & ContextMenuItem::kSelectAll) {
     menu->AddTextItem("Select All", [this] { this->SelectAll(); });
   }
@@ -713,8 +715,8 @@ void TextHostControlService::OpenContextMenu(const Point& position,
   if (items & ContextMenuItem::kPaste) {
     menu->AddTextItem("Paste", [this] { this->Paste(); });
   }
-  context_menu_->SetPosition(position);
   context_menu_->Show();
+  context_menu_->SetPosition(position);
 }
 
 }  // namespace cru::ui::controls

@@ -21,7 +21,7 @@
 namespace cru::platform::gui::win {
 namespace {
 inline int DipToPixel(const float dip, const float dpi) {
-  return static_cast<int>(dip * dpi / 96.0f);
+  return static_cast<int>(std::ceil(dip * dpi / 96.0f));
 }
 
 inline float PixelToDip(const int pixel, const float dpi) {
@@ -72,7 +72,10 @@ WinNativeWindow::WinNativeWindow(WinUiApplication* application)
   input_method_context_ = std::make_unique<WinInputMethodContext>(this);
 }
 
-WinNativeWindow::~WinNativeWindow() { Close(); }
+WinNativeWindow::~WinNativeWindow() {
+  Close();
+  application_->UnregisterWindow(this);
+}
 
 void WinNativeWindow::Close() {
   if (hwnd_) ::DestroyWindow(hwnd_);
@@ -109,11 +112,17 @@ void WinNativeWindow::SetStyleFlag(WindowStyleFlag flag) {
   }
 }
 
-void WinNativeWindow::SetVisibility(WindowVisibilityType visibility) {
-  if (visibility == visibility_) return;
-  visibility_ = visibility;
+WindowVisibilityType WinNativeWindow::GetVisibility() {
+  if (!hwnd_) return WindowVisibilityType::Hide;
 
+  if (IsIconic(hwnd_)) return WindowVisibilityType::Minimize;
+  return IsWindowVisible(hwnd_) ? WindowVisibilityType::Show
+                                : WindowVisibilityType::Hide;
+}
+
+void WinNativeWindow::SetVisibility(WindowVisibilityType visibility) {
   if (!hwnd_) {
+    if (visibility == WindowVisibilityType::Hide) return;
     RecreateWindow();
   }
 
@@ -129,6 +138,9 @@ void WinNativeWindow::SetVisibility(WindowVisibilityType visibility) {
 Size WinNativeWindow::GetClientSize() { return GetClientRect().GetSize(); }
 
 void WinNativeWindow::SetClientSize(const Size& size) {
+  CRU_LOG_TAG_INFO("{} set client size to {}.",
+                   static_cast<void*>(GetWindowHandle()), size);
+
   client_rect_.SetSize(size);
 
   if (hwnd_) {
@@ -144,14 +156,17 @@ void WinNativeWindow::SetClientSize(const Size& size) {
 Rect WinNativeWindow::GetClientRect() { return client_rect_; }
 
 void WinNativeWindow::SetClientRect(const Rect& rect) {
+  CRU_LOG_TAG_INFO("{} set client rect to {}.",
+                   static_cast<void*>(GetWindowHandle()), rect);
+
   client_rect_ = rect;
 
   if (hwnd_) {
     RECT r =
         DipToPixel(CalcWindowRectFromClient(client_rect_, style_flag_, dpi_));
 
-    if (!SetWindowPos(hwnd_, nullptr, 0, 0, r.right - r.left, r.bottom - r.top,
-                      SWP_NOZORDER | SWP_NOMOVE))
+    if (!SetWindowPos(hwnd_, nullptr, r.left, r.top, r.right - r.left,
+                      r.bottom - r.top, SWP_NOZORDER))
       throw Win32Error(::GetLastError(), "Failed to invoke SetWindowPos.");
   }
 }
@@ -170,6 +185,9 @@ Rect WinNativeWindow::GetWindowRect() {
 }
 
 void WinNativeWindow::SetWindowRect(const Rect& rect) {
+  CRU_LOG_TAG_INFO("{} set window rect to {}.",
+                   static_cast<void*>(GetWindowHandle()), rect);
+
   client_rect_ = CalcClientRectFromWindow(rect, style_flag_, dpi_);
 
   if (hwnd_) {
@@ -406,10 +424,6 @@ bool WinNativeWindow::HandleNativeWindowMessage(HWND hwnd, UINT msg,
         return true;
       }
       return false;
-    case WM_CREATE:
-      OnCreateInternal();
-      *result = 0;
-      return true;
     case WM_MOVE:
       OnMoveInternal(LOWORD(l_param), HIWORD(l_param));
       *result = 0;
@@ -472,11 +486,14 @@ void WinNativeWindow::RecreateWindow() {
   if (hwnd_ == nullptr)
     throw Win32Error(::GetLastError(), "Failed to create window.");
 
+  OnCreateInternal();
+
   auto dpi = ::GetDpiForWindow(hwnd_);
   if (dpi == 0)
     throw Win32Error(::GetLastError(), "Failed to get dpi of window.");
   dpi_ = static_cast<float>(dpi);
-  CRU_LOG_TAG_DEBUG("Dpi of window is {}.", dpi_);
+  CRU_LOG_TAG_DEBUG("Dpi of window {} is {}.",
+                    static_cast<void*>(GetWindowHandle()), dpi_);
 
   application_->RegisterWindow(this);
 
@@ -494,11 +511,16 @@ void WinNativeWindow::RecreateWindow() {
   input_method_context_->DisableIME();
 }
 
-void WinNativeWindow::OnCreateInternal() { create_event_.Raise(nullptr); }
+void WinNativeWindow::OnCreateInternal() {
+  CRU_LOG_TAG_DEBUG("A native window is created, hwnd {}.",
+                    static_cast<void*>(GetWindowHandle()));
+  create_event_.Raise(nullptr);
+}
 
 void WinNativeWindow::OnDestroyInternal() {
+  CRU_LOG_TAG_DEBUG("A native window is destroying, hwnd {}.",
+                    static_cast<void*>(GetWindowHandle()));
   destroy_event_.Raise(nullptr);
-  application_->UnregisterWindow(this);
   hwnd_ = nullptr;
 
   if (application_->IsQuitOnAllWindowClosed() &&

@@ -5,12 +5,13 @@
 #include <cru/platform/graphics/direct2d/WindowRenderTarget.h>
 #include <cru/platform/gui/Window.h>
 
+#include <cmath>
 #include <memory>
 
 namespace cru::platform::gui::win {
 class CRU_WIN_GUI_API WinNativeWindow : public WinNativeResource,
                                         public virtual INativeWindow {
-  CRU_DEFINE_CLASS_LOG_TAG("WinNativeWindow")
+  CRU_DEFINE_CLASS_LOG_TAG("cru::platform::gui::win::WinNativeWindow")
 
  public:
   explicit WinNativeWindow(WinUiApplication* application);
@@ -29,7 +30,7 @@ class CRU_WIN_GUI_API WinNativeWindow : public WinNativeResource,
   std::string GetTitle() override;
   void SetTitle(std::string title) override;
 
-  WindowVisibilityType GetVisibility() override { return visibility_; }
+  WindowVisibilityType GetVisibility() override;
   void SetVisibility(WindowVisibilityType visibility) override;
 
   Size GetClientSize() override;
@@ -109,7 +110,7 @@ class CRU_WIN_GUI_API WinNativeWindow : public WinNativeResource,
   float GetDpi() const { return dpi_; }
 
   inline int DipToPixel(const float dip) {
-    return static_cast<int>(dip * GetDpi() / 96.0f);
+    return static_cast<int>(std::ceil(dip * GetDpi() / 96.0f));
   }
 
   inline POINT DipToPixel(const Point& dip_point) {
@@ -175,7 +176,6 @@ class CRU_WIN_GUI_API WinNativeWindow : public WinNativeResource,
   WinUiApplication* application_;
 
   WindowStyleFlag style_flag_{};
-  WindowVisibilityType visibility_ = WindowVisibilityType::Hide;
   Rect client_rect_{100, 100, 400, 300};
   std::string title_;
 
