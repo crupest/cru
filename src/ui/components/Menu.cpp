@@ -79,10 +79,7 @@ void Menu::AddTextItemAt(std::string text, Index index,
 
 PopupMenu::PopupMenu(controls::Control* attached_control)
     : attached_control_(attached_control), popup_(attached_control) {
-  menu_.SetOnItemClick([resolver = CreateResolver()](Index) {
-    auto t = static_cast<PopupMenu*>(resolver.Resolve());
-    if (t) t->popup_.GetNativeWindow()->Close();
-  });
+  menu_.SetOnItemClick([this](Index) { popup_.GetNativeWindow()->Close(); });
   popup_.AddChildAt(menu_.GetRootControl(), 0);
 }
 

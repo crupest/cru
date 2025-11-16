@@ -77,12 +77,10 @@ ClickDetector::ClickDetector(controls::Control* control) {
                 button == button_) {
               if (this->state_ == ClickState::Press) {
                 this->SetState(ClickState::Hover);
-                auto resolver = this->control_->CreateResolver();
                 this->event_.Raise(ClickEventArgs{this->control_,
                                                   this->down_point_,
                                                   args.GetPoint(), button});
-                auto c = resolver.Resolve();
-                if (c) c->ReleaseMouse();
+                this->control_->ReleaseMouse();
               } else if (this->state_ == ClickState::PressInactive) {
                 this->SetState(ClickState::None);
                 this->control_->ReleaseMouse();

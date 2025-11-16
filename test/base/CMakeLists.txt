@@ -1,7 +1,6 @@
 add_executable(CruBaseTest
 	EventTest.cpp
 	PropertyTreeTest.cpp
-	SelfResolvableTest.cpp
 	StringUtilTest.cpp
 	SubProcessTest.cpp
 	TimerTest.cpp

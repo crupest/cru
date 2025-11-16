@@ -1,5 +1,4 @@
 #pragma once
-#include "cru/base/SelfResolvable.h"
 #include "cru/base/log/Logger.h"
 #include "cru/ui/DebugFlags.h"
 #include "cru/ui/controls/Control.h"
@@ -43,11 +42,11 @@ void DispatchEvent(
 
   WindowHost::EnterEventHandling();
 
-  std::vector<ObjectResolver<controls::Control>> receive_list;
+  std::vector<controls::Control*> receive_list;
 
   auto parent = original_sender;
   while (parent != last_receiver) {
-    receive_list.push_back(parent->CreateResolver());
+    receive_list.push_back(parent);
     auto p = parent->GetParent();
     assert(!(p == nullptr && last_receiver != nullptr));
     parent = p;
@@ -60,10 +59,10 @@ void DispatchEvent(
     auto i = receive_list.crbegin();
     const auto end = --receive_list.crend();
     for (; i != end; ++i) {
-      log += i->Resolve()->GetControlType();
+      log += (*i)->GetControlType();
       log += " -> ";
     }
-    log += i->Resolve()->GetControlType();
+    log += (*i)->GetControlType();
     CRU_LOG_TAG_DEBUG("{}", log);
   }
 
@@ -74,8 +73,7 @@ void DispatchEvent(
   // tunnel
   for (auto i = receive_list.crbegin(); i != receive_list.crend(); ++i) {
     count++;
-    auto control = i->Resolve();
-    if (!control) continue;
+    auto control = *i;
     EventArgs event_args(control, original_sender, std::forward<Args>(args)...);
     static_cast<Event<EventArgs&>*>((control->*event_ptr)()->Tunnel())
         ->Raise(event_args);
@@ -92,10 +90,8 @@ void DispatchEvent(
 
   // bubble
   if (!handled) {
-    for (const auto& resolver : receive_list) {
+    for (auto control : receive_list) {
       count--;
-      auto control = resolver.Resolve();
-      if (!control) continue;
       EventArgs event_args(control, original_sender,
                            std::forward<Args>(args)...);
       static_cast<Event<EventArgs&>*>((control->*event_ptr)()->Bubble())
@@ -112,9 +108,7 @@ void DispatchEvent(
   }
 
   // direct
-  for (auto resolver : receive_list) {
-    auto control = resolver.Resolve();
-    if (!control) continue;
+  for (auto control : receive_list) {
     EventArgs event_args(control, original_sender, std::forward<Args>(args)...);
     static_cast<Event<EventArgs&>*>((control->*event_ptr)()->Direct())
         ->Raise(event_args);

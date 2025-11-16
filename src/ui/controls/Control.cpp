@@ -27,10 +27,6 @@ Control::Control() {
 }
 
 Control::~Control() {
-  if (host::WindowHost::IsInEventHandling()) {
-    std::terminate();
-  }
-
   in_destruction_ = true;
   RemoveFromParent();
 }

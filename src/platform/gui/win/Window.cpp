@@ -210,9 +210,8 @@ Point WinNativeWindow::GetMousePosition() {
   POINT p;
   if (!::GetCursorPos(&p))
     throw Win32Error(::GetLastError(), "Failed to get cursor position.");
-  if (!::ScreenToClient(hwnd_, &p))
-    throw Win32Error(::GetLastError(), "Failed to call ScreenToClient.");
-  return PixelToDip(p);
+  auto point = PixelToDip(p);
+  return point - client_rect_.GetLeftTop();
 }
 
 bool WinNativeWindow::CaptureMouse() {
