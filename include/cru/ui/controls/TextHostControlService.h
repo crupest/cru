@@ -2,7 +2,6 @@
 #include "../render/TextRenderObject.h"
 #include "cru/platform/gui/InputMethod.h"
 #include "cru/platform/gui/UiApplication.h"
-#include "cru/ui/DeleteLater.h"
 #include "cru/ui/controls/Control.h"
 #include "cru/ui/helper/ShortcutHub.h"
 
@@ -71,7 +70,7 @@ class TextControlMovePattern {
 };
 
 class CRU_UI_API TextHostControlService : public Object {
-  CRU_DEFINE_CLASS_LOG_TAG("TextControlService")
+  CRU_DEFINE_CLASS_LOG_TAG("cru::ui::controls::TextControlService")
 
  public:
   TextHostControlService(Control* control);
@@ -207,6 +206,6 @@ class CRU_UI_API TextHostControlService : public Object {
   bool mouse_move_selecting_ = false;
 
   bool context_menu_dirty_ = true;
-  DeleteLaterPtr<components::PopupMenu> context_menu_;
+  std::unique_ptr<components::PopupMenu> context_menu_;
 };
 }  // namespace cru::ui::controls

@@ -1,10 +1,8 @@
 #include "cru/ui/controls/Control.h"
 
-#include "cru/base/log/Logger.h"
 #include "cru/platform/gui/Cursor.h"
 #include "cru/platform/gui/UiApplication.h"
 #include "cru/ui/host/WindowHost.h"
-#include "cru/ui/render/RenderObject.h"
 #include "cru/ui/style/StyleRuleSet.h"
 
 namespace cru::ui::controls {
@@ -30,8 +28,7 @@ Control::Control() {
 
 Control::~Control() {
   if (host::WindowHost::IsInEventHandling()) {
-    CRU_LOG_TAG_ERROR(
-        "Control destroyed during event handling. Please use DeleteLater.");
+    std::terminate();
   }
 
   in_destruction_ = true;

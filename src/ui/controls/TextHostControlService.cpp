@@ -12,7 +12,6 @@
 #include "cru/platform/gui/Window.h"
 #include "cru/ui/Base.h"
 #include "cru/ui/DebugFlags.h"
-#include "cru/ui/DeleteLater.h"
 #include "cru/ui/components/Menu.h"
 #include "cru/ui/helper/ShortcutHub.h"
 #include "cru/ui/host/WindowHost.h"
@@ -149,7 +148,8 @@ std::vector<TextControlMovePattern> TextControlMovePattern::kDefaultPatterns = {
 
 TextHostControlService::TextHostControlService(Control* control)
     : control_(control),
-      text_host_control_(dynamic_cast<ITextHostControl*>(control)) {
+      text_host_control_(dynamic_cast<ITextHostControl*>(control)),
+      context_menu_(new components::PopupMenu()) {
   SetUpShortcuts();
 
   SetupOneHandler(&Control::MouseMoveEvent,
@@ -699,7 +699,7 @@ void TextHostControlService::SetUpShortcuts() {
 
 void TextHostControlService::OpenContextMenu(const Point& position,
                                              ContextMenuItem items) {
-  context_menu_ = MakeDeleteLater<components::PopupMenu>();
+  CRU_LOG_TAG_DEBUG("Open context menu.");
   auto menu = context_menu_->GetMenu();
   if (items & ContextMenuItem::kSelectAll) {
     menu->AddTextItem("Select All", [this] { this->SelectAll(); });

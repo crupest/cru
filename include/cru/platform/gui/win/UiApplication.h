@@ -2,6 +2,7 @@
 #include "Base.h"
 
 #include <cru/platform/gui/UiApplication.h>
+#include <cru/base/Timer.h>
 
 #include <memory>
 
@@ -59,8 +60,6 @@ class CRU_WIN_GUI_API WinUiApplication : public WinNativeResource,
 
   HINSTANCE GetInstanceHandle() const { return instance_handle_; }
 
-  GodWindow* GetGodWindow() const { return god_window_.get(); }
-  TimerManager* GetTimerManager() const { return timer_manager_.get(); }
   WindowManager* GetWindowManager() const { return window_manager_.get(); }
 
  private:
@@ -71,8 +70,8 @@ class CRU_WIN_GUI_API WinUiApplication : public WinNativeResource,
   std::unique_ptr<cru::platform::graphics::direct2d::DirectGraphicsFactory>
       graph_factory_;
 
-  std::unique_ptr<GodWindow> god_window_;
-  std::unique_ptr<TimerManager> timer_manager_;
+  TimerRegistry<std::function<void()>> timers_;
+
   std::unique_ptr<WindowManager> window_manager_;
 
   std::unique_ptr<WinCursorManager> cursor_manager_;

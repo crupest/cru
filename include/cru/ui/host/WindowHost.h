@@ -9,7 +9,6 @@
 
 #include <functional>
 #include <memory>
-#include <optional>
 
 namespace cru::ui::host {
 class LayoutPaintCycler;

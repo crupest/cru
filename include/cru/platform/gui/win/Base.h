@@ -17,8 +17,6 @@ namespace cru::platform::gui::win {
 using platform::win::HResultError;
 using platform::win::Win32Error;
 
-class GodWindow;
-class TimerManager;
 class WinCursor;
 class WinCursorManager;
 class WindowClass;

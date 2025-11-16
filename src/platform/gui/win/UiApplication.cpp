@@ -1,13 +1,13 @@
 #include "cru/platform/gui/win/UiApplication.h"
 
-#include "TimerManager.h"
 #include "WindowManager.h"
 #include "cru/platform/graphics/direct2d/Factory.h"
 #include "cru/platform/gui/win/Base.h"
 #include "cru/platform/gui/win/Clipboard.h"
 #include "cru/platform/gui/win/Cursor.h"
-#include "cru/platform/gui/win/GodWindow.h"
 #include "cru/platform/gui/win/Window.h"
+
+#include <chrono>
 
 namespace cru::platform::gui {
 std::unique_ptr<IUiApplication> CreateUiApplication() {
@@ -30,8 +30,6 @@ WinUiApplication::WinUiApplication() {
   graph_factory_ = std::make_unique<
       cru::platform::graphics::direct2d::DirectGraphicsFactory>();
 
-  god_window_ = std::make_unique<GodWindow>(this);
-  timer_manager_ = std::make_unique<TimerManager>(god_window_.get());
   window_manager_ = std::make_unique<WindowManager>(this);
   cursor_manager_ = std::make_unique<WinCursorManager>();
   clipboard_ = std::make_unique<WinClipboard>(this);
@@ -41,9 +39,28 @@ WinUiApplication::~WinUiApplication() { instance = nullptr; }
 
 int WinUiApplication::Run() {
   MSG msg;
-  while (GetMessageW(&msg, nullptr, 0, 0)) {
-    TranslateMessage(&msg);
-    DispatchMessageW(&msg);
+  bool exit = false;
+
+  while (!exit) {
+    if (auto result = timers_.Update(std::chrono::steady_clock::now())) {
+      result->data();
+      continue;
+    }
+
+    auto timeout = timers_.NextTimeout(std::chrono::steady_clock::now());
+
+    ::MsgWaitForMultipleObjects(
+        0, nullptr, FALSE, timeout ? timeout->count() : INFINITE, QS_ALLINPUT);
+
+    while (PeekMessageW(&msg, nullptr, 0, 0, PM_REMOVE)) {
+      TranslateMessage(&msg);
+      DispatchMessageW(&msg);
+
+      if (msg.message == WM_QUIT) {
+        exit = true;
+        break;
+      }
+    }
   }
 
   for (const auto& handler : quit_handlers_) handler();
@@ -60,27 +77,21 @@ void WinUiApplication::AddOnQuitHandler(std::function<void()> handler) {
 }
 
 long long WinUiApplication::SetImmediate(std::function<void()> action) {
-  return this->timer_manager_->SetTimer(TimerType::Immediate, 0,
-                                        std::move(action));
+  return timers_.Add(std::move(action), std::chrono::milliseconds::zero(),
+                     false);
 }
 
 long long WinUiApplication::SetTimeout(std::chrono::milliseconds milliseconds,
                                        std::function<void()> action) {
-  return this->timer_manager_->SetTimer(TimerType::Timeout,
-                                        static_cast<int>(milliseconds.count()),
-                                        std::move(action));
+  return timers_.Add(std::move(action), milliseconds, false);
 }
 
 long long WinUiApplication::SetInterval(std::chrono::milliseconds milliseconds,
                                         std::function<void()> action) {
-  return this->timer_manager_->SetTimer(TimerType::Interval,
-                                        static_cast<int>(milliseconds.count()),
-                                        std::move(action));
+  return timers_.Add(std::move(action), milliseconds, true);
 }
 
-void WinUiApplication::CancelTimer(long long id) {
-  timer_manager_->CancelTimer(id);
-}
+void WinUiApplication::CancelTimer(long long id) { timers_.Remove(id); }
 
 std::vector<INativeWindow*> WinUiApplication::GetAllWindow() {
   const auto&& windows = window_manager_->GetAllWindows();

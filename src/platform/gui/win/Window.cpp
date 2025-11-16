@@ -68,7 +68,7 @@ Rect CalcClientRectFromWindow(const Rect& rect, WindowStyleFlag style_flag,
 
 WinNativeWindow::WinNativeWindow(WinUiApplication* application)
     : application_(application) {
-  Expects(application);  // application can't be null.
+  input_method_context_ = std::make_unique<WinInputMethodContext>(this);
 }
 
 WinNativeWindow::~WinNativeWindow() { Close(); }
@@ -490,7 +490,6 @@ void WinNativeWindow::RecreateWindow() {
           application_->GetDirectFactory(), hwnd_);
   window_render_target_->SetDpi(dpi_, dpi_);
 
-  input_method_context_ = std::make_unique<WinInputMethodContext>(this);
   input_method_context_->DisableIME();
 }
 

@@ -1,7 +1,6 @@
 #include "cru/platform/gui/win/Clipboard.h"
 #include "cru/base/StringUtil.h"
 #include "cru/base/log/Logger.h"
-#include "cru/platform/gui/win/GodWindow.h"
 #include "cru/platform/gui/win/UiApplication.h"
 
 namespace cru::platform::gui::win {
@@ -11,9 +10,7 @@ WinClipboard::WinClipboard(WinUiApplication* application)
 WinClipboard::~WinClipboard() {}
 
 std::string WinClipboard::GetText() {
-  auto god_window = application_->GetGodWindow();
-
-  if (!::OpenClipboard(god_window->GetHandle())) {
+  if (!::OpenClipboard(nullptr)) {
     CRU_LOG_TAG_WARN("Failed to open clipboard.");
     return {};
   }
@@ -47,9 +44,8 @@ std::string WinClipboard::GetText() {
 
 void WinClipboard::SetText(std::string utf8_text) {
   auto text = string::ToUtf16(utf8_text);
-  auto god_window = application_->GetGodWindow();
 
-  if (!::OpenClipboard(god_window->GetHandle())) {
+  if (!::OpenClipboard(nullptr)) {
     CRU_LOG_TAG_WARN("Failed to open clipboard.");
     return;
   }

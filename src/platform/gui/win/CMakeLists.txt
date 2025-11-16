@@ -2,10 +2,8 @@ add_library(CruPlatformGuiWin
 	Base.cpp
 	Clipboard.cpp
 	Cursor.cpp
-	GodWindow.cpp
 	InputMethod.cpp
 	Keyboard.cpp
-	TimerManager.cpp
 	UiApplication.cpp
 	Window.cpp
 	WindowClass.cpp

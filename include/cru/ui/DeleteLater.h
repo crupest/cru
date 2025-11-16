@@ -7,6 +7,7 @@
 
 namespace cru::ui {
 class CRU_UI_API DeleteLaterImpl {
+  CRU_DEFINE_CLASS_LOG_TAG("cru::ui::DeleteLaterImpl")
  public:
   DeleteLaterImpl();
   virtual ~DeleteLaterImpl();
@@ -36,7 +37,7 @@ DeleteLaterPtr<T> ToDeleteLaterPtr(std::unique_ptr<T>&& p) {
 
 template <typename T, typename... Args>
 DeleteLaterPtr<T> MakeDeleteLater(Args&&... args) {
-  return DeleteLaterPtr<T>(std::forward<Args>(args)...);
+  return DeleteLaterPtr<T>(new T(std::forward<Args>(args)...));
 }
 
 }  // namespace cru::ui
