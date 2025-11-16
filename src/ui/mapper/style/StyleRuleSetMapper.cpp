@@ -14,7 +14,7 @@ bool StyleRuleSetMapper::XmlElementIsOfThisType(xml::XmlElementNode* node) {
 std::shared_ptr<ui::style::StyleRuleSet> StyleRuleSetMapper::DoMapFromXml(
     xml::XmlElementNode* node) {
   auto style_rule_mapper =
-      MapperRegistry::GetInstance()->GetClonablePtrMapper<StyleRule>();
+      MapperRegistry::GetInstance()->GetClonePtrMapper<StyleRule>();
 
   auto result = std::make_shared<StyleRuleSet>();
 

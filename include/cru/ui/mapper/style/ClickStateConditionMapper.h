@@ -5,7 +5,7 @@
 
 namespace cru::ui::mapper::style {
 class CRU_UI_API ClickStateConditionMapper
-    : public BasicClonablePtrMapper<ui::style::ClickStateCondition>,
+    : public BasicClonePtrMapper<ui::style::ClickStateCondition>,
       public virtual IConditionMapper {
  public:
   CRU_DEFAULT_CONSTRUCTOR_DESTRUCTOR(ClickStateConditionMapper)
@@ -14,13 +14,13 @@ class CRU_UI_API ClickStateConditionMapper
   bool SupportMapFromXml() override { return true; }
   bool XmlElementIsOfThisType(xml::XmlElementNode* node) override;
 
-  ClonablePtr<ui::style::Condition> MapConditionFromXml(
+  ClonePtr<ui::style::Condition> MapConditionFromXml(
       xml::XmlElementNode* node) override {
     return MapFromXml(node);
   }
 
  public:
-  ClonablePtr<ui::style::ClickStateCondition> DoMapFromXml(
+  ClonePtr<ui::style::ClickStateCondition> DoMapFromXml(
       xml::XmlElementNode* node) override;
 };
 }  // namespace cru::ui::mapper::style

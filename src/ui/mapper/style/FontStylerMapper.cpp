@@ -1,5 +1,5 @@
 #include "cru/ui/mapper/style/FontStylerMapper.h"
-#include "cru/base/ClonablePtr.h"
+#include "cru/base/ClonePtr.h"
 #include "cru/ui/mapper/MapperRegistry.h"
 
 namespace cru::ui::mapper::style {
@@ -7,7 +7,7 @@ FontStylerMapper::FontStylerMapper() { SetAllowedTags({"FontStyler"}); }
 
 FontStylerMapper::~FontStylerMapper() {}
 
-ClonablePtr<ui::style::FontStyler> FontStylerMapper::DoMapFromXml(
+ClonePtr<ui::style::FontStyler> FontStylerMapper::DoMapFromXml(
     xml::XmlElementNode* node) {
   auto font_mapper = MapperRegistry::GetInstance()
                          ->GetSharedPtrMapper<platform::graphics::IFont>();

@@ -1,5 +1,5 @@
 #include "cru/ui/mapper/style/AndConditionMapper.h"
-#include "cru/base/ClonablePtr.h"
+#include "cru/base/ClonePtr.h"
 #include "cru/ui/mapper/MapperRegistry.h"
 #include "cru/ui/mapper/style/IConditionMapper.h"
 #include "cru/ui/style/Condition.h"
@@ -10,9 +10,9 @@ bool AndConditionMapper::XmlElementIsOfThisType(xml::XmlElementNode *node) {
   return cru::string::CaseInsensitiveCompare(node->GetTag(), "AndCondition") == 0;
 }
 
-ClonablePtr<ui::style::AndCondition> AndConditionMapper::DoMapFromXml(
+ClonePtr<ui::style::AndCondition> AndConditionMapper::DoMapFromXml(
     xml::XmlElementNode *node) {
-  std::vector<ClonablePtr<ui::style::Condition>> conditions;
+  std::vector<ClonePtr<ui::style::Condition>> conditions;
   auto condition_mappers =
       MapperRegistry::GetInstance()->GetMappersByInterface<IConditionMapper>();
   for (auto child : node->GetChildren()) {

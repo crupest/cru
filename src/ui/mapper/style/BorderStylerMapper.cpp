@@ -1,5 +1,5 @@
 #include "cru/ui/mapper/style/BorderStylerMapper.h"
-#include "cru/base/ClonablePtr.h"
+#include "cru/base/ClonePtr.h"
 #include "cru/ui/mapper/MapperRegistry.h"
 #include "cru/ui/style/ApplyBorderStyleInfo.h"
 #include "cru/ui/style/Styler.h"
@@ -13,7 +13,7 @@ bool BorderStylerMapper::XmlElementIsOfThisType(xml::XmlElementNode* node) {
   return cru::string::CaseInsensitiveCompare(node->GetTag(), "BorderStyler") == 0;
 }
 
-ClonablePtr<BorderStyler> BorderStylerMapper::DoMapFromXml(
+ClonePtr<BorderStyler> BorderStylerMapper::DoMapFromXml(
     xml::XmlElementNode* node) {
   auto border_style_mapper =
       MapperRegistry::GetInstance()->GetMapper<ApplyBorderStyleInfo>();

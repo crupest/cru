@@ -4,7 +4,7 @@
 
 namespace cru::ui::mapper::style {
 class CRU_UI_API AndConditionMapper
-    : public BasicClonablePtrMapper<ui::style::AndCondition>,
+    : public BasicClonePtrMapper<ui::style::AndCondition>,
       public virtual IConditionMapper {
  public:
   CRU_DEFAULT_CONSTRUCTOR_DESTRUCTOR(AndConditionMapper)
@@ -13,13 +13,13 @@ class CRU_UI_API AndConditionMapper
   bool SupportMapFromXml() override { return true; }
   bool XmlElementIsOfThisType(xml::XmlElementNode* node) override;
 
-  ClonablePtr<ui::style::Condition> MapConditionFromXml(
+  ClonePtr<ui::style::Condition> MapConditionFromXml(
       xml::XmlElementNode* node) override {
     return MapFromXml(node);
   }
 
  protected:
-  ClonablePtr<ui::style::AndCondition> DoMapFromXml(
+  ClonePtr<ui::style::AndCondition> DoMapFromXml(
       xml::XmlElementNode* node) override;
 };
 }  // namespace cru::ui::mapper::style

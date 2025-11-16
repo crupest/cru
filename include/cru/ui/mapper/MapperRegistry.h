@@ -35,8 +35,8 @@ class CRU_UI_API MapperRegistry {
   }
 
   template <typename T>
-  BasicClonablePtrMapper<T>* GetClonablePtrMapper() const {
-    return GetMapper<ClonablePtr<T>>();
+  BasicClonePtrMapper<T>* GetClonePtrMapper() const {
+    return GetMapper<ClonePtr<T>>();
   }
 
   template <typename T>

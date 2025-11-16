@@ -1,7 +1,7 @@
 #include "cru/ui/style/Condition.h"
 #include <memory>
 
-#include "cru/base/ClonablePtr.h"
+#include "cru/base/ClonePtr.h"
 #include "cru/base/Event.h"
 #include "cru/ui/controls/Control.h"
 #include "cru/ui/controls/ICheckableControl.h"
@@ -10,7 +10,7 @@
 
 namespace cru::ui::style {
 CompoundCondition::CompoundCondition(
-    std::vector<ClonablePtr<Condition>> conditions)
+    std::vector<ClonePtr<Condition>> conditions)
     : conditions_(std::move(conditions)) {}
 
 std::vector<IBaseEvent*> CompoundCondition::ChangeOn(

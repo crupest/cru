@@ -1,5 +1,5 @@
 #include "FocusConditionEditor.h"
-#include "cru/base/ClonablePtr.h"
+#include "cru/base/ClonePtr.h"
 #include "cru/ui/style/Condition.h"
 
 namespace cru::theme_builder::components::conditions {
@@ -14,7 +14,7 @@ FocusConditionEditor::FocusConditionEditor() {
 
 FocusConditionEditor::~FocusConditionEditor() {}
 
-ClonablePtr<ui::style::FocusCondition> FocusConditionEditor::GetValue() const {
+ClonePtr<ui::style::FocusCondition> FocusConditionEditor::GetValue() const {
   return ui::style::FocusCondition::Create(focus_check_box_.GetValue());
 }
 

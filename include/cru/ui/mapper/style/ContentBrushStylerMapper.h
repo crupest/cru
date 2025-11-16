@@ -4,7 +4,7 @@
 
 namespace cru::ui::mapper::style {
 class ContentBrushStylerMapper
-    : public BasicClonablePtrMapper<ui::style::ContentBrushStyler>,
+    : public BasicClonePtrMapper<ui::style::ContentBrushStyler>,
       public virtual IStylerMapper {
  public:
   ContentBrushStylerMapper();
@@ -13,13 +13,13 @@ class ContentBrushStylerMapper
  public:
   bool SupportMapFromXml() override { return true; }
 
-  ClonablePtr<ui::style::Styler> MapStylerFromXml(
+  ClonePtr<ui::style::Styler> MapStylerFromXml(
       xml::XmlElementNode* node) override {
     return MapFromXml(node);
   }
 
  protected:
-  ClonablePtr<ui::style::ContentBrushStyler> DoMapFromXml(
+  ClonePtr<ui::style::ContentBrushStyler> DoMapFromXml(
       xml::XmlElementNode* node) override;
 };
 }  // namespace cru::ui::mapper::style

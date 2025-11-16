@@ -1,5 +1,5 @@
 #include "BorderStylerEditor.h"
-#include "cru/base/ClonablePtr.h"
+#include "cru/base/ClonePtr.h"
 #include "cru/platform/graphics/Brush.h"
 #include "cru/platform/graphics/Factory.h"
 #include "cru/platform/gui/UiApplication.h"
@@ -29,7 +29,7 @@ BorderStylerEditor::BorderStylerEditor() {
 
 BorderStylerEditor::~BorderStylerEditor() {}
 
-ClonablePtr<ui::style::BorderStyler> BorderStylerEditor::GetValue() {
+ClonePtr<ui::style::BorderStyler> BorderStylerEditor::GetValue() {
   auto graphics_factory =
       platform::gui::IUiApplication::GetInstance()->GetGraphicsFactory();
 

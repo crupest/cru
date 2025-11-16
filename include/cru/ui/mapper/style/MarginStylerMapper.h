@@ -5,7 +5,7 @@
 
 namespace cru::ui::mapper::style {
 class CRU_UI_API MarginStylerMapper
-    : public BasicClonablePtrMapper<ui::style::MarginStyler>,
+    : public BasicClonePtrMapper<ui::style::MarginStyler>,
       public virtual IStylerMapper {
  public:
   MarginStylerMapper();
@@ -14,13 +14,13 @@ class CRU_UI_API MarginStylerMapper
  public:
   bool SupportMapFromXml() override { return true; }
 
-  ClonablePtr<ui::style::Styler> MapStylerFromXml(
+  ClonePtr<ui::style::Styler> MapStylerFromXml(
       xml::XmlElementNode* node) override {
     return MapFromXml(node);
   }
 
  protected:
-  ClonablePtr<ui::style::MarginStyler> DoMapFromXml(
+  ClonePtr<ui::style::MarginStyler> DoMapFromXml(
       xml::XmlElementNode* node) override;
 };
 }  // namespace cru::ui::mapper::style

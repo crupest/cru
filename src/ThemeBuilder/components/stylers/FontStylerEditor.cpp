@@ -12,7 +12,7 @@ FontStylerEditor::FontStylerEditor() {
 
 FontStylerEditor::~FontStylerEditor() {}
 
-ClonablePtr<ui::style::FontStyler> FontStylerEditor::GetValue() const {
+ClonePtr<ui::style::FontStyler> FontStylerEditor::GetValue() const {
   return ui::style::FontStyler::Create(font_editor_.GetValue());
 }
 

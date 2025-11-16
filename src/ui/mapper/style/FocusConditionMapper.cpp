@@ -1,5 +1,5 @@
 #include "cru/ui/mapper/style/FocusConditionMapper.h"
-#include "cru/base/ClonablePtr.h"
+#include "cru/base/ClonePtr.h"
 #include "cru/base/StringUtil.h"
 #include "cru/ui/style/Condition.h"
 #include "cru/base/xml/XmlNode.h"
@@ -10,7 +10,7 @@ bool FocusConditionMapper::XmlElementIsOfThisType(xml::XmlElementNode* node) {
                                              "FocusCondition") == 0;
 }
 
-ClonablePtr<ui::style::FocusCondition> FocusConditionMapper::DoMapFromXml(
+ClonePtr<ui::style::FocusCondition> FocusConditionMapper::DoMapFromXml(
     xml::XmlElementNode* node) {
   auto value = node->GetAttributeValueCaseInsensitive("value");
   if (cru::string::CaseInsensitiveCompare(value, "true") == 0) {

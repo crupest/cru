@@ -1,6 +1,6 @@
 #pragma once
 #include "StylerEditor.h"
-#include "cru/base/ClonablePtr.h"
+#include "cru/base/ClonePtr.h"
 #include "cru/ui/DeleteLater.h"
 #include "cru/ui/components/PopupButton.h"
 #include "cru/ui/controls/FlexLayout.h"
@@ -13,14 +13,14 @@ class CompoundStylerEditor : public StylerEditor {
   ~CompoundStylerEditor() override;
 
  public:
-  ClonablePtr<ui::style::CompoundStyler> GetValue();
+  ClonePtr<ui::style::CompoundStyler> GetValue();
   void SetValue(ui::style::CompoundStyler* styler, bool trigger_change = true);
-  void SetValue(const ClonablePtr<ui::style::CompoundStyler>& styler,
+  void SetValue(const ClonePtr<ui::style::CompoundStyler>& styler,
                 bool trigger_change = true) {
     SetValue(styler.get(), trigger_change);
   }
 
-  ClonablePtr<ui::style::Styler> GetStyler() override { return GetValue(); }
+  ClonePtr<ui::style::Styler> GetStyler() override { return GetValue(); }
 
  private:
   ui::controls::FlexLayout children_container_;

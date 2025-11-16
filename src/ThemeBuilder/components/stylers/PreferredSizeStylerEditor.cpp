@@ -16,7 +16,7 @@ PreferredSizeStylerEditor::PreferredSizeStylerEditor() {
 
 PreferredSizeStylerEditor::~PreferredSizeStylerEditor() {}
 
-ClonablePtr<ui::style::PreferredSizeStyler>
+ClonePtr<ui::style::PreferredSizeStyler>
 PreferredSizeStylerEditor::GetValue() {
   return ui::style::PreferredSizeStyler::Create(ui::render::MeasureSize{
       width_editor_.GetValue(), height_editor_.GetValue()});

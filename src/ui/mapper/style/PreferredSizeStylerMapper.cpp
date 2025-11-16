@@ -9,7 +9,7 @@ bool PreferredSizeStylerMapper::XmlElementIsOfThisType(
   return cru::string::CaseInsensitiveCompare(node->GetTag(), "PreferredSizeStyler") == 0;
 }
 
-ClonablePtr<ui::style::PreferredSizeStyler>
+ClonePtr<ui::style::PreferredSizeStyler>
 PreferredSizeStylerMapper::DoMapFromXml(xml::XmlElementNode* node) {
   render::MeasureSize size;
 

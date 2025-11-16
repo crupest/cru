@@ -16,7 +16,7 @@ CursorStylerEditor::CursorStylerEditor() {
 
 CursorStylerEditor::~CursorStylerEditor() {}
 
-ClonablePtr<ui::style::CursorStyler> CursorStylerEditor::GetValue() {
+ClonePtr<ui::style::CursorStyler> CursorStylerEditor::GetValue() {
   auto cursor_manager =
       platform::gui::IUiApplication::GetInstance()->GetCursorManager();
 

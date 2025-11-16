@@ -16,7 +16,7 @@ std::shared_ptr<platform::graphics::IFont> FontMapper::DoMapFromXml(
   auto font_family = font_family_attr.value_or("");
   auto font_size =
       font_size_attr ? cru::string::ParseToNumber<float>(*font_size_attr).value
-                     : 24.0f;
+                     : 16.0f;
 
   return GetGraphicsFactory()->CreateFont(font_family, font_size);
 }

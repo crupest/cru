@@ -2,7 +2,7 @@
 #include "../Editor.h"
 #include "../properties/FontPropertyEditor.h"
 #include "StylerEditor.h"
-#include "cru/base/ClonablePtr.h"
+#include "cru/base/ClonePtr.h"
 #include "cru/ui/style/Styler.h"
 
 namespace cru::theme_builder::components::stylers {
@@ -12,10 +12,10 @@ class FontStylerEditor : public StylerEditor {
   ~FontStylerEditor();
 
  public:
-  ClonablePtr<ui::style::FontStyler> GetValue() const;
+  ClonePtr<ui::style::FontStyler> GetValue() const;
   void SetValue(ui::style::FontStyler* value, bool trigger_change = true);
 
-  ClonablePtr<ui::style::Styler> GetStyler() override { return GetValue(); }
+  ClonePtr<ui::style::Styler> GetStyler() override { return GetValue(); }
 
  private:
   properties::FontPropertyEditor font_editor_;

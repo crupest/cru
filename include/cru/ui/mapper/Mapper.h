@@ -1,7 +1,7 @@
 #pragma once
 #include "../Base.h"
 
-#include "cru/base/ClonablePtr.h"
+#include "cru/base/ClonePtr.h"
 #include "cru/base/xml/XmlNode.h"
 
 #include <memory>
@@ -88,5 +88,5 @@ template <typename T>
 using BasicSharedPtrMapper = BasicMapper<std::shared_ptr<T>>;
 
 template <typename T>
-using BasicClonablePtrMapper = BasicMapper<ClonablePtr<T>>;
+using BasicClonePtrMapper = BasicMapper<ClonePtr<T>>;
 }  // namespace cru::ui::mapper

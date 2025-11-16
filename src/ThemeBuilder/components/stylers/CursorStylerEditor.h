@@ -9,14 +9,14 @@ class CursorStylerEditor : public StylerEditor {
   ~CursorStylerEditor() override;
 
  public:
-  ClonablePtr<ui::style::CursorStyler> GetValue();
+  ClonePtr<ui::style::CursorStyler> GetValue();
   void SetValue(ui::style::CursorStyler* styler, bool trigger_change = true);
-  void SetValue(const ClonablePtr<ui::style::CursorStyler>& styler,
+  void SetValue(const ClonePtr<ui::style::CursorStyler>& styler,
                 bool trigger_change = true) {
     SetValue(styler.get(), trigger_change);
   }
 
-  ClonablePtr<ui::style::Styler> GetStyler() override { return GetValue(); }
+  ClonePtr<ui::style::Styler> GetStyler() override { return GetValue(); }
 
  private:
   properties::SelectPropertyEditor cursor_select_;

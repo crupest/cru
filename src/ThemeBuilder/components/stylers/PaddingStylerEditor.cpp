@@ -13,7 +13,7 @@ PaddingStylerEditor::PaddingStylerEditor() {
 
 PaddingStylerEditor::~PaddingStylerEditor() {}
 
-ClonablePtr<ui::style::PaddingStyler> PaddingStylerEditor::GetValue() {
+ClonePtr<ui::style::PaddingStyler> PaddingStylerEditor::GetValue() {
   return ui::style::PaddingStyler::Create(thickness_editor_.GetValue());
 }
 

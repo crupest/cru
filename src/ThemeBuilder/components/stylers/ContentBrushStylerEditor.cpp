@@ -12,7 +12,7 @@ ContentBrushStylerEditor::ContentBrushStylerEditor() {
 
 ContentBrushStylerEditor::~ContentBrushStylerEditor() {}
 
-ClonablePtr<ui::style::ContentBrushStyler> ContentBrushStylerEditor::GetValue()
+ClonePtr<ui::style::ContentBrushStyler> ContentBrushStylerEditor::GetValue()
     const {
   return ui::style::ContentBrushStyler::Create(
       platform::gui::IUiApplication::GetInstance()

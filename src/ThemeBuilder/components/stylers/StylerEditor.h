@@ -9,7 +9,7 @@ class StylerEditor : public HeadBodyEditor {
   ~StylerEditor() override;
 
  public:
-  virtual ClonablePtr<ui::style::Styler> GetStyler() = 0;
+  virtual ClonePtr<ui::style::Styler> GetStyler() = 0;
 };
 
 std::unique_ptr<StylerEditor> CreateStylerEditor(ui::style::Styler* styler);

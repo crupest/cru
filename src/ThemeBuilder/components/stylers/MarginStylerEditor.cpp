@@ -13,7 +13,7 @@ MarginStylerEditor::MarginStylerEditor() {
 
 MarginStylerEditor::~MarginStylerEditor() {}
 
-ClonablePtr<ui::style::MarginStyler> MarginStylerEditor::GetValue() {
+ClonePtr<ui::style::MarginStyler> MarginStylerEditor::GetValue() {
   return ui::style::MarginStyler::Create(thickness_editor_.GetValue());
 }
 

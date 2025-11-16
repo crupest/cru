@@ -1,5 +1,5 @@
 #include "cru/ui/mapper/style/CheckedConditionMapper.h"
-#include "cru/base/ClonablePtr.h"
+#include "cru/base/ClonePtr.h"
 #include "cru/base/StringUtil.h"
 #include "cru/ui/style/Condition.h"
 #include "cru/base/xml/XmlNode.h"
@@ -10,7 +10,7 @@ bool CheckedConditionMapper::XmlElementIsOfThisType(xml::XmlElementNode* node) {
                                              "CheckedCondition") == 0;
 }
 
-ClonablePtr<ui::style::CheckedCondition> CheckedConditionMapper::DoMapFromXml(
+ClonePtr<ui::style::CheckedCondition> CheckedConditionMapper::DoMapFromXml(
     xml::XmlElementNode* node) {
   auto value = node->GetAttributeValueCaseInsensitive("value");
   if (cru::string::CaseInsensitiveCompare(value, "true") == 0) {

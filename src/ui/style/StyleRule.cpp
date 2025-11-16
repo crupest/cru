@@ -1,8 +1,8 @@
 #include "cru/ui/style/StyleRule.h"
 
 namespace cru::ui::style {
-StyleRule::StyleRule(ClonablePtr<Condition> condition,
-                     ClonablePtr<Styler> styler, std::string name)
+StyleRule::StyleRule(ClonePtr<Condition> condition,
+                     ClonePtr<Styler> styler, std::string name)
     : condition_(std::move(condition)),
       styler_(std::move(styler)),
       name_(std::move(name)) {}

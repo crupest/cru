@@ -2,7 +2,7 @@
 #include "../Base.h"
 #include "Condition.h"
 #include "Styler.h"
-#include "cru/base/ClonablePtr.h"
+#include "cru/base/ClonePtr.h"
 
 namespace cru::ui::style {
 /**
@@ -11,14 +11,14 @@ namespace cru::ui::style {
  */
 class CRU_UI_API StyleRule {
  public:
-  static ClonablePtr<StyleRule> Create(ClonablePtr<Condition> condition,
-                                       ClonablePtr<Styler> styler,
+  static ClonePtr<StyleRule> Create(ClonePtr<Condition> condition,
+                                       ClonePtr<Styler> styler,
                                        std::string name = {}) {
-    return ClonablePtr<StyleRule>(new StyleRule(
+    return ClonePtr<StyleRule>(new StyleRule(
         std::move(condition), std::move(styler), std::move(name)));
   }
 
-  StyleRule(ClonablePtr<Condition> condition, ClonablePtr<Styler> styler,
+  StyleRule(ClonePtr<Condition> condition, ClonePtr<Styler> styler,
             std::string name = {});
 
  public:
@@ -26,12 +26,12 @@ class CRU_UI_API StyleRule {
   Condition* GetCondition() const { return condition_.get(); }
   Styler* GetStyler() const { return styler_.get(); }
 
-  StyleRule WithNewCondition(ClonablePtr<Condition> condition,
+  StyleRule WithNewCondition(ClonePtr<Condition> condition,
                              std::string name = {}) const {
     return StyleRule{std::move(condition), styler_, std::move(name)};
   }
 
-  StyleRule WithNewStyler(ClonablePtr<Styler> styler,
+  StyleRule WithNewStyler(ClonePtr<Styler> styler,
                           std::string name = {}) const {
     return StyleRule{condition_, std::move(styler), std::move(name)};
   }
@@ -39,8 +39,8 @@ class CRU_UI_API StyleRule {
   bool CheckAndApply(controls::Control* control) const;
 
  private:
-  ClonablePtr<Condition> condition_;
-  ClonablePtr<Styler> styler_;
+  ClonePtr<Condition> condition_;
+  ClonePtr<Styler> styler_;
   std::string name_;
 };
 }  // namespace cru::ui::style

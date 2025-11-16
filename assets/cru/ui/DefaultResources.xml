@@ -79,6 +79,7 @@
         <StyleRuleSet>
             <StyleRule>
                 <NoCondition />
+                <PaddingStyler value="8 2"/>
                 <BorderStyler>
                     <BorderStyle>
                         <Thickness value="1" />
@@ -91,6 +92,7 @@
                 <BorderStyler>
                     <BorderStyle>
                         <Color value="#d2d2d2" />
+                        <Color name="background" value="#fdfdfd" />
                     </BorderStyle>
                 </BorderStyler>
                 <CursorStyler>
@@ -102,6 +104,7 @@
                 <BorderStyler>
                     <BorderStyle>
                         <Color value="#0078d4" />
+                        <Color name="background" value="#e0eef9" />
                     </BorderStyle>
                 </BorderStyler>
                 <CursorStyler>
@@ -113,6 +116,7 @@
                 <BorderStyler>
                     <BorderStyle>
                         <Color value="#06579b" />
+                        <Color name="background" value="#cce4f7" />
                     </BorderStyle>
                 </BorderStyler>
                 <CursorStyler>
@@ -124,6 +128,7 @@
                 <BorderStyler>
                     <BorderStyle>
                         <Color value="#06579b" />
+                        <Color name="background" value="#cce4f7" />
                     </BorderStyle>
                 </BorderStyler>
                 <CursorStyler>

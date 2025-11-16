@@ -4,7 +4,7 @@
 #include "ConditionEditor.h"
 #include "FocusConditionEditor.h"
 #include "NoConditionEditor.h"
-#include "cru/base/ClonablePtr.h"
+#include "cru/base/ClonePtr.h"
 #include "cru/platform/Color.h"
 #include "cru/ui/Base.h"
 #include "cru/ui/ThemeManager.h"
@@ -76,9 +76,9 @@ CompoundConditionEditor::CompoundConditionEditor() {
 
 CompoundConditionEditor::~CompoundConditionEditor() {}
 
-std::vector<ClonablePtr<ui::style::Condition>>
+std::vector<ClonePtr<ui::style::Condition>>
 CompoundConditionEditor::GetChildren() {
-  std::vector<ClonablePtr<ui::style::Condition>> children;
+  std::vector<ClonePtr<ui::style::Condition>> children;
   for (auto& child : children_) {
     children.push_back(child->GetCondition());
   }
@@ -86,7 +86,7 @@ CompoundConditionEditor::GetChildren() {
 }
 
 void CompoundConditionEditor::SetChildren(
-    std::vector<ClonablePtr<ui::style::Condition>> children,
+    std::vector<ClonePtr<ui::style::Condition>> children,
     bool trigger_change) {
   children_container_.ClearChildren();
   children_.clear();

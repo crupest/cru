@@ -9,7 +9,7 @@ class ConditionEditor : public HeadBodyEditor {
   ~ConditionEditor() override;
 
  public:
-  virtual ClonablePtr<ui::style::Condition> GetCondition() = 0;
+  virtual ClonePtr<ui::style::Condition> GetCondition() = 0;
 };
 
 std::unique_ptr<ConditionEditor> CreateConditionEditor(

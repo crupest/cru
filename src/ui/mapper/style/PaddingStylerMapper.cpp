@@ -10,7 +10,7 @@ PaddingStylerMapper::PaddingStylerMapper() {
 
 PaddingStylerMapper::~PaddingStylerMapper() {}
 
-ClonablePtr<ui::style::PaddingStyler> PaddingStylerMapper::DoMapFromXml(
+ClonePtr<ui::style::PaddingStyler> PaddingStylerMapper::DoMapFromXml(
     xml::XmlElementNode* node) {
   Thickness thickness;
 
