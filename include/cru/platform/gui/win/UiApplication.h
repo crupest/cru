@@ -1,8 +1,10 @@
 #pragma once
 #include "Base.h"
+#include "Window.h"
+#include "WindowClass.h"
 
-#include <cru/platform/gui/UiApplication.h>
 #include <cru/base/Timer.h>
+#include <cru/platform/gui/UiApplication.h>
 
 #include <memory>
 
@@ -13,6 +15,8 @@ class DirectGraphicsFactory;
 namespace cru::platform::gui::win {
 class CRU_WIN_GUI_API WinUiApplication : public WinNativeResource,
                                          public virtual IUiApplication {
+  friend WinNativeWindow;
+
  public:
   static WinUiApplication* GetInstance() { return instance; }
 
@@ -49,8 +53,7 @@ class CRU_WIN_GUI_API WinUiApplication : public WinNativeResource,
 
   cru::platform::graphics::IGraphicsFactory* GetGraphicsFactory() override;
 
-  cru::platform::graphics::direct2d::DirectGraphicsFactory*
-  GetDirectFactory() {
+  cru::platform::graphics::direct2d::DirectGraphicsFactory* GetDirectFactory() {
     return graph_factory_.get();
   }
 
@@ -59,8 +62,13 @@ class CRU_WIN_GUI_API WinUiApplication : public WinNativeResource,
   IClipboard* GetClipboard() override;
 
   HINSTANCE GetInstanceHandle() const { return instance_handle_; }
+  std::vector<WinNativeWindow*> GetAllWinWindow();
+  WinNativeWindow* FromHWND(HWND hwnd);
 
-  WindowManager* GetWindowManager() const { return window_manager_.get(); }
+ private:
+  WindowClass* GetGeneralWindowClass();
+  void RegisterWindow(WinNativeWindow* window);
+  void UnregisterWindow(WinNativeWindow* window);
 
  private:
   HINSTANCE instance_handle_;
@@ -72,7 +80,8 @@ class CRU_WIN_GUI_API WinUiApplication : public WinNativeResource,
 
   TimerRegistry<std::function<void()>> timers_;
 
-  std::unique_ptr<WindowManager> window_manager_;
+  std::unique_ptr<WindowClass> general_window_class_;
+  std::vector<WinNativeWindow*> windows_;
 
   std::unique_ptr<WinCursorManager> cursor_manager_;
   std::unique_ptr<WinClipboard> clipboard_;

@@ -7,7 +7,6 @@ add_library(CruPlatformGuiWin
 	UiApplication.cpp
 	Window.cpp
 	WindowClass.cpp
-	WindowManager.cpp
 )
 target_link_libraries(CruPlatformGuiWin PUBLIC imm32)
 target_link_libraries(CruPlatformGuiWin PUBLIC CruPlatformGraphicsDirect2d CruPlatformGui)

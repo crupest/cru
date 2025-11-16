@@ -1,6 +1,5 @@
 #include "cru/platform/gui/win/Window.h"
 
-#include "WindowManager.h"
 #include "cru/base/StringUtil.h"
 #include "cru/base/log/Logger.h"
 #include "cru/platform/graphics/NullPainter.h"
@@ -16,6 +15,7 @@
 
 #include <windowsx.h>
 #include <winuser.h>
+#include <algorithm>
 #include <memory>
 
 namespace cru::platform::gui::win {
@@ -68,6 +68,7 @@ Rect CalcClientRectFromWindow(const Rect& rect, WindowStyleFlag style_flag,
 
 WinNativeWindow::WinNativeWindow(WinUiApplication* application)
     : application_(application) {
+  application->RegisterWindow(this);
   input_method_context_ = std::make_unique<WinInputMethodContext>(this);
 }
 
@@ -75,6 +76,7 @@ WinNativeWindow::~WinNativeWindow() { Close(); }
 
 void WinNativeWindow::Close() {
   if (hwnd_) ::DestroyWindow(hwnd_);
+  application_->UnregisterWindow(this);
 }
 
 void WinNativeWindow::SetParent(INativeWindow* parent) {
@@ -459,8 +461,7 @@ RECT WinNativeWindow::GetClientRectPixel() {
 }
 
 void WinNativeWindow::RecreateWindow() {
-  const auto window_manager = application_->GetWindowManager();
-  auto window_class = window_manager->GetGeneralWindowClass();
+  auto window_class = application_->GetGeneralWindowClass();
 
   hwnd_ = CreateWindowExW(
       0, window_class->GetName(), L"", CalcWindowStyle(style_flag_),
@@ -477,7 +478,7 @@ void WinNativeWindow::RecreateWindow() {
   dpi_ = static_cast<float>(dpi);
   CRU_LOG_TAG_DEBUG("Dpi of window is {}.", dpi_);
 
-  window_manager->RegisterWindow(hwnd_, this);
+  application_->RegisterWindow(this);
 
   SetCursor(application_->GetCursorManager()->GetSystemCursor(
       cru::platform::gui::SystemCursorType::Arrow));
@@ -497,8 +498,16 @@ void WinNativeWindow::OnCreateInternal() { create_event_.Raise(nullptr); }
 
 void WinNativeWindow::OnDestroyInternal() {
   destroy_event_.Raise(nullptr);
-  application_->GetWindowManager()->UnregisterWindow(hwnd_);
+  application_->UnregisterWindow(this);
   hwnd_ = nullptr;
+
+  if (application_->IsQuitOnAllWindowClosed() &&
+      std::ranges::all_of(application_->GetAllWinWindow(),
+                          [](WinNativeWindow* window) {
+                            return window->GetWindowHandle() == nullptr;
+                          })) {
+    application_->RequestQuit(0);
+  }
 }
 
 void WinNativeWindow::OnPaintInternal() {

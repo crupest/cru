@@ -1,21 +1,29 @@
 #include "cru/platform/gui/win/UiApplication.h"
 
-#include "WindowManager.h"
 #include "cru/platform/graphics/direct2d/Factory.h"
 #include "cru/platform/gui/win/Base.h"
 #include "cru/platform/gui/win/Clipboard.h"
 #include "cru/platform/gui/win/Cursor.h"
 #include "cru/platform/gui/win/Window.h"
 
+#include <algorithm>
 #include <chrono>
 
-namespace cru::platform::gui {
-std::unique_ptr<IUiApplication> CreateUiApplication() {
-  return std::make_unique<win::WinUiApplication>();
-}
-}  // namespace cru::platform::gui
-
 namespace cru::platform::gui::win {
+namespace {
+LRESULT __stdcall GeneralWndProc(HWND hWnd, UINT Msg, WPARAM wParam,
+                                 LPARAM lParam) {
+  auto window = WinUiApplication::GetInstance()->FromHWND(hWnd);
+
+  LRESULT result;
+  if (window != nullptr &&
+      window->HandleNativeWindowMessage(hWnd, Msg, wParam, lParam, &result))
+    return result;
+
+  return DefWindowProc(hWnd, Msg, wParam, lParam);
+}
+}  // namespace
+
 WinUiApplication* WinUiApplication::instance = nullptr;
 
 WinUiApplication::WinUiApplication() {
@@ -27,10 +35,12 @@ WinUiApplication::WinUiApplication() {
 
   ::SetThreadDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE);
 
+  general_window_class_ = std::make_unique<WindowClass>(
+      L"CruUIWindowClass", GeneralWndProc, instance_handle_);
+
   graph_factory_ = std::make_unique<
       cru::platform::graphics::direct2d::DirectGraphicsFactory>();
 
-  window_manager_ = std::make_unique<WindowManager>(this);
   cursor_manager_ = std::make_unique<WinCursorManager>();
   clipboard_ = std::make_unique<WinClipboard>(this);
 }
@@ -94,9 +104,8 @@ long long WinUiApplication::SetInterval(std::chrono::milliseconds milliseconds,
 void WinUiApplication::CancelTimer(long long id) { timers_.Remove(id); }
 
 std::vector<INativeWindow*> WinUiApplication::GetAllWindow() {
-  const auto&& windows = window_manager_->GetAllWindows();
   std::vector<INativeWindow*> result;
-  for (const auto w : windows) {
+  for (const auto w : windows_) {
     result.push_back(static_cast<INativeWindow*>(w));
   }
   return result;
@@ -117,4 +126,28 @@ ICursorManager* WinUiApplication::GetCursorManager() {
 
 IClipboard* WinUiApplication::GetClipboard() { return clipboard_.get(); }
 
+std::vector<WinNativeWindow*> WinUiApplication::GetAllWinWindow() {
+  return windows_;
+}
+
+WinNativeWindow* WinUiApplication::FromHWND(HWND hwnd) {
+  for (auto window : windows_) {
+    if (window->GetWindowHandle() == hwnd) {
+      return window;
+    }
+  }
+  return nullptr;
+}
+
+WindowClass* WinUiApplication::GetGeneralWindowClass() {
+  return general_window_class_.get();
+}
+
+void WinUiApplication::RegisterWindow(WinNativeWindow* window) {
+  windows_.push_back(window);
+}
+
+void WinUiApplication::UnregisterWindow(WinNativeWindow* window) {
+  windows_.erase(std::ranges::find(windows_, window));
+}
 }  // namespace cru::platform::gui::win
