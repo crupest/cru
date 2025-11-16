@@ -148,8 +148,7 @@ std::vector<TextControlMovePattern> TextControlMovePattern::kDefaultPatterns = {
 
 TextHostControlService::TextHostControlService(Control* control)
     : control_(control),
-      text_host_control_(dynamic_cast<ITextHostControl*>(control)),
-      context_menu_(new components::PopupMenu()) {
+      text_host_control_(dynamic_cast<ITextHostControl*>(control)) {
   SetUpShortcuts();
 
   SetupOneHandler(&Control::MouseMoveEvent,
@@ -701,6 +700,7 @@ void TextHostControlService::SetUpShortcuts() {
 void TextHostControlService::OpenContextMenu(const Point& position,
                                              ContextMenuItem items) {
   CRU_LOG_TAG_DEBUG("Open context menu.");
+  context_menu_.reset(new components::PopupMenu());
   auto menu = context_menu_->GetMenu();
   menu->ClearItems();
   if (items & ContextMenuItem::kSelectAll) {

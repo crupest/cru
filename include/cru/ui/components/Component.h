@@ -19,9 +19,7 @@ class CRU_UI_API Component : public Object, public DeleteLaterImpl {
   void SetDeleteByParent(bool delete_by_parent) {
     delete_by_parent_ = delete_by_parent;
   }
-  void DeleteIfDeleteByParent() const {
-    if (delete_by_parent_) delete this;
-  }
+  void DeleteIfDeleteByParent(bool delete_later = true);
 
  protected:
   void OnPrepareDelete() override;

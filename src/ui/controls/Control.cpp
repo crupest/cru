@@ -27,6 +27,11 @@ Control::Control() {
 }
 
 Control::~Control() {
+  if (host::WindowHost::IsInEventHandling()) {
+    // Don't delete control during event handling. Use DeleteLater.
+    std::terminate();
+  }
+
   in_destruction_ = true;
   RemoveFromParent();
 }

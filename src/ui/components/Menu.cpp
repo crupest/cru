@@ -33,7 +33,7 @@ Menu::Menu() {
 
 Menu::~Menu() {
   for (auto item : items_) {
-    delete item;
+    item->DeleteIfDeleteByParent(false);
   }
 }
 
