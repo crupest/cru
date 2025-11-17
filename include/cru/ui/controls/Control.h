@@ -4,6 +4,8 @@
 #include "../events/UiEvents.h"
 #include "../render/RenderObject.h"
 #include "../style/StyleRuleSet.h"
+#include "cru/ui/events/KeyEventArgs.h"
+#include "cru/ui/events/MouseWheelEventArgs.h"
 #include "cru/ui/render/MeasureRequirement.h"
 
 namespace cru::ui::controls {
@@ -31,9 +33,11 @@ class CRU_UI_API Control : public Object, public DeleteLaterImpl {
  public:
   virtual std::string GetControlType() const = 0;
 
+  std::string GetDebugId() const;
+
   //*************** region: tree ***************
  public:
-  host::WindowHost* GetWindowHost() const { return window_host_; }
+  Window* GetWindow();
 
   Control* GetParent() const { return parent_; }
   void SetParent(Control* parent);
@@ -47,6 +51,8 @@ class CRU_UI_API Control : public Object, public DeleteLaterImpl {
   virtual void RemoveChild(Control* child) = 0;
 
   void RemoveFromParent();
+
+  controls::Control* HitTest(const Point& point);
 
  public:
   virtual render::RenderObject* GetRenderObject() const = 0;
@@ -107,83 +113,30 @@ class CRU_UI_API Control : public Object, public DeleteLaterImpl {
   // the mouse, this event is raised as regular. But if mouse is captured by
   // another control, the control will not receive any mouse enter event. You
   // can use `IsMouseCaptured` to get more info.
-  events::RoutedEvent<events::MouseEventArgs>* MouseEnterEvent() {
-    return &mouse_enter_event_;
-  }
+  CRU_DEFINE_ROUTED_EVENT(MouseEnter, events::MouseEventArgs)
+
   // Raised when mouse is leave the control. Even when the control itself
   // captures the mouse, this event is raised as regular. But if mouse is
   // captured by another control, the control will not receive any mouse leave
   // event. You can use `IsMouseCaptured` to get more info.
-  events::RoutedEvent<events::MouseEventArgs>* MouseLeaveEvent() {
-    return &mouse_leave_event_;
-  }
-  // Raised when mouse is move in the control.
-  events::RoutedEvent<events::MouseEventArgs>* MouseMoveEvent() {
-    return &mouse_move_event_;
-  }
-  // Raised when a mouse button is pressed in the control.
-  events::RoutedEvent<events::MouseButtonEventArgs>* MouseDownEvent() {
-    return &mouse_down_event_;
-  }
-  // Raised when a mouse button is released in the control.
-  events::RoutedEvent<events::MouseButtonEventArgs>* MouseUpEvent() {
-    return &mouse_up_event_;
-  }
-  events::RoutedEvent<events::MouseWheelEventArgs>* MouseWheelEvent() {
-    return &mouse_wheel_event_;
-  }
-  events::RoutedEvent<events::KeyEventArgs>* KeyDownEvent() {
-    return &key_down_event_;
-  }
-  events::RoutedEvent<events::KeyEventArgs>* KeyUpEvent() {
-    return &key_up_event_;
-  }
-  events::RoutedEvent<events::FocusChangeEventArgs>* GainFocusEvent() {
-    return &gain_focus_event_;
-  }
-  events::RoutedEvent<events::FocusChangeEventArgs>* LoseFocusEvent() {
-    return &lose_focus_event_;
-  }
+  CRU_DEFINE_ROUTED_EVENT(MouseLeave, events::MouseEventArgs)
 
- private:
-  events::RoutedEvent<events::MouseEventArgs> mouse_enter_event_;
-  events::RoutedEvent<events::MouseEventArgs> mouse_leave_event_;
-  events::RoutedEvent<events::MouseEventArgs> mouse_move_event_;
-  events::RoutedEvent<events::MouseButtonEventArgs> mouse_down_event_;
-  events::RoutedEvent<events::MouseButtonEventArgs> mouse_up_event_;
-  events::RoutedEvent<events::MouseWheelEventArgs> mouse_wheel_event_;
-
-  events::RoutedEvent<events::KeyEventArgs> key_down_event_;
-  events::RoutedEvent<events::KeyEventArgs> key_up_event_;
-
-  events::RoutedEvent<events::FocusChangeEventArgs> gain_focus_event_;
-  events::RoutedEvent<events::FocusChangeEventArgs> lose_focus_event_;
+  CRU_DEFINE_ROUTED_EVENT(MouseMove, events::MouseEventArgs)
+  CRU_DEFINE_ROUTED_EVENT(MouseDown, events::MouseButtonEventArgs)
+  CRU_DEFINE_ROUTED_EVENT(MouseUp, events::MouseButtonEventArgs)
+  CRU_DEFINE_ROUTED_EVENT(MouseWheel, events::MouseWheelEventArgs)
+  CRU_DEFINE_ROUTED_EVENT(KeyDown, events::KeyEventArgs)
+  CRU_DEFINE_ROUTED_EVENT(KeyUp, events::KeyEventArgs)
+  CRU_DEFINE_ROUTED_EVENT(GainFocus, events::FocusChangeEventArgs)
+  CRU_DEFINE_ROUTED_EVENT(LoseFocus, events::FocusChangeEventArgs)
 
   //*************** region: tree ***************
  protected:
   virtual void OnParentChanged(Control* old_parent, Control* new_parent) {}
 
-  virtual void OnWindowHostChanged(host::WindowHost* old_host,
-                                   host::WindowHost* new_host) {}
-
- protected:
-  virtual void OnMouseHoverChange(bool newHover) { CRU_UNUSED(newHover) }
-
-  void OnPrepareDelete() override;
-
  private:
-  void OnParentChangedCore(Control* old_parent, Control* new_parent);
-  void OnWindowHostChangedCore(host::WindowHost* old_host,
-                               host::WindowHost* new_host);
-
- private:
-  bool in_destruction_ = false;
-
   Control* parent_ = nullptr;
 
-  host::WindowHost* window_host_ = nullptr;
-
- private:
   bool is_mouse_over_ = false;
 
   std::shared_ptr<platform::gui::ICursor> cursor_ = nullptr;

@@ -8,7 +8,7 @@
 #include "cru/platform/gui/Cursor.h"
 #include "cru/ui/Base.h"
 #include "cru/ui/ThemeManager.h"
-#include "cru/ui/host/WindowHost.h"
+#include "cru/ui/controls/Window.h"
 #include "cru/ui/render/ScrollRenderObject.h"
 
 #include <algorithm>
@@ -317,23 +317,23 @@ void ScrollBar::OnDraw(platform::graphics::IPainter* painter,
 
 void ScrollBar::SetCursor() {
   if (const auto control = render_object_->GetAttachedControl()) {
-    if (const auto window_host = control->GetWindowHost()) {
-      window_host->SetOverrideCursor(
+    if (const auto window = control->GetWindow()) {
+      window->SetOverrideCursor(
           GetUiApplication()->GetCursorManager()->GetSystemCursor(
               platform::gui::SystemCursorType::Arrow));
-      cursor_overrided_ = true;
+      cursor_overridden_ = true;
     }
   }
 }
 
 void ScrollBar::RestoreCursor() {
-  if (cursor_overrided_) {
+  if (cursor_overridden_) {
     if (const auto control = render_object_->GetAttachedControl()) {
-      if (const auto window_host = control->GetWindowHost()) {
-        window_host->SetOverrideCursor(nullptr);
+      if (const auto window = control->GetWindow()) {
+        window->SetOverrideCursor(nullptr);
       }
     }
-    cursor_overrided_ = false;
+    cursor_overridden_ = false;
   }
 }
 

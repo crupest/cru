@@ -1,11 +1,10 @@
 #pragma once
+#include "../controls/Button.h"
+#include "../controls/Control.h"
+#include "../controls/FlexLayout.h"
+#include "../controls/TextBlock.h"
+#include "../controls/Window.h"
 #include "Component.h"
-#include "cru/base/Base.h"
-#include "cru/ui/controls/Button.h"
-#include "cru/ui/controls/Control.h"
-#include "cru/ui/controls/FlexLayout.h"
-#include "cru/ui/controls/Popup.h"
-#include "cru/ui/controls/TextBlock.h"
 
 #include <functional>
 #include <vector>
@@ -15,11 +14,6 @@ class CRU_UI_API MenuItem : public Component {
  public:
   MenuItem();
   explicit MenuItem(std::string text);
-
-  CRU_DELETE_COPY(MenuItem)
-  CRU_DELETE_MOVE(MenuItem)
-
-  ~MenuItem();
 
  public:
   controls::Control* GetRootControl() override { return &container_; }
@@ -39,10 +33,6 @@ class CRU_UI_API MenuItem : public Component {
 class CRU_UI_API Menu : public Component {
  public:
   Menu();
-
-  CRU_DELETE_COPY(Menu)
-  CRU_DELETE_MOVE(Menu)
-
   ~Menu();
 
  public:
@@ -58,7 +48,8 @@ class CRU_UI_API Menu : public Component {
   void AddTextItem(std::string text, std::function<void()> on_click) {
     AddTextItemAt(std::move(text), GetItemCount(), std::move(on_click));
   }
-  void AddTextItemAt(std::string text, Index index, std::function<void()> on_click);
+  void AddTextItemAt(std::string text, Index index,
+                     std::function<void()> on_click);
 
   void SetOnItemClick(std::function<void(Index)> on_item_click) {
     on_item_click_ = std::move(on_item_click);
@@ -74,16 +65,12 @@ class CRU_UI_API Menu : public Component {
 class CRU_UI_API PopupMenu : public Component {
  public:
   explicit PopupMenu(controls::Control* attached_control = nullptr);
-
-  CRU_DELETE_COPY(PopupMenu)
-  CRU_DELETE_MOVE(PopupMenu)
-
   ~PopupMenu();
 
  public:
   controls::Control* GetRootControl() override;
 
-  controls::Popup* GetPopup() { return &popup_; }
+  controls::Window* GetPopup() { return popup_; }
   Menu* GetMenu() { return &menu_; }
 
   // position relative to screen left top.
@@ -99,7 +86,7 @@ class CRU_UI_API PopupMenu : public Component {
  private:
   controls::Control* attached_control_;
 
-  controls::Popup popup_;
+  controls::Window* popup_;
   Menu menu_;
 };
 }  // namespace cru::ui::components

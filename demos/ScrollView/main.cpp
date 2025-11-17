@@ -80,7 +80,7 @@ The cold never bothered me anyway)",
 
   scroll_view.SetChild(text_block.get());
 
-  window.GetWindowHost()->GetNativeWindow()->SetVisibility(
+  window.GetNativeWindow()->SetVisibility(
       cru::platform::gui::WindowVisibilityType::Show);
 
   return application->Run();

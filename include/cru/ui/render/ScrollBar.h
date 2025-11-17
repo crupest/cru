@@ -5,11 +5,9 @@
 #include "cru/platform/graphics/Brush.h"
 #include "cru/platform/graphics/Geometry.h"
 #include "cru/platform/graphics/Painter.h"
-#include "cru/platform/gui/Cursor.h"
 #include "cru/platform/gui/UiApplication.h"
 #include "cru/ui/Base.h"
 #include "cru/ui/controls/Control.h"
-#include "cru/ui/helper/ClickDetector.h"
 
 #include <memory>
 #include <optional>
@@ -38,8 +36,8 @@ enum class ScrollBarAreaKind {
 enum class ScrollBarBrushUsageKind { Arrow, ArrowBackground, Slot, Thumb };
 enum class ScrollBarBrushStateKind { Normal, Hover, Press, Disable };
 
-std::string CRU_UI_API GenerateScrollBarThemeColorKey(ScrollBarBrushUsageKind usage,
-                                                 ScrollBarBrushStateKind state);
+std::string CRU_UI_API GenerateScrollBarThemeColorKey(
+    ScrollBarBrushUsageKind usage, ScrollBarBrushStateKind state);
 
 class CRU_UI_API ScrollBar : public Object {
  public:
@@ -139,7 +137,7 @@ class CRU_UI_API ScrollBar : public Object {
 
   Event<Scroll> scroll_attempt_event_;
 
-  bool cursor_overrided_ = false;
+  bool cursor_overridden_ = false;
 
   platform::gui::TimerAutoCanceler auto_collapse_timer_canceler_;
 };

@@ -15,8 +15,6 @@ add_library(CruUi
 	controls/FlexLayout.cpp
 	controls/IconButton.cpp
 	controls/NoChildControl.cpp
-	controls/Popup.cpp
-	controls/RootControl.cpp
 	controls/ScrollView.cpp
 	controls/StackLayout.cpp
 	controls/TextBlock.cpp
@@ -30,8 +28,6 @@ add_library(CruUi
 	events/MouseEventArgs.cpp
 	helper/ClickDetector.cpp
 	helper/ShortcutHub.cpp
-	host/LayoutPaintCycler.cpp
-	host/WindowHost.cpp
 	mapper/BorderStyleMapper.cpp
 	mapper/BrushMapper.cpp
 	mapper/ColorMapper.cpp

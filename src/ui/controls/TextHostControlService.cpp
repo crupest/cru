@@ -13,8 +13,8 @@
 #include "cru/ui/Base.h"
 #include "cru/ui/DebugFlags.h"
 #include "cru/ui/components/Menu.h"
+#include "cru/ui/controls/Window.h"
 #include "cru/ui/helper/ShortcutHub.h"
-#include "cru/ui/host/WindowHost.h"
 #include "cru/ui/render/ScrollRenderObject.h"
 #include "cru/ui/render/TextRenderObject.h"
 
@@ -293,9 +293,9 @@ void TextHostControlService::DeleteText(TextRange range,
 
 platform::gui::IInputMethodContext*
 TextHostControlService ::GetInputMethodContext() {
-  host::WindowHost* host = this->control_->GetWindowHost();
-  if (!host) return nullptr;
-  platform::gui::INativeWindow* native_window = host->GetNativeWindow();
+  Window* window = this->control_->GetWindow();
+  if (!window) return nullptr;
+  platform::gui::INativeWindow* native_window = window->GetNativeWindow();
   if (!native_window) return nullptr;
   return native_window->GetInputMethodContext();
 }
@@ -340,12 +340,13 @@ void TextHostControlService::SetCaretBlinkDuration(int milliseconds) {
 
 void TextHostControlService::ScrollToCaret() {
   if (const auto scroll_render_object = this->GetScrollRenderObject()) {
-    auto window_host = this->control_->GetWindowHost();
-    if (window_host)
-      window_host->RunAfterLayoutStable([this, scroll_render_object]() {
-        const auto caret_rect = this->GetTextRenderObject()->GetCaretRect();
-        scroll_render_object->ScrollToContain(caret_rect, Thickness{5.f});
-      });
+    scroll_to_caret_timer_canceler_.Reset(
+        platform::gui::IUiApplication::GetInstance()->SetImmediate(
+            [this, scroll_render_object] {
+              const auto caret_rect =
+                  this->GetTextRenderObject()->GetCaretRect();
+              scroll_render_object->ScrollToContain(caret_rect, Thickness{5.f});
+            }));
   }
 }
 
@@ -587,10 +588,10 @@ void TextHostControlService::GainFocusHandler(
               this->ReplaceSelectedText(text);
             });
 
-    host::WindowHost* window_host = control_->GetWindowHost();
-    if (window_host)
+    auto window = control_->GetWindow();
+    if (window)
       input_method_context_event_guard_ +=
-          window_host->AfterLayoutEvent()->AddHandler(
+          window->AfterLayoutEvent()->AddHandler(
               [this](auto) { this->UpdateInputMethodPosition(); });
     SetCaretVisible(true);
   }
@@ -700,7 +701,9 @@ void TextHostControlService::SetUpShortcuts() {
 void TextHostControlService::OpenContextMenu(const Point& position,
                                              ContextMenuItem items) {
   CRU_LOG_TAG_DEBUG("Open context menu.");
-  context_menu_.reset(new components::PopupMenu());
+  if (!context_menu_) {
+    context_menu_.reset(new components::PopupMenu());
+  }
   auto menu = context_menu_->GetMenu();
   menu->ClearItems();
   if (items & ContextMenuItem::kSelectAll) {

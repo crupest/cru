@@ -4,7 +4,6 @@
 #include "cru/ui/components/Menu.h"
 #include "cru/ui/controls/Button.h"
 #include "cru/ui/controls/IconButton.h"
-#include "cru/ui/controls/Popup.h"
 #include "cru/ui/controls/TextBlock.h"
 
 namespace cru::ui::components {

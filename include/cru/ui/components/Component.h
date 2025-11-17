@@ -10,9 +10,6 @@ namespace cru::ui::components {
  */
 class CRU_UI_API Component : public Object, public DeleteLaterImpl {
  public:
-  Component() = default;
-  ~Component() = default;
-
   virtual controls::Control* GetRootControl() = 0;
 
   bool IsDeleteByParent() const { return delete_by_parent_; }
@@ -20,9 +17,6 @@ class CRU_UI_API Component : public Object, public DeleteLaterImpl {
     delete_by_parent_ = delete_by_parent;
   }
   void DeleteIfDeleteByParent(bool delete_later = true);
-
- protected:
-  void OnPrepareDelete() override;
 
  private:
   bool delete_by_parent_ = false;

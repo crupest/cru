@@ -13,9 +13,6 @@ class CRU_UI_API DeleteLaterImpl {
   virtual ~DeleteLaterImpl();
   void DeleteLater();
 
- protected:
-  virtual void OnPrepareDelete();
-
  private:
   bool delete_later_scheduled_;
 };

@@ -1,9 +1,7 @@
 #include "cru/platform/bootstrap/Bootstrap.h"
-#include "cru/platform/gui/Base.h"
 #include "cru/platform/gui/UiApplication.h"
 #include "cru/platform/gui/Window.h"
 #include "cru/ui/Base.h"
-#include "cru/ui/components/Menu.h"
 #include "cru/ui/components/PopupButton.h"
 #include "cru/ui/components/Select.h"
 #include "cru/ui/controls/Button.h"
@@ -11,8 +9,6 @@
 #include "cru/ui/controls/TextBlock.h"
 #include "cru/ui/controls/TextBox.h"
 #include "cru/ui/controls/Window.h"
-#include "cru/ui/events/UiEvents.h"
-#include "cru/ui/host/WindowHost.h"
 
 using cru::platform::gui::IUiApplication;
 using namespace cru::ui::controls;
@@ -66,7 +62,7 @@ int main() {
   select.SetItems({"Item 1", "Item 2", "Item 3"});
   flex_layout.AddChild(select.GetRootControl());
 
-  window.GetWindowHost()->GetNativeWindow()->SetVisibility(
+  window.GetNativeWindow()->SetVisibility(
       cru::platform::gui::WindowVisibilityType::Show);
 
   return application->Run();

@@ -1,6 +1,5 @@
 #include "cru/ui/components/PopupButton.h"
 #include "cru/ui/components/Menu.h"
-#include "cru/ui/controls/Popup.h"
 #include "cru/ui/helper/ClickDetector.h"
 
 namespace cru::ui::components {

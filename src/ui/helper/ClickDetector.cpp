@@ -3,16 +3,14 @@
 #include "cru/base/log/Logger.h"
 #include "cru/ui/DebugFlags.h"
 #include "cru/ui/controls/Control.h"
-#include "cru/ui/host/WindowHost.h"
-
-#include <string>
+#include "cru/ui/controls/Window.h"
 
 namespace cru::ui::helper {
 Point ClickEventArgs::GetDownPointOfScreen() const {
-  auto window_host = sender_->GetWindowHost();
-  if (window_host != nullptr) {
-    auto window = window_host->GetNativeWindow();
-    return down_point_ + window->GetClientRect().GetLeftTop();
+  auto window = sender_->GetWindow();
+  if (window != nullptr) {
+    return down_point_ +
+           window->GetNativeWindow()->GetClientRect().GetLeftTop();
   } else {
     return down_point_;
   }

@@ -35,11 +35,8 @@ namespace colors = cru::platform::colors;
 
 namespace controls {
 class Control;
+class Window;
 }  // namespace controls
-
-namespace host {
-class WindowHost;
-}
 
 //-------------------- region: basic types --------------------
 enum class Direction { Horizontal, Vertical };
@@ -67,21 +64,12 @@ struct CornerRadius {
     return *this;
   }
 
+  bool operator==(const CornerRadius& other) const = default;
+
   Point left_top;
   Point right_top;
   Point left_bottom;
   Point right_bottom;
 };
-
-inline bool operator==(const CornerRadius& left, const CornerRadius& right) {
-  return left.left_top == right.left_top &&
-         left.left_bottom == right.left_bottom &&
-         left.right_top == right.right_top &&
-         left.right_bottom == right.right_bottom;
-}
-
-inline bool operator!=(const CornerRadius& left, const CornerRadius& right) {
-  return !(left == right);
-}
 
 }  // namespace cru::ui

@@ -128,6 +128,13 @@ class Event : public EventBase, public IEvent<TEventArgs> {
   EventHandlerToken current_token_ = 0;
 };
 
+#define CRU_DEFINE_EVENT(name, arg_type) \
+ private:                                \
+  ::cru::Event<arg_type> name##Event_;   \
+                                         \
+ public:                                 \
+  ::cru::IEvent<arg_type>* name##Event() { return &name##Event_; }
+
 namespace details {
 struct EventHandlerRevokerDestroyer {
   void operator()(EventHandlerRevoker* p) {

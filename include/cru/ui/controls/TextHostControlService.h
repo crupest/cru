@@ -201,6 +201,8 @@ class CRU_UI_API TextHostControlService : public Object {
   platform::gui::TimerAutoCanceler caret_timer_canceler_;
   int caret_blink_duration_ = k_default_caret_blink_duration;
 
+  platform::gui::TimerAutoCanceler scroll_to_caret_timer_canceler_;
+
   helper::ShortcutHub shortcut_hub_;
 
   // true if left mouse is down and selecting

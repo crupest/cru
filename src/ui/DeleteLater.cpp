@@ -20,6 +20,4 @@ void DeleteLaterImpl::DeleteLater() {
     delete_later_scheduled_ = true;
   }
 }
-
-void DeleteLaterImpl::OnPrepareDelete() {}
 }  // namespace cru::ui

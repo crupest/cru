@@ -4,10 +4,9 @@
 #include "cru/ui/controls/Button.h"
 #include "cru/ui/controls/Control.h"
 #include "cru/ui/controls/FlexLayout.h"
-#include "cru/ui/controls/Popup.h"
 #include "cru/ui/controls/TextBlock.h"
+#include "cru/ui/controls/Window.h"
 #include "cru/ui/helper/ClickDetector.h"
-#include "cru/ui/host/WindowHost.h"
 #include "cru/ui/style/StyleRuleSet.h"
 
 namespace cru::ui::components {
@@ -22,8 +21,6 @@ MenuItem::MenuItem() {
 
 MenuItem::MenuItem(std::string text) : MenuItem() { SetText(std::move(text)); }
 
-MenuItem::~MenuItem() {}
-
 void MenuItem::SetText(std::string text) { text_.SetText(std::move(text)); }
 
 Menu::Menu() {
@@ -33,7 +30,7 @@ Menu::Menu() {
 
 Menu::~Menu() {
   for (auto item : items_) {
-    item->DeleteIfDeleteByParent(false);
+    item->DeleteIfDeleteByParent();
   }
 }
 
@@ -78,27 +75,29 @@ void Menu::AddTextItemAt(std::string text, Index index,
 }
 
 PopupMenu::PopupMenu(controls::Control* attached_control)
-    : attached_control_(attached_control), popup_(attached_control) {
-  menu_.SetOnItemClick([this](Index) { popup_.GetNativeWindow()->Close(); });
-  popup_.AddChildAt(menu_.GetRootControl(), 0);
+    : attached_control_(attached_control) {
+  menu_.SetOnItemClick([this](Index) { popup_->GetNativeWindow()->Close(); });
+  popup_ = controls::Window::CreatePopup();
+  popup_->SetAttachedControl(attached_control);
+  popup_->AddChildAt(menu_.GetRootControl(), 0);
 }
 
-PopupMenu::~PopupMenu() {}
+PopupMenu::~PopupMenu() { delete popup_; }
 
-controls::Control* PopupMenu::GetRootControl() { return &popup_; }
+controls::Control* PopupMenu::GetRootControl() { return popup_; }
 
 void PopupMenu::SetPosition(const Point& position) {
-  auto window = popup_.GetWindowHost()->GetNativeWindow();
+  auto window = popup_->GetNativeWindow();
   window->SetClientRect(Rect{position, window->GetClientSize()});
 }
 
 void PopupMenu::Show() {
-  auto native_window = popup_.GetWindowHost()->GetNativeWindow();
+  auto native_window = popup_->GetNativeWindow();
   native_window->SetVisibility(platform::gui::WindowVisibilityType::Show);
-  popup_.GetWindowHost()->RelayoutWithSize(Size::Infinite(), true);
+  popup_->RelayoutWithSize(Size::Infinite(), true);
   native_window->RequestFocus();
   native_window->SetToForeground();
 }
 
-void PopupMenu::Close() { popup_.GetWindowHost()->GetNativeWindow()->Close(); }
+void PopupMenu::Close() { popup_->GetNativeWindow()->Close(); }
 }  // namespace cru::ui::components
