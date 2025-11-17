@@ -248,7 +248,7 @@ void WinNativeWindow::SetCursor(std::shared_ptr<ICursor> cursor) {
 
   cursor_ = CheckPlatform<WinCursor>(cursor, GetPlatformId());
 
-  if (hwnd_) return;
+  if (!hwnd_) return;
 
   if (!::SetClassLongPtrW(hwnd_, GCLP_HCURSOR,
                           reinterpret_cast<LONG_PTR>(cursor_->GetHandle()))) {
