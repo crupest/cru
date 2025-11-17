@@ -13,7 +13,7 @@
 #include "cru/ui/Base.h"
 #include "cru/ui/DebugFlags.h"
 #include "cru/ui/components/Menu.h"
-#include "cru/ui/controls/Window.h"
+#include "cru/ui/controls/ControlHost.h"
 #include "cru/ui/helper/ShortcutHub.h"
 #include "cru/ui/render/ScrollRenderObject.h"
 #include "cru/ui/render/TextRenderObject.h"
@@ -293,9 +293,9 @@ void TextHostControlService::DeleteText(TextRange range,
 
 platform::gui::IInputMethodContext*
 TextHostControlService ::GetInputMethodContext() {
-  Window* window = this->control_->GetWindow();
-  if (!window) return nullptr;
-  platform::gui::INativeWindow* native_window = window->GetNativeWindow();
+  auto host = this->control_->GetControlHost();
+  if (!host) return nullptr;
+  platform::gui::INativeWindow* native_window = host->GetNativeWindow();
   if (!native_window) return nullptr;
   return native_window->GetInputMethodContext();
 }
@@ -588,11 +588,10 @@ void TextHostControlService::GainFocusHandler(
               this->ReplaceSelectedText(text);
             });
 
-    auto window = control_->GetWindow();
-    if (window)
-      input_method_context_event_guard_ +=
-          window->AfterLayoutEvent()->AddHandler(
-              [this](auto) { this->UpdateInputMethodPosition(); });
+    auto host = control_->GetControlHost();
+    if (host)
+      input_method_context_event_guard_ += host->AfterLayoutEvent()->AddHandler(
+          [this](auto) { this->UpdateInputMethodPosition(); });
     SetCaretVisible(true);
   }
 }

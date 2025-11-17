@@ -79,7 +79,6 @@ WinNativeWindow::~WinNativeWindow() {
 
 void WinNativeWindow::Close() {
   if (hwnd_) ::DestroyWindow(hwnd_);
-  application_->UnregisterWindow(this);
 }
 
 void WinNativeWindow::SetParent(INativeWindow* parent) {

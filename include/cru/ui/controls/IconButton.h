@@ -1,18 +1,17 @@
 #pragma once
-#include <memory>
-#include "NoChildControl.h"
-
 #include "../helper/ClickDetector.h"
 #include "../render/BorderRenderObject.h"
 #include "../render/GeometryRenderObject.h"
+#include "Control.h"
 #include "IBorderControl.h"
 #include "IClickableControl.h"
 #include "IContentBrushControl.h"
-#include "cru/base/Event.h"
-#include "cru/platform/graphics/Brush.h"
+
+#include <cru/base/Event.h>
+#include <cru/platform/graphics/Brush.h>
 
 namespace cru::ui::controls {
-class CRU_UI_API IconButton : public NoChildControl,
+class CRU_UI_API IconButton : public Control,
                               public virtual IClickableControl,
                               public virtual IBorderControl,
                               public virtual IContentBrushControl {

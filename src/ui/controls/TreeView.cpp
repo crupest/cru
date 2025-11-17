@@ -9,7 +9,7 @@ TreeViewItem::TreeViewItem(TreeView* tree_view, TreeViewItem* parent,
 
 TreeViewItem::~TreeViewItem() {
   if (control_) {
-    control_->SetParent(nullptr);
+    tree_view_->RemoveChild(control_);
   }
 
   for (auto item : children_) {
@@ -46,12 +46,12 @@ void TreeViewItem::RemoveItem(Index position) {
 
 void TreeViewItem::SetControl(Control* control) {
   if (control_) {
-    control_->SetParent(nullptr);
+    tree_view_->RemoveChild(control);
     render_object_item_->SetRenderObject(nullptr);
   }
   control_ = control;
   if (control) {
-    control->SetParent(tree_view_);
+    tree_view_->AddChild(tree_view_);
     render_object_item_->SetRenderObject(control->GetRenderObject());
   }
 }
@@ -69,18 +69,10 @@ TreeView::TreeView()
 
 TreeView::~TreeView() {}
 
-void TreeView::ForEachChild(const std::function<void(Control*)>& predicate) {
-  root_item_.TraverseDescendants([&predicate](TreeViewItem* item) {
-    if (auto control = item->GetControl()) {
-      predicate(control);
-    }
-  });
-}
-
-void TreeView::RemoveChild(Control* control) {
-  root_item_.TraverseDescendants([&control](TreeViewItem* item) {
+void TreeView::OnChildRemoved(Control* control, Index index) {
+  root_item_.TraverseDescendants([control](TreeViewItem* item) {
     if (item->GetControl() == control) {
-      item->SetControl(nullptr);
+      item->RemoveFromParent();
     }
   });
 }

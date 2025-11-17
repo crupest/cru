@@ -1,7 +1,7 @@
 #include "cru/ui/events/MouseEventArgs.h"
 
 #include "cru/ui/controls/Control.h"
-#include "cru/ui/controls/Window.h"
+#include "cru/ui/controls/ControlHost.h"
 #include "cru/ui/render/RenderObject.h"
 
 namespace cru::ui::events {
@@ -17,9 +17,8 @@ Point MouseEventArgs::GetPointToContent(
 Point MouseEventArgs::GetPointOfScreen() const {
   auto sender = GetSender();
   if (auto control = dynamic_cast<controls::Control*>(sender)) {
-    if (auto window = control->GetWindow())
-      return GetPoint() +
-             window->GetNativeWindow()->GetClientRect().GetLeftTop();
+    if (auto host = control->GetControlHost())
+      return GetPoint() + host->GetNativeWindow()->GetClientRect().GetLeftTop();
   }
   return GetPoint();
 }

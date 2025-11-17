@@ -3,6 +3,7 @@
 #include "cru/ui/ThemeManager.h"
 #include "cru/ui/controls/Button.h"
 #include "cru/ui/controls/Control.h"
+#include "cru/ui/controls/ControlHost.h"
 #include "cru/ui/controls/FlexLayout.h"
 #include "cru/ui/controls/TextBlock.h"
 #include "cru/ui/controls/Window.h"
@@ -38,7 +39,7 @@ void Menu::AddItemAt(Component* item, Index index) {
   Expects(index >= 0 && index <= GetItemCount());
 
   items_.insert(items_.cbegin() + index, item);
-  container_.AddChildAt(item->GetRootControl(), index);
+  container_.InsertChildAt(item->GetRootControl(), index);
 }
 
 Component* Menu::RemoveItemAt(Index index) {
@@ -53,7 +54,7 @@ Component* Menu::RemoveItemAt(Index index) {
 }
 
 void Menu::ClearItems() {
-  container_.ClearChildren();
+  container_.RemoveAllChild();
 
   for (auto item : items_) {
     item->DeleteIfDeleteByParent();
@@ -79,7 +80,7 @@ PopupMenu::PopupMenu(controls::Control* attached_control)
   menu_.SetOnItemClick([this](Index) { popup_->GetNativeWindow()->Close(); });
   popup_ = controls::Window::CreatePopup();
   popup_->SetAttachedControl(attached_control);
-  popup_->AddChildAt(menu_.GetRootControl(), 0);
+  popup_->InsertChildAt(menu_.GetRootControl(), 0);
 }
 
 PopupMenu::~PopupMenu() { delete popup_; }
@@ -94,7 +95,7 @@ void PopupMenu::SetPosition(const Point& position) {
 void PopupMenu::Show() {
   auto native_window = popup_->GetNativeWindow();
   native_window->SetVisibility(platform::gui::WindowVisibilityType::Show);
-  popup_->RelayoutWithSize(Size::Infinite(), true);
+  popup_->GetControlHost()->RelayoutWithSize(Size::Infinite(), true);
   native_window->RequestFocus();
   native_window->SetToForeground();
 }

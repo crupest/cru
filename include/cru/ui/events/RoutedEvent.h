@@ -8,7 +8,7 @@ namespace cru::ui::events {
 // EventArgs must be reference because the IsHandled property must be settable.
 template <typename TEventArgs>
 class CRU_UI_API RoutedEvent {
-  friend controls::Window;
+  friend controls::ControlHost;
 
  public:
   static_assert(std::is_base_of_v<UiEventArgs, TEventArgs>,

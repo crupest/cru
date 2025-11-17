@@ -65,7 +65,8 @@ CompoundStylerEditor::CompoundStylerEditor() {
     if (editor) {
       ConnectChangeEvent(editor.get());
       editor->RemoveEvent()->AddSpyOnlyHandler([this, c = editor.get()] {
-        auto index = this->children_container_.IndexOf(c->GetRootControl());
+        auto index =
+            this->children_container_.IndexOfChild(c->GetRootControl());
         this->children_.erase(this->children_.begin() + index);
         this->children_container_.RemoveChildAt(index);
         RaiseChangeEvent();
@@ -94,7 +95,7 @@ void CompoundStylerEditor::SetValue(ui::style::CompoundStyler* value,
     auto editor = CreateStylerEditor(styler.get());
     ConnectChangeEvent(editor.get());
     editor->RemoveEvent()->AddSpyOnlyHandler([this, c = editor.get()] {
-      auto index = this->children_container_.IndexOf(c->GetRootControl());
+      auto index = this->children_container_.IndexOfChild(c->GetRootControl());
       this->children_.erase(this->children_.begin() + index);
       this->children_container_.RemoveChildAt(index);
       RaiseChangeEvent();

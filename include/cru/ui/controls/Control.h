@@ -24,9 +24,9 @@ namespace cru::ui::controls {
 class CRU_UI_API Control : public Object,
                            public DeleteLaterImpl,
                            public SelfResolvable<Control> {
-  friend class RootControl;
+  friend class ControlHost;
 
-  CRU_DEFINE_CLASS_LOG_TAG("Control")
+  CRU_DEFINE_CLASS_LOG_TAG("cru::ui::controls::Control")
 
  protected:
   Control();
@@ -41,23 +41,32 @@ class CRU_UI_API Control : public Object,
 
   //*************** region: tree ***************
  public:
-  Window* GetWindow();
+  ControlHost* GetControlHost();
 
-  Control* GetParent() const { return parent_; }
-  void SetParent(Control* parent);
+  Control* GetParent();
   bool HasAncestor(Control* control);
-
-  virtual void ForEachChild(const std::function<void(Control*)>& predicate) = 0;
-
-  /**
-   *  \remarks This method should be permissive, which means if the specified
-   * child control is not a real child of this then nothing will be done.
-   */
-  virtual void RemoveChild(Control* child) = 0;
-
+  const std::vector<Control*>& GetChildren();
+  void RemoveChild(Control* child);
+  void RemoveAllChild();
   void RemoveFromParent();
 
+  template <typename F>
+  void TraverseDescendents(F&& f, bool include_this) {
+    if (include_this) {
+      f(this);
+    }
+
+    for (auto child : GetChildren()) {
+      child->TraverseDescendents(std::forward<F>(f), true);
+    }
+  }
+
   controls::Control* HitTest(const Point& point);
+
+ protected:
+  void InsertChildAt(Control* control, Index index);
+  void RemoveChildAt(Index index);
+  void AddChild(Control* control);
 
  public:
   virtual render::RenderObject* GetRenderObject() const = 0;
@@ -89,7 +98,7 @@ class CRU_UI_API Control : public Object,
 
   //*************** region: mouse ***************
  public:
-  bool IsMouseOver() const { return is_mouse_over_; }
+  bool IsMouseOver();
 
   bool CaptureMouse();
 
@@ -137,12 +146,14 @@ class CRU_UI_API Control : public Object,
 
   //*************** region: tree ***************
  protected:
-  virtual void OnParentChanged(Control* old_parent, Control* new_parent) {}
+  virtual void OnParentChanged(Control* old_parent, Control* new_parent);
+  virtual void OnChildInserted(Control* control, Index index);
+  virtual void OnChildRemoved(Control* control, Index index);
 
  private:
+  ControlHost* host_ = nullptr;
   Control* parent_ = nullptr;
-
-  bool is_mouse_over_ = false;
+  std::vector<Control*> children_;
 
   std::shared_ptr<platform::gui::ICursor> cursor_ = nullptr;
 

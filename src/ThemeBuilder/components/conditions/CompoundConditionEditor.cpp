@@ -63,7 +63,8 @@ CompoundConditionEditor::CompoundConditionEditor() {
     if (editor) {
       ConnectChangeEvent(editor.get());
       editor->RemoveEvent()->AddSpyOnlyHandler([this, c = editor.get()] {
-        auto index = this->children_container_.IndexOf(c->GetRootControl());
+        auto index =
+            this->children_container_.IndexOfChild(c->GetRootControl());
         this->children_.erase(this->children_.begin() + index);
         this->children_container_.RemoveChildAt(index);
         RaiseChangeEvent();
@@ -88,13 +89,13 @@ CompoundConditionEditor::GetChildren() {
 
 void CompoundConditionEditor::SetChildren(
     std::vector<ClonePtr<ui::style::Condition>> children, bool trigger_change) {
-  children_container_.ClearChildren();
+  children_container_.RemoveAllChild();
   children_.clear();
   for (const auto& condition : children) {
     auto editor = CreateConditionEditor(condition.get());
     ConnectChangeEvent(editor.get());
     editor->RemoveEvent()->AddSpyOnlyHandler([this, c = editor.get()] {
-      auto index = this->children_container_.IndexOf(c->GetRootControl());
+      auto index = this->children_container_.IndexOfChild(c->GetRootControl());
       this->children_.erase(this->children_.begin() + index);
       this->children_container_.RemoveChildAt(index);
       RaiseChangeEvent();

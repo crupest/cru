@@ -10,25 +10,17 @@ class SingleChildControl : public Control {
   }
 
  public:
-  CRU_DELETE_COPY(SingleChildControl)
-  CRU_DELETE_MOVE(SingleChildControl)
+  Control* GetChild() {
+    return GetChildren().empty() ? nullptr : GetChildren().front();
+  }
 
-  ~SingleChildControl() override { SetChild(nullptr); }
-
-  Control* GetChild() const { return child_; }
   void SetChild(Control* child) {
-    if (child == child_) return;
-
-    assert(child == nullptr || child->GetParent() == nullptr);
-
-    if (child_) {
-      child_->SetParent(nullptr);
+    if (GetChild() == child) return;
+    if (!GetChildren().empty()) {
+      RemoveChildAt(0);
     }
-
-    child_ = child;
-
     if (child) {
-      child->SetParent(this);
+      InsertChildAt(child, 0);
     }
 
     container_render_object_->SetChild(
@@ -43,20 +35,7 @@ class SingleChildControl : public Control {
     return container_render_object_.get();
   }
 
-  void ForEachChild(const std::function<void(Control*)>& predicate) override {
-    if (child_) {
-      predicate(child_);
-    }
-  }
-
-  void RemoveChild(Control* child) override {
-    if (child_ == child) {
-      SetChild(nullptr);
-    }
-  }
-
  private:
-  Control* child_ = nullptr;
   std::unique_ptr<TRenderObject> container_render_object_;
 };
 }  // namespace cru::ui::controls

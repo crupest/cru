@@ -137,7 +137,7 @@ class CRU_UI_API RenderObject : public Object {
   virtual RenderObject* HitTest(const Point& point) = 0;
 
  public:
-  controls::Window* GetWindow();
+  controls::ControlHost* GetControlHost();
   void InvalidateLayout();
   void InvalidatePaint();
 

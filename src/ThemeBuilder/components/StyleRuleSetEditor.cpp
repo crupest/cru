@@ -80,7 +80,7 @@ void StyleRuleSetEditor::UpdateView(
               });
           style_rule_editors_.insert(style_rule_editors_.cbegin() + i,
                                      std::move(style_rule_editor));
-          rules_layout_.AddChildAt(style_rule_editors_.back()->GetRootControl(),
+          rules_layout_.InsertChildAt(style_rule_editors_.back()->GetRootControl(),
                                    i);
         }
         break;

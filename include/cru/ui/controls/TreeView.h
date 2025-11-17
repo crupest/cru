@@ -48,6 +48,11 @@ class CRU_UI_API TreeViewItem : public Object {
 };
 
 class CRU_UI_API TreeView : public Control {
+  friend TreeViewItem;
+
+ private:
+  using Control::AddChild;
+
  public:
   constexpr static std::string_view kControlType = "TreeView";
 
@@ -61,10 +66,10 @@ class CRU_UI_API TreeView : public Control {
   }
   render::TreeRenderObject* GetRenderObject() { return &render_object_; }
 
-  void ForEachChild(const std::function<void(Control*)>& predicate) override;
-  void RemoveChild(Control* control) override;
-
   TreeViewItem* GetRootItem() { return &root_item_; }
+
+ protected:
+  void OnChildRemoved(Control* control, Index index) override;
 
  private:
   render::TreeRenderObject render_object_;

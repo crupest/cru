@@ -16,10 +16,6 @@ class CRU_UI_API Button : public SingleChildControl<render::BorderRenderObject>,
 
  public:
   Button();
-  Button(const Button& other) = delete;
-  Button(Button&& other) = delete;
-  Button& operator=(const Button& other) = delete;
-  Button& operator=(Button&& other) = delete;
   ~Button() override;
 
   std::string GetControlType() const final { return std::string(kControlType); }

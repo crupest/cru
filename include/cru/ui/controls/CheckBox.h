@@ -1,13 +1,13 @@
 #pragma once
 #include "../helper/ClickDetector.h"
 #include "../render/BorderRenderObject.h"
+#include "Control.h"
 #include "IBorderControl.h"
 #include "ICheckableControl.h"
 #include "IClickableControl.h"
-#include "NoChildControl.h"
 
 namespace cru::ui::controls {
-class CRU_UI_API CheckBox : public NoChildControl,
+class CRU_UI_API CheckBox : public Control,
                             public virtual IBorderControl,
                             public virtual ICheckableControl,
                             public virtual IClickableControl {
@@ -17,7 +17,9 @@ class CRU_UI_API CheckBox : public NoChildControl,
   CheckBox();
   ~CheckBox() override;
 
-  std::string GetControlType() const override { return std::string(kControlType); }
+  std::string GetControlType() const override {
+    return std::string(kControlType);
+  }
 
   render::RenderObject* GetRenderObject() const override {
     return container_render_object_.get();

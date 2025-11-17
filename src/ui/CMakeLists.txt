@@ -12,9 +12,9 @@ add_library(CruUi
 	controls/CheckBox.cpp
 	controls/Container.cpp
 	controls/Control.cpp
+	controls/ControlHost.cpp
 	controls/FlexLayout.cpp
 	controls/IconButton.cpp
-	controls/NoChildControl.cpp
 	controls/ScrollView.cpp
 	controls/StackLayout.cpp
 	controls/TextBlock.cpp

@@ -4,7 +4,7 @@
 #include "cru/platform/GraphicsBase.h"
 #include "cru/ui/DebugFlags.h"
 #include "cru/ui/controls/Control.h"
-#include "cru/ui/controls/Window.h"
+#include "cru/ui/controls/ControlHost.h"
 
 namespace cru::ui::render {
 const BoxConstraint BoxConstraint::kNotLimit{Size::kMax, Size::kZero};
@@ -265,21 +265,21 @@ Rect RenderObject::GetContentRect() const {
   return rect;
 }
 
-controls::Window* RenderObject::GetWindow() {
+controls::ControlHost* RenderObject::GetControlHost() {
   if (control_) {
-    return control_->GetWindow();
+    return control_->GetControlHost();
   }
   return nullptr;
 }
 
 void RenderObject::InvalidateLayout() {
-  if (auto window = GetWindow()) {
-    window->InvalidateLayout();
+  if (auto host = GetControlHost()) {
+    host->InvalidateLayout();
   }
 }
 
 void RenderObject::InvalidatePaint() {
-  if (auto window = GetWindow()) {
+  if (auto window = GetControlHost()) {
     window->InvalidatePaint();
   }
 }

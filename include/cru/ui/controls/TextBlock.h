@@ -1,15 +1,15 @@
 #pragma once
-#include "NoChildControl.h"
-
+#include "Control.h"
 #include "../render/TextRenderObject.h"
 #include "IContentBrushControl.h"
 #include "IFontControl.h"
 #include "TextHostControlService.h"
-#include "cru/platform/graphics/Brush.h"
-#include "cru/platform/graphics/Font.h"
+
+#include <cru/platform/graphics/Brush.h>
+#include <cru/platform/graphics/Font.h>
 
 namespace cru::ui::controls {
-class CRU_UI_API TextBlock : public NoChildControl,
+class CRU_UI_API TextBlock : public Control,
                              public virtual ITextHostControl,
                              public virtual IFontControl,
                              public virtual IContentBrushControl {

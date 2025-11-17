@@ -35,7 +35,7 @@ namespace colors = cru::platform::colors;
 
 namespace controls {
 class Control;
-class Window;
+class ControlHost;
 }  // namespace controls
 
 //-------------------- region: basic types --------------------
