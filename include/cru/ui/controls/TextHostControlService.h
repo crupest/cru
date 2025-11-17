@@ -208,6 +208,6 @@ class CRU_UI_API TextHostControlService : public Object {
   // true if left mouse is down and selecting
   bool mouse_move_selecting_ = false;
 
-  DeleteLaterPtr<components::PopupMenu> context_menu_;
+  std::unique_ptr<components::PopupMenu> context_menu_;
 };
 }  // namespace cru::ui::controls

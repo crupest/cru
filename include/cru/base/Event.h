@@ -1,5 +1,6 @@
 #pragma once
 #include "Base.h"
+#include "SelfResolvable.h"
 
 #include <algorithm>
 #include <cassert>
@@ -11,7 +12,7 @@
 namespace cru {
 class EventHandlerRevoker;
 
-class EventBase : public Object {
+class EventBase : public Object, public SelfResolvable<EventBase> {
   friend EventHandlerRevoker;
 
  public:
@@ -34,23 +35,28 @@ class EventHandlerRevoker {
   friend EventBase;
 
  private:
-  EventHandlerRevoker(EventBase* event, EventBase::EventHandlerToken token)
-      : event_(event), token_(token) {}
+  EventHandlerRevoker(ObjectResolver<EventBase>&& resolver,
+                      EventBase::EventHandlerToken token)
+      : resolver_(std::move(resolver)), token_(token) {}
 
  public:
   /**
    * Revoke the registered handler. If the event has already been destroyed or
    * the handler is already revoked, nothing will be done.
    */
-  void operator()() const { event_->RemoveHandler(token_); }
+  void operator()() const {
+    if (const auto event = resolver_.Resolve()) {
+      event->RemoveHandler(token_);
+    }
+  }
 
  private:
-  EventBase* event_;
+  ObjectResolver<EventBase> resolver_;
   EventBase::EventHandlerToken token_;
 };
 
 inline EventHandlerRevoker EventBase::CreateRevoker(EventHandlerToken token) {
-  return EventHandlerRevoker(this, token);
+  return EventHandlerRevoker(CreateResolver(), token);
 }
 
 struct IBaseEvent : public virtual Interface {

@@ -53,13 +53,13 @@ Component* Menu::RemoveItemAt(Index index) {
 }
 
 void Menu::ClearItems() {
+  container_.ClearChildren();
+
   for (auto item : items_) {
     item->DeleteIfDeleteByParent();
   }
 
   items_.clear();
-
-  container_.ClearChildren();
 }
 
 void Menu::AddTextItemAt(std::string text, Index index,
