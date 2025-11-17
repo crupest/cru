@@ -138,8 +138,8 @@ void WinNativeWindow::SetVisibility(WindowVisibilityType visibility) {
 Size WinNativeWindow::GetClientSize() { return GetClientRect().GetSize(); }
 
 void WinNativeWindow::SetClientSize(const Size& size) {
-  CRU_LOG_TAG_INFO("{} set client size to {}.",
-                   static_cast<void*>(GetWindowHandle()), size);
+  CRU_LOG_TAG_DEBUG("{} set client size to {}.",
+                    static_cast<void*>(GetWindowHandle()), size);
 
   client_rect_.SetSize(size);
 
@@ -156,8 +156,8 @@ void WinNativeWindow::SetClientSize(const Size& size) {
 Rect WinNativeWindow::GetClientRect() { return client_rect_; }
 
 void WinNativeWindow::SetClientRect(const Rect& rect) {
-  CRU_LOG_TAG_INFO("{} set client rect to {}.",
-                   static_cast<void*>(GetWindowHandle()), rect);
+  CRU_LOG_TAG_DEBUG("{} set client rect to {}.",
+                    static_cast<void*>(GetWindowHandle()), rect);
 
   client_rect_ = rect;
 
@@ -185,8 +185,8 @@ Rect WinNativeWindow::GetWindowRect() {
 }
 
 void WinNativeWindow::SetWindowRect(const Rect& rect) {
-  CRU_LOG_TAG_INFO("{} set window rect to {}.",
-                   static_cast<void*>(GetWindowHandle()), rect);
+  CRU_LOG_TAG_DEBUG("{} set window rect to {}.",
+                    static_cast<void*>(GetWindowHandle()), rect);
 
   client_rect_ = CalcClientRectFromWindow(rect, style_flag_, dpi_);
 
