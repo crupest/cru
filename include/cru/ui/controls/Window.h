@@ -13,6 +13,8 @@ namespace cru::ui::controls {
 class CRU_UI_API Window
     : public LayoutControl<render::StackLayoutRenderObject> {
   CRU_DEFINE_CLASS_LOG_TAG("cru::ui::controls::Window")
+  friend Control;
+
  public:
   static constexpr std::string_view kControlType = "Window";
 
@@ -58,7 +60,6 @@ class CRU_UI_API Window
   void SetOverrideCursor(std::shared_ptr<platform::gui::ICursor> cursor);
 
   bool IsInEventHandling();
-  void UpdateCursor();
 
   CRU_DEFINE_EVENT(AfterLayout, std::nullptr_t)
 
@@ -104,7 +105,8 @@ class CRU_UI_API Window
     if (original_sender == nullptr || original_sender == last_receiver) return;
 
     std::string log = "Begin dispatching routed event " +
-                      (original_sender->*event_ptr)()->GetName() + ":\n\tTunnel:";
+                      (original_sender->*event_ptr)()->GetName() +
+                      ":\n\tTunnel:";
 
     Guard logging_guard([&] {
       log += "\nEnd dispatching routed event " +
@@ -112,11 +114,11 @@ class CRU_UI_API Window
       CRU_LOG_TAG_DEBUG("{}", log);
     });
 
-    std::vector<Control*> receive_list;
+    std::vector<ObjectResolver<Control>> receive_list;
 
     auto parent = original_sender;
     while (parent != last_receiver) {
-      receive_list.push_back(parent);
+      receive_list.push_back(parent->CreateResolver());
       parent = parent->GetParent();
     }
 
@@ -124,8 +126,12 @@ class CRU_UI_API Window
 
     // tunnel
     for (auto i = receive_list.crbegin(); i != receive_list.crend(); ++i) {
-      auto control = *i;
+      auto control = i->Resolve();
       log += " ";
+      if (!control) {
+        log += "(deleted)";
+        continue;
+      }
       log += control->GetDebugId();
       EventArgs event_args(control, original_sender,
                            std::forward<Args>(args)...);
@@ -140,8 +146,13 @@ class CRU_UI_API Window
     // bubble
     if (!handled) {
       log += "\n\tBubble:";
-      for (auto control : receive_list) {
+      for (auto resolver : receive_list) {
+        auto control = resolver.Resolve();
         log += " ";
+        if (!control) {
+          log += "(deleted)";
+          continue;
+        }
         log += control->GetDebugId();
         EventArgs event_args(control, original_sender,
                              std::forward<Args>(args)...);
@@ -155,14 +166,22 @@ class CRU_UI_API Window
 
     log += "\n\tDirect:";
     // direct
-    for (auto control : receive_list) {
+    for (auto resolver : receive_list) {
+      auto control = resolver.Resolve();
       log += " ";
+      if (!control) {
+        log += "(deleted)";
+        continue;
+      }
       log += control->GetDebugId();
       EventArgs event_args(control, original_sender,
                            std::forward<Args>(args)...);
       (control->*event_ptr)()->direct_.Raise(event_args);
     }
   }
+
+  void UpdateCursor();
+  void NotifyControlDestroyed(Control* control);
 
  private:
   int event_handling_count_;

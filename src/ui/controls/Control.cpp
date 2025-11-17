@@ -1,4 +1,5 @@
 #include "cru/ui/controls/Control.h"
+#include "cru/base/log/Logger.h"
 #include "cru/ui/controls/Window.h"
 
 #include "cru/platform/gui/Cursor.h"
@@ -27,11 +28,14 @@ Control::Control() {
 Control::~Control() {
   if (auto window = GetWindow()) {
     if (window->IsInEventHandling()) {
-      // Don't delete control during event handling. Use DeleteLater.
-      std::terminate();
+      CRU_LOG_TAG_WARN(
+          "Better use delete later to delete control during event handling.");
     }
   }
 
+  if (auto window = GetWindow()) {
+    window->NotifyControlDestroyed(this);
+  }
   RemoveFromParent();
 }
 
@@ -56,6 +60,15 @@ void Control::SetParent(Control* parent) {
   auto old_parent = parent_;
   parent_ = parent;
   OnParentChanged(old_parent, parent);
+}
+
+bool Control::HasAncestor(Control* control) {
+  auto parent = this;
+  while (parent) {
+    if (parent == control) return true;
+    parent = parent->GetParent();
+  }
+  return false;
 }
 
 void Control::RemoveFromParent() {

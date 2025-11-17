@@ -265,16 +265,6 @@ void Window::SetOverrideCursor(std::shared_ptr<platform::gui::ICursor> cursor) {
 
 bool Window::IsInEventHandling() { return event_handling_count_; }
 
-void Window::UpdateCursor() {
-  if (override_cursor_) {
-    native_window_->SetCursor(override_cursor_);
-  } else {
-    const auto capture = GetMouseCaptureControl();
-    native_window_->SetCursor(
-        (capture ? capture : GetMouseHoverControl())->GetInheritedCursor());
-  }
-}
-
 void Window::OnNativeDestroy(platform::gui::INativeWindow* window,
                              std::nullptr_t) {
   CRU_UNUSED(window)
@@ -428,4 +418,27 @@ void Window::DispatchMouseHoverControlChangeEvent(Control* old_control,
   }
 }
 
+void Window::UpdateCursor() {
+  if (override_cursor_) {
+    native_window_->SetCursor(override_cursor_);
+  } else {
+    const auto capture = GetMouseCaptureControl();
+    native_window_->SetCursor(
+        (capture ? capture : GetMouseHoverControl())->GetInheritedCursor());
+  }
+}
+
+void Window::NotifyControlDestroyed(Control* control) {
+  if (focus_control_->HasAncestor(control)) {
+    focus_control_ = control->GetParent();
+  }
+
+  if (mouse_captured_control_->HasAncestor(control)) {
+    mouse_captured_control_ = control->GetParent();
+  }
+
+  if (mouse_hover_control_->HasAncestor(control)) {
+    mouse_hover_control_ = control->GetParent();
+  }
+}
 }  // namespace cru::ui::controls

@@ -1,12 +1,14 @@
 #pragma once
 #include "../Base.h"
 #include "../DeleteLater.h"
+#include "../events/KeyEventArgs.h"
+#include "../events/MouseWheelEventArgs.h"
 #include "../events/UiEvents.h"
+#include "../render/MeasureRequirement.h"
 #include "../render/RenderObject.h"
 #include "../style/StyleRuleSet.h"
-#include "cru/ui/events/KeyEventArgs.h"
-#include "cru/ui/events/MouseWheelEventArgs.h"
-#include "cru/ui/render/MeasureRequirement.h"
+
+#include <cru/base/SelfResolvable.h>
 
 namespace cru::ui::controls {
 
@@ -19,7 +21,9 @@ namespace cru::ui::controls {
  *  - RemoveChild(Control* child)
  * The last two methods are totally for convenient control tree management.
  */
-class CRU_UI_API Control : public Object, public DeleteLaterImpl {
+class CRU_UI_API Control : public Object,
+                           public DeleteLaterImpl,
+                           public SelfResolvable<Control> {
   friend class RootControl;
 
   CRU_DEFINE_CLASS_LOG_TAG("Control")
@@ -41,6 +45,7 @@ class CRU_UI_API Control : public Object, public DeleteLaterImpl {
 
   Control* GetParent() const { return parent_; }
   void SetParent(Control* parent);
+  bool HasAncestor(Control* control);
 
   virtual void ForEachChild(const std::function<void(Control*)>& predicate) = 0;
 
