@@ -2,7 +2,6 @@
 #include "../render/TextRenderObject.h"
 #include "cru/platform/gui/InputMethod.h"
 #include "cru/platform/gui/UiApplication.h"
-#include "cru/ui/DeleteLater.h"
 #include "cru/ui/controls/Control.h"
 #include "cru/ui/helper/ShortcutHub.h"
 

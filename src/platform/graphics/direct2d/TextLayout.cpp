@@ -156,7 +156,7 @@ Rect DWriteTextLayout::TextSinglePoint(Index position, bool trailing) {
   CheckHResult(text_layout_->HitTestTextPosition(static_cast<UINT32>(position),
                                                  static_cast<BOOL>(trailing),
                                                  &left, &top, &metrics));
-  return Rect{left, top, 0, GetFont()->GetFontSize()};
+  return Rect{left, top, 0, metrics.height};
 }
 
 TextHitTestResult DWriteTextLayout::HitTest(const Point& point) {
