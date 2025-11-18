@@ -165,8 +165,7 @@ TextHitTestResult PangoTextLayout::HitTest(const Point& point) {
 
   if (result.trailing) {
     Index position_with_trailing;
-    string::Utf8NextCodePoint(text_.data(), text_.size(), result.position,
-                              &position_with_trailing);
+    string::Utf8NextCodePoint(text_, result.position, &position_with_trailing);
     result.position_with_trailing = position_with_trailing;
   } else {
     result.position_with_trailing = result.position;

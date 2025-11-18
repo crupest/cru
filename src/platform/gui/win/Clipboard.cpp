@@ -39,11 +39,11 @@ std::string WinClipboard::GetText() {
   ::GlobalUnlock(handle);
   ::CloseClipboard();
 
-  return string::ToUtf8(result);
+  return string::ToUtf8String(result);
 }
 
 void WinClipboard::SetText(std::string utf8_text) {
-  auto text = string::ToUtf16(utf8_text);
+  auto text = string::ToUtf16WString(utf8_text);
 
   if (!::OpenClipboard(nullptr)) {
     CRU_LOG_TAG_WARN("Failed to open clipboard.");

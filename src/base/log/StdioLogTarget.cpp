@@ -10,7 +10,7 @@ StdioLogTarget::~StdioLogTarget() {}
 
 void StdioLogTarget::Write(log::LogLevel level, std::string message) {
 #ifdef _WIN32
-  auto s = string::ToUtf16(message);
+  auto s = string::ToUtf16WString(message);
   if (level == log::LogLevel::Error) {
     std::wcerr << s << std::endl;
   } else {

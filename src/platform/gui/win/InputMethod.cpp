@@ -123,7 +123,7 @@ CompositionText GetCompositionInfo(HIMC imm_context) {
   // convert them into underlines and selection range respectively.
 
   auto utf16_text = GetString(imm_context);
-  auto text = string::ToUtf8(utf16_text);
+  auto text = string::ToUtf8String(utf16_text);
 
   int length = static_cast<int>(utf16_text.length());
   // Find out the range selected by the user.
@@ -134,23 +134,15 @@ CompositionText GetCompositionInfo(HIMC imm_context) {
   auto clauses = GetCompositionClauses(imm_context, target_start, target_end);
   for (auto& clause : clauses) {
     clause.start = string::Utf8IndexCodePointToCodeUnit(
-        text.data(), text.size(),
-        string::Utf16IndexCodeUnitToCodePoint(
-            reinterpret_cast<const char16_t*>(utf16_text.data()),
-            utf16_text.size(), clause.start));
+        text, string::Utf16IndexCodeUnitToCodePoint(utf16_text, clause.start));
     clause.end = string::Utf8IndexCodePointToCodeUnit(
-        text.data(), text.size(),
-        string::Utf16IndexCodeUnitToCodePoint(
-            reinterpret_cast<const char16_t*>(utf16_text.data()),
-            utf16_text.size(), clause.end));
+        text, string::Utf16IndexCodeUnitToCodePoint(utf16_text, clause.end));
   }
 
   int cursor = string::Utf8IndexCodePointToCodeUnit(
-      text.data(), text.size(),
-      string::Utf16IndexCodeUnitToCodePoint(
-          reinterpret_cast<const char16_t*>(utf16_text.data()),
-          utf16_text.size(),
-          ::ImmGetCompositionString(imm_context, GCS_CURSORPOS, NULL, 0)));
+      text, string::Utf16IndexCodeUnitToCodePoint(
+                utf16_text, ::ImmGetCompositionString(imm_context,
+                                                      GCS_CURSORPOS, NULL, 0)));
 
   return CompositionText{std::move(text), std::move(clauses),
                          TextRange{cursor}};
@@ -229,7 +221,9 @@ IEvent<std::nullptr_t>* WinInputMethodContext::CompositionEvent() {
   return &composition_event_;
 }
 
-IEvent<const std::string&>* WinInputMethodContext::TextEvent() { return &text_event_; }
+IEvent<const std::string&>* WinInputMethodContext::TextEvent() {
+  return &text_event_;
+}
 
 void WinInputMethodContext::OnWindowNativeMessage(
     WindowNativeMessageEventArgs& args) {
@@ -286,7 +280,7 @@ void WinInputMethodContext::OnWindowNativeMessage(
 std::string WinInputMethodContext::GetResultString() {
   auto himc = GetHIMC();
   auto result = win::GetResultString(himc.Get());
-  return string::ToUtf8(result);
+  return string::ToUtf8String(result);
 }
 
 AutoHIMC WinInputMethodContext::GetHIMC() {

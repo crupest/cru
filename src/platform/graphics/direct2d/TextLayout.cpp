@@ -13,7 +13,7 @@ DWriteTextLayout::DWriteTextLayout(DirectGraphicsFactory* factory,
   Expects(font);
   font_ = CheckPlatform<DWriteFont>(font, GetPlatformId());
 
-  utf16_text_ = string::ToUtf16(text_);
+  utf16_text_ = string::ToUtf16WString(text_);
   CheckHResult(factory->GetDWriteFactory()->CreateTextLayout(
       utf16_text_.c_str(), static_cast<UINT32>(utf16_text_.size()),
       font_->GetComInterface(), max_width_, max_height_, &text_layout_));
@@ -25,7 +25,7 @@ std::string DWriteTextLayout::GetText() { return text_; }
 
 void DWriteTextLayout::SetText(std::string new_text) {
   text_ = std::move(new_text);
-  utf16_text_ = string::ToUtf16(text_);
+  utf16_text_ = string::ToUtf16WString(text_);
   CheckHResult(GetDirectFactory()->GetDWriteFactory()->CreateTextLayout(
       utf16_text_.c_str(), static_cast<UINT32>(utf16_text_.size()),
       font_->GetComInterface(), max_width_, max_height_, &text_layout_));
@@ -108,15 +108,11 @@ std::vector<Rect> DWriteTextLayout::TextRangeRect(
   const auto text_range =
       Range::FromTwoSides(
           string::Utf16IndexCodePointToCodeUnit(
-              reinterpret_cast<const char16_t*>(utf16_text_.data()),
-              utf16_text_.size(),
-              string::Utf8IndexCodeUnitToCodePoint(text_.data(), text_.size(),
-                                                   text_range_arg.GetStart())),
+              utf16_text_, string::Utf8IndexCodeUnitToCodePoint(
+                               text_, text_range_arg.GetStart())),
           string::Utf16IndexCodePointToCodeUnit(
-              reinterpret_cast<const char16_t*>(utf16_text_.data()),
-              utf16_text_.size(),
-              string::Utf8IndexCodeUnitToCodePoint(text_.data(), text_.size(),
-                                                   text_range_arg.GetEnd())))
+              utf16_text_, string::Utf8IndexCodeUnitToCodePoint(
+                               text_, text_range_arg.GetEnd())))
           .Normalize();
 
   DWRITE_TEXT_METRICS text_metrics;
@@ -147,9 +143,7 @@ std::vector<Rect> DWriteTextLayout::TextRangeRect(
 
 Rect DWriteTextLayout::TextSinglePoint(Index position, bool trailing) {
   position = string::Utf16IndexCodePointToCodeUnit(
-      reinterpret_cast<const char16_t*>(utf16_text_.data()), utf16_text_.size(),
-      string::Utf8IndexCodeUnitToCodePoint(text_.data(), text_.size(),
-                                           position));
+      utf16_text_, string::Utf8IndexCodeUnitToCodePoint(text_, position));
   DWRITE_HIT_TEST_METRICS metrics;
   FLOAT left;
   FLOAT top;
@@ -169,10 +163,8 @@ TextHitTestResult DWriteTextLayout::HitTest(const Point& point) {
 
   TextHitTestResult result;
   result.position = string::Utf8IndexCodePointToCodeUnit(
-      text_.data(), text_.size(),
-      string::Utf16IndexCodeUnitToCodePoint(
-          reinterpret_cast<const char16_t*>(utf16_text_.data()),
-          utf16_text_.size(), metrics.textPosition));
+      text_,
+      string::Utf16IndexCodeUnitToCodePoint(utf16_text_, metrics.textPosition));
   result.trailing = trailing != 0;
 
   if (result.trailing) {

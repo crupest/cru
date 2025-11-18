@@ -11,7 +11,7 @@ class CRU_BASE_API StreamOperationNotSupportedException : public Exception {
   explicit StreamOperationNotSupportedException(std::string operation);
 
  public:
-  std::string GetOperationUtf8() const { return operation_; }
+  std::string GetOperation() const { return operation_; }
 
  public:
   static void CheckSeek(bool seekable);

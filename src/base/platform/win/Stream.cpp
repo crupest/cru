@@ -43,7 +43,7 @@ HANDLE OpenHandle(std::string_view path, OpenFileFlag flags) {
   IStream* stream;
 
   auto handle =
-      ::CreateFileW(cru::string::ToUtf16(path).c_str(), access, 0, nullptr,
+      ::CreateFileW(cru::string::ToUtf16WString(path).c_str(), access, 0, nullptr,
                     creation_disposition, FILE_ATTRIBUTE_NORMAL, nullptr);
 
   if (handle == INVALID_HANDLE_VALUE) {
@@ -163,7 +163,7 @@ IStream* OpenComStream(std::string_view path, OpenFileFlag flags) {
   IStream* stream;
 
   CheckHResult(SHCreateStreamOnFileEx(
-      cru::string::ToUtf16(path).c_str(), grfMode, FILE_ATTRIBUTE_NORMAL,
+      cru::string::ToUtf16WString(path).c_str(), grfMode, FILE_ATTRIBUTE_NORMAL,
       flags & io::OpenFileFlags::Create ? TRUE : FALSE, NULL, &stream));
 
   return stream;

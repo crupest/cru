@@ -404,7 +404,7 @@ Index Utf16IndexCodePointToCodeUnit(const Utf16CodeUnit* ptr, Index size,
 }
 
 #ifdef _WIN32
-std::wstring ToUtf16(std::string_view str) {
+std::wstring ToUtf16WString(std::string_view str) {
   Utf8CodePointIterator iter(str.data(),str.size());
   std::wstring result;
   for (auto c : iter) {
@@ -413,7 +413,7 @@ std::wstring ToUtf16(std::string_view str) {
   return result;
 }
 
-std::string ToUtf8(std::wstring_view str) {
+std::string ToUtf8String(std::wstring_view str) {
   Utf16CodePointIterator iter(reinterpret_cast<const char16_t*>( str.data()),str.size());
   std::string result;
   for (auto c : iter) {

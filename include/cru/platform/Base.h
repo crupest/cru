@@ -35,8 +35,8 @@ class CRU_PLATFORM_API PlatformNotMatchException : public PlatformException {
 
   ~PlatformNotMatchException() override;
 
-  std::string GetResourcePlatformUtf8() const { return resource_platform_; }
-  std::string GetTargetPlatformUtf8() const { return target_platform_; }
+  std::string GetResourcePlatform() const { return resource_platform_; }
+  std::string GetTargetPlatform() const { return target_platform_; }
 
  private:
   std::string resource_platform_;
@@ -62,8 +62,8 @@ class CRU_PLATFORM_API PlatformUnsupportedException : public PlatformException {
 
   ~PlatformUnsupportedException() override;
 
-  std::string GetPlatformUtf8() const { return platform_; }
-  std::string GetOperationUtf8() const { return operation_; }
+  std::string GetPlatform() const { return platform_; }
+  std::string GetOperation() const { return operation_; }
 
  private:
   std::string platform_;

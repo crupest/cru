@@ -3,9 +3,9 @@
 
 #include "CursorPrivate.h"
 #include "InputMethodPrivate.h"
-#include "cru/base/platform/osx/Base.h"
 #include "cru/base/Range.h"
 #include "cru/base/log/Logger.h"
+#include "cru/base/platform/osx/Base.h"
 #include "cru/platform/graphics/NullPainter.h"
 #include "cru/platform/graphics/quartz/Painter.h"
 #include "cru/platform/gui/Input.h"
@@ -384,9 +384,15 @@ IEvent<MouseEnterLeaveType>* OsxWindow::MouseEnterLeaveEvent() {
   return &p_->mouse_enter_leave_event_;
 }
 IEvent<const Point&>* OsxWindow::MouseMoveEvent() { return &p_->mouse_move_event_; }
-IEvent<const NativeMouseButtonEventArgs&>* OsxWindow::MouseDownEvent() { return &p_->mouse_down_event_; }
-IEvent<const NativeMouseButtonEventArgs&>* OsxWindow::MouseUpEvent() { return &p_->mouse_up_event_; }
-IEvent<const NativeMouseWheelEventArgs&>* OsxWindow::MouseWheelEvent() { return &p_->mouse_wheel_event_; }
+IEvent<const NativeMouseButtonEventArgs&>* OsxWindow::MouseDownEvent() {
+  return &p_->mouse_down_event_;
+}
+IEvent<const NativeMouseButtonEventArgs&>* OsxWindow::MouseUpEvent() {
+  return &p_->mouse_up_event_;
+}
+IEvent<const NativeMouseWheelEventArgs&>* OsxWindow::MouseWheelEvent() {
+  return &p_->mouse_wheel_event_;
+}
 IEvent<const NativeKeyEventArgs&>* OsxWindow::KeyDownEvent() { return &p_->key_down_event_; }
 IEvent<const NativeKeyEventArgs&>* OsxWindow::KeyUpEvent() { return &p_->key_up_event_; }
 
@@ -685,10 +691,9 @@ const std::unordered_set<KeyCode> input_context_handle_codes_when_has_text{
   cru::platform::gui::CompositionText composition_text;
   composition_text.text = FromCFStringRef((CFStringRef)[_input_context_text string]);
   composition_text.selection.position =
-      cru::string::Utf8IndexCodePointToCodeUnit(ss.data(), ss.size(), selectedRange.location);
+      cru::string::Utf8IndexCodePointToCodeUnit(ss, selectedRange.location);
   composition_text.selection.count =
-      cru::string::Utf8IndexCodePointToCodeUnit(ss.data(), ss.size(),
-                                                selectedRange.location + selectedRange.length) -
+      cru::string::Utf8IndexCodePointToCodeUnit(ss, selectedRange.location + selectedRange.length) -
       composition_text.selection.position;
   _input_context_p->SetCompositionText(composition_text);
   _input_context_p->RaiseCompositionEvent();

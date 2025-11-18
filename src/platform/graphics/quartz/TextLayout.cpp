@@ -238,28 +238,25 @@ TextHitTestResult OsxCTTextLayout::HitTest(const Point& point) {
       bool inside_text;
 
       if (pp.x < bounds.origin.x) {
-        po = cru::string::Utf8IndexCodePointToCodeUnit(
-            actual_text_.data(), actual_text_.size(), range.location);
+        po = cru::string::Utf8IndexCodePointToCodeUnit(actual_text_,
+                                                       range.location);
         inside_text = false;
       } else if (pp.x > bounds.origin.x + bounds.size.width) {
         po = cru::string::Utf8IndexCodePointToCodeUnit(
-            actual_text_.data(), actual_text_.size(),
-            range.location + range.length);
+            actual_text_, range.location + range.length);
         inside_text = false;
       } else {
         int position = CTLineGetStringIndexForPosition(
             line,
             CGPointMake(pp.x - line_origins_[i].x, pp.y - line_origins_[i].y));
 
-        po = cru::string::Utf8IndexCodePointToCodeUnit(
-            actual_text_.data(), actual_text_.size(), position);
+        po = cru::string::Utf8IndexCodePointToCodeUnit(actual_text_, position);
         inside_text = true;
       }
 
       if (po != 0 &&
           po == cru::string::Utf8IndexCodePointToCodeUnit(
-                    actual_text_.data(), actual_text_.size(),
-                    range.location + range.length) &&
+                    actual_text_, range.location + range.length) &&
           actual_text_[po - 1] == u'\n') {
         --po;
       }
@@ -405,13 +402,11 @@ CGRect OsxCTTextLayout::DoGetTextBoundsIncludingEmptyLines(
 
 std::vector<CGRect> OsxCTTextLayout::DoTextRangeRect(
     const TextRange& text_range) {
-  const auto r =
-      Range::FromTwoSides(
-          cru::string::Utf8IndexCodeUnitToCodePoint(
-              actual_text_.data(), actual_text_.size(), text_range.position),
-          cru::string::Utf8IndexCodeUnitToCodePoint(
-              actual_text_.data(), actual_text_.size(), text_range.GetEnd()))
-          .Normalize();
+  const auto r = Range::FromTwoSides(cru::string::Utf8IndexCodeUnitToCodePoint(
+                                         actual_text_, text_range.position),
+                                     cru::string::Utf8IndexCodeUnitToCodePoint(
+                                         actual_text_, text_range.GetEnd()))
+                     .Normalize();
 
   std::vector<CGRect> results;
 
@@ -443,8 +438,7 @@ CGRect OsxCTTextLayout::DoTextSinglePoint(Index position, bool trailing) {
 
   if (actual_text_.empty()) return CGRectMake(0, 0, 0, font_->GetFontSize());
 
-  position = cru::string::Utf8IndexCodeUnitToCodePoint(
-      actual_text_.data(), actual_text_.size(), position);
+  position = cru::string::Utf8IndexCodeUnitToCodePoint(actual_text_, position);
 
   for (int i = 0; i < line_count_; i++) {
     auto line = lines_[i];

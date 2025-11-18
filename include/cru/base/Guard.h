@@ -14,10 +14,10 @@ struct Guard {
   Guard() = default;
   explicit Guard(const ExitFunc& f) : on_exit(f) {}
   explicit Guard(ExitFunc&& f) : on_exit(std::move(f)) {}
-  Guard(const Guard&) = delete;
-  Guard(Guard&&) = default;
-  Guard& operator=(const Guard&) = delete;
-  Guard& operator=(Guard&&) = default;
+
+  CRU_DELETE_COPY(Guard)
+  CRU_DEFAULT_MOVE(Guard)
+
   ~Guard() {
     if (on_exit) {
       on_exit();

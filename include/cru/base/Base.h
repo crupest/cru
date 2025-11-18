@@ -121,7 +121,7 @@ class CRU_BASE_API Exception : public std::exception {
   ~Exception() override;
 
  public:
-  std::string GetUtf8Message() const { return this->message_; }
+  std::string GetMessage() const { return this->message_; }
 
   std::exception* GetInner() const noexcept { return inner_.get(); }
 

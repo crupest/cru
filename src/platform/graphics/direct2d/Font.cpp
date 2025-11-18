@@ -17,7 +17,7 @@ DWriteFont::DWriteFont(DirectGraphicsFactory* factory, std::string font_family,
         ::GetLastError(), "Failed to get locale when create dwrite font.");
 
   CheckHResult(factory->GetDWriteFactory()->CreateTextFormat(
-      string::ToUtf16(font_family_).c_str(), nullptr, DWRITE_FONT_WEIGHT_NORMAL,
+      string::ToUtf16WString(font_family_).c_str(), nullptr, DWRITE_FONT_WEIGHT_NORMAL,
       DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, font_size,
       buffer.data(), &text_format_));
 

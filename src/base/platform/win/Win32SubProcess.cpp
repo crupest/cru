@@ -8,7 +8,7 @@
 #include <string_view>
 
 namespace cru::platform::win {
-using cru::string::ToUtf16;
+using cru::string::ToUtf16WString;
 
 Win32SubProcessImpl::Win32SubProcessImpl() : exit_code_(0) {}
 
@@ -23,14 +23,14 @@ void Win32SubProcessImpl::PlatformCreateProcess(
                                            std::move(inner));
   };
 
-  auto app = ToUtf16(start_info.program);
+  auto app = ToUtf16WString(start_info.program);
   // TODO: Space and quoting problem.
   auto command_line =
-      app + L" " + ToUtf16(cru::string::Join(" ", start_info.arguments));
+      app + L" " + ToUtf16WString(cru::string::Join(" ", start_info.arguments));
 
   std::wstring env_str;
   for (const auto& [key, value] : start_info.environments) {
-    env_str += ToUtf16(key) + L"=" + ToUtf16(value) + L"\0";
+    env_str += ToUtf16WString(key) + L"=" + ToUtf16WString(value) + L"\0";
   }
   env_str += L"\0";
 

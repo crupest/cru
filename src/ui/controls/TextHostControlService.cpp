@@ -28,8 +28,7 @@ TextControlMovePattern TextControlMovePattern::kLeft(
     [](TextHostControlService* service, std::string_view text,
        Index current_position) {
       CRU_UNUSED(service)
-      Utf8PreviousCodePoint(text.data(), text.size(), current_position,
-                            &current_position);
+      Utf8PreviousCodePoint(text, current_position, &current_position);
       return current_position;
     });
 TextControlMovePattern TextControlMovePattern::kRight(
@@ -37,8 +36,7 @@ TextControlMovePattern TextControlMovePattern::kRight(
     [](TextHostControlService* service, std::string_view text,
        Index current_position) {
       CRU_UNUSED(service)
-      Utf8NextCodePoint(text.data(), text.size(), current_position,
-                        &current_position);
+      Utf8NextCodePoint(text, current_position, &current_position);
       return current_position;
     });
 TextControlMovePattern TextControlMovePattern::kCtrlLeft(
@@ -48,7 +46,7 @@ TextControlMovePattern TextControlMovePattern::kCtrlLeft(
     [](TextHostControlService* service, std::string_view text,
        Index current_position) {
       CRU_UNUSED(service)
-      return Utf8PreviousWord(text.data(), text.size(), current_position);
+      return Utf8PreviousWord(text, current_position);
     });
 TextControlMovePattern TextControlMovePattern::kCtrlRight(
     "Ctrl+Right(Next Word)",
@@ -57,7 +55,7 @@ TextControlMovePattern TextControlMovePattern::kCtrlRight(
     [](TextHostControlService* service, std::string_view text,
        Index current_position) {
       CRU_UNUSED(service)
-      return Utf8NextWord(text.data(), text.size(), current_position);
+      return Utf8NextWord(text, current_position);
     });
 TextControlMovePattern TextControlMovePattern::kUp(
     "Up", helper::ShortcutKeyBind(platform::gui::KeyCode::Up),
@@ -86,7 +84,7 @@ TextControlMovePattern TextControlMovePattern::kHome(
     [](TextHostControlService* service, std::string_view text,
        Index current_position) {
       CRU_UNUSED(service)
-      return Utf8BackwardUntil(text.data(), text.size(), current_position,
+      return Utf8BackwardUntil(text, current_position,
                                [](CodePoint c) { return c == u'\n'; });
     });
 TextControlMovePattern TextControlMovePattern::kEnd(
@@ -94,7 +92,7 @@ TextControlMovePattern TextControlMovePattern::kEnd(
     [](TextHostControlService* service, std::string_view text,
        Index current_position) {
       CRU_UNUSED(service)
-      return Utf8ForwardUntil(text.data(), text.size(), current_position,
+      return Utf8ForwardUntil(text, current_position,
                               [](CodePoint c) { return c == u'\n'; });
     });
 TextControlMovePattern TextControlMovePattern::kCtrlHome(
@@ -223,8 +221,7 @@ void TextHostControlService::SetText(std::string text, bool stop_composition) {
 
 void TextHostControlService::InsertText(Index position, std::string_view text,
                                         bool stop_composition) {
-  if (!Utf8IsValidInsertPosition(this->text_.data(), this->text_.size(),
-                                 position)) {
+  if (!Utf8IsValidInsertPosition(this->text_, position)) {
     CRU_LOG_TAG_ERROR("Invalid text insert position.");
     return;
   }
@@ -238,29 +235,26 @@ void TextHostControlService::InsertText(Index position, std::string_view text,
 }
 
 void TextHostControlService::DeleteChar(Index position, bool stop_composition) {
-  if (!Utf8IsValidInsertPosition(this->text_.data(), this->text_.size(),
-                                 position)) {
+  if (!Utf8IsValidInsertPosition(this->text_, position)) {
     CRU_LOG_TAG_ERROR("Invalid text delete position {}.", position);
     return;
   }
   if (position == static_cast<Index>(this->text_.size())) return;
   Index next;
-  Utf8NextCodePoint(this->text_.data(), this->text_.size(), position, &next);
+  Utf8NextCodePoint(this->text_, position, &next);
   this->DeleteText(TextRange::FromTwoSides(position, next), stop_composition);
 }
 
 // Return the position of deleted character.
 Index TextHostControlService::DeleteCharPrevious(Index position,
                                                  bool stop_composition) {
-  if (!Utf8IsValidInsertPosition(this->text_.data(), this->text_.size(),
-                                 position)) {
+  if (!Utf8IsValidInsertPosition(this->text_, position)) {
     CRU_LOG_TAG_ERROR("Invalid text delete position {}.", position);
     return 0;
   }
   if (position == 0) return 0;
   Index previous;
-  Utf8PreviousCodePoint(this->text_.data(), this->text_.size(), position,
-                        &previous);
+  Utf8PreviousCodePoint(this->text_, position, &previous);
   this->DeleteText(TextRange::FromTwoSides(previous, position),
                    stop_composition);
   return previous;
@@ -270,14 +264,12 @@ void TextHostControlService::DeleteText(TextRange range,
                                         bool stop_composition) {
   if (range.count == 0) return;
   range = range.Normalize();
-  if (!Utf8IsValidInsertPosition(this->text_.data(), this->text_.size(),
-                                 range.GetStart())) {
+  if (!Utf8IsValidInsertPosition(this->text_, range.GetStart())) {
     CRU_LOG_TAG_ERROR("Invalid text delete start position {}.",
                       range.GetStart());
     return;
   }
-  if (!Utf8IsValidInsertPosition(this->text_.data(), this->text_.size(),
-                                 range.GetEnd())) {
+  if (!Utf8IsValidInsertPosition(this->text_, range.GetEnd())) {
     CRU_LOG_TAG_ERROR("Invalid text delete end position {}.", range.GetEnd());
     return;
   }

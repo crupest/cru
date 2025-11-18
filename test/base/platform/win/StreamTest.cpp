@@ -16,7 +16,7 @@ TEST_CASE("StreamConvert FileStreamWork", "[stream]") {
           .native();
   _wmktemp(temp_file_path.data());
 
-  std::string path = string::ToUtf8(temp_file_path);
+  std::string path = string::ToUtf8String(temp_file_path);
 
   ComStream file(path, OpenFileFlags::Write | OpenFileFlags::Create);
   file.Write("abc", 3);
@@ -46,7 +46,7 @@ TEST_CASE("ComStream Work", "[stream]") {
           .native();
   _wmktemp(temp_file_path.data());
 
-  std::string path = string::ToUtf8(temp_file_path);
+  std::string path = string::ToUtf8String(temp_file_path);
 
   ComStream file(path, OpenFileFlags::Write | OpenFileFlags::Create);
   auto write_count = file.Write("abc", 3);
