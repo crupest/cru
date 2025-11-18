@@ -36,6 +36,8 @@ class OsxUiApplication : public OsxGuiResource, public virtual IUiApplication {
                         std::function<void()> action) override;
   void CancelTimer(long long id) override;
 
+  void DeleteLater(Object* object) override;
+
   std::vector<INativeWindow*> GetAllWindow() override;
 
   INativeWindow* CreateWindow() override;

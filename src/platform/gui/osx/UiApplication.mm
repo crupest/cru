@@ -1,9 +1,10 @@
 #include "cru/platform/gui/osx/UiApplication.h"
 
 #include "ClipboardPrivate.h"
-#include "cru/base/platform/osx/Base.h"
 #include "cru/base/log/Logger.h"
+#include "cru/base/platform/osx/Base.h"
 #include "cru/platform/graphics/quartz/Factory.h"
+#include "cru/platform/gui/UiApplication.h"
 #include "cru/platform/gui/osx/Clipboard.h"
 #include "cru/platform/gui/osx/Cursor.h"
 #include "cru/platform/gui/osx/Menu.h"
@@ -36,12 +37,7 @@ class OsxUiApplicationPrivate {
     app_delegate_ = [[CruAppDelegate alloc] init:this];
   }
 
-  CRU_DELETE_COPY(OsxUiApplicationPrivate)
-  CRU_DELETE_MOVE(OsxUiApplicationPrivate)
-
-  ~OsxUiApplicationPrivate() = default;
-
-  void CallQuitHandlers();
+  void OnQuit();
 
  private:
   OsxUiApplication* osx_ui_application_;
@@ -53,6 +49,9 @@ class OsxUiApplicationPrivate {
   std::unordered_map<long long, std::function<void()>> next_tick_;
   std::unordered_map<long long, NSTimer*> timers_;
 
+  DeleteLaterPool delete_later_pool_;
+  TimerAutoCanceler delete_later_schedule_canceler_;
+
   std::vector<OsxWindow*> windows_;
 
   std::unique_ptr<OsxCursorManager> cursor_manager_;
@@ -62,7 +61,8 @@ class OsxUiApplicationPrivate {
   std::unique_ptr<platform::graphics::quartz::QuartzGraphicsFactory> quartz_graphics_factory_;
 };
 
-void OsxUiApplicationPrivate::CallQuitHandlers() {
+void OsxUiApplicationPrivate::OnQuit() {
+  delete_later_pool_.Clean();
   for (const auto& handler : quit_handlers_) {
     handler();
   }
@@ -150,6 +150,12 @@ void OsxUiApplication::CancelTimer(long long id) {
   }
 }
 
+void OsxUiApplication::DeleteLater(Object* object) {
+  p_->delete_later_pool_.Add(object);
+  p_->delete_later_schedule_canceler_.Reset(
+      SetImmediate([this] { p_->delete_later_pool_.Clean(); }));
+}
+
 std::vector<INativeWindow*> OsxUiApplication::GetAllWindow() {
   std::vector<INativeWindow*> result;
   std::transform(p_->windows_.cbegin(), p_->windows_.cend(), std::back_inserter(result),
@@ -197,7 +203,8 @@ std::optional<std::string> OsxUiApplication::ShowSaveDialog(SaveDialogOptions op
   }
 }
 
-std::optional<std::vector<std::string>> OsxUiApplication::ShowOpenDialog(OpenDialogOptions options) {
+std::optional<std::vector<std::string>> OsxUiApplication::ShowOpenDialog(
+    OpenDialogOptions options) {
   NSOpenPanel* panel = [NSOpenPanel openPanel];
   [panel setTitle:(NSString*)ToCFString(options.title).ref];
   [panel setPrompt:(NSString*)ToCFString(options.prompt).ref];
@@ -248,6 +255,6 @@ void OsxUiApplication::UnregisterWindow(OsxWindow* window) {
   return NSApplicationTerminateReply::NSTerminateNow;
 }
 - (void)applicationWillTerminate:(NSNotification*)notification {
-  _p->CallQuitHandlers();
+  _p->OnQuit();
 }
 @end
