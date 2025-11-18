@@ -242,6 +242,9 @@ Point XcbWindow::GetMousePosition() {
   auto cookie = xcb_query_pointer(application_->GetXcbConnection(), window);
   auto reply = MakeAutoFree(xcb_query_pointer_reply(
       application_->GetXcbConnection(), cookie, nullptr));
+  if (!reply) {
+    return {};
+  }
   return Point(reply->win_x, reply->win_y);
 }
 

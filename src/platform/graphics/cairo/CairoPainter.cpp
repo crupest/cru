@@ -166,6 +166,7 @@ void CairoPainter::FillGeometry(IGeometry* geometry, IBrush* brush) {
 
   cairo_save(cairo_);
   cairo_set_source(cairo_, cairo_pattern);
+  cairo_set_fill_rule(cairo_, CAIRO_FILL_RULE_EVEN_ODD);
   cairo_new_path(cairo_);
   cairo_append_path(cairo_, cairo_path);
   cairo_fill(cairo_);
