@@ -1,5 +1,6 @@
 add_executable(CruPlatformBaseTest
 	ColorTest.cpp
+	DeleteLaterTest.cpp
 	MatrixTest.cpp
 )
 target_link_libraries(CruPlatformBaseTest PRIVATE CruPlatformBase CruTestBase)

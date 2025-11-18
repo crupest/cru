@@ -1,20 +1,21 @@
 #pragma once
-#include "Base.h"
+#include "UiApplication.h"
 
 #include <cru/base/Guard.h>
 #include <memory>
 #include <utility>
 
-namespace cru::ui {
-class CRU_UI_API DeleteLaterImpl {
-  CRU_DEFINE_CLASS_LOG_TAG("cru::ui::DeleteLaterImpl")
- public:
-  DeleteLaterImpl();
-  virtual ~DeleteLaterImpl();
-  void DeleteLater();
+namespace cru::platform::gui {
+template <typename TSelf>
+class DeleteLaterImpl {
+  CRU_DEFINE_CLASS_LOG_TAG("cru::platform::gui::DeleteLaterImpl")
 
- private:
-  bool delete_later_scheduled_;
+ public:
+  virtual ~DeleteLaterImpl() {}
+
+  void DeleteLater() {
+    IUiApplication::GetInstance()->DeleteLater(static_cast<TSelf*>(this));
+  }
 };
 
 namespace details {
@@ -37,4 +38,4 @@ DeleteLaterPtr<T> MakeDeleteLater(Args&&... args) {
   return DeleteLaterPtr<T>(new T(std::forward<Args>(args)...));
 }
 
-}  // namespace cru::ui
+}  // namespace cru::platform::gui

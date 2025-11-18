@@ -1,6 +1,7 @@
 #pragma once
 #include "../Base.h"
-#include "../DeleteLater.h"
+
+#include <cru/platform/gui/DeleteLater.h>
 
 namespace cru::ui::components {
 /**
@@ -8,7 +9,9 @@ namespace cru::ui::components {
  * \remarks Component should respect children's Component::IsDeleteByParent
  * value and decide whether to delete it.
  */
-class CRU_UI_API Component : public Object, public DeleteLaterImpl {
+class CRU_UI_API Component
+    : public Object,
+      public cru::platform::gui::DeleteLaterImpl<Component> {
  public:
   virtual controls::Control* GetRootControl() = 0;
 

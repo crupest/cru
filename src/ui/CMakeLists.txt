@@ -1,5 +1,4 @@
 add_library(CruUi
-	DeleteLater.cpp
 	Helper.cpp
 	ThemeManager.cpp
 	ThemeResourceDictionary.cpp

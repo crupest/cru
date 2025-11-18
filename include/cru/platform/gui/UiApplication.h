@@ -16,6 +16,18 @@ struct INativeWindow;
 struct IInputMethodContext;
 struct IClipboard;
 
+class CRU_PLATFORM_GUI_API DeleteLaterPool : public Object {
+ public:
+  void Add(Object* object);
+
+  void Clean();
+
+ private:
+  // May contain duplicate object pointer. When performing deleting, use a set
+  // to record deleted objects to avoid double delete.
+  std::vector<Object*> pool_;
+};
+
 // The entry point of a ui application.
 struct CRU_PLATFORM_GUI_API IUiApplication : public virtual IPlatformResource {
  public:
@@ -50,6 +62,8 @@ struct CRU_PLATFORM_GUI_API IUiApplication : public virtual IPlatformResource {
   // effects and do not crash. Also canceling negative id or 0 should always
   // result in no-op.
   virtual void CancelTimer(long long id) = 0;
+
+  virtual void DeleteLater(Object* object) = 0;
 
   virtual std::vector<INativeWindow*> GetAllWindow() = 0;
 

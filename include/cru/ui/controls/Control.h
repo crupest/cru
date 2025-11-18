@@ -1,6 +1,5 @@
 #pragma once
 #include "../Base.h"
-#include "../DeleteLater.h"
 #include "../events/KeyEventArgs.h"
 #include "../events/MouseWheelEventArgs.h"
 #include "../events/UiEvents.h"
@@ -9,6 +8,7 @@
 #include "../style/StyleRuleSet.h"
 
 #include <cru/base/SelfResolvable.h>
+#include <cru/platform/gui/DeleteLater.h>
 
 namespace cru::ui::controls {
 
@@ -22,7 +22,7 @@ namespace cru::ui::controls {
  * The last two methods are totally for convenient control tree management.
  */
 class CRU_UI_API Control : public Object,
-                           public DeleteLaterImpl,
+                           public cru::platform::gui::DeleteLaterImpl<Control>,
                            public SelfResolvable<Control> {
   friend class ControlHost;
 

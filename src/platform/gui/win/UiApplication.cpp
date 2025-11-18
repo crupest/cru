@@ -71,6 +71,8 @@ int WinUiApplication::Run() {
         break;
       }
     }
+
+    delete_later_pool_.Clean();
   }
 
   for (const auto& handler : quit_handlers_) handler();
@@ -102,6 +104,10 @@ long long WinUiApplication::SetInterval(std::chrono::milliseconds milliseconds,
 }
 
 void WinUiApplication::CancelTimer(long long id) { timers_.Remove(id); }
+
+void WinUiApplication::DeleteLater(Object* object) {
+  delete_later_pool_.Add(object);
+}
 
 std::vector<INativeWindow*> WinUiApplication::GetAllWindow() {
   std::vector<INativeWindow*> result;

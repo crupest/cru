@@ -7,7 +7,7 @@
 #include "cru/base/ClonePtr.h"
 #include "cru/platform/Color.h"
 #include "cru/ui/Base.h"
-#include "cru/ui/DeleteLater.h"
+#include "cru/platform/gui/DeleteLater.h"
 #include "cru/ui/ThemeManager.h"
 #include "cru/ui/controls/FlexLayout.h"
 #include "cru/ui/style/Condition.h"
@@ -69,7 +69,7 @@ CompoundConditionEditor::CompoundConditionEditor() {
         this->children_container_.RemoveChildAt(index);
         RaiseChangeEvent();
       });
-      children_.push_back(ui::ToDeleteLaterPtr(std::move(editor)));
+      children_.push_back(platform::gui::ToDeleteLaterPtr(std::move(editor)));
       children_container_.AddChild(children_.back()->GetRootControl());
       RaiseChangeEvent();
     }
@@ -100,7 +100,7 @@ void CompoundConditionEditor::SetChildren(
       this->children_container_.RemoveChildAt(index);
       RaiseChangeEvent();
     });
-    children_.push_back(ui::ToDeleteLaterPtr(std::move(editor)));
+    children_.push_back(platform::gui::ToDeleteLaterPtr(std::move(editor)));
     children_container_.AddChild(children_.back()->GetRootControl());
   }
   if (trigger_change) {
