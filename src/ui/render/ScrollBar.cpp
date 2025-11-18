@@ -339,8 +339,8 @@ void ScrollBar::RestoreCursor() {
 
 void ScrollBar::BeginAutoCollapseTimer() {
   if (!auto_collapse_timer_canceler_ && IsExpanded()) {
-    auto_collapse_timer_canceler_ = GetUiApplication()->SetTimeout(
-        kScrollBarAutoCollapseDelay, [this] { this->SetExpanded(false); });
+    auto_collapse_timer_canceler_.Reset(GetUiApplication()->SetTimeout(
+        kScrollBarAutoCollapseDelay, [this] { this->SetExpanded(false); }));
   }
 }
 

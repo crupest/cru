@@ -190,7 +190,7 @@ Rect XcbWindow::GetClientRect() {
   auto window = *xcb_window_;
 
   auto cookie = xcb_get_geometry(application_->GetXcbConnection(), window);
-  auto reply = AutoFreePtr(xcb_get_geometry_reply(
+  auto reply = MakeAutoFree(xcb_get_geometry_reply(
       application_->GetXcbConnection(), cookie, nullptr));
   auto position = GetXcbWindowPosition(window);
 
@@ -240,7 +240,7 @@ bool XcbWindow::RequestFocus() {
 Point XcbWindow::GetMousePosition() {
   auto window = xcb_window_.value_or(application_->GetFirstXcbScreen()->root);
   auto cookie = xcb_query_pointer(application_->GetXcbConnection(), window);
-  auto reply = AutoFreePtr(xcb_query_pointer_reply(
+  auto reply = MakeAutoFree(xcb_query_pointer_reply(
       application_->GetXcbConnection(), cookie, nullptr));
   return Point(reply->win_x, reply->win_y);
 }
@@ -657,7 +657,7 @@ void XcbWindow::DoSetTitle(xcb_window_t window) {
 
 void XcbWindow::DoSetClientRect(xcb_window_t window, const Rect& rect) {
   auto tree_cookie = xcb_query_tree(application_->GetXcbConnection(), window);
-  auto tree_reply = AutoFreePtr(xcb_query_tree_reply(
+  auto tree_reply = MakeAutoFree(xcb_query_tree_reply(
       application_->GetXcbConnection(), tree_cookie, nullptr));
   auto parent_position = GetXcbWindowPosition(tree_reply->parent);
 
@@ -685,15 +685,15 @@ void* XcbWindow::XcbGetProperty(xcb_window_t window, xcb_atom_t property,
                                 std::uint32_t* out_length) {
   auto cookie = xcb_get_property(application_->GetXcbConnection(), false,
                                  window, property, type, offset, length);
-  auto reply = AutoFreePtr(
+  auto reply = MakeAutoFree(
       xcb_get_property_reply(application_->GetXcbConnection(), cookie, NULL));
   if (reply->type == XCB_ATOM_NONE) {
     return nullptr;
   }
   if (out_length != nullptr) {
-    *out_length = xcb_get_property_value_length(reply);
+    *out_length = xcb_get_property_value_length(reply.get());
   }
-  return xcb_get_property_value(reply);
+  return xcb_get_property_value(reply.get());
 }
 
 std::optional<Thickness> XcbWindow::Get_NET_FRAME_EXTENTS(xcb_window_t window) {
@@ -714,13 +714,13 @@ Point XcbWindow::GetXcbWindowPosition(xcb_window_t window) {
 
   while (true) {
     auto cookie = xcb_get_geometry(application_->GetXcbConnection(), window);
-    auto reply = AutoFreePtr(xcb_get_geometry_reply(
+    auto reply = MakeAutoFree(xcb_get_geometry_reply(
         application_->GetXcbConnection(), cookie, nullptr));
     result.x += reply->x;
     result.y += reply->y;
 
     auto tree_cookie = xcb_query_tree(application_->GetXcbConnection(), window);
-    auto tree_reply = AutoFreePtr(xcb_query_tree_reply(
+    auto tree_reply = MakeAutoFree(xcb_query_tree_reply(
         application_->GetXcbConnection(), tree_cookie, nullptr));
     window = tree_reply->parent;
     // TODO: Multi-screen offset?

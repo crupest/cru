@@ -75,7 +75,7 @@ KeyCode XorgKeysymToCruKeyCode(xcb_keysym_t keysym) {
   }
 }
 
-std::vector<xcb_keysym_t> XorgKeycodeToKeysyms(XcbUiApplication *application,
+std::vector<xcb_keysym_t> XorgKeycodeToKeysyms(XcbUiApplication* application,
                                                xcb_keycode_t keycode) {
   auto connection = application->GetXcbConnection();
   auto setup = xcb_get_setup(connection);
@@ -84,7 +84,7 @@ std::vector<xcb_keysym_t> XorgKeycodeToKeysyms(XcbUiApplication *application,
 
   // Get keyboard mapping
   auto mapping_cookie = xcb_get_keyboard_mapping(connection, keycode, 1);
-  auto mapping_reply = AutoFreePtr(
+  auto mapping_reply = MakeAutoFree(
       xcb_get_keyboard_mapping_reply(connection, mapping_cookie, NULL));
 
   if (!mapping_reply) {
@@ -92,7 +92,7 @@ std::vector<xcb_keysym_t> XorgKeycodeToKeysyms(XcbUiApplication *application,
   }
 
   auto keysyms_per_keycode = mapping_reply->keysyms_per_keycode;
-  auto *keysyms = xcb_get_keyboard_mapping_keysyms(mapping_reply);
+  auto* keysyms = xcb_get_keyboard_mapping_keysyms(mapping_reply.get());
 
   std::vector<xcb_keysym_t> result;
   for (int i = 0; i < keysyms_per_keycode; i++) {
@@ -101,7 +101,7 @@ std::vector<xcb_keysym_t> XorgKeycodeToKeysyms(XcbUiApplication *application,
   return result;
 }
 
-KeyCode XorgKeycodeToCruKeyCode(XcbUiApplication *application,
+KeyCode XorgKeycodeToCruKeyCode(XcbUiApplication* application,
                                 xcb_keycode_t keycode) {
   auto keysyms = XorgKeycodeToKeysyms(application, keycode);
 
@@ -118,10 +118,10 @@ using KeymapBitset =
     std::bitset<sizeof(std::declval<xcb_query_keymap_reply_t>().keys) *
                 CHAR_BIT>;
 
-KeymapBitset GetXorgKeymap(xcb_connection_t *connection) {
+KeymapBitset GetXorgKeymap(xcb_connection_t* connection) {
   auto keymap_cookie = xcb_query_keymap(connection);
   auto keymap_reply =
-      AutoFreePtr(xcb_query_keymap_reply(connection, keymap_cookie, NULL));
+      MakeAutoFree(xcb_query_keymap_reply(connection, keymap_cookie, NULL));
 
   if (!keymap_reply) {
     throw XcbException("Cannot get keymap.");
@@ -141,7 +141,7 @@ KeymapBitset GetXorgKeymap(xcb_connection_t *connection) {
 }  // namespace
 
 std::unordered_map<KeyCode, bool> GetKeyboardState(
-    XcbUiApplication *application) {
+    XcbUiApplication* application) {
   auto connection = application->GetXcbConnection();
   auto setup = xcb_get_setup(connection);
   auto min_keycode = setup->min_keycode;
@@ -150,7 +150,7 @@ std::unordered_map<KeyCode, bool> GetKeyboardState(
   // Get keyboard mapping
   auto mapping_cookie = xcb_get_keyboard_mapping(connection, min_keycode,
                                                  max_keycode - min_keycode + 1);
-  auto mapping_reply = AutoFreePtr(
+  auto mapping_reply = MakeAutoFree(
       xcb_get_keyboard_mapping_reply(connection, mapping_cookie, NULL));
 
   if (!mapping_reply) {
@@ -158,7 +158,7 @@ std::unordered_map<KeyCode, bool> GetKeyboardState(
   }
 
   auto keysyms_per_keycode = mapping_reply->keysyms_per_keycode;
-  auto *keysyms = xcb_get_keyboard_mapping_keysyms(mapping_reply);
+  auto* keysyms = xcb_get_keyboard_mapping_keysyms(mapping_reply.get());
 
   auto keymap = GetXorgKeymap(connection);
 
@@ -178,7 +178,7 @@ std::unordered_map<KeyCode, bool> GetKeyboardState(
 }
 
 // Though X provides GetModifierMapping, it cannot get ALT state.
-KeyModifier GetCurrentKeyModifiers(XcbUiApplication *application) {
+KeyModifier GetCurrentKeyModifiers(XcbUiApplication* application) {
   KeyModifier result{};
   auto state = GetKeyboardState(application);
   if (state[KeyCode::LeftShift] || state[KeyCode::RightShift]) {
@@ -214,7 +214,7 @@ KeyModifier ConvertModifiersOfEvent(uint32_t mask) {
   return result;
 }
 
-XcbKeyboardManager::XcbKeyboardManager(XcbUiApplication *application)
+XcbKeyboardManager::XcbKeyboardManager(XcbUiApplication* application)
     : application_(application) {
   xkb_x11_setup_xkb_extension(
       application->GetXcbConnection(), XKB_X11_MIN_MAJOR_XKB_VERSION,

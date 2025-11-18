@@ -29,51 +29,27 @@ struct Guard {
   ExitFunc on_exit;
 };
 
-/**
- * FreeFunc must handle nullptr correctly.
- */
-template <typename T, void (*FreeFunc)(T*) noexcept>
-struct TAutoFreePtr {
-  TAutoFreePtr(T* ptr) : ptr(ptr) {}
-  ~TAutoFreePtr() { FreeFunc(ptr); }
-
-  CRU_DELETE_COPY(TAutoFreePtr)
-
-  TAutoFreePtr(TAutoFreePtr&& other) noexcept : ptr(other.ptr) {
-    other.ptr = nullptr;
-  }
-
-  TAutoFreePtr& operator=(TAutoFreePtr&& other) noexcept {
-    if (this != &other) {
-      FreeFunc(ptr);
-      ptr = other.ptr;
-      other.ptr = nullptr;
-    }
-    return *this;
-  }
-
-  operator T*() const { return ptr; }
-  T* operator->() { return ptr; }
-
-  T* ptr;
-};
-
 namespace details {
 template <typename T>
-inline void MyFree(T* p) noexcept {
-  ::free(p);
-}
+struct AutoFreePtrDeleter {
+  void operator()(T* ptr) const noexcept { ::free(ptr); }
+};
 }  // namespace details
 
 template <typename T>
-using AutoFreePtr = TAutoFreePtr<T, details::MyFree<T>>;
+using AutoFreePtr = std::unique_ptr<T, details::AutoFreePtrDeleter<T>>;
+
+template <typename T>
+inline AutoFreePtr<T> MakeAutoFree(T* ptr) {
+  return AutoFreePtr<T>(ptr);
+}
 
 template <typename T, void (*DestructFunc)(T value) noexcept>
 class AutoDestruct {
  public:
   AutoDestruct() : value_(std::nullopt), auto_destruct_(false) {}
 
-  AutoDestruct(T value, bool auto_destruct = true)
+  explicit AutoDestruct(T value, bool auto_destruct = true)
       : value_(std::move(value)), auto_destruct_(auto_destruct) {}
 
   CRU_DELETE_COPY(AutoDestruct)
