@@ -72,6 +72,8 @@ class XcbUiApplication : public XcbResource, public virtual IUiApplication {
                         std::function<void()> action) override;
   void CancelTimer(long long id) override;
 
+  void DeleteLater(Object* object) override;
+
   std::vector<INativeWindow*> GetAllWindow() override;
 
   INativeWindow* CreateWindow() override;
@@ -102,6 +104,7 @@ class XcbUiApplication : public XcbResource, public virtual IUiApplication {
 
   cru::platform::unix::UnixEventLoop event_loop_;
   std::vector<std::function<void()>> quit_handlers_;
+  DeleteLaterPool delete_later_pool_;
 
   bool is_quit_on_all_window_closed_;
   std::vector<XcbWindow*> windows_;

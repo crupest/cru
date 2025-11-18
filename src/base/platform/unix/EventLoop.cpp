@@ -1,4 +1,5 @@
 #include "cru/base/platform/unix/EventLoop.h"
+#include "cru/base/Guard.h"
 
 #include <poll.h>
 #include <algorithm>
@@ -32,6 +33,8 @@ int UnixEventLoop::Run() {
 
   while (!exit_code_) {
     int poll_timeout = -1;
+    Guard after_each_round_event_guard(
+        [this] { AfterEachRoundEvent_.Raise(nullptr); });
 
     if (CheckPoll()) {
       continue;

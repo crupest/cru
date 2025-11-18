@@ -5,6 +5,7 @@
 #endif
 
 #include "../../Base.h"
+#include "../../Event.h"
 #include "../../Timer.h"
 #include "UnixFile.h"
 
@@ -102,6 +103,8 @@ class UnixEventLoop : public Object {
 
   void SetPoll(int fd, PollEvents events, PollHandler action);
   void RemovePoll(int fd);
+
+  CRU_DEFINE_EVENT(AfterEachRound, std::nullptr_t)
 
  private:
   bool CheckPoll();

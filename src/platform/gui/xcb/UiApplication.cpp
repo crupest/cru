@@ -15,7 +15,7 @@
 
 namespace cru::platform::gui::xcb {
 XcbUiApplication::XcbUiApplication(
-    graphics::cairo::CairoGraphicsFactory *cairo_factory) {
+    graphics::cairo::CairoGraphicsFactory* cairo_factory) {
   release_cairo_factory_ = false;
   if (cairo_factory == nullptr) {
     cairo_factory = new graphics::cairo::CairoGraphicsFactory();
@@ -26,22 +26,24 @@ XcbUiApplication::XcbUiApplication(
   is_quit_on_all_window_closed_ = false;
 
   int screen_num;
-  xcb_connection_t *connection = xcb_connect(NULL, &screen_num);
+  xcb_connection_t* connection = xcb_connect(NULL, &screen_num);
   xcb_connection_ = connection;
   this->CheckXcbConnectionError();
 
   event_loop_.SetPoll(xcb_get_file_descriptor(connection), POLLIN,
                       [this](auto) { PollAllXEvents(); });
+  event_loop_.AfterEachRoundEvent()->AddSpyOnlyHandler(
+      [this] { delete_later_pool_.Clean(); });
 
-  const xcb_setup_t *setup = xcb_get_setup(connection);
+  const xcb_setup_t* setup = xcb_get_setup(connection);
   xcb_screen_iterator_t iter = xcb_setup_roots_iterator(setup);
   this->screen_ = iter.data;
 
   cursor_manager_ = new XcbCursorManager(this);
   input_method_manager_ = new XcbXimInputMethodManager(this);
   input_method_manager_->SetXimServerUnprocessedXEventCallback(
-      [this](xcb_key_press_event_t *event) {
-        DispatchXEventToWindows((xcb_generic_event_t *)event);
+      [this](xcb_key_press_event_t* event) {
+        DispatchXEventToWindows((xcb_generic_event_t*)event);
       });
 
   keyboard_manager_ = new XcbKeyboardManager(this);
@@ -60,7 +62,7 @@ XcbUiApplication::~XcbUiApplication() {
   }
 }
 
-graphics::cairo::CairoGraphicsFactory *XcbUiApplication::GetCairoFactory() {
+graphics::cairo::CairoGraphicsFactory* XcbUiApplication::GetCairoFactory() {
   return cairo_factory_;
 }
 
@@ -70,13 +72,13 @@ void XcbUiApplication::CheckXcbConnectionError() {
   }
 }
 
-xcb_connection_t *XcbUiApplication::GetXcbConnection() {
+xcb_connection_t* XcbUiApplication::GetXcbConnection() {
   return xcb_connection_;
 }
 
 void XcbUiApplication::XcbFlush() { xcb_flush(xcb_connection_); }
 
-xcb_screen_t *XcbUiApplication::GetFirstXcbScreen() { return screen_; }
+xcb_screen_t* XcbUiApplication::GetFirstXcbScreen() { return screen_; }
 
 xcb_atom_t XcbUiApplication::GetOrCreateXcbAtom(std::string name) {
   auto iter = xcb_atom_.find(name);
@@ -93,18 +95,18 @@ xcb_atom_t XcbUiApplication::GetOrCreateXcbAtom(std::string name) {
   return atom;
 }
 
-XcbXimInputMethodManager *XcbUiApplication::GetXcbXimInputMethodManager() {
+XcbXimInputMethodManager* XcbUiApplication::GetXcbXimInputMethodManager() {
   return input_method_manager_;
 }
 
-XcbKeyboardManager *XcbUiApplication::GetXcbKeyboardManager() {
+XcbKeyboardManager* XcbUiApplication::GetXcbKeyboardManager() {
   return keyboard_manager_;
 }
 
 int XcbUiApplication::Run() {
   auto exit_code = event_loop_.Run();
 
-  for (const auto &handler : this->quit_handlers_) {
+  for (const auto& handler : this->quit_handlers_) {
     handler();
   }
 
@@ -146,7 +148,11 @@ void XcbUiApplication::CancelTimer(long long id) {
   return event_loop_.CancelTimer(static_cast<int>(id));
 }
 
-void XcbUiApplication::DispatchXEventToWindows(xcb_generic_event_t *event) {
+void XcbUiApplication::DeleteLater(Object* object) {
+  delete_later_pool_.Add(object);
+}
+
+void XcbUiApplication::DispatchXEventToWindows(xcb_generic_event_t* event) {
   auto event_xcb_window = XcbWindow::GetEventWindow(event);
   for (auto window : windows_) {
     if (window->GetXcbWindow() == event_xcb_window) {
@@ -157,7 +163,7 @@ void XcbUiApplication::DispatchXEventToWindows(xcb_generic_event_t *event) {
 }
 
 void XcbUiApplication::PollAllXEvents() {
-  xcb_generic_event_t *event;
+  xcb_generic_event_t* event;
   while ((event = xcb_poll_for_event(xcb_connection_))) {
     if (!input_method_manager_->HandleXEvent(event)) {
       DispatchXEventToWindows(event);
@@ -166,30 +172,30 @@ void XcbUiApplication::PollAllXEvents() {
   }
 }
 
-std::vector<INativeWindow *> XcbUiApplication::GetAllWindow() {
-  std::vector<INativeWindow *> windows(windows_.size());
+std::vector<INativeWindow*> XcbUiApplication::GetAllWindow() {
+  std::vector<INativeWindow*> windows(windows_.size());
   std::ranges::copy(windows_, windows.begin());
   return windows;
 }
 
-INativeWindow *XcbUiApplication::CreateWindow() { return new XcbWindow(this); }
+INativeWindow* XcbUiApplication::CreateWindow() { return new XcbWindow(this); }
 
-cru::platform::graphics::IGraphicsFactory *
+cru::platform::graphics::IGraphicsFactory*
 XcbUiApplication::GetGraphicsFactory() {
   return cairo_factory_;
 }
 
-ICursorManager *XcbUiApplication::GetCursorManager() { return cursor_manager_; }
+ICursorManager* XcbUiApplication::GetCursorManager() { return cursor_manager_; }
 
-IClipboard *XcbUiApplication::GetClipboard() { return clipboard_; }
+IClipboard* XcbUiApplication::GetClipboard() { return clipboard_; }
 
-IMenu *XcbUiApplication::GetApplicationMenu() { return nullptr; }
+IMenu* XcbUiApplication::GetApplicationMenu() { return nullptr; }
 
-void XcbUiApplication::RegisterWindow(XcbWindow *window) {
+void XcbUiApplication::RegisterWindow(XcbWindow* window) {
   windows_.push_back(window);
 }
 
-void XcbUiApplication::UnregisterWindow(XcbWindow *window) {
+void XcbUiApplication::UnregisterWindow(XcbWindow* window) {
   std::erase(windows_, window);
 }
 }  // namespace cru::platform::gui::xcb
