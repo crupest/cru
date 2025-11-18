@@ -4,7 +4,6 @@
 #include "cru/base/log/Logger.h"
 #include "cru/platform/graphics/NullPainter.h"
 #include "cru/platform/graphics/direct2d/WindowPainter.h"
-#include "cru/platform/gui/DebugFlags.h"
 #include "cru/platform/gui/Input.h"
 #include "cru/platform/gui/Window.h"
 #include "cru/platform/gui/win/Cursor.h"
@@ -224,9 +223,8 @@ bool WinNativeWindow::ReleaseMouse() {
 }
 
 void WinNativeWindow::RequestRepaint() {
-  if constexpr (DebugFlags::paint) {
-    CRU_LOG_TAG_DEBUG("A repaint is requested.");
-  }
+  CRU_LOG_TAG_DEBUG("A repaint is requested.");
+  if (!hwnd_) return;
   if (!::InvalidateRect(hwnd_, nullptr, FALSE))
     throw Win32Error(::GetLastError(), "Failed to invalidate window.");
   if (!::UpdateWindow(hwnd_))
@@ -533,9 +531,7 @@ void WinNativeWindow::OnDestroyInternal() {
 void WinNativeWindow::OnPaintInternal() {
   paint_event_.Raise(nullptr);
   ValidateRect(hwnd_, nullptr);
-  if constexpr (DebugFlags::paint) {
-    CRU_LOG_TAG_DEBUG("A repaint is finished.");
-  }
+  CRU_LOG_TAG_DEBUG("A repaint is finished.");
 }
 
 void WinNativeWindow::OnMoveInternal(const int new_left, const int new_top) {

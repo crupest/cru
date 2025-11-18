@@ -78,14 +78,14 @@ void Menu::AddTextItemAt(std::string text, Index index,
 PopupMenu::PopupMenu(controls::Control* attached_control)
     : attached_control_(attached_control) {
   menu_.SetOnItemClick([this](Index) { popup_->GetNativeWindow()->Close(); });
-  popup_ = controls::Window::CreatePopup();
+  popup_.reset(controls::Window::CreatePopup());
   popup_->SetAttachedControl(attached_control);
   popup_->InsertChildAt(menu_.GetRootControl(), 0);
 }
 
-PopupMenu::~PopupMenu() { delete popup_; }
+PopupMenu::~PopupMenu() {}
 
-controls::Control* PopupMenu::GetRootControl() { return popup_; }
+controls::Control* PopupMenu::GetRootControl() { return popup_.get(); }
 
 void PopupMenu::SetPosition(const Point& position) {
   auto window = popup_->GetNativeWindow();

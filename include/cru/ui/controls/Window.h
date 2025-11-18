@@ -1,5 +1,6 @@
 #pragma once
 #include "../render/StackLayoutRenderObject.h"
+#include "ControlHost.h"
 #include "LayoutControl.h"
 
 #include <cru/base/Base.h>
@@ -8,6 +9,8 @@
 #include <cru/base/log/Logger.h>
 #include <cru/platform/gui/UiApplication.h>
 #include <cru/platform/gui/Window.h>
+
+#include <memory>
 
 namespace cru::ui::controls {
 class CRU_UI_API Window
@@ -31,7 +34,7 @@ class CRU_UI_API Window
   void SetGainFocusOnCreateAndDestroyWhenLoseFocus(bool value);
 
  private:
-  std::shared_ptr<ControlHost> control_host_;
+  std::unique_ptr<ControlHost> control_host_;
 
   Control* attached_control_;
 

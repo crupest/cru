@@ -169,7 +169,8 @@ class CRU_UI_API ControlHost : public Object {
   }
 
   void UpdateCursor();
-  void NotifyControlParentChange(Control* control, Control* old_parent, Control* new_parent);
+  void NotifyControlParentChange(Control* control, Control* old_parent,
+                                 Control* new_parent);
 
  private:
   int event_handling_count_;
@@ -185,7 +186,6 @@ class CRU_UI_API ControlHost : public Object {
 
   bool layout_prefer_to_fill_window_;
 
-  platform::gui::TimerAutoCanceler repaint_schedule_canceler_;
   platform::gui::TimerAutoCanceler relayout_schedule_canceler_;
 };
 }  // namespace cru::ui::controls

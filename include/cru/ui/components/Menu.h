@@ -70,7 +70,7 @@ class CRU_UI_API PopupMenu : public Component {
  public:
   controls::Control* GetRootControl() override;
 
-  controls::Window* GetPopup() { return popup_; }
+  controls::Window* GetPopup() { return popup_.get(); }
   Menu* GetMenu() { return &menu_; }
 
   // position relative to screen left top.
@@ -86,7 +86,7 @@ class CRU_UI_API PopupMenu : public Component {
  private:
   controls::Control* attached_control_;
 
-  controls::Window* popup_;
+  std::unique_ptr<controls::Window> popup_;
   Menu menu_;
 };
 }  // namespace cru::ui::components

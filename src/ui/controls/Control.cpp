@@ -27,6 +27,7 @@ Control::~Control() {
   }
 
   RemoveFromParent();
+  RemoveAllChild();
 }
 
 std::string Control::GetDebugId() const {
@@ -89,9 +90,8 @@ void Control::InsertChildAt(Control* control, Index index) {
 
   children_.insert(children_.cbegin() + index, control);
   control->parent_ = this;
-
-  TraverseDescendents([this](Control* control) { control->host_ = host_; },
-                      false);
+  control->TraverseDescendents(
+      [this](Control* control) { control->host_ = host_; }, true);
   if (host_) {
     host_->NotifyControlParentChange(control, nullptr, this);
   }
@@ -111,8 +111,8 @@ void Control::RemoveChildAt(Index index) {
   auto control = children_[index];
   children_.erase(children_.cbegin() + index);
   control->parent_ = nullptr;
-  TraverseDescendents([this](Control* control) { control->host_ = nullptr; },
-                      false);
+  control->TraverseDescendents(
+      [this](Control* control) { control->host_ = nullptr; }, true);
   if (host_) {
     host_->NotifyControlParentChange(control, this, nullptr);
   }

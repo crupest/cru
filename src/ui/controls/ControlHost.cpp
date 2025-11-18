@@ -15,11 +15,14 @@ ControlHost::ControlHost(Control* root_control)
       mouse_hover_control_(nullptr),
       mouse_captured_control_(nullptr),
       layout_prefer_to_fill_window_(true) {
-  root_control->TraverseDescendents(
+  root_control_->TraverseDescendents(
       [this](Control* control) { control->host_ = this; }, true);
 }
 
-ControlHost::~ControlHost() {}
+ControlHost::~ControlHost() {
+  root_control_->TraverseDescendents(
+      [this](Control* control) { control->host_ = nullptr; }, true);
+}
 
 platform::gui::INativeWindow* ControlHost::GetNativeWindow() {
   return native_window_.get();
@@ -121,11 +124,7 @@ ControlHost::CreateNativeWindow() {
   return std::unique_ptr<platform::gui::INativeWindow>(native_window);
 }
 
-void ControlHost::InvalidatePaint() {
-  repaint_schedule_canceler_.Reset(
-      platform::gui::IUiApplication::GetInstance()->SetImmediate(
-          [this] { Repaint(); }));
-}
+void ControlHost::InvalidatePaint() { native_window_->RequestRepaint(); }
 
 void ControlHost::InvalidateLayout() {
   relayout_schedule_canceler_.Reset(
@@ -244,7 +243,7 @@ void ControlHost::OnNativeDestroy(platform::gui::INativeWindow* window,
 void ControlHost::OnNativePaint(platform::gui::INativeWindow* window,
                                 std::nullptr_t) {
   CRU_UNUSED(window)
-  InvalidatePaint();
+  Repaint();
 }
 
 void ControlHost::OnNativeResize(platform::gui::INativeWindow* window,
