@@ -46,7 +46,7 @@ class OsxUiApplicationPrivate {
   bool quit_on_all_window_closed_ = true;
 
   long long current_timer_id_ = 1;
-  std::unordered_map<long long, std::function<void()>> next_tick_;
+  std::vector<std::pair<long long, std::function<void()>>> next_tick_;
   std::unordered_map<long long, NSTimer*> timers_;
 
   DeleteLaterPool delete_later_pool_;
@@ -103,14 +103,13 @@ void OsxUiApplication::SetQuitOnAllWindowClosed(bool quit_on_all_window_closed) 
 
 long long OsxUiApplication::SetImmediate(std::function<void()> action) {
   const long long id = p_->current_timer_id_++;
-  p_->next_tick_.emplace(id, std::move(action));
+  p_->next_tick_.emplace_back(id, std::move(action));
 
   [[NSRunLoop mainRunLoop] performBlock:^{
-    const auto i = p_->next_tick_.find(id);
-    if (i != p_->next_tick_.cend()) {
-      i->second();
+    for (const auto& [_, action] : p_->next_tick_) {
+      action();
     }
-    p_->next_tick_.erase(i);
+    p_->next_tick_.clear();
   }];
 
   return id;
@@ -142,11 +141,21 @@ long long OsxUiApplication::SetInterval(std::chrono::milliseconds milliseconds,
 }
 
 void OsxUiApplication::CancelTimer(long long id) {
-  p_->next_tick_.erase(id);
-  auto i = p_->timers_.find(id);
-  if (i != p_->timers_.cend()) {
-    [i->second invalidate];
-    p_->timers_.erase(i);
+  {
+    auto iter =
+        std::ranges::find_if(p_->next_tick_, [id](auto timer) { return timer.first == id; });
+    if (iter != p_->next_tick_.cend()) {
+      p_->next_tick_.erase(iter);
+      return;
+    }
+  }
+
+  {
+    auto iter = p_->timers_.find(id);
+    if (iter != p_->timers_.cend()) {
+      [iter->second invalidate];
+      p_->timers_.erase(iter);
+    }
   }
 }
 
