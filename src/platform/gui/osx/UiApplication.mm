@@ -106,10 +106,11 @@ long long OsxUiApplication::SetImmediate(std::function<void()> action) {
   p_->next_tick_.emplace_back(id, std::move(action));
 
   [[NSRunLoop mainRunLoop] performBlock:^{
-    for (const auto& [_, action] : p_->next_tick_) {
+    decltype(p_->next_tick_) copy;
+    p_->next_tick_.swap(copy);
+    for (const auto& [_, action] : copy) {
       action();
     }
-    p_->next_tick_.clear();
   }];
 
   return id;
