@@ -240,7 +240,7 @@ CodePoint CRU_BASE_API Utf8NextCodePoint(const Utf8CodeUnit* ptr, Index size,
 
 inline CodePoint Utf8NextCodePoint(Utf8StringView str, Index current,
                                    Index* next_position) {
-  return Utf8NextCodePoint(str.data(), str.size(), next_position);
+  return Utf8NextCodePoint(str.data(), str.size(), current, next_position);
 }
 
 CodePoint CRU_BASE_API Utf8PreviousCodePoint(const Utf8CodeUnit* ptr,
@@ -249,7 +249,7 @@ CodePoint CRU_BASE_API Utf8PreviousCodePoint(const Utf8CodeUnit* ptr,
 
 inline CodePoint Utf8PreviousCodePoint(Utf8StringView str, Index current,
                                        Index* next_position) {
-  return Utf8PreviousCodePoint(str.data(), str.size(), next_position);
+  return Utf8PreviousCodePoint(str.data(), str.size(), current, next_position);
 }
 
 namespace details {

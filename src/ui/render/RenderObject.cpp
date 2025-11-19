@@ -9,6 +9,8 @@
 namespace cru::ui::render {
 const BoxConstraint BoxConstraint::kNotLimit{Size::kMax, Size::kZero};
 
+RenderObject::~RenderObject() { DestroyEvent_.Raise(this); }
+
 void RenderObject::SetParent(RenderObject* new_parent) {
 #ifdef CRU_DEBUG
   // In case there is a cycle.

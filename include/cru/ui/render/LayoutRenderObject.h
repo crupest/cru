@@ -13,6 +13,8 @@ class LayoutRenderObject : public RenderObject {
   struct ChildData {
     RenderObject* render_object;
     ChildLayoutData layout_data;
+    bool render_object_destroyed;
+    EventHandlerRevokerListGuard event_guard;
   };
 
  protected:
@@ -33,21 +35,34 @@ class LayoutRenderObject : public RenderObject {
     if (position < 0) position = 0;
     if (position > GetChildCount()) position = GetChildCount();
     children_.insert(children_.begin() + position,
-                     ChildData{render_object, ChildLayoutData()});
+                     ChildData{render_object, ChildLayoutData(), false});
     render_object->SetParent(this);
+    render_object->DestroyEvent()->AddSpyOnlyHandler([this, render_object] {
+      auto iter = std::ranges::find_if(
+          children_, [render_object](const ChildData& data) {
+            return data.render_object == render_object;
+          });
+      if (iter != children_.cend()) {
+        iter->render_object_destroyed = true;
+      }
+    });
     InvalidateLayout();
   }
 
   void RemoveChild(Index position) {
     Expects(position >= 0 && position < GetChildCount());
-    children_[position].render_object->SetParent(nullptr);
+    if (!children_[position].render_object_destroyed) {
+      children_[position].render_object->SetParent(nullptr);
+    }
     children_.erase(children_.begin() + position);
     InvalidateLayout();
   }
 
   void ClearChildren() {
     for (auto child : children_) {
-      child.render_object->SetParent(nullptr);
+      if (!child.render_object_destroyed) {
+        child.render_object->SetParent(nullptr);
+      }
     }
     children_.clear();
     InvalidateLayout();

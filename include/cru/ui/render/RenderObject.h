@@ -3,6 +3,7 @@
 
 #include "MeasureRequirement.h"
 
+#include <cru/base/Event.h>
 #include <cru/platform/graphics/Painter.h>
 
 namespace cru::ui::render {
@@ -62,11 +63,8 @@ struct BoxConstraint {
 class CRU_UI_API RenderObject : public Object {
   CRU_DEFINE_CLASS_LOG_TAG("RenderObject")
 
- protected:
-  RenderObject() = default;
-
  public:
-  ~RenderObject() override = default;
+  ~RenderObject() override;
 
   controls::Control* GetAttachedControl() const { return control_; }
   void SetAttachedControl(controls::Control* new_control);
@@ -144,6 +142,8 @@ class CRU_UI_API RenderObject : public Object {
  public:
   virtual std::string GetName() const;
   std::string GetDebugPathInTree() const;
+
+  CRU_DEFINE_EVENT(Destroy, RenderObject*)
 
  protected:
   // Size measure including margin and padding. Please reduce margin and padding
