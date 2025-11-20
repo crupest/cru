@@ -11,6 +11,6 @@ add_library(CruPlatformGraphicsDirect2d
 	WindowPainter.cpp
 	WindowRenderTarget.cpp
 )
-target_link_libraries(CruPlatformGraphicsDirect2d PUBLIC D3D11 D2d1 DWrite)
+target_link_libraries(CruPlatformGraphicsDirect2d PUBLIC D3D11 D2d1 DWrite dxgi dxguid)
 target_link_libraries(CruPlatformGraphicsDirect2d PUBLIC CruPlatformGraphics)
 target_compile_definitions(CruPlatformGraphicsDirect2d PRIVATE CRU_WIN_GRAPHICS_DIRECT_EXPORT_API)

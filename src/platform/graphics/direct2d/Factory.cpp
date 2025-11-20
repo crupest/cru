@@ -6,6 +6,9 @@
 #include "cru/platform/graphics/direct2d/ImageFactory.h"
 #include "cru/platform/graphics/direct2d/TextLayout.h"
 
+#include <dxgi1_3.h>
+#include <dxgidebug.h>
+#include <cstdlib>
 #include <utility>
 
 namespace cru::platform::graphics::direct2d {
@@ -18,6 +21,13 @@ DirectGraphicsFactory::DirectGraphicsFactory() : DirectGraphicsResource(this) {
 
 #ifdef CRU_DEBUG
   creation_flags |= D3D11_CREATE_DEVICE_DEBUG;
+
+  atexit([] {
+    Microsoft::WRL::ComPtr<IDXGIDebug1> dxgi_debug;
+    CheckHResult(DXGIGetDebugInterface1(0, IID_PPV_ARGS(&dxgi_debug)));
+    CheckHResult(
+        dxgi_debug->ReportLiveObjects(DXGI_DEBUG_ALL, DXGI_DEBUG_RLO_ALL));
+  });
 #endif
 
   const D3D_FEATURE_LEVEL feature_levels[] = {
@@ -36,7 +46,7 @@ DirectGraphicsFactory::DirectGraphicsFactory() : DirectGraphicsResource(this) {
   CheckHResult(d3d11_device_->QueryInterface(dxgi_device.GetAddressOf()));
 
   CheckHResult(D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED,
-                                  IID_PPV_ARGS(&d2d1_factory_)));
+                                 IID_PPV_ARGS(&d2d1_factory_)));
 
   CheckHResult(d2d1_factory_->CreateDevice(dxgi_device.Get(), &d2d1_device_));
 

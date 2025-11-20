@@ -11,9 +11,11 @@ class LayoutRenderObject : public RenderObject {
 
  private:
   struct ChildData {
+    /**
+     * May be nullptr.
+     */
     RenderObject* render_object;
     ChildLayoutData layout_data;
-    bool render_object_destroyed;
     EventHandlerRevokerListGuard event_guard;
   };
 
@@ -27,32 +29,36 @@ class LayoutRenderObject : public RenderObject {
   ~LayoutRenderObject() override = default;
 
   Index GetChildCount() const { return static_cast<Index>(children_.size()); }
+
   RenderObject* GetChildAt(Index position) {
     Expects(position >= 0 && position < GetChildCount());
     return children_[position].render_object;
   }
+
   void AddChild(RenderObject* render_object, Index position) {
     if (position < 0) position = 0;
     if (position > GetChildCount()) position = GetChildCount();
-    children_.insert(children_.begin() + position,
-                     ChildData{render_object, ChildLayoutData(), false});
+    auto iter = children_.insert(children_.begin() + position,
+                                 ChildData{render_object, ChildLayoutData()});
     render_object->SetParent(this);
-    render_object->DestroyEvent()->AddSpyOnlyHandler([this, render_object] {
-      auto iter = std::ranges::find_if(
-          children_, [render_object](const ChildData& data) {
-            return data.render_object == render_object;
-          });
-      if (iter != children_.cend()) {
-        iter->render_object_destroyed = true;
-      }
-    });
+    iter->event_guard +=
+        render_object->DestroyEvent()->AddSpyOnlyHandler([this, render_object] {
+          auto iter = std::ranges::find_if(
+              children_, [render_object](const ChildData& data) {
+                return data.render_object == render_object;
+              });
+          if (iter != children_.cend()) {
+            iter->render_object = nullptr;
+          }
+        });
     InvalidateLayout();
   }
 
   void RemoveChild(Index position) {
     Expects(position >= 0 && position < GetChildCount());
-    if (!children_[position].render_object_destroyed) {
-      children_[position].render_object->SetParent(nullptr);
+    auto render_object = children_[position].render_object;
+    if (render_object) {
+      render_object->SetParent(nullptr);
     }
     children_.erase(children_.begin() + position);
     InvalidateLayout();
@@ -60,8 +66,9 @@ class LayoutRenderObject : public RenderObject {
 
   void ClearChildren() {
     for (auto child : children_) {
-      if (!child.render_object_destroyed) {
-        child.render_object->SetParent(nullptr);
+      auto render_object = child.render_object;
+      if (render_object) {
+        render_object->SetParent(nullptr);
       }
     }
     children_.clear();

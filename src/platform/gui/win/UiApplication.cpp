@@ -45,7 +45,10 @@ WinUiApplication::WinUiApplication() {
   clipboard_ = std::make_unique<WinClipboard>(this);
 }
 
-WinUiApplication::~WinUiApplication() { instance = nullptr; }
+WinUiApplication::~WinUiApplication() {
+  delete_later_pool_.Clean();
+  instance = nullptr;
+}
 
 int WinUiApplication::Run() {
   MSG msg;
