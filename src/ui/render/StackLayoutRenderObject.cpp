@@ -1,19 +1,22 @@
 #include "cru/ui/render/StackLayoutRenderObject.h"
 
-#include "cru/base/log/Logger.h"
 #include "cru/ui/render/LayoutHelper.h"
 #include "cru/ui/render/MeasureRequirement.h"
 
 #include <algorithm>
 
 namespace cru::ui::render {
+
+StackLayoutRenderObject::StackLayoutRenderObject()
+    : LayoutRenderObject<StackChildLayoutData>(kRenderObjectName) {}
+
 void StackLayoutRenderObject::SetDefaultHorizontalAlignment(
     Alignment alignment) {
   default_horizontal_alignment_ = alignment;
   InvalidateLayout();
 }
 
-void StackLayoutRenderObject::SetDefaultVertialAlignment(Alignment alignment) {
+void StackLayoutRenderObject::SetDefaultVerticalAlignment(Alignment alignment) {
   default_vertical_alignment_ = alignment;
   InvalidateLayout();
 }

@@ -1,7 +1,11 @@
 #include "cru/ui/render/SingleChildRenderObject.h"
+#include "cru/ui/render/RenderObject.h"
 
 namespace cru::ui::render {
-void SingleChildRenderObject::SetChild(RenderObject *new_child) {
+SingleChildRenderObject::SingleChildRenderObject(std::string name)
+    : RenderObject(std::move(name)) {}
+
+void SingleChildRenderObject::SetChild(RenderObject* new_child) {
   assert(new_child == nullptr || new_child->GetParent() == nullptr);
   if (child_ == new_child) return;
   auto old_child = child_;
@@ -15,8 +19,8 @@ void SingleChildRenderObject::SetChild(RenderObject *new_child) {
   OnChildChanged(old_child, new_child);
 }
 
-void SingleChildRenderObject::OnChildChanged(RenderObject *old_child,
-                                             RenderObject *new_child) {
+void SingleChildRenderObject::OnChildChanged(RenderObject* old_child,
+                                             RenderObject* new_child) {
   InvalidateLayout();
 }
 }  // namespace cru::ui::render

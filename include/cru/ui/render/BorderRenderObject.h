@@ -6,15 +6,14 @@
 
 namespace cru::ui::render {
 class CRU_UI_API BorderRenderObject : public SingleChildRenderObject {
-  CRU_DEFINE_CLASS_LOG_TAG("BorderRenderObject")
+  CRU_DEFINE_CLASS_LOG_TAG("cru::ui::render::BorderRenderObject")
 
  public:
-  BorderRenderObject();
-  CRU_DELETE_COPY(BorderRenderObject)
-  CRU_DELETE_MOVE(BorderRenderObject)
-  ~BorderRenderObject() override;
+  static constexpr auto kRenderObjectName = "BorderRenderObject";
 
-  bool IsBorderEnabled() const { return is_border_enabled_; }
+  BorderRenderObject();
+
+  bool IsBorderEnabled() { return is_border_enabled_; }
   void SetBorderEnabled(bool enabled);
 
   std::shared_ptr<platform::graphics::IBrush> GetBorderBrush() {
@@ -22,7 +21,7 @@ class CRU_UI_API BorderRenderObject : public SingleChildRenderObject {
   }
   void SetBorderBrush(std::shared_ptr<platform::graphics::IBrush> brush);
 
-  Thickness GetBorderThickness() const { return border_thickness_; }
+  Thickness GetBorderThickness() { return border_thickness_; }
   void SetBorderThickness(const Thickness thickness);
 
   CornerRadius GetBorderRadius() { return border_radius_; }
@@ -45,12 +44,10 @@ class CRU_UI_API BorderRenderObject : public SingleChildRenderObject {
   RenderObject* HitTest(const Point& point) override;
   void Draw(platform::graphics::IPainter* painter) override;
 
-  Thickness GetTotalSpaceThickness() const override;
-  Thickness GetInnerSpaceThickness() const override;
-  Rect GetPaddingRect() const override;
-  Rect GetContentRect() const override;
-
-  std::string GetName() const override;
+  Thickness GetTotalSpaceThickness() override;
+  Thickness GetInnerSpaceThickness() override;
+  Rect GetPaddingRect() override;
+  Rect GetContentRect() override;
 
  protected:
   Size OnMeasureContent(const MeasureRequirement& requirement,

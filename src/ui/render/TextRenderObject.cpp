@@ -16,7 +16,8 @@ TextRenderObject::TextRenderObject(
     std::shared_ptr<platform::graphics::IBrush> brush,
     std::shared_ptr<platform::graphics::IFont> font,
     std::shared_ptr<platform::graphics::IBrush> selection_brush,
-    std::shared_ptr<platform::graphics::IBrush> caret_brush) {
+    std::shared_ptr<platform::graphics::IBrush> caret_brush)
+    : RenderObject(kRenderObjectName) {
   Expects(brush);
   Expects(font);
   Expects(selection_brush);
@@ -31,11 +32,7 @@ TextRenderObject::TextRenderObject(
   text_layout_ = graph_factory->CreateTextLayout(font_, "");
 }
 
-TextRenderObject::~TextRenderObject() = default;
-
-std::string TextRenderObject::GetText() const {
-  return text_layout_->GetText();
-}
+std::string TextRenderObject::GetText() { return text_layout_->GetText(); }
 
 void TextRenderObject::SetText(std::string new_text) {
   text_layout_->SetText(std::move(new_text));
@@ -49,7 +46,7 @@ void TextRenderObject::SetBrush(
   InvalidatePaint();
 }
 
-std::shared_ptr<platform::graphics::IFont> TextRenderObject::GetFont() const {
+std::shared_ptr<platform::graphics::IFont> TextRenderObject::GetFont() {
   return text_layout_->GetFont();
 }
 

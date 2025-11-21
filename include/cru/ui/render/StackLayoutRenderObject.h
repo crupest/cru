@@ -28,24 +28,21 @@ struct StackChildLayoutData {
 // to min size.
 class CRU_UI_API StackLayoutRenderObject
     : public LayoutRenderObject<StackChildLayoutData> {
-  CRU_DEFINE_CLASS_LOG_TAG("StackLayoutRenderObject")
+  CRU_DEFINE_CLASS_LOG_TAG("cru::ui::render::StackLayoutRenderObject")
 
  public:
-  StackLayoutRenderObject() = default;
-  CRU_DELETE_COPY(StackLayoutRenderObject)
-  CRU_DELETE_MOVE(StackLayoutRenderObject)
-  ~StackLayoutRenderObject() = default;
+  static constexpr auto kRenderObjectName = "StackLayoutRenderObject";
 
-  std::string GetName() const override { return "StackLayoutRenderObject"; }
+  StackLayoutRenderObject();
 
-  Alignment GetDefaultHorizontalAlignment() const {
+  Alignment GetDefaultHorizontalAlignment() {
     return default_vertical_alignment_;
   }
   void SetDefaultHorizontalAlignment(Alignment alignment);
   Alignment GetDefaultVerticalAlignment() {
     return default_horizontal_alignment_;
   }
-  void SetDefaultVertialAlignment(Alignment alignment);
+  void SetDefaultVerticalAlignment(Alignment alignment);
 
  protected:
   Size OnMeasureContent(const MeasureRequirement& requirement,

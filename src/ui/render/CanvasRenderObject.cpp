@@ -1,9 +1,8 @@
 #include "cru/ui/render/CanvasRenderObject.h"
+#include "cru/ui/render/RenderObject.h"
 
 namespace cru::ui::render {
-CanvasRenderObject::CanvasRenderObject() {}
-
-CanvasRenderObject::~CanvasRenderObject() = default;
+CanvasRenderObject::CanvasRenderObject() : RenderObject(kRenderObjectName) {}
 
 RenderObject* CanvasRenderObject::HitTest(const Point& point) {
   const auto padding_rect = GetPaddingRect();

@@ -1,9 +1,6 @@
 #pragma once
-#include "SingleChildRenderObject.h"
-
 #include "ScrollBar.h"
-#include "cru/base/Event.h"
-#include "cru/ui/render/RenderObject.h"
+#include "SingleChildRenderObject.h"
 
 #include <memory>
 #include <optional>
@@ -19,12 +16,9 @@ namespace cru::ui::render {
 // Or layout by scroll state.
 class CRU_UI_API ScrollRenderObject : public SingleChildRenderObject {
  public:
+  static constexpr auto kRenderObjectName = "ScrollRenderObject";
+
   ScrollRenderObject();
-
-  CRU_DELETE_COPY(ScrollRenderObject)
-  CRU_DELETE_MOVE(ScrollRenderObject)
-
-  ~ScrollRenderObject() override = default;
 
   RenderObject* HitTest(const Point& point) override;
 
@@ -46,7 +40,7 @@ class CRU_UI_API ScrollRenderObject : public SingleChildRenderObject {
 
   void ApplyScroll(const Scroll& scroll);
 
-  Point GetRawScrollOffset() const { return scroll_offset_; }
+  Point GetRawScrollOffset() { return scroll_offset_; }
 
   // Return the viewable area rect.
   // Lefttop is scroll offset. Size is content size.
@@ -60,9 +54,7 @@ class CRU_UI_API ScrollRenderObject : public SingleChildRenderObject {
   // Param margin is just for convenience and it will just add to the rect.
   void ScrollToContain(const Rect& rect, const Thickness& margin = Thickness{});
 
-  std::string GetName() const override { return "ScrollRenderObject"; }
-
-  bool IsMouseWheelScrollEnabled() const { return is_mouse_wheel_enabled_; }
+  bool IsMouseWheelScrollEnabled() { return is_mouse_wheel_enabled_; }
   void SetMouseWheelScrollEnabled(bool enable);
 
   bool HorizontalCanScrollUp();

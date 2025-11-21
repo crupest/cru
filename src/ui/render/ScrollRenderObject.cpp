@@ -37,7 +37,8 @@ Point CoerceScroll(const Point& scroll_offset, const Size& content_size,
 }
 }  // namespace
 
-ScrollRenderObject::ScrollRenderObject() {
+ScrollRenderObject::ScrollRenderObject()
+    : SingleChildRenderObject(kRenderObjectName) {
   scroll_bar_delegate_ = std::make_unique<ScrollBarDelegate>(this);
   scroll_bar_delegate_->ScrollAttemptEvent()->AddHandler(
       [this](const struct Scroll& scroll) { this->ApplyScroll(scroll); });

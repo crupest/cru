@@ -26,17 +26,14 @@ class CanvasPaintEventArgs {
 // required range.
 class CRU_UI_API CanvasRenderObject : public RenderObject {
  public:
+  static constexpr auto kRenderObjectName = "CanvasRenderObject";
+
   CanvasRenderObject();
-
-  CRU_DELETE_COPY(CanvasRenderObject)
-  CRU_DELETE_MOVE(CanvasRenderObject)
-
-  ~CanvasRenderObject();
 
  public:
   RenderObject* HitTest(const Point& point) override;
 
-  Size GetDesiredSize() const { return desired_size_; }
+  Size GetDesiredSize() { return desired_size_; }
 
   IEvent<CanvasPaintEventArgs>* PaintEvent() { return &paint_event_; }
 

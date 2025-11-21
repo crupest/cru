@@ -11,9 +11,10 @@
 #include <algorithm>
 
 namespace cru::ui::render {
-BorderRenderObject::BorderRenderObject() { RecreateGeometry(); }
-
-BorderRenderObject::~BorderRenderObject() {}
+BorderRenderObject::BorderRenderObject()
+    : SingleChildRenderObject(kRenderObjectName) {
+  RecreateGeometry();
+}
 
 void BorderRenderObject::ApplyBorderStyle(
     const style::ApplyBorderStyleInfo& style) {
@@ -138,19 +139,19 @@ void BorderRenderObject::OnLayoutContent(const Rect& content_rect) {
 
 void BorderRenderObject::OnResize(const Size& new_size) { RecreateGeometry(); }
 
-Thickness BorderRenderObject::GetTotalSpaceThickness() const {
+Thickness BorderRenderObject::GetTotalSpaceThickness() {
   return is_border_enabled_
              ? RenderObject::GetTotalSpaceThickness() + GetBorderThickness()
              : RenderObject::GetTotalSpaceThickness();
 }
 
-Thickness BorderRenderObject::GetInnerSpaceThickness() const {
+Thickness BorderRenderObject::GetInnerSpaceThickness() {
   return is_border_enabled_
              ? RenderObject::GetInnerSpaceThickness() + GetBorderThickness()
              : RenderObject::GetInnerSpaceThickness();
 }
 
-Rect BorderRenderObject::GetPaddingRect() const {
+Rect BorderRenderObject::GetPaddingRect() {
   const auto size = GetSize();
   Rect rect{Point{}, size};
   rect = rect.Shrink(GetMargin());
@@ -162,7 +163,7 @@ Rect BorderRenderObject::GetPaddingRect() const {
   return rect;
 }
 
-Rect BorderRenderObject::GetContentRect() const {
+Rect BorderRenderObject::GetContentRect() {
   const auto size = GetDesiredSize();
   Rect rect{Point{}, size};
   rect = rect.Shrink(GetMargin());
@@ -243,6 +244,4 @@ void BorderRenderObject::RecreateGeometry() {
   geometry_ = builder->Build();
   builder.reset();
 }
-
-std::string BorderRenderObject::GetName() const { return "BorderRenderObject"; }
 }  // namespace cru::ui::render

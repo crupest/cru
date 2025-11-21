@@ -5,12 +5,11 @@
 #include "cru/ui/render/RenderObject.h"
 
 namespace cru::ui::render {
-GeometryRenderObject::GeometryRenderObject() {}
-
-GeometryRenderObject::~GeometryRenderObject() {}
+GeometryRenderObject::GeometryRenderObject()
+    : RenderObject(kRenderObjectName) {}
 
 std::shared_ptr<platform::graphics::IGeometry>
-GeometryRenderObject::GetGeometry() const {
+GeometryRenderObject::GetGeometry() {
   return geometry_;
 }
 
@@ -25,15 +24,15 @@ void GeometryRenderObject::SetGeometry(
   }
 }
 
-Rect GeometryRenderObject::GetViewPort() const { return view_port_; }
+Rect GeometryRenderObject::GetViewPort() { return view_port_; }
 
 void GeometryRenderObject::SetViewPort(const Rect& view_port) {
   view_port_ = view_port;
   InvalidatePaint();
 }
 
-std::shared_ptr<platform::graphics::IBrush> GeometryRenderObject::GetFillBrush()
-    const {
+std::shared_ptr<platform::graphics::IBrush>
+GeometryRenderObject::GetFillBrush() {
   return fill_brush_;
 }
 
@@ -44,7 +43,7 @@ void GeometryRenderObject::SetFillBrush(
 }
 
 std::shared_ptr<platform::graphics::IBrush>
-GeometryRenderObject::GetStrokeBrush() const {
+GeometryRenderObject::GetStrokeBrush() {
   return stroke_brush_;
 }
 
@@ -54,7 +53,7 @@ void GeometryRenderObject::SetStrokeBrush(
   InvalidatePaint();
 }
 
-float GeometryRenderObject::GetStrokeWidth() const { return stroke_width_; }
+float GeometryRenderObject::GetStrokeWidth() { return stroke_width_; }
 
 void GeometryRenderObject::SetStrokeWidth(float width) {
   stroke_width_ = width;

@@ -5,6 +5,7 @@
 
 #include <cru/base/Event.h>
 #include <cru/platform/graphics/Painter.h>
+#include <string>
 
 namespace cru::ui::render {
 struct BoxConstraint {
@@ -61,52 +62,52 @@ struct BoxConstraint {
  * content_rect) override;
  */
 class CRU_UI_API RenderObject : public Object {
-  CRU_DEFINE_CLASS_LOG_TAG("RenderObject")
+  CRU_DEFINE_CLASS_LOG_TAG("cru::ui::render::RenderObject")
 
  public:
+  RenderObject(std::string name);
   ~RenderObject() override;
 
-  controls::Control* GetAttachedControl() const { return control_; }
+  controls::Control* GetAttachedControl() { return control_; }
   void SetAttachedControl(controls::Control* new_control);
 
-  RenderObject* GetParent() const { return parent_; }
+  RenderObject* GetParent() { return parent_; }
   void SetParent(RenderObject* new_parent);
 
   // Offset from parent's lefttop to lefttop of this render object. Margin is
   // accounted for.
-  Point GetOffset() const { return offset_; }
-  Size GetSize() const { return size_; }
+  Point GetOffset() { return offset_; }
+  Size GetSize() { return size_; }
 
-  Point GetTotalOffset() const;
-  Point FromRootToContent(const Point& point) const;
+  Point GetTotalOffset();
+  Point FromRootToContent(const Point& point);
 
-  Size GetDesiredSize() const { return desired_size_; }
+  Size GetDesiredSize() { return desired_size_; }
 
-  Thickness GetMargin() const { return margin_; }
+  Thickness GetMargin() { return margin_; }
   void SetMargin(const Thickness& margin);
 
-  Thickness GetPadding() const { return padding_; }
+  Thickness GetPadding() { return padding_; }
   void SetPadding(const Thickness& padding);
 
-  MeasureSize GetPreferredSize() const { return preferred_size_; }
+  MeasureSize GetPreferredSize() { return preferred_size_; }
   void SetPreferredSize(const MeasureSize& preferred_size);
 
-  MeasureSize GetMinSize() const { return custom_measure_requirement_.min; }
+  MeasureSize GetMinSize() { return custom_measure_requirement_.min; }
   void SetMinSize(const MeasureSize& min_size);
 
-  MeasureSize GetMaxSize() const { return custom_measure_requirement_.max; }
+  MeasureSize GetMaxSize() { return custom_measure_requirement_.max; }
   void SetMaxSize(const MeasureSize& max_size);
 
-  MeasureRequirement GetCustomMeasureRequirement() const {
+  MeasureRequirement GetCustomMeasureRequirement() {
     return custom_measure_requirement_;
   }
 
-  Size GetMinSize1() const { return min_size_; }
+  Size GetMinSize1() { return min_size_; }
   void SetMinSize1(const Size& min_size);
-  Size GetMaxSize1() const { return max_size_; }
+  Size GetMaxSize1() { return max_size_; }
   void SetMaxSize1(const Size& max_size);
-  BoxConstraint CalculateMergedConstraint(
-      const BoxConstraint& constraint) const;
+  BoxConstraint CalculateMergedConstraint(const BoxConstraint& constraint);
 
   // This method will merge requirement passed by argument and requirement of
   // the render object using MeasureRequirement::Merge and then call
@@ -122,11 +123,11 @@ class CRU_UI_API RenderObject : public Object {
 
   Size Measure1(const BoxConstraint& constraint);
 
-  virtual Thickness GetTotalSpaceThickness() const;
-  virtual Thickness GetInnerSpaceThickness() const;
+  virtual Thickness GetTotalSpaceThickness();
+  virtual Thickness GetInnerSpaceThickness();
 
-  virtual Rect GetPaddingRect() const;
-  virtual Rect GetContentRect() const;
+  virtual Rect GetPaddingRect();
+  virtual Rect GetContentRect();
 
   virtual void Draw(platform::graphics::IPainter* painter) = 0;
 
@@ -140,8 +141,8 @@ class CRU_UI_API RenderObject : public Object {
   void InvalidatePaint();
 
  public:
-  virtual std::string GetName() const;
-  std::string GetDebugPathInTree() const;
+  std::string GetName();
+  std::string GetDebugPathInTree();
 
   CRU_DEFINE_EVENT(Destroy, RenderObject*)
 
@@ -180,6 +181,7 @@ class CRU_UI_API RenderObject : public Object {
   virtual void OnResize(const Size& new_size) {}
 
  private:
+  std::string name_;
   controls::Control* control_ = nullptr;
 
   RenderObject* parent_ = nullptr;

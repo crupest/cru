@@ -1,6 +1,7 @@
 #pragma once
 #include "RenderObject.h"
-#include "cru/platform/graphics/Painter.h"
+
+#include <cru/platform/graphics/Painter.h>
 
 namespace cru::ui::render {
 class TreeRenderObject;
@@ -18,11 +19,9 @@ class CRU_UI_API TreeRenderObjectItem : public Object {
   RenderObject* GetRenderObject() { return render_object_; }
   void SetRenderObject(RenderObject* render_object);
 
-  const std::vector<TreeRenderObjectItem*>& GetChildren() const {
-    return children_;
-  }
+  const std::vector<TreeRenderObjectItem*>& GetChildren() { return children_; }
 
-  Index GetChildCount() const { return children_.size(); }
+  Index GetChildCount() { return children_.size(); }
 
   TreeRenderObjectItem* GetChildAt(Index index) {
     Expects(index >= 0 && index < children_.size());
@@ -32,7 +31,7 @@ class CRU_UI_API TreeRenderObjectItem : public Object {
   TreeRenderObjectItem* AddItem(Index position);
   void RemoveItem(Index position);
 
-  void* GetUserData() const { return user_data_; }
+  void* GetUserData() { return user_data_; }
   void SetUserData(void* user_data) { user_data_ = user_data; }
 
  private:
@@ -47,19 +46,17 @@ class CRU_UI_API TreeRenderObjectItem : public Object {
 };
 
 class CRU_UI_API TreeRenderObject : public RenderObject {
-  CRU_DEFINE_CLASS_LOG_TAG("TreeRenderObject")
+  CRU_DEFINE_CLASS_LOG_TAG("cru::ui::render::TreeRenderObject")
 
  public:
-  TreeRenderObject();
-  CRU_DELETE_COPY(TreeRenderObject)
-  CRU_DELETE_MOVE(TreeRenderObject)
-  ~TreeRenderObject() override;
+  static constexpr auto kRenderObjectName = "TreeRenderObject";
 
-  std::string GetName() const override { return "TreeRenderObject"; }
+  TreeRenderObject();
+  ~TreeRenderObject() override;
 
   TreeRenderObjectItem* GetRootItem() { return root_item_; }
 
-  float GetTabWidth() const { return tab_width_; }
+  float GetTabWidth() { return tab_width_; }
   void SetTabWidth(float tab_width);
 
   RenderObject* HitTest(const Point& point) override;

@@ -20,15 +20,10 @@ class LayoutRenderObject : public RenderObject {
   };
 
  protected:
-  LayoutRenderObject() = default;
+  LayoutRenderObject(std::string name) : RenderObject(std::move(name)) {}
 
  public:
-  CRU_DELETE_COPY(LayoutRenderObject)
-  CRU_DELETE_MOVE(LayoutRenderObject)
-
-  ~LayoutRenderObject() override = default;
-
-  Index GetChildCount() const { return static_cast<Index>(children_.size()); }
+  Index GetChildCount() { return static_cast<Index>(children_.size()); }
 
   RenderObject* GetChildAt(Index position) {
     Expects(position >= 0 && position < GetChildCount());
@@ -75,7 +70,7 @@ class LayoutRenderObject : public RenderObject {
     InvalidateLayout();
   }
 
-  const ChildLayoutData& GetChildLayoutDataAt(Index position) const {
+  const ChildLayoutData& GetChildLayoutDataAt(Index position) {
     Expects(position >= 0 && position < GetChildCount());
     return children_[position].layout_data;
   }

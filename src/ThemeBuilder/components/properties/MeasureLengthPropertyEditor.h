@@ -16,7 +16,7 @@ class MeasureLengthPropertyEditor : public Editor, public LabeledMixin {
  public:
   ui::controls::Control* GetRootControl() override { return &container_; }
 
-  PropertyType GetValue() const { return measure_length_; }
+  PropertyType GetValue() { return measure_length_; }
   void SetValue(const PropertyType& value, bool trigger_change = true);
 
  private:

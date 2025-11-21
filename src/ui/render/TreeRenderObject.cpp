@@ -45,7 +45,7 @@ void TreeRenderObjectItem::RemoveItem(Index position) {
   tree_render_object_->InvalidateLayout();
 }
 
-TreeRenderObject::TreeRenderObject() {
+TreeRenderObject::TreeRenderObject() : RenderObject(kRenderObjectName) {
   root_item_ = new TreeRenderObjectItem(this, nullptr);
 }
 

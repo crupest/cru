@@ -93,32 +93,26 @@ struct FlexChildLayoutData {
 //
 class CRU_UI_API FlexLayoutRenderObject
     : public LayoutRenderObject<FlexChildLayoutData> {
-  CRU_DEFINE_CLASS_LOG_TAG("FlexLayoutRenderObject")
+  CRU_DEFINE_CLASS_LOG_TAG("cru::ui::render::FlexLayoutRenderObject")
 
  public:
-  FlexLayoutRenderObject() = default;
-  FlexLayoutRenderObject(const FlexLayoutRenderObject& other) = delete;
-  FlexLayoutRenderObject& operator=(const FlexLayoutRenderObject& other) =
-      delete;
-  FlexLayoutRenderObject(FlexLayoutRenderObject&& other) = delete;
-  FlexLayoutRenderObject& operator=(FlexLayoutRenderObject&& other) = delete;
-  ~FlexLayoutRenderObject() override = default;
+  static constexpr auto kRenderObjectName = "FlexLayoutRenderObject";
 
-  std::string GetName() const override;
+  FlexLayoutRenderObject();
 
-  FlexDirection GetFlexDirection() const { return direction_; }
+  FlexDirection GetFlexDirection() { return direction_; }
   void SetFlexDirection(FlexDirection direction) {
     direction_ = direction;
     InvalidateLayout();
   }
 
-  FlexMainAlignment GetContentMainAlign() const { return content_main_align_; }
+  FlexMainAlignment GetContentMainAlign() { return content_main_align_; }
   void SetContentMainAlign(FlexMainAlignment align) {
     content_main_align_ = align;
     InvalidateLayout();
   }
 
-  FlexCrossAlignment GetItemCrossAlign() const { return item_cross_align_; }
+  FlexCrossAlignment GetItemCrossAlign() { return item_cross_align_; }
   void SetItemCrossAlign(FlexCrossAlignment align) {
     item_cross_align_ = align;
     InvalidateLayout();

@@ -12,7 +12,7 @@ Window::Window()
       control_host_(new ControlHost(this)),
       attached_control_(nullptr) {
   GetContainerRenderObject()->SetDefaultHorizontalAlignment(Alignment::Stretch);
-  GetContainerRenderObject()->SetDefaultVertialAlignment(Alignment::Stretch);
+  GetContainerRenderObject()->SetDefaultVerticalAlignment(Alignment::Stretch);
 }
 
 Window* Window::CreatePopup() {

@@ -9,6 +9,8 @@
 namespace cru::ui::render {
 const BoxConstraint BoxConstraint::kNotLimit{Size::kMax, Size::kZero};
 
+RenderObject::RenderObject(std::string name) : name_(std::move(name)) {}
+
 RenderObject::~RenderObject() { DestroyEvent_.Raise(this); }
 
 void RenderObject::SetParent(RenderObject* new_parent) {
@@ -29,9 +31,9 @@ void RenderObject::SetAttachedControl(controls::Control* new_control) {
   OnAttachedControlChanged(old_control, new_control);
 }
 
-Point RenderObject::GetTotalOffset() const {
+Point RenderObject::GetTotalOffset() {
   Point result{};
-  const RenderObject* render_object = this;
+  RenderObject* render_object = this;
 
   while (render_object != nullptr) {
     const auto o = render_object->GetOffset();
@@ -43,7 +45,7 @@ Point RenderObject::GetTotalOffset() const {
   return result;
 }
 
-Point RenderObject::FromRootToContent(const Point& point) const {
+Point RenderObject::FromRootToContent(const Point& point) {
   const auto offset = GetTotalOffset();
   const auto rect = GetContentRect();
   return Point{point.x - (offset.x + rect.left),
@@ -86,7 +88,7 @@ void RenderObject::SetMaxSize1(const Size& max_size) {
 }
 
 BoxConstraint RenderObject::CalculateMergedConstraint(
-    const BoxConstraint& constraint) const {
+    const BoxConstraint& constraint) {
   auto result = constraint;
   if (max_size_.width >= constraint.min.width &&
       max_size_.width < constraint.max.width) {
@@ -157,11 +159,9 @@ void RenderObject::Layout(const Point& offset) {
   OnLayoutCore();
 }
 
-Thickness RenderObject::GetTotalSpaceThickness() const {
-  return margin_ + padding_;
-}
+Thickness RenderObject::GetTotalSpaceThickness() { return margin_ + padding_; }
 
-Thickness RenderObject::GetInnerSpaceThickness() const { return padding_; }
+Thickness RenderObject::GetInnerSpaceThickness() { return padding_; }
 
 Size RenderObject::OnMeasureCore(const MeasureRequirement& requirement,
                                  const MeasureSize& preferred_size) {
@@ -244,7 +244,7 @@ Size RenderObject::OnMeasureContent1(const BoxConstraint& constraint) {
   throw Exception("Not implemented.");
 }
 
-Rect RenderObject::GetPaddingRect() const {
+Rect RenderObject::GetPaddingRect() {
   const auto size = GetDesiredSize();
   Rect rect{Point{}, size};
   rect = rect.Shrink(GetMargin());
@@ -255,7 +255,7 @@ Rect RenderObject::GetPaddingRect() const {
   return rect;
 }
 
-Rect RenderObject::GetContentRect() const {
+Rect RenderObject::GetContentRect() {
   const auto size = GetDesiredSize();
   Rect rect{Point{}, size};
   rect = rect.Shrink(GetMargin());
@@ -286,12 +286,11 @@ void RenderObject::InvalidatePaint() {
   }
 }
 
-std::string kUnamedName("UNNAMED");
-std::string RenderObject::GetName() const { return kUnamedName; }
+std::string RenderObject::GetName() { return name_; }
 
-std::string RenderObject::GetDebugPathInTree() const {
+std::string RenderObject::GetDebugPathInTree() {
   std::vector<std::string> chain;
-  const RenderObject* parent = this;
+  RenderObject* parent = this;
   while (parent != nullptr) {
     chain.push_back(parent->GetName());
     parent = parent->GetParent();

@@ -7,9 +7,8 @@
 #include <type_traits>
 
 namespace cru::ui::render {
-std::string FlexLayoutRenderObject::GetName() const {
-  return "FlexLayoutRenderObject";
-}
+FlexLayoutRenderObject::FlexLayoutRenderObject()
+    : LayoutRenderObject<FlexChildLayoutData>(kRenderObjectName) {}
 
 struct tag_horizontal_t {};
 struct tag_vertical_t {};

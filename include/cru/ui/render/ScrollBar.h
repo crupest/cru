@@ -1,13 +1,12 @@
 #pragma once
-#include "cru/base/Base.h"
-#include "cru/base/Event.h"
-#include "cru/platform/graphics/Base.h"
-#include "cru/platform/graphics/Brush.h"
-#include "cru/platform/graphics/Geometry.h"
-#include "cru/platform/graphics/Painter.h"
-#include "cru/platform/gui/UiApplication.h"
-#include "cru/ui/Base.h"
-#include "cru/ui/controls/Control.h"
+#include "../Base.h"
+#include "../controls/Control.h"
+
+#include <cru/platform/graphics/Base.h>
+#include <cru/platform/graphics/Brush.h>
+#include <cru/platform/graphics/Geometry.h>
+#include <cru/platform/graphics/Painter.h>
+#include <cru/platform/gui/UiApplication.h>
 
 #include <memory>
 #include <optional>
@@ -45,12 +44,12 @@ class CRU_UI_API ScrollBar : public Object {
   ~ScrollBar() override;
 
  public:
-  Direction GetDirection() const { return direction_; }
+  Direction GetDirection() { return direction_; }
 
-  bool IsEnabled() const { return is_enabled_; }
+  bool IsEnabled() { return is_enabled_; }
   void SetEnabled(bool value);
 
-  bool IsExpanded() const { return is_expanded_; }
+  bool IsExpanded() { return is_expanded_; }
   void SetExpanded(bool value);
 
   void Draw(platform::graphics::IPainter* painter);
@@ -209,12 +208,12 @@ class CRU_UI_API ScrollBarDelegate : public Object {
   ~ScrollBarDelegate() override = default;
 
  public:
-  bool IsHorizontalBarEnabled() const { return horizontal_bar_.IsEnabled(); }
+  bool IsHorizontalBarEnabled() { return horizontal_bar_.IsEnabled(); }
   void SetHorizontalBarEnabled(bool value) {
     horizontal_bar_.SetEnabled(value);
   }
 
-  bool IsVerticalBarEnabled() const { return horizontal_bar_.IsEnabled(); }
+  bool IsVerticalBarEnabled() { return horizontal_bar_.IsEnabled(); }
   void SetVerticalBarEnabled(bool value) { horizontal_bar_.SetEnabled(value); }
 
   IEvent<Scroll>* ScrollAttemptEvent() { return &scroll_attempt_event_; }

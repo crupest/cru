@@ -3,13 +3,10 @@
 
 namespace cru::ui::render {
 class CRU_UI_API SingleChildRenderObject : public RenderObject {
-  CRU_DEFINE_CLASS_LOG_TAG("SingleChildRenderObject")
+  CRU_DEFINE_CLASS_LOG_TAG("cru::ui::render::SingleChildRenderObject")
 
  public:
-  SingleChildRenderObject() = default;
-  CRU_DELETE_COPY(SingleChildRenderObject)
-  CRU_DELETE_MOVE(SingleChildRenderObject)
-  ~SingleChildRenderObject() override = default;
+  SingleChildRenderObject(std::string name);
 
   RenderObject* GetChild() const { return child_; }
   void SetChild(RenderObject* new_child);
