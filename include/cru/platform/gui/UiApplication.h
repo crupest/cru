@@ -91,10 +91,12 @@ struct CRU_PLATFORM_GUI_API IUiApplication : public virtual IPlatformResource {
 };
 
 namespace details {
-inline void CancelTimer(long long id) noexcept {
-  IUiApplication::GetInstance()->CancelTimer(id);
-}
+struct TimerCanceler {
+  void operator()(long long id) {
+    IUiApplication::GetInstance()->CancelTimer(id);
+  }
+};
 }  // namespace details
 
-using TimerAutoCanceler = AutoDestruct<long long, details::CancelTimer>;
+using TimerAutoCanceler = AutoDestruct<long long, details::TimerCanceler>;
 }  // namespace cru::platform::gui

@@ -55,10 +55,12 @@ inline void CheckWinReturn(BOOL r, std::string_view message = "") {
 }
 
 namespace details {
-inline void MyCloseHandle(HANDLE handle) noexcept { ::CloseHandle(handle); }
+struct HandleCloser {
+  void operator()(HANDLE handle) noexcept { ::CloseHandle(handle); }
+};
 }  // namespace details
 
-using Win32Handle = AutoDestruct<HANDLE, details::MyCloseHandle>;
+using Win32Handle = AutoDestruct<HANDLE, details::HandleCloser>;
 
 struct UniDirectionalWin32PipeResult {
   Win32Handle read;

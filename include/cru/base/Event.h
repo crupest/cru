@@ -1,11 +1,11 @@
 #pragma once
 #include "Base.h"
+#include "Guard.h"
 #include "SelfResolvable.h"
 
 #include <algorithm>
 #include <cassert>
 #include <functional>
-#include <memory>
 #include <utility>
 #include <vector>
 
@@ -142,40 +142,13 @@ class Event : public EventBase, public IEvent<TEventArgs> {
   ::cru::IEvent<arg_type>* name##Event() { return &name##Event_; }
 
 namespace details {
-struct EventHandlerRevokerDestroyer {
-  void operator()(EventHandlerRevoker* p) {
-    (*p)();
-    delete p;
-  }
+struct EventHandlerRevokerCaller {
+  void operator()(const EventHandlerRevoker& revoker) { revoker(); }
 };
 }  // namespace details
 
-// A guard class for event revoker. Automatically revoke it when destroyed.
-class EventHandlerRevokerGuard {
- public:
-  EventHandlerRevokerGuard() = default;
-  explicit EventHandlerRevokerGuard(EventHandlerRevoker&& revoker)
-      : revoker_(new EventHandlerRevoker(std::move(revoker))) {}
-
-  EventHandlerRevoker Get() {
-    // revoker is only null when this is moved
-    // you shouldn't use a moved instance
-    assert(revoker_);
-    return *revoker_;
-  }
-
-  EventHandlerRevoker Release() { return std::move(*revoker_.release()); }
-
-  void Reset() { revoker_.reset(); }
-
-  void Reset(EventHandlerRevoker&& revoker) {
-    revoker_.reset(new EventHandlerRevoker(std::move(revoker)));
-  }
-
- private:
-  std::unique_ptr<EventHandlerRevoker, details::EventHandlerRevokerDestroyer>
-      revoker_;
-};
+using EventHandlerRevokerGuard =
+    AutoDestruct<EventHandlerRevoker, details::EventHandlerRevokerCaller>;
 
 class EventHandlerRevokerListGuard {
  public:

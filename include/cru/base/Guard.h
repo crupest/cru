@@ -43,7 +43,7 @@ inline AutoFreePtr<T> MakeAutoFree(T* ptr) {
   return AutoFreePtr<T>(ptr);
 }
 
-template <typename T, void (*DestructFunc)(T value) noexcept>
+template <typename T, typename Destructor>
 class AutoDestruct {
  public:
   AutoDestruct() : value_(std::nullopt), auto_destruct_(false) {}
@@ -110,7 +110,7 @@ class AutoDestruct {
  private:
   void DoDestruct() {
     if (auto_destruct_ && value_) {
-      DestructFunc(*value_);
+      Destructor{}(*value_);
     }
   }
 
