@@ -1,6 +1,5 @@
 #include "PointPropertyEditor.h"
 #include "cru/ui/mapper/MapperRegistry.h"
-#include "cru/ui/mapper/PointMapper.h"
 
 #include <format>
 

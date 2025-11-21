@@ -1,24 +1,20 @@
 #pragma once
-#include "SingleChildControl.h"
-
 #include "../helper/ClickDetector.h"
 #include "../render/BorderRenderObject.h"
 #include "IBorderControl.h"
 #include "IClickableControl.h"
-#include "cru/base/Event.h"
+#include "SingleChildControl.h"
 
 namespace cru::ui::controls {
 class CRU_UI_API Button : public SingleChildControl<render::BorderRenderObject>,
                           public virtual IClickableControl,
                           public virtual IBorderControl {
  public:
-  static constexpr std::string_view kControlType = "Button";
+  static constexpr auto kControlName = "Button";
 
  public:
   Button();
   ~Button() override;
-
-  std::string GetControlType() const final { return std::string(kControlType); }
 
  public:
   helper::ClickState GetClickState() override {
@@ -29,7 +25,7 @@ class CRU_UI_API Button : public SingleChildControl<render::BorderRenderObject>,
     return click_detector_.StateChangeEvent();
   }
 
-  IEvent<const helper::ClickEventArgs&>* ClickEvent() {
+  IEvent<const helper::ClickEventArgs&>* ClickEvent() override {
     return click_detector_.ClickEvent();
   }
 

@@ -19,13 +19,11 @@ class CRU_UI_API Window
   friend Control;
 
  public:
-  static constexpr std::string_view kControlType = "Window";
+  static constexpr auto kControlName = "Window";
 
   Window();
 
   static Window* CreatePopup();
-
-  std::string GetControlType() const override;
 
   void SetAttachedControl(Control* control);
 

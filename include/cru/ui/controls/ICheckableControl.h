@@ -4,7 +4,7 @@
 
 namespace cru::ui::controls {
 struct CRU_UI_API ICheckableControl : virtual Interface {
-  virtual bool IsChecked() const = 0;
+  virtual bool IsChecked() = 0;
   virtual void SetChecked(bool checked) = 0;
   virtual IEvent<bool>* CheckedChangeEvent() = 0;
 };

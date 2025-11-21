@@ -5,5 +5,5 @@
 
 namespace cru::platform::gui::win {
 KeyCode CRU_WIN_GUI_API VirtualKeyToKeyCode(int virtual_key);
-KeyModifier CRU_WIN_GUI_API RetrieveKeyMofifier();
+KeyModifier CRU_WIN_GUI_API RetrieveKeyModifier();
 }  // namespace cru::platform::gui::win

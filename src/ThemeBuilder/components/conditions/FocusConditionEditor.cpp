@@ -14,7 +14,7 @@ FocusConditionEditor::FocusConditionEditor() {
 
 FocusConditionEditor::~FocusConditionEditor() {}
 
-ClonePtr<ui::style::FocusCondition> FocusConditionEditor::GetValue() const {
+ClonePtr<ui::style::FocusCondition> FocusConditionEditor::GetValue() {
   return ui::style::FocusCondition::Create(focus_check_box_.GetValue());
 }
 

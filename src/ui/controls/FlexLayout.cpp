@@ -1,11 +1,10 @@
 #include "cru/ui/controls/FlexLayout.h"
 
 namespace cru::ui::controls {
-FlexLayout::FlexLayout() = default;
+FlexLayout::FlexLayout()
+    : LayoutControl<render::FlexLayoutRenderObject>(kControlName) {}
 
-FlexLayout::~FlexLayout() = default;
-
-FlexMainAlignment FlexLayout::GetContentMainAlign() const {
+FlexMainAlignment FlexLayout::GetContentMainAlign() {
   return GetContainerRenderObject()->GetContentMainAlign();
 }
 
@@ -13,7 +12,7 @@ void FlexLayout::SetContentMainAlign(FlexMainAlignment value) {
   GetContainerRenderObject()->SetContentMainAlign(value);
 }
 
-FlexDirection FlexLayout::GetFlexDirection() const {
+FlexDirection FlexLayout::GetFlexDirection() {
   return GetContainerRenderObject()->GetFlexDirection();
 }
 
@@ -21,7 +20,7 @@ void FlexLayout::SetFlexDirection(FlexDirection direction) {
   GetContainerRenderObject()->SetFlexDirection(direction);
 }
 
-FlexCrossAlignment FlexLayout::GetItemCrossAlign() const {
+FlexCrossAlignment FlexLayout::GetItemCrossAlign() {
   return GetContainerRenderObject()->GetItemCrossAlign();
 }
 

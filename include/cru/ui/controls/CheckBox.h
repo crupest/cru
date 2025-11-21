@@ -12,20 +12,16 @@ class CRU_UI_API CheckBox : public Control,
                             public virtual ICheckableControl,
                             public virtual IClickableControl {
  public:
-  static constexpr std::string_view kControlType = "CheckBox";
+  static constexpr auto kControlName = "CheckBox";
 
   CheckBox();
   ~CheckBox() override;
 
-  std::string GetControlType() const override {
-    return std::string(kControlType);
+  render::RenderObject* GetRenderObject() override {
+    return &container_render_object_;
   }
 
-  render::RenderObject* GetRenderObject() const override {
-    return container_render_object_.get();
-  }
-
-  bool IsChecked() const override { return checked_; }
+  bool IsChecked() override { return checked_; }
   void SetChecked(bool checked) override;
   void Toggle() { SetChecked(!checked_); }
 
@@ -41,11 +37,15 @@ class CRU_UI_API CheckBox : public Control,
     return click_detector_.StateChangeEvent();
   }
 
+  IEvent<const helper::ClickEventArgs&>* ClickEvent() override {
+    return click_detector_.ClickEvent();
+  }
+
  private:
-  bool checked_ = false;
+  bool checked_;
   Event<bool> checked_change_event_;
 
-  std::unique_ptr<render::BorderRenderObject> container_render_object_;
+  render::BorderRenderObject container_render_object_;
 
   helper::ClickDetector click_detector_;
 };

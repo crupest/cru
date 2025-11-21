@@ -1,5 +1,4 @@
 #pragma once
-#include "../Editor.h"
 #include "../properties/FontPropertyEditor.h"
 #include "StylerEditor.h"
 #include "cru/base/ClonePtr.h"
@@ -12,7 +11,7 @@ class FontStylerEditor : public StylerEditor {
   ~FontStylerEditor();
 
  public:
-  ClonePtr<ui::style::FontStyler> GetValue() const;
+  ClonePtr<ui::style::FontStyler> GetValue();
   void SetValue(ui::style::FontStyler* value, bool trigger_change = true);
 
   ClonePtr<ui::style::Styler> GetStyler() override { return GetValue(); }

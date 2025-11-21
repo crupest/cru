@@ -11,16 +11,14 @@ class FocusConditionEditor : public ConditionEditor {
   ~FocusConditionEditor() override;
 
  public:
-  ClonePtr<ui::style::FocusCondition> GetValue() const;
+  ClonePtr<ui::style::FocusCondition> GetValue();
   void SetValue(ui::style::FocusCondition* value, bool trigger_change = true);
   void SetValue(const ClonePtr<ui::style::FocusCondition>& value,
                 bool trigger_change = true) {
     SetValue(value.get(), trigger_change);
   }
 
-  ClonePtr<ui::style::Condition> GetCondition() override {
-    return GetValue();
-  }
+  ClonePtr<ui::style::Condition> GetCondition() override { return GetValue(); }
 
  private:
   properties::CheckBoxPropertyEditor focus_check_box_;

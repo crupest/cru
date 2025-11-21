@@ -1,5 +1,4 @@
 #pragma once
-#include "../Editor.h"
 #include "../properties/ColorPropertyEditor.h"
 #include "StylerEditor.h"
 #include "cru/base/ClonePtr.h"
@@ -12,7 +11,7 @@ class ContentBrushStylerEditor : public StylerEditor {
   ~ContentBrushStylerEditor();
 
  public:
-  ClonePtr<ui::style::ContentBrushStyler> GetValue() const;
+  ClonePtr<ui::style::ContentBrushStyler> GetValue();
   void SetValue(ui::style::ContentBrushStyler* value,
                 bool trigger_change = true);
 

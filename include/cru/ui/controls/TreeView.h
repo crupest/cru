@@ -54,17 +54,11 @@ class CRU_UI_API TreeView : public Control {
   using Control::AddChild;
 
  public:
-  constexpr static std::string_view kControlType = "TreeView";
+  constexpr static auto kControlType = "TreeView";
 
   TreeView();
-  CRU_DELETE_COPY(TreeView)
-  CRU_DELETE_MOVE(TreeView)
-  ~TreeView() override;
 
-  std::string GetControlType() const override {
-    return std::string(kControlType);
-  }
-  render::TreeRenderObject* GetRenderObject() { return &render_object_; }
+  render::TreeRenderObject* GetRenderObject() override { return &render_object_; }
 
   TreeViewItem* GetRootItem() { return &root_item_; }
 

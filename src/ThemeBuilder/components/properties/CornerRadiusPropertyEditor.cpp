@@ -25,7 +25,7 @@ CornerRadiusPropertyEditor::CornerRadiusPropertyEditor() {
 
 CornerRadiusPropertyEditor::~CornerRadiusPropertyEditor() {}
 
-ui::CornerRadius CornerRadiusPropertyEditor::GetValue() const {
+ui::CornerRadius CornerRadiusPropertyEditor::GetValue() {
   return ui::CornerRadius(
       left_top_editor_.GetValue(), right_top_editor_.GetValue(),
       left_bottom_editor_.GetValue(), right_bottom_editor_.GetValue());

@@ -5,11 +5,10 @@
 
 namespace cru::ui::controls {
 CheckBox::CheckBox()
-    : container_render_object_(new render::BorderRenderObject()),
-      click_detector_(this) {
-  container_render_object_->SetAttachedControl(this);
+    : Control(kControlName), checked_(false), click_detector_(this) {
+  container_render_object_.SetAttachedControl(this);
 
-  container_render_object_->SetBorderEnabled(true);
+  container_render_object_.SetBorderEnabled(true);
   auto default_checkbox_style =
       ThemeManager::GetInstance()->GetResourceStyleRuleSet("checkbox.style");
   GetStyleRuleSet()->SetParent(std::move(default_checkbox_style));
@@ -26,6 +25,6 @@ void CheckBox::SetChecked(bool checked) {
 }
 
 void CheckBox::ApplyBorderStyle(const style::ApplyBorderStyleInfo& style) {
-  container_render_object_->ApplyBorderStyle(style);
+  container_render_object_.ApplyBorderStyle(style);
 }
 }  // namespace cru::ui::controls

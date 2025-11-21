@@ -14,7 +14,7 @@ class CornerRadiusPropertyEditor : public Editor {
 
   ui::controls::Control* GetRootControl() override { return &container_; }
 
-  ui::CornerRadius GetValue() const;
+  ui::CornerRadius GetValue();
   void SetValue(const ui::CornerRadius& corner_radius,
                 bool trigger_change = true);
 

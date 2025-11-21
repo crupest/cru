@@ -11,16 +11,14 @@ class CheckedConditionEditor : public ConditionEditor {
   ~CheckedConditionEditor() override;
 
  public:
-  ClonePtr<ui::style::CheckedCondition> GetValue() const;
+  ClonePtr<ui::style::CheckedCondition> GetValue();
   void SetValue(ui::style::CheckedCondition* value, bool trigger_change = true);
   void SetValue(const ClonePtr<ui::style::CheckedCondition>& value,
                 bool trigger_change = true) {
     SetValue(value.get(), trigger_change);
   }
 
-  ClonePtr<ui::style::Condition> GetCondition() override {
-    return GetValue();
-  }
+  ClonePtr<ui::style::Condition> GetCondition() override { return GetValue(); }
 
  private:
   properties::CheckBoxPropertyEditor checked_check_box_;

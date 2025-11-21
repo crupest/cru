@@ -1,7 +1,7 @@
 #include "cru/ui/controls/ScrollView.h"
 
 namespace cru::ui::controls {
-ScrollView::ScrollView() {}
+ScrollView::ScrollView()
+    : SingleChildControl<render::ScrollRenderObject>(kControlName) {}
 
-ScrollView::~ScrollView() {}
 }  // namespace cru::ui::controls

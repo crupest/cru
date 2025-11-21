@@ -12,8 +12,7 @@ ContentBrushStylerEditor::ContentBrushStylerEditor() {
 
 ContentBrushStylerEditor::~ContentBrushStylerEditor() {}
 
-ClonePtr<ui::style::ContentBrushStyler> ContentBrushStylerEditor::GetValue()
-    const {
+ClonePtr<ui::style::ContentBrushStyler> ContentBrushStylerEditor::GetValue() {
   return ui::style::ContentBrushStyler::Create(
       platform::gui::IUiApplication::GetInstance()
           ->GetGraphicsFactory()

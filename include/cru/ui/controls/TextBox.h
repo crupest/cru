@@ -1,5 +1,6 @@
 #pragma once
 #include "../render/BorderRenderObject.h"
+#include "../render/ScrollRenderObject.h"
 #include "../render/TextRenderObject.h"
 #include "Control.h"
 #include "IBorderControl.h"
@@ -18,48 +19,43 @@ class CRU_UI_API TextBox : public Control,
                            public virtual IContentBrushControl,
                            public virtual IFontControl {
  public:
-  static constexpr std::string_view control_type = "TextBox";
+  static constexpr auto kControlName = "TextBox";
 
   TextBox();
-  CRU_DELETE_COPY(TextBox)
-  CRU_DELETE_MOVE(TextBox)
-  ~TextBox() override;
 
-  std::string GetControlType() const final { return std::string(control_type); }
-
-  render::RenderObject* GetRenderObject() const override;
+  render::RenderObject* GetRenderObject() override;
 
   render::TextRenderObject* GetTextRenderObject() override;
   render::ScrollRenderObject* GetScrollRenderObject() override;
 
-  bool GetMultiLine() const;
+  bool GetMultiLine();
   void SetMultiLine(bool value);
 
   void ApplyBorderStyle(const style::ApplyBorderStyleInfo& style) override;
 
-  std::string GetText() const { return service_->GetText(); }
-  std::string_view GetTextView() const { return service_->GetTextView(); }
+  std::string GetText() { return service_->GetText(); }
+  std::string_view GetTextView() { return service_->GetTextView(); }
   void SetText(std::string text) { service_->SetText(std::move(text)); }
 
   IEvent<std::nullptr_t>* TextChangeEvent() {
     return service_->TextChangeEvent();
   }
 
-  std::shared_ptr<platform::graphics::IFont> GetFont() const override {
+  std::shared_ptr<platform::graphics::IFont> GetFont() override {
     return text_render_object_->GetFont();
   }
   void SetFont(std::shared_ptr<platform::graphics::IFont> font) override {
     text_render_object_->SetFont(std::move(font));
   }
 
-  std::shared_ptr<platform::graphics::IBrush> GetTextBrush() const {
+  std::shared_ptr<platform::graphics::IBrush> GetTextBrush() {
     return text_render_object_->GetBrush();
   }
   void SetTextBrush(std::shared_ptr<platform::graphics::IBrush> brush) {
     text_render_object_->SetBrush(std::move(brush));
   }
 
-  std::shared_ptr<platform::graphics::IBrush> GetContentBrush() const override {
+  std::shared_ptr<platform::graphics::IBrush> GetContentBrush() override {
     return GetTextBrush();
   }
 

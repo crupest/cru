@@ -1,12 +1,8 @@
 #pragma once
 #include "ConditionEditor.h"
 #include "cru/base/ClonePtr.h"
-#include "cru/base/Event.h"
-#include "cru/ui/components/Component.h"
 #include "cru/ui/components/PopupButton.h"
-#include "cru/ui/controls/Button.h"
 #include "cru/ui/controls/FlexLayout.h"
-#include "cru/ui/controls/TextBlock.h"
 #include "cru/ui/style/Condition.h"
 
 namespace cru::theme_builder::components::conditions {
@@ -28,10 +24,6 @@ class CompoundConditionEditor : public ConditionEditor {
 
 class AndConditionEditor : public CompoundConditionEditor {
  public:
-  AndConditionEditor() = default;
-  ~AndConditionEditor() override = default;
-
- public:
   ClonePtr<ui::style::AndCondition> GetValue() {
     return ui::style::AndCondition::Create(GetChildren());
   }
@@ -49,10 +41,6 @@ class AndConditionEditor : public CompoundConditionEditor {
 };
 
 class OrConditionEditor : public CompoundConditionEditor {
- public:
-  OrConditionEditor() = default;
-  ~OrConditionEditor() override = default;
-
  public:
   ClonePtr<ui::style::OrCondition> GetValue() {
     return ui::style::OrCondition::Create(GetChildren());

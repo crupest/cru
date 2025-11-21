@@ -14,7 +14,8 @@ using platform::gui::ICursor;
 using platform::gui::IUiApplication;
 using platform::gui::SystemCursorType;
 
-Control::Control() {
+Control::Control(std::string name)
+    : name_(std::move(name)), host_(nullptr), parent_(nullptr) {
   style_rule_set_ = std::make_shared<style::StyleRuleSet>();
   style_rule_set_bind_ =
       std::make_unique<style::StyleRuleSetBind>(this, style_rule_set_);
@@ -30,9 +31,10 @@ Control::~Control() {
   RemoveAllChild();
 }
 
-std::string Control::GetDebugId() const {
-  return std::format("{}({})", GetControlType(),
-                     static_cast<const void*>(this));
+std::string Control::GetName() { return name_; }
+
+std::string Control::GetDebugId() {
+  return std::format("{}({})", GetName(), static_cast<const void*>(this));
 }
 
 ControlHost* Control::GetControlHost() { return host_; }
@@ -49,6 +51,15 @@ bool Control::HasAncestor(Control* control) {
 }
 
 const std::vector<Control*>& Control::GetChildren() { return children_; }
+
+Index Control::IndexOfChild(Control* control) {
+  const auto& children = GetChildren();
+  auto iter = std::ranges::find(children, control);
+  if (iter == children.cend()) {
+    return -1;
+  }
+  return iter - children.begin();
+}
 
 void Control::RemoveChild(Control* child) {
   auto iter = std::ranges::find(children_, child);

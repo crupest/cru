@@ -64,7 +64,7 @@ KeyCode VirtualKeyToKeyCode(int virtual_key) {
   }
 }
 
-KeyModifier RetrieveKeyMofifier() {
+KeyModifier RetrieveKeyModifier() {
   KeyModifier result{0};
   if (::GetKeyState(VK_SHIFT) < 0) result |= KeyModifiers::Shift;
   if (::GetKeyState(VK_CONTROL) < 0) result |= KeyModifiers::Ctrl;

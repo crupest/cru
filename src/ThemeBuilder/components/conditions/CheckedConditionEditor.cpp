@@ -14,8 +14,7 @@ CheckedConditionEditor::CheckedConditionEditor() {
 
 CheckedConditionEditor::~CheckedConditionEditor() {}
 
-ClonePtr<ui::style::CheckedCondition> CheckedConditionEditor::GetValue()
-    const {
+ClonePtr<ui::style::CheckedCondition> CheckedConditionEditor::GetValue() {
   return ui::style::CheckedCondition::Create(checked_check_box_.GetValue());
 }
 

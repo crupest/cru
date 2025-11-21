@@ -1,14 +1,14 @@
 #pragma once
 #include "../Editor.h"
+#include "../LabeledMixin.h"
 #include "cru/ui/controls/CheckBox.h"
 #include "cru/ui/controls/FlexLayout.h"
-#include "cru/ui/controls/TextBlock.h"
 
 #include <optional>
 
 namespace cru::theme_builder::components::properties {
 template <typename TEditor>
-class OptionalPropertyEditor : public Editor {
+class OptionalPropertyEditor : public Editor, public LabeledMixin {
  public:
   using PropertyType = typename TEditor::PropertyType;
 
@@ -28,10 +28,7 @@ class OptionalPropertyEditor : public Editor {
 
   ui::controls::Control* GetRootControl() override { return &container_; }
 
-  std::string GetLabel() const { return label_.GetText(); }
-  void SetLabel(std::string label) { label_.SetText(std::move(label)); }
-
-  bool IsEnabled() const { return check_box_.IsChecked(); }
+  bool IsEnabled() { return check_box_.IsChecked(); }
   void SetEnabled(bool enabled, bool trigger_change = true) {
     check_box_.SetChecked(enabled);
     if (trigger_change) {
@@ -39,7 +36,7 @@ class OptionalPropertyEditor : public Editor {
     }
   }
 
-  std::optional<PropertyType> GetValue() const {
+  std::optional<PropertyType> GetValue() {
     return IsEnabled() ? std::optional<PropertyType>(editor_.GetValue())
                        : std::nullopt;
   }
@@ -58,7 +55,6 @@ class OptionalPropertyEditor : public Editor {
 
  private:
   ui::controls::FlexLayout container_;
-  ui::controls::TextBlock label_;
   ui::controls::CheckBox check_box_;
   TEditor editor_;
 };

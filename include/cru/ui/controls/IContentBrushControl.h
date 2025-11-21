@@ -4,8 +4,7 @@
 
 namespace cru::ui::controls {
 struct CRU_UI_API IContentBrushControl : virtual Interface {
-  virtual std::shared_ptr<platform::graphics::IBrush> GetContentBrush()
-      const = 0;
+  virtual std::shared_ptr<platform::graphics::IBrush> GetContentBrush() = 0;
   virtual void SetContentBrush(
       std::shared_ptr<platform::graphics::IBrush> brush) = 0;
 };

@@ -3,7 +3,6 @@
 #include "cru/platform/graphics/Font.h"
 #include "cru/platform/gui/UiApplication.h"
 #include "cru/ui/controls/FlexLayout.h"
-#include "cru/ui/render/FlexLayoutRenderObject.h"
 
 namespace cru::theme_builder::components::properties {
 using namespace cru::ui::controls;
@@ -39,8 +38,7 @@ FontPropertyEditor::~FontPropertyEditor() {}
 
 Control* FontPropertyEditor::GetRootControl() { return &main_container_; }
 
-std::shared_ptr<platform::graphics::IFont> FontPropertyEditor::GetValue()
-    const {
+std::shared_ptr<platform::graphics::IFont> FontPropertyEditor::GetValue() {
   return platform::gui::IUiApplication::GetInstance()
       ->GetGraphicsFactory()
       ->CreateFont(font_family_text_.GetText(), font_size_input_.GetValue());

@@ -9,7 +9,7 @@ struct CRU_UI_API InputValidateResult {
 };
 
 struct CRU_UI_API IInputValidator : public virtual Interface {
-  virtual InputValidateResult Validate(std::string_view text) const = 0;
+  virtual InputValidateResult Validate(std::string_view text) = 0;
 };
 
 struct CRU_UI_API InputChangeEventArgs {
@@ -26,14 +26,14 @@ class CRU_UI_API Input : public Component {
  public:
   controls::Control* GetRootControl() override;
 
-  std::string GetText() const;
+  std::string GetText();
   void SetText(std::string text);
 
-  IInputValidator* GetValidator() const;
+  IInputValidator* GetValidator();
   void SetValidator(IInputValidator* validator);
 
   InputValidateResult Validate();
-  InputValidateResult GetLastValidateResult() const;
+  InputValidateResult GetLastValidateResult();
 
   IEvent<InputChangeEventArgs>* ChangeEvent() { return &change_event_; }
 
@@ -48,7 +48,7 @@ class CRU_UI_API Input : public Component {
 class CRU_UI_API FloatInputValidator : public Object,
                                        public virtual IInputValidator {
  public:
-  InputValidateResult Validate(std::string_view text) const override;
+  InputValidateResult Validate(std::string_view text) override;
 
   std::optional<float> min;
   std::optional<float> max;
@@ -60,13 +60,13 @@ class CRU_UI_API FloatInput : public Input {
   ~FloatInput() override;
 
  public:
-  float GetValue() const;
+  float GetValue();
   void SetValue(float value);
 
-  std::optional<float> GetMax() const;
+  std::optional<float> GetMax();
   void SetMax(std::optional<float> max);
 
-  std::optional<float> GetMin() const;
+  std::optional<float> GetMin();
   void SetMin(std::optional<float> min);
 
  private:

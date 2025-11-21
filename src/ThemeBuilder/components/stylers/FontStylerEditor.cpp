@@ -1,6 +1,4 @@
 #include "FontStylerEditor.h"
-#include "cru/platform/graphics/Factory.h"
-#include "cru/platform/gui/UiApplication.h"
 #include "cru/ui/style/Styler.h"
 
 namespace cru::theme_builder::components::stylers {
@@ -12,7 +10,7 @@ FontStylerEditor::FontStylerEditor() {
 
 FontStylerEditor::~FontStylerEditor() {}
 
-ClonePtr<ui::style::FontStyler> FontStylerEditor::GetValue() const {
+ClonePtr<ui::style::FontStyler> FontStylerEditor::GetValue() {
   return ui::style::FontStyler::Create(font_editor_.GetValue());
 }
 

@@ -15,7 +15,7 @@ class CRU_UI_API Component
  public:
   virtual controls::Control* GetRootControl() = 0;
 
-  bool IsDeleteByParent() const { return delete_by_parent_; }
+  bool IsDeleteByParent() { return delete_by_parent_; }
   void SetDeleteByParent(bool delete_by_parent) {
     delete_by_parent_ = delete_by_parent;
   }

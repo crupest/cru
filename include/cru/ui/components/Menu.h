@@ -38,7 +38,7 @@ class CRU_UI_API Menu : public Component {
  public:
   controls::Control* GetRootControl() override { return &container_; }
 
-  Index GetItemCount() const { return static_cast<Index>(items_.size()); }
+  Index GetItemCount() { return static_cast<Index>(items_.size()); }
 
   void AddItem(Component* component) { AddItemAt(component, GetItemCount()); }
   void AddItemAt(Component* component, Index index);

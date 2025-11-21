@@ -55,8 +55,7 @@ ClickStateConditionEditor::ClickStateConditionEditor() {
 
 ClickStateConditionEditor::~ClickStateConditionEditor() {}
 
-ClonePtr<ui::style::ClickStateCondition>
-ClickStateConditionEditor::GetValue() const {
+ClonePtr<ui::style::ClickStateCondition> ClickStateConditionEditor::GetValue() {
   return ui::style::ClickStateCondition::Create(
       ConvertIndexToClickState(click_state_select_.GetSelectedIndex()));
 }

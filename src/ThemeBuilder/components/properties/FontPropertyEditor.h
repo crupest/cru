@@ -1,5 +1,6 @@
 #pragma once
 #include "../Editor.h"
+#include "../LabeledMixin.h"
 #include "cru/platform/graphics/Font.h"
 #include "cru/ui/components/Input.h"
 #include "cru/ui/controls/Control.h"
@@ -8,7 +9,7 @@
 #include "cru/ui/controls/TextBox.h"
 
 namespace cru::theme_builder::components::properties {
-class FontPropertyEditor : public Editor {
+class FontPropertyEditor : public Editor, public LabeledMixin {
  public:
   using PropertyType = std::shared_ptr<platform::graphics::IFont>;
 
@@ -17,16 +18,12 @@ class FontPropertyEditor : public Editor {
 
   ui::controls::Control* GetRootControl() override;
 
-  std::string GetLabelText() const { return label_.GetText(); }
-  void SetLabelText(std::string label) { label_.SetText(std::move(label)); }
-
-  std::shared_ptr<platform::graphics::IFont> GetValue() const;
+  std::shared_ptr<platform::graphics::IFont> GetValue();
   void SetValue(std::shared_ptr<platform::graphics::IFont> value,
                 bool trigger_change = true);
 
  private:
   ui::controls::FlexLayout main_container_;
-  ui::controls::TextBlock label_;
   ui::controls::FlexLayout right_container_;
   ui::controls::FlexLayout font_family_container_;
   ui::controls::TextBlock font_family_label_;

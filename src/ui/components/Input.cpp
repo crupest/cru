@@ -19,11 +19,11 @@ Input::~Input() {}
 
 controls::Control* Input::GetRootControl() { return &text_box_; }
 
-std::string Input::GetText() const { return text_box_.GetText(); }
+std::string Input::GetText() { return text_box_.GetText(); }
 
 void Input::SetText(std::string text) { text_box_.SetText(std::move(text)); }
 
-IInputValidator* Input::GetValidator() const { return validator_; }
+IInputValidator* Input::GetValidator() { return validator_; }
 
 void Input::SetValidator(IInputValidator* validator) {
   validator_ = validator;
@@ -38,11 +38,11 @@ InputValidateResult Input::Validate() {
   return last_validate_result_;
 }
 
-InputValidateResult Input::GetLastValidateResult() const {
+InputValidateResult Input::GetLastValidateResult() {
   return last_validate_result_;
 }
 
-InputValidateResult FloatInputValidator::Validate(std::string_view text) const {
+InputValidateResult FloatInputValidator::Validate(std::string_view text) {
   auto result = cru::string::ParseToNumber<float>(
       text, cru::string::ParseToNumberFlags::AllowLeadingSpaces |
                 cru::string::ParseToNumberFlags::AllowTrailingSpaces);
@@ -77,18 +77,18 @@ FloatInput::FloatInput() {
 
 FloatInput::~FloatInput() {}
 
-float FloatInput::GetValue() const { return value_; }
+float FloatInput::GetValue() { return value_; }
 
 void FloatInput::SetValue(float value) { SetText(std::to_string(value)); }
 
-std::optional<float> FloatInput::GetMin() const { return validator_.min; }
+std::optional<float> FloatInput::GetMin() { return validator_.min; }
 
 void FloatInput::SetMin(std::optional<float> min) {
   validator_.min = std::move(min);
   Validate();
 }
 
-std::optional<float> FloatInput::GetMax() const { return validator_.max; }
+std::optional<float> FloatInput::GetMax() { return validator_.max; }
 
 void FloatInput::SetMax(std::optional<float> max) {
   validator_.max = std::move(max);

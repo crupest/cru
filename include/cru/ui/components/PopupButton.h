@@ -18,7 +18,9 @@ class CRU_UI_API PopupMenuTextButton : public Component {
   ui::controls::Button* GetButton() { return &button_; }
 
   std::string GetButtonText() { return button_text_.GetText(); }
-  void SetButtonText(std::string text) { button_text_.SetText(std::move(text)); }
+  void SetButtonText(std::string text) {
+    button_text_.SetText(std::move(text));
+  }
 
   void SetButtonTextColor(const Color& color) {
     button_text_.SetTextColor(color);

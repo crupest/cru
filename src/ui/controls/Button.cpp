@@ -1,11 +1,12 @@
 #include "cru/ui/controls/Button.h"
-
 #include "cru/ui/ThemeManager.h"
 #include "cru/ui/helper/ClickDetector.h"
 #include "cru/ui/render/BorderRenderObject.h"
 
 namespace cru::ui::controls {
-Button::Button() : click_detector_(this) {
+Button::Button()
+    : SingleChildControl<render::BorderRenderObject>(kControlName),
+      click_detector_(this) {
   GetContainerRenderObject()->SetBorderEnabled(true);
   auto default_button_style =
       ThemeManager::GetInstance()->GetResourceStyleRuleSet("button.style");

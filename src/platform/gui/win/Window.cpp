@@ -585,29 +585,29 @@ void WinNativeWindow::OnMouseLeaveInternal() {
 void WinNativeWindow::OnMouseDownInternal(platform::gui::MouseButton button,
                                           POINT point) {
   const auto dip_point = PixelToDip(point);
-  mouse_down_event_.Raise({button, dip_point, RetrieveKeyMofifier()});
+  mouse_down_event_.Raise({button, dip_point, RetrieveKeyModifier()});
 }
 
 void WinNativeWindow::OnMouseUpInternal(platform::gui::MouseButton button,
                                         POINT point) {
   const auto dip_point = PixelToDip(point);
-  mouse_up_event_.Raise({button, dip_point, RetrieveKeyMofifier()});
+  mouse_up_event_.Raise({button, dip_point, RetrieveKeyModifier()});
 }
 
 void WinNativeWindow::OnMouseWheelInternal(short delta, POINT point) {
   const auto dip_point = PixelToDip(point);
   const float d = -((float)delta / 120.f);
-  mouse_wheel_event_.Raise({d, dip_point, RetrieveKeyMofifier()});
+  mouse_wheel_event_.Raise({d, dip_point, RetrieveKeyModifier()});
 }
 
 void WinNativeWindow::OnKeyDownInternal(int virtual_code) {
   key_down_event_.Raise(
-      {VirtualKeyToKeyCode(virtual_code), RetrieveKeyMofifier()});
+      {VirtualKeyToKeyCode(virtual_code), RetrieveKeyModifier()});
 }
 
 void WinNativeWindow::OnKeyUpInternal(int virtual_code) {
   key_up_event_.Raise(
-      {VirtualKeyToKeyCode(virtual_code), RetrieveKeyMofifier()});
+      {VirtualKeyToKeyCode(virtual_code), RetrieveKeyModifier()});
 }
 
 void WinNativeWindow::OnActivatedInternal() {}

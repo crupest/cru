@@ -1,6 +1,6 @@
 #pragma once
-#include "Control.h"
 #include "../render/TextRenderObject.h"
+#include "Control.h"
 #include "IContentBrushControl.h"
 #include "IFontControl.h"
 #include "TextHostControlService.h"
@@ -14,7 +14,7 @@ class CRU_UI_API TextBlock : public Control,
                              public virtual IFontControl,
                              public virtual IContentBrushControl {
  public:
-  static constexpr std::string_view kControlType = "TextBlock";
+  static constexpr auto kControlName = "TextBlock";
 
   static std::unique_ptr<TextBlock> Create(std::string text,
                                            bool selectable = false) {
@@ -26,23 +26,16 @@ class CRU_UI_API TextBlock : public Control,
 
  public:
   TextBlock();
-  TextBlock(const TextBlock& other) = delete;
-  TextBlock(TextBlock&& other) = delete;
-  TextBlock& operator=(const TextBlock& other) = delete;
-  TextBlock& operator=(TextBlock&& other) = delete;
-  ~TextBlock() override;
 
-  std::string GetControlType() const final { return std::string(kControlType); }
+  render::RenderObject* GetRenderObject() override;
 
-  render::RenderObject* GetRenderObject() const override;
-
-  std::string GetText() const;
+  std::string GetText();
   void SetText(std::string text);
 
-  bool IsSelectable() const;
+  bool IsSelectable();
   void SetSelectable(bool value);
 
-  std::shared_ptr<platform::graphics::IBrush> GetTextBrush() const {
+  std::shared_ptr<platform::graphics::IBrush> GetTextBrush() {
     return text_render_object_->GetBrush();
   }
   void SetTextBrush(std::shared_ptr<platform::graphics::IBrush> brush) {
@@ -55,14 +48,14 @@ class CRU_UI_API TextBlock : public Control,
     return nullptr;
   }
 
-  std::shared_ptr<platform::graphics::IFont> GetFont() const override {
+  std::shared_ptr<platform::graphics::IFont> GetFont() override {
     return text_render_object_->GetFont();
   }
   void SetFont(std::shared_ptr<platform::graphics::IFont> font) override {
     text_render_object_->SetFont(std::move(font));
   }
 
-  std::shared_ptr<platform::graphics::IBrush> GetContentBrush() const override {
+  std::shared_ptr<platform::graphics::IBrush> GetContentBrush() override {
     return GetTextBrush();
   }
 
@@ -73,7 +66,6 @@ class CRU_UI_API TextBlock : public Control,
 
  private:
   std::unique_ptr<render::TextRenderObject> text_render_object_;
-
   std::unique_ptr<TextHostControlService> service_;
 };
 }  // namespace cru::ui::controls

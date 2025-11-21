@@ -17,9 +17,6 @@ namespace cru::ui::controls {
  * methods:
  *  - GetControlType()
  *  - GetRenderObject()
- *  - ForEachChild(const std::function<void(Control*)>& predicate)
- *  - RemoveChild(Control* child)
- * The last two methods are totally for convenient control tree management.
  */
 class CRU_UI_API Control : public Object,
                            public cru::platform::gui::DeleteLaterImpl<Control>,
@@ -29,15 +26,14 @@ class CRU_UI_API Control : public Object,
   CRU_DEFINE_CLASS_LOG_TAG("cru::ui::controls::Control")
 
  protected:
-  Control();
+  explicit Control(std::string name);
 
  public:
   ~Control() override;
 
  public:
-  virtual std::string GetControlType() const = 0;
-
-  std::string GetDebugId() const;
+  std::string GetName();
+  std::string GetDebugId();
 
   //*************** region: tree ***************
  public:
@@ -46,6 +42,10 @@ class CRU_UI_API Control : public Object,
   Control* GetParent();
   bool HasAncestor(Control* control);
   const std::vector<Control*>& GetChildren();
+  Index GetChildCount() { return GetChildren().size(); }
+  Control* GetChildAt(Index index) { return GetChildren()[index]; }
+  Index IndexOfChild(Control* control);
+
   void RemoveChild(Control* child);
   void RemoveAllChild();
   void RemoveFromParent();
@@ -69,23 +69,21 @@ class CRU_UI_API Control : public Object,
   void AddChild(Control* control);
 
  public:
-  virtual render::RenderObject* GetRenderObject() const = 0;
+  virtual render::RenderObject* GetRenderObject() = 0;
 
-  virtual render::MeasureSize GetPreferredSize() const {
+  virtual render::MeasureSize GetPreferredSize() {
     return GetRenderObject()->GetPreferredSize();
   }
   virtual void SetPreferredSize(const render::MeasureSize& size) {
     GetRenderObject()->SetPreferredSize(size);
   }
 
-  virtual Thickness GetMargin() const { return GetRenderObject()->GetMargin(); }
+  virtual Thickness GetMargin() { return GetRenderObject()->GetMargin(); }
   virtual void SetMargin(const Thickness& margin) {
     GetRenderObject()->SetMargin(margin);
   }
 
-  virtual Thickness GetPadding() const {
-    return GetRenderObject()->GetPadding();
-  }
+  virtual Thickness GetPadding() { return GetRenderObject()->GetPadding(); }
   virtual void SetPadding(const Thickness& padding) {
     GetRenderObject()->SetPadding(padding);
   }
@@ -123,10 +121,10 @@ class CRU_UI_API Control : public Object,
 
   //*************** region: events ***************
  public:
-  // Raised when mouse enter the control. Even when the control itself captures
-  // the mouse, this event is raised as regular. But if mouse is captured by
-  // another control, the control will not receive any mouse enter event. You
-  // can use `IsMouseCaptured` to get more info.
+  // Raised when mouse enter the control. Even when the control itself
+  // captures the mouse, this event is raised as regular. But if mouse is
+  // captured by another control, the control will not receive any mouse enter
+  // event. You can use `IsMouseCaptured` to get more info.
   CRU_DEFINE_ROUTED_EVENT(MouseEnter, events::MouseEventArgs)
 
   // Raised when mouse is leave the control. Even when the control itself
@@ -151,11 +149,12 @@ class CRU_UI_API Control : public Object,
   virtual void OnChildRemoved(Control* control, Index index);
 
  private:
-  ControlHost* host_ = nullptr;
-  Control* parent_ = nullptr;
+  std::string name_;
+  ControlHost* host_;
+  Control* parent_;
   std::vector<Control*> children_;
 
-  std::shared_ptr<platform::gui::ICursor> cursor_ = nullptr;
+  std::shared_ptr<platform::gui::ICursor> cursor_;
 
   std::shared_ptr<style::StyleRuleSet> style_rule_set_;
   std::unique_ptr<style::StyleRuleSetBind> style_rule_set_bind_;

@@ -8,7 +8,9 @@
 
 namespace cru::ui::controls {
 Window::Window()
-    : control_host_(new ControlHost(this)), attached_control_(nullptr) {
+    : LayoutControl<render::StackLayoutRenderObject>(kControlName),
+      control_host_(new ControlHost(this)),
+      attached_control_(nullptr) {
   GetContainerRenderObject()->SetDefaultHorizontalAlignment(Alignment::Stretch);
   GetContainerRenderObject()->SetDefaultVertialAlignment(Alignment::Stretch);
 }
@@ -20,8 +22,6 @@ Window* Window::CreatePopup() {
   window->SetGainFocusOnCreateAndDestroyWhenLoseFocus(true);
   return window;
 }
-
-std::string Window::GetControlType() const { return std::string(kControlType); }
 
 void Window::SetAttachedControl(Control* control) {
   attached_control_ = control;

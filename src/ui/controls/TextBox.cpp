@@ -2,9 +2,7 @@
 
 #include "cru/ui/ThemeManager.h"
 #include "cru/ui/render/BorderRenderObject.h"
-#include "cru/ui/render/CanvasRenderObject.h"
 #include "cru/ui/render/ScrollRenderObject.h"
-#include "cru/ui/render/StackLayoutRenderObject.h"
 #include "cru/ui/render/TextRenderObject.h"
 
 namespace cru::ui::controls {
@@ -13,7 +11,8 @@ using render::ScrollRenderObject;
 using render::TextRenderObject;
 
 TextBox::TextBox()
-    : border_render_object_(new BorderRenderObject()),
+    : Control(kControlName),
+      border_render_object_(new BorderRenderObject()),
       scroll_render_object_(new ScrollRenderObject()) {
   auto theme_manager = ThemeManager::GetInstance();
 
@@ -43,13 +42,11 @@ TextBox::TextBox()
       theme_manager->GetResourceStyleRuleSet("textbox.style"));
 }
 
-TextBox::~TextBox() {}
-
-render::RenderObject* TextBox::GetRenderObject() const {
+render::RenderObject* TextBox::GetRenderObject() {
   return border_render_object_.get();
 }
 
-bool TextBox::GetMultiLine() const { return service_->IsMultiLine(); }
+bool TextBox::GetMultiLine() { return service_->IsMultiLine(); }
 
 void TextBox::SetMultiLine(bool value) { service_->SetMultiLine(value); }
 
