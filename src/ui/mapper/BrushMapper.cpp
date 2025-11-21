@@ -1,11 +1,11 @@
 #include "cru/ui/mapper/BrushMapper.h"
-#include "../Helper.h"
 #include "cru/base/StringUtil.h"
+#include "cru/base/xml/XmlNode.h"
 #include "cru/platform/Color.h"
 #include "cru/platform/graphics/Brush.h"
 #include "cru/platform/graphics/Factory.h"
+#include "cru/platform/gui/UiApplication.h"
 #include "cru/ui/mapper/MapperRegistry.h"
-#include "cru/base/xml/XmlNode.h"
 
 #include <memory>
 
@@ -35,6 +35,8 @@ std::shared_ptr<platform::graphics::IBrush> BrushMapper::DoMapFromXml(
     }
   }
 
-  return GetGraphicsFactory()->CreateSolidColorBrush(color);
+  return platform::gui::IUiApplication::GetInstance()
+      ->GetGraphicsFactory()
+      ->CreateSolidColorBrush(color);
 }
 }  // namespace cru::ui::mapper

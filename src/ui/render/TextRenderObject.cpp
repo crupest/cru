@@ -1,10 +1,10 @@
 #include "cru/ui/render/TextRenderObject.h"
 
-#include "../Helper.h"
 #include "cru/base/log/Logger.h"
 #include "cru/platform/graphics/Factory.h"
 #include "cru/platform/graphics/Painter.h"
 #include "cru/platform/graphics/TextLayout.h"
+#include "cru/platform/gui/UiApplication.h"
 #include "cru/ui/DebugFlags.h"
 #include "cru/ui/render/RenderObject.h"
 
@@ -28,7 +28,8 @@ TextRenderObject::TextRenderObject(
   selection_brush.swap(selection_brush_);
   caret_brush.swap(caret_brush_);
 
-  const auto graph_factory = GetGraphicsFactory();
+  const auto graph_factory =
+      platform::gui::IUiApplication::GetInstance()->GetGraphicsFactory();
   text_layout_ = graph_factory->CreateTextLayout(font_, "");
 }
 

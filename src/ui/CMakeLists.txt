@@ -1,5 +1,4 @@
 add_library(CruUi
-	Helper.cpp
 	ThemeManager.cpp
 	ThemeResourceDictionary.cpp
 	components/Component.cpp

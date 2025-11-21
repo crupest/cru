@@ -1,12 +1,11 @@
 #include "cru/ui/controls/TextHostControlService.h"
 
-#include <cru/platform/gui/Input.h>
-#include "../Helper.h"
 #include "cru/base/Base.h"
 #include "cru/base/StringUtil.h"
 #include "cru/base/log/Logger.h"
 #include "cru/platform/gui/Clipboard.h"
 #include "cru/platform/gui/Cursor.h"
+#include "cru/platform/gui/Input.h"
 #include "cru/platform/gui/InputMethod.h"
 #include "cru/platform/gui/UiApplication.h"
 #include "cru/platform/gui/Window.h"
@@ -22,6 +21,7 @@
 
 namespace cru::ui::controls {
 using namespace cru::string;
+using platform::gui::IUiApplication;
 
 TextControlMovePattern TextControlMovePattern::kLeft(
     "Left", helper::ShortcutKeyBind(platform::gui::KeyCode::Left),
@@ -173,7 +173,7 @@ void TextHostControlService::SetEnabled(bool enable) {
       this->SetupCaret();
     }
     this->control_->SetCursor(
-        GetUiApplication()->GetCursorManager()->GetSystemCursor(
+        IUiApplication::GetInstance()->GetCursorManager()->GetSystemCursor(
             platform::gui::SystemCursorType::IBeam));
   } else {
     this->AbortSelection();
@@ -406,19 +406,19 @@ void TextHostControlService::Cut() {
 void TextHostControlService::Copy() {
   auto selected_text = GetSelectedText();
   if (selected_text.size() == 0) return;
-  auto clipboard = GetUiApplication()->GetClipboard();
+  auto clipboard = IUiApplication::GetInstance()->GetClipboard();
   clipboard->SetText(std::string(selected_text));
 }
 
 void TextHostControlService::Paste() {
-  auto clipboard = GetUiApplication()->GetClipboard();
+  auto clipboard = IUiApplication::GetInstance()->GetClipboard();
   auto text = clipboard->GetText();
   if (text.empty()) return;
   ReplaceSelectedText(text);
 }
 
 void TextHostControlService::SetupCaret() {
-  const auto application = GetUiApplication();
+  const auto application = IUiApplication::GetInstance();
   this->GetTextRenderObject()->SetDrawCaret(true);
   this->caret_timer_canceler_.Reset(application->SetInterval(
       std::chrono::milliseconds(this->caret_blink_duration_),

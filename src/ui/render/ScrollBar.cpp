@@ -1,11 +1,11 @@
 #include "cru/ui/render/ScrollBar.h"
 
-#include "../Helper.h"
 #include "cru/platform/GraphicsBase.h"
 #include "cru/platform/graphics/Factory.h"
 #include "cru/platform/graphics/Geometry.h"
 #include "cru/platform/graphics/Painter.h"
 #include "cru/platform/gui/Cursor.h"
+#include "cru/platform/gui/UiApplication.h"
 #include "cru/ui/Base.h"
 #include "cru/ui/ThemeManager.h"
 #include "cru/ui/controls/ControlHost.h"
@@ -71,7 +71,9 @@ std::string GenerateScrollBarThemeColorKey(ScrollBarBrushUsageKind usage,
 
 namespace {
 std::unique_ptr<platform::graphics::IGeometry> CreateScrollBarArrowGeometry() {
-  auto geometry_builder = GetGraphicsFactory()->CreateGeometryBuilder();
+  auto geometry_builder = platform::gui::IUiApplication::GetInstance()
+                              ->GetGraphicsFactory()
+                              ->CreateGeometryBuilder();
   geometry_builder->MoveTo({-kScrollBarArrowHeight / 2, 0});
   geometry_builder->LineTo({kScrollBarArrowHeight / 2, kScrollBarArrowHeight});
   geometry_builder->LineTo({kScrollBarArrowHeight / 2, -kScrollBarArrowHeight});
@@ -319,8 +321,9 @@ void ScrollBar::SetCursor() {
   if (const auto control = render_object_->GetAttachedControl()) {
     if (const auto host = control->GetControlHost()) {
       host->SetOverrideCursor(
-          GetUiApplication()->GetCursorManager()->GetSystemCursor(
-              platform::gui::SystemCursorType::Arrow));
+          platform::gui::IUiApplication::GetInstance()
+              ->GetCursorManager()
+              ->GetSystemCursor(platform::gui::SystemCursorType::Arrow));
       cursor_overridden_ = true;
     }
   }
@@ -339,8 +342,9 @@ void ScrollBar::RestoreCursor() {
 
 void ScrollBar::BeginAutoCollapseTimer() {
   if (!auto_collapse_timer_canceler_ && IsExpanded()) {
-    auto_collapse_timer_canceler_.Reset(GetUiApplication()->SetTimeout(
-        kScrollBarAutoCollapseDelay, [this] { this->SetExpanded(false); }));
+    auto_collapse_timer_canceler_.Reset(
+        platform::gui::IUiApplication::GetInstance()->SetTimeout(
+            kScrollBarAutoCollapseDelay, [this] { this->SetExpanded(false); }));
   }
 }
 

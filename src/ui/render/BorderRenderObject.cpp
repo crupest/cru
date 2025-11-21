@@ -1,10 +1,10 @@
 #include "cru/ui/render/BorderRenderObject.h"
 
-#include "../Helper.h"
 #include "cru/base/log/Logger.h"
 #include "cru/platform/graphics/Factory.h"
 #include "cru/platform/graphics/Geometry.h"
 #include "cru/platform/graphics/Painter.h"
+#include "cru/platform/gui/UiApplication.h"
 #include "cru/ui/DebugFlags.h"
 #include "cru/ui/render/RenderObject.h"
 
@@ -224,7 +224,8 @@ void BorderRenderObject::RecreateGeometry() {
   const Rect outer_rect{margin.left, margin.top,
                         size.width - margin.GetHorizontalTotal(),
                         size.height - margin.GetVerticalTotal()};
-  const auto graph_factory = GetGraphicsFactory();
+  const auto graph_factory =
+      platform::gui::IUiApplication::GetInstance()->GetGraphicsFactory();
   std::unique_ptr<platform::graphics::IGeometryBuilder> builder{
       graph_factory->CreateGeometryBuilder()};
   f(builder.get(), outer_rect, outer_radius);
