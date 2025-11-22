@@ -156,16 +156,15 @@ void ControlHost::Relayout() {
 void ControlHost::RelayoutWithSize(const Size& available_size,
                                    bool set_window_size_to_fit_content) {
   auto render_object = root_control_->GetRenderObject();
-  render_object->Measure(
-      render::MeasureRequirement{
-          available_size,
-          !set_window_size_to_fit_content && IsLayoutPreferToFillWindow()
-              ? render::MeasureSize(available_size)
-              : render::MeasureSize::NotSpecified()},
-      render::MeasureSize::NotSpecified());
+  render_object->Measure(render::MeasureRequirement{
+      available_size,
+      !set_window_size_to_fit_content && IsLayoutPreferToFillWindow()
+          ? render::MeasureSize(available_size)
+          : render::MeasureSize::NotSpecified(),
+      render::MeasureSize::NotSpecified()});
 
   if (set_window_size_to_fit_content) {
-    native_window_->SetClientSize(render_object->GetDesiredSize());
+    native_window_->SetClientSize(render_object->GetMeasureResultSize());
   }
 
   render_object->Layout(Point{});

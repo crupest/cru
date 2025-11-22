@@ -50,8 +50,7 @@ class CRU_UI_API BorderRenderObject : public SingleChildRenderObject {
   Rect GetContentRect() override;
 
  protected:
-  Size OnMeasureContent(const MeasureRequirement& requirement,
-                        const MeasureSize& preferred_size) override;
+  Size OnMeasureContent(const MeasureRequirement& requirement) override;
   void OnLayoutContent(const Rect& content_rect) override;
 
   void OnResize(const Size& new_size) override;

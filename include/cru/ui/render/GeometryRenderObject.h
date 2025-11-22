@@ -35,8 +35,7 @@ class GeometryRenderObject : public RenderObject {
   void SetStrokeWidth(float width);
 
  protected:
-  Size OnMeasureContent(const MeasureRequirement& requirement,
-                        const MeasureSize& preferred_size) override;
+  Size OnMeasureContent(const MeasureRequirement& requirement) override;
   void OnLayoutContent(const Rect& content_rect) override;
 
  private:

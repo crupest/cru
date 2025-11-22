@@ -12,13 +12,12 @@ RenderObject* CanvasRenderObject::HitTest(const Point& point) {
 void CanvasRenderObject::Draw(platform::graphics::IPainter* painter) {
   const auto rect = GetContentRect();
   CanvasPaintEventArgs args{painter, rect.GetSize()};
-  paint_event_.Raise(args);
+  PaintEvent_.Raise(args);
 }
 
-Size CanvasRenderObject::OnMeasureContent(const MeasureRequirement& requirement,
-                                          const MeasureSize& preferred_size) {
-  return requirement.Coerce(Size{preferred_size.width.GetLengthOr(100),
-                                 preferred_size.height.GetLengthOr(100)});
+Size CanvasRenderObject::OnMeasureContent(
+    const MeasureRequirement& requirement) {
+  return requirement.Coerce(requirement.suggest.GetSizeOr({100, 100}));
 }
 
 void CanvasRenderObject::OnLayoutContent(const Rect& content_rect) {

@@ -1,8 +1,8 @@
 #include "cru/ui/render/RenderObject.h"
 
+#include "cru/base/Base.h"
 #include "cru/base/log/Logger.h"
 #include "cru/platform/GraphicsBase.h"
-#include "cru/ui/DebugFlags.h"
 #include "cru/ui/controls/Control.h"
 #include "cru/ui/controls/ControlHost.h"
 
@@ -63,8 +63,8 @@ void RenderObject::SetPadding(const Thickness& padding) {
   InvalidateLayout();
 }
 
-void RenderObject::SetPreferredSize(const MeasureSize& preferred_size) {
-  preferred_size_ = preferred_size;
+void RenderObject::SetSuggestSize(const MeasureSize& suggest_size) {
+  custom_measure_requirement_.suggest = suggest_size;
   InvalidateLayout();
 }
 
@@ -78,93 +78,56 @@ void RenderObject::SetMaxSize(const MeasureSize& max_size) {
   InvalidateLayout();
 }
 
-void RenderObject::Measure(const MeasureRequirement& requirement,
-                           const MeasureSize& preferred_size) {
-  MeasureRequirement merged_requirement =
-      MeasureRequirement::Merge(requirement, custom_measure_requirement_)
-          .Normalize();
-  MeasureSize merged_preferred_size =
-      preferred_size.OverrideBy(preferred_size_);
+void RenderObject::Measure(const MeasureRequirement& requirement) {
+  CRU_LOG_TAG_DEBUG("{} Measure begins, requirement {}.",
+                    this->GetDebugPathInTree(), requirement);
 
-  if constexpr (cru::ui::debug_flags::layout) {
-    CRU_LOG_TAG_DEBUG(
-        "{} Measure begins :\nrequirement: {}\npreferred size: {}",
-        this->GetDebugPathInTree(), requirement.ToDebugString(),
-        preferred_size.ToDebugString());
+  measure_result_size_ = OnMeasureCore(requirement);
+  if (measure_result_size_.width < 0 || measure_result_size_.height < 0) {
+    throw Exception("Measure result size is invalid.");
   }
 
-  desired_size_ = OnMeasureCore(merged_requirement, merged_preferred_size);
-
-  if constexpr (cru::ui::debug_flags::layout) {
-    CRU_LOG_TAG_DEBUG("{} Measure ends :\nresult size: {}",
-                      this->GetDebugPathInTree(), desired_size_);
-  }
-
-  Ensures(desired_size_.width >= 0);
-  Ensures(desired_size_.height >= 0);
+  CRU_LOG_TAG_DEBUG("{} Measure ends, result size: {}.",
+                    this->GetDebugPathInTree(), measure_result_size_);
 }
 
 void RenderObject::Layout(const Point& offset) {
-  if constexpr (cru::ui::debug_flags::layout) {
-    CRU_LOG_TAG_DEBUG("{} Layout :\noffset: {} size: {}",
-                      this->GetDebugPathInTree(), offset, desired_size_);
-  }
+  CRU_LOG_TAG_DEBUG("{} Layout begins, offset: {}, size: {}.",
+                    this->GetDebugPathInTree(), offset, measure_result_size_);
+
   offset_ = offset;
-  size_ = desired_size_;
+  size_ = measure_result_size_;
 
   OnResize(size_);
 
   OnLayoutCore();
+
+  CRU_LOG_TAG_DEBUG("{} Layout ends.", this->GetDebugPathInTree());
 }
 
 Thickness RenderObject::GetTotalSpaceThickness() { return margin_ + padding_; }
 
 Thickness RenderObject::GetInnerSpaceThickness() { return padding_; }
 
-Size RenderObject::OnMeasureCore(const MeasureRequirement& requirement,
-                                 const MeasureSize& preferred_size) {
-  const Thickness outer_space = GetTotalSpaceThickness();
-  const Size space_size{outer_space.GetHorizontalTotal(),
-                        outer_space.GetVerticalTotal()};
+Size RenderObject::OnMeasureCore(const MeasureRequirement& requirement) {
+  auto space_size = GetTotalSpaceThickness().GetTotalSize();
 
-  MeasureRequirement content_requirement = requirement;
+  auto content_requirement =
+      requirement.Merge(custom_measure_requirement_).Minus(space_size);
 
-  content_requirement.max = content_requirement.max.Minus(space_size);
-  content_requirement.min = content_requirement.min.Minus(space_size);
-
-  auto inner_space = GetInnerSpaceThickness();
-  MeasureSize content_preferred_size =
-      content_requirement.Coerce(preferred_size.Minus(
-          {inner_space.GetHorizontalTotal(), inner_space.GetVerticalTotal()}));
-
-  const auto content_size =
-      OnMeasureContent(content_requirement, content_preferred_size);
+  auto content_size = OnMeasureContent(content_requirement);
 
   return space_size + content_size;
 }
 
 void RenderObject::OnLayoutCore() {
-  Size total_size = GetDesiredSize();
-  const Thickness outer_space = GetTotalSpaceThickness();
-  const Size space_size{outer_space.GetHorizontalTotal(),
-                        outer_space.GetVerticalTotal()};
-
-  auto content_size = total_size - space_size;
-
-  if (content_size.width < 0) {
-    content_size.width = 0;
-  }
-  if (content_size.height < 0) {
-    content_size.height = 0;
-  }
+  auto total_size = GetMeasureResultSize();
+  auto outer_space = GetTotalSpaceThickness();
+  auto content_size = (total_size - outer_space.GetTotalSize()).AtLeast0();
 
   Point lefttop{outer_space.left, outer_space.top};
-  if (lefttop.x > total_size.width) {
-    lefttop.x = total_size.width;
-  }
-  if (lefttop.y > total_size.height) {
-    lefttop.y = total_size.height;
-  }
+  lefttop.x = std::min(lefttop.x, total_size.width);
+  lefttop.y = std::min(lefttop.y, total_size.height);
 
   const Rect content_rect{lefttop, content_size};
 
@@ -172,7 +135,7 @@ void RenderObject::OnLayoutCore() {
 }
 
 Rect RenderObject::GetPaddingRect() {
-  const auto size = GetDesiredSize();
+  const auto size = GetMeasureResultSize();
   Rect rect{Point{}, size};
   rect = rect.Shrink(GetMargin());
   rect.left = std::min(rect.left, size.width);
@@ -183,7 +146,7 @@ Rect RenderObject::GetPaddingRect() {
 }
 
 Rect RenderObject::GetContentRect() {
-  const auto size = GetDesiredSize();
+  const auto size = GetMeasureResultSize();
   Rect rect{Point{}, size};
   rect = rect.Shrink(GetMargin());
   rect = rect.Shrink(GetPadding());

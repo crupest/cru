@@ -24,8 +24,8 @@ PreferredSizeStylerEditor::GetValue() {
 
 void PreferredSizeStylerEditor::SetValue(ui::style::PreferredSizeStyler* styler,
                                          bool trigger_change) {
-  width_editor_.SetValue(styler->GetPreferredSize().width, false);
-  height_editor_.SetValue(styler->GetPreferredSize().height, false);
+  width_editor_.SetValue(styler->GetSuggestSize().width, false);
+  height_editor_.SetValue(styler->GetSuggestSize().height, false);
 
   if (trigger_change) {
     RaiseChangeEvent();

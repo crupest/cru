@@ -9,9 +9,6 @@ class CanvasPaintEventArgs {
   CanvasPaintEventArgs(platform::graphics::IPainter* painter,
                        const Size& paint_size)
       : painter_(painter), paint_size_(paint_size) {}
-  CRU_DEFAULT_COPY(CanvasPaintEventArgs)
-  CRU_DEFAULT_MOVE(CanvasPaintEventArgs)
-  ~CanvasPaintEventArgs() = default;
 
   platform::graphics::IPainter* GetPainter() const { return painter_; }
   Size GetPaintSize() const { return paint_size_; }
@@ -21,9 +18,12 @@ class CanvasPaintEventArgs {
   Size paint_size_;
 };
 
-// Layout logic:
-// If no preferred size is set. Then (100, 100) is used and then coerced to
-// required range.
+/**
+ * Layout logic:
+ * Preferred
+ * If no preferred size is set. Then (100, 100) is used and then coerced to
+ * required range.
+ */
 class CRU_UI_API CanvasRenderObject : public RenderObject {
  public:
   static constexpr auto kRenderObjectName = "CanvasRenderObject";
@@ -33,20 +33,12 @@ class CRU_UI_API CanvasRenderObject : public RenderObject {
  public:
   RenderObject* HitTest(const Point& point) override;
 
-  Size GetDesiredSize() { return desired_size_; }
-
-  IEvent<CanvasPaintEventArgs>* PaintEvent() { return &paint_event_; }
-
   void Draw(platform::graphics::IPainter* painter) override;
 
+  CRU_DEFINE_EVENT(Paint, const CanvasPaintEventArgs&)
+
  protected:
-  Size OnMeasureContent(const MeasureRequirement& requirement,
-                        const MeasureSize& preferred_size) override;
+  Size OnMeasureContent(const MeasureRequirement& requirement) override;
   void OnLayoutContent(const Rect& content_rect) override;
-
- private:
-  Size desired_size_{};
-
-  Event<CanvasPaintEventArgs> paint_event_;
 };
 }  // namespace cru::ui::render

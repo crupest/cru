@@ -1,7 +1,6 @@
 #pragma once
 #include "Base.h"
 #include "Bitmask.h"
-#include "cru/base/StringUtil.h"
 
 #include <algorithm>
 #include <cctype>

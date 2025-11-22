@@ -56,6 +56,16 @@ struct Size final {
                 std::numeric_limits<float>::max()};
   }
 
+  constexpr Size Min(const Size& other) const {
+    return {std::min(width, other.width), std::min(height, other.height)};
+  }
+
+  constexpr Size Max(const Size& other) const {
+    return {std::max(width, other.width), std::max(height, other.height)};
+  }
+
+  constexpr Size AtLeast0() const { return Max(kZero); }
+
   std::string ToString() const {
     return std::format("Size(width: {}, height: {})", width, height);
   }
@@ -92,6 +102,10 @@ struct Thickness final {
   constexpr float GetHorizontalTotal() const { return left + right; }
 
   constexpr float GetVerticalTotal() const { return top + bottom; }
+
+  constexpr Size GetTotalSize() const {
+    return {GetHorizontalTotal(), GetVerticalTotal()};
+  }
 
   void SetLeftRight(const float value) { left = right = value; }
 

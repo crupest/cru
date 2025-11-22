@@ -422,7 +422,7 @@ bool HorizontalScrollBar::IsShowBar() {
   if (child == nullptr) return false;
 
   const auto view_rect = render_object_->GetViewRect();
-  const auto child_size = child->GetDesiredSize();
+  const auto child_size = child->GetMeasureResultSize();
 
   if (view_rect.width >= child_size.width) return false;
 
@@ -439,7 +439,7 @@ std::optional<Rect> HorizontalScrollBar::GetExpandedAreaRect(
   const auto child = render_object_->GetChild();
 
   const auto view_rect = render_object_->GetViewRect();
-  const auto child_size = child->GetDesiredSize();
+  const auto child_size = child->GetMeasureResultSize();
 
   const float start_percentage = view_rect.left / child_size.width;
   const float length_percentage = view_rect.width / child_size.width;
@@ -491,7 +491,7 @@ std::optional<Rect> HorizontalScrollBar::GetCollapsedThumbRect() {
   const auto child = render_object_->GetChild();
 
   const auto view_rect = render_object_->GetViewRect();
-  const auto child_size = child->GetDesiredSize();
+  const auto child_size = child->GetMeasureResultSize();
 
   const float start_percentage = view_rect.left / child_size.width;
   const float length_percentage = view_rect.width / child_size.width;
@@ -517,7 +517,7 @@ float HorizontalScrollBar::CalculateNewScrollPosition(
   auto thumb_head_end = scroll_area_end - thumb_original_rect.width;
 
   const auto child = render_object_->GetChild();
-  const auto child_size = child->GetDesiredSize();
+  const auto child_size = child->GetMeasureResultSize();
 
   new_thumb_start =
       std::clamp(new_thumb_start, scroll_area_start, thumb_head_end);
@@ -570,7 +570,7 @@ bool VerticalScrollBar::IsShowBar() {
   if (child == nullptr) return false;
 
   const auto view_rect = render_object_->GetViewRect();
-  const auto child_size = child->GetDesiredSize();
+  const auto child_size = child->GetMeasureResultSize();
 
   if (view_rect.height >= child_size.height) return false;
 
@@ -587,7 +587,7 @@ std::optional<Rect> VerticalScrollBar::GetExpandedAreaRect(
   const auto child = render_object_->GetChild();
 
   const auto view_rect = render_object_->GetViewRect();
-  const auto child_size = child->GetDesiredSize();
+  const auto child_size = child->GetMeasureResultSize();
 
   const float start_percentage = view_rect.top / child_size.height;
   const float length_percentage = view_rect.height / child_size.height;
@@ -637,7 +637,7 @@ std::optional<Rect> VerticalScrollBar::GetCollapsedThumbRect() {
 
   const auto view_rect = render_object_->GetViewRect();
   const auto padding_rect = render_object_->GetPaddingRect();
-  const auto child_size = child->GetDesiredSize();
+  const auto child_size = child->GetMeasureResultSize();
 
   if (view_rect.height >= child_size.height) return std::nullopt;
 
@@ -663,7 +663,7 @@ float VerticalScrollBar::CalculateNewScrollPosition(
   auto thumb_head_end = scroll_area_end - thumb_original_rect.height;
 
   const auto child = render_object_->GetChild();
-  const auto child_size = child->GetDesiredSize();
+  const auto child_size = child->GetMeasureResultSize();
 
   new_thumb_start =
       std::clamp(new_thumb_start, scroll_area_start, thumb_head_end);

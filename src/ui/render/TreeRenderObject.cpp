@@ -101,12 +101,12 @@ static Size MeasureTreeRenderObjectItem(MeasureSize max_size,
                                         float tab_width) {
   auto render_object = item->GetRenderObject();
   if (render_object) {
-    render_object->Measure(
-        MeasureRequirement(max_size, MeasureSize::NotSpecified()),
-        MeasureSize::NotSpecified());
+    render_object->Measure(MeasureRequirement(
+        max_size, MeasureSize::NotSpecified(), MeasureSize::NotSpecified()));
   }
 
-  Size item_size = render_object ? render_object->GetDesiredSize() : Size{};
+  Size item_size =
+      render_object ? render_object->GetMeasureResultSize() : Size{};
 
   if (max_size.width.IsSpecified()) {
     max_size.width = max_size.width.GetLengthOrUndefined() - tab_width;
@@ -128,14 +128,10 @@ static Size MeasureTreeRenderObjectItem(MeasureSize max_size,
   return result_size;
 }
 
-Size TreeRenderObject::OnMeasureContent(const MeasureRequirement& requirement,
-                                        const MeasureSize& preferred_size) {
+Size TreeRenderObject::OnMeasureContent(const MeasureRequirement& requirement) {
   auto size =
       MeasureTreeRenderObjectItem(requirement.max, root_item_, tab_width_);
-
-  size = Max(size, requirement.min.GetSizeOr0());
-
-  return size;
+  return requirement.ExpandToSuggestAndCoerce(size);
 }
 
 static void LayoutTreeRenderObjectItem(Rect rect, TreeRenderObjectItem* item,
@@ -144,7 +140,7 @@ static void LayoutTreeRenderObjectItem(Rect rect, TreeRenderObjectItem* item,
   float item_height = 0.f;
   if (render_object) {
     render_object->Layout(rect.GetLeftTop());
-    item_height = render_object->GetDesiredSize().height;
+    item_height = render_object->GetMeasureResultSize().height;
   }
 
   rect.left += tab_width;
@@ -156,7 +152,7 @@ static void LayoutTreeRenderObjectItem(Rect rect, TreeRenderObjectItem* item,
     LayoutTreeRenderObjectItem(rect, child, tab_width);
     auto child_render_object = child->GetRenderObject();
     auto child_height = child_render_object
-                            ? child_render_object->GetDesiredSize().height
+                            ? child_render_object->GetMeasureResultSize().height
                             : 0.f;
     rect.top += child_height;
     rect.height -= child_height;

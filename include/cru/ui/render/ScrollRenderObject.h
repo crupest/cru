@@ -69,8 +69,7 @@ class CRU_UI_API ScrollRenderObject : public SingleChildRenderObject {
   // If available size is bigger than child's preferred size, then child's
   // preferred size is taken.
   // If not, all available size is taken while forming a scroll area.
-  Size OnMeasureContent(const MeasureRequirement& requirement,
-                        const MeasureSize& preferred_size) override;
+  Size OnMeasureContent(const MeasureRequirement& requirement) override;
   void OnLayoutContent(const Rect& content_rect) override;
 
   void OnAttachedControlChanged(controls::Control* old_control,

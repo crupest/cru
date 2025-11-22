@@ -7,16 +7,6 @@
 #include <string>
 
 namespace cru::ui::render {
-constexpr Size Min(const Size& left, const Size& right) {
-  return Size{std::min(left.width, right.width),
-              std::min(left.height, right.height)};
-}
-
-constexpr Size Max(const Size& left, const Size& right) {
-  return Size{std::max(left.width, right.width),
-              std::max(left.height, right.height)};
-}
-
 class MeasureLength final {
  public:
   struct tag_not_specify_t {};
@@ -24,32 +14,31 @@ class MeasureLength final {
 
   constexpr MeasureLength() : MeasureLength(tag_not_specify) {}
   constexpr MeasureLength(tag_not_specify_t) : length_(-1) {}
-  constexpr MeasureLength(float length) : length_(length) {}
-
-  MeasureLength(const MeasureLength& other) = default;
-  constexpr MeasureLength& operator=(const MeasureLength& other) = default;
+  constexpr MeasureLength(float length) : length_(length) {
+    if (length < 0.0f) {
+      throw Exception("Measure length must not be positive.");
+    }
+  }
   constexpr MeasureLength& operator=(float length) {
+    if (length < 0.0f) {
+      throw Exception("Measure length must not be positive.");
+    }
     length_ = length;
     return *this;
   }
 
-  ~MeasureLength() = default;
-
   constexpr static MeasureLength NotSpecified() {
-    return MeasureLength{tag_not_specify};
+    return MeasureLength(tag_not_specify);
   }
 
   constexpr bool IsSpecified() const { return length_ >= 0.0f; }
-
-  // What not specified means depends on situation.
-  constexpr bool IsNotSpecified() const { return length_ < 0.0f; }
 
   constexpr float GetLengthOr(float value) const {
     return length_ < 0 ? value : length_;
   }
 
   // If not specify max value of float is returned.
-  constexpr float GetLengthOrMax() const {
+  constexpr float GetLengthOrMaxFloat() const {
     return GetLengthOr(std::numeric_limits<float>::max());
   }
 
@@ -59,15 +48,27 @@ class MeasureLength final {
   // If not specify, return value is undefined.
   constexpr float GetLengthOrUndefined() const { return length_; }
 
-  // Not operator overload because this semantics is not very clear.
+  constexpr MeasureLength Or(MeasureLength value) const {
+    return IsSpecified() ? *this : value;
+  }
+
+  constexpr MeasureLength OverrideBy(MeasureLength value) const {
+    return value.IsSpecified() ? value : *this;
+  }
+
+  /**
+   * If specified, given length is added and negative value is coerced to 0.
+   */
   constexpr MeasureLength Plus(float length) const {
     if (IsSpecified())
-      return length_ + length;
+      return std::max(length_ + length, 0.f);
     else
       return NotSpecified();
   }
 
-  // Not operator overload because this semantics is not very clear.
+  /**
+   * If specified, given length is minused and negative value is coerced to 0.
+   */
   constexpr MeasureLength Minus(float length) const {
     if (IsSpecified())
       return std::max(length_ - length, 0.f);
@@ -75,52 +76,67 @@ class MeasureLength final {
       return NotSpecified();
   }
 
-  constexpr bool operator==(MeasureLength other) const {
-    return (length_ < 0 && other.length_ < 0) || length_ == other.length_;
-  }
-
-  constexpr bool operator!=(MeasureLength other) const {
-    return !operator==(other);
-  }
-
-  constexpr static MeasureLength Min(MeasureLength left, MeasureLength right) {
-    if (left.IsNotSpecified()) {
-      if (right.IsNotSpecified())
-        return NotSpecified();
-      else
-        return right;
+  /**
+   * 1. Both unspecified => unspecified.
+   * 2. One is specified and the other is not => the specified one.
+   * 3. Both specified => smaller one.
+   */
+  constexpr MeasureLength Min(MeasureLength other) const {
+    if (IsSpecified()) {
+      return other.IsSpecified() ? std::min(length_, other.length_) : *this;
     } else {
-      if (right.IsNotSpecified())
-        return left;
-      else
-        return std::min(left.length_, right.length_);
+      return other;
     }
   }
 
-  constexpr static MeasureLength Max(MeasureLength left, MeasureLength right) {
-    if (left.IsNotSpecified()) {
-      if (right.IsNotSpecified())
-        return NotSpecified();
-      else
-        return right;
+  /**
+   * 1. This is unspecified => other.
+   * 2. This is specified => smaller one.
+   */
+  constexpr float Min(float other) const {
+    return IsSpecified() ? std::min(length_, other) : other;
+  }
+
+  /**
+   * 1. Both unspecified => unspecified.
+   * 2. One is specified and the other is not => the specified one.
+   * 3. Both specified => bigger one.
+   */
+  constexpr MeasureLength Max(MeasureLength other) const {
+    if (IsSpecified()) {
+      return other.IsSpecified() ? std::max(length_, other.length_) : *this;
     } else {
-      if (left.IsNotSpecified())
-        return left;
-      else
-        return std::max(left.length_, right.length_);
+      return other;
     }
   }
 
-  std::string ToDebugString() const {
+  /**
+   * 1. This is unspecified => other.
+   * 2. This is specified => bigger one.
+   */
+  constexpr float Max(float other) const {
+    return IsSpecified() ? std::max(length_, other) : other;
+  }
+
+  std::string ToString() const {
     return IsSpecified() ? std::to_string(GetLengthOrUndefined())
-                         : "UNSPECIFIED";
+                         : "unspecified";
   }
+
+  constexpr bool operator==(const MeasureLength& other) const = default;
 
  private:
   // -1 for not specify
   float length_;
 };
+}  // namespace cru::ui::render
 
+template <>
+struct std::formatter<cru::ui::render::MeasureLength, char>
+    : cru::string::ImplementFormatterByToString<
+          cru::ui::render::MeasureLength> {};
+
+namespace cru::ui::render {
 struct MeasureSize {
   MeasureLength width;
   MeasureLength height;
@@ -130,120 +146,149 @@ struct MeasureSize {
       : width(width), height(height) {}
   constexpr MeasureSize(const Size& size)
       : width(size.width), height(size.height) {}
-  constexpr MeasureSize(const MeasureSize& other) = default;
 
-  MeasureSize& operator=(const MeasureSize& other) = default;
   constexpr MeasureSize& operator=(const Size& other) {
     width = other.width;
     height = other.height;
     return *this;
   }
 
-  constexpr Size GetSizeOrMax() const {
-    return Size{width.GetLengthOrMax(), height.GetLengthOrMax()};
+  constexpr static MeasureSize NotSpecified() {
+    return {MeasureLength::NotSpecified(), MeasureLength::NotSpecified()};
+  }
+
+  constexpr Size GetSizeOrMaxFloat() const {
+    return {width.GetLengthOrMaxFloat(), height.GetLengthOrMaxFloat()};
   }
 
   constexpr Size GetSizeOr0() const {
-    return Size{width.GetLengthOr0(), height.GetLengthOr0()};
+    return {width.GetLengthOr0(), height.GetLengthOr0()};
+  }
+
+  constexpr Size GetSizeOr(const Size& other) const {
+    return {width.GetLengthOr(other.width), height.GetLengthOr(other.height)};
+  }
+
+  constexpr MeasureSize Or(const MeasureSize& other) const {
+    return {width.Or(other.width), height.Or(other.height)};
+  }
+
+  constexpr MeasureSize OverrideBy(const MeasureSize& other) const {
+    return {width.OverrideBy(other.width), height.OverrideBy(other.height)};
   }
 
   constexpr MeasureSize Plus(const Size& size) const {
-    return MeasureSize{width.Plus(size.width), height.Plus(size.height)};
+    return {width.Plus(size.width), height.Plus(size.height)};
   }
 
   constexpr MeasureSize Minus(const Size& size) const {
-    return MeasureSize{width.Minus(size.width), height.Minus(size.height)};
+    return {width.Minus(size.width), height.Minus(size.height)};
   }
 
-  constexpr MeasureSize OverrideBy(const MeasureSize& size) const {
-    return MeasureSize{
-        size.width.IsSpecified() ? size.width.GetLengthOrUndefined()
-                                 : this->width,
-        size.height.IsSpecified() ? size.height.GetLengthOrUndefined()
-                                  : this->height,
-    };
+  constexpr MeasureSize Min(const MeasureSize& other) const {
+    return {width.Min(other.width), height.Min(other.height)};
   }
 
-  std::string ToDebugString() const {
-    return std::format("({}, {})", width.ToDebugString(),
-                       height.ToDebugString());
+  constexpr Size Min(const Size& other) const {
+    return {width.Min(other.width), height.Min(other.height)};
   }
 
-  constexpr static MeasureSize NotSpecified() {
-    return MeasureSize{MeasureLength::NotSpecified(),
-                       MeasureLength::NotSpecified()};
+  constexpr MeasureSize Max(const MeasureSize& other) const {
+    return {width.Max(other.width), height.Max(other.height)};
   }
 
-  constexpr static MeasureSize Min(const MeasureSize& left,
-                                   const MeasureSize& right) {
-    return MeasureSize{MeasureLength::Min(left.width, right.width),
-                       MeasureLength::Min(left.height, right.height)};
+  constexpr Size Max(const Size& other) const {
+    return {width.Max(other.width), height.Max(other.height)};
   }
 
-  constexpr static MeasureSize Max(const MeasureSize& left,
-                                   const MeasureSize& right) {
-    return MeasureSize{MeasureLength::Max(left.width, right.width),
-                       MeasureLength::Max(left.height, right.height)};
-  }
+  std::string ToString() const { return std::format("{}x{}", width, height); }
+
+  constexpr bool operator==(const MeasureSize& other) const = default;
+};
+}  // namespace cru::ui::render
+
+template <>
+struct std::formatter<cru::ui::render::MeasureSize, char>
+    : cru::string::ImplementFormatterByToString<cru::ui::render::MeasureSize> {
 };
 
+namespace cru::ui::render {
 struct MeasureRequirement {
   MeasureSize max;
   MeasureSize min;
+  MeasureSize suggest;
 
   constexpr MeasureRequirement() = default;
-  constexpr MeasureRequirement(const MeasureSize& max, const MeasureSize& min)
-      : max(max), min(min) {}
+  constexpr MeasureRequirement(const MeasureSize& max, const MeasureSize& min,
+                               const MeasureSize& suggest,
+                               bool allow_coerce_suggest = true)
+      : max(max), min(min), suggest(Coerce(suggest)) {
+    if (max.width.GetLengthOrMaxFloat() < min.width.GetLengthOr0()) {
+      throw Exception(
+          "Measure requirement's max width is smaller than min width.");
+    }
 
-  constexpr bool Satisfy(const Size& size) const {
-    auto normalized = Normalize();
-    return normalized.max.width.GetLengthOrMax() >= size.width &&
-           normalized.max.height.GetLengthOrMax() >= size.height &&
-           normalized.min.width.GetLengthOr0() <= size.width &&
-           normalized.min.height.GetLengthOr0() <= size.height;
+    if (max.height.GetLengthOrMaxFloat() < min.height.GetLengthOr0()) {
+      throw Exception(
+          "Measure requirement's max height is smaller than min height.");
+    }
+
+    if (!allow_coerce_suggest && this->suggest != suggest) {
+      throw Exception(
+          "Measure requirement's suggest size is in invalid range.");
+    }
   }
 
-  constexpr MeasureRequirement Normalize() const {
-    MeasureRequirement result = *this;
-    if (result.min.width.GetLengthOr0() > result.max.width.GetLengthOrMax())
-      result.min.width = result.max.width;
-
-    if (result.min.height.GetLengthOr0() > result.max.height.GetLengthOrMax())
-      result.min.height = result.max.height;
-    return result;
+  constexpr bool Satisfy(const Size& size) const {
+    return max.width.GetLengthOrMaxFloat() >= size.width &&
+           max.height.GetLengthOrMaxFloat() >= size.height &&
+           min.width.GetLengthOr0() <= size.width &&
+           min.height.GetLengthOr0() <= size.height;
   }
 
   constexpr Size Coerce(const Size& size) const {
-    // This order guarentees result is the same as normalized.
-    return Min(Max(size, min.GetSizeOr0()), max.GetSizeOrMax());
+    return max.Min(min.Max(size));
+  }
+
+  constexpr Size ExpandToSuggestAndCoerce(const Size& size) const {
+    return max.Min(min.Max(suggest.Max(size)));
   }
 
   constexpr MeasureSize Coerce(const MeasureSize& size) const {
     MeasureSize result = size;
     if (result.width.IsSpecified())
-      // This order guarentees result is the same as normalized.
-      result.width = std::min(std::max(min.width.GetLengthOr0(),
-                                       result.width.GetLengthOrUndefined()),
-                              max.width.GetLengthOrMax());
+      result.width =
+          max.width.Min(min.width.Max(result.width.GetLengthOrUndefined()));
 
     if (result.height.IsSpecified())
-      // This order guarentees result is the same as normalized.
-      result.height = std::min(std::max(min.height.GetLengthOr0(),
-                                        result.height.GetLengthOrUndefined()),
-                               max.height.GetLengthOrMax());
+      result.height =
+          max.height.Min(min.height.Max(result.height.GetLengthOrUndefined()));
 
     return result;
   }
 
-  std::string ToDebugString() const {
-    return std::format("{{min: {}, max: {}}}", min.ToDebugString(),
-                       max.ToDebugString());
+  constexpr MeasureRequirement Minus(const Size& size) const {
+    return {max.Minus(size), min.Minus(size), suggest.Minus(size)};
   }
 
-  constexpr static MeasureRequirement Merge(const MeasureRequirement& left,
-                                            const MeasureRequirement& right) {
-    return MeasureRequirement{MeasureSize::Min(left.max, right.max),
-                              MeasureSize::Max(left.min, right.min)};
+  /**
+   * Suggest size will use the other's one if this doesn't specify one but the
+   * other does.
+   */
+  constexpr MeasureRequirement Merge(const MeasureRequirement& other) const {
+    return {max.Min(other.max), min.Max(other.min),
+            suggest.OverrideBy(other.suggest)};
   }
+
+  std::string ToString() const {
+    return std::format("(min: {}, max: {}, suggest: {})", min, max, suggest);
+  }
+
+  constexpr bool operator==(const MeasureRequirement& other) const = default;
 };
 }  // namespace cru::ui::render
+
+template <>
+struct std::formatter<cru::ui::render::MeasureRequirement, char>
+    : cru::string::ImplementFormatterByToString<
+          cru::ui::render::MeasureRequirement> {};

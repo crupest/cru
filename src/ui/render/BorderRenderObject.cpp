@@ -114,13 +114,13 @@ void BorderRenderObject::Draw(platform::graphics::IPainter* painter) {
                           foreground_brush_.get());
 }
 
-Size BorderRenderObject::OnMeasureContent(const MeasureRequirement& requirement,
-                                          const MeasureSize& preferred_size) {
+Size BorderRenderObject::OnMeasureContent(
+    const MeasureRequirement& requirement) {
   if (auto child = GetChild()) {
-    child->Measure(requirement, preferred_size);
-    return child->GetDesiredSize();
+    child->Measure(requirement);
+    return child->GetMeasureResultSize();
   } else {
-    return preferred_size.GetSizeOr0();
+    return requirement.suggest.GetSizeOr0();
   }
 }
 
@@ -157,7 +157,7 @@ Rect BorderRenderObject::GetPaddingRect() {
 }
 
 Rect BorderRenderObject::GetContentRect() {
-  const auto size = GetDesiredSize();
+  const auto size = GetMeasureResultSize();
   Rect rect{Point{}, size};
   rect = rect.Shrink(GetMargin());
   if (is_border_enabled_) rect = rect.Shrink(border_thickness_);
@@ -212,7 +212,7 @@ void BorderRenderObject::RecreateGeometry() {
     builder->CloseFigure(true);
   };
 
-  const auto size = GetDesiredSize();
+  const auto size = GetMeasureResultSize();
   const auto margin = GetMargin();
   const Rect outer_rect{margin.left, margin.top,
                         size.width - margin.GetHorizontalTotal(),

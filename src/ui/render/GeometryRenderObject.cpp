@@ -91,18 +91,9 @@ RenderObject* GeometryRenderObject::HitTest(const Point& point) {
 }
 
 Size GeometryRenderObject::OnMeasureContent(
-    const MeasureRequirement& requirement, const MeasureSize& preferred_size) {
+    const MeasureRequirement& requirement) {
   Size result = GetViewPort().GetSize();
-
-  if (preferred_size.width.IsSpecified()) {
-    result.width = preferred_size.width.GetLengthOrUndefined();
-  }
-
-  if (preferred_size.height.IsSpecified()) {
-    result.height = preferred_size.height.GetLengthOrUndefined();
-  }
-
-  return requirement.Coerce(result);
+  return requirement.ExpandToSuggestAndCoerce(result);
 }
 
 void GeometryRenderObject::OnLayoutContent(const Rect& content_rect) {}

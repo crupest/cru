@@ -31,7 +31,7 @@ void CursorStyler::Apply(controls::Control* control) const {
 }
 
 void PreferredSizeStyler::Apply(controls::Control* control) const {
-  control->SetPreferredSize(size_);
+  control->SetSuggestSize(size_);
 }
 
 void MarginStyler::Apply(controls::Control* control) const {

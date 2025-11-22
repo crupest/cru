@@ -71,11 +71,11 @@ class CRU_UI_API Control : public Object,
  public:
   virtual render::RenderObject* GetRenderObject() = 0;
 
-  virtual render::MeasureSize GetPreferredSize() {
-    return GetRenderObject()->GetPreferredSize();
+  virtual render::MeasureSize GetSuggestSize() {
+    return GetRenderObject()->GetSuggestSize();
   }
-  virtual void SetPreferredSize(const render::MeasureSize& size) {
-    GetRenderObject()->SetPreferredSize(size);
+  virtual void SetSuggestSize(const render::MeasureSize& size) {
+    GetRenderObject()->SetSuggestSize(size);
   }
 
   virtual Thickness GetMargin() { return GetRenderObject()->GetMargin(); }

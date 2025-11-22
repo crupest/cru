@@ -8,7 +8,6 @@
 #include "cru/ui/DebugFlags.h"
 #include "cru/ui/render/RenderObject.h"
 
-#include <algorithm>
 #include <limits>
 
 namespace cru::ui::render {
@@ -180,7 +179,7 @@ void TextRenderObject::Draw(platform::graphics::IPainter* painter) {
     CRU_LOG_TAG_DEBUG(
         "Begin to paint, total_offset: {}, size: {}, text_layout: "
         "{}, brush: {}.",
-        this->GetTotalOffset(), this->GetDesiredSize(),
+        this->GetTotalOffset(), this->GetMeasureResultSize(),
         this->text_layout_->GetDebugString(), this->brush_->GetDebugString());
   }
 
@@ -197,32 +196,16 @@ void TextRenderObject::Draw(platform::graphics::IPainter* painter) {
   }
 }
 
-Size TextRenderObject::OnMeasureContent(const MeasureRequirement& requirement,
-                                        const MeasureSize& preferred_size) {
-  float measure_width;
-  if (preferred_size.width.IsSpecified())
-    measure_width = preferred_size.width.GetLengthOrUndefined();
-  else
-    measure_width = requirement.max.width.GetLengthOrMax();
+Size TextRenderObject::OnMeasureContent(const MeasureRequirement& requirement) {
+  float measure_width = requirement.suggest.width.GetLengthOr(
+      requirement.max.width.GetLengthOrMaxFloat());
 
   text_layout_->SetMaxWidth(measure_width);
   text_layout_->SetMaxHeight(std::numeric_limits<float>::max());
 
-  const Size text_size(
-      text_layout_->GetTextBounds(is_measure_including_trailing_space_)
-          .GetRightBottom());
-  auto result = text_size;
-
-  result.width = std::max(result.width, preferred_size.width.GetLengthOr0());
-  result.width = std::max(result.width, requirement.min.width.GetLengthOr0());
-  result.width = std::min(result.width, requirement.max.width.GetLengthOrMax());
-
-  result.height = std::max(result.height, preferred_size.height.GetLengthOr0());
-  result.height =
-      std::max(result.height, requirement.min.height.GetLengthOr0());
-  result.height =
-      std::min(result.height, requirement.max.height.GetLengthOrMax());
-
+  Size result(text_layout_->GetTextBounds(is_measure_including_trailing_space_)
+                  .GetRightBottom());
+  result = requirement.ExpandToSuggestAndCoerce(result);
   return result;
 }
 

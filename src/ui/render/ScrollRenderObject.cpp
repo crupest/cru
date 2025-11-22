@@ -163,29 +163,18 @@ void ScrollRenderObject::SetMouseWheelScrollEnabled(bool enable) {
   }
 }
 
-Size ScrollRenderObject::OnMeasureContent(const MeasureRequirement& requirement,
-                                          const MeasureSize& preferred_size) {
+Size ScrollRenderObject::OnMeasureContent(
+    const MeasureRequirement& requirement) {
   if (auto child = GetChild()) {
-    child->Measure(MeasureRequirement{MeasureSize::NotSpecified(),
-                                      MeasureSize::NotSpecified()},
-                   MeasureSize::NotSpecified());
+    child->Measure({MeasureSize::NotSpecified(), MeasureSize::NotSpecified(),
+                    MeasureSize::NotSpecified()});
 
-    Size result = requirement.Coerce(child->GetDesiredSize());
-    if (preferred_size.width.IsSpecified()) {
-      result.width = preferred_size.width.GetLengthOrUndefined();
-    }
-    if (preferred_size.height.IsSpecified()) {
-      result.height = preferred_size.height.GetLengthOrUndefined();
-    }
+    auto result =
+        requirement.ExpandToSuggestAndCoerce(child->GetMeasureResultSize());
+
     return result;
   } else {
-    Size result{preferred_size.width.IsSpecified()
-                    ? preferred_size.width.GetLengthOrUndefined()
-                    : requirement.min.width.GetLengthOr0(),
-                preferred_size.height.IsSpecified()
-                    ? preferred_size.height.GetLengthOrUndefined()
-                    : requirement.min.height.GetLengthOr0()};
-    return result;
+    return requirement.suggest.GetSizeOr0();
   }
 }
 
@@ -247,7 +236,7 @@ bool ScrollRenderObject::HorizontalCanScrollDown() {
   auto child = GetChild();
   if (child == nullptr) return false;
   return GetScrollOffset().x <
-         child->GetDesiredSize().width - GetViewRect().width;
+         child->GetMeasureResultSize().width - GetViewRect().width;
 }
 
 bool ScrollRenderObject::VerticalCanScrollUp() {
@@ -258,6 +247,6 @@ bool ScrollRenderObject::VerticalCanScrollDown() {
   auto child = GetChild();
   if (child == nullptr) return false;
   return GetScrollOffset().y <
-         child->GetDesiredSize().height - GetViewRect().height;
+         child->GetMeasureResultSize().height - GetViewRect().height;
 }
 }  // namespace cru::ui::render

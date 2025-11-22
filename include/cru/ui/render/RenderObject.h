@@ -82,7 +82,7 @@ class CRU_UI_API RenderObject : public Object {
   Point GetTotalOffset();
   Point FromRootToContent(const Point& point);
 
-  Size GetDesiredSize() { return desired_size_; }
+  Size GetMeasureResultSize() { return measure_result_size_; }
 
   Thickness GetMargin() { return margin_; }
   void SetMargin(const Thickness& margin);
@@ -90,8 +90,8 @@ class CRU_UI_API RenderObject : public Object {
   Thickness GetPadding() { return padding_; }
   void SetPadding(const Thickness& padding);
 
-  MeasureSize GetPreferredSize() { return preferred_size_; }
-  void SetPreferredSize(const MeasureSize& preferred_size);
+  MeasureSize GetSuggestSize() { return custom_measure_requirement_.suggest; }
+  void SetSuggestSize(const MeasureSize& suggest_size);
 
   MeasureSize GetMinSize() { return custom_measure_requirement_.min; }
   void SetMinSize(const MeasureSize& min_size);
@@ -110,8 +110,7 @@ class CRU_UI_API RenderObject : public Object {
   // OnMeasureCore and use the return value of it to set the size of this render
   // object. This can be called multiple times on children during measure to
   // adjust for better size.
-  void Measure(const MeasureRequirement& requirement,
-               const MeasureSize& preferred_size);
+  void Measure(const MeasureRequirement& requirement);
   // This will set offset of this render object and call OnLayoutCore.
   void Layout(const Point& offset);
 
@@ -145,8 +144,7 @@ class CRU_UI_API RenderObject : public Object {
   // must obey requirement.
   // Note: Implementation should coerce the preferred size into the requirement
   // when pass them to OnMeasureContent.
-  virtual Size OnMeasureCore(const MeasureRequirement& requirement,
-                             const MeasureSize& preferred_size);
+  virtual Size OnMeasureCore(const MeasureRequirement& requirement);
 
   // Please reduce margin and padding or other custom things and pass the result
   // content rect to OnLayoutContent.
@@ -156,8 +154,7 @@ class CRU_UI_API RenderObject : public Object {
   // them). Do not consider margin or padding in this method because they are
   // already considered in OnMeasureCore. Returned size must obey requirement.
   // Caller should guarantee preferred_size is corerced into required range.
-  virtual Size OnMeasureContent(const MeasureRequirement& requirement,
-                                const MeasureSize& preferred_size) = 0;
+  virtual Size OnMeasureContent(const MeasureRequirement& requirement) = 0;
 
   // Layout all content and children(Call Layout on them).
   // Lefttop of content_rect should be added when calculated children's offset.
@@ -176,12 +173,10 @@ class CRU_UI_API RenderObject : public Object {
   Point offset_;
   Size size_;
 
-  Size desired_size_;
-
   Thickness margin_;
   Thickness padding_;
 
-  MeasureSize preferred_size_;
+  Size measure_result_size_;
   MeasureRequirement custom_measure_requirement_;
 };
 }  // namespace cru::ui::render

@@ -113,7 +113,7 @@ class CRU_UI_API PreferredSizeStyler : public Styler {
     return new PreferredSizeStyler(size_);
   }
 
-  render::MeasureSize GetPreferredSize() const { return size_; }
+  render::MeasureSize GetSuggestSize() const { return size_; }
 
  private:
   render::MeasureSize size_;

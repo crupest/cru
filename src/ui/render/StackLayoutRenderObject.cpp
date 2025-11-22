@@ -3,8 +3,6 @@
 #include "cru/ui/render/LayoutHelper.h"
 #include "cru/ui/render/MeasureRequirement.h"
 
-#include <algorithm>
-
 namespace cru::ui::render {
 
 StackLayoutRenderObject::StackLayoutRenderObject()
@@ -22,20 +20,18 @@ void StackLayoutRenderObject::SetDefaultVerticalAlignment(Alignment alignment) {
 }
 
 Size StackLayoutRenderObject::OnMeasureContent(
-    const MeasureRequirement& requirement, const MeasureSize& preferred_size) {
+    const MeasureRequirement& requirement) {
   Size child_max_size;
   for (int i = 0; i < GetChildCount(); i++) {
     auto child = GetChildAt(i);
-    child->Measure(
-        MeasureRequirement(requirement.max, MeasureSize::NotSpecified()),
-        MeasureSize::NotSpecified());
-    const auto size = child->GetDesiredSize();
-    child_max_size.width = std::max(child_max_size.width, size.width);
-    child_max_size.height = std::max(child_max_size.height, size.height);
+    child->Measure({requirement.max, MeasureSize::NotSpecified(),
+                    MeasureSize::NotSpecified()});
+    auto size = child->GetMeasureResultSize();
+    child_max_size = child_max_size.Max(size);
   }
 
-  child_max_size = Max(preferred_size.GetSizeOr0(), child_max_size);
-  child_max_size = Max(requirement.min.GetSizeOr0(), child_max_size);
+  child_max_size = requirement.suggest.Max(child_max_size);
+  child_max_size = requirement.min.Max(child_max_size);
 
   for (Index i = 0; i < GetChildCount(); ++i) {
     auto child_layout_data = GetChildLayoutDataAt(i);
@@ -47,8 +43,9 @@ Size StackLayoutRenderObject::OnMeasureContent(
         Alignment::Stretch;
     if (horizontal_stretch || vertical_stretch) {
       auto child = GetChildAt(i);
-      auto child_size = child->GetDesiredSize();
-      MeasureRequirement child_requirement(child_size, child_size);
+      auto child_size = child->GetMeasureResultSize();
+      MeasureRequirement child_requirement(child_size, child_size,
+                                           MeasureSize::NotSpecified());
       if (horizontal_stretch) {
         child_requirement.min.width = child_requirement.max.width =
             child_max_size.width;
@@ -58,7 +55,7 @@ Size StackLayoutRenderObject::OnMeasureContent(
         child_requirement.min.height = child_requirement.max.height =
             child_max_size.height;
       }
-      child->Measure(child_requirement, MeasureSize::NotSpecified());
+      child->Measure(child_requirement);
     }
   }
 
@@ -71,7 +68,7 @@ void StackLayoutRenderObject::OnLayoutContent(const Rect& content_rect) {
   for (int i = 0; i < count; i++) {
     const auto child = GetChildAt(i);
     const auto& layout_data = GetChildLayoutDataAt(i);
-    const auto& size = child->GetDesiredSize();
+    const auto& size = child->GetMeasureResultSize();
     child->Layout(Point{
         CalculateAnchorByAlignment(
             layout_data.horizontal.value_or(default_horizontal_alignment_),

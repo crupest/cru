@@ -25,7 +25,7 @@ CompoundStylerEditor::CompoundStylerEditor() {
           "cru.theme_builder.icon-button.style"));
   add_child_button_.GetButton()->SetIconWithSvgPathDataStringResourceKey(
       "icon.plus", {0, 0, 16, 16});
-  add_child_button_.GetButton()->SetPreferredSize({24, 24});
+  add_child_button_.GetButton()->SetSuggestSize({24, 24});
   add_child_button_.GetButton()->SetPadding(ui::Thickness(2));
   add_child_button_.GetButton()->SetIconFillColor(ui::colors::green);
   add_child_button_.SetMenuItems({"Compound Styler", "Border Styler",

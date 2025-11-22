@@ -64,8 +64,7 @@ class CRU_UI_API TreeRenderObject : public RenderObject {
   void Draw(platform::graphics::IPainter* painter) override;
 
  protected:
-  Size OnMeasureContent(const MeasureRequirement& requirement,
-                        const MeasureSize& preferred_size) override;
+  Size OnMeasureContent(const MeasureRequirement& requirement) override;
   void OnLayoutContent(const Rect& content_rect) override;
 
  private:

@@ -14,8 +14,7 @@ MeasureLengthPropertyEditor::MeasureLengthPropertyEditor() {
     auto measure_length_mapper = ui::mapper::MapperRegistry::GetInstance()
                                      ->GetMapper<ui::render::MeasureLength>();
     try {
-      auto measure_length =
-          measure_length_mapper->MapFromString(text);
+      auto measure_length = measure_length_mapper->MapFromString(text);
       measure_length_ = measure_length;
       is_text_valid_ = true;
       RaiseChangeEvent();
@@ -31,8 +30,8 @@ MeasureLengthPropertyEditor::~MeasureLengthPropertyEditor() {}
 void MeasureLengthPropertyEditor::SetValue(
     const ui::render::MeasureLength& value, bool trigger_change) {
   if (!trigger_change) SuppressNextChangeEvent();
-  text_.SetText(measure_length_.IsNotSpecified()
-                    ? "unspecified"
-                    : std::to_string(measure_length_.GetLengthOrUndefined()));
+  text_.SetText(measure_length_.IsSpecified()
+                    ? std::to_string(measure_length_.GetLengthOrUndefined())
+                    : "unspecified");
 }
 }  // namespace cru::theme_builder::components::properties

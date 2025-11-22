@@ -10,6 +10,7 @@ namespace cru::ui::render {
 FlexLayoutRenderObject::FlexLayoutRenderObject()
     : LayoutRenderObject<FlexChildLayoutData>(kRenderObjectName) {}
 
+namespace {
 struct tag_horizontal_t {};
 struct tag_vertical_t {};
 
@@ -69,7 +70,6 @@ constexpr TSize CreateTSize(decltype(std::declval<TSize>().width) main,
 
 enum class FlexLayoutAdjustType { None, Expand, Shrink };
 
-namespace {
 void Remove(std::vector<Index>& v, const std::vector<Index>& to_remove_v) {
   Index current = 0;
   for (auto to_remove : to_remove_v) {
@@ -106,16 +106,15 @@ Size FlexLayoutMeasureContentImpl(
   // step 1.
   for (Index i = 0; i < child_count; i++) {
     const auto child = children[i];
-    child->Measure(MeasureRequirement{CreateTSize<MeasureSize>(
-                                          MeasureLength::NotSpecified(),
-                                          max_cross_length, direction_tag),
-                                      MeasureSize::NotSpecified()},
-                   MeasureSize::NotSpecified());
+    child->Measure(MeasureRequirement{
+        CreateTSize<MeasureSize>(MeasureLength::NotSpecified(),
+                                 max_cross_length, direction_tag),
+        MeasureSize::NotSpecified(), MeasureSize::NotSpecified()});
   }
 
   float total_length = 0.f;
   for (auto child : children) {
-    total_length += GetMain(child->GetDesiredSize(), direction_tag);
+    total_length += GetMain(child->GetMeasureResultSize(), direction_tag);
   }
 
   // step 2.
@@ -188,7 +187,8 @@ Size FlexLayoutMeasureContentImpl(
         const float shrink_length = layout_data[i].shrink_factor /
                                     total_shrink_factor * total_shrink_length;
         float new_measure_length =
-            GetMain(child->GetDesiredSize(), direction_tag) - shrink_length;
+            GetMain(child->GetMeasureResultSize(), direction_tag) -
+            shrink_length;
 
         MeasureLength child_min_main_length =
             GetMain(child->GetMinSize(), direction_tag);
@@ -200,15 +200,15 @@ Size FlexLayoutMeasureContentImpl(
           new_measure_length = 0.f;
         }
 
-        child->Measure(MeasureRequirement{CreateTSize<MeasureSize>(
-                                              new_measure_length,
-                                              max_cross_length, direction_tag),
-                                          MeasureSize::NotSpecified()},
-                       CreateTSize<MeasureSize>(new_measure_length,
-                                                MeasureLength::NotSpecified(),
-                                                direction_tag));
+        child->Measure(MeasureRequirement{
+            CreateTSize<MeasureSize>(new_measure_length, max_cross_length,
+                                     direction_tag),
+            MeasureSize::NotSpecified(),
+            CreateTSize<MeasureSize>(new_measure_length,
+                                     MeasureLength::NotSpecified(),
+                                     direction_tag)});
 
-        const Size new_size = child->GetDesiredSize();
+        const Size new_size = child->GetMeasureResultSize();
         const float new_main_length = GetMain(new_size, direction_tag);
         if (new_main_length >= new_measure_length) {
           to_remove.push_back(i);
@@ -217,7 +217,7 @@ Size FlexLayoutMeasureContentImpl(
 
       total_length = 0.f;
       for (auto child : children) {
-        total_length += GetMain(child->GetDesiredSize(), direction_tag);
+        total_length += GetMain(child->GetMeasureResultSize(), direction_tag);
       }
 
       if (total_length <= target_length) break;
@@ -248,7 +248,8 @@ Size FlexLayoutMeasureContentImpl(
         const float expand_length = layout_data[i].expand_factor /
                                     total_expand_factor * total_expand_length;
         float new_measure_length =
-            GetMain(child->GetDesiredSize(), direction_tag) + expand_length;
+            GetMain(child->GetMeasureResultSize(), direction_tag) +
+            expand_length;
 
         MeasureLength child_max_main_length =
             GetMain(child->GetMaxSize(), direction_tag);
@@ -258,18 +259,17 @@ Size FlexLayoutMeasureContentImpl(
           new_measure_length = child_max_main_length.GetLengthOrUndefined();
         }
 
-        child->Measure(
-            MeasureRequirement{
-                CreateTSize<MeasureSize>(MeasureLength::NotSpecified(),
-                                         max_cross_length, direction_tag),
-                CreateTSize<MeasureSize>(new_measure_length,
-                                         MeasureLength::NotSpecified(),
-                                         direction_tag)},
+        child->Measure(MeasureRequirement{
+            CreateTSize<MeasureSize>(MeasureLength::NotSpecified(),
+                                     max_cross_length, direction_tag),
             CreateTSize<MeasureSize>(new_measure_length,
                                      MeasureLength::NotSpecified(),
-                                     direction_tag));
+                                     direction_tag),
+            CreateTSize<MeasureSize>(new_measure_length,
+                                     MeasureLength::NotSpecified(),
+                                     direction_tag)});
 
-        const Size new_size = child->GetDesiredSize();
+        const Size new_size = child->GetMeasureResultSize();
         const float new_main_length = GetMain(new_size, direction_tag);
         if (new_main_length <= new_measure_length) {
           to_remove.push_back(i);
@@ -278,7 +278,7 @@ Size FlexLayoutMeasureContentImpl(
 
       total_length = 0.f;
       for (auto child : children) {
-        total_length += GetMain(child->GetDesiredSize(), direction_tag);
+        total_length += GetMain(child->GetMeasureResultSize(), direction_tag);
       }
 
       if (total_length >= target_length) break;
@@ -290,7 +290,8 @@ Size FlexLayoutMeasureContentImpl(
   float child_max_cross_length = 0.f;
 
   for (auto child : children) {
-    const float cross_length = GetCross(child->GetDesiredSize(), direction_tag);
+    const float cross_length =
+        GetCross(child->GetMeasureResultSize(), direction_tag);
     if (cross_length > child_max_cross_length) {
       child_max_cross_length = cross_length;
     }
@@ -311,16 +312,16 @@ Size FlexLayoutMeasureContentImpl(
   child_max_cross_length =
       std::max(min_cross_length.GetLengthOr0(), child_max_cross_length);
   child_max_cross_length =
-      std::min(max_cross_length.GetLengthOrMax(), child_max_cross_length);
+      std::min(max_cross_length.GetLengthOrMaxFloat(), child_max_cross_length);
 
   for (Index i = 0; i < child_count; i++) {
     auto child_layout_data = layout_data[i];
     auto child = children[i];
     if (child_layout_data.cross_alignment.value_or(item_cross_align) ==
         Alignment::Stretch) {
-      auto size = child->GetDesiredSize();
+      auto size = child->GetMeasureResultSize();
       GetCross(size, direction_tag) = child_max_cross_length;
-      child->Measure({size, size}, MeasureSize::NotSpecified());
+      child->Measure({size, size, MeasureSize::NotSpecified()});
     }
   }
 
@@ -329,7 +330,7 @@ Size FlexLayoutMeasureContentImpl(
 }  // namespace
 
 Size FlexLayoutRenderObject::OnMeasureContent(
-    const MeasureRequirement& requirement, const MeasureSize& preferred_size) {
+    const MeasureRequirement& requirement) {
   const bool horizontal = (direction_ == FlexDirection::Horizontal ||
                            direction_ == FlexDirection::HorizontalReverse);
   std::vector<RenderObject*> children;
@@ -341,11 +342,11 @@ Size FlexLayoutRenderObject::OnMeasureContent(
 
   if (horizontal) {
     return FlexLayoutMeasureContentImpl<tag_horizontal_t>(
-        requirement, preferred_size, children, layout_data_list,
+        requirement, requirement.suggest, children, layout_data_list,
         item_cross_align_, kLogTag);
   } else {
     return FlexLayoutMeasureContentImpl<tag_vertical_t>(
-        requirement, preferred_size, children, layout_data_list,
+        requirement, requirement.suggest, children, layout_data_list,
         item_cross_align_, kLogTag);
   }
 }
@@ -363,7 +364,7 @@ void FlexLayoutRenderObject::OnLayoutContent(const Rect& content_rect) {
     float current_main_offset = 0;
     for (Index i = 0; i < child_count; i++) {
       const auto child = children[i];
-      const auto size = child->GetDesiredSize();
+      const auto size = child->GetMeasureResultSize();
       const auto cross_align =
           layout_data_list[i].cross_alignment.value_or(GetItemCrossAlign());
       child->Layout(
@@ -377,7 +378,7 @@ void FlexLayoutRenderObject::OnLayoutContent(const Rect& content_rect) {
     float current_main_offset = 0;
     for (Index i = 0; i < child_count; i++) {
       const auto child = children[i];
-      const auto size = child->GetDesiredSize();
+      const auto size = child->GetMeasureResultSize();
       const auto cross_align =
           layout_data_list[i].cross_alignment.value_or(GetItemCrossAlign());
       child->Layout(
@@ -390,7 +391,7 @@ void FlexLayoutRenderObject::OnLayoutContent(const Rect& content_rect) {
     float current_main_offset = 0;
     for (Index i = 0; i < child_count; i++) {
       const auto child = children[i];
-      const auto size = child->GetDesiredSize();
+      const auto size = child->GetMeasureResultSize();
       const auto cross_align =
           layout_data_list[i].cross_alignment.value_or(GetItemCrossAlign());
       child->Layout(Point{
@@ -404,7 +405,7 @@ void FlexLayoutRenderObject::OnLayoutContent(const Rect& content_rect) {
     float current_main_offset = 0;
     for (Index i = 0; i < child_count; i++) {
       const auto child = children[i];
-      const auto size = child->GetDesiredSize();
+      const auto size = child->GetMeasureResultSize();
       const auto cross_align =
           layout_data_list[i].cross_alignment.value_or(GetItemCrossAlign());
       child->Layout(
