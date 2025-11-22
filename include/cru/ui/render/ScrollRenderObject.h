@@ -73,8 +73,6 @@ class CRU_UI_API ScrollRenderObject : public SingleChildRenderObject {
                         const MeasureSize& preferred_size) override;
   void OnLayoutContent(const Rect& content_rect) override;
 
-  Size OnMeasureContent1(const BoxConstraint& constraint) override;
-
   void OnAttachedControlChanged(controls::Control* old_control,
                                 controls::Control* new_control) override;
 

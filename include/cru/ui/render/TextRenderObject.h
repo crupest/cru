@@ -94,8 +94,6 @@ class CRU_UI_API TextRenderObject : public RenderObject {
   Size OnMeasureContent(const MeasureRequirement& requirement,
                         const MeasureSize& preferred_size) override;
 
-  Size OnMeasureContent1(const BoxConstraint& constraint) override;
-
   void OnLayoutContent(const Rect& content_rect) override;
 
  private:

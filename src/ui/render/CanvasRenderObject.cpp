@@ -21,10 +21,6 @@ Size CanvasRenderObject::OnMeasureContent(const MeasureRequirement& requirement,
                                  preferred_size.height.GetLengthOr(100)});
 }
 
-Size CanvasRenderObject::OnMeasureContent1(const BoxConstraint& constraint) {
-  return constraint.Coerce(Size{100, 100});
-}
-
 void CanvasRenderObject::OnLayoutContent(const Rect& content_rect) {
   CRU_UNUSED(content_rect)
 }

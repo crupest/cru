@@ -189,13 +189,6 @@ Size ScrollRenderObject::OnMeasureContent(const MeasureRequirement& requirement,
   }
 }
 
-Size ScrollRenderObject::OnMeasureContent1(const BoxConstraint& constraint) {
-  auto child = GetChild();
-  if (child == nullptr) return constraint.min;
-  auto child_size = child->Measure1(BoxConstraint::kNotLimit);
-  return constraint.Coerce(child_size);
-}
-
 void ScrollRenderObject::OnLayoutContent(const Rect& content_rect) {
   if (auto child = GetChild()) {
     child->Layout(content_rect.GetLeftTop() - GetScrollOffset());

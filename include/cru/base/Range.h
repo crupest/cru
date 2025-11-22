@@ -32,6 +32,8 @@ struct Range final {
     return Range::FromTwoSides(coerce(GetStart()), coerce(GetEnd()));
   }
 
+  constexpr bool operator==(const Range& other) const = default;
+
   Index position = 0;
   Index count = 0;
 };

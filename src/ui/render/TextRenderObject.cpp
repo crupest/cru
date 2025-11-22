@@ -226,17 +226,6 @@ Size TextRenderObject::OnMeasureContent(const MeasureRequirement& requirement,
   return result;
 }
 
-Size TextRenderObject::OnMeasureContent1(const BoxConstraint& constraint) {
-  text_layout_->SetMaxWidth(constraint.max.width);
-  text_layout_->SetMaxHeight(std::numeric_limits<float>::max());
-
-  const Size text_size(
-      text_layout_->GetTextBounds(is_measure_including_trailing_space_)
-          .GetRightBottom());
-
-  return constraint.Coerce(text_size);
-}
-
 void TextRenderObject::OnLayoutContent(const Rect& content_rect) {
   CRU_UNUSED(content_rect)
 }

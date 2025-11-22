@@ -9,7 +9,8 @@
 namespace cru::ui::render {
 const BoxConstraint BoxConstraint::kNotLimit{Size::kMax, Size::kZero};
 
-RenderObject::RenderObject(std::string name) : name_(std::move(name)) {}
+RenderObject::RenderObject(std::string name)
+    : name_(std::move(name)), control_(nullptr), parent_(nullptr) {}
 
 RenderObject::~RenderObject() { DestroyEvent_.Raise(this); }
 
@@ -77,42 +78,6 @@ void RenderObject::SetMaxSize(const MeasureSize& max_size) {
   InvalidateLayout();
 }
 
-void RenderObject::SetMinSize1(const Size& min_size) {
-  min_size_ = min_size;
-  InvalidateLayout();
-}
-
-void RenderObject::SetMaxSize1(const Size& max_size) {
-  max_size_ = max_size;
-  InvalidateLayout();
-}
-
-BoxConstraint RenderObject::CalculateMergedConstraint(
-    const BoxConstraint& constraint) {
-  auto result = constraint;
-  if (max_size_.width >= constraint.min.width &&
-      max_size_.width < constraint.max.width) {
-    result.max.width = max_size_.width;
-  }
-
-  if (max_size_.height >= constraint.min.height &&
-      max_size_.height < constraint.max.height) {
-    result.max.height = max_size_.height;
-  }
-
-  if (min_size_.width <= constraint.max.width &&
-      min_size_.width > constraint.min.width) {
-    result.min.width = min_size_.width;
-  }
-
-  if (min_size_.height <= constraint.max.height &&
-      min_size_.height > constraint.min.height) {
-    result.min.height = min_size_.height;
-  }
-
-  return result;
-}
-
 void RenderObject::Measure(const MeasureRequirement& requirement,
                            const MeasureSize& preferred_size) {
   MeasureRequirement merged_requirement =
@@ -137,13 +102,6 @@ void RenderObject::Measure(const MeasureRequirement& requirement,
 
   Ensures(desired_size_.width >= 0);
   Ensures(desired_size_.height >= 0);
-}
-
-Size RenderObject::Measure1(const BoxConstraint& constraint) {
-  Expects(constraint.Validate());
-  desired_size_ = OnMeasureCore1(constraint);
-  Ensures(constraint.Satisfy(desired_size_));
-  return desired_size_;
 }
 
 void RenderObject::Layout(const Point& offset) {
@@ -185,33 +143,6 @@ Size RenderObject::OnMeasureCore(const MeasureRequirement& requirement,
   return space_size + content_size;
 }
 
-Size RenderObject::OnMeasureCore1(const BoxConstraint& constraint) {
-  auto merged_constraint = CalculateMergedConstraint(constraint);
-
-  const Thickness outer_space = GetTotalSpaceThickness();
-  Size space_size{outer_space.GetHorizontalTotal(),
-                  outer_space.GetVerticalTotal()};
-
-  if (space_size.width > merged_constraint.max.width) {
-    space_size.width = merged_constraint.max.width;
-    CRU_LOG_TAG_WARN("{} space width is over constraint.max.width",
-                     this->GetDebugPathInTree());
-  }
-
-  if (space_size.height > merged_constraint.max.height) {
-    space_size.height = merged_constraint.max.height;
-    CRU_LOG_TAG_WARN("{} space height is over constraint.max.height",
-                     this->GetDebugPathInTree());
-  }
-
-  BoxConstraint content_constraint{merged_constraint.max - space_size,
-                                   merged_constraint.min - space_size};
-
-  const auto content_size = OnMeasureContent1(content_constraint);
-
-  return space_size + content_size;
-}
-
 void RenderObject::OnLayoutCore() {
   Size total_size = GetDesiredSize();
   const Thickness outer_space = GetTotalSpaceThickness();
@@ -238,10 +169,6 @@ void RenderObject::OnLayoutCore() {
   const Rect content_rect{lefttop, content_size};
 
   OnLayoutContent(content_rect);
-}
-
-Size RenderObject::OnMeasureContent1(const BoxConstraint& constraint) {
-  throw Exception("Not implemented.");
 }
 
 Rect RenderObject::GetPaddingRect() {

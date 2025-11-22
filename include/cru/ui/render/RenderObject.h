@@ -103,12 +103,6 @@ class CRU_UI_API RenderObject : public Object {
     return custom_measure_requirement_;
   }
 
-  Size GetMinSize1() { return min_size_; }
-  void SetMinSize1(const Size& min_size);
-  Size GetMaxSize1() { return max_size_; }
-  void SetMaxSize1(const Size& max_size);
-  BoxConstraint CalculateMergedConstraint(const BoxConstraint& constraint);
-
   // This method will merge requirement passed by argument and requirement of
   // the render object using MeasureRequirement::Merge and then call
   // MeasureRequirement::Normalize on it. And it will use preferred size of the
@@ -120,8 +114,6 @@ class CRU_UI_API RenderObject : public Object {
                const MeasureSize& preferred_size);
   // This will set offset of this render object and call OnLayoutCore.
   void Layout(const Point& offset);
-
-  Size Measure1(const BoxConstraint& constraint);
 
   virtual Thickness GetTotalSpaceThickness();
   virtual Thickness GetInnerSpaceThickness();
@@ -156,8 +148,6 @@ class CRU_UI_API RenderObject : public Object {
   virtual Size OnMeasureCore(const MeasureRequirement& requirement,
                              const MeasureSize& preferred_size);
 
-  virtual Size OnMeasureCore1(const BoxConstraint& constraint);
-
   // Please reduce margin and padding or other custom things and pass the result
   // content rect to OnLayoutContent.
   virtual void OnLayoutCore();
@@ -168,8 +158,6 @@ class CRU_UI_API RenderObject : public Object {
   // Caller should guarantee preferred_size is corerced into required range.
   virtual Size OnMeasureContent(const MeasureRequirement& requirement,
                                 const MeasureSize& preferred_size) = 0;
-
-  virtual Size OnMeasureContent1(const BoxConstraint& constraint);
 
   // Layout all content and children(Call Layout on them).
   // Lefttop of content_rect should be added when calculated children's offset.
@@ -182,22 +170,18 @@ class CRU_UI_API RenderObject : public Object {
 
  private:
   std::string name_;
-  controls::Control* control_ = nullptr;
+  controls::Control* control_;
+  RenderObject* parent_;
 
-  RenderObject* parent_ = nullptr;
+  Point offset_;
+  Size size_;
 
-  Point offset_{};
-  Size size_{};
+  Size desired_size_;
 
-  Size desired_size_{};
+  Thickness margin_;
+  Thickness padding_;
 
-  Thickness margin_{};
-  Thickness padding_{};
-
-  MeasureSize preferred_size_{};
-  MeasureRequirement custom_measure_requirement_{};
-
-  Size min_size_ = Size::kZero;
-  Size max_size_ = Size::kMax;
+  MeasureSize preferred_size_;
+  MeasureRequirement custom_measure_requirement_;
 };
 }  // namespace cru::ui::render

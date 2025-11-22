@@ -44,8 +44,6 @@ class CRU_UI_API CanvasRenderObject : public RenderObject {
                         const MeasureSize& preferred_size) override;
   void OnLayoutContent(const Rect& content_rect) override;
 
-  Size OnMeasureContent1(const BoxConstraint& constraint) override;
-
  private:
   Size desired_size_{};
 

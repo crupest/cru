@@ -39,8 +39,6 @@ class GeometryRenderObject : public RenderObject {
                         const MeasureSize& preferred_size) override;
   void OnLayoutContent(const Rect& content_rect) override;
 
-  Size OnMeasureContent1(const BoxConstraint& constraint) override;
-
  private:
   std::shared_ptr<platform::graphics::IGeometry> geometry_ = nullptr;
   Rect view_port_{};

@@ -27,6 +27,8 @@ struct Point final {
     return std::format("Point(x: {}, y: {})", x, y);
   }
 
+  constexpr bool operator==(const Point& other) const = default;
+
   float x = 0;
   float y = 0;
 };
@@ -37,10 +39,6 @@ constexpr Point operator+(const Point& left, const Point& right) {
 
 constexpr Point operator-(const Point& left, const Point& right) {
   return Point(left.x - right.x, left.y - right.y);
-}
-
-constexpr bool operator==(const Point& left, const Point& right) {
-  return left.x == right.x && left.y == right.y;
 }
 
 struct Size final {
@@ -62,6 +60,8 @@ struct Size final {
     return std::format("Size(width: {}, height: {})", width, height);
   }
 
+  constexpr bool operator==(const Size& other) const = default;
+
   float width = 0;
   float height = 0;
 };
@@ -74,10 +74,6 @@ constexpr Size operator+(const Size& left, const Size& right) {
 
 constexpr Size operator-(const Size& left, const Size& right) {
   return Size(left.width - right.width, left.height - right.height);
-}
-
-constexpr bool operator==(const Size& left, const Size& right) {
-  return left.width == right.width && left.height == right.height;
 }
 
 struct Thickness final {
@@ -107,6 +103,8 @@ struct Thickness final {
     return left >= 0.0 && top >= 0.0 && right >= 0.0 && bottom >= 0.0;
   }
 
+  constexpr bool operator==(const Thickness& other) const = default;
+
   float left;
   float top;
   float right;
@@ -125,11 +123,6 @@ constexpr Size operator+(const Thickness& thickness, const Size& size) {
 constexpr Thickness operator+(const Thickness& left, const Thickness& right) {
   return {left.left + right.left, left.top + right.top,
           left.right + right.right, left.bottom + right.bottom};
-}
-
-constexpr bool operator==(const Thickness& left, const Thickness& right) {
-  return left.left == right.left && left.top == right.top &&
-         left.right == right.right && left.bottom == right.bottom;
 }
 
 struct Rect final {
@@ -226,16 +219,13 @@ struct Rect final {
                        top, width, height);
   }
 
+  constexpr bool operator==(const Rect& other) const = default;
+
   float left = 0.0f;
   float top = 0.0f;
   float width = 0.0f;
   float height = 0.0f;
 };
-
-constexpr bool operator==(const Rect& left, const Rect& right) {
-  return left.left == right.left && left.top == right.top &&
-         left.width == right.width && left.height == right.height;
-}
 
 struct RoundedRect final {
   constexpr RoundedRect() = default;
@@ -243,15 +233,12 @@ struct RoundedRect final {
                         const float radius_y)
       : rect(rect), radius_x(radius_x), radius_y(radius_y) {}
 
+  constexpr bool operator==(const RoundedRect& other) const = default;
+
   Rect rect{};
   float radius_x = 0.0f;
   float radius_y = 0.0f;
 };
-
-constexpr bool operator==(const RoundedRect& left, const RoundedRect& right) {
-  return left.rect == right.rect && left.radius_x == right.radius_x &&
-         left.radius_y == right.radius_y;
-}
 
 struct Ellipse final {
   constexpr Ellipse() = default;
@@ -267,15 +254,12 @@ struct Ellipse final {
     return Rect::FromCenter(center, radius_x * 2.0f, radius_y * 2.0f);
   }
 
+  constexpr bool operator==(const Ellipse& other) const = default;
+
   Point center{};
   float radius_x = 0.0f;
   float radius_y = 0.0f;
 };
-
-constexpr bool operator==(const Ellipse& left, const Ellipse& right) {
-  return left.center == right.center && left.radius_x == right.radius_x &&
-         left.radius_y == right.radius_y;
-}
 
 using TextRange = Range;
 }  // namespace cru::platform
