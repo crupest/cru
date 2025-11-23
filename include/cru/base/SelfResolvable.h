@@ -1,7 +1,7 @@
 #pragma once
+#include "Base.h"
 
 #include <cassert>
-#include <functional>
 #include <memory>
 #include <type_traits>
 
@@ -16,70 +16,51 @@ class ObjectResolver {
   friend class ObjectResolver;
 
  private:
-  template <typename U>
-  using Accessor_ = std::function<U*(const std::shared_ptr<void*>&)>;
-  using ThisAccessor_ = Accessor_<T>;
-
-  explicit ObjectResolver(T* o)
-      : shared_object_ptr_(new void*(o)),
-        accessor_([](const std::shared_ptr<void*>& ptr) {
-          return static_cast<T*>(*ptr);
-        }) {}
-  explicit ObjectResolver(std::shared_ptr<void*> ptr, ThisAccessor_ accessor)
-      : shared_object_ptr_(std::move(ptr)), accessor_(std::move(accessor)) {}
-
-  template <typename U>
-  static ThisAccessor_ CreateAccessor(Accessor_<U> parent_accessor) {
-    return [parent_accessor =
-                std::move(parent_accessor)](const std::shared_ptr<void*>& ptr) {
-      return static_cast<T*>(parent_accessor(ptr));
-    };
-  }
+  explicit ObjectResolver(std::shared_ptr<bool> destroyed, T* ptr)
+      : destroyed_(std::move(destroyed)), ptr_(ptr) {}
 
  public:
-  template <typename U,
-            typename = std::enable_if_t<std::is_convertible_v<U*, T*>>>
+  CRU_DEFAULT_COPY(ObjectResolver)
+  CRU_DEFAULT_MOVE(ObjectResolver)
+
+  template <typename U>
   ObjectResolver(const ObjectResolver<U>& other)
-      : shared_object_ptr_(other.shared_object_ptr_),
-        accessor_(CreateAccessor(other.accessor_)) {}
+    requires(std::is_convertible_v<U*, T*>)
+      : destroyed_(other.destroyed_), ptr_(static_cast<T*>(other.ptr_)) {}
 
-  template <typename U,
-            typename = std::enable_if_t<std::is_convertible_v<U*, T*>>>
+  template <typename U>
   ObjectResolver(ObjectResolver<U>&& other)
-      : shared_object_ptr_(std::move(other.shared_object_ptr_)),
-        accessor_(CreateAccessor(std::move(other.accessor_))) {}
+    requires(std::is_convertible_v<U*, T*>)
+      : destroyed_(std::move(other.destroyed_)),
+        ptr_(static_cast<T*>(other.ptr_)) {}
 
-  ObjectResolver(const ObjectResolver&) = default;
-  ObjectResolver& operator=(const ObjectResolver&) = default;
-  ObjectResolver(ObjectResolver&&) = default;
-  ObjectResolver& operator=(ObjectResolver&&) = default;
-  ~ObjectResolver() = default;
-
-  template <typename U,
-            typename = std::enable_if_t<std::is_convertible_v<U*, T*>>>
-  ObjectResolver& operator=(const ObjectResolver<U>& other) {
+  template <typename U>
+  ObjectResolver& operator=(const ObjectResolver<U>& other)
+    requires(std::is_convertible_v<U*, T*>)
+  {
     if (this != &other) {
-      this->shared_object_ptr_ = other.shared_object_ptr_;
-      this->accessor_ = CreateAccessor(other.accessor_);
+      this->destroyed_ = other.destroyed_;
+      this->ptr_ = static_cast<T*>(other.ptr_);
     }
     return *this;
   }
 
-  template <typename U,
-            typename = std::enable_if_t<std::is_convertible_v<U*, T*>>>
-  ObjectResolver& operator=(ObjectResolver<U>&& other) {
+  template <typename U>
+  ObjectResolver& operator=(ObjectResolver<U>&& other)
+    requires(std::is_convertible_v<U*, T*>)
+  {
     if (this != &other) {
-      this->shared_object_ptr_ = std::move(other.shared_object_ptr_);
-      this->accessor_ = CreateAccessor(std::move(other.shared_object_ptr_));
+      this->destroyed_ = std::move(other.destroyed_);
+      this->ptr_ = static_cast<T*>(other.ptr_);
     }
     return *this;
   }
 
-  bool IsValid() const { return this->shared_object_ptr_ != nullptr; }
+  bool IsValid() const { return this->destroyed_ != nullptr; }
 
   T* Resolve() const {
     assert(IsValid());
-    return this->accessor_(this->shared_object_ptr_);
+    return *destroyed_ ? nullptr : ptr_;
   }
 
   /**
@@ -87,21 +68,16 @@ class ObjectResolver {
    */
   T* operator()() const { return Resolve(); }
 
-  template <typename U,
-            typename = std::enable_if_t<std::is_convertible_v<T*, U*>>>
-  operator ObjectResolver<U>() const {
+  template <typename U>
+  operator ObjectResolver<U>() const
+    requires(std::is_convertible_v<T*, U*>)
+  {
     return ObjectResolver<U>(*this);
   }
 
  private:
-  void SetResolvedObject(T* o) {
-    assert(IsValid());
-    *this->shared_object_ptr_ = o;
-  }
-
- private:
-  std::shared_ptr<void*> shared_object_ptr_;
-  std::function<T*(const std::shared_ptr<void*>&)> accessor_;
+  std::shared_ptr<bool> destroyed_;
+  T* ptr_;
 };
 
 /**
@@ -116,38 +92,15 @@ class ObjectResolver {
 template <typename T>
 class SelfResolvable {
  public:
-  SelfResolvable() : resolver_(CastToSubClass()) {}
-  SelfResolvable(const SelfResolvable&) = delete;
-  SelfResolvable& operator=(const SelfResolvable&) = delete;
+  SelfResolvable() : destroyed_(new bool(false)) {}
+  CRU_DELETE_COPY(SelfResolvable)
+  virtual ~SelfResolvable() { *destroyed_ = true; }
 
-  // Resolvers to old object will resolve to new object.
-  SelfResolvable(SelfResolvable&& other)
-      : resolver_(std::move(other.resolver_)) {
-    this->resolver_.SetResolvedObject(CastToSubClass());
+  ObjectResolver<T> CreateResolver() {
+    return ObjectResolver<T>(destroyed_, static_cast<T*>(this));
   }
-
-  // Old resolvers for this object will resolve to nullptr.
-  // Other's resolvers will now resolve to this.
-  SelfResolvable& operator=(SelfResolvable&& other) {
-    if (this != &other) {
-      this->resolver_ = std::move(other.resolver_);
-      this->resolver_.SetResolvedObject(CastToSubClass());
-    }
-    return *this;
-  }
-
-  virtual ~SelfResolvable() {
-    if (this->resolver_.IsValid()) {
-      this->resolver_.SetResolvedObject(nullptr);
-    }
-  }
-
-  ObjectResolver<T> CreateResolver() { return resolver_; }
 
  private:
-  T* CastToSubClass() { return static_cast<T*>(this); }
-
- private:
-  ObjectResolver<T> resolver_;
+  std::shared_ptr<bool> destroyed_;
 };
 }  // namespace cru
