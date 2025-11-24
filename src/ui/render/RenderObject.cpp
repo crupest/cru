@@ -10,7 +10,10 @@ namespace cru::ui::render {
 const BoxConstraint BoxConstraint::kNotLimit{Size::kMax, Size::kZero};
 
 RenderObject::RenderObject(std::string name)
-    : name_(std::move(name)), control_(nullptr), parent_(nullptr) {}
+    : name_(std::move(name)),
+      control_(nullptr),
+      parent_(nullptr),
+      layout_valid_(false) {}
 
 RenderObject::~RenderObject() { DestroyEvent_.Raise(this); }
 
@@ -82,25 +85,38 @@ void RenderObject::Measure(const MeasureRequirement& requirement) {
   CRU_LOG_TAG_DEBUG("{} Measure begins, requirement {}.",
                     this->GetDebugPathInTree(), requirement);
 
+  if (layout_valid_ && requirement == last_measure_requirement_) {
+    return;
+  }
+
   measure_result_size_ = OnMeasureCore(requirement);
   if (measure_result_size_.width < 0 || measure_result_size_.height < 0) {
     throw Exception("Measure result size is invalid.");
   }
+
+  last_measure_requirement_ = requirement;
 
   CRU_LOG_TAG_DEBUG("{} Measure ends, result size: {}.",
                     this->GetDebugPathInTree(), measure_result_size_);
 }
 
 void RenderObject::Layout(const Point& offset) {
-  CRU_LOG_TAG_DEBUG("{} Layout begins, offset: {}, size: {}.",
-                    this->GetDebugPathInTree(), offset, measure_result_size_);
+  Layout({offset, GetMeasureResultSize()});
+}
 
-  offset_ = offset;
-  size_ = measure_result_size_;
+void RenderObject::Layout(const Rect& rect) {
+  CRU_LOG_TAG_DEBUG("{} Layout begins, rect: {}.", this->GetDebugPathInTree(),
+                    rect);
 
-  OnResize(size_);
+  offset_ = rect.GetLeftTop();
+  auto new_size = rect.GetSize();
+  if (size_ != new_size) {
+    size_ = new_size;
+    OnResize(new_size);
+  }
 
-  OnLayoutCore();
+  OnLayoutCore(rect);
+  layout_valid_ = true;
 
   CRU_LOG_TAG_DEBUG("{} Layout ends.", this->GetDebugPathInTree());
 }
@@ -120,8 +136,8 @@ Size RenderObject::OnMeasureCore(const MeasureRequirement& requirement) {
   return space_size + content_size;
 }
 
-void RenderObject::OnLayoutCore() {
-  auto total_size = GetMeasureResultSize();
+void RenderObject::OnLayoutCore(const Rect& rect) {
+  auto total_size = rect.GetSize();
   auto outer_space = GetTotalSpaceThickness();
   auto content_size = (total_size - outer_space.GetTotalSize()).AtLeast0();
 
@@ -165,14 +181,15 @@ controls::ControlHost* RenderObject::GetControlHost() {
 }
 
 void RenderObject::InvalidateLayout() {
+  WalkUp([](RenderObject* ro) { ro->layout_valid_ = false; });
   if (auto host = GetControlHost()) {
-    host->InvalidateLayout();
+    host->ScheduleRelayout();
   }
 }
 
 void RenderObject::InvalidatePaint() {
   if (auto window = GetControlHost()) {
-    window->InvalidatePaint();
+    window->ScheduleRepaint();
   }
 }
 

@@ -124,9 +124,9 @@ ControlHost::CreateNativeWindow() {
   return std::unique_ptr<platform::gui::INativeWindow>(native_window);
 }
 
-void ControlHost::InvalidatePaint() { native_window_->RequestRepaint(); }
+void ControlHost::ScheduleRepaint() { native_window_->RequestRepaint(); }
 
-void ControlHost::InvalidateLayout() {
+void ControlHost::ScheduleRelayout() {
   relayout_schedule_canceler_.Reset(
       platform::gui::IUiApplication::GetInstance()->SetImmediate(
           [this] { Relayout(); }));
@@ -139,7 +139,7 @@ bool ControlHost::IsLayoutPreferToFillWindow() const {
 void ControlHost::SetLayoutPreferToFillWindow(bool value) {
   if (value == layout_prefer_to_fill_window_) return;
   layout_prefer_to_fill_window_ = value;
-  InvalidateLayout();
+  ScheduleRelayout();
 }
 
 void ControlHost::Repaint() {
@@ -172,7 +172,7 @@ void ControlHost::RelayoutWithSize(const Size& available_size,
 
   AfterLayoutEvent_.Raise(nullptr);
 
-  InvalidatePaint();
+  ScheduleRepaint();
 }
 
 Control* ControlHost::GetFocusControl() { return focus_control_; }
@@ -250,7 +250,7 @@ void ControlHost::OnNativeResize(platform::gui::INativeWindow* window,
   CRU_UNUSED(window)
   CRU_UNUSED(size)
 
-  InvalidateLayout();
+  ScheduleRelayout();
 }
 
 void ControlHost::OnNativeFocus(platform::gui::INativeWindow* window,

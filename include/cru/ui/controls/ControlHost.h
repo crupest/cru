@@ -19,8 +19,8 @@ class CRU_UI_API ControlHost : public Object {
 
   platform::gui::INativeWindow* GetNativeWindow();
 
-  void InvalidateLayout();
-  void InvalidatePaint();
+  void ScheduleRepaint();
+  void ScheduleRelayout();
 
   void Repaint();
   void Relayout();

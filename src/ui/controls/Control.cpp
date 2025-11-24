@@ -110,7 +110,7 @@ void Control::InsertChildAt(Control* control, Index index) {
   OnChildInserted(control, index);
 
   if (host_) {
-    host_->InvalidateLayout();
+    host_->ScheduleRelayout();
   }
 }
 
@@ -131,7 +131,7 @@ void Control::RemoveChildAt(Index index) {
   OnChildRemoved(control, index);
 
   if (host_) {
-    host_->InvalidateLayout();
+    host_->ScheduleRelayout();
   }
 }
 

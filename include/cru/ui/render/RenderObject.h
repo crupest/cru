@@ -31,23 +31,6 @@ struct BoxConstraint {
 };
 
 /**
- * ### Layout
- *
- * Render object should be able to deal with _arbitrary_ size as the result of
- * measure and layout.
- *
- * Parent may pass calculated preferred size down. But the preferred size set on
- * child itself takes precedence.
- *
- * Each render object should obey the measure requirement to set size and report
- * a warning when that requirement can't be satisfied with probably bigger size
- * of children than that of itself and optional visual effect to indicate that.
- *
- * If size of chilren are less than min size requirement, then render object
- * should try to fill the rest area. If size of children are more than max size
- * requirement, then render object should display a warning of the layout
- * problem and use the max size of itself with children exceeding its bound.
- * (Or better you could use some visual effect to indicate that.)
  *
  * ### Create New Render Object
  *
@@ -57,9 +40,8 @@ struct BoxConstraint {
  *  void Draw(platform::graphics::IPainter* painter) override;
  *  RenderObject* HitTest(const Point& point) override;
  * protected:
- *  Size OnMeasureContent(const MeasureRequirement& requirement, const
- * MeasureSize& preferred_size) override; void OnLayoutContent(const Rect&
- * content_rect) override;
+ *  Size OnMeasureContent(const MeasureRequirement& requirement) override;
+ *  void OnLayoutContent(const Rect& content_rect) override;
  */
 class CRU_UI_API RenderObject : public Object {
   CRU_DEFINE_CLASS_LOG_TAG("cru::ui::render::RenderObject")
@@ -73,6 +55,15 @@ class CRU_UI_API RenderObject : public Object {
 
   RenderObject* GetParent() { return parent_; }
   void SetParent(RenderObject* new_parent);
+
+  template <typename F>
+  void WalkUp(const F& f, bool include_this = true) {
+    auto parent = include_this ? this : GetParent();
+    while (parent) {
+      f(parent);
+      parent = parent->GetParent();
+    }
+  }
 
   // Offset from parent's lefttop to lefttop of this render object. Margin is
   // accounted for.
@@ -103,16 +94,28 @@ class CRU_UI_API RenderObject : public Object {
     return custom_measure_requirement_;
   }
 
-  // This method will merge requirement passed by argument and requirement of
-  // the render object using MeasureRequirement::Merge and then call
-  // MeasureRequirement::Normalize on it. And it will use preferred size of the
-  // render object to override the one passed by argument. Then pass the two to
-  // OnMeasureCore and use the return value of it to set the size of this render
-  // object. This can be called multiple times on children during measure to
-  // adjust for better size.
+  /**
+   * First checks if layout cache is still valid. If not, invokes OnMeasureCore
+   * to do the real measure and save the result. Use GetMeasureResultSize to get
+   * the result size.
+   *
+   * The cache is valid only if,
+   * 1. Measure requirement does not change.
+   * 2. InvalidateLayout is not called on any descendents.
+   */
   void Measure(const MeasureRequirement& requirement);
-  // This will set offset of this render object and call OnLayoutCore.
+
+  /**
+   * Sets offset and size (from GetMeasureResult) of this render object and call
+   * OnLayoutCore. This will set layout as valid.
+   */
   void Layout(const Point& offset);
+
+  /**
+   * Sets offset and size of this render object and call OnLayoutCore. This will
+   * set layout as valid.
+   */
+  void Layout(const Rect& rect);
 
   virtual Thickness GetTotalSpaceThickness();
   virtual Thickness GetInnerSpaceThickness();
@@ -138,17 +141,20 @@ class CRU_UI_API RenderObject : public Object {
   CRU_DEFINE_EVENT(Destroy, RenderObject*)
 
  protected:
-  // Size measure including margin and padding. Please reduce margin and padding
-  // or other custom things and pass the result content measure requirement and
-  // preferred size to OnMeasureContent. Return value must not be negative and
-  // must obey requirement.
-  // Note: Implementation should coerce the preferred size into the requirement
-  // when pass them to OnMeasureContent.
+  /**
+   * Implementation should adjust the requirement for content (like decreasing
+   * the size of padding and margin), call OnMeasureContent to measure content
+   * and adjust back to get the final measure result.
+   *
+   * The default implementation in RenderObject of calculating content's
+   * requirement is first merging the given requirement with RenderObject's
+   * custom measure requirement and then reducing GetTotalSpaceThickness.
+   */
   virtual Size OnMeasureCore(const MeasureRequirement& requirement);
 
   // Please reduce margin and padding or other custom things and pass the result
   // content rect to OnLayoutContent.
-  virtual void OnLayoutCore();
+  virtual void OnLayoutCore(const Rect& rect);
 
   // Override this function to measure content and children(Call Measure on
   // them). Do not consider margin or padding in this method because they are
@@ -176,6 +182,8 @@ class CRU_UI_API RenderObject : public Object {
   Thickness margin_;
   Thickness padding_;
 
+  bool layout_valid_;
+  MeasureRequirement last_measure_requirement_;
   Size measure_result_size_;
   MeasureRequirement custom_measure_requirement_;
 };
