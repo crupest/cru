@@ -8,14 +8,19 @@ namespace cru::platform::gui {
 void DeleteLaterPool::Add(Object* object) { pool_.push_back(object); }
 
 void DeleteLaterPool::Clean() {
-  std::unordered_set<Object*> deleted;
-  for (auto object : pool_) {
-    if (!deleted.contains(object)) {
-      deleted.insert(object);
-      delete object;
+  // Destructors of objects might add more objects to delete later. So the safe
+  // implementation is to copy current pool to avoid modification during
+  // iteration.
+  while (!pool_.empty()) {
+    std::vector<Object*> copy = std::move(pool_);
+    std::unordered_set<Object*> deleted;
+    for (auto object : copy) {
+      if (!deleted.contains(object)) {
+        deleted.insert(object);
+        delete object;
+      }
     }
   }
-  pool_.clear();
 }
 
 namespace {

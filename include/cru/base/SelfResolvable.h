@@ -81,13 +81,7 @@ class ObjectResolver {
 };
 
 /**
- * @remarks
- * This class is not copyable and movable since subclass is polymorphic and
- * copying is then nonsense. However, you can even delete move capability in
- * subclass because it may also be nonsense for subclass. The move capability is
- * optional.
- *
- * Whether this class needs to be thread-safe still has to be considered.
+ * Currently the implementation is NOT thread-safe.
  */
 template <typename T>
 class SelfResolvable {
