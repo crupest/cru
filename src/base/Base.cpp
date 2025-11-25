@@ -7,7 +7,7 @@
 
 namespace cru {
 void UnreachableCode() { std::terminate(); }
-void NotImplemented() { std::terminate(); }
+void NotImplemented() { throw NotImplementedException(); }
 
 Exception::Exception(std::string message, std::shared_ptr<std::exception> inner)
     : message_(std::move(message)), inner_(std::move(inner)) {}

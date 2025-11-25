@@ -137,12 +137,17 @@ class CRU_BASE_API Exception : public std::exception {
   std::shared_ptr<std::exception> inner_;
 };
 
+class CRU_BASE_API NotImplementedException : public Exception {
+ public:
+  using Exception::Exception;  // inherit constructors
+};
+
 class CRU_BASE_API PlatformException : public Exception {
  public:
   using Exception::Exception;  // inherit constructors
 };
 
-class ErrnoException : public Exception {
+class CRU_BASE_API ErrnoException : public Exception {
  public:
   ErrnoException();
   explicit ErrnoException(int error_code);

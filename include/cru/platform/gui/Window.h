@@ -23,6 +23,10 @@ struct WindowStyleFlags {
 
 enum class WindowVisibilityType { Show, Hide, Minimize };
 
+struct NativePaintEventArgs {
+  Rect repaint_area;
+};
+
 enum class FocusChangeType { Gain, Lose };
 
 enum class MouseEnterLeaveType { Enter, Leave };
@@ -100,6 +104,7 @@ struct CRU_PLATFORM_GUI_API INativeWindow : virtual IPlatformResource {
   virtual IEvent<std::nullptr_t>* CreateEvent() = 0;
   virtual IEvent<std::nullptr_t>* DestroyEvent() = 0;
   virtual IEvent<std::nullptr_t>* PaintEvent() = 0;
+  virtual IEvent<const NativePaintEventArgs&>* Paint1Event();
 
   virtual IEvent<WindowVisibilityType>* VisibilityChangeEvent() = 0;
   virtual IEvent<const Size&>* ResizeEvent() = 0;
@@ -116,3 +121,19 @@ struct CRU_PLATFORM_GUI_API INativeWindow : virtual IPlatformResource {
   virtual IInputMethodContext* GetInputMethodContext() = 0;
 };
 }  // namespace cru::platform::gui
+
+#define CRU_DEFINE_CRU_PLATFORM_GUI_I_NATIVE_WINDOW_OVERRIDE_EVENTS()     \
+  CRU_DEFINE_EVENT_OVERRIDE(Create, std::nullptr_t)                       \
+  CRU_DEFINE_EVENT_OVERRIDE(Destroy, std::nullptr_t)                      \
+  CRU_DEFINE_EVENT_OVERRIDE(Paint, std::nullptr_t)                        \
+  CRU_DEFINE_EVENT_OVERRIDE(Paint1, const NativePaintEventArgs&)          \
+  CRU_DEFINE_EVENT_OVERRIDE(VisibilityChange, WindowVisibilityType)       \
+  CRU_DEFINE_EVENT_OVERRIDE(Resize, const Size&)                          \
+  CRU_DEFINE_EVENT_OVERRIDE(Focus, FocusChangeType)                       \
+  CRU_DEFINE_EVENT_OVERRIDE(MouseEnterLeave, MouseEnterLeaveType)         \
+  CRU_DEFINE_EVENT_OVERRIDE(MouseMove, const Point&)                      \
+  CRU_DEFINE_EVENT_OVERRIDE(MouseDown, const NativeMouseButtonEventArgs&) \
+  CRU_DEFINE_EVENT_OVERRIDE(MouseUp, const NativeMouseButtonEventArgs&)   \
+  CRU_DEFINE_EVENT_OVERRIDE(MouseWheel, const NativeMouseWheelEventArgs&) \
+  CRU_DEFINE_EVENT_OVERRIDE(KeyDown, const NativeKeyEventArgs&)           \
+  CRU_DEFINE_EVENT_OVERRIDE(KeyUp, const NativeKeyEventArgs&)

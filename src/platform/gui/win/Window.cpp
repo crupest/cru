@@ -312,7 +312,7 @@ bool WinNativeWindow::HandleNativeWindowMessage(HWND hwnd, UINT msg,
                                                 LRESULT* result) {
   WindowNativeMessageEventArgs args{
       WindowNativeMessage{hwnd, msg, w_param, l_param}};
-  native_message_event_.Raise(args);
+  NativeMessageEvent_.Raise(args);
   if (args.IsHandled()) {
     *result = args.GetResult();
     return true;
@@ -510,13 +510,13 @@ void WinNativeWindow::RecreateWindow() {
 void WinNativeWindow::OnCreateInternal() {
   CRU_LOG_TAG_DEBUG("A native window is created, hwnd {}.",
                     static_cast<void*>(GetWindowHandle()));
-  create_event_.Raise(nullptr);
+  CreateEvent_.Raise(nullptr);
 }
 
 void WinNativeWindow::OnDestroyInternal() {
   CRU_LOG_TAG_DEBUG("A native window is destroying, hwnd {}.",
                     static_cast<void*>(GetWindowHandle()));
-  destroy_event_.Raise(nullptr);
+  DestroyEvent_.Raise(nullptr);
   hwnd_ = nullptr;
 
   if (application_->IsQuitOnAllWindowClosed() &&
@@ -529,8 +529,14 @@ void WinNativeWindow::OnDestroyInternal() {
 }
 
 void WinNativeWindow::OnPaintInternal() {
-  paint_event_.Raise(nullptr);
-  ValidateRect(hwnd_, nullptr);
+  PaintEvent_.Raise(nullptr);
+  NativePaintEventArgs args;
+  ::RECT rect;
+  if (::GetUpdateRect(hwnd_, &rect, FALSE)) {
+    args.repaint_area = PixelToDip(rect);
+  }
+  Paint1Event_.Raise(args);
+  ::ValidateRect(hwnd_, nullptr);
   CRU_LOG_TAG_DEBUG("A repaint is finished.");
 }
 
@@ -545,18 +551,18 @@ void WinNativeWindow::OnResizeInternal(const int new_width,
   client_rect_.height = PixelToDip(new_height);
   if (!(new_width == 0 && new_height == 0)) {
     window_render_target_->ResizeBuffer(new_width, new_height);
-    resize_event_.Raise(Size{PixelToDip(new_width), PixelToDip(new_height)});
+    ResizeEvent_.Raise(Size{PixelToDip(new_width), PixelToDip(new_height)});
   }
 }
 
 void WinNativeWindow::OnSetFocusInternal() {
   has_focus_ = true;
-  focus_event_.Raise(FocusChangeType::Gain);
+  FocusEvent_.Raise(FocusChangeType::Gain);
 }
 
 void WinNativeWindow::OnKillFocusInternal() {
   has_focus_ = false;
-  focus_event_.Raise(FocusChangeType::Lose);
+  FocusEvent_.Raise(FocusChangeType::Lose);
 }
 
 void WinNativeWindow::OnMouseMoveInternal(const POINT point) {
@@ -571,43 +577,42 @@ void WinNativeWindow::OnMouseMoveInternal(const POINT point) {
     TrackMouseEvent(&tme);
 
     is_mouse_in_ = true;
-    mouse_enter_leave_event_.Raise(MouseEnterLeaveType::Enter);
+    MouseEnterLeaveEvent_.Raise(MouseEnterLeaveType::Enter);
   }
 
-  mouse_move_event_.Raise(PixelToDip(point));
+  MouseMoveEvent_.Raise(PixelToDip(point));
 }
 
 void WinNativeWindow::OnMouseLeaveInternal() {
   is_mouse_in_ = false;
-  mouse_enter_leave_event_.Raise(MouseEnterLeaveType::Leave);
+  MouseEnterLeaveEvent_.Raise(MouseEnterLeaveType::Leave);
 }
 
 void WinNativeWindow::OnMouseDownInternal(platform::gui::MouseButton button,
                                           POINT point) {
   const auto dip_point = PixelToDip(point);
-  mouse_down_event_.Raise({button, dip_point, RetrieveKeyModifier()});
+  MouseDownEvent_.Raise({button, dip_point, RetrieveKeyModifier()});
 }
 
 void WinNativeWindow::OnMouseUpInternal(platform::gui::MouseButton button,
                                         POINT point) {
   const auto dip_point = PixelToDip(point);
-  mouse_up_event_.Raise({button, dip_point, RetrieveKeyModifier()});
+  MouseUpEvent_.Raise({button, dip_point, RetrieveKeyModifier()});
 }
 
 void WinNativeWindow::OnMouseWheelInternal(short delta, POINT point) {
   const auto dip_point = PixelToDip(point);
   const float d = -((float)delta / 120.f);
-  mouse_wheel_event_.Raise({d, dip_point, RetrieveKeyModifier()});
+  MouseWheelEvent_.Raise({d, dip_point, RetrieveKeyModifier()});
 }
 
 void WinNativeWindow::OnKeyDownInternal(int virtual_code) {
-  key_down_event_.Raise(
+  KeyDownEvent_.Raise(
       {VirtualKeyToKeyCode(virtual_code), RetrieveKeyModifier()});
 }
 
 void WinNativeWindow::OnKeyUpInternal(int virtual_code) {
-  key_up_event_.Raise(
-      {VirtualKeyToKeyCode(virtual_code), RetrieveKeyModifier()});
+  KeyUpEvent_.Raise({VirtualKeyToKeyCode(virtual_code), RetrieveKeyModifier()});
 }
 
 void WinNativeWindow::OnActivatedInternal() {}

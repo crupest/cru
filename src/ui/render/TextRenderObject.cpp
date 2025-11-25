@@ -54,12 +54,14 @@ void TextRenderObject::SetFont(
     std::shared_ptr<platform::graphics::IFont> font) {
   Expects(font);
   text_layout_->SetFont(std::move(font));
+  InvalidateLayout();
 }
 
 bool TextRenderObject::IsEditMode() { return text_layout_->IsEditMode(); }
 
 void TextRenderObject::SetEditMode(bool enable) {
   text_layout_->SetEditMode(enable);
+  InvalidateLayout();
 }
 
 Index TextRenderObject::GetLineCount() { return text_layout_->GetLineCount(); }

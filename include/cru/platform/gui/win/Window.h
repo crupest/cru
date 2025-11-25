@@ -61,38 +61,8 @@ class CRU_WIN_GUI_API WinNativeWindow : public WinNativeResource,
 
   void SetToForeground() override;
 
-  IEvent<std::nullptr_t>* CreateEvent() override { return &create_event_; }
-  IEvent<std::nullptr_t>* DestroyEvent() override { return &destroy_event_; }
-  IEvent<std::nullptr_t>* PaintEvent() override { return &paint_event_; }
-  IEvent<WindowVisibilityType>* VisibilityChangeEvent() override {
-    return &visibility_change_event_;
-  }
-  IEvent<const Size&>* ResizeEvent() override { return &resize_event_; }
-  IEvent<FocusChangeType>* FocusEvent() override { return &focus_event_; }
-  IEvent<MouseEnterLeaveType>* MouseEnterLeaveEvent() override {
-    return &mouse_enter_leave_event_;
-  }
-  IEvent<const Point&>* MouseMoveEvent() override { return &mouse_move_event_; }
-  IEvent<const NativeMouseButtonEventArgs&>* MouseDownEvent() override {
-    return &mouse_down_event_;
-  }
-  IEvent<const NativeMouseButtonEventArgs&>* MouseUpEvent() override {
-    return &mouse_up_event_;
-  }
-  IEvent<const NativeMouseWheelEventArgs&>* MouseWheelEvent() override {
-    return &mouse_wheel_event_;
-  }
-
-  IEvent<const NativeKeyEventArgs&>* KeyDownEvent() override {
-    return &key_down_event_;
-  }
-  IEvent<const NativeKeyEventArgs&>* KeyUpEvent() override {
-    return &key_up_event_;
-  }
-
-  IEvent<WindowNativeMessageEventArgs&>* NativeMessageEvent() {
-    return &native_message_event_;
-  }
+  CRU_DEFINE_CRU_PLATFORM_GUI_I_NATIVE_WINDOW_OVERRIDE_EVENTS()
+  CRU_DEFINE_EVENT(NativeMessage, WindowNativeMessageEventArgs&)
 
   IInputMethodContext* GetInputMethodContext() override;
 
@@ -193,21 +163,5 @@ class CRU_WIN_GUI_API WinNativeWindow : public WinNativeResource,
   std::shared_ptr<WinCursor> cursor_;
 
   std::unique_ptr<WinInputMethodContext> input_method_context_;
-
-  Event<std::nullptr_t> create_event_;
-  Event<std::nullptr_t> destroy_event_;
-  Event<std::nullptr_t> paint_event_;
-  Event<const Size&> resize_event_;
-  Event<WindowVisibilityType> visibility_change_event_;
-  Event<FocusChangeType> focus_event_;
-  Event<MouseEnterLeaveType> mouse_enter_leave_event_;
-  Event<const Point&> mouse_move_event_;
-  Event<const NativeMouseButtonEventArgs&> mouse_down_event_;
-  Event<const NativeMouseButtonEventArgs&> mouse_up_event_;
-  Event<const NativeMouseWheelEventArgs&> mouse_wheel_event_;
-  Event<const NativeKeyEventArgs&> key_down_event_;
-  Event<const NativeKeyEventArgs&> key_up_event_;
-
-  Event<WindowNativeMessageEventArgs&> native_message_event_;
 };
 }  // namespace cru::platform::gui::win

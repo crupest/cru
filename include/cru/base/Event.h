@@ -141,6 +141,13 @@ class Event : public EventBase, public IEvent<TEventArgs> {
  public:                                 \
   ::cru::IEvent<arg_type>* name##Event() { return &name##Event_; }
 
+#define CRU_DEFINE_EVENT_OVERRIDE(name, arg_type) \
+ private:                                         \
+  ::cru::Event<arg_type> name##Event_;            \
+                                                  \
+ public:                                          \
+  ::cru::IEvent<arg_type>* name##Event() override { return &name##Event_; }
+
 namespace details {
 struct EventHandlerRevokerCaller {
   void operator()(const EventHandlerRevoker& revoker) { revoker(); }
