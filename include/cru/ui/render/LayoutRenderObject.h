@@ -60,7 +60,7 @@ class LayoutRenderObject : public RenderObject {
   }
 
   void ClearChildren() {
-    for (auto child : children_) {
+    for (const auto& child : children_) {
       auto render_object = child.render_object;
       if (render_object) {
         render_object->SetParent(nullptr);

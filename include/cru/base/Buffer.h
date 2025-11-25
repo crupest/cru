@@ -3,8 +3,8 @@
 #include "Base.h"
 
 namespace cru {
-class Buffer final {
-  friend void swap(Buffer& left, Buffer& right) noexcept;
+class CRU_BASE_API Buffer final {
+  friend CRU_BASE_API void swap(Buffer& left, Buffer& right) noexcept;
 
  public:
   Buffer();
@@ -157,5 +157,5 @@ class Buffer final {
   Index used_end_;
 };
 
-void swap(Buffer& left, Buffer& right) noexcept;
+CRU_BASE_API void swap(Buffer& left, Buffer& right) noexcept;
 }  // namespace cru
