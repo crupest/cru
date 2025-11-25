@@ -61,23 +61,9 @@ class OsxWindow : public OsxGuiResource, public INativeWindow {
 
   std::unique_ptr<graphics::IPainter> BeginPaint() override;
 
-  IEvent<std::nullptr_t>* CreateEvent() override;
-  IEvent<std::nullptr_t>* DestroyEvent() override;
-  IEvent<std::nullptr_t>* PaintEvent() override;
-
-  IEvent<WindowVisibilityType>* VisibilityChangeEvent() override;
-  IEvent<const Size&>* ResizeEvent() override;
-  IEvent<FocusChangeType>* FocusEvent() override;
-
-  IEvent<MouseEnterLeaveType>* MouseEnterLeaveEvent() override;
-  IEvent<const Point&>* MouseMoveEvent() override;
-  IEvent<const NativeMouseButtonEventArgs&>* MouseDownEvent() override;
-  IEvent<const NativeMouseButtonEventArgs&>* MouseUpEvent() override;
-  IEvent<const NativeMouseWheelEventArgs&>* MouseWheelEvent() override;
-  IEvent<const NativeKeyEventArgs&>* KeyDownEvent() override;
-  IEvent<const NativeKeyEventArgs&>* KeyUpEvent() override;
-
   IInputMethodContext* GetInputMethodContext() override;
+
+  CRU_DEFINE_CRU_PLATFORM_GUI_I_NATIVE_WINDOW_OVERRIDE_EVENTS()
 
  private:
   std::unique_ptr<details::OsxWindowPrivate> p_;

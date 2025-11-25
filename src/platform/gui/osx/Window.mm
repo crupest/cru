@@ -49,7 +49,7 @@ OsxWindowPrivate::OsxWindowPrivate(OsxWindow* osx_window) : osx_window_(osx_wind
 OsxWindowPrivate::~OsxWindowPrivate() {}
 
 void OsxWindowPrivate::OnWindowWillClose() {
-  if (window_) destroy_event_.Raise(nullptr);
+  if (window_) osx_window_->DestroyEvent_.Raise(nullptr);
   window_ = nil;
   CGLayerRelease(draw_layer_);
   draw_layer_ = nullptr;
@@ -92,17 +92,21 @@ void OsxWindowPrivate::OnWindowDidResize() {
   CGLayerRelease(draw_layer_);
   draw_layer_ = CreateLayer(Convert(content_rect_.GetSize()));
 
-  resize_event_.Raise(osx_window_->GetClientSize());
+  osx_window_->ResizeEvent_.Raise(osx_window_->GetClientSize());
 
   osx_window_->RequestRepaint();
 }
 
-void OsxWindowPrivate::OnBecomeKeyWindow() { focus_event_.Raise(FocusChangeType::Gain); }
+void OsxWindowPrivate::OnBecomeKeyWindow() {
+  osx_window_->FocusEvent_.Raise(FocusChangeType::Gain);
+}
 
-void OsxWindowPrivate::OnResignKeyWindow() { focus_event_.Raise(FocusChangeType::Lose); }
+void OsxWindowPrivate::OnResignKeyWindow() {
+  osx_window_->FocusEvent_.Raise(FocusChangeType::Lose);
+}
 
 void OsxWindowPrivate::OnMouseEnterLeave(MouseEnterLeaveType type) {
-  mouse_enter_leave_event_.Raise(type);
+  osx_window_->MouseEnterLeaveEvent_.Raise(type);
   if (type == MouseEnterLeaveType::Enter) {
     mouse_in_ = true;
     UpdateCursor();
@@ -111,27 +115,29 @@ void OsxWindowPrivate::OnMouseEnterLeave(MouseEnterLeaveType type) {
   }
 }
 
-void OsxWindowPrivate::OnMouseMove(Point p) { mouse_move_event_.Raise(TransformMousePoint(p)); }
+void OsxWindowPrivate::OnMouseMove(Point p) {
+  osx_window_->MouseMoveEvent_.Raise(TransformMousePoint(p));
+}
 
 void OsxWindowPrivate::OnMouseDown(MouseButton button, Point p, KeyModifier key_modifier) {
-  mouse_down_event_.Raise({button, TransformMousePoint(p), key_modifier});
+  osx_window_->MouseDownEvent_.Raise({button, TransformMousePoint(p), key_modifier});
 }
 
 void OsxWindowPrivate::OnMouseUp(MouseButton button, Point p, KeyModifier key_modifier) {
-  mouse_up_event_.Raise({button, TransformMousePoint(p), key_modifier});
+  osx_window_->MouseUpEvent_.Raise({button, TransformMousePoint(p), key_modifier});
 }
 
 void OsxWindowPrivate::OnMouseWheel(float delta, Point p, KeyModifier key_modifier,
                                     bool horizontal) {
-  mouse_wheel_event_.Raise({delta, TransformMousePoint(p), key_modifier, horizontal});
+  osx_window_->MouseWheelEvent_.Raise({delta, TransformMousePoint(p), key_modifier, horizontal});
 }
 
 void OsxWindowPrivate::OnKeyDown(KeyCode key, KeyModifier key_modifier) {
-  key_down_event_.Raise({key, key_modifier});
+  osx_window_->KeyDownEvent_.Raise({key, key_modifier});
 }
 
 void OsxWindowPrivate::OnKeyUp(KeyCode key, KeyModifier key_modifier) {
-  key_up_event_.Raise({key, key_modifier});
+  osx_window_->KeyUpEvent_.Raise({key, key_modifier});
 }
 
 CGLayerRef OsxWindowPrivate::CreateLayer(const CGSize& size) {
@@ -188,7 +194,7 @@ void OsxWindowPrivate::CreateWindow() {
 
   draw_layer_ = CreateLayer(Convert(content_rect_.GetSize()));
 
-  create_event_.Raise(nullptr);
+  osx_window_->CreateEvent_.Raise(nullptr);
 
   osx_window_->RequestRepaint();
 }
@@ -266,10 +272,10 @@ void OsxWindow::SetVisibility(WindowVisibilityType visibility) {
   if (p_->window_) {
     if (visibility == WindowVisibilityType::Show) {
       [p_->window_ orderFront:nil];
-      p_->visibility_change_event_.Raise(WindowVisibilityType::Show);
+      VisibilityChangeEvent_.Raise(WindowVisibilityType::Show);
     } else if (visibility == WindowVisibilityType::Hide) {
       [p_->window_ orderOut:nil];
-      p_->visibility_change_event_.Raise(WindowVisibilityType::Hide);
+      VisibilityChangeEvent_.Raise(WindowVisibilityType::Hide);
     } else if (visibility == WindowVisibilityType::Minimize) {
       [p_->window_ miniaturize:nil];
     }
@@ -277,7 +283,7 @@ void OsxWindow::SetVisibility(WindowVisibilityType visibility) {
     if (visibility == WindowVisibilityType::Show) {
       p_->CreateWindow();
       [p_->window_ orderFront:nil];
-      p_->visibility_change_event_.Raise(WindowVisibilityType::Show);
+      VisibilityChangeEvent_.Raise(WindowVisibilityType::Show);
     }
   }
 }
@@ -326,7 +332,7 @@ void OsxWindow::SetWindowRect(const Rect& rect) {
 void OsxWindow::RequestRepaint() {
   if (!p_->draw_timer_) {
     p_->draw_timer_.Reset(GetUiApplication()->SetImmediate([this] {
-      p_->paint_event_.Raise(nullptr);
+      PaintEvent_.Raise(nullptr);
       p_->draw_timer_.Release();
     }));
   }
@@ -371,30 +377,6 @@ void OsxWindow::SetToForeground() {
   [p_->window_ makeMainWindow];
   [p_->window_ orderFrontRegardless];
 }
-
-IEvent<std::nullptr_t>* OsxWindow::CreateEvent() { return &p_->create_event_; }
-IEvent<std::nullptr_t>* OsxWindow::DestroyEvent() { return &p_->destroy_event_; }
-IEvent<std::nullptr_t>* OsxWindow::PaintEvent() { return &p_->paint_event_; }
-IEvent<WindowVisibilityType>* OsxWindow::VisibilityChangeEvent() {
-  return &p_->visibility_change_event_;
-}
-IEvent<const Size&>* OsxWindow::ResizeEvent() { return &p_->resize_event_; }
-IEvent<FocusChangeType>* OsxWindow::FocusEvent() { return &p_->focus_event_; }
-IEvent<MouseEnterLeaveType>* OsxWindow::MouseEnterLeaveEvent() {
-  return &p_->mouse_enter_leave_event_;
-}
-IEvent<const Point&>* OsxWindow::MouseMoveEvent() { return &p_->mouse_move_event_; }
-IEvent<const NativeMouseButtonEventArgs&>* OsxWindow::MouseDownEvent() {
-  return &p_->mouse_down_event_;
-}
-IEvent<const NativeMouseButtonEventArgs&>* OsxWindow::MouseUpEvent() {
-  return &p_->mouse_up_event_;
-}
-IEvent<const NativeMouseWheelEventArgs&>* OsxWindow::MouseWheelEvent() {
-  return &p_->mouse_wheel_event_;
-}
-IEvent<const NativeKeyEventArgs&>* OsxWindow::KeyDownEvent() { return &p_->key_down_event_; }
-IEvent<const NativeKeyEventArgs&>* OsxWindow::KeyUpEvent() { return &p_->key_up_event_; }
 
 IInputMethodContext* OsxWindow::GetInputMethodContext() { return p_->input_method_context_.get(); }
 }  // namespace cru::platform::gui::osx
