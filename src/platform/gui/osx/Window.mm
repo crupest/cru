@@ -325,10 +325,10 @@ void OsxWindow::SetWindowRect(const Rect& rect) {
 
 void OsxWindow::RequestRepaint() {
   if (!p_->draw_timer_) {
-    p_->draw_timer_ = GetUiApplication()->SetImmediate([this] {
+    p_->draw_timer_.Reset(GetUiApplication()->SetImmediate([this] {
       p_->paint_event_.Raise(nullptr);
       p_->draw_timer_.Release();
-    });
+    }));
   }
 }
 
