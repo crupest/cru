@@ -155,6 +155,11 @@ struct Rect final {
     return Rect(left, top, right - left, bottom - top);
   }
 
+  constexpr static Rect FromVertices(const Point& lefttop,
+                                     const Point& rightbottom) {
+    return Rect(lefttop.x, lefttop.y, rightbottom.x - lefttop.x, rightbottom.y - lefttop.y);
+  }
+
   constexpr static Rect FromCenter(const Point& center, const float width,
                                    const float height) {
     return Rect(center.x - width / 2.0f, center.y - height / 2.0f, width,
