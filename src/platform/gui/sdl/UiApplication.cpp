@@ -25,6 +25,8 @@ SdlUiApplication::SdlUiApplication(graphics::IGraphicsFactory* graphics_factory,
 SdlUiApplication::~SdlUiApplication() {
   SDL_Quit();
 
+  delete_later_pool_.Clean();
+
   if (release_graphics_factory_) {
     delete graphics_factory_;
   }
@@ -32,14 +34,12 @@ SdlUiApplication::~SdlUiApplication() {
 
 int SdlUiApplication::Run() {
   while (true) {
-    auto now = std::chrono::steady_clock::now();
-
-    if (auto result = timers_.Update(now)) {
+    if (auto result = timers_.Update(std::chrono::steady_clock::now())) {
       result->data();
       continue;
     }
 
-    auto timeout = timers_.NextTimeout(now);
+    auto timeout = timers_.NextTimeout(std::chrono::steady_clock::now());
 
     SDL_Event event;
     CheckSdlReturn(timeout ? SDL_WaitEventTimeout(&event, timeout->count())
@@ -47,6 +47,8 @@ int SdlUiApplication::Run() {
     if (event.type == SDL_EVENT_QUIT) {
       break;
     }
+
+    delete_later_pool_.Clean();
   }
 
   for (const auto& handler : this->quit_handlers_) {
@@ -93,6 +95,10 @@ long long SdlUiApplication::SetInterval(std::chrono::milliseconds milliseconds,
 
 void SdlUiApplication::CancelTimer(long long id) {
   return timers_.Remove(static_cast<int>(id));
+}
+
+void SdlUiApplication::DeleteLater(Object* object) {
+  delete_later_pool_.Add(object);
 }
 
 std::vector<INativeWindow*> SdlUiApplication::GetAllWindow() {

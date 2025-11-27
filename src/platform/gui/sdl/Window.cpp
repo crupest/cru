@@ -15,7 +15,7 @@
 
 namespace cru::platform::gui::sdl {
 
-SdlWindow::SdlWindow(SdlUiApplication *application)
+SdlWindow::SdlWindow(SdlUiApplication* application)
     : application_(application), parent_(nullptr) {
   application->RegisterWindow(this);
 }
@@ -30,9 +30,9 @@ void SdlWindow::Close() {
   }
 }
 
-INativeWindow *SdlWindow::GetParent() { return parent_; }
+INativeWindow* SdlWindow::GetParent() { return parent_; }
 
-void SdlWindow::SetParent(INativeWindow *parent) {
+void SdlWindow::SetParent(INativeWindow* parent) {
   parent_ = CheckPlatform<SdlWindow>(parent, GetPlatformId());
   NotImplemented();
 }
@@ -56,7 +56,7 @@ void SdlWindow::SetVisibility(WindowVisibilityType visibility) {
 
 Size SdlWindow::GetClientSize() { return GetClientRect().GetSize(); }
 
-void SdlWindow::SetClientSize(const Size &size) {
+void SdlWindow::SetClientSize(const Size& size) {
   auto rect = GetClientRect();
   SetClientRect(Rect(rect.GetLeftTop(), size));
 }
@@ -66,7 +66,7 @@ Rect SdlWindow::GetClientRect() {
   NotImplemented();
 }
 
-void SdlWindow::SetClientRect(const Rect &rect) {
+void SdlWindow::SetClientRect(const Rect& rect) {
   if (!sdl_window_) return;
   NotImplemented();
 }
@@ -76,7 +76,7 @@ Rect SdlWindow::GetWindowRect() {
   NotImplemented();
 }
 
-void SdlWindow::SetWindowRect(const Rect &rect) {
+void SdlWindow::SetWindowRect(const Rect& rect) {
   if (!sdl_window_) return;
   NotImplemented();
 }
@@ -121,48 +121,10 @@ std::unique_ptr<graphics::IPainter> SdlWindow::BeginPaint() {
   NotImplemented();
 }
 
-IEvent<std::nullptr_t> *SdlWindow::CreateEvent() { return &create_event_; }
+IInputMethodContext* SdlWindow::GetInputMethodContext() { NotImplemented(); }
 
-IEvent<std::nullptr_t> *SdlWindow::DestroyEvent() { return &destroy_event_; }
+std::optional<SDL_Window*> SdlWindow::GetSdlWindow() { return sdl_window_; }
 
-IEvent<std::nullptr_t> *SdlWindow::PaintEvent() { return &paint_event_; }
-
-IEvent<WindowVisibilityType> *SdlWindow::VisibilityChangeEvent() {
-  return &visibility_change_event_;
-}
-
-IEvent<const Size&> *SdlWindow::ResizeEvent() { return &resize_event_; }
-
-IEvent<FocusChangeType> *SdlWindow::FocusEvent() { return &focus_event_; }
-
-IEvent<MouseEnterLeaveType> *SdlWindow::MouseEnterLeaveEvent() {
-  return &mouse_enter_leave_event_;
-}
-
-IEvent<const Point&> *SdlWindow::MouseMoveEvent() { return &mouse_move_event_; }
-
-IEvent<const NativeMouseButtonEventArgs&> *SdlWindow::MouseDownEvent() {
-  return &mouse_down_event_;
-}
-
-IEvent<const NativeMouseButtonEventArgs&> *SdlWindow::MouseUpEvent() {
-  return &mouse_up_event_;
-}
-
-IEvent<const NativeMouseWheelEventArgs&> *SdlWindow::MouseWheelEvent() {
-  return &mouse_wheel_event_;
-}
-
-IEvent<const NativeKeyEventArgs&> *SdlWindow::KeyDownEvent() {
-  return &key_down_event_;
-}
-
-IEvent<const NativeKeyEventArgs&> *SdlWindow::KeyUpEvent() { return &key_up_event_; }
-
-IInputMethodContext *SdlWindow::GetInputMethodContext() { NotImplemented(); }
-
-std::optional<SDL_Window *> SdlWindow::GetSdlWindow() { return sdl_window_; }
-
-SdlUiApplication *SdlWindow::GetSdlUiApplication() { return application_; }
+SdlUiApplication* SdlWindow::GetSdlUiApplication() { return application_; }
 
 }  // namespace cru::platform::gui::sdl

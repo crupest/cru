@@ -38,6 +38,8 @@ class SdlUiApplication : public SdlResource, public virtual IUiApplication {
                         std::function<void()> action) override;
   void CancelTimer(long long id) override;
 
+  void DeleteLater(Object* object) override;
+
   std::vector<INativeWindow*> GetAllWindow() override;
 
   INativeWindow* CreateWindow() override;
@@ -64,6 +66,7 @@ class SdlUiApplication : public SdlResource, public virtual IUiApplication {
   bool release_graphics_factory_;
 
   std::uint32_t empty_event_type_;
+  DeleteLaterPool delete_later_pool_;
   TimerRegistry<std::function<void()>> timers_;
   std::atomic_int quit_code_;
   std::vector<std::function<void()>> quit_handlers_;

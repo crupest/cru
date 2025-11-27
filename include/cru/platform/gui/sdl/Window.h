@@ -1,11 +1,9 @@
 #pragma once
-#include <cru/base/Base.h>
 #include "../../GraphicsBase.h"
 #include "../Window.h"
 #include "Base.h"
 
 #include <SDL3/SDL_video.h>
-#include <cstddef>
 #include <optional>
 
 namespace cru::platform::gui::sdl {
@@ -59,21 +57,7 @@ class SdlWindow : public SdlResource, public virtual INativeWindow {
 
   std::unique_ptr<graphics::IPainter> BeginPaint() override;
 
-  IEvent<std::nullptr_t>* CreateEvent() override;
-  IEvent<std::nullptr_t>* DestroyEvent() override;
-  IEvent<std::nullptr_t>* PaintEvent() override;
-
-  IEvent<WindowVisibilityType>* VisibilityChangeEvent() override;
-  IEvent<const Size&>* ResizeEvent() override;
-  IEvent<FocusChangeType>* FocusEvent() override;
-
-  IEvent<MouseEnterLeaveType>* MouseEnterLeaveEvent() override;
-  IEvent<const Point&>* MouseMoveEvent() override;
-  IEvent<const NativeMouseButtonEventArgs&>* MouseDownEvent() override;
-  IEvent<const NativeMouseButtonEventArgs&>* MouseUpEvent() override;
-  IEvent<const NativeMouseWheelEventArgs&>* MouseWheelEvent() override;
-  IEvent<const NativeKeyEventArgs&>* KeyDownEvent() override;
-  IEvent<const NativeKeyEventArgs&>* KeyUpEvent() override;
+  CRU_DEFINE_CRU_PLATFORM_GUI_I_NATIVE_WINDOW_OVERRIDE_EVENTS()
 
   IInputMethodContext* GetInputMethodContext() override;
 
@@ -86,19 +70,5 @@ class SdlWindow : public SdlResource, public virtual INativeWindow {
   std::optional<SDL_Window*> sdl_window_;
   SdlWindow* parent_;
   WindowStyleFlag style_;
-
-  Event<std::nullptr_t> create_event_;
-  Event<std::nullptr_t> destroy_event_;
-  Event<std::nullptr_t> paint_event_;
-  Event<WindowVisibilityType> visibility_change_event_;
-  Event<const Size&> resize_event_;
-  Event<FocusChangeType> focus_event_;
-  Event<MouseEnterLeaveType> mouse_enter_leave_event_;
-  Event<const Point&> mouse_move_event_;
-  Event<const NativeMouseButtonEventArgs&> mouse_down_event_;
-  Event<const NativeMouseButtonEventArgs&> mouse_up_event_;
-  Event<const NativeMouseWheelEventArgs&> mouse_wheel_event_;
-  Event<const NativeKeyEventArgs&> key_down_event_;
-  Event<const NativeKeyEventArgs&> key_up_event_;
 };
-}  // namespace cru::platform::gui::xcb
+}  // namespace cru::platform::gui::sdl

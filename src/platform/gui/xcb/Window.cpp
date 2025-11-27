@@ -6,6 +6,7 @@
 #include "cru/platform/graphics/NullPainter.h"
 #include "cru/platform/graphics/Painter.h"
 #include "cru/platform/graphics/cairo/CairoPainter.h"
+#include "cru/platform/gui/Window.h"
 #include "cru/platform/gui/xcb/Cursor.h"
 #include "cru/platform/gui/xcb/Input.h"
 #include "cru/platform/gui/xcb/InputMethod.h"
@@ -46,7 +47,7 @@ XcbWindow::XcbWindow(XcbUiApplication* application)
   input_method_ = new XcbXimInputMethodContext(
       application->GetXcbXimInputMethodManager(), this);
 
-  paint_event_.AddSpyOnlyHandler([this] {
+  PaintEvent_.AddSpyOnlyHandler([this] {
     if (xcb_window_)
       CRU_LOG_TAG_DEBUG("{:#x} Paint event triggered.", *xcb_window_);
   });
@@ -288,8 +289,10 @@ void XcbWindow::RequestRepaint() {
   if (!xcb_window_.has_value()) return;
   CRU_LOG_TAG_DEBUG("{:#x} Repaint requested.", *xcb_window_);
   // TODO: true throttle
-  repaint_canceler_.Reset(
-      application_->SetImmediate([this] { paint_event_.Raise(nullptr); }));
+  repaint_canceler_.Reset(application_->SetImmediate([this] {
+    PaintEvent_.Raise(nullptr);
+    Paint1Event_.Raise({{{}, GetClientSize()}});
+  }));
 }
 
 std::unique_ptr<graphics::IPainter> XcbWindow::BeginPaint() {
@@ -302,46 +305,6 @@ std::unique_ptr<graphics::IPainter> XcbWindow::BeginPaint() {
   auto painter =
       new graphics::cairo::CairoPainter(factory, cairo, true, cairo_surface_);
   return std::unique_ptr<graphics::IPainter>(painter);
-}
-
-IEvent<std::nullptr_t>* XcbWindow::CreateEvent() { return &create_event_; }
-
-IEvent<std::nullptr_t>* XcbWindow::DestroyEvent() { return &destroy_event_; }
-
-IEvent<std::nullptr_t>* XcbWindow::PaintEvent() { return &paint_event_; }
-
-IEvent<WindowVisibilityType>* XcbWindow::VisibilityChangeEvent() {
-  return &visibility_change_event_;
-}
-
-IEvent<const Size&>* XcbWindow::ResizeEvent() { return &resize_event_; }
-
-IEvent<FocusChangeType>* XcbWindow::FocusEvent() { return &focus_event_; }
-
-IEvent<MouseEnterLeaveType>* XcbWindow::MouseEnterLeaveEvent() {
-  return &mouse_enter_leave_event_;
-}
-
-IEvent<const Point&>* XcbWindow::MouseMoveEvent() { return &mouse_move_event_; }
-
-IEvent<const NativeMouseButtonEventArgs&>* XcbWindow::MouseDownEvent() {
-  return &mouse_down_event_;
-}
-
-IEvent<const NativeMouseButtonEventArgs&>* XcbWindow::MouseUpEvent() {
-  return &mouse_up_event_;
-}
-
-IEvent<const NativeMouseWheelEventArgs&>* XcbWindow::MouseWheelEvent() {
-  return &mouse_wheel_event_;
-}
-
-IEvent<const NativeKeyEventArgs&>* XcbWindow::KeyDownEvent() {
-  return &key_down_event_;
-}
-
-IEvent<const NativeKeyEventArgs&>* XcbWindow::KeyUpEvent() {
-  return &key_up_event_;
 }
 
 IInputMethodContext* XcbWindow::GetInputMethodContext() {
@@ -415,8 +378,8 @@ xcb_window_t XcbWindow::DoCreateWindow() {
   cairo_surface_ =
       cairo_xcb_surface_create(connection, window, visual_type, width, height);
 
-  create_event_.Raise(nullptr);
-  resize_event_.Raise(current_size_);
+  CreateEvent_.Raise(nullptr);
+  ResizeEvent_.Raise(current_size_);
   RequestRepaint();
 
   return window;
@@ -429,7 +392,7 @@ void XcbWindow::HandleEvent(xcb_generic_event_t* event) {
       break;
     }
     case XCB_DESTROY_NOTIFY: {
-      destroy_event_.Raise(nullptr);
+      DestroyEvent_.Raise(nullptr);
 
       cairo_surface_destroy(cairo_surface_);
       cairo_surface_ = nullptr;
@@ -454,26 +417,26 @@ void XcbWindow::HandleEvent(xcb_generic_event_t* event) {
         current_size_ = Size(width, height);
         assert(cairo_surface_);
         cairo_xcb_surface_set_size(cairo_surface_, width, height);
-        resize_event_.Raise(current_size_);
+        ResizeEvent_.Raise(current_size_);
       }
       break;
     }
     case XCB_MAP_NOTIFY: {
-      visibility_change_event_.Raise(WindowVisibilityType::Show);
+      VisibilityChangeEvent_.Raise(WindowVisibilityType::Show);
       mapped_ = true;
       break;
     }
     case XCB_UNMAP_NOTIFY: {
-      visibility_change_event_.Raise(WindowVisibilityType::Hide);
+      VisibilityChangeEvent_.Raise(WindowVisibilityType::Hide);
       mapped_ = false;
       break;
     }
     case XCB_FOCUS_IN: {
-      focus_event_.Raise(FocusChangeType::Gain);
+      FocusEvent_.Raise(FocusChangeType::Gain);
       break;
     }
     case XCB_FOCUS_OUT: {
-      focus_event_.Raise(FocusChangeType::Lose);
+      FocusEvent_.Raise(FocusChangeType::Lose);
       break;
     }
     case XCB_BUTTON_PRESS: {
@@ -489,14 +452,14 @@ void XcbWindow::HandleEvent(xcb_generic_event_t* event) {
         if (bp->detail == 6 || bp->detail == 7) {
           args.horizontal = true;
         }
-        mouse_wheel_event_.Raise(std::move(args));
+        MouseWheelEvent_.Raise(std::move(args));
         break;
       }
 
       NativeMouseButtonEventArgs args(ConvertMouseButton(bp->detail),
                                       Point(bp->event_x, bp->event_y),
                                       ConvertModifiersOfEvent(bp->state));
-      mouse_down_event_.Raise(std::move(args));
+      MouseDownEvent_.Raise(std::move(args));
       break;
     }
     case XCB_BUTTON_RELEASE: {
@@ -504,20 +467,20 @@ void XcbWindow::HandleEvent(xcb_generic_event_t* event) {
       NativeMouseButtonEventArgs args(ConvertMouseButton(br->detail),
                                       Point(br->event_x, br->event_y),
                                       ConvertModifiersOfEvent(br->state));
-      mouse_up_event_.Raise(std::move(args));
+      MouseUpEvent_.Raise(std::move(args));
       break;
     }
     case XCB_MOTION_NOTIFY: {
       xcb_motion_notify_event_t* motion = (xcb_motion_notify_event_t*)event;
       Point point(motion->event_x, motion->event_y);
-      mouse_move_event_.Raise(point);
+      MouseMoveEvent_.Raise(point);
       break;
     }
     case XCB_ENTER_NOTIFY: {
       xcb_enter_notify_event_t* enter = (xcb_enter_notify_event_t*)event;
-      mouse_enter_leave_event_.Raise(MouseEnterLeaveType::Enter);
+      MouseEnterLeaveEvent_.Raise(MouseEnterLeaveType::Enter);
       Point point(enter->event_x, enter->event_y);
-      mouse_move_event_.Raise(point);
+      MouseMoveEvent_.Raise(point);
       break;
     }
     case XCB_LEAVE_NOTIFY: {
@@ -525,21 +488,21 @@ void XcbWindow::HandleEvent(xcb_generic_event_t* event) {
       // xcb_leave_notify_event_t *leave = (xcb_leave_notify_event_t *)event;
       // Point point(leave->event_x, leave->event_y);
       // mouse_move_event_.Raise(point);
-      mouse_enter_leave_event_.Raise(MouseEnterLeaveType::Leave);
+      MouseEnterLeaveEvent_.Raise(MouseEnterLeaveType::Leave);
       break;
     }
     case XCB_KEY_PRESS: {
       xcb_key_press_event_t* kp = (xcb_key_press_event_t*)event;
       NativeKeyEventArgs args(XorgKeycodeToCruKeyCode(application_, kp->detail),
                               ConvertModifiersOfEvent(kp->state));
-      key_down_event_.Raise(std::move(args));
+      KeyDownEvent_.Raise(std::move(args));
       break;
     }
     case XCB_KEY_RELEASE: {
       xcb_key_release_event_t* kr = (xcb_key_release_event_t*)event;
       NativeKeyEventArgs args(XorgKeycodeToCruKeyCode(application_, kr->detail),
                               ConvertModifiersOfEvent(kr->state));
-      key_up_event_.Raise(std::move(args));
+      KeyUpEvent_.Raise(std::move(args));
       break;
     }
     case XCB_CLIENT_MESSAGE: {
