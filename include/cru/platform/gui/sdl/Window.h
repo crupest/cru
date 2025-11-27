@@ -67,11 +67,20 @@ class SdlWindow : public SdlResource, public virtual INativeWindow {
   float GetDisplayScale();
   Thickness GetBorderThickness();
 
+  private:
+  void DoCreateWindow();
+  void DoUpdateClientRect();
+  void DoUpdateParent();
+  void DoUpdateStyleFlag();
+  void DoUpdateTitle();
+
  private:
   SdlUiApplication* application_;
   std::optional<SDL_Window*> sdl_window_;
   Rect client_rect_;
   SdlWindow* parent_;
+  EventHandlerRevokerGuard parent_create_guard_;
   WindowStyleFlag style_;
+  std::string title_;
 };
 }  // namespace cru::platform::gui::sdl

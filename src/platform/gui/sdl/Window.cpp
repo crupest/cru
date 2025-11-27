@@ -37,24 +37,65 @@ INativeWindow* SdlWindow::GetParent() { return parent_; }
 
 void SdlWindow::SetParent(INativeWindow* parent) {
   parent_ = CheckPlatform<SdlWindow>(parent, GetPlatformId());
-  NotImplemented();
+  if (parent_ != nullptr) {
+    parent_create_guard_.Reset(
+        parent_->CreateEvent()->AddSpyOnlyHandler([this] {
+          if (sdl_window_) {
+            DoUpdateParent();
+          }
+        }));
+  }
+  if (sdl_window_) {
+    DoUpdateParent();
+  }
 }
 
 WindowStyleFlag SdlWindow::GetStyleFlag() { return style_; }
 
 void SdlWindow::SetStyleFlag(WindowStyleFlag flag) {
   style_ = flag;
-  NotImplemented();
+  if (sdl_window_) {
+    DoUpdateStyleFlag();
+  }
 }
 
-std::string SdlWindow::GetTitle() { NotImplemented(); }
+std::string SdlWindow::GetTitle() { return title_; }
 
-void SdlWindow::SetTitle(std::string title) { NotImplemented(); }
+void SdlWindow::SetTitle(std::string title) {
+  title_ = std::move(title);
+  if (sdl_window_) {
+    DoUpdateTitle();
+  }
+}
 
-WindowVisibilityType SdlWindow::GetVisibility() { NotImplemented(); }
+WindowVisibilityType SdlWindow::GetVisibility() {
+  if (!sdl_window_) return WindowVisibilityType::Hide;
+  auto flags = SDL_GetWindowFlags(*sdl_window_);
+  if (flags & SDL_WINDOW_HIDDEN) {
+    return WindowVisibilityType::Hide;
+  }
+  if (flags & SDL_WINDOW_MINIMIZED) {
+    return WindowVisibilityType::Minimize;
+  }
+  return WindowVisibilityType::Show;
+}
 
 void SdlWindow::SetVisibility(WindowVisibilityType visibility) {
-  NotImplemented();
+  if (visibility == WindowVisibilityType::Hide) {
+    if (sdl_window_) {
+      CheckSdlReturn(SDL_HideWindow(*sdl_window_));
+    }
+  } else if (visibility == WindowVisibilityType::Minimize) {
+    if (!sdl_window_) {
+      DoCreateWindow();
+    }
+    CheckSdlReturn(SDL_MinimizeWindow(*sdl_window_));
+  } else {
+    if (!sdl_window_) {
+      DoCreateWindow();
+    }
+    CheckSdlReturn(SDL_ShowWindow(*sdl_window_));
+  }
 }
 
 Size SdlWindow::GetClientSize() { return GetClientRect().GetSize(); }
@@ -72,8 +113,7 @@ Rect SdlWindow::GetClientRect() {
 void SdlWindow::SetClientRect(const Rect& rect) {
   client_rect_ = rect;
   if (sdl_window_) {
-    CheckSdlReturn(SDL_SetWindowPosition(*sdl_window_, rect.left, rect.top));
-    CheckSdlReturn(SDL_SetWindowSize(*sdl_window_, rect.width, rect.height));
+    DoUpdateClientRect();
   }
 }
 
@@ -148,6 +188,38 @@ Thickness SdlWindow::GetBorderThickness() {
       SDL_GetWindowBordersSize(*sdl_window_, &top, &left, &bottom, &right));
   return {static_cast<float>(left), static_cast<float>(top),
           static_cast<float>(right), static_cast<float>(bottom)};
+}
+
+void SdlWindow::DoCreateWindow() { NotImplemented(); }
+
+void SdlWindow::DoUpdateClientRect() {
+  assert(sdl_window_);
+  CheckSdlReturn(
+      SDL_SetWindowPosition(*sdl_window_, client_rect_.left, client_rect_.top));
+  CheckSdlReturn(
+      SDL_SetWindowSize(*sdl_window_, client_rect_.width, client_rect_.height));
+  CheckSdlReturn(SDL_SyncWindow(*sdl_window_));
+}
+
+void SdlWindow::DoUpdateParent() {
+  assert(sdl_window_);
+  CheckSdlReturn(SDL_SetWindowParent(
+      *sdl_window_,
+      parent_ == nullptr ? nullptr : parent_->sdl_window_.value_or(nullptr)));
+  CheckSdlReturn(SDL_SyncWindow(*sdl_window_));
+}
+
+void SdlWindow::DoUpdateStyleFlag() {
+  assert(sdl_window_);
+  CheckSdlReturn(SDL_SetWindowBordered(
+      *sdl_window_, !style_.Has(WindowStyleFlags::NoCaptionAndBorder)));
+  CheckSdlReturn(SDL_SyncWindow(*sdl_window_));
+}
+
+void SdlWindow::DoUpdateTitle() {
+  assert(sdl_window_);
+  CheckSdlReturn(SDL_SetWindowTitle(*sdl_window_, title_.c_str()));
+  CheckSdlReturn(SDL_SyncWindow(*sdl_window_));
 }
 
 }  // namespace cru::platform::gui::sdl
