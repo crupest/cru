@@ -4,6 +4,7 @@
 #include "cru/platform/graphics/NullPainter.h"
 #include "cru/platform/graphics/Painter.h"
 #include "cru/platform/gui/Window.h"
+#include "cru/platform/gui/sdl/Base.h"
 #include "cru/platform/gui/sdl/UiApplication.h"
 
 #include <SDL3/SDL_video.h>
@@ -16,7 +17,9 @@
 namespace cru::platform::gui::sdl {
 
 SdlWindow::SdlWindow(SdlUiApplication* application)
-    : application_(application), parent_(nullptr) {
+    : application_(application),
+      client_rect_(100, 100, 400, 200),
+      parent_(nullptr) {
   application->RegisterWindow(this);
 }
 
@@ -63,22 +66,24 @@ void SdlWindow::SetClientSize(const Size& size) {
 
 Rect SdlWindow::GetClientRect() {
   if (!sdl_window_) return {};
-  NotImplemented();
+  return client_rect_;
 }
 
 void SdlWindow::SetClientRect(const Rect& rect) {
-  if (!sdl_window_) return;
-  NotImplemented();
+  client_rect_ = rect;
+  if (sdl_window_) {
+    CheckSdlReturn(SDL_SetWindowPosition(*sdl_window_, rect.left, rect.top));
+    CheckSdlReturn(SDL_SetWindowSize(*sdl_window_, rect.width, rect.height));
+  }
 }
 
 Rect SdlWindow::GetWindowRect() {
   if (!sdl_window_) return {};
-  NotImplemented();
+  return client_rect_.Expand(GetBorderThickness());
 }
 
 void SdlWindow::SetWindowRect(const Rect& rect) {
-  if (!sdl_window_) return;
-  NotImplemented();
+  SetClientRect(rect.Shrink(GetBorderThickness()));
 }
 
 bool SdlWindow::RequestFocus() {
@@ -126,5 +131,23 @@ IInputMethodContext* SdlWindow::GetInputMethodContext() { NotImplemented(); }
 std::optional<SDL_Window*> SdlWindow::GetSdlWindow() { return sdl_window_; }
 
 SdlUiApplication* SdlWindow::GetSdlUiApplication() { return application_; }
+
+float SdlWindow::GetDisplayScale() {
+  if (!sdl_window_) return 1.f;
+  auto scale = SDL_GetWindowDisplayScale(*sdl_window_);
+  if (scale == 0.f) {
+    throw SdlException("Failed to get window display scale.");
+  }
+  return scale;
+}
+
+Thickness SdlWindow::GetBorderThickness() {
+  if (!sdl_window_) return {};
+  int top, left, bottom, right;
+  CheckSdlReturn(
+      SDL_GetWindowBordersSize(*sdl_window_, &top, &left, &bottom, &right));
+  return {static_cast<float>(left), static_cast<float>(top),
+          static_cast<float>(right), static_cast<float>(bottom)};
+}
 
 }  // namespace cru::platform::gui::sdl

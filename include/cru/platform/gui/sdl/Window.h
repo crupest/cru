@@ -64,10 +64,13 @@ class SdlWindow : public SdlResource, public virtual INativeWindow {
  public:
   std::optional<SDL_Window*> GetSdlWindow();
   SdlUiApplication* GetSdlUiApplication();
+  float GetDisplayScale();
+  Thickness GetBorderThickness();
 
  private:
   SdlUiApplication* application_;
   std::optional<SDL_Window*> sdl_window_;
+  Rect client_rect_;
   SdlWindow* parent_;
   WindowStyleFlag style_;
 };

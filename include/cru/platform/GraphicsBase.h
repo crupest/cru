@@ -157,7 +157,8 @@ struct Rect final {
 
   constexpr static Rect FromVertices(const Point& lefttop,
                                      const Point& rightbottom) {
-    return Rect(lefttop.x, lefttop.y, rightbottom.x - lefttop.x, rightbottom.y - lefttop.y);
+    return Rect(lefttop.x, lefttop.y, rightbottom.x - lefttop.x,
+                rightbottom.y - lefttop.y);
   }
 
   constexpr static Rect FromCenter(const Point& center, const float width,
@@ -213,6 +214,10 @@ struct Rect final {
     }
 
     return result;
+  }
+
+  constexpr Rect Scale(float scale) const {
+    return {left * scale, top * scale, width * scale, height * scale};
   }
 
   constexpr bool IsPointInside(const Point& point) const {
