@@ -76,7 +76,7 @@ enum class KeyCode {
   X,
   Y,
   Z,
-  GraveAccent,
+  Grave, // TODO: fix this key mapping on Windows and Xorg.
   Tab,
   CapsLock,
   LeftShift,

@@ -59,7 +59,7 @@ const std::array<std::string_view, static_cast<int>(KeyCode::NumPad9) + 1>
                          "X",
                          "Y",
                          "Z",
-                         "GraveAccent",
+                         "Grave",
                          "Tab",
                          "CapsLock",
                          "LeftShift",

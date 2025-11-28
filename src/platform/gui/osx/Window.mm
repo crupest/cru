@@ -603,7 +603,7 @@ const std::unordered_set<KeyCode> input_context_handle_codes{
     KeyCode::BackSlash,
     KeyCode::Minus,
     KeyCode::Equal,
-    KeyCode::GraveAccent,
+    KeyCode::Grave,
 };
 }  // namespace
 

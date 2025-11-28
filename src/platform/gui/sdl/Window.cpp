@@ -258,6 +258,10 @@ NativeMouseButtonEventArgs ConvertMouseButtonEvent(
   return {
       ConvertMouseButton(event.button), {event.x, event.y}, GetKeyModifier()};
 }
+
+NativeKeyEventArgs ConvertKeyEvent(const SDL_KeyboardEvent& event) {
+  return {ConvertKeyCode(event.key), ConvertKeyModifier(event.mod)};
+}
 }  // namespace
 
 bool SdlWindow::HandleEvent(const SDL_Event* event) {
@@ -318,14 +322,23 @@ bool SdlWindow::HandleEvent(const SDL_Event* event) {
     case SDL_EVENT_MOUSE_WHEEL: {
       const auto& we = event->wheel;
       if (we.x != 0) {
-        MouseWheelEvent_.Raise({we.x, {we.mouse_x, we.mouse_y}, GetKeyModifier(), true});
+        MouseWheelEvent_.Raise(
+            {we.x, {we.mouse_x, we.mouse_y}, GetKeyModifier(), true});
       }
       if (we.y != 0) {
-        MouseWheelEvent_.Raise({we.y, {we.mouse_x, we.mouse_y}, GetKeyModifier(), false});
+        MouseWheelEvent_.Raise(
+            {we.y, {we.mouse_x, we.mouse_y}, GetKeyModifier(), false});
       }
       return true;
     }
-    // TODO: Keyboard event.
+    case SDL_EVENT_KEY_DOWN: {
+      KeyDownEvent_.Raise(ConvertKeyEvent(event->key));
+      return true;
+    }
+    case SDL_EVENT_KEY_UP: {
+      KeyUpEvent_.Raise(ConvertKeyEvent(event->key));
+      return true;
+    }
   }
   return false;
 }

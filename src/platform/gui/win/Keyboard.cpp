@@ -21,7 +21,7 @@ KeyCode VirtualKeyToKeyCode(int virtual_key) {
       CRU_MAP_KEY(VK_MBUTTON, MiddleButton)
       CRU_MAP_KEY(VK_RBUTTON, RightButton)
       CRU_MAP_KEY(VK_ESCAPE, Escape)
-      CRU_MAP_KEY(VK_OEM_3, GraveAccent)
+      CRU_MAP_KEY(VK_OEM_3, Grave)
       CRU_MAP_KEY(VK_TAB, Tab)
       CRU_MAP_KEY(VK_CAPITAL, CapsLock)
       CRU_MAP_KEY(VK_LSHIFT, LeftShift)
