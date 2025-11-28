@@ -18,7 +18,8 @@ struct WindowStyleFlagTag;
 using WindowStyleFlag = Bitmask<details::WindowStyleFlagTag>;
 
 struct WindowStyleFlags {
-  static constexpr WindowStyleFlag NoCaptionAndBorder{0b1};
+  static constexpr WindowStyleFlag NoCaptionAndBorder =
+      WindowStyleFlag::FromOffset(1);
 };
 
 enum class WindowVisibilityType { Show, Hide, Minimize };
@@ -50,8 +51,13 @@ struct NativeKeyEventArgs {
   KeyModifier modifier;
 };
 
-// Represents a native window, which exposes some low-level events and
-// operations.
+/**
+ * Window is created when it is about to show. So the lifetime of the window is
+ * not the same as the INativeWindow instance. And INativeWindow may re-create
+ * the window if old window is destroyed and re-show is requested.
+ *
+ * Many methods are only meaningful when window is created or visible.
+ */
 struct CRU_PLATFORM_GUI_API INativeWindow : virtual IPlatformResource {
   virtual bool IsCreated();
   virtual void Close() = 0;
@@ -68,18 +74,45 @@ struct CRU_PLATFORM_GUI_API INativeWindow : virtual IPlatformResource {
   virtual WindowVisibilityType GetVisibility() = 0;
   virtual void SetVisibility(WindowVisibilityType visibility) = 0;
 
+  /**
+   * Implementation may return empty if window is not created or not visible.
+   */
   virtual Size GetClientSize() = 0;
+
+  /**
+   * Implementation may do nothing if window is not created or not visible. So
+   * call this method after window is shown.
+   */
   virtual void SetClientSize(const Size& size) = 0;
 
+  /**
+   * The lefttop point of the rect is relative to screen lefttop.
+   *
+   * Implementation may return empty if window is not created or not visible.
+   */
   virtual Rect GetClientRect() = 0;
+
+  /**
+   * The lefttop point of the rect is relative to screen lefttop.
+   *
+   * Implementation may do nothing if window is not created or not visible. So
+   * call this method after window is shown.
+   */
   virtual void SetClientRect(const Rect& rect) = 0;
 
-  // Get the rect of the window containing frame.
-  // The lefttop of the rect is relative to screen lefttop.
+  /**
+   * The lefttop point of the rect is relative to screen lefttop.
+   *
+   * Implementation may return empty if window is not created or not visible.
+   */
   virtual Rect GetWindowRect() = 0;
 
-  // Set the rect of the window containing frame.
-  // The lefttop of the rect is relative to screen lefttop.
+  /**
+   * The lefttop point of the rect is relative to screen lefttop.
+   *
+   * Implementation may do nothing if window is not created or not visible. So
+   * call this method after window is shown.
+   */
   virtual void SetWindowRect(const Rect& rect) = 0;
 
   // Return true if window gained the focus. But the return value should be
