@@ -1,10 +1,12 @@
 #include "cru/platform/gui/sdl/Window.h"
 #include "cru/base/Base.h"
+#include "cru/platform/Base.h"
 #include "cru/platform/GraphicsBase.h"
 #include "cru/platform/graphics/NullPainter.h"
 #include "cru/platform/graphics/Painter.h"
 #include "cru/platform/gui/Window.h"
 #include "cru/platform/gui/sdl/Base.h"
+#include "cru/platform/gui/sdl/Cursor.h"
 #include "cru/platform/gui/sdl/Input.h"
 #include "cru/platform/gui/sdl/UiApplication.h"
 
@@ -155,8 +157,10 @@ bool SdlWindow::ReleaseMouse() {
 }
 
 void SdlWindow::SetCursor(std::shared_ptr<ICursor> cursor) {
-  if (!sdl_window_) return;
-  NotImplemented();
+  cursor_ = std::move(cursor);
+  if (sdl_window_) {
+    DoUpdateCursor();
+  }
 }
 
 void SdlWindow::SetToForeground() {
@@ -225,9 +229,9 @@ void SdlWindow::DoCreateWindow() {
 
   CheckSdlReturn(
       SDL_SetWindowPosition(sdl_window_, client_rect_.left, client_rect_.top));
-  CheckSdlReturn(SDL_SetWindowParent(
-      sdl_window_, parent_ == nullptr ? nullptr : parent_->sdl_window_));
-  CheckSdlReturn(SDL_SyncWindow(sdl_window_));
+
+  DoUpdateParent();
+  DoUpdateCursor();
 }
 
 void SdlWindow::DoUpdateClientRect() {
@@ -256,6 +260,13 @@ void SdlWindow::DoUpdateStyleFlag() {
 void SdlWindow::DoUpdateTitle() {
   assert(sdl_window_);
   CheckSdlReturn(SDL_SetWindowTitle(sdl_window_, title_.c_str()));
+  CheckSdlReturn(SDL_SyncWindow(sdl_window_));
+}
+
+void SdlWindow::DoUpdateCursor() {
+  assert(sdl_window_);
+  auto cursor = CheckPlatform<SdlCursor>(cursor_, GetPlatformId());
+  CheckSdlReturn(SDL_SetCursor(cursor->GetSdlCursor()));
   CheckSdlReturn(SDL_SyncWindow(sdl_window_));
 }
 

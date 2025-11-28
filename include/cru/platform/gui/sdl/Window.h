@@ -90,6 +90,7 @@ class SdlWindow : public SdlResource, public virtual INativeWindow {
   void DoUpdateParent();
   void DoUpdateStyleFlag();
   void DoUpdateTitle();
+  void DoUpdateCursor();
 
   bool HandleEvent(const SDL_Event* event);
 
@@ -102,5 +103,6 @@ class SdlWindow : public SdlResource, public virtual INativeWindow {
   EventHandlerRevokerGuard parent_create_guard_;
   WindowStyleFlag style_;
   std::string title_;
+  std::shared_ptr<ICursor> cursor_;
 };
 }  // namespace cru::platform::gui::sdl
