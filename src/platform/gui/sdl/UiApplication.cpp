@@ -11,6 +11,7 @@
 #include <algorithm>
 #include <chrono>
 #include <functional>
+#include <optional>
 
 namespace cru::platform::gui::sdl {
 SdlUiApplication::SdlUiApplication(graphics::IGraphicsFactory* graphics_factory,
@@ -47,6 +48,8 @@ int SdlUiApplication::Run() {
     if (event.type == SDL_EVENT_QUIT) {
       break;
     }
+
+    DispatchEvent(event);
 
     delete_later_pool_.Clean();
   }
@@ -153,4 +156,44 @@ long long SdlUiApplication::SetTimer(std::chrono::milliseconds milliseconds,
   PostEmptyEvent();
   return timers_.Add(std::move(action), milliseconds, repeat);
 }
+
+namespace {
+std::optional<SDL_WindowID> GetEventWindowId(const SDL_Event& event) {
+  switch (event.type) {
+    case SDL_EVENT_WINDOW_MOVED:
+    case SDL_EVENT_WINDOW_RESIZED:
+    case SDL_EVENT_WINDOW_SHOWN:
+    case SDL_EVENT_WINDOW_HIDDEN:
+    case SDL_EVENT_WINDOW_MINIMIZED:
+    case SDL_EVENT_WINDOW_FOCUS_GAINED:
+    case SDL_EVENT_WINDOW_FOCUS_LOST:
+    case SDL_EVENT_WINDOW_MOUSE_ENTER:
+    case SDL_EVENT_WINDOW_MOUSE_LEAVE:
+    case SDL_EVENT_WINDOW_DESTROYED:
+      return event.window.windowID;
+    case SDL_EVENT_MOUSE_BUTTON_DOWN:
+    case SDL_EVENT_MOUSE_BUTTON_UP:
+      return event.button.windowID;
+    case SDL_EVENT_MOUSE_WHEEL:
+      return event.wheel.windowID;
+    case SDL_EVENT_KEY_DOWN:
+    case SDL_EVENT_KEY_UP:
+      return event.key.windowID;
+    default:
+      return std::nullopt;
+  }
+}
+}  // namespace
+
+bool SdlUiApplication::DispatchEvent(const SDL_Event& event) {
+  if (auto window_id = GetEventWindowId(event)) {
+    for (auto window : windows_) {
+      if (window->sdl_window_id_ == *window_id && window->HandleEvent(&event)) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
 }  // namespace cru::platform::gui::sdl

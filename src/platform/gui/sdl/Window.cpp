@@ -18,6 +18,8 @@ namespace cru::platform::gui::sdl {
 
 SdlWindow::SdlWindow(SdlUiApplication* application)
     : application_(application),
+      sdl_window_(nullptr),
+      sdl_window_id_(0),
       client_rect_(100, 100, 400, 200),
       parent_(nullptr) {
   application->RegisterWindow(this);
@@ -214,6 +216,11 @@ void SdlWindow::DoCreateWindow() {
     throw SdlException("Failed to create window.");
   }
 
+  sdl_window_id_ = SDL_GetWindowID(sdl_window_);
+  if (sdl_window_id_ == 0) {
+    throw SdlException("Failed to get ID of created window.");
+  }
+
   CreateEvent_.Raise(nullptr);
 
   CheckSdlReturn(
@@ -309,6 +316,7 @@ bool SdlWindow::HandleEvent(const SDL_Event* event) {
       VisibilityChangeEvent_.Raise(WindowVisibilityType::Hide);
       DestroyEvent_.Raise(nullptr);
       sdl_window_ = nullptr;
+      sdl_window_id_ = 0;
       return true;
     }
     case SDL_EVENT_MOUSE_BUTTON_DOWN: {

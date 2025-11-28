@@ -96,6 +96,7 @@ class SdlWindow : public SdlResource, public virtual INativeWindow {
  private:
   SdlUiApplication* application_;
   SDL_Window* sdl_window_;
+  SDL_WindowID sdl_window_id_;
   Rect client_rect_;
   SdlWindow* parent_;
   EventHandlerRevokerGuard parent_create_guard_;

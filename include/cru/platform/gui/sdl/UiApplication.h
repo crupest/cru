@@ -6,6 +6,7 @@
 #include <cru/base/Timer.h>
 #include <cru/platform/graphics/Factory.h>
 
+#include <SDL3/SDL_events.h>
 #include <atomic>
 #include <chrono>
 #include <cstdint>
@@ -18,7 +19,8 @@ class SdlUiApplication : public SdlResource, public virtual IUiApplication {
   friend SdlWindow;
 
  public:
-  explicit SdlUiApplication(graphics::IGraphicsFactory* graphics_factory, bool release_graphics_factory);
+  explicit SdlUiApplication(graphics::IGraphicsFactory* graphics_factory,
+                            bool release_graphics_factory);
   ~SdlUiApplication();
 
  public:
@@ -60,6 +62,8 @@ class SdlUiApplication : public SdlResource, public virtual IUiApplication {
   void PostEmptyEvent();
   long long SetTimer(std::chrono::milliseconds milliseconds,
                      std::function<void()> action, bool repeat);
+
+  bool DispatchEvent(const SDL_Event& event);
 
  private:
   graphics::IGraphicsFactory* graphics_factory_;
