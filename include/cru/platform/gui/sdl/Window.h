@@ -4,6 +4,7 @@
 #include <cru/platform/GraphicsBase.h>
 #include <cru/platform/gui/Window.h>
 
+#include <SDL3/SDL_events.h>
 #include <SDL3/SDL_video.h>
 #include <optional>
 
@@ -53,6 +54,11 @@ class SdlWindow : public SdlResource, public virtual INativeWindow {
    */
   void SetWindowRect(const Rect& rect) override;
 
+  /**
+   * Note: SDL3 doesn't have an API to solely set focus without raising the
+   * window. So this method actually calls SDL_RaiseWindow to raise and set
+   * focus to the window.
+   */
   bool RequestFocus() override;
 
   Point GetMousePosition() override;
@@ -84,6 +90,8 @@ class SdlWindow : public SdlResource, public virtual INativeWindow {
   void DoUpdateParent();
   void DoUpdateStyleFlag();
   void DoUpdateTitle();
+
+  bool HandleEvent(const SDL_Event* event);
 
  private:
   SdlUiApplication* application_;

@@ -5,8 +5,10 @@
 #include "cru/platform/graphics/Painter.h"
 #include "cru/platform/gui/Window.h"
 #include "cru/platform/gui/sdl/Base.h"
+#include "cru/platform/gui/sdl/Input.h"
 #include "cru/platform/gui/sdl/UiApplication.h"
 
+#include <SDL3/SDL_events.h>
 #include <SDL3/SDL_video.h>
 #include <cassert>
 #include <memory>
@@ -129,19 +131,25 @@ void SdlWindow::SetWindowRect(const Rect& rect) {
 
 bool SdlWindow::RequestFocus() {
   if (!sdl_window_) return false;
-  NotImplemented();
+  auto result = SDL_RaiseWindow(sdl_window_);
+  CheckSdlReturn(SDL_SyncWindow(sdl_window_));
+  return result;
 }
 
 Point SdlWindow::GetMousePosition() { NotImplemented(); }
 
 bool SdlWindow::CaptureMouse() {
   if (!sdl_window_) return false;
-  NotImplemented();
+  // SDL_SetWindowMouseGrab confines mouse in the window, should we really call
+  // it?
+  return true;
 }
 
 bool SdlWindow::ReleaseMouse() {
   if (!sdl_window_) return false;
-  NotImplemented();
+  // SDL_SetWindowMouseGrab confines mouse in the window, should we really call
+  // it?
+  return true;
 }
 
 void SdlWindow::SetCursor(std::shared_ptr<ICursor> cursor) {
@@ -151,7 +159,8 @@ void SdlWindow::SetCursor(std::shared_ptr<ICursor> cursor) {
 
 void SdlWindow::SetToForeground() {
   SetVisibility(WindowVisibilityType::Show);
-  NotImplemented();
+  CheckSdlReturn(SDL_RaiseWindow(sdl_window_));
+  CheckSdlReturn(SDL_SyncWindow(sdl_window_));
 }
 
 void SdlWindow::RequestRepaint() {
@@ -205,6 +214,8 @@ void SdlWindow::DoCreateWindow() {
     throw SdlException("Failed to create window.");
   }
 
+  CreateEvent_.Raise(nullptr);
+
   CheckSdlReturn(
       SDL_SetWindowPosition(sdl_window_, client_rect_.left, client_rect_.top));
   CheckSdlReturn(SDL_SetWindowParent(
@@ -239,6 +250,84 @@ void SdlWindow::DoUpdateTitle() {
   assert(sdl_window_);
   CheckSdlReturn(SDL_SetWindowTitle(sdl_window_, title_.c_str()));
   CheckSdlReturn(SDL_SyncWindow(sdl_window_));
+}
+
+namespace {
+NativeMouseButtonEventArgs ConvertMouseButtonEvent(
+    const SDL_MouseButtonEvent& event) {
+  return {
+      ConvertMouseButton(event.button), {event.x, event.y}, GetKeyModifier()};
+}
+}  // namespace
+
+bool SdlWindow::HandleEvent(const SDL_Event* event) {
+  switch (event->type) {
+    case SDL_EVENT_WINDOW_MOVED: {
+      client_rect_.left = event->window.data1;
+      client_rect_.top = event->window.data2;
+      return true;
+    }
+    case SDL_EVENT_WINDOW_RESIZED: {
+      client_rect_.width = event->window.data1;
+      client_rect_.height = event->window.data2;
+      ResizeEvent_.Raise(client_rect_.GetSize());
+      return true;
+    }
+    case SDL_EVENT_WINDOW_SHOWN: {
+      VisibilityChangeEvent_.Raise(WindowVisibilityType::Show);
+      return true;
+    }
+    case SDL_EVENT_WINDOW_HIDDEN: {
+      VisibilityChangeEvent_.Raise(WindowVisibilityType::Hide);
+      return true;
+    }
+    case SDL_EVENT_WINDOW_MINIMIZED: {
+      VisibilityChangeEvent_.Raise(WindowVisibilityType::Minimize);
+      return true;
+    }
+    case SDL_EVENT_WINDOW_FOCUS_GAINED: {
+      FocusEvent_.Raise(FocusChangeType::Gain);
+      return true;
+    }
+    case SDL_EVENT_WINDOW_FOCUS_LOST: {
+      FocusEvent_.Raise(FocusChangeType::Lose);
+      return true;
+    }
+    case SDL_EVENT_WINDOW_MOUSE_ENTER: {
+      MouseEnterLeaveEvent_.Raise(MouseEnterLeaveType::Enter);
+      return true;
+    }
+    case SDL_EVENT_WINDOW_MOUSE_LEAVE: {
+      MouseEnterLeaveEvent_.Raise(MouseEnterLeaveType::Leave);
+      return true;
+    }
+    case SDL_EVENT_WINDOW_DESTROYED: {
+      VisibilityChangeEvent_.Raise(WindowVisibilityType::Hide);
+      DestroyEvent_.Raise(nullptr);
+      sdl_window_ = nullptr;
+      return true;
+    }
+    case SDL_EVENT_MOUSE_BUTTON_DOWN: {
+      MouseDownEvent_.Raise(ConvertMouseButtonEvent(event->button));
+      return true;
+    }
+    case SDL_EVENT_MOUSE_BUTTON_UP: {
+      MouseUpEvent_.Raise(ConvertMouseButtonEvent(event->button));
+      return true;
+    }
+    case SDL_EVENT_MOUSE_WHEEL: {
+      const auto& we = event->wheel;
+      if (we.x != 0) {
+        MouseWheelEvent_.Raise({we.x, {we.mouse_x, we.mouse_y}, GetKeyModifier(), true});
+      }
+      if (we.y != 0) {
+        MouseWheelEvent_.Raise({we.y, {we.mouse_x, we.mouse_y}, GetKeyModifier(), false});
+      }
+      return true;
+    }
+    // TODO: Keyboard event.
+  }
+  return false;
 }
 
 }  // namespace cru::platform::gui::sdl

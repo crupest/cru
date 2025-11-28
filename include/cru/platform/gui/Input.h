@@ -16,6 +16,7 @@ struct MouseButtons {
   constexpr static MouseButton Left = MouseButton::FromOffset(1);
   constexpr static MouseButton Middle = MouseButton::FromOffset(2);
   constexpr static MouseButton Right = MouseButton::FromOffset(3);
+  constexpr static MouseButton Unknown = MouseButton::FromOffset(4);
 };
 
 // Because of the complexity of keyboard layout, I only add code in US keyboard
