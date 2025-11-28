@@ -1,7 +1,6 @@
 #include "cru/platform/gui/win/InputMethod.h"
 #include "cru/base/StringUtil.h"
 #include "cru/base/log/Logger.h"
-#include "cru/platform/gui/DebugFlags.h"
 #include "cru/platform/gui/win/Window.h"
 
 #include <vector>
@@ -250,10 +249,8 @@ void WinInputMethodContext::OnWindowNativeMessage(
     case WM_IME_COMPOSITION: {
       composition_event_.Raise(nullptr);
       auto composition_text = GetCompositionText();
-      if constexpr (DebugFlags::input_method) {
-        CRU_LOG_TAG_DEBUG("WM_IME_COMPOSITION composition text:\n{}",
-                          composition_text);
-      }
+      CRU_LOG_TAG_DEBUG("WM_IME_COMPOSITION composition text: {}",
+                        composition_text.text);
       if (message.l_param & GCS_RESULTSTR) {
         auto result_string = GetResultString();
         text_event_.Raise(result_string);
@@ -261,16 +258,12 @@ void WinInputMethodContext::OnWindowNativeMessage(
       break;
     }
     case WM_IME_STARTCOMPOSITION: {
-      if constexpr (DebugFlags::input_method) {
-        CRU_LOG_TAG_DEBUG("WM_IME_STARTCOMPOSITION received.");
-      }
+      CRU_LOG_TAG_DEBUG("WM_IME_STARTCOMPOSITION received.");
       composition_start_event_.Raise(nullptr);
       break;
     }
     case WM_IME_ENDCOMPOSITION: {
-      if constexpr (DebugFlags::input_method) {
-        CRU_LOG_TAG_DEBUG("WM_IME_ENDCOMPOSITION received.");
-      }
+      CRU_LOG_TAG_DEBUG("WM_IME_ENDCOMPOSITION received.");
       composition_end_event_.Raise(nullptr);
       break;
     }
