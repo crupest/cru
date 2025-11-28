@@ -8,8 +8,6 @@
 #include "cru/platform/gui/sdl/UiApplication.h"
 
 #include <SDL3/SDL_video.h>
-#include <cairo-xcb.h>
-#include <cairo.h>
 #include <cassert>
 #include <memory>
 #include <optional>
@@ -25,11 +23,11 @@ SdlWindow::SdlWindow(SdlUiApplication* application)
 
 SdlWindow::~SdlWindow() { application_->UnregisterWindow(this); }
 
-bool SdlWindow::IsCreated() { return sdl_window_.has_value(); }
+bool SdlWindow::IsCreated() { return sdl_window_ != nullptr; }
 
 void SdlWindow::Close() {
   if (sdl_window_) {
-    SDL_DestroyWindow(*sdl_window_);
+    SDL_DestroyWindow(sdl_window_);
   }
 }
 
@@ -70,7 +68,7 @@ void SdlWindow::SetTitle(std::string title) {
 
 WindowVisibilityType SdlWindow::GetVisibility() {
   if (!sdl_window_) return WindowVisibilityType::Hide;
-  auto flags = SDL_GetWindowFlags(*sdl_window_);
+  auto flags = SDL_GetWindowFlags(sdl_window_);
   if (flags & SDL_WINDOW_HIDDEN) {
     return WindowVisibilityType::Hide;
   }
@@ -83,18 +81,21 @@ WindowVisibilityType SdlWindow::GetVisibility() {
 void SdlWindow::SetVisibility(WindowVisibilityType visibility) {
   if (visibility == WindowVisibilityType::Hide) {
     if (sdl_window_) {
-      CheckSdlReturn(SDL_HideWindow(*sdl_window_));
+      CheckSdlReturn(SDL_HideWindow(sdl_window_));
+      CheckSdlReturn(SDL_SyncWindow(sdl_window_));
     }
   } else if (visibility == WindowVisibilityType::Minimize) {
     if (!sdl_window_) {
       DoCreateWindow();
     }
-    CheckSdlReturn(SDL_MinimizeWindow(*sdl_window_));
+    CheckSdlReturn(SDL_MinimizeWindow(sdl_window_));
+    CheckSdlReturn(SDL_SyncWindow(sdl_window_));
   } else {
     if (!sdl_window_) {
       DoCreateWindow();
     }
-    CheckSdlReturn(SDL_ShowWindow(*sdl_window_));
+    CheckSdlReturn(SDL_ShowWindow(sdl_window_));
+    CheckSdlReturn(SDL_SyncWindow(sdl_window_));
   }
 }
 
@@ -159,7 +160,7 @@ void SdlWindow::RequestRepaint() {
 }
 
 std::unique_ptr<graphics::IPainter> SdlWindow::BeginPaint() {
-  if (!sdl_window_.has_value()) {
+  if (!sdl_window_) {
     return std::make_unique<graphics::NullPainter>();
   }
 
@@ -174,7 +175,7 @@ SdlUiApplication* SdlWindow::GetSdlUiApplication() { return application_; }
 
 float SdlWindow::GetDisplayScale() {
   if (!sdl_window_) return 1.f;
-  auto scale = SDL_GetWindowDisplayScale(*sdl_window_);
+  auto scale = SDL_GetWindowDisplayScale(sdl_window_);
   if (scale == 0.f) {
     throw SdlException("Failed to get window display scale.");
   }
@@ -185,41 +186,59 @@ Thickness SdlWindow::GetBorderThickness() {
   if (!sdl_window_) return {};
   int top, left, bottom, right;
   CheckSdlReturn(
-      SDL_GetWindowBordersSize(*sdl_window_, &top, &left, &bottom, &right));
+      SDL_GetWindowBordersSize(sdl_window_, &top, &left, &bottom, &right));
   return {static_cast<float>(left), static_cast<float>(top),
           static_cast<float>(right), static_cast<float>(bottom)};
 }
 
-void SdlWindow::DoCreateWindow() { NotImplemented(); }
+void SdlWindow::DoCreateWindow() {
+  assert(!sdl_window_);
+  SDL_WindowFlags flags = SDL_WINDOW_HIDDEN;
+  if (style_.Has(WindowStyleFlags::NoCaptionAndBorder)) {
+    flags |= SDL_WINDOW_BORDERLESS;
+  }
+
+  sdl_window_ = SDL_CreateWindow(title_.c_str(), client_rect_.width,
+                                 client_rect_.height, flags);
+
+  if (!sdl_window_) {
+    throw SdlException("Failed to create window.");
+  }
+
+  CheckSdlReturn(
+      SDL_SetWindowPosition(sdl_window_, client_rect_.left, client_rect_.top));
+  CheckSdlReturn(SDL_SetWindowParent(
+      sdl_window_, parent_ == nullptr ? nullptr : parent_->sdl_window_));
+  CheckSdlReturn(SDL_SyncWindow(sdl_window_));
+}
 
 void SdlWindow::DoUpdateClientRect() {
   assert(sdl_window_);
   CheckSdlReturn(
-      SDL_SetWindowPosition(*sdl_window_, client_rect_.left, client_rect_.top));
+      SDL_SetWindowPosition(sdl_window_, client_rect_.left, client_rect_.top));
   CheckSdlReturn(
-      SDL_SetWindowSize(*sdl_window_, client_rect_.width, client_rect_.height));
-  CheckSdlReturn(SDL_SyncWindow(*sdl_window_));
+      SDL_SetWindowSize(sdl_window_, client_rect_.width, client_rect_.height));
+  CheckSdlReturn(SDL_SyncWindow(sdl_window_));
 }
 
 void SdlWindow::DoUpdateParent() {
   assert(sdl_window_);
   CheckSdlReturn(SDL_SetWindowParent(
-      *sdl_window_,
-      parent_ == nullptr ? nullptr : parent_->sdl_window_.value_or(nullptr)));
-  CheckSdlReturn(SDL_SyncWindow(*sdl_window_));
+      sdl_window_, parent_ == nullptr ? nullptr : parent_->sdl_window_));
+  CheckSdlReturn(SDL_SyncWindow(sdl_window_));
 }
 
 void SdlWindow::DoUpdateStyleFlag() {
   assert(sdl_window_);
   CheckSdlReturn(SDL_SetWindowBordered(
-      *sdl_window_, !style_.Has(WindowStyleFlags::NoCaptionAndBorder)));
-  CheckSdlReturn(SDL_SyncWindow(*sdl_window_));
+      sdl_window_, !style_.Has(WindowStyleFlags::NoCaptionAndBorder)));
+  CheckSdlReturn(SDL_SyncWindow(sdl_window_));
 }
 
 void SdlWindow::DoUpdateTitle() {
   assert(sdl_window_);
-  CheckSdlReturn(SDL_SetWindowTitle(*sdl_window_, title_.c_str()));
-  CheckSdlReturn(SDL_SyncWindow(*sdl_window_));
+  CheckSdlReturn(SDL_SetWindowTitle(sdl_window_, title_.c_str()));
+  CheckSdlReturn(SDL_SyncWindow(sdl_window_));
 }
 
 }  // namespace cru::platform::gui::sdl

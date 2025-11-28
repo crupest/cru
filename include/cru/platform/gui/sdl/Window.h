@@ -1,7 +1,8 @@
 #pragma once
-#include "../../GraphicsBase.h"
-#include "../Window.h"
 #include "Base.h"
+
+#include <cru/platform/GraphicsBase.h>
+#include <cru/platform/gui/Window.h>
 
 #include <SDL3/SDL_video.h>
 #include <optional>
@@ -39,7 +40,17 @@ class SdlWindow : public SdlResource, public virtual INativeWindow {
   Rect GetClientRect() override;
   void SetClientRect(const Rect& rect) override;
 
+  /**
+   * Note: When the window is not created, this method will return an empty rect
+   * regardless of whether the window has a border.
+   */
   Rect GetWindowRect() override;
+
+  /**
+   * Note: When the window is not created, the border is always considered empty
+   * regardless of the window style flag. So, you should always call this method
+   * after the window is created.
+   */
   void SetWindowRect(const Rect& rect) override;
 
   bool RequestFocus() override;
@@ -67,7 +78,7 @@ class SdlWindow : public SdlResource, public virtual INativeWindow {
   float GetDisplayScale();
   Thickness GetBorderThickness();
 
-  private:
+ private:
   void DoCreateWindow();
   void DoUpdateClientRect();
   void DoUpdateParent();
@@ -76,7 +87,7 @@ class SdlWindow : public SdlResource, public virtual INativeWindow {
 
  private:
   SdlUiApplication* application_;
-  std::optional<SDL_Window*> sdl_window_;
+  SDL_Window* sdl_window_;
   Rect client_rect_;
   SdlWindow* parent_;
   EventHandlerRevokerGuard parent_create_guard_;
