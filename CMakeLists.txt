@@ -28,7 +28,7 @@ set(CRU_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include)
 set(CRU_ASSETS_DIR ${PROJECT_SOURCE_DIR}/assets)
 
 function(target_add_resources target res_dir)
-	message("Add resources for target ${target} with files ${res_dir}.")
+	message("Add resources files in ${res_dir} to target ${target}.")
 
 	file(GLOB_RECURSE RES_SOURCES "${CRU_ASSETS_DIR}/${res_dir}/*")
 	target_sources(${target} PUBLIC ${RES_SOURCES})

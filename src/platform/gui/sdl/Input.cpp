@@ -14,11 +14,11 @@ MouseButton ConvertMouseButton(Uint8 button) {
   return MouseButtons::Unknown;
 }
 
-KeyCode ConvertKeyCode(SDL_Keycode keycode) {
-  switch (keycode) {
-#define CRU_SDL_DEFINE_KEY_CODE_CONVERT(cru_key_code, sdl_key_code) \
-  case SDLK_##sdl_key_code:                                         \
-    return KeyCode::cru_key_code;
+KeyCode ConvertKeyScanCode(SDL_Scancode scancode) {
+  switch (scancode) {
+#define CRU_SDL_DEFINE_KEY_CODE_CONVERT(cru_keycode, sdl_scancode) \
+  case SDL_SCANCODE_##sdl_scancode:                                         \
+    return KeyCode::cru_keycode;
 
     CRU_SDL_DEFINE_KEY_CODE_CONVERT(Grave, GRAVE)
     CRU_SDL_DEFINE_KEY_CODE_CONVERT(Escape, ESCAPE)

@@ -278,7 +278,7 @@ NativeMouseButtonEventArgs ConvertMouseButtonEvent(
 }
 
 NativeKeyEventArgs ConvertKeyEvent(const SDL_KeyboardEvent& event) {
-  return {ConvertKeyCode(event.key), ConvertKeyModifier(event.mod)};
+  return {ConvertKeyScanCode(event.scancode), ConvertKeyModifier(event.mod)};
 }
 }  // namespace
 
