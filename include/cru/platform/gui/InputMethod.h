@@ -64,3 +64,9 @@ struct IInputMethodContext : virtual IPlatformResource {
   virtual IEvent<const std::string&>* TextEvent() = 0;
 };
 }  // namespace cru::platform::gui
+
+#define CRU_DEFINE_CRU_PLATFORM_GUI_I_INPUT_METHOD_OVERRIDE_EVENTS() \
+  CRU_DEFINE_EVENT_OVERRIDE(CompositionStart, std::nullptr_t)        \
+  CRU_DEFINE_EVENT_OVERRIDE(CompositionEnd, std::nullptr_t)          \
+  CRU_DEFINE_EVENT_OVERRIDE(Composition, std::nullptr_t)             \
+  CRU_DEFINE_EVENT_OVERRIDE(Text, const std::string&)

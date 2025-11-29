@@ -8,6 +8,7 @@
 #include "cru/platform/gui/sdl/Base.h"
 #include "cru/platform/gui/sdl/Cursor.h"
 #include "cru/platform/gui/sdl/Input.h"
+#include "cru/platform/gui/sdl/InputMethod.h"
 #include "cru/platform/gui/sdl/UiApplication.h"
 
 #include <SDL3/SDL_events.h>
@@ -25,6 +26,8 @@ SdlWindow::SdlWindow(SdlUiApplication* application)
       client_rect_(100, 100, 400, 200),
       parent_(nullptr) {
   application->RegisterWindow(this);
+
+  input_context_ = std::make_unique<SdlInputMethodContext>(this);
 }
 
 SdlWindow::~SdlWindow() { application_->UnregisterWindow(this); }
@@ -182,9 +185,13 @@ std::unique_ptr<graphics::IPainter> SdlWindow::BeginPaint() {
   NotImplemented();
 }
 
-IInputMethodContext* SdlWindow::GetInputMethodContext() { NotImplemented(); }
+IInputMethodContext* SdlWindow::GetInputMethodContext() {
+  return input_context_.get();
+}
 
-std::optional<SDL_Window*> SdlWindow::GetSdlWindow() { return sdl_window_; }
+SDL_Window* SdlWindow::GetSdlWindow() { return sdl_window_; }
+
+SDL_WindowID SdlWindow::GetSdlWindowId() { return sdl_window_id_; }
 
 SdlUiApplication* SdlWindow::GetSdlUiApplication() { return application_; }
 
@@ -280,9 +287,39 @@ NativeMouseButtonEventArgs ConvertMouseButtonEvent(
 NativeKeyEventArgs ConvertKeyEvent(const SDL_KeyboardEvent& event) {
   return {ConvertKeyScanCode(event.scancode), ConvertKeyModifier(event.mod)};
 }
+
+std::optional<SDL_WindowID> GetEventWindowId(const SDL_Event& event) {
+  switch (event.type) {
+    case SDL_EVENT_WINDOW_MOVED:
+    case SDL_EVENT_WINDOW_RESIZED:
+    case SDL_EVENT_WINDOW_SHOWN:
+    case SDL_EVENT_WINDOW_HIDDEN:
+    case SDL_EVENT_WINDOW_MINIMIZED:
+    case SDL_EVENT_WINDOW_FOCUS_GAINED:
+    case SDL_EVENT_WINDOW_FOCUS_LOST:
+    case SDL_EVENT_WINDOW_MOUSE_ENTER:
+    case SDL_EVENT_WINDOW_MOUSE_LEAVE:
+    case SDL_EVENT_WINDOW_DESTROYED:
+      return event.window.windowID;
+    case SDL_EVENT_MOUSE_BUTTON_DOWN:
+    case SDL_EVENT_MOUSE_BUTTON_UP:
+      return event.button.windowID;
+    case SDL_EVENT_MOUSE_WHEEL:
+      return event.wheel.windowID;
+    case SDL_EVENT_KEY_DOWN:
+    case SDL_EVENT_KEY_UP:
+      return event.key.windowID;
+    default:
+      return std::nullopt;
+  }
+}
 }  // namespace
 
 bool SdlWindow::HandleEvent(const SDL_Event* event) {
+  if (input_context_->HandleEvent(event)) return true;
+
+  if (sdl_window_id_ != GetEventWindowId(*event)) return false;
+
   switch (event->type) {
     case SDL_EVENT_WINDOW_MOVED: {
       client_rect_.left = event->window.data1;

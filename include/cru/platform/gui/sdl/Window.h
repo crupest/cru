@@ -6,10 +6,10 @@
 
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_video.h>
-#include <optional>
 
 namespace cru::platform::gui::sdl {
 class SdlUiApplication;
+class SdlInputMethodContext;
 
 class SdlWindow : public SdlResource, public virtual INativeWindow {
   CRU_DEFINE_CLASS_LOG_TAG("cru::platform::gui::xcb::SdlWindow")
@@ -79,7 +79,8 @@ class SdlWindow : public SdlResource, public virtual INativeWindow {
   IInputMethodContext* GetInputMethodContext() override;
 
  public:
-  std::optional<SDL_Window*> GetSdlWindow();
+  SDL_Window* GetSdlWindow();
+  SDL_WindowID GetSdlWindowId();
   SdlUiApplication* GetSdlUiApplication();
   float GetDisplayScale();
   Thickness GetBorderThickness();
@@ -104,5 +105,7 @@ class SdlWindow : public SdlResource, public virtual INativeWindow {
   WindowStyleFlag style_;
   std::string title_;
   std::shared_ptr<ICursor> cursor_;
+
+  std::unique_ptr<SdlInputMethodContext> input_context_;
 };
 }  // namespace cru::platform::gui::sdl

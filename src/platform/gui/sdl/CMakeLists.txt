@@ -2,6 +2,7 @@ add_library(CruPlatformGuiSdl
 	Base.cpp
 	Cursor.cpp
 	Input.cpp
+	InputMethod.cpp
 	UiApplication.cpp
 	Window.cpp
 )
