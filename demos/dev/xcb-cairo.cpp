@@ -3,7 +3,6 @@
 #include <unistd.h>
 #include <xcb/xcb.h>
 #include <cstdlib>
-#include <iostream>
 
 int main() {
   int screen_num;
