@@ -1,5 +1,4 @@
 #pragma once
-
 #include "Base.h"
 
 #include <cru/platform/gui/Cursor.h>

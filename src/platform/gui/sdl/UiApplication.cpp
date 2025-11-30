@@ -3,6 +3,8 @@
 #include "cru/base/Base.h"
 #include "cru/platform/graphics/Factory.h"
 #include "cru/platform/gui/sdl/Base.h"
+#include "cru/platform/gui/sdl/Clipboard.h"
+#include "cru/platform/gui/sdl/Cursor.h"
 #include "cru/platform/gui/sdl/Window.h"
 
 #include <SDL3/SDL_events.h>
@@ -11,6 +13,7 @@
 #include <algorithm>
 #include <chrono>
 #include <functional>
+#include <memory>
 #include <optional>
 
 namespace cru::platform::gui::sdl {
@@ -21,6 +24,9 @@ SdlUiApplication::SdlUiApplication(graphics::IGraphicsFactory* graphics_factory,
       quit_code_(0) {
   CheckSdlReturn(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS));
   empty_event_type_ = SDL_RegisterEvents(1);
+
+  cursor_manager_ = std::make_unique<SdlCursorManager>();
+  clipboard_ = std::make_unique<SdlClipboard>();
 }
 
 SdlUiApplication::~SdlUiApplication() {
@@ -117,9 +123,11 @@ SdlUiApplication::GetGraphicsFactory() {
   return graphics_factory_;
 }
 
-ICursorManager* SdlUiApplication::GetCursorManager() { NotImplemented(); }
+ICursorManager* SdlUiApplication::GetCursorManager() {
+  return cursor_manager_.get();
+}
 
-IClipboard* SdlUiApplication::GetClipboard() { NotImplemented(); }
+IClipboard* SdlUiApplication::GetClipboard() { return clipboard_.get(); }
 
 IMenu* SdlUiApplication::GetApplicationMenu() { return nullptr; }
 

@@ -1,19 +1,21 @@
-
 #pragma once
-#include "../UiApplication.h"
 #include "Base.h"
 
 #include <cru/base/Timer.h>
 #include <cru/platform/graphics/Factory.h>
+#include <cru/platform/gui/UiApplication.h>
 
 #include <SDL3/SDL_events.h>
 #include <atomic>
 #include <chrono>
 #include <cstdint>
 #include <functional>
+#include <memory>
 
 namespace cru::platform::gui::sdl {
 class SdlWindow;
+class SdlCursorManager;
+class SdlClipboard;
 
 class SdlUiApplication : public SdlResource, public virtual IUiApplication {
   friend SdlWindow;
@@ -77,5 +79,8 @@ class SdlUiApplication : public SdlResource, public virtual IUiApplication {
 
   bool is_quit_on_all_window_closed_;
   std::vector<SdlWindow*> windows_;
+
+  std::unique_ptr<SdlCursorManager> cursor_manager_;
+  std::unique_ptr<SdlClipboard> clipboard_;
 };
 }  // namespace cru::platform::gui::sdl

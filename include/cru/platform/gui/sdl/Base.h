@@ -1,7 +1,6 @@
-
 #pragma once
 
-#include <cru/platform/Base.h>
+#include <cru/platform/gui/Base.h>
 
 namespace cru::platform::gui::sdl {
 class SdlResource : public Object, public virtual IPlatformResource {

@@ -1,5 +1,6 @@
 add_library(CruPlatformGuiSdl
 	Base.cpp
+	Clipboard.cpp
 	Cursor.cpp
 	Input.cpp
 	InputMethod.cpp
