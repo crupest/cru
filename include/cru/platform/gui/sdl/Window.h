@@ -8,7 +8,7 @@
 #include <SDL3/SDL_video.h>
 
 #ifdef __unix
-#include "gl.h"
+#include "OpenGLRenderer.h"
 #endif
 
 namespace cru::platform::gui::sdl {
@@ -118,8 +118,7 @@ class SdlWindow : public SdlResource, public virtual INativeWindow {
   void UnixOnDestroyWindow();
 
  private:
-  SDL_GLContext sdl_gl_context_;
-  std::unique_ptr<GladGLContext> glad_gl_context_;
+  std::unique_ptr<SdlOpenGLRenderer> renderer_;
 #endif
 };
 }  // namespace cru::platform::gui::sdl

@@ -1,6 +1,5 @@
 #include "cru/platform/gui/sdl/Window.h"
 #include "cru/base/Base.h"
-#include "cru/base/log/Logger.h"
 #include "cru/platform/Base.h"
 #include "cru/platform/GraphicsBase.h"
 #include "cru/platform/graphics/NullPainter.h"
@@ -10,6 +9,7 @@
 #include "cru/platform/gui/sdl/Cursor.h"
 #include "cru/platform/gui/sdl/Input.h"
 #include "cru/platform/gui/sdl/InputMethod.h"
+#include "cru/platform/gui/sdl/OpenGLRenderer.h"
 #include "cru/platform/gui/sdl/UiApplication.h"
 
 #include <SDL3/SDL_events.h>
@@ -419,28 +419,10 @@ bool SdlWindow::HandleEvent(const SDL_Event* event) {
 #ifdef __unix
 void SdlWindow::UnixOnCreateWindow() {
   assert(sdl_window_);
-  sdl_gl_context_ = SDL_GL_CreateContext(sdl_window_);
-
-  if (!sdl_gl_context_) {
-    throw SdlException("Failed to create sdl gl context.");
-  }
-
-  CheckSdlReturn(SDL_GL_MakeCurrent(sdl_window_, sdl_gl_context_));
-
-  glad_gl_context_ = std::make_unique<GladGLContext>();
-  auto version =
-      gladLoadGLContext(glad_gl_context_.get(), SDL_GL_GetProcAddress);
-  CRU_LOG_TAG_DEBUG("SDL window id {}, openGL version: {}.", sdl_window_id_,
-                    version);
+  renderer_ = std::make_unique<SdlOpenGLRenderer>(this);
 }
 
-void SdlWindow::UnixOnDestroyWindow() {
-  assert(sdl_window_);
-  assert(sdl_gl_context_);
-  assert(glad_gl_context_);
-  CheckSdlReturn(SDL_GL_DestroyContext(sdl_gl_context_));
-  glad_gl_context_ = nullptr;
-}
+void SdlWindow::UnixOnDestroyWindow() { renderer_ = nullptr; }
 #endif
 
 }  // namespace cru::platform::gui::sdl

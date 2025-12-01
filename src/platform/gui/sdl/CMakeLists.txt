@@ -13,5 +13,8 @@ target_link_libraries(CruPlatformGuiSdl PUBLIC
 )
 
 if(UNIX AND NOT APPLE)
-	target_sources(CruPlatformGuiSdl PRIVATE gl.c)
+	target_sources(CruPlatformGuiSdl PRIVATE
+		gl.c
+		OpenGLRenderer.cpp
+	)
 endif()
