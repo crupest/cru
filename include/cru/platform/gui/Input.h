@@ -6,12 +6,7 @@
 #include <string>
 
 namespace cru::platform::gui {
-namespace details {
-struct TagMouseButton {};
-}  // namespace details
-
-using MouseButton = Bitmask<details::TagMouseButton>;
-struct MouseButtons {
+CRU_DEFINE_BITMASK(MouseButton) {
   constexpr static MouseButton None = MouseButton::FromOffset(0);
   constexpr static MouseButton Left = MouseButton::FromOffset(1);
   constexpr static MouseButton Middle = MouseButton::FromOffset(2);
@@ -76,7 +71,7 @@ enum class KeyCode {
   X,
   Y,
   Z,
-  Grave, // TODO: fix this key mapping on Windows and Xorg.
+  Grave,  // TODO: fix this key mapping on Windows and Xorg.
   Tab,
   CapsLock,
   LeftShift,
@@ -127,13 +122,7 @@ enum class KeyCode {
   Space
 };
 
-namespace details {
-struct TagKeyModifier {};
-}  // namespace details
-
-using KeyModifier = Bitmask<details::TagKeyModifier>;
-
-struct KeyModifiers {
+CRU_DEFINE_BITMASK(KeyModifier) {
   static constexpr KeyModifier None = KeyModifier::FromOffset(0);
   static constexpr KeyModifier Shift = KeyModifier::FromOffset(1);
   static constexpr KeyModifier Ctrl = KeyModifier::FromOffset(2);

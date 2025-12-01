@@ -30,11 +30,7 @@ std::string CRU_BASE_API TrimEnd(std::string_view str);
 std::string CRU_BASE_API Trim(std::string_view str);
 bool CRU_BASE_API IsSpace(std::string_view str);
 
-namespace details {
-struct SplitOptionsTag {};
-}  // namespace details
-using SplitOption = Bitmask<details::SplitOptionsTag>;
-struct SplitOptions {
+CRU_DEFINE_BITMASK(SplitOption) {
   static constexpr SplitOption RemoveEmpty = SplitOption::FromOffset(1);
   static constexpr SplitOption RemoveSpace = SplitOption::FromOffset(2);
 };
@@ -105,13 +101,7 @@ CRU_DEFINE_FLOAT_FROM_CHARS(long double, strtold, HUGE_VALL)
 #undef CRU_DEFINE_FLOAT_FROM_CHARS
 }  // namespace details
 
-namespace details {
-struct ParseToNumberFlagTag {};
-}  // namespace details
-
-using ParseToNumberFlag = Bitmask<details::ParseToNumberFlagTag>;
-
-struct ParseToNumberFlags {
+CRU_DEFINE_BITMASK(ParseToNumberFlag) {
   constexpr static ParseToNumberFlag AllowLeadingSpaces =
       ParseToNumberFlag::FromOffset(1);
   constexpr static ParseToNumberFlag AllowTrailingSpaces =

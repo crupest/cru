@@ -61,11 +61,7 @@ struct UniDirectionalUnixPipeResult {
   UnixFileDescriptor write;
 };
 
-namespace details {
-struct UnixPipeFlagTag;
-}
-using UnixPipeFlag = Bitmask<details::UnixPipeFlagTag>;
-struct UnixPipeFlags {
+CRU_DEFINE_BITMASK(UnixPipeFlag) {
   constexpr static auto NonBlock = UnixPipeFlag::FromOffset(1);
 };
 

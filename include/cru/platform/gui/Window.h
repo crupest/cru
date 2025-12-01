@@ -3,6 +3,7 @@
 
 #include "Input.h"
 
+#include <cru/base/Bitmask.h>
 #include <cru/base/Event.h>
 #include <cru/platform/GraphicsBase.h>
 #include <cru/platform/graphics/Painter.h>
@@ -11,13 +12,7 @@ namespace cru::platform::gui {
 class ICursor;
 class IInputMethodContext;
 
-namespace details {
-struct WindowStyleFlagTag;
-}
-
-using WindowStyleFlag = Bitmask<details::WindowStyleFlagTag>;
-
-struct WindowStyleFlags {
+CRU_DEFINE_BITMASK(WindowStyleFlag) {
   static constexpr WindowStyleFlag NoCaptionAndBorder =
       WindowStyleFlag::FromOffset(1);
 };

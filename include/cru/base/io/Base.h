@@ -9,12 +9,7 @@ class CRU_BASE_API FileNotExistException : public Exception {
   using Exception::Exception;
 };
 
-namespace details {
-struct OpenFileFlagTag {};
-}  // namespace details
-using OpenFileFlag = Bitmask<details::OpenFileFlagTag>;
-
-struct OpenFileFlags {
+CRU_DEFINE_BITMASK(OpenFileFlag) {
   /**
    * \brief for reading
    * If the file does not exist, FileNotExistException should be thrown.

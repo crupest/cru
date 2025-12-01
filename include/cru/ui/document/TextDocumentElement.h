@@ -6,13 +6,7 @@
 #include "cru/base/Bitmask.h"
 
 namespace cru::ui::document {
-namespace details {
-struct TextStyleTag {};
-}  // namespace details
-
-using TextStyle = Bitmask<details::TextStyleTag>;
-
-struct TextStyles {
+CRU_DEFINE_BITMASK(TextStyle) {
   static constexpr TextStyle Normal{0x0};
   static constexpr TextStyle Bold{0x1};
   static constexpr TextStyle Italic{0x2};

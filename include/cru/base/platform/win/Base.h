@@ -67,11 +67,7 @@ struct UniDirectionalWin32PipeResult {
   Win32Handle write;
 };
 
-namespace details {
-struct Win32PipeFlagTag;
-}
-using Win32PipeFlag = Bitmask<details::Win32PipeFlagTag>;
-struct Win32PipeFlags {
+CRU_DEFINE_BITMASK(Win32PipeFlag) {
   constexpr static auto ReadInheritable = Win32PipeFlag::FromOffset(1);
   constexpr static auto WriteInheritable = Win32PipeFlag::FromOffset(2);
 };
