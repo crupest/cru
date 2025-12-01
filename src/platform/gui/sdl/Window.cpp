@@ -1,5 +1,6 @@
 #include "cru/platform/gui/sdl/Window.h"
 #include "cru/base/Base.h"
+#include "cru/base/log/Logger.h"
 #include "cru/platform/Base.h"
 #include "cru/platform/GraphicsBase.h"
 #include "cru/platform/graphics/NullPainter.h"
@@ -220,6 +221,11 @@ Thickness SdlWindow::GetBorderThickness() {
 void SdlWindow::DoCreateWindow() {
   assert(!sdl_window_);
   SDL_WindowFlags flags = SDL_WINDOW_HIDDEN;
+
+#ifdef __unix
+  flags |= SDL_WINDOW_OPENGL;
+#endif
+
   if (style_.Has(WindowStyleFlags::NoCaptionAndBorder)) {
     flags |= SDL_WINDOW_BORDERLESS;
   }
@@ -243,6 +249,10 @@ void SdlWindow::DoCreateWindow() {
 
   DoUpdateParent();
   DoUpdateCursor();
+
+#ifdef __unix
+  UnixOnCreateWindow();
+#endif
 }
 
 void SdlWindow::DoUpdateClientRect() {
@@ -367,6 +377,9 @@ bool SdlWindow::HandleEvent(const SDL_Event* event) {
     case SDL_EVENT_WINDOW_DESTROYED: {
       VisibilityChangeEvent_.Raise(WindowVisibilityType::Hide);
       DestroyEvent_.Raise(nullptr);
+#ifdef __unix
+      UnixOnDestroyWindow();
+#endif
       sdl_window_ = nullptr;
       sdl_window_id_ = 0;
       return true;
@@ -402,5 +415,32 @@ bool SdlWindow::HandleEvent(const SDL_Event* event) {
   }
   return false;
 }
+
+#ifdef __unix
+void SdlWindow::UnixOnCreateWindow() {
+  assert(sdl_window_);
+  sdl_gl_context_ = SDL_GL_CreateContext(sdl_window_);
+
+  if (!sdl_gl_context_) {
+    throw SdlException("Failed to create sdl gl context.");
+  }
+
+  CheckSdlReturn(SDL_GL_MakeCurrent(sdl_window_, sdl_gl_context_));
+
+  glad_gl_context_ = std::make_unique<GladGLContext>();
+  auto version =
+      gladLoadGLContext(glad_gl_context_.get(), SDL_GL_GetProcAddress);
+  CRU_LOG_TAG_DEBUG("SDL window id {}, openGL version: {}.", sdl_window_id_,
+                    version);
+}
+
+void SdlWindow::UnixOnDestroyWindow() {
+  assert(sdl_window_);
+  assert(sdl_gl_context_);
+  assert(glad_gl_context_);
+  CheckSdlReturn(SDL_GL_DestroyContext(sdl_gl_context_));
+  glad_gl_context_ = nullptr;
+}
+#endif
 
 }  // namespace cru::platform::gui::sdl

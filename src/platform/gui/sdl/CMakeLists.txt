@@ -11,3 +11,7 @@ target_link_libraries(CruPlatformGuiSdl PUBLIC
 	CruPlatformGui CruPlatformGraphicsCairo
 	SDL3::SDL3
 )
+
+if(UNIX AND NOT APPLE)
+	target_sources(CruPlatformGuiSdl PRIVATE gl.c)
+endif()

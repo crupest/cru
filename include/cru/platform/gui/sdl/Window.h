@@ -7,6 +7,10 @@
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_video.h>
 
+#ifdef __unix
+#include "gl.h"
+#endif
+
 namespace cru::platform::gui::sdl {
 class SdlUiApplication;
 class SdlInputMethodContext;
@@ -107,5 +111,15 @@ class SdlWindow : public SdlResource, public virtual INativeWindow {
   std::shared_ptr<ICursor> cursor_;
 
   std::unique_ptr<SdlInputMethodContext> input_context_;
+
+#ifdef __unix
+ private:
+  void UnixOnCreateWindow();
+  void UnixOnDestroyWindow();
+
+ private:
+  SDL_GLContext sdl_gl_context_;
+  std::unique_ptr<GladGLContext> glad_gl_context_;
+#endif
 };
 }  // namespace cru::platform::gui::sdl
