@@ -143,7 +143,11 @@ bool SdlWindow::RequestFocus() {
   return result;
 }
 
-Point SdlWindow::GetMousePosition() { NotImplemented(); }
+Point SdlWindow::GetMousePosition() {
+  float x, y;
+  SDL_GetGlobalMouseState(&x, &y);
+  return {x - client_rect_.left, y - client_rect_.top};
+}
 
 bool SdlWindow::CaptureMouse() {
   if (!sdl_window_) return false;
