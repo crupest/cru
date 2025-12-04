@@ -4,6 +4,7 @@
 #include <cru/base/Base.h>
 #include <cru/platform/graphics/Painter.h>
 
+#include <functional>
 #include <vector>
 
 namespace cru::platform::graphics::cairo {
@@ -48,6 +49,8 @@ class CRU_PLATFORM_GRAPHICS_CAIRO_API CairoPainter : public CairoResource,
 
   void EndDraw() override;
 
+  void SetEndDrawCallback(std::function<void()> action);
+
  private:
   void CheckValidation();
 
@@ -55,6 +58,7 @@ class CRU_PLATFORM_GRAPHICS_CAIRO_API CairoPainter : public CairoResource,
 
   cairo_t* cairo_;
   bool auto_release_;
+  std::function<void()> end_draw_callback_;
 
   cairo_surface_t* cairo_surface_;
 

@@ -5,6 +5,8 @@
 #elif defined(__APPLE__)
 #include "cru/platform/gui/osx/UiApplication.h"
 #elif defined(__unix)
+#include "cru/platform/graphics/cairo/CairoGraphicsFactory.h"
+#include "cru/platform/gui/sdl/UiApplication.h"
 #include "cru/platform/gui/xcb/UiApplication.h"
 #else
 #endif
@@ -16,7 +18,9 @@ cru::platform::gui::IUiApplication* CreateUiApplication() {
 #elif defined(__APPLE__)
   return new cru::platform::gui::osx::OsxUiApplication();
 #else
-  return new cru::platform::gui::xcb::XcbUiApplication();
+  // return new cru::platform::gui::xcb::XcbUiApplication();
+  return new cru::platform::gui::sdl::SdlUiApplication(
+      new cru::platform::graphics::cairo::CairoGraphicsFactory(), true);
 #endif
   NotImplemented();
 }

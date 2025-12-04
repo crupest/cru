@@ -242,8 +242,14 @@ void CairoPainter::EndDraw() {
     if (device) {
       cairo_device_flush(device);
     }
+
+    if (end_draw_callback_) end_draw_callback_();
   }
   valid_ = false;
+}
+
+void CairoPainter::SetEndDrawCallback(std::function<void()> action) {
+  end_draw_callback_ = std::move(action);
 }
 
 void CairoPainter::CheckValidation() {

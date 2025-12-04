@@ -4,6 +4,7 @@
 #include "cru/platform/GraphicsBase.h"
 #include "cru/platform/graphics/NullPainter.h"
 #include "cru/platform/graphics/Painter.h"
+#include "cru/platform/gui/Cursor.h"
 #include "cru/platform/gui/Window.h"
 #include "cru/platform/gui/sdl/Base.h"
 #include "cru/platform/gui/sdl/Cursor.h"
@@ -179,15 +180,25 @@ void SdlWindow::SetToForeground() {
 
 void SdlWindow::RequestRepaint() {
   if (!sdl_window_) return;
-  NotImplemented();
+#ifdef __unix
+  repaint_timer_canceler_.Reset(application_->SetImmediate([this] {
+    PaintEvent_.Raise(nullptr);
+    NativePaintEventArgs args{{{}, GetClientSize()}};
+    Paint1Event_.Raise(args);
+    renderer_->Present();
+  }));
+#endif
 }
 
 std::unique_ptr<graphics::IPainter> SdlWindow::BeginPaint() {
   if (!sdl_window_) {
     return std::make_unique<graphics::NullPainter>();
   }
-
+#ifdef __unix
+  return renderer_->BeginPaint();
+#else
   NotImplemented();
+#endif
 }
 
 IInputMethodContext* SdlWindow::GetInputMethodContext() {
@@ -220,7 +231,7 @@ Thickness SdlWindow::GetBorderThickness() {
 
 void SdlWindow::DoCreateWindow() {
   assert(!sdl_window_);
-  SDL_WindowFlags flags = SDL_WINDOW_HIDDEN;
+  SDL_WindowFlags flags = SDL_WINDOW_HIDDEN | SDL_WINDOW_RESIZABLE;
 
 #ifdef __unix
   flags |= SDL_WINDOW_OPENGL;
@@ -251,7 +262,9 @@ void SdlWindow::DoCreateWindow() {
   DoUpdateCursor();
 
 #ifdef __unix
-  UnixOnCreateWindow();
+  int width, height;
+  CheckSdlReturn(SDL_GetWindowSizeInPixels(sdl_window_, &width, &height));
+  UnixOnCreate(width, height);
 #endif
 }
 
@@ -286,7 +299,12 @@ void SdlWindow::DoUpdateTitle() {
 
 void SdlWindow::DoUpdateCursor() {
   assert(sdl_window_);
-  auto cursor = CheckPlatform<SdlCursor>(cursor_, GetPlatformId());
+  auto cursor = CheckPlatform<SdlCursor>(
+      cursor_ ? cursor_
+              : application_->GetCursorManager()->GetSystemCursor(
+                    SystemCursorType::Arrow),
+      GetPlatformId());
+
   CheckSdlReturn(SDL_SetCursor(cursor->GetSdlCursor()));
   CheckSdlReturn(SDL_SyncWindow(sdl_window_));
 }
@@ -343,6 +361,11 @@ bool SdlWindow::HandleEvent(const SDL_Event* event) {
     case SDL_EVENT_WINDOW_RESIZED: {
       client_rect_.width = event->window.data1;
       client_rect_.height = event->window.data2;
+#ifdef __unix
+      int width, height;
+      CheckSdlReturn(SDL_GetWindowSizeInPixels(sdl_window_, &width, &height));
+      UnixOnResize(width, height);
+#endif
       ResizeEvent_.Raise(client_rect_.GetSize());
       return true;
     }
@@ -378,7 +401,7 @@ bool SdlWindow::HandleEvent(const SDL_Event* event) {
       VisibilityChangeEvent_.Raise(WindowVisibilityType::Hide);
       DestroyEvent_.Raise(nullptr);
 #ifdef __unix
-      UnixOnDestroyWindow();
+      UnixOnDestroy();
 #endif
       sdl_window_ = nullptr;
       sdl_window_id_ = 0;
@@ -417,12 +440,17 @@ bool SdlWindow::HandleEvent(const SDL_Event* event) {
 }
 
 #ifdef __unix
-void SdlWindow::UnixOnCreateWindow() {
+void SdlWindow::UnixOnCreate(int width, int height) {
   assert(sdl_window_);
-  renderer_ = std::make_unique<SdlOpenGLRenderer>(this);
+  renderer_ = std::make_unique<SdlOpenGLRenderer>(this, width, height);
 }
 
-void SdlWindow::UnixOnDestroyWindow() { renderer_ = nullptr; }
+void SdlWindow::UnixOnDestroy() { renderer_ = nullptr; }
+
+void SdlWindow::UnixOnResize(int width, int height) {
+  assert(sdl_window_);
+  renderer_->Resize(width, height);
+}
 #endif
 
 }  // namespace cru::platform::gui::sdl

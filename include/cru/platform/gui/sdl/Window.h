@@ -2,6 +2,7 @@
 #include "Base.h"
 
 #include <cru/platform/GraphicsBase.h>
+#include <cru/platform/gui/UiApplication.h>
 #include <cru/platform/gui/Window.h>
 
 #include <SDL3/SDL_events.h>
@@ -114,11 +115,13 @@ class SdlWindow : public SdlResource, public virtual INativeWindow {
 
 #ifdef __unix
  private:
-  void UnixOnCreateWindow();
-  void UnixOnDestroyWindow();
+  void UnixOnCreate(int width, int height);
+  void UnixOnDestroy();
+  void UnixOnResize(int width, int height);
 
  private:
   std::unique_ptr<SdlOpenGLRenderer> renderer_;
+  TimerAutoCanceler repaint_timer_canceler_;
 #endif
 };
 }  // namespace cru::platform::gui::sdl

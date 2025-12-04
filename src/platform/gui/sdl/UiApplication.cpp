@@ -25,6 +25,12 @@ SdlUiApplication::SdlUiApplication(graphics::IGraphicsFactory* graphics_factory,
   CheckSdlReturn(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS));
   empty_event_type_ = SDL_RegisterEvents(1);
 
+  CheckSdlReturn(SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1));
+  CheckSdlReturn(SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3));
+  CheckSdlReturn(SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2));
+  CheckSdlReturn(SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,
+                                     SDL_GL_CONTEXT_PROFILE_CORE));
+
   cursor_manager_ = std::make_unique<SdlCursorManager>();
   clipboard_ = std::make_unique<SdlClipboard>();
 }
@@ -49,8 +55,12 @@ int SdlUiApplication::Run() {
     auto timeout = timers_.NextTimeout(std::chrono::steady_clock::now());
 
     SDL_Event event;
-    CheckSdlReturn(timeout ? SDL_WaitEventTimeout(&event, timeout->count())
-                           : SDL_WaitEvent(&event));
+    if (timeout) {
+      SDL_WaitEventTimeout(&event, timeout->count());
+    } else {
+      CheckSdlReturn(SDL_WaitEvent(&event));
+    }
+
     if (event.type == SDL_EVENT_QUIT) {
       break;
     }
