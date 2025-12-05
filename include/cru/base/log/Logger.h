@@ -1,5 +1,6 @@
 #pragma once
 #include "../Base.h"
+#include "../Guard.h"
 
 #include <condition_variable>
 #include <format>
@@ -86,6 +87,9 @@ class CRU_BASE_API Logger : public Object, public virtual ILogger {
   std::mutex target_list_mutex_;
   std::vector<std::unique_ptr<ILogTarget>> target_list_;
 };
+
+CRU_BASE_API Guard MeasureTimeAndLog(std::string_view tag,
+                                     std::string_view name);
 }  // namespace cru::log
 
 #define CRU_DEFINE_LOG_FUNC(level)                                             \

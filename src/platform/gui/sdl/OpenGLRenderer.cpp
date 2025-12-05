@@ -93,6 +93,8 @@ SdlOpenGLRenderer::SdlOpenGLRenderer(SdlWindow* window, int width, int height) {
       reinterpret_cast<void*>(3 * sizeof(float)));
   glad_gl_context_.EnableVertexAttribArray(1);
 
+  glad_gl_context_.UseProgram(gl_shader_program_);
+
   Resize(width, height);
 }
 
@@ -174,18 +176,11 @@ void SdlOpenGLRenderer::Present() {
   assert(cairo_surface_);
   assert(gl_texture_);
 
-  auto _ = MakeContextCurrent();
+  auto context_guard = MakeContextCurrent();
 
   auto data = cairo_image_surface_get_data(cairo_surface_);
   glad_gl_context_.TexImage2D(GL_TEXTURE_2D, 0, GL_BGRA, width_, height_, 0,
                               GL_BGRA, GL_UNSIGNED_BYTE, data);
-
-  glad_gl_context_.UseProgram(gl_shader_program_);
-  glad_gl_context_.ActiveTexture(GL_TEXTURE0);
-  glad_gl_context_.BindTexture(GL_TEXTURE_2D, gl_texture_);
-  glad_gl_context_.BindVertexArray(gl_vertex_array_);
-  glad_gl_context_.BindBuffer(GL_ARRAY_BUFFER, gl_vertex_buffer_);
-  glad_gl_context_.BindBuffer(GL_ELEMENT_ARRAY_BUFFER, gl_element_buffer_);
 
   glad_gl_context_.DrawElements(
       GL_TRIANGLES, sizeof(kIndices) / sizeof(*kIndices), GL_UNSIGNED_INT, 0);

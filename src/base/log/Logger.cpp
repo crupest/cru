@@ -3,6 +3,7 @@
 #include "cru/base/log/StdioLogTarget.h"
 
 #include <algorithm>
+#include <chrono>
 #include <condition_variable>
 #include <cstdlib>
 #include <ctime>
@@ -166,5 +167,17 @@ void Logger::LogThreadRun() {
     // TODO: Should still wait for queue to be cleared.
     if (stop) return;
   }
+}
+
+Guard MeasureTimeAndLog(std::string_view tag, std::string_view name) {
+  CruLogDebug(std::string(tag), "Start measure {}.", name);
+  auto start = std::chrono::high_resolution_clock::now();
+
+  return Guard([tag = std::string(tag), name = std::string(name), start] {
+    auto end = std::chrono::high_resolution_clock::now();
+    auto duration =
+        std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+    CruLogDebug(tag, "End measure {}, time {} us.", name, duration.count());
+  });
 }
 }  // namespace cru::log
