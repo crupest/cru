@@ -11,25 +11,25 @@ WinClipboard::~WinClipboard() {}
 
 std::string WinClipboard::GetText() {
   if (!::OpenClipboard(nullptr)) {
-    CRU_LOG_TAG_WARN("Failed to open clipboard.");
+    CruLogWarn(kLogTag, "Failed to open clipboard.");
     return {};
   }
 
   if (!::IsClipboardFormatAvailable(CF_UNICODETEXT)) {
-    CRU_LOG_TAG_WARN("Clipboard format for text is not available.");
+    CruLogWarn(kLogTag, "Clipboard format for text is not available.");
     return {};
   }
 
   auto handle = ::GetClipboardData(CF_UNICODETEXT);
 
   if (handle == nullptr) {
-    CRU_LOG_TAG_WARN("Failed to get clipboard data.");
+    CruLogWarn(kLogTag, "Failed to get clipboard data.");
     return {};
   }
 
   auto ptr = ::GlobalLock(handle);
   if (ptr == nullptr) {
-    CRU_LOG_TAG_WARN("Failed to lock clipboard data.");
+    CruLogWarn(kLogTag, "Failed to lock clipboard data.");
     ::CloseClipboard();
     return {};
   }
@@ -46,21 +46,21 @@ void WinClipboard::SetText(std::string utf8_text) {
   auto text = string::ToUtf16WString(utf8_text);
 
   if (!::OpenClipboard(nullptr)) {
-    CRU_LOG_TAG_WARN("Failed to open clipboard.");
+    CruLogWarn(kLogTag, "Failed to open clipboard.");
     return;
   }
 
   auto handle = GlobalAlloc(GMEM_MOVEABLE, (text.size() + 1) * sizeof(wchar_t));
 
   if (handle == nullptr) {
-    CRU_LOG_TAG_WARN("Failed to allocate clipboard data.");
+    CruLogWarn(kLogTag, "Failed to allocate clipboard data.");
     ::CloseClipboard();
     return;
   }
 
   auto ptr = ::GlobalLock(handle);
   if (ptr == nullptr) {
-    CRU_LOG_TAG_WARN("Failed to lock clipboard data.");
+    CruLogWarn(kLogTag, "Failed to lock clipboard data.");
     ::GlobalFree(handle);
     ::CloseClipboard();
     return;
@@ -71,7 +71,7 @@ void WinClipboard::SetText(std::string utf8_text) {
   ::GlobalUnlock(handle);
 
   if (::SetClipboardData(CF_UNICODETEXT, handle) == nullptr) {
-    CRU_LOG_TAG_WARN("Failed to set clipboard data.");
+    CruLogWarn(kLogTag, "Failed to set clipboard data.");
   }
 
   ::CloseClipboard();

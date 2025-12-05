@@ -30,7 +30,7 @@ AutoHIMC& AutoHIMC::operator=(AutoHIMC&& other) {
 AutoHIMC::~AutoHIMC() {
   if (handle_) {
     if (!::ImmReleaseContext(hwnd_, handle_))
-      CRU_LOG_TAG_WARN("Failed to release HIMC.");
+      CruLogWarn(kLogTag, "Failed to release HIMC.");
   }
 }
 
@@ -161,7 +161,7 @@ WinInputMethodContext::~WinInputMethodContext() {}
 void WinInputMethodContext::EnableIME() {
   const auto hwnd = native_window_->GetWindowHandle();
   if (::ImmAssociateContextEx(hwnd, nullptr, IACE_DEFAULT) == FALSE) {
-    CRU_LOG_TAG_WARN("Failed to enable ime.");
+    CruLogWarn(kLogTag, "Failed to enable ime.");
   }
 }
 
@@ -172,21 +172,21 @@ void WinInputMethodContext::DisableIME() {
   ::ImmNotifyIME(himc.Get(), NI_COMPOSITIONSTR, CPS_COMPLETE, 0);
 
   if (::ImmAssociateContextEx(hwnd, nullptr, 0) == FALSE) {
-    CRU_LOG_TAG_WARN("Failed to disable ime.");
+    CruLogWarn(kLogTag, "Failed to disable ime.");
   }
 }
 
 void WinInputMethodContext::CompleteComposition() {
   auto himc = GetHIMC();
   if (!::ImmNotifyIME(himc.Get(), NI_COMPOSITIONSTR, CPS_COMPLETE, 0)) {
-    CRU_LOG_TAG_WARN("Failed to complete composition.");
+    CruLogWarn(kLogTag, "Failed to complete composition.");
   }
 }
 
 void WinInputMethodContext::CancelComposition() {
   auto himc = GetHIMC();
   if (!::ImmNotifyIME(himc.Get(), NI_COMPOSITIONSTR, CPS_CANCEL, 0)) {
-    CRU_LOG_TAG_WARN("Failed to complete composition.");
+    CruLogWarn(kLogTag, "Failed to complete composition.");
   }
 }
 
@@ -205,7 +205,8 @@ void WinInputMethodContext::SetCandidateWindowPosition(const Point& point) {
   form.ptCurrentPos = native_window_->DipToPixel(point);
 
   if (!::ImmSetCandidateWindow(himc.Get(), &form))
-    CRU_LOG_TAG_DEBUG("Failed to set input method candidate window position.");
+    CruLogDebug(kLogTag,
+                "Failed to set input method candidate window position.");
 }
 
 IEvent<std::nullptr_t>* WinInputMethodContext::CompositionStartEvent() {
@@ -234,9 +235,9 @@ void WinInputMethodContext::OnWindowNativeMessage(
         // I don't think this will happen because normal key strike without ime
         // should only trigger ascci character. If it is a charater from
         // supplementary planes, it should be handled with ime messages.
-        CRU_LOG_TAG_WARN(
-            "A WM_CHAR message for character from supplementary "
-            "planes is ignored.");
+        CruLogWarn(kLogTag,
+                   "A WM_CHAR message for character from supplementary "
+                   "planes is ignored.");
       } else {
         if (c != '\b') {            // ignore backspace
           if (c == '\r') c = '\n';  // Change \r to \n
@@ -249,8 +250,8 @@ void WinInputMethodContext::OnWindowNativeMessage(
     case WM_IME_COMPOSITION: {
       composition_event_.Raise(nullptr);
       auto composition_text = GetCompositionText();
-      CRU_LOG_TAG_DEBUG("WM_IME_COMPOSITION composition text: {}",
-                        composition_text.text);
+      CruLogDebug(kLogTag, "WM_IME_COMPOSITION composition text: {}",
+                  composition_text.text);
       if (message.l_param & GCS_RESULTSTR) {
         auto result_string = GetResultString();
         text_event_.Raise(result_string);
@@ -258,12 +259,12 @@ void WinInputMethodContext::OnWindowNativeMessage(
       break;
     }
     case WM_IME_STARTCOMPOSITION: {
-      CRU_LOG_TAG_DEBUG("WM_IME_STARTCOMPOSITION received.");
+      CruLogDebug(kLogTag, "WM_IME_STARTCOMPOSITION received.");
       composition_start_event_.Raise(nullptr);
       break;
     }
     case WM_IME_ENDCOMPOSITION: {
-      CRU_LOG_TAG_DEBUG("WM_IME_ENDCOMPOSITION received.");
+      CruLogDebug(kLogTag, "WM_IME_ENDCOMPOSITION received.");
       composition_end_event_.Raise(nullptr);
       break;
     }

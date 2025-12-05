@@ -2,11 +2,10 @@
 #include "../Base.h"
 
 #include <condition_variable>
-#include <format>  // IWYU pragma: keep
+#include <format>
 #include <list>
 #include <memory>
 #include <mutex>
-#include <string_view>
 #include <thread>
 #include <unordered_set>
 #include <utility>
@@ -42,14 +41,6 @@ struct CRU_BASE_API ILogger : virtual Interface {
 
   void Log(LogLevel level, std::string tag, std::string message) {
     Log(LogInfo(level, std::move(tag), std::move(message)));
-  }
-
-  template <typename... Args>
-  void FormatLog(LogLevel level, std::string tag,
-                 std::string_view message_format, Args&&... args) {
-    // Clang is buggy in consteval, so we can't use std::format for now.
-    Log(level, std::move(tag),
-        std::vformat(message_format, std::make_format_args(args...)));
   }
 
  protected:
@@ -95,49 +86,20 @@ class CRU_BASE_API Logger : public Object, public virtual ILogger {
   std::mutex target_list_mutex_;
   std::vector<std::unique_ptr<ILogTarget>> target_list_;
 };
-
-class CRU_BASE_API LoggerCppStream : public Object {
- public:
-  explicit LoggerCppStream(ILogger* logger, LogLevel level, std::string tag);
-
-  LoggerCppStream WithLevel(LogLevel level) const;
-  LoggerCppStream WithTag(std::string tag) const;
-
- private:
-  void Consume(std::string_view str);
-
- public:
-  LoggerCppStream& operator<<(std::string_view str) {
-    this->Consume(str);
-    return *this;
-  }
-
-  template <typename T>
-  LoggerCppStream& operator<<(T&& arg) {
-    this->Consume(ToString(std::forward<T>(arg)));
-    return *this;
-  }
-
- private:
-  ILogger* logger_;
-  LogLevel level_;
-  std::string tag_;
-};
-
 }  // namespace cru::log
 
-#define CRU_LOG_TAG_DEBUG(...)                                           \
-  cru::log::ILogger::GetInstance()->FormatLog(cru::log::LogLevel::Debug, \
-                                              kLogTag, __VA_ARGS__)
+#define CRU_DEFINE_LOG_FUNC(level)                                             \
+  template <typename... Args>                                                  \
+  void CruLog##level(std::string tag, std::format_string<Args...> message_fmt, \
+                     Args&&... args) {                                         \
+    cru::log::ILogger::GetInstance()->Log(                                     \
+        cru::log::LogLevel::level, std::move(tag),                             \
+        std::format(message_fmt, std::forward<Args>(args)...));                \
+  }
 
-#define CRU_LOG_TAG_INFO(...)                                           \
-  cru::log::ILogger::GetInstance()->FormatLog(cru::log::LogLevel::Info, \
-                                              kLogTag, __VA_ARGS__)
+CRU_DEFINE_LOG_FUNC(Debug)
+CRU_DEFINE_LOG_FUNC(Info)
+CRU_DEFINE_LOG_FUNC(Warn)
+CRU_DEFINE_LOG_FUNC(Error)
 
-#define CRU_LOG_TAG_WARN(...)                                           \
-  cru::log::ILogger::GetInstance()->FormatLog(cru::log::LogLevel::Warn, \
-                                              kLogTag, __VA_ARGS__)
-
-#define CRU_LOG_TAG_ERROR(...)                                           \
-  cru::log::ILogger::GetInstance()->FormatLog(cru::log::LogLevel::Error, \
-                                              kLogTag, __VA_ARGS__)
+#undef CRU_DEFINE_LOG_FUNC

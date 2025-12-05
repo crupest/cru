@@ -55,8 +55,8 @@ ClickDetector::ClickDetector(controls::Control* control) {
                 this->state_ == ClickState::Hover) {
               if (!this->control_->CaptureMouse()) {
                 if constexpr (debug_flags::click_detector) {
-                  CRU_LOG_TAG_DEBUG(
-                      "Failed to capture mouse when begin click.");
+                  CruLogDebug(kLogTag,
+                              "Failed to capture mouse when begin click.");
                 }
                 return;
               }
@@ -133,7 +133,8 @@ void ClickDetector::SetState(ClickState state) {
           UnreachableCode();
       }
     };
-    CRU_LOG_TAG_DEBUG("Click state changed, new state: {}.", to_string(state));
+    CruLogDebug(kLogTag, "Click state changed, new state: {}.",
+                to_string(state));
   }
 
   state_ = state;

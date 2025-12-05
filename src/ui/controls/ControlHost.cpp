@@ -168,7 +168,7 @@ void ControlHost::RelayoutWithSize(const Size& available_size,
   }
 
   render_object->Layout(Point{});
-  CRU_LOG_TAG_DEBUG("A relayout is finished.");
+  CruLogDebug(kLogTag, "A relayout is finished.");
 
   AfterLayoutEvent_.Raise(nullptr);
 

@@ -100,7 +100,7 @@ class CRU_UI_API ControlHost : public Object {
     Guard logging_guard([&] {
       log += "\nEnd dispatching routed event " +
              (original_sender->*event_ptr)()->GetName() + ".";
-      CRU_LOG_TAG_DEBUG("{}", log);
+      CruLogDebug(kLogTag, "{}", log);
     });
 
     std::vector<ObjectResolver<Control>> receive_list;

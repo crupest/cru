@@ -25,7 +25,7 @@ OsxClipboardPrivate::~OsxClipboardPrivate() {}
 std::string OsxClipboardPrivate::GetText() {
   auto result = [pasteboard_ readObjectsForClasses:@[ NSString.class ] options:nil];
   if (result == nil) {
-    CRU_LOG_TAG_WARN("Failed to get text from clipboard");
+    CruLogWarn(kLogTag, "Failed to get text from clipboard");
     return "";
   } else {
     if (result.count == 0) {

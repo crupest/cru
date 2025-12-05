@@ -60,8 +60,9 @@ SdlOpenGLRenderer::SdlOpenGLRenderer(SdlWindow* window, int width, int height) {
   auto _ = MakeContextCurrent();
 
   auto version = gladLoadGLContext(&glad_gl_context_, SDL_GL_GetProcAddress);
-  CRU_LOG_TAG_DEBUG("SDL window id {}, openGL version: {}.{}.", sdl_window_id_,
-                    GLAD_VERSION_MAJOR(version), GLAD_VERSION_MINOR(version));
+  CruLogDebug(kLogTag, "SDL window id {}, openGL version: {}.{}.",
+              sdl_window_id_, GLAD_VERSION_MAJOR(version),
+              GLAD_VERSION_MINOR(version));
 
   glad_gl_context_.Enable(GL_BLEND);
   glad_gl_context_.BlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
@@ -114,7 +115,7 @@ SdlOpenGLRenderer::~SdlOpenGLRenderer() {
 }
 
 void SdlOpenGLRenderer::Resize(int width, int height) {
-  CRU_LOG_TAG_DEBUG("Resize to {} x {}", width, height);
+  CruLogDebug(kLogTag, "Resize to {} x {}", width, height);
 
   width_ = width;
   height_ = height;
@@ -198,8 +199,8 @@ GLuint SdlOpenGLRenderer::CreateGLProgram() {
     glad_gl_context_.GetShaderiv(shader, GL_COMPILE_STATUS, &success);
     if (!success) {
       glad_gl_context_.GetShaderInfoLog(shader, 512, nullptr, infoLog);
-      CRU_LOG_TAG_ERROR("Failed to compile OpenGL {} shader: {}", name,
-                        infoLog);
+      CruLogError(kLogTag, "Failed to compile OpenGL {} shader: {}", name,
+                  infoLog);
     }
   };
 
@@ -209,7 +210,8 @@ GLuint SdlOpenGLRenderer::CreateGLProgram() {
     glad_gl_context_.GetProgramiv(program, GL_COMPILE_STATUS, &success);
     if (!success) {
       glad_gl_context_.GetProgramInfoLog(program, 512, nullptr, infoLog);
-      CRU_LOG_TAG_ERROR("Failed to link OpenGL {} program: {}", name, infoLog);
+      CruLogError(kLogTag, "Failed to link OpenGL {} program: {}", name,
+                  infoLog);
     }
   };
 

@@ -136,8 +136,8 @@ void WinNativeWindow::SetVisibility(WindowVisibilityType visibility) {
 Size WinNativeWindow::GetClientSize() { return GetClientRect().GetSize(); }
 
 void WinNativeWindow::SetClientSize(const Size& size) {
-  CRU_LOG_TAG_DEBUG("{} set client size to {}.",
-                    static_cast<void*>(GetWindowHandle()), size);
+  CruLogDebug(kLogTag, "{} set client size to {}.",
+              static_cast<void*>(GetWindowHandle()), size);
 
   client_rect_.SetSize(size);
 
@@ -154,8 +154,8 @@ void WinNativeWindow::SetClientSize(const Size& size) {
 Rect WinNativeWindow::GetClientRect() { return client_rect_; }
 
 void WinNativeWindow::SetClientRect(const Rect& rect) {
-  CRU_LOG_TAG_DEBUG("{} set client rect to {}.",
-                    static_cast<void*>(GetWindowHandle()), rect);
+  CruLogDebug(kLogTag, "{} set client rect to {}.",
+              static_cast<void*>(GetWindowHandle()), rect);
 
   client_rect_ = rect;
 
@@ -183,8 +183,8 @@ Rect WinNativeWindow::GetWindowRect() {
 }
 
 void WinNativeWindow::SetWindowRect(const Rect& rect) {
-  CRU_LOG_TAG_DEBUG("{} set window rect to {}.",
-                    static_cast<void*>(GetWindowHandle()), rect);
+  CruLogDebug(kLogTag, "{} set window rect to {}.",
+              static_cast<void*>(GetWindowHandle()), rect);
 
   client_rect_ = CalcClientRectFromWindow(rect, style_flag_, dpi_);
 
@@ -223,7 +223,7 @@ bool WinNativeWindow::ReleaseMouse() {
 }
 
 void WinNativeWindow::RequestRepaint() {
-  CRU_LOG_TAG_DEBUG("A repaint is requested.");
+  CruLogDebug(kLogTag, "A repaint is requested.");
   if (!hwnd_) return;
   if (!::InvalidateRect(hwnd_, nullptr, FALSE))
     throw Win32Error(::GetLastError(), "Failed to invalidate window.");
@@ -250,17 +250,18 @@ void WinNativeWindow::SetCursor(std::shared_ptr<ICursor> cursor) {
 
   if (!::SetClassLongPtrW(hwnd_, GCLP_HCURSOR,
                           reinterpret_cast<LONG_PTR>(cursor_->GetHandle()))) {
-    CRU_LOG_TAG_WARN(
-        "Failed to set cursor because failed to set class long. Last "
-        "error code: {}.",
-        ::GetLastError());
+    CruLogWarn(kLogTag,
+               "Failed to set cursor because failed to set class long. Last "
+               "error code: {}.",
+               ::GetLastError());
     return;
   }
 
   if (GetVisibility() != WindowVisibilityType::Show) return;
 
   auto lg = [](std::string_view reason) {
-    CRU_LOG_TAG_WARN(
+    CruLogWarn(
+        kLogTag,
         "Failed to set cursor because {} when window is visible. (We need to "
         "update cursor if it is inside the window.) Last error code: {}.",
         reason, ::GetLastError());
@@ -488,8 +489,8 @@ void WinNativeWindow::RecreateWindow() {
   if (dpi == 0)
     throw Win32Error(::GetLastError(), "Failed to get dpi of window.");
   dpi_ = static_cast<float>(dpi);
-  CRU_LOG_TAG_DEBUG("Dpi of window {} is {}.",
-                    static_cast<void*>(GetWindowHandle()), dpi_);
+  CruLogDebug(kLogTag, "Dpi of window {} is {}.",
+              static_cast<void*>(GetWindowHandle()), dpi_);
 
   application_->RegisterWindow(this);
 
@@ -508,14 +509,14 @@ void WinNativeWindow::RecreateWindow() {
 }
 
 void WinNativeWindow::OnCreateInternal() {
-  CRU_LOG_TAG_DEBUG("A native window is created, hwnd {}.",
-                    static_cast<void*>(GetWindowHandle()));
+  CruLogDebug(kLogTag, "A native window is created, hwnd {}.",
+              static_cast<void*>(GetWindowHandle()));
   CreateEvent_.Raise(nullptr);
 }
 
 void WinNativeWindow::OnDestroyInternal() {
-  CRU_LOG_TAG_DEBUG("A native window is destroying, hwnd {}.",
-                    static_cast<void*>(GetWindowHandle()));
+  CruLogDebug(kLogTag, "A native window is destroying, hwnd {}.",
+              static_cast<void*>(GetWindowHandle()));
   DestroyEvent_.Raise(nullptr);
   hwnd_ = nullptr;
 
@@ -537,7 +538,7 @@ void WinNativeWindow::OnPaintInternal() {
   }
   Paint1Event_.Raise(args);
   ::ValidateRect(hwnd_, nullptr);
-  CRU_LOG_TAG_DEBUG("A repaint is finished.");
+  CruLogDebug(kLogTag, "A repaint is finished.");
 }
 
 void WinNativeWindow::OnMoveInternal(const int new_left, const int new_top) {

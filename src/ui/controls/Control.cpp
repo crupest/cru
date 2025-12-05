@@ -23,7 +23,8 @@ Control::Control(std::string name)
 
 Control::~Control() {
   if (host_ && host_->IsInEventHandling()) {
-    CRU_LOG_TAG_WARN(
+    CruLogWarn(
+        kLogTag,
         "Better use delete later to delete control during event handling.");
   }
 

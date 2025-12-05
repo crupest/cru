@@ -49,7 +49,7 @@ XcbWindow::XcbWindow(XcbUiApplication* application)
 
   PaintEvent_.AddSpyOnlyHandler([this] {
     if (xcb_window_)
-      CRU_LOG_TAG_DEBUG("{:#x} Paint event triggered.", *xcb_window_);
+      CruLogDebug(kLogTag, "{:#x} Paint event triggered.", *xcb_window_);
   });
 }
 
@@ -287,7 +287,7 @@ void XcbWindow::SetToForeground() {
 
 void XcbWindow::RequestRepaint() {
   if (!xcb_window_.has_value()) return;
-  CRU_LOG_TAG_DEBUG("{:#x} Repaint requested.", *xcb_window_);
+  CruLogDebug(kLogTag, "{:#x} Repaint requested.", *xcb_window_);
   // TODO: true throttle
   repaint_canceler_.Reset(application_->SetImmediate([this] {
     PaintEvent_.Raise(nullptr);
@@ -412,8 +412,8 @@ void XcbWindow::HandleEvent(xcb_generic_event_t* event) {
           (xcb_configure_notify_event_t*)event;
       auto width = configure->width, height = configure->height;
       if (width != current_size_.width || height != current_size_.height) {
-        CRU_LOG_TAG_DEBUG("{:#x} Size changed {} x {}.", *xcb_window_, width,
-                          height);
+        CruLogDebug(kLogTag, "{:#x} Size changed {} x {}.", *xcb_window_, width,
+                    height);
         current_size_ = Size(width, height);
         assert(cairo_surface_);
         cairo_xcb_surface_set_size(cairo_surface_, width, height);

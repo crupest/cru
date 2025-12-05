@@ -20,9 +20,9 @@ XcbXimInputMethodManager::XcbXimInputMethodManager(
 
   xcb_xim_im_callback kXimCallbacks = {
       .forward_event =
-          [](xcb_xim_t *im, xcb_xic_t ic, xcb_key_press_event_t *event,
-             void *user_data) {
-            CRU_LOG_TAG_DEBUG("Key event forwarded back from XIM.");
+          [](xcb_xim_t* im, xcb_xic_t ic, xcb_key_press_event_t* event,
+             void* user_data) {
+            CruLogDebug(kLogTag, "Key event forwarded back from XIM.");
             auto manager = static_cast<XcbXimInputMethodManager *>(user_data);
             if ((event->response_type & ~0x80) == XCB_KEY_PRESS) {
               auto text =
@@ -45,9 +45,9 @@ XcbXimInputMethodManager::XcbXimInputMethodManager(
             }
           },
       .commit_string =
-          [](xcb_xim_t *im, xcb_xic_t ic, uint32_t flag, char *str,
-             uint32_t length, uint32_t *keysym, size_t nKeySym,
-             void *user_data) {
+          [](xcb_xim_t* im, xcb_xic_t ic, uint32_t flag, char* str,
+             uint32_t length, uint32_t* keysym, size_t nKeySym,
+             void* user_data) {
             auto manager = static_cast<XcbXimInputMethodManager *>(user_data);
 
             if (flag & XCB_XIM_LOOKUP_KEYSYM) {
@@ -91,7 +91,7 @@ xcb_xim_t *XcbXimInputMethodManager::GetXcbXim() { return im_; }
 
 void XcbXimInputMethodManager::DispatchCommit(xcb_xim_t *im, xcb_xic_t ic,
                                               std::string text) {
-  CRU_LOG_TAG_DEBUG("IC {} dispatch commit string: {}", ic, text);
+  CruLogDebug(kLogTag, "IC {} dispatch commit string: {}", ic, text);
   if (focus_context_) {
     focus_context_->composition_event_.Raise(nullptr);
     focus_context_->composition_end_event_.Raise(nullptr);
@@ -104,7 +104,7 @@ bool XcbXimInputMethodManager::HandleXEvent(xcb_generic_event_t *event) {
   if (focus_context_ && focus_context_->ic_ &&
       (((event->response_type & ~0x80) == XCB_KEY_PRESS) ||
        ((event->response_type & ~0x80) == XCB_KEY_RELEASE))) {
-    CRU_LOG_TAG_DEBUG("Forward key event to XIM.");
+    CruLogDebug(kLogTag, "Forward key event to XIM.");
     xcb_xim_forward_event(im_, *focus_context_->ic_,
                           (xcb_key_press_event_t *)event);
     application_->XcbFlush();
@@ -175,7 +175,7 @@ static void EmptyXimDestroyIcCallback(xcb_xim_t *im, xcb_xic_t ic,
 void XcbXimInputMethodContext::SetCandidateWindowPosition(const Point &point) {
   if (!ic_) return;
 
-  CRU_LOG_TAG_DEBUG("IC {} set candidate window position: {}", *ic_, point);
+  CruLogDebug(kLogTag, "IC {} set candidate window position: {}", *ic_, point);
 
   xcb_point_t spot;
   spot.x = point.x;
@@ -212,7 +212,7 @@ void XcbXimInputMethodContext::CreateIc(xcb_window_t window) {
   auto XimCreateIcCallback = [](xcb_xim_t *im, xcb_xic_t ic, void *user_data) {
     auto context = static_cast<XcbXimInputMethodContext *>(user_data);
     context->ic_ = ic;
-    CRU_LOG_TAG_DEBUG("XIM IC {} is created.", ic);
+    CruLogDebug(kLogTag, "XIM IC {} is created.", ic);
     if (context->window_->HasFocus()) {
       context->SetFocus();
     }
@@ -223,27 +223,27 @@ void XcbXimInputMethodContext::CreateIc(xcb_window_t window) {
   xcb_xim_create_ic(manager_->GetXcbXim(), XimCreateIcCallback, this,
                     XCB_XIM_XNInputStyle, &input_style, XCB_XIM_XNClientWindow,
                     &window, XCB_XIM_XNFocusWindow, &window, NULL);
-  CRU_LOG_TAG_DEBUG("Create XIM IC.");
+  CruLogDebug(kLogTag, "Create XIM IC.");
   manager_->application_->XcbFlush();
 }
 
 void XcbXimInputMethodContext::SetFocus() {
   manager_->focus_context_ = this;
   if (ic_) {
-    CRU_LOG_TAG_DEBUG("Focus XIM IC {}.", *ic_);
+    CruLogDebug(kLogTag, "Focus XIM IC {}.", *ic_);
     xcb_xim_set_ic_focus(manager_->GetXcbXim(), *ic_);
     manager_->application_->XcbFlush();
   }
 }
 
 void XcbXimInputMethodContext::DestroyIc() {
-  auto destroy_callback = [](xcb_xim_t *im, xcb_xic_t ic, void *user_data) {
-    CRU_LOG_TAG_DEBUG("XIM IC {} is destroyed.", ic);
+  auto destroy_callback = [](xcb_xim_t* im, xcb_xic_t ic, void* user_data) {
+    CruLogDebug(kLogTag, "XIM IC {} is destroyed.", ic);
   };
 
   if (!ic_) return;
   xcb_xim_destroy_ic(manager_->GetXcbXim(), *ic_, destroy_callback, this);
-  CRU_LOG_TAG_DEBUG("Destroy XIM IC {}.", *ic_);
+  CruLogDebug(kLogTag, "Destroy XIM IC {}.", *ic_);
   ic_ = std::nullopt;
   manager_->application_->XcbFlush();
 }

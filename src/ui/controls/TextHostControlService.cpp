@@ -222,7 +222,7 @@ void TextHostControlService::SetText(std::string text, bool stop_composition) {
 void TextHostControlService::InsertText(Index position, std::string_view text,
                                         bool stop_composition) {
   if (!Utf8IsValidInsertPosition(this->text_, position)) {
-    CRU_LOG_TAG_ERROR("Invalid text insert position.");
+    CruLogError(kLogTag, "Invalid text insert position.");
     return;
   }
   this->text_.insert(this->text_.cbegin() + position, text.cbegin(),
@@ -236,7 +236,7 @@ void TextHostControlService::InsertText(Index position, std::string_view text,
 
 void TextHostControlService::DeleteChar(Index position, bool stop_composition) {
   if (!Utf8IsValidInsertPosition(this->text_, position)) {
-    CRU_LOG_TAG_ERROR("Invalid text delete position {}.", position);
+    CruLogError(kLogTag, "Invalid text delete position {}.", position);
     return;
   }
   if (position == static_cast<Index>(this->text_.size())) return;
@@ -249,7 +249,7 @@ void TextHostControlService::DeleteChar(Index position, bool stop_composition) {
 Index TextHostControlService::DeleteCharPrevious(Index position,
                                                  bool stop_composition) {
   if (!Utf8IsValidInsertPosition(this->text_, position)) {
-    CRU_LOG_TAG_ERROR("Invalid text delete position {}.", position);
+    CruLogError(kLogTag, "Invalid text delete position {}.", position);
     return 0;
   }
   if (position == 0) return 0;
@@ -265,12 +265,13 @@ void TextHostControlService::DeleteText(TextRange range,
   if (range.count == 0) return;
   range = range.Normalize();
   if (!Utf8IsValidInsertPosition(this->text_, range.GetStart())) {
-    CRU_LOG_TAG_ERROR("Invalid text delete start position {}.",
-                      range.GetStart());
+    CruLogError(kLogTag, "Invalid text delete start position {}.",
+                range.GetStart());
     return;
   }
   if (!Utf8IsValidInsertPosition(this->text_, range.GetEnd())) {
-    CRU_LOG_TAG_ERROR("Invalid text delete end position {}.", range.GetEnd());
+    CruLogError(kLogTag, "Invalid text delete end position {}.",
+                range.GetEnd());
     return;
   }
   this->text_.erase(this->text_.cbegin() + range.GetStart(),
@@ -464,8 +465,9 @@ void TextHostControlService::UpdateInputMethodPosition() {
     right_bottom.y += 5;
 
     if constexpr (debug_flags::text_service) {
-      CRU_LOG_TAG_DEBUG("Calculate input method candidate window position: {}.",
-                        right_bottom);
+      CruLogDebug(kLogTag,
+                  "Calculate input method candidate window position: {}.",
+                  right_bottom);
     }
 
     input_method_context->SetCandidateWindowPosition(right_bottom);
@@ -691,7 +693,7 @@ void TextHostControlService::SetUpShortcuts() {
 
 void TextHostControlService::OpenContextMenu(const Point& position,
                                              ContextMenuItem items) {
-  CRU_LOG_TAG_DEBUG("Open context menu.");
+  CruLogDebug(kLogTag, "Open context menu.");
   if (!context_menu_) {
     context_menu_.reset(new components::PopupMenu());
   }

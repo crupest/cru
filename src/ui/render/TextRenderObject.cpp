@@ -178,11 +178,12 @@ RenderObject* TextRenderObject::HitTest(const Point& point) {
 
 void TextRenderObject::Draw(platform::graphics::IPainter* painter) {
   if constexpr (debug_flags::draw) {
-    CRU_LOG_TAG_DEBUG(
-        "Begin to paint, total_offset: {}, size: {}, text_layout: "
-        "{}, brush: {}.",
-        this->GetTotalOffset(), this->GetMeasureResultSize(),
-        this->text_layout_->GetDebugString(), this->brush_->GetDebugString());
+    CruLogDebug(kLogTag,
+                "Begin to paint, total_offset: {}, size: {}, text_layout: "
+                "{}, brush: {}.",
+                this->GetTotalOffset(), this->GetMeasureResultSize(),
+                this->text_layout_->GetDebugString(),
+                this->brush_->GetDebugString());
   }
 
   if (this->selection_range_.has_value()) {

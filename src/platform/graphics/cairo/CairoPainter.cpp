@@ -236,7 +236,7 @@ void CairoPainter::PopState() {
 
 void CairoPainter::EndDraw() {
   if (cairo_surface_ != nullptr) {
-    CRU_LOG_TAG_DEBUG("Flush cairo painter.");
+    CruLogDebug(kLogTag, "Flush cairo painter.");
     cairo_surface_flush(cairo_surface_);
     cairo_device_t* device = cairo_surface_get_device(cairo_surface_);
     if (device) {

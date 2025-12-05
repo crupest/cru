@@ -21,8 +21,8 @@ UnixFileDescriptor::~UnixFileDescriptor() {
   constexpr auto kLogTag = "cru::platform::unix::UnixFileDescriptor";
   if (this->IsValid() && this->IsAutoClose()) {
     if (!this->DoClose()) {
-      CRU_LOG_TAG_ERROR("Failed to close file descriptor {}, errno {}.",
-                        descriptor_, errno);
+      CruLogError(kLogTag, "Failed to close file descriptor {}, errno {}.",
+                  descriptor_, errno);
     }
   }
 }

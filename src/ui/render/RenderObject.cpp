@@ -82,8 +82,8 @@ void RenderObject::SetMaxSize(const MeasureSize& max_size) {
 }
 
 void RenderObject::Measure(const MeasureRequirement& requirement) {
-  CRU_LOG_TAG_DEBUG("{} Measure begins, requirement {}.",
-                    this->GetDebugPathInTree(), requirement);
+  CruLogDebug(kLogTag, "{} Measure begins, requirement {}.",
+              this->GetDebugPathInTree(), requirement);
 
   if (layout_valid_ && requirement == last_measure_requirement_) {
     return;
@@ -96,8 +96,8 @@ void RenderObject::Measure(const MeasureRequirement& requirement) {
 
   last_measure_requirement_ = requirement;
 
-  CRU_LOG_TAG_DEBUG("{} Measure ends, result size: {}.",
-                    this->GetDebugPathInTree(), measure_result_size_);
+  CruLogDebug(kLogTag, "{} Measure ends, result size: {}.",
+              this->GetDebugPathInTree(), measure_result_size_);
 }
 
 void RenderObject::Layout(const Point& offset) {
@@ -105,8 +105,8 @@ void RenderObject::Layout(const Point& offset) {
 }
 
 void RenderObject::Layout(const Rect& rect) {
-  CRU_LOG_TAG_DEBUG("{} Layout begins, rect: {}.", this->GetDebugPathInTree(),
-                    rect);
+  CruLogDebug(kLogTag, "{} Layout begins, rect: {}.",
+              this->GetDebugPathInTree(), rect);
 
   offset_ = rect.GetLeftTop();
   auto new_size = rect.GetSize();
@@ -118,7 +118,7 @@ void RenderObject::Layout(const Rect& rect) {
   OnLayoutCore(rect);
   layout_valid_ = true;
 
-  CRU_LOG_TAG_DEBUG("{} Layout ends.", this->GetDebugPathInTree());
+  CruLogDebug(kLogTag, "{} Layout ends.", this->GetDebugPathInTree());
 }
 
 Thickness RenderObject::GetTotalSpaceThickness() { return margin_ + padding_; }

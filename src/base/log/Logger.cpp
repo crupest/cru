@@ -167,21 +167,4 @@ void Logger::LogThreadRun() {
     if (stop) return;
   }
 }
-
-LoggerCppStream::LoggerCppStream(ILogger* logger, LogLevel level,
-                                 std::string tag)
-    : logger_(logger), level_(level), tag_(std::move(tag)) {}
-
-LoggerCppStream LoggerCppStream::WithLevel(LogLevel level) const {
-  return LoggerCppStream(this->logger_, level, this->tag_);
-}
-
-LoggerCppStream LoggerCppStream::WithTag(std::string tag) const {
-  return LoggerCppStream(this->logger_, this->level_, std::move(tag));
-}
-
-void LoggerCppStream::Consume(std::string_view str) {
-  this->logger_->Log(this->level_, this->tag_, std::string(str));
-}
-
 }  // namespace cru::log
