@@ -44,7 +44,8 @@ struct BoxConstraint {
  *  void OnLayoutContent(const Rect& content_rect) override;
  */
 class CRU_UI_API RenderObject : public Object {
-  CRU_DEFINE_CLASS_LOG_TAG("cru::ui::render::RenderObject")
+ private:
+  constexpr static auto kLogTag = "cru::ui::render::RenderObject";
 
  public:
   RenderObject(std::string name);

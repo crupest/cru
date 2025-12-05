@@ -8,7 +8,8 @@
 namespace cru::platform::gui {
 template <typename TSelf>
 class DeleteLaterImpl {
-  CRU_DEFINE_CLASS_LOG_TAG("cru::platform::gui::DeleteLaterImpl")
+ private:
+  constexpr static auto kLogTag = "cru::platform::gui::DeleteLaterImpl";
 
  public:
   virtual ~DeleteLaterImpl() {}

@@ -23,7 +23,8 @@ class CRU_UI_API Control : public Object,
                            public SelfResolvable<Control> {
   friend class ControlHost;
 
-  CRU_DEFINE_CLASS_LOG_TAG("cru::ui::controls::Control")
+ private:
+  constexpr static auto kLogTag = "cru::ui::controls::Control";
 
  protected:
   explicit Control(std::string name);

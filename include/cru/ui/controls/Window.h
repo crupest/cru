@@ -15,7 +15,8 @@
 namespace cru::ui::controls {
 class CRU_UI_API Window
     : public LayoutControl<render::StackLayoutRenderObject> {
-  CRU_DEFINE_CLASS_LOG_TAG("cru::ui::controls::Window")
+ private:
+  constexpr static auto kLogTag = "cru::ui::controls::Window";
   friend Control;
 
  public:

@@ -9,7 +9,8 @@
 namespace cru::platform::graphics::quartz {
 class QuartzCGContextPainter : public OsxQuartzResource,
                                public virtual IPainter {
-  CRU_DEFINE_CLASS_LOG_TAG("QuartzCGContextPainter")
+ private:
+  constexpr static auto kLogTag = "QuartzCGContextPainter";
 
  public:
   explicit QuartzCGContextPainter(

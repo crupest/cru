@@ -15,7 +15,9 @@ class XcbWindow;
 class XcbXimInputMethodContext;
 
 class XcbXimInputMethodManager : public XcbResource {
-  CRU_DEFINE_CLASS_LOG_TAG("cru::platform::gui::xcb::XcbXimInputMethodManager")
+ private:
+  constexpr static auto kLogTag =
+      "cru::platform::gui::xcb::XcbXimInputMethodManager";
 
   friend XcbUiApplication;
   friend XcbXimInputMethodContext;
@@ -42,7 +44,9 @@ class XcbXimInputMethodManager : public XcbResource {
 
 class XcbXimInputMethodContext : public XcbResource,
                                  public virtual IInputMethodContext {
-  CRU_DEFINE_CLASS_LOG_TAG("cru::platform::gui::xcb::XcbXimInputMethodContext")
+ private:
+  constexpr static auto kLogTag =
+      "cru::platform::gui::xcb::XcbXimInputMethodContext";
 
   friend XcbXimInputMethodManager;
 

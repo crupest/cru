@@ -6,7 +6,8 @@
 
 namespace cru::ui::render {
 class CRU_UI_API BorderRenderObject : public SingleChildRenderObject {
-  CRU_DEFINE_CLASS_LOG_TAG("cru::ui::render::BorderRenderObject")
+ private:
+  constexpr static auto kLogTag = "cru::ui::render::BorderRenderObject";
 
  public:
   static constexpr auto kRenderObjectName = "BorderRenderObject";

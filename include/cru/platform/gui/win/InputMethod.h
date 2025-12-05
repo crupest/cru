@@ -12,7 +12,8 @@
 
 namespace cru::platform::gui::win {
 class CRU_WIN_GUI_API AutoHIMC {
-  CRU_DEFINE_CLASS_LOG_TAG("AutoHIMC")
+ private:
+  constexpr static auto kLogTag = "AutoHIMC";
 
  public:
   explicit AutoHIMC(HWND hwnd);
@@ -36,7 +37,8 @@ class CRU_WIN_GUI_API AutoHIMC {
 class CRU_WIN_GUI_API WinInputMethodContext
     : public WinNativeResource,
       public virtual IInputMethodContext {
-  CRU_DEFINE_CLASS_LOG_TAG("WinInputMethodContext")
+ private:
+  constexpr static auto kLogTag = "WinInputMethodContext";
 
  public:
   WinInputMethodContext(WinNativeWindow* window);

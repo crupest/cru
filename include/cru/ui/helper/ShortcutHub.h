@@ -94,7 +94,9 @@ struct ShortcutInfo {
 };
 
 class CRU_UI_API ShortcutHub : public Object {
-  CRU_DEFINE_CLASS_LOG_TAG("ShortcutHub")
+ private:
+  constexpr static auto kLogTag = "ShortcutHub";
+
  public:
   ShortcutHub() = default;
   ~ShortcutHub() override = default;

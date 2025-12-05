@@ -10,7 +10,10 @@
 namespace cru::platform::graphics::cairo {
 class CRU_PLATFORM_GRAPHICS_CAIRO_API CairoPainter : public CairoResource,
                                                      public virtual IPainter {
-  CRU_DEFINE_CLASS_LOG_TAG("cru::platform::graphics::cairo::CairoPainter")
+ private:
+  constexpr static auto kLogTag =
+      "cru::platform::graphics::cairo::CairoPainter";
+
  public:
   CairoPainter(CairoGraphicsFactory* factory, cairo_t* cairo, bool auto_release,
                cairo_surface_t* cairo_surface = nullptr);

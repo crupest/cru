@@ -24,7 +24,8 @@ class CRU_UI_API BadThemeResourceException : public Exception {
 };
 
 class CRU_UI_API ThemeResourceDictionary : public Object {
-  CRU_DEFINE_CLASS_LOG_TAG("ThemeResources");
+ private:
+  constexpr static auto kLogTag = "ThemeResources";
 
  public:
   static std::unique_ptr<ThemeResourceDictionary> FromFile(

@@ -28,7 +28,8 @@ struct StackChildLayoutData {
 // to min size.
 class CRU_UI_API StackLayoutRenderObject
     : public LayoutRenderObject<StackChildLayoutData> {
-  CRU_DEFINE_CLASS_LOG_TAG("cru::ui::render::StackLayoutRenderObject")
+ private:
+  constexpr static auto kLogTag = "cru::ui::render::StackLayoutRenderObject";
 
  public:
   static constexpr auto kRenderObjectName = "StackLayoutRenderObject";

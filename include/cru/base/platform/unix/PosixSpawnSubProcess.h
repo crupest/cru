@@ -16,7 +16,8 @@
 namespace cru::platform::unix {
 class PosixSpawnSubProcessImpl : public Object,
                                  public virtual IPlatformSubProcessImpl {
-  CRU_DEFINE_CLASS_LOG_TAG("PosixSpawnSubProcess")
+ private:
+  constexpr static auto kLogTag = "PosixSpawnSubProcess";
 
  public:
   explicit PosixSpawnSubProcessImpl();

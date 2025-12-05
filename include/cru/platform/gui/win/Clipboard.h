@@ -5,7 +5,9 @@
 
 namespace cru::platform::gui::win {
 class WinClipboard : public WinNativeResource, public virtual IClipboard {
-  CRU_DEFINE_CLASS_LOG_TAG("WinClipboard")
+ private:
+  constexpr static auto kLogTag = "WinClipboard";
+
  public:
   explicit WinClipboard(WinUiApplication* application);
 

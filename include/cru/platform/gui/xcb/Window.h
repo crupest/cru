@@ -15,7 +15,8 @@ class XcbCursor;
 class XcbXimInputMethodContext;
 
 class XcbWindow : public XcbResource, public virtual INativeWindow {
-  CRU_DEFINE_CLASS_LOG_TAG("cru::platform::gui::xcb::XcbWindow")
+ private:
+  constexpr static auto kLogTag = "cru::platform::gui::xcb::XcbWindow";
 
   friend XcbUiApplication;
 

@@ -8,7 +8,8 @@
 namespace cru::platform::gui::win {
 class CRU_WIN_GUI_API WinCursor : public WinNativeResource,
                                   public virtual ICursor {
-  CRU_DEFINE_CLASS_LOG_TAG("WinCursor")
+ private:
+  constexpr static auto kLogTag = "WinCursor";
 
  public:
   WinCursor(HCURSOR handle, bool auto_destroy);

@@ -15,7 +15,9 @@ namespace cru::platform::gui::sdl {
 class SdlWindow;
 
 class SdlOpenGLRenderer {
-  CRU_DEFINE_CLASS_LOG_TAG("cru::platform::gui::sdl::SdlOpenGLRenderer")
+ private:
+  constexpr static auto kLogTag = "cru::platform::gui::sdl::SdlOpenGLRenderer";
+
  public:
   SdlOpenGLRenderer(SdlWindow* window, int width, int height);
   ~SdlOpenGLRenderer();

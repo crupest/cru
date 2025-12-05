@@ -10,7 +10,8 @@
 
 namespace cru::ui::controls {
 class CRU_UI_API ControlHost : public Object {
-  CRU_DEFINE_CLASS_LOG_TAG("cru::ui::controls::ControlHost")
+ private:
+  constexpr static auto kLogTag = "cru::ui::controls::ControlHost";
   friend Control;
 
  public:

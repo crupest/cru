@@ -17,7 +17,8 @@ class SdlUiApplication;
 class SdlInputMethodContext;
 
 class SdlWindow : public SdlResource, public virtual INativeWindow {
-  CRU_DEFINE_CLASS_LOG_TAG("cru::platform::gui::xcb::SdlWindow")
+ private:
+  constexpr static auto kLogTag = "cru::platform::gui::xcb::SdlWindow";
 
   friend SdlUiApplication;
 

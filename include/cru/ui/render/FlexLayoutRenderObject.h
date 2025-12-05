@@ -93,7 +93,8 @@ struct FlexChildLayoutData {
 //
 class CRU_UI_API FlexLayoutRenderObject
     : public LayoutRenderObject<FlexChildLayoutData> {
-  CRU_DEFINE_CLASS_LOG_TAG("cru::ui::render::FlexLayoutRenderObject")
+ private:
+  constexpr static auto kLogTag = "cru::ui::render::FlexLayoutRenderObject";
 
  public:
   static constexpr auto kRenderObjectName = "FlexLayoutRenderObject";

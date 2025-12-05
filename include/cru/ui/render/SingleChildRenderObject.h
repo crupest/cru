@@ -3,7 +3,8 @@
 
 namespace cru::ui::render {
 class CRU_UI_API SingleChildRenderObject : public RenderObject {
-  CRU_DEFINE_CLASS_LOG_TAG("cru::ui::render::SingleChildRenderObject")
+ private:
+  constexpr static auto kLogTag = "cru::ui::render::SingleChildRenderObject";
 
  public:
   SingleChildRenderObject(std::string name);

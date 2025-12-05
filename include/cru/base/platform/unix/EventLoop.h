@@ -46,7 +46,9 @@ class UnixTimerFile : public Object {
 };
 
 class UnixEventLoop : public Object {
-  CRU_DEFINE_CLASS_LOG_TAG("cru::platform::unix::UnixEventLoop")
+ private:
+  constexpr static auto kLogTag = "cru::platform::unix::UnixEventLoop";
+
  public:
   using PollEvents = decltype(std::declval<pollfd>().events);
   using PollRevents = decltype(std::declval<pollfd>().revents);

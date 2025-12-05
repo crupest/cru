@@ -13,7 +13,8 @@ namespace cru::platform::win {
 class CRU_BASE_API Win32SubProcessImpl
     : public Object,
       public virtual IPlatformSubProcessImpl {
-  CRU_DEFINE_CLASS_LOG_TAG("cru::platform::win::Win32SubProcessImpl")
+ private:
+  constexpr static auto kLogTag = "cru::platform::win::Win32SubProcessImpl";
 
  public:
   explicit Win32SubProcessImpl();

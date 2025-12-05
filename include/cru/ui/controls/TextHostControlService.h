@@ -70,7 +70,8 @@ class TextControlMovePattern {
 };
 
 class CRU_UI_API TextHostControlService : public Object {
-  CRU_DEFINE_CLASS_LOG_TAG("cru::ui::controls::TextControlService")
+ private:
+  constexpr static auto kLogTag = "cru::ui::controls::TextControlService";
 
  public:
   TextHostControlService(Control* control);
