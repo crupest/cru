@@ -42,6 +42,11 @@ TextBox::TextBox()
       theme_manager->GetResourceStyleRuleSet("textbox.style"));
 }
 
+TextBox::~TextBox() {
+  RemoveFromParent();
+  RemoveAllChild();
+}
+
 render::RenderObject* TextBox::GetRenderObject() {
   return border_render_object_.get();
 }

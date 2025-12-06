@@ -11,6 +11,7 @@ class CRU_UI_API Container
 
  public:
   Container();
+  ~Container();
 
  public:
   bool IsBorderEnabled() {

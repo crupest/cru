@@ -1,5 +1,4 @@
 #include "cru/platform/gui/sdl/Window.h"
-#include "cru/base/Base.h"
 #include "cru/platform/Base.h"
 #include "cru/platform/GraphicsBase.h"
 #include "cru/platform/graphics/NullPainter.h"
@@ -21,9 +20,16 @@
 
 namespace cru::platform::gui::sdl {
 
+namespace {
+bool IsWayland() {
+  return SDL_GetCurrentVideoDriver() == std::string_view("wayland");
+}
+}  // namespace
+
 SdlWindow::SdlWindow(SdlUiApplication* application)
     : application_(application),
       sdl_window_(nullptr),
+      sdl_is_popup_(false),
       sdl_window_id_(0),
       client_rect_(100, 100, 400, 200),
       parent_(nullptr) {
@@ -237,12 +243,22 @@ void SdlWindow::DoCreateWindow() {
   flags |= SDL_WINDOW_OPENGL;
 #endif
 
-  if (style_.Has(WindowStyleFlags::NoCaptionAndBorder)) {
+  auto no_border = style_.Has(WindowStyleFlags::NoCaptionAndBorder);
+  if (no_border) {
     flags |= SDL_WINDOW_BORDERLESS;
   }
 
-  sdl_window_ = SDL_CreateWindow(title_.c_str(), client_rect_.width,
-                                 client_rect_.height, flags);
+  if (no_border && parent_ && parent_->sdl_window_) {
+    flags |= SDL_WINDOW_POPUP_MENU;
+    sdl_window_ = SDL_CreatePopupWindow(parent_->sdl_window_, client_rect_.left,
+                                        client_rect_.top, client_rect_.width,
+                                        client_rect_.height, flags);
+    sdl_is_popup_ = true;
+  } else {
+    sdl_window_ = SDL_CreateWindow(title_.c_str(), client_rect_.width,
+                                   client_rect_.height, flags);
+    sdl_is_popup_ = false;
+  }
 
   if (!sdl_window_) {
     throw SdlException("Failed to create window.");
@@ -255,8 +271,10 @@ void SdlWindow::DoCreateWindow() {
 
   CreateEvent_.Raise(nullptr);
 
-  CheckSdlReturn(
-      SDL_SetWindowPosition(sdl_window_, client_rect_.left, client_rect_.top));
+  if (!IsWayland() || sdl_is_popup_) {
+    CheckSdlReturn(SDL_SetWindowPosition(sdl_window_, client_rect_.left,
+                                         client_rect_.top));
+  }
 
   DoUpdateParent();
   DoUpdateCursor();
@@ -270,8 +288,12 @@ void SdlWindow::DoCreateWindow() {
 
 void SdlWindow::DoUpdateClientRect() {
   assert(sdl_window_);
-  CheckSdlReturn(
-      SDL_SetWindowPosition(sdl_window_, client_rect_.left, client_rect_.top));
+
+  if (!IsWayland() || sdl_is_popup_) {
+    CheckSdlReturn(SDL_SetWindowPosition(sdl_window_, client_rect_.left,
+                                         client_rect_.top));
+  }
+
   CheckSdlReturn(
       SDL_SetWindowSize(sdl_window_, client_rect_.width, client_rect_.height));
   CheckSdlReturn(SDL_SyncWindow(sdl_window_));

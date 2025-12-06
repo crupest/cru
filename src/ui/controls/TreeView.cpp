@@ -68,6 +68,11 @@ TreeView::TreeView()
     : Control(kControlType),
       root_item_(this, nullptr, render_object_.GetRootItem()) {}
 
+TreeView::~TreeView() {
+  RemoveFromParent();
+  RemoveAllChild();
+}
+
 void TreeView::OnChildRemoved(Control* control, Index index) {
   root_item_.TraverseDescendants([control](TreeViewItem* item) {
     if (item->GetControl() == control) {

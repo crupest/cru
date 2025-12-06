@@ -57,6 +57,7 @@ class CRU_UI_API TreeView : public Control {
   constexpr static auto kControlType = "TreeView";
 
   TreeView();
+  ~TreeView();
 
   render::TreeRenderObject* GetRenderObject() override { return &render_object_; }
 

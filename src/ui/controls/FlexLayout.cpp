@@ -4,6 +4,11 @@ namespace cru::ui::controls {
 FlexLayout::FlexLayout()
     : LayoutControl<render::FlexLayoutRenderObject>(kControlName) {}
 
+FlexLayout::~FlexLayout() {
+  RemoveFromParent();
+  RemoveAllChild();
+}
+
 FlexMainAlignment FlexLayout::GetContentMainAlign() {
   return GetContainerRenderObject()->GetContentMainAlign();
 }

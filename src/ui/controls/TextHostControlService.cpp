@@ -695,7 +695,7 @@ void TextHostControlService::OpenContextMenu(const Point& position,
                                              ContextMenuItem items) {
   CruLogDebug(kLogTag, "Open context menu.");
   if (!context_menu_) {
-    context_menu_.reset(new components::PopupMenu());
+    context_menu_.reset(new components::PopupMenu(control_));
   }
   auto menu = context_menu_->GetMenu();
   menu->ClearItems();

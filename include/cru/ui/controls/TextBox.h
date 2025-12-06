@@ -22,6 +22,7 @@ class CRU_UI_API TextBox : public Control,
   static constexpr auto kControlName = "TextBox";
 
   TextBox();
+  ~TextBox();
 
   render::RenderObject* GetRenderObject() override;
 

@@ -17,7 +17,10 @@ CheckBox::CheckBox()
       [this](const helper::ClickEventArgs&) { Toggle(); });
 }
 
-CheckBox::~CheckBox() {}
+CheckBox::~CheckBox() {
+  RemoveFromParent();
+  RemoveAllChild();
+}
 
 void CheckBox::SetChecked(bool checked) {
   checked_ = checked;

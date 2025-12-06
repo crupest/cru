@@ -13,7 +13,10 @@ Button::Button()
   GetStyleRuleSet()->SetParent(std::move(default_button_style));
 }
 
-Button::~Button() = default;
+Button::~Button() {
+  RemoveFromParent();
+  RemoveAllChild();
+}
 
 void Button::ApplyBorderStyle(const style::ApplyBorderStyleInfo& style) {
   GetContainerRenderObject()->ApplyBorderStyle(style);

@@ -26,6 +26,7 @@ class CRU_UI_API TextBlock : public Control,
 
  public:
   TextBlock();
+  ~TextBlock();
 
   render::RenderObject* GetRenderObject() override;
 

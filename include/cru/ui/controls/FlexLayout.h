@@ -17,6 +17,7 @@ class CRU_UI_API FlexLayout
 
  public:
   FlexLayout();
+  ~FlexLayout();
 
   FlexMainAlignment GetContentMainAlign();
   void SetContentMainAlign(FlexMainAlignment value);

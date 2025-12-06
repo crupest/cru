@@ -11,5 +11,6 @@ class CRU_UI_API StackLayout
   static constexpr auto kControlName = "StackLayout";
 
   StackLayout();
+  ~StackLayout();
 };
 }  // namespace cru::ui::controls

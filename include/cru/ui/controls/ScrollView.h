@@ -9,5 +9,6 @@ class CRU_UI_API ScrollView
   static constexpr auto kControlName = "ScrollView";
 
   ScrollView();
+  ~ScrollView();
 };
 }  // namespace cru::ui::controls

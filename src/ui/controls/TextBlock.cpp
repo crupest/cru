@@ -22,6 +22,11 @@ TextBlock::TextBlock() : Control(kControlName) {
   service_->SetEditable(false);
 }
 
+TextBlock::~TextBlock() {
+  RemoveFromParent();
+  RemoveAllChild();
+}
+
 render::RenderObject* TextBlock::GetRenderObject() {
   return text_render_object_.get();
 }

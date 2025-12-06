@@ -4,4 +4,10 @@
 namespace cru::ui::controls {
 Container::Container()
     : SingleChildControl<render::BorderRenderObject>(kControlName) {}
+
+Container::~Container() {
+  RemoveFromParent();
+  RemoveAllChild();
+}
+
 }  // namespace cru::ui::controls

@@ -114,10 +114,6 @@ SdlOpenGLRenderer::SdlOpenGLRenderer(SdlWindow* window, int width, int height) {
 }
 
 SdlOpenGLRenderer::~SdlOpenGLRenderer() {
-  glad_gl_context_.DeleteBuffers(1, &gl_vertex_buffer_);
-  glad_gl_context_.DeleteBuffers(1, &gl_element_buffer_);
-  glad_gl_context_.DeleteTextures(1, &gl_texture_);
-
   if (cairo_) {
     cairo_destroy(cairo_);
     cairo_ = nullptr;

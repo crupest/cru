@@ -78,8 +78,7 @@ void Menu::AddTextItemAt(std::string text, Index index,
 PopupMenu::PopupMenu(controls::Control* attached_control)
     : attached_control_(attached_control) {
   menu_.SetOnItemClick([this](Index) { popup_->GetNativeWindow()->Close(); });
-  popup_.reset(controls::Window::CreatePopup());
-  popup_->SetAttachedControl(attached_control);
+  popup_.reset(controls::Window::CreatePopup(attached_control));
   popup_->InsertChildAt(menu_.GetRootControl(), 0);
 }
 
