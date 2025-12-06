@@ -322,13 +322,15 @@ NativeKeyEventArgs ConvertKeyEvent(const SDL_KeyboardEvent& event) {
 
 std::optional<SDL_WindowID> GetEventWindowId(const SDL_Event& event) {
   switch (event.type) {
-    case SDL_EVENT_WINDOW_MOVED:
-    case SDL_EVENT_WINDOW_RESIZED:
     case SDL_EVENT_WINDOW_SHOWN:
     case SDL_EVENT_WINDOW_HIDDEN:
+    case SDL_EVENT_WINDOW_EXPOSED:
+    case SDL_EVENT_WINDOW_MOVED:
+    case SDL_EVENT_WINDOW_RESIZED:
     case SDL_EVENT_WINDOW_MINIMIZED:
     case SDL_EVENT_WINDOW_FOCUS_GAINED:
     case SDL_EVENT_WINDOW_FOCUS_LOST:
+    case SDL_EVENT_WINDOW_CLOSE_REQUESTED:
     case SDL_EVENT_WINDOW_MOUSE_ENTER:
     case SDL_EVENT_WINDOW_MOUSE_LEAVE:
     case SDL_EVENT_WINDOW_DESTROYED:
@@ -358,9 +360,14 @@ bool SdlWindow::HandleEvent(const SDL_Event* event) {
       client_rect_.top = event->window.data2;
       return true;
     }
+    case SDL_EVENT_WINDOW_EXPOSED: {
+      RequestRepaint();
+      return true;
+    }
     case SDL_EVENT_WINDOW_RESIZED: {
       client_rect_.width = event->window.data1;
       client_rect_.height = event->window.data2;
+      RequestRepaint();
 #ifdef __unix
       int width, height;
       CheckSdlReturn(SDL_GetWindowSizeInPixels(sdl_window_, &width, &height));
@@ -387,6 +394,10 @@ bool SdlWindow::HandleEvent(const SDL_Event* event) {
     }
     case SDL_EVENT_WINDOW_FOCUS_LOST: {
       FocusEvent_.Raise(FocusChangeType::Lose);
+      return true;
+    }
+    case SDL_EVENT_WINDOW_CLOSE_REQUESTED: {
+      Close();
       return true;
     }
     case SDL_EVENT_WINDOW_MOUSE_ENTER: {

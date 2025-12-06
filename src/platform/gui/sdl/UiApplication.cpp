@@ -65,6 +65,10 @@ int SdlUiApplication::Run() {
       break;
     }
 
+    // char buf[512];
+    // SDL_GetEventDescription(&event, buf, sizeof(buf) / sizeof(*buf));
+    // CruLogDebug(kLogTag, "{}", buf);
+
     DispatchEvent(event);
 
     delete_later_pool_.Clean();

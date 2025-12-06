@@ -20,6 +20,9 @@ class SdlClipboard;
 class SdlUiApplication : public SdlResource, public virtual IUiApplication {
   friend SdlWindow;
 
+ private:
+  constexpr static auto kLogTag = "cru::platform::gui::sdl::SdlUiApplication";
+
  public:
   explicit SdlUiApplication(graphics::IGraphicsFactory* graphics_factory,
                             bool release_graphics_factory);
