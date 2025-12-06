@@ -1,7 +1,6 @@
 #include "cru/ui/render/RenderObject.h"
 
 #include "cru/base/Base.h"
-#include "cru/base/log/Logger.h"
 #include "cru/platform/GraphicsBase.h"
 #include "cru/ui/controls/Control.h"
 #include "cru/ui/controls/ControlHost.h"
@@ -82,9 +81,6 @@ void RenderObject::SetMaxSize(const MeasureSize& max_size) {
 }
 
 void RenderObject::Measure(const MeasureRequirement& requirement) {
-  CruLogDebug(kLogTag, "{} Measure begins, requirement {}.",
-              this->GetDebugPathInTree(), requirement);
-
   if (layout_valid_ && requirement == last_measure_requirement_) {
     return;
   }
@@ -95,9 +91,6 @@ void RenderObject::Measure(const MeasureRequirement& requirement) {
   }
 
   last_measure_requirement_ = requirement;
-
-  CruLogDebug(kLogTag, "{} Measure ends, result size: {}.",
-              this->GetDebugPathInTree(), measure_result_size_);
 }
 
 void RenderObject::Layout(const Point& offset) {
@@ -105,9 +98,6 @@ void RenderObject::Layout(const Point& offset) {
 }
 
 void RenderObject::Layout(const Rect& rect) {
-  CruLogDebug(kLogTag, "{} Layout begins, rect: {}.",
-              this->GetDebugPathInTree(), rect);
-
   offset_ = rect.GetLeftTop();
   auto new_size = rect.GetSize();
   if (size_ != new_size) {
@@ -117,8 +107,6 @@ void RenderObject::Layout(const Rect& rect) {
 
   OnLayoutCore(rect);
   layout_valid_ = true;
-
-  CruLogDebug(kLogTag, "{} Layout ends.", this->GetDebugPathInTree());
 }
 
 Thickness RenderObject::GetTotalSpaceThickness() { return margin_ + padding_; }

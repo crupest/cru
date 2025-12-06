@@ -38,6 +38,21 @@ void main()
 {
     FragColor = texture(ourTexture, TexCoord);
 })";
+
+class SdlOpenGLCairoRendererPainter : public graphics::cairo::CairoPainter {
+ public:
+  SdlOpenGLCairoRendererPainter(cairo_t* cairo, cairo_surface_t* surface,
+                                SdlOpenGLRenderer* renderer)
+      : CairoPainter(nullptr, cairo, false, surface), renderer_(renderer) {}
+
+  void EndDraw() override {
+    CairoPainter::EndDraw();
+    renderer_->Present();
+  }
+
+ private:
+  SdlOpenGLRenderer* renderer_;
+};
 }  // namespace
 
 SdlOpenGLRenderer::SdlOpenGLRenderer(SdlWindow* window, int width, int height) {
@@ -166,9 +181,8 @@ std::unique_ptr<graphics::IPainter> SdlOpenGLRenderer::BeginPaint() {
   assert(cairo_surface_);
   assert(gl_texture_);
 
-  auto painter = std::make_unique<graphics::cairo::CairoPainter>(
-      nullptr, cairo_, false, cairo_surface_);
-  painter->SetEndDrawCallback([this] { Present(); });
+  auto painter = std::make_unique<SdlOpenGLCairoRendererPainter>(
+      cairo_, cairo_surface_, this);
   return painter;
 }
 

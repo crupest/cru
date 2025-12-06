@@ -1,5 +1,4 @@
 #include "cru/platform/graphics/cairo/CairoPainter.h"
-#include "cru/base/log/Logger.h"
 #include "cru/platform/graphics/cairo/Base.h"
 #include "cru/platform/graphics/cairo/CairoBrush.h"
 #include "cru/platform/graphics/cairo/CairoGeometry.h"
@@ -236,20 +235,13 @@ void CairoPainter::PopState() {
 
 void CairoPainter::EndDraw() {
   if (cairo_surface_ != nullptr) {
-    CruLogDebug(kLogTag, "Flush cairo painter.");
     cairo_surface_flush(cairo_surface_);
     cairo_device_t* device = cairo_surface_get_device(cairo_surface_);
     if (device) {
       cairo_device_flush(device);
     }
-
-    if (end_draw_callback_) end_draw_callback_();
   }
   valid_ = false;
-}
-
-void CairoPainter::SetEndDrawCallback(std::function<void()> action) {
-  end_draw_callback_ = std::move(action);
 }
 
 void CairoPainter::CheckValidation() {
