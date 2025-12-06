@@ -22,8 +22,6 @@ IconButton::IconButton(std::string_view icon_svg_path_data_string,
   SetIconWithSvgPathDataString(icon_svg_path_data_string, view_port);
 }
 
-IconButton::~IconButton() {}
-
 void IconButton::SetIconFillColor(const Color& color) {
   SetIconFillBrush(platform::gui::IUiApplication::GetInstance()
                        ->GetGraphicsFactory()

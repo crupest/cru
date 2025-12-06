@@ -8,5 +8,6 @@
 build
 build-clang
 build-dynamic
+build-asan
 
 compile_commands.json

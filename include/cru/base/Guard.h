@@ -46,26 +46,21 @@ inline AutoFreePtr<T> MakeAutoFree(T* ptr) {
 template <typename T, typename Destructor>
 class AutoDestruct {
  public:
-  AutoDestruct() : value_(std::nullopt), auto_destruct_(false) {}
+  AutoDestruct() : value_(std::nullopt) {}
 
-  explicit AutoDestruct(T value, bool auto_destruct = true)
-      : value_(std::move(value)), auto_destruct_(auto_destruct) {}
+  explicit AutoDestruct(T value) : value_(std::move(value)) {}
 
   CRU_DELETE_COPY(AutoDestruct)
 
   AutoDestruct(AutoDestruct&& other) noexcept
-      : value_(std::move(other.value_)), auto_destruct_(other.auto_destruct_) {
+      : value_(std::move(other.value_)) {
     other.value_ = std::nullopt;
-    other.auto_destruct_ = false;
   }
 
   AutoDestruct& operator=(AutoDestruct&& other) noexcept {
     if (this != &other) {
       DoDestruct();
-      value_ = other.value_;
-      auto_destruct_ = other.auto_destruct_;
-      other.value_ = std::nullopt;
-      other.auto_destruct_ = false;
+      value_.swap(other.value_);
     }
     return *this;
   }
@@ -96,7 +91,6 @@ class AutoDestruct {
     CheckValid();
     auto value = std::move(*value_);
     value_ = std::nullopt;
-    auto_destruct_ = false;
     return value;
   }
 
@@ -109,13 +103,13 @@ class AutoDestruct {
 
  private:
   void DoDestruct() {
-    if (auto_destruct_ && value_) {
+    if (value_) {
       Destructor{}(*value_);
+      value_ = std::nullopt;
     }
   }
 
  private:
   std::optional<T> value_;
-  bool auto_destruct_;
 };
 }  // namespace cru

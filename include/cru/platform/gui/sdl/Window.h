@@ -104,6 +104,7 @@ class SdlWindow : public SdlResource, public virtual INativeWindow {
  private:
   SdlUiApplication* application_;
   SDL_Window* sdl_window_;
+  bool sdl_is_popup_;
   SDL_WindowID sdl_window_id_;
   Rect client_rect_;
   SdlWindow* parent_;

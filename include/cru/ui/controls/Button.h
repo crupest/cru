@@ -14,7 +14,6 @@ class CRU_UI_API Button : public SingleChildControl<render::BorderRenderObject>,
 
  public:
   Button();
-  ~Button() override;
 
  public:
   helper::ClickState GetClickState() override {

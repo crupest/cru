@@ -24,8 +24,9 @@ class CRU_UI_API Window
 
   Window();
 
-  static Window* CreatePopup();
+  static Window* CreatePopup(Control* attached_control);
 
+  Control* GetAttachedControl();
   void SetAttachedControl(Control* control);
 
   platform::gui::INativeWindow* GetNativeWindow();
@@ -36,6 +37,7 @@ class CRU_UI_API Window
   std::unique_ptr<ControlHost> control_host_;
 
   Control* attached_control_;
+  EventHandlerRevokerGuard parent_window_guard_;
 
   EventHandlerRevokerListGuard
       gain_focus_on_create_and_destroy_when_lose_focus_event_guard_;

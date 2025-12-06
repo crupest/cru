@@ -21,7 +21,6 @@ class CRU_UI_API IconButton : public Control,
  public:
   IconButton();
   IconButton(std::string_view icon_svg_path_data_string, const Rect& view_port);
-  ~IconButton() override;
 
   render::RenderObject* GetRenderObject() override {
     return &container_render_object_;

@@ -2,6 +2,7 @@
 #include "cru/platform/gui/UiApplication.h"
 #include "cru/platform/gui/Window.h"
 #include "cru/ui/Base.h"
+#include "cru/ui/controls/Control.h"
 #include "cru/ui/controls/ControlHost.h"
 
 #include <cassert>
@@ -15,16 +16,33 @@ Window::Window()
   GetContainerRenderObject()->SetDefaultVerticalAlignment(Alignment::Stretch);
 }
 
-Window* Window::CreatePopup() {
+Window* Window::CreatePopup(Control* attached_control) {
   auto window = new Window();
   window->GetNativeWindow()->SetStyleFlag(
       platform::gui::WindowStyleFlags::NoCaptionAndBorder);
+  window->SetAttachedControl(attached_control);
   window->SetGainFocusOnCreateAndDestroyWhenLoseFocus(true);
   return window;
 }
 
+Control* Window::GetAttachedControl() { return attached_control_; }
+
 void Window::SetAttachedControl(Control* control) {
   attached_control_ = control;
+  if (control) {
+    if (auto control_host = control->GetControlHost()) {
+      control_host_->GetNativeWindow()->SetParent(
+          control_host->GetNativeWindow());
+    }
+    parent_window_guard_.Reset(control->ControlHostChangeEvent()->AddHandler(
+        [this](const ControlHostChangeEventArgs& args) {
+          control_host_->GetNativeWindow()->SetParent(
+              args.new_host ? args.new_host->GetNativeWindow() : nullptr);
+        }));
+  } else {
+    control_host_->GetNativeWindow()->SetParent(nullptr);
+    parent_window_guard_.Reset();
+  }
 }
 
 platform::gui::INativeWindow* Window::GetNativeWindow() {

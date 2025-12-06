@@ -22,6 +22,11 @@ ControlHost::ControlHost(Control* root_control)
 ControlHost::~ControlHost() {
   root_control_->TraverseDescendents(
       [this](Control* control) { control->host_ = nullptr; }, true);
+  root_control_->TraverseDescendents(
+      [this](Control* control) {
+        control->ControlHostChangeEvent_.Raise({this, nullptr});
+      },
+      true);
 }
 
 platform::gui::INativeWindow* ControlHost::GetNativeWindow() {

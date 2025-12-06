@@ -15,7 +15,6 @@ class CRU_UI_API CheckBox : public Control,
   static constexpr auto kControlName = "CheckBox";
 
   CheckBox();
-  ~CheckBox() override;
 
   render::RenderObject* GetRenderObject() override {
     return &container_render_object_;

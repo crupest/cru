@@ -64,5 +64,7 @@ int main() {
   window.GetNativeWindow()->SetVisibility(
       cru::platform::gui::WindowVisibilityType::Show);
 
+  application->SetQuitOnAllWindowClosed(true);
+
   return application->Run();
 }

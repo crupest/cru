@@ -12,6 +12,11 @@
 
 namespace cru::ui::controls {
 
+struct ControlHostChangeEventArgs {
+  ControlHost* old_host;
+  ControlHost* new_host;
+};
+
 /**
  *  \remarks If you want to write a new control. You should override following
  * methods:
@@ -142,6 +147,8 @@ class CRU_UI_API Control : public Object,
   CRU_DEFINE_ROUTED_EVENT(KeyUp, events::KeyEventArgs)
   CRU_DEFINE_ROUTED_EVENT(GainFocus, events::FocusChangeEventArgs)
   CRU_DEFINE_ROUTED_EVENT(LoseFocus, events::FocusChangeEventArgs)
+
+  CRU_DEFINE_EVENT(ControlHostChange, const ControlHostChangeEventArgs&)
 
   //*************** region: tree ***************
  protected:

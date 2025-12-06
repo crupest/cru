@@ -111,6 +111,14 @@ void Control::InsertChildAt(Control* control, Index index) {
   OnChildInserted(control, index);
 
   if (host_) {
+    control->TraverseDescendents(
+        [this](Control* control) {
+          control->ControlHostChangeEvent_.Raise({nullptr, host_});
+        },
+        true);
+  }
+
+  if (host_) {
     host_->ScheduleRelayout();
   }
 }
@@ -130,6 +138,14 @@ void Control::RemoveChildAt(Index index) {
   }
   control->OnParentChanged(this, nullptr);
   OnChildRemoved(control, index);
+
+  if (host_) {
+    control->TraverseDescendents(
+        [this](Control* control) {
+          control->ControlHostChangeEvent_.Raise({host_, nullptr});
+        },
+        true);
+  }
 
   if (host_) {
     host_->ScheduleRelayout();

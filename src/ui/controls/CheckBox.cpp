@@ -17,8 +17,6 @@ CheckBox::CheckBox()
       [this](const helper::ClickEventArgs&) { Toggle(); });
 }
 
-CheckBox::~CheckBox() {}
-
 void CheckBox::SetChecked(bool checked) {
   checked_ = checked;
   checked_change_event_.Raise(checked);
