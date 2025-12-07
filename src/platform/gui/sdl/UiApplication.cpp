@@ -47,29 +47,36 @@ SdlUiApplication::~SdlUiApplication() {
 
 int SdlUiApplication::Run() {
   while (true) {
-    if (auto result = timers_.Update(std::chrono::steady_clock::now())) {
-      result->data();
-      continue;
-    }
-
     auto timeout = timers_.NextTimeout(std::chrono::steady_clock::now());
 
     SDL_Event event;
+    bool has_event = false;
     if (timeout) {
-      SDL_WaitEventTimeout(&event, timeout->count());
+      if (*timeout == std::chrono::milliseconds::zero()) {
+        has_event = SDL_PollEvent(&event);
+      } else {
+        has_event = SDL_WaitEventTimeout(&event, timeout->count());
+      }
     } else {
       CheckSdlReturn(SDL_WaitEvent(&event));
+      has_event = true;
     }
 
-    if (event.type == SDL_EVENT_QUIT) {
-      break;
+    if (has_event) {
+      if (event.type == SDL_EVENT_QUIT) {
+        break;
+      }
+
+      // char buf[512];
+      // SDL_GetEventDescription(&event, buf, sizeof(buf) / sizeof(*buf));
+      // CruLogDebug(kLogTag, "{}", buf);
+
+      DispatchEvent(event);
+    } else {
+      if (auto result = timers_.Update(std::chrono::steady_clock::now())) {
+        result->data();
+      }
     }
-
-    // char buf[512];
-    // SDL_GetEventDescription(&event, buf, sizeof(buf) / sizeof(*buf));
-    // CruLogDebug(kLogTag, "{}", buf);
-
-    DispatchEvent(event);
 
     delete_later_pool_.Clean();
   }

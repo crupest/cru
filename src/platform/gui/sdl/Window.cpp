@@ -280,7 +280,7 @@ void SdlWindow::DoCreateWindow() {
                                          client_rect_.top));
   }
 
-  if (!IsWayland() || !sdl_is_popup_) {
+  if (!sdl_is_popup_) {
     CheckSdlReturn(SDL_SetWindowParent(
         sdl_window_, parent_ == nullptr ? nullptr : parent_->sdl_window_));
   }

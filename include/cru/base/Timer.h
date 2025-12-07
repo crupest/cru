@@ -30,19 +30,23 @@ class TimerRegistry : public Object {
           repeat(repeat),
           data(std::move(data)) {}
 
+    std::chrono::steady_clock::time_point NextTrigger() const {
+      return interval == std::chrono::milliseconds::zero()
+                 ? last_check
+                 : last_check - (last_check - created) % interval + interval;
+    }
+
     std::chrono::milliseconds NextTimeout(
         std::chrono::steady_clock::time_point now) const {
-      return interval == std::chrono::milliseconds::zero()
+      auto next_trigger = NextTrigger();
+      return now >= next_trigger
                  ? std::chrono::milliseconds::zero()
                  : std::chrono::duration_cast<std::chrono::milliseconds>(
-                       interval - (now - created) % interval);
+                       next_trigger - now);
     }
 
     bool Update(std::chrono::steady_clock::time_point now) {
-      auto next_trigger =
-          interval == std::chrono::milliseconds::zero()
-              ? last_check
-              : last_check - (last_check - created) % interval + interval;
+      auto next_trigger = NextTrigger();
       if (now >= next_trigger) {
         last_check = next_trigger;
         return true;
