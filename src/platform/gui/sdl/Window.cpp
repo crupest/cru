@@ -101,20 +101,17 @@ void SdlWindow::SetVisibility(WindowVisibilityType visibility) {
   if (visibility == WindowVisibilityType::Hide) {
     if (sdl_window_) {
       CheckSdlReturn(SDL_HideWindow(sdl_window_));
-      CheckSdlReturn(SDL_SyncWindow(sdl_window_));
     }
   } else if (visibility == WindowVisibilityType::Minimize) {
     if (!sdl_window_) {
       DoCreateWindow();
     }
     CheckSdlReturn(SDL_MinimizeWindow(sdl_window_));
-    CheckSdlReturn(SDL_SyncWindow(sdl_window_));
   } else {
     if (!sdl_window_) {
       DoCreateWindow();
     }
     CheckSdlReturn(SDL_ShowWindow(sdl_window_));
-    CheckSdlReturn(SDL_SyncWindow(sdl_window_));
   }
 }
 
@@ -149,7 +146,6 @@ void SdlWindow::SetWindowRect(const Rect& rect) {
 bool SdlWindow::RequestFocus() {
   if (!sdl_window_) return false;
   auto result = SDL_RaiseWindow(sdl_window_);
-  CheckSdlReturn(SDL_SyncWindow(sdl_window_));
   return result;
 }
 
@@ -184,7 +180,6 @@ void SdlWindow::SetCursor(std::shared_ptr<ICursor> cursor) {
 void SdlWindow::SetToForeground() {
   SetVisibility(WindowVisibilityType::Show);
   CheckSdlReturn(SDL_RaiseWindow(sdl_window_));
-  CheckSdlReturn(SDL_SyncWindow(sdl_window_));
 }
 
 void SdlWindow::RequestRepaint() {
@@ -252,10 +247,13 @@ void SdlWindow::DoCreateWindow() {
   }
 
   if (no_border && parent_ && parent_->sdl_window_) {
+    auto parent_position = parent_->GetClientRect().GetLeftTop();
+
     flags |= SDL_WINDOW_POPUP_MENU;
-    sdl_window_ = SDL_CreatePopupWindow(parent_->sdl_window_, client_rect_.left,
-                                        client_rect_.top, client_rect_.width,
-                                        client_rect_.height, flags);
+    sdl_window_ = SDL_CreatePopupWindow(
+        parent_->sdl_window_, client_rect_.left - parent_position.x,
+        client_rect_.top - parent_position.y, client_rect_.width,
+        client_rect_.height, flags);
     sdl_is_popup_ = true;
   } else {
     sdl_window_ = SDL_CreateWindow(title_.c_str(), client_rect_.width,
@@ -277,8 +275,13 @@ void SdlWindow::DoCreateWindow() {
   CreateEvent_.Raise(nullptr);
 
   if (!IsWayland() || sdl_is_popup_) {
-    CheckSdlReturn(SDL_SetWindowPosition(sdl_window_, client_rect_.left,
-                                         client_rect_.top));
+    Point parent_position{};
+    if (parent_) {
+      parent_position = parent_->GetClientRect().GetLeftTop();
+    }
+    CheckSdlReturn(SDL_SetWindowPosition(sdl_window_,
+                                         client_rect_.left - parent_position.x,
+                                         client_rect_.top - parent_position.y));
   }
 
   if (!sdl_is_popup_) {
@@ -313,8 +316,13 @@ void SdlWindow::DoUpdateClientRect() {
   assert(sdl_window_);
 
   if (!IsWayland() || sdl_is_popup_) {
-    CheckSdlReturn(SDL_SetWindowPosition(sdl_window_, client_rect_.left,
-                                         client_rect_.top));
+    Point parent_position{};
+    if (parent_) {
+      parent_position = parent_->GetClientRect().GetLeftTop();
+    }
+    CheckSdlReturn(SDL_SetWindowPosition(sdl_window_,
+                                         client_rect_.left - parent_position.x,
+                                         client_rect_.top - parent_position.y));
   } else {
     CruLogWarn(kLogTag,
                "Wayland doesn't support set position of non-popup window.");
@@ -322,27 +330,23 @@ void SdlWindow::DoUpdateClientRect() {
 
   CheckSdlReturn(
       SDL_SetWindowSize(sdl_window_, client_rect_.width, client_rect_.height));
-  CheckSdlReturn(SDL_SyncWindow(sdl_window_));
 }
 
 void SdlWindow::DoUpdateParent() {
   assert(sdl_window_);
   CheckSdlReturn(SDL_SetWindowParent(
       sdl_window_, parent_ == nullptr ? nullptr : parent_->sdl_window_));
-  CheckSdlReturn(SDL_SyncWindow(sdl_window_));
 }
 
 void SdlWindow::DoUpdateStyleFlag() {
   assert(sdl_window_);
   CheckSdlReturn(SDL_SetWindowBordered(
       sdl_window_, !style_.Has(WindowStyleFlags::NoCaptionAndBorder)));
-  CheckSdlReturn(SDL_SyncWindow(sdl_window_));
 }
 
 void SdlWindow::DoUpdateTitle() {
   assert(sdl_window_);
   CheckSdlReturn(SDL_SetWindowTitle(sdl_window_, title_.c_str()));
-  CheckSdlReturn(SDL_SyncWindow(sdl_window_));
 }
 
 void SdlWindow::DoUpdateCursor() {
@@ -354,7 +358,6 @@ void SdlWindow::DoUpdateCursor() {
       GetPlatformId());
 
   CheckSdlReturn(SDL_SetCursor(cursor->GetSdlCursor()));
-  CheckSdlReturn(SDL_SyncWindow(sdl_window_));
 }
 
 namespace {
