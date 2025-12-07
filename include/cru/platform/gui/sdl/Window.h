@@ -93,6 +93,7 @@ class SdlWindow : public SdlResource, public virtual INativeWindow {
 
  private:
   void DoCreateWindow();
+  void DoCleanWindow();
   void DoUpdateClientRect();
   void DoUpdateParent();
   void DoUpdateStyleFlag();

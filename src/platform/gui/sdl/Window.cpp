@@ -46,6 +46,7 @@ bool SdlWindow::IsCreated() { return sdl_window_ != nullptr; }
 void SdlWindow::Close() {
   if (sdl_window_) {
     SDL_DestroyWindow(sdl_window_);
+    DoCleanWindow();
   }
 }
 
@@ -270,6 +271,8 @@ void SdlWindow::DoCreateWindow() {
     throw SdlException("Failed to get ID of created window.");
   }
 
+  CruLogDebug(kLogTag, "SDL window created id {}.", sdl_window_id_);
+
   CreateEvent_.Raise(nullptr);
 
   if (!IsWayland() || sdl_is_popup_) {
@@ -289,6 +292,20 @@ void SdlWindow::DoCreateWindow() {
   CheckSdlReturn(SDL_GetWindowSizeInPixels(sdl_window_, &width, &height));
   UnixOnCreate(width, height);
 #endif
+}
+
+void SdlWindow::DoCleanWindow() {
+  assert(sdl_window_);
+
+  DestroyEvent_.Raise(nullptr);
+#ifdef __unix
+  UnixOnDestroy();
+#endif
+
+  CruLogDebug(kLogTag, "SDL window destroyed id {}.", sdl_window_id_);
+
+  sdl_window_ = nullptr;
+  sdl_window_id_ = 0;
 }
 
 void SdlWindow::DoUpdateClientRect() {
@@ -441,13 +458,7 @@ bool SdlWindow::HandleEvent(const SDL_Event* event) {
       return true;
     }
     case SDL_EVENT_WINDOW_DESTROYED: {
-      VisibilityChangeEvent_.Raise(WindowVisibilityType::Hide);
-      DestroyEvent_.Raise(nullptr);
-#ifdef __unix
-      UnixOnDestroy();
-#endif
-      sdl_window_ = nullptr;
-      sdl_window_id_ = 0;
+      DoCleanWindow();
       return true;
     }
     case SDL_EVENT_MOUSE_MOTION: {
