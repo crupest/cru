@@ -365,6 +365,8 @@ std::optional<SDL_WindowID> GetEventWindowId(const SDL_Event& event) {
     case SDL_EVENT_WINDOW_MOUSE_LEAVE:
     case SDL_EVENT_WINDOW_DESTROYED:
       return event.window.windowID;
+    case SDL_EVENT_MOUSE_MOTION:
+      return event.motion.windowID;
     case SDL_EVENT_MOUSE_BUTTON_DOWN:
     case SDL_EVENT_MOUSE_BUTTON_UP:
       return event.button.windowID;
@@ -446,6 +448,10 @@ bool SdlWindow::HandleEvent(const SDL_Event* event) {
 #endif
       sdl_window_ = nullptr;
       sdl_window_id_ = 0;
+      return true;
+    }
+    case SDL_EVENT_MOUSE_MOTION: {
+      MouseMoveEvent_.Raise({event->motion.x, event->motion.y});
       return true;
     }
     case SDL_EVENT_MOUSE_BUTTON_DOWN: {
