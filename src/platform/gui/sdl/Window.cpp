@@ -174,6 +174,7 @@ bool SdlWindow::ReleaseMouse() {
 }
 
 void SdlWindow::SetCursor(std::shared_ptr<ICursor> cursor) {
+  if (cursor == cursor_) return;
   cursor_ = std::move(cursor);
   if (sdl_window_) {
     DoUpdateCursor();
