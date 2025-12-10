@@ -16,6 +16,7 @@
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_video.h>
 #include <cassert>
+#include <cmath>
 #include <memory>
 #include <optional>
 
@@ -252,12 +253,13 @@ void SdlWindow::DoCreateWindow() {
     flags |= SDL_WINDOW_POPUP_MENU;
     sdl_window_ = SDL_CreatePopupWindow(
         parent_->sdl_window_, client_rect_.left - parent_position.x,
-        client_rect_.top - parent_position.y, client_rect_.width,
-        client_rect_.height, flags);
+        client_rect_.top - parent_position.y, std::ceil(client_rect_.width),
+        std::ceil(client_rect_.height), flags);
     sdl_is_popup_ = true;
   } else {
-    sdl_window_ = SDL_CreateWindow(title_.c_str(), client_rect_.width,
-                                   client_rect_.height, flags);
+    sdl_window_ =
+        SDL_CreateWindow(title_.c_str(), std::ceil(client_rect_.width),
+                         std::ceil(client_rect_.height), flags);
     sdl_is_popup_ = false;
   }
 
@@ -274,19 +276,19 @@ void SdlWindow::DoCreateWindow() {
 
   CreateEvent_.Raise(nullptr);
 
-  if (!IsWayland() || sdl_is_popup_) {
-    Point parent_position{};
-    if (parent_) {
-      parent_position = parent_->GetClientRect().GetLeftTop();
-    }
-    CheckSdlReturn(SDL_SetWindowPosition(sdl_window_,
-                                         client_rect_.left - parent_position.x,
-                                         client_rect_.top - parent_position.y));
-  }
-
-  if (!sdl_is_popup_) {
+  if (!sdl_is_popup_ && !IsWayland()) {
     CheckSdlReturn(SDL_SetWindowParent(
         sdl_window_, parent_ == nullptr ? nullptr : parent_->sdl_window_));
+
+    if (!IsWayland()) {
+      Point parent_position{};
+      if (parent_) {
+        parent_position = parent_->GetClientRect().GetLeftTop();
+      }
+      CheckSdlReturn(SDL_SetWindowPosition(
+          sdl_window_, client_rect_.left - parent_position.x,
+          client_rect_.top - parent_position.y));
+    }
   }
 
   DoUpdateCursor();
@@ -328,8 +330,8 @@ void SdlWindow::DoUpdateClientRect() {
                "Wayland doesn't support set position of non-popup window.");
   }
 
-  CheckSdlReturn(
-      SDL_SetWindowSize(sdl_window_, client_rect_.width, client_rect_.height));
+  CheckSdlReturn(SDL_SetWindowSize(sdl_window_, std::ceil(client_rect_.width),
+                                   std::ceil(client_rect_.height)));
 }
 
 void SdlWindow::DoUpdateParent() {

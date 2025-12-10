@@ -8,21 +8,21 @@
 #include "cru/ui/controls/TextBlock.h"
 #include "cru/ui/controls/Window.h"
 #include "cru/ui/helper/ClickDetector.h"
-#include "cru/ui/style/StyleRuleSet.h"
 
 namespace cru::ui::components {
 MenuItem::MenuItem() {
   container_.SetChild(&text_);
   container_.GetStyleRuleSet()->SetParent(
       ThemeManager::GetInstance()->GetResourceStyleRuleSet("menuitem.style"));
-  container_.ClickEvent()->AddHandler([this](const helper::ClickEventArgs&) {
-    if (this->on_click_) this->on_click_();
-  });
 }
 
 MenuItem::MenuItem(std::string text) : MenuItem() { SetText(std::move(text)); }
 
 void MenuItem::SetText(std::string text) { text_.SetText(std::move(text)); }
+
+IEvent<const helper::ClickEventArgs&>* MenuItem::ClickEvent() {
+  return container_.ClickEvent();
+}
 
 Menu::Menu() {
   container_.SetFlexDirection(controls::FlexDirection::Vertical);
@@ -66,11 +66,12 @@ void Menu::ClearItems() {
 void Menu::AddTextItemAt(std::string text, Index index,
                          std::function<void()> on_click) {
   MenuItem* item = new MenuItem(std::move(text));
-  item->SetOnClick([this, index, on_click = std::move(on_click)] {
-    auto on_item_click = on_item_click_;
-    on_click();
-    if (on_item_click) on_item_click(index);
-  });
+  item->ClickEvent()->AddSpyOnlyHandler(
+      [this, index, on_click = std::move(on_click)] {
+        auto on_item_click = on_item_click_;
+        on_click();
+        if (on_item_click) on_item_click(index);
+      });
   item->SetDeleteByParent(true);
   AddItemAt(item, index);
 }

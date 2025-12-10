@@ -299,9 +299,10 @@ Size FlexLayoutMeasureContentImpl(
 
   if (max_main_length.IsSpecified() &&
       total_length > max_main_length.GetLengthOrUndefined()) {
-    CruLogWarn(
-        kLogTag,
-        "(Measure) Children's main axis length exceeds required max length.");
+    CruLogWarn(kLogTag,
+               "(Measure) Children's main axis length {} exceeds required max "
+               "length {}.",
+               total_length, max_main_length.GetLengthOrUndefined());
     total_length = max_main_length.GetLengthOrUndefined();
   } else if (min_main_length.IsSpecified() &&
              total_length < min_main_length.GetLengthOrUndefined()) {

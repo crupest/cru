@@ -4,6 +4,7 @@
 #include "../controls/FlexLayout.h"
 #include "../controls/TextBlock.h"
 #include "../controls/Window.h"
+#include "../helper/ClickDetector.h"
 #include "Component.h"
 
 #include <functional>
@@ -19,18 +20,17 @@ class CRU_UI_API MenuItem : public Component {
   controls::Control* GetRootControl() override { return &container_; }
 
   void SetText(std::string text);
-
-  void SetOnClick(std::function<void()> on_click) {
-    on_click_ = std::move(on_click);
-  }
+  IEvent<const helper::ClickEventArgs&>* ClickEvent();
 
  private:
   controls::Button container_;
   controls::TextBlock text_;
-  std::function<void()> on_click_;
 };
 
 class CRU_UI_API Menu : public Component {
+ private:
+  constexpr static auto kLogTag = "cru::ui::components::Menu";
+
  public:
   Menu();
   ~Menu();

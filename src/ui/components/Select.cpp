@@ -11,6 +11,8 @@ Select::Select() {
                             left_bottom);
     popup_menu_.Show();
   });
+
+  popup_menu_.GetPopup()->SetAttachedControl(&button_);
 }
 
 Select::~Select() {}
