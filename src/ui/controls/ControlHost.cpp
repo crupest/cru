@@ -37,11 +37,8 @@ namespace {
 template <typename T>
 inline void BindNativeEvent(
     ControlHost* host, platform::gui::INativeWindow* native_window,
-    IEvent<T>* event,
-    void (ControlHost::*handler)(platform::gui::INativeWindow*,
-                                 typename IEvent<T>::Args)) {
-  event->AddHandler(
-      std::bind(handler, host, native_window, std::placeholders::_1));
+    IEvent<T>* event, void (ControlHost::*handler)(typename IEvent<T>::Args)) {
+  event->AddHandler(std::bind(handler, host, std::placeholders::_1));
 }
 }  // namespace
 
@@ -239,49 +236,34 @@ void ControlHost::SetOverrideCursor(
 
 bool ControlHost::IsInEventHandling() { return event_handling_count_; }
 
-void ControlHost::OnNativeDestroy(platform::gui::INativeWindow* window,
-                                  std::nullptr_t) {
-  CRU_UNUSED(window)
+void ControlHost::OnNativeDestroy(std::nullptr_t) {
+  auto old_hover = mouse_hover_control_;
+  mouse_hover_control_ = nullptr;
+  DispatchMouseHoverControlChangeEvent(old_hover, nullptr, {}, false, false);
+  mouse_captured_control_ = nullptr;
 }
 
-void ControlHost::OnNativePaint(platform::gui::INativeWindow* window,
-                                std::nullptr_t) {
-  CRU_UNUSED(window)
-  Repaint();
-}
+void ControlHost::OnNativePaint(std::nullptr_t) { Repaint(); }
 
-void ControlHost::OnNativeResize(platform::gui::INativeWindow* window,
-                                 const Size& size) {
-  CRU_UNUSED(window)
-  CRU_UNUSED(size)
-
+void ControlHost::OnNativeResize([[maybe_unused]] const Size& size) {
   ScheduleRelayout();
 }
 
-void ControlHost::OnNativeFocus(platform::gui::INativeWindow* window,
-                                platform::gui::FocusChangeType focus) {
-  CRU_UNUSED(window)
-
+void ControlHost::OnNativeFocus(platform::gui::FocusChangeType focus) {
   focus == platform::gui::FocusChangeType::Gain
       ? DispatchEvent(focus_control_, &Control::GainFocusEvent, nullptr, true)
       : DispatchEvent(focus_control_, &Control::LoseFocusEvent, nullptr, true);
 }
 
 void ControlHost::OnNativeMouseEnterLeave(
-    platform::gui::INativeWindow* window,
     platform::gui::MouseEnterLeaveType type) {
-  CRU_UNUSED(window)
-
   if (type == platform::gui::MouseEnterLeaveType::Leave) {
     DispatchEvent(mouse_hover_control_, &Control::MouseLeaveEvent, nullptr);
     mouse_hover_control_ = nullptr;
   }
 }
 
-void ControlHost::OnNativeMouseMove(platform::gui::INativeWindow* window,
-                                    const Point& point) {
-  CRU_UNUSED(window)
-
+void ControlHost::OnNativeMouseMove(const Point& point) {
   // Find the first control that hit test succeed.
   const auto new_mouse_hover_control = root_control_->HitTest(point);
   const auto old_mouse_hover_control = mouse_hover_control_;
@@ -312,10 +294,7 @@ void ControlHost::OnNativeMouseMove(platform::gui::INativeWindow* window,
 }
 
 void ControlHost::OnNativeMouseDown(
-    platform::gui::INativeWindow* window,
     const platform::gui::NativeMouseButtonEventArgs& args) {
-  CRU_UNUSED(window)
-
   Control* control = mouse_captured_control_
                          ? mouse_captured_control_
                          : root_control_->HitTest(args.point);
@@ -324,10 +303,7 @@ void ControlHost::OnNativeMouseDown(
 }
 
 void ControlHost::OnNativeMouseUp(
-    platform::gui::INativeWindow* window,
     const platform::gui::NativeMouseButtonEventArgs& args) {
-  CRU_UNUSED(window)
-
   Control* control = mouse_captured_control_
                          ? mouse_captured_control_
                          : root_control_->HitTest(args.point);
@@ -336,10 +312,7 @@ void ControlHost::OnNativeMouseUp(
 }
 
 void ControlHost::OnNativeMouseWheel(
-    platform::gui::INativeWindow* window,
     const platform::gui::NativeMouseWheelEventArgs& args) {
-  CRU_UNUSED(window)
-
   Control* control = mouse_captured_control_
                          ? mouse_captured_control_
                          : root_control_->HitTest(args.point);
@@ -348,18 +321,12 @@ void ControlHost::OnNativeMouseWheel(
 }
 
 void ControlHost::OnNativeKeyDown(
-    platform::gui::INativeWindow* window,
     const platform::gui::NativeKeyEventArgs& args) {
-  CRU_UNUSED(window)
-
   DispatchEvent(focus_control_, &Control::KeyDownEvent, nullptr, args.key,
                 args.modifier);
 }
 
-void ControlHost::OnNativeKeyUp(platform::gui::INativeWindow* window,
-                                const platform::gui::NativeKeyEventArgs& args) {
-  CRU_UNUSED(window)
-
+void ControlHost::OnNativeKeyUp(const platform::gui::NativeKeyEventArgs& args) {
   DispatchEvent(focus_control_, &Control::KeyUpEvent, nullptr, args.key,
                 args.modifier);
 }

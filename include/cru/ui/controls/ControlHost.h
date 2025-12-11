@@ -55,25 +55,17 @@ class CRU_UI_API ControlHost : public Object {
  private:
   std::unique_ptr<platform::gui::INativeWindow> CreateNativeWindow();
 
-  void OnNativeDestroy(platform::gui::INativeWindow* window, std::nullptr_t);
-  void OnNativePaint(platform::gui::INativeWindow* window, std::nullptr_t);
-  void OnNativeResize(platform::gui::INativeWindow* window, const Size& size);
-  void OnNativeFocus(platform::gui::INativeWindow* window,
-                     cru::platform::gui::FocusChangeType focus);
-  void OnNativeMouseEnterLeave(platform::gui::INativeWindow* window,
-                               cru::platform::gui::MouseEnterLeaveType enter);
-  void OnNativeMouseMove(platform::gui::INativeWindow* window,
-                         const Point& point);
-  void OnNativeMouseDown(platform::gui::INativeWindow* window,
-                         const platform::gui::NativeMouseButtonEventArgs& args);
-  void OnNativeMouseUp(platform::gui::INativeWindow* window,
-                       const platform::gui::NativeMouseButtonEventArgs& args);
-  void OnNativeMouseWheel(platform::gui::INativeWindow* window,
-                          const platform::gui::NativeMouseWheelEventArgs& args);
-  void OnNativeKeyDown(platform::gui::INativeWindow* window,
-                       const platform::gui::NativeKeyEventArgs& args);
-  void OnNativeKeyUp(platform::gui::INativeWindow* window,
-                     const platform::gui::NativeKeyEventArgs& args);
+  void OnNativeDestroy(std::nullptr_t);
+  void OnNativePaint(std::nullptr_t);
+  void OnNativeResize(const Size& size);
+  void OnNativeFocus(cru::platform::gui::FocusChangeType focus);
+  void OnNativeMouseEnterLeave(cru::platform::gui::MouseEnterLeaveType enter);
+  void OnNativeMouseMove(const Point& point);
+  void OnNativeMouseDown(const platform::gui::NativeMouseButtonEventArgs& args);
+  void OnNativeMouseUp(const platform::gui::NativeMouseButtonEventArgs& args);
+  void OnNativeMouseWheel(const platform::gui::NativeMouseWheelEventArgs& args);
+  void OnNativeKeyDown(const platform::gui::NativeKeyEventArgs& args);
+  void OnNativeKeyUp(const platform::gui::NativeKeyEventArgs& args);
 
   void DispatchFocusControlChangeEvent(Control* old_control,
                                        Control* new_control, bool is_window);
@@ -179,8 +171,19 @@ class CRU_UI_API ControlHost : public Object {
   Control* root_control_;
   std::unique_ptr<platform::gui::INativeWindow> native_window_;
 
+  /**
+   * Non-nullable. At least set it to root control.
+   */
   Control* focus_control_;
+
+  /**
+   * Nullable.
+   */
   Control* mouse_hover_control_;
+
+  /**
+   * Nullable.
+   */
   Control* mouse_captured_control_;
 
   std::shared_ptr<platform::gui::ICursor> override_cursor_;
