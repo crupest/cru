@@ -82,19 +82,6 @@ RenderObject* ScrollRenderObject::HitTest(const Point& point) {
   return rect.IsPointInside(point) ? this : nullptr;
 }  // namespace cru::ui::render
 
-void ScrollRenderObject::Draw(platform::graphics::IPainter* painter) {
-  if (auto child = GetChild()) {
-    painter->PushLayer(this->GetContentRect());
-    const auto offset = child->GetOffset();
-    painter->PushState();
-    painter->ConcatTransform(Matrix::Translation(offset));
-    child->Draw(painter);
-    painter->PopState();
-    painter->PopLayer();
-  }
-  scroll_bar_delegate_->DrawScrollBar(painter);
-}
-
 Point ScrollRenderObject::GetScrollOffset() {
   if (auto child = GetChild()) {
     return CoerceScroll(scroll_offset_, GetContentRect().GetSize(),
@@ -182,6 +169,16 @@ void ScrollRenderObject::OnLayoutContent(const Rect& content_rect) {
   if (auto child = GetChild()) {
     child->Layout(content_rect.GetLeftTop() - GetScrollOffset());
   }
+}
+
+void ScrollRenderObject::OnDraw(RenderObjectDrawContext& context) {
+  auto painter = context.painter;
+  if (auto child = GetChild()) {
+    painter->PushLayer(this->GetContentRect());
+    context.DrawChild(child);
+    painter->PopLayer();
+  }
+  scroll_bar_delegate_->DrawScrollBar(painter);
 }
 
 void ScrollRenderObject::OnAttachedControlChanged(

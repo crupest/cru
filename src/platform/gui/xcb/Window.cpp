@@ -224,7 +224,7 @@ void XcbWindow::SetWindowRect(const Rect& rect) {
   auto frame_properties = Get_NET_FRAME_EXTENTS(*xcb_window_);
 
   if (frame_properties.has_value()) {
-    real_rect = real_rect.Shrink(*frame_properties, true);
+    real_rect = real_rect.Shrink(*frame_properties);
   }
 
   SetClientRect(real_rect);

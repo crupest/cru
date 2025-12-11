@@ -23,6 +23,9 @@ class CRU_UI_API ControlHost : public Object {
   void ScheduleRepaint();
   void ScheduleRelayout();
 
+  Rect GetPaintInvalidArea();
+  void AddPaintInvalidArea(const Rect& area);
+
   void Repaint();
   void Relayout();
   void RelayoutWithSize(const Size& available_size = Size::Infinite(),
@@ -56,7 +59,7 @@ class CRU_UI_API ControlHost : public Object {
   std::unique_ptr<platform::gui::INativeWindow> CreateNativeWindow();
 
   void OnNativeDestroy(std::nullptr_t);
-  void OnNativePaint(std::nullptr_t);
+  void OnNativePaint1(const cru::platform::gui::NativePaintEventArgs& args);
   void OnNativeResize(const Size& size);
   void OnNativeFocus(cru::platform::gui::FocusChangeType focus);
   void OnNativeMouseEnterLeave(cru::platform::gui::MouseEnterLeaveType enter);
@@ -189,6 +192,8 @@ class CRU_UI_API ControlHost : public Object {
   std::shared_ptr<platform::gui::ICursor> override_cursor_;
 
   bool layout_prefer_to_fill_window_;
+
+  Rect paint_invalid_area_;
 
   platform::gui::TimerAutoCanceler relayout_schedule_canceler_;
 };

@@ -62,11 +62,10 @@ class CRU_UI_API TreeRenderObject : public RenderObject {
 
   RenderObject* HitTest(const Point& point) override;
 
-  void Draw(platform::graphics::IPainter* painter) override;
-
  protected:
   Size OnMeasureContent(const MeasureRequirement& requirement) override;
   void OnLayoutContent(const Rect& content_rect) override;
+  void OnDraw(RenderObjectDrawContext& context) override;
 
  private:
   float tab_width_ = 12.f;

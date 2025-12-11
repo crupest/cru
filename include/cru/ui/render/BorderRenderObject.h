@@ -43,7 +43,6 @@ class CRU_UI_API BorderRenderObject : public SingleChildRenderObject {
   void ApplyBorderStyle(const style::ApplyBorderStyleInfo& style);
 
   RenderObject* HitTest(const Point& point) override;
-  void Draw(platform::graphics::IPainter* painter) override;
 
   Thickness GetTotalSpaceThickness() override;
   Thickness GetInnerSpaceThickness() override;
@@ -53,6 +52,7 @@ class CRU_UI_API BorderRenderObject : public SingleChildRenderObject {
  protected:
   Size OnMeasureContent(const MeasureRequirement& requirement) override;
   void OnLayoutContent(const Rect& content_rect) override;
+  void OnDraw(RenderObjectDrawContext& context) override;
 
   void OnResize(const Size& new_size) override;
 

@@ -9,12 +9,6 @@ RenderObject* CanvasRenderObject::HitTest(const Point& point) {
   return padding_rect.IsPointInside(point) ? this : nullptr;
 }
 
-void CanvasRenderObject::Draw(platform::graphics::IPainter* painter) {
-  const auto rect = GetContentRect();
-  CanvasPaintEventArgs args{painter, rect.GetSize()};
-  PaintEvent_.Raise(args);
-}
-
 Size CanvasRenderObject::OnMeasureContent(
     const MeasureRequirement& requirement) {
   return requirement.Coerce(requirement.suggest.GetSizeOr({100, 100}));
@@ -22,5 +16,11 @@ Size CanvasRenderObject::OnMeasureContent(
 
 void CanvasRenderObject::OnLayoutContent(const Rect& content_rect) {
   CRU_UNUSED(content_rect)
+}
+
+void CanvasRenderObject::OnDraw(RenderObjectDrawContext& context) {
+  const auto rect = GetContentRect();
+  CanvasPaintEventArgs args{context.painter, rect.GetSize()};
+  PaintEvent_.Raise(args);
 }
 }  // namespace cru::ui::render

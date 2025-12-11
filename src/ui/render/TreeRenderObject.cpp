@@ -1,5 +1,4 @@
 #include "cru/ui/render/TreeRenderObject.h"
-#include "cru/platform/graphics/Painter.h"
 #include "cru/ui/render/MeasureRequirement.h"
 #include "cru/ui/render/RenderObject.h"
 
@@ -78,22 +77,15 @@ RenderObject* TreeRenderObject::HitTest(const Point& point) {
 }
 
 void TreeRenderObjectItemDraw(TreeRenderObjectItem* item,
-                              platform::graphics::IPainter* painter) {
+                              RenderObjectDrawContext& context) {
   auto render_object = item->GetRenderObject();
   if (render_object) {
-    painter->PushState();
-    painter->ConcatTransform(Matrix::Translation(render_object->GetOffset()));
-    render_object->Draw(painter);
-    painter->PopState();
+    context.DrawChild(render_object);
   }
 
   for (auto child : item->GetChildren()) {
-    TreeRenderObjectItemDraw(child, painter);
+    TreeRenderObjectItemDraw(child, context);
   }
-}
-
-void TreeRenderObject::Draw(platform::graphics::IPainter* painter) {
-  TreeRenderObjectItemDraw(root_item_, painter);
 }
 
 static Size MeasureTreeRenderObjectItem(MeasureSize max_size,
@@ -161,5 +153,9 @@ static void LayoutTreeRenderObjectItem(Rect rect, TreeRenderObjectItem* item,
 
 void TreeRenderObject::OnLayoutContent(const Rect& content_rect) {
   LayoutTreeRenderObjectItem(content_rect, root_item_, tab_width_);
+}
+
+void TreeRenderObject::OnDraw(RenderObjectDrawContext& context) {
+  TreeRenderObjectItemDraw(root_item_, context);
 }
 }  // namespace cru::ui::render

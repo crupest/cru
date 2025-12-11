@@ -15,7 +15,6 @@ class GeometryRenderObject : public RenderObject {
   GeometryRenderObject();
 
  public:
-  void Draw(platform::graphics::IPainter* painter) override;
   RenderObject* HitTest(const Point& point) override;
 
   std::shared_ptr<platform::graphics::IGeometry> GetGeometry();
@@ -37,6 +36,7 @@ class GeometryRenderObject : public RenderObject {
  protected:
   Size OnMeasureContent(const MeasureRequirement& requirement) override;
   void OnLayoutContent(const Rect& content_rect) override;
+  void OnDraw(RenderObjectDrawContext& context) override;
 
  private:
   std::shared_ptr<platform::graphics::IGeometry> geometry_ = nullptr;

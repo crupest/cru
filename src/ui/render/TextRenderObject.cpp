@@ -1,11 +1,8 @@
 #include "cru/ui/render/TextRenderObject.h"
-
-#include "cru/base/log/Logger.h"
 #include "cru/platform/graphics/Factory.h"
 #include "cru/platform/graphics/Painter.h"
 #include "cru/platform/graphics/TextLayout.h"
 #include "cru/platform/gui/UiApplication.h"
-#include "cru/ui/DebugFlags.h"
 #include "cru/ui/render/RenderObject.h"
 
 #include <limits>
@@ -176,29 +173,6 @@ RenderObject* TextRenderObject::HitTest(const Point& point) {
   return padding_rect.IsPointInside(point) ? this : nullptr;
 }
 
-void TextRenderObject::Draw(platform::graphics::IPainter* painter) {
-  if constexpr (debug_flags::draw) {
-    CruLogDebug(kLogTag,
-                "Begin to paint, total_offset: {}, size: {}, text_layout: "
-                "{}, brush: {}.",
-                this->GetTotalOffset(), this->GetMeasureResultSize(),
-                this->text_layout_->GetDebugString(),
-                this->brush_->GetDebugString());
-  }
-
-  if (this->selection_range_.has_value()) {
-    const auto&& rects = text_layout_->TextRangeRect(*this->selection_range_);
-    for (const auto& rect : rects)
-      painter->FillRectangle(rect, this->GetSelectionBrush().get());
-  }
-
-  painter->DrawText(Point{}, text_layout_.get(), brush_.get());
-
-  if (this->draw_caret_ && this->caret_width_ != 0.0f) {
-    painter->FillRectangle(GetCaretRectInContent(), this->caret_brush_.get());
-  }
-}
-
 Size TextRenderObject::OnMeasureContent(const MeasureRequirement& requirement) {
   float measure_width = requirement.suggest.width.GetLengthOr(
       requirement.max.width.GetLengthOrMaxFloat());
@@ -214,5 +188,21 @@ Size TextRenderObject::OnMeasureContent(const MeasureRequirement& requirement) {
 
 void TextRenderObject::OnLayoutContent(const Rect& content_rect) {
   CRU_UNUSED(content_rect)
+}
+
+void TextRenderObject::OnDraw(RenderObjectDrawContext& context) {
+  auto painter = context.painter;
+
+  if (this->selection_range_.has_value()) {
+    const auto&& rects = text_layout_->TextRangeRect(*this->selection_range_);
+    for (const auto& rect : rects)
+      painter->FillRectangle(rect, this->GetSelectionBrush().get());
+  }
+
+  painter->DrawText(Point{}, text_layout_.get(), brush_.get());
+
+  if (this->draw_caret_ && this->caret_width_ != 0.0f) {
+    painter->FillRectangle(GetCaretRectInContent(), this->caret_brush_.get());
+  }
 }
 }  // namespace cru::ui::render

@@ -88,12 +88,11 @@ class CRU_UI_API TextRenderObject : public RenderObject {
 
   RenderObject* HitTest(const Point& point) override;
 
-  void Draw(platform::graphics::IPainter* painter) override;
-
  protected:
   // See remarks of this class.
   Size OnMeasureContent(const MeasureRequirement& requirement) override;
   void OnLayoutContent(const Rect& content_rect) override;
+  void OnDraw(RenderObjectDrawContext& context) override;
 
  private:
   std::shared_ptr<platform::graphics::IBrush> brush_;

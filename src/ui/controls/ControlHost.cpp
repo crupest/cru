@@ -3,6 +3,7 @@
 #include "cru/platform/gui/UiApplication.h"
 #include "cru/platform/gui/Window.h"
 #include "cru/ui/Base.h"
+#include "cru/ui/render/RenderObject.h"
 
 #include <cassert>
 
@@ -102,8 +103,8 @@ ControlHost::CreateNativeWindow() {
 
   BindNativeEvent(this, native_window, native_window->DestroyEvent(),
                   &ControlHost::OnNativeDestroy);
-  BindNativeEvent(this, native_window, native_window->PaintEvent(),
-                  &ControlHost::OnNativePaint);
+  BindNativeEvent(this, native_window, native_window->Paint1Event(),
+                  &ControlHost::OnNativePaint1);
   BindNativeEvent(this, native_window, native_window->ResizeEvent(),
                   &ControlHost::OnNativeResize);
   BindNativeEvent(this, native_window, native_window->FocusEvent(),
@@ -134,21 +135,19 @@ void ControlHost::ScheduleRelayout() {
           [this] { Relayout(); }));
 }
 
-bool ControlHost::IsLayoutPreferToFillWindow() const {
-  return layout_prefer_to_fill_window_;
-}
+Rect ControlHost::GetPaintInvalidArea() { return paint_invalid_area_; }
 
-void ControlHost::SetLayoutPreferToFillWindow(bool value) {
-  if (value == layout_prefer_to_fill_window_) return;
-  layout_prefer_to_fill_window_ = value;
-  ScheduleRelayout();
+void ControlHost::AddPaintInvalidArea(const Rect& area) {
+  paint_invalid_area_ = paint_invalid_area_.Union(area);
 }
 
 void ControlHost::Repaint() {
   auto painter = native_window_->BeginPaint();
   painter->Clear(colors::white);
-  root_control_->GetRenderObject()->Draw(painter.get());
+  render::RenderObjectDrawContext context{paint_invalid_area_, painter.get()};
+  root_control_->GetRenderObject()->Draw(context);
   painter->EndDraw();
+  paint_invalid_area_ = {};
 }
 
 void ControlHost::Relayout() {
@@ -175,6 +174,16 @@ void ControlHost::RelayoutWithSize(const Size& available_size,
   AfterLayoutEvent_.Raise(nullptr);
 
   ScheduleRepaint();
+}
+
+bool ControlHost::IsLayoutPreferToFillWindow() const {
+  return layout_prefer_to_fill_window_;
+}
+
+void ControlHost::SetLayoutPreferToFillWindow(bool value) {
+  if (value == layout_prefer_to_fill_window_) return;
+  layout_prefer_to_fill_window_ = value;
+  ScheduleRelayout();
 }
 
 Control* ControlHost::GetFocusControl() { return focus_control_; }
@@ -243,7 +252,11 @@ void ControlHost::OnNativeDestroy(std::nullptr_t) {
   mouse_captured_control_ = nullptr;
 }
 
-void ControlHost::OnNativePaint(std::nullptr_t) { Repaint(); }
+void ControlHost::OnNativePaint1(
+    const platform::gui::NativePaintEventArgs& args) {
+  AddPaintInvalidArea(args.repaint_area);
+  Repaint();
+}
 
 void ControlHost::OnNativeResize([[maybe_unused]] const Size& size) {
   ScheduleRelayout();

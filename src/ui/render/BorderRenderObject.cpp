@@ -5,7 +5,6 @@
 #include "cru/platform/graphics/Geometry.h"
 #include "cru/platform/graphics/Painter.h"
 #include "cru/platform/gui/UiApplication.h"
-#include "cru/ui/DebugFlags.h"
 #include "cru/ui/render/RenderObject.h"
 
 #include <algorithm>
@@ -80,40 +79,6 @@ RenderObject* BorderRenderObject::HitTest(const Point& point) {
   }
 }
 
-void BorderRenderObject::Draw(platform::graphics::IPainter* painter) {
-  if constexpr (debug_flags::draw) {
-    CruLogDebug(
-        kLogTag, "BorderRenderObject draw, background: {}, foreground: {}.",
-        background_brush_ == nullptr ? "NONE"
-                                     : background_brush_->GetDebugString(),
-        foreground_brush_ == nullptr ? "NONE"
-                                     : foreground_brush_->GetDebugString());
-  }
-
-  if (background_brush_ != nullptr)
-    painter->FillGeometry(border_inner_geometry_.get(),
-                          background_brush_.get());
-
-  if (is_border_enabled_) {
-    if (border_brush_ == nullptr) {
-      CruLogWarn(kLogTag, "Border is enabled but border brush is null.");
-    } else {
-      painter->FillGeometry(geometry_.get(), border_brush_.get());
-    }
-  }
-
-  if (auto child = GetChild()) {
-    painter->PushState();
-    painter->ConcatTransform(Matrix::Translation(child->GetOffset()));
-    child->Draw(painter);
-    painter->PopState();
-  }
-
-  if (foreground_brush_ != nullptr)
-    painter->FillGeometry(border_inner_geometry_.get(),
-                          foreground_brush_.get());
-}
-
 Size BorderRenderObject::OnMeasureContent(
     const MeasureRequirement& requirement) {
   if (auto child = GetChild()) {
@@ -128,6 +93,30 @@ void BorderRenderObject::OnLayoutContent(const Rect& content_rect) {
   if (auto child = GetChild()) {
     child->Layout(content_rect.GetLeftTop());
   }
+}
+
+void BorderRenderObject::OnDraw(RenderObjectDrawContext& context) {
+  auto painter = context.painter;
+
+  if (background_brush_ != nullptr)
+    painter->FillGeometry(border_inner_geometry_.get(),
+                          background_brush_.get());
+
+  if (is_border_enabled_) {
+    if (border_brush_ == nullptr) {
+      CruLogWarn(kLogTag, "Border is enabled but border brush is null.");
+    } else {
+      painter->FillGeometry(geometry_.get(), border_brush_.get());
+    }
+  }
+
+  if (auto child = GetChild()) {
+    context.DrawChild(child);
+  }
+
+  if (foreground_brush_ != nullptr)
+    painter->FillGeometry(border_inner_geometry_.get(),
+                          foreground_brush_.get());
 }
 
 void BorderRenderObject::OnResize(const Size& new_size) { RecreateGeometry(); }

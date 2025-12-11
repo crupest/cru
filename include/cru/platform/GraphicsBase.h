@@ -152,37 +152,38 @@ struct Rect final {
 
   constexpr static Rect FromVertices(const float left, const float top,
                                      const float right, const float bottom) {
-    return Rect(left, top, right - left, bottom - top);
+    return {left, top, right - left, bottom - top};
   }
 
   constexpr static Rect FromVertices(const Point& lefttop,
                                      const Point& rightbottom) {
-    return Rect(lefttop.x, lefttop.y, rightbottom.x - lefttop.x,
-                rightbottom.y - lefttop.y);
+    return {lefttop.x, lefttop.y, rightbottom.x - lefttop.x,
+            rightbottom.y - lefttop.y};
   }
 
   constexpr static Rect FromCenter(const Point& center, const float width,
                                    const float height) {
-    return Rect(center.x - width / 2.0f, center.y - height / 2.0f, width,
-                height);
+    return {center.x - width / 2.0f, center.y - height / 2.0f, width, height};
   }
+
+  constexpr bool HasNoSize() const { return width == 0.f || height == 0.f; }
 
   constexpr float GetRight() const { return left + width; }
 
   constexpr float GetBottom() const { return top + height; }
 
-  constexpr Point GetLeftTop() const { return Point(left, top); }
+  constexpr Point GetLeftTop() const { return {left, top}; }
 
   constexpr Point GetRightBottom() const {
-    return Point(left + width, top + height);
+    return {left + width, top + height};
   }
 
-  constexpr Point GetLeftBottom() const { return Point(left, top + height); }
+  constexpr Point GetLeftBottom() const { return {left, top + height}; }
 
-  constexpr Point GetRightTop() const { return Point(left + width, top); }
+  constexpr Point GetRightTop() const { return {left + width, top}; }
 
   constexpr Point GetCenter() const {
-    return Point(left + width / 2.0f, top + height / 2.0f);
+    return {left + width / 2.0f, top + height / 2.0f};
   }
 
   constexpr void SetSize(const Size& size) {
@@ -192,28 +193,21 @@ struct Rect final {
 
   constexpr Size GetSize() const { return Size(width, height); }
 
+  constexpr Rect WithOffset(const Point& offset) const {
+    return {left + offset.x, top + offset.y, width, height};
+  }
+
   constexpr Rect Expand(const Thickness& thickness) const {
-    return Rect(left - thickness.left, top - thickness.top,
-                width + thickness.GetHorizontalTotal(),
-                height + thickness.GetVerticalTotal());
+    return {left - thickness.left, top - thickness.top,
+            width + thickness.GetHorizontalTotal(),
+            height + thickness.GetVerticalTotal()};
   }
 
   constexpr Rect Shrink(const Thickness& thickness,
                         bool normalize = false) const {
-    Rect result(left + thickness.left, top + thickness.top,
-                width - thickness.GetHorizontalTotal(),
-                height - thickness.GetVerticalTotal());
-
-    if (normalize) {
-      if (result.width < 0) {
-        result.width = 0;
-      }
-      if (result.height < 0) {
-        result.height = 0;
-      }
-    }
-
-    return result;
+    return {left + thickness.left, top + thickness.top,
+            width - thickness.GetHorizontalTotal(),
+            height - thickness.GetVerticalTotal()};
   }
 
   constexpr Rect Scale(float scale) const {
@@ -236,6 +230,28 @@ struct Rect final {
       result.height = -result.height;
     }
     return result;
+  }
+
+  constexpr bool IsIntersect(const Rect& other) const {
+    if (HasNoSize() || other.HasNoSize()) {
+      return false;
+    }
+
+    if (left >= other.GetRight() || GetRight() <= other.left) {
+      return false;
+    }
+
+    if (top >= other.GetBottom() || GetBottom() <= other.top) {
+      return false;
+    }
+
+    return true;
+  }
+
+  constexpr Rect Union(const Rect& other) const {
+    return FromVertices(std::min(left, other.left), std::min(top, other.top),
+                        std::max(GetRight(), other.GetRight()),
+                        std::max(GetBottom(), other.GetBottom()));
   }
 
   std::string ToString() const {

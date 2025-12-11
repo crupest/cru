@@ -6,7 +6,17 @@
 #include "cru/ui/controls/ControlHost.h"
 
 namespace cru::ui::render {
-const BoxConstraint BoxConstraint::kNotLimit{Size::kMax, Size::kZero};
+void RenderObjectDrawContext::DrawChild(RenderObject* render_object) {
+  auto offset = render_object->GetOffset();
+  paint_invalid_area.left -= offset.x;
+  paint_invalid_area.top -= offset.y;
+  painter->PushState();
+  painter->ConcatTransform(Matrix::Translation(offset));
+  render_object->Draw(*this);
+  painter->PopState();
+  paint_invalid_area.left += offset.x;
+  paint_invalid_area.top += offset.y;
+}
 
 RenderObject::RenderObject(std::string name)
     : name_(std::move(name)),
@@ -139,26 +149,33 @@ void RenderObject::OnLayoutCore(const Rect& rect) {
 }
 
 Rect RenderObject::GetPaddingRect() {
-  const auto size = GetMeasureResultSize();
-  Rect rect{Point{}, size};
+  Rect rect{Point{}, size_};
   rect = rect.Shrink(GetMargin());
-  rect.left = std::min(rect.left, size.width);
-  rect.top = std::min(rect.top, size.height);
+  rect.left = std::min(rect.left, size_.width);
+  rect.top = std::min(rect.top, size_.height);
   rect.width = std::max(rect.width, 0.0f);
   rect.height = std::max(rect.height, 0.0f);
   return rect;
 }
 
 Rect RenderObject::GetContentRect() {
-  const auto size = GetMeasureResultSize();
-  Rect rect{Point{}, size};
+  Rect rect{Point{}, size_};
   rect = rect.Shrink(GetMargin());
   rect = rect.Shrink(GetPadding());
-  rect.left = std::min(rect.left, size.width);
-  rect.top = std::min(rect.top, size.height);
+  rect.left = std::min(rect.left, size_.width);
+  rect.top = std::min(rect.top, size_.height);
   rect.width = std::max(rect.width, 0.0f);
   rect.height = std::max(rect.height, 0.0f);
   return rect;
+}
+
+Rect RenderObject::GetRenderRect() { return GetContentRect(); }
+
+void RenderObject::Draw(RenderObjectDrawContext& context) {
+  if (!context.paint_invalid_area.IsIntersect(GetRenderRect())) {
+    return;
+  }
+  OnDraw(context);
 }
 
 controls::ControlHost* RenderObject::GetControlHost() {
@@ -176,8 +193,9 @@ void RenderObject::InvalidateLayout() {
 }
 
 void RenderObject::InvalidatePaint() {
-  if (auto window = GetControlHost()) {
-    window->ScheduleRepaint();
+  if (auto host = GetControlHost()) {
+    host->AddPaintInvalidArea(GetRenderRect().WithOffset(GetTotalOffset()));
+    host->ScheduleRepaint();
   }
 }
 

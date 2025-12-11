@@ -62,8 +62,6 @@ class CRU_UI_API ScrollRenderObject : public SingleChildRenderObject {
   bool VerticalCanScrollUp();
   bool VerticalCanScrollDown();
 
-  void Draw(platform::graphics::IPainter* painter) override;
-
  protected:
   // Logic:
   // If available size is bigger than child's preferred size, then child's
@@ -71,6 +69,7 @@ class CRU_UI_API ScrollRenderObject : public SingleChildRenderObject {
   // If not, all available size is taken while forming a scroll area.
   Size OnMeasureContent(const MeasureRequirement& requirement) override;
   void OnLayoutContent(const Rect& content_rect) override;
+  void OnDraw(RenderObjectDrawContext& context) override;
 
   void OnAttachedControlChanged(controls::Control* old_control,
                                 controls::Control* new_control) override;

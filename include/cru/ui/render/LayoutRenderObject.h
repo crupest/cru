@@ -1,8 +1,6 @@
 #pragma once
 #include "RenderObject.h"
 
-#include "cru/platform/graphics/Painter.h"
-
 namespace cru::ui::render {
 template <typename TChildLayoutData>
 class LayoutRenderObject : public RenderObject {
@@ -81,16 +79,6 @@ class LayoutRenderObject : public RenderObject {
     InvalidateLayout();
   }
 
-  void Draw(platform::graphics::IPainter* painter) override {
-    for (const auto& child : children_) {
-      painter->PushState();
-      painter->ConcatTransform(
-          Matrix::Translation(child.render_object->GetOffset()));
-      child.render_object->Draw(painter);
-      painter->PopState();
-    }
-  }
-
   RenderObject* HitTest(const Point& point) override {
     const auto child_count = GetChildCount();
     for (auto i = child_count - 1; i >= 0; --i) {
@@ -102,6 +90,14 @@ class LayoutRenderObject : public RenderObject {
     }
 
     return GetPaddingRect().IsPointInside(point) ? this : nullptr;
+  }
+
+ protected:
+  void OnDraw(RenderObjectDrawContext& context) override {
+    auto painter = context.painter;
+    for (const auto& child : children_) {
+      context.DrawChild(child.render_object);
+    }
   }
 
  private:

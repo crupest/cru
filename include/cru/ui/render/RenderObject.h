@@ -1,33 +1,24 @@
 #pragma once
 #include "../Base.h"
-
 #include "MeasureRequirement.h"
 
 #include <cru/base/Event.h>
 #include <cru/platform/graphics/Painter.h>
+
 #include <string>
 
 namespace cru::ui::render {
-struct BoxConstraint {
-  static const BoxConstraint kNotLimit;
+class RenderObject;
 
-  Size max;
-  Size min;
+struct CRU_UI_API RenderObjectDrawContext {
+  /**
+   * Coordinates are related to the render object to be painted. So parent
+   * render object should adjust this before passing to children.
+   */
+  Rect paint_invalid_area;
+  platform::graphics::IPainter* painter;
 
-  constexpr bool Validate() const {
-    return max.width >= min.width && max.height >= min.height &&
-           min.width >= 0 && min.height >= 0;
-  }
-
-  constexpr bool Satisfy(const Size& size) const {
-    return size.width <= max.width && size.height <= max.height &&
-           size.width >= min.width && size.height >= min.height;
-  }
-
-  constexpr Size Coerce(const Size& size) const {
-    return Size{std::min(std::max(size.width, min.width), max.width),
-                std::min(std::max(size.height, min.height), max.height)};
-  }
+  void DrawChild(RenderObject* render_object);
 };
 
 /**
@@ -37,11 +28,11 @@ struct BoxConstraint {
  * To write a custom RenderObject, override following methods:
  *
  * public:
- *  void Draw(platform::graphics::IPainter* painter) override;
  *  RenderObject* HitTest(const Point& point) override;
  * protected:
  *  Size OnMeasureContent(const MeasureRequirement& requirement) override;
  *  void OnLayoutContent(const Rect& content_rect) override;
+ *  void OnDraw(RenderObjectDrawContext& context) override;
  */
 class CRU_UI_API RenderObject : public Object {
  private:
@@ -124,10 +115,12 @@ class CRU_UI_API RenderObject : public Object {
   virtual Rect GetPaddingRect();
   virtual Rect GetContentRect();
 
-  virtual void Draw(platform::graphics::IPainter* painter) = 0;
+  virtual Rect GetRenderRect();
 
-  // Param point must be relative the lefttop of render object including margin.
-  // Add offset before pass point to children.
+  void Draw(RenderObjectDrawContext& context);
+
+  // Param point must be relative the lefttop of render object including
+  // margin. Add offset before pass point to children.
   virtual RenderObject* HitTest(const Point& point) = 0;
 
  public:
@@ -160,12 +153,13 @@ class CRU_UI_API RenderObject : public Object {
   // Override this function to measure content and children(Call Measure on
   // them). Do not consider margin or padding in this method because they are
   // already considered in OnMeasureCore. Returned size must obey requirement.
-  // Caller should guarantee preferred_size is corerced into required range.
   virtual Size OnMeasureContent(const MeasureRequirement& requirement) = 0;
 
   // Layout all content and children(Call Layout on them).
   // Lefttop of content_rect should be added when calculated children's offset.
   virtual void OnLayoutContent(const Rect& content_rect) = 0;
+
+  virtual void OnDraw(RenderObjectDrawContext& context) = 0;
 
   virtual void OnAttachedControlChanged(controls::Control* old_control,
                                         controls::Control* new_control) {}

@@ -33,12 +33,11 @@ class CRU_UI_API CanvasRenderObject : public RenderObject {
  public:
   RenderObject* HitTest(const Point& point) override;
 
-  void Draw(platform::graphics::IPainter* painter) override;
-
   CRU_DEFINE_EVENT(Paint, const CanvasPaintEventArgs&)
 
  protected:
   Size OnMeasureContent(const MeasureRequirement& requirement) override;
   void OnLayoutContent(const Rect& content_rect) override;
+  void OnDraw(RenderObjectDrawContext& context) override;
 };
 }  // namespace cru::ui::render

@@ -60,8 +60,22 @@ void GeometryRenderObject::SetStrokeWidth(float width) {
   InvalidatePaint();
 }
 
-void GeometryRenderObject::Draw(platform::graphics::IPainter* painter) {
+RenderObject* GeometryRenderObject::HitTest(const Point& point) {
+  return GetPaddingRect().IsPointInside(point) ? this : nullptr;
+}
+
+Size GeometryRenderObject::OnMeasureContent(
+    const MeasureRequirement& requirement) {
+  Size result = GetViewPort().GetSize();
+  return requirement.ExpandToSuggestAndCoerce(result);
+}
+
+void GeometryRenderObject::OnLayoutContent(const Rect& content_rect) {}
+
+void GeometryRenderObject::OnDraw(RenderObjectDrawContext& context) {
   if (!geometry_) return;
+
+  auto painter = context.painter;
 
   painter->PushState();
 
@@ -86,15 +100,4 @@ void GeometryRenderObject::Draw(platform::graphics::IPainter* painter) {
   painter->PopState();
 }
 
-RenderObject* GeometryRenderObject::HitTest(const Point& point) {
-  return GetPaddingRect().IsPointInside(point) ? this : nullptr;
-}
-
-Size GeometryRenderObject::OnMeasureContent(
-    const MeasureRequirement& requirement) {
-  Size result = GetViewPort().GetSize();
-  return requirement.ExpandToSuggestAndCoerce(result);
-}
-
-void GeometryRenderObject::OnLayoutContent(const Rect& content_rect) {}
 }  // namespace cru::ui::render
