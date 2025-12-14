@@ -46,8 +46,10 @@ class CRU_UI_API BorderRenderObject : public SingleChildRenderObject {
 
   Thickness GetTotalSpaceThickness() override;
   Thickness GetInnerSpaceThickness() override;
+  Rect GetBorderRect();
   Rect GetPaddingRect() override;
   Rect GetContentRect() override;
+  Rect GetRenderRect() override;
 
  protected:
   Size OnMeasureContent(const MeasureRequirement& requirement) override;

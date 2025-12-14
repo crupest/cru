@@ -133,6 +133,17 @@ Thickness BorderRenderObject::GetInnerSpaceThickness() {
              : RenderObject::GetInnerSpaceThickness();
 }
 
+Rect BorderRenderObject::GetBorderRect() {
+  const auto size = GetSize();
+  Rect rect{Point{}, size};
+  rect = rect.Shrink(GetMargin());
+  rect.left = std::min(rect.left, size.width);
+  rect.top = std::min(rect.top, size.height);
+  rect.width = std::max(rect.width, 0.0f);
+  rect.height = std::max(rect.height, 0.0f);
+  return rect;
+}
+
 Rect BorderRenderObject::GetPaddingRect() {
   const auto size = GetSize();
   Rect rect{Point{}, size};
@@ -157,6 +168,8 @@ Rect BorderRenderObject::GetContentRect() {
   rect.height = std::max(rect.height, 0.0f);
   return rect;
 }
+
+Rect BorderRenderObject::GetRenderRect() { return GetBorderRect(); }
 
 void BorderRenderObject::RecreateGeometry() {
   geometry_.reset();
