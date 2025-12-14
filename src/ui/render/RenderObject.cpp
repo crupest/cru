@@ -211,7 +211,7 @@ std::string RenderObject::GetDebugPathInTree() {
 
   std::string result(chain.back());
   for (auto iter = chain.crbegin() + 1; iter != chain.crend(); ++iter) {
-    result += " -> ";
+    result += "->";
     result += *iter;
   }
 

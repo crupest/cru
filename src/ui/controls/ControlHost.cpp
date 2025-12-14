@@ -1,5 +1,6 @@
 #include "cru/ui/controls/ControlHost.h"
 
+#include "cru/base/log/Logger.h"
 #include "cru/platform/gui/UiApplication.h"
 #include "cru/platform/gui/Window.h"
 #include "cru/ui/Base.h"
@@ -151,7 +152,11 @@ void ControlHost::Repaint() {
 }
 
 void ControlHost::Relayout() {
-  RelayoutWithSize(native_window_->GetClientSize());
+  auto size = native_window_->GetClientSize();
+  if (size.width == 0.f && size.height == 0.f) {
+    size = Size::Infinite();
+  }
+  RelayoutWithSize(size);
 }
 
 void ControlHost::RelayoutWithSize(const Size& available_size,
@@ -259,6 +264,7 @@ void ControlHost::OnNativePaint1(
 }
 
 void ControlHost::OnNativeResize([[maybe_unused]] const Size& size) {
+  CruLogDebug(kLogTag, "Window resize to {}.", size);
   ScheduleRelayout();
 }
 

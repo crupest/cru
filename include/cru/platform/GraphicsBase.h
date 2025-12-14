@@ -1,6 +1,4 @@
 #pragma once
-#include "Base.h"
-
 #include <cru/base/Range.h>
 #include <cru/base/StringUtil.h>
 
@@ -42,9 +40,6 @@ constexpr Point operator-(const Point& left, const Point& right) {
 }
 
 struct Size final {
-  static CRU_PLATFORM_API const Size kMax;
-  static CRU_PLATFORM_API const Size kZero;
-
   constexpr Size() = default;
   constexpr Size(const float width, const float height)
       : width(width), height(height) {}
@@ -64,7 +59,7 @@ struct Size final {
     return {std::max(width, other.width), std::max(height, other.height)};
   }
 
-  constexpr Size AtLeast0() const { return Max(kZero); }
+  constexpr Size AtLeast0() const { return this->Max({}); }
 
   std::string ToString() const {
     return std::format("Size(width: {}, height: {})", width, height);

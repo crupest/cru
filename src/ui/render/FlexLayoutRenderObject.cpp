@@ -85,6 +85,7 @@ template <typename direction_tag_t,
               std::is_same_v<direction_tag_t, tag_horizontal_t> ||
               std::is_same_v<direction_tag_t, tag_vertical_t>>>
 Size FlexLayoutMeasureContentImpl(
+    FlexLayoutRenderObject* render_object,
     const MeasureRequirement& requirement, const MeasureSize& preferred_size,
     const std::vector<RenderObject*>& children,
     const std::vector<FlexChildLayoutData>& layout_data,
@@ -300,9 +301,10 @@ Size FlexLayoutMeasureContentImpl(
   if (max_main_length.IsSpecified() &&
       total_length > max_main_length.GetLengthOrUndefined()) {
     CruLogWarn(kLogTag,
-               "(Measure) Children's main axis length {} exceeds required max "
+               "{} Children's main axis length {} exceeds required max "
                "length {}.",
-               total_length, max_main_length.GetLengthOrUndefined());
+               render_object->GetDebugPathInTree(), total_length,
+               max_main_length.GetLengthOrUndefined());
     total_length = max_main_length.GetLengthOrUndefined();
   } else if (min_main_length.IsSpecified() &&
              total_length < min_main_length.GetLengthOrUndefined()) {
@@ -344,11 +346,11 @@ Size FlexLayoutRenderObject::OnMeasureContent(
 
   if (horizontal) {
     return FlexLayoutMeasureContentImpl<tag_horizontal_t>(
-        requirement, requirement.suggest, children, layout_data_list,
+        this, requirement, requirement.suggest, children, layout_data_list,
         item_cross_align_, kLogTag);
   } else {
     return FlexLayoutMeasureContentImpl<tag_vertical_t>(
-        requirement, requirement.suggest, children, layout_data_list,
+        this, requirement, requirement.suggest, children, layout_data_list,
         item_cross_align_, kLogTag);
   }
 }
