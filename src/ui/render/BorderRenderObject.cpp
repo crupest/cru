@@ -162,11 +162,7 @@ void BorderRenderObject::RecreateGeometry() {
   geometry_.reset();
   border_outer_geometry_.reset();
 
-  Thickness t = border_thickness_;
-  t.left /= 2.0;
-  t.top /= 2.0;
-  t.right /= 2.0;
-  t.bottom /= 2.0;
+  auto t = border_thickness_ / 2.f;
   const CornerRadius& r = border_radius_;
 
   CornerRadius outer_radius(r.left_top + Point{t.left, t.top},

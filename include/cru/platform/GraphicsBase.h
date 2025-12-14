@@ -113,10 +113,6 @@ struct Thickness final {
 
   void SetAll(const float value) { left = top = right = bottom = value; }
 
-  constexpr float Validate() const {
-    return left >= 0.0 && top >= 0.0 && right >= 0.0 && bottom >= 0.0;
-  }
-
   constexpr bool operator==(const Thickness& other) const = default;
 
   float left;
@@ -137,6 +133,20 @@ constexpr Size operator+(const Thickness& thickness, const Size& size) {
 constexpr Thickness operator+(const Thickness& left, const Thickness& right) {
   return {left.left + right.left, left.top + right.top,
           left.right + right.right, left.bottom + right.bottom};
+}
+
+constexpr Thickness operator*(const Thickness& thickness, float scale) {
+  return {thickness.left * scale, thickness.top * scale,
+          thickness.right * scale, thickness.bottom * scale};
+}
+
+constexpr Thickness operator*(float scale, const Thickness& thickness) {
+  return operator*(thickness, scale);
+}
+
+constexpr Thickness operator/(const Thickness& thickness, float scale) {
+  return {thickness.left / scale, thickness.top / scale,
+          thickness.right / scale, thickness.bottom / scale};
 }
 
 struct Rect final {
