@@ -5,16 +5,8 @@
 namespace cru::ui::mapper {
 class CRU_UI_API MeasureLengthMapper
     : public BasicMapper<render::MeasureLength> {
- public:
-  CRU_DEFAULT_CONSTRUCTOR_DESTRUCTOR(MeasureLengthMapper)
-
- public:
-  bool SupportMapFromString() override { return true; }
-  bool SupportMapFromXml() override { return true; }
-  bool XmlElementIsOfThisType(xml::XmlElementNode* node) override;
-
- protected:
-  render::MeasureLength DoMapFromString(std::string str) override;
-  render::MeasureLength DoMapFromXml(xml::XmlElementNode* node) override;
+  CRU_UI_DECLARE_CAN_MAP_FROM_STRING(render::MeasureLength)
+  CRU_UI_DECLARE_CAN_MAP_FROM_XML_ELEMENT_TAG(MeasureLength,
+                                              render::MeasureLength)
 };
 }  // namespace cru::ui::mapper

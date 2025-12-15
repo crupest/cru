@@ -1,12 +1,9 @@
 #include "cru/ui/mapper/ThicknessMapper.h"
+#include "cru/base/Base.h"
 #include "cru/base/StringUtil.h"
 #include "cru/base/xml/XmlNode.h"
 
 namespace cru::ui::mapper {
-bool ThicknessMapper::XmlElementIsOfThisType(xml::XmlElementNode* node) {
-  return cru::string::CaseInsensitiveCompare(node->GetTag(), "Thickness") == 0;
-}
-
 Thickness ThicknessMapper::DoMapFromString(std::string str) {
   std::vector<float> values = cru::string::ParseToNumberList<float>(str);
   if (values.size() == 4) {
@@ -22,7 +19,7 @@ Thickness ThicknessMapper::DoMapFromString(std::string str) {
 
 Thickness ThicknessMapper::DoMapFromXml(xml::XmlElementNode* node) {
   auto value_attr = node->GetOptionalAttributeValueCaseInsensitive("value");
-  if (!value_attr) return {};
+  if (!value_attr) throw Exception("Thickness must have a 'value' attribute.");
   return DoMapFromString(*value_attr);
 }
 }  // namespace cru::ui::mapper

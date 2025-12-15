@@ -4,14 +4,6 @@
 
 namespace cru::ui::mapper {
 class CRU_UI_API CornerRadiusMapper : public BasicMapper<CornerRadius> {
- public:
-  CRU_DEFAULT_CONSTRUCTOR_DESTRUCTOR(CornerRadiusMapper)
-
- public:
-  bool SupportMapFromXml() override { return true; }
-  bool XmlElementIsOfThisType(xml::XmlElementNode* node) override;
-
- protected:
-  CornerRadius DoMapFromXml(xml::XmlElementNode* node) override;
+  CRU_UI_DECLARE_CAN_MAP_FROM_XML_ELEMENT_TAG(CornerRadius, CornerRadius)
 };
 }  // namespace cru::ui::mapper

@@ -3,11 +3,6 @@
 #include "cru/ui/render/MeasureRequirement.h"
 
 namespace cru::ui::mapper {
-bool MeasureLengthMapper::XmlElementIsOfThisType(xml::XmlElementNode* node) {
-  return cru::string::CaseInsensitiveCompare(node->GetTag(), "MeasureLength") ==
-         0;
-}
-
 render::MeasureLength MeasureLengthMapper::DoMapFromString(std::string str) {
   if (cru::string::CaseInsensitiveCompare(str, "notspecified") == 0) {
     return render::MeasureLength::NotSpecified();

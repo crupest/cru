@@ -39,20 +39,8 @@ add_library(CruUi
 	mapper/SizeMapper.cpp
 	mapper/StringMapper.cpp
 	mapper/ThicknessMapper.cpp
-	mapper/style/AndConditionMapper.cpp
-	mapper/style/BorderStylerMapper.cpp
-	mapper/style/CheckedConditionMapper.cpp
-	mapper/style/ClickStateConditionMapper.cpp
-	mapper/style/ContentBrushStylerMapper.cpp
-	mapper/style/CursorStylerMapper.cpp
-	mapper/style/FocusConditionMapper.cpp
-	mapper/style/FontStylerMapper.cpp
-	mapper/style/HoverConditionMapper.cpp
-	mapper/style/MarginStylerMapper.cpp
-	mapper/style/NoConditionMapper.cpp
-	mapper/style/OrConditionMapper.cpp
-	mapper/style/PaddingStylerMapper.cpp
-	mapper/style/PreferredSizeStylerMapper.cpp
+	mapper/style/ConditionMapper.cpp
+	mapper/style/StylerMapper.cpp
 	mapper/style/StyleRuleMapper.cpp
 	mapper/style/StyleRuleSetMapper.cpp
 	render/BorderRenderObject.cpp

@@ -6,10 +6,6 @@ namespace cru::ui::mapper {
 using cru::platform::gui::ICursor;
 using cru::platform::gui::SystemCursorType;
 
-bool CursorMapper::XmlElementIsOfThisType(xml::XmlElementNode* node) {
-  return cru::string::CaseInsensitiveCompare(node->GetTag(), "Cursor") == 0;
-}
-
 std::shared_ptr<ICursor> CursorMapper::DoMapFromString(std::string str) {
   if (str.empty()) return nullptr;
 

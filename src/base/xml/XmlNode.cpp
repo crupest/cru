@@ -5,25 +5,27 @@
 namespace cru::xml {
 
 XmlElementNode* XmlNode::AsElement() {
-  return static_cast<XmlElementNode*>(this);
+  return IsElementNode() ? static_cast<XmlElementNode*>(this) : nullptr;
 }
 
-XmlTextNode* XmlNode::AsText() { return static_cast<XmlTextNode*>(this); }
+XmlTextNode* XmlNode::AsText() {
+  return IsTextNode() ? static_cast<XmlTextNode*>(this) : nullptr;
+}
 
 XmlCommentNode* XmlNode::AsComment() {
-  return static_cast<XmlCommentNode*>(this);
+  return IsCommentNode() ? static_cast<XmlCommentNode*>(this) : nullptr;
 }
 
 const XmlElementNode* XmlNode::AsElement() const {
-  return static_cast<const XmlElementNode*>(this);
+  return IsElementNode() ? static_cast<const XmlElementNode*>(this) : nullptr;
 }
 
 const XmlTextNode* XmlNode::AsText() const {
-  return static_cast<const XmlTextNode*>(this);
+  return IsTextNode() ? static_cast<const XmlTextNode*>(this) : nullptr;
 }
 
 const XmlCommentNode* XmlNode::AsComment() const {
-  return static_cast<const XmlCommentNode*>(this);
+  return IsCommentNode() ? static_cast<const XmlCommentNode*>(this) : nullptr;
 }
 
 XmlElementNode::~XmlElementNode() {

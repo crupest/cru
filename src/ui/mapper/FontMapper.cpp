@@ -4,10 +4,6 @@
 #include "cru/platform/gui/UiApplication.h"
 
 namespace cru::ui::mapper {
-bool FontMapper::XmlElementIsOfThisType(xml::XmlElementNode* node) {
-  return cru::string::CaseInsensitiveCompare(node->GetTag(), "font") == 0;
-}
-
 std::shared_ptr<platform::graphics::IFont> FontMapper::DoMapFromXml(
     xml::XmlElementNode* node) {
   auto font_family_attr = node->GetOptionalAttributeValue("family");

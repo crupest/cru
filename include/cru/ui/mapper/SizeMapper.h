@@ -3,16 +3,7 @@
 
 namespace cru::ui::mapper {
 class CRU_UI_API SizeMapper : public BasicMapper<Size> {
- public:
-  CRU_DEFAULT_CONSTRUCTOR_DESTRUCTOR(SizeMapper)
-
- public:
-  bool SupportMapFromString() override { return true; }
-  bool SupportMapFromXml() override { return true; }
-  bool XmlElementIsOfThisType(xml::XmlElementNode* node) override;
-
- protected:
-  Size DoMapFromString(std::string str) override;
-  Size DoMapFromXml(xml::XmlElementNode* node) override;
+  CRU_UI_DECLARE_CAN_MAP_FROM_STRING(Size)
+  CRU_UI_DECLARE_CAN_MAP_FROM_XML_ELEMENT_TAG(Size, Size)
 };
 }  // namespace cru::ui::mapper

@@ -2,11 +2,6 @@
 #include "cru/ui/mapper/MapperRegistry.h"
 
 namespace cru::ui::mapper {
-bool CornerRadiusMapper::XmlElementIsOfThisType(xml::XmlElementNode* node) {
-  return cru::string::CaseInsensitiveCompare(node->GetTag(), "CornerRadius") ==
-         0;
-}
-
 CornerRadius CornerRadiusMapper::DoMapFromXml(xml::XmlElementNode* node) {
   auto point_mapper = MapperRegistry::GetInstance()->GetMapper<Point>();
   CornerRadius result;

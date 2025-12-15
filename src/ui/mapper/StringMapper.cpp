@@ -2,10 +2,6 @@
 #include "cru/base/xml/XmlNode.h"
 
 namespace cru::ui::mapper {
-StringMapper::StringMapper() { SetAllowedTags({"String"}); }
-
-StringMapper::~StringMapper() {}
-
 std::string StringMapper::DoMapFromString(std::string str) {
   return std::move(str);
 }

@@ -10,25 +10,13 @@
 #include "cru/ui/mapper/SizeMapper.h"
 #include "cru/ui/mapper/StringMapper.h"
 #include "cru/ui/mapper/ThicknessMapper.h"
-#include "cru/ui/mapper/style/AndConditionMapper.h"
-#include "cru/ui/mapper/style/BorderStylerMapper.h"
-#include "cru/ui/mapper/style/CheckedConditionMapper.h"
-#include "cru/ui/mapper/style/ClickStateConditionMapper.h"
-#include "cru/ui/mapper/style/ContentBrushStylerMapper.h"
-#include "cru/ui/mapper/style/CursorStylerMapper.h"
-#include "cru/ui/mapper/style/FocusConditionMapper.h"
-#include "cru/ui/mapper/style/FontStylerMapper.h"
-#include "cru/ui/mapper/style/HoverConditionMapper.h"
-#include "cru/ui/mapper/style/MarginStylerMapper.h"
-#include "cru/ui/mapper/style/NoConditionMapper.h"
-#include "cru/ui/mapper/style/OrConditionMapper.h"
-#include "cru/ui/mapper/style/PaddingStylerMapper.h"
-#include "cru/ui/mapper/style/PreferredSizeStylerMapper.h"
+#include "cru/ui/mapper/style/ConditionMapper.h"
 #include "cru/ui/mapper/style/StyleRuleMapper.h"
 #include "cru/ui/mapper/style/StyleRuleSetMapper.h"
+#include "cru/ui/mapper/style/StylerMapper.h"
 
 namespace cru::ui::mapper {
-MapperRegistry *MapperRegistry::GetInstance() {
+MapperRegistry* MapperRegistry::GetInstance() {
   static MapperRegistry instance;
   return &instance;
 }
@@ -71,7 +59,7 @@ MapperRegistry::~MapperRegistry() {
   }
 }
 
-void MapperRegistry::RegisterMapper(MapperBase *mapper) {
+void MapperRegistry::RegisterMapper(MapperBase* mapper) {
   if (std::find(mapper_list_.cbegin(), mapper_list_.cend(), mapper) !=
       mapper_list_.cend()) {
     throw Exception("This mapper is already registered.");
@@ -80,7 +68,7 @@ void MapperRegistry::RegisterMapper(MapperBase *mapper) {
   mapper_list_.push_back(mapper);
 }
 
-void MapperRegistry::UnregisterMapper(MapperBase *mapper) {
+void MapperRegistry::UnregisterMapper(MapperBase* mapper) {
   auto it = std::find(mapper_list_.begin(), mapper_list_.end(), mapper);
   if (it == mapper_list_.end()) {
     throw Exception("This mapper is not registered.");

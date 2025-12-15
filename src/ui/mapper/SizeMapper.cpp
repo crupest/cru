@@ -2,10 +2,6 @@
 #include "cru/base/StringUtil.h"
 
 namespace cru::ui::mapper {
-bool SizeMapper::XmlElementIsOfThisType(xml::XmlElementNode* node) {
-  return cru::string::CaseInsensitiveCompare(node->GetTag(), "Size") == 0;
-}
-
 Size SizeMapper::DoMapFromString(std::string str) {
   std::vector<float> values = cru::string::ParseToNumberList<float>(str);
   if (values.size() == 2) {

@@ -2,10 +2,6 @@
 #include "cru/base/StringUtil.h"
 
 namespace cru::ui::mapper {
-bool PointMapper::XmlElementIsOfThisType(xml::XmlElementNode* node) {
-  return cru::string::CaseInsensitiveCompare(node->GetTag(), "Point") == 0;
-}
-
 Point PointMapper::DoMapFromString(std::string str) {
   std::vector<float> values = cru::string::ParseToNumberList<float>(str);
   if (values.size() == 2) {

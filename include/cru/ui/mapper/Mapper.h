@@ -1,49 +1,35 @@
 #pragma once
 #include "../Base.h"
 
-#include "cru/base/ClonePtr.h"
-#include "cru/base/xml/XmlNode.h"
+#include <cru/base/Base.h>
+#include <cru/base/ClonePtr.h>
+#include <cru/base/xml/XmlNode.h>
 
 #include <memory>
 #include <type_traits>
 #include <typeindex>
-#include <typeinfo>
 
 namespace cru::ui::mapper {
-template <typename T>
-class BasicMapper;
+class CRU_UI_API MapException : public Exception {
+ public:
+  using Exception::Exception;
+};
 
 class CRU_UI_API MapperBase : public Object {
  public:
   explicit MapperBase(std::type_index type_index);
-  ~MapperBase() override = default;
 
  public:
   std::type_index GetTypeIndex() const { return type_index_; }
 
-  template <typename T>
-  BasicMapper<T>* StaticCast() {
-    return static_cast<BasicMapper<T>*>(this);
-  }
-
-  template <typename T>
-  BasicMapper<T>* DynamicCast() {
-    return dynamic_cast<BasicMapper<T>*>(this);
-  }
-
   virtual bool SupportMapFromString() { return false; }
   virtual bool SupportMapFromXml() { return false; }
-  virtual bool XmlElementIsOfThisType(xml::XmlElementNode* node);
-
- protected:
-  void SetAllowedTags(std::vector<std::string> allowed_tags) {
-    allowed_tags_ = std::move(allowed_tags);
+  virtual bool XmlElementIsOfThisType(xml::XmlElementNode* node) {
+    return false;
   }
 
  private:
   std::type_index type_index_;
-
-  std::vector<std::string> allowed_tags_;
 };
 
 template <typename T>
@@ -53,11 +39,6 @@ class CRU_UI_API BasicMapper : public MapperBase {
                 "T must be default constructible.");
 
   BasicMapper() : MapperBase(typeid(T)) {}
-
-  CRU_DELETE_COPY(BasicMapper)
-  CRU_DELETE_MOVE(BasicMapper)
-
-  ~BasicMapper() override = default;
 
   virtual T MapFromString(std::string str) {
     if (!SupportMapFromString()) {
@@ -90,3 +71,28 @@ using BasicSharedPtrMapper = BasicMapper<std::shared_ptr<T>>;
 template <typename T>
 using BasicClonePtrMapper = BasicMapper<ClonePtr<T>>;
 }  // namespace cru::ui::mapper
+
+#define CRU_UI_DECLARE_CAN_MAP_FROM_STRING(type)        \
+ public:                                                \
+  bool SupportMapFromString() override { return true; } \
+                                                        \
+ protected:                                             \
+  type DoMapFromString(std::string str) override;
+
+#define CRU_UI_DECLARE_CAN_MAP_FROM_XML_ELEMENT(type)              \
+ public:                                                           \
+  bool SupportMapFromXml() override { return true; }               \
+  bool XmlElementIsOfThisType(xml::XmlElementNode* node) override; \
+                                                                   \
+ protected:                                                        \
+  type DoMapFromXml(xml::XmlElementNode* node) override;
+
+#define CRU_UI_DECLARE_CAN_MAP_FROM_XML_ELEMENT_TAG(xml_tag, type)  \
+ public:                                                            \
+  bool SupportMapFromXml() override { return true; }                \
+  bool XmlElementIsOfThisType(xml::XmlElementNode* node) override { \
+    return node->HasTag(#xml_tag);                                  \
+  }                                                                 \
+                                                                    \
+ protected:                                                         \
+  type DoMapFromXml(xml::XmlElementNode* node) override;

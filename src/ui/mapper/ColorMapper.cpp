@@ -2,14 +2,10 @@
 #include "cru/base/StringUtil.h"
 
 namespace cru::ui::mapper {
-bool ColorMapper::XmlElementIsOfThisType(xml::XmlElementNode* node) {
-  return cru::string::CaseInsensitiveCompare(node->GetTag(), "Color") == 0;
-}
-
 Color ColorMapper::DoMapFromString(std::string str) {
   auto c = Color::Parse(str);
   if (!c) {
-    throw Exception("Invalid color value.");
+    throw Exception("Invalid color string.");
   }
   return *c;
 }

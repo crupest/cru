@@ -1,17 +1,13 @@
 #include "cru/ui/mapper/style/StyleRuleMapper.h"
 #include "cru/base/ClonePtr.h"
 #include "cru/ui/mapper/MapperRegistry.h"
-#include "cru/ui/mapper/style/IConditionMapper.h"
-#include "cru/ui/mapper/style/IStylerMapper.h"
-#include "cru/ui/style/Condition.h"
+#include "cru/ui/mapper/style/ConditionMapper.h"
+#include "cru/ui/mapper/style/StylerMapper.h"
 #include "cru/ui/style/StyleRule.h"
 #include "cru/ui/style/Styler.h"
 
 namespace cru::ui::mapper::style {
 using namespace ui::style;
-bool StyleRuleMapper::XmlElementIsOfThisType(xml::XmlElementNode* node) {
-  return cru::string::CaseInsensitiveCompare(node->GetTag(), "StyleRule") == 0;
-}
 
 ClonePtr<ui::style::StyleRule> StyleRuleMapper::DoMapFromXml(
     xml::XmlElementNode* node) {
