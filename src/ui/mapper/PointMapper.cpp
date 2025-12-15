@@ -14,8 +14,6 @@ Point PointMapper::DoMapFromString(std::string str) {
 }
 
 Point PointMapper::DoMapFromXml(xml::XmlElementNode* node) {
-  auto value_attr = node->GetOptionalAttributeValueCaseInsensitive("value");
-  if (!value_attr) return {};
-  return DoMapFromString(*value_attr);
+  return MapFromXmlAsStringValue(node, Point{});
 }
 }  // namespace cru::ui::mapper

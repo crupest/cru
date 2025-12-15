@@ -11,19 +11,15 @@ Color ColorMapper::DoMapFromString(std::string str) {
 }
 
 Color ColorMapper::DoMapFromXml(xml::XmlElementNode* node) {
-  auto value_attr = node->GetOptionalAttributeValueCaseInsensitive("value");
-  Color result = colors::transparent;
-  if (value_attr) {
-    result = DoMapFromString(*value_attr);
-  }
+  auto value = MapFromXmlAsStringValue(node, colors::transparent);
 
   auto alpha_value_attr =
       node->GetOptionalAttributeValueCaseInsensitive("alpha");
   if (alpha_value_attr) {
-    result.alpha =
+    value.alpha =
         cru::string::ParseToNumber<double>(*alpha_value_attr).value * 255;
   }
 
-  return result;
+  return value;
 }
 }  // namespace cru::ui::mapper

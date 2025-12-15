@@ -19,13 +19,11 @@ std::shared_ptr<ICursor> CursorMapper::DoMapFromString(std::string str) {
   } else if (cru::string::CaseInsensitiveCompare(str, "ibeam") == 0) {
     return cursor_manager->GetSystemCursor(SystemCursorType::IBeam);
   } else {
-    throw Exception("Unsupported cursor type.");
+    throw MapException("Unknown cursor name.");
   }
 }
 
 std::shared_ptr<ICursor> CursorMapper::DoMapFromXml(xml::XmlElementNode* node) {
-  auto value_attr = node->GetOptionalAttributeValueCaseInsensitive("value");
-  if (!value_attr) return nullptr;
-  return DoMapFromString(*value_attr);
+  return MapFromXmlAsStringValue(node, nullptr);
 }
 }  // namespace cru::ui::mapper

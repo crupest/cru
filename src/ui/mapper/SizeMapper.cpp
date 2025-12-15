@@ -9,13 +9,11 @@ Size SizeMapper::DoMapFromString(std::string str) {
   } else if (values.size() == 1) {
     return {values[0], values[0]};
   } else {
-    throw Exception("Invalid Point string.");
+    throw Exception("Invalid Size string.");
   }
 }
 
 Size SizeMapper::DoMapFromXml(xml::XmlElementNode* node) {
-  auto value_attr = node->GetOptionalAttributeValueCaseInsensitive("value");
-  if (!value_attr) return {};
-  return DoMapFromString(*value_attr);
+  return MapFromXmlAsStringValue(node, Size{});
 }
 }  // namespace cru::ui::mapper

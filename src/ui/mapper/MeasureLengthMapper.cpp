@@ -19,8 +19,6 @@ render::MeasureLength MeasureLengthMapper::DoMapFromString(std::string str) {
 
 render::MeasureLength MeasureLengthMapper::DoMapFromXml(
     xml::XmlElementNode* node) {
-  auto value_attr = node->GetOptionalAttributeValueCaseInsensitive("value");
-  if (!value_attr) return {};
-  return DoMapFromString(*value_attr);
+  return MapFromXmlAsStringValue(node, render::MeasureLength::NotSpecified());
 }
 }  // namespace cru::ui::mapper

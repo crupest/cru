@@ -6,7 +6,7 @@
 #include <cru/base/xml/XmlNode.h>
 
 #include <memory>
-#include <type_traits>
+#include <optional>
 #include <typeindex>
 
 namespace cru::ui::mapper {
@@ -35,12 +35,9 @@ class CRU_UI_API MapperBase : public Object {
 template <typename T>
 class CRU_UI_API BasicMapper : public MapperBase {
  public:
-  static_assert(std::is_default_constructible_v<T>,
-                "T must be default constructible.");
-
   BasicMapper() : MapperBase(typeid(T)) {}
 
-  virtual T MapFromString(std::string str) {
+  T MapFromString(std::string str) {
     if (!SupportMapFromString()) {
       throw Exception("This mapper does not support map from string.");
     }
@@ -61,8 +58,36 @@ class CRU_UI_API BasicMapper : public MapperBase {
   }
 
  protected:
-  virtual T DoMapFromString(std::string str) { return {}; }
-  virtual T DoMapFromXml(xml::XmlElementNode* node) { return {}; }
+  virtual T DoMapFromString(std::string str) { NotImplemented(); }
+  virtual T DoMapFromXml(xml::XmlElementNode* node) { NotImplemented(); }
+
+  T MapFromXmlAsStringValue(xml::XmlElementNode* node,
+                            std::optional<T> default_value = std::nullopt) {
+    std::optional<T>& value = default_value;
+
+    auto value_attr = node->GetOptionalAttributeValueCaseInsensitive("value");
+    if (value_attr) {
+      value = DoMapFromString(*value_attr);
+    }
+
+    for (auto child : node->GetChildren()) {
+      if (child->IsElementNode()) {
+        throw MapException("XML node can't contain element child.");
+      } else if (auto c = child->AsText()) {
+        auto text = c->GetText();
+        if (!text.empty() && value.has_value()) {
+          throw MapException("XML node has multiple values specified.");
+        }
+        value = DoMapFromString(text);
+      }
+    }
+
+    if (!value.has_value()) {
+      throw MapException("XML node has no value specified.");
+    }
+
+    return *value;
+  }
 };
 
 template <typename T>

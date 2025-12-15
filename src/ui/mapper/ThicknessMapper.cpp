@@ -18,8 +18,6 @@ Thickness ThicknessMapper::DoMapFromString(std::string str) {
 }
 
 Thickness ThicknessMapper::DoMapFromXml(xml::XmlElementNode* node) {
-  auto value_attr = node->GetOptionalAttributeValueCaseInsensitive("value");
-  if (!value_attr) throw Exception("Thickness must have a 'value' attribute.");
-  return DoMapFromString(*value_attr);
+  return MapFromXmlAsStringValue(node, Thickness{});
 }
 }  // namespace cru::ui::mapper

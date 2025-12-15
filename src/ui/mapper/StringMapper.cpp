@@ -7,8 +7,6 @@ std::string StringMapper::DoMapFromString(std::string str) {
 }
 
 std::string StringMapper::DoMapFromXml(xml::XmlElementNode* node) {
-  auto value_attr = node->GetOptionalAttributeValueCaseInsensitive("value");
-  if (value_attr) return *value_attr;
-  return {};
+  return MapFromXmlAsStringValue(node, "");
 }
 }  // namespace cru::ui::mapper
