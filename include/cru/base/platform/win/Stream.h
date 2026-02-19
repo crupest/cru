@@ -26,7 +26,7 @@ class CRU_BASE_API Win32HandleStream : public io::Stream {
   Index DoWrite(const std::byte* buffer, Index offset, Index size) override;
 
  public:
-  const Win32Handle& GetHandle() { return handle_; }
+  HANDLE GetHandle() { return handle_; }
 
   CRU_STREAM_IMPLEMENT_CLOSE_BY_DO_CLOSE
 
@@ -34,7 +34,8 @@ class CRU_BASE_API Win32HandleStream : public io::Stream {
   void DoClose();
 
  private:
-  Win32Handle handle_;
+  HANDLE handle_;
+  bool auto_close_;
 };
 
 CRU_BASE_API IStream* ToComStream(io::Stream* stream);

@@ -33,6 +33,6 @@ UniDirectionalWin32PipeResult OpenUniDirectionalPipe(Win32PipeFlag flag) {
                                           HANDLE_FLAG_INHERIT));
   }
 
-  return {Win32Handle(read, true), Win32Handle(write, true)};
+  return {Win32Handle(read), Win32Handle(write)};
 }
 }  // namespace cru::platform::win

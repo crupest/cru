@@ -42,9 +42,9 @@ HANDLE OpenHandle(std::string_view path, OpenFileFlag flags) {
 
   IStream* stream;
 
-  auto handle =
-      ::CreateFileW(cru::string::ToUtf16WString(path).c_str(), access, 0, nullptr,
-                    creation_disposition, FILE_ATTRIBUTE_NORMAL, nullptr);
+  auto handle = ::CreateFileW(cru::string::ToUtf16WString(path).c_str(), access,
+                              0, nullptr, creation_disposition,
+                              FILE_ATTRIBUTE_NORMAL, nullptr);
 
   if (handle == INVALID_HANDLE_VALUE) {
     throw Win32Error("Failed to call CreateFileW.");
@@ -68,13 +68,14 @@ Win32HandleStream::Win32HandleStream(std::string_view path, OpenFileFlag flags)
 Win32HandleStream::Win32HandleStream(HANDLE handle, bool auto_close,
                                      bool can_seek, bool can_read,
                                      bool can_write)
-    : Win32HandleStream(Win32Handle(handle, auto_close), can_seek, can_read,
-                        can_write) {}
+    : Stream(SupportedOperations(can_seek, can_read, can_write)),
+      handle_(handle),
+      auto_close_(auto_close) {}
 
 Win32HandleStream::Win32HandleStream(Win32Handle&& handle, bool can_seek,
                                      bool can_read, bool can_write)
-    : Stream(SupportedOperations(can_seek, can_read, can_write)),
-      handle_(std::move(handle)) {}
+    : Win32HandleStream(handle.Release(), true, can_seek, can_read, can_write) {
+}
 
 Win32HandleStream::~Win32HandleStream() { DoClose(); }
 
@@ -92,14 +93,14 @@ Index Win32HandleStream::DoSeek(Index offset, SeekOrigin origin) {
   LARGE_INTEGER n_offset, new_pos;
   n_offset.QuadPart = offset;
 
-  CheckWinReturn(::SetFilePointerEx(handle_.Get(), n_offset, &new_pos, method));
+  CheckWinReturn(::SetFilePointerEx(handle_, n_offset, &new_pos, method));
 
   return new_pos.QuadPart;
 }
 
 Index Win32HandleStream::DoRead(std::byte* buffer, Index offset, Index size) {
   DWORD real_read;
-  auto r = ::ReadFile(handle_.Get(), static_cast<LPVOID>(buffer + offset), size,
+  auto r = ::ReadFile(handle_, static_cast<LPVOID>(buffer + offset), size,
                       &real_read, nullptr);
   if (r == FALSE) {
     auto e = ::GetLastError();
@@ -113,14 +114,17 @@ Index Win32HandleStream::DoRead(std::byte* buffer, Index offset, Index size) {
 Index Win32HandleStream::DoWrite(const std::byte* buffer, Index offset,
                                  Index size) {
   DWORD real_write;
-  CheckWinReturn(::WriteFile(handle_.Get(),
-                             static_cast<LPCVOID>(buffer + offset), size,
-                             &real_write, nullptr));
+  CheckWinReturn(::WriteFile(handle_, static_cast<LPCVOID>(buffer + offset),
+                             size, &real_write, nullptr));
   return real_write;
 }
 
 void Win32HandleStream::DoClose() {
   CRU_STREAM_BEGIN_CLOSE
+
+  if (auto_close_) {
+    ::CloseHandle(handle_);
+  }
 
   handle_ = {};
 }
