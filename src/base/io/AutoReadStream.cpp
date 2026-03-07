@@ -8,7 +8,7 @@ namespace cru::io {
 AutoReadStream::AutoReadStream(Stream* stream, bool auto_close,
                                bool auto_delete,
                                const AutoReadStreamOptions& options)
-    : Stream(false, true, stream->CanSeek()),
+    : Stream(false, true, std::nullopt),
       auto_close_(auto_close),
       auto_delete_(auto_delete) {
   auto buffer_stream_options = options.GetBufferStreamOptions();
@@ -19,9 +19,14 @@ AutoReadStream::AutoReadStream(Stream* stream, bool auto_close,
 }
 
 AutoReadStream::~AutoReadStream() {
-  DoClose();
+  if (auto_delete_) {
+    delete stream_;
+  }
+  buffer_stream_->Close();
   background_thread_.join();
 }
+
+bool AutoReadStream::DoCanWrite() { return stream_->CanWrite(); }
 
 Index AutoReadStream::DoRead(std::byte* buffer, Index offset, Index size) {
   return buffer_stream_->Read(buffer, offset, size);
@@ -35,13 +40,8 @@ Index AutoReadStream::DoWrite(const std::byte* buffer, Index offset,
 void AutoReadStream::DoFlush() { stream_->Flush(); }
 
 void AutoReadStream::DoClose() {
-  CRU_STREAM_BEGIN_CLOSE
   if (auto_close_) {
     stream_->Close();
-  }
-  if (auto_delete_) {
-    delete stream_;
-    stream_ = nullptr;
   }
   buffer_stream_->Close();
 }
@@ -51,14 +51,13 @@ void AutoReadStream::BackgroundThreadRun() {
   while (true) {
     try {
       auto read = stream_->Read(buffer.data(), buffer.size());
-      if (read == 0) {
-        buffer_stream_->SetEof();
+      if (read == kEOF) {
+        buffer_stream_->WriteEof();
         break;
       } else {
         buffer_stream_->Write(buffer.data(), read);
       }
-    } catch (const StreamClosedException& exception) {
-      buffer_stream_->Close();
+    } catch (const StreamException&) {
       break;
     }
   }

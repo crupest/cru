@@ -19,17 +19,13 @@ class UnixFileStream : public io::Stream {
   ~UnixFileStream() override;
 
  public:
-  CRU_STREAM_IMPLEMENT_CLOSE_BY_DO_CLOSE
-
   int GetFileDescriptor() const { return file_descriptor_; }
 
  protected:
   Index DoSeek(Index offset, SeekOrigin origin = SeekOrigin::Current) override;
   Index DoRead(std::byte* buffer, Index offset, Index size) override;
   Index DoWrite(const std::byte* buffer, Index offset, Index size) override;
-
- private:
-  void DoClose();
+  void DoClose() override;
 
  private:
   UnixFileDescriptor file_descriptor_;

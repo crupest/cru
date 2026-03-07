@@ -145,6 +145,9 @@ class CRU_BASE_API PlatformException : public Exception {
 
 class CRU_BASE_API ErrnoException : public Exception {
  public:
+  /**
+   * @brief will retrieve errno automatically.
+   */
   ErrnoException();
   explicit ErrnoException(int error_code);
   /**

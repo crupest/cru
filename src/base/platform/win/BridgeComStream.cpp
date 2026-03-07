@@ -2,7 +2,7 @@
 #include "cru/base/io/Stream.h"
 
 namespace cru::platform::win {
-BridgeComStream::BridgeComStream(io::Stream *stream)
+BridgeComStream::BridgeComStream(io::Stream* stream)
     : stream_(stream), ref_count_(1) {}
 
 BridgeComStream::~BridgeComStream() {}
@@ -20,17 +20,17 @@ ULONG BridgeComStream::Release() {
   return ref_count_;
 }
 
-HRESULT BridgeComStream::QueryInterface(const IID &riid, void **ppvObject) {
+HRESULT BridgeComStream::QueryInterface(const IID& riid, void** ppvObject) {
   if (riid == IID_IStream) {
-    *ppvObject = static_cast<IStream *>(this);
+    *ppvObject = static_cast<IStream*>(this);
     AddRef();
     return S_OK;
   } else if (riid == IID_ISequentialStream) {
-    *ppvObject = static_cast<ISequentialStream *>(this);
+    *ppvObject = static_cast<ISequentialStream*>(this);
     AddRef();
     return S_OK;
   } else if (riid == IID_IUnknown) {
-    *ppvObject = static_cast<IUnknown *>(this);
+    *ppvObject = static_cast<IUnknown*>(this);
     AddRef();
     return S_OK;
   } else {
@@ -38,18 +38,22 @@ HRESULT BridgeComStream::QueryInterface(const IID &riid, void **ppvObject) {
   }
 }
 
-HRESULT BridgeComStream::Read(void *pv, ULONG cb, ULONG *pcbRead) {
-  *pcbRead = stream_->Read(static_cast<std::byte *>(pv), cb);
-  return S_OK;
+HRESULT BridgeComStream::Read(void* pv, ULONG cb, ULONG* pcbRead) {
+  auto count = stream_->Read(static_cast<std::byte*>(pv), cb);
+  if (count == cru::io::Stream::kEOF) {
+    count = 0;
+  }
+  *pcbRead = count;
+  return cb == count ? S_OK : S_FALSE;
 }
 
-HRESULT BridgeComStream::Write(const void *pv, ULONG cb, ULONG *pcbWritten) {
-  *pcbWritten = stream_->Write(static_cast<const std::byte *>(pv), cb);
+HRESULT BridgeComStream::Write(const void* pv, ULONG cb, ULONG* pcbWritten) {
+  *pcbWritten = stream_->Write(static_cast<const std::byte*>(pv), cb);
   return S_OK;
 }
 
 HRESULT BridgeComStream::Seek(LARGE_INTEGER dlibMove, DWORD dwOrigin,
-                              ULARGE_INTEGER *plibNewPosition) {
+                              ULARGE_INTEGER* plibNewPosition) {
   io::Stream::SeekOrigin so;
 
   switch (dwOrigin) {
@@ -74,9 +78,9 @@ HRESULT BridgeComStream::SetSize(ULARGE_INTEGER libNewSize) {
   return E_NOTIMPL;
 }
 
-HRESULT BridgeComStream::CopyTo(IStream *pstm, ULARGE_INTEGER cb,
-                                ULARGE_INTEGER *pcbRead,
-                                ULARGE_INTEGER *pcbWritten) {
+HRESULT BridgeComStream::CopyTo(IStream* pstm, ULARGE_INTEGER cb,
+                                ULARGE_INTEGER* pcbRead,
+                                ULARGE_INTEGER* pcbWritten) {
   return E_NOTIMPL;
 }
 
@@ -94,11 +98,11 @@ HRESULT BridgeComStream::UnlockRegion(ULARGE_INTEGER libOffset,
   return S_OK;
 }
 
-HRESULT BridgeComStream::Stat(STATSTG *pstatstg, DWORD grfStatFlag) {
+HRESULT BridgeComStream::Stat(STATSTG* pstatstg, DWORD grfStatFlag) {
   return E_NOTIMPL;
 }
 
-HRESULT BridgeComStream::Clone(IStream **ppstm) {
+HRESULT BridgeComStream::Clone(IStream** ppstm) {
   *ppstm = new BridgeComStream(stream_);
   return S_OK;
 }

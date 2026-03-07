@@ -5,6 +5,9 @@ add_executable(CruBaseTest
 	StringUtilTest.cpp
 	SubProcessTest.cpp
 	TimerTest.cpp
+	io/AutoReadStreamTest.cpp
+	io/BufferStreamTest.cpp
+	io/MemoryStreamTest.cpp
 	toml/ParserTest.cpp
 	xml/ParserTest.cpp
 )

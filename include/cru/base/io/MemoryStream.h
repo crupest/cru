@@ -14,18 +14,14 @@ class CRU_BASE_API MemoryStream : public Stream {
   ~MemoryStream() override;
 
  public:
-  void Close() override;
-
-  std::byte* GetBuffer() const { return buffer_; }
+  std::byte* GetBuffer() { return buffer_; }
 
  protected:
   Index DoSeek(Index offset, SeekOrigin origin) override;
   Index DoGetSize() override { return size_; }
   Index DoRead(std::byte* buffer, Index offset, Index size) override;
   Index DoWrite(const std::byte* buffer, Index offset, Index size) override;
-
- private:
-  void DoClose();
+  void DoClose() override;
 
  private:
   std::byte* buffer_;

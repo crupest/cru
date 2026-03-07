@@ -37,7 +37,7 @@ int MapSeekOrigin(Stream::SeekOrigin origin) {
 }
 }  // namespace
 
-UnixFileStream::UnixFileStream(const char *path, int oflag, mode_t mode) {
+UnixFileStream::UnixFileStream(const char* path, int oflag, mode_t mode) {
   file_descriptor_ = UnixFileDescriptor(::open(path, oflag, mode));
   if (file_descriptor_ == -1) {
     throw ErrnoException(std::format(
@@ -52,7 +52,7 @@ UnixFileStream::UnixFileStream(UnixFileDescriptor fd, bool can_seek,
                                bool can_read, bool can_write)
     : Stream(can_seek, can_read, can_write), file_descriptor_(std::move(fd)) {}
 
-UnixFileStream::~UnixFileStream() { DoClose(); }
+UnixFileStream::~UnixFileStream() { file_descriptor_ = {}; }
 
 Index UnixFileStream::DoSeek(Index offset, SeekOrigin origin) {
   off_t result = ::lseek(file_descriptor_, offset, MapSeekOrigin(origin));
@@ -62,7 +62,7 @@ Index UnixFileStream::DoSeek(Index offset, SeekOrigin origin) {
   return result;
 }
 
-Index UnixFileStream::DoRead(std::byte *buffer, Index offset, Index size) {
+Index UnixFileStream::DoRead(std::byte* buffer, Index offset, Index size) {
   auto result = ::read(file_descriptor_, buffer + offset, size);
   if (result == -1) {
     throw ErrnoException("Failed to read file.");
@@ -70,7 +70,7 @@ Index UnixFileStream::DoRead(std::byte *buffer, Index offset, Index size) {
   return result;
 }
 
-Index UnixFileStream::DoWrite(const std::byte *buffer, Index offset,
+Index UnixFileStream::DoWrite(const std::byte* buffer, Index offset,
                               Index size) {
   auto result = ::write(file_descriptor_, buffer + offset, size);
   if (result == -1) {
@@ -79,10 +79,5 @@ Index UnixFileStream::DoWrite(const std::byte *buffer, Index offset,
   return result;
 }
 
-void UnixFileStream::DoClose() {
-  CRU_STREAM_BEGIN_CLOSE
-  if (file_descriptor_) {
-    file_descriptor_ = {};
-  }
-}
+void UnixFileStream::DoClose() { file_descriptor_ = {}; }
 }  // namespace cru::platform::unix

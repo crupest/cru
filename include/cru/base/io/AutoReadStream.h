@@ -3,7 +3,6 @@
 #include "BufferStream.h"
 #include "Stream.h"
 
-#include <mutex>
 #include <thread>
 
 namespace cru::io {
@@ -45,18 +44,16 @@ class CRU_BASE_API AutoReadStream : public Stream {
   ~AutoReadStream() override;
 
  public:
-  CRU_STREAM_IMPLEMENT_CLOSE_BY_DO_CLOSE
-
-  void BeginToDrop(bool auto_close = true, bool auto_delete = true);
+  Stream* GetUnderlyingStream() { return stream_; }
 
  protected:
+  bool DoCanWrite() override;
   Index DoRead(std::byte* buffer, Index offset, Index size) override;
   Index DoWrite(const std::byte* buffer, Index offset, Index size) override;
   void DoFlush() override;
+  void DoClose() override;
 
  private:
-  void DoClose();
-
   void BackgroundThreadRun();
 
  private:

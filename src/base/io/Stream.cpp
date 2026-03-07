@@ -1,33 +1,34 @@
 #include "cru/base/io/Stream.h"
 
-#include <algorithm>
+#include <atomic>
 #include <format>
-#include <iterator>
+#include <ranges>
 #include <utility>
 
 namespace cru::io {
+StreamException::StreamException(Stream* stream, std::string message,
+                                 std::shared_ptr<std::exception> inner)
+    : Exception(std::move(message), std::move(inner)), stream_(stream) {}
+
 StreamOperationNotSupportedException::StreamOperationNotSupportedException(
-    std::string operation)
-    : Exception(std::format("Stream operation {} not supported.", operation)),
+    Stream* stream, std::string operation)
+    : StreamException(
+          stream, std::format("Stream operation {} not supported.", operation)),
       operation_(std::move(operation)) {}
 
-void StreamOperationNotSupportedException::CheckSeek(bool seekable) {
-  if (!seekable) throw StreamOperationNotSupportedException("seek");
+void StreamOperationNotSupportedException::CheckSeek(Stream* stream,
+                                                     bool seekable) {
+  if (!seekable) throw StreamOperationNotSupportedException(stream, "seek");
 }
 
-void StreamOperationNotSupportedException::CheckRead(bool readable) {
-  if (!readable) throw StreamOperationNotSupportedException("read");
+void StreamOperationNotSupportedException::CheckRead(Stream* stream,
+                                                     bool readable) {
+  if (!readable) throw StreamOperationNotSupportedException(stream, "read");
 }
 
-void StreamOperationNotSupportedException::CheckWrite(bool writable) {
-  if (!writable) throw StreamOperationNotSupportedException("write");
-}
-
-StreamClosedException::StreamClosedException()
-    : Exception("Stream is already closed.") {}
-
-void StreamClosedException::Check(bool closed) {
-  if (closed) throw StreamClosedException();
+void StreamOperationNotSupportedException::CheckWrite(Stream* stream,
+                                                      bool writable) {
+  if (!writable) throw StreamOperationNotSupportedException(stream, "write");
 }
 
 Stream::Stream(SupportedOperations supported_operations)
@@ -44,7 +45,7 @@ bool Stream::CanSeek() {
 
 Index Stream::Seek(Index offset, SeekOrigin origin) {
   CheckClosed();
-  StreamOperationNotSupportedException::CheckSeek(DoCanSeek());
+  StreamOperationNotSupportedException::CheckSeek(this, DoCanSeek());
   return DoSeek(offset, origin);
 }
 
@@ -70,7 +71,7 @@ bool Stream::CanRead() {
 
 Index Stream::Read(std::byte* buffer, Index offset, Index size) {
   CheckClosed();
-  StreamOperationNotSupportedException::CheckRead(DoCanRead());
+  StreamOperationNotSupportedException::CheckRead(this, DoCanRead());
   return DoRead(buffer, offset, size);
 }
 
@@ -93,7 +94,7 @@ bool Stream::CanWrite() {
 
 Index Stream::Write(const std::byte* buffer, Index offset, Index size) {
   CheckClosed();
-  StreamOperationNotSupportedException::CheckWrite(DoCanWrite());
+  StreamOperationNotSupportedException::CheckWrite(this, DoCanWrite());
   return DoWrite(buffer, offset, size);
 }
 
@@ -112,6 +113,46 @@ Index Stream::Write(const char* buffer, Index size) {
 void Stream::Flush() {
   CheckClosed();
   DoFlush();
+}
+
+bool Stream::IsClosed() { return closed_.load(std::memory_order_acquire); }
+
+bool Stream::Close() {
+  bool expected = false;
+  if (closed_.compare_exchange_strong(expected, true,
+                                      std::memory_order_acq_rel)) {
+    DoClose();
+  }
+  return expected;
+}
+
+std::vector<std::byte> Stream::ReadToEnd(Index grow_size) {
+  std::vector<std::byte> buffer;
+  Index pos = 0;
+  while (true) {
+    if (pos == buffer.size()) {
+      buffer.resize(buffer.size() + grow_size);
+    }
+
+    auto read = Read(buffer.data(), pos, buffer.size() - pos);
+    if (read == kEOF) {
+      break;
+    }
+    pos += read;
+  }
+  buffer.resize(pos);
+  return buffer;
+}
+
+std::string Stream::ReadToEndAsUtf8String() {
+  auto buffer = ReadToEnd();
+  return std::views::transform(
+             buffer, [](std::byte c) { return static_cast<char>(c); }) |
+         std::ranges::to<std::string>();
+}
+
+void Stream::SetSupportedOperations(SupportedOperations supported_operations) {
+  supported_operations_ = std::move(supported_operations);
 }
 
 bool Stream::DoCanSeek() {
@@ -149,17 +190,17 @@ Index Stream::DoSeek(Index offset, SeekOrigin origin) {
 }
 
 Index Stream::DoTell() {
-  StreamOperationNotSupportedException::CheckSeek(DoCanSeek());
+  StreamOperationNotSupportedException::CheckSeek(this, DoCanSeek());
   return DoSeek(0, SeekOrigin::Current);
 }
 
 void Stream::DoRewind() {
-  StreamOperationNotSupportedException::CheckSeek(DoCanSeek());
+  StreamOperationNotSupportedException::CheckSeek(this, DoCanSeek());
   DoSeek(0, SeekOrigin::Begin);
 }
 
 Index Stream::DoGetSize() {
-  StreamOperationNotSupportedException::CheckSeek(DoCanSeek());
+  StreamOperationNotSupportedException::CheckSeek(this, DoCanSeek());
   Index current_position = DoTell();
   Seek(0, SeekOrigin::End);
   Index size = DoTell();
@@ -177,27 +218,12 @@ Index Stream::DoWrite(const std::byte* buffer, Index offset, Index size) {
 
 void Stream::DoFlush() {}
 
-Buffer Stream::ReadToEnd(Index grow_size) {
-  Buffer buffer(grow_size);
-  while (true) {
-    auto read = Read(buffer.GetUsedEndPtr(), buffer.GetBackFree());
-    buffer.PushBackCount(read);
-    if (read == 0) {
-      break;
-    }
-    if (buffer.IsUsedReachEnd()) {
-      buffer.ResizeBuffer(buffer.GetBufferSize() + grow_size, true);
-    }
+void Stream::DoClose() {}
+
+void Stream::CheckClosed() {
+  if (IsClosed()) {
+    throw StreamClosedException(this, "Stream is closed.");
   }
-  return buffer;
 }
 
-std::string Stream::ReadToEndAsUtf8String() {
-  auto buffer = ReadToEnd();
-  std::string result;
-  std::transform(buffer.GetUsedBeginPtr(), buffer.GetUsedEndPtr(),
-                 std::back_inserter(result),
-                 [](std::byte c) { return static_cast<char>(c); });
-  return result;
-}
 }  // namespace cru::io

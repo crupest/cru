@@ -20,9 +20,11 @@ MemoryStream::MemoryStream(
   }
 }
 
-MemoryStream::~MemoryStream() {}
-
-void MemoryStream::Close() { DoClose(); }
+MemoryStream::~MemoryStream() {
+  if (buffer_ && release_func_) {
+    release_func_(buffer_, size_);
+  }
+}
 
 Index MemoryStream::DoSeek(Index offset, SeekOrigin origin) {
   switch (origin) {
@@ -40,6 +42,10 @@ Index MemoryStream::DoSeek(Index offset, SeekOrigin origin) {
 }
 
 Index MemoryStream::DoRead(std::byte* buffer, Index offset, Index size) {
+  if (position_ == size_) {
+    return kEOF;
+  }
+
   if (position_ + size > size_) {
     size = size_ - position_;
   }
@@ -64,10 +70,11 @@ Index MemoryStream::DoWrite(const std::byte* buffer, Index offset, Index size) {
 }
 
 void MemoryStream::DoClose() {
-  CRU_STREAM_BEGIN_CLOSE
-  release_func_(buffer_, size_);
+  if (release_func_) {
+    release_func_(buffer_, size_);
+    release_func_ = {};
+  }
   buffer_ = nullptr;
-  release_func_ = {};
 }
 
 }  // namespace cru::io

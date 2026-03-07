@@ -1,8 +1,10 @@
 #include "cru/base/platform/win/Win32SubProcess.h"
-#include <processthreadsapi.h>
-#include <synchapi.h>
 #include "cru/base/StringUtil.h"
 #include "cru/base/SubProcess.h"
+#include "cru/base/io/AutoReadStream.h"
+
+#include <processthreadsapi.h>
+#include <synchapi.h>
 
 #include <memory>
 #include <string_view>

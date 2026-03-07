@@ -77,7 +77,11 @@ Win32HandleStream::Win32HandleStream(Win32Handle&& handle, bool can_seek,
     : Win32HandleStream(handle.Release(), true, can_seek, can_read, can_write) {
 }
 
-Win32HandleStream::~Win32HandleStream() { DoClose(); }
+Win32HandleStream::~Win32HandleStream() {
+  if (handle_ && auto_close_) {
+    ::CloseHandle(handle_);
+  }
+}
 
 Index Win32HandleStream::DoSeek(Index offset, SeekOrigin origin) {
   DWORD method = 0;
@@ -104,9 +108,13 @@ Index Win32HandleStream::DoRead(std::byte* buffer, Index offset, Index size) {
                       &real_read, nullptr);
   if (r == FALSE) {
     auto e = ::GetLastError();
-    if (e != ERROR_BROKEN_PIPE || e != ERROR_BROKEN_PIPE) {
+    if (e != ERROR_BROKEN_PIPE && e != ERROR_MORE_DATA) {
       throw Win32Error(e, "Failed to call ReadFile.");
     }
+  }
+
+  if (real_read == 0) {
+    return kEOF;
   }
   return real_read;
 }
@@ -120,13 +128,10 @@ Index Win32HandleStream::DoWrite(const std::byte* buffer, Index offset,
 }
 
 void Win32HandleStream::DoClose() {
-  CRU_STREAM_BEGIN_CLOSE
-
   if (auto_close_) {
     ::CloseHandle(handle_);
   }
-
-  handle_ = {};
+  handle_ = nullptr;
 }
 
 IStream* ToComStream(io::Stream* stream) {
@@ -185,7 +190,11 @@ ComStream::ComStream(IStream* com_stream, bool auto_release, bool can_seek,
       stream_(com_stream),
       auto_release_(auto_release) {}
 
-ComStream::~ComStream() { DoClose(); }
+ComStream::~ComStream() {
+  if (stream_ && auto_release_) {
+    stream_->Release();
+  }
+}
 
 Index ComStream::DoSeek(Index offset, SeekOrigin origin) {
   DWORD dwOrigin = 0;
@@ -210,6 +219,9 @@ Index ComStream::DoSeek(Index offset, SeekOrigin origin) {
 Index ComStream::DoRead(std::byte* buffer, Index offset, Index size) {
   ULONG n_read;
   CheckHResult(stream_->Read(buffer + offset, size, &n_read));
+  if (n_read == 0) {
+    return kEOF;
+  }
   return n_read;
 }
 
@@ -225,11 +237,9 @@ Index ComStream::DoWrite(const std::byte* buffer, Index offset, Index size) {
 }
 
 void ComStream::DoClose() {
-  CRU_STREAM_BEGIN_CLOSE
-
-  if (stream_ && auto_release_) {
+  if (auto_release_) {
     stream_->Release();
-    stream_ = nullptr;
   }
+  stream_ = nullptr;
 }
 }  // namespace cru::platform::win

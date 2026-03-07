@@ -1,6 +1,5 @@
 add_library(CruBase
 	Base.cpp
-	Buffer.cpp
 	PropertyTree.cpp
 	StringUtil.cpp
 	SubProcess.cpp
@@ -9,7 +8,6 @@ add_library(CruBase
 	io/BufferStream.cpp
 	io/CFileStream.cpp
 	io/Stream.cpp
-	io/ProxyStream.cpp
 	io/Resource.cpp
 	io/MemoryStream.cpp
 	log/Logger.cpp

@@ -1,3 +1,4 @@
+#include "cru/base/Guard.h"
 #include "cru/base/StringUtil.h"
 #include "cru/base/platform/win/Stream.h"
 
@@ -15,6 +16,7 @@ TEST_CASE("StreamConvert FileStreamWork", "[stream]") {
       (std::filesystem::temp_directory_path() / "cru_test_temp.XXXXXX")
           .native();
   _wmktemp(temp_file_path.data());
+  Guard _([temp_file_path] { std::filesystem::remove(temp_file_path); });
 
   std::string path = string::ToUtf8String(temp_file_path);
 
@@ -32,8 +34,6 @@ TEST_CASE("StreamConvert FileStreamWork", "[stream]") {
   REQUIRE(std::string_view(buffer.get(), 3) == "abc");
   com_stream->Release();
   file2.Close();
-
-  std::filesystem::remove(temp_file_path);
 }
 
 TEST_CASE("ComStream Work", "[stream]") {
@@ -45,6 +45,7 @@ TEST_CASE("ComStream Work", "[stream]") {
       (std::filesystem::temp_directory_path() / "cru_test_temp.XXXXXX")
           .native();
   _wmktemp(temp_file_path.data());
+  Guard _([temp_file_path] { std::filesystem::remove(temp_file_path); });
 
   std::string path = string::ToUtf8String(temp_file_path);
 
@@ -62,6 +63,4 @@ TEST_CASE("ComStream Work", "[stream]") {
   REQUIRE(std::string_view(reinterpret_cast<const char*>(buffer.get()), 3) ==
           "abc");
   file2.Close();
-
-  std::filesystem::remove(temp_file_path);
 }

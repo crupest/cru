@@ -27,7 +27,8 @@ CFileStream::CFileStream(const char* path, const char* mode)
       file_(std::fopen(path, mode)),
       auto_close_(true) {
   if (file_ == nullptr) {
-    throw ErrnoException("Cannot open file.");
+    throw StreamIOException(this, "fopen failed.",
+                            std::make_shared<ErrnoException>());
   }
 }
 
@@ -40,7 +41,7 @@ CFileStream::CFileStream(std::FILE* file, bool readable, bool writable,
 }
 
 CFileStream::~CFileStream() {
-  if (auto_close_ && file_ != nullptr) {
+  if (file_ && auto_close_) {
     std::fclose(file_);
   }
 }
@@ -60,7 +61,8 @@ static int ConvertOriginFlag(Stream::SeekOrigin origin) {
 
 Index CFileStream::DoSeek(Index offset, SeekOrigin origin) {
   if (std::fseek(file_, offset, ConvertOriginFlag(origin))) {
-    throw ErrnoException("Seek failed.");
+    throw StreamIOException(this, "fseek failed.",
+                            std::make_shared<ErrnoException>());
   }
   return DoTell();
 }
@@ -68,7 +70,8 @@ Index CFileStream::DoSeek(Index offset, SeekOrigin origin) {
 Index CFileStream::DoTell() {
   long position = std::ftell(file_);
   if (position == -1) {
-    throw ErrnoException("Tell failed.");
+    throw StreamIOException(this, "ftell failed.",
+                            std::make_shared<ErrnoException>());
   }
   return position;
 }
@@ -77,20 +80,28 @@ void CFileStream::DoRewind() { std::rewind(file_); }
 
 Index CFileStream::DoRead(std::byte* buffer, Index offset, Index size) {
   auto count = std::fread(buffer + offset, 1, size, file_);
+  if (std::ferror(file_)) {
+    throw StreamIOException(this, "Error occurred when reading C FILE.");
+  }
+  if (count == 0 && std::feof(file_)) {
+    return kEOF;
+  }
   return count;
 }
 
 Index CFileStream::DoWrite(const std::byte* buffer, Index offset, Index size) {
   auto count = std::fwrite(buffer + offset, 1, size, file_);
+  if (std::ferror(file_)) {
+    throw StreamIOException(this, "Error occurred when writing C FILE.");
+  }
   return count;
 }
 
 void CFileStream::DoFlush() { std::fflush(file_); }
 
 void CFileStream::DoClose() {
-  CRU_STREAM_BEGIN_CLOSE
   if (auto_close_ && !std::fclose(file_)) {
-    throw Exception("Failed to close FILE.");
+    throw StreamIOException(this, "fclose failed.");
   }
   file_ = nullptr;
 }
