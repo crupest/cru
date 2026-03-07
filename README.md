@@ -8,7 +8,7 @@ _cru_ is a C++ library. The biggest part of it is for UI.
 
 It is **under heavy construction**.
 
-Check the code or fire a issue if you have any problem.
+Check the code or file a issue if you have any problem.
 
 ## build
 
@@ -18,12 +18,14 @@ _cru_ is built with [_CMake_](https://cmake.org/).
 
 - `include/` contains public headers.
 
-- `src/` contains the main codes including headers and sources.
+- `src/` contains the main codes, including private headers and sources.
 
-- `test/` contains unit tests. Only targets in this directories need `gtest`.
+- `test/` contains unit tests.
 
-- `demo/` contains sources of demo excutable targets. They are mostly used for integrated tests but can also be used for demonstration.
+- `demos/` contains sources of demos. They are also used for integrated tests.
 
-- `lib/` other libraries being used.
+- `lib/` 3rd party libraries.
 
-- `tools/` contains some codes of tools I wrote for development. However most of them are not used now.
+- `scripts/` contains helper scripts and tools used for development.
+
+- `assets/` contains non-source codes.
