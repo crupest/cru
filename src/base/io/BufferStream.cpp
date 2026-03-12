@@ -1,6 +1,8 @@
 #include "cru/base/io/BufferStream.h"
 #include "cru/base/io/Stream.h"
 
+#include <cstring>
+
 namespace cru::io {
 BufferStream::BufferStream(const BufferStreamOptions& options)
     : Stream(false, true, true) {

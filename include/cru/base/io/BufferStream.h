@@ -46,7 +46,7 @@ struct BufferStreamOptions {
 /**
  * @brief MPMC (Multiple Producer Multiple Consumer) buffer stream.
  */
-class BufferStream : public Stream {
+class CRU_BASE_API BufferStream : public Stream {
  public:
   explicit BufferStream(const BufferStreamOptions& options = {});
   ~BufferStream() override;
