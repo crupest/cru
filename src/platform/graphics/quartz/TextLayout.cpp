@@ -69,10 +69,9 @@ void OsxCTTextLayout::DoSetText(std::string text) {
     }
   }
 
-  auto s = ToCFString(actual_text_);
   cf_attributed_text_ = CFAttributedStringCreateMutable(nullptr, 0);
   CFAttributedStringReplaceString(cf_attributed_text_, CFRangeMake(0, 0),
-                                  s.ref);
+                                  ToCFString(actual_text_).Get());
   Ensures(cf_attributed_text_);
   CFAttributedStringSetAttribute(
       cf_attributed_text_,

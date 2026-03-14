@@ -51,7 +51,7 @@ void QuartzImageFactory::EncodeToStream(IImage* image, io::Stream* stream,
   auto uti = ToCFString(GetImageFormatUniformTypeIdentifier(format));
   CGDataConsumerRef data_consumer = ConvertStreamToCGDataConsumer(stream);
   CGImageDestinationRef destination = CGImageDestinationCreateWithDataConsumer(
-      data_consumer, uti.ref, 1, nullptr);
+      data_consumer, uti.Get(), 1, nullptr);
 
   CFMutableDictionaryRef properties =
       CFDictionaryCreateMutable(nullptr, 0, nullptr, nullptr);

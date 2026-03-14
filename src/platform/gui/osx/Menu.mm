@@ -63,8 +63,7 @@ OsxMenuItem::~OsxMenuItem() { delete p_; }
 std::string OsxMenuItem::GetTitle() { return FromCFStringRef((CFStringRef)[p_->menu_item_ title]); }
 
 void OsxMenuItem::SetTitle(std::string title) {
-  auto cf_title = ToCFString(title);
-  [p_->menu_item_ setTitle:(NSString*)(cf_title.ref)];
+  [p_->menu_item_ setTitle:(NSString*)ToCFString(title).Get()];
 }
 
 bool OsxMenuItem::IsEnabled() { return [p_->menu_item_ isEnabled]; }

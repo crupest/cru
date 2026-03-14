@@ -6,13 +6,11 @@ namespace cru::platform::graphics::quartz {
 OsxCTFont::OsxCTFont(IGraphicsFactory* graphics_factory,
                      const std::string& name, float size)
     : OsxQuartzResource(graphics_factory), name_(name) {
-  auto n = ToCFString(name);
-
   if (name.empty()) {
     ct_font_ =
         CTFontCreateUIFontForLanguage(kCTFontUIFontSystem, size, nullptr);
   } else {
-    ct_font_ = CTFontCreateWithName(n.ref, size, nullptr);
+    ct_font_ = CTFontCreateWithName(ToCFString(name).Get(), size, nullptr);
   }
   Ensures(ct_font_);
 }

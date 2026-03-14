@@ -191,15 +191,15 @@ graphics::IGraphicsFactory* OsxUiApplication::GetGraphicsFactory() {
 
 std::optional<std::string> OsxUiApplication::ShowSaveDialog(SaveDialogOptions options) {
   NSSavePanel* panel = [NSSavePanel savePanel];
-  [panel setTitle:(NSString*)ToCFString(options.title).ref];
-  [panel setPrompt:(NSString*)ToCFString(options.prompt).ref];
-  [panel setMessage:(NSString*)ToCFString(options.message).ref];
+  [panel setTitle:(NSString*)ToCFString(options.title).Get()];
+  [panel setPrompt:(NSString*)ToCFString(options.prompt).Get()];
+  [panel setMessage:(NSString*)ToCFString(options.message).Get()];
 
   NSMutableArray* allowed_content_types = [NSMutableArray array];
 
   for (const auto& file_type : options.allowed_file_types) {
     [allowed_content_types
-        addObject:[UTType typeWithFilenameExtension:(NSString*)ToCFString(file_type).ref]];
+        addObject:[UTType typeWithFilenameExtension:(NSString*)ToCFString(file_type).Get()]];
   }
 
   [panel setAllowedContentTypes:allowed_content_types];
@@ -216,15 +216,15 @@ std::optional<std::string> OsxUiApplication::ShowSaveDialog(SaveDialogOptions op
 std::optional<std::vector<std::string>> OsxUiApplication::ShowOpenDialog(
     OpenDialogOptions options) {
   NSOpenPanel* panel = [NSOpenPanel openPanel];
-  [panel setTitle:(NSString*)ToCFString(options.title).ref];
-  [panel setPrompt:(NSString*)ToCFString(options.prompt).ref];
-  [panel setMessage:(NSString*)ToCFString(options.message).ref];
+  [panel setTitle:(NSString*)ToCFString(options.title).Get()];
+  [panel setPrompt:(NSString*)ToCFString(options.prompt).Get()];
+  [panel setMessage:(NSString*)ToCFString(options.message).Get()];
 
   NSMutableArray* allowed_content_types = [NSMutableArray array];
 
   for (const auto& file_type : options.allowed_file_types) {
     [allowed_content_types
-        addObject:[UTType typeWithFilenameExtension:(NSString*)ToCFString(file_type).ref]];
+        addObject:[UTType typeWithFilenameExtension:(NSString*)ToCFString(file_type).Get()]];
   }
 
   [panel setAllowedContentTypes:allowed_content_types];

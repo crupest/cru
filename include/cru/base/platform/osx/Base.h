@@ -1,11 +1,10 @@
 #pragma once
 
-// TODO: Move This file to platform dir.
-
 #ifndef __APPLE__
 #error "This header can only be included on OSX platforms."
 #endif
 
+#include "../../Guard.h"
 #include "../../Range.h"
 
 #include <CoreFoundation/CoreFoundation.h>
@@ -13,22 +12,16 @@
 #include <string_view>
 
 namespace cru {
+namespace details {
 template <typename CFClassRef>
-class CFWrapper {
- public:
-  CFClassRef ref;
-
-  explicit CFWrapper(CFClassRef ref) { this->ref = ref; }
-  ~CFWrapper() {
-    if (this->ref) CFRelease(this->ref);
-  }
-
-  CFClassRef* release() {
-    auto ref = this->ref;
-    this->ref = nullptr;
-    return ref;
-  }
+struct CFWrapperDeleter {
+  void operator()(CFClassRef ref) const noexcept { CFRelease(ref); }
 };
+}  // namespace details
+
+template <typename CFClassRef>
+using CFWrapper =
+    AutoDestruct<CFClassRef, details::CFWrapperDeleter<CFClassRef>>;
 
 CFWrapper<CFStringRef> ToCFString(std::string_view string);
 std::string FromCFStringRef(CFStringRef string);

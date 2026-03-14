@@ -1,6 +1,6 @@
 #include "cru/platform/gui/osx/Clipboard.h"
-#include "cru/base/platform/osx/Base.h"
 #include "cru/base/log/Logger.h"
+#include "cru/base/platform/osx/Base.h"
 
 #include "ClipboardPrivate.h"
 
@@ -37,9 +37,8 @@ std::string OsxClipboardPrivate::GetText() {
 }
 
 void OsxClipboardPrivate::SetText(std::string text) {
-  auto cf_string = ToCFString(text);
   [pasteboard_ clearContents];
-  [pasteboard_ writeObjects:@[ (NSString*)cf_string.ref ]];
+  [pasteboard_ writeObjects:@[ (NSString*)ToCFString(text).Get() ]];
 }
 }  // namespace details
 }  // namespace cru::platform::gui::osx

@@ -258,7 +258,7 @@ void OsxWindowPrivate::CreateWindow() {
                              frame:Rect(Point{}, content_rect_.GetSize())];
 
   [ns_window_ setContentView:ns_view_];
-  [ns_window_ setTitle:(NSString*)ToCFString(title_).ref];
+  [ns_window_ setTitle:(NSString*)ToCFString(title_).Get()];
 
   draw_layer_ = CreateLayer(Convert(content_rect_.GetSize()));
 
@@ -324,7 +324,7 @@ void OsxWindow::SetTitle(std::string title) {
   p_->title_ = title;
 
   if (p_->ns_window_) {
-    [p_->ns_window_ setTitle:(NSString*)ToCFString(title).ref];
+    [p_->ns_window_ setTitle:(NSString*)ToCFString(title).Get()];
   }
 }
 
