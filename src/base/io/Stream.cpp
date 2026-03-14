@@ -145,10 +145,13 @@ std::vector<std::byte> Stream::ReadToEnd(Index grow_size) {
 }
 
 std::string Stream::ReadToEndAsUtf8String() {
-  auto buffer = ReadToEnd();
-  return std::views::transform(
-             buffer, [](std::byte c) { return static_cast<char>(c); }) |
-         std::ranges::to<std::string>();
+  std::string result;
+  for (auto c : ReadToEnd() | std::views::transform([](std::byte c) {
+                  return static_cast<char>(c);
+                })) {
+    result.push_back(c);
+  }
+  return result;
 }
 
 void Stream::SetSupportedOperations(SupportedOperations supported_operations) {

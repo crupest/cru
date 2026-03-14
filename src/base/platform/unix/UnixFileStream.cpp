@@ -4,6 +4,7 @@
 #include <fcntl.h>
 #include <sys/fcntl.h>
 #include <unistd.h>
+#include <cerrno>
 #include <format>
 
 namespace cru::platform::unix {
@@ -65,7 +66,14 @@ Index UnixFileStream::DoSeek(Index offset, SeekOrigin origin) {
 Index UnixFileStream::DoRead(std::byte* buffer, Index offset, Index size) {
   auto result = ::read(file_descriptor_, buffer + offset, size);
   if (result == -1) {
+    if (errno == EAGAIN) {
+      return 0;
+    }
+
     throw ErrnoException("Failed to read file.");
+  }
+  if (result == 0) {
+    return kEOF;
   }
   return result;
 }
