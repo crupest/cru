@@ -16,7 +16,6 @@ struct CRU_PLATFORM_GRAPHICS_API IImageFactory
    *  \param stream The stream to write to.
    *  \param format The format to encode to.
    *  \param quality The quality to encode to.
-   *  \todo Implement on Windows.
    */
   virtual void EncodeToStream(IImage* image, io::Stream* stream,
                               ImageFormat format, float quality) = 0;
