@@ -11,6 +11,8 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/output)
 
 project(cru)
 
+option(CRU_ASAN_ENABLED "Build this target with AddressSanitizer" OFF)
+
 if (APPLE)
 	include_directories(BEFORE SYSTEM "/usr/local/include")
 endif()
@@ -54,10 +56,23 @@ configure_file("${PROJECT_SOURCE_DIR}/scripts/clangd.in" "${CMAKE_BINARY_DIR}/cl
 function(cru_process_dir dir)
 	get_property(targets DIRECTORY "${dir}" PROPERTY BUILDSYSTEM_TARGETS)
 	foreach(target ${targets})
+		get_property(target_type TARGET "${target}" PROPERTY TYPE)
+		if(NOT "${target_type}" MATCHES "^(EXECUTABLE|STATIC_LIBRARY|SHARED_LIBRARY|MODULE_LIBRARY|OBJECT_LIBRARY)$")
+			continue()
+		endif()
+
 		if(WIN32)
-			get_property(target_type TARGET "${target}" PROPERTY TYPE)
 			if("${target_type}" STREQUAL "SHARED_LIBRARY")
 				target_compile_definitions("${target}" PRIVATE CRU_IS_DLL=1)
+			endif()
+		endif()
+
+		if(CRU_ASAN_ENABLED)
+			if(MSVC)
+				target_compile_options("${target}" PRIVATE /fsanitize=address)
+			else()
+				target_compile_options("${target}" PRIVATE -fsanitize=address)
+				target_link_options("${target}" PRIVATE -fsanitize=address)
 			endif()
 		endif()
 	endforeach()

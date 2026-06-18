@@ -1,0 +1,102 @@
+{
+  "version": 9,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 23,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "default",
+      "displayName": "Default Config",
+      "description": "Default build using Ninja generator",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/out/build/${presetName}",
+      "installDir": "${sourceDir}/out/install/${presetName}",
+      "cacheVariables": {},
+      "environment": {}
+    },
+    {
+      "name": "debug",
+      "displayName": "Debug Config",
+      "description": "Debug build using Ninja generator",
+      "inherits": "default",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      },
+      "environment": {}
+    },
+    {
+      "name": "debug-asan",
+      "displayName": "Debug Config With ASAN",
+      "description": "Debug build using Ninja generator with address sanitizer enabled",
+      "inherits": "debug",
+      "cacheVariables": {
+        "CRU_ASAN_ENABLED": "ON"
+      },
+      "environment": {
+        "$comment": "Setting PATH here can fix ASAN dll not found error on Windows.",
+        "PATH": "$penv{PATH}"
+      }
+    },
+    {
+      "name": "release",
+      "displayName": "Release Config",
+      "description": "RelWithDebInfo build using Ninja generator",
+      "inherits": "default",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+      },
+      "environment": {}
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "default",
+      "configurePreset": "default"
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "default",
+      "configurePreset": "default",
+      "output": {
+        "outputOnFailure": true
+      },
+      "execution": {
+        "noTestsAction": "error",
+        "stopOnFailure": true
+      }
+    }
+  ],
+  "packagePresets": [
+    {
+      "name": "default",
+      "configurePreset": "default",
+      "generators": []
+    }
+  ],
+  "workflowPresets": [
+    {
+      "name": "default",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "default"
+        },
+        {
+          "type": "build",
+          "name": "default"
+        },
+        {
+          "type": "test",
+          "name": "default"
+        },
+        {
+          "type": "package",
+          "name": "default"
+        }
+      ]
+    }
+  ]
+}

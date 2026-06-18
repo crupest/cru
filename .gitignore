@@ -3,6 +3,8 @@
 .vs
 .vscode
 
+CMakeUserPresets.json
+
 .cache
 
 build
