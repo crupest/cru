@@ -64,7 +64,9 @@ TextControlMovePattern TextControlMovePattern::kUp(
       CRU_UNUSED(text)
       auto text_render_object = service->GetTextRenderObject();
       auto rect = text_render_object->TextSinglePoint(current_position, false);
-      rect.top -= 0.1f;
+      rect.top += rect.height;
+      rect.top -= text_render_object->GetLineHeight(
+          text_render_object->GetLineIndexFromCharIndex(current_position)) + text_render_object->GetFont()->GetFontSize() / 2.f;
       auto result = text_render_object->TextHitTest(rect.GetLeftTop());
       return result.position_with_trailing;
     });
@@ -72,10 +74,15 @@ TextControlMovePattern TextControlMovePattern::kDown(
     "Down", helper::ShortcutKeyBind(platform::gui::KeyCode::Down),
     [](TextHostControlService* service, std::string_view text,
        Index current_position) {
-      CRU_UNUSED(text)
       auto text_render_object = service->GetTextRenderObject();
+      auto current_line_index =
+          text_render_object->GetLineIndexFromCharIndex(current_position);
+      auto total_line_count = text_render_object->GetLineCount();
+      if (current_line_index == total_line_count - 1) {
+        return static_cast<Index>(text.size());
+      }
       auto rect = text_render_object->TextSinglePoint(current_position, false);
-      rect.top += rect.height + 0.1f;
+      rect.top += rect.height + text_render_object->GetLineHeight(current_line_index) + text_render_object->GetFont()->GetFontSize() / 2.f;
       auto result = text_render_object->TextHitTest(rect.GetLeftTop());
       return result.position_with_trailing;
     });

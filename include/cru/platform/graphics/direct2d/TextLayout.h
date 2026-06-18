@@ -49,6 +49,9 @@ class CRU_WIN_GRAPHICS_DIRECT_API DWriteTextLayout
   TextHitTestResult HitTest(const Point& point) override;
 
  private:
+  std::vector<DWRITE_LINE_METRICS> DoGetLineMetrics();
+
+ private:
   bool edit_mode_ = false;
   std::string text_;
   std::wstring utf16_text_;

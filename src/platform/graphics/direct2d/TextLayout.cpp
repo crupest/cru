@@ -61,21 +61,36 @@ void DWriteTextLayout::SetEditMode(bool enable) {
 }
 
 Index DWriteTextLayout::GetLineIndexFromCharIndex(Index char_index) {
-  if (char_index < 0 || char_index >= text_.size()) {
-    return -1;
+  if (char_index < 0 || char_index > text_.size()) {
+    throw Exception("char_index is out of range.");
   }
+
+  if (char_index == text_.size()) {
+    return GetLineCount() - 1;
+  }
+
+  auto utf16_char_index = string::Utf16IndexCodePointToCodeUnit(
+      utf16_text_.data(), string::Utf8IndexCodeUnitToCodePoint(text_, char_index));
 
   auto line_index = 0;
-  for (Index i = 0; i < char_index; ++i) {
-    if (text_[i] == '\n') {
-      line_index++;
+  auto line_end = 0;
+  auto line_metrics = DoGetLineMetrics();
+  for (const auto& metrics : line_metrics) {
+    line_end += static_cast<Index>(metrics.length);
+    if (char_index < line_end) {
+      return line_index;
     }
+    line_index++;
   }
 
-  return line_index;
+  std::unreachable();
 }
 
 float DWriteTextLayout::GetLineHeight(Index line_index) {
+  if (line_index < 0 || line_index >= GetLineCount()) {
+    throw Exception("line_index is out of range.");
+  }
+
   Index count = GetLineCount();
   std::vector<DWRITE_LINE_METRICS> line_metrics(count);
 
@@ -178,4 +193,16 @@ TextHitTestResult DWriteTextLayout::HitTest(const Point& point) {
 
   return result;
 }
+
+std::vector<DWRITE_LINE_METRICS> DWriteTextLayout::DoGetLineMetrics() {
+  Index count = GetLineCount();
+  std::vector<DWRITE_LINE_METRICS> line_metrics(count);
+
+  UINT32 actual_line_count = 0;
+  text_layout_->GetLineMetrics(line_metrics.data(), static_cast<UINT32>(count),
+                               &actual_line_count);
+  line_metrics.resize(actual_line_count);
+  return line_metrics;
+}
+
 }  // namespace cru::platform::graphics::direct2d
