@@ -7,9 +7,10 @@ CMakeUserPresets.json
 
 .cache
 
-build
-build-clang
-build-dynamic
-build-asan
+/build
+/build-clang
+/build-dynamic
+/build-asan
+/out
 
 compile_commands.json
