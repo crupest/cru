@@ -4,77 +4,45 @@
 #include <cru/base/Base.h>
 
 namespace cru::platform::graphics {
-class NullPainter : public Object, public virtual IPainter {
+class CRU_PLATFORM_GRAPHICS_API NullPainter : public Object,
+                                              public virtual IPainter {
  public:
-  NullPainter() = default;
-  ~NullPainter() override = default;
+  std::string GetPlatformId() const override;
 
- public:
-  std::string GetPlatformId() const override { return "NULL"; }
+  std::string GetDebugString() override;
 
-  std::string GetDebugString() override { return "NullPainter"; }
+  Matrix GetTransform() override;
+  void SetTransform(const Matrix& matrix) override;
 
-  Matrix GetTransform() override { return Matrix(); }
-  void SetTransform(const Matrix& matrix) override { CRU_UNUSED(matrix) }
+  void ConcatTransform(const Matrix& matrix) override;
 
-  void ConcatTransform(const Matrix& matrix) override { CRU_UNUSED(matrix) }
-
-  void Clear(const Color& color) override { CRU_UNUSED(color) }
+  void Clear(const Color& color) override;
 
   void DrawLine(const Point& start, const Point& end, IBrush* brush,
-                float width) override {
-    CRU_UNUSED(start) CRU_UNUSED(end) CRU_UNUSED(brush) CRU_UNUSED(width)
-  }
+                float width) override;
   void StrokeRectangle(const Rect& rectangle, IBrush* brush,
-                       float width) override {
-    CRU_UNUSED(rectangle) CRU_UNUSED(brush) CRU_UNUSED(width)
-  }
-  void FillRectangle(const Rect& rectangle, IBrush* brush) override {
-    CRU_UNUSED(rectangle)
-    CRU_UNUSED(brush)
-  }
+                       float width) override;
+  void FillRectangle(const Rect& rectangle, IBrush* brush) override;
   void StrokeEllipse(const Rect& outline_rect, IBrush* brush,
-                     float width) override {
-    CRU_UNUSED(outline_rect)
-    CRU_UNUSED(brush)
-    CRU_UNUSED(width)
-  }
-  void FillEllipse(const Rect& outline_rect, IBrush* brush) override {
-    CRU_UNUSED(outline_rect)
-    CRU_UNUSED(brush)
-  }
+                     float width) override;
+  void FillEllipse(const Rect& outline_rect, IBrush* brush) override;
 
-  void StrokeGeometry(IGeometry* geometry, IBrush* brush,
-                      float width) override {
-    CRU_UNUSED(geometry)
-    CRU_UNUSED(brush)
-    CRU_UNUSED(width)
-  }
-  void FillGeometry(IGeometry* geometry, IBrush* brush) override {
-    CRU_UNUSED(geometry)
-    CRU_UNUSED(brush)
-  }
+  void StrokeGeometry(IGeometry* geometry, IBrush* brush, float width) override;
+  void FillGeometry(IGeometry* geometry, IBrush* brush) override;
 
   void DrawText(const Point& offset, ITextLayout* text_layout,
-                IBrush* brush) override {
-    CRU_UNUSED(offset)
-    CRU_UNUSED(text_layout)
-    CRU_UNUSED(brush)
-  }
+                IBrush* brush) override;
 
-  void DrawImage(const Point& offset, IImage* image) override {
-    CRU_UNUSED(offset)
-    CRU_UNUSED(image)
-  }
+  void DrawImage(const Point& offset, IImage* image) override;
 
-  void PushLayer(const Rect& bounds) override { CRU_UNUSED(bounds) }
+  void PushLayer(const Rect& bounds) override;
 
-  void PopLayer() override {}
+  void PopLayer() override;
 
-  void PushState() override {}
+  void PushState() override;
 
-  void PopState() override {}
+  void PopState() override;
 
-  void EndDraw() override {}
+  void EndDraw() override;
 };
 }  // namespace cru::platform::graphics

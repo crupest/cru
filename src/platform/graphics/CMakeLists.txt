@@ -1,6 +1,7 @@
 add_library(CruPlatformGraphics
 	Geometry.cpp
 	Image.cpp
+	NullPainter.cpp
 	SvgGeometryBuilderMixin.cpp
 )
 target_compile_definitions(CruPlatformGraphics PRIVATE CRU_PLATFORM_GRAPHICS_EXPORT_API)
