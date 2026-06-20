@@ -2,6 +2,7 @@
 #include "Base.h"
 #include "Font.h"
 
+#include <cru/base/platform/osx/Base.h>
 #include <cru/platform/graphics/TextLayout.h>
 
 #include <memory>
@@ -35,9 +36,9 @@ class OsxCTTextLayout : public OsxQuartzResource, public virtual ITextLayout {
   Rect TextSinglePoint(Index position, bool trailing) override;
   TextHitTestResult HitTest(const Point& point) override;
 
-  CTFrameRef GetCTFrameRef() const { return ct_frame_; }
+  CTFrameRef GetCTFrameRef() const { return ct_frame_.Get(); }
 
-  CTFrameRef CreateFrameWithColor(const Color& color);
+  CFWrapper<CTFrameRef> CreateFrameWithColor(const Color& color);
 
   Matrix GetTransform() { return transform_; }
 
@@ -50,9 +51,28 @@ class OsxCTTextLayout : public OsxQuartzResource, public virtual ITextLayout {
   void RecreateFrame();
 
   CGRect DoGetTextBounds(bool includingTrailingSpace = false);
-  CGRect DoGetTextBoundsIncludingEmptyLines(bool includingTrailingSpace = false);
-  std::vector<CGRect> DoTextRangeRect(const TextRange& text_range);
+
+  /**
+   * @brief Get the rects of the text range. The rects are in the coordinate system of the text
+   * layout, that is, left bottom is (0, 0).
+   * @param text_range The text range to get the rects, indexed by code units.
+   * @param includingTrailingSpace Whether to include the trailing space in the rects.
+   * @return The rects of the text range.
+   */
+  std::vector<CGRect> DoTextRangeRect(const TextRange& text_range, bool includingTrailingSpace);
+
+  /**
+   * @brief Get the rect of a single point in the text layout. The rect is in the coordinate system
+   * of the text layout, that is, left bottom is (0, 0).
+   * @param position The position of the point, indexed by code units.
+   * @param trailing Whether the point is at the trailing of the character.
+   * @return The rect of the single point. Width is always 0.
+   */
   CGRect DoTextSinglePoint(Index position, bool trailing);
+
+  CGRect GetTextBoundsForEmptyString();
+
+  double MeasureHeightOfOneLine();
 
  private:
   float max_width_;
@@ -63,24 +83,26 @@ class OsxCTTextLayout : public OsxQuartzResource, public virtual ITextLayout {
   std::shared_ptr<OsxCTFont> font_;
 
   std::string text_;
-  std::string actual_text_;
+
   CFMutableAttributedStringRef cf_attributed_text_;
-
-  CTFramesetterRef ct_framesetter_ = nullptr;
+  CFWrapper<CTFramesetterRef> ct_framesetter_;
   float suggest_height_;
-  CTFrameRef ct_frame_ = nullptr;
-  int line_count_;
-  std::vector<CGPoint> line_origins_;
-  std::vector<CTLineRef> lines_;
-  std::vector<float> line_ascents_;
-  std::vector<float> line_descents_;
-  std::vector<float> line_heights_;
-  // The empty line count in the front of the lines.
-  int head_empty_line_count_;
-  // The trailing empty line count in the back of the lines.
-  int tail_empty_line_count_;
+  CFWrapper<CTFrameRef> ct_frame_;
 
-  // Just for cache.
+  double height_of_one_line_;
+
+  // Just for cache and debug.
+  struct Line {
+    CTLineRef ct_line;
+    CFRange text_range;
+    CGPoint origin;
+    double ascent;
+    double descent;
+    double leading;
+    double width;
+    double trailing_whitespace_width;
+  };
+  std::vector<Line> lines_;
   CGRect text_bounds_without_trailing_space_;
   CGRect text_bounds_with_trailing_space_;
 

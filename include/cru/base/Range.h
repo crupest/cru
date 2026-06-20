@@ -32,6 +32,15 @@ struct Range final {
     return Range::FromTwoSides(coerce(GetStart()), coerce(GetEnd()));
   }
 
+  Range CoerceInto(const Range& range) const {
+    return CoerceInto(range.GetStart(), range.GetEnd());
+  }
+
+  template <typename F>
+  Range TransformSides(F&& f) const {
+    return Range::FromTwoSides(f(GetStart()), f(GetEnd()));
+  }
+
   constexpr bool operator==(const Range& other) const = default;
 
   Index position = 0;

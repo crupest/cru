@@ -20,8 +20,20 @@ struct CRU_PLATFORM_GRAPHICS_API ITextLayout : virtual IGraphicsResource {
   virtual bool IsEditMode() = 0;
   virtual void SetEditMode(bool enable) = 0;
 
+  /**
+   * @brief Get the line index from the character index.
+   * @param char_index The character index in code units.
+   * @return The line index.
+   * @throws Exception if char_index is out of range.
+   */
   virtual Index GetLineIndexFromCharIndex(Index char_index) = 0;
   virtual Index GetLineCount() = 0;
+  /**
+   * @brief Get the height of a specific line.
+   * @param line_index The index of the line.
+   * @return The height of the line.
+   * @throws Exception if line_index is out of range.
+   */
   virtual float GetLineHeight(Index line_index) = 0;
 
   virtual Rect GetTextBounds(bool includingTrailingSpace = false) = 0;

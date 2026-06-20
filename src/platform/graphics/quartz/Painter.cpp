@@ -156,9 +156,7 @@ void QuartzCGContextPainter::DrawText(const Point& offset,
                                                           offset.x, offset.y)));
 
   auto frame = tl->CreateFrameWithColor(color);
-  Ensures(frame);
-  CTFrameDraw(frame, cg_context_);
-  CFRelease(frame);
+  CTFrameDraw(frame.Get(), cg_context_);
 
   CGContextRestoreGState(cg_context_);
 }

@@ -1,10 +1,17 @@
+// TODO: Trailing '\n' is not handled correctly until now. It had better be
+// handled as an individual line, but is currently shown as nothing. This is due
+// to Core Text's special handling of this. However, other '\n' are not affected
+// by the problem.
+
 #include "cru/platform/graphics/quartz/TextLayout.h"
 #include "cru/base/Base.h"
 #include "cru/base/StringUtil.h"
 #include "cru/base/platform/osx/Base.h"
 
+#include <algorithm>
 #include <format>
 #include <limits>
+#include <utility>
 
 namespace cru::platform::graphics::quartz {
 OsxCTTextLayout::OsxCTTextLayout(IGraphicsFactory* graphics_factory,
@@ -15,7 +22,11 @@ OsxCTTextLayout::OsxCTTextLayout(IGraphicsFactory* graphics_factory,
       max_height_(std::numeric_limits<float>::max()),
       font_(std::move(font)),
       text_(str) {
-  Expects(font_);
+  if (!font_) {
+    throw Exception("font is null.");
+  }
+
+  height_of_one_line_ = MeasureHeightOfOneLine();
 
   DoSetText(std::move(text_));
 
@@ -29,50 +40,16 @@ OsxCTTextLayout::~OsxCTTextLayout() {
 
 void OsxCTTextLayout::SetFont(std::shared_ptr<IFont> font) {
   font_ = CheckPlatform<OsxCTFont>(font, GetPlatformId());
+  height_of_one_line_ = MeasureHeightOfOneLine();
   RecreateFrame();
 }
 
 void OsxCTTextLayout::DoSetText(std::string text) {
   text_ = std::move(text);
 
-  if (text_.empty()) {
-    head_empty_line_count_ = 0;
-    tail_empty_line_count_ = 1;
-
-    actual_text_ = {};
-  } else {
-    head_empty_line_count_ = 0;
-    tail_empty_line_count_ = 0;
-
-    for (auto i = text_.cbegin(); i != text_.cend(); ++i) {
-      if (*i == u'\n') {
-        head_empty_line_count_++;
-      } else {
-        break;
-      }
-    }
-
-    for (auto i = text_.crbegin(); i != text_.crend(); ++i) {
-      if (*i == u'\n') {
-        tail_empty_line_count_++;
-      } else {
-        break;
-      }
-    }
-
-    if (text_.size() == tail_empty_line_count_) {
-      head_empty_line_count_ = 1;
-      actual_text_ = {};
-    } else {
-      actual_text_ = std::string(text_.cbegin() + head_empty_line_count_,
-                                 text_.cend() - tail_empty_line_count_);
-    }
-  }
-
   cf_attributed_text_ = CFAttributedStringCreateMutable(nullptr, 0);
   CFAttributedStringReplaceString(cf_attributed_text_, CFRangeMake(0, 0),
-                                  ToCFString(actual_text_).Get());
-  Ensures(cf_attributed_text_);
+                                  ToCFString(text_).Get());
   CFAttributedStringSetAttribute(
       cf_attributed_text_,
       CFRangeMake(0, CFAttributedStringGetLength(cf_attributed_text_)),
@@ -101,50 +78,52 @@ void OsxCTTextLayout::SetMaxHeight(float max_height) {
 bool OsxCTTextLayout::IsEditMode() { return edit_mode_; }
 
 void OsxCTTextLayout::SetEditMode(bool enable) {
+  if (edit_mode_ == enable) return;
   edit_mode_ = enable;
   RecreateFrame();
 }
 
 Index OsxCTTextLayout::GetLineIndexFromCharIndex(Index char_index) {
-  if (char_index < 0 || char_index >= text_.size()) {
-    return -1;
+  if (char_index < 0 || char_index > text_.size()) {
+    throw Exception("char_index is out of range.");
   }
 
-  auto line_index = 0;
-  for (Index i = 0; i < char_index; ++i) {
-    if (text_[i] == u'\n') {
-      line_index++;
+  if (char_index == text_.size()) {
+    return GetLineCount() - 1;
+  }
+
+  auto code_point_index =
+      cru::string::Utf8IndexCodeUnitToCodePoint(text_, char_index);
+
+  Index line_index = 0;
+  for (const auto& line : lines_) {
+    auto range = line.text_range;
+    if (code_point_index >= range.location &&
+        code_point_index < range.location + range.length) {
+      return line_index;
     }
+    line_index++;
   }
 
-  return line_index;
+  std::unreachable();
 }
 
-Index OsxCTTextLayout::GetLineCount() { return line_count_; }
+Index OsxCTTextLayout::GetLineCount() { return lines_.size(); }
 
 float OsxCTTextLayout::GetLineHeight(Index line_index) {
-  if (line_index < 0 || line_index >= line_count_) {
-    return 0.0f;
+  if (line_index < 0 || line_index >= GetLineCount()) {
+    throw Exception("line_index is out of range.");
   }
-  return line_heights_[line_index];
+  return lines_[line_index].ascent + lines_[line_index].descent;
 }
 
 Rect OsxCTTextLayout::GetTextBounds(bool includingTrailingSpace) {
-  if (text_.empty() && edit_mode_) return Rect(0, 0, 0, font_->GetFontSize());
-
-  auto result = DoGetTextBoundsIncludingEmptyLines(includingTrailingSpace);
+  auto result = DoGetTextBounds(includingTrailingSpace);
   return Rect(0, 0, result.size.width, result.size.height);
 }
 
 std::vector<Rect> OsxCTTextLayout::TextRangeRect(const TextRange& text_range) {
-  if (text_.empty()) return {};
-
-  auto tr = text_range;
-  tr = text_range.CoerceInto(head_empty_line_count_,
-                             text_.size() - tail_empty_line_count_);
-  tr.position -= head_empty_line_count_;
-
-  std::vector<CGRect> results = DoTextRangeRect(tr);
+  auto results = DoTextRangeRect(text_range, false);
   std::vector<Rect> r;
 
   for (auto& rect : results) {
@@ -155,173 +134,107 @@ std::vector<Rect> OsxCTTextLayout::TextRangeRect(const TextRange& text_range) {
 }
 
 Rect OsxCTTextLayout::TextSinglePoint(Index position, bool trailing) {
-  Expects(position >= 0 && position <= text_.size());
-
-  if (text_.empty()) return {0, 0, 0, font_->GetFontSize()};
-
-  if (position < head_empty_line_count_) {
-    return {0, position * font_->GetFontSize(), 0, font_->GetFontSize()};
-  } else if (position > text_.size() - tail_empty_line_count_) {
-    return {
-        0,
-        static_cast<float>(text_bounds_without_trailing_space_.size.height) +
-            (head_empty_line_count_ + position -
-             (text_.size() - tail_empty_line_count_) - 1) *
-                font_->GetFontSize(),
-        0, font_->GetFontSize()};
-  } else {
-    auto result =
-        DoTextSinglePoint(position - head_empty_line_count_, trailing);
-    return transform_.TransformRect(Convert(result));
+  if (position < 0 || position > text_.size()) {
+    throw Exception("position is out of range.");
   }
+
+  auto result = DoTextSinglePoint(position, trailing);
+  return transform_.TransformRect(Convert(result));
 }
 
 TextHitTestResult OsxCTTextLayout::HitTest(const Point& point) {
-  if (point.y < head_empty_line_count_ * font_->GetFontSize()) {
-    if (point.y < 0) {
-      return {0, false, false, 0};
-    } else {
-      for (int i = 1; i <= head_empty_line_count_; ++i) {
-        if (point.y < i * font_->GetFontSize()) {
-          return {i - 1, false, false, i - 1};
-        }
-      }
-    }
+  if (text_.empty()) {
+    TextHitTestResult result;
+    result.position = 0;
+    result.trailing = false;
+    result.position_with_trailing = 0;
+    result.inside_text = false;
+    return result;
   }
 
   auto text_bounds = text_bounds_without_trailing_space_;
+  CGPoint p = CGPointMake(
+      point.x, text_bounds.origin.y + text_bounds.size.height - point.y);
 
-  auto text_height = static_cast<float>(text_bounds.size.height);
-  auto th = text_height + head_empty_line_count_ * font_->GetFontSize();
-  if (point.y >= th) {
-    for (int i = 1; i <= tail_empty_line_count_; ++i) {
-      if (point.y < th + i * font_->GetFontSize()) {
-        return {
-            static_cast<Index>(text_.size() - (tail_empty_line_count_ - i)),
-            false, false,
-            static_cast<Index>(text_.size() - (tail_empty_line_count_ - i))};
-      }
+  for (int i = 0; i < lines_.size(); i++) {
+    const auto& line = lines_[i];
+    auto line_top = line.origin.y + line.ascent;
+    auto line_bottom = line.origin.y - line.descent;
+    auto line_top_including_leading = line_top;
+    if (i != 0) {
+      line_top_including_leading += lines_[i - 1].leading;
     }
-    return {static_cast<Index>(text_.size()), false, false,
-            static_cast<Index>(text_.size())};
+    if (!((i == 0 && p.y >= line_bottom) ||  // First line
+          (i == lines_.size() - 1 &&
+           p.y <= line_top_including_leading) ||  // Last line
+          p.y >= line_bottom &&
+              p.y <= line_top_including_leading)) {  // Middle lines
+      continue;
+    }
+
+    auto x = std::clamp(p.x, line.origin.x, line.origin.x + line.width) -
+             line.origin.x;
+    auto y = std::clamp(p.y, line_bottom, line_top) - line.origin.y;
+
+    auto index =
+        CTLineGetStringIndexForPosition(line.ct_line, CGPointMake(x, y));
+
+    auto line_bounds = CGRectMake(line.origin.x, line.origin.y - line.descent,
+                                  line.width, line.ascent + line.descent);
+
+    TextHitTestResult result;
+    result.position = cru::string::Utf8IndexCodePointToCodeUnit(text_, index);
+    result.trailing = false;
+    result.position_with_trailing = result.position;
+    result.inside_text = CGRectContainsPoint(line_bounds, p);
+    return result;
   }
 
-  auto p = point;
-  p.y -= head_empty_line_count_ * font_->GetFontSize();
-  p.y = text_height - p.y;
-
-  for (int i = 0; i < line_count_; i++) {
-    auto line = lines_[i];
-    auto line_origin = line_origins_[i];
-
-    auto range = CTLineGetStringRange(line);
-
-    CGRect bounds{line_origin.x, line_origin.y - line_descents_[i],
-                  CTLineGetOffsetForStringIndex(
-                      line, range.location + range.length, nullptr),
-                  line_heights_[i]};
-
-    bool force_inside = false;
-    if (i == 0 && p.y >= bounds.origin.y + bounds.size.height) {
-      force_inside = true;
-    }
-
-    if (i == line_count_ - 1 && p.y < bounds.origin.y) {
-      force_inside = true;
-    }
-
-    if (p.y >= bounds.origin.y || force_inside) {
-      auto pp = p;
-      pp.y = bounds.origin.y;
-      Index po;
-      bool inside_text;
-
-      if (pp.x < bounds.origin.x) {
-        po = cru::string::Utf8IndexCodePointToCodeUnit(actual_text_,
-                                                       range.location);
-        inside_text = false;
-      } else if (pp.x > bounds.origin.x + bounds.size.width) {
-        po = cru::string::Utf8IndexCodePointToCodeUnit(
-            actual_text_, range.location + range.length);
-        inside_text = false;
-      } else {
-        int position = CTLineGetStringIndexForPosition(
-            line,
-            CGPointMake(pp.x - line_origins_[i].x, pp.y - line_origins_[i].y));
-
-        po = cru::string::Utf8IndexCodePointToCodeUnit(actual_text_, position);
-        inside_text = true;
-      }
-
-      if (po != 0 &&
-          po == cru::string::Utf8IndexCodePointToCodeUnit(
-                    actual_text_, range.location + range.length) &&
-          actual_text_[po - 1] == u'\n') {
-        --po;
-      }
-
-      return {po + head_empty_line_count_, false, inside_text,
-              po + head_empty_line_count_};
-    }
-  }
-
-  return TextHitTestResult{0, false, false, 0};
+  std::unreachable();
 }
 
 void OsxCTTextLayout::ReleaseResource() {
-  line_count_ = 0;
-  line_origins_.clear();
   lines_.clear();
-  line_ascents_.clear();
-  line_descents_.clear();
-  line_heights_.clear();
-  if (ct_framesetter_) CFRelease(ct_framesetter_);
-  if (ct_frame_) CFRelease(ct_frame_);
+  ct_framesetter_ = {};
+  ct_frame_ = {};
 }
 
 void OsxCTTextLayout::RecreateFrame() {
   ReleaseResource();
 
-  ct_framesetter_ =
-      CTFramesetterCreateWithAttributedString(cf_attributed_text_);
-  Ensures(ct_framesetter_);
+  ct_framesetter_.Reset(
+      CTFramesetterCreateWithAttributedString(cf_attributed_text_));
 
   CFRange fit_range;
 
   suggest_height_ =
       CTFramesetterSuggestFrameSizeWithConstraints(
-          ct_framesetter_,
+          ct_framesetter_.Get(),
           CFRangeMake(0, CFAttributedStringGetLength(cf_attributed_text_)),
           nullptr, CGSizeMake(max_width_, max_height_), &fit_range)
           .height;
 
-  auto path = CGPathCreateMutable();
-  Ensures(path);
-  CGPathAddRect(path, nullptr, CGRectMake(0, 0, max_width_, suggest_height_));
+  auto path = CFWrap(CGPathCreateMutable());
+  CGPathAddRect(path.Get(), nullptr,
+                CGRectMake(0, 0, max_width_, suggest_height_));
 
-  ct_frame_ = CTFramesetterCreateFrame(
-      ct_framesetter_,
-      CFRangeMake(0, CFAttributedStringGetLength(cf_attributed_text_)), path,
-      nullptr);
-  Ensures(ct_frame_);
+  ct_frame_.Reset(CTFramesetterCreateFrame(
+      ct_framesetter_.Get(),
+      CFRangeMake(0, CFAttributedStringGetLength(cf_attributed_text_)),
+      path.Get(), nullptr));
 
-  CGPathRelease(path);
-
-  const auto lines = CTFrameGetLines(ct_frame_);
-  line_count_ = CFArrayGetCount(lines);
-  lines_.resize(line_count_);
-  line_origins_.resize(line_count_);
-  line_ascents_.resize(line_count_);
-  line_descents_.resize(line_count_);
-  line_heights_.resize(line_count_);
-  CTFrameGetLineOrigins(ct_frame_, CFRangeMake(0, 0), line_origins_.data());
-  for (int i = 0; i < line_count_; i++) {
-    lines_[i] = static_cast<CTLineRef>(CFArrayGetValueAtIndex(lines, i));
-    double ascent, descent;
-    CTLineGetTypographicBounds(lines_[i], &ascent, &descent, nullptr);
-    line_ascents_[i] = static_cast<float>(ascent);
-    line_descents_[i] = static_cast<float>(descent);
-    line_heights_[i] = line_ascents_[i] + line_descents_[i];
+  const auto lines = CTFrameGetLines(ct_frame_.Get());
+  lines_.resize(CFArrayGetCount(lines));
+  std::vector<CGPoint> line_origins(lines_.size());
+  CTFrameGetLineOrigins(ct_frame_.Get(), CFRangeMake(0, 0),
+                        line_origins.data());
+  for (int i = 0; i < lines_.size(); i++) {
+    auto& line = lines_[i];
+    line.ct_line = static_cast<CTLineRef>(CFArrayGetValueAtIndex(lines, i));
+    line.text_range = CTLineGetStringRange(line.ct_line);
+    line.origin = line_origins[i];
+    line.width = CTLineGetTypographicBounds(line.ct_line, &line.ascent,
+                                            &line.descent, &line.leading);
   }
 
   auto bounds = DoGetTextBounds(false);
@@ -331,13 +244,13 @@ void OsxCTTextLayout::RecreateFrame() {
   auto right = bounds.origin.x + bounds.size.width;
   auto bottom = bounds.origin.y + bounds.size.height;
 
-  transform_ =
-      Matrix::Translation(-right / 2, -bottom / 2) * Matrix::Scale(1, -1) *
-      Matrix::Translation(right / 2, bottom / 2) *
-      Matrix::Translation(0, head_empty_line_count_ * font_->GetFontSize());
+  transform_ = Matrix::Translation(-right / 2, -bottom / 2) *
+               Matrix::Scale(1, -1) *
+               Matrix::Translation(right / 2, bottom / 2);
 }
 
-CTFrameRef OsxCTTextLayout::CreateFrameWithColor(const Color& color) {
+CFWrapper<CTFrameRef> OsxCTTextLayout::CreateFrameWithColor(
+    const Color& color) {
   auto path = CGPathCreateMutable();
   CGPathAddRect(path, nullptr, CGRectMake(0, 0, max_width_, suggest_height_));
 
@@ -349,13 +262,13 @@ CTFrameRef OsxCTTextLayout::CreateFrameWithColor(const Color& color) {
       CFRangeMake(0, CFAttributedStringGetLength(cf_attributed_text_)),
       kCTForegroundColorAttributeName, cg_color);
 
-  auto frame = CTFramesetterCreateFrame(
-      ct_framesetter_,
+  CFWrapper<CTFrameRef> frame(CTFramesetterCreateFrame(
+      ct_framesetter_.Get(),
       CFRangeMake(0, CFAttributedStringGetLength(cf_attributed_text_)), path,
-      nullptr);
-  Ensures(frame);
+      nullptr));
 
   CGPathRelease(path);
+  CGColorRelease(cg_color);
 
   return frame;
 }
@@ -366,10 +279,10 @@ std::string OsxCTTextLayout::GetDebugString() {
 }
 
 CGRect OsxCTTextLayout::DoGetTextBounds(bool includingTrailingSpace) {
-  if (actual_text_.empty()) return CGRect{};
+  if (text_.empty()) return GetTextBoundsForEmptyString();
 
-  auto rects =
-      DoTextRangeRect(TextRange{0, static_cast<Index>(actual_text_.size())});
+  auto rects = DoTextRangeRect(TextRange{0, static_cast<Index>(text_.size())},
+                               includingTrailingSpace);
 
   float left = std::numeric_limits<float>::max();
   float bottom = std::numeric_limits<float>::max();
@@ -388,43 +301,34 @@ CGRect OsxCTTextLayout::DoGetTextBounds(bool includingTrailingSpace) {
   return CGRectMake(left, bottom, right - left, top - bottom);
 }
 
-CGRect OsxCTTextLayout::DoGetTextBoundsIncludingEmptyLines(
-    bool includingTrailingSpace) {
-  auto result = includingTrailingSpace ? text_bounds_with_trailing_space_
-                                       : text_bounds_without_trailing_space_;
-
-  result.size.height += head_empty_line_count_ * font_->GetFontSize();
-  result.size.height += tail_empty_line_count_ * font_->GetFontSize();
-
-  return result;
-}
-
 std::vector<CGRect> OsxCTTextLayout::DoTextRangeRect(
-    const TextRange& text_range) {
-  const auto r = Range::FromTwoSides(cru::string::Utf8IndexCodeUnitToCodePoint(
-                                         actual_text_, text_range.position),
-                                     cru::string::Utf8IndexCodeUnitToCodePoint(
-                                         actual_text_, text_range.GetEnd()))
-                     .Normalize();
+    const TextRange& text_range, bool includingTrailingSpace) {
+  if (text_.empty() || text_range.count == 0) return {};
+
+  const auto r =
+      text_range
+          .TransformSides([&](Index index) {
+            return cru::string::Utf8IndexCodeUnitToCodePoint(text_, index);
+          })
+          .Normalize();
 
   std::vector<CGRect> results;
 
-  for (int i = 0; i < line_count_; i++) {
-    auto line = lines_[i];
-    auto line_origin = line_origins_[i];
+  for (const auto& line : lines_) {
+    auto line_range = r.CoerceInto(FromCFRange(line.text_range));
 
-    Range range = FromCFRange(CTLineGetStringRange(line));
-    range = range.CoerceInto(r.GetStart(), r.GetEnd());
-
-    if (range.count) {
-      CGRect line_rect{line_origin.x, line_origin.y - line_descents_[i], 0,
-                       line_heights_[i]};
-      float start_offset =
-          CTLineGetOffsetForStringIndex(line, range.GetStart(), nullptr);
-      float end_offset =
-          CTLineGetOffsetForStringIndex(line, range.GetEnd(), nullptr);
+    if (line_range.count) {
+      CGRect line_rect{line.origin.x, line.origin.y - line.descent, 0,
+                       line.ascent + line.descent};
+      auto start_offset = CTLineGetOffsetForStringIndex(
+          line.ct_line, line_range.GetStart(), nullptr);
+      auto end_offset = CTLineGetOffsetForStringIndex(
+          line.ct_line, line_range.GetEnd(), nullptr);
       line_rect.origin.x += start_offset;
       line_rect.size.width = end_offset - start_offset;
+      if (line_range.GetEnd() <= r.GetEnd() && includingTrailingSpace) {
+        line_rect.size.width += line.trailing_whitespace_width;
+      }
       results.push_back(line_rect);
     }
   }
@@ -433,26 +337,50 @@ std::vector<CGRect> OsxCTTextLayout::DoTextRangeRect(
 }
 
 CGRect OsxCTTextLayout::DoTextSinglePoint(Index position, bool trailing) {
-  Expects(position >= 0 && position <= actual_text_.size());
+  if (position < 0 || position > text_.size()) {
+    throw Exception("position is out of range.");
+  }
 
-  if (actual_text_.empty()) return CGRectMake(0, 0, 0, font_->GetFontSize());
+  if (text_.empty()) return GetTextBoundsForEmptyString();
 
-  position = cru::string::Utf8IndexCodeUnitToCodePoint(actual_text_, position);
+  bool is_end = position == text_.size();
+  position = cru::string::Utf8IndexCodeUnitToCodePoint(text_, position);
+  if (is_end) {
+    position--;
+    trailing = true;
+  }
 
-  for (int i = 0; i < line_count_; i++) {
-    auto line = lines_[i];
-    auto line_origin = line_origins_[i];
-
-    CFRange range = CTLineGetStringRange(line);
-    if (range.location <= position &&
-            position < range.location + range.length ||
-        i == line_count_ - 1 && position == range.location + range.length) {
-      auto offset = CTLineGetOffsetForStringIndex(line, position, nullptr);
-      return CGRectMake(offset + line_origin.x,
-                        line_origin.y - line_descents_[i], 0, line_heights_[i]);
+  for (const auto& line : lines_) {
+    if (line.text_range.location <= position &&
+        position < line.text_range.location + line.text_range.length) {
+      double offset;
+      if (trailing &&
+          position == line.text_range.location + line.text_range.length - 1) {
+        offset = line.width;
+      } else {
+        offset = CTLineGetOffsetForStringIndex(line.ct_line, position, nullptr);
+      }
+      return CGRectMake(line.origin.x + offset, line.origin.y - line.descent, 0,
+                        line.ascent + line.descent);
     }
   }
 
-  UnreachableCode();
+  std::unreachable();
 }
+
+CGRect OsxCTTextLayout::GetTextBoundsForEmptyString() {
+  // Keep empty text in edit mode at logical line height to avoid visual jumps
+  // when first glyph appears.
+  return edit_mode_ ? CGRectMake(0, 0, 0, height_of_one_line_)
+                    : CGRectMake(0, 0, 0, 0);
+}
+
+double OsxCTTextLayout::MeasureHeightOfOneLine() {
+  const auto ct_font = font_->GetCTFont();
+  const auto ascent = CTFontGetAscent(ct_font);
+  const auto descent = CTFontGetDescent(ct_font);
+  const auto leading = std::max<CGFloat>(0, CTFontGetLeading(ct_font));
+  return ascent + descent + leading;
+}
+
 }  // namespace cru::platform::graphics::quartz

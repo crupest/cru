@@ -23,6 +23,11 @@ template <typename CFClassRef>
 using CFWrapper =
     AutoDestruct<CFClassRef, details::CFWrapperDeleter<CFClassRef>>;
 
+template <typename CFClassRef>
+CFWrapper<CFClassRef> CFWrap(CFClassRef ref) {
+  return CFWrapper<CFClassRef>(ref);
+}
+
 CFWrapper<CFStringRef> ToCFString(std::string_view string);
 std::string FromCFStringRef(CFStringRef string);
 
