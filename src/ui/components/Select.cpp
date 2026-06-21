@@ -2,6 +2,7 @@
 
 namespace cru::ui::components {
 Select::Select() {
+  button_text_.SetText(" ");
   button_.SetChild(&button_text_);
   button_.ClickEvent()->AddHandler([this](const helper::ClickEventArgs& args) {
     auto left_bottom =
@@ -31,7 +32,7 @@ void Select::SetSelectedIndex(Index index) {
   if (index >= 0 && index < items_.size()) {
     button_text_.SetText(items_[index]);
   } else {
-    button_text_.SetText({});
+    button_text_.SetText(" ");
   }
   item_selected_event_.Raise(index);
 }

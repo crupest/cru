@@ -140,6 +140,7 @@ void WinNativeWindow::SetClientSize(const Size& size) {
               static_cast<void*>(GetWindowHandle()), size);
 
   client_rect_.SetSize(size);
+  client_rect_set_ = true;
 
   if (hwnd_) {
     RECT rect =
@@ -158,6 +159,7 @@ void WinNativeWindow::SetClientRect(const Rect& rect) {
               static_cast<void*>(GetWindowHandle()), rect);
 
   client_rect_ = rect;
+  client_rect_set_ = true;
 
   if (hwnd_) {
     RECT r =
@@ -186,14 +188,7 @@ void WinNativeWindow::SetWindowRect(const Rect& rect) {
   CruLogDebug(kLogTag, "{} set window rect to {}.",
               static_cast<void*>(GetWindowHandle()), rect);
 
-  client_rect_ = CalcClientRectFromWindow(rect, style_flag_, dpi_);
-
-  if (hwnd_) {
-    if (!SetWindowPos(hwnd_, nullptr, DipToPixel(rect.left),
-                      DipToPixel(rect.top), DipToPixel(rect.GetRight()),
-                      DipToPixel(rect.GetBottom()), SWP_NOZORDER))
-      throw Win32Error(::GetLastError(), "Failed to invoke SetWindowPos.");
-  }
+  SetClientRect(CalcClientRectFromWindow(rect, style_flag_, dpi_));
 }
 
 bool WinNativeWindow::RequestFocus() {
@@ -474,6 +469,8 @@ RECT WinNativeWindow::GetClientRectPixel() {
 void WinNativeWindow::RecreateWindow() {
   auto window_class = application_->GetGeneralWindowClass();
 
+  window_render_target_.reset();
+
   hwnd_ = CreateWindowExW(
       0, window_class->GetName(), L"", CalcWindowStyle(style_flag_),
       CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
@@ -499,6 +496,10 @@ void WinNativeWindow::RecreateWindow() {
 
   auto utf16_title = string::ToUtf16WString(title_);
   ::SetWindowTextW(hwnd_, utf16_title.c_str());
+ 
+  if (client_rect_set_) {
+    SetClientRect(client_rect_);
+  }
 
   window_render_target_ =
       std::make_unique<graphics::direct2d::D2DWindowRenderTarget>(
@@ -544,14 +545,18 @@ void WinNativeWindow::OnPaintInternal() {
 void WinNativeWindow::OnMoveInternal(const int new_left, const int new_top) {
   client_rect_.left = PixelToDip(new_left);
   client_rect_.top = PixelToDip(new_top);
+  client_rect_set_ = true;
 }
 
 void WinNativeWindow::OnResizeInternal(const int new_width,
                                        const int new_height) {
   client_rect_.width = PixelToDip(new_width);
   client_rect_.height = PixelToDip(new_height);
+  client_rect_set_ = true;
   if (!(new_width == 0 && new_height == 0)) {
-    window_render_target_->ResizeBuffer(new_width, new_height);
+    if (window_render_target_) {
+      window_render_target_->ResizeBuffer(new_width, new_height);
+    }
     ResizeEvent_.Raise(Size{PixelToDip(new_width), PixelToDip(new_height)});
   }
 }

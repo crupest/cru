@@ -148,6 +148,7 @@ class CRU_WIN_GUI_API WinNativeWindow : public WinNativeResource,
 
   WindowStyleFlag style_flag_{};
   Rect client_rect_{100, 100, 400, 300};
+  bool client_rect_set_ = false;
   std::string title_;
 
   HWND hwnd_ = nullptr;
