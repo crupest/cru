@@ -49,15 +49,19 @@ class CRU_WIN_GRAPHICS_DIRECT_API DWriteTextLayout
   TextHitTestResult HitTest(const Point& point) override;
 
  private:
-  std::vector<DWRITE_LINE_METRICS> DoGetLineMetrics();
+  void RecreateTextLayout();
+  float MeasureHeightOfOneLine();
+  Rect GetEmptyTextBounds();
 
  private:
   bool edit_mode_ = false;
+  float height_of_one_line_;
   std::string text_;
   std::wstring utf16_text_;
   std::shared_ptr<DWriteFont> font_;
   float max_width_ = std::numeric_limits<float>::max();
   float max_height_ = std::numeric_limits<float>::max();
   Microsoft::WRL::ComPtr<IDWriteTextLayout> text_layout_;
+  std::vector<DWRITE_LINE_METRICS> line_metrics_cache_;
 };
 }  // namespace cru::platform::graphics::direct2d

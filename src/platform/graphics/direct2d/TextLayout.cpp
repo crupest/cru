@@ -10,13 +10,16 @@ DWriteTextLayout::DWriteTextLayout(DirectGraphicsFactory* factory,
                                    std::shared_ptr<IFont> font,
                                    std::string text)
     : DirectGraphicsResource(factory), text_(std::move(text)) {
-  Expects(font);
+  if (!font) {
+    throw Exception("font can't be null.");
+  }
+
   font_ = CheckPlatform<DWriteFont>(font, GetPlatformId());
 
+  height_of_one_line_ = MeasureHeightOfOneLine();
+
   utf16_text_ = string::ToUtf16WString(text_);
-  CheckHResult(factory->GetDWriteFactory()->CreateTextLayout(
-      utf16_text_.c_str(), static_cast<UINT32>(utf16_text_.size()),
-      font_->GetComInterface(), max_width_, max_height_, &text_layout_));
+  RecreateTextLayout();
 }
 
 DWriteTextLayout::~DWriteTextLayout() = default;
@@ -26,9 +29,7 @@ std::string DWriteTextLayout::GetText() { return text_; }
 void DWriteTextLayout::SetText(std::string new_text) {
   text_ = std::move(new_text);
   utf16_text_ = string::ToUtf16WString(text_);
-  CheckHResult(GetDirectFactory()->GetDWriteFactory()->CreateTextLayout(
-      utf16_text_.c_str(), static_cast<UINT32>(utf16_text_.size()),
-      font_->GetComInterface(), max_width_, max_height_, &text_layout_));
+  RecreateTextLayout();
 }
 
 std::shared_ptr<IFont> DWriteTextLayout::GetFont() {
@@ -37,10 +38,7 @@ std::shared_ptr<IFont> DWriteTextLayout::GetFont() {
 
 void DWriteTextLayout::SetFont(std::shared_ptr<IFont> font) {
   font_ = CheckPlatform<DWriteFont>(font, GetPlatformId());
-  CheckHResult(GetDirectFactory()->GetDWriteFactory()->CreateTextLayout(
-      reinterpret_cast<const wchar_t*>(text_.c_str()),
-      static_cast<UINT32>(text_.size()), font_->GetComInterface(), max_width_,
-      max_height_, &text_layout_));
+  RecreateTextLayout();
 }
 
 void DWriteTextLayout::SetMaxWidth(float max_width) {
@@ -55,10 +53,7 @@ void DWriteTextLayout::SetMaxHeight(float max_height) {
 
 bool DWriteTextLayout::IsEditMode() { return edit_mode_; }
 
-void DWriteTextLayout::SetEditMode(bool enable) {
-  edit_mode_ = enable;
-  // TODO: Implement this.
-}
+void DWriteTextLayout::SetEditMode(bool enable) { edit_mode_ = enable; }
 
 Index DWriteTextLayout::GetLineIndexFromCharIndex(Index char_index) {
   if (char_index < 0 || char_index > text_.size()) {
@@ -70,14 +65,13 @@ Index DWriteTextLayout::GetLineIndexFromCharIndex(Index char_index) {
   }
 
   auto utf16_char_index = string::Utf16IndexCodePointToCodeUnit(
-      utf16_text_.data(), string::Utf8IndexCodeUnitToCodePoint(text_, char_index));
+      utf16_text_.data(),
+      string::Utf8IndexCodeUnitToCodePoint(text_, char_index));
 
-  auto line_index = 0;
-  auto line_end = 0;
-  auto line_metrics = DoGetLineMetrics();
-  for (const auto& metrics : line_metrics) {
+  Index line_index = 0, line_end = 0;
+  for (const auto& metrics : line_metrics_cache_) {
     line_end += static_cast<Index>(metrics.length);
-    if (char_index < line_end) {
+    if (utf16_char_index < line_end) {
       return line_index;
     }
     line_index++;
@@ -90,23 +84,18 @@ float DWriteTextLayout::GetLineHeight(Index line_index) {
   if (line_index < 0 || line_index >= GetLineCount()) {
     throw Exception("line_index is out of range.");
   }
-
-  Index count = GetLineCount();
-  std::vector<DWRITE_LINE_METRICS> line_metrics(count);
-
-  UINT32 actual_line_count = 0;
-  text_layout_->GetLineMetrics(line_metrics.data(), static_cast<UINT32>(count),
-                               &actual_line_count);
-  return line_metrics[line_index].height;
+  return line_metrics_cache_[line_index].height;
 }
 
 Index DWriteTextLayout::GetLineCount() {
-  UINT32 line_count = 0;
-  text_layout_->GetLineMetrics(nullptr, 0, &line_count);
-  return line_count;
+  return static_cast<Index>(line_metrics_cache_.size());
 }
 
 Rect DWriteTextLayout::GetTextBounds(bool includingTrailingSpace) {
+  if (text_.empty()) {
+    return GetEmptyTextBounds();
+  }
+
   DWRITE_TEXT_METRICS metrics;
   CheckHResult(text_layout_->GetMetrics(&metrics));
   return Rect{metrics.left, metrics.top,
@@ -120,14 +109,14 @@ std::vector<Rect> DWriteTextLayout::TextRangeRect(
   if (text_range_arg.count == 0) {
     return {};
   }
+
   const auto text_range =
-      Range::FromTwoSides(
-          string::Utf16IndexCodePointToCodeUnit(
-              utf16_text_, string::Utf8IndexCodeUnitToCodePoint(
-                               text_, text_range_arg.GetStart())),
-          string::Utf16IndexCodePointToCodeUnit(
-              utf16_text_, string::Utf8IndexCodeUnitToCodePoint(
-                               text_, text_range_arg.GetEnd())))
+      text_range_arg
+          .TransformSides([&](Index index) {
+            return string::Utf16IndexCodePointToCodeUnit(
+                utf16_text_,
+                string::Utf8IndexCodeUnitToCodePoint(text_, index));
+          })
           .Normalize();
 
   DWRITE_TEXT_METRICS text_metrics;
@@ -141,9 +130,7 @@ std::vector<Rect> DWriteTextLayout::TextRangeRect(
       static_cast<UINT32>(text_range.position),
       static_cast<UINT32>(text_range.count), 0, 0, hit_test_metrics.data(),
       metrics_count, &actual_count));
-
-  hit_test_metrics.erase(hit_test_metrics.cbegin() + actual_count,
-                         hit_test_metrics.cend());
+  hit_test_metrics.resize(actual_count);
 
   std::vector<Rect> result;
   result.reserve(actual_count);
@@ -157,8 +144,22 @@ std::vector<Rect> DWriteTextLayout::TextRangeRect(
 }
 
 Rect DWriteTextLayout::TextSinglePoint(Index position, bool trailing) {
+  if (position < 0 || position > text_.size()) {
+    throw Exception("position is out of range.");
+  }
+
+  if (text_.empty()) {
+    return GetEmptyTextBounds();
+  }
+
+  if (position == text_.size()) {
+    cru::string::Utf8PreviousCodePoint(text_, position, &position);
+    trailing = true;
+  }
+
   position = string::Utf16IndexCodePointToCodeUnit(
       utf16_text_, string::Utf8IndexCodeUnitToCodePoint(text_, position));
+
   DWRITE_HIT_TEST_METRICS metrics;
   FLOAT left;
   FLOAT top;
@@ -194,15 +195,31 @@ TextHitTestResult DWriteTextLayout::HitTest(const Point& point) {
   return result;
 }
 
-std::vector<DWRITE_LINE_METRICS> DWriteTextLayout::DoGetLineMetrics() {
-  Index count = GetLineCount();
-  std::vector<DWRITE_LINE_METRICS> line_metrics(count);
+void DWriteTextLayout::RecreateTextLayout() {
+  CheckHResult(GetDirectFactory()->GetDWriteFactory()->CreateTextLayout(
+      utf16_text_.c_str(), static_cast<UINT32>(utf16_text_.size()),
+      font_->GetComInterface(), max_width_, max_height_, &text_layout_));
 
-  UINT32 actual_line_count = 0;
-  text_layout_->GetLineMetrics(line_metrics.data(), static_cast<UINT32>(count),
-                               &actual_line_count);
-  line_metrics.resize(actual_line_count);
-  return line_metrics;
+  UINT32 line_count = 0;
+  text_layout_->GetLineMetrics(nullptr, 0, &line_count);
+  line_metrics_cache_.resize(line_count);
+  text_layout_->GetLineMetrics(line_metrics_cache_.data(), line_count,
+                               &line_count);
 }
 
+float DWriteTextLayout::MeasureHeightOfOneLine() {
+  // Measure the height of one line by creating a temporary text layout with
+  // single line.
+  Microsoft::WRL::ComPtr<IDWriteTextLayout> temp_text_layout;
+  CheckHResult(GetDirectFactory()->GetDWriteFactory()->CreateTextLayout(
+      L" ", 1, font_->GetComInterface(), std::numeric_limits<float>::max(),
+      std::numeric_limits<float>::max(), &temp_text_layout));
+  DWRITE_TEXT_METRICS metrics;
+  CheckHResult(temp_text_layout->GetMetrics(&metrics));
+  return metrics.height;
+}
+
+Rect DWriteTextLayout::GetEmptyTextBounds() {
+  return edit_mode_ ? Rect{0, 0, 0, height_of_one_line_} : Rect{0, 0, 0, 0};
+}
 }  // namespace cru::platform::graphics::direct2d
