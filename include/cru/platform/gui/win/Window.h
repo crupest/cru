@@ -147,8 +147,22 @@ class CRU_WIN_GUI_API WinNativeWindow : public WinNativeResource,
   WinUiApplication* application_;
 
   WindowStyleFlag style_flag_{};
-  Rect client_rect_{100, 100, 400, 300};
-  bool client_rect_set_ = false;
+  Rect client_rect_{0, 0, 0, 0};
+
+  /**
+   * None: window creation should use default size and position.
+   * Size: window creation should use client_rect_'s size and default position.
+   * Rect: window creation should use client_rect_.
+   * 
+   * This should be set whenever client_rect_ is updated:
+   * 1. Window's Move and Resize message.
+   * 2. SetClientSize, SetClientRect and SetWindowRect method.
+   */
+  enum class ClientRectInitedKind {
+    None,
+    Size,
+    Rect,
+  } client_rect_inited_ = ClientRectInitedKind::None;
   std::string title_;
 
   HWND hwnd_ = nullptr;

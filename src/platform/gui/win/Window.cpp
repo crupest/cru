@@ -140,7 +140,9 @@ void WinNativeWindow::SetClientSize(const Size& size) {
               static_cast<void*>(GetWindowHandle()), size);
 
   client_rect_.SetSize(size);
-  client_rect_set_ = true;
+  if (client_rect_inited_ == ClientRectInitedKind::None) {
+    client_rect_inited_ = ClientRectInitedKind::Size;
+  }
 
   if (hwnd_) {
     RECT rect =
@@ -159,7 +161,7 @@ void WinNativeWindow::SetClientRect(const Rect& rect) {
               static_cast<void*>(GetWindowHandle()), rect);
 
   client_rect_ = rect;
-  client_rect_set_ = true;
+  client_rect_inited_ = ClientRectInitedKind::Rect;
 
   if (hwnd_) {
     RECT r =
@@ -496,9 +498,11 @@ void WinNativeWindow::RecreateWindow() {
 
   auto utf16_title = string::ToUtf16WString(title_);
   ::SetWindowTextW(hwnd_, utf16_title.c_str());
- 
-  if (client_rect_set_) {
+
+  if (client_rect_inited_ == ClientRectInitedKind::Rect) {
     SetClientRect(client_rect_);
+  } else if (client_rect_inited_ == ClientRectInitedKind::Size) {
+    SetClientSize(client_rect_.GetSize());
   }
 
   window_render_target_ =
@@ -545,14 +549,21 @@ void WinNativeWindow::OnPaintInternal() {
 void WinNativeWindow::OnMoveInternal(const int new_left, const int new_top) {
   client_rect_.left = PixelToDip(new_left);
   client_rect_.top = PixelToDip(new_top);
-  client_rect_set_ = true;
+
+  // When window is first created and shown, Move and Resize message will be
+  // posted together, so we set inited to Rect directly here.
+  client_rect_inited_ = ClientRectInitedKind::Rect;
 }
 
 void WinNativeWindow::OnResizeInternal(const int new_width,
                                        const int new_height) {
   client_rect_.width = PixelToDip(new_width);
   client_rect_.height = PixelToDip(new_height);
-  client_rect_set_ = true;
+
+  // When window is first created and shown, Move and Resize message will be
+  // posted together, so we set inited to Rect directly here.
+  client_rect_inited_ = ClientRectInitedKind::Rect;
+
   if (!(new_width == 0 && new_height == 0)) {
     if (window_render_target_) {
       window_render_target_->ResizeBuffer(new_width, new_height);
