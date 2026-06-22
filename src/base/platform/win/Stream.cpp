@@ -142,7 +142,9 @@ IStream* ToComStream(io::Stream* stream) {
         reinterpret_cast<const BYTE*>(memory_stream->GetBuffer()),
         memory_stream->GetSize());
   } else if (auto file_stream = dynamic_cast<ComStream*>(stream)) {
-    return file_stream->GetComStream();
+    auto com_stream = file_stream->GetComStream();
+    com_stream->AddRef();
+    return com_stream;
   } else {
     return new BridgeComStream(stream);
   }
@@ -237,7 +239,7 @@ Index ComStream::DoWrite(const std::byte* buffer, Index offset, Index size) {
 }
 
 void ComStream::DoClose() {
-  if (auto_release_) {
+  if (stream_ && auto_release_) {
     stream_->Release();
   }
   stream_ = nullptr;
