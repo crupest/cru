@@ -24,31 +24,37 @@ class LayoutRenderObject : public RenderObject {
   Index GetChildCount() { return static_cast<Index>(children_.size()); }
 
   RenderObject* GetChildAt(Index position) {
-    Expects(position >= 0 && position < GetChildCount());
+    CheckArgumentRange(position, 0, GetChildCount(), "position");
     return children_[position].render_object;
   }
 
   void AddChild(RenderObject* render_object, Index position) {
-    if (position < 0) position = 0;
-    if (position > GetChildCount()) position = GetChildCount();
+    CheckArgumentRange(position, 0, GetChildCount(), "position", true);
     auto iter = children_.insert(children_.begin() + position,
                                  ChildData{render_object, ChildLayoutData()});
     render_object->SetParent(this);
-    iter->event_guard +=
+    iter->event_guard.Add(
         render_object->DestroyEvent()->AddSpyOnlyHandler([this, render_object] {
+          auto this_control = this->GetAttachedControl();
+          auto child_control = render_object->GetAttachedControl();
+          if (this_control->RemoveChild(child_control)) return;
+
           auto iter = std::ranges::find_if(
               children_, [render_object](const ChildData& data) {
                 return data.render_object == render_object;
               });
           if (iter != children_.cend()) {
             iter->render_object = nullptr;
+            // This relies on Event to correctly handle the handler deletion
+            // delaying.
+            this->RemoveChild(iter - children_.cbegin());
           }
-        });
+        }));
     InvalidateLayout();
   }
 
   void RemoveChild(Index position) {
-    Expects(position >= 0 && position < GetChildCount());
+    CheckArgumentRange(position, 0, GetChildCount(), "position");
     auto render_object = children_[position].render_object;
     if (render_object) {
       render_object->SetParent(nullptr);
@@ -69,12 +75,12 @@ class LayoutRenderObject : public RenderObject {
   }
 
   const ChildLayoutData& GetChildLayoutDataAt(Index position) {
-    Expects(position >= 0 && position < GetChildCount());
+    CheckArgumentRange(position, 0, GetChildCount(), "position");
     return children_[position].layout_data;
   }
 
   void SetChildLayoutDataAt(Index position, ChildLayoutData data) {
-    Expects(position >= 0 && position < GetChildCount());
+    CheckArgumentRange(position, 0, GetChildCount(), "position");
     children_[position].layout_data = std::move(data);
     InvalidateLayout();
   }

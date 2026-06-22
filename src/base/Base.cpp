@@ -27,6 +27,30 @@ void Exception::AppendMessage(
   if (additional_message) AppendMessage(*additional_message);
 }
 
+void CheckArgumentNoLessThan(Index value, Index min,
+                             std::string_view arg_name) {
+  if (value < min) {
+    throw Exception(
+        std::format("Argument {} can't be less than {}.", arg_name, min));
+  }
+}
+
+void CheckArgumentNoGreaterThan(Index value, Index max,
+                                std::string_view arg_name) {
+  if (value > max) {
+    throw Exception(
+        std::format("Argument {} can't be greater than {}.", arg_name, max));
+  }
+}
+
+void CheckArgumentRange(Index value, Index min, Index max,
+                        std::string_view arg_name, bool max_inclusive) {
+  if (value < min || (max_inclusive ? value > max : value >= max)) {
+    throw Exception(std::format("Argument {} is out of range [{}, {}).",
+                                arg_name, min, max));
+  }
+}
+
 ErrnoException::ErrnoException() : ErrnoException("") {}
 
 ErrnoException::ErrnoException(int errno_code)

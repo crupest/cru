@@ -28,8 +28,7 @@ Control::~Control() {
         "Better use delete later to delete control during event handling.");
   }
 
-  RemoveFromParent();
-  RemoveAllChild();
+  DetachFromTree();
 }
 
 std::string Control::GetName() { return name_; }
@@ -62,11 +61,13 @@ Index Control::IndexOfChild(Control* control) {
   return iter - children.begin();
 }
 
-void Control::RemoveChild(Control* child) {
+bool Control::RemoveChild(Control* child) {
   auto iter = std::ranges::find(children_, child);
   if (iter != children_.cend()) {
     RemoveChildAt(iter - children_.cbegin());
+    return true;
   }
+  return false;
 }
 
 void Control::RemoveAllChild() {
@@ -75,10 +76,16 @@ void Control::RemoveAllChild() {
   }
 }
 
-void Control::RemoveFromParent() {
+bool Control::RemoveFromParent() {
   if (parent_) {
-    parent_->RemoveChild(this);
+    return parent_->RemoveChild(this);
   }
+  return false;
+}
+
+void Control::DetachFromTree() {
+  RemoveFromParent();
+  RemoveAllChild();
 }
 
 controls::Control* Control::HitTest(const Point& point) {

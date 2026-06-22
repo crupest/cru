@@ -52,9 +52,10 @@ class CRU_UI_API Control : public Object,
   Control* GetChildAt(Index index) { return GetChildren()[index]; }
   Index IndexOfChild(Control* control);
 
-  void RemoveChild(Control* child);
+  bool RemoveChild(Control* child);
   void RemoveAllChild();
-  void RemoveFromParent();
+  bool RemoveFromParent();
+  void DetachFromTree();
 
   template <typename F>
   void TraverseDescendents(F&& f, bool include_this) {
@@ -152,8 +153,23 @@ class CRU_UI_API Control : public Object,
 
   //*************** region: tree ***************
  protected:
+  /**
+   * Caveat: Control will remove itself from old parent in destructor, but
+   * override of this function will not be called in that case. You should
+   * either do the cleanup by yourself or remove control from the tree earlier
+   * in destructor of derived class to make sure override of this function is
+   * called.
+   */
   virtual void OnParentChanged(Control* old_parent, Control* new_parent);
+
   virtual void OnChildInserted(Control* control, Index index);
+
+  /**
+   * Caveat: Control will remove all children in destructor, but override of
+   * this function will not be called in that case. You should either do the
+   * cleanup by yourself or remove children from the tree earlier in destructor
+   * of derived class to make sure override of this function is called.
+   */
   virtual void OnChildRemoved(Control* control, Index index);
 
  private:
