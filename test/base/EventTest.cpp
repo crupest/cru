@@ -24,16 +24,19 @@ TEST_CASE("Event should work.", "[event]") {
   REQUIRE(count == 3);
 }
 
-TEST_CASE("Event destroy during raising.", "[event]") {
+TEST_CASE("Event handler state should be preserved.", "[event]") {
   using cru::Event;
 
+  int counter1 = 0;
   Event<int&>* event = new Event<int&>();
+  event->AddHandler([counter2 = 0](int& counter1) mutable {
+    counter1++;
+    counter2++;
+    REQUIRE(counter1 == counter2);
+  });
 
-  event->AddSpyOnlyHandler([event] { delete event; });
-  auto revoker = event->AddHandler([](int& count) { count++; });
-
-  int count = 0;
-  event->Raise(count);
-  REQUIRE(count == 1);
-  revoker();
+  event->Raise(counter1);
+  REQUIRE(counter1 == 1);
+  event->Raise(counter1);
+  REQUIRE(counter1 == 2);
 }

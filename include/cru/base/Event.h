@@ -87,12 +87,24 @@ class Event : public EventBase, public IEvent<TEventArgs> {
  private:
   struct HandlerData {
     HandlerData(EventHandlerToken token, Handler handler)
-        : token(token), handler(std::move(handler)) {}
+        : token(token), handler(std::move(handler)), pending_removal(false) {}
     EventHandlerToken token;
     Handler handler;
+    bool pending_removal;
   };
 
  public:
+  Event()
+      : handler_data_list_(), current_token_(0), recursive_raise_count_(0) {}
+
+  ~Event() override {
+    if (recursive_raise_count_ > 0) {
+      // You can't destroy the event during raising. So just terminate the
+      // process to avoid undefined behavior.
+      std::terminate();
+    }
+  }
+
   EventHandlerRevoker AddSpyOnlyHandler(SpyOnlyHandler handler) override {
     return AddHandler([handler = std::move(handler)](Args) { handler(); });
   }
@@ -103,35 +115,39 @@ class Event : public EventBase, public IEvent<TEventArgs> {
     return CreateRevoker(token);
   }
 
-  // This method will make a copy of all handlers. Because user might delete a
-  // handler in a handler, which may lead to seg fault as the handler is
-  // deleted while being executed. Thanks to this behavior, all handlers will
-  // be taken a snapshot when Raise is called, so even if you delete a handler
-  // during this period, all handlers in the snapshot will be executed.
   void Raise(Args args) {
-    std::vector<Handler> handlers;
-    handlers.reserve(this->handler_data_list_.size());
-    for (const auto& data : this->handler_data_list_) {
-      handlers.push_back(data.handler);
+    ++recursive_raise_count_;
+    for (const auto& data : handler_data_list_) {
+      if (!data.pending_removal) {
+        data.handler(args);
+      }
     }
-    for (const auto& handler : handlers) {
-      handler(args);
+    --recursive_raise_count_;
+    if (recursive_raise_count_ == 0) {
+      std::erase_if(handler_data_list_, [](const HandlerData& data) {
+        return data.pending_removal;
+      });
     }
   }
 
  protected:
   void RemoveHandler(EventHandlerToken token) override {
     const auto find_result = std::find_if(
-        this->handler_data_list_.cbegin(), this->handler_data_list_.cend(),
+        this->handler_data_list_.begin(), this->handler_data_list_.end(),
         [token](const HandlerData& data) { return data.token == token; });
-    if (find_result != this->handler_data_list_.cend()) {
-      this->handler_data_list_.erase(find_result);
+    if (find_result != this->handler_data_list_.end()) {
+      if (recursive_raise_count_ > 0) {
+        find_result->pending_removal = true;
+      } else {
+        this->handler_data_list_.erase(find_result);
+      }
     }
   }
 
  private:
   std::vector<HandlerData> handler_data_list_;
   EventHandlerToken current_token_ = 0;
+  int recursive_raise_count_ = 0;
 };
 
 #define CRU_DEFINE_EVENT(name, arg_type) \
