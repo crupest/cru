@@ -6,7 +6,9 @@
 #include <processthreadsapi.h>
 #include <synchapi.h>
 
+#include <map>
 #include <memory>
+#include <string>
 #include <string_view>
 
 namespace cru::platform::win {
@@ -15,6 +17,28 @@ using cru::string::ToUtf16WString;
 Win32SubProcessImpl::Win32SubProcessImpl() : exit_code_(0) {}
 
 Win32SubProcessImpl::~Win32SubProcessImpl() {}
+
+std::map<std::string, std::string> GetEnvironmentVariables() {
+  std::map<std::string, std::string> envs;
+
+  auto env_block = GetEnvironmentStringsW();
+  if (env_block == nullptr) return envs;
+
+  auto p = env_block;
+  while (*p) {
+    std::wstring_view env(p);
+    auto pos = env.find(L'=');
+    if (pos != std::wstring_view::npos) {
+      auto key = cru::string::ToUtf8String(env.substr(0, pos));
+      auto value = cru::string::ToUtf8String(env.substr(pos + 1));
+      envs.emplace(std::move(key), std::move(value));
+    }
+    p += env.size() + 1;
+  }
+
+  FreeEnvironmentStringsW(env_block);
+  return envs;
+}
 
 void Win32SubProcessImpl::PlatformCreateProcess(
     const SubProcessStartInfo& start_info) {
@@ -30,11 +54,25 @@ void Win32SubProcessImpl::PlatformCreateProcess(
   auto command_line =
       app + L" " + ToUtf16WString(cru::string::Join(" ", start_info.arguments));
 
-  std::wstring env_str;
-  for (const auto& [key, value] : start_info.environments) {
-    env_str += ToUtf16WString(key) + L"=" + ToUtf16WString(value) + L"\0";
+  auto environments = start_info.environments;
+
+  if (start_info.inherit_parent_environments) {
+    auto parent_envs = GetEnvironmentVariables();
+    for (const auto& [key, value] : parent_envs) {
+      if (environments.find(key) == environments.end()) {
+        environments.emplace(key, value);
+      }
+    }
   }
-  env_str += L"\0";
+
+  std::wstring env_block;
+  for (const auto& [key, value] : environments) {
+    env_block += ToUtf16WString(key) + L"=" + ToUtf16WString(value);
+    // Don't use env_block += L"\0" here, because L"\0" will be treated as L"".
+    env_block.push_back(L'\0');
+  }
+  // CreateProcessW expects a double-NUL-terminated environment block.
+  env_block.push_back(L'\0');
 
   STARTUPINFO startup_info;
   ZeroMemory(&startup_info, sizeof(startup_info));
@@ -50,7 +88,7 @@ void Win32SubProcessImpl::PlatformCreateProcess(
 
   CheckWinReturn(::CreateProcessW(app.c_str(), command_line.data(), nullptr,
                                   nullptr, TRUE, CREATE_UNICODE_ENVIRONMENT,
-                                  static_cast<LPVOID>(env_str.data()), nullptr,
+                                  static_cast<LPVOID>(env_block.data()), nullptr,
                                   &startup_info, &process_));
 
   stdin_stream_ = std::make_unique<Win32HandleStream>(std::move(my_stdin.write),

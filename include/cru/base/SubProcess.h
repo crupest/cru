@@ -49,6 +49,18 @@ struct SubProcessStartInfo {
   std::string program;
   std::vector<std::string> arguments;
   std::unordered_map<std::string, std::string> environments;
+
+  /**
+   * @brief Whether to inherit the parent process's environment variables.
+   *
+   * If true, the process will inherit the parent process's environment
+   * variables. `environments` will override the inherited environment variables
+   * if they have the same key. If false, the process will only have the
+   * environment variables specified in `environments`.
+   *
+   * @todo Implement on Linux and macOS.
+   */
+  bool inherit_parent_environments = true;
 };
 
 enum class SubProcessExitType {
