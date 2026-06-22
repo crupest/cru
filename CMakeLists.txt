@@ -11,7 +11,7 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/output)
 
 project(cru)
 
-option(CRU_ASAN_ENABLED "Build this target with AddressSanitizer" OFF)
+option(CRU_ASAN "Build this target with AddressSanitizer" OFF)
 
 if (APPLE)
 	include_directories(BEFORE SYSTEM "/usr/local/include")
@@ -67,7 +67,7 @@ function(cru_process_dir dir)
 			endif()
 		endif()
 
-		if(CRU_ASAN_ENABLED)
+		if(CRU_ASAN)
 			if(MSVC)
 				target_compile_options("${target}" PRIVATE /fsanitize=address)
 			else()
