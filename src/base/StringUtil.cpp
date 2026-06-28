@@ -129,7 +129,7 @@ CodePoint Utf8NextCodePoint(const Utf8CodeUnit* ptr, Index size, Index current,
   } else {
     const auto cu0 = static_cast<Utf8CodeUnit>(ptr[current++]);
 
-    auto read_next_folowing_code = [ptr, size, &current]() -> CodePoint {
+    auto read_next_following_code = [ptr, size, &current]() -> CodePoint {
       if (current == size)
         throw TextEncodeException(
             "Unexpected end when read continuing byte of multi-byte code "
@@ -157,21 +157,21 @@ CodePoint Utf8NextCodePoint(const Utf8CodeUnit* ptr, Index size, Index current,
 
             const CodePoint s0 = ExtractBits<Utf8CodeUnit, 3, CodePoint>(cu0)
                                  << (6 * 3);
-            const CodePoint s1 = read_next_folowing_code() << (6 * 2);
-            const CodePoint s2 = read_next_folowing_code() << 6;
-            const CodePoint s3 = read_next_folowing_code();
+            const CodePoint s1 = read_next_following_code() << (6 * 2);
+            const CodePoint s2 = read_next_following_code() << 6;
+            const CodePoint s3 = read_next_following_code();
             result = s0 + s1 + s2 + s3;
           } else {  // 3-length code point
             const CodePoint s0 = ExtractBits<Utf8CodeUnit, 4, CodePoint>(cu0)
                                  << (6 * 2);
-            const CodePoint s1 = read_next_folowing_code() << 6;
-            const CodePoint s2 = read_next_folowing_code();
+            const CodePoint s1 = read_next_following_code() << 6;
+            const CodePoint s2 = read_next_following_code();
             result = s0 + s1 + s2;
           }
         } else {  // 2-length code point
           const CodePoint s0 = ExtractBits<Utf8CodeUnit, 5, CodePoint>(cu0)
                                << 6;
-          const CodePoint s1 = read_next_folowing_code();
+          const CodePoint s1 = read_next_following_code();
           result = s0 + s1;
         }
       } else {
