@@ -1,6 +1,6 @@
 #include "cru/base/log/Logger.h"
 #include "cru/base/StringUtil.h"
-#include "cru/base/log/StdioLogTarget.h"
+#include "cru/base/log/StdioLogWriter.h"
 
 #include <algorithm>
 #include <chrono>
@@ -8,21 +8,15 @@
 #include <cstdlib>
 #include <ctime>
 #include <format>
-#include <iostream>
 #include <memory>
 #include <mutex>
+#include <utility>
 
 #ifdef _WIN32
-#include "cru/base/platform/win/DebugLogTarget.h"
+#include "cru/base/platform/win/DebugLogWriter.h"
 #endif
 
 namespace cru::log {
-ILogger* ILogger::GetInstance() {
-  static SimpleStdioLogger logger;
-  logger.LoadDebugTagFromEnv();
-
-  return &logger;
-}
 
 namespace {
 const char* LogLevelToString(LogLevel level) {
@@ -36,23 +30,52 @@ const char* LogLevelToString(LogLevel level) {
     case LogLevel::Error:
       return "ERROR";
     default:
-      std::terminate();
+      std::unreachable();
   }
 }
 
 std::string GetLogTime() {
   auto time = std::time(nullptr);
-  auto calendar = std::localtime(&time);
-  return std::format("{}:{}:{}", calendar->tm_hour, calendar->tm_min,
-                     calendar->tm_sec);
-}
-
-std::string MakeLogFinalMessage(const LogInfo& log_info) {
-  return std::format("[{}] {} {}: {}", GetLogTime(),
-                     LogLevelToString(log_info.level), log_info.tag,
-                     log_info.message);
+  std::tm calendar{};
+#ifdef _WIN32
+  localtime_s(&calendar, &time);
+#else
+  localtime_r(&time, &calendar);
+#endif
+  return std::format("{}:{}:{}", calendar.tm_hour, calendar.tm_min,
+                     calendar.tm_sec);
 }
 }  // namespace
+
+std::string DefaultLogFormatter::Format(const LogInfo& log_info) {
+  if (log_info.tag.empty()) {
+    return std::format("[{}] {}: {}", GetLogTime(),
+                       LogLevelToString(log_info.level), log_info.message);
+  } else {
+    return std::format("[{}] {} {}: {}", GetLogTime(),
+                       LogLevelToString(log_info.level), log_info.tag,
+                       log_info.message);
+  }
+}
+
+ILogger* ILogger::GetInstance() {
+  static SynchronousLogger logger;
+  static bool initialized = [] {
+    InstallDefaultWriters(&logger);
+    logger.LoadDebugTagFromEnv();
+    return true;
+  }();
+  CRU_UNUSED(initialized)
+  return &logger;
+}
+
+void ILogger::InstallDefaultWriters(ILogger* logger) {
+  logger->AddWriter(std::make_unique<StdioLogWriter>());
+
+#ifdef _WIN32
+  logger->AddWriter(std::make_unique<platform::win::WinDebugLogWriter>());
+#endif
+}
 
 void ILogger::LoadDebugTagFromEnv(const char* env_var, std::string sep) {
   auto env = std::getenv(env_var);
@@ -63,108 +86,107 @@ void ILogger::LoadDebugTagFromEnv(const char* env_var, std::string sep) {
   }
 }
 
-void SimpleStdioLogger::AddDebugTag(std::string tag) {
-  debug_tags_.insert(tag);
+LoggerConfigurationMixin::LoggerConfigurationMixin()
+    : config_(std::shared_ptr<LoggerConfig>(
+          new LoggerConfig{std::make_shared<DefaultLogFormatter>(), {}, {}})) {}
+
+void LoggerConfigurationMixin::AddDebugTag(std::string tag) {
+  UpdateConfig([&tag](LoggerConfig* config) {
+    config->debug_tags.insert(std::move(tag));
+  });
 }
 
-void SimpleStdioLogger::RemoveDebugTag(const std::string& tag) {
-  debug_tags_.erase(tag);
+void LoggerConfigurationMixin::RemoveDebugTag(const std::string& tag) {
+  UpdateConfig([&tag](LoggerConfig* config) { config->debug_tags.erase(tag); });
 }
 
-void SimpleStdioLogger::Log(LogInfo log_info) {
+void LoggerConfigurationMixin::SetFormatter(
+    std::unique_ptr<ILogFormatter> formatter) {
+  UpdateConfig([&formatter](LoggerConfig* config) {
+    config->formatter = std::move(formatter);
+  });
+}
+
+void LoggerConfigurationMixin::AddWriter(std::unique_ptr<ILogWriter> writer) {
+  UpdateConfig([&writer](LoggerConfig* config) {
+    config->writers.push_back(std::move(writer));
+  });
+}
+
+void LoggerConfigurationMixin::RemoveWriter(ILogWriter* writer) {
+  UpdateConfig([writer](LoggerConfig* config) {
+    std::erase_if(config->writers,
+                  [writer](const auto& w) { return w.get() == writer; });
+  });
+}
+
+std::shared_ptr<LoggerConfigurationMixin::LoggerConfig>
+LoggerConfigurationMixin::GetConfigSnapshot() {
+  return config_.load();
+}
+
+void SynchronousLogger::Log(LogInfo log_info) {
+  auto config = GetConfigSnapshot();
+
   if (log_info.level == LogLevel::Debug &&
-      std::ranges::none_of(debug_tags_, [&log_info](const std::string& tag) {
-        return log_info.tag.starts_with(tag);
-      })) {
+      std::ranges::none_of(config->debug_tags,
+                           [&log_info](const std::string& tag) {
+                             return log_info.tag.starts_with(tag);
+                           })) {
     return;
   }
-  std::clog << MakeLogFinalMessage(log_info) << std::endl;
+  auto message = config->formatter->Format(log_info);
+  for (const auto& writer : config->writers) {
+    writer->Write(log_info, message);
+  }
 }
 
-Logger::Logger() : log_stop_(false), log_thread_(&Logger::LogThreadRun, this) {
-  AddLogTarget(std::make_unique<StdioLogTarget>());
+AsynchronousLogger::AsynchronousLogger()
+    : log_stop_(false), log_thread_(&AsynchronousLogger::LogThreadRun, this) {}
 
-#ifdef _WIN32
-  AddLogTarget(std::make_unique<platform::win::WinDebugLogTarget>());
-#endif
-}
-
-Logger::~Logger() {
+AsynchronousLogger::~AsynchronousLogger() {
   {
-    std::unique_lock lock(log_queue_mutex_);
+    std::unique_lock lock(mutex_);
     log_stop_ = true;
-    log_queue_condition_variable_.notify_one();
+    condition_variable_.notify_all();
   }
   log_thread_.join();
 }
 
-void Logger::AddDebugTag(std::string tag) {
-  std::unique_lock lock(log_queue_mutex_);
-  debug_tags_.insert(std::move(tag));
-}
-
-void Logger::RemoveDebugTag(const std::string& tag) {
-  std::unique_lock lock(log_queue_mutex_);
-  debug_tags_.erase(tag);
-}
-
-void Logger::AddLogTarget(std::unique_ptr<ILogTarget> target) {
-  std::lock_guard<std::mutex> lock(target_list_mutex_);
-  target_list_.push_back(std::move(target));
-}
-
-void Logger::RemoveLogTarget(ILogTarget* target) {
-  std::lock_guard<std::mutex> lock(target_list_mutex_);
-  target_list_.erase(
-      std::remove_if(target_list_.begin(), target_list_.end(),
-                     [target](const auto& t) { return t.get() == target; }),
-      target_list_.end());
-}
-
-void Logger::Log(LogInfo log_info) {
-  std::unique_lock lock(log_queue_mutex_);
+void AsynchronousLogger::Log(LogInfo log_info) {
+  std::unique_lock lock(mutex_);
   log_queue_.push_back(std::move(log_info));
-  log_queue_condition_variable_.notify_one();
+  condition_variable_.notify_all();
 }
 
-void Logger::LogThreadRun() {
+void AsynchronousLogger::LogThreadRun() {
   std::list<LogInfo> queue;
   bool stop = false;
 
   while (true) {
-    std::vector<ILogTarget*> target_list;
-
     {
-      std::unique_lock lock(log_queue_mutex_);
-      log_queue_condition_variable_.wait(
+      std::unique_lock lock(mutex_);
+      condition_variable_.wait(
           lock, [this] { return !log_queue_.empty() || log_stop_; });
-      queue = std::move(log_queue_);
-      log_queue_ = {};
+      queue.swap(log_queue_);
       stop = log_stop_;
     }
 
-    {
-      std::lock_guard<std::mutex> lock_guard(target_list_mutex_);
-      for (const auto& target : target_list_) {
-        target_list.push_back(target.get());
-      }
-    }
-
-    for (const auto& target : target_list) {
-      for (auto& log_info : queue) {
+    auto config = GetConfigSnapshot();
+    for (const auto& writer : config->writers) {
+      for (const auto& log_info : queue) {
         if (log_info.level == LogLevel::Debug &&
-            std::ranges::none_of(debug_tags_,
+            std::ranges::none_of(config->debug_tags,
                                  [&log_info](const std::string& tag) {
                                    return log_info.tag.starts_with(tag);
                                  })) {
           continue;
         }
-        target->Write(log_info.level, MakeLogFinalMessage(log_info));
+        writer->Write(log_info, config->formatter->Format(log_info));
       }
-      queue.clear();
     }
+    queue.clear();
 
-    // TODO: Should still wait for queue to be cleared.
     if (stop) return;
   }
 }

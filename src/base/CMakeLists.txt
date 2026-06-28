@@ -11,7 +11,7 @@ add_library(CruBase
 	io/Resource.cpp
 	io/MemoryStream.cpp
 	log/Logger.cpp
-	log/StdioLogTarget.cpp
+	log/StdioLogWriter.cpp
 	toml/TomlDocument.cpp
 	toml/TomlParser.cpp
 	xml/XmlNode.cpp
@@ -54,7 +54,7 @@ if (WIN32)
 		platform/win/Base.cpp
 		platform/win/BridgeComStream.cpp
 		platform/win/ComAutoInit.cpp
-		platform/win/DebugLogTarget.cpp
+		platform/win/DebugLogWriter.cpp
 		platform/win/Stream.cpp
 		platform/win/Win32SubProcess.cpp
 	)

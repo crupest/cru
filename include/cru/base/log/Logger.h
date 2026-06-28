@@ -24,51 +24,87 @@ struct CRU_BASE_API LogInfo {
   std::string message;
 };
 
-struct CRU_BASE_API ILogTarget : virtual Interface {
-  // Write the string s. LogLevel is just a helper. It has no effect on the
-  // content to write.
-  virtual void Write(LogLevel level, std::string s) = 0;
+struct CRU_BASE_API ILogFormatter : virtual Interface {
+  virtual std::string Format(const LogInfo& log_info) = 0;
+};
+
+struct CRU_BASE_API DefaultLogFormatter : public Object,
+                                          public virtual ILogFormatter {
+  std::string Format(const LogInfo& log_info) override;
+};
+
+struct CRU_BASE_API ILogWriter : virtual Interface {
+  virtual void Write(const LogInfo& log_info, std::string log_str) = 0;
 };
 
 struct CRU_BASE_API ILogger : virtual Interface {
   static ILogger* GetInstance();
+  static void InstallDefaultWriters(ILogger* logger);
 
   virtual void AddDebugTag(std::string tag) = 0;
   virtual void RemoveDebugTag(const std::string& tag) = 0;
   void LoadDebugTagFromEnv(const char* env_var = "CRU_LOG_DEBUG",
                            std::string sep = ",");
 
+  virtual void SetFormatter(std::unique_ptr<ILogFormatter> formatter) = 0;
+  virtual void AddWriter(std::unique_ptr<ILogWriter> source) = 0;
+  virtual void RemoveWriter(ILogWriter* source) = 0;
+
   virtual void Log(LogInfo log_info) = 0;
 
   void Log(LogLevel level, std::string tag, std::string message) {
     Log(LogInfo(level, std::move(tag), std::move(message)));
   }
+};
+
+class CRU_BASE_API LoggerConfigurationMixin : public virtual ILogger {
+ public:
+  LoggerConfigurationMixin();
+
+  void AddDebugTag(std::string tag) override;
+  void RemoveDebugTag(const std::string& tag) override;
+  void SetFormatter(std::unique_ptr<ILogFormatter> formatter) override;
+  void AddWriter(std::unique_ptr<ILogWriter> writer) override;
+  void RemoveWriter(ILogWriter* writer) override;
 
  protected:
-  std::unordered_set<std::string> debug_tags_;
-};
+  struct LoggerConfig {
+    std::shared_ptr<ILogFormatter> formatter;
+    std::unordered_set<std::string> debug_tags;
+    std::vector<std::shared_ptr<ILogWriter>> writers;
+  };
 
-class CRU_BASE_API SimpleStdioLogger : public Object, public virtual ILogger {
- public:
-  void AddDebugTag(std::string tag) override;
-  void RemoveDebugTag(const std::string& tag) override;
-  void Log(LogInfo log_info) override;
+  std::shared_ptr<LoggerConfig> GetConfigSnapshot();
 
  private:
-  std::unordered_set<std::string> debug_tags_;
+  template <typename F>
+  void UpdateConfig(F&& updater) {
+    auto old_config = config_.load();
+    while (true) {
+      std::shared_ptr<LoggerConfig> new_config(
+          new LoggerConfig(*old_config.get()));
+      updater(new_config.get());
+      if (config_.compare_exchange_weak(old_config, new_config)) {
+        break;
+      }
+    }
+  }
+
+  std::atomic<std::shared_ptr<LoggerConfig>> config_;
 };
 
-class CRU_BASE_API Logger : public Object, public virtual ILogger {
- public:
-  Logger();
-  ~Logger() override;
+class CRU_BASE_API SynchronousLogger : public Object,
+                                       public virtual ILogger,
+                                       public LoggerConfigurationMixin {
+  void Log(LogInfo log_info) override;
+};
 
+class CRU_BASE_API AsynchronousLogger : public Object,
+                                        public virtual ILogger,
+                                        public LoggerConfigurationMixin {
  public:
-  void AddDebugTag(std::string tag) override;
-  void RemoveDebugTag(const std::string& tag) override;
-
-  void AddLogTarget(std::unique_ptr<ILogTarget> source);
-  void RemoveLogTarget(ILogTarget* source);
+  AsynchronousLogger();
+  ~AsynchronousLogger() override;
 
  public:
   void Log(LogInfo log_info) override;
@@ -77,15 +113,12 @@ class CRU_BASE_API Logger : public Object, public virtual ILogger {
   void LogThreadRun();
 
  private:
-  std::mutex log_queue_mutex_;
-  std::unordered_set<std::string> debug_tags_;
-  std::condition_variable log_queue_condition_variable_;
+  std::mutex mutex_;
+  std::condition_variable condition_variable_;
+
   std::list<LogInfo> log_queue_;
   bool log_stop_;
   std::thread log_thread_;
-
-  std::mutex target_list_mutex_;
-  std::vector<std::unique_ptr<ILogTarget>> target_list_;
 };
 
 CRU_BASE_API Guard MeasureTimeAndLog(std::string_view tag,

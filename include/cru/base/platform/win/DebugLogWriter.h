@@ -8,8 +8,8 @@
 #include "../../log/Logger.h"
 
 namespace cru::platform::win {
-class CRU_BASE_API WinDebugLogTarget : public ::cru::log::ILogTarget {
+class CRU_BASE_API WinDebugLogWriter : public ::cru::log::ILogWriter {
  public:
-  void Write(::cru::log::LogLevel level, std::string s) override;
+  void Write(const ::cru::log::LogInfo& log_info, std::string log_str) override;
 };
 }  // namespace cru::platform::win
