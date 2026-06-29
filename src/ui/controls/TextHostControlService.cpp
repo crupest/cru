@@ -378,6 +378,7 @@ void TextHostControlService::AbortSelection() {
 void TextHostControlService::ReplaceSelectedText(std::string_view text) {
   auto selection = GetSelection().Normalize();
   this->text_.replace(selection.position, selection.count, text);
+  this->string_break_iterator_.SetText(this->text_);
   this->SetSelection(
       TextRange{selection.position + static_cast<Index>(text.size()), 0});
   SyncTextRenderObject();
@@ -393,6 +394,7 @@ void TextHostControlService::DeleteTextToFromCaret(Index to_position) {
   auto delete_range =
       TextRange::FromTwoSides(GetCaretPosition(), to_position).Normalize();
   this->text_.erase(delete_range.position, delete_range.count);
+  this->string_break_iterator_.SetText(this->text_);
   this->SetSelection(TextRange{delete_range.position, 0});
   SyncTextRenderObject();
   text_change_event_.Raise(nullptr);
