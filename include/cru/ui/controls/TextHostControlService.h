@@ -1,5 +1,6 @@
 #pragma once
 #include "../render/TextRenderObject.h"
+#include "cru/base/StringUtil.h"
 #include "cru/platform/gui/InputMethod.h"
 #include "cru/platform/gui/UiApplication.h"
 #include "cru/ui/controls/Control.h"
@@ -95,14 +96,6 @@ class CRU_UI_API TextHostControlService : public Object {
   std::string_view GetTextView() { return this->text_; }
   void SetText(std::string text, bool stop_composition = false);
 
-  void InsertText(Index position, std::string_view text,
-                  bool stop_composition = false);
-  void DeleteChar(Index position, bool stop_composition = false);
-
-  // Return the position of deleted character.
-  Index DeleteCharPrevious(Index position, bool stop_composition = false);
-  void DeleteText(TextRange range, bool stop_composition = false);
-
   void CancelComposition();
 
   std::optional<platform::gui::CompositionText> GetCompositionInfo();
@@ -118,6 +111,13 @@ class CRU_UI_API TextHostControlService : public Object {
 
   std::string_view GetSelectedText();
 
+  Index NextNCharPosition(Index count);
+  Index PreviousNCharPosition(Index count);
+  Index NextNWordPosition(Index count);
+  Index PreviousNWordPosition(Index count);
+  Index NextNLinePosition(Index count);
+  Index PreviousNLinePosition(Index count);
+
   void SetSelection(Index caret_position);
   void SetSelection(TextRange selection, bool scroll_to_caret = true);
 
@@ -126,10 +126,14 @@ class CRU_UI_API TextHostControlService : public Object {
   void ChangeSelectionEnd(Index new_end);
   void AbortSelection();
 
-  void DeleteSelectedText();
   // If some text is selected, then they are deleted first. Then insert text
   // into caret position.
   void ReplaceSelectedText(std::string_view text);
+
+  /**
+   * You can only call this when there is no selection.
+   */
+  void DeleteTextToFromCaret(Index to_position);
 
   void ScrollToCaret();
 
@@ -191,6 +195,7 @@ class CRU_UI_API TextHostControlService : public Object {
 
   std::string text_;
   TextRange selection_;
+  cru::string::StringBreakIterator string_break_iterator_;
 
   bool enable_ = false;
   bool editable_ = false;

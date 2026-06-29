@@ -12,7 +12,6 @@
 #include <cstdint>
 #include <cstdlib>
 #include <format>
-#include <functional>
 #include <memory>
 #include <string>
 #include <string_view>
@@ -306,45 +305,6 @@ inline bool Utf8IsValidInsertPosition(Utf8StringView str, Index position) {
   return Utf8IsValidInsertPosition(str.data(), str.size(), position);
 }
 
-// Return position after the character making predicate returns true or 0 if no
-// character doing so.
-Index CRU_BASE_API
-Utf8BackwardUntil(const Utf8CodeUnit* ptr, Index size, Index position,
-                  const std::function<bool(CodePoint)>& predicate);
-
-inline Index Utf8BackwardUntil(
-    Utf8StringView str, Index position,
-    const std::function<bool(CodePoint)>& predicate) {
-  return Utf8BackwardUntil(str.data(), str.size(), position, predicate);
-}
-
-// Return position before the character making predicate returns true or
-// str.size() if no character doing so.
-Index CRU_BASE_API
-Utf8ForwardUntil(const Utf8CodeUnit* ptr, Index size, Index position,
-                 const std::function<bool(CodePoint)>& predicate);
-
-inline Index Utf8ForwardUntil(Utf8StringView str, Index position,
-                              const std::function<bool(CodePoint)>& predicate) {
-  return Utf8ForwardUntil(str.data(), str.size(), position, predicate);
-}
-
-Index CRU_BASE_API Utf8PreviousWord(const Utf8CodeUnit* ptr, Index size,
-                                    Index position, bool* is_space = nullptr);
-
-inline Index Utf8PreviousWord(Utf8StringView str, Index position,
-                              bool* is_space = nullptr) {
-  return Utf8PreviousWord(str.data(), str.size(), position, is_space);
-}
-
-Index CRU_BASE_API Utf8NextWord(const Utf8CodeUnit* ptr, Index size,
-                                Index position, bool* is_space = nullptr);
-
-inline Index Utf8NextWord(Utf8StringView str, Index position,
-                          bool* is_space = nullptr) {
-  return Utf8NextWord(str.data(), str.size(), position, is_space);
-}
-
 CodePoint CRU_BASE_API Utf16NextCodePoint(const Utf16CodeUnit* ptr, Index size,
                                           Index current, Index* next_position);
 
@@ -426,102 +386,6 @@ inline bool Utf16IsValidInsertPosition(const wchar_t* ptr, Index size,
 inline CodePoint Utf16IsValidInsertPosition(std::wstring_view str,
                                             Index position) {
   return Utf16IsValidInsertPosition(str.data(), str.size(), position);
-}
-#endif
-
-// Return position after the character making predicate returns true or 0 if no
-// character doing so.
-Index CRU_BASE_API
-Utf16BackwardUntil(const Utf16CodeUnit* ptr, Index size, Index position,
-                   const std::function<bool(CodePoint)>& predicate);
-
-inline Index Utf16BackwardUntil(
-    Utf16StringView str, Index position,
-    const std::function<bool(CodePoint)>& predicate) {
-  return Utf16BackwardUntil(str.data(), str.size(), position, predicate);
-}
-
-#ifdef _WIN32
-inline CodePoint Utf16BackwardUntil(
-    const wchar_t* ptr, Index size, Index position,
-    const std::function<bool(CodePoint)>& predicate) {
-  return Utf16BackwardUntil(reinterpret_cast<const Utf16CodeUnit*>(ptr), size,
-                            position, predicate);
-}
-
-inline CodePoint Utf16BackwardUntil(
-    std::wstring_view str, Index position,
-    const std::function<bool(CodePoint)>& predicate) {
-  return Utf16BackwardUntil(str.data(), str.size(), position, predicate);
-}
-#endif
-
-// Return position before the character making predicate returns true or
-// str.size() if no character doing so.
-Index CRU_BASE_API
-Utf16ForwardUntil(const Utf16CodeUnit* ptr, Index size, Index position,
-                  const std::function<bool(CodePoint)>& predicate);
-
-inline Index Utf16ForwardUntil(
-    Utf16StringView str, Index position,
-    const std::function<bool(CodePoint)>& predicate) {
-  return Utf16ForwardUntil(str.data(), str.size(), position, predicate);
-}
-
-#ifdef _WIN32
-inline CodePoint Utf16ForwardUntil(
-    const wchar_t* ptr, Index size, Index position,
-    const std::function<bool(CodePoint)>& predicate) {
-  return Utf16ForwardUntil(reinterpret_cast<const Utf16CodeUnit*>(ptr), size,
-                           position, predicate);
-}
-
-inline CodePoint Utf16ForwardUntil(
-    std::wstring_view str, Index position,
-    const std::function<bool(CodePoint)>& predicate) {
-  return Utf16ForwardUntil(str.data(), str.size(), position, predicate);
-}
-#endif
-
-Index CRU_BASE_API Utf16PreviousWord(const Utf16CodeUnit* ptr, Index size,
-                                     Index position, bool* is_space = nullptr);
-
-inline Index Utf16PreviousWord(Utf16StringView str, Index position,
-                               bool* is_space = nullptr) {
-  return Utf16PreviousWord(str.data(), str.size(), position, is_space);
-}
-
-#ifdef _WIN32
-inline CodePoint Utf16PreviousWord(const wchar_t* ptr, Index size,
-                                   Index position, bool* is_space = nullptr) {
-  return Utf16PreviousWord(reinterpret_cast<const Utf16CodeUnit*>(ptr), size,
-                           position, is_space);
-}
-
-inline CodePoint Utf16PreviousWord(std::wstring_view str, Index position,
-                                   bool* is_space = nullptr) {
-  return Utf16PreviousWord(str.data(), str.size(), position, is_space);
-}
-#endif
-
-Index CRU_BASE_API Utf16NextWord(const Utf16CodeUnit* ptr, Index size,
-                                 Index position, bool* is_space = nullptr);
-
-inline Index Utf16NextWord(Utf16StringView str, Index position,
-                           bool* is_space = nullptr) {
-  return Utf16NextWord(str.data(), str.size(), position, is_space);
-}
-
-#ifdef _WIN32
-inline CodePoint Utf16NextWord(const wchar_t* ptr, Index size, Index position,
-                               bool* is_space = nullptr) {
-  return Utf16NextWord(reinterpret_cast<const Utf16CodeUnit*>(ptr), size,
-                       position, is_space);
-}
-
-inline CodePoint Utf16NextWord(std::wstring_view str, Index position,
-                               bool* is_space = nullptr) {
-  return Utf16NextWord(str.data(), str.size(), position, is_space);
 }
 #endif
 
@@ -675,7 +539,7 @@ std::string CRU_BASE_API ToUtf8String(std::wstring_view str);
 
 class StringBreakIterator {
  public:
-  explicit StringBreakIterator(std::string str);
+  explicit StringBreakIterator(std::string str = {});
 
   std::string GetText() const { return str_; }
 

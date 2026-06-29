@@ -25,37 +25,31 @@ using platform::gui::IUiApplication;
 
 TextControlMovePattern TextControlMovePattern::kLeft(
     "Left", helper::ShortcutKeyBind(platform::gui::KeyCode::Left),
-    [](TextHostControlService* service, std::string_view text,
-       Index current_position) {
-      CRU_UNUSED(service)
-      Utf8PreviousCodePoint(text, current_position, &current_position);
-      return current_position;
+    [](TextHostControlService* service, [[maybe_unused]] std::string_view text,
+       [[maybe_unused]] Index current_position) {
+      return service->PreviousNCharPosition(1);
     });
 TextControlMovePattern TextControlMovePattern::kRight(
     "Right", helper::ShortcutKeyBind(platform::gui::KeyCode::Right),
-    [](TextHostControlService* service, std::string_view text,
-       Index current_position) {
-      CRU_UNUSED(service)
-      Utf8NextCodePoint(text, current_position, &current_position);
-      return current_position;
+    [](TextHostControlService* service, [[maybe_unused]] std::string_view text,
+       [[maybe_unused]] Index current_position) {
+      return service->NextNCharPosition(1);
     });
 TextControlMovePattern TextControlMovePattern::kCtrlLeft(
     "Ctrl+Left(Previous Word)",
     helper::ShortcutKeyBind(platform::gui::KeyCode::Left,
                             platform::gui::KeyModifiers::Ctrl),
-    [](TextHostControlService* service, std::string_view text,
-       Index current_position) {
-      CRU_UNUSED(service)
-      return Utf8PreviousWord(text, current_position);
+    [](TextHostControlService* service, [[maybe_unused]] std::string_view text,
+       [[maybe_unused]] Index current_position) {
+      return service->PreviousNWordPosition(1);
     });
 TextControlMovePattern TextControlMovePattern::kCtrlRight(
     "Ctrl+Right(Next Word)",
     helper::ShortcutKeyBind(platform::gui::KeyCode::Right,
                             platform::gui::KeyModifiers::Ctrl),
-    [](TextHostControlService* service, std::string_view text,
-       Index current_position) {
-      CRU_UNUSED(service)
-      return Utf8NextWord(text, current_position);
+    [](TextHostControlService* service, [[maybe_unused]] std::string_view text,
+       [[maybe_unused]] Index current_position) {
+      return service->NextNWordPosition(1);
     });
 TextControlMovePattern TextControlMovePattern::kUp(
     "Up", helper::ShortcutKeyBind(platform::gui::KeyCode::Up),
@@ -65,8 +59,10 @@ TextControlMovePattern TextControlMovePattern::kUp(
       auto text_render_object = service->GetTextRenderObject();
       auto rect = text_render_object->TextSinglePoint(current_position, false);
       rect.top += rect.height;
-      rect.top -= text_render_object->GetLineHeight(
-          text_render_object->GetLineIndexFromCharIndex(current_position)) + text_render_object->GetFont()->GetFontSize() / 2.f;
+      rect.top -=
+          text_render_object->GetLineHeight(
+              text_render_object->GetLineIndexFromCharIndex(current_position)) +
+          text_render_object->GetFont()->GetFontSize() / 2.f;
       auto result = text_render_object->TextHitTest(rect.GetLeftTop());
       return result.position_with_trailing;
     });
@@ -82,25 +78,25 @@ TextControlMovePattern TextControlMovePattern::kDown(
         return static_cast<Index>(text.size());
       }
       auto rect = text_render_object->TextSinglePoint(current_position, false);
-      rect.top += rect.height + text_render_object->GetLineHeight(current_line_index) + text_render_object->GetFont()->GetFontSize() / 2.f;
+      rect.top += rect.height +
+                  text_render_object->GetLineHeight(current_line_index) +
+                  text_render_object->GetFont()->GetFontSize() / 2.f;
       auto result = text_render_object->TextHitTest(rect.GetLeftTop());
       return result.position_with_trailing;
     });
 TextControlMovePattern TextControlMovePattern::kHome(
     "Home(Line Begin)", helper::ShortcutKeyBind(platform::gui::KeyCode::Home),
-    [](TextHostControlService* service, std::string_view text,
-       Index current_position) {
-      CRU_UNUSED(service)
-      return Utf8BackwardUntil(text, current_position,
-                               [](CodePoint c) { return c == u'\n'; });
+    [](TextHostControlService* service, [[maybe_unused]] std::string_view text,
+       [[maybe_unused]] Index current_position) {
+      // TODO: actually we should check if we're already at line begin.
+      return service->PreviousNLinePosition(1);
     });
 TextControlMovePattern TextControlMovePattern::kEnd(
     "End(Line End)", helper::ShortcutKeyBind(platform::gui::KeyCode::End),
-    [](TextHostControlService* service, std::string_view text,
-       Index current_position) {
-      CRU_UNUSED(service)
-      return Utf8ForwardUntil(text, current_position,
-                              [](CodePoint c) { return c == u'\n'; });
+    [](TextHostControlService* service, [[maybe_unused]] std::string_view text,
+       [[maybe_unused]] Index current_position) {
+      // TODO: actually we should check if we're already at line end.
+      return service->NextNLinePosition(1);
     });
 TextControlMovePattern TextControlMovePattern::kCtrlHome(
     "Ctrl+Home(Document Begin)",
@@ -218,76 +214,12 @@ void TextHostControlService::SetMultiLine(bool multi_line) {
 
 void TextHostControlService::SetText(std::string text, bool stop_composition) {
   this->text_ = std::move(text);
-  CoerceSelection();
+  this->selection_ = TextRange{0, 0};
+  this->string_break_iterator_.SetText(this->text_);
   if (stop_composition) {
     CancelComposition();
   }
   SyncTextRenderObject();
-  text_change_event_.Raise(nullptr);
-}
-
-void TextHostControlService::InsertText(Index position, std::string_view text,
-                                        bool stop_composition) {
-  if (!Utf8IsValidInsertPosition(this->text_, position)) {
-    CruLogError(kLogTag, "Invalid text insert position.");
-    return;
-  }
-  this->text_.insert(this->text_.cbegin() + position, text.cbegin(),
-                     text.cend());
-  if (stop_composition) {
-    CancelComposition();
-  }
-  SyncTextRenderObject();
-  text_change_event_.Raise(nullptr);
-}
-
-void TextHostControlService::DeleteChar(Index position, bool stop_composition) {
-  if (!Utf8IsValidInsertPosition(this->text_, position)) {
-    CruLogError(kLogTag, "Invalid text delete position {}.", position);
-    return;
-  }
-  if (position == static_cast<Index>(this->text_.size())) return;
-  Index next;
-  Utf8NextCodePoint(this->text_, position, &next);
-  this->DeleteText(TextRange::FromTwoSides(position, next), stop_composition);
-}
-
-// Return the position of deleted character.
-Index TextHostControlService::DeleteCharPrevious(Index position,
-                                                 bool stop_composition) {
-  if (!Utf8IsValidInsertPosition(this->text_, position)) {
-    CruLogError(kLogTag, "Invalid text delete position {}.", position);
-    return 0;
-  }
-  if (position == 0) return 0;
-  Index previous;
-  Utf8PreviousCodePoint(this->text_, position, &previous);
-  this->DeleteText(TextRange::FromTwoSides(previous, position),
-                   stop_composition);
-  return previous;
-}
-
-void TextHostControlService::DeleteText(TextRange range,
-                                        bool stop_composition) {
-  if (range.count == 0) return;
-  range = range.Normalize();
-  if (!Utf8IsValidInsertPosition(this->text_, range.GetStart())) {
-    CruLogError(kLogTag, "Invalid text delete start position {}.",
-                range.GetStart());
-    return;
-  }
-  if (!Utf8IsValidInsertPosition(this->text_, range.GetEnd())) {
-    CruLogError(kLogTag, "Invalid text delete end position {}.",
-                range.GetEnd());
-    return;
-  }
-  this->text_.erase(this->text_.cbegin() + range.GetStart(),
-                    this->text_.cbegin() + range.GetEnd());
-  this->CoerceSelection();
-  if (stop_composition) {
-    CancelComposition();
-  }
-  this->SyncTextRenderObject();
   text_change_event_.Raise(nullptr);
 }
 
@@ -363,6 +295,54 @@ std::string_view TextHostControlService::GetSelectedText() {
   return GetTextView().substr(selection.position, selection.count);
 }
 
+Index TextHostControlService::NextNCharPosition(Index count) {
+  string_break_iterator_.SetCurrentPosition(GetCaretPosition());
+  for (Index i = 0; i < count; ++i) {
+    string_break_iterator_.NextChar();
+  }
+  return string_break_iterator_.GetCurrentPosition();
+}
+
+Index TextHostControlService::PreviousNCharPosition(Index count) {
+  string_break_iterator_.SetCurrentPosition(GetCaretPosition());
+  for (Index i = 0; i < count; ++i) {
+    string_break_iterator_.PreviousChar();
+  }
+  return string_break_iterator_.GetCurrentPosition();
+}
+
+Index TextHostControlService::NextNWordPosition(Index count) {
+  string_break_iterator_.SetCurrentPosition(GetCaretPosition());
+  for (Index i = 0; i < count; ++i) {
+    string_break_iterator_.NextWord();
+  }
+  return string_break_iterator_.GetCurrentPosition();
+}
+
+Index TextHostControlService::PreviousNWordPosition(Index count) {
+  string_break_iterator_.SetCurrentPosition(GetCaretPosition());
+  for (Index i = 0; i < count; ++i) {
+    string_break_iterator_.PreviousWord();
+  }
+  return string_break_iterator_.GetCurrentPosition();
+}
+
+Index TextHostControlService::NextNLinePosition(Index count) {
+  string_break_iterator_.SetCurrentPosition(GetCaretPosition());
+  for (Index i = 0; i < count; ++i) {
+    string_break_iterator_.NextLine();
+  }
+  return string_break_iterator_.GetCurrentPosition();
+}
+
+Index TextHostControlService::PreviousNLinePosition(Index count) {
+  string_break_iterator_.SetCurrentPosition(GetCaretPosition());
+  for (Index i = 0; i < count; ++i) {
+    string_break_iterator_.PreviousLine();
+  }
+  return string_break_iterator_.GetCurrentPosition();
+}
+
 void TextHostControlService::SetSelection(Index caret_position) {
   this->SetSelection(TextRange{caret_position, 0});
 }
@@ -396,14 +376,26 @@ void TextHostControlService::AbortSelection() {
 }
 
 void TextHostControlService::ReplaceSelectedText(std::string_view text) {
-  DeleteSelectedText();
-  InsertText(GetSelection().GetStart(), text);
-  SetSelection(GetSelection().GetStart() + text.size());
+  auto selection = GetSelection().Normalize();
+  this->text_.replace(selection.position, selection.count, text);
+  this->SetSelection(
+      TextRange{selection.position + static_cast<Index>(text.size()), 0});
+  SyncTextRenderObject();
+  text_change_event_.Raise(nullptr);
 }
 
-void TextHostControlService::DeleteSelectedText() {
-  this->DeleteText(GetSelection());
-  SetSelection(GetSelection().Normalize().GetStart());
+void TextHostControlService::DeleteTextToFromCaret(Index to_position) {
+  if (selection_.count != 0) {
+    throw Exception(
+        "Cannot call DeleteTextToFromCaret when there is a selection.");
+  }
+
+  auto delete_range =
+      TextRange::FromTwoSides(GetCaretPosition(), to_position).Normalize();
+  this->text_.erase(delete_range.position, delete_range.count);
+  this->SetSelection(TextRange{delete_range.position, 0});
+  SyncTextRenderObject();
+  text_change_event_.Raise(nullptr);
 }
 
 void TextHostControlService::Cut() {
@@ -575,7 +567,7 @@ void TextHostControlService::GainFocusHandler(
     };
     input_method_context_event_guard_ +=
         input_method_context->CompositionStartEvent()->AddHandler(
-            [this](std::nullptr_t) { this->DeleteSelectedText(); });
+            [this](std::nullptr_t) { this->ReplaceSelectedText({}); });
     input_method_context_event_guard_ +=
         input_method_context->CompositionEvent()->AddHandler(sync);
     input_method_context_event_guard_ +=
@@ -655,9 +647,9 @@ void TextHostControlService::SetUpShortcuts() {
     if (!IsEditable()) return false;
     const auto selection = GetSelection();
     if (selection.count == 0) {
-      SetSelection(DeleteCharPrevious(GetCaretPosition()));
+      this->DeleteTextToFromCaret(PreviousNCharPosition(1));
     } else {
-      this->DeleteSelectedText();
+      this->ReplaceSelectedText({});
     }
     return true;
   });
@@ -667,9 +659,9 @@ void TextHostControlService::SetUpShortcuts() {
     if (!IsEditable()) return false;
     const auto selection = GetSelection();
     if (selection.count == 0) {
-      DeleteChar(GetCaretPosition());
+      this->DeleteTextToFromCaret(NextNCharPosition(1));
     } else {
-      this->DeleteSelectedText();
+      this->ReplaceSelectedText({});
     }
     return true;
   });

@@ -78,47 +78,6 @@ std::vector<std::string> Split(std::string_view str, std::string_view sep,
   return result;
 }
 
-namespace {
-
-template <typename CharType,
-          NextCodePointFunctionType<CharType> NextCodePointFunction>
-Index Until(const CharType* ptr, Index size, Index position,
-            const std::function<bool(CodePoint)>& predicate) {
-  if (position <= 0) return position;
-  while (true) {
-    Index p = position;
-    auto c = NextCodePointFunction(ptr, size, p, &position);
-    if (predicate(c)) return p;
-    if (c == k_invalid_code_point) return p;
-  }
-  std::unreachable();
-}
-
-bool IsSpace(CodePoint c) { return c == 0x20 || c == 0xA; }
-
-template <typename CharType>
-using UntilFunctionType = Index (*)(const CharType*, Index, Index,
-                                    const std::function<bool(CodePoint)>&);
-
-template <typename CharType,
-          NextCodePointFunctionType<CharType> NextCodePointFunction,
-          UntilFunctionType<CharType> UntilFunction>
-Index Word(const CharType* ptr, Index size, Index position, bool* is_space) {
-  if (position <= 0) return position;
-  auto c = NextCodePointFunction(ptr, size, position, nullptr);
-  if (IsSpace(c)) {  // TODO: Currently only test against 0x20(space).
-    if (is_space) *is_space = true;
-    return UntilFunction(ptr, size, position,
-                         [](CodePoint c) { return !IsSpace(c); });
-  } else {
-    if (is_space) *is_space = false;
-    return UntilFunction(ptr, size, position,
-                         [](CodePoint c) { return IsSpace(c); });
-  }
-}
-
-}  // namespace
-
 using details::ExtractBits;
 
 CodePoint Utf8NextCodePoint(const Utf8CodeUnit* ptr, Index size, Index current,
@@ -222,31 +181,6 @@ bool Utf8IsValidInsertPosition(const Utf8CodeUnit* ptr, Index size,
          (position > 0 && position < size && IsUtf8LeadingByte(ptr[position]));
 }
 
-Index Utf8BackwardUntil(const Utf8CodeUnit* ptr, Index size, Index position,
-                        const std::function<bool(CodePoint)>& predicate) {
-  return Until<Utf8CodeUnit, Utf8PreviousCodePoint>(ptr, size, position,
-                                                    predicate);
-}
-
-Index Utf8ForwardUntil(const Utf8CodeUnit* ptr, Index size, Index position,
-                       const std::function<bool(CodePoint)>& predicate) {
-  return Until<Utf8CodeUnit, Utf8NextCodePoint>(ptr, size, position, predicate);
-}
-
-static bool IsSpace(CodePoint c) { return c == 0x20 || c == 0xA; }
-
-Index Utf8PreviousWord(const Utf8CodeUnit* ptr, Index size, Index position,
-                       bool* is_space) {
-  return Word<Utf8CodeUnit, Utf8PreviousCodePoint, Utf8BackwardUntil>(
-      ptr, size, position, is_space);
-}
-
-Index Utf8NextWord(const Utf8CodeUnit* ptr, Index size, Index position,
-                   bool* is_space) {
-  return Word<Utf8CodeUnit, Utf8NextCodePoint, Utf8ForwardUntil>(
-      ptr, size, position, is_space);
-}
-
 CodePoint Utf16NextCodePoint(const Utf16CodeUnit* ptr, Index size,
                              Index current, Index* next_position) {
   CodePoint result;
@@ -331,30 +265,6 @@ bool Utf16IsValidInsertPosition(const Utf16CodeUnit* ptr, Index size,
   if (position == 0) return true;
   if (position == size) return true;
   return !IsUtf16SurrogatePairTrailing(ptr[position]);
-}
-
-Index Utf16BackwardUntil(const Utf16CodeUnit* ptr, Index size, Index position,
-                         const std::function<bool(CodePoint)>& predicate) {
-  return Until<Utf16CodeUnit, Utf16PreviousCodePoint>(ptr, size, position,
-                                                      predicate);
-}
-
-Index Utf16ForwardUntil(const Utf16CodeUnit* ptr, Index size, Index position,
-                        const std::function<bool(CodePoint)>& predicate) {
-  return Until<Utf16CodeUnit, Utf16NextCodePoint>(ptr, size, position,
-                                                  predicate);
-}
-
-Index Utf16PreviousWord(const Utf16CodeUnit* ptr, Index size, Index position,
-                        bool* is_space) {
-  return Word<Utf16CodeUnit, Utf16PreviousCodePoint, Utf16BackwardUntil>(
-      ptr, size, position, is_space);
-}
-
-Index Utf16NextWord(const Utf16CodeUnit* ptr, Index size, Index position,
-                    bool* is_space) {
-  return Word<Utf16CodeUnit, Utf16NextCodePoint, Utf16ForwardUntil>(
-      ptr, size, position, is_space);
 }
 
 template <typename CharType,
