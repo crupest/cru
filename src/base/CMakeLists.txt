@@ -21,6 +21,27 @@ target_compile_definitions(CruBase PRIVATE CRU_BASE_EXPORT_API)
 target_include_directories(CruBase PUBLIC ${CRU_INCLUDE_DIR})
 target_compile_definitions(CruBase PUBLIC $<$<CONFIG:Debug>:CRU_DEBUG>)
 
+if (APPLE)
+	# Homebrew prefix is discovered in the top-level CMakeLists.txt.
+	set(_cru_icu_roots
+		"${CRU_HOMEBREW_PREFIX}/opt/icu4c"
+		"${CRU_HOMEBREW_PREFIX}/opt/icu4c@78"
+	)
+
+	foreach(_cru_icu_root IN LISTS _cru_icu_roots)
+		if (EXISTS "${_cru_icu_root}/include/unicode/utypes.h" AND EXISTS "${_cru_icu_root}/lib/libicuuc.dylib")
+			set(ICU_ROOT "${_cru_icu_root}")
+			break()
+		endif()
+	endforeach()
+
+	if (ICU_ROOT)
+		list(PREPEND CMAKE_SYSTEM_PREFIX_PATH "${ICU_ROOT}")
+	else()
+		message(FATAL_ERROR "Failed to find ICU in Homebrew prefix: ${CRU_HOMEBREW_PREFIX}.")
+	endif()
+endif()
+
 # Link only the ICU common library. The data library is pulled in automatically
 # as a dependency of ICU::uc on most platforms.
 # Add ICU::i18n if internationalization APIs (formatting, collation, etc.) are needed.

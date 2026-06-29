@@ -41,7 +41,32 @@ if(CRU_ASAN)
 endif()
 
 if (APPLE)
-	include_directories(BEFORE SYSTEM "/usr/local/include")
+	set(CRU_HOMEBREW_PREFIX "" CACHE PATH "Homebrew prefix for macOS dependencies")
+	if (NOT CRU_HOMEBREW_PREFIX)
+		execute_process(
+			COMMAND brew --prefix
+			RESULT_VARIABLE _cru_brew_prefix_result
+			OUTPUT_VARIABLE _cru_brew_prefix
+			OUTPUT_STRIP_TRAILING_WHITESPACE
+			ERROR_QUIET
+		)
+
+		if (_cru_brew_prefix_result EQUAL 0 AND _cru_brew_prefix)
+			set(CRU_HOMEBREW_PREFIX "${_cru_brew_prefix}" CACHE PATH "Homebrew prefix for macOS dependencies" FORCE)
+		else()
+			message(FATAL_ERROR
+				"Failed to detect Homebrew prefix with 'brew --prefix'.\n"
+				"Homebrew-provided dependencies are required on macOS.\n"
+				"Please install Homebrew and required packages, or configure with -DCRU_HOMEBREW_PREFIX=<brew-prefix>."
+			)
+		endif()
+	endif()
+
+	if (NOT EXISTS "${CRU_HOMEBREW_PREFIX}")
+		message(FATAL_ERROR "CRU_HOMEBREW_PREFIX does not exist: ${CRU_HOMEBREW_PREFIX}")
+	endif()
+
+	list(PREPEND CMAKE_SYSTEM_PREFIX_PATH "${CRU_HOMEBREW_PREFIX}")
 endif()
 
 add_subdirectory(lib/Catch2)
