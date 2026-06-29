@@ -696,6 +696,8 @@ class StringBreakIterator {
   Index PreviousChar();
   Index NextWord();
   Index PreviousWord();
+  Index NextLine();
+  Index PreviousLine();
 
  private:
   void SetCurrentPositionByUtf16(Index position);
@@ -707,5 +709,6 @@ class StringBreakIterator {
   Index utf16_position_;
   std::unique_ptr<icu::BreakIterator> character_break_iterator_;
   std::unique_ptr<icu::BreakIterator> word_break_iterator_;
+  std::unique_ptr<icu::BreakIterator> line_break_iterator_;
 };
 }  // namespace cru::string

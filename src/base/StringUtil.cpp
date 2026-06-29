@@ -441,6 +441,12 @@ StringBreakIterator::StringBreakIterator(std::string str)
     throw Exception("Failed to create word break iterator.");
   }
 
+  line_break_iterator_.reset(icu::BreakIterator::createLineInstance(
+      icu::Locale::getDefault(), error_code));
+  if (U_FAILURE(error_code)) {
+    throw Exception("Failed to create line break iterator.");
+  }
+
   SetText(std::move(str));
 }
 
@@ -451,6 +457,7 @@ void StringBreakIterator::SetText(std::string str) {
   utf16_position_ = 0;
   character_break_iterator_->setText(icu_str_);
   word_break_iterator_->setText(icu_str_);
+  line_break_iterator_->setText(icu_str_);
 }
 
 void StringBreakIterator::SetCurrentPosition(Index position) {
@@ -492,6 +499,22 @@ Index StringBreakIterator::PreviousWord() {
     return utf8_position_;
   }
   SetCurrentPositionByUtf16(word_break_iterator_->preceding(utf16_position_));
+  return utf8_position_;
+}
+
+Index StringBreakIterator::NextLine() {
+  if (utf8_position_ >= str_.size()) {
+    return utf8_position_;
+  }
+  SetCurrentPositionByUtf16(line_break_iterator_->following(utf16_position_));
+  return utf8_position_;
+}
+
+Index StringBreakIterator::PreviousLine() {
+  if (utf8_position_ <= 0) {
+    return utf8_position_;
+  }
+  SetCurrentPositionByUtf16(line_break_iterator_->preceding(utf16_position_));
   return utf8_position_;
 }
 

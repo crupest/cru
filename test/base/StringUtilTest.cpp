@@ -327,6 +327,33 @@ TEST_CASE("StringBreakIterator word chinese from middle", "[string]") {
   REQUIRE(iter.NextWord() == 12);
 }
 
+TEST_CASE("StringBreakIterator line", "[string]") {
+  // ASCII with explicit line breaks. Byte offsets: 0, 3, 6, 8.
+  StringBreakIterator iter("ab\ncd\nef");
+
+  REQUIRE(iter.NextLine() == 3);
+  REQUIRE(iter.NextLine() == 6);
+  REQUIRE(iter.NextLine() == 8);
+  REQUIRE(iter.NextLine() == 8);
+
+  REQUIRE(iter.PreviousLine() == 6);
+  REQUIRE(iter.PreviousLine() == 3);
+  REQUIRE(iter.PreviousLine() == 0);
+  REQUIRE(iter.PreviousLine() == 0);
+}
+
+TEST_CASE("StringBreakIterator line from middle", "[string]") {
+  StringBreakIterator iter("ab\ncd\nef");
+
+  // Position 4 is inside the second line (between 'c' and 'd').
+  iter.SetCurrentPosition(4);
+  REQUIRE(iter.GetCurrentPosition() == 4);
+  REQUIRE(iter.NextLine() == 6);
+
+  iter.SetCurrentPosition(4);
+  REQUIRE(iter.PreviousLine() == 3);
+}
+
 TEST_CASE("StringBreakIterator mixed char and word", "[string]") {
   // Same assumption as Chinese word tests: "中文|测试".
   // Char boundaries: 0, 3, 6, 9, 12. Word boundaries: 0, 6, 12.
