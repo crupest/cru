@@ -9,6 +9,20 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/output)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/output)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/output)
 
+set(CRU_VCPKG_ROOT "${CMAKE_SOURCE_DIR}/vcpkg" CACHE PATH "Path to vcpkg root directory")
+
+# We only use vcpkg on Windows. For other platforms, we use the ones from system package manager.
+if(WIN32)
+	set(CRU_VCPKG_TOOLCHAIN_FILE "${CRU_VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake")
+	if(EXISTS "${CRU_VCPKG_TOOLCHAIN_FILE}")
+		set(CMAKE_TOOLCHAIN_FILE "${CRU_VCPKG_TOOLCHAIN_FILE}" CACHE STRING "Vcpkg toolchain file")
+	else()
+		message(WARNING "vcpkg toolchain file not found at ${CRU_VCPKG_TOOLCHAIN_FILE}. "
+			"Please set CRU_VCPKG_ROOT to the correct path. "
+			"Otherwise, necessary dependencies may not be found.")
+	endif()
+endif()
+
 project(cru)
 
 option(CRU_ASAN "Build this target with AddressSanitizer" OFF)
@@ -24,6 +38,15 @@ enable_testing()
 
 if (MSVC)
 	add_compile_options(/utf-8)
+endif()
+
+if(CRU_ASAN)
+	if(MSVC)
+		add_compile_options(/fsanitize=address)
+	else()
+		add_compile_options(-fsanitize=address)
+		add_link_options(-fsanitize=address)
+	endif()
 endif()
 
 set(CRU_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include)
@@ -64,15 +87,6 @@ function(cru_process_dir dir)
 		if(WIN32)
 			if("${target_type}" STREQUAL "SHARED_LIBRARY")
 				target_compile_definitions("${target}" PRIVATE CRU_IS_DLL=1)
-			endif()
-		endif()
-
-		if(CRU_ASAN)
-			if(MSVC)
-				target_compile_options("${target}" PRIVATE /fsanitize=address)
-			else()
-				target_compile_options("${target}" PRIVATE -fsanitize=address)
-				target_link_options("${target}" PRIVATE -fsanitize=address)
 			endif()
 		endif()
 	endforeach()

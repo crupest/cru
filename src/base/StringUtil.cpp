@@ -90,10 +90,10 @@ Index Until(const CharType* ptr, Index size, Index position,
     if (predicate(c)) return p;
     if (c == k_invalid_code_point) return p;
   }
-  UnreachableCode();
+  std::unreachable();
 }
 
-static bool IsSpace(CodePoint c) { return c == 0x20 || c == 0xA; }
+bool IsSpace(CodePoint c) { return c == 0x20 || c == 0xA; }
 
 template <typename CharType>
 using UntilFunctionType = Index (*)(const CharType*, Index, Index,
