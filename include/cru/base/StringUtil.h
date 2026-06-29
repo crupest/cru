@@ -537,7 +537,7 @@ std::wstring CRU_BASE_API ToUtf16WString(std::string_view str);
 std::string CRU_BASE_API ToUtf8String(std::wstring_view str);
 #endif
 
-class StringBreakIterator {
+class CRU_BASE_API StringBreakIterator {
  public:
   explicit StringBreakIterator(std::string str = {});
 
