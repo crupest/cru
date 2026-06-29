@@ -17,7 +17,7 @@ void StdioLogWriter::Write(const LogInfo& log_info, std::string log_str) {
     std::wcout << s << std::endl;
   }
 #else
-  if (level == log::LogLevel::Error) {
+  if (log_info.level == log::LogLevel::Error) {
     std::cerr << log_str << std::endl;
   } else {
     std::cout << log_str << std::endl;
