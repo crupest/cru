@@ -122,7 +122,8 @@ void LoggerConfigurationMixin::RemoveWriter(ILogWriter* writer) {
 
 std::shared_ptr<LoggerConfigurationMixin::LoggerConfig>
 LoggerConfigurationMixin::GetConfigSnapshot() {
-  return config_.load();
+  std::lock_guard lock(config_mutex_);
+  return config_;
 }
 
 void SynchronousLogger::Log(LogInfo log_info) {

@@ -79,18 +79,14 @@ class CRU_BASE_API LoggerConfigurationMixin : public virtual ILogger {
  private:
   template <typename F>
   void UpdateConfig(F&& updater) {
-    auto old_config = config_.load();
-    while (true) {
-      std::shared_ptr<LoggerConfig> new_config(
-          new LoggerConfig(*old_config.get()));
-      updater(new_config.get());
-      if (config_.compare_exchange_weak(old_config, new_config)) {
-        break;
-      }
-    }
+    std::lock_guard lock(config_mutex_);
+    std::shared_ptr<LoggerConfig> new_config(new LoggerConfig(*config_));
+    updater(new_config.get());
+    config_ = new_config;
   }
 
-  std::atomic<std::shared_ptr<LoggerConfig>> config_;
+  std::mutex config_mutex_;
+  std::shared_ptr<LoggerConfig> config_;
 };
 
 class CRU_BASE_API SynchronousLogger : public Object,
