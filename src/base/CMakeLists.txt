@@ -21,6 +21,12 @@ target_compile_definitions(CruBase PRIVATE CRU_BASE_EXPORT_API)
 target_include_directories(CruBase PUBLIC ${CRU_INCLUDE_DIR})
 target_compile_definitions(CruBase PUBLIC $<$<CONFIG:Debug>:CRU_DEBUG>)
 
+# Link only the ICU common library. The data library is pulled in automatically
+# as a dependency of ICU::uc on most platforms.
+# Add ICU::i18n if internationalization APIs (formatting, collation, etc.) are needed.
+find_package(ICU MODULE COMPONENTS uc REQUIRED)
+target_link_libraries(CruBase PUBLIC ICU::uc)
+
 if (UNIX AND NOT EMSCRIPTEN)
 	target_sources(CruBase PRIVATE
 		platform/unix/EventLoop.cpp

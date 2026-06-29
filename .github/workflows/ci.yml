@@ -24,7 +24,7 @@ jobs:
 
       - name: Install Libraries
         run: |
-          brew install cairo pango
+          brew install icu4c cairo pango
 
       - name: Build
         run: |
@@ -52,6 +52,11 @@ jobs:
           path: ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
           key: vcpkg-${{ runner.os }}-${{ github.run_id }}
           restore-keys: vcpkg-${{ runner.os }}-
+
+      - name: Install Libraries
+        working-directory: ./vcpkg
+        run: |
+          .\vcpkg install icu
 
       - name: Build
         run: |
@@ -82,6 +87,11 @@ jobs:
           key: vcpkg-${{ runner.os }}-${{ github.run_id }}
           restore-keys: vcpkg-${{ runner.os }}-
 
+      - name: Install Libraries
+        working-directory: ./vcpkg
+        run: |
+          .\vcpkg install icu
+
       - name: Build
         run: |
           . scripts/Use-VC.ps1
@@ -106,7 +116,8 @@ jobs:
       - name: Install Libraries
         run: |
           sudo apt update
-          sudo apt install -y libpng-dev libcairo2-dev libpango1.0-dev libxcb1-dev libxcb-cursor-dev \
+          sudo apt install -y libicu-dev libpng-dev libcairo2-dev libpango1.0-dev \
+            libxcb1-dev libxcb-cursor-dev \
             libxkbcommon-dev libxcb-imdkit-dev libxkbcommon-x11-dev
 
       - name: Build
