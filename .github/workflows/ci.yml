@@ -121,7 +121,7 @@ jobs:
         run: |
           sudo apt update
           sudo apt install -y libicu-dev libpng-dev libcairo2-dev libpango1.0-dev \
-            libxcb1-dev libxcb-cursor-dev \
+            libxcb1-dev libxcursor-dev libxcb-cursor-dev \
             libxkbcommon-dev libxcb-imdkit-dev libxkbcommon-x11-dev
 
       - name: Build
