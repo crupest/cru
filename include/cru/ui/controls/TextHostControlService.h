@@ -115,8 +115,6 @@ class CRU_UI_API TextHostControlService : public Object {
   Index PreviousNCharPosition(Index count);
   Index NextNWordPosition(Index count);
   Index PreviousNWordPosition(Index count);
-  Index NextNLinePosition(Index count);
-  Index PreviousNLinePosition(Index count);
 
   void SetSelection(Index caret_position);
   void SetSelection(TextRange selection, bool scroll_to_caret = true);

@@ -86,17 +86,27 @@ TextControlMovePattern TextControlMovePattern::kDown(
     });
 TextControlMovePattern TextControlMovePattern::kHome(
     "Home(Line Begin)", helper::ShortcutKeyBind(platform::gui::KeyCode::Home),
-    [](TextHostControlService* service, [[maybe_unused]] std::string_view text,
-       [[maybe_unused]] Index current_position) {
-      // TODO: actually we should check if we're already at line begin.
-      return service->PreviousNLinePosition(1);
+    []([[maybe_unused]] TextHostControlService* service, std::string_view text,
+       Index current_position) {
+      while (current_position > 0) {
+        if (text[current_position - 1] == '\n') {
+          break;
+        }
+        current_position--;
+      }
+      return current_position;
     });
 TextControlMovePattern TextControlMovePattern::kEnd(
     "End(Line End)", helper::ShortcutKeyBind(platform::gui::KeyCode::End),
-    [](TextHostControlService* service, [[maybe_unused]] std::string_view text,
-       [[maybe_unused]] Index current_position) {
-      // TODO: actually we should check if we're already at line end.
-      return service->NextNLinePosition(1);
+    []([[maybe_unused]] TextHostControlService* service, std::string_view text,
+       Index current_position) {
+      while (current_position < text.size()) {
+        if (text[current_position] == '\n') {
+          break;
+        }
+        current_position++;
+      }
+      return current_position;
     });
 TextControlMovePattern TextControlMovePattern::kCtrlHome(
     "Ctrl+Home(Document Begin)",
@@ -323,22 +333,6 @@ Index TextHostControlService::PreviousNWordPosition(Index count) {
   string_break_iterator_.SetCurrentPosition(GetCaretPosition());
   for (Index i = 0; i < count; ++i) {
     string_break_iterator_.PreviousWord();
-  }
-  return string_break_iterator_.GetCurrentPosition();
-}
-
-Index TextHostControlService::NextNLinePosition(Index count) {
-  string_break_iterator_.SetCurrentPosition(GetCaretPosition());
-  for (Index i = 0; i < count; ++i) {
-    string_break_iterator_.NextLine();
-  }
-  return string_break_iterator_.GetCurrentPosition();
-}
-
-Index TextHostControlService::PreviousNLinePosition(Index count) {
-  string_break_iterator_.SetCurrentPosition(GetCaretPosition());
-  for (Index i = 0; i < count; ++i) {
-    string_break_iterator_.PreviousLine();
   }
   return string_break_iterator_.GetCurrentPosition();
 }
