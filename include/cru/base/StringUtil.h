@@ -2,6 +2,8 @@
 #include "Base.h"
 #include "Bitmask.h"
 
+#include <unicode/brkiter.h>
+
 #include <algorithm>
 #include <cctype>
 #include <charconv>
@@ -11,6 +13,7 @@
 #include <cstdlib>
 #include <format>
 #include <functional>
+#include <memory>
 #include <string>
 #include <string_view>
 #include <system_error>
@@ -669,4 +672,40 @@ inline Index Utf16IndexCodePointToCodeUnit(std::wstring_view str,
 std::wstring CRU_BASE_API ToUtf16WString(std::string_view str);
 std::string CRU_BASE_API ToUtf8String(std::wstring_view str);
 #endif
+
+class StringBreakIterator {
+ public:
+  explicit StringBreakIterator(std::string str);
+
+  std::string GetText() const { return str_; }
+
+  /**
+   * Set the text to iterate. This will reset the current position to 0.
+   */
+  void SetText(std::string str);
+
+  Index GetCurrentPosition() const { return utf8_position_; }
+
+  /**
+   * position must be a valid code unit position (not in the middle of a code
+   * point) in the string. Otherwise, the behavior is undefined.
+   */
+  void SetCurrentPosition(Index position);
+
+  Index NextChar();
+  Index PreviousChar();
+  Index NextWord();
+  Index PreviousWord();
+
+ private:
+  void SetCurrentPositionByUtf16(Index position);
+
+ private:
+  std::string str_;
+  icu::UnicodeString icu_str_;
+  Index utf8_position_;
+  Index utf16_position_;
+  std::unique_ptr<icu::BreakIterator> character_break_iterator_;
+  std::unique_ptr<icu::BreakIterator> word_break_iterator_;
+};
 }  // namespace cru::string

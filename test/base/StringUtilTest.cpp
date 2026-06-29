@@ -172,6 +172,161 @@ TEST_CASE("StringUtil Utf16IndexCodePointToCodeUnit", "[string]") {
   REQUIRE(Utf16IndexCodePointToCodeUnit(text.data(), text.size(), 5) == 6);
 }
 
+TEST_CASE("StringBreakIterator basic", "[string]") {
+  StringBreakIterator iter("hello");
+  REQUIRE(iter.GetText() == "hello");
+  REQUIRE(iter.GetCurrentPosition() == 0);
+
+  REQUIRE(iter.NextChar() == 1);
+  REQUIRE(iter.NextChar() == 2);
+  REQUIRE(iter.NextChar() == 3);
+  REQUIRE(iter.NextChar() == 4);
+  REQUIRE(iter.NextChar() == 5);
+  REQUIRE(iter.NextChar() == 5);
+
+  REQUIRE(iter.PreviousChar() == 4);
+  REQUIRE(iter.PreviousChar() == 3);
+  REQUIRE(iter.PreviousChar() == 2);
+  REQUIRE(iter.PreviousChar() == 1);
+  REQUIRE(iter.PreviousChar() == 0);
+  REQUIRE(iter.PreviousChar() == 0);
+}
+
+TEST_CASE("StringBreakIterator set text", "[string]") {
+  StringBreakIterator iter("hello");
+  iter.SetCurrentPosition(3);
+  REQUIRE(iter.GetCurrentPosition() == 3);
+
+  iter.SetText("hi");
+  REQUIRE(iter.GetText() == "hi");
+  REQUIRE(iter.GetCurrentPosition() == 0);
+}
+
+TEST_CASE("StringBreakIterator unicode char", "[string]") {
+  // "aπ你🤣!" byte offsets: a=0, π=1, 你=3, 🤣=6, !=10, end=11.
+  StringBreakIterator iter("aπ你🤣!");
+
+  REQUIRE(iter.NextChar() == 1);
+  REQUIRE(iter.NextChar() == 3);
+  REQUIRE(iter.NextChar() == 6);
+  REQUIRE(iter.NextChar() == 10);
+  REQUIRE(iter.NextChar() == 11);
+  REQUIRE(iter.NextChar() == 11);
+
+  iter.SetCurrentPosition(11);
+  REQUIRE(iter.PreviousChar() == 10);
+  REQUIRE(iter.PreviousChar() == 6);
+  REQUIRE(iter.PreviousChar() == 3);
+  REQUIRE(iter.PreviousChar() == 1);
+  REQUIRE(iter.PreviousChar() == 0);
+  REQUIRE(iter.PreviousChar() == 0);
+}
+
+TEST_CASE("StringBreakIterator composed char", "[string]") {
+  SECTION("Combining mark cluster") {
+    // UTF-8 bytes for "e" + U+0301 (combining acute accent) + "x".
+    // Byte offsets: e=0, e+accent=3, x=3, end=4.
+    StringBreakIterator iter("e\xCC\x81x");
+
+    REQUIRE(iter.NextChar() == 3);
+    REQUIRE(iter.NextChar() == 4);
+    REQUIRE(iter.NextChar() == 4);
+
+    REQUIRE(iter.PreviousChar() == 3);
+    REQUIRE(iter.PreviousChar() == 0);
+    REQUIRE(iter.PreviousChar() == 0);
+  }
+
+  SECTION("Set position inside combining cluster") {
+    // Set to byte offset 1 (between base 'e' and combining mark): valid code
+    // unit index, but still in the middle of one grapheme cluster.
+    StringBreakIterator iter("e\xCC\x81x");
+    iter.SetCurrentPosition(1);
+
+    REQUIRE(iter.GetCurrentPosition() == 1);
+    REQUIRE(iter.NextChar() == 3);
+
+    iter.SetCurrentPosition(1);
+    REQUIRE(iter.PreviousChar() == 0);
+  }
+
+  SECTION("Regional indicator pair") {
+    // UTF-8 bytes for U+1F1FA U+1F1F8 (US flag) + "!".
+    // Byte offsets: flag=0..8, !=8, end=9.
+    StringBreakIterator iter("\xF0\x9F\x87\xBA\xF0\x9F\x87\xB8!");
+
+    REQUIRE(iter.NextChar() == 8);
+    REQUIRE(iter.NextChar() == 9);
+    REQUIRE(iter.NextChar() == 9);
+
+    REQUIRE(iter.PreviousChar() == 8);
+    REQUIRE(iter.PreviousChar() == 0);
+    REQUIRE(iter.PreviousChar() == 0);
+  }
+
+  SECTION("Set position inside regional-indicator cluster") {
+    // Set to byte offset 4 (between two regional indicator code points): valid
+    // code unit index, but still inside one grapheme cluster (flag).
+    StringBreakIterator iter("\xF0\x9F\x87\xBA\xF0\x9F\x87\xB8!");
+    iter.SetCurrentPosition(4);
+
+    REQUIRE(iter.GetCurrentPosition() == 4);
+    REQUIRE(iter.NextChar() == 8);
+
+    iter.SetCurrentPosition(4);
+    REQUIRE(iter.PreviousChar() == 0);
+  }
+}
+
+TEST_CASE("StringBreakIterator word", "[string]") {
+  StringBreakIterator iter("hello world");
+
+  REQUIRE(iter.NextWord() == 5);
+  REQUIRE(iter.NextWord() == 6);
+  REQUIRE(iter.NextWord() == 11);
+  REQUIRE(iter.NextWord() == 11);
+
+  REQUIRE(iter.PreviousWord() == 6);
+  REQUIRE(iter.PreviousWord() == 5);
+  REQUIRE(iter.PreviousWord() == 0);
+  REQUIRE(iter.PreviousWord() == 0);
+}
+
+TEST_CASE("StringBreakIterator word chinese", "[string]") {
+  // UTF-8 bytes for "中文测试" with expected segmentation: "中文|测试".
+  // Byte offsets: 中=0..3, 文=3..6, 测=6..9, 试=9..12, end=12.
+  StringBreakIterator iter("\xE4\xB8\xAD\xE6\x96\x87\xE6\xB5\x8B\xE8\xAF\x95");
+
+  REQUIRE(iter.NextWord() == 6);
+  REQUIRE(iter.NextWord() == 12);
+  REQUIRE(iter.NextWord() == 12);
+
+  REQUIRE(iter.PreviousWord() == 6);
+  REQUIRE(iter.PreviousWord() == 0);
+  REQUIRE(iter.PreviousWord() == 0);
+}
+
+TEST_CASE("StringBreakIterator word chinese from middle", "[string]") {
+  // Same assumption as above: "中文|测试".
+  StringBreakIterator iter("\xE4\xB8\xAD\xE6\x96\x87\xE6\xB5\x8B\xE8\xAF\x95");
+
+  // Byte offset 3 is in the middle of first word (between 中 and 文).
+  iter.SetCurrentPosition(3);
+  REQUIRE(iter.GetCurrentPosition() == 3);
+  REQUIRE(iter.NextWord() == 6);
+
+  iter.SetCurrentPosition(3);
+  REQUIRE(iter.PreviousWord() == 0);
+
+  // Byte offset 9 is in the middle of second word (between 测 and 试).
+  iter.SetCurrentPosition(9);
+  REQUIRE(iter.GetCurrentPosition() == 9);
+  REQUIRE(iter.PreviousWord() == 6);
+
+  iter.SetCurrentPosition(9);
+  REQUIRE(iter.NextWord() == 12);
+}
+
 TEST_CASE("ParseToNumber Work", "[string]") {
   auto r1 = ParseToNumber<int>("123");
   REQUIRE(r1.valid);

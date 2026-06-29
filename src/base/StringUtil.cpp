@@ -426,4 +426,80 @@ std::string ToUtf8String(std::wstring_view str) {
 
 #endif
 
+StringBreakIterator::StringBreakIterator(std::string str)
+    : utf8_position_(0), utf16_position_(0) {
+  UErrorCode error_code = U_ZERO_ERROR;
+  character_break_iterator_.reset(icu::BreakIterator::createCharacterInstance(
+      icu::Locale::getDefault(), error_code));
+  if (U_FAILURE(error_code)) {
+    throw Exception("Failed to create character break iterator.");
+  }
+
+  word_break_iterator_.reset(icu::BreakIterator::createWordInstance(
+      icu::Locale::getDefault(), error_code));
+  if (U_FAILURE(error_code)) {
+    throw Exception("Failed to create word break iterator.");
+  }
+
+  SetText(std::move(str));
+}
+
+void StringBreakIterator::SetText(std::string str) {
+  str_ = std::move(str);
+  icu_str_ = icu::UnicodeString::fromUTF8(str_);
+  utf8_position_ = 0;
+  utf16_position_ = 0;
+  character_break_iterator_->setText(icu_str_);
+  word_break_iterator_->setText(icu_str_);
+}
+
+void StringBreakIterator::SetCurrentPosition(Index position) {
+  CheckArgumentRange(position, 0, str_.size(), "position", true);
+  utf8_position_ = position;
+  utf16_position_ = Utf16IndexCodePointToCodeUnit(
+      icu_str_.getBuffer(), icu_str_.length(),
+      Utf8IndexCodeUnitToCodePoint(str_, position));
+}
+
+Index StringBreakIterator::NextChar() {
+  if (utf8_position_ >= str_.size()) {
+    return utf8_position_;
+  }
+  SetCurrentPositionByUtf16(
+      character_break_iterator_->following(utf16_position_));
+  return utf8_position_;
+}
+
+Index StringBreakIterator::PreviousChar() {
+  if (utf8_position_ <= 0) {
+    return utf8_position_;
+  }
+  SetCurrentPositionByUtf16(
+      character_break_iterator_->preceding(utf16_position_));
+  return utf8_position_;
+}
+
+Index StringBreakIterator::NextWord() {
+  if (utf8_position_ >= str_.size()) {
+    return utf8_position_;
+  }
+  SetCurrentPositionByUtf16(word_break_iterator_->following(utf16_position_));
+  return utf8_position_;
+}
+
+Index StringBreakIterator::PreviousWord() {
+  if (utf8_position_ <= 0) {
+    return utf8_position_;
+  }
+  SetCurrentPositionByUtf16(word_break_iterator_->preceding(utf16_position_));
+  return utf8_position_;
+}
+
+void StringBreakIterator::SetCurrentPositionByUtf16(Index position) {
+  utf8_position_ = Utf8IndexCodePointToCodeUnit(
+      str_, Utf16IndexCodeUnitToCodePoint(icu_str_.getBuffer(),
+                                          icu_str_.length(), position));
+  utf16_position_ = position;
+}
+
 }  // namespace cru::string
