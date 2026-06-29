@@ -90,6 +90,7 @@ jobs:
       - name: Install Libraries
         working-directory: ./vcpkg
         run: |
+          .\bootstrap-vcpkg.bat
           .\vcpkg install icu
 
       - name: Build
