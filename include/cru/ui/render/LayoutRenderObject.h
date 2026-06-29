@@ -1,4 +1,5 @@
 #pragma once
+#include "../controls/Control.h"  // IWYU pragma: keep
 #include "RenderObject.h"
 
 namespace cru::ui::render {
