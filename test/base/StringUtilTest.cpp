@@ -327,6 +327,25 @@ TEST_CASE("StringBreakIterator word chinese from middle", "[string]") {
   REQUIRE(iter.NextWord() == 12);
 }
 
+TEST_CASE("StringBreakIterator mixed char and word", "[string]") {
+  // Same assumption as Chinese word tests: "中文|测试".
+  // Char boundaries: 0, 3, 6, 9, 12. Word boundaries: 0, 6, 12.
+  StringBreakIterator iter("\xE4\xB8\xAD\xE6\x96\x87\xE6\xB5\x8B\xE8\xAF\x95");
+
+  REQUIRE(iter.NextChar() == 3);
+  REQUIRE(iter.NextWord() == 6);
+  REQUIRE(iter.NextChar() == 9);
+
+  REQUIRE(iter.PreviousWord() == 6);
+  REQUIRE(iter.PreviousChar() == 3);
+
+  REQUIRE(iter.NextWord() == 6);
+  REQUIRE(iter.NextWord() == 12);
+
+  REQUIRE(iter.PreviousChar() == 9);
+  REQUIRE(iter.PreviousWord() == 6);
+}
+
 TEST_CASE("ParseToNumber Work", "[string]") {
   auto r1 = ParseToNumber<int>("123");
   REQUIRE(r1.valid);
