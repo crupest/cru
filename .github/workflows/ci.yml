@@ -18,7 +18,7 @@ jobs:
     runs-on: macos-latest
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
         with:
           submodules: true
 
@@ -38,11 +38,20 @@ jobs:
   windows-build:
     name: Windows Build
     runs-on: windows-latest
+    env:
+      VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}\.cache\vcpkg\archives
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
         with:
           submodules: true
+
+      - name: Cache vcpkg
+        uses: actions/cache@v6
+        with:
+          path: ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
+          key: vcpkg-${{ runner.os }}-${{ github.run_id }}
+          restore-keys: vcpkg-${{ runner.os }}-
 
       - name: Build
         run: |
@@ -58,11 +67,20 @@ jobs:
   windows-build-dynamic:
     name: Windows Build (Dynamic Linking)
     runs-on: windows-latest
+    env:
+      VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}\.cache\vcpkg\archives
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
         with:
           submodules: true
+
+      - name: Cache vcpkg
+        uses: actions/cache@v6
+        with:
+          path: ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
+          key: vcpkg-${{ runner.os }}-${{ github.run_id }}
+          restore-keys: vcpkg-${{ runner.os }}-
 
       - name: Build
         run: |
@@ -81,7 +99,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
         with:
           submodules: true
 
