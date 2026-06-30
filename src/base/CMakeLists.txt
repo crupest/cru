@@ -4,6 +4,7 @@ add_library(CruBase
 	StringUtil.cpp
 	SubProcess.cpp
 	datamodel/DataType.cpp
+	datamodel/DataTypeRegistry.cpp
 	io/AutoReadStream.cpp
 	io/Base.cpp
 	io/BufferStream.cpp

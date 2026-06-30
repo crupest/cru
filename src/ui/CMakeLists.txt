@@ -20,6 +20,21 @@ add_library(CruUi
 	controls/TextHostControlService.cpp
 	controls/TreeView.cpp
 	controls/Window.cpp
+	datamodel/Base.cpp
+	datamodel/BorderStyleDataType.cpp
+	datamodel/BrushDataType.cpp
+	datamodel/ColorDataType.cpp
+	datamodel/CornerRadiusDataType.cpp
+	datamodel/CursorDataType.cpp
+	datamodel/FontDataType.cpp
+	datamodel/MeasureLengthDataType.cpp
+	datamodel/PointDataType.cpp
+	datamodel/SizeDataType.cpp
+	datamodel/ThicknessDataType.cpp
+	datamodel/style/ConditionDataType.cpp
+	datamodel/style/StyleRuleDataType.cpp
+	datamodel/style/StyleRuleSetDataType.cpp
+	datamodel/style/StylerDataType.cpp
 	document/DocumentElement.cpp
 	document/DocumentElementType.cpp
 	document/TextDocumentElement.cpp

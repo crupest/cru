@@ -57,15 +57,23 @@ class DataConvertResult {
   std::vector<std::string> errors_;
 };
 
+struct IDataType : virtual Interface {
+  virtual bool SupportConvertFromString() = 0;
+  virtual bool SupportConvertToString() = 0;
+  virtual bool SupportConvertFromXml() = 0;
+  virtual bool SupportConvertToXml() = 0;
+  virtual bool XmlIsOfThisType(cru::xml::XmlElementNode* node) = 0;
+};
+
 template <typename T>
-class DataTypeBase : public Object {
+class DataTypeBase : public Object, public IDataType {
  public:
   ~DataTypeBase() override = 0;
 
   std::string GetName() { return name_; }
 
-  bool SupportConvertFromString() { return DoSupportConvertFromString(); }
-  bool SupportConvertToString() { return DoSupportConvertToString(); }
+  bool SupportConvertFromString() final { return DoSupportConvertFromString(); }
+  bool SupportConvertToString() final { return DoSupportConvertToString(); }
   DataConvertResult<T> ConvertFromString(std::string_view value) {
     if (!SupportConvertFromString()) {
       throw Exception("Convert from string is not supported.");
@@ -79,7 +87,7 @@ class DataTypeBase : public Object {
     return DoConvertToString(value);
   }
 
-  bool SupportConvertFromXml() {
+  bool SupportConvertFromXml() final {
     auto native_able = DoSupportConvertFromXml();
     if (!native_able && IsAutoConvertFromXmlByString() &&
         SupportConvertFromString()) {
@@ -88,9 +96,9 @@ class DataTypeBase : public Object {
     return native_able;
   }
 
-  bool SupportConvertToXml() { return DoSupportConvertToXml(); }
+  bool SupportConvertToXml() final { return DoSupportConvertToXml(); }
 
-  bool XmlIsOfThisType(cru::xml::XmlElementNode* node) {
+  bool XmlIsOfThisType(cru::xml::XmlElementNode* node) final {
     if (!SupportConvertFromXml()) {
       throw Exception("Convert from xml is not supported.");
     }
@@ -126,9 +134,10 @@ class DataTypeBase : public Object {
 
  private:
   bool DoXmlIsOfThisTypeByName(cru::xml::XmlElementNode* node) {
-    return node->GetTag() == GetName();
+    return node->HasTag(GetName());
   }
 
+ protected:
   DataConvertResult<T> DoConvertFromXmlByString(
       cru::xml::XmlElementNode* node) {
     auto value_attr = node->GetOptionalAttributeValue("value");
@@ -149,6 +158,10 @@ class DataTypeBase : public Object {
             "attribute will be used.");
       }
       return result;
+    }
+
+    if (!content.empty()) {
+      return DoConvertFromString(content);
     }
 
     return DoConvertFromString(content);
