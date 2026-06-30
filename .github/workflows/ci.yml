@@ -24,7 +24,7 @@ jobs:
 
       - name: Install Libraries
         run: |
-          brew install icu4c cairo pango
+          brew install icu4c cairo pango sdl3
 
       - name: Build
         run: |
@@ -94,7 +94,7 @@ jobs:
         run: |
           New-Item -ItemType Directory -Force -Path "$env:VCPKG_DEFAULT_BINARY_CACHE"
           .\bootstrap-vcpkg.bat
-          .\vcpkg install icu
+          .\vcpkg install icu sdl3
 
       - name: Build
         run: |
@@ -110,7 +110,7 @@ jobs:
 
   linux-build:
     name: Linux Build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
 
     steps:
       - uses: actions/checkout@v7
@@ -121,16 +121,8 @@ jobs:
         run: |
           sudo apt update
           sudo apt install -y libicu-dev libpng-dev libcairo2-dev libpango1.0-dev \
-            libxcb1-dev libxcb-cursor-dev \
-            libxkbcommon-dev libxcb-imdkit-dev libxkbcommon-x11-dev
-          # For SDL
-          sudo apt install -y \
-            gnome-desktop-testing libasound2-dev libpulse-dev \
-            libaudio-dev libfribidi-dev libjack-dev libsndio-dev libx11-dev libxext-dev \
-            libxrandr-dev libxcursor-dev libxfixes-dev libxi-dev libxss-dev libxtst-dev \
-            libxkbcommon-dev libdrm-dev libgbm-dev libgl1-mesa-dev libgles2-mesa-dev \
-            libegl1-mesa-dev libdbus-1-dev libibus-1.0-dev libudev-dev libthai-dev libusb-1.0-0-dev \
-            libpipewire-0.3-dev libwayland-dev libdecor-0-dev liburing-dev
+            libxcb1-dev libxcb-cursor-dev libxkbcommon-dev libxcb-imdkit-dev libxkbcommon-x11-dev \
+            libsdl3-dev
 
       - name: Build
         run: |
