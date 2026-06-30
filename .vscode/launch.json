@@ -5,36 +5,6 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "(Windows) Debug Base Test",
-            "type": "cppvsdbg",
-            "request": "launch",
-            "program": "${workspaceFolder}/build-asan/output/CruBaseTest.exe",
-            "args": [],
-            "environment": [],
-            "envFile": "${workspaceFolder}/build-asan/.env",
-            "preLaunchTask": "Build Asan"
-        },
-        {
-            "name": "(Windows) Debug Demo Main",
-            "type": "cppvsdbg",
-            "request": "launch",
-            "program": "${workspaceFolder}/build-asan/output/CruDemoMain.exe",
-            "args": [],
-            "environment": [],
-            "envFile": "${workspaceFolder}/build-asan/.env",
-            "preLaunchTask": "Build Asan"
-        },
-        {
-            "name": "(Windows) Debug Theme Builder",
-            "type": "cppvsdbg",
-            "request": "launch",
-            "program": "${workspaceFolder}/build-asan/output/CruThemeBuilder.exe",
-            "args": [],
-            "environment": [],
-            "envFile": "${workspaceFolder}/build-asan/.env",
-            "preLaunchTask": "Build Asan"
-        },
-        {
             "type": "lldb-dap",
             "request": "launch",
             "name": "Debug Base Test",
