@@ -13,6 +13,50 @@ TEST_CASE("StringUtil Split", "[string]") {
   REQUIRE(Split("aaa", "a") == std::vector<std::string>{"", "", "", ""});
 }
 
+TEST_CASE("StringUtil TrimBegin", "[string]") {
+  const std::string k_zh = "\xE4\xBD\xA0\xE5\xA5\xBD";  // "你好"
+
+  REQUIRE(TrimBegin("") == "");
+  REQUIRE(TrimBegin("   \t\n") == "");
+  REQUIRE(TrimBegin("  abc") == "abc");
+  REQUIRE(TrimBegin("  abc  ") == "abc  ");
+  REQUIRE(TrimBegin("\xE3\x80\x80\xE3\x80\x80" "abc") == "abc");
+  REQUIRE(TrimBegin("\xC2\xA0" + k_zh) == k_zh);
+  REQUIRE(TrimBegin(k_zh) == k_zh);
+}
+
+TEST_CASE("StringUtil TrimEnd", "[string]") {
+  const std::string k_zh = "\xE4\xBD\xA0\xE5\xA5\xBD";  // "你好"
+
+  REQUIRE(TrimEnd("") == "");
+  REQUIRE(TrimEnd("   \t\n") == "");
+  REQUIRE(TrimEnd("abc  ") == "abc");
+  REQUIRE(TrimEnd("  abc  ") == "  abc");
+  REQUIRE(TrimEnd("abc\xE3\x80\x80\xE3\x80\x80") == "abc");
+  REQUIRE(TrimEnd(k_zh + "\xC2\xA0") == k_zh);
+  REQUIRE(TrimEnd(k_zh) == k_zh);
+}
+
+TEST_CASE("StringUtil Trim", "[string]") {
+  const std::string k_zh = "\xE4\xBD\xA0\xE5\xA5\xBD";  // "你好"
+
+  REQUIRE(Trim("") == "");
+  REQUIRE(Trim("   \t\n") == "");
+  REQUIRE(Trim("  abc  ") == "abc");
+  REQUIRE(Trim("\xE3\x80\x80" + k_zh + "\xC2\xA0") == k_zh);
+  REQUIRE(Trim(k_zh) == k_zh);
+}
+
+TEST_CASE("StringUtil IsSpace", "[string]") {
+  REQUIRE(IsSpace(""));
+  REQUIRE(IsSpace("   \t\n"));
+  REQUIRE(IsSpace("\xE3\x80\x80\xC2\xA0"));
+
+  REQUIRE(!IsSpace("a"));
+  REQUIRE(!IsSpace("\xE4\xBD\xA0"));  // "你"
+  REQUIRE(!IsSpace(" \xE4\xBD\xA0 "));
+}
+
 TEST_CASE("StringUtil Utf8ByteType", "[string]") {
   REQUIRE(IsUtf8LeadingByte(0b00100000));
   REQUIRE(IsUtf8LeadingByte(0b01000000));

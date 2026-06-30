@@ -1,6 +1,8 @@
 #include "cru/base/StringUtil.h"
 #include "cru/base/Base.h"
 
+#include <unicode/uchar.h>
+
 #include <algorithm>
 #include <cctype>
 #include <compare>
@@ -21,28 +23,49 @@ std::weak_ordering CaseInsensitiveCompare(std::string_view left,
       });
 }
 
+static Index FindFirstNonSpace(std::string_view str) {
+  Index pos = 0;
+  while (pos < str.size()) {
+    Index next = pos;
+    auto c = Utf8NextCodePoint(str.data(), str.size(), pos, &next);
+    if (!u_isspace(c)) return pos;
+    pos = next;
+  }
+  return str.size();
+}
+
+static Index FindLastNonSpace(std::string_view str) {
+  Index pos = str.size();
+  while (pos > 0) {
+    Index previous = pos;
+    auto c = Utf8PreviousCodePoint(str.data(), str.size(), pos, &pos);
+    if (!u_isspace(c)) return previous;
+  }
+  return 0;
+}
+
 std::string TrimBegin(std::string_view str) {
-  auto iter = std::find_if(str.cbegin(), str.cend(),
-                           [](char c) { return !std::isspace(c); });
-  return std::string(iter, str.cend());
+  auto first = FindFirstNonSpace(str);
+  return std::string(str.data() + first, str.size() - first);
 }
 
 std::string TrimEnd(std::string_view str) {
-  auto iter = std::find_if(str.crbegin(), str.crend(),
-                           [](char c) { return !std::isspace(c); });
-  return std::string(str.cbegin(), str.cend() - (iter - str.crbegin()));
+  auto last = FindLastNonSpace(str);
+  return std::string(str.data(), last);
 }
 
 std::string Trim(std::string_view str) {
-  auto iter1 = std::find_if(str.cbegin(), str.cend(),
-                            [](char c) { return !std::isspace(c); });
-  auto iter2 = std::find_if(str.crbegin(), str.crend(),
-                            [](char c) { return !std::isspace(c); });
-  return std::string(iter1, str.cend() - (iter2 - str.crbegin()));
+  auto first = FindFirstNonSpace(str);
+  auto last = FindLastNonSpace(str);
+  if (first >= last) return {};
+  return std::string(str.data() + first, last - first);
 }
 
 bool IsSpace(std::string_view str) {
-  return std::ranges::all_of(str, [](char c) { return std::isspace(c); });
+  for (auto c : Utf8CodePointIterator(str.data(), str.size())) {
+    if (!u_isspace(c)) return false;
+  }
+  return true;
 }
 
 std::vector<std::string> Split(std::string_view str, std::string_view sep,
