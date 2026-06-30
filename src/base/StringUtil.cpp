@@ -2,25 +2,17 @@
 #include "cru/base/Base.h"
 
 #include <unicode/uchar.h>
+#include <unicode/unistr.h>
 
-#include <algorithm>
-#include <cctype>
-#include <compare>
 #include <string_view>
 #include <utility>
 
 namespace cru::string {
 
-std::weak_ordering CaseInsensitiveCompare(std::string_view left,
-                                          std::string_view right) {
-  return std::lexicographical_compare_three_way(
-      left.cbegin(), left.cend(), right.cbegin(), right.cend(),
-      [](char left, char right) {
-        auto l = tolower(left), r = tolower(right);
-        return l < r ? std::weak_ordering::less
-                     : (l == r ? std::weak_ordering::equivalent
-                               : std::weak_ordering::greater);
-      });
+bool CaseInsensitiveEqual(std::string_view left, std::string_view right) {
+  auto icu_left = icu::UnicodeString::fromUTF8(left).foldCase();
+  auto icu_right = icu::UnicodeString::fromUTF8(right).foldCase();
+  return icu_left == icu_right;
 }
 
 static Index FindFirstNonSpace(std::string_view str) {

@@ -8,7 +8,6 @@
 #include <cctype>
 #include <charconv>
 #include <cmath>
-#include <compare>
 #include <cstdint>
 #include <cstdlib>
 #include <format>
@@ -25,8 +24,8 @@ class CRU_BASE_API TextEncodeException : public Exception {
   using Exception::Exception;
 };
 
-std::weak_ordering CRU_BASE_API CaseInsensitiveCompare(std::string_view left,
-                                                       std::string_view right);
+bool CRU_BASE_API CaseInsensitiveEqual(std::string_view left,
+                                       std::string_view right);
 std::string CRU_BASE_API TrimBegin(std::string_view str);
 std::string CRU_BASE_API TrimEnd(std::string_view str);
 std::string CRU_BASE_API Trim(std::string_view str);

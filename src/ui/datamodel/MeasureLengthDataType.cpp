@@ -14,11 +14,11 @@ MeasureLengthDataType::DoConvertFromString(std::string_view value) {
         render::MeasureLength::NotSpecified());
   }
 
-  if (cru::string::CaseInsensitiveCompare(value, "notspecified") == 0) {
+  if (cru::string::CaseInsensitiveEqual(value, "notspecified")) {
     return DataConvertResult<render::MeasureLength>::Success(
         render::MeasureLength::NotSpecified());
   }
-  if (cru::string::CaseInsensitiveCompare(value, "unspecified") == 0) {
+  if (cru::string::CaseInsensitiveEqual(value, "unspecified")) {
     return DataConvertResult<render::MeasureLength>::Success(
         render::MeasureLength::NotSpecified());
   }

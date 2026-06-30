@@ -71,7 +71,7 @@ class CRU_BASE_API XmlElementNode : public XmlNode {
   std::string GetTag() const { return tag_; }
   bool HasTag(std::string_view tag, bool case_sensitive = false) {
     return case_sensitive ? tag_ == tag
-                          : cru::string::CaseInsensitiveCompare(tag_, tag) == 0;
+                          : cru::string::CaseInsensitiveEqual(tag_, tag);
   }
   void SetTag(std::string tag) { tag_ = std::move(tag); }
   const std::unordered_map<std::string, std::string>& GetAttributes() const {
@@ -101,7 +101,7 @@ class CRU_BASE_API XmlElementNode : public XmlNode {
   std::optional<std::string> GetOptionalAttributeValueCaseInsensitive(
       const std::string& key) const {
     for (auto it = attributes_.begin(); it != attributes_.end(); ++it) {
-      if (cru::string::CaseInsensitiveCompare(it->first, key) == 0) {
+      if (cru::string::CaseInsensitiveEqual(it->first, key)) {
         return it->second;
       }
     }

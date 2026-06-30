@@ -24,7 +24,7 @@ DataConvertResult<ClonePtr<Condition>> ConvertConditionResult(
 
 #define CRU_DEFINE_CONDITION_DATA_TYPE_BASE(condition_name)              \
   condition_name##ConditionDataType::condition_name##ConditionDataType() \
-      : ClonePtrDataTypeBase<condition_name##Condition>(                   \
+      : ClonePtrDataTypeBase<condition_name##Condition>(                 \
             #condition_name "Condition", {false, false, true, false}) {} \
                                                                          \
   bool condition_name##ConditionDataType::DoXmlIsOfThisType(             \
@@ -147,14 +147,14 @@ ClickStateConditionDataType::DoConvertFromXml(xml::XmlElementNode* node) {
   auto state = helper::ClickState::None;
   auto value_attr = node->GetOptionalAttributeValueCaseInsensitive("value");
   if (value_attr) {
-    if (cru::string::CaseInsensitiveCompare(*value_attr, "none") == 0) {
+    if (cru::string::CaseInsensitiveEqual(*value_attr, "none")) {
       state = helper::ClickState::None;
-    } else if (cru::string::CaseInsensitiveCompare(*value_attr, "hover") == 0) {
+    } else if (cru::string::CaseInsensitiveEqual(*value_attr, "hover")) {
       state = helper::ClickState::Hover;
-    } else if (cru::string::CaseInsensitiveCompare(*value_attr, "press") == 0) {
+    } else if (cru::string::CaseInsensitiveEqual(*value_attr, "press")) {
       state = helper::ClickState::Press;
-    } else if (cru::string::CaseInsensitiveCompare(*value_attr,
-                                                   "pressinactive") == 0) {
+    } else if (cru::string::CaseInsensitiveEqual(*value_attr,
+                                                 "pressinactive")) {
       state = helper::ClickState::PressInactive;
     } else {
       return DataConvertResult<ClonePtr<ClickStateCondition>>::Failure(
@@ -174,11 +174,11 @@ CheckedConditionDataType::DoConvertFromXml(xml::XmlElementNode* node) {
         "Missing value for CheckedCondition.");
   }
 
-  if (cru::string::CaseInsensitiveCompare(*value, "true") == 0) {
+  if (cru::string::CaseInsensitiveEqual(*value, "true")) {
     return DataConvertResult<ClonePtr<CheckedCondition>>::Success(
         CheckedCondition::Create(true));
   }
-  if (cru::string::CaseInsensitiveCompare(*value, "false") == 0) {
+  if (cru::string::CaseInsensitiveEqual(*value, "false")) {
     return DataConvertResult<ClonePtr<CheckedCondition>>::Success(
         CheckedCondition::Create(false));
   }
@@ -195,11 +195,11 @@ FocusConditionDataType::DoConvertFromXml(xml::XmlElementNode* node) {
         "Missing value for FocusCondition.");
   }
 
-  if (cru::string::CaseInsensitiveCompare(*value, "true") == 0) {
+  if (cru::string::CaseInsensitiveEqual(*value, "true")) {
     return DataConvertResult<ClonePtr<FocusCondition>>::Success(
         FocusCondition::Create(true));
   }
-  if (cru::string::CaseInsensitiveCompare(*value, "false") == 0) {
+  if (cru::string::CaseInsensitiveEqual(*value, "false")) {
     return DataConvertResult<ClonePtr<FocusCondition>>::Success(
         FocusCondition::Create(false));
   }
@@ -216,11 +216,11 @@ HoverConditionDataType::DoConvertFromXml(xml::XmlElementNode* node) {
         "Missing value for HoverCondition.");
   }
 
-  if (cru::string::CaseInsensitiveCompare(*value, "true") == 0) {
+  if (cru::string::CaseInsensitiveEqual(*value, "true")) {
     return DataConvertResult<ClonePtr<HoverCondition>>::Success(
         HoverCondition::Create(true));
   }
-  if (cru::string::CaseInsensitiveCompare(*value, "false") == 0) {
+  if (cru::string::CaseInsensitiveEqual(*value, "false")) {
     return DataConvertResult<ClonePtr<HoverCondition>>::Success(
         HoverCondition::Create(false));
   }

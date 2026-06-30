@@ -3,7 +3,7 @@
 #include "cru/base/StringUtil.h"
 
 namespace cru::ui::datamodel {
-using cru::string::CaseInsensitiveCompare;
+using cru::string::CaseInsensitiveEqual;
 
 BorderStyleDataType::BorderStyleDataType()
     : DataTypeBase<ui::style::ApplyBorderStyleInfo>(
@@ -75,9 +75,9 @@ BorderStyleDataType::DoConvertFromXml(xml::XmlElementNode* node) {
       auto brush = converted.GetValue();
       auto name = element->GetOptionalAttributeValueCaseInsensitive("name");
       if (name) {
-        if (CaseInsensitiveCompare(*name, "foreground") == 0) {
+        if (CaseInsensitiveEqual(*name, "foreground")) {
           result.foreground_brush = std::move(brush);
-        } else if (CaseInsensitiveCompare(*name, "background") == 0) {
+        } else if (CaseInsensitiveEqual(*name, "background")) {
           result.background_brush = std::move(brush);
         } else {
           return DataConvertResult<ui::style::ApplyBorderStyleInfo>::Failure(

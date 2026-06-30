@@ -20,15 +20,15 @@ DataConvertResult<std::shared_ptr<ICursor>> CursorDataType::DoConvertFromString(
   auto cursor_manager =
       platform::gui::IUiApplication::GetInstance()->GetCursorManager();
 
-  if (cru::string::CaseInsensitiveCompare(value, "arrow") == 0) {
+  if (cru::string::CaseInsensitiveEqual(value, "arrow")) {
     return DataConvertResult<std::shared_ptr<ICursor>>::Success(
         cursor_manager->GetSystemCursor(SystemCursorType::Arrow));
   }
-  if (cru::string::CaseInsensitiveCompare(value, "hand") == 0) {
+  if (cru::string::CaseInsensitiveEqual(value, "hand")) {
     return DataConvertResult<std::shared_ptr<ICursor>>::Success(
         cursor_manager->GetSystemCursor(SystemCursorType::Hand));
   }
-  if (cru::string::CaseInsensitiveCompare(value, "ibeam") == 0) {
+  if (cru::string::CaseInsensitiveEqual(value, "ibeam")) {
     return DataConvertResult<std::shared_ptr<ICursor>>::Success(
         cursor_manager->GetSystemCursor(SystemCursorType::IBeam));
   }

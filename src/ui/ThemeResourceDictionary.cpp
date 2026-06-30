@@ -25,14 +25,14 @@ ThemeResourceDictionary::ThemeResourceDictionary(xml::XmlElementNode* xml_root,
 ThemeResourceDictionary::~ThemeResourceDictionary() = default;
 
 void ThemeResourceDictionary::UpdateResourceMap(xml::XmlElementNode* xml_root) {
-  if (cru::string::CaseInsensitiveCompare(xml_root->GetTag(), "Theme") != 0) {
+  if (!cru::string::CaseInsensitiveEqual(xml_root->GetTag(), "Theme")) {
     throw Exception("Root tag of theme must be 'Theme'.");
   }
 
   for (auto child : xml_root->GetChildren()) {
     if (child->IsElementNode()) {
       auto c = child->AsElement();
-      if (cru::string::CaseInsensitiveCompare(c->GetTag(), "Resource") == 0) {
+      if (cru::string::CaseInsensitiveEqual(c->GetTag(), "Resource")) {
         auto key_attr = c->GetOptionalAttributeValueCaseInsensitive("key");
         if (!key_attr) {
           throw Exception("'key' attribute is required for resource.");
