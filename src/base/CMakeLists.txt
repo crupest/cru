@@ -3,6 +3,7 @@ add_library(CruBase
 	PropertyTree.cpp
 	StringUtil.cpp
 	SubProcess.cpp
+	datamodel/DataType.cpp
 	io/AutoReadStream.cpp
 	io/Base.cpp
 	io/BufferStream.cpp
