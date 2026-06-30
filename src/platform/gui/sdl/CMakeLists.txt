@@ -7,6 +7,7 @@ add_library(CruPlatformGuiSdl
 	UiApplication.cpp
 	Window.cpp
 )
+find_package(SDL3 REQUIRED CONFIG)
 target_link_libraries(CruPlatformGuiSdl PUBLIC
 	CruPlatformGui CruPlatformGraphicsCairo
 	SDL3::SDL3
