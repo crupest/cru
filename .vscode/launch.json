@@ -12,7 +12,10 @@
             "args": [],
             "env": {},
             "cwd": "${workspaceFolder}",
-            "preLaunchTask": "Build Asan"
+            "preLaunchTask": "Build Asan",
+            "windows": {
+                "program": "${workspaceFolder}/build-asan/output/CruBaseTest.exe"
+            }
         },
         {
             "type": "lldb-dap",
@@ -22,7 +25,10 @@
             "args": [],
             "env": {},
             "cwd": "${workspaceFolder}",
-            "preLaunchTask": "Build Asan"
+            "preLaunchTask": "Build Asan",
+            "windows": {
+                "program": "${workspaceFolder}/build-asan/output/CruDemoMain.exe"
+            }
         },
         {
             "type": "lldb-dap",
@@ -32,7 +38,10 @@
             "args": [],
             "env": {},
             "cwd": "${workspaceFolder}",
-            "preLaunchTask": "Build Asan"
+            "preLaunchTask": "Build Asan",
+            "windows": {
+                "program": "${workspaceFolder}/build-asan/output/CruThemeBuilder.exe"
+            }
         }
     ]
 }

@@ -152,11 +152,6 @@ Rect DWriteTextLayout::TextSinglePoint(Index position, bool trailing) {
     return GetEmptyTextBounds();
   }
 
-  if (position == text_.size()) {
-    cru::string::Utf8PreviousCodePoint(text_, position, &position);
-    trailing = true;
-  }
-
   position = string::Utf16IndexCodePointToCodeUnit(
       utf16_text_, string::Utf8IndexCodeUnitToCodePoint(text_, position));
 
