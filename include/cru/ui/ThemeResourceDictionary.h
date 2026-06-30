@@ -3,7 +3,7 @@
 
 #include "cru/base/Base.h"
 #include "cru/base/xml/XmlNode.h"
-#include "mapper/MapperRegistry.h"
+#include "datamodel/Base.h"
 #include "style/StyleRuleSet.h"
 
 #include <any>
@@ -50,9 +50,28 @@ class CRU_UI_API ThemeResourceDictionary : public Object {
       return std::any_cast<T>(cache_find_result->second);
     }
 
-    auto mapper_registry = mapper::MapperRegistry::GetInstance();
-    auto mapper = mapper_registry->GetMapper<T>();
-    auto resource = mapper->MapFromXml(find_result->second.xml_node);
+    auto* data_type = datamodel::GetUiDataTypeRegistry()->GetDataType<T>();
+    if (!data_type) {
+      throw BadThemeResourceException(std::format(
+          "No data type registered for theme resource key {}.", key));
+    }
+
+    auto convert_result = data_type->ConvertFromXml(find_result->second.xml_node);
+    if (!convert_result.IsSuccess()) {
+      std::string errors;
+      for (const auto& error : convert_result.GetErrors()) {
+        if (!errors.empty()) {
+          errors += "; ";
+        }
+        errors += error;
+      }
+
+      throw BadThemeResourceException(
+          std::format("Failed to convert theme resource key {}: {}", key,
+                      errors.empty() ? "unknown error" : errors));
+    }
+
+    auto resource = convert_result.GetValue();
     cache[typeid(T)] = resource;
     return resource;
   }

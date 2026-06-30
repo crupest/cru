@@ -1,5 +1,5 @@
 #include "PointPropertyEditor.h"
-#include "cru/ui/mapper/MapperRegistry.h"
+#include "cru/ui/datamodel/Base.h"
 
 #include <format>
 
@@ -10,14 +10,19 @@ PointPropertyEditor::PointPropertyEditor() {
 
   text_.TextChangeEvent()->AddHandler([this](std::nullptr_t) {
     auto text = text_.GetText();
-    auto point_mapper =
-        ui::mapper::MapperRegistry::GetInstance()->GetMapper<ui::Point>();
-    try {
-      auto point = point_mapper->MapFromString(text);
-      point_ = point;
+    auto* point_data_type =
+        ui::datamodel::GetUiDataTypeRegistry()->GetDataType<ui::Point>();
+    if (!point_data_type) {
+      is_text_valid_ = false;
+      return;
+    }
+
+    auto point_result = point_data_type->ConvertFromString(text);
+    if (point_result.IsSuccess()) {
+      point_ = point_result.GetValue();
       is_text_valid_ = true;
       RaiseChangeEvent();
-    } catch (const Exception&) {
+    } else {
       is_text_valid_ = false;
       // TODO: Show error!
     }

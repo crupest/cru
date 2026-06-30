@@ -41,23 +41,6 @@ add_library(CruUi
 	events/MouseEventArgs.cpp
 	helper/ClickDetector.cpp
 	helper/ShortcutHub.cpp
-	mapper/BorderStyleMapper.cpp
-	mapper/BrushMapper.cpp
-	mapper/ColorMapper.cpp
-	mapper/CornerRadiusMapper.cpp
-	mapper/CursorMapper.cpp
-	mapper/FontMapper.cpp
-	mapper/Mapper.cpp
-	mapper/MapperRegistry.cpp
-	mapper/MeasureLengthMapper.cpp
-	mapper/PointMapper.cpp
-	mapper/SizeMapper.cpp
-	mapper/StringMapper.cpp
-	mapper/ThicknessMapper.cpp
-	mapper/style/ConditionMapper.cpp
-	mapper/style/StylerMapper.cpp
-	mapper/style/StyleRuleMapper.cpp
-	mapper/style/StyleRuleSetMapper.cpp
 	render/BorderRenderObject.cpp
 	render/CanvasRenderObject.cpp
 	render/FlexLayoutRenderObject.cpp

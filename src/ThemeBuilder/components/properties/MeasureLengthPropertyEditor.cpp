@@ -1,5 +1,5 @@
 #include "MeasureLengthPropertyEditor.h"
-#include "cru/ui/mapper/MapperRegistry.h"
+#include "cru/ui/datamodel/Base.h"
 #include "cru/ui/render/MeasureRequirement.h"
 
 #include <string>
@@ -11,14 +11,20 @@ MeasureLengthPropertyEditor::MeasureLengthPropertyEditor() {
 
   text_.TextChangeEvent()->AddHandler([this](std::nullptr_t) {
     auto text = text_.GetText();
-    auto measure_length_mapper = ui::mapper::MapperRegistry::GetInstance()
-                                     ->GetMapper<ui::render::MeasureLength>();
-    try {
-      auto measure_length = measure_length_mapper->MapFromString(text);
-      measure_length_ = measure_length;
+    auto* measure_length_data_type =
+        ui::datamodel::GetUiDataTypeRegistry()
+            ->GetDataType<ui::render::MeasureLength>();
+    if (!measure_length_data_type) {
+      is_text_valid_ = false;
+      return;
+    }
+
+    auto measure_length_result = measure_length_data_type->ConvertFromString(text);
+    if (measure_length_result.IsSuccess()) {
+      measure_length_ = measure_length_result.GetValue();
       is_text_valid_ = true;
       RaiseChangeEvent();
-    } catch (const Exception&) {
+    } else {
       is_text_valid_ = false;
       // TODO: Show error!
     }
