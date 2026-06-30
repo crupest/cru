@@ -1,7 +1,12 @@
 .DS_Store
 
 .vs
-.vscode
+
+.vscode/*
+!.vscode/extensions.json
+!.vscode/launch.json
+!.vscode/settings.json
+!.vscode/tasks.json
 
 CMakeUserPresets.json
 

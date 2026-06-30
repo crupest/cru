@@ -1,0 +1,44 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Configure Asan",
+            "type": "shell",
+            "command": "cmake -S . -B build-asan -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCRU_ASAN=ON",
+            "windows": {
+                "options": {
+                    "shell": {
+                        "executable": "pwsh.exe",
+                        "args": [
+                            "-Command"
+                        ]
+                    }
+                },
+                "command": ". scripts/Use-VC.ps1 && Use-VC -DotEnvPath build-asan/.env -LldbEnvPath build-asan/env.lldb && cmake -S . -B build-asan -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCRU_ASAN=ON"
+            },
+            "group": "build"
+        },
+        {
+            "label": "Build Asan",
+            "type": "shell",
+            "command": "cmake --build build-asan",
+            "group": "build"
+        },
+        {
+            "label": "Configure and Build Asan",
+            "type": "shell",
+            "command": "echo Done!",
+            "dependsOn": [
+                "Configure Asan",
+                "Build Asan"
+            ],
+            "dependsOrder": "sequence",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        }
+    ]
+}
