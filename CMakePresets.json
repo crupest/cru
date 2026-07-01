@@ -1,0 +1,201 @@
+{
+  "version": 8,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 28,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "default",
+      "displayName": "Ninja Multi-Config",
+      "description": "Configure and generate Ninja project files for all configurations",
+      "binaryDir": "${sourceDir}/out/build/${presetName}",
+      "installDir": "${sourceDir}/out/install/${presetName}",
+      "generator": "Ninja Multi-Config"
+    },
+    {
+      "name": "dylib",
+      "displayName": "Ninja Multi-Config for Building Dynamic Libraries",
+      "description": "Configure and generate Ninja project files for all configurations for building dynamic libraries.",
+      "inherits": [
+        "default"
+      ],
+      "cacheVariables": {
+        "BUILD_SHARED_LIBS": "ON"
+      }
+    },
+    {
+      "name": "development",
+      "displayName": "Ninja Multi-Config for Development",
+      "description": "Configure and generate Ninja project files for all configurations with development settings. All optional features are enabled. AddressSanitizer is enabled.",
+      "inherits": [
+        "default"
+      ],
+      "cacheVariables": {
+        "CRU_ASAN": "ON"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "default",
+      "configurePreset": "default",
+      "hidden": true
+    },
+    {
+      "name": "dylib",
+      "configurePreset": "dylib",
+      "hidden": true
+    },
+    {
+      "name": "debug",
+      "displayName": "Build (Debug)",
+      "description": "Build with Ninja (Debug)",
+      "inherits": [
+        "default"
+      ],
+      "configuration": "Debug"
+    },
+    {
+      "name": "release",
+      "displayName": "Build (RelWithDebInfo)",
+      "description": "Build with Ninja (RelWithDebInfo)",
+      "inherits": [
+        "default"
+      ],
+      "configuration": "RelWithDebInfo"
+    },
+    {
+      "name": "dylib-debug",
+      "displayName": "Build (Debug, Dynamic Libraries)",
+      "description": "Build with Ninja (Debug) for dynamic libraries",
+      "inherits": [
+        "dylib"
+      ],
+      "configuration": "Debug"
+    },
+    {
+      "name": "dylib-release",
+      "displayName": "Build (RelWithDebInfo, Dynamic Libraries)",
+      "description": "Build with Ninja (RelWithDebInfo) for dynamic libraries",
+      "inherits": [
+        "dylib"
+      ],
+      "configuration": "RelWithDebInfo"
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "default",
+      "configurePreset": "default",
+      "output": {
+        "outputOnFailure": true
+      },
+      "hidden": true
+    },
+    {
+      "name": "dylib",
+      "configurePreset": "dylib",
+      "inherits": [
+        "default"
+      ],
+      "hidden": true
+    },
+    {
+      "name": "debug",
+      "displayName": "Test (Debug)",
+      "description": "Test with Ninja (Debug)",
+      "configuration": "Debug",
+      "inherits": [
+        "default"
+      ]
+    },
+    {
+      "name": "release",
+      "displayName": "Test (RelWithDebInfo)",
+      "description": "Test with Ninja (RelWithDebInfo)",
+      "configuration": "RelWithDebInfo",
+      "inherits": [
+        "default"
+      ]
+    },
+    {
+      "name": "dylib-debug",
+      "displayName": "Test (Debug, Dynamic Libraries)",
+      "description": "Test with Ninja (Debug) for dynamic libraries",
+      "configuration": "Debug",
+      "inherits": [
+        "dylib"
+      ]
+    },
+    {
+      "name": "dylib-release",
+      "displayName": "Test (RelWithDebInfo, Dynamic Libraries)",
+      "description": "Test with Ninja (RelWithDebInfo) for dynamic libraries",
+      "configuration": "RelWithDebInfo",
+      "inherits": [
+        "dylib"
+      ]
+    }
+  ],
+  "workflowPresets": [
+    {
+      "name": "build-and-test-debug",
+      "displayName": "Build And Test (Debug)",
+      "description": "Configure, build and test with Ninja (Debug)",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "default"
+        },
+        {
+          "type": "build",
+          "name": "debug"
+        },
+        {
+          "type": "test",
+          "name": "debug"
+        }
+      ]
+    },
+    {
+      "name": "ci-default",
+      "displayName": "Workflow for CI",
+      "description": "Configure, build and test with Ninja (Debug)",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "default"
+        },
+        {
+          "type": "build",
+          "name": "debug"
+        },
+        {
+          "type": "test",
+          "name": "debug"
+        }
+      ]
+    },
+    {
+      "name": "ci-dylib",
+      "displayName": "Workflow for CI (Dynamic Libraries)",
+      "description": "Configure, build and test with Ninja (Debug) for dynamic libraries",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "dylib"
+        },
+        {
+          "type": "build",
+          "name": "dylib-debug"
+        },
+        {
+          "type": "test",
+          "name": "dylib-debug"
+        }
+      ]
+    }
+  ]
+}

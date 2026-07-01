@@ -26,14 +26,13 @@ jobs:
         run: |
           brew install icu4c cairo pango sdl3
 
-      - name: Build
+      - name: Build And Test (Static Linking)
         run: |
-          cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=/usr/bin/clang -DCMAKE_CXX_COMPILER=/usr/bin/clang++ -S. -Bbuild -G Ninja
-          cmake --build build --config Debug --target all
+          cmake --workflow --preset ci-default
 
-      - name: Test
+      - name: Build And Test (Dynamic Linking)
         run: |
-          ctest --test-dir build -C Debug --output-on-failure
+          cmake --workflow --preset ci-dylib
 
   windows-build:
     name: Windows Build
@@ -58,55 +57,19 @@ jobs:
         run: |
           New-Item -ItemType Directory -Force -Path "$env:VCPKG_DEFAULT_BINARY_CACHE"
           .\bootstrap-vcpkg.bat
-          .\vcpkg install icu
-
-      - name: Build
-        run: |
-          . scripts/Use-VC.ps1
-          Use-VC
-          cmake -DCMAKE_BUILD_TYPE=Debug -S. -Bbuild -G Ninja
-          cmake --build build --config Debug --target all
-
-      - name: Test
-        run: |
-          ctest --test-dir build -C Debug --output-on-failure
-
-  windows-build-dynamic:
-    name: Windows Build (Dynamic Linking)
-    runs-on: windows-latest
-    env:
-      VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}\.cache\vcpkg\archives
-
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          submodules: true
-
-      - name: Cache vcpkg
-        uses: actions/cache@v6
-        with:
-          path: ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
-          key: vcpkg-${{ runner.os }}-${{ github.run_id }}
-          restore-keys: vcpkg-${{ runner.os }}-
-
-      - name: Install Libraries
-        working-directory: ./vcpkg
-        run: |
-          New-Item -ItemType Directory -Force -Path "$env:VCPKG_DEFAULT_BINARY_CACHE"
-          .\bootstrap-vcpkg.bat
           .\vcpkg install icu sdl3
 
-      - name: Build
+      - name: Build And Test (Static Linking)
         run: |
           . scripts/Use-VC.ps1
           Use-VC
-          cmake -DCMAKE_BUILD_TYPE=Debug -DBUILD_SHARED_LIBS=1 -S. -Bbuild-dynamic -G Ninja
-          cmake --build build-dynamic --config Debug --target all
+          cmake --workflow --preset ci-default
 
-      - name: Test
+      - name: Build And Test (Dynamic Linking)
         run: |
-          ctest --test-dir build-dynamic -C Debug --output-on-failure
-
+          . scripts/Use-VC.ps1
+          Use-VC
+          cmake --workflow --preset ci-dylib
 
   linux-build:
     name: Linux Build
@@ -124,11 +87,10 @@ jobs:
             libxcb1-dev libxcb-cursor-dev libxkbcommon-dev libxcb-imdkit-dev libxkbcommon-x11-dev \
             libsdl3-dev
 
-      - name: Build
+      - name: Build And Test (Static Linking)
         run: |
-          cmake -DCMAKE_BUILD_TYPE=Debug -S. -Bbuild -G Ninja
-          cmake --build build --config Debug --target all
+          cmake --workflow --preset ci-default
 
-      - name: Test
+      - name: Build And Test (Dynamic Linking)
         run: |
-          ctest --test-dir build -C Debug --output-on-failure
+          cmake --workflow --preset ci-dylib
