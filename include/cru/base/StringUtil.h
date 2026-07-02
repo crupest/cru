@@ -34,6 +34,10 @@ bool CRU_BASE_API IsSpace(std::string_view str);
 CRU_DEFINE_BITMASK(SplitOption) {
   static constexpr SplitOption RemoveEmpty = SplitOption::FromOffset(1);
   static constexpr SplitOption RemoveSpace = SplitOption::FromOffset(2);
+  static constexpr SplitOption RemoveEmptyAndSpace = RemoveEmpty | RemoveSpace;
+  static constexpr SplitOption TrimBegin = SplitOption::FromOffset(3);
+  static constexpr SplitOption TrimEnd = SplitOption::FromOffset(4);
+  static constexpr SplitOption Trim = TrimBegin | TrimEnd;
 };
 
 template <typename R>

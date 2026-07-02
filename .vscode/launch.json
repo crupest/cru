@@ -8,39 +8,39 @@
             "type": "lldb-dap",
             "request": "launch",
             "name": "Debug Base Test",
-            "program": "${workspaceFolder}/build-asan/output/CruBaseTest",
+            "program": "${workspaceFolder}/out/build/asan/output/Debug/CruBaseTest",
             "args": [],
             "env": {},
             "cwd": "${workspaceFolder}",
             "preLaunchTask": "Build Asan",
             "windows": {
-                "program": "${workspaceFolder}/build-asan/output/CruBaseTest.exe"
+                "program": "${workspaceFolder}/out/build/asan/output/Debug/CruBaseTest.exe"
             }
         },
         {
             "type": "lldb-dap",
             "request": "launch",
             "name": "Debug Demo Main",
-            "program": "${workspaceFolder}/build-asan/output/CruDemoMain",
+            "program": "${workspaceFolder}/out/build/asan/output/Debug/CruDemoMain",
             "args": [],
             "env": {},
             "cwd": "${workspaceFolder}",
             "preLaunchTask": "Build Asan",
             "windows": {
-                "program": "${workspaceFolder}/build-asan/output/CruDemoMain.exe"
+                "program": "${workspaceFolder}/out/build/asan/output/Debug/CruDemoMain.exe"
             }
         },
         {
             "type": "lldb-dap",
             "request": "launch",
             "name": "Debug Theme Builder",
-            "program": "${workspaceFolder}/build-asan/output/CruThemeBuilder",
+            "program": "${workspaceFolder}/out/build/asan/output/Debug/CruThemeBuilder",
             "args": [],
             "env": {},
             "cwd": "${workspaceFolder}",
             "preLaunchTask": "Build Asan",
             "windows": {
-                "program": "${workspaceFolder}/build-asan/output/CruThemeBuilder.exe"
+                "program": "${workspaceFolder}/out/build/asan/output/Debug/CruThemeBuilder.exe"
             }
         }
     ]

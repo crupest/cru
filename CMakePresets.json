@@ -9,10 +9,13 @@
     {
       "name": "default",
       "displayName": "Ninja Multi-Config",
-      "description": "Configure and generate Ninja project files for all configurations",
+      "description": "Configure and generate Ninja project files for all configurations.",
       "binaryDir": "${sourceDir}/out/build/${presetName}",
       "installDir": "${sourceDir}/out/install/${presetName}",
-      "generator": "Ninja Multi-Config"
+      "generator": "Ninja Multi-Config",
+      "cacheVariables": {
+        "CRU_BUILD_CAIRO_ON_WINDOWS": "ON"
+      }
     },
     {
       "name": "dylib",
@@ -26,9 +29,9 @@
       }
     },
     {
-      "name": "development",
-      "displayName": "Ninja Multi-Config for Development",
-      "description": "Configure and generate Ninja project files for all configurations with development settings. All optional features are enabled. AddressSanitizer is enabled.",
+      "name": "asan",
+      "displayName": "Ninja Multi-Config with AddressSanitizer",
+      "description": "Configure and generate Ninja project files for all configurations with AddressSanitizer enabled.",
       "inherits": [
         "default"
       ],

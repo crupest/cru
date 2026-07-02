@@ -57,7 +57,7 @@ jobs:
         run: |
           New-Item -ItemType Directory -Force -Path "$env:VCPKG_DEFAULT_BINARY_CACHE"
           .\bootstrap-vcpkg.bat
-          .\vcpkg install icu sdl3
+          .\vcpkg install pkgconf icu libpng sdl3 cairo pango 
 
       - name: Build And Test (Static Linking)
         run: |

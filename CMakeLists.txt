@@ -26,6 +26,7 @@ endif()
 project(cru)
 
 option(CRU_ASAN "Build this target with AddressSanitizer" OFF)
+option(CRU_BUILD_CAIRO_ON_WINDOWS "Build cairo graphics target on Windows" OFF)
 
 if(CRU_ASAN)
 	if(MSVC)

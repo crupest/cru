@@ -8,6 +8,8 @@
 #include <cairo.h>
 #include <pango/pangocairo.h>
 
+#include <numbers>
+
 namespace cru::platform::graphics::cairo {
 CairoPainter::CairoPainter(CairoGraphicsFactory* factory, cairo_t* cairo,
                            bool auto_release, cairo_surface_t* cairo_surface)
@@ -108,7 +110,7 @@ void CairoPainter::StrokeEllipse(const Rect& outline_rect, IBrush* brush,
     cairo_translate(cairo_, -center.x, -center.y);
     cairo_new_path(cairo_);
     cairo_arc(cairo_, center.x, center.y, outline_rect.width / 2.0, 0,
-              2 * M_PI);
+              2 * std::numbers::pi);
     cairo_set_matrix(cairo_, &save_matrix);
   }
   cairo_stroke(cairo_);
@@ -130,7 +132,7 @@ void CairoPainter::FillEllipse(const Rect& outline_rect, IBrush* brush) {
     cairo_translate(cairo_, -center.x, -center.y);
     cairo_new_path(cairo_);
     cairo_arc(cairo_, center.x, center.y, outline_rect.width / 2.0, 0,
-              2 * M_PI);
+              2 * std::numbers::pi);
     cairo_set_matrix(cairo_, &save_matrix);
   }
   cairo_fill(cairo_);

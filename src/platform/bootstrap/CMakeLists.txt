@@ -13,6 +13,9 @@ target_compile_definitions(CruPlatformBootstrap PRIVATE CRU_PLATFORM_BOOTSTRAP_E
 
 if(WIN32)
 	target_link_libraries(CruPlatformGraphicsBootstrap PUBLIC CruPlatformGraphicsDirect2d)
+	if(CRU_BUILD_CAIRO_ON_WINDOWS)
+		target_link_libraries(CruPlatformGraphicsBootstrap PUBLIC CruPlatformGraphicsCairo)
+	endif()
 	target_link_libraries(CruPlatformBootstrap PUBLIC CruPlatformGuiWin)
 elseif(APPLE)
 	target_link_libraries(CruPlatformGraphicsBootstrap PUBLIC CruPlatformGraphicsQuartz)

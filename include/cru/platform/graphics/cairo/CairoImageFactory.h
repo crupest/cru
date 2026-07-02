@@ -4,7 +4,7 @@
 #include <cru/platform/graphics/ImageFactory.h>
 
 namespace cru::platform::graphics::cairo {
-class CairoImageFactory : public CairoResource, public virtual IImageFactory {
+class CRU_PLATFORM_GRAPHICS_CAIRO_API CairoImageFactory : public CairoResource, public virtual IImageFactory {
  public:
   CairoImageFactory(CairoGraphicsFactory* factory);
   ~CairoImageFactory() override;

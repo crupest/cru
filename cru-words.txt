@@ -3,6 +3,8 @@ clangd
 asan
 IWYU
 
+pango
+
 # osx
 framesetter
 

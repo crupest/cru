@@ -6,19 +6,13 @@
         {
             "label": "Configure Asan",
             "type": "shell",
-            "command": "cmake -S . -B build-asan -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCRU_ASAN=ON",
-            "windows": {
-                "command": "pwsh -NoProfile -NonInteractive -Command '. ./scripts/Use-VC.ps1 && Use-VC -DotEnvPath build-asan/.env -LldbEnvPath build-asan/env.lldb && cmake -S . -B build-asan -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCRU_ASAN=ON'"
-            },
+            "command": "cmake --preset asan",
             "group": "build"
         },
         {
             "label": "Build Asan",
             "type": "shell",
-            "command": "cmake --build build-asan",
-            "windows": {
-                "command": "pwsh -NoProfile -NonInteractive -Command '. ./scripts/Use-VC.ps1 && Use-VC -DotEnvPath build-asan/.env -LldbEnvPath build-asan/env.lldb && cmake --build build-asan'"
-            },
+            "command": "cmake --build out/build/asan",
             "group": "build"
         },
         {

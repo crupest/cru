@@ -84,7 +84,14 @@ std::vector<std::string> Split(std::string_view str, std::string_view sep,
                                            : next_pos - current_pos);
     if (!(options.Has(SplitOptions::RemoveEmpty) && sub.empty() ||
           options.Has(SplitOptions::RemoveSpace) && IsSpace(sub))) {
-      result.push_back(std::string(sub));
+      std::string trimmed_sub(sub);
+      if (options.Has(SplitOptions::TrimBegin)) {
+        trimmed_sub = TrimBegin(trimmed_sub);
+      }
+      if (options.Has(SplitOptions::TrimEnd)) {
+        trimmed_sub = TrimEnd(trimmed_sub);
+      }
+      result.push_back(trimmed_sub);
     }
     current_pos = next_pos == std::string_view::npos ? std::string_view::npos
                                                      : next_pos + sep.size();
