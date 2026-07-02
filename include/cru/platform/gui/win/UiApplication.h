@@ -56,7 +56,7 @@ class CRU_WIN_GUI_API WinUiApplication : public WinNativeResource,
   cru::platform::graphics::IGraphicsFactory* GetGraphicsFactory() override;
 
   cru::platform::graphics::direct2d::DirectGraphicsFactory* GetDirectFactory() {
-    return graph_factory_.get();
+    return graphics_factory_.get();
   }
 
   ICursorManager* GetCursorManager() override;
@@ -78,7 +78,7 @@ class CRU_WIN_GUI_API WinUiApplication : public WinNativeResource,
   bool is_quit_on_all_window_closed_ = true;
 
   std::unique_ptr<cru::platform::graphics::direct2d::DirectGraphicsFactory>
-      graph_factory_;
+      graphics_factory_;
 
   TimerRegistry<std::function<void()>> timers_;
   DeleteLaterPool delete_later_pool_;

@@ -8,7 +8,6 @@
 #include <cmath>
 #include <numbers>
 #include <unordered_set>
-#include <utility>
 
 namespace cru::platform::graphics {
 bool IGeometry::StrokeContains(float width, const Point& point) {

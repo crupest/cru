@@ -38,7 +38,7 @@ WinUiApplication::WinUiApplication() {
   general_window_class_ = std::make_unique<WindowClass>(
       L"CruUIWindowClass", GeneralWndProc, instance_handle_);
 
-  graph_factory_ = std::make_unique<
+  graphics_factory_ = std::make_unique<
       cru::platform::graphics::direct2d::DirectGraphicsFactory>();
 
   cursor_manager_ = std::make_unique<WinCursorManager>();
@@ -126,7 +126,7 @@ INativeWindow* WinUiApplication::CreateWindow() {
 
 cru::platform::graphics::IGraphicsFactory*
 WinUiApplication::GetGraphicsFactory() {
-  return graph_factory_.get();
+  return graphics_factory_.get();
 }
 
 ICursorManager* WinUiApplication::GetCursorManager() {
