@@ -57,7 +57,7 @@ class DataConvertResult {
   std::vector<std::string> errors_;
 };
 
-struct IDataType : virtual Interface {
+struct IDataTypeBase : virtual Interface {
   virtual bool SupportConvertFromString() = 0;
   virtual bool SupportConvertToString() = 0;
   virtual bool SupportConvertFromXml() = 0;
@@ -66,7 +66,17 @@ struct IDataType : virtual Interface {
 };
 
 template <typename T>
-class DataTypeBase : public Object, public IDataType {
+struct IDataType : virtual IDataTypeBase {
+  virtual DataConvertResult<T> ConvertFromString(std::string_view value) = 0;
+  virtual DataConvertResult<std::string> ConvertToString(T value) = 0;
+  virtual DataConvertResult<T> ConvertFromXml(
+      cru::xml::XmlElementNode* node) = 0;
+  virtual DataConvertResult<cru::xml::XmlElementNode*> ConvertToXml(
+      T value) = 0;
+};
+
+template <typename T>
+class DataTypeBase : public Object, public virtual IDataType<T> {
  public:
   ~DataTypeBase() override = 0;
 
@@ -74,13 +84,13 @@ class DataTypeBase : public Object, public IDataType {
 
   bool SupportConvertFromString() final { return DoSupportConvertFromString(); }
   bool SupportConvertToString() final { return DoSupportConvertToString(); }
-  DataConvertResult<T> ConvertFromString(std::string_view value) {
+  DataConvertResult<T> ConvertFromString(std::string_view value) final {
     if (!SupportConvertFromString()) {
       throw Exception("Convert from string is not supported.");
     }
     return DoConvertFromString(value);
   }
-  DataConvertResult<std::string> ConvertToString(T value) {
+  DataConvertResult<std::string> ConvertToString(T value) final {
     if (!SupportConvertToString()) {
       throw Exception("Convert to string is not supported.");
     }
@@ -110,7 +120,7 @@ class DataTypeBase : public Object, public IDataType {
     return DoXmlIsOfThisType(node);
   }
 
-  DataConvertResult<T> ConvertFromXml(cru::xml::XmlElementNode* node) {
+  DataConvertResult<T> ConvertFromXml(cru::xml::XmlElementNode* node) final {
     if (!SupportConvertFromXml()) {
       throw Exception("Convert from xml is not supported.");
     }
@@ -125,7 +135,7 @@ class DataTypeBase : public Object, public IDataType {
     return DoConvertFromXml(node);
   }
 
-  DataConvertResult<cru::xml::XmlElementNode*> ConvertToXml(T value) {
+  DataConvertResult<cru::xml::XmlElementNode*> ConvertToXml(T value) final {
     if (!SupportConvertToXml()) {
       throw Exception("Convert to xml is not supported.");
     }

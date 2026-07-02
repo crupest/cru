@@ -9,7 +9,7 @@ DataTypeRegistry::~DataTypeRegistry() {
   }
 }
 
-void DataTypeRegistry::RegisterDataType(IDataType* data_type) {
+void DataTypeRegistry::RegisterDataType(IDataTypeBase* data_type) {
   if (std::find(data_type_list_.cbegin(), data_type_list_.cend(), data_type) !=
       data_type_list_.cend()) {
     throw Exception("This data type is already registered.");
@@ -18,7 +18,7 @@ void DataTypeRegistry::RegisterDataType(IDataType* data_type) {
   data_type_list_.push_back(data_type);
 }
 
-void DataTypeRegistry::UnregisterDataType(IDataType* data_type) {
+void DataTypeRegistry::UnregisterDataType(IDataTypeBase* data_type) {
   auto it =
       std::find(data_type_list_.begin(), data_type_list_.end(), data_type);
   if (it == data_type_list_.end()) {

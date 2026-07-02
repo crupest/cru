@@ -12,7 +12,7 @@ class CRU_BASE_API DataTypeRegistry : public Object {
   DataTypeRegistry();
   ~DataTypeRegistry();
 
-  const std::vector<IDataType*>& GetAllDataTypes() { return data_type_list_; }
+  const std::vector<IDataTypeBase*>& GetAllDataTypes() { return data_type_list_; }
 
   template <typename T, typename DT = DataTypeBase<T>>
   DT* GetDataType()
@@ -49,10 +49,10 @@ class CRU_BASE_API DataTypeRegistry : public Object {
     return result;
   }
 
-  void RegisterDataType(IDataType* data_type);
-  void UnregisterDataType(IDataType* data_type);
+  void RegisterDataType(IDataTypeBase* data_type);
+  void UnregisterDataType(IDataTypeBase* data_type);
 
  private:
-  std::vector<IDataType*> data_type_list_;
+  std::vector<IDataTypeBase*> data_type_list_;
 };
 }  // namespace cru::datamodel
