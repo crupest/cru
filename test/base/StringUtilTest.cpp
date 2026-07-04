@@ -1,61 +1,11 @@
 #include "cru/base/StringUtil.h"
 
 #include <catch2/catch_test_macros.hpp>
+
 #include <string_view>
 
 using cru::Index;
 using namespace cru::string;
-
-TEST_CASE("StringUtil Split", "[string]") {
-  REQUIRE(Split("abc", "b") == std::vector<std::string>{"a", "c"});
-  REQUIRE(Split("abcd", "bc") == std::vector<std::string>{"a", "d"});
-  REQUIRE(Split("abcdbcd", "bc") == std::vector<std::string>{"a", "d", "d"});
-  REQUIRE(Split("aaa", "a") == std::vector<std::string>{"", "", "", ""});
-}
-
-TEST_CASE("StringUtil TrimBegin", "[string]") {
-  const std::string k_zh = "\xE4\xBD\xA0\xE5\xA5\xBD";  // "你好"
-
-  REQUIRE(TrimBegin("") == "");
-  REQUIRE(TrimBegin("   \t\n") == "");
-  REQUIRE(TrimBegin("  abc") == "abc");
-  REQUIRE(TrimBegin("  abc  ") == "abc  ");
-  REQUIRE(TrimBegin("\xE3\x80\x80\xE3\x80\x80" "abc") == "abc");
-  REQUIRE(TrimBegin("\xC2\xA0" + k_zh) == k_zh);
-  REQUIRE(TrimBegin(k_zh) == k_zh);
-}
-
-TEST_CASE("StringUtil TrimEnd", "[string]") {
-  const std::string k_zh = "\xE4\xBD\xA0\xE5\xA5\xBD";  // "你好"
-
-  REQUIRE(TrimEnd("") == "");
-  REQUIRE(TrimEnd("   \t\n") == "");
-  REQUIRE(TrimEnd("abc  ") == "abc");
-  REQUIRE(TrimEnd("  abc  ") == "  abc");
-  REQUIRE(TrimEnd("abc\xE3\x80\x80\xE3\x80\x80") == "abc");
-  REQUIRE(TrimEnd(k_zh + "\xC2\xA0") == k_zh);
-  REQUIRE(TrimEnd(k_zh) == k_zh);
-}
-
-TEST_CASE("StringUtil Trim", "[string]") {
-  const std::string k_zh = "\xE4\xBD\xA0\xE5\xA5\xBD";  // "你好"
-
-  REQUIRE(Trim("") == "");
-  REQUIRE(Trim("   \t\n") == "");
-  REQUIRE(Trim("  abc  ") == "abc");
-  REQUIRE(Trim("\xE3\x80\x80" + k_zh + "\xC2\xA0") == k_zh);
-  REQUIRE(Trim(k_zh) == k_zh);
-}
-
-TEST_CASE("StringUtil IsSpace", "[string]") {
-  REQUIRE(IsSpace(""));
-  REQUIRE(IsSpace("   \t\n"));
-  REQUIRE(IsSpace("\xE3\x80\x80\xC2\xA0"));
-
-  REQUIRE(!IsSpace("a"));
-  REQUIRE(!IsSpace("\xE4\xBD\xA0"));  // "你"
-  REQUIRE(!IsSpace(" \xE4\xBD\xA0 "));
-}
 
 TEST_CASE("StringUtil Utf8ByteType", "[string]") {
   REQUIRE(IsUtf8LeadingByte(0b00100000));
@@ -214,6 +164,223 @@ TEST_CASE("StringUtil Utf16IndexCodePointToCodeUnit", "[string]") {
   REQUIRE(Utf16IndexCodePointToCodeUnit(text.data(), text.size(), 3) == 3);
   REQUIRE(Utf16IndexCodePointToCodeUnit(text.data(), text.size(), 4) == 5);
   REQUIRE(Utf16IndexCodePointToCodeUnit(text.data(), text.size(), 5) == 6);
+}
+
+TEST_CASE("StringUtil Split", "[string]") {
+  REQUIRE(Split("abc", "b") == std::vector<std::string>{"a", "c"});
+  REQUIRE(Split("abcd", "bc") == std::vector<std::string>{"a", "d"});
+  REQUIRE(Split("abcdbcd", "bc") == std::vector<std::string>{"a", "d", "d"});
+  REQUIRE(Split("aaa", "a") == std::vector<std::string>{"", "", "", ""});
+}
+
+TEST_CASE("StringUtil TrimBegin", "[string]") {
+  const std::string k_zh = "\xE4\xBD\xA0\xE5\xA5\xBD";  // "你好"
+
+  REQUIRE(TrimBegin("") == "");
+  REQUIRE(TrimBegin("   \t\n") == "");
+  REQUIRE(TrimBegin("  abc") == "abc");
+  REQUIRE(TrimBegin("  abc  ") == "abc  ");
+  REQUIRE(TrimBegin("\xE3\x80\x80\xE3\x80\x80"
+                    "abc") == "abc");
+  REQUIRE(TrimBegin("\xC2\xA0" + k_zh) == k_zh);
+  REQUIRE(TrimBegin(k_zh) == k_zh);
+}
+
+TEST_CASE("StringUtil TrimEnd", "[string]") {
+  const std::string k_zh = "\xE4\xBD\xA0\xE5\xA5\xBD";  // "你好"
+
+  REQUIRE(TrimEnd("") == "");
+  REQUIRE(TrimEnd("   \t\n") == "");
+  REQUIRE(TrimEnd("abc  ") == "abc");
+  REQUIRE(TrimEnd("  abc  ") == "  abc");
+  REQUIRE(TrimEnd("abc\xE3\x80\x80\xE3\x80\x80") == "abc");
+  REQUIRE(TrimEnd(k_zh + "\xC2\xA0") == k_zh);
+  REQUIRE(TrimEnd(k_zh) == k_zh);
+}
+
+TEST_CASE("StringUtil Trim", "[string]") {
+  const std::string k_zh = "\xE4\xBD\xA0\xE5\xA5\xBD";  // "你好"
+
+  REQUIRE(Trim("") == "");
+  REQUIRE(Trim("   \t\n") == "");
+  REQUIRE(Trim("  abc  ") == "abc");
+  REQUIRE(Trim("\xE3\x80\x80" + k_zh + "\xC2\xA0") == k_zh);
+  REQUIRE(Trim(k_zh) == k_zh);
+}
+
+TEST_CASE("StringUtil IsSpace", "[string]") {
+  REQUIRE(IsSpace(""));
+  REQUIRE(IsSpace("   \t\n"));
+  REQUIRE(IsSpace("\xE3\x80\x80\xC2\xA0"));
+
+  REQUIRE(!IsSpace("a"));
+  REQUIRE(!IsSpace("\xE4\xBD\xA0"));  // "你"
+  REQUIRE(!IsSpace(" \xE4\xBD\xA0 "));
+}
+
+TEST_CASE("ParseToNumber Work", "[string]") {
+  auto r1 = ParseToNumber<int>("123");
+  REQUIRE(r1.valid);
+  REQUIRE(r1.value == 123);
+  REQUIRE(r1.processed_char_count == 3);
+
+  auto r2 = ParseToNumber<int>("123.123");
+  REQUIRE(!r2.valid);
+
+  auto r3 = ParseToNumber<float>("123.123");
+  REQUIRE(r3.valid);
+  REQUIRE(r3.value == 123.123f);
+  REQUIRE(r3.processed_char_count == 7);
+
+  auto r4 = ParseToNumber<float>("a123");
+  REQUIRE(!r4.valid);
+}
+
+TEST_CASE("ParseToNumber AllowLeadingZeroFlag", "[string]") {
+  auto r1 = ParseToNumber<int>("  123");
+  REQUIRE(!r1.valid);
+
+  auto r2 = ParseToNumber<int>("  123", ParseToNumberFlags::AllowLeadingSpaces);
+  REQUIRE(r2.valid);
+  REQUIRE(r2.value == 123);
+  REQUIRE(r2.processed_char_count == 5);
+
+  auto r3 = ParseToNumber<float>("  123.123");
+  REQUIRE(!r3.valid);
+
+  auto r4 =
+      ParseToNumber<float>("  123.123", ParseToNumberFlags::AllowLeadingSpaces);
+  REQUIRE(r4.valid);
+  REQUIRE(r4.value == 123.123f);
+  REQUIRE(r4.processed_char_count == 9);
+}
+
+TEST_CASE("ParseToNumber AllowTrailingSpacesFlag", "[string]") {
+  auto r1 = ParseToNumber<int>("123  ");
+  REQUIRE(!r1.valid);
+
+  auto r2 =
+      ParseToNumber<int>("123  ", ParseToNumberFlags::AllowTrailingSpaces);
+  REQUIRE(r2.valid);
+  REQUIRE(r2.value == 123);
+  REQUIRE(r2.processed_char_count == 3);
+
+  auto r3 = ParseToNumber<float>("123.123  ");
+  REQUIRE(!r3.valid);
+
+  auto r4 = ParseToNumber<float>("123.123  ",
+                                 ParseToNumberFlags::AllowTrailingSpaces);
+  REQUIRE(r4.valid);
+  REQUIRE(r4.value == 123.123f);
+  REQUIRE(r4.processed_char_count == 7);
+}
+
+TEST_CASE("ParseToNumber AllowTrailingJunk", "[string]") {
+  auto r1 = ParseToNumber<int>("123ab");
+  REQUIRE(!r1.valid);
+
+  auto r2 = ParseToNumber<int>("123ab", ParseToNumberFlags::AllowTrailingJunk);
+  REQUIRE(r2.valid);
+  REQUIRE(r2.value == 123);
+  REQUIRE(r2.processed_char_count == 3);
+
+  auto r3 = ParseToNumber<float>("123.123ab");
+  REQUIRE(!r3.valid);
+
+  auto r4 =
+      ParseToNumber<float>("123.123ab", ParseToNumberFlags::AllowTrailingJunk);
+  REQUIRE(r4.valid);
+  REQUIRE(r4.value == 123.123f);
+  REQUIRE(r4.processed_char_count == 7);
+}
+
+TEST_CASE("ParseToNumber CompositeFlags", "[string]") {
+  auto r1 =
+      ParseToNumber<int>("  123ab", ParseToNumberFlags::AllowLeadingSpaces |
+                                        ParseToNumberFlags::AllowTrailingJunk);
+  REQUIRE(r1.valid);
+  REQUIRE(r1.value == 123);
+  REQUIRE(r1.processed_char_count == 5);
+
+  auto r2 = ParseToNumber<float>("  123.123ab",
+                                 ParseToNumberFlags::AllowLeadingSpaces |
+                                     ParseToNumberFlags::AllowTrailingJunk);
+  REQUIRE(r2.valid);
+  REQUIRE(r2.value == 123.123f);
+  REQUIRE(r2.processed_char_count == 9);
+}
+
+TEST_CASE("String ParseToNumberList", "[string]") {
+  auto r1 = ParseToNumberList<int>("123 456 789");
+  REQUIRE(r1 == std::vector<int>{123, 456, 789});
+
+  auto r2 = ParseToNumberList<float>("1.1 2.2 3.3");
+  REQUIRE(r2 == std::vector<float>{1.1f, 2.2f, 3.3f});
+}
+
+TEST_CASE("ParseToNumber unicode spaces", "[string]") {
+  // Unicode NBSP (U+00A0) as leading space.
+  auto r1 = ParseToNumber<int>(
+      "\xC2\xA0"
+      "123",
+      ParseToNumberFlags::AllowLeadingSpaces);
+  REQUIRE(r1.valid);
+  REQUIRE(r1.value == 123);
+  REQUIRE(r1.processed_char_count == 5);  // 2 (NBSP) + 3 (digits)
+
+  // Unicode ideographic space (U+3000) as leading space.
+  auto r2 = ParseToNumber<int>(
+      "\xE3\x80\x80"
+      "123",
+      ParseToNumberFlags::AllowLeadingSpaces);
+  REQUIRE(r2.valid);
+  REQUIRE(r2.value == 123);
+  REQUIRE(r2.processed_char_count == 6);  // 3 (IDEO SPACE) + 3 (digits)
+
+  // Full-width space (U+3000) as trailing space.
+  auto r3 = ParseToNumber<int>(
+      "123"
+      "\xE3\x80\x80",
+      ParseToNumberFlags::AllowTrailingSpaces);
+  REQUIRE(r3.valid);
+  REQUIRE(r3.value == 123);
+  REQUIRE(r3.processed_char_count == 3);
+
+  // Mix of Unicode and ASCII spaces in leading position.
+  auto r4 = ParseToNumber<int>("\xC2\xA0 \t123",
+                               ParseToNumberFlags::AllowLeadingSpaces);
+  REQUIRE(r4.valid);
+  REQUIRE(r4.value == 123);
+
+  // Unicode paragraph separator (U+2029) as leading space.
+  auto r5 = ParseToNumber<int>(
+      "\xE2\x80\xA9"
+      "123",
+      ParseToNumberFlags::AllowLeadingSpaces);
+  REQUIRE(r5.valid);
+  REQUIRE(r5.value == 123);
+
+  // Without flags, Unicode spaces should still cause failure.
+  auto r6 = ParseToNumber<int>(
+      "\xE3\x80\x80"
+      "123");
+  REQUIRE(!r6.valid);
+}
+
+TEST_CASE("ParseToNumber float unicode leading space", "[string]") {
+  // Unicode NBSP before a float — should still be rejected without flag.
+  auto r1 = ParseToNumber<float>(
+      "\xC2\xA0"
+      "3.14");
+  REQUIRE(!r1.valid);
+
+  // With flag, it should work.
+  auto r2 = ParseToNumber<float>(
+      "\xC2\xA0"
+      "3.14",
+      ParseToNumberFlags::AllowLeadingSpaces);
+  REQUIRE(r2.valid);
+  REQUIRE(r2.value == 3.14f);
 }
 
 TEST_CASE("StringBreakIterator basic", "[string]") {
@@ -416,127 +583,3 @@ TEST_CASE("StringBreakIterator mixed char and word", "[string]") {
   REQUIRE(iter.PreviousChar() == 9);
   REQUIRE(iter.PreviousWord() == 6);
 }
-
-TEST_CASE("ParseToNumber Work", "[string]") {
-  auto r1 = ParseToNumber<int>("123");
-  REQUIRE(r1.valid);
-  REQUIRE(r1.value == 123);
-  REQUIRE(r1.processed_char_count == 3);
-
-  auto r2 = ParseToNumber<int>("123.123");
-  REQUIRE(!r2.valid);
-
-  auto r3 = ParseToNumber<float>("123.123");
-  REQUIRE(r3.valid);
-  REQUIRE(r3.value == 123.123f);
-  REQUIRE(r3.processed_char_count == 7);
-
-  auto r4 = ParseToNumber<float>("a123");
-  REQUIRE(!r4.valid);
-}
-
-TEST_CASE("ParseToNumber AllowLeadingZeroFlag", "[string]") {
-  auto r1 = ParseToNumber<int>("  123");
-  REQUIRE(!r1.valid);
-
-  auto r2 = ParseToNumber<int>("  123", ParseToNumberFlags::AllowLeadingSpaces);
-  REQUIRE(r2.valid);
-  REQUIRE(r2.value == 123);
-  REQUIRE(r2.processed_char_count == 5);
-
-  auto r3 = ParseToNumber<float>("  123.123");
-  REQUIRE(!r3.valid);
-
-  auto r4 =
-      ParseToNumber<float>("  123.123", ParseToNumberFlags::AllowLeadingSpaces);
-  REQUIRE(r4.valid);
-  REQUIRE(r4.value == 123.123f);
-  REQUIRE(r4.processed_char_count == 9);
-}
-
-TEST_CASE("StringToIntegerConverterImpl AllowTrailingSpacesFlag", "[string]") {
-  auto r1 = ParseToNumber<int>("123  ");
-  REQUIRE(!r1.valid);
-
-  auto r2 =
-      ParseToNumber<int>("123  ", ParseToNumberFlags::AllowTrailingSpaces);
-  REQUIRE(r2.valid);
-  REQUIRE(r2.value == 123);
-  REQUIRE(r2.processed_char_count == 3);
-
-  auto r3 = ParseToNumber<float>("123.123  ");
-  REQUIRE(!r3.valid);
-
-  auto r4 = ParseToNumber<float>("123.123  ",
-                                 ParseToNumberFlags::AllowTrailingSpaces);
-  REQUIRE(r4.valid);
-  REQUIRE(r4.value == 123.123f);
-  REQUIRE(r4.processed_char_count == 7);
-}
-
-TEST_CASE("StringToIntegerConverterImpl AllowTrailingJunk", "[string]") {
-  auto r1 = ParseToNumber<int>("123ab");
-  REQUIRE(!r1.valid);
-
-  auto r2 = ParseToNumber<int>("123ab", ParseToNumberFlags::AllowTrailingJunk);
-  REQUIRE(r2.valid);
-  REQUIRE(r2.value == 123);
-  REQUIRE(r2.processed_char_count == 3);
-
-  auto r3 = ParseToNumber<float>("123.123ab");
-  REQUIRE(!r3.valid);
-
-  auto r4 =
-      ParseToNumber<float>("123.123ab", ParseToNumberFlags::AllowTrailingJunk);
-  REQUIRE(r4.valid);
-  REQUIRE(r4.value == 123.123f);
-  REQUIRE(r4.processed_char_count == 7);
-}
-
-TEST_CASE("StringToIntegerConverterImpl CompositeFlags", "[string]") {
-  auto r1 =
-      ParseToNumber<int>("  123ab", ParseToNumberFlags::AllowLeadingSpaces |
-                                        ParseToNumberFlags::AllowTrailingJunk);
-  REQUIRE(r1.valid);
-  REQUIRE(r1.value == 123);
-  REQUIRE(r1.processed_char_count == 5);
-
-  auto r2 = ParseToNumber<float>("  123.123ab",
-                                 ParseToNumberFlags::AllowLeadingSpaces |
-                                     ParseToNumberFlags::AllowTrailingJunk);
-  REQUIRE(r2.valid);
-  REQUIRE(r2.value == 123.123f);
-  REQUIRE(r2.processed_char_count == 9);
-}
-
-TEST_CASE("String ParseToNumberList", "[string]") {
-  auto r1 = ParseToNumberList<int>("123 456 789");
-  REQUIRE(r1 == std::vector<int>{123, 456, 789});
-
-  auto r2 = ParseToNumberList<float>("1.1 2.2 3.3");
-  REQUIRE(r2 == std::vector<float>{1.1f, 2.2f, 3.3f});
-}
-
-// TEST(WinString, IndexUtf8ToUtf16) {
-//   using cru::platform::win::IndexUtf8ToUtf16;
-//   std::string_view utf8_string = "aπ你🤣!";
-//   std::wstring_view utf16_string = L"aπ你🤣!";
-//   REQUIRE(IndexUtf8ToUtf16(utf8_string, 0, utf16_string), 0);
-//   REQUIRE(IndexUtf8ToUtf16(utf8_string, 1, utf16_string), 1);
-//   REQUIRE(IndexUtf8ToUtf16(utf8_string, 3, utf16_string), 2);
-//   REQUIRE(IndexUtf8ToUtf16(utf8_string, 6, utf16_string), 3);
-//   REQUIRE(IndexUtf8ToUtf16(utf8_string, 10, utf16_string), 5);
-//   REQUIRE(IndexUtf8ToUtf16(utf8_string, 11, utf16_string), 6);
-// }
-
-// TEST(WinString, IndexUtf16ToUtf8) {
-//   using cru::platform::win::IndexUtf16ToUtf8;
-//   std::string_view utf8_string = "aπ你🤣!";
-//   std::wstring_view utf16_string = L"aπ你🤣!";
-//   REQUIRE(IndexUtf16ToUtf8(utf16_string, 0, utf8_string), 0);
-//   REQUIRE(IndexUtf16ToUtf8(utf16_string, 1, utf8_string), 1);
-//   REQUIRE(IndexUtf16ToUtf8(utf16_string, 2, utf8_string), 3);
-//   REQUIRE(IndexUtf16ToUtf8(utf16_string, 3, utf8_string), 6);
-//   REQUIRE(IndexUtf16ToUtf8(utf16_string, 5, utf8_string), 10);
-//   REQUIRE(IndexUtf16ToUtf8(utf16_string, 6, utf8_string), 11);
-// }

@@ -3,9 +3,9 @@
 #include "Bitmask.h"
 
 #include <unicode/brkiter.h>
+#include <unicode/uchar.h>
 
 #include <algorithm>
-#include <cctype>
 #include <charconv>
 #include <cmath>
 #include <cstdint>
@@ -22,184 +22,6 @@ namespace cru::string {
 class CRU_BASE_API TextEncodeException : public Exception {
  public:
   using Exception::Exception;
-};
-
-bool CRU_BASE_API CaseInsensitiveEqual(std::string_view left,
-                                       std::string_view right);
-std::string CRU_BASE_API TrimBegin(std::string_view str);
-std::string CRU_BASE_API TrimEnd(std::string_view str);
-std::string CRU_BASE_API Trim(std::string_view str);
-bool CRU_BASE_API IsSpace(std::string_view str);
-
-CRU_DEFINE_BITMASK(SplitOption) {
-  static constexpr SplitOption RemoveEmpty = SplitOption::FromOffset(1);
-  static constexpr SplitOption RemoveSpace = SplitOption::FromOffset(2);
-  static constexpr SplitOption RemoveEmptyAndSpace = RemoveEmpty | RemoveSpace;
-  static constexpr SplitOption TrimBegin = SplitOption::FromOffset(3);
-  static constexpr SplitOption TrimEnd = SplitOption::FromOffset(4);
-  static constexpr SplitOption Trim = TrimBegin | TrimEnd;
-};
-
-template <typename R>
-std::string Join(std::string_view sep, const R& range) {
-  bool start = true;
-  std::string result;
-  for (const auto& s : range) {
-    if (start) {
-      result += s;
-      start = false;
-    } else {
-      result += sep;
-      result += s;
-    }
-  }
-  return result;
-}
-
-std::vector<std::string> CRU_BASE_API Split(std::string_view str,
-                                            std::string_view sep,
-                                            SplitOption options = {});
-
-namespace details {
-template <typename T>
-std::enable_if_t<std::is_integral_v<T>, std::from_chars_result> from_chars(
-    const char* first, const char* last, T& value, int base = 10) {
-  return std::from_chars(first, last, value, base);
-}
-
-template <typename T, T (*StrToFunc)(const char* str, char** str_end),
-          bool (*IsOverflow)(T value)>
-std::enable_if_t<std::is_floating_point_v<T>, std::from_chars_result>
-float_from_chars_impl(const char* first, const char* last, T& value,
-                      std::chars_format fmt = std::chars_format::general) {
-  if (std::isspace(*first)) {
-    return std::from_chars_result{first, std::errc::invalid_argument};
-  }
-
-  std::string str(first, last);
-  auto c_str = str.c_str();
-  char* c_str_end;
-  auto parsed_value = StrToFunc(c_str, &c_str_end);
-  if (c_str == c_str_end) {
-    return std::from_chars_result{first, std::errc::invalid_argument};
-  }
-  if (IsOverflow(parsed_value)) {
-    return std::from_chars_result{first, std::errc::result_out_of_range};
-  }
-  value = parsed_value;
-  return std::from_chars_result{first + (c_str_end - c_str), {}};
-}
-
-#define CRU_DEFINE_FLOAT_FROM_CHARS(type, str_to_func, overflow_value)    \
-  inline std::from_chars_result from_chars(                               \
-      const char* first, const char* last, type& value,                   \
-      std::chars_format fmt = std::chars_format::general) {               \
-    return float_from_chars_impl<type, std::str_to_func, [](type value) { \
-      return value == overflow_value;                                     \
-    }>(first, last, value, fmt);                                          \
-  }
-
-CRU_DEFINE_FLOAT_FROM_CHARS(float, strtof, HUGE_VALF)
-CRU_DEFINE_FLOAT_FROM_CHARS(double, strtod, HUGE_VAL)
-CRU_DEFINE_FLOAT_FROM_CHARS(long double, strtold, HUGE_VALL)
-
-#undef CRU_DEFINE_FLOAT_FROM_CHARS
-}  // namespace details
-
-CRU_DEFINE_BITMASK(ParseToNumberFlag) {
-  constexpr static ParseToNumberFlag AllowLeadingSpaces =
-      ParseToNumberFlag::FromOffset(1);
-  constexpr static ParseToNumberFlag AllowTrailingSpaces =
-      ParseToNumberFlag::FromOffset(2);
-  constexpr static ParseToNumberFlag AllowTrailingJunk =
-      ParseToNumberFlag::FromOffset(3);
-};
-
-template <typename T>
-struct ParseToNumberResult {
-  bool valid;
-  T value;
-  Index processed_char_count;
-  std::string message;
-};
-
-template <typename T>
-ParseToNumberResult<T> ParseToNumber(std::string_view str,
-                                     ParseToNumberFlag flags = {}) {
-  ParseToNumberResult<T> result{};
-
-  const char* ptr = str.data();
-  const char* const begin = str.data();
-  const char* const end = str.data() + str.size();
-  if (flags.Has(ParseToNumberFlags::AllowLeadingSpaces)) {
-    while (ptr != str.data() + str.size() && isspace(*ptr)) {
-      ptr++;
-    }
-  }
-
-  if (ptr == end) {
-    result.valid = false;
-    result.message =
-        "Parsing reached the end (after reading all leading spaces).";
-    return result;
-  }
-
-  auto parse_result = ::cru::string::details::from_chars(
-      ptr, str.data() + str.size(), result.value);
-  if (parse_result.ec == std::errc::invalid_argument) {
-    result.valid = false;
-    result.message = "Not a valid number.";
-    return result;
-  } else if (parse_result.ec == std::errc::result_out_of_range) {
-    result.valid = false;
-    result.message = "Value out of range.";
-    return result;
-  } else {
-    if (parse_result.ptr == end ||
-        flags.Has(ParseToNumberFlags::AllowTrailingJunk) ||
-        (flags.Has(ParseToNumberFlags::AllowTrailingSpaces) &&
-         IsSpace(std::string_view(parse_result.ptr, end)))) {
-      result.valid = true;
-      result.processed_char_count = parse_result.ptr - str.data();
-      return result;
-    } else {
-      result.valid = false;
-      result.message = "There are junk trailing characters.";
-      return result;
-    }
-  }
-}
-
-template <typename T>
-std::vector<T> ParseToNumberList(std::string_view str,
-                                 std::string_view separator = " ") {
-  auto segs = Split(str, separator, SplitOptions::RemoveSpace);
-  std::vector<T> result;
-  for (const auto& seg : segs) {
-    auto r = ParseToNumber<T>(Trim(seg),
-                              ParseToNumberFlags::AllowLeadingSpaces |
-                                  ParseToNumberFlags::AllowTrailingSpaces);
-    result.push_back(r.value);
-  }
-  return result;
-}
-
-template <typename T>
-struct ImplementFormatterByToString {
-  template <class ParseContext>
-  constexpr ParseContext::iterator parse(ParseContext& ctx) const {
-    auto iter = ctx.begin();
-    if (*iter != '}') {
-      throw std::format_error(
-          "ImplementFormatterByToString does not accept format args.");
-    }
-    return iter;
-  }
-
-  template <class FmtContext>
-  FmtContext::iterator format(const T& object, FmtContext& ctx) const {
-    return std::ranges::copy(object.ToString(), ctx.out()).out;
-  }
 };
 
 using CodePoint = std::int32_t;
@@ -539,6 +361,187 @@ inline Index Utf16IndexCodePointToCodeUnit(std::wstring_view str,
 std::wstring CRU_BASE_API ToUtf16WString(std::string_view str);
 std::string CRU_BASE_API ToUtf8String(std::wstring_view str);
 #endif
+
+bool CRU_BASE_API CaseInsensitiveEqual(std::string_view left,
+                                       std::string_view right);
+std::string CRU_BASE_API TrimBegin(std::string_view str);
+std::string CRU_BASE_API TrimEnd(std::string_view str);
+std::string CRU_BASE_API Trim(std::string_view str);
+bool CRU_BASE_API IsSpace(std::string_view str);
+
+CRU_DEFINE_BITMASK(SplitOption) {
+  static constexpr SplitOption RemoveEmpty = SplitOption::FromOffset(1);
+  static constexpr SplitOption RemoveSpace = SplitOption::FromOffset(2);
+  static constexpr SplitOption RemoveEmptyAndSpace = RemoveEmpty | RemoveSpace;
+  static constexpr SplitOption TrimBegin = SplitOption::FromOffset(3);
+  static constexpr SplitOption TrimEnd = SplitOption::FromOffset(4);
+  static constexpr SplitOption Trim = TrimBegin | TrimEnd;
+};
+
+template <typename R>
+std::string Join(std::string_view sep, const R& range) {
+  bool start = true;
+  std::string result;
+  for (const auto& s : range) {
+    if (start) {
+      result += s;
+      start = false;
+    } else {
+      result += sep;
+      result += s;
+    }
+  }
+  return result;
+}
+
+std::vector<std::string> CRU_BASE_API Split(std::string_view str,
+                                            std::string_view sep,
+                                            SplitOption options = {});
+
+namespace details {
+template <typename T>
+std::enable_if_t<std::is_integral_v<T>, std::from_chars_result> from_chars(
+    const char* first, const char* last, T& value, int base = 10) {
+  return std::from_chars(first, last, value, base);
+}
+
+template <typename T, T (*StrToFunc)(const char* str, char** str_end),
+          bool (*IsOverflow)(T value)>
+std::enable_if_t<std::is_floating_point_v<T>, std::from_chars_result>
+float_from_chars_impl(const char* first, const char* last, T& value,
+                      std::chars_format fmt = std::chars_format::general) {
+  if (u_isspace(Utf8NextCodePoint(first, last - first, 0, nullptr))) {
+    return std::from_chars_result{first, std::errc::invalid_argument};
+  }
+
+  std::string str(first, last);
+  auto c_str = str.c_str();
+  char* c_str_end;
+  auto parsed_value = StrToFunc(c_str, &c_str_end);
+  if (c_str == c_str_end) {
+    return std::from_chars_result{first, std::errc::invalid_argument};
+  }
+  if (IsOverflow(parsed_value)) {
+    return std::from_chars_result{first, std::errc::result_out_of_range};
+  }
+  value = parsed_value;
+  return std::from_chars_result{first + (c_str_end - c_str), {}};
+}
+
+#define CRU_DEFINE_FLOAT_FROM_CHARS(type, str_to_func, overflow_value)    \
+  inline std::from_chars_result from_chars(                               \
+      const char* first, const char* last, type& value,                   \
+      std::chars_format fmt = std::chars_format::general) {               \
+    return float_from_chars_impl<type, std::str_to_func, [](type value) { \
+      return value == overflow_value;                                     \
+    }>(first, last, value, fmt);                                          \
+  }
+
+CRU_DEFINE_FLOAT_FROM_CHARS(float, strtof, HUGE_VALF)
+CRU_DEFINE_FLOAT_FROM_CHARS(double, strtod, HUGE_VAL)
+CRU_DEFINE_FLOAT_FROM_CHARS(long double, strtold, HUGE_VALL)
+
+#undef CRU_DEFINE_FLOAT_FROM_CHARS
+}  // namespace details
+
+CRU_DEFINE_BITMASK(ParseToNumberFlag) {
+  constexpr static ParseToNumberFlag AllowLeadingSpaces =
+      ParseToNumberFlag::FromOffset(1);
+  constexpr static ParseToNumberFlag AllowTrailingSpaces =
+      ParseToNumberFlag::FromOffset(2);
+  constexpr static ParseToNumberFlag AllowTrailingJunk =
+      ParseToNumberFlag::FromOffset(3);
+};
+
+template <typename T>
+struct ParseToNumberResult {
+  bool valid;
+  T value;
+  Index processed_char_count;
+  std::string message;
+};
+
+template <typename T>
+ParseToNumberResult<T> ParseToNumber(std::string_view str,
+                                     ParseToNumberFlag flags = {}) {
+  ParseToNumberResult<T> result{};
+
+  const char* ptr = str.data();
+  const char* const begin = str.data();
+  const char* const end = str.data() + str.size();
+  if (flags.Has(ParseToNumberFlags::AllowLeadingSpaces)) {
+    while (ptr != end) {
+      Index next;
+      auto cp = Utf8NextCodePoint(ptr, end - ptr, 0, &next);
+      if (!u_isspace(cp)) break;
+      ptr += next;
+    }
+  }
+
+  if (ptr == end) {
+    result.valid = false;
+    result.message =
+        "Parsing reached the end (after reading all leading spaces).";
+    return result;
+  }
+
+  auto parse_result = ::cru::string::details::from_chars(
+      ptr, str.data() + str.size(), result.value);
+  if (parse_result.ec == std::errc::invalid_argument) {
+    result.valid = false;
+    result.message = "Not a valid number.";
+    return result;
+  } else if (parse_result.ec == std::errc::result_out_of_range) {
+    result.valid = false;
+    result.message = "Value out of range.";
+    return result;
+  } else {
+    if (parse_result.ptr == end ||
+        flags.Has(ParseToNumberFlags::AllowTrailingJunk) ||
+        (flags.Has(ParseToNumberFlags::AllowTrailingSpaces) &&
+         IsSpace(std::string_view(parse_result.ptr, end)))) {
+      result.valid = true;
+      result.processed_char_count = parse_result.ptr - str.data();
+      return result;
+    } else {
+      result.valid = false;
+      result.message = "There are junk trailing characters.";
+      return result;
+    }
+  }
+}
+
+template <typename T>
+std::vector<T> ParseToNumberList(std::string_view str,
+                                 std::string_view separator = " ") {
+  auto segs = Split(str, separator, SplitOptions::RemoveSpace);
+  std::vector<T> result;
+  for (const auto& seg : segs) {
+    auto r = ParseToNumber<T>(Trim(seg),
+                              ParseToNumberFlags::AllowLeadingSpaces |
+                                  ParseToNumberFlags::AllowTrailingSpaces);
+    result.push_back(r.value);
+  }
+  return result;
+}
+
+template <typename T>
+struct ImplementFormatterByToString {
+  template <class ParseContext>
+  constexpr ParseContext::iterator parse(ParseContext& ctx) const {
+    auto iter = ctx.begin();
+    if (*iter != '}') {
+      throw std::format_error(
+          "ImplementFormatterByToString does not accept format args.");
+    }
+    return iter;
+  }
+
+  template <class FmtContext>
+  FmtContext::iterator format(const T& object, FmtContext& ctx) const {
+    return std::ranges::copy(object.ToString(), ctx.out()).out;
+  }
+};
 
 class CRU_BASE_API StringBreakIterator {
  public:
