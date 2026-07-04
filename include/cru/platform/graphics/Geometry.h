@@ -4,6 +4,8 @@
 #include <memory>
 
 namespace cru::platform::graphics {
+enum class GeometryFillRule { EvenOdd, NonZero };
+
 /**
  * \remarks Geometry implementation is a disaster zone of platform problems.
  * Here are some notes. For geometry object:
@@ -80,6 +82,20 @@ struct CRU_PLATFORM_GRAPHICS_API IGeometryBuilder : virtual IGraphicsResource {
   static ArcInfo CalculateArcInfo(const Point& start_point, const Point& radius,
                                   float angle, bool is_large_arc,
                                   bool is_clockwise, const Point& end_point);
+
+  /**
+   * \todo Implement on cairo, quartz.
+   */
+  virtual GeometryFillRule GetFillRule();
+
+  /**
+   * \remarks You should call this method before any other methods. Some
+   * platform might not support changing fill rule after some commands are
+   * added.
+   *
+   * \todo Implement on cairo, quartz.
+   */
+  virtual void SetFillRule(GeometryFillRule fill_rule);
 
   virtual Point GetCurrentPosition() = 0;
 

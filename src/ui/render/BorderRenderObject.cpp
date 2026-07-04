@@ -231,6 +231,7 @@ void BorderRenderObject::RecreateGeometry() {
   builder.reset();
 
   builder = graph_factory->CreateGeometryBuilder();
+  builder->SetFillRule(platform::graphics::GeometryFillRule::EvenOdd);
   f(builder.get(), outer_rect, outer_radius);
   f(builder.get(), inner_rect, inner_radius);
   geometry_ = builder->Build();

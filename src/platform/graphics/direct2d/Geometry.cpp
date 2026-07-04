@@ -1,20 +1,44 @@
 #include "cru/platform/graphics/direct2d/Geometry.h"
+#include "cru/platform/graphics/Geometry.h"
 #include "cru/platform/graphics/direct2d/Factory.h"
 
 #include <d2d1.h>
 #include <d2d1helper.h>
 
+#include <utility>
+
 namespace cru::platform::graphics::direct2d {
+static D2D1_FILL_MODE Convert(GeometryFillRule fill_rule) {
+  switch (fill_rule) {
+    case GeometryFillRule::EvenOdd:
+      return D2D1_FILL_MODE_ALTERNATE;
+    case GeometryFillRule::NonZero:
+      return D2D1_FILL_MODE_WINDING;
+  }
+  std::unreachable();
+}
+
 D2DGeometryBuilder::D2DGeometryBuilder(DirectGraphicsFactory* factory)
-    : DirectGraphicsResource(factory) {
+    : DirectGraphicsResource(factory), fill_rule_(GeometryFillRule::NonZero) {
   CheckHResult(factory->GetD2D1Factory()->CreatePathGeometry(&geometry_));
   CheckHResult(geometry_->Open(&geometry_sink_));
-  geometry_sink_->SetFillMode(D2D1_FILL_MODE_WINDING);
+  geometry_sink_->SetFillMode(Convert(fill_rule_));
 }
 
 void D2DGeometryBuilder::CheckValidation() {
   if (!IsValid())
     throw ReuseException("The geometry builder is already disposed.");
+}
+
+GeometryFillRule D2DGeometryBuilder::GetFillRule() {
+  CheckValidation();
+  return fill_rule_;
+}
+
+void D2DGeometryBuilder::SetFillRule(GeometryFillRule fill_rule) {
+  CheckValidation();
+  fill_rule_ = fill_rule;
+  geometry_sink_->SetFillMode(Convert(fill_rule_));
 }
 
 Point D2DGeometryBuilder::GetCurrentPosition() {

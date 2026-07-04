@@ -1,4 +1,5 @@
 #include "cru/platform/graphics/Geometry.h"
+#include "cru/base/Base.h"
 #include "cru/base/StringUtil.h"
 #include "cru/base/log/Logger.h"
 #include "cru/platform/GraphicsBase.h"
@@ -20,6 +21,14 @@ std::unique_ptr<IGeometry> IGeometry::CreateStrokeGeometry(
   throw PlatformUnsupportedException(GetPlatformId(), "CreateStrokeGeometry",
                                      "Create stroke geometry of a geometry is "
                                      "not supported on this platform.");
+}
+
+GeometryFillRule IGeometryBuilder::GetFillRule() {
+  PlatformNotImplemented(GetPlatformId(), "GeometryBuilder::GetFillRule");
+}
+
+void IGeometryBuilder::SetFillRule(GeometryFillRule fill_rule) {
+  PlatformNotImplemented(GetPlatformId(), "GeometryBuilder::SetFillRule");
 }
 
 IGeometryBuilder::ArcInfo IGeometryBuilder::CalculateArcInfo(

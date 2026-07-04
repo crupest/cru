@@ -10,6 +10,9 @@ class CRU_WIN_GRAPHICS_DIRECT_API D2DGeometryBuilder
  public:
   explicit D2DGeometryBuilder(DirectGraphicsFactory* factory);
 
+  GeometryFillRule GetFillRule() override;
+  void SetFillRule(GeometryFillRule fill_rule) override;
+
   Point GetCurrentPosition() override;
 
   void MoveTo(const Point& point) override;
@@ -32,6 +35,7 @@ class CRU_WIN_GRAPHICS_DIRECT_API D2DGeometryBuilder
  private:
   Microsoft::WRL::ComPtr<ID2D1PathGeometry> geometry_;
   Microsoft::WRL::ComPtr<ID2D1GeometrySink> geometry_sink_;
+  GeometryFillRule fill_rule_;
   Point start_point_;
   Point current_position_;
 };
@@ -43,11 +47,6 @@ class CRU_WIN_GRAPHICS_DIRECT_API D2DGeometry
  public:
   D2DGeometry(DirectGraphicsFactory* factory,
               Microsoft::WRL::ComPtr<ID2D1Geometry> geometry);
-
-  CRU_DELETE_COPY(D2DGeometry)
-  CRU_DELETE_MOVE(D2DGeometry)
-
-  ~D2DGeometry() override = default;
 
  public:
   ID2D1Geometry* GetComInterface() const override { return geometry_.Get(); }

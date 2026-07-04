@@ -85,6 +85,11 @@ struct CRU_BASE_API Interface {
 
 [[noreturn]] void CRU_BASE_API UnreachableCode();
 [[noreturn]] void CRU_BASE_API NotImplemented();
+[[noreturn]] void CRU_BASE_API
+NotImplemented(std::string_view additional_message);
+[[noreturn]] void CRU_BASE_API PlatformNotImplemented(
+    std::string_view platform, std::string_view operation,
+    std::optional<std::string_view> additional_message = std::nullopt);
 
 using Index = std::ptrdiff_t;
 
@@ -147,7 +152,8 @@ void CRU_BASE_API CheckArgumentNoLessThan(Index value, Index min,
  * @param value The argument value to check.
  * @param max The maximum value (inclusive).
  * @param arg_name The name of the argument, used for error message.
- * @throws Exception if the argument value is greater than the specified maximum.
+ * @throws Exception if the argument value is greater than the specified
+ * maximum.
  */
 void CRU_BASE_API CheckArgumentNoGreaterThan(Index value, Index max,
                                              std::string_view arg_name);
@@ -158,7 +164,8 @@ void CRU_BASE_API CheckArgumentNoGreaterThan(Index value, Index max,
  * @param min The minimum value.
  * @param max The maximum value.
  * @param arg_name The name of the argument, used for error message.
- * @param max_inclusive Whether the maximum value is inclusive. Default is false (exclusive).
+ * @param max_inclusive Whether the maximum value is inclusive. Default is false
+ * (exclusive).
  * @throws Exception if the argument value is out of the specified range.
  */
 void CRU_BASE_API CheckArgumentRange(Index value, Index min, Index max,
