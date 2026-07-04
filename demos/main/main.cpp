@@ -1,6 +1,9 @@
+#include "cru/base/datamodel/DataType.h"
+#include "cru/base/datamodel/DataValidator.h"
 #include "cru/platform/bootstrap/Bootstrap.h"
 #include "cru/platform/gui/UiApplication.h"
 #include "cru/platform/gui/Window.h"
+#include "cru/ui/components/Input.h"
 #include "cru/ui/components/PopupButton.h"
 #include "cru/ui/components/Select.h"
 #include "cru/ui/controls/Button.h"
@@ -60,6 +63,12 @@ int main() {
   Select select;
   select.SetItems({"Item 1", "Item 2", "Item 3"});
   flex_layout.AddChild(select.GetRootControl());
+
+  Input<int> input;
+  flex_layout.AddChild(input.GetRootControl());
+  input.SetDataType(new cru::datamodel::NumberDataType<int>());
+  input.SetValidator(
+      new cru::datamodel::NumberRangeDataValidator<int>(0, true, 100, true));
 
   window.GetNativeWindow()->SetVisibility(
       cru::platform::gui::WindowVisibilityType::Show);

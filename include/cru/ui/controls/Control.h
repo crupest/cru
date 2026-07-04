@@ -51,6 +51,7 @@ class CRU_UI_API Control : public Object,
   Index GetChildCount() { return GetChildren().size(); }
   Control* GetChildAt(Index index) { return GetChildren()[index]; }
   Index IndexOfChild(Control* control);
+  bool HasChild(Control* control);
 
   bool RemoveChild(Control* child);
   void RemoveAllChild();

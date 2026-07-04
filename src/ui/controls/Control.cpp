@@ -61,6 +61,10 @@ Index Control::IndexOfChild(Control* control) {
   return iter - children.begin();
 }
 
+bool Control::HasChild(Control* control) {
+  return std::ranges::find(children_, control) != children_.cend();
+}
+
 bool Control::RemoveChild(Control* child) {
   auto iter = std::ranges::find(children_, child);
   if (iter != children_.cend()) {

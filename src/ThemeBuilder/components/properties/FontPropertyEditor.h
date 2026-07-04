@@ -28,8 +28,6 @@ class FontPropertyEditor : public Editor, public LabeledMixin {
   ui::controls::FlexLayout font_family_container_;
   ui::controls::TextBlock font_family_label_;
   ui::controls::TextBox font_family_text_;
-  ui::controls::FlexLayout font_size_container_;
-  ui::controls::TextBlock font_size_label_;
-  ui::components::FloatInput font_size_input_;
+  ui::components::Input<float>* font_size_input_;
 };
 }  // namespace cru::theme_builder::components::properties

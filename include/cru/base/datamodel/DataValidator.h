@@ -3,6 +3,7 @@
 #include "../Base.h"
 
 #include <optional>
+#include <regex>
 #include <string>
 #include <vector>
 
@@ -111,6 +112,29 @@ class AndDataValidator : public DataValidatorBase<T> {
  private:
   std::vector<IDataValidator<T>*> validators_;
   bool auto_delete_;
+};
+
+class StringRegexDataValidator : public DataValidatorBase<std::string> {
+ public:
+  explicit StringRegexDataValidator(std::string regex_pattern)
+      : pattern_(std::move(regex_pattern)), regex_(pattern_) {}
+  explicit StringRegexDataValidator(std::regex regex)
+      : regex_(std::move(regex)) {}
+
+ protected:
+  DataValidateResult DoValidate(const std::string& value) override {
+    if (std::regex_match(value, regex_)) {
+      return DataValidateResult::Success();
+    } else {
+      return DataValidateResult::Failure(
+          "String does not match the required pattern" +
+          (pattern_.empty() ? "" : " " + pattern_ + " ") + ".");
+    }
+  }
+
+ private:
+  std::string pattern_;
+  std::regex regex_;
 };
 
 template <typename T>
