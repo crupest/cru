@@ -10,3 +10,6 @@ target_link_libraries(CruDemoPlatformGraphicsDrawText PRIVATE CruDemoPlatformGra
 
 add_executable(CruDemoPlatformGraphicsSvgPath SvgPath.cpp)
 target_link_libraries(CruDemoPlatformGraphicsSvgPath PRIVATE CruDemoPlatformGraphicsBase)
+
+add_executable(CruDemoPlatformGraphicsFillRule FillRule.cpp)
+target_link_libraries(CruDemoPlatformGraphicsFillRule PRIVATE CruDemoPlatformGraphicsBase)
