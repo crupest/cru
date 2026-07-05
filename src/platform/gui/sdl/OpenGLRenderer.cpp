@@ -1,7 +1,7 @@
 #include "cru/platform/gui/sdl/OpenGLRenderer.h"
 #include "cru/base/Base.h"
 #include "cru/base/log/Logger.h"
-#include "cru/platform/graphics/cairo/CairoPainter.h"
+#include "cru/platform/graphics/cairo/Painter.h"
 #include "cru/platform/gui/sdl/Base.h"
 #include "cru/platform/gui/sdl/Window.h"
 

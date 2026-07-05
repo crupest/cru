@@ -1,8 +1,8 @@
-#include "cru/platform/graphics/cairo/PangoTextLayout.h"
+#include "cru/platform/graphics/cairo/TextLayout.h"
 #include "cru/platform/GraphicsBase.h"
 #include "cru/platform/graphics/Base.h"
-#include "cru/platform/graphics/cairo/CairoGraphicsFactory.h"
-#include "cru/platform/graphics/cairo/PangoFont.h"
+#include "cru/platform/graphics/cairo/GraphicsFactory.h"
+#include "cru/platform/graphics/cairo/Font.h"
 
 #include <pango/pangocairo.h>
 

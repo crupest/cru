@@ -1,6 +1,6 @@
 #pragma once
 #include "Base.h"
-#include "PangoFont.h"
+#include "Font.h"
 
 #include <cru/platform/graphics/TextLayout.h>
 

@@ -1,6 +1,6 @@
-#include "cru/platform/graphics/cairo/CairoImageFactory.h"
+#include "cru/platform/graphics/cairo/ImageFactory.h"
 #include "cru/platform/graphics/cairo/Base.h"
-#include "cru/platform/graphics/cairo/CairoImage.h"
+#include "cru/platform/graphics/cairo/Image.h"
 
 #include <png.h>
 #include <memory>

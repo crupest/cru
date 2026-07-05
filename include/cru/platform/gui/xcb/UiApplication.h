@@ -2,7 +2,7 @@
 #include "Base.h"
 
 #include <cru/base/platform/unix/EventLoop.h>
-#include <cru/platform/graphics/cairo/CairoGraphicsFactory.h>
+#include <cru/platform/graphics/cairo/GraphicsFactory.h>
 #include <cru/platform/gui/UiApplication.h>
 
 #include <xcb/xcb.h>

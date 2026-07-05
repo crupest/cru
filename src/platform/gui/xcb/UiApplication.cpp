@@ -1,7 +1,7 @@
 #include "cru/platform/gui/xcb/UiApplication.h"
 
 #include "cru/base/Guard.h"
-#include "cru/platform/graphics/cairo/CairoGraphicsFactory.h"
+#include "cru/platform/graphics/cairo/GraphicsFactory.h"
 #include "cru/platform/gui/Window.h"
 #include "cru/platform/gui/xcb/Clipboard.h"
 #include "cru/platform/gui/xcb/Cursor.h"

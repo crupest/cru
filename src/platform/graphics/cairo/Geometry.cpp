@@ -1,7 +1,7 @@
-#include "cru/platform/graphics/cairo/CairoGeometry.h"
+#include "cru/platform/graphics/cairo/Geometry.h"
 #include "cru/base/log/Logger.h"
 #include "cru/platform/graphics/Geometry.h"
-#include "cru/platform/graphics/cairo/CairoGraphicsFactory.h"
+#include "cru/platform/graphics/cairo/GraphicsFactory.h"
 
 #include <cairo/cairo.h>
 #include <numbers>

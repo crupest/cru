@@ -1,5 +1,5 @@
 #include "cru/platform/graphics/cairo/Base.h"
-#include "cru/platform/graphics/cairo/CairoGraphicsFactory.h"
+#include "cru/platform/graphics/cairo/GraphicsFactory.h"
 
 #include <cairo/cairo.h>
 

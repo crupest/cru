@@ -25,7 +25,7 @@
 #endif
 
 #if CRU_PLATFORM_GRAPHICS_BOOTSTRAP_USE_CAIRO
-#include "cru/platform/graphics/cairo/CairoGraphicsFactory.h"
+#include "cru/platform/graphics/cairo/GraphicsFactory.h"
 #endif
 
 namespace cru::platform::bootstrap {

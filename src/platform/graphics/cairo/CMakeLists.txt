@@ -1,13 +1,13 @@
 add_library(CruPlatformGraphicsCairo
 	Base.cpp
-	CairoBrush.cpp
-	CairoGeometry.cpp
-	CairoGraphicsFactory.cpp
-	CairoImage.cpp
-	CairoImageFactory.cpp
-	CairoPainter.cpp
-	PangoFont.cpp
-	PangoTextLayout.cpp
+	Brush.cpp
+	Geometry.cpp
+	GraphicsFactory.cpp
+	Image.cpp
+	ImageFactory.cpp
+	Painter.cpp
+	Font.cpp
+	TextLayout.cpp
 )
 
 find_package(PkgConfig REQUIRED)

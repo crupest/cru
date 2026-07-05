@@ -5,7 +5,7 @@
 #elif defined(__APPLE__)
 #include "cru/platform/gui/osx/UiApplication.h"
 #elif defined(__unix)
-#include "cru/platform/graphics/cairo/CairoGraphicsFactory.h"
+#include "cru/platform/graphics/cairo/GraphicsFactory.h"
 #include "cru/platform/gui/sdl/UiApplication.h"
 #include "cru/platform/gui/xcb/UiApplication.h"
 #else

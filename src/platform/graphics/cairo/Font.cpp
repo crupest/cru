@@ -1,4 +1,4 @@
-#include "cru/platform/graphics/cairo/PangoFont.h"
+#include "cru/platform/graphics/cairo/Font.h"
 
 namespace cru::platform::graphics::cairo {
 PangoFont::PangoFont(CairoGraphicsFactory* factory, std::string font_family,

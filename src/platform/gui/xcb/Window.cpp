@@ -5,7 +5,7 @@
 #include "cru/platform/GraphicsBase.h"
 #include "cru/platform/graphics/NullPainter.h"
 #include "cru/platform/graphics/Painter.h"
-#include "cru/platform/graphics/cairo/CairoPainter.h"
+#include "cru/platform/graphics/cairo/Painter.h"
 #include "cru/platform/gui/Window.h"
 #include "cru/platform/gui/xcb/Cursor.h"
 #include "cru/platform/gui/xcb/Input.h"

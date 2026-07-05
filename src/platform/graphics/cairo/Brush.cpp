@@ -1,4 +1,4 @@
-#include "cru/platform/graphics/cairo/CairoBrush.h"
+#include "cru/platform/graphics/cairo/Brush.h"
 #include "cru/platform/Color.h"
 
 namespace cru::platform::graphics::cairo {

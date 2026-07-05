@@ -1,10 +1,10 @@
-#include "cru/platform/graphics/cairo/CairoGraphicsFactory.h"
 #include "cru/platform/graphics/cairo/Base.h"
-#include "cru/platform/graphics/cairo/CairoBrush.h"
-#include "cru/platform/graphics/cairo/CairoGeometry.h"
-#include "cru/platform/graphics/cairo/CairoImageFactory.h"
-#include "cru/platform/graphics/cairo/PangoFont.h"
-#include "cru/platform/graphics/cairo/PangoTextLayout.h"
+#include "cru/platform/graphics/cairo/Brush.h"
+#include "cru/platform/graphics/cairo/Geometry.h"
+#include "cru/platform/graphics/cairo/GraphicsFactory.h"
+#include "cru/platform/graphics/cairo/ImageFactory.h"
+#include "cru/platform/graphics/cairo/Font.h"
+#include "cru/platform/graphics/cairo/TextLayout.h"
 
 namespace cru::platform::graphics::cairo {
 CairoGraphicsFactory::CairoGraphicsFactory() : CairoResource(this) {

@@ -1,9 +1,9 @@
-#include "cru/platform/graphics/cairo/CairoPainter.h"
 #include "cru/platform/graphics/cairo/Base.h"
-#include "cru/platform/graphics/cairo/CairoBrush.h"
-#include "cru/platform/graphics/cairo/CairoGeometry.h"
-#include "cru/platform/graphics/cairo/CairoImage.h"
-#include "cru/platform/graphics/cairo/PangoTextLayout.h"
+#include "cru/platform/graphics/cairo/Brush.h"
+#include "cru/platform/graphics/cairo/Geometry.h"
+#include "cru/platform/graphics/cairo/Image.h"
+#include "cru/platform/graphics/cairo/Painter.h"
+#include "cru/platform/graphics/cairo/TextLayout.h"
 
 #include <cairo.h>
 #include <pango/pangocairo.h>

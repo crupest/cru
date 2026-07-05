@@ -1,5 +1,5 @@
-#include "cru/platform/graphics/cairo/CairoImage.h"
-#include "cru/platform/graphics/cairo/CairoPainter.h"
+#include "cru/platform/graphics/cairo/Image.h"
+#include "cru/platform/graphics/cairo/Painter.h"
 
 #include <memory>
 
