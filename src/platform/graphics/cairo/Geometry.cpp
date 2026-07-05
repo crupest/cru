@@ -4,15 +4,18 @@
 #include "cru/platform/graphics/cairo/GraphicsFactory.h"
 
 #include <cairo/cairo.h>
+
 #include <numbers>
+#include <utility>
 
 namespace cru::platform::graphics::cairo {
 CairoGeometry::CairoGeometry(CairoGraphicsFactory* factory,
                              cairo_path_t* cairo_path, const Matrix& transform,
-                             bool auto_destroy)
+                             GeometryFillRule fill_rule, bool auto_destroy)
     : CairoResource(factory),
       cairo_path_(cairo_path),
       transform_(transform),
+      fill_rule_(fill_rule),
       auto_destroy_(auto_destroy) {
   Expects(cairo_path);
 }
@@ -21,6 +24,17 @@ CairoGeometry::~CairoGeometry() {
   if (auto_destroy_) {
     cairo_path_destroy(cairo_path_);
     cairo_path_ = nullptr;
+  }
+}
+
+cairo_fill_rule_t CairoGeometry::GetCairoFillRule() {
+  switch (fill_rule_) {
+    case GeometryFillRule::NonZero:
+      return CAIRO_FILL_RULE_WINDING;
+    case GeometryFillRule::EvenOdd:
+      return CAIRO_FILL_RULE_EVEN_ODD;
+    default:
+      std::unreachable();
   }
 }
 
@@ -70,7 +84,7 @@ std::unique_ptr<IGeometry> CairoGeometry::Transform(const Matrix& matrix) {
   auto path = cairo_copy_path(cairo);
   cairo_restore(cairo);
   return std::unique_ptr<IGeometry>(new CairoGeometry(
-      GetCairoGraphicsFactory(), path, transform_ * matrix, true));
+      GetCairoGraphicsFactory(), path, transform_ * matrix, fill_rule_, true));
 }
 
 std::unique_ptr<IGeometry> CairoGeometry::CreateStrokeGeometry(float width) {
@@ -78,7 +92,7 @@ std::unique_ptr<IGeometry> CairoGeometry::CreateStrokeGeometry(float width) {
 }
 
 CairoGeometryBuilder::CairoGeometryBuilder(CairoGraphicsFactory* factory)
-    : CairoResource(factory) {
+    : CairoResource(factory), fill_rule_(GeometryFillRule::NonZero) {
   surface_ = cairo_recording_surface_create(CAIRO_CONTENT_COLOR_ALPHA, nullptr);
   cairo_ = cairo_create(surface_);
   cairo_new_path(cairo_);
@@ -88,6 +102,12 @@ CairoGeometryBuilder::CairoGeometryBuilder(CairoGraphicsFactory* factory)
 CairoGeometryBuilder::~CairoGeometryBuilder() {
   cairo_destroy(cairo_);
   cairo_surface_destroy(surface_);
+}
+
+GeometryFillRule CairoGeometryBuilder::GetFillRule() { return fill_rule_; }
+
+void CairoGeometryBuilder::SetFillRule(GeometryFillRule fill_rule) {
+  fill_rule_ = fill_rule;
 }
 
 Point CairoGeometryBuilder::GetCurrentPosition() {
@@ -156,6 +176,6 @@ void CairoGeometryBuilder::CloseFigure(bool close) {
 std::unique_ptr<IGeometry> CairoGeometryBuilder::Build() {
   cairo_path_t* path = cairo_copy_path(cairo_);
   return std::unique_ptr<IGeometry>(new CairoGeometry(
-      GetCairoGraphicsFactory(), path, Matrix::Identity(), true));
+      GetCairoGraphicsFactory(), path, Matrix::Identity(), fill_rule_, true));
 }
 }  // namespace cru::platform::graphics::cairo

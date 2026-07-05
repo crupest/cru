@@ -84,7 +84,7 @@ struct CRU_PLATFORM_GRAPHICS_API IGeometryBuilder : virtual IGraphicsResource {
                                   bool is_clockwise, const Point& end_point);
 
   /**
-   * \todo Implement on cairo, quartz.
+   * \todo Implement on quartz.
    */
   virtual GeometryFillRule GetFillRule();
 
@@ -93,7 +93,7 @@ struct CRU_PLATFORM_GRAPHICS_API IGeometryBuilder : virtual IGraphicsResource {
    * platform might not support changing fill rule after some commands are
    * added.
    *
-   * \todo Implement on cairo, quartz.
+   * \todo Implement on quartz.
    */
   virtual void SetFillRule(GeometryFillRule fill_rule);
 

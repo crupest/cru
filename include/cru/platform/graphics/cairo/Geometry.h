@@ -11,6 +11,7 @@ class CRU_PLATFORM_GRAPHICS_CAIRO_API CairoGeometry : public CairoResource,
  public:
   CairoGeometry(CairoGraphicsFactory* factory, cairo_path_t* cairo_path,
                 const Matrix& transform = Matrix::Identity(),
+                GeometryFillRule fill_rule = GeometryFillRule::NonZero,
                 bool auto_destroy = true);
   ~CairoGeometry();
 
@@ -21,10 +22,12 @@ class CRU_PLATFORM_GRAPHICS_CAIRO_API CairoGeometry : public CairoResource,
   std::unique_ptr<IGeometry> CreateStrokeGeometry(float width) override;
 
   cairo_path_t* GetCairoPath() const { return cairo_path_; }
+  cairo_fill_rule_t GetCairoFillRule();
 
  private:
   cairo_path_t* cairo_path_;
   Matrix transform_;
+  GeometryFillRule fill_rule_;
   bool auto_destroy_;
 };
 
@@ -40,6 +43,9 @@ class CRU_PLATFORM_GRAPHICS_CAIRO_API CairoGeometryBuilder
   ~CairoGeometryBuilder() override;
 
  public:
+  GeometryFillRule GetFillRule() override;
+  void SetFillRule(GeometryFillRule fill_rule) override;
+
   Point GetCurrentPosition() override;
 
   void MoveTo(const Point& point) override;
@@ -56,6 +62,7 @@ class CRU_PLATFORM_GRAPHICS_CAIRO_API CairoGeometryBuilder
   std::unique_ptr<IGeometry> Build() override;
 
  private:
+  GeometryFillRule fill_rule_;
   cairo_surface_t* surface_;
   cairo_t* cairo_;
 };

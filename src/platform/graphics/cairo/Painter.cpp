@@ -1,8 +1,8 @@
+#include "cru/platform/graphics/cairo/Painter.h"
 #include "cru/platform/graphics/cairo/Base.h"
 #include "cru/platform/graphics/cairo/Brush.h"
 #include "cru/platform/graphics/cairo/Geometry.h"
 #include "cru/platform/graphics/cairo/Image.h"
-#include "cru/platform/graphics/cairo/Painter.h"
 #include "cru/platform/graphics/cairo/TextLayout.h"
 
 #include <cairo.h>
@@ -167,6 +167,7 @@ void CairoPainter::FillGeometry(IGeometry* geometry, IBrush* brush) {
 
   cairo_save(cairo_);
   cairo_set_source(cairo_, cairo_pattern);
+  cairo_set_fill_rule(cairo_, cairo_geometry->GetCairoFillRule());
   cairo_new_path(cairo_);
   cairo_append_path(cairo_, cairo_path);
   cairo_fill(cairo_);
