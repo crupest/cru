@@ -12,7 +12,6 @@
 #include <functional>
 #include <optional>
 #include <string>
-#include <vector>
 
 namespace cru::ui::render {
 class TextRenderObject;
@@ -24,55 +23,12 @@ class PopupMenu;
 }
 
 namespace cru::ui::controls {
-constexpr int k_default_caret_blink_duration = 500;
+constexpr int kDefaultCaretBlinkDuration = 500;
 
 struct CRU_UI_API ITextHostControl : virtual Interface {
   virtual render::TextRenderObject* GetTextRenderObject() = 0;
   // May return nullptr.
   virtual render::ScrollRenderObject* GetScrollRenderObject() = 0;
-};
-
-class TextHostControlService;
-
-class TextControlMovePattern {
- public:
-  static TextControlMovePattern kLeft;
-  static TextControlMovePattern kRight;
-  static TextControlMovePattern kCtrlLeft;
-  static TextControlMovePattern kCtrlRight;
-  static TextControlMovePattern kUp;
-  static TextControlMovePattern kDown;
-  static TextControlMovePattern kHome;
-  static TextControlMovePattern kEnd;
-  static TextControlMovePattern kCtrlHome;
-  static TextControlMovePattern kCtrlEnd;
-  static TextControlMovePattern kPageUp;
-  static TextControlMovePattern kPageDown;
-
-  static std::vector<TextControlMovePattern> kDefaultPatterns;
-
-  using MoveFunction =
-      std::function<Index(TextHostControlService* service,
-                          std::string_view text, Index current_position)>;
-
-  TextControlMovePattern(std::string name, helper::ShortcutKeyBind key_bind,
-                         MoveFunction move_function)
-      : name_(std::move(name)),
-        key_bind_(key_bind),
-        move_function_(move_function) {}
-
- public:
-  std::string GetName() const { return name_; }
-  helper::ShortcutKeyBind GetKeyBind() const { return key_bind_; }
-  Index Move(TextHostControlService* service, std::string_view text,
-             Index current_position) const {
-    return move_function_(service, text, current_position);
-  }
-
- private:
-  std::string name_;
-  helper::ShortcutKeyBind key_bind_;
-  MoveFunction move_function_;
 };
 
 class CRU_UI_API TextHostControlService : public Object {
@@ -220,7 +176,7 @@ class CRU_UI_API TextHostControlService : public Object {
 
   bool caret_visible_ = false;
   platform::gui::TimerAutoCanceler caret_timer_canceler_;
-  int caret_blink_duration_ = k_default_caret_blink_duration;
+  int caret_blink_duration_ = kDefaultCaretBlinkDuration;
 
   platform::gui::TimerAutoCanceler scroll_to_caret_timer_canceler_;
 

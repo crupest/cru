@@ -23,6 +23,47 @@ namespace cru::ui::controls {
 using namespace cru::string;
 using platform::gui::IUiApplication;
 
+class TextControlMovePattern {
+ public:
+  static TextControlMovePattern kLeft;
+  static TextControlMovePattern kRight;
+  static TextControlMovePattern kCtrlLeft;
+  static TextControlMovePattern kCtrlRight;
+  static TextControlMovePattern kUp;
+  static TextControlMovePattern kDown;
+  static TextControlMovePattern kHome;
+  static TextControlMovePattern kEnd;
+  static TextControlMovePattern kCtrlHome;
+  static TextControlMovePattern kCtrlEnd;
+  static TextControlMovePattern kPageUp;
+  static TextControlMovePattern kPageDown;
+
+  static std::vector<TextControlMovePattern> kDefaultPatterns;
+
+  using MoveFunction =
+      std::function<Index(TextHostControlService* service,
+                          std::string_view text, Index current_position)>;
+
+  TextControlMovePattern(std::string name, helper::ShortcutKeyBind key_bind,
+                         MoveFunction move_function)
+      : name_(std::move(name)),
+        key_bind_(key_bind),
+        move_function_(move_function) {}
+
+ public:
+  std::string GetName() const { return name_; }
+  helper::ShortcutKeyBind GetKeyBind() const { return key_bind_; }
+  Index Move(TextHostControlService* service, std::string_view text,
+             Index current_position) const {
+    return move_function_(service, text, current_position);
+  }
+
+ private:
+  std::string name_;
+  helper::ShortcutKeyBind key_bind_;
+  MoveFunction move_function_;
+};
+
 TextControlMovePattern TextControlMovePattern::kLeft(
     "Left", helper::ShortcutKeyBind(platform::gui::KeyCode::Left),
     [](TextHostControlService* service, [[maybe_unused]] std::string_view text,
@@ -581,8 +622,23 @@ void TextHostControlService::CompositionEndHandler(std::nullptr_t) {
 
 void TextHostControlService::TextInputHandler(const std::string& args) {
   if (!enable_ || !editable_) return;
-  if (!multi_line_ && args == "\n") return;
-  ReplaceSelectedText(args);
+
+  std::string text;
+  text.reserve(args.size());
+  for (const char c : args) {
+    if (c == '\n') {
+      if (multi_line_) text.push_back(c);
+      continue;
+    }
+
+    const auto unsigned_c = static_cast<unsigned char>(c);
+    if (unsigned_c < 0x20 || unsigned_c == 0x7f) continue;
+
+    text.push_back(c);
+  }
+
+  if (text.empty()) return;
+  ReplaceSelectedText(text);
 }
 
 void TextHostControlService::GainFocusHandler(
