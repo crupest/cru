@@ -20,6 +20,7 @@
 #include <cstdint>
 #include <memory>
 #include <optional>
+#include <utility>
 
 namespace cru::platform::gui::xcb {
 
@@ -132,7 +133,7 @@ void XcbWindow::SetVisibility(WindowVisibilityType visibility) {
         value[0] = WithdrawnState;
         break;
       default:
-        UnreachableCode();
+        std::unreachable();
     }
 
     auto old_value = static_cast<std::uint32_t*>(
@@ -170,7 +171,7 @@ void XcbWindow::SetVisibility(WindowVisibilityType visibility) {
       break;
     }
     default:
-      UnreachableCode();
+      std::unreachable();
   }
 
   application_->XcbFlush();

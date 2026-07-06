@@ -6,7 +6,6 @@
 #include <string_view>
 
 namespace cru {
-void UnreachableCode() { std::terminate(); }
 void NotImplemented() { throw NotImplementedException(); }
 void NotImplemented(std::string_view additional_message) {
   throw NotImplementedException(std::string(additional_message));

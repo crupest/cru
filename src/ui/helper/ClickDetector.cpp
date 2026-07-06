@@ -5,6 +5,8 @@
 #include "cru/ui/controls/Control.h"
 #include "cru/ui/controls/ControlHost.h"
 
+#include <utility>
+
 namespace cru::ui::helper {
 Point ClickEventArgs::GetDownPointOfScreen() const {
   auto host = sender_->GetControlHost();
@@ -130,7 +132,7 @@ void ClickDetector::SetState(ClickState state) {
         case ClickState::PressInactive:
           return "PressInactive";
         default:
-          UnreachableCode();
+          std::unreachable();
       }
     };
     CruLogDebug(kLogTag, "Click state changed, new state: {}.",

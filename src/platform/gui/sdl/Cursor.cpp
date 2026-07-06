@@ -1,9 +1,9 @@
 #include "cru/platform/gui/sdl/Cursor.h"
-#include "cru/base/Base.h"
 #include "cru/platform/gui/Cursor.h"
 #include "cru/platform/gui/sdl/Base.h"
 
 #include <memory>
+#include <utility>
 
 namespace cru::platform::gui::sdl {
 std::shared_ptr<SdlCursor> SdlCursor::CreateSystem(SDL_SystemCursor cursor) {
@@ -41,7 +41,7 @@ std::shared_ptr<ICursor> SdlCursorManager::GetSystemCursor(
     case SystemCursorType::IBeam:
       return std::static_pointer_cast<ICursor>(ibeam_cursor_);
     default:
-      UnreachableCode();
+      std::unreachable();
   }
 }
 

@@ -83,7 +83,6 @@ struct CRU_BASE_API Interface {
   virtual ~Interface() = default;
 };
 
-[[noreturn]] void CRU_BASE_API UnreachableCode();
 [[noreturn]] void CRU_BASE_API NotImplemented();
 [[noreturn]] void CRU_BASE_API
 NotImplemented(std::string_view additional_message);
