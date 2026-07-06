@@ -33,7 +33,7 @@ struct CompositionText {
  * 3. TextEvent is fired when user commit part or whole of the composition. And
  * you can use the args to get what characters are committed. So it is where you
  * get the real text user want to give you.
- * 4. Whenever a commit happens, TextEvent first, followed by CompositionEvent.
+ * 4. Whenever a commit happens, CompositionEvent first, followed by TextEvent.
  * Each for once. So use the TextEvent to get real input and use
  * CompositionEvent to update UI.
  * 5. When composition stops, a final CompositionEndEvent is fired. Also only

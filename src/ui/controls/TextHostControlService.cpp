@@ -250,6 +250,8 @@ void TextHostControlService::CancelComposition() {
 
 std::optional<platform::gui::CompositionText>
 TextHostControlService::GetCompositionInfo() {
+  if (!enable_ || !editable_ || !control_->HasFocus()) return std::nullopt;
+
   auto input_method_context = GetInputMethodContext();
   if (input_method_context == nullptr) return std::nullopt;
   auto composition_info = input_method_context->GetCompositionText();
