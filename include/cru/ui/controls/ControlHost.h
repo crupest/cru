@@ -5,8 +5,11 @@
 #include <cru/base/Event.h>
 #include <cru/base/Guard.h>
 #include <cru/base/log/Logger.h>
+#include <cru/platform/gui/InputMethod.h>
 #include <cru/platform/gui/UiApplication.h>
 #include <cru/platform/gui/Window.h>
+
+#include <string>
 
 namespace cru::ui::controls {
 class CRU_UI_API ControlHost : public Object {
@@ -69,6 +72,10 @@ class CRU_UI_API ControlHost : public Object {
   void OnNativeMouseWheel(const platform::gui::NativeMouseWheelEventArgs& args);
   void OnNativeKeyDown(const platform::gui::NativeKeyEventArgs& args);
   void OnNativeKeyUp(const platform::gui::NativeKeyEventArgs& args);
+  void OnNativeCompositionStart(std::nullptr_t);
+  void OnNativeComposition(std::nullptr_t);
+  void OnNativeCompositionEnd(std::nullptr_t);
+  void OnNativeText(const std::string& text);
 
   void DispatchFocusControlChangeEvent(Control* old_control,
                                        Control* new_control, bool is_window);
@@ -188,6 +195,11 @@ class CRU_UI_API ControlHost : public Object {
    * Nullable.
    */
   Control* mouse_captured_control_;
+
+  /**
+   * Nullable.
+   */
+  Control* ime_composition_control_;
 
   std::shared_ptr<platform::gui::ICursor> override_cursor_;
 

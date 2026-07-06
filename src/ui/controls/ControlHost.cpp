@@ -16,6 +16,7 @@ ControlHost::ControlHost(Control* root_control)
       focus_control_(root_control),
       mouse_hover_control_(nullptr),
       mouse_captured_control_(nullptr),
+      ime_composition_control_(nullptr),
       layout_prefer_to_fill_window_(true) {
   root_control_->TraverseDescendents(
       [this](Control* control) { control->host_ = this; }, true);
@@ -124,6 +125,18 @@ ControlHost::CreateNativeWindow() {
                   &ControlHost::OnNativeKeyDown);
   BindNativeEvent(this, native_window, native_window->KeyUpEvent(),
                   &ControlHost::OnNativeKeyUp);
+
+  auto input_method_context = native_window->GetInputMethodContext();
+  BindNativeEvent(this, native_window,
+                  input_method_context->CompositionStartEvent(),
+                  &ControlHost::OnNativeCompositionStart);
+  BindNativeEvent(this, native_window, input_method_context->CompositionEvent(),
+                  &ControlHost::OnNativeComposition);
+  BindNativeEvent(this, native_window,
+                  input_method_context->CompositionEndEvent(),
+                  &ControlHost::OnNativeCompositionEnd);
+  BindNativeEvent(this, native_window, input_method_context->TextEvent(),
+                  &ControlHost::OnNativeText);
 
   return std::unique_ptr<platform::gui::INativeWindow>(native_window);
 }
@@ -350,6 +363,43 @@ void ControlHost::OnNativeKeyUp(const platform::gui::NativeKeyEventArgs& args) {
                 args.modifier);
 }
 
+void ControlHost::OnNativeCompositionStart(std::nullptr_t) {
+  ime_composition_control_ = focus_control_;
+  ime_composition_control_->CompositionStartEvent_.Raise(nullptr);
+}
+
+void ControlHost::OnNativeComposition(std::nullptr_t) {
+  auto input_method_context = native_window_->GetInputMethodContext();
+  if (!ime_composition_control_) {
+    CruLogWarn(kLogTag,
+               "ime_composition_control_ is null in composition event. It's "
+               "handled gracefully but usually a logic bug.");
+    return;
+  }
+  ime_composition_control_->CompositionEvent_.Raise(
+      input_method_context->GetCompositionText());
+}
+
+void ControlHost::OnNativeCompositionEnd(std::nullptr_t) {
+  if (!ime_composition_control_) {
+    CruLogWarn(kLogTag,
+               "ime_composition_control_ is null in composition end event. "
+               "It's handled gracefully but usually a logic bug.");
+    return;
+  }
+  ime_composition_control_->CompositionEndEvent_.Raise(nullptr);
+  ime_composition_control_ = nullptr;
+}
+
+void ControlHost::OnNativeText(const std::string& text) {
+  if (!ime_composition_control_) {
+    // Some characters can be input without IME.
+    focus_control_->TextInputEvent_.Raise(text);
+    return;
+  }
+  ime_composition_control_->TextInputEvent_.Raise(text);
+}
+
 void ControlHost::DispatchFocusControlChangeEvent(Control* old_control,
                                                   Control* new_control,
                                                   bool is_window) {
@@ -401,11 +451,17 @@ void ControlHost::NotifyControlParentChange(Control* control,
       focus_control_ = old_parent;
     }
 
-    if (mouse_captured_control_->HasAncestor(control)) {
+    if (ime_composition_control_ &&
+        ime_composition_control_->HasAncestor(control)) {
+      ime_composition_control_ = old_parent;
+    }
+
+    if (mouse_captured_control_ &&
+        mouse_captured_control_->HasAncestor(control)) {
       mouse_captured_control_ = old_parent;
     }
 
-    if (mouse_hover_control_->HasAncestor(control)) {
+    if (mouse_hover_control_ && mouse_hover_control_->HasAncestor(control)) {
       mouse_hover_control_ = old_parent;
     }
   }

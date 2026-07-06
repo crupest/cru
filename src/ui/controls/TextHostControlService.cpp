@@ -168,6 +168,14 @@ TextHostControlService::TextHostControlService(Control* control)
                   &TextHostControlService::MouseDownHandler);
   SetupOneHandler(&Control::MouseUpEvent,
                   &TextHostControlService::MouseUpHandler);
+  SetupOneHandler(&Control::TextInputEvent,
+                  &TextHostControlService::TextInputHandler);
+  SetupOneHandler(&Control::CompositionStartEvent,
+                  &TextHostControlService::CompositionStartHandler);
+  SetupOneHandler(&Control::CompositionEvent,
+                  &TextHostControlService::CompositionHandler);
+  SetupOneHandler(&Control::CompositionEndEvent,
+                  &TextHostControlService::CompositionEndHandler);
   SetupOneHandler(&Control::GainFocusEvent,
                   &TextHostControlService::GainFocusHandler);
   SetupOneHandler(&Control::LoseFocusEvent,
@@ -250,13 +258,7 @@ void TextHostControlService::CancelComposition() {
 
 std::optional<platform::gui::CompositionText>
 TextHostControlService::GetCompositionInfo() {
-  if (!enable_ || !editable_ || !control_->HasFocus()) return std::nullopt;
-
-  auto input_method_context = GetInputMethodContext();
-  if (input_method_context == nullptr) return std::nullopt;
-  auto composition_info = input_method_context->GetCompositionText();
-  if (composition_info.text.empty()) return std::nullopt;
-  return composition_info;
+  return composition_text_;
 }
 
 void TextHostControlService::SetCaretVisible(bool visible) {
@@ -552,6 +554,37 @@ void TextHostControlService::MouseMoveHandler(events::MouseEventArgs& args) {
   }
 }
 
+void TextHostControlService::CompositionStartHandler(std::nullptr_t) {
+  if (!enable_ || !editable_) return;
+
+  composition_text_.reset();
+  ReplaceSelectedText({});
+}
+
+void TextHostControlService::CompositionHandler(
+    const platform::gui::CompositionText& composition_text) {
+  if (!enable_ || !editable_) return;
+
+  composition_text_ = composition_text;
+  if (composition_text_->text.empty()) composition_text_.reset();
+  SyncTextRenderObject();
+  ScrollToCaret();
+  UpdateInputMethodPosition();
+}
+
+void TextHostControlService::CompositionEndHandler(std::nullptr_t) {
+  composition_text_.reset();
+  SyncTextRenderObject();
+  ScrollToCaret();
+  UpdateInputMethodPosition();
+}
+
+void TextHostControlService::TextInputHandler(const std::string& args) {
+  if (!enable_ || !editable_) return;
+  if (!multi_line_ && args == "\n") return;
+  ReplaceSelectedText(args);
+}
+
 void TextHostControlService::GainFocusHandler(
     events::FocusChangeEventArgs& args) {
   CRU_UNUSED(args);
@@ -559,30 +592,12 @@ void TextHostControlService::GainFocusHandler(
     auto input_method_context = GetInputMethodContext();
     if (input_method_context == nullptr) return;
     input_method_context->EnableIME();
-    auto sync = [this](std::nullptr_t) {
-      this->SyncTextRenderObject();
-      ScrollToCaret();
-    };
-    input_method_context_event_guard_ +=
-        input_method_context->CompositionStartEvent()->AddHandler(
-            [this](std::nullptr_t) { this->ReplaceSelectedText({}); });
-    input_method_context_event_guard_ +=
-        input_method_context->CompositionEvent()->AddHandler(sync);
-    input_method_context_event_guard_ +=
-        input_method_context->CompositionEndEvent()->AddHandler(sync);
-    input_method_context_event_guard_ +=
-        input_method_context->TextEvent()->AddHandler(
-            [this](std::string_view text) {
-              if (!multi_line_ && text == "\n") {
-                return;
-              }
-              this->ReplaceSelectedText(text);
-            });
 
     auto host = control_->GetControlHost();
     if (host)
       input_method_context_event_guard_ += host->AfterLayoutEvent()->AddHandler(
           [this](auto) { this->UpdateInputMethodPosition(); });
+    UpdateInputMethodPosition();
     SetCaretVisible(true);
   }
 }
@@ -590,11 +605,12 @@ void TextHostControlService::GainFocusHandler(
 void TextHostControlService::LoseFocusHandler(
     events::FocusChangeEventArgs& args) {
   if (!args.IsWindow()) this->AbortSelection();
-  input_method_context_event_guard_.Clear();
   auto input_method_context = GetInputMethodContext();
   if (input_method_context) {
     input_method_context->DisableIME();
   }
+  input_method_context_event_guard_.Clear();
+  composition_text_.reset();
   SetCaretVisible(false);
   SyncTextRenderObject();
 }

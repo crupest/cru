@@ -1,12 +1,17 @@
 #pragma once
+#include "../helper/ShortcutHub.h"
 #include "../render/TextRenderObject.h"
-#include "cru/base/StringUtil.h"
-#include "cru/platform/gui/InputMethod.h"
-#include "cru/platform/gui/UiApplication.h"
-#include "cru/ui/controls/Control.h"
-#include "cru/ui/helper/ShortcutHub.h"
+#include "Control.h"
 
+#include <cru/base/Event.h>
+#include <cru/base/StringUtil.h>
+#include <cru/platform/gui/InputMethod.h>
+#include <cru/platform/gui/UiApplication.h>
+
+#include <cstddef>
 #include <functional>
+#include <optional>
+#include <string>
 #include <vector>
 
 namespace cru::ui::render {
@@ -165,9 +170,21 @@ class CRU_UI_API TextHostControlService : public Object {
         std::bind(handler, this, std::placeholders::_1));
   }
 
+  template <typename TArgs>
+  void SetupOneHandler(
+      IEvent<TArgs>* (Control::*event)(),
+      void (TextHostControlService::*handler)(typename IEvent<TArgs>::Args)) {
+    this->event_guard_ += (this->control_->*event)()->AddHandler(
+        std::bind(handler, this, std::placeholders::_1));
+  }
+
   void MouseMoveHandler(events::MouseEventArgs& args);
   void MouseDownHandler(events::MouseButtonEventArgs& args);
   void MouseUpHandler(events::MouseButtonEventArgs& args);
+  void CompositionStartHandler(std::nullptr_t args);
+  void CompositionHandler(const platform::gui::CompositionText& args);
+  void CompositionEndHandler(std::nullptr_t args);
+  void TextInputHandler(const std::string& args);
   void GainFocusHandler(events::FocusChangeEventArgs& args);
   void LoseFocusHandler(events::FocusChangeEventArgs& args);
 
@@ -193,6 +210,7 @@ class CRU_UI_API TextHostControlService : public Object {
 
   std::string text_;
   TextRange selection_;
+  std::optional<platform::gui::CompositionText> composition_text_;
   cru::string::StringBreakIterator string_break_iterator_;
 
   bool enable_ = false;
