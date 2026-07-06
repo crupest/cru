@@ -40,6 +40,10 @@ class CRU_UI_API CheckBox : public Control,
     return click_detector_.ClickEvent();
   }
 
+  IEvent<const helper::ClickEventArgs&>* DoubleClickEvent() override {
+    return click_detector_.DoubleClickEvent();
+  }
+
  private:
   bool checked_;
   Event<bool> checked_change_event_;

@@ -24,6 +24,10 @@ IEvent<const helper::ClickEventArgs&>* MenuItem::ClickEvent() {
   return container_.ClickEvent();
 }
 
+IEvent<const helper::ClickEventArgs&>* MenuItem::DoubleClickEvent() {
+  return container_.DoubleClickEvent();
+}
+
 Menu::Menu() {
   container_.SetFlexDirection(controls::FlexDirection::Vertical);
   container_.SetItemCrossAlign(controls::FlexCrossAlignment::Stretch);

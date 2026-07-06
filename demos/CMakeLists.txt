@@ -5,6 +5,7 @@ target_link_libraries(CruDemoBase INTERFACE CruPlatformBootstrap)
 add_subdirectory(platform)
 add_subdirectory(main)
 add_subdirectory(ScrollView)
+add_subdirectory(ClickDetector)
 add_subdirectory(InputMethod)
 add_subdirectory(parse)
 

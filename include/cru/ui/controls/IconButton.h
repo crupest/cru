@@ -39,6 +39,10 @@ class CRU_UI_API IconButton : public Control,
     return click_detector_.ClickEvent();
   }
 
+  IEvent<const helper::ClickEventArgs&>* DoubleClickEvent() override {
+    return click_detector_.DoubleClickEvent();
+  }
+
   void ApplyBorderStyle(const style::ApplyBorderStyleInfo& style) override {
     container_render_object_.ApplyBorderStyle(style);
   }

@@ -28,6 +28,10 @@ class CRU_UI_API Button : public SingleChildControl<render::BorderRenderObject>,
     return click_detector_.ClickEvent();
   }
 
+  IEvent<const helper::ClickEventArgs&>* DoubleClickEvent() override {
+    return click_detector_.DoubleClickEvent();
+  }
+
   void ApplyBorderStyle(const style::ApplyBorderStyleInfo& style) override;
 
  private:

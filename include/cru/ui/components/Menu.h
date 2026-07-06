@@ -21,6 +21,7 @@ class CRU_UI_API MenuItem : public Component {
 
   void SetText(std::string text);
   IEvent<const helper::ClickEventArgs&>* ClickEvent();
+  IEvent<const helper::ClickEventArgs&>* DoubleClickEvent();
 
  private:
   controls::Button container_;
