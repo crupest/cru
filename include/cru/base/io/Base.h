@@ -14,39 +14,34 @@ CRU_DEFINE_BITMASK(OpenFileFlag) {
    * \brief for reading
    * If the file does not exist, FileNotExistException should be thrown.
    */
-  static constexpr OpenFileFlag Read{0x1};
+  static constexpr OpenFileFlag Read = OpenFileFlag::FromOffset(1);
 
   /**
    * \brief for writing
    * If the file does not exist and Create is not specified,
    * FileNotExistException should be thrown.
    */
-  static constexpr OpenFileFlag Write{0x2};
+  static constexpr OpenFileFlag Write = OpenFileFlag::FromOffset(2);
 
   /**
    * \brief when writing, seek to end first
    * Only effective for writing.
    */
-  static constexpr OpenFileFlag Append{0x4};
+  static constexpr OpenFileFlag Append = OpenFileFlag::FromOffset(3);
 
   /**
    * \brief when writing, truncate the file to empty
    * Only effective for writing.
    * So the content is erased! Be careful!
    */
-  static constexpr OpenFileFlag Truncate{0x8};
+  static constexpr OpenFileFlag Truncate = OpenFileFlag::FromOffset(4);
 
   /**
    * \brief when writing, if the file does not exist, create one
    * Only effective for writing. When file does not exist, FileNotExistException
    * will NOT be thrown and a new file will be created.
    */
-  static constexpr OpenFileFlag Create{0x10};
-
-  /**
-   *  TODO: ???
-   */
-  static constexpr OpenFileFlag Exclusive{0x20};
+  static constexpr OpenFileFlag Create = OpenFileFlag::FromOffset(5);
 };
 
 /**
