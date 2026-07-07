@@ -27,8 +27,17 @@ class LayoutControl : public Control {
     return container_render_object_.GetChildLayoutDataAt(position);
   }
 
-  void SetChildLayoutData(Index position,
+  void SetChildLayoutDataAt(Index position,
                           typename TRenderObject::ChildLayoutData data) {
+    container_render_object_.SetChildLayoutDataAt(position, data);
+  }
+
+  void SetChildLayoutData(Control* child,
+                          typename TRenderObject::ChildLayoutData data) {
+    auto position = IndexOfChild(child);
+    if (position == -1) {
+      return;
+    }
     container_render_object_.SetChildLayoutDataAt(position, data);
   }
 

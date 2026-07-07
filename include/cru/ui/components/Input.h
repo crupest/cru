@@ -51,6 +51,9 @@ class Input : public Component {
         validator_auto_delete_(true) {
     root_layout_.SetFlexDirection(controls::FlexDirection::Vertical);
     root_layout_.AddChild(&label_text_block_);
+    root_layout_.SetChildLayoutData(
+        &label_text_block_,
+        {.cross_alignment = controls::FlexCrossAlignment::Center});
     root_layout_.AddChild(&text_box_);
 
     error_text_block_.SetFont(ThemeManager::GetInstance()->GetResourceFont(
@@ -211,12 +214,11 @@ class Input : public Component {
     if (last_state_.errors.empty()) {
       root_layout_.RemoveChild(&error_text_block_);
     } else {
+      std::string error_text = cru::string::Join("\n", last_state_.errors);
+      error_text_block_.SetText(error_text);
       if (!root_layout_.HasChild(&error_text_block_)) {
         root_layout_.AddChild(&error_text_block_);
       }
-
-      std::string error_text = cru::string::Join("\n", last_state_.errors);
-      error_text_block_.SetText(error_text);
     }
   }
 

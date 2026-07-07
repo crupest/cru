@@ -17,15 +17,15 @@ MainWindow::MainWindow() {
   preview_button_text_.SetText("Preview");
   preview_button_.SetChild(&preview_button_text_);
   preview_layout_.AddChild(&preview_button_);
-  preview_layout_.SetChildLayoutData(
+  preview_layout_.SetChildLayoutDataAt(
       0, StackChildLayoutData{Alignment::Center, Alignment::Center});
 
   style_rule_set_editor_.BindStyleRuleSet(
       preview_button_.GetStyleRuleSet()->GetParent());
   main_layout_.AddChild(style_rule_set_editor_.GetRootControl());
 
-  main_layout_.SetChildLayoutData(0, {1, 0});
-  main_layout_.SetChildLayoutData(1, {0, 1});
+  main_layout_.SetChildLayoutDataAt(0, {1, 0});
+  main_layout_.SetChildLayoutDataAt(1, {0, 1});
 }
 
 MainWindow::~MainWindow() {}

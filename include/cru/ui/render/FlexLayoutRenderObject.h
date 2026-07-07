@@ -126,6 +126,6 @@ class CRU_UI_API FlexLayoutRenderObject
  private:
   FlexDirection direction_ = FlexDirection::Horizontal;
   FlexMainAlignment content_main_align_ = FlexMainAlignment::Start;
-  FlexCrossAlignment item_cross_align_ = FlexCrossAlignment::Center;
+  FlexCrossAlignment item_cross_align_ = FlexCrossAlignment::Stretch;
 };
 }  // namespace cru::ui::render
