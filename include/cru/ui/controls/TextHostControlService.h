@@ -8,6 +8,7 @@
 #include <cru/platform/gui/InputMethod.h>
 #include <cru/platform/gui/UiApplication.h>
 
+#include <chrono>
 #include <cstddef>
 #include <functional>
 #include <optional>
@@ -73,9 +74,13 @@ class CRU_UI_API TextHostControlService : public Object {
   std::string_view GetSelectedText();
 
   Index NextNCharPosition(Index count);
+  Index NextNCharPosition(Index count, Index position);
   Index PreviousNCharPosition(Index count);
+  Index PreviousNCharPosition(Index count, Index position);
   Index NextNWordPosition(Index count);
+  Index NextNWordPosition(Index count, Index position);
   Index PreviousNWordPosition(Index count);
+  Index PreviousNWordPosition(Index count, Index position);
 
   void SetSelection(Index caret_position);
   void SetSelection(TextRange selection, bool scroll_to_caret = true);
@@ -106,6 +111,8 @@ class CRU_UI_API TextHostControlService : public Object {
   render::ScrollRenderObject* GetScrollRenderObject();
 
  private:
+  enum class MouseSelectionState { None, Character, Word };
+
   // May return nullptr.
   platform::gui::IInputMethodContext* GetInputMethodContext();
 
@@ -117,6 +124,19 @@ class CRU_UI_API TextHostControlService : public Object {
   void SyncTextRenderObject();
 
   void UpdateInputMethodPosition();
+
+  TextRange GetCharacterRangeAtPosition(Index position);
+  TextRange GetWordRangeAtPosition(Index position);
+  void ChangeCharacterSelectionEnd(Index position);
+  void ChangeWordSelectionEnd(Index position);
+
+  int NextMouseClickCount(const Point& point,
+                          std::chrono::steady_clock::time_point time);
+  bool IsWithinMultipleClickPositionOffsetThreshold(const Point& point) const;
+  void ResetMouseClickCount();
+
+  bool IsMouseSelecting() const;
+  bool IsMouseSelectingByWord() const;
 
   template <typename TArgs>
   void SetupOneHandler(events::RoutedEvent<TArgs>* (Control::*event)(),
@@ -182,8 +202,12 @@ class CRU_UI_API TextHostControlService : public Object {
 
   helper::ShortcutHub shortcut_hub_;
 
-  // true if left mouse is down and selecting
-  bool mouse_move_selecting_ = false;
+  // None means left mouse is not down for text selection.
+  MouseSelectionState mouse_selection_state_ = MouseSelectionState::None;
+
+  int multiple_click_count_ = 0;
+  Point last_click_point_;
+  std::chrono::steady_clock::time_point last_click_time_{};
 
   std::unique_ptr<components::PopupMenu> context_menu_;
 };

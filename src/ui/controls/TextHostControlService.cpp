@@ -17,11 +17,18 @@
 #include "cru/ui/render/ScrollRenderObject.h"
 #include "cru/ui/render/TextRenderObject.h"
 
+#include <chrono>
+#include <cmath>
 #include <memory>
 
 namespace cru::ui::controls {
 using namespace cru::string;
 using platform::gui::IUiApplication;
+
+namespace {
+constexpr Point kMultipleClickPositionOffsetThreshold{4.f, 4.f};
+constexpr auto kMultipleClickDurationThreshold = std::chrono::milliseconds(500);
+}  // namespace
 
 class TextControlMovePattern {
  public:
@@ -239,6 +246,7 @@ void TextHostControlService::SetEnabled(bool enable) {
             platform::gui::SystemCursorType::IBeam));
   } else {
     this->AbortSelection();
+    this->ResetMouseClickCount();
     this->TearDownCaret();
     this->control_->SetCursor(nullptr);
   }
@@ -351,7 +359,11 @@ std::string_view TextHostControlService::GetSelectedText() {
 }
 
 Index TextHostControlService::NextNCharPosition(Index count) {
-  string_break_iterator_.SetCurrentPosition(GetCaretPosition());
+  return NextNCharPosition(count, GetCaretPosition());
+}
+
+Index TextHostControlService::NextNCharPosition(Index count, Index position) {
+  string_break_iterator_.SetCurrentPosition(position);
   for (Index i = 0; i < count; ++i) {
     string_break_iterator_.NextChar();
   }
@@ -359,7 +371,12 @@ Index TextHostControlService::NextNCharPosition(Index count) {
 }
 
 Index TextHostControlService::PreviousNCharPosition(Index count) {
-  string_break_iterator_.SetCurrentPosition(GetCaretPosition());
+  return PreviousNCharPosition(count, GetCaretPosition());
+}
+
+Index TextHostControlService::PreviousNCharPosition(Index count,
+                                                    Index position) {
+  string_break_iterator_.SetCurrentPosition(position);
   for (Index i = 0; i < count; ++i) {
     string_break_iterator_.PreviousChar();
   }
@@ -367,7 +384,11 @@ Index TextHostControlService::PreviousNCharPosition(Index count) {
 }
 
 Index TextHostControlService::NextNWordPosition(Index count) {
-  string_break_iterator_.SetCurrentPosition(GetCaretPosition());
+  return NextNWordPosition(count, GetCaretPosition());
+}
+
+Index TextHostControlService::NextNWordPosition(Index count, Index position) {
+  string_break_iterator_.SetCurrentPosition(position);
   for (Index i = 0; i < count; ++i) {
     string_break_iterator_.NextWord();
   }
@@ -375,7 +396,12 @@ Index TextHostControlService::NextNWordPosition(Index count) {
 }
 
 Index TextHostControlService::PreviousNWordPosition(Index count) {
-  string_break_iterator_.SetCurrentPosition(GetCaretPosition());
+  return PreviousNWordPosition(count, GetCaretPosition());
+}
+
+Index TextHostControlService::PreviousNWordPosition(Index count,
+                                                    Index position) {
+  string_break_iterator_.SetCurrentPosition(position);
   for (Index i = 0; i < count; ++i) {
     string_break_iterator_.PreviousWord();
   }
@@ -407,9 +433,9 @@ void TextHostControlService::ChangeSelectionEnd(Index new_end) {
 }
 
 void TextHostControlService::AbortSelection() {
-  if (this->mouse_move_selecting_) {
+  if (this->IsMouseSelecting()) {
     this->control_->ReleaseMouse();
-    this->mouse_move_selecting_ = false;
+    this->mouse_selection_state_ = MouseSelectionState::None;
   }
   SetSelection(GetCaretPosition());
 }
@@ -514,19 +540,110 @@ void TextHostControlService::UpdateInputMethodPosition() {
   }
 }
 
+TextRange TextHostControlService::GetCharacterRangeAtPosition(Index position) {
+  return TextRange::FromTwoSides(position, NextNCharPosition(1, position))
+      .Normalize();
+}
+
+TextRange TextHostControlService::GetWordRangeAtPosition(Index position) {
+  const auto character_range = GetCharacterRangeAtPosition(position);
+  if (character_range.count == 0) {
+    const auto start = PreviousNWordPosition(1, position);
+    return TextRange::FromTwoSides(start, position).Normalize();
+  }
+
+  const auto start = PreviousNWordPosition(1, character_range.GetEnd());
+  const auto end = NextNWordPosition(1, character_range.GetStart());
+  return TextRange::FromTwoSides(start, end).Normalize();
+}
+
+void TextHostControlService::ChangeCharacterSelectionEnd(Index position) {
+  const auto character_range = GetCharacterRangeAtPosition(position);
+  const auto anchor = GetSelection().position;
+  SetSelection(TextRange::FromTwoSides(
+      anchor, character_range.GetStart() < anchor ? character_range.GetStart()
+                                                  : character_range.GetEnd()));
+}
+
+void TextHostControlService::ChangeWordSelectionEnd(Index position) {
+  const auto current = GetWordRangeAtPosition(position);
+  const auto selection = GetSelection();
+  const auto anchor = selection.position;
+
+  if (selection.count < 0) {
+    if (current.GetEnd() > anchor) {
+      const auto original_start = PreviousNWordPosition(1, anchor);
+      SetSelection(TextRange::FromTwoSides(original_start, current.GetEnd()));
+    } else {
+      SetSelection(TextRange::FromTwoSides(anchor, current.GetStart()));
+    }
+  } else {
+    if (current.GetStart() < anchor) {
+      const auto original_end = NextNWordPosition(1, anchor);
+      SetSelection(TextRange::FromTwoSides(original_end, current.GetStart()));
+    } else {
+      SetSelection(TextRange::FromTwoSides(anchor, current.GetEnd()));
+    }
+  }
+}
+
+int TextHostControlService::NextMouseClickCount(
+    const Point& point, std::chrono::steady_clock::time_point time) {
+  if (multiple_click_count_ > 0 &&
+      time - last_click_time_ <= kMultipleClickDurationThreshold &&
+      IsWithinMultipleClickPositionOffsetThreshold(point)) {
+    ++multiple_click_count_;
+  } else {
+    multiple_click_count_ = 1;
+  }
+
+  last_click_point_ = point;
+  last_click_time_ = time;
+  return multiple_click_count_;
+}
+
+bool TextHostControlService::IsWithinMultipleClickPositionOffsetThreshold(
+    const Point& point) const {
+  return std::abs(point.x - last_click_point_.x) <=
+             kMultipleClickPositionOffsetThreshold.x &&
+         std::abs(point.y - last_click_point_.y) <=
+             kMultipleClickPositionOffsetThreshold.y;
+}
+
+void TextHostControlService::ResetMouseClickCount() {
+  multiple_click_count_ = 0;
+  last_click_point_ = {};
+  last_click_time_ = {};
+}
+
+bool TextHostControlService::IsMouseSelecting() const {
+  return mouse_selection_state_ != MouseSelectionState::None;
+}
+
+bool TextHostControlService::IsMouseSelectingByWord() const {
+  return mouse_selection_state_ == MouseSelectionState::Word;
+}
+
 void TextHostControlService::MouseDownHandler(
     events::MouseButtonEventArgs& args) {
   if (IsEnabled()) {
     this->control_->SetFocus();
-    if (args.GetButton() == MouseButtons::Left &&
-        !this->mouse_move_selecting_) {
+    if (args.GetButton() == MouseButtons::Left && !this->IsMouseSelecting()) {
       if (!this->control_->CaptureMouse()) return;
-      this->mouse_move_selecting_ = true;
+      const auto click_point = args.GetPoint();
+      const auto click_count = this->NextMouseClickCount(
+          click_point, std::chrono::steady_clock::now());
       const auto text_render_object = this->GetTextRenderObject();
       const auto result = text_render_object->TextHitTest(
           args.GetPointToContent(text_render_object));
-      const auto position = result.position_with_trailing;
-      SetSelection(position);
+      if (click_count == 2) {
+        this->mouse_selection_state_ = MouseSelectionState::Word;
+        SetSelection(GetWordRangeAtPosition(result.position));
+      } else {
+        this->mouse_selection_state_ = MouseSelectionState::Character;
+        const auto position = result.position_with_trailing;
+        SetSelection(position);
+      }
       args.SetHandled(true);
     } else if (args.GetButton() == MouseButtons::Right) {
       // TODO: Finish context menu logic here.
@@ -577,20 +694,23 @@ void TextHostControlService::MouseDownHandler(
 
 void TextHostControlService::MouseUpHandler(
     events::MouseButtonEventArgs& args) {
-  if (args.GetButton() == MouseButtons::Left && mouse_move_selecting_) {
+  if (args.GetButton() == MouseButtons::Left && IsMouseSelecting()) {
     this->control_->ReleaseMouse();
-    this->mouse_move_selecting_ = false;
+    this->mouse_selection_state_ = MouseSelectionState::None;
     args.SetHandled();
   }
 }
 
 void TextHostControlService::MouseMoveHandler(events::MouseEventArgs& args) {
-  if (this->mouse_move_selecting_) {
+  if (this->IsMouseSelecting()) {
     const auto text_render_object = this->GetTextRenderObject();
     const auto result = text_render_object->TextHitTest(
         args.GetPointToContent(text_render_object));
-    const auto position = result.position_with_trailing;
-    ChangeSelectionEnd(position);
+    if (IsMouseSelectingByWord()) {
+      ChangeWordSelectionEnd(result.position);
+    } else {
+      ChangeCharacterSelectionEnd(result.position);
+    }
     args.SetHandled();
   }
 }
