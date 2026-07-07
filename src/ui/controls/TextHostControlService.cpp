@@ -10,7 +10,6 @@
 #include "cru/platform/gui/UiApplication.h"
 #include "cru/platform/gui/Window.h"
 #include "cru/ui/Base.h"
-#include "cru/ui/DebugFlags.h"
 #include "cru/ui/components/Menu.h"
 #include "cru/ui/controls/ControlHost.h"
 #include "cru/ui/helper/ShortcutHub.h"
@@ -529,13 +528,6 @@ void TextHostControlService::UpdateInputMethodPosition() {
         this->GetTextRenderObject()->GetCaretRect().GetRightBottom();
     right_bottom.x += 5;
     right_bottom.y += 5;
-
-    if constexpr (debug_flags::text_service) {
-      CruLogDebug(kLogTag,
-                  "Calculate input method candidate window position: {}.",
-                  right_bottom);
-    }
-
     input_method_context->SetCandidateWindowPosition(right_bottom);
   }
 }

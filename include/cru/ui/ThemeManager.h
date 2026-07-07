@@ -1,8 +1,13 @@
 #pragma once
 #include "Base.h"
-#include "cru/base/Event.h"
-#include "cru/ui/ThemeResourceDictionary.h"
+#include "ThemeResourceDictionary.h"
+#include "style/StyleRuleSet.h"
 
+#include <cru/base/Event.h>
+#include <cru/platform/graphics/Brush.h>
+#include <cru/platform/graphics/Font.h>
+
+#include <memory>
 #include <vector>
 
 namespace cru::ui {

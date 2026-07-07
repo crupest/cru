@@ -1,16 +1,14 @@
 #pragma once
 #include "Base.h"
-
-#include "cru/base/Base.h"
-#include "cru/base/xml/XmlNode.h"
 #include "datamodel/Base.h"
-#include "style/StyleRuleSet.h"
+
+#include <cru/base/Base.h>
+#include <cru/base/xml/XmlNode.h>
 
 #include <any>
 #include <filesystem>
 #include <format>
 #include <typeindex>
-#include <typeinfo>
 
 namespace cru::ui {
 class CRU_UI_API ThemeResourceKeyNotExistException : public Exception {
@@ -25,7 +23,7 @@ class CRU_UI_API BadThemeResourceException : public Exception {
 
 class CRU_UI_API ThemeResourceDictionary : public Object {
  private:
-  constexpr static auto kLogTag = "ThemeResources";
+  constexpr static auto kLogTag = "cru::ui::ThemeResources";
 
  public:
   static std::unique_ptr<ThemeResourceDictionary> FromFile(
@@ -56,7 +54,8 @@ class CRU_UI_API ThemeResourceDictionary : public Object {
           "No data type registered for theme resource key {}.", key));
     }
 
-    auto convert_result = data_type->ConvertFromXml(find_result->second.xml_node);
+    auto convert_result =
+        data_type->ConvertFromXml(find_result->second.xml_node);
     if (!convert_result.IsSuccess()) {
       std::string errors;
       for (const auto& error : convert_result.GetErrors()) {
@@ -81,10 +80,6 @@ class CRU_UI_API ThemeResourceDictionary : public Object {
 
  private:
   struct ResourceEntry {
-    CRU_DEFAULT_CONSTRUCTOR_DESTRUCTOR(ResourceEntry)
-    CRU_DEFAULT_COPY(ResourceEntry)
-    CRU_DEFAULT_MOVE(ResourceEntry)
-
     std::string name;
     xml::XmlElementNode* xml_node;
     std::unordered_map<std::type_index, std::any> cache;

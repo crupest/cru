@@ -1,7 +1,6 @@
 #include "cru/ui/helper/ShortcutHub.h"
 
 #include "cru/base/log/Logger.h"
-#include "cru/ui/DebugFlags.h"
 #include "cru/ui/controls/Control.h"
 
 #include <algorithm>
@@ -88,45 +87,16 @@ void ShortcutHub::OnKeyDown(events::KeyEventArgs& event) {
 
   bool handled = false;
 
-  if constexpr (debug_flags::shortcut) {
-    if (shortcut_list.empty()) {
-      CruLogDebug(kLogTag, "No shortcut for key bind {}.", key_bind.ToString());
-    }
-    CruLogDebug(kLogTag, "Begin to handle shortcut for key bind {}.",
-                key_bind.ToString());
-  }
-
   for (const auto& shortcut : shortcut_list) {
     auto is_handled = shortcut.handler();
     if (is_handled) {
-      if constexpr (debug_flags::shortcut) {
-        CruLogDebug(kLogTag, "Handle {} handled it.", shortcut.name);
-      }
-
       handled = true;
       event.SetHandled();
-
       break;
-    } else {
-      if constexpr (debug_flags::shortcut) {
-        CruLogDebug(kLogTag, "Handle {} didn't handle it.", shortcut.name);
-      }
-    }
-  }
-
-  if constexpr (debug_flags::shortcut) {
-    if (!shortcut_list.empty()) {
-      CruLogDebug(kLogTag, "End handling shortcut for key bind {}.",
-                  key_bind.ToString());
     }
   }
 
   if (!handled) {
-    if constexpr (debug_flags::shortcut) {
-      CruLogDebug(kLogTag,
-                  "Raise fallback event for unhandled shortcut of key bind {}.",
-                  key_bind.ToString());
-    }
     fallback_event_.Raise(event);
   }
 }

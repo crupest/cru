@@ -1,12 +1,10 @@
 #include "cru/ui/helper/ClickDetector.h"
 
 #include "cru/base/log/Logger.h"
-#include "cru/ui/DebugFlags.h"
 #include "cru/ui/controls/Control.h"
 #include "cru/ui/controls/ControlHost.h"
 
 #include <cmath>
-#include <utility>
 
 namespace cru::ui::helper {
 Point ClickEventArgs::GetDownPointOfScreen() const {
@@ -57,10 +55,8 @@ ClickDetector::ClickDetector(controls::Control* control) {
             if (this->enable_ && (button & this->trigger_button_) &&
                 this->state_ == ClickState::Hover) {
               if (!this->control_->CaptureMouse()) {
-                if constexpr (debug_flags::click_detector) {
-                  CruLogDebug(kLogTag,
-                              "Failed to capture mouse when begin click.");
-                }
+                CruLogWarn(kLogTag,
+                           "Failed to capture mouse when begin click.");
                 return;
               }
               this->down_point_ = args.GetPoint();
@@ -184,25 +180,6 @@ void ClickDetector::ResetMultipleClick() {
 }
 
 void ClickDetector::SetState(ClickState state) {
-  if constexpr (debug_flags::click_detector) {
-    auto to_string = [](ClickState state) -> const char* {
-      switch (state) {
-        case ClickState::None:
-          return "None";
-        case ClickState::Hover:
-          return "Hover";
-        case ClickState::Press:
-          return "Press";
-        case ClickState::PressInactive:
-          return "PressInactive";
-        default:
-          std::unreachable();
-      }
-    };
-    CruLogDebug(kLogTag, "Click state changed, new state: {}.",
-                to_string(state));
-  }
-
   state_ = state;
   state_change_event_.Raise(state);
 }
