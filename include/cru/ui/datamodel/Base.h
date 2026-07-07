@@ -5,6 +5,7 @@
 #include <cru/base/ClonePtr.h>
 #include <cru/base/datamodel/DataType.h>
 #include <cru/base/datamodel/DataTypeRegistry.h>
+#include <cru/base/datamodel/DataValidator.h>
 #include <cru/base/xml/XmlNode.h>
 
 #include <memory>
@@ -13,7 +14,10 @@ namespace cru::ui::datamodel {
 using cru::datamodel::DataConvertResult;
 using cru::datamodel::DataTypeBase;
 using cru::datamodel::DataTypeRegistry;
+using cru::datamodel::IDataType;
+using cru::datamodel::IDataValidator;
 using cru::datamodel::NumberDataType;
+using cru::datamodel::NumberRangeDataValidator;
 using cru::datamodel::StringDataType;
 
 template <typename T>

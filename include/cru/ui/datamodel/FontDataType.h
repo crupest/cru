@@ -5,6 +5,12 @@
 #include <cru/platform/graphics/Font.h>
 
 namespace cru::ui::datamodel {
+/**
+ * Example xml:
+ * ```xml
+ * <Font family="Arial" size="16"/>
+ * ```
+ */
 class CRU_UI_API FontDataType
     : public SharedPtrDataTypeBase<platform::graphics::IFont> {
  public:

@@ -22,10 +22,9 @@ FontDataType::DoConvertFromXml(xml::XmlElementNode* node) {
 
   if (font_size_attr) {
     auto parse_result = cru::string::ParseToNumber<float>(*font_size_attr);
-    // NOTE: Legacy mapper used ParseToNumber(...).value without checking valid.
     if (!parse_result.valid) {
       return DataConvertResult<std::shared_ptr<platform::graphics::IFont>>::
-          Failure("Invalid font size.");
+          Failure("Invalid font size: " + parse_result.message);
     }
     font_size = parse_result.value;
   }

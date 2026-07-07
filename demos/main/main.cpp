@@ -66,6 +66,7 @@ int main() {
 
   Input<int> input;
   flex_layout.AddChild(input.GetRootControl());
+  input.SetLabelText("Number Input");
   input.SetDataType(new cru::datamodel::NumberDataType<int>());
   input.SetValidator(
       new cru::datamodel::NumberRangeDataValidator<int>(0, true, 100, true));

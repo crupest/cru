@@ -1,4 +1,5 @@
 #pragma once
+#include "../ThemeManager.h"
 #include "../controls/FlexLayout.h"
 #include "../controls/TextBlock.h"
 #include "../controls/TextBox.h"
@@ -35,6 +36,7 @@ class Input : public Component {
                        datamodel::IDataType<T>* data_type = nullptr,
                        datamodel::IDataValidator<T>* validator = nullptr) {
     auto input = new Input();
+    input->SetLabelText(std::move(label));
     input->SetDataType(data_type);
     input->SetValidator(validator);
     return input;
@@ -51,10 +53,11 @@ class Input : public Component {
     root_layout_.AddChild(&label_text_block_);
     root_layout_.AddChild(&text_box_);
 
-    platform::gui::IUiApplication::GetInstance()
-        ->GetGraphicsFactory()
-        ->CreateFont("", 12);
-    error_text_block_.SetTextColor(colors::red);
+    error_text_block_.SetFont(ThemeManager::GetInstance()->GetResourceFont(
+        "component.input.error.font"));
+    error_text_block_.SetTextBrush(
+        ThemeManager::GetInstance()->GetResourceBrush(
+            "component.input.error.brush"));
 
     UpdateState();
 
@@ -77,6 +80,12 @@ class Input : public Component {
 
  public:
   controls::Control* GetRootControl() override { return &root_layout_; }
+
+  std::string GetLabelText() { return label_text_block_.GetText(); }
+
+  void SetLabelText(std::string label) {
+    label_text_block_.SetText(std::move(label));
+  }
 
   std::string GetText() { return text_box_.GetText(); }
 
