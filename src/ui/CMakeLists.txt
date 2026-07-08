@@ -46,7 +46,6 @@ add_library(CruUi
 	render/GeometryRenderObject.cpp
 	render/LayoutHelper.cpp
 	render/RenderObject.cpp
-	render/ScrollBar.cpp
 	render/ScrollRenderObject.cpp
 	render/SingleChildRenderObject.cpp
 	render/StackLayoutRenderObject.cpp

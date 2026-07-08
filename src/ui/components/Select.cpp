@@ -5,9 +5,8 @@ Select::Select() {
   button_text_.SetText(" ");
   button_.SetChild(&button_text_);
   button_.ClickEvent()->AddHandler([this](const helper::ClickEventArgs& args) {
-    auto left_bottom =
-        button_.GetContainerRenderObject()->GetTotalOffset() +
-        Point{0, button_.GetContainerRenderObject()->GetSize().height};
+    auto left_bottom = button_.GetRenderObject()->GetTotalOffset() +
+                       Point{0, button_.GetRenderObject()->GetSize().height};
     popup_menu_.SetPosition(args.GetDownPointOfScreen() - args.GetDownPoint() +
                             left_bottom);
     popup_menu_.Show();

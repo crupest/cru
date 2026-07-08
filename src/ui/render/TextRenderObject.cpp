@@ -186,10 +186,6 @@ Size TextRenderObject::OnMeasureContent(const MeasureRequirement& requirement) {
   return result;
 }
 
-void TextRenderObject::OnLayoutContent(const Rect& content_rect) {
-  CRU_UNUSED(content_rect)
-}
-
 void TextRenderObject::OnDraw(RenderObjectDrawContext& context) {
   auto painter = context.painter;
 

@@ -35,7 +35,6 @@ class GeometryRenderObject : public RenderObject {
 
  protected:
   Size OnMeasureContent(const MeasureRequirement& requirement) override;
-  void OnLayoutContent(const Rect& content_rect) override;
   void OnDraw(RenderObjectDrawContext& context) override;
 
  private:

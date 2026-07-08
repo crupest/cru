@@ -31,6 +31,8 @@ class CRU_UI_API Control : public Object,
                            public cru::platform::gui::DeleteLaterImpl<Control>,
                            public SelfResolvable<Control> {
   friend class ControlHost;
+  template<typename TSelf, typename TRenderObject>
+  friend class SingleChildControlMixin;
 
  private:
   constexpr static auto kLogTag = "cru::ui::controls::Control";
@@ -82,6 +84,7 @@ class CRU_UI_API Control : public Object,
 
  public:
   virtual render::RenderObject* GetRenderObject() = 0;
+  Point GetRenderObjectOffset(render::RenderObject* render_object);
 
   virtual render::MeasureSize GetSuggestSize() {
     return GetRenderObject()->GetSuggestSize();

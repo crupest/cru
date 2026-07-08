@@ -2,6 +2,8 @@
 #include "../controls/Control.h"  // IWYU pragma: keep
 #include "RenderObject.h"
 
+#include <algorithm>
+
 namespace cru::ui::render {
 template <typename TChildLayoutData>
 class LayoutRenderObject : public RenderObject {
@@ -54,6 +56,10 @@ class LayoutRenderObject : public RenderObject {
     InvalidateLayout();
   }
 
+  void AddChild(RenderObject* render_object) {
+    AddChild(render_object, GetChildCount());
+  }
+
   void RemoveChild(Index position) {
     CheckArgumentRange(position, 0, GetChildCount(), "position");
     auto render_object = children_[position].render_object;
@@ -84,6 +90,15 @@ class LayoutRenderObject : public RenderObject {
     CheckArgumentRange(position, 0, GetChildCount(), "position");
     children_[position].layout_data = std::move(data);
     InvalidateLayout();
+  }
+
+  void SetChildLayoutData(RenderObject* child, ChildLayoutData data) {
+    auto iter = std::find_if(
+        children_.cbegin(), children_.cend(),
+        [child](const ChildData& data) { return data.render_object == child; });
+    if (iter != children_.cend()) {
+      SetChildLayoutDataAt(iter - children_.cbegin(), std::move(data));
+    }
   }
 
   RenderObject* HitTest(const Point& point) override {

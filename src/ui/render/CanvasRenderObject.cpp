@@ -14,10 +14,6 @@ Size CanvasRenderObject::OnMeasureContent(
   return requirement.Coerce(requirement.suggest.GetSizeOr({100, 100}));
 }
 
-void CanvasRenderObject::OnLayoutContent(const Rect& content_rect) {
-  CRU_UNUSED(content_rect)
-}
-
 void CanvasRenderObject::OnDraw(RenderObjectDrawContext& context) {
   const auto rect = GetContentRect();
   CanvasPaintEventArgs args{context.painter, rect.GetSize()};

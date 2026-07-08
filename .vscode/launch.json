@@ -1,47 +1,60 @@
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "type": "lldb-dap",
-            "request": "launch",
-            "name": "Debug Base Test",
-            "program": "${workspaceFolder}/out/build/asan/output/Debug/CruBaseTest",
-            "args": [],
-            "env": {},
-            "cwd": "${workspaceFolder}",
-            "preLaunchTask": "Build Asan",
-            "windows": {
-                "program": "${workspaceFolder}/out/build/asan/output/Debug/CruBaseTest.exe"
-            }
-        },
-        {
-            "type": "lldb-dap",
-            "request": "launch",
-            "name": "Debug Demo Main",
-            "program": "${workspaceFolder}/out/build/asan/output/Debug/CruDemoMain",
-            "args": [],
-            "env": {},
-            "cwd": "${workspaceFolder}",
-            "preLaunchTask": "Build Asan",
-            "windows": {
-                "program": "${workspaceFolder}/out/build/asan/output/Debug/CruDemoMain.exe"
-            }
-        },
-        {
-            "type": "lldb-dap",
-            "request": "launch",
-            "name": "Debug Theme Builder",
-            "program": "${workspaceFolder}/out/build/asan/output/Debug/CruThemeBuilder",
-            "args": [],
-            "env": {},
-            "cwd": "${workspaceFolder}",
-            "preLaunchTask": "Build Asan",
-            "windows": {
-                "program": "${workspaceFolder}/out/build/asan/output/Debug/CruThemeBuilder.exe"
-            }
-        }
-    ]
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "lldb-dap",
+      "request": "launch",
+      "name": "Debug Base Test",
+      "program": "${workspaceFolder}/out/build/asan/output/Debug/CruBaseTest",
+      "args": [],
+      "env": {},
+      "cwd": "${workspaceFolder}",
+      "preLaunchTask": "Build Asan",
+      "windows": {
+        "program": "${workspaceFolder}/out/build/asan/output/Debug/CruBaseTest.exe"
+      }
+    },
+    {
+      "type": "lldb-dap",
+      "request": "launch",
+      "name": "Debug Demo Main",
+      "program": "${workspaceFolder}/out/build/asan/output/Debug/CruDemoMain",
+      "args": [],
+      "env": {},
+      "cwd": "${workspaceFolder}",
+      "preLaunchTask": "Build Asan",
+      "windows": {
+        "program": "${workspaceFolder}/out/build/asan/output/Debug/CruDemoMain.exe"
+      }
+    },
+    {
+      "type": "lldb-dap",
+      "request": "launch",
+      "name": "Debug Demo ScrollView",
+      "program": "${workspaceFolder}/out/build/asan/output/Debug/CruDemoScrollView",
+      "args": [],
+      "env": {},
+      "cwd": "${workspaceFolder}",
+      "preLaunchTask": "Build Asan",
+      "windows": {
+        "program": "${workspaceFolder}/out/build/asan/output/Debug/CruDemoScrollView.exe"
+      }
+    },
+    {
+      "type": "lldb-dap",
+      "request": "launch",
+      "name": "Debug Theme Builder",
+      "program": "${workspaceFolder}/out/build/asan/output/Debug/CruThemeBuilder",
+      "args": [],
+      "env": {},
+      "cwd": "${workspaceFolder}",
+      "preLaunchTask": "Build Asan",
+      "windows": {
+        "program": "${workspaceFolder}/out/build/asan/output/Debug/CruThemeBuilder.exe"
+      }
+    }
+  ]
 }

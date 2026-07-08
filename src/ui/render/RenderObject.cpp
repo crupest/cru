@@ -110,13 +110,12 @@ void RenderObject::Layout(const Point& offset) {
 void RenderObject::Layout(const Rect& rect) {
   offset_ = rect.GetLeftTop();
   auto new_size = rect.GetSize();
+  layout_valid_ = true;
   if (size_ != new_size) {
     size_ = new_size;
     OnResize(new_size);
   }
-
   OnLayoutCore(rect);
-  layout_valid_ = true;
 }
 
 Thickness RenderObject::GetTotalSpaceThickness() { return margin_ + padding_; }
@@ -146,6 +145,10 @@ void RenderObject::OnLayoutCore(const Rect& rect) {
   const Rect content_rect{lefttop, content_size};
 
   OnLayoutContent(content_rect);
+}
+
+void RenderObject::OnLayoutContent(const Rect& content_rect) {
+  CRU_UNUSED(content_rect);
 }
 
 Rect RenderObject::GetPaddingRect() {

@@ -4,16 +4,11 @@
 #include <cassert>
 
 namespace cru::ui::controls {
-template <typename TRenderObject>
-class SingleChildControl : public Control {
- protected:
-  SingleChildControl(std::string name) : Control(std::move(name)) {
-    container_render_object_.SetAttachedControl(this);
-  }
-
+template <typename TSelf, typename TRenderObject>
+class SingleChildControlMixin {
  public:
   Control* GetChild() {
-    const auto& children = GetChildren();
+    const auto& children = SingleChildControlMixinGetSelf()->GetChildren();
     assert(children.empty() || children.size() == 1);
     return children.empty() ? nullptr : children.front();
   }
@@ -21,22 +16,41 @@ class SingleChildControl : public Control {
   void SetChild(Control* child) {
     auto old_child = GetChild();
     if (old_child == child) return;
+    auto self = SingleChildControlMixinGetSelf();
     if (old_child) {
-      RemoveChildAt(0);
+      self->RemoveChildAt(0);
     }
     if (child) {
-      InsertChildAt(child, 0);
+      self->InsertChildAt(child, 0);
     }
 
-    container_render_object_.SetChild(child ? child->GetRenderObject()
-                                            : nullptr);
+    GetContainerRenderObject()->SetChild(child ? child->GetRenderObject()
+                                               : nullptr);
   }
 
+  virtual TRenderObject* GetContainerRenderObject() = 0;
+
+ private:
+  TSelf* SingleChildControlMixinGetSelf() { return static_cast<TSelf*>(this); }
+};
+
+template <typename TRenderObject>
+class SingleChildControl
+    : public Control,
+      public SingleChildControlMixin<SingleChildControl<TRenderObject>,
+                                     TRenderObject> {
+ protected:
+  SingleChildControl(std::string name) : Control(std::move(name)) {
+    container_render_object_.SetAttachedControl(this);
+  }
+
+ public:
   render::RenderObject* GetRenderObject() override {
     return &container_render_object_;
   }
 
-  TRenderObject* GetContainerRenderObject() {
+ protected:
+  TRenderObject* GetContainerRenderObject() override {
     return &container_render_object_;
   }
 

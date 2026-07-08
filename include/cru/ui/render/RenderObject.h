@@ -22,17 +22,37 @@ struct CRU_UI_API RenderObjectDrawContext {
 };
 
 /**
+ * ## What is "Render Object"?
  *
- * ### Create New Render Object
+ * Controls are composed of several RenderObjects. RenderObject is responsible
+ * for following duties:
+ *
+ * 1. Draw
+ * 2. Layout (including Measure)
+ * 3. HitTest
+ *
+ * It does not handle GUI events like mouse click. Events are handled by
+ * controls instead.
+ *
+ * ## Create New Render Object
  *
  * To write a custom RenderObject, override following methods:
  *
+ * ```
  * public:
  *  RenderObject* HitTest(const Point& point) override;
  * protected:
  *  Size OnMeasureContent(const MeasureRequirement& requirement) override;
- *  void OnLayoutContent(const Rect& content_rect) override;
  *  void OnDraw(RenderObjectDrawContext& context) override;
+ * ```
+ *
+ * Optional override following methods:
+ *
+ * ```
+ * protected:
+ *  void OnLayoutContent(const Rect& content_rect) override;
+ * ```
+ *
  */
 class CRU_UI_API RenderObject : public Object {
  private:
@@ -98,14 +118,21 @@ class CRU_UI_API RenderObject : public Object {
   void Measure(const MeasureRequirement& requirement);
 
   /**
-   * Sets offset and size (from GetMeasureResult) of this render object and call
-   * OnLayoutCore. This will set layout as valid.
+   * @brief Sets offset and size (from GetMeasureResult()) of this render object
+   * and calls OnLayoutCore().
+   *
+   * Layout is marked valid before calling OnLayoutCore, so an
+   * InvalidateLayout() raised during layout remains effective and can schedule
+   * a follow-up layout pass.
    */
   void Layout(const Point& offset);
 
   /**
-   * Sets offset and size of this render object and call OnLayoutCore. This will
-   * set layout as valid.
+   * @brief Sets offset and size of this render object and calls OnLayoutCore().
+   *
+   * Layout is marked valid before calling OnLayoutCore, so an
+   * InvalidateLayout() raised during layout remains effective and can schedule
+   * a follow-up layout pass.
    */
   void Layout(const Rect& rect);
 
@@ -157,7 +184,7 @@ class CRU_UI_API RenderObject : public Object {
 
   // Layout all content and children(Call Layout on them).
   // Lefttop of content_rect should be added when calculated children's offset.
-  virtual void OnLayoutContent(const Rect& content_rect) = 0;
+  virtual void OnLayoutContent(const Rect& content_rect);
 
   virtual void OnDraw(RenderObjectDrawContext& context) = 0;
 

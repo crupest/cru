@@ -30,6 +30,9 @@ class CRU_UI_API ControlHost : public Object {
   void AddPaintInvalidArea(const Rect& area);
 
   void Repaint();
+  /**
+   * \brief Relayout based on window client size.
+   */
   void Relayout();
   void RelayoutWithSize(const Size& available_size = Size::Infinite(),
                         bool set_window_size_to_fit_content = false);

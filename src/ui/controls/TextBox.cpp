@@ -1,6 +1,7 @@
 #include "cru/ui/controls/TextBox.h"
 
 #include "cru/ui/ThemeManager.h"
+#include "cru/ui/controls/ScrollView.h"
 #include "cru/ui/render/BorderRenderObject.h"
 #include "cru/ui/render/ScrollRenderObject.h"
 #include "cru/ui/render/TextRenderObject.h"
@@ -12,8 +13,8 @@ using render::TextRenderObject;
 
 TextBox::TextBox()
     : Control(kControlName),
-      border_render_object_(new BorderRenderObject()),
-      scroll_render_object_(new ScrollRenderObject()) {
+      ScrollControlMixin(this),
+      border_render_object_(new BorderRenderObject()) {
   auto theme_manager = ThemeManager::GetInstance();
 
   text_render_object_ = std::make_unique<TextRenderObject>(
@@ -23,11 +24,10 @@ TextBox::TextBox()
       theme_manager->GetResourceBrush("text.caret.brush"));
   text_render_object_->SetEditMode(true);
 
-  border_render_object_->SetChild(scroll_render_object_.get());
-  scroll_render_object_->SetChild(text_render_object_.get());
+  border_render_object_->SetChild(GetScrollRootRenderObject());
+  GetScrollRenderObject()->SetChild(text_render_object_.get());
 
   border_render_object_->SetAttachedControl(this);
-  scroll_render_object_->SetAttachedControl(this);
   text_render_object_->SetAttachedControl(this);
   text_render_object_->SetMinSize(Size{100, 0});
   text_render_object_->SetMeasureIncludingTrailingSpace(true);
@@ -55,7 +55,7 @@ render::TextRenderObject* TextBox::GetTextRenderObject() {
 }
 
 render::ScrollRenderObject* TextBox::GetScrollRenderObject() {
-  return scroll_render_object_.get();
+  return ScrollControlMixin::GetScrollRenderObject();
 }
 
 void TextBox::ApplyBorderStyle(const style::ApplyBorderStyleInfo& style) {

@@ -167,6 +167,20 @@ void Control::AddChild(Control* control) {
   InsertChildAt(control, GetChildren().size());
 }
 
+Point Control::GetRenderObjectOffset(render::RenderObject* render_object) {
+  Point offset{};
+  auto this_render_object = GetRenderObject();
+  while (render_object != this_render_object) {
+    if (render_object == nullptr) {
+      throw Exception("Render object is not a descendant of this control.");
+    }
+
+    offset += render_object->GetOffset();
+    render_object = render_object->GetParent();
+  }
+  return offset;
+}
+
 bool Control::HasFocus() {
   if (!host_) return false;
   return host_->GetFocusControl() == this;

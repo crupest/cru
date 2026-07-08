@@ -70,8 +70,6 @@ Size GeometryRenderObject::OnMeasureContent(
   return requirement.ExpandToSuggestAndCoerce(result);
 }
 
-void GeometryRenderObject::OnLayoutContent(const Rect& content_rect) {}
-
 void GeometryRenderObject::OnDraw(RenderObjectDrawContext& context) {
   if (!geometry_) return;
 

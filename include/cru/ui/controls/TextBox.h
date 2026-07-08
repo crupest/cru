@@ -2,10 +2,10 @@
 #include "../render/BorderRenderObject.h"
 #include "../render/ScrollRenderObject.h"
 #include "../render/TextRenderObject.h"
-#include "Control.h"
 #include "IBorderControl.h"
 #include "IContentBrushControl.h"
 #include "IFontControl.h"
+#include "ScrollView.h"
 #include "TextHostControlService.h"
 
 #include <cru/platform/graphics/Brush.h>
@@ -14,6 +14,7 @@
 
 namespace cru::ui::controls {
 class CRU_UI_API TextBox : public Control,
+                           public ScrollControlMixin,
                            public virtual IBorderControl,
                            public virtual ITextHostControl,
                            public virtual IContentBrushControl,
@@ -66,7 +67,6 @@ class CRU_UI_API TextBox : public Control,
 
  private:
   std::unique_ptr<render::BorderRenderObject> border_render_object_;
-  std::unique_ptr<render::ScrollRenderObject> scroll_render_object_;
   std::unique_ptr<render::TextRenderObject> text_render_object_;
 
   std::unique_ptr<TextHostControlService> service_;
