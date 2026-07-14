@@ -24,6 +24,7 @@ class CRU_BASE_API Win32HandleStream : public io::Stream {
   Index DoSeek(Index offset, SeekOrigin origin) override;
   Index DoRead(std::byte* buffer, Index offset, Index size) override;
   Index DoWrite(const std::byte* buffer, Index offset, Index size) override;
+  void DoFlush() override;
   void DoClose() override;
 
  public:
@@ -47,6 +48,7 @@ class CRU_BASE_API ComStream : public io::Stream {
   Index DoSeek(Index offset, SeekOrigin origin) override;
   Index DoRead(std::byte* buffer, Index offset, Index size) override;
   Index DoWrite(const std::byte* buffer, Index offset, Index size) override;
+  void DoFlush() override;
   void DoClose() override;
 
  public:

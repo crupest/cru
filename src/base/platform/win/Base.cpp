@@ -6,7 +6,9 @@ namespace cru::platform::win {
 
 HResultError::HResultError(HRESULT h_result,
                            std::string_view additional_message)
-    : Exception(std::format("HRESULT is {}.", h_result)), h_result_(h_result) {
+    : Exception(std::format("HRESULT is {:#x}.",
+                            static_cast<unsigned long>(h_result))),
+      h_result_(h_result) {
   AppendMessage(additional_message);
 }
 

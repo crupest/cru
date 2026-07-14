@@ -43,12 +43,17 @@ HRESULT BridgeComStream::Read(void* pv, ULONG cb, ULONG* pcbRead) {
   if (count == cru::io::Stream::kEOF) {
     count = 0;
   }
-  *pcbRead = count;
+  if (pcbRead) {
+    *pcbRead = static_cast<ULONG>(count);
+  }
   return cb == count ? S_OK : S_FALSE;
 }
 
 HRESULT BridgeComStream::Write(const void* pv, ULONG cb, ULONG* pcbWritten) {
-  *pcbWritten = stream_->Write(static_cast<const std::byte*>(pv), cb);
+  const auto count = stream_->Write(static_cast<const std::byte*>(pv), cb);
+  if (pcbWritten) {
+    *pcbWritten = static_cast<ULONG>(count);
+  }
   return S_OK;
 }
 
@@ -70,7 +75,10 @@ HRESULT BridgeComStream::Seek(LARGE_INTEGER dlibMove, DWORD dwOrigin,
       return STG_E_INVALIDFUNCTION;
   };
 
-  plibNewPosition->QuadPart = stream_->Seek(dlibMove.QuadPart, so);
+  const auto new_position = stream_->Seek(dlibMove.QuadPart, so);
+  if (plibNewPosition) {
+    plibNewPosition->QuadPart = new_position;
+  }
   return S_OK;
 }
 
@@ -84,7 +92,10 @@ HRESULT BridgeComStream::CopyTo(IStream* pstm, ULARGE_INTEGER cb,
   return E_NOTIMPL;
 }
 
-HRESULT BridgeComStream::Commit(DWORD grfCommitFlags) { return S_OK; }
+HRESULT BridgeComStream::Commit(DWORD grfCommitFlags) {
+  stream_->Flush();
+  return S_OK;
+}
 
 HRESULT BridgeComStream::Revert() { return S_OK; }
 

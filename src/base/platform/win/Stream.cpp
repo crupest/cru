@@ -25,8 +25,12 @@ HANDLE OpenHandle(std::string_view path, OpenFileFlag flags) {
   DWORD creation_disposition = 0;
   if (flags & OpenFileFlags::Read) {
     access |= GENERIC_READ;
-  } else {
+  }
+  if (flags & OpenFileFlags::Write) {
     access |= GENERIC_WRITE;
+  }
+  if (!access) {
+    throw Exception("Stream must be readable or writable.");
   }
 
   if (std::filesystem::exists(path)) {
@@ -127,6 +131,12 @@ Index Win32HandleStream::DoWrite(const std::byte* buffer, Index offset,
   return real_write;
 }
 
+void Win32HandleStream::DoFlush() {
+  if (DoCanWrite()) {
+    CheckWinReturn(::FlushFileBuffers(handle_), "Failed to flush file handle.");
+  }
+}
+
 void Win32HandleStream::DoClose() {
   if (auto_close_) {
     ::CloseHandle(handle_);
@@ -173,9 +183,12 @@ IStream* OpenComStream(std::string_view path, OpenFileFlag flags) {
 
   IStream* stream;
 
-  CheckHResult(SHCreateStreamOnFileEx(
-      cru::string::ToUtf16WString(path).c_str(), grfMode, FILE_ATTRIBUTE_NORMAL,
-      flags & io::OpenFileFlags::Create ? TRUE : FALSE, NULL, &stream));
+  CheckHResult(
+      SHCreateStreamOnFileEx(cru::string::ToUtf16WString(path).c_str(), grfMode,
+                             FILE_ATTRIBUTE_NORMAL,
+                             flags & io::OpenFileFlags::Create ? TRUE : FALSE,
+                             NULL, &stream),
+      std::format("Failed to create COM stream."));
 
   return stream;
 }
@@ -213,14 +226,16 @@ Index ComStream::DoSeek(Index offset, SeekOrigin origin) {
   n_offset.QuadPart = offset;
   ULARGE_INTEGER n_new_offset;
 
-  CheckHResult(stream_->Seek(n_offset, dwOrigin, &n_new_offset));
+  CheckHResult(stream_->Seek(n_offset, dwOrigin, &n_new_offset),
+               "Failed to seek COM stream.");
 
   return n_new_offset.QuadPart;
 }
 
 Index ComStream::DoRead(std::byte* buffer, Index offset, Index size) {
   ULONG n_read;
-  CheckHResult(stream_->Read(buffer + offset, size, &n_read));
+  CheckHResult(stream_->Read(buffer + offset, size, &n_read),
+               "Failed to read COM stream.");
   if (n_read == 0) {
     return kEOF;
   }
@@ -233,12 +248,20 @@ Index ComStream::DoWrite(const std::byte* buffer, Index offset, Index size) {
   }
 
   ULONG n_written;
-  CheckHResult(stream_->Write(buffer + offset, size, &n_written));
+  CheckHResult(stream_->Write(buffer + offset, size, &n_written),
+               "Failed to write COM stream.");
 
   return n_written;
 }
 
+void ComStream::DoFlush() {
+  if (DoCanWrite()) {
+    CheckHResult(stream_->Commit(STGC_DEFAULT), "Failed to commit COM stream.");
+  }
+}
+
 void ComStream::DoClose() {
+  DoFlush();
   if (stream_ && auto_release_) {
     stream_->Release();
   }
