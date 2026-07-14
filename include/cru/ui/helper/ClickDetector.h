@@ -11,8 +11,7 @@ class ClickDetector;
 class CRU_UI_API ClickEventArgs : Object {
  public:
   ClickEventArgs(controls::Control* sender, const Point& down_point,
-                 const Point& up_point, MouseButton button,
-                 int click_count = 1)
+                 const Point& up_point, MouseButton button, int click_count = 1)
       : sender_(sender),
         down_point_(down_point),
         up_point_(up_point),
@@ -41,7 +40,7 @@ enum class ClickState {
   PressInactive  // Mouse is pressed but if released click is canceled.
 };
 
-class ClickDetector : public Object {
+class CRU_UI_API ClickDetector : public Object {
  private:
   constexpr static auto kLogTag = "ClickDetector";
 
