@@ -7,12 +7,13 @@ add_executable(CruPlatformBaseTest
 target_link_libraries(CruPlatformBaseTest PRIVATE CruPlatformBase CruTestBase)
 
 add_subdirectory(graphics)
+add_subdirectory(gui)
 
-if (WIN32)
+if (TARGET CruPlatformGraphicsDirect2d)
 	add_subdirectory(graphics/direct2d)
 endif()
 
-if (UNIX AND NOT APPLE AND NOT EMSCRIPTEN)
+if (TARGET CruPlatformGraphicsCairo)
 	add_subdirectory(graphics/cairo)
 endif()
 
