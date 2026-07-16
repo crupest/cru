@@ -4,6 +4,8 @@
 #include "cru/ui/ThemeManager.h"
 #include "cru/ui/ThemeResourceDictionary.h"
 
+#include <memory>
+
 int main() {
   using namespace cru::theme_builder::components;
   using namespace cru::ui;

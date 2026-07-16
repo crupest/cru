@@ -8,6 +8,7 @@
 
 #include <chrono>
 #include <functional>
+#include <optional>
 #include <vector>
 
 namespace cru::platform::gui {
@@ -28,16 +29,32 @@ class CRU_PLATFORM_GUI_API DeleteLaterPool : public Object {
   std::vector<Object*> pool_;
 };
 
-// The entry point of a ui application.
+/**
+ * @brief The entry point of a ui application.
+ *
+ * Native UI application implementations install themselves as the process
+ * instance during construction. MockUiApplication is intentionally different:
+ * direct construction does not install it unless its constructor is asked to do
+ * so. Use ScopedRegistration for temporary overrides and specialized tests.
+ */
 struct CRU_PLATFORM_GUI_API IUiApplication : public virtual IPlatformResource {
  public:
-  static IUiApplication* GetInstance();
+  class CRU_PLATFORM_GUI_API ScopedRegistration {
+   public:
+    explicit ScopedRegistration(IUiApplication* application);
+    explicit ScopedRegistration(IUiApplication& application);
 
- protected:
-  IUiApplication();
+   private:
+    IUiApplication* application_;
+    IUiApplication* previous_;
+    Guard guard_;
+  };
+
+  static IUiApplication* GetInstance();
+  static void SetInstance(IUiApplication* instance);
 
  public:
-  ~IUiApplication() override;
+  explicit IUiApplication(bool register_instance = true);
 
   // Block current thread and run the message loop. Return the exit code when
   // message loop gets a quit message (possibly posted by method RequestQuit).
@@ -88,12 +105,17 @@ struct CRU_PLATFORM_GUI_API IUiApplication : public virtual IPlatformResource {
    */
   virtual std::optional<std::vector<std::string>> ShowOpenDialog(
       OpenDialogOptions options);
+
+ private:
+  std::optional<ScopedRegistration> instance_registration_;
 };
 
 namespace details {
 struct TimerCanceler {
   void operator()(long long id) {
-    IUiApplication::GetInstance()->CancelTimer(id);
+    if (auto* application = IUiApplication::GetInstance()) {
+      application->CancelTimer(id);
+    }
   }
 };
 }  // namespace details

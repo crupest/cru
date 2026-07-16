@@ -23,9 +23,9 @@ class MockWindow;
  * @brief Test-only GUI application for code that needs an IUiApplication
  * singleton without starting a native backend.
  *
- * Use direct construction with MockUiApplicationFixture, and keep only one live
- * IUiApplication in the process at a time. The mock is not selected by
- * production bootstrap code.
+ * Direct construction does not install a process IUiApplication singleton by
+ * default. Pass register_instance=true, or use MockUiApplicationFixture, when
+ * UI code needs IUiApplication::GetInstance().
  *
  * For UI tests, create the fixture before constructing
  * cru::ui::controls::Window or ControlHost users; those paths obtain the active
@@ -46,8 +46,8 @@ class MockWindow;
  * Pass a real or test double graphics::IGraphicsFactory when painting,
  * snapshots, or EncodeSnapshotToStream are needed. The mock owns the factory
  * only when release_graphics_factory is true; otherwise the caller must keep it
- * alive for the fixture lifetime. A test can omit the factory only for paths
- * that do not paint or snapshot.
+ * alive for the mock lifetime. A test can omit the factory only for paths that
+ * do not paint or snapshot.
  *
  * PumpOnce executes at most one ready queued action/timer and flushes
  * DeleteLater work. AdvanceTimeBy moves the manual clock for timeouts. Settle
@@ -67,7 +67,7 @@ class CRU_PLATFORM_GUI_MOCK_API MockUiApplication
  public:
   explicit MockUiApplication(
       graphics::IGraphicsFactory* graphics_factory = nullptr,
-      bool release_graphics_factory = false);
+      bool release_graphics_factory = false, bool register_instance = false);
   ~MockUiApplication() override;
 
   static constexpr std::size_t kDefaultMaxPumpIterations = 1000;
@@ -175,9 +175,9 @@ class CRU_PLATFORM_GUI_MOCK_API MockUiApplicationFixture {
   /**
    * @brief Construct an RAII owner for direct-construction tests.
    *
-   * The fixture installs the mock as the process IUiApplication singleton for
-   * its lifetime and releases it on destruction, so tests must not nest it with
-   * another live IUiApplication.
+   * The fixture constructs the mock with register_instance=true, installing it
+   * as the process IUiApplication singleton for its lifetime and restoring the
+   * previous app on destruction.
    */
   explicit MockUiApplicationFixture(
       graphics::IGraphicsFactory* graphics_factory = nullptr,

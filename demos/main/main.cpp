@@ -12,6 +12,8 @@
 #include "cru/ui/controls/TextBox.h"
 #include "cru/ui/controls/Window.h"
 
+#include <memory>
+
 using cru::platform::gui::IUiApplication;
 using namespace cru::ui::controls;
 using namespace cru::ui::components;

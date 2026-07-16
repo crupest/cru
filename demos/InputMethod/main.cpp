@@ -11,6 +11,7 @@
 #include "cru/platform/gui/UiApplication.h"
 #include "cru/platform/gui/Window.h"
 
+#include <memory>
 #include <string>
 
 using namespace cru;
@@ -160,7 +161,7 @@ DemoWindow::DemoWindow(IUiApplication* application, DemoBrushes* brushes,
 }
 
 int main() {
-  IUiApplication* application = bootstrap::CreateUiApplication();
+  std::unique_ptr<IUiApplication> application(bootstrap::CreateUiApplication());
   application->SetQuitOnAllWindowClosed(true);
 
   auto graphics_factory = application->GetGraphicsFactory();
@@ -172,8 +173,8 @@ int main() {
 
   std::shared_ptr<IFont> font = graphics_factory->CreateFont({}, 30);
 
-  DemoWindow window1(application, &brushes, font);
-  DemoWindow window2(application, &brushes, font);
+  DemoWindow window1(application.get(), &brushes, font);
+  DemoWindow window2(application.get(), &brushes, font);
 
   return application->Run();
 }

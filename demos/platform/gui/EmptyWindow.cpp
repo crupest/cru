@@ -1,7 +1,8 @@
 #include "cru/platform/bootstrap/Bootstrap.h"
-#include "cru/platform/gui/Base.h"
 #include "cru/platform/gui/UiApplication.h"
 #include "cru/platform/gui/Window.h"
+
+#include <memory>
 
 using cru::platform::gui::INativeWindow;
 using cru::platform::gui::IUiApplication;

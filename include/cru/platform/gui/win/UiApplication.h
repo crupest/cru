@@ -18,10 +18,7 @@ class CRU_WIN_GUI_API WinUiApplication : public WinNativeResource,
   friend WinNativeWindow;
 
  public:
-  static WinUiApplication* GetInstance() { return instance; }
-
- private:
-  static WinUiApplication* instance;
+  static WinUiApplication* GetInstance();
 
  public:
   WinUiApplication();

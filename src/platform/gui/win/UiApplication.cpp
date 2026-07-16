@@ -1,6 +1,7 @@
 #include "cru/platform/gui/win/UiApplication.h"
 
 #include "cru/platform/graphics/direct2d/Factory.h"
+#include "cru/platform/gui/UiApplication.h"
 #include "cru/platform/gui/win/Base.h"
 #include "cru/platform/gui/win/Clipboard.h"
 #include "cru/platform/gui/win/Cursor.h"
@@ -13,7 +14,8 @@ namespace cru::platform::gui::win {
 namespace {
 LRESULT __stdcall GeneralWndProc(HWND hWnd, UINT Msg, WPARAM wParam,
                                  LPARAM lParam) {
-  auto window = WinUiApplication::GetInstance()->FromHWND(hWnd);
+  auto* application = WinUiApplication::GetInstance();
+  auto* window = application == nullptr ? nullptr : application->FromHWND(hWnd);
 
   LRESULT result;
   if (window != nullptr &&
@@ -24,11 +26,7 @@ LRESULT __stdcall GeneralWndProc(HWND hWnd, UINT Msg, WPARAM wParam,
 }
 }  // namespace
 
-WinUiApplication* WinUiApplication::instance = nullptr;
-
 WinUiApplication::WinUiApplication() {
-  instance = this;
-
   instance_handle_ = ::GetModuleHandleW(nullptr);
   if (!instance_handle_)
     throw Win32Error("Failed to get module(instance) handle.");
@@ -45,9 +43,10 @@ WinUiApplication::WinUiApplication() {
   clipboard_ = std::make_unique<WinClipboard>(this);
 }
 
-WinUiApplication::~WinUiApplication() {
-  delete_later_pool_.Clean();
-  instance = nullptr;
+WinUiApplication::~WinUiApplication() { delete_later_pool_.Clean(); }
+
+WinUiApplication* WinUiApplication::GetInstance() {
+  return dynamic_cast<WinUiApplication*>(IUiApplication::GetInstance());
 }
 
 int WinUiApplication::Run() {

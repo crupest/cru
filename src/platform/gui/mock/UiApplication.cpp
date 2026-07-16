@@ -1,5 +1,6 @@
 #include "cru/platform/gui/mock/UiApplication.h"
 
+#include "cru/platform/gui/UiApplication.h"
 #include "cru/platform/gui/mock/Window.h"
 
 #include <cru/base/Base.h>
@@ -12,8 +13,10 @@
 
 namespace cru::platform::gui::mock {
 MockUiApplication::MockUiApplication(
-    graphics::IGraphicsFactory* graphics_factory, bool release_graphics_factory)
-    : graphics_factory_(graphics_factory),
+    graphics::IGraphicsFactory* graphics_factory, bool release_graphics_factory,
+    bool register_instance)
+    : IUiApplication(register_instance),
+      graphics_factory_(graphics_factory),
       release_graphics_factory_(release_graphics_factory),
       cursor_manager_(std::make_unique<MockCursorManager>()),
       clipboard_(std::make_unique<MockClipboard>()) {}
@@ -355,7 +358,7 @@ void MockUiApplication::InvokePendingQuitHandlers() {
 MockUiApplicationFixture::MockUiApplicationFixture(
     graphics::IGraphicsFactory* graphics_factory, bool release_graphics_factory)
     : application_(std::make_unique<MockUiApplication>(
-          graphics_factory, release_graphics_factory)) {}
+          graphics_factory, release_graphics_factory, true)) {}
 
-MockUiApplicationFixture::~MockUiApplicationFixture() { application_.reset(); }
+MockUiApplicationFixture::~MockUiApplicationFixture() = default;
 }  // namespace cru::platform::gui::mock

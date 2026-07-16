@@ -58,6 +58,7 @@ class OsxUiApplication : public OsxGuiResource, public virtual IUiApplication {
  private:
   void UnregisterWindow(OsxWindow* window);
 
+  IUiApplication::ScopedRegistration registration_;
   std::unique_ptr<details::OsxUiApplicationPrivate> p_;
 };
 }  // namespace cru::platform::gui::osx

@@ -95,19 +95,78 @@ TEST_CASE("Mock UI application fixture owns the process singleton safely",
   REQUIRE(IUiApplication::GetInstance() == nullptr);
 }
 
-TEST_CASE("Mock UI application rejects a second live app",
-          "[platform][gui][mock][app][singleton]") {
+TEST_CASE("Mock UI application fixture restores previous singleton",
+          "[platform][gui][mock][app][singleton][fixture]") {
   MockUiApplication app;
+  IUiApplication::ScopedRegistration registration(app);
 
-  try {
-    MockUiApplication second_app;
-    FAIL("Constructing a second UI application should throw.");
-  } catch (const Exception& exception) {
-    REQUIRE(std::string(exception.what()) ==
-            "A ui application has already been created.");
+  REQUIRE(IUiApplication::GetInstance() == &app);
+
+  {
+    MockUiApplicationFixture fixture;
+    REQUIRE(IUiApplication::GetInstance() == fixture.GetApplication());
   }
 
   REQUIRE(IUiApplication::GetInstance() == &app);
+}
+
+TEST_CASE("Mock UI application direct construction does not install singleton",
+          "[platform][gui][mock][app][singleton]") {
+  MockUiApplication app;
+  MockUiApplication second_app;
+
+  REQUIRE(IUiApplication::GetInstance() == nullptr);
+}
+
+TEST_CASE("Mock UI application constructor can opt into singleton registration",
+          "[platform][gui][mock][app][singleton]") {
+  MockUiApplication app(nullptr, false, true);
+
+  REQUIRE(IUiApplication::GetInstance() == &app);
+}
+
+TEST_CASE("Mock UI application constructor registration restores previous app",
+          "[platform][gui][mock][app][singleton]") {
+  MockUiApplication app;
+  IUiApplication::ScopedRegistration registration(app);
+
+  REQUIRE(IUiApplication::GetInstance() == &app);
+
+  {
+    MockUiApplication second_app(nullptr, false, true);
+    REQUIRE(IUiApplication::GetInstance() == &second_app);
+  }
+
+  REQUIRE(IUiApplication::GetInstance() == &app);
+}
+
+TEST_CASE("UI application scoped registration installs and restores singleton",
+          "[platform][gui][mock][app][singleton]") {
+  MockUiApplication app;
+  MockUiApplication second_app;
+
+  REQUIRE(IUiApplication::GetInstance() == nullptr);
+
+  {
+    IUiApplication::ScopedRegistration registration(app);
+    REQUIRE(IUiApplication::GetInstance() == &app);
+
+    {
+      IUiApplication::ScopedRegistration second_registration(second_app);
+      REQUIRE(IUiApplication::GetInstance() == &second_app);
+    }
+
+    REQUIRE(IUiApplication::GetInstance() == &app);
+  }
+
+  REQUIRE(IUiApplication::GetInstance() == nullptr);
+}
+
+TEST_CASE("Timer auto canceler tolerates no installed UI application",
+          "[platform][gui][mock][app][singleton][timer]") {
+  REQUIRE(IUiApplication::GetInstance() == nullptr);
+
+  cru::platform::gui::TimerAutoCanceler canceler(1);
 }
 
 TEST_CASE("Mock UI application exposes injected graphics factory and services",

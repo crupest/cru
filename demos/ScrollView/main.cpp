@@ -5,6 +5,8 @@
 #include "cru/ui/controls/TextBlock.h"
 #include "cru/ui/controls/Window.h"
 
+#include <memory>
+
 using cru::platform::gui::IUiApplication;
 using cru::ui::controls::ScrollView;
 using cru::ui::controls::TextBlock;

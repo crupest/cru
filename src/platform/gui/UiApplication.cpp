@@ -27,17 +27,29 @@ namespace {
 IUiApplication* instance = nullptr;
 }
 
-IUiApplication* IUiApplication::GetInstance() { return instance; }
-
-IUiApplication::IUiApplication() {
-  if (instance) {
-    throw Exception("A ui application has already been created.");
-  }
-
-  instance = this;
+IUiApplication::ScopedRegistration::ScopedRegistration(
+    IUiApplication* application)
+    : application_(application), previous_(GetInstance()), guard_([this] {
+        if (GetInstance() == application_) {
+          SetInstance(previous_);
+        }
+      }) {
+  SetInstance(application);
 }
 
-IUiApplication::~IUiApplication() { instance = nullptr; }
+IUiApplication::ScopedRegistration::ScopedRegistration(
+    IUiApplication& application)
+    : ScopedRegistration(&application) {}
+
+IUiApplication* IUiApplication::GetInstance() { return instance; }
+
+void IUiApplication::SetInstance(IUiApplication* i) { instance = i; }
+
+IUiApplication::IUiApplication(bool register_instance) {
+  if (register_instance) {
+    instance_registration_.emplace(this);
+  }
+}
 
 IMenu* IUiApplication::GetApplicationMenu() { return nullptr; }
 
