@@ -16,23 +16,27 @@
 namespace cru::platform::gui::mock {
 class MockUiApplication;
 
-// Mock native window owned by MockUiApplication. Tests usually create it
-// through MockUiApplication::CreateMockWindow, set client size and visibility,
-// then pump or settle the app after event injection or repaint requests.
-//
-// InjectResize/InjectVisibilityChange/InjectFocus and the mouse/key/text/IME
-// helpers update mock state and raise the same native events consumed by
-// ControlHost. Use MockUser for simple GUI-native actions with actionability
-// diagnostics; use these low-level helpers when tests need exact event control.
-//
-// RequestRepaint is asynchronous and coalesced. BeginPaint paints into a bitmap
-// created from the app's injected graphics factory. GetSnapshotImage,
-// CloneSnapshotToBitmap, and EncodeSnapshotToStream require a successful paint;
-// missing stream/factory/image support and before-paint access throw
-// diagnostics that include compact window state, snapshot dimensions, and paint
-// count. Snapshot bytes and encoder availability depend on the injected
-// graphics backend, so snapshots are for direct inspection or ad hoc capture
-// rather than a built-in golden baseline, image diff, or update workflow.
+/**
+ * @brief Mock native window owned by MockUiApplication.
+ *
+ * Tests usually create it through MockUiApplication::CreateMockWindow, set
+ * client size and visibility, then pump or settle the app after event injection
+ * or repaint requests.
+ *
+ * InjectResize/InjectVisibilityChange/InjectFocus and the mouse/key/text/IME
+ * helpers update mock state and raise the same native events consumed by
+ * ControlHost. Use MockUser for simple GUI-native actions with actionability
+ * diagnostics; use these low-level helpers when tests need exact event control.
+ *
+ * RequestRepaint is asynchronous and coalesced. BeginPaint paints into a bitmap
+ * created from the app's injected graphics factory. GetSnapshotImage,
+ * CloneSnapshotToBitmap, and EncodeSnapshotToStream require a successful paint;
+ * missing stream/factory/image support and before-paint access throw
+ * diagnostics that include compact window state, snapshot dimensions, and paint
+ * count. Snapshot bytes and encoder availability depend on the injected
+ * graphics backend, so snapshots are for direct inspection or ad hoc capture
+ * rather than a built-in golden baseline, image diff, or update workflow.
+ */
 class CRU_PLATFORM_GUI_MOCK_API MockWindow : public MockResource,
                                              public virtual INativeWindow {
  public:

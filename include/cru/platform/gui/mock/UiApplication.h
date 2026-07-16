@@ -19,42 +19,48 @@
 namespace cru::platform::gui::mock {
 class MockWindow;
 
-// Test-only GUI application for code that needs an IUiApplication singleton
-// without starting a native backend. Use direct construction with
-// MockUiApplicationFixture, and keep only one live IUiApplication in the
-// process at a time. The mock is not selected by production bootstrap code.
-//
-// For UI tests, create the fixture before constructing
-// cru::ui::controls::Window or ControlHost users; those paths obtain the active
-// app singleton and create a native window through it. Native-window-only tests
-// can call CreateMockWindow directly. Typical native-window flow:
-//
-//   FakeGraphicsFactory graphics_factory;
-//   MockUiApplicationFixture fixture(&graphics_factory);
-//   auto* app = fixture.GetApplication();
-//   auto* window = app->CreateMockWindow();
-//   window->SetClientSize({100.f, 60.f});
-//   window->SetVisibility(WindowVisibilityType::Show);
-//   window->InjectMouseDown(MouseButtons::Left, {5.f, 5.f});
-//   app->Settle();
-//
-// Pass a real or test double graphics::IGraphicsFactory when painting,
-// snapshots, or EncodeSnapshotToStream are needed. The mock owns the factory
-// only when release_graphics_factory is true; otherwise the caller must keep it
-// alive for the fixture lifetime. A test can omit the factory only for paths
-// that do not paint or snapshot.
-//
-// PumpOnce executes at most one ready queued action/timer and flushes
-// DeleteLater work. AdvanceTimeBy moves the manual clock for timeouts. Settle
-// drains ready work with a bounded iteration count and throws if work cannot
-// become idle, including uncanceled repeating intervals. WaitUntil also uses a
-// bounded pump loop, returns false when no ready work can satisfy the
-// predicate, and records GetLastDiagnostic/GetEventLoopDiagnostic state for
-// assertions.
-//
-// Non-goals: this mock is not a native backend replacement, production
-// bootstrap selector, screenshot baseline manager, image-diff/update workflow,
-// or browser/DOM-style locator/actionability layer.
+/**
+ * @brief Test-only GUI application for code that needs an IUiApplication
+ * singleton without starting a native backend.
+ *
+ * Use direct construction with MockUiApplicationFixture, and keep only one live
+ * IUiApplication in the process at a time. The mock is not selected by
+ * production bootstrap code.
+ *
+ * For UI tests, create the fixture before constructing
+ * cru::ui::controls::Window or ControlHost users; those paths obtain the active
+ * app singleton and create a native window through it. Native-window-only tests
+ * can call CreateMockWindow directly. Typical native-window flow:
+ *
+ * @code
+ * FakeGraphicsFactory graphics_factory;
+ * MockUiApplicationFixture fixture(&graphics_factory);
+ * auto* app = fixture.GetApplication();
+ * auto* window = app->CreateMockWindow();
+ * window->SetClientSize({100.f, 60.f});
+ * window->SetVisibility(WindowVisibilityType::Show);
+ * window->InjectMouseDown(MouseButtons::Left, {5.f, 5.f});
+ * app->Settle();
+ * @endcode
+ *
+ * Pass a real or test double graphics::IGraphicsFactory when painting,
+ * snapshots, or EncodeSnapshotToStream are needed. The mock owns the factory
+ * only when release_graphics_factory is true; otherwise the caller must keep it
+ * alive for the fixture lifetime. A test can omit the factory only for paths
+ * that do not paint or snapshot.
+ *
+ * PumpOnce executes at most one ready queued action/timer and flushes
+ * DeleteLater work. AdvanceTimeBy moves the manual clock for timeouts. Settle
+ * drains ready work with a bounded iteration count and throws if work cannot
+ * become idle, including uncanceled repeating intervals. WaitUntil also uses a
+ * bounded pump loop, returns false when no ready work can satisfy the
+ * predicate, and records GetLastDiagnostic/GetEventLoopDiagnostic state for
+ * assertions.
+ *
+ * Non-goals: this mock is not a native backend replacement, production
+ * bootstrap selector, screenshot baseline manager, image-diff/update workflow,
+ * or browser/DOM-style locator/actionability layer.
+ */
 class CRU_PLATFORM_GUI_MOCK_API MockUiApplication
     : public MockResource,
       public virtual IUiApplication {
@@ -166,9 +172,13 @@ class CRU_PLATFORM_GUI_MOCK_API MockUiApplication
 
 class CRU_PLATFORM_GUI_MOCK_API MockUiApplicationFixture {
  public:
-  // RAII owner for direct-construction tests. The fixture installs the mock as
-  // the process IUiApplication singleton for its lifetime and releases it on
-  // destruction, so tests must not nest it with another live IUiApplication.
+  /**
+   * @brief Construct an RAII owner for direct-construction tests.
+   *
+   * The fixture installs the mock as the process IUiApplication singleton for
+   * its lifetime and releases it on destruction, so tests must not nest it with
+   * another live IUiApplication.
+   */
   explicit MockUiApplicationFixture(
       graphics::IGraphicsFactory* graphics_factory = nullptr,
       bool release_graphics_factory = false);

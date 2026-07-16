@@ -21,11 +21,17 @@ class CRU_PLATFORM_GUI_MOCK_API MockInputMethodContext
   void EnableIME() override;
   void DisableIME() override;
 
-  // Complete commits the active composition text and ends composition. With no
-  // active composition it is a no-op.
+  /**
+   * @brief Commit the active composition text and end composition.
+   *
+   * With no active composition this is a no-op.
+   */
   void CompleteComposition() override;
-  // Cancel clears the active composition and ends composition without
-  // TextEvent. With no active composition it is a no-op.
+  /**
+   * @brief Clear the active composition and end composition without TextEvent.
+   *
+   * With no active composition this is a no-op.
+   */
   void CancelComposition() override;
 
   CompositionText GetCompositionText() override;
@@ -47,12 +53,20 @@ class CRU_PLATFORM_GUI_MOCK_API MockInputMethodContext
   void SetShouldManuallyDrawCompositionText(bool value);
 
   void BeginComposition();
-  // Update and end are no-ops until BeginComposition starts a composition.
+  /**
+   * @brief Update the active composition text.
+   *
+   * This is a no-op until BeginComposition starts a composition.
+   */
   void UpdateComposition(CompositionText composition_text);
   void UpdateComposition(std::string text, CompositionClauses clauses = {},
                          TextRange selection = {});
-  // With an active composition, commit raises CompositionEvent, TextEvent, then
-  // CompositionEndEvent. Without one, it is plain TextEvent input.
+  /**
+   * @brief Commit text through the mock input method event path.
+   *
+   * With an active composition, this raises CompositionEvent, TextEvent, then
+   * CompositionEndEvent. Without one, it is plain TextEvent input.
+   */
   void CommitText(std::string text);
   void EndComposition();
   void EmitText(std::string text);

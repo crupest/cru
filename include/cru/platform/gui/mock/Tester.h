@@ -13,8 +13,11 @@
 #include <utility>
 
 namespace cru::platform::gui::mock {
-// Thin pump/settle wrapper around MockUiApplication for tests that want a small
-// facade but no input synthesis.
+/**
+ * @brief Thin pump/settle wrapper around MockUiApplication.
+ *
+ * Use this in tests that want a small facade but no input synthesis.
+ */
 class CRU_PLATFORM_GUI_MOCK_API MockGuiTester : public Object {
  public:
   explicit MockGuiTester(MockUiApplication* application);
@@ -35,12 +38,15 @@ class CRU_PLATFORM_GUI_MOCK_API MockGuiTester : public Object {
   MockUiApplication* application_;
 };
 
-// GUI-native user facade for common mock-window actions. Each action settles
-// first, checks that the window belongs to the same MockUiApplication, verifies
-// the window is created and visible, then delegates to MockWindow injection
-// APIs. Control overloads use existing ControlHost focus/hover state for
-// diagnostics; this facade is GUI-native rather than a browser/DOM locator or
-// actionability model.
+/**
+ * @brief GUI-native user facade for common mock-window actions.
+ *
+ * Each action settles first, checks that the window belongs to the same
+ * MockUiApplication, verifies the window is created and visible, then delegates
+ * to MockWindow injection APIs. Control overloads use existing ControlHost
+ * focus/hover state for diagnostics; this facade is GUI-native rather than a
+ * browser/DOM locator or actionability model.
+ */
 class CRU_PLATFORM_GUI_MOCK_API MockUser : public Object {
  public:
   explicit MockUser(MockUiApplication* application);
