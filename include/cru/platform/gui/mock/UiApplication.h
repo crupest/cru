@@ -197,6 +197,9 @@ class CRU_PLATFORM_GUI_MOCK_API MockUser : public Object {
   void Click(MockWindow& window, const Point& point,
              MouseButton button = MouseButtons::Left,
              KeyModifier modifier = KeyModifiers::None);
+  void Drag(MockWindow& window, const Point& start_point,
+            const Point& end_point, MouseButton button = MouseButtons::Left,
+            KeyModifier modifier = KeyModifiers::None);
   void TypeText(MockWindow& window, std::string text);
   void PressKey(MockWindow& window, KeyCode key,
                 KeyModifier modifier = KeyModifiers::None);

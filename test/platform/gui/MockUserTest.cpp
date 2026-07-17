@@ -63,6 +63,55 @@ TEST_CASE("MockUser click emits native enter move down up in order",
   REQUIRE(window->GetMousePosition() == Point{10.f, 20.f});
 }
 
+TEST_CASE("MockUser drag emits native enter move down move up in order",
+          "[platform][gui][mock][user][MockUser][drag]") {
+  MockUiApplication app;
+  std::unique_ptr<MockWindow> window(app.CreateMockWindow());
+  MockUser user(app);
+  std::vector<std::string> events;
+
+  auto enter_revoker =
+      window->MouseEnterLeaveEvent()->AddHandler([&](MouseEnterLeaveType type) {
+        if (type == MouseEnterLeaveType::Enter) events.push_back("enter");
+      });
+  auto move_revoker =
+      window->MouseMoveEvent()->AddHandler([&](const Point& point) {
+        if (point == Point{10.f, 20.f}) {
+          events.push_back("move-start");
+        } else if (point == Point{30.f, 40.f}) {
+          events.push_back("move-end");
+        } else {
+          events.push_back("move-other");
+        }
+      });
+  auto down_revoker = window->MouseDownEvent()->AddHandler(
+      [&](const NativeMouseButtonEventArgs& args) {
+        REQUIRE(args.point == Point{10.f, 20.f});
+        REQUIRE(args.button == MouseButtons::Right);
+        REQUIRE(args.modifier == KeyModifiers::Shift);
+        events.push_back("down");
+      });
+  auto up_revoker = window->MouseUpEvent()->AddHandler(
+      [&](const NativeMouseButtonEventArgs& args) {
+        REQUIRE(args.point == Point{30.f, 40.f});
+        REQUIRE(args.button == MouseButtons::Right);
+        REQUIRE(args.modifier == KeyModifiers::Shift);
+        events.push_back("up");
+      });
+
+  window->SetClientSize({100.f, 100.f});
+  window->SetVisibility(WindowVisibilityType::Show);
+
+  user.Drag(*window, Point{10.f, 20.f}, Point{30.f, 40.f}, MouseButtons::Right,
+            KeyModifiers::Shift);
+
+  REQUIRE(events == std::vector<std::string>{"enter", "move-start", "down",
+                                             "move-end", "up"});
+  REQUIRE(window->IsMouseInside());
+  REQUIRE(window->GetMousePosition() == Point{30.f, 40.f});
+  REQUIRE(window->GetLastInjectedEvent() == "InjectMouseUp");
+}
+
 TEST_CASE("MockUser keeps low-level injection available for uncovered cases",
           "[platform][gui][mock][user][MockUser]") {
   MockUiApplication app;

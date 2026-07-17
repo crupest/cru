@@ -400,6 +400,29 @@ void MockUser::Click(MockWindow& window, const Point& point, MouseButton button,
   RaiseMouseButtonAfterActionability(window, point, button, modifier);
 }
 
+void MockUser::Drag(MockWindow& window, const Point& start_point,
+                    const Point& end_point, MouseButton button,
+                    KeyModifier modifier) {
+  EnsureReadyForAction(window, &start_point, "Drag");
+  MoveMouseAfterActionability(window, start_point);
+
+  if (!window.InjectMouseDown(button, start_point, modifier)) {
+    throw Exception("MockUser Drag failed to inject mouse down. window={" +
+                    DescribeWindow(window) +
+                    "}, point=" + DescribePoint(start_point));
+  }
+  if (!window.InjectMouseMove(end_point)) {
+    throw Exception("MockUser Drag failed to inject mouse move. window={" +
+                    DescribeWindow(window) +
+                    "}, point=" + DescribePoint(end_point));
+  }
+  if (!window.InjectMouseUp(button, end_point, modifier)) {
+    throw Exception("MockUser Drag failed to inject mouse up. window={" +
+                    DescribeWindow(window) +
+                    "}, point=" + DescribePoint(end_point));
+  }
+}
+
 void MockUser::TypeText(MockWindow& window, std::string text) {
   EnsureReadyForAction(window, nullptr, "TypeText");
   window.InjectTextInput(std::move(text));
