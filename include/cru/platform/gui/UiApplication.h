@@ -9,6 +9,7 @@
 #include <chrono>
 #include <functional>
 #include <optional>
+#include <thread>
 #include <vector>
 
 namespace cru::platform::gui {
@@ -51,7 +52,28 @@ struct CRU_PLATFORM_GUI_API IUiApplication : public virtual IPlatformResource {
     Guard guard_;
   };
 
+  /**
+   * @brief Get global IUiApplication instance associated with current thread.
+   * @return The instance. May be nullptr if there is no one.
+   */
   static IUiApplication* GetInstance();
+
+  /**
+   * @brief Get global IUiApplication instance associated with given thread.
+   * @param thread_id The id of the thread.
+   * @return The instance. May be nullptr if there is no one.
+   *
+   * If thread_id is invalid, nullptr will be returned also.
+   */
+  static IUiApplication* GetInstance(std::thread::id thread_id);
+
+  /**
+   * @brief Set global IUiApplication instance associated with current thread.
+   * @param instance The instance to set. Can be nullptr.
+   *
+   * This api should be called carefully to avoid interleave with
+   * IUiApplication::ScopedRegistration.
+   */
   static void SetInstance(IUiApplication* instance);
 
  public:

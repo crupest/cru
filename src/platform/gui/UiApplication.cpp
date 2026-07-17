@@ -29,15 +29,37 @@ void DeleteLaterPool::Clean() {
 namespace {
 thread_local IUiApplication* instance = nullptr;
 
-std::mutex& GetInstanceMapMutex() {
-  static auto* mutex = new std::mutex;
-  return *mutex;
-}
+class InstanceRegistry {
+ public:
+  IUiApplication* Get(std::thread::id thread_id) {
+    std::lock_guard lock(mutex_);
+    auto iter = instances_.find(thread_id);
+    return iter == instances_.cend() ? nullptr : iter->second;
+  }
 
-std::unordered_map<std::thread::id, IUiApplication*>& GetInstanceMap() {
-  static auto* instances =
-      new std::unordered_map<std::thread::id, IUiApplication*>;
-  return *instances;
+  void Set(std::thread::id thread_id, IUiApplication* application) {
+    std::lock_guard lock(mutex_);
+    if (application == nullptr) {
+      instances_.erase(thread_id);
+    } else {
+      instances_[thread_id] = application;
+    }
+  }
+
+ private:
+  std::mutex mutex_;
+  std::unordered_map<std::thread::id, IUiApplication*> instances_;
+};
+
+InstanceRegistry& GetInstanceRegistry() {
+  // Function-local static fixes cross-TU initialization order: another static
+  // constructor may call SetInstance before this TU's namespace-scope objects
+  // would otherwise be initialized. Allocating the registry intentionally
+  // avoids destruction: ScopedRegistration guards can run during thread-local
+  // cleanup at shutdown and call SetInstance(nullptr), so the registry must
+  // outlive normal static destruction order.
+  static auto* registry = new InstanceRegistry;
+  return *registry;
 }
 }  // namespace
 
@@ -57,17 +79,13 @@ IUiApplication::ScopedRegistration::ScopedRegistration(
 
 IUiApplication* IUiApplication::GetInstance() { return instance; }
 
+IUiApplication* IUiApplication::GetInstance(std::thread::id thread_id) {
+  return GetInstanceRegistry().Get(thread_id);
+}
+
 void IUiApplication::SetInstance(IUiApplication* i) {
   instance = i;
-
-  std::lock_guard lock(GetInstanceMapMutex());
-  auto& instances = GetInstanceMap();
-  auto thread_id = std::this_thread::get_id();
-  if (i == nullptr) {
-    instances.erase(thread_id);
-  } else {
-    instances[thread_id] = i;
-  }
+  GetInstanceRegistry().Set(std::this_thread::get_id(), i);
 }
 
 IUiApplication::IUiApplication(bool register_instance) {

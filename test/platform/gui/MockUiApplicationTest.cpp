@@ -11,6 +11,7 @@
 #include <cru/platform/gui/Window.h>
 
 #include <chrono>
+#include <future>
 #include <memory>
 #include <string>
 #include <thread>
@@ -183,6 +184,42 @@ TEST_CASE("UI application singleton is isolated per thread",
   REQUIRE(thread_registered != nullptr);
   REQUIRE(thread_registered != &app);
   REQUIRE(IUiApplication::GetInstance() == &app);
+}
+
+TEST_CASE("UI application singleton can be queried by thread id",
+          "[platform][gui][mock][app][singleton][thread]") {
+  REQUIRE(IUiApplication::GetInstance(std::thread::id{}) == nullptr);
+
+  MockUiApplication app;
+  IUiApplication::ScopedRegistration registration(app);
+  auto main_thread_id = std::this_thread::get_id();
+
+  REQUIRE(IUiApplication::GetInstance(main_thread_id) == &app);
+
+  std::promise<void> registered;
+  std::promise<void> release;
+  auto registered_future = registered.get_future();
+  auto release_future = release.get_future();
+  IUiApplication* thread_app_address = nullptr;
+
+  std::thread thread([&] {
+    MockUiApplication thread_app;
+    IUiApplication::ScopedRegistration thread_registration(thread_app);
+    thread_app_address = &thread_app;
+    registered.set_value();
+    release_future.wait();
+  });
+  auto thread_id = thread.get_id();
+
+  registered_future.wait();
+  REQUIRE(IUiApplication::GetInstance(thread_id) == thread_app_address);
+  REQUIRE(IUiApplication::GetInstance(main_thread_id) == &app);
+
+  release.set_value();
+  thread.join();
+
+  REQUIRE(IUiApplication::GetInstance(thread_id) == nullptr);
+  REQUIRE(IUiApplication::GetInstance(main_thread_id) == &app);
 }
 
 TEST_CASE("Timer auto canceler tolerates no installed UI application",
