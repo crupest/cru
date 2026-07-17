@@ -20,6 +20,20 @@ int BitmapDimension(float value) {
   return std::max(0, static_cast<int>(std::ceil(value)));
 }
 
+Thickness NonNegativeBorder(Thickness border) {
+  border.left = std::max(0.f, border.left);
+  border.top = std::max(0.f, border.top);
+  border.right = std::max(0.f, border.right);
+  border.bottom = std::max(0.f, border.bottom);
+  return border;
+}
+
+Rect ShrinkByBorder(const Rect& rect, const Thickness& border) {
+  return {rect.left + border.left, rect.top + border.top,
+          std::max(0.f, rect.width - border.GetHorizontalTotal()),
+          std::max(0.f, rect.height - border.GetVerticalTotal())};
+}
+
 cru::Exception MissingGraphicsFactoryException(const MockWindow& window,
                                                std::string_view operation) {
   return cru::Exception(std::format(
@@ -57,9 +71,14 @@ const char* ToString(WindowVisibilityType visibility) {
 }  // namespace
 
 MockWindow::MockWindow(MockUiApplication* application)
-    : application_(application) {}
+    : application_(application) {
+  application_->RegisterWindow(this);
+}
 
-MockWindow::~MockWindow() { Close(); }
+MockWindow::~MockWindow() {
+  Close();
+  application_->UnregisterWindow(this);
+}
 
 bool MockWindow::IsCreated() { return created_; }
 
@@ -85,7 +104,7 @@ void MockWindow::Close() {
   paint_count_ = 0;
   repaint_pending_ = false;
   repaint_action_id_ = 0;
-  application_->UnregisterWindow(this);
+  application_->RemoveCreatedWindow(this);
 
   if (application_->IsQuitOnAllWindowClosed() &&
       application_->GetAllWindow().empty()) {
@@ -101,7 +120,10 @@ void MockWindow::SetParent(INativeWindow* parent) {
 
 WindowStyleFlag MockWindow::GetStyleFlag() { return style_flag_; }
 
-void MockWindow::SetStyleFlag(WindowStyleFlag flag) { style_flag_ = flag; }
+void MockWindow::SetStyleFlag(WindowStyleFlag flag) {
+  style_flag_ = flag;
+  RefreshWindowRectFromClientRect();
+}
 
 std::string MockWindow::GetTitle() { return title_; }
 
@@ -113,6 +135,7 @@ void MockWindow::SetVisibility(WindowVisibilityType visibility) {
   if (visibility == WindowVisibilityType::Hide) {
     if (visibility_ == WindowVisibilityType::Hide) return;
     visibility_ = WindowVisibilityType::Hide;
+    application_->ClearMouseStateForWindow(this);
     VisibilityChangeEvent_.Raise(WindowVisibilityType::Hide);
     return;
   }
@@ -120,6 +143,7 @@ void MockWindow::SetVisibility(WindowVisibilityType visibility) {
   if (visibility == WindowVisibilityType::Minimize) {
     if (visibility_ == WindowVisibilityType::Minimize) return;
     visibility_ = WindowVisibilityType::Minimize;
+    application_->ClearMouseStateForWindow(this);
     VisibilityChangeEvent_.Raise(WindowVisibilityType::Minimize);
     return;
   }
@@ -137,8 +161,8 @@ Size MockWindow::GetClientSize() { return client_rect_.GetSize(); }
 
 void MockWindow::SetClientSize(const Size& size) {
   const auto old_size = GetClientSize();
-  client_rect_.SetSize(size);
-  window_rect_.SetSize(size);
+  client_rect_.SetSize(size.AtLeast0());
+  RefreshWindowRectFromClientRect();
   RaiseResizeIfCreatedAndSizeChanged(old_size);
 }
 
@@ -147,7 +171,8 @@ Rect MockWindow::GetClientRect() { return client_rect_; }
 void MockWindow::SetClientRect(const Rect& rect) {
   const auto old_size = GetClientSize();
   client_rect_ = rect;
-  window_rect_ = rect;
+  client_rect_.SetSize(rect.GetSize().AtLeast0());
+  RefreshWindowRectFromClientRect();
   RaiseResizeIfCreatedAndSizeChanged(old_size);
 }
 
@@ -156,7 +181,8 @@ Rect MockWindow::GetWindowRect() { return window_rect_; }
 void MockWindow::SetWindowRect(const Rect& rect) {
   const auto old_size = GetClientSize();
   window_rect_ = rect;
-  client_rect_ = rect;
+  window_rect_.SetSize(rect.GetSize().AtLeast0());
+  RefreshClientRectFromWindowRect();
   RaiseResizeIfCreatedAndSizeChanged(old_size);
 }
 
@@ -169,23 +195,43 @@ bool MockWindow::RequestFocus() {
   return true;
 }
 
-Point MockWindow::GetMousePosition() { return mouse_position_; }
+Point MockWindow::GetMousePosition() {
+  return GlobalToClient(application_->GetGlobalMousePosition());
+}
 
 void MockWindow::SetMousePosition(const Point& point) {
-  mouse_position_ = point;
+  application_->SetGlobalMousePosition(ClientToGlobal(point));
 }
 
-bool MockWindow::CaptureMouse() {
-  if (!created_) return false;
-  has_mouse_capture_ = true;
-  return true;
+void MockWindow::SetBorderSize(const Thickness& border_size) {
+  border_size_ = NonNegativeBorder(border_size);
+  RefreshWindowRectFromClientRect();
 }
 
-bool MockWindow::ReleaseMouse() {
-  if (!created_) return false;
-  has_mouse_capture_ = false;
-  return true;
+Thickness MockWindow::GetEffectiveBorderSize() const {
+  if (style_flag_.Has(WindowStyleFlags::NoCaptionAndBorder)) return Thickness{};
+  return border_size_;
 }
+
+Point MockWindow::ClientToGlobal(const Point& point) const {
+  return point + client_rect_.GetLeftTop();
+}
+
+Point MockWindow::GlobalToClient(const Point& point) const {
+  return point - client_rect_.GetLeftTop();
+}
+
+bool MockWindow::IsGlobalPointInWindow(const Point& point) const {
+  return window_rect_.IsPointInside(point);
+}
+
+bool MockWindow::IsGlobalPointInClient(const Point& point) const {
+  return client_rect_.IsPointInside(point);
+}
+
+bool MockWindow::CaptureMouse() { return application_->CaptureMouse(this); }
+
+bool MockWindow::ReleaseMouse() { return application_->ReleaseMouse(this); }
 
 void MockWindow::SetCursor(std::shared_ptr<ICursor> cursor) {
   cursor_ = CheckPlatform<MockCursor>(cursor, GetPlatformId());
@@ -195,6 +241,7 @@ void MockWindow::SetToForeground() {
   if (!created_ || visibility_ != WindowVisibilityType::Show) {
     SetVisibility(WindowVisibilityType::Show);
   }
+  application_->BringWindowToForeground(this);
 }
 
 void MockWindow::RequestRepaint() {
@@ -256,13 +303,14 @@ bool MockWindow::InjectResize(const Size& client_size) {
   RecordInjectedEvent("InjectResize");
   if (!created_) return false;
 
+  const auto new_size = client_size.AtLeast0();
   const auto old_size = GetClientSize();
-  if (old_size == client_size) return false;
+  if (old_size == new_size) return false;
 
-  client_rect_.SetSize(client_size);
-  window_rect_.SetSize(client_size);
+  client_rect_.SetSize(new_size);
+  RefreshWindowRectFromClientRect();
   RecreateBackingImageIfPossible();
-  ResizeEvent_.Raise(client_size);
+  ResizeEvent_.Raise(new_size);
   return true;
 }
 
@@ -271,6 +319,9 @@ bool MockWindow::InjectVisibilityChange(WindowVisibilityType visibility) {
   if (!created_ || visibility_ == visibility) return false;
 
   visibility_ = visibility;
+  if (visibility != WindowVisibilityType::Show) {
+    application_->ClearMouseStateForWindow(this);
+  }
   VisibilityChangeEvent_.Raise(visibility);
   return true;
 }
@@ -292,6 +343,7 @@ bool MockWindow::InjectMouseEnter() {
   if (!created_) return false;
 
   is_mouse_inside_ = true;
+  application_->SetHoveredWindowFromInjection(this);
   MouseEnterLeaveEvent_.Raise(MouseEnterLeaveType::Enter);
   return true;
 }
@@ -301,6 +353,7 @@ bool MockWindow::InjectMouseLeave() {
   if (!created_) return false;
 
   is_mouse_inside_ = false;
+  application_->ClearHoveredWindowFromInjection(this);
   MouseEnterLeaveEvent_.Raise(MouseEnterLeaveType::Leave);
   return true;
 }
@@ -309,8 +362,8 @@ bool MockWindow::InjectMouseMove(const Point& point) {
   RecordInjectedEvent("InjectMouseMove");
   if (!created_) return false;
 
-  mouse_position_ = point;
-  MouseMoveEvent_.Raise(mouse_position_);
+  application_->SetGlobalMousePosition(ClientToGlobal(point));
+  MouseMoveEvent_.Raise(point);
   return true;
 }
 
@@ -318,7 +371,7 @@ bool MockWindow::InjectMouseDown(const NativeMouseButtonEventArgs& args) {
   RecordInjectedEvent("InjectMouseDown");
   if (!created_) return false;
 
-  mouse_position_ = args.point;
+  application_->SetGlobalMousePosition(ClientToGlobal(args.point));
   MouseDownEvent_.Raise(args);
   return true;
 }
@@ -332,7 +385,7 @@ bool MockWindow::InjectMouseUp(const NativeMouseButtonEventArgs& args) {
   RecordInjectedEvent("InjectMouseUp");
   if (!created_) return false;
 
-  mouse_position_ = args.point;
+  application_->SetGlobalMousePosition(ClientToGlobal(args.point));
   MouseUpEvent_.Raise(args);
   return true;
 }
@@ -346,7 +399,7 @@ bool MockWindow::InjectMouseWheel(const NativeMouseWheelEventArgs& args) {
   RecordInjectedEvent("InjectMouseWheel");
   if (!created_) return false;
 
-  mouse_position_ = args.point;
+  application_->SetGlobalMousePosition(ClientToGlobal(args.point));
   MouseWheelEvent_.Raise(args);
   return true;
 }
@@ -417,6 +470,8 @@ void MockWindow::SetCandidateWindowPosition(const Point& point) {
 }
 
 std::string MockWindow::GetDiagnostic() const {
+  const auto mouse_position =
+      GlobalToClient(application_->GetGlobalMousePosition());
   std::ostringstream stream;
   stream << "created=" << (created_ ? "true" : "false")
          << ", closed=" << (closed_ ? "true" : "false")
@@ -429,8 +484,12 @@ std::string MockWindow::GetDiagnostic() const {
          << ", paint_count=" << paint_count_ << ", client_rect=("
          << client_rect_.left << ", " << client_rect_.top << ", "
          << client_rect_.width << ", " << client_rect_.height << ")"
-         << ", mouse_position=(" << mouse_position_.x << ", "
-         << mouse_position_.y << ")";
+         << ", window_rect=(" << window_rect_.left << ", " << window_rect_.top
+         << ", " << window_rect_.width << ", " << window_rect_.height << ")"
+         << ", border_size=(" << border_size_.left << ", " << border_size_.top
+         << ", " << border_size_.right << ", " << border_size_.bottom << ")"
+         << ", mouse_position=(" << mouse_position.x << ", " << mouse_position.y
+         << ")";
 
   if (backing_image_ != nullptr) {
     stream << ", snapshot=" << backing_image_->GetWidth() << "x"
@@ -450,7 +509,7 @@ void MockWindow::CreateNativeWindow() {
   closed_ = false;
   is_closing_ = false;
   visibility_ = WindowVisibilityType::Hide;
-  application_->RegisterWindow(this);
+  application_->BringWindowToForeground(this);
   RecreateBackingImageIfPossible();
   CreateEvent_.Raise(nullptr);
 }
@@ -461,6 +520,14 @@ void MockWindow::RaiseResizeIfCreatedAndSizeChanged(const Size& old_size) {
     RecreateBackingImageIfPossible();
     ResizeEvent_.Raise(new_size);
   }
+}
+
+void MockWindow::RefreshWindowRectFromClientRect() {
+  window_rect_ = client_rect_.Expand(GetEffectiveBorderSize());
+}
+
+void MockWindow::RefreshClientRectFromWindowRect() {
+  client_rect_ = ShrinkByBorder(window_rect_, GetEffectiveBorderSize());
 }
 
 void MockWindow::RecreateBackingImageIfPossible() {

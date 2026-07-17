@@ -14,6 +14,7 @@
 
 #include <array>
 #include <cstddef>
+#include <format>
 #include <memory>
 #include <string>
 #include <string_view>
@@ -259,6 +260,7 @@ using cru::Exception;
 using cru::platform::Point;
 using cru::platform::Rect;
 using cru::platform::Size;
+using cru::platform::Thickness;
 using cru::platform::colors::white;
 using cru::platform::gui::FocusChangeType;
 using cru::platform::gui::INativeWindow;
@@ -420,15 +422,152 @@ TEST_CASE("Mock window resize events observe updated client size",
   window->SetWindowRect(Rect{50.f, 60.f, 160.f, 90.f});
 
   REQUIRE(resize_args ==
-          std::vector<Size>{Size{140.f, 70.f}, Size{160.f, 90.f}});
+          std::vector<Size>{Size{140.f, 70.f}, Size{144.f, 52.f}});
   REQUIRE(observed_sizes == resize_args);
-  REQUIRE(window->GetClientRect() == Rect{50.f, 60.f, 160.f, 90.f});
+  REQUIRE(window->GetClientRect() == Rect{58.f, 90.f, 144.f, 52.f});
   REQUIRE(window->GetWindowRect() == Rect{50.f, 60.f, 160.f, 90.f});
 
   window->Close();
   window->SetClientSize(Size{10.f, 20.f});
   REQUIRE(resize_args.size() == 2);
   REQUIRE(window->GetClientSize() == Size{10.f, 20.f});
+}
+
+TEST_CASE("Mock window derives client and window rects from border",
+          "[platform][gui][mock][window][MockWindowState]"
+          "[MockWindowBorder]") {
+  MockUiApplication app;
+  std::unique_ptr<MockWindow> window(app.CreateMockWindow());
+
+  REQUIRE(window->GetBorderSize() == Thickness{8.f, 30.f, 8.f, 8.f});
+  REQUIRE(window->GetEffectiveBorderSize() == Thickness{8.f, 30.f, 8.f, 8.f});
+
+  window->SetClientRect(Rect{100.f, 120.f, 300.f, 200.f});
+  REQUIRE(window->GetClientRect() == Rect{100.f, 120.f, 300.f, 200.f});
+  REQUIRE(window->GetWindowRect() == Rect{92.f, 90.f, 316.f, 238.f});
+
+  window->SetBorderSize(Thickness{2.f, 3.f, 4.f, 5.f});
+  REQUIRE(window->GetBorderSize() == Thickness{2.f, 3.f, 4.f, 5.f});
+  REQUIRE(window->GetWindowRect() == Rect{98.f, 117.f, 306.f, 208.f});
+
+  window->SetWindowRect(Rect{10.f, 20.f, 50.f, 60.f});
+  REQUIRE(window->GetWindowRect() == Rect{10.f, 20.f, 50.f, 60.f});
+  REQUIRE(window->GetClientRect() == Rect{12.f, 23.f, 44.f, 52.f});
+
+  window->SetStyleFlag(WindowStyleFlags::NoCaptionAndBorder);
+  REQUIRE(window->GetEffectiveBorderSize() == Thickness{});
+  REQUIRE(window->GetWindowRect() == window->GetClientRect());
+
+  window->SetClientRect(Rect{1.f, 2.f, 30.f, 40.f});
+  REQUIRE(window->GetClientRect() == Rect{1.f, 2.f, 30.f, 40.f});
+  REQUIRE(window->GetWindowRect() == Rect{1.f, 2.f, 30.f, 40.f});
+}
+
+TEST_CASE("Mock application tracks global mouse on a desktop canvas",
+          "[platform][gui][mock][window][MockMouseInjection]"
+          "[MockDesktopCanvas]") {
+  MockUiApplication app;
+  std::unique_ptr<MockWindow> first(app.CreateMockWindow());
+  std::unique_ptr<MockWindow> second(app.CreateMockWindow());
+
+  app.SetDesktopSize(Size{500.f, 500.f});
+  first->SetClientRect(Rect{10.f, 20.f, 100.f, 100.f});
+  second->SetClientRect(Rect{200.f, 50.f, 100.f, 100.f});
+  first->SetVisibility(WindowVisibilityType::Show);
+  second->SetVisibility(WindowVisibilityType::Show);
+
+  app.SetGlobalMousePosition(Point{15.f, 25.f});
+  REQUIRE(app.GetGlobalMousePosition() == Point{15.f, 25.f});
+  REQUIRE(first->GetMousePosition() == Point{5.f, 5.f});
+  REQUIRE(second->GetMousePosition() == Point{-185.f, -25.f});
+
+  second->SetMousePosition(Point{7.f, 8.f});
+  REQUIRE(app.GetGlobalMousePosition() == Point{207.f, 58.f});
+  REQUIRE(first->GetMousePosition() == Point{197.f, 38.f});
+
+  app.SetGlobalMousePosition(Point{1000.f, -5.f});
+  REQUIRE(app.GetGlobalMousePosition() == Point{500.f, 0.f});
+}
+
+TEST_CASE("Mock application routes global mouse by z-order and border hit",
+          "[platform][gui][mock][window][MockMouseInjection]"
+          "[MockDesktopCanvas]") {
+  MockUiApplication app;
+  std::unique_ptr<MockWindow> bottom(app.CreateMockWindow());
+  std::unique_ptr<MockWindow> top(app.CreateMockWindow());
+  std::vector<std::string> events;
+
+  app.SetDesktopSize(Size{300.f, 300.f});
+  bottom->SetClientRect(Rect{20.f, 20.f, 100.f, 100.f});
+  top->SetClientRect(Rect{40.f, 40.f, 100.f, 100.f});
+  bottom->SetVisibility(WindowVisibilityType::Show);
+  top->SetVisibility(WindowVisibilityType::Show);
+
+  auto bottom_enter_leave_revoker =
+      bottom->MouseEnterLeaveEvent()->AddHandler([&](MouseEnterLeaveType type) {
+        events.push_back(type == MouseEnterLeaveType::Enter ? "bottom-enter"
+                                                            : "bottom-leave");
+      });
+  auto bottom_move_revoker =
+      bottom->MouseMoveEvent()->AddHandler([&](const Point& point) {
+        events.push_back(std::format("bottom-move:{}:{}", point.x, point.y));
+      });
+  auto top_enter_leave_revoker =
+      top->MouseEnterLeaveEvent()->AddHandler([&](MouseEnterLeaveType type) {
+        events.push_back(type == MouseEnterLeaveType::Enter ? "top-enter"
+                                                            : "top-leave");
+      });
+  auto top_move_revoker =
+      top->MouseMoveEvent()->AddHandler([&](const Point& point) {
+        events.push_back(std::format("top-move:{}:{}", point.x, point.y));
+      });
+
+  REQUIRE(app.MoveMouse(Point{50.f, 50.f}));
+  bottom->SetToForeground();
+  REQUIRE(app.MoveMouse(Point{50.f, 50.f}));
+  REQUIRE_FALSE(app.MoveMouse(Point{13.f, 0.f}));
+
+  REQUIRE(events == std::vector<std::string>{
+                        "top-enter", "top-move:10:10", "top-leave",
+                        "bottom-enter", "bottom-move:30:30", "bottom-leave"});
+  REQUIRE_FALSE(top->IsMouseInside());
+  REQUIRE_FALSE(bottom->IsMouseInside());
+}
+
+TEST_CASE("Mock application routes captured mouse outside client",
+          "[platform][gui][mock][window][MockMouseInjection]"
+          "[MockDesktopCanvas]") {
+  MockUiApplication app;
+  std::unique_ptr<MockWindow> window(app.CreateMockWindow());
+  std::vector<Point> move_points;
+  std::vector<MouseEnterLeaveType> enter_leave_events;
+
+  app.SetDesktopSize(Size{100.f, 100.f});
+  window->SetClientRect(Rect{10.f, 10.f, 30.f, 30.f});
+  window->SetVisibility(WindowVisibilityType::Show);
+
+  auto move_revoker = window->MouseMoveEvent()->AddHandler(
+      [&](const Point& point) { move_points.push_back(point); });
+  auto enter_leave_revoker = window->MouseEnterLeaveEvent()->AddHandler(
+      [&](MouseEnterLeaveType type) { enter_leave_events.push_back(type); });
+
+  REQUIRE(app.MoveMouse(Point{15.f, 15.f}));
+  REQUIRE(window->CaptureMouse());
+  REQUIRE(app.MoveMouse(Point{99.f, 99.f}));
+  REQUIRE(window->GetMousePosition() == Point{89.f, 89.f});
+  REQUIRE(app.GetCapturedWindow() == window.get());
+  REQUIRE(window->HasMouseCapture());
+
+  REQUIRE(window->ReleaseMouse());
+  REQUIRE_FALSE(window->HasMouseCapture());
+  REQUIRE(app.GetCapturedWindow() == nullptr);
+  REQUIRE_FALSE(app.MoveMouse(Point{99.f, 99.f}));
+
+  REQUIRE(move_points ==
+          std::vector<Point>{Point{5.f, 5.f}, Point{89.f, 89.f}});
+  REQUIRE(enter_leave_events ==
+          std::vector<MouseEnterLeaveType>{MouseEnterLeaveType::Enter,
+                                           MouseEnterLeaveType::Leave});
 }
 
 TEST_CASE("Mock window close destroys once and unregisters",
@@ -616,7 +755,8 @@ TEST_CASE(
   auto resize_revoker =
       window->ResizeEvent()->AddHandler([&](const Size& size) {
         REQUIRE(window->GetClientSize() == size);
-        REQUIRE(window->GetWindowRect().GetSize() == size);
+        REQUIRE(window->GetWindowRect().GetSize() ==
+                Size{size.width + 16.f, size.height + 38.f});
         REQUIRE(window->GetBackingImage() != nullptr);
         REQUIRE(window->GetBackingImage()->GetWidth() == size.width);
         REQUIRE(window->GetBackingImage()->GetHeight() == size.height);

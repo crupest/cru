@@ -40,6 +40,8 @@ class MockUiApplication;
 class CRU_PLATFORM_GUI_MOCK_API MockWindow : public MockResource,
                                              public virtual INativeWindow {
  public:
+  static constexpr Thickness kDefaultBorderSize{8.f, 30.f, 8.f, 8.f};
+
   explicit MockWindow(MockUiApplication* application);
   ~MockWindow() override;
 
@@ -71,6 +73,14 @@ class CRU_PLATFORM_GUI_MOCK_API MockWindow : public MockResource,
 
   Point GetMousePosition() override;
   void SetMousePosition(const Point& point);
+
+  Thickness GetBorderSize() const { return border_size_; }
+  void SetBorderSize(const Thickness& border_size);
+  Thickness GetEffectiveBorderSize() const;
+  Point ClientToGlobal(const Point& point) const;
+  Point GlobalToClient(const Point& point) const;
+  bool IsGlobalPointInWindow(const Point& point) const;
+  bool IsGlobalPointInClient(const Point& point) const;
 
   bool CaptureMouse() override;
   bool ReleaseMouse() override;
@@ -140,8 +150,12 @@ class CRU_PLATFORM_GUI_MOCK_API MockWindow : public MockResource,
   void SetCandidateWindowPosition(const Point& point);
 
  private:
+  friend class MockUiApplication;
+
   void CreateNativeWindow();
   void RaiseResizeIfCreatedAndSizeChanged(const Size& old_size);
+  void RefreshWindowRectFromClientRect();
+  void RefreshClientRectFromWindowRect();
   void RecreateBackingImageIfPossible();
   void EnsureBackingImageForPainting(std::string_view operation);
   void EnsurePaintedForSnapshot(std::string_view operation);
@@ -155,7 +169,7 @@ class CRU_PLATFORM_GUI_MOCK_API MockWindow : public MockResource,
   WindowVisibilityType visibility_ = WindowVisibilityType::Hide;
   Rect client_rect_;
   Rect window_rect_;
-  Point mouse_position_;
+  Thickness border_size_ = kDefaultBorderSize;
   std::shared_ptr<MockCursor> cursor_;
   bool created_ = false;
   bool closed_ = false;

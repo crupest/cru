@@ -452,23 +452,14 @@ TEST_CASE(
   }
 }
 
-TEST_CASE(
-    "Mock UI application manual registry and timer seams stay deterministic",
-    "[platform][gui][mock][app][future-scope]") {
+TEST_CASE("Mock UI application timer seams stay deterministic",
+          "[platform][gui][mock][app][future-scope]") {
   MockUiApplication app;
 
   REQUIRE(app.GetAllWindow().empty());
   REQUIRE(app.IsQuitOnAllWindowClosed());
   app.SetQuitOnAllWindowClosed(false);
   REQUIRE_FALSE(app.IsQuitOnAllWindowClosed());
-
-  INativeWindow* fake_window = reinterpret_cast<INativeWindow*>(0x1);
-  app.RegisterWindow(fake_window);
-  REQUIRE(app.GetAllWindow() == std::vector<INativeWindow*>{fake_window});
-  app.RegisterWindow(fake_window);
-  REQUIRE(app.GetAllWindow() == std::vector<INativeWindow*>{fake_window});
-  app.UnregisterWindow(fake_window);
-  REQUIRE(app.GetAllWindow().empty());
 
   std::unique_ptr<INativeWindow> created_window(app.CreateWindow());
   REQUIRE(created_window != nullptr);

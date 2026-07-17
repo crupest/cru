@@ -22,6 +22,11 @@ MockUiApplication* RequireApplication(MockUiApplication* application,
   }
   return application;
 }
+
+bool IsMouseVisibleWindow(MockWindow* window) {
+  return window != nullptr && window->IsCreated() &&
+         window->GetVisibility() == WindowVisibilityType::Show;
+}
 }  // namespace
 
 MockUiApplication::MockUiApplication(
@@ -150,6 +155,113 @@ MockClipboard* MockUiApplication::GetMockClipboard() {
   return clipboard_.get();
 }
 
+void MockUiApplication::SetDesktopRect(const Rect& rect) {
+  desktop_rect_ = rect.Normalize();
+  global_mouse_position_ = ClampToDesktop(global_mouse_position_);
+}
+
+void MockUiApplication::SetDesktopSize(const Size& size) {
+  SetDesktopRect(Rect{desktop_rect_.GetLeftTop(), size.AtLeast0()});
+}
+
+void MockUiApplication::SetGlobalMousePosition(const Point& point) {
+  global_mouse_position_ = ClampToDesktop(point);
+}
+
+bool MockUiApplication::MoveMouse(const Point& global_point) {
+  SetGlobalMousePosition(global_point);
+
+  if (!IsMouseVisibleWindow(captured_window_)) {
+    captured_window_ = nullptr;
+  }
+
+  if (captured_window_ != nullptr) {
+    if (!captured_window_->IsMouseInside()) {
+      UpdateHoveredWindow(captured_window_);
+    }
+    return captured_window_->InjectMouseMove(
+        captured_window_->GlobalToClient(global_mouse_position_));
+  }
+
+  auto* client_window = FindClientWindowAt(global_mouse_position_);
+  UpdateHoveredWindow(client_window);
+  if (client_window == nullptr) return false;
+
+  return client_window->InjectMouseMove(
+      client_window->GlobalToClient(global_mouse_position_));
+}
+
+bool MockUiApplication::MouseDown(MouseButton button, KeyModifier modifier) {
+  auto* target = GetMouseTargetWindow();
+  if (target == nullptr) {
+    if (captured_window_ == nullptr) UpdateHoveredWindow(nullptr);
+    return false;
+  }
+
+  if (target != captured_window_) UpdateHoveredWindow(target);
+  return target->InjectMouseDown(
+      button, target->GlobalToClient(global_mouse_position_), modifier);
+}
+
+bool MockUiApplication::MouseUp(MouseButton button, KeyModifier modifier) {
+  auto* target = GetMouseTargetWindow();
+  if (target == nullptr) {
+    if (captured_window_ == nullptr) UpdateHoveredWindow(nullptr);
+    return false;
+  }
+
+  if (target != captured_window_) UpdateHoveredWindow(target);
+  return target->InjectMouseUp(
+      button, target->GlobalToClient(global_mouse_position_), modifier);
+}
+
+bool MockUiApplication::MouseWheel(float delta, KeyModifier modifier,
+                                   bool horizontal) {
+  auto* target = GetMouseTargetWindow();
+  if (target == nullptr) {
+    if (captured_window_ == nullptr) UpdateHoveredWindow(nullptr);
+    return false;
+  }
+
+  if (target != captured_window_) UpdateHoveredWindow(target);
+  return target->InjectMouseWheel(
+      delta, target->GlobalToClient(global_mouse_position_), modifier,
+      horizontal);
+}
+
+bool MockUiApplication::Click(const Point& global_point, MouseButton button,
+                              KeyModifier modifier) {
+  MoveMouse(global_point);
+  const auto down = MouseDown(button, modifier);
+  const auto up = MouseUp(button, modifier);
+  return down && up;
+}
+
+bool MockUiApplication::Drag(MockWindow& window, const Point& start_point,
+                             const Point& end_point, MouseButton button,
+                             KeyModifier modifier) {
+  if (window.GetMockUiApplication() != this) {
+    throw Exception(
+        "MockUiApplication Drag received a window from a different "
+        "MockUiApplication.");
+  }
+  if (!IsMouseVisibleWindow(&window)) return false;
+
+  SetGlobalMousePosition(window.ClientToGlobal(start_point));
+  UpdateHoveredWindow(&window);
+  if (!window.IsMouseInside()) return false;
+  const auto clamped_start_point = window.GetMousePosition();
+  const auto move_start = window.InjectMouseMove(clamped_start_point);
+  const auto down =
+      window.InjectMouseDown(button, clamped_start_point, modifier);
+
+  SetGlobalMousePosition(window.ClientToGlobal(end_point));
+  const auto clamped_end_point = window.GetMousePosition();
+  const auto move_end = window.InjectMouseMove(clamped_end_point);
+  const auto up = window.InjectMouseUp(button, clamped_end_point, modifier);
+  return move_start && down && move_end && up;
+}
+
 void MockUiApplication::AdvanceTimeBy(std::chrono::milliseconds milliseconds) {
   if (milliseconds < std::chrono::milliseconds::zero()) {
     throw Exception("Mock UI manual clock can't move backwards.");
@@ -249,17 +361,6 @@ std::string MockUiApplication::GetEventLoopDiagnostic() const {
   return BuildEventLoopDiagnostic("Mock UI event loop state");
 }
 
-void MockUiApplication::RegisterWindow(INativeWindow* window) {
-  if (window == nullptr) return;
-  if (!std::ranges::contains(windows_, window)) {
-    windows_.push_back(window);
-  }
-}
-
-void MockUiApplication::UnregisterWindow(INativeWindow* window) {
-  std::erase(windows_, window);
-}
-
 long long MockUiApplication::TakeNextTimerId() { return next_timer_id_++; }
 
 std::optional<std::size_t> MockUiApplication::FindNextDueTimerIndex() const {
@@ -292,6 +393,120 @@ bool MockUiApplication::HasRepeatingTimer() const {
                              [](const Timer& timer) { return timer.repeat; });
 }
 
+Point MockUiApplication::ClampToDesktop(const Point& point) const {
+  const auto right = desktop_rect_.GetRight();
+  const auto bottom = desktop_rect_.GetBottom();
+  return {std::clamp(point.x, desktop_rect_.left, right),
+          std::clamp(point.y, desktop_rect_.top, bottom)};
+}
+
+MockWindow* MockUiApplication::FindTopmostWindowAt(
+    const Point& global_point) const {
+  for (auto iterator = windows_.rbegin(); iterator != windows_.rend();
+       ++iterator) {
+    auto* window = FindKnownWindow(*iterator);
+    if (!IsMouseVisibleWindow(window)) continue;
+    if (window->IsGlobalPointInWindow(global_point)) return window;
+  }
+  return nullptr;
+}
+
+MockWindow* MockUiApplication::FindClientWindowAt(
+    const Point& global_point) const {
+  auto* window = FindTopmostWindowAt(global_point);
+  if (window == nullptr || !window->IsGlobalPointInClient(global_point)) {
+    return nullptr;
+  }
+  return window;
+}
+
+MockWindow* MockUiApplication::GetMouseTargetWindow() const {
+  if (IsMouseVisibleWindow(captured_window_)) return captured_window_;
+  return FindClientWindowAt(global_mouse_position_);
+}
+
+void MockUiApplication::RegisterWindow(MockWindow* window) {
+  if (window == nullptr) return;
+  if (!std::ranges::contains(window_instances_, window)) {
+    window_instances_.push_back(window);
+  }
+}
+
+void MockUiApplication::UnregisterWindow(MockWindow* window) {
+  ClearMouseStateForWindow(window);
+  std::erase(window_instances_, window);
+  std::erase(windows_, static_cast<INativeWindow*>(window));
+}
+
+void MockUiApplication::RemoveCreatedWindow(MockWindow* window) {
+  ClearMouseStateForWindow(window);
+  std::erase(windows_, static_cast<INativeWindow*>(window));
+}
+
+MockWindow* MockUiApplication::FindKnownWindow(INativeWindow* window) const {
+  auto iterator =
+      std::ranges::find_if(window_instances_, [window](MockWindow* instance) {
+        return static_cast<INativeWindow*>(instance) == window;
+      });
+  return iterator == window_instances_.end() ? nullptr : *iterator;
+}
+
+void MockUiApplication::UpdateHoveredWindow(MockWindow* window) {
+  if (hovered_window_ == window) return;
+
+  auto* old_hovered_window = hovered_window_;
+  hovered_window_ = nullptr;
+  if (old_hovered_window != nullptr && old_hovered_window->IsCreated()) {
+    old_hovered_window->InjectMouseLeave();
+  }
+
+  if (window != nullptr && window->IsCreated()) {
+    hovered_window_ = window;
+    window->InjectMouseEnter();
+  }
+}
+
+void MockUiApplication::SetHoveredWindowFromInjection(MockWindow* window) {
+  hovered_window_ = window;
+}
+
+void MockUiApplication::ClearHoveredWindowFromInjection(MockWindow* window) {
+  if (hovered_window_ == window) hovered_window_ = nullptr;
+}
+
+bool MockUiApplication::CaptureMouse(MockWindow* window) {
+  if (!IsMouseVisibleWindow(window)) return false;
+
+  if (captured_window_ != nullptr && captured_window_ != window) {
+    captured_window_->has_mouse_capture_ = false;
+  }
+  captured_window_ = window;
+  window->has_mouse_capture_ = true;
+  return true;
+}
+
+bool MockUiApplication::ReleaseMouse(MockWindow* window) {
+  if (window == nullptr || !window->IsCreated()) return false;
+
+  if (captured_window_ == window) captured_window_ = nullptr;
+  window->has_mouse_capture_ = false;
+  return true;
+}
+
+void MockUiApplication::ClearMouseStateForWindow(MockWindow* window) {
+  if (window == nullptr) return;
+  if (hovered_window_ == window) hovered_window_ = nullptr;
+  if (captured_window_ == window) captured_window_ = nullptr;
+  window->has_mouse_capture_ = false;
+  window->is_mouse_inside_ = false;
+}
+
+void MockUiApplication::BringWindowToForeground(MockWindow* window) {
+  if (window == nullptr) return;
+  std::erase(windows_, static_cast<INativeWindow*>(window));
+  windows_.push_back(window);
+}
+
 std::string MockUiApplication::BuildEventLoopDiagnostic(
     std::string_view reason, std::optional<std::size_t> max_iterations,
     std::optional<std::size_t> iterations) const {
@@ -316,7 +531,13 @@ std::string MockUiApplication::BuildEventLoopDiagnostic(
            << (graphics_factory_->GetImageFactory() == nullptr ? "null"
                                                                : "present");
   }
-  stream << ", windows=" << windows_.size()
+  stream << ", windows=" << windows_.size() << ", desktop_rect=("
+         << desktop_rect_.left << ", " << desktop_rect_.top << ", "
+         << desktop_rect_.width << ", " << desktop_rect_.height << ")"
+         << ", global_mouse_position=(" << global_mouse_position_.x << ", "
+         << global_mouse_position_.y << ")"
+         << ", hovered_window=" << hovered_window_
+         << ", captured_window=" << captured_window_
          << ", queued_actions=" << action_queue_.size()
          << ", timers=" << timers_.size() << ", delete_later_pending="
          << (delete_later_pending_ ? "true" : "false")
@@ -342,7 +563,7 @@ std::string MockUiApplication::BuildEventLoopDiagnostic(
     stream << ", window_details=[";
     for (std::size_t index = 0; index < windows_.size(); ++index) {
       if (index != 0) stream << "; ";
-      auto* window = dynamic_cast<MockWindow*>(windows_[index]);
+      auto* window = FindKnownWindow(windows_[index]);
       if (window == nullptr) {
         stream << "non_mock_window=" << windows_[index];
       } else {
@@ -397,30 +618,23 @@ void MockUser::MoveMouse(MockWindow& window, const Point& point) {
 void MockUser::Click(MockWindow& window, const Point& point, MouseButton button,
                      KeyModifier modifier) {
   EnsureReadyForAction(window, &point, "Click");
-  MoveMouseAfterActionability(window, point);
-  RaiseMouseButtonAfterActionability(window, point, button, modifier);
+  if (!application_->Click(window.ClientToGlobal(point), button, modifier)) {
+    throw Exception(std::format(
+        "MockUser Click failed to route global mouse input. window={{{}}}, "
+        "point={}",
+        DescribeWindow(window), point));
+  }
 }
 
 void MockUser::Drag(MockWindow& window, const Point& start_point,
                     const Point& end_point, MouseButton button,
                     KeyModifier modifier) {
   EnsureReadyForAction(window, &start_point, "Drag");
-  MoveMouseAfterActionability(window, start_point);
-
-  if (!window.InjectMouseDown(button, start_point, modifier)) {
-    throw Exception(std::format(
-        "MockUser Drag failed to inject mouse down. window={{{}}}, point={}",
-        DescribeWindow(window), start_point));
-  }
-  if (!window.InjectMouseMove(end_point)) {
-    throw Exception(std::format(
-        "MockUser Drag failed to inject mouse move. window={{{}}}, point={}",
-        DescribeWindow(window), end_point));
-  }
-  if (!window.InjectMouseUp(button, end_point, modifier)) {
-    throw Exception(std::format(
-        "MockUser Drag failed to inject mouse up. window={{{}}}, point={}",
-        DescribeWindow(window), end_point));
+  if (!application_->Drag(window, start_point, end_point, button, modifier)) {
+    throw Exception(
+        std::format("MockUser Drag failed to route window-scoped drag input. "
+                    "window={{{}}}, start_point={}, end_point={}",
+                    DescribeWindow(window), start_point, end_point));
   }
 }
 
@@ -472,34 +686,11 @@ void MockUser::EnsureWindowActionable(MockWindow& window, const Point* point,
 
 void MockUser::MoveMouseAfterActionability(MockWindow& window,
                                            const Point& point) {
-  if (!window.IsMouseInside() && !window.InjectMouseEnter()) {
-    throw Exception(std::format(
-        "MockUser MoveMouse failed to inject mouse enter. window={{{}}}, "
-        "point={}",
-        DescribeWindow(window), point));
-  }
-
-  if (!window.InjectMouseMove(point)) {
-    throw Exception(std::format(
-        "MockUser MoveMouse failed to inject mouse move. window={{{}}}, "
-        "point={}",
-        DescribeWindow(window), point));
-  }
-}
-
-void MockUser::RaiseMouseButtonAfterActionability(MockWindow& window,
-                                                  const Point& point,
-                                                  MouseButton button,
-                                                  KeyModifier modifier) {
-  if (!window.InjectMouseDown(button, point, modifier)) {
-    throw Exception(std::format(
-        "MockUser Click failed to inject mouse down. window={{{}}}, point={}",
-        DescribeWindow(window), point));
-  }
-  if (!window.InjectMouseUp(button, point, modifier)) {
-    throw Exception(std::format(
-        "MockUser Click failed to inject mouse up. window={{{}}}, point={}",
-        DescribeWindow(window), point));
+  if (!application_->MoveMouse(window.ClientToGlobal(point))) {
+    throw Exception(
+        std::format("MockUser MoveMouse failed to route global mouse input. "
+                    "window={{{}}}, point={}",
+                    DescribeWindow(window), point));
   }
 }
 

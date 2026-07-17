@@ -116,10 +116,30 @@ class CRU_PLATFORM_GUI_MOCK_API MockUiApplication
   std::string GetEventLoopDiagnostic() const;
   const std::string& GetLastDiagnostic() const { return last_diagnostic_; }
 
-  void RegisterWindow(INativeWindow* window);
-  void UnregisterWindow(INativeWindow* window);
+  Rect GetDesktopRect() const { return desktop_rect_; }
+  void SetDesktopRect(const Rect& rect);
+  Size GetDesktopSize() const { return desktop_rect_.GetSize(); }
+  void SetDesktopSize(const Size& size);
+  Point GetGlobalMousePosition() const { return global_mouse_position_; }
+  void SetGlobalMousePosition(const Point& point);
+  bool MoveMouse(const Point& global_point);
+  bool MouseDown(MouseButton button = MouseButtons::Left,
+                 KeyModifier modifier = KeyModifiers::None);
+  bool MouseUp(MouseButton button = MouseButtons::Left,
+               KeyModifier modifier = KeyModifiers::None);
+  bool MouseWheel(float delta, KeyModifier modifier = KeyModifiers::None,
+                  bool horizontal = false);
+  bool Click(const Point& global_point, MouseButton button = MouseButtons::Left,
+             KeyModifier modifier = KeyModifiers::None);
+  bool Drag(MockWindow& window, const Point& start_point,
+            const Point& end_point, MouseButton button = MouseButtons::Left,
+            KeyModifier modifier = KeyModifiers::None);
+  MockWindow* GetHoveredWindow() const { return hovered_window_; }
+  MockWindow* GetCapturedWindow() const { return captured_window_; }
 
  private:
+  friend class MockWindow;
+
   struct QueuedAction {
     long long id;
     std::function<void()> action;
@@ -138,6 +158,21 @@ class CRU_PLATFORM_GUI_MOCK_API MockUiApplication
   std::optional<std::size_t> FindNextDueTimerIndex() const;
   bool FlushDeleteLater();
   bool HasRepeatingTimer() const;
+  Point ClampToDesktop(const Point& point) const;
+  MockWindow* FindTopmostWindowAt(const Point& global_point) const;
+  MockWindow* FindClientWindowAt(const Point& global_point) const;
+  MockWindow* GetMouseTargetWindow() const;
+  void RegisterWindow(MockWindow* window);
+  void UnregisterWindow(MockWindow* window);
+  void RemoveCreatedWindow(MockWindow* window);
+  MockWindow* FindKnownWindow(INativeWindow* window) const;
+  void UpdateHoveredWindow(MockWindow* window);
+  void SetHoveredWindowFromInjection(MockWindow* window);
+  void ClearHoveredWindowFromInjection(MockWindow* window);
+  bool CaptureMouse(MockWindow* window);
+  bool ReleaseMouse(MockWindow* window);
+  void ClearMouseStateForWindow(MockWindow* window);
+  void BringWindowToForeground(MockWindow* window);
   std::string BuildEventLoopDiagnostic(
       std::string_view reason,
       std::optional<std::size_t> max_iterations = std::nullopt,
@@ -155,6 +190,12 @@ class CRU_PLATFORM_GUI_MOCK_API MockUiApplication
 
   bool is_quit_on_all_window_closed_ = true;
   std::vector<INativeWindow*> windows_;
+  std::vector<MockWindow*> window_instances_;
+
+  Rect desktop_rect_{0.f, 0.f, 1920.f, 1080.f};
+  Point global_mouse_position_;
+  MockWindow* hovered_window_ = nullptr;
+  MockWindow* captured_window_ = nullptr;
 
   long long next_timer_id_ = 1;
   std::size_t next_timer_order_ = 0;
@@ -174,8 +215,8 @@ class CRU_PLATFORM_GUI_MOCK_API MockUiApplication
  *
  * Each action settles first, checks that the window belongs to the same
  * MockUiApplication, verifies the window is created and visible, then delegates
- * to MockWindow injection APIs. This facade is GUI-native rather than a
- * browser/DOM locator or actionability model.
+ * to MockUiApplication desktop input APIs. This facade is GUI-native rather
+ * than a browser/DOM locator or actionability model.
  */
 class CRU_PLATFORM_GUI_MOCK_API MockUser : public Object {
  public:
@@ -210,10 +251,6 @@ class CRU_PLATFORM_GUI_MOCK_API MockUser : public Object {
   void EnsureWindowActionable(MockWindow& window, const Point* point,
                               std::string_view action) const;
   void MoveMouseAfterActionability(MockWindow& window, const Point& point);
-  void RaiseMouseButtonAfterActionability(MockWindow& window,
-                                          const Point& point,
-                                          MouseButton button,
-                                          KeyModifier modifier);
   static std::string DescribeWindow(const MockWindow& window);
 
  private:
