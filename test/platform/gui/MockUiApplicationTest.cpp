@@ -13,6 +13,7 @@
 #include <chrono>
 #include <memory>
 #include <string>
+#include <thread>
 #include <vector>
 
 namespace {
@@ -160,6 +161,28 @@ TEST_CASE("UI application scoped registration installs and restores singleton",
   }
 
   REQUIRE(IUiApplication::GetInstance() == nullptr);
+}
+
+TEST_CASE("UI application singleton is isolated per thread",
+          "[platform][gui][mock][app][singleton][thread]") {
+  MockUiApplication app;
+  IUiApplication::ScopedRegistration registration(app);
+
+  IUiApplication* thread_initial = nullptr;
+  IUiApplication* thread_registered = nullptr;
+  std::thread thread([&] {
+    thread_initial = IUiApplication::GetInstance();
+
+    MockUiApplication thread_app;
+    IUiApplication::ScopedRegistration thread_registration(thread_app);
+    thread_registered = IUiApplication::GetInstance();
+  });
+  thread.join();
+
+  REQUIRE(thread_initial == nullptr);
+  REQUIRE(thread_registered != nullptr);
+  REQUIRE(thread_registered != &app);
+  REQUIRE(IUiApplication::GetInstance() == &app);
 }
 
 TEST_CASE("Timer auto canceler tolerates no installed UI application",

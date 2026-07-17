@@ -32,8 +32,9 @@ class CRU_PLATFORM_GUI_API DeleteLaterPool : public Object {
 /**
  * @brief The entry point of a ui application.
  *
- * Native UI application implementations install themselves as the process
- * instance during construction. MockUiApplication is intentionally different:
+ * Native UI application implementations install themselves as the current
+ * thread instance during construction. MockUiApplication is intentionally
+ * different:
  * direct construction does not install it unless its constructor is asked to do
  * so. Use ScopedRegistration for temporary overrides and specialized tests.
  */

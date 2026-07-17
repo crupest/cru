@@ -21,9 +21,9 @@ class MockWindow;
 
 /**
  * @brief Test-only GUI application for code that needs an IUiApplication
- * singleton without starting a native backend.
+ * thread-local singleton without starting a native backend.
  *
- * Direct construction does not install a process IUiApplication singleton by
+ * Direct construction does not install an IUiApplication singleton by
  * default. Pass register_instance=true, or use MockUiApplicationFixture, when
  * UI code needs IUiApplication::GetInstance().
  *
@@ -176,8 +176,8 @@ class CRU_PLATFORM_GUI_MOCK_API MockUiApplicationFixture {
    * @brief Construct an RAII owner for direct-construction tests.
    *
    * The fixture constructs the mock with register_instance=true, installing it
-   * as the process IUiApplication singleton for its lifetime and restoring the
-   * previous app on destruction.
+   * as the current thread IUiApplication singleton for its lifetime and
+   * restoring the previous app on destruction.
    */
   explicit MockUiApplicationFixture(
       graphics::IGraphicsFactory* graphics_factory = nullptr,

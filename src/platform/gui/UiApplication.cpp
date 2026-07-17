@@ -1,6 +1,9 @@
 #include "cru/platform/gui/UiApplication.h"
 #include "cru/base/Base.h"
 
+#include <mutex>
+#include <thread>
+#include <unordered_map>
 #include <unordered_set>
 
 namespace cru::platform::gui {
@@ -24,8 +27,19 @@ void DeleteLaterPool::Clean() {
 }
 
 namespace {
-IUiApplication* instance = nullptr;
+thread_local IUiApplication* instance = nullptr;
+
+std::mutex& GetInstanceMapMutex() {
+  static auto* mutex = new std::mutex;
+  return *mutex;
 }
+
+std::unordered_map<std::thread::id, IUiApplication*>& GetInstanceMap() {
+  static auto* instances =
+      new std::unordered_map<std::thread::id, IUiApplication*>;
+  return *instances;
+}
+}  // namespace
 
 IUiApplication::ScopedRegistration::ScopedRegistration(
     IUiApplication* application)
@@ -43,7 +57,18 @@ IUiApplication::ScopedRegistration::ScopedRegistration(
 
 IUiApplication* IUiApplication::GetInstance() { return instance; }
 
-void IUiApplication::SetInstance(IUiApplication* i) { instance = i; }
+void IUiApplication::SetInstance(IUiApplication* i) {
+  instance = i;
+
+  std::lock_guard lock(GetInstanceMapMutex());
+  auto& instances = GetInstanceMap();
+  auto thread_id = std::this_thread::get_id();
+  if (i == nullptr) {
+    instances.erase(thread_id);
+  } else {
+    instances[thread_id] = i;
+  }
+}
 
 IUiApplication::IUiApplication(bool register_instance) {
   if (register_instance) {
