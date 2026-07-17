@@ -3,6 +3,7 @@
 #include "Base.h"
 #include "Clipboard.h"
 #include "Cursor.h"
+#include "Window.h"
 
 #include <cru/platform/gui/UiApplication.h>
 
@@ -27,10 +28,9 @@ class MockWindow;
  * IUiApplication singleton for its lifetime, matching native application
  * backends without leaking state across test threads.
  *
- * For UI tests, create MockUiApplication before constructing
- * cru::ui::controls::Window or ControlHost users; those paths obtain the active
- * app singleton and create a native window through it. Native-window-only tests
- * can call CreateMockWindow directly. Typical native-window flow:
+ * Create MockUiApplication before code that needs
+ * IUiApplication::GetInstance(). Native-window-only tests can call
+ * CreateMockWindow directly. Typical native window flow:
  *
  * @code
  * FakeGraphicsFactory graphics_factory;
@@ -168,4 +168,54 @@ class CRU_PLATFORM_GUI_MOCK_API MockUiApplication
   std::unique_ptr<MockCursorManager> cursor_manager_;
   std::unique_ptr<MockClipboard> clipboard_;
 };
+
+/**
+ * @brief GUI-native user facade for common mock-window actions.
+ *
+ * Each action settles first, checks that the window belongs to the same
+ * MockUiApplication, verifies the window is created and visible, then delegates
+ * to MockWindow injection APIs. This facade is GUI-native rather than a
+ * browser/DOM locator or actionability model.
+ */
+class CRU_PLATFORM_GUI_MOCK_API MockUser : public Object {
+ public:
+  explicit MockUser(MockUiApplication* application);
+  explicit MockUser(MockUiApplication& application);
+
+  MockUiApplication* GetApplication() const { return application_; }
+
+  bool Pump();
+  void Settle(std::size_t max_iterations =
+                  MockUiApplication::kDefaultMaxPumpIterations);
+  bool WaitUntil(const std::function<bool()>& predicate,
+                 std::size_t max_iterations =
+                     MockUiApplication::kDefaultMaxPumpIterations);
+  std::string GetLastDiagnostic() const;
+  std::string GetEventLoopDiagnostic() const;
+
+  void MoveMouse(MockWindow& window, const Point& point);
+  void Click(MockWindow& window, const Point& point,
+             MouseButton button = MouseButtons::Left,
+             KeyModifier modifier = KeyModifiers::None);
+  void TypeText(MockWindow& window, std::string text);
+  void PressKey(MockWindow& window, KeyCode key,
+                KeyModifier modifier = KeyModifiers::None);
+
+ private:
+  void EnsureReadyForAction(MockWindow& window, const Point* point,
+                            std::string_view action);
+  void EnsureWindowActionable(MockWindow& window, const Point* point,
+                              std::string_view action) const;
+  void MoveMouseAfterActionability(MockWindow& window, const Point& point);
+  void RaiseMouseButtonAfterActionability(MockWindow& window,
+                                          const Point& point,
+                                          MouseButton button,
+                                          KeyModifier modifier);
+  static std::string DescribePoint(const Point& point);
+  static std::string DescribeWindow(const MockWindow& window);
+
+ private:
+  MockUiApplication* application_;
+};
+
 }  // namespace cru::platform::gui::mock

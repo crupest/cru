@@ -12,6 +12,17 @@
 #include <utility>
 
 namespace cru::platform::gui::mock {
+namespace {
+MockUiApplication* RequireApplication(MockUiApplication* application,
+                                      std::string_view owner) {
+  if (application == nullptr) {
+    throw Exception(std::string(owner) +
+                    " requires a non-null MockUiApplication.");
+  }
+  return application;
+}
+}  // namespace
+
 MockUiApplication::MockUiApplication(
     graphics::IGraphicsFactory* graphics_factory, bool release_graphics_factory)
     : graphics_factory_(graphics_factory),
@@ -351,6 +362,133 @@ void MockUiApplication::InvokePendingQuitHandlers() {
     handler();
   }
   invoked_quit_handler_count_ = handler_count;
+}
+
+MockUser::MockUser(MockUiApplication* application)
+    : application_(RequireApplication(application, "MockUser")) {}
+
+MockUser::MockUser(MockUiApplication& application) : MockUser(&application) {}
+
+bool MockUser::Pump() { return application_->PumpOnce(); }
+
+void MockUser::Settle(std::size_t max_iterations) {
+  application_->Settle(max_iterations);
+}
+
+bool MockUser::WaitUntil(const std::function<bool()>& predicate,
+                         std::size_t max_iterations) {
+  return application_->WaitUntil(predicate, max_iterations);
+}
+
+std::string MockUser::GetLastDiagnostic() const {
+  return application_->GetLastDiagnostic();
+}
+
+std::string MockUser::GetEventLoopDiagnostic() const {
+  return application_->GetEventLoopDiagnostic();
+}
+
+void MockUser::MoveMouse(MockWindow& window, const Point& point) {
+  EnsureReadyForAction(window, &point, "MoveMouse");
+  MoveMouseAfterActionability(window, point);
+}
+
+void MockUser::Click(MockWindow& window, const Point& point, MouseButton button,
+                     KeyModifier modifier) {
+  EnsureReadyForAction(window, &point, "Click");
+  MoveMouseAfterActionability(window, point);
+  RaiseMouseButtonAfterActionability(window, point, button, modifier);
+}
+
+void MockUser::TypeText(MockWindow& window, std::string text) {
+  EnsureReadyForAction(window, nullptr, "TypeText");
+  window.InjectTextInput(std::move(text));
+}
+
+void MockUser::PressKey(MockWindow& window, KeyCode key, KeyModifier modifier) {
+  EnsureReadyForAction(window, nullptr, "PressKey");
+  window.InjectKeyDown(key, modifier);
+  window.InjectKeyUp(key, modifier);
+}
+
+void MockUser::EnsureReadyForAction(MockWindow& window, const Point* point,
+                                    std::string_view action) {
+  try {
+    application_->Settle();
+  } catch (const Exception& exception) {
+    throw Exception(std::string("MockUser ") + std::string(action) +
+                    " failed before action because the mock UI did not "
+                    "settle: " +
+                    exception.what());
+  }
+
+  EnsureWindowActionable(window, point, action);
+}
+
+void MockUser::EnsureWindowActionable(MockWindow& window, const Point* point,
+                                      std::string_view action) const {
+  if (window.GetMockUiApplication() != application_) {
+    throw Exception(std::string("MockUser ") + std::string(action) +
+                    " received a window from a different MockUiApplication. "
+                    "window={" +
+                    DescribeWindow(window) + "}");
+  }
+
+  if (!window.IsCreated() ||
+      window.GetVisibility() != WindowVisibilityType::Show) {
+    auto message = std::string("MockUser ") + std::string(action) +
+                   " requires a created visible mock window. window={" +
+                   DescribeWindow(window) + "}";
+    if (point != nullptr) message += ", point=" + DescribePoint(*point);
+    throw Exception(std::move(message));
+  }
+}
+
+void MockUser::MoveMouseAfterActionability(MockWindow& window,
+                                           const Point& point) {
+  if (!window.IsMouseInside() && !window.InjectMouseEnter()) {
+    throw Exception(
+        "MockUser MoveMouse failed to inject mouse enter. window={" +
+        DescribeWindow(window) + "}, point=" + DescribePoint(point));
+  }
+
+  if (!window.InjectMouseMove(point)) {
+    throw Exception("MockUser MoveMouse failed to inject mouse move. window={" +
+                    DescribeWindow(window) +
+                    "}, point=" + DescribePoint(point));
+  }
+}
+
+void MockUser::RaiseMouseButtonAfterActionability(MockWindow& window,
+                                                  const Point& point,
+                                                  MouseButton button,
+                                                  KeyModifier modifier) {
+  if (!window.InjectMouseDown(button, point, modifier)) {
+    throw Exception("MockUser Click failed to inject mouse down. window={" +
+                    DescribeWindow(window) +
+                    "}, point=" + DescribePoint(point));
+  }
+  if (!window.InjectMouseUp(button, point, modifier)) {
+    throw Exception("MockUser Click failed to inject mouse up. window={" +
+                    DescribeWindow(window) +
+                    "}, point=" + DescribePoint(point));
+  }
+}
+
+std::string MockUser::DescribePoint(const Point& point) {
+  std::ostringstream stream;
+  stream << "(" << point.x << ", " << point.y << ")";
+  return stream.str();
+}
+
+std::string MockUser::DescribeWindow(const MockWindow& window) {
+  auto& mutable_window = const_cast<MockWindow&>(window);
+
+  std::ostringstream stream;
+  stream << mutable_window.GetDiagnostic() << ", app_diagnostic={"
+         << mutable_window.GetMockUiApplication()->GetEventLoopDiagnostic()
+         << "}";
+  return stream.str();
 }
 
 }  // namespace cru::platform::gui::mock

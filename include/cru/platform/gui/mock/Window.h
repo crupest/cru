@@ -24,9 +24,9 @@ class MockUiApplication;
  * or repaint requests.
  *
  * InjectResize/InjectVisibilityChange/InjectFocus and the mouse/key/text/IME
- * helpers update mock state and raise the same native events consumed by
- * ControlHost. Use MockUser for simple GUI-native actions with actionability
- * diagnostics; use these low-level helpers when tests need exact event control.
+ * helpers update mock state and raise native events. Use MockUser for simple
+ * GUI-native actions with actionability diagnostics; use these low-level
+ * helpers when tests need exact event control.
  *
  * RequestRepaint is asynchronous and coalesced. BeginPaint paints into a bitmap
  * created from the app's injected graphics factory. GetSnapshotImage,

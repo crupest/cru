@@ -1,4 +1,4 @@
-#include "cru/platform/gui/mock/Tester.h"
+#include "cru/platform/gui/mock/UiApplication.h"
 
 #include <catch2/catch_test_macros.hpp>
 
@@ -7,7 +7,6 @@
 #include <chrono>
 #include <memory>
 #include <string>
-#include <string_view>
 #include <vector>
 
 using cru::Exception;
@@ -18,39 +17,12 @@ using cru::platform::gui::MouseButtons;
 using cru::platform::gui::MouseEnterLeaveType;
 using cru::platform::gui::NativeMouseButtonEventArgs;
 using cru::platform::gui::WindowVisibilityType;
-using cru::platform::gui::mock::MockGuiTester;
 using cru::platform::gui::mock::MockUiApplication;
 using cru::platform::gui::mock::MockUser;
 using cru::platform::gui::mock::MockWindow;
 
-TEST_CASE("MockGuiTester delegates pump settle and WaitUntil diagnostics",
-          "[platform][gui][mock][tester][MockGuiTester][WaitUntil]") {
-  MockUiApplication app;
-  MockGuiTester tester(app);
-  int action_count = 0;
-
-  app.SetImmediate([&action_count] { ++action_count; });
-  REQUIRE(tester.Pump());
-  REQUIRE(action_count == 1);
-  REQUIRE_FALSE(tester.Pump());
-
-  app.SetImmediate([&action_count] { ++action_count; });
-  tester.Settle();
-  REQUIRE(action_count == 2);
-
-  app.SetImmediate([&action_count] { ++action_count; });
-  REQUIRE(tester.WaitUntil([&action_count] { return action_count == 3; }, 2));
-  REQUIRE(action_count == 3);
-
-  REQUIRE_FALSE(tester.WaitUntil([] { return false; }, 1));
-  REQUIRE(std::string_view(tester.GetLastDiagnostic()).find("WaitUntil") !=
-          std::string_view::npos);
-  REQUIRE(tester.GetEventLoopDiagnostic().find("Mock UI event loop state") !=
-          std::string::npos);
-}
-
-TEST_CASE("MockUserActions click emits native enter move down up in order",
-          "[platform][gui][mock][tester][MockUserActions]") {
+TEST_CASE("MockUser click emits native enter move down up in order",
+          "[platform][gui][mock][user][MockUser]") {
   MockUiApplication app;
   std::unique_ptr<MockWindow> window(app.CreateMockWindow());
   MockUser user(app);
@@ -91,9 +63,8 @@ TEST_CASE("MockUserActions click emits native enter move down up in order",
   REQUIRE(window->GetMousePosition() == Point{10.f, 20.f});
 }
 
-TEST_CASE(
-    "MockUserActions keep low-level injection available for uncovered cases",
-    "[platform][gui][mock][tester][MockUserActions]") {
+TEST_CASE("MockUser keeps low-level injection available for uncovered cases",
+          "[platform][gui][mock][user][MockUser]") {
   MockUiApplication app;
   std::unique_ptr<MockWindow> window(app.CreateMockWindow());
   MockUser user(app);
@@ -120,7 +91,7 @@ TEST_CASE(
 TEST_CASE(
     "MockDiagnostics ActionabilityDiagnostics report hidden and unsettled "
     "windows",
-    "[platform][gui][mock][tester][MockUserActions][WaitUntil]"
+    "[platform][gui][mock][user][MockUser][WaitUntil]"
     "[MockDiagnostics][ActionabilityDiagnostics][SettleDiagnostics]") {
   MockUiApplication app;
   std::unique_ptr<MockWindow> window(app.CreateMockWindow());

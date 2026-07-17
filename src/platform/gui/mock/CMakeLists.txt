@@ -3,7 +3,6 @@ add_library(CruPlatformGuiMock
 	Clipboard.cpp
 	Cursor.cpp
 	InputMethod.cpp
-	Tester.cpp
 	UiApplication.cpp
 	Window.cpp
 )
