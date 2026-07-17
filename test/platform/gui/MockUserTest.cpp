@@ -156,7 +156,7 @@ TEST_CASE(
     REQUIRE(message.find("pending_repaint=false") != std::string::npos);
     REQUIRE(message.find("paint_count=0") != std::string::npos);
     REQUIRE(message.find("last_injected_event=(none)") != std::string::npos);
-    REQUIRE(message.find("point=(1, 2)") != std::string::npos);
+    REQUIRE(message.find("point=Point(x: 1, y: 2)") != std::string::npos);
     REQUIRE(message.find("app_diagnostic={Mock UI event loop state") !=
             std::string::npos);
   }

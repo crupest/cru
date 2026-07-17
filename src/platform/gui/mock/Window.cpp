@@ -8,6 +8,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <format>
 #include <sstream>
 #include <string>
 #include <string_view>
@@ -21,23 +22,24 @@ int BitmapDimension(float value) {
 
 cru::Exception MissingGraphicsFactoryException(const MockWindow& window,
                                                std::string_view operation) {
-  return cru::Exception(std::string("MockWindow ") + std::string(operation) +
-                        " requires a graphics factory on MockUiApplication. " +
-                        "window={" + window.GetDiagnostic() + "}");
+  return cru::Exception(std::format(
+      "MockWindow {} requires a graphics factory on MockUiApplication. "
+      "window={{{}}}",
+      operation, window.GetDiagnostic()));
 }
 
 cru::Exception MissingImageFactoryException(const MockWindow& window,
                                             std::string_view operation) {
-  return cru::Exception(std::string("MockWindow ") + std::string(operation) +
-                        " requires graphics factory image factory support. " +
-                        "window={" + window.GetDiagnostic() + "}");
+  return cru::Exception(std::format(
+      "MockWindow {} requires graphics factory image factory support. "
+      "window={{{}}}",
+      operation, window.GetDiagnostic()));
 }
 
 cru::Exception MissingSnapshotStreamException(const MockWindow& window) {
-  return cru::Exception(
-      "MockWindow snapshot encoding requires a non-null "
-      "stream. window={" +
-      window.GetDiagnostic() + "}");
+  return cru::Exception(std::format(
+      "MockWindow snapshot encoding requires a non-null stream. window={{{}}}",
+      window.GetDiagnostic()));
 }
 
 const char* ToString(WindowVisibilityType visibility) {
@@ -503,9 +505,10 @@ void MockWindow::EnsureBackingImageForPainting(std::string_view operation) {
 void MockWindow::EnsurePaintedForSnapshot(std::string_view operation) {
   if (paint_count_ > 0) return;
 
-  throw Exception(std::string("MockWindow ") + std::string(operation) +
-                  " requires at least one BeginPaint before snapshot access. " +
-                  "window={" + GetDiagnostic() + "}");
+  throw Exception(std::format(
+      "MockWindow {} requires at least one BeginPaint before snapshot access. "
+      "window={{{}}}",
+      operation, GetDiagnostic()));
 }
 
 void MockWindow::RecordInjectedEvent(std::string event) {

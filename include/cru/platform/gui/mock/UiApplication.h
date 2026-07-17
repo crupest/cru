@@ -214,7 +214,6 @@ class CRU_PLATFORM_GUI_MOCK_API MockUser : public Object {
                                           const Point& point,
                                           MouseButton button,
                                           KeyModifier modifier);
-  static std::string DescribePoint(const Point& point);
   static std::string DescribeWindow(const MockWindow& window);
 
  private:

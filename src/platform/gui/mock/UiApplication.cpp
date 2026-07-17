@@ -7,6 +7,7 @@
 
 #include <algorithm>
 #include <cstddef>
+#include <format>
 #include <sstream>
 #include <string_view>
 #include <utility>
@@ -16,8 +17,8 @@ namespace {
 MockUiApplication* RequireApplication(MockUiApplication* application,
                                       std::string_view owner) {
   if (application == nullptr) {
-    throw Exception(std::string(owner) +
-                    " requires a non-null MockUiApplication.");
+    throw Exception(
+        std::format("{} requires a non-null MockUiApplication.", owner));
   }
   return application;
 }
@@ -407,19 +408,19 @@ void MockUser::Drag(MockWindow& window, const Point& start_point,
   MoveMouseAfterActionability(window, start_point);
 
   if (!window.InjectMouseDown(button, start_point, modifier)) {
-    throw Exception("MockUser Drag failed to inject mouse down. window={" +
-                    DescribeWindow(window) +
-                    "}, point=" + DescribePoint(start_point));
+    throw Exception(std::format(
+        "MockUser Drag failed to inject mouse down. window={{{}}}, point={}",
+        DescribeWindow(window), start_point));
   }
   if (!window.InjectMouseMove(end_point)) {
-    throw Exception("MockUser Drag failed to inject mouse move. window={" +
-                    DescribeWindow(window) +
-                    "}, point=" + DescribePoint(end_point));
+    throw Exception(std::format(
+        "MockUser Drag failed to inject mouse move. window={{{}}}, point={}",
+        DescribeWindow(window), end_point));
   }
   if (!window.InjectMouseUp(button, end_point, modifier)) {
-    throw Exception("MockUser Drag failed to inject mouse up. window={" +
-                    DescribeWindow(window) +
-                    "}, point=" + DescribePoint(end_point));
+    throw Exception(std::format(
+        "MockUser Drag failed to inject mouse up. window={{{}}}, point={}",
+        DescribeWindow(window), end_point));
   }
 }
 
@@ -439,10 +440,10 @@ void MockUser::EnsureReadyForAction(MockWindow& window, const Point* point,
   try {
     application_->Settle();
   } catch (const Exception& exception) {
-    throw Exception(std::string("MockUser ") + std::string(action) +
-                    " failed before action because the mock UI did not "
-                    "settle: " +
-                    exception.what());
+    throw Exception(std::format(
+        "MockUser {} failed before action because the mock UI did not settle: "
+        "{}",
+        action, exception.what()));
   }
 
   EnsureWindowActionable(window, point, action);
@@ -451,18 +452,20 @@ void MockUser::EnsureReadyForAction(MockWindow& window, const Point* point,
 void MockUser::EnsureWindowActionable(MockWindow& window, const Point* point,
                                       std::string_view action) const {
   if (window.GetMockUiApplication() != application_) {
-    throw Exception(std::string("MockUser ") + std::string(action) +
-                    " received a window from a different MockUiApplication. "
-                    "window={" +
-                    DescribeWindow(window) + "}");
+    throw Exception(std::format(
+        "MockUser {} received a window from a different MockUiApplication. "
+        "window={{{}}}",
+        action, DescribeWindow(window)));
   }
 
   if (!window.IsCreated() ||
       window.GetVisibility() != WindowVisibilityType::Show) {
-    auto message = std::string("MockUser ") + std::string(action) +
-                   " requires a created visible mock window. window={" +
-                   DescribeWindow(window) + "}";
-    if (point != nullptr) message += ", point=" + DescribePoint(*point);
+    auto message = std::format(
+        "MockUser {} requires a created visible mock window. window={{{}}}",
+        action, DescribeWindow(window));
+    if (point != nullptr) {
+      message += std::format(", point={}", *point);
+    }
     throw Exception(std::move(message));
   }
 }
@@ -470,15 +473,17 @@ void MockUser::EnsureWindowActionable(MockWindow& window, const Point* point,
 void MockUser::MoveMouseAfterActionability(MockWindow& window,
                                            const Point& point) {
   if (!window.IsMouseInside() && !window.InjectMouseEnter()) {
-    throw Exception(
-        "MockUser MoveMouse failed to inject mouse enter. window={" +
-        DescribeWindow(window) + "}, point=" + DescribePoint(point));
+    throw Exception(std::format(
+        "MockUser MoveMouse failed to inject mouse enter. window={{{}}}, "
+        "point={}",
+        DescribeWindow(window), point));
   }
 
   if (!window.InjectMouseMove(point)) {
-    throw Exception("MockUser MoveMouse failed to inject mouse move. window={" +
-                    DescribeWindow(window) +
-                    "}, point=" + DescribePoint(point));
+    throw Exception(std::format(
+        "MockUser MoveMouse failed to inject mouse move. window={{{}}}, "
+        "point={}",
+        DescribeWindow(window), point));
   }
 }
 
@@ -487,21 +492,15 @@ void MockUser::RaiseMouseButtonAfterActionability(MockWindow& window,
                                                   MouseButton button,
                                                   KeyModifier modifier) {
   if (!window.InjectMouseDown(button, point, modifier)) {
-    throw Exception("MockUser Click failed to inject mouse down. window={" +
-                    DescribeWindow(window) +
-                    "}, point=" + DescribePoint(point));
+    throw Exception(std::format(
+        "MockUser Click failed to inject mouse down. window={{{}}}, point={}",
+        DescribeWindow(window), point));
   }
   if (!window.InjectMouseUp(button, point, modifier)) {
-    throw Exception("MockUser Click failed to inject mouse up. window={" +
-                    DescribeWindow(window) +
-                    "}, point=" + DescribePoint(point));
+    throw Exception(std::format(
+        "MockUser Click failed to inject mouse up. window={{{}}}, point={}",
+        DescribeWindow(window), point));
   }
-}
-
-std::string MockUser::DescribePoint(const Point& point) {
-  std::ostringstream stream;
-  stream << "(" << point.x << ", " << point.y << ")";
-  return stream.str();
 }
 
 std::string MockUser::DescribeWindow(const MockWindow& window) {

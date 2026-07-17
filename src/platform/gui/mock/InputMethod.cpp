@@ -1,5 +1,6 @@
 #include "cru/platform/gui/mock/InputMethod.h"
 
+#include <format>
 #include <sstream>
 #include <string_view>
 #include <utility>
@@ -127,8 +128,8 @@ void MockInputMethodContext::EmitText(std::string text) {
 
 void MockInputMethodContext::SetNoActiveCompositionDiagnostic(
     std::string_view operation) {
-  last_diagnostic_ = std::string(operation) +
-                     " ignored because there is no active composition";
+  last_diagnostic_ = std::format(
+      "{} ignored because there is no active composition", operation);
 }
 
 void MockInputMethodContext::RaiseCompositionUpdate(
