@@ -282,7 +282,6 @@ TEST_CASE("Mock windows start hidden and uncreated",
   std::unique_ptr<MockWindow> window(app.CreateMockWindow());
 
   REQUIRE_FALSE(window->IsCreated());
-  REQUIRE_FALSE(window->IsClosed());
   REQUIRE(window->GetVisibility() == WindowVisibilityType::Hide);
   REQUIRE(window->GetParent() == nullptr);
   REQUIRE(window->GetStyleFlag() == cru::platform::gui::WindowStyleFlag{});
@@ -325,7 +324,6 @@ TEST_CASE("Mock window show creates before visibility change",
 
   REQUIRE(events == std::vector<std::string>{"create", "show"});
   REQUIRE(window->IsCreated());
-  REQUIRE_FALSE(window->IsClosed());
   REQUIRE(window->GetVisibility() == WindowVisibilityType::Show);
   REQUIRE(app.GetAllWindow() == std::vector<INativeWindow*>{window.get()});
 
@@ -464,7 +462,7 @@ TEST_CASE("Mock window derives client and window rects from border",
 }
 
 TEST_CASE("Mock application tracks global mouse on a desktop canvas",
-          "[platform][gui][mock][window][MockMouseInjection]"
+          "[platform][gui][mock][window][MockMouseInput]"
           "[MockDesktopCanvas]") {
   MockUiApplication app;
   std::unique_ptr<MockWindow> first(app.CreateMockWindow());
@@ -476,21 +474,21 @@ TEST_CASE("Mock application tracks global mouse on a desktop canvas",
   first->SetVisibility(WindowVisibilityType::Show);
   second->SetVisibility(WindowVisibilityType::Show);
 
-  app.SetGlobalMousePosition(Point{15.f, 25.f});
-  REQUIRE(app.GetGlobalMousePosition() == Point{15.f, 25.f});
+  REQUIRE(app.MoveMouse(Point{15.f, 25.f}));
+  REQUIRE(app.GetMousePosition() == Point{15.f, 25.f});
   REQUIRE(first->GetMousePosition() == Point{5.f, 5.f});
   REQUIRE(second->GetMousePosition() == Point{-185.f, -25.f});
 
-  second->SetMousePosition(Point{7.f, 8.f});
-  REQUIRE(app.GetGlobalMousePosition() == Point{207.f, 58.f});
+  REQUIRE(app.MoveMouse(second->ClientToScreen(Point{7.f, 8.f})));
+  REQUIRE(app.GetMousePosition() == Point{207.f, 58.f});
   REQUIRE(first->GetMousePosition() == Point{197.f, 38.f});
 
-  app.SetGlobalMousePosition(Point{1000.f, -5.f});
-  REQUIRE(app.GetGlobalMousePosition() == Point{500.f, 0.f});
+  app.MoveMouse(Point{1000.f, -5.f});
+  REQUIRE(app.GetMousePosition() == Point{500.f, 0.f});
 }
 
 TEST_CASE("Mock application routes global mouse by z-order and border hit",
-          "[platform][gui][mock][window][MockMouseInjection]"
+          "[platform][gui][mock][window][MockMouseInput]"
           "[MockDesktopCanvas]") {
   MockUiApplication app;
   std::unique_ptr<MockWindow> bottom(app.CreateMockWindow());
@@ -535,7 +533,7 @@ TEST_CASE("Mock application routes global mouse by z-order and border hit",
 }
 
 TEST_CASE("Mock application routes captured mouse outside client",
-          "[platform][gui][mock][window][MockMouseInjection]"
+          "[platform][gui][mock][window][MockMouseInput]"
           "[MockDesktopCanvas]") {
   MockUiApplication app;
   std::unique_ptr<MockWindow> window(app.CreateMockWindow());
@@ -601,7 +599,6 @@ TEST_CASE("Mock window close destroys once and unregisters",
 
   REQUIRE(events == std::vector<std::string>{"first-destroy"});
   REQUIRE_FALSE(first->IsCreated());
-  REQUIRE(first->IsClosed());
   REQUIRE_FALSE(first->HasFocus());
   REQUIRE_FALSE(first->HasMouseCapture());
   REQUIRE(first->GetVisibility() == WindowVisibilityType::Hide);
@@ -639,7 +636,7 @@ TEST_CASE("Mock window state round-trips without native APIs",
   child->SetTitle("mock child");
   child->SetClientRect(Rect{1.f, 2.f, 30.f, 40.f});
   child->SetWindowRect(Rect{3.f, 4.f, 50.f, 60.f});
-  child->SetMousePosition(Point{7.f, 8.f});
+  app.MoveMouse(child->ClientToScreen(Point{7.f, 8.f}));
   child->SetCursor(arrow);
 
   REQUIRE(child->GetParent() == parent.get());
@@ -678,7 +675,6 @@ TEST_CASE("Mock window state round-trips without native APIs",
   REQUIRE(app.GetAllWindow().empty());
   child->SetToForeground();
   REQUIRE(child->IsCreated());
-  REQUIRE_FALSE(child->IsClosed());
   REQUIRE(child->GetVisibility() == WindowVisibilityType::Show);
   REQUIRE(app.GetAllWindow() == std::vector<INativeWindow*>{child.get()});
 }
@@ -697,8 +693,8 @@ TEST_CASE("Mock quit-on-all-windows-closed flag controls last-close quit",
 }
 
 TEST_CASE("Mock low-level injection is ignored before native creation",
-          "[platform][gui][mock][window][MockMouseInjection]"
-          "[MockFocusInjection][MockResizeInjection]") {
+          "[platform][gui][mock][window]"
+          "[MockFocusInput][MockResizeInput]") {
   MockUiApplication app;
   std::unique_ptr<MockWindow> window(app.CreateMockWindow());
   int event_count = 0;
@@ -720,17 +716,10 @@ TEST_CASE("Mock low-level injection is ignored before native creation",
   auto wheel_revoker = window->MouseWheelEvent()->AddHandler(
       [&](const NativeMouseWheelEventArgs&) { ++event_count; });
 
-  REQUIRE_FALSE(window->InjectResize(Size{10.f, 20.f}));
-  REQUIRE_FALSE(window->InjectVisibilityChange(WindowVisibilityType::Show));
-  REQUIRE_FALSE(window->InjectFocus(FocusChangeType::Gain));
-  REQUIRE_FALSE(window->InjectMouseEnter());
-  REQUIRE_FALSE(window->InjectMouseLeave());
-  REQUIRE_FALSE(window->InjectMouseMove(Point{1.f, 2.f}));
-  REQUIRE_FALSE(window->InjectMouseDown(MouseButtons::Left, Point{3.f, 4.f}));
-  REQUIRE_FALSE(window->InjectMouseUp(MouseButtons::Left, Point{3.f, 4.f}));
-  REQUIRE_FALSE(window->InjectMouseWheel(1.f, Point{5.f, 6.f},
-                                         KeyModifiers::Shift, false));
-
+  REQUIRE_FALSE(app.ResizeWindow(window.get(), Size{10.f, 20.f}));
+  REQUIRE_FALSE(app.ShowWindow(window.get()));
+  REQUIRE_FALSE(app.FocusWindow(window.get()));
+  REQUIRE_FALSE(app.KeyDown(cru::platform::gui::KeyCode::A));
   REQUIRE(event_count == 0);
   REQUIRE(window->GetClientSize() == Size{});
   REQUIRE(window->GetVisibility() == WindowVisibilityType::Hide);
@@ -739,17 +728,18 @@ TEST_CASE("Mock low-level injection is ignored before native creation",
   REQUIRE(window->GetMousePosition() == Point{});
 }
 
-TEST_CASE(
-    "Mock low-level resize visibility and focus injection update state first",
-    "[platform][gui][mock][window][MockFocusInjection]"
-    "[MockResizeInjection]") {
+TEST_CASE("Mock low-level resize visibility and app focus update state first",
+          "[platform][gui][mock][window][MockFocusInput]"
+          "[MockResizeInput]") {
   FakeGraphicsFactory graphics_factory;
   MockUiApplication app(&graphics_factory);
   std::unique_ptr<MockWindow> window(app.CreateMockWindow());
+  std::unique_ptr<MockWindow> other_window(app.CreateMockWindow());
   std::vector<std::string> events;
 
   window->SetClientSize(Size{10.f, 20.f});
   window->SetVisibility(WindowVisibilityType::Show);
+  other_window->SetVisibility(WindowVisibilityType::Show);
   REQUIRE(window->GetBackingImage() != nullptr);
 
   auto resize_revoker =
@@ -765,8 +755,11 @@ TEST_CASE(
   auto visibility_revoker = window->VisibilityChangeEvent()->AddHandler(
       [&](WindowVisibilityType visibility) {
         REQUIRE(window->GetVisibility() == visibility);
-        events.push_back(visibility == WindowVisibilityType::Hide ? "hide"
-                                                                  : "minimize");
+        events.push_back(visibility == WindowVisibilityType::Hide   ? "hide"
+                         : visibility == WindowVisibilityType::Show ? "show"
+                         : visibility == WindowVisibilityType::Minimize
+                             ? "minimize"
+                             : "other");
       });
   auto focus_revoker =
       window->FocusEvent()->AddHandler([&](FocusChangeType focus) {
@@ -775,23 +768,27 @@ TEST_CASE(
                                                         : "focus-lose");
       });
 
-  REQUIRE(window->InjectResize(Size{30.f, 40.f}));
-  REQUIRE_FALSE(window->InjectResize(Size{30.f, 40.f}));
-  REQUIRE(window->InjectFocus(FocusChangeType::Gain));
-  REQUIRE_FALSE(window->InjectFocus(FocusChangeType::Gain));
-  REQUIRE(window->InjectFocus(FocusChangeType::Lose));
-  REQUIRE(window->InjectVisibilityChange(WindowVisibilityType::Hide));
-  REQUIRE_FALSE(window->InjectVisibilityChange(WindowVisibilityType::Hide));
-  REQUIRE(window->InjectVisibilityChange(WindowVisibilityType::Minimize));
+  REQUIRE(app.ResizeWindow(window.get(), Size{30.f, 40.f}));
+  REQUIRE_FALSE(app.ResizeWindow(window.get(), Size{30.f, 40.f}));
+  REQUIRE(app.FocusWindow(window.get()));
+  REQUIRE(app.GetFocusedWindow() == window.get());
+  REQUIRE(app.FocusWindow(window.get()));
+  REQUIRE(app.FocusWindow(other_window.get()));
+  REQUIRE(app.GetFocusedWindow() == other_window.get());
+  REQUIRE(app.HideWindow(window.get()));
+  REQUIRE_FALSE(app.HideWindow(window.get()));
+  REQUIRE(app.ShowWindow(window.get()));
+  REQUIRE(app.MinimizeWindow(window.get()));
 
   REQUIRE(events == std::vector<std::string>{"resize", "focus-gain",
-                                             "focus-lose", "hide", "minimize"});
+                                             "focus-lose", "hide", "show",
+                                             "minimize"});
   REQUIRE(graphics_factory.GetBitmapSizes() ==
-          std::vector<Size>{Size{10.f, 20.f}, Size{30.f, 40.f}});
+          std::vector<Size>{Size{10.f, 20.f}, Size{}, Size{30.f, 40.f}});
 }
 
-TEST_CASE("Mock low-level mouse injection preserves native args and state",
-          "[platform][gui][mock][window][MockMouseInjection]") {
+TEST_CASE("Mock application mouse actions preserve native args and state",
+          "[platform][gui][mock][window][MockMouseInput]") {
   MockUiApplication app;
   std::unique_ptr<MockWindow> window(app.CreateMockWindow());
   std::vector<MouseEnterLeaveType> enter_leave_events;
@@ -834,30 +831,31 @@ TEST_CASE("Mock low-level mouse injection preserves native args and state",
         wheel_horizontal.push_back(args.horizontal);
       });
 
+  window->SetClientSize(Size{200.f, 200.f});
   window->SetVisibility(WindowVisibilityType::Show);
 
-  REQUIRE(window->InjectMouseLeave());
-  REQUIRE(window->InjectMouseEnter());
-  REQUIRE(window->InjectMouseLeave());
-  REQUIRE(window->InjectMouseMove(Point{10.f, 20.f}));
+  REQUIRE(app.MoveMouse(Point{10.f, 20.f}));
   REQUIRE(window->CaptureMouse());
-  REQUIRE(window->InjectMouseDown(NativeMouseButtonEventArgs{
-      MouseButtons::Right, Point{30.f, 40.f}, KeyModifiers::Alt}));
+  REQUIRE(app.MoveMouse(Point{30.f, 40.f}));
+  REQUIRE(app.MouseDown(MouseButtons::Right, KeyModifiers::Alt));
+  REQUIRE(app.GetFocusedWindow() == window.get());
+  REQUIRE(window->HasFocus());
   REQUIRE(window->HasMouseCapture());
-  REQUIRE(window->InjectMouseUp(MouseButtons::Right, Point{50.f, 60.f},
-                                KeyModifiers::Ctrl));
+  REQUIRE(app.MoveMouse(Point{50.f, 60.f}));
+  REQUIRE(app.MouseUp(MouseButtons::Right, KeyModifiers::Ctrl));
   REQUIRE(window->HasMouseCapture());
-  REQUIRE(window->InjectMouseWheel(-3.f, Point{70.f, 80.f}, KeyModifiers::Shift,
-                                   false));
-  REQUIRE(window->InjectMouseWheel(NativeMouseWheelEventArgs{
-      4.f, Point{90.f, 100.f}, KeyModifiers::Shift, true}));
+  REQUIRE(app.MoveMouse(Point{70.f, 80.f}));
+  REQUIRE(app.MouseWheel(-3.f, KeyModifiers::Shift, false));
+  REQUIRE(app.MoveMouse(Point{90.f, 100.f}));
+  REQUIRE(app.MouseWheel(4.f, KeyModifiers::Shift, true));
   REQUIRE(window->HasMouseCapture());
 
   REQUIRE(enter_leave_events ==
-          std::vector<MouseEnterLeaveType>{MouseEnterLeaveType::Leave,
-                                           MouseEnterLeaveType::Enter,
-                                           MouseEnterLeaveType::Leave});
-  REQUIRE(move_points == std::vector<Point>{Point{10.f, 20.f}});
+          std::vector<MouseEnterLeaveType>{MouseEnterLeaveType::Enter});
+  REQUIRE(move_points ==
+          std::vector<Point>{Point{10.f, 20.f}, Point{30.f, 40.f},
+                             Point{50.f, 60.f}, Point{70.f, 80.f},
+                             Point{90.f, 100.f}});
   REQUIRE(observed_positions == move_points);
   REQUIRE(button_events == std::vector<std::string>{"down", "up"});
   REQUIRE(wheel_deltas == std::vector<float>{-3.f, 4.f});

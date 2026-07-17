@@ -39,8 +39,10 @@ TEST_CASE("Mock keyboard injection raises native key events in order",
         modifiers.push_back(args.modifier);
       });
 
-  window->InjectKeyDown(KeyCode::A, KeyModifiers::Ctrl | KeyModifiers::Shift);
-  window->InjectKeyUp(KeyCode::A, KeyModifiers::Alt);
+  window->SetVisibility(cru::platform::gui::WindowVisibilityType::Show);
+  REQUIRE(app.FocusWindow(window.get()));
+  REQUIRE(app.KeyDown(KeyCode::A, KeyModifiers::Ctrl | KeyModifiers::Shift));
+  REQUIRE(app.KeyUp(KeyCode::A, KeyModifiers::Alt));
 
   REQUIRE(events == std::vector<std::string>{"down", "up"});
   REQUIRE(keys == std::vector<KeyCode>{KeyCode::A, KeyCode::A});
@@ -71,7 +73,9 @@ TEST_CASE("Mock text input raises input method text event without composition",
       input_method_interface->CompositionEndEvent()->AddSpyOnlyHandler(
           [&] { events.push_back("end"); });
 
-  window->InjectTextInput("plain");
+  window->SetVisibility(cru::platform::gui::WindowVisibilityType::Show);
+  REQUIRE(app.FocusWindow(window.get()));
+  REQUIRE(app.TextInput("plain"));
   window->InjectCompositionCommit("");
 
   REQUIRE(events == std::vector<std::string>{"text:plain", "text:"});

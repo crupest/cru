@@ -55,7 +55,7 @@ TEST_CASE("MockUser click emits native enter move down up in order",
   window->SetClientSize({100.f, 100.f});
   window->SetVisibility(WindowVisibilityType::Show);
 
-  user.Click(*window, Point{10.f, 20.f}, MouseButtons::Left,
+  user.Click(window.get(), Point{10.f, 20.f}, MouseButtons::Left,
              KeyModifiers::Ctrl);
 
   REQUIRE(events == std::vector<std::string>{"enter", "move", "down", "up"});
@@ -102,17 +102,17 @@ TEST_CASE("MockUser drag emits native enter move down move up in order",
   window->SetClientSize({100.f, 100.f});
   window->SetVisibility(WindowVisibilityType::Show);
 
-  user.Drag(*window, Point{10.f, 20.f}, Point{30.f, 40.f}, MouseButtons::Right,
-            KeyModifiers::Shift);
+  user.Drag(window.get(), Point{10.f, 20.f}, Point{30.f, 40.f},
+            MouseButtons::Right, KeyModifiers::Shift);
 
   REQUIRE(events == std::vector<std::string>{"enter", "move-start", "down",
                                              "move-end", "up"});
   REQUIRE(window->IsMouseInside());
   REQUIRE(window->GetMousePosition() == Point{30.f, 40.f});
-  REQUIRE(window->GetLastInjectedEvent() == "InjectMouseUp");
+  REQUIRE(window->GetLastInjectedEvent() == "MouseUp");
 }
 
-TEST_CASE("MockUser keeps low-level injection available for uncovered cases",
+TEST_CASE("MockUser keeps app mouse and low-level key injection available",
           "[platform][gui][mock][user][MockUser]") {
   MockUiApplication app;
   std::unique_ptr<MockWindow> window(app.CreateMockWindow());
@@ -129,10 +129,12 @@ TEST_CASE("MockUser keeps low-level injection available for uncovered cases",
         events.push_back(args.key == KeyCode::A ? "key-a" : "other-key");
       });
 
+  window->SetClientSize({10.f, 10.f});
   window->SetVisibility(WindowVisibilityType::Show);
 
-  user.PressKey(*window, KeyCode::A, KeyModifiers::Shift);
-  REQUIRE(window->InjectMouseDown(MouseButtons::Right, Point{1.f, 2.f}));
+  user.PressKey(window.get(), KeyCode::A, KeyModifiers::Shift);
+  REQUIRE(app.MoveMouse(Point{1.f, 2.f}));
+  REQUIRE(app.MouseDown(MouseButtons::Right));
 
   REQUIRE(events == std::vector<std::string>{"key-a", "right-down"});
 }
@@ -147,7 +149,7 @@ TEST_CASE(
   MockUser user(app);
 
   try {
-    user.Click(*window, Point{1.f, 2.f});
+    user.Click(window.get(), Point{1.f, 2.f});
     FAIL("Clicking an uncreated window should fail actionability.");
   } catch (const Exception& exception) {
     auto message = std::string(exception.what());
@@ -165,7 +167,7 @@ TEST_CASE(
   app.SetInterval(std::chrono::milliseconds(1), [] {});
 
   try {
-    user.MoveMouse(*window, Point{3.f, 4.f});
+    user.MoveMouse(window.get(), Point{3.f, 4.f});
     FAIL("Actions should fail before input when settle reports pending work.");
   } catch (const Exception& exception) {
     auto message = std::string(exception.what());

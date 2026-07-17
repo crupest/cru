@@ -38,8 +38,8 @@ TEST_CASE("UI mock platform seam is compile visible", "[ui][mock]") {
   REQUIRE(GetMockPlatformId() == "Mock");
 }
 
-TEST_CASE("Mock window injection drives ControlHost mouse routing",
-          "[ui][mock][MockMouseInjection]") {
+TEST_CASE("Mock application mouse actions drive ControlHost mouse routing",
+          "[ui][mock][MockMouseInput]") {
   MockUiApplication app;
   CanvasControl child;
   cru::ui::controls::Window window;
@@ -88,27 +88,26 @@ TEST_CASE("Mock window injection drives ControlHost mouse routing",
   auto root_loss_revoker = window.LoseFocusEvent()->Direct()->AddHandler(
       [&](cru::ui::events::FocusChangeEventArgs&) { ++root_focus_loss_count; });
 
-  REQUIRE(mock_window->InjectFocus(cru::platform::gui::FocusChangeType::Gain));
+  REQUIRE(app.FocusWindow(mock_window));
   REQUIRE(root_focus_gain_count == 1);
-  REQUIRE(mock_window->InjectMouseMove({10.f, 10.f}));
+  REQUIRE(app.MoveMouse({10.f, 10.f}));
   REQUIRE(child.IsMouseOver());
-  REQUIRE(mock_window->InjectMouseDown(cru::platform::gui::MouseButtons::Left,
-                                       {10.f, 10.f}));
-  REQUIRE(mock_window->InjectMouseDown(cru::platform::gui::MouseButtons::Left,
-                                       {150.f, 150.f}));
+  REQUIRE(app.MouseDown(cru::platform::gui::MouseButtons::Left));
+  REQUIRE_FALSE(app.MoveMouse({150.f, 150.f}));
+  REQUIRE_FALSE(app.MouseDown(cru::platform::gui::MouseButtons::Left));
   REQUIRE(child.CaptureMouse());
-  REQUIRE(mock_window->InjectMouseUp(cru::platform::gui::MouseButtons::Left,
-                                     {150.f, 150.f}));
-  REQUIRE(mock_window->InjectMouseWheel(
-      2.f, {10.f, 10.f}, cru::platform::gui::KeyModifiers::Ctrl, false));
-  REQUIRE(mock_window->InjectMouseLeave());
+  REQUIRE(app.MouseUp(cru::platform::gui::MouseButtons::Left));
+  REQUIRE(app.MoveMouse({10.f, 10.f}));
+  REQUIRE(app.MouseWheel(2.f, cru::platform::gui::KeyModifiers::Ctrl, false));
+  REQUIRE(child.ReleaseMouse());
+  REQUIRE_FALSE(app.MoveMouse({150.f, 150.f}));
   REQUIRE_FALSE(child.IsMouseOver());
-  REQUIRE(mock_window->InjectFocus(cru::platform::gui::FocusChangeType::Lose));
+  mock_window->SetVisibility(cru::platform::gui::WindowVisibilityType::Hide);
   REQUIRE(root_focus_loss_count == 1);
 
-  REQUIRE(child_events == std::vector<std::string>{"enter", "down",
-                                                   "captured-up", "wheel",
-                                                   "leave"});
+  REQUIRE(child_events == std::vector<std::string>{"enter", "down", "leave",
+                                                   "captured-up", "enter",
+                                                   "wheel", "leave"});
 }
 
 TEST_CASE("Mock key text and IME injection drive ControlHost focus routing",
@@ -128,6 +127,7 @@ TEST_CASE("Mock key text and IME injection drive ControlHost focus routing",
   auto* mock_window = dynamic_cast<MockWindow*>(window.GetNativeWindow());
   REQUIRE(mock_window != nullptr);
   REQUIRE(child.HasFocus());
+  REQUIRE(app.FocusWindow(mock_window));
 
   auto key_down_revoker = child.KeyDownEvent()->Direct()->AddHandler(
       [&](cru::ui::events::KeyEventArgs& args) {
@@ -155,12 +155,12 @@ TEST_CASE("Mock key text and IME injection drive ControlHost focus routing",
   auto composition_end_revoker = child.CompositionEndEvent()->AddSpyOnlyHandler(
       [&] { events.push_back("composition-end"); });
 
-  mock_window->InjectKeyDown(cru::platform::gui::KeyCode::A,
-                             cru::platform::gui::KeyModifiers::Ctrl |
-                                 cru::platform::gui::KeyModifiers::Shift);
-  mock_window->InjectKeyUp(cru::platform::gui::KeyCode::A,
-                           cru::platform::gui::KeyModifiers::Alt);
-  mock_window->InjectTextInput("plain");
+  REQUIRE(app.KeyDown(cru::platform::gui::KeyCode::A,
+                      cru::platform::gui::KeyModifiers::Ctrl |
+                          cru::platform::gui::KeyModifiers::Shift));
+  REQUIRE(app.KeyUp(cru::platform::gui::KeyCode::A,
+                    cru::platform::gui::KeyModifiers::Alt));
+  REQUIRE(app.TextInput("plain"));
   mock_window->InjectCompositionStart();
   mock_window->InjectCompositionUpdate("draft", {{0, 5, true}}, {5});
   mock_window->InjectCompositionCommit("done");

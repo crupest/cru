@@ -23,10 +23,9 @@ class MockUiApplication;
  * client size and visibility, then pump or settle the app after event injection
  * or repaint requests.
  *
- * InjectResize/InjectVisibilityChange/InjectFocus and the mouse/key/text/IME
- * helpers update mock state and raise native events. Use MockUser for simple
- * GUI-native actions with actionability diagnostics; use these low-level
- * helpers when tests need exact event control.
+ * IME helpers update mock state and raise native events. Use MockUiApplication
+ * or MockUser for resize, visibility, mouse, focus, key, and text actions; use
+ * these low-level helpers when tests need exact IME control.
  *
  * RequestRepaint is asynchronous and coalesced. BeginPaint paints into a bitmap
  * created from the app's injected graphics factory. GetSnapshotImage,
@@ -72,15 +71,14 @@ class CRU_PLATFORM_GUI_MOCK_API MockWindow : public MockResource,
   bool RequestFocus() override;
 
   Point GetMousePosition() override;
-  void SetMousePosition(const Point& point);
 
   Thickness GetBorderSize() const { return border_size_; }
   void SetBorderSize(const Thickness& border_size);
   Thickness GetEffectiveBorderSize() const;
-  Point ClientToGlobal(const Point& point) const;
-  Point GlobalToClient(const Point& point) const;
-  bool IsGlobalPointInWindow(const Point& point) const;
-  bool IsGlobalPointInClient(const Point& point) const;
+  Point ClientToScreen(const Point& point) const;
+  Point ScreenToClient(const Point& point) const;
+  bool IsScreenPointInWindow(const Point& point) const;
+  bool IsScreenPointInClient(const Point& point) const;
 
   bool CaptureMouse() override;
   bool ReleaseMouse() override;
@@ -101,10 +99,9 @@ class CRU_PLATFORM_GUI_MOCK_API MockWindow : public MockResource,
   MockInputMethodContext* GetMockInputMethodContext() {
     return &input_method_context_;
   }
-  bool IsClosed() const { return closed_; }
-  bool HasFocus() const { return has_focus_; }
-  bool HasMouseCapture() const { return has_mouse_capture_; }
-  bool IsMouseInside() const { return is_mouse_inside_; }
+  bool HasFocus() const;
+  bool HasMouseCapture() const;
+  bool IsMouseInside() const;
   std::shared_ptr<ICursor> GetCursor() const { return cursor_; }
   bool HasPendingRepaint() const { return repaint_pending_; }
   graphics::IImage* GetBackingImage() const { return backing_image_.get(); }
@@ -114,30 +111,12 @@ class CRU_PLATFORM_GUI_MOCK_API MockWindow : public MockResource,
   }
   std::string GetDiagnostic() const;
 
-  bool InjectResize(const Size& client_size);
-  bool InjectVisibilityChange(WindowVisibilityType visibility);
-  bool InjectFocus(FocusChangeType focus);
-  bool InjectMouseEnter();
-  bool InjectMouseLeave();
-  bool InjectMouseMove(const Point& point);
-  bool InjectMouseDown(const NativeMouseButtonEventArgs& args);
-  bool InjectMouseDown(MouseButton button, const Point& point,
-                       KeyModifier modifier = KeyModifiers::None);
-  bool InjectMouseUp(const NativeMouseButtonEventArgs& args);
-  bool InjectMouseUp(MouseButton button, const Point& point,
-                     KeyModifier modifier = KeyModifiers::None);
-  bool InjectMouseWheel(const NativeMouseWheelEventArgs& args);
-  bool InjectMouseWheel(float delta, const Point& point, KeyModifier modifier,
-                        bool horizontal);
   graphics::IImage* GetSnapshotImage();
   std::unique_ptr<graphics::IImage> CloneSnapshotToBitmap();
   void EncodeSnapshotToStream(
       io::Stream* stream,
       graphics::ImageFormat format = graphics::ImageFormat::Png,
       float quality = 1.f);
-  void InjectKeyDown(KeyCode key, KeyModifier modifier = KeyModifiers::None);
-  void InjectKeyUp(KeyCode key, KeyModifier modifier = KeyModifiers::None);
-  void InjectTextInput(std::string text);
   void InjectCompositionStart();
   void InjectCompositionUpdate(CompositionText composition_text);
   void InjectCompositionUpdate(std::string text,
@@ -154,6 +133,24 @@ class CRU_PLATFORM_GUI_MOCK_API MockWindow : public MockResource,
 
   void CreateNativeWindow();
   void RaiseResizeIfCreatedAndSizeChanged(const Size& old_size);
+  bool RaiseResize(const Size& client_size);
+  bool RaiseVisibilityChange(WindowVisibilityType visibility);
+  bool RaiseMouseEnter();
+  bool RaiseMouseLeave();
+  bool RaiseMouseMove(const Point& point);
+  bool RaiseMouseDown(const NativeMouseButtonEventArgs& args);
+  bool RaiseMouseDown(MouseButton button, const Point& point,
+                      KeyModifier modifier = KeyModifiers::None);
+  bool RaiseMouseUp(const NativeMouseButtonEventArgs& args);
+  bool RaiseMouseUp(MouseButton button, const Point& point,
+                    KeyModifier modifier = KeyModifiers::None);
+  bool RaiseMouseWheel(const NativeMouseWheelEventArgs& args);
+  bool RaiseMouseWheel(float delta, const Point& point, KeyModifier modifier,
+                       bool horizontal);
+  bool RaiseFocus(FocusChangeType focus);
+  bool RaiseKeyDown(KeyCode key, KeyModifier modifier = KeyModifiers::None);
+  bool RaiseKeyUp(KeyCode key, KeyModifier modifier = KeyModifiers::None);
+  bool RaiseTextInput(std::string text);
   void RefreshWindowRectFromClientRect();
   void RefreshClientRectFromWindowRect();
   void RecreateBackingImageIfPossible();
@@ -172,11 +169,7 @@ class CRU_PLATFORM_GUI_MOCK_API MockWindow : public MockResource,
   Thickness border_size_ = kDefaultBorderSize;
   std::shared_ptr<MockCursor> cursor_;
   bool created_ = false;
-  bool closed_ = false;
   bool is_closing_ = false;
-  bool has_focus_ = false;
-  bool has_mouse_capture_ = false;
-  bool is_mouse_inside_ = false;
   bool repaint_pending_ = false;
   long long repaint_action_id_ = 0;
   std::size_t paint_count_ = 0;

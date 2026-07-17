@@ -38,7 +38,7 @@ class MockWindow;
  * auto* window = app.CreateMockWindow();
  * window->SetClientSize({100.f, 60.f});
  * window->SetVisibility(WindowVisibilityType::Show);
- * window->InjectMouseDown(MouseButtons::Left, {5.f, 5.f});
+ * app.Click(window->ClientToScreen({5.f, 5.f}), MouseButtons::Left);
  * app.Settle();
  * @endcode
  *
@@ -116,12 +116,9 @@ class CRU_PLATFORM_GUI_MOCK_API MockUiApplication
   std::string GetEventLoopDiagnostic() const;
   const std::string& GetLastDiagnostic() const { return last_diagnostic_; }
 
-  Rect GetDesktopRect() const { return desktop_rect_; }
-  void SetDesktopRect(const Rect& rect);
-  Size GetDesktopSize() const { return desktop_rect_.GetSize(); }
+  Size GetDesktopSize() const { return desktop_size_; }
   void SetDesktopSize(const Size& size);
-  Point GetGlobalMousePosition() const { return global_mouse_position_; }
-  void SetGlobalMousePosition(const Point& point);
+  Point GetMousePosition() const { return mouse_position_; }
   bool MoveMouse(const Point& global_point);
   bool MouseDown(MouseButton button = MouseButtons::Left,
                  KeyModifier modifier = KeyModifiers::None);
@@ -131,11 +128,20 @@ class CRU_PLATFORM_GUI_MOCK_API MockUiApplication
                   bool horizontal = false);
   bool Click(const Point& global_point, MouseButton button = MouseButtons::Left,
              KeyModifier modifier = KeyModifiers::None);
-  bool Drag(MockWindow& window, const Point& start_point,
+  bool Drag(MockWindow* window, const Point& start_point,
             const Point& end_point, MouseButton button = MouseButtons::Left,
             KeyModifier modifier = KeyModifiers::None);
+  bool FocusWindow(MockWindow* window);
+  bool KeyDown(KeyCode key, KeyModifier modifier = KeyModifiers::None);
+  bool KeyUp(KeyCode key, KeyModifier modifier = KeyModifiers::None);
+  bool TextInput(std::string text);
+  bool ResizeWindow(MockWindow* window, const Size& client_size);
+  bool ShowWindow(MockWindow* window);
+  bool HideWindow(MockWindow* window);
+  bool MinimizeWindow(MockWindow* window);
   MockWindow* GetHoveredWindow() const { return hovered_window_; }
   MockWindow* GetCapturedWindow() const { return captured_window_; }
+  MockWindow* GetFocusedWindow() const { return focused_window_; }
 
  private:
   friend class MockWindow;
@@ -167,10 +173,10 @@ class CRU_PLATFORM_GUI_MOCK_API MockUiApplication
   void RemoveCreatedWindow(MockWindow* window);
   MockWindow* FindKnownWindow(INativeWindow* window) const;
   void UpdateHoveredWindow(MockWindow* window);
-  void SetHoveredWindowFromInjection(MockWindow* window);
-  void ClearHoveredWindowFromInjection(MockWindow* window);
   bool CaptureMouse(MockWindow* window);
   bool ReleaseMouse(MockWindow* window);
+  bool SetWindowVisibility(MockWindow* window, WindowVisibilityType visibility);
+  void ClearFocusForWindow(MockWindow* window);
   void ClearMouseStateForWindow(MockWindow* window);
   void BringWindowToForeground(MockWindow* window);
   std::string BuildEventLoopDiagnostic(
@@ -192,10 +198,11 @@ class CRU_PLATFORM_GUI_MOCK_API MockUiApplication
   std::vector<INativeWindow*> windows_;
   std::vector<MockWindow*> window_instances_;
 
-  Rect desktop_rect_{0.f, 0.f, 1920.f, 1080.f};
-  Point global_mouse_position_;
+  Size desktop_size_{1920.f, 1080.f};
+  Point mouse_position_;
   MockWindow* hovered_window_ = nullptr;
   MockWindow* captured_window_ = nullptr;
+  MockWindow* focused_window_ = nullptr;
 
   long long next_timer_id_ = 1;
   std::size_t next_timer_order_ = 0;
@@ -234,24 +241,24 @@ class CRU_PLATFORM_GUI_MOCK_API MockUser : public Object {
   std::string GetLastDiagnostic() const;
   std::string GetEventLoopDiagnostic() const;
 
-  void MoveMouse(MockWindow& window, const Point& point);
-  void Click(MockWindow& window, const Point& point,
+  void MoveMouse(MockWindow* window, const Point& point);
+  void Click(MockWindow* window, const Point& point,
              MouseButton button = MouseButtons::Left,
              KeyModifier modifier = KeyModifiers::None);
-  void Drag(MockWindow& window, const Point& start_point,
+  void Drag(MockWindow* window, const Point& start_point,
             const Point& end_point, MouseButton button = MouseButtons::Left,
             KeyModifier modifier = KeyModifiers::None);
-  void TypeText(MockWindow& window, std::string text);
-  void PressKey(MockWindow& window, KeyCode key,
+  void TypeText(MockWindow* window, std::string text);
+  void PressKey(MockWindow* window, KeyCode key,
                 KeyModifier modifier = KeyModifiers::None);
 
  private:
-  void EnsureReadyForAction(MockWindow& window, const Point* point,
+  void EnsureReadyForAction(MockWindow* window, const Point* point,
                             std::string_view action);
-  void EnsureWindowActionable(MockWindow& window, const Point* point,
+  void EnsureWindowActionable(MockWindow* window, const Point* point,
                               std::string_view action) const;
-  void MoveMouseAfterActionability(MockWindow& window, const Point& point);
-  static std::string DescribeWindow(const MockWindow& window);
+  void MoveMouseAfterActionability(MockWindow* window, const Point& point);
+  static std::string DescribeWindow(const MockWindow* window);
 
  private:
   MockUiApplication* application_;

@@ -141,11 +141,10 @@ TEST_CASE("Mock ControlHost routes input and settle drains timer invalidation",
 
   canvas.SetFocus();
   REQUIRE(canvas.HasFocus());
-  REQUIRE(mock_window->InjectMouseMove({5.f, 5.f}));
-  REQUIRE(mock_window->InjectMouseDown(cru::platform::gui::MouseButtons::Left,
-                                       {5.f, 5.f}));
-  mock_window->InjectKeyDown(cru::platform::gui::KeyCode::A);
-  mock_window->InjectTextInput("typed");
+  REQUIRE(app.MoveMouse({5.f, 5.f}));
+  REQUIRE(app.MouseDown(cru::platform::gui::MouseButtons::Left));
+  REQUIRE(app.KeyDown(cru::platform::gui::KeyCode::A));
+  REQUIRE(app.TextInput("typed"));
 
   REQUIRE(events ==
           std::vector<std::string>{"mouse-down", "key-down", "text:typed"});
