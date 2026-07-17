@@ -23,24 +23,23 @@ class MockWindow;
  * @brief Test-only GUI application for code that needs an IUiApplication
  * thread-local singleton without starting a native backend.
  *
- * Direct construction does not install an IUiApplication singleton by
- * default. Pass register_instance=true, or use MockUiApplicationFixture, when
- * UI code needs IUiApplication::GetInstance().
+ * Direct construction installs this object as the current thread's
+ * IUiApplication singleton for its lifetime, matching native application
+ * backends without leaking state across test threads.
  *
- * For UI tests, create the fixture before constructing
+ * For UI tests, create MockUiApplication before constructing
  * cru::ui::controls::Window or ControlHost users; those paths obtain the active
  * app singleton and create a native window through it. Native-window-only tests
  * can call CreateMockWindow directly. Typical native-window flow:
  *
  * @code
  * FakeGraphicsFactory graphics_factory;
- * MockUiApplicationFixture fixture(&graphics_factory);
- * auto* app = fixture.GetApplication();
- * auto* window = app->CreateMockWindow();
+ * MockUiApplication app(&graphics_factory);
+ * auto* window = app.CreateMockWindow();
  * window->SetClientSize({100.f, 60.f});
  * window->SetVisibility(WindowVisibilityType::Show);
  * window->InjectMouseDown(MouseButtons::Left, {5.f, 5.f});
- * app->Settle();
+ * app.Settle();
  * @endcode
  *
  * Pass a real or test double graphics::IGraphicsFactory when painting,
@@ -67,7 +66,7 @@ class CRU_PLATFORM_GUI_MOCK_API MockUiApplication
  public:
   explicit MockUiApplication(
       graphics::IGraphicsFactory* graphics_factory = nullptr,
-      bool release_graphics_factory = false, bool register_instance = false);
+      bool release_graphics_factory = false);
   ~MockUiApplication() override;
 
   static constexpr std::size_t kDefaultMaxPumpIterations = 1000;
@@ -168,28 +167,5 @@ class CRU_PLATFORM_GUI_MOCK_API MockUiApplication
   DeleteLaterPool delete_later_pool_;
   std::unique_ptr<MockCursorManager> cursor_manager_;
   std::unique_ptr<MockClipboard> clipboard_;
-};
-
-class CRU_PLATFORM_GUI_MOCK_API MockUiApplicationFixture {
- public:
-  /**
-   * @brief Construct an RAII owner for direct-construction tests.
-   *
-   * The fixture constructs the mock with register_instance=true, installing it
-   * as the current thread IUiApplication singleton for its lifetime and
-   * restoring the previous app on destruction.
-   */
-  explicit MockUiApplicationFixture(
-      graphics::IGraphicsFactory* graphics_factory = nullptr,
-      bool release_graphics_factory = false);
-  MockUiApplicationFixture(const MockUiApplicationFixture&) = delete;
-  MockUiApplicationFixture& operator=(const MockUiApplicationFixture&) = delete;
-  ~MockUiApplicationFixture();
-
-  MockUiApplication* GetApplication() { return application_.get(); }
-  MockUiApplication& Application() { return *application_; }
-
- private:
-  std::unique_ptr<MockUiApplication> application_;
 };
 }  // namespace cru::platform::gui::mock

@@ -162,15 +162,15 @@ using cru::platform::gui::KeyCode;
 using cru::platform::gui::KeyModifiers;
 using cru::platform::gui::MouseButtons;
 using cru::platform::gui::WindowVisibilityType;
-using cru::platform::gui::mock::MockUiApplicationFixture;
+using cru::platform::gui::mock::MockUiApplication;
 using cru::platform::gui::mock::MockUser;
 using cru::platform::gui::mock::MockWindow;
 
 TEST_CASE("MockUserActions target click routes through ControlHost hit testing",
           "[ui][mock][MockUserActions][MockGuiTester]") {
   FakeGraphicsFactory graphics_factory;
-  MockUiApplicationFixture fixture(&graphics_factory);
-  MockUser user(*fixture.GetApplication());
+  MockUiApplication app(&graphics_factory);
+  MockUser user(app);
   CanvasControl child("ClickableChild");
   cru::ui::controls::Window window;
   std::vector<std::string> child_events;
@@ -216,8 +216,8 @@ TEST_CASE(
     "state",
     "[ui][mock][MockUserActions]") {
   FakeGraphicsFactory graphics_factory;
-  MockUiApplicationFixture fixture(&graphics_factory);
-  MockUser user(*fixture.GetApplication());
+  MockUiApplication app(&graphics_factory);
+  MockUser user(app);
   CanvasControl child("actual-child");
   cru::ui::controls::Window window;
   int down_count = 0;
@@ -253,8 +253,8 @@ TEST_CASE(
     "route",
     "[ui][mock][MockUserActions][MockTextInput]") {
   FakeGraphicsFactory graphics_factory;
-  MockUiApplicationFixture fixture(&graphics_factory);
-  MockUser user(*fixture.GetApplication());
+  MockUiApplication app(&graphics_factory);
+  MockUser user(app);
   CanvasControl child("TextTarget");
   cru::ui::controls::Window window;
   std::vector<std::string> events;

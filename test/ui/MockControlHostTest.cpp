@@ -40,15 +40,14 @@ cru::platform::gui::mock::MockWindow* GetMockWindow(
 }
 }  // namespace
 
-using cru::platform::gui::mock::MockUiApplicationFixture;
+using cru::platform::gui::mock::MockUiApplication;
 using cru::test::ui::mock::FakeGraphicsFactory;
 using cru::test::ui::mock::kPngSignature;
 
 TEST_CASE("Mock ControlHost relayout repaints hosted canvas into snapshot",
           "[ui][mock][MockControlHost][MockRepaint][MockSnapshot]") {
   FakeGraphicsFactory graphics_factory;
-  MockUiApplicationFixture fixture(&graphics_factory);
-  auto* app = fixture.GetApplication();
+  MockUiApplication app(&graphics_factory);
   CanvasControl canvas;
   cru::ui::controls::Window window;
   int after_layout_count = 0;
@@ -61,7 +60,7 @@ TEST_CASE("Mock ControlHost relayout repaints hosted canvas into snapshot",
   auto* mock_window = GetMockWindow(&window);
   REQUIRE(mock_window != nullptr);
   REQUIRE(mock_window->IsCreated());
-  REQUIRE(app->GetAllWindow() ==
+  REQUIRE(app.GetAllWindow() ==
           std::vector<cru::platform::gui::INativeWindow*>{mock_window});
 
   auto after_layout_revoker =
@@ -78,12 +77,12 @@ TEST_CASE("Mock ControlHost relayout repaints hosted canvas into snapshot",
   window.GetControlHost()->ScheduleRelayout();
   REQUIRE_FALSE(mock_window->HasPendingRepaint());
   REQUIRE(after_layout_count == 0);
-  REQUIRE(app->PumpOnce());
+  REQUIRE(app.PumpOnce());
   REQUIRE(after_layout_count == 1);
   REQUIRE(mock_window->HasPendingRepaint());
   REQUIRE(canvas_paint_count == 0);
 
-  app->Settle();
+  app.Settle();
 
   REQUIRE_FALSE(mock_window->HasPendingRepaint());
   REQUIRE(canvas_paint_count == 1);
@@ -109,8 +108,7 @@ TEST_CASE("Mock ControlHost routes input and settle drains timer invalidation",
   using namespace std::chrono_literals;
 
   FakeGraphicsFactory graphics_factory;
-  MockUiApplicationFixture fixture(&graphics_factory);
-  auto* app = fixture.GetApplication();
+  MockUiApplication app(&graphics_factory);
   CanvasControl canvas;
   cru::ui::controls::Window window;
   std::vector<std::string> events;
@@ -124,7 +122,7 @@ TEST_CASE("Mock ControlHost routes input and settle drains timer invalidation",
   window.GetControlHost()->RelayoutWithSize({100.f, 60.f});
   auto* mock_window = GetMockWindow(&window);
   REQUIRE(mock_window != nullptr);
-  app->Settle();
+  app.Settle();
 
   auto mouse_down_revoker = canvas.MouseDownEvent()->Direct()->AddHandler(
       [&](cru::ui::events::MouseButtonEventArgs& args) {
@@ -152,14 +150,14 @@ TEST_CASE("Mock ControlHost routes input and settle drains timer invalidation",
   REQUIRE(events ==
           std::vector<std::string>{"mouse-down", "key-down", "text:typed"});
 
-  app->SetTimeout(0ms, [&] {
+  app.SetTimeout(0ms, [&] {
     ++timer_count;
     canvas.GetCanvasRenderObject()->InvalidatePaint();
   });
   REQUIRE(timer_count == 0);
   REQUIRE_FALSE(mock_window->HasPendingRepaint());
 
-  app->Settle();
+  app.Settle();
 
   REQUIRE(timer_count == 1);
   REQUIRE(paint_count == 1);

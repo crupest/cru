@@ -15,14 +15,13 @@ using cru::platform::gui::KeyCode;
 using cru::platform::gui::KeyModifier;
 using cru::platform::gui::KeyModifiers;
 using cru::platform::gui::NativeKeyEventArgs;
-using cru::platform::gui::mock::MockUiApplicationFixture;
+using cru::platform::gui::mock::MockUiApplication;
 using cru::platform::gui::mock::MockWindow;
 
 TEST_CASE("Mock keyboard injection raises native key events in order",
           "[platform][gui][mock][input][MockKeyboardInjection]") {
-  MockUiApplicationFixture fixture;
-  auto* app = fixture.GetApplication();
-  std::unique_ptr<MockWindow> window(app->CreateMockWindow());
+  MockUiApplication app;
+  std::unique_ptr<MockWindow> window(app.CreateMockWindow());
   std::vector<std::string> events;
   std::vector<KeyCode> keys;
   std::vector<KeyModifier> modifiers;
@@ -52,9 +51,8 @@ TEST_CASE("Mock keyboard injection raises native key events in order",
 
 TEST_CASE("Mock text input raises input method text event without composition",
           "[platform][gui][mock][input][MockTextInput]") {
-  MockUiApplicationFixture fixture;
-  auto* app = fixture.GetApplication();
-  std::unique_ptr<MockWindow> window(app->CreateMockWindow());
+  MockUiApplication app;
+  std::unique_ptr<MockWindow> window(app.CreateMockWindow());
   auto* input_method = window->GetMockInputMethodContext();
   IInputMethodContext* input_method_interface = window->GetInputMethodContext();
   std::vector<std::string> events;
@@ -84,9 +82,8 @@ TEST_CASE("Mock text input raises input method text event without composition",
 
 TEST_CASE("Mock IME composition commit preserves native event ordering",
           "[platform][gui][mock][input][MockIme]") {
-  MockUiApplicationFixture fixture;
-  auto* app = fixture.GetApplication();
-  std::unique_ptr<MockWindow> window(app->CreateMockWindow());
+  MockUiApplication app;
+  std::unique_ptr<MockWindow> window(app.CreateMockWindow());
   auto* input_method = window->GetMockInputMethodContext();
   std::vector<std::string> events;
 
@@ -119,9 +116,8 @@ TEST_CASE("Mock IME composition commit preserves native event ordering",
 
 TEST_CASE("Mock IME complete commits active composition and cancel drops it",
           "[platform][gui][mock][input][MockIme]") {
-  MockUiApplicationFixture fixture;
-  auto* app = fixture.GetApplication();
-  std::unique_ptr<MockWindow> window(app->CreateMockWindow());
+  MockUiApplication app;
+  std::unique_ptr<MockWindow> window(app.CreateMockWindow());
   auto* input_method = window->GetMockInputMethodContext();
   std::vector<std::string> events;
 
@@ -161,9 +157,8 @@ TEST_CASE("Mock IME complete commits active composition and cancel drops it",
 
 TEST_CASE("MockDiagnostics IME invalid no-composition sequences report state",
           "[platform][gui][mock][input][MockIme][MockDiagnostics]") {
-  MockUiApplicationFixture fixture;
-  auto* app = fixture.GetApplication();
-  std::unique_ptr<MockWindow> window(app->CreateMockWindow());
+  MockUiApplication app;
+  std::unique_ptr<MockWindow> window(app.CreateMockWindow());
   auto* input_method = window->GetMockInputMethodContext();
   std::vector<std::string> events;
 
@@ -202,9 +197,8 @@ TEST_CASE("MockDiagnostics IME invalid no-composition sequences report state",
 
 TEST_CASE("Mock IME candidate window position delegates to context state",
           "[platform][gui][mock][input][MockIme]") {
-  MockUiApplicationFixture fixture;
-  auto* app = fixture.GetApplication();
-  std::unique_ptr<MockWindow> window(app->CreateMockWindow());
+  MockUiApplication app;
+  std::unique_ptr<MockWindow> window(app.CreateMockWindow());
   auto* input_method = window->GetMockInputMethodContext();
 
   REQUIRE_FALSE(input_method->GetCandidateWindowPosition().has_value());

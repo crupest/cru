@@ -27,7 +27,7 @@ class CanvasControl : public cru::ui::controls::Control {
 
 using cru::platform::gui::mock::GetMockPlatformId;
 using cru::platform::gui::mock::MockResource;
-using cru::platform::gui::mock::MockUiApplicationFixture;
+using cru::platform::gui::mock::MockUiApplication;
 using cru::platform::gui::mock::MockWindow;
 
 TEST_CASE("UI mock platform seam is compile visible", "[ui][mock]") {
@@ -40,7 +40,7 @@ TEST_CASE("UI mock platform seam is compile visible", "[ui][mock]") {
 
 TEST_CASE("Mock window injection drives ControlHost mouse routing",
           "[ui][mock][MockMouseInjection]") {
-  MockUiApplicationFixture fixture;
+  MockUiApplication app;
   CanvasControl child;
   cru::ui::controls::Window window;
   std::vector<std::string> child_events;
@@ -113,7 +113,7 @@ TEST_CASE("Mock window injection drives ControlHost mouse routing",
 
 TEST_CASE("Mock key text and IME injection drive ControlHost focus routing",
           "[ui][mock][MockKeyboardInjection][MockTextInput][MockIme]") {
-  MockUiApplicationFixture fixture;
+  MockUiApplication app;
   CanvasControl child;
   cru::ui::controls::Window window;
   std::vector<std::string> events;

@@ -271,14 +271,13 @@ using cru::platform::gui::WindowStyleFlags;
 using cru::platform::gui::WindowVisibilityType;
 using cru::platform::gui::mock::MockCursorManager;
 using cru::platform::gui::mock::MockInputMethodContext;
-using cru::platform::gui::mock::MockUiApplicationFixture;
+using cru::platform::gui::mock::MockUiApplication;
 using cru::platform::gui::mock::MockWindow;
 
 TEST_CASE("Mock windows start hidden and uncreated",
           "[platform][gui][mock][window][MockWindowLifecycle]") {
-  MockUiApplicationFixture fixture;
-  auto* app = fixture.GetApplication();
-  std::unique_ptr<MockWindow> window(app->CreateMockWindow());
+  MockUiApplication app;
+  std::unique_ptr<MockWindow> window(app.CreateMockWindow());
 
   REQUIRE_FALSE(window->IsCreated());
   REQUIRE_FALSE(window->IsClosed());
@@ -294,7 +293,7 @@ TEST_CASE("Mock windows start hidden and uncreated",
   REQUIRE(window->GetInputMethodContext() ==
           static_cast<MockInputMethodContext*>(
               window->GetMockInputMethodContext()));
-  REQUIRE(app->GetAllWindow().empty());
+  REQUIRE(app.GetAllWindow().empty());
   REQUIRE_FALSE(window->HasPendingRepaint());
 
   window->RequestRepaint();
@@ -303,15 +302,14 @@ TEST_CASE("Mock windows start hidden and uncreated",
 
 TEST_CASE("Mock window show creates before visibility change",
           "[platform][gui][mock][window][MockWindowLifecycle]") {
-  MockUiApplicationFixture fixture;
-  auto* app = fixture.GetApplication();
-  std::unique_ptr<MockWindow> window(app->CreateMockWindow());
+  MockUiApplication app;
+  std::unique_ptr<MockWindow> window(app.CreateMockWindow());
   std::vector<std::string> events;
 
   auto create_revoker = window->CreateEvent()->AddSpyOnlyHandler([&] {
     REQUIRE(window->IsCreated());
     REQUIRE(window->GetVisibility() == WindowVisibilityType::Hide);
-    REQUIRE(app->GetAllWindow() == std::vector<INativeWindow*>{window.get()});
+    REQUIRE(app.GetAllWindow() == std::vector<INativeWindow*>{window.get()});
     events.push_back("create");
   });
   auto visibility_revoker = window->VisibilityChangeEvent()->AddHandler(
@@ -327,7 +325,7 @@ TEST_CASE("Mock window show creates before visibility change",
   REQUIRE(window->IsCreated());
   REQUIRE_FALSE(window->IsClosed());
   REQUIRE(window->GetVisibility() == WindowVisibilityType::Show);
-  REQUIRE(app->GetAllWindow() == std::vector<INativeWindow*>{window.get()});
+  REQUIRE(app.GetAllWindow() == std::vector<INativeWindow*>{window.get()});
 
   window->SetVisibility(WindowVisibilityType::Show);
   REQUIRE(events == std::vector<std::string>{"create", "show"});
@@ -335,9 +333,8 @@ TEST_CASE("Mock window show creates before visibility change",
 
 TEST_CASE("Mock window hide and minimize keep native state created",
           "[platform][gui][mock][window][MockWindowLifecycle]") {
-  MockUiApplicationFixture fixture;
-  auto* app = fixture.GetApplication();
-  std::unique_ptr<MockWindow> window(app->CreateMockWindow());
+  MockUiApplication app;
+  std::unique_ptr<MockWindow> window(app.CreateMockWindow());
   std::vector<WindowVisibilityType> visibility_events;
   auto visibility_revoker = window->VisibilityChangeEvent()->AddHandler(
       [&](WindowVisibilityType visibility) {
@@ -350,12 +347,12 @@ TEST_CASE("Mock window hide and minimize keep native state created",
   window->SetVisibility(WindowVisibilityType::Hide);
   REQUIRE(window->IsCreated());
   REQUIRE(window->GetVisibility() == WindowVisibilityType::Hide);
-  REQUIRE(app->GetAllWindow() == std::vector<INativeWindow*>{window.get()});
+  REQUIRE(app.GetAllWindow() == std::vector<INativeWindow*>{window.get()});
 
   window->SetVisibility(WindowVisibilityType::Minimize);
   REQUIRE(window->IsCreated());
   REQUIRE(window->GetVisibility() == WindowVisibilityType::Minimize);
-  REQUIRE(app->GetAllWindow() == std::vector<INativeWindow*>{window.get()});
+  REQUIRE(app.GetAllWindow() == std::vector<INativeWindow*>{window.get()});
 
   REQUIRE(visibility_events ==
           std::vector<WindowVisibilityType>{WindowVisibilityType::Hide,
@@ -365,9 +362,8 @@ TEST_CASE("Mock window hide and minimize keep native state created",
 TEST_CASE(
     "Mock window minimize before show updates visibility without creating",
     "[platform][gui][mock][window][MockWindowLifecycle]") {
-  MockUiApplicationFixture fixture;
-  auto* app = fixture.GetApplication();
-  std::unique_ptr<MockWindow> window(app->CreateMockWindow());
+  MockUiApplication app;
+  std::unique_ptr<MockWindow> window(app.CreateMockWindow());
   std::vector<WindowVisibilityType> visibility_events;
   std::vector<std::string> create_order;
   auto visibility_revoker = window->VisibilityChangeEvent()->AddHandler(
@@ -380,12 +376,12 @@ TEST_CASE(
   window->SetVisibility(WindowVisibilityType::Minimize);
   REQUIRE_FALSE(window->IsCreated());
   REQUIRE(window->GetVisibility() == WindowVisibilityType::Minimize);
-  REQUIRE(app->GetAllWindow().empty());
+  REQUIRE(app.GetAllWindow().empty());
 
   window->SetVisibility(WindowVisibilityType::Hide);
   REQUIRE_FALSE(window->IsCreated());
   REQUIRE(window->GetVisibility() == WindowVisibilityType::Hide);
-  REQUIRE(app->GetAllWindow().empty());
+  REQUIRE(app.GetAllWindow().empty());
 
   window->SetVisibility(WindowVisibilityType::Show);
   REQUIRE(window->IsCreated());
@@ -399,9 +395,8 @@ TEST_CASE(
 
 TEST_CASE("Mock window resize events observe updated client size",
           "[platform][gui][mock][window][MockWindowState]") {
-  MockUiApplicationFixture fixture;
-  auto* app = fixture.GetApplication();
-  std::unique_ptr<MockWindow> window(app->CreateMockWindow());
+  MockUiApplication app;
+  std::unique_ptr<MockWindow> window(app.CreateMockWindow());
   std::vector<Size> resize_args;
   std::vector<Size> observed_sizes;
 
@@ -439,27 +434,26 @@ TEST_CASE("Mock window resize events observe updated client size",
 TEST_CASE("Mock window close destroys once and unregisters",
           "[platform][gui][mock][window][MockWindowLifecycle]"
           "[QuitOnAllWindowsClosed]") {
-  MockUiApplicationFixture fixture;
-  auto* app = fixture.GetApplication();
-  std::unique_ptr<MockWindow> first(app->CreateMockWindow());
-  std::unique_ptr<MockWindow> second(app->CreateMockWindow());
+  MockUiApplication app;
+  std::unique_ptr<MockWindow> first(app.CreateMockWindow());
+  std::unique_ptr<MockWindow> second(app.CreateMockWindow());
   std::vector<std::string> events;
 
   auto first_destroy_revoker = first->DestroyEvent()->AddSpyOnlyHandler([&] {
     REQUIRE(first->IsCreated());
-    REQUIRE(app->GetAllWindow().size() == 2);
+    REQUIRE(app.GetAllWindow().size() == 2);
     events.push_back("first-destroy");
     first->Close();
   });
   auto second_destroy_revoker = second->DestroyEvent()->AddSpyOnlyHandler([&] {
     REQUIRE(second->IsCreated());
-    REQUIRE(app->GetAllWindow() == std::vector<INativeWindow*>{second.get()});
+    REQUIRE(app.GetAllWindow() == std::vector<INativeWindow*>{second.get()});
     events.push_back("second-destroy");
   });
 
   first->SetVisibility(WindowVisibilityType::Show);
   second->SetVisibility(WindowVisibilityType::Show);
-  REQUIRE(app->GetAllWindow() ==
+  REQUIRE(app.GetAllWindow() ==
           std::vector<INativeWindow*>{first.get(), second.get()});
 
   REQUIRE(first->RequestFocus());
@@ -472,27 +466,26 @@ TEST_CASE("Mock window close destroys once and unregisters",
   REQUIRE_FALSE(first->HasFocus());
   REQUIRE_FALSE(first->HasMouseCapture());
   REQUIRE(first->GetVisibility() == WindowVisibilityType::Hide);
-  REQUIRE(app->GetAllWindow() == std::vector<INativeWindow*>{second.get()});
-  REQUIRE_FALSE(app->HasQuitRequest());
+  REQUIRE(app.GetAllWindow() == std::vector<INativeWindow*>{second.get()});
+  REQUIRE_FALSE(app.HasQuitRequest());
 
   first->Close();
   REQUIRE(events == std::vector<std::string>{"first-destroy"});
-  REQUIRE(app->GetAllWindow() == std::vector<INativeWindow*>{second.get()});
+  REQUIRE(app.GetAllWindow() == std::vector<INativeWindow*>{second.get()});
 
   second->Close();
   REQUIRE(events ==
           std::vector<std::string>{"first-destroy", "second-destroy"});
-  REQUIRE(app->GetAllWindow().empty());
-  REQUIRE(app->HasQuitRequest());
-  REQUIRE(app->GetRequestedQuitCode() == 0);
+  REQUIRE(app.GetAllWindow().empty());
+  REQUIRE(app.HasQuitRequest());
+  REQUIRE(app.GetRequestedQuitCode() == 0);
 }
 
 TEST_CASE("Mock window state round-trips without native APIs",
           "[platform][gui][mock][window][MockWindowState]") {
-  MockUiApplicationFixture fixture;
-  auto* app = fixture.GetApplication();
-  std::unique_ptr<MockWindow> parent(app->CreateMockWindow());
-  std::unique_ptr<MockWindow> child(app->CreateMockWindow());
+  MockUiApplication app;
+  std::unique_ptr<MockWindow> parent(app.CreateMockWindow());
+  std::unique_ptr<MockWindow> child(app.CreateMockWindow());
   MockCursorManager cursor_manager;
   auto arrow = cursor_manager.GetSystemCursor(
       cru::platform::gui::SystemCursorType::Arrow);
@@ -540,37 +533,35 @@ TEST_CASE("Mock window state round-trips without native APIs",
   child->SetToForeground();
   REQUIRE(child->IsCreated());
   REQUIRE(child->GetVisibility() == WindowVisibilityType::Show);
-  REQUIRE(app->GetAllWindow() == std::vector<INativeWindow*>{child.get()});
+  REQUIRE(app.GetAllWindow() == std::vector<INativeWindow*>{child.get()});
 
   child->Close();
-  REQUIRE(app->GetAllWindow().empty());
+  REQUIRE(app.GetAllWindow().empty());
   child->SetToForeground();
   REQUIRE(child->IsCreated());
   REQUIRE_FALSE(child->IsClosed());
   REQUIRE(child->GetVisibility() == WindowVisibilityType::Show);
-  REQUIRE(app->GetAllWindow() == std::vector<INativeWindow*>{child.get()});
+  REQUIRE(app.GetAllWindow() == std::vector<INativeWindow*>{child.get()});
 }
 
 TEST_CASE("Mock quit-on-all-windows-closed flag controls last-close quit",
           "[platform][gui][mock][window][QuitOnAllWindowsClosed]") {
-  MockUiApplicationFixture fixture;
-  auto* app = fixture.GetApplication();
-  app->SetQuitOnAllWindowClosed(false);
-  std::unique_ptr<MockWindow> window(app->CreateMockWindow());
+  MockUiApplication app;
+  app.SetQuitOnAllWindowClosed(false);
+  std::unique_ptr<MockWindow> window(app.CreateMockWindow());
 
   window->SetVisibility(WindowVisibilityType::Show);
   window->Close();
 
-  REQUIRE(app->GetAllWindow().empty());
-  REQUIRE_FALSE(app->HasQuitRequest());
+  REQUIRE(app.GetAllWindow().empty());
+  REQUIRE_FALSE(app.HasQuitRequest());
 }
 
 TEST_CASE("Mock low-level injection is ignored before native creation",
           "[platform][gui][mock][window][MockMouseInjection]"
           "[MockFocusInjection][MockResizeInjection]") {
-  MockUiApplicationFixture fixture;
-  auto* app = fixture.GetApplication();
-  std::unique_ptr<MockWindow> window(app->CreateMockWindow());
+  MockUiApplication app;
+  std::unique_ptr<MockWindow> window(app.CreateMockWindow());
   int event_count = 0;
 
   auto resize_revoker =
@@ -614,9 +605,8 @@ TEST_CASE(
     "[platform][gui][mock][window][MockFocusInjection]"
     "[MockResizeInjection]") {
   FakeGraphicsFactory graphics_factory;
-  MockUiApplicationFixture fixture(&graphics_factory);
-  auto* app = fixture.GetApplication();
-  std::unique_ptr<MockWindow> window(app->CreateMockWindow());
+  MockUiApplication app(&graphics_factory);
+  std::unique_ptr<MockWindow> window(app.CreateMockWindow());
   std::vector<std::string> events;
 
   window->SetClientSize(Size{10.f, 20.f});
@@ -662,9 +652,8 @@ TEST_CASE(
 
 TEST_CASE("Mock low-level mouse injection preserves native args and state",
           "[platform][gui][mock][window][MockMouseInjection]") {
-  MockUiApplicationFixture fixture;
-  auto* app = fixture.GetApplication();
-  std::unique_ptr<MockWindow> window(app->CreateMockWindow());
+  MockUiApplication app;
+  std::unique_ptr<MockWindow> window(app.CreateMockWindow());
   std::vector<MouseEnterLeaveType> enter_leave_events;
   std::vector<Point> move_points;
   std::vector<Point> observed_positions;
@@ -739,9 +728,8 @@ TEST_CASE("Mock low-level mouse injection preserves native args and state",
 TEST_CASE("Mock repaint requests are async coalesced and ordered",
           "[platform][gui][mock][window][repaint][MockRepaint]") {
   FakeGraphicsFactory graphics_factory;
-  MockUiApplicationFixture fixture(&graphics_factory);
-  auto* app = fixture.GetApplication();
-  std::unique_ptr<MockWindow> window(app->CreateMockWindow());
+  MockUiApplication app(&graphics_factory);
+  std::unique_ptr<MockWindow> window(app.CreateMockWindow());
   std::vector<std::string> events;
 
   auto paint_revoker = window->PaintEvent()->AddSpyOnlyHandler([&] {
@@ -762,19 +750,18 @@ TEST_CASE("Mock repaint requests are async coalesced and ordered",
   REQUIRE(window->HasPendingRepaint());
   REQUIRE(events.empty());
 
-  REQUIRE(app->PumpOnce());
+  REQUIRE(app.PumpOnce());
   REQUIRE(events == std::vector<std::string>{"paint", "paint1"});
   REQUIRE_FALSE(window->HasPendingRepaint());
-  REQUIRE_FALSE(app->PumpOnce());
+  REQUIRE_FALSE(app.PumpOnce());
 }
 
 TEST_CASE("Mock repaint requested before close is a pump no-op",
           "[platform][gui][mock][window][repaint][MockRepaint]") {
   FakeGraphicsFactory graphics_factory;
-  MockUiApplicationFixture fixture(&graphics_factory);
-  auto* app = fixture.GetApplication();
-  app->SetQuitOnAllWindowClosed(false);
-  std::unique_ptr<MockWindow> window(app->CreateMockWindow());
+  MockUiApplication app(&graphics_factory);
+  app.SetQuitOnAllWindowClosed(false);
+  std::unique_ptr<MockWindow> window(app.CreateMockWindow());
   int paint_count = 0;
   auto paint_revoker = window->PaintEvent()->AddSpyOnlyHandler(
       [&paint_count] { ++paint_count; });
@@ -790,17 +777,16 @@ TEST_CASE("Mock repaint requested before close is a pump no-op",
   window->Close();
   REQUIRE_FALSE(window->IsCreated());
   REQUIRE_FALSE(window->HasPendingRepaint());
-  REQUIRE_FALSE(app->PumpOnce());
+  REQUIRE_FALSE(app.PumpOnce());
   REQUIRE(paint_count == 0);
 }
 
 TEST_CASE("Mock repaint stops if paint event closes the window",
           "[platform][gui][mock][window][repaint][MockRepaint]") {
   FakeGraphicsFactory graphics_factory;
-  MockUiApplicationFixture fixture(&graphics_factory);
-  auto* app = fixture.GetApplication();
-  app->SetQuitOnAllWindowClosed(false);
-  std::unique_ptr<MockWindow> window(app->CreateMockWindow());
+  MockUiApplication app(&graphics_factory);
+  app.SetQuitOnAllWindowClosed(false);
+  std::unique_ptr<MockWindow> window(app.CreateMockWindow());
   std::vector<std::string> events;
   auto paint_revoker = window->PaintEvent()->AddSpyOnlyHandler([&] {
     events.push_back("paint");
@@ -814,7 +800,7 @@ TEST_CASE("Mock repaint stops if paint event closes the window",
   window->SetVisibility(WindowVisibilityType::Show);
   window->RequestRepaint();
 
-  REQUIRE(app->PumpOnce());
+  REQUIRE(app.PumpOnce());
   REQUIRE(events == std::vector<std::string>{"paint"});
   REQUIRE_FALSE(window->IsCreated());
 }
@@ -823,9 +809,8 @@ TEST_CASE("Mock begin paint returns a backing image painter",
           "[platform][gui][mock][window][paint][MockBeginPaint]"
           "[BackingBitmap]") {
   FakeGraphicsFactory graphics_factory;
-  MockUiApplicationFixture fixture(&graphics_factory);
-  auto* app = fixture.GetApplication();
-  std::unique_ptr<MockWindow> window(app->CreateMockWindow());
+  MockUiApplication app(&graphics_factory);
+  std::unique_ptr<MockWindow> window(app.CreateMockWindow());
 
   window->SetClientSize(Size{10.f, 20.f});
   window->SetVisibility(WindowVisibilityType::Show);
@@ -847,9 +832,8 @@ TEST_CASE("Mock paint event can drive a repaint handler into the backing image",
           "[platform][gui][mock][window][paint][MockRepaint]"
           "[MockBeginPaint][BackingBitmap]") {
   FakeGraphicsFactory graphics_factory;
-  MockUiApplicationFixture fixture(&graphics_factory);
-  auto* app = fixture.GetApplication();
-  std::unique_ptr<MockWindow> window(app->CreateMockWindow());
+  MockUiApplication app(&graphics_factory);
+  std::unique_ptr<MockWindow> window(app.CreateMockWindow());
   int repaint_handler_count = 0;
   auto paint1_revoker = window->Paint1Event()->AddHandler(
       [&](const cru::platform::gui::NativePaintEventArgs& args) {
@@ -864,7 +848,7 @@ TEST_CASE("Mock paint event can drive a repaint handler into the backing image",
   window->SetVisibility(WindowVisibilityType::Show);
   window->RequestRepaint();
 
-  REQUIRE(app->PumpOnce());
+  REQUIRE(app.PumpOnce());
   REQUIRE(repaint_handler_count == 1);
   REQUIRE(graphics_factory.GetPainterCount() == 1);
   REQUIRE(graphics_factory.GetClearCount() == 1);
@@ -874,9 +858,8 @@ TEST_CASE("Mock paint event can drive a repaint handler into the backing image",
 TEST_CASE("Mock backing bitmap dimensions follow client resize",
           "[platform][gui][mock][window][paint][BackingBitmap]") {
   FakeGraphicsFactory graphics_factory;
-  MockUiApplicationFixture fixture(&graphics_factory);
-  auto* app = fixture.GetApplication();
-  std::unique_ptr<MockWindow> window(app->CreateMockWindow());
+  MockUiApplication app(&graphics_factory);
+  std::unique_ptr<MockWindow> window(app.CreateMockWindow());
 
   window->SetClientSize(Size{12.2f, 34.1f});
   REQUIRE(window->GetBackingImage() == nullptr);
@@ -896,14 +879,13 @@ TEST_CASE("Mock backing bitmap dimensions follow client resize",
 TEST_CASE("Mock painting reports missing graphics factories only at paint time",
           "[platform][gui][mock][window][paint][MockBeginPaint]") {
   {
-    MockUiApplicationFixture fixture;
-    auto* app = fixture.GetApplication();
-    std::unique_ptr<MockWindow> window(app->CreateMockWindow());
+    MockUiApplication app;
+    std::unique_ptr<MockWindow> window(app.CreateMockWindow());
 
     window->SetClientSize(Size{10.f, 10.f});
     window->SetVisibility(WindowVisibilityType::Show);
     window->RequestRepaint();
-    REQUIRE(app->PumpOnce());
+    REQUIRE(app.PumpOnce());
 
     try {
       CRU_UNUSED(window->BeginPaint());
@@ -916,9 +898,8 @@ TEST_CASE("Mock painting reports missing graphics factories only at paint time",
 
   {
     NoImageGraphicsFactory graphics_factory;
-    MockUiApplicationFixture fixture(&graphics_factory);
-    auto* app = fixture.GetApplication();
-    std::unique_ptr<MockWindow> window(app->CreateMockWindow());
+    MockUiApplication app(&graphics_factory);
+    std::unique_ptr<MockWindow> window(app.CreateMockWindow());
 
     window->SetClientSize(Size{10.f, 10.f});
     window->SetVisibility(WindowVisibilityType::Show);
@@ -936,9 +917,8 @@ TEST_CASE("Mock painting reports missing graphics factories only at paint time",
 TEST_CASE("Mock snapshot image requires paint and reports backing dimensions",
           "[platform][gui][mock][window][snapshot][MockSnapshot]") {
   FakeGraphicsFactory graphics_factory;
-  MockUiApplicationFixture fixture(&graphics_factory);
-  auto* app = fixture.GetApplication();
-  std::unique_ptr<MockWindow> window(app->CreateMockWindow());
+  MockUiApplication app(&graphics_factory);
+  std::unique_ptr<MockWindow> window(app.CreateMockWindow());
 
   window->SetClientSize(Size{22.f, 10.f});
   REQUIRE(window->GetBackingImage() == nullptr);
@@ -971,9 +951,8 @@ TEST_CASE("Mock snapshot image requires paint and reports backing dimensions",
 TEST_CASE("Mock snapshot clone creates an independent bitmap",
           "[platform][gui][mock][window][snapshot][MockSnapshot]") {
   FakeGraphicsFactory graphics_factory;
-  MockUiApplicationFixture fixture(&graphics_factory);
-  auto* app = fixture.GetApplication();
-  std::unique_ptr<MockWindow> window(app->CreateMockWindow());
+  MockUiApplication app(&graphics_factory);
+  std::unique_ptr<MockWindow> window(app.CreateMockWindow());
 
   window->SetClientSize(Size{32.f, 16.f});
   auto painter = window->BeginPaint();
@@ -993,9 +972,8 @@ TEST_CASE("Mock snapshot clone creates an independent bitmap",
 TEST_CASE("Mock snapshot encodes PNG bytes through image factory stream",
           "[platform][gui][mock][window][snapshot][EncodeSnapshot]") {
   FakeGraphicsFactory graphics_factory;
-  MockUiApplicationFixture fixture(&graphics_factory);
-  auto* app = fixture.GetApplication();
-  std::unique_ptr<MockWindow> window(app->CreateMockWindow());
+  MockUiApplication app(&graphics_factory);
+  std::unique_ptr<MockWindow> window(app.CreateMockWindow());
   std::array<std::byte, 64> png_buffer{};
   cru::io::MemoryStream stream(png_buffer.data(), png_buffer.size());
 
@@ -1030,9 +1008,8 @@ TEST_CASE("MockDiagnostics snapshot encode reports before-paint state",
           "[platform][gui][mock][window][snapshot][EncodeSnapshot]"
           "[MockDiagnostics]") {
   FakeGraphicsFactory graphics_factory;
-  MockUiApplicationFixture fixture(&graphics_factory);
-  auto* app = fixture.GetApplication();
-  std::unique_ptr<MockWindow> window(app->CreateMockWindow());
+  MockUiApplication app(&graphics_factory);
+  std::unique_ptr<MockWindow> window(app.CreateMockWindow());
   std::array<std::byte, 16> png_buffer{};
   cru::io::MemoryStream stream(png_buffer.data(), png_buffer.size());
 
@@ -1064,9 +1041,8 @@ TEST_CASE("MockDiagnostics snapshot reports missing stream and factories",
           "[MockDiagnostics]") {
   {
     FakeGraphicsFactory graphics_factory;
-    MockUiApplicationFixture fixture(&graphics_factory);
-    auto* app = fixture.GetApplication();
-    std::unique_ptr<MockWindow> window(app->CreateMockWindow());
+    MockUiApplication app(&graphics_factory);
+    std::unique_ptr<MockWindow> window(app.CreateMockWindow());
 
     try {
       window->EncodeSnapshotToStream(nullptr);
@@ -1080,9 +1056,8 @@ TEST_CASE("MockDiagnostics snapshot reports missing stream and factories",
   }
 
   {
-    MockUiApplicationFixture fixture;
-    auto* app = fixture.GetApplication();
-    std::unique_ptr<MockWindow> window(app->CreateMockWindow());
+    MockUiApplication app;
+    std::unique_ptr<MockWindow> window(app.CreateMockWindow());
     std::array<std::byte, 16> png_buffer{};
     cru::io::MemoryStream stream(png_buffer.data(), png_buffer.size());
 
@@ -1111,9 +1086,8 @@ TEST_CASE("MockDiagnostics snapshot reports missing stream and factories",
 
   {
     NoImageGraphicsFactory graphics_factory;
-    MockUiApplicationFixture fixture(&graphics_factory);
-    auto* app = fixture.GetApplication();
-    std::unique_ptr<MockWindow> window(app->CreateMockWindow());
+    MockUiApplication app(&graphics_factory);
+    std::unique_ptr<MockWindow> window(app.CreateMockWindow());
     std::array<std::byte, 16> png_buffer{};
     cru::io::MemoryStream stream(png_buffer.data(), png_buffer.size());
 

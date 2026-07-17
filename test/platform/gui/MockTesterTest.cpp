@@ -19,27 +19,26 @@ using cru::platform::gui::MouseEnterLeaveType;
 using cru::platform::gui::NativeMouseButtonEventArgs;
 using cru::platform::gui::WindowVisibilityType;
 using cru::platform::gui::mock::MockGuiTester;
-using cru::platform::gui::mock::MockUiApplicationFixture;
+using cru::platform::gui::mock::MockUiApplication;
 using cru::platform::gui::mock::MockUser;
 using cru::platform::gui::mock::MockWindow;
 
 TEST_CASE("MockGuiTester delegates pump settle and WaitUntil diagnostics",
           "[platform][gui][mock][tester][MockGuiTester][WaitUntil]") {
-  MockUiApplicationFixture fixture;
-  auto* app = fixture.GetApplication();
-  MockGuiTester tester(*app);
+  MockUiApplication app;
+  MockGuiTester tester(app);
   int action_count = 0;
 
-  app->SetImmediate([&action_count] { ++action_count; });
+  app.SetImmediate([&action_count] { ++action_count; });
   REQUIRE(tester.Pump());
   REQUIRE(action_count == 1);
   REQUIRE_FALSE(tester.Pump());
 
-  app->SetImmediate([&action_count] { ++action_count; });
+  app.SetImmediate([&action_count] { ++action_count; });
   tester.Settle();
   REQUIRE(action_count == 2);
 
-  app->SetImmediate([&action_count] { ++action_count; });
+  app.SetImmediate([&action_count] { ++action_count; });
   REQUIRE(tester.WaitUntil([&action_count] { return action_count == 3; }, 2));
   REQUIRE(action_count == 3);
 
@@ -52,10 +51,9 @@ TEST_CASE("MockGuiTester delegates pump settle and WaitUntil diagnostics",
 
 TEST_CASE("MockUserActions click emits native enter move down up in order",
           "[platform][gui][mock][tester][MockUserActions]") {
-  MockUiApplicationFixture fixture;
-  auto* app = fixture.GetApplication();
-  std::unique_ptr<MockWindow> window(app->CreateMockWindow());
-  MockUser user(*app);
+  MockUiApplication app;
+  std::unique_ptr<MockWindow> window(app.CreateMockWindow());
+  MockUser user(app);
   std::vector<std::string> events;
 
   auto enter_revoker =
@@ -96,10 +94,9 @@ TEST_CASE("MockUserActions click emits native enter move down up in order",
 TEST_CASE(
     "MockUserActions keep low-level injection available for uncovered cases",
     "[platform][gui][mock][tester][MockUserActions]") {
-  MockUiApplicationFixture fixture;
-  auto* app = fixture.GetApplication();
-  std::unique_ptr<MockWindow> window(app->CreateMockWindow());
-  MockUser user(*app);
+  MockUiApplication app;
+  std::unique_ptr<MockWindow> window(app.CreateMockWindow());
+  MockUser user(app);
   std::vector<std::string> events;
 
   auto down_revoker = window->MouseDownEvent()->AddHandler(
@@ -125,10 +122,9 @@ TEST_CASE(
     "windows",
     "[platform][gui][mock][tester][MockUserActions][WaitUntil]"
     "[MockDiagnostics][ActionabilityDiagnostics][SettleDiagnostics]") {
-  MockUiApplicationFixture fixture;
-  auto* app = fixture.GetApplication();
-  std::unique_ptr<MockWindow> window(app->CreateMockWindow());
-  MockUser user(*app);
+  MockUiApplication app;
+  std::unique_ptr<MockWindow> window(app.CreateMockWindow());
+  MockUser user(app);
 
   try {
     user.Click(*window, Point{1.f, 2.f});
@@ -146,7 +142,7 @@ TEST_CASE(
   }
 
   window->SetVisibility(WindowVisibilityType::Show);
-  app->SetInterval(std::chrono::milliseconds(1), [] {});
+  app.SetInterval(std::chrono::milliseconds(1), [] {});
 
   try {
     user.MoveMouse(*window, Point{3.f, 4.f});
