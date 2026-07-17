@@ -456,7 +456,7 @@ TEST_CASE("Mock UI application timer seams stay deterministic",
           "[platform][gui][mock][app][future-scope]") {
   MockUiApplication app;
 
-  REQUIRE(app.GetAllWindow().empty());
+  REQUIRE(app.GetCreatedWindows().empty());
   REQUIRE(app.IsQuitOnAllWindowClosed());
   app.SetQuitOnAllWindowClosed(false);
   REQUIRE_FALSE(app.IsQuitOnAllWindowClosed());
@@ -464,7 +464,7 @@ TEST_CASE("Mock UI application timer seams stay deterministic",
   std::unique_ptr<INativeWindow> created_window(app.CreateWindow());
   REQUIRE(created_window != nullptr);
   REQUIRE_FALSE(created_window->IsCreated());
-  REQUIRE(app.GetAllWindow().empty());
+  REQUIRE(app.GetCreatedWindows().empty());
   app.CancelTimer(0);
   app.CancelTimer(-1);
   app.CancelTimer(123);

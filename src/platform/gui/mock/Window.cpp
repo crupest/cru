@@ -100,7 +100,7 @@ void MockWindow::Close() {
   paint_count_ = 0;
   repaint_pending_ = false;
   repaint_action_id_ = 0;
-  application_->RemoveCreatedWindow(this);
+  application_->CleanupDestroyedWindow(this);
 
   if (application_->IsQuitOnAllWindowClosed() &&
       application_->GetAllWindow().empty()) {

@@ -116,6 +116,7 @@ class CRU_PLATFORM_GUI_MOCK_API MockUiApplication
   std::string GetEventLoopDiagnostic() const;
   const std::string& GetLastDiagnostic() const { return last_diagnostic_; }
 
+  std::vector<MockWindow*> GetCreatedWindows();
   Size GetDesktopSize() const { return desktop_size_; }
   void SetDesktopSize(const Size& size);
   Point GetMousePosition() const { return mouse_position_; }
@@ -165,13 +166,11 @@ class CRU_PLATFORM_GUI_MOCK_API MockUiApplication
   bool FlushDeleteLater();
   bool HasRepeatingTimer() const;
   Point ClampToDesktop(const Point& point) const;
-  MockWindow* FindTopmostWindowAt(const Point& global_point) const;
   MockWindow* FindClientWindowAt(const Point& global_point) const;
   MockWindow* GetMouseTargetWindow() const;
   void RegisterWindow(MockWindow* window);
   void UnregisterWindow(MockWindow* window);
-  void RemoveCreatedWindow(MockWindow* window);
-  MockWindow* FindKnownWindow(INativeWindow* window) const;
+  void CleanupDestroyedWindow(MockWindow* window);
   void UpdateHoveredWindow(MockWindow* window);
   bool CaptureMouse(MockWindow* window);
   bool ReleaseMouse(MockWindow* window);
@@ -195,8 +194,7 @@ class CRU_PLATFORM_GUI_MOCK_API MockUiApplication
   std::size_t invoked_quit_handler_count_ = 0;
 
   bool is_quit_on_all_window_closed_ = true;
-  std::vector<INativeWindow*> windows_;
-  std::vector<MockWindow*> window_instances_;
+  std::vector<MockWindow*> windows_;
 
   Size desktop_size_{1920.f, 1080.f};
   Point mouse_position_;

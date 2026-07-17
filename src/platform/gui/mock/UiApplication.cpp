@@ -1,11 +1,13 @@
 #include "cru/platform/gui/mock/UiApplication.h"
 
 #include "cru/platform/gui/UiApplication.h"
+#include "cru/platform/gui/Window.h"
 #include "cru/platform/gui/mock/Window.h"
 
 #include <cru/base/Base.h>
 
 #include <algorithm>
+#include <cassert>
 #include <cstddef>
 #include <format>
 #include <sstream>
@@ -128,7 +130,7 @@ void MockUiApplication::DeleteLater(Object* object) {
 }
 
 std::vector<INativeWindow*> MockUiApplication::GetAllWindow() {
-  return windows_;
+  return std::vector<INativeWindow*>(windows_.cbegin(), windows_.cend());
 }
 
 INativeWindow* MockUiApplication::CreateWindow() { return CreateMockWindow(); }
@@ -153,6 +155,16 @@ MockCursorManager* MockUiApplication::GetMockCursorManager() {
 
 MockClipboard* MockUiApplication::GetMockClipboard() {
   return clipboard_.get();
+}
+
+std::vector<MockWindow*> MockUiApplication::GetCreatedWindows() {
+  std::vector<MockWindow*> result;
+  for (auto window : windows_) {
+    if (window->IsCreated()) {
+      result.push_back(window);
+    }
+  }
+  return result;
 }
 
 void MockUiApplication::SetDesktopSize(const Size& size) {
@@ -472,24 +484,16 @@ Point MockUiApplication::ClampToDesktop(const Point& point) const {
           std::clamp(point.y, 0.f, desktop_size_.height)};
 }
 
-MockWindow* MockUiApplication::FindTopmostWindowAt(
+MockWindow* MockUiApplication::FindClientWindowAt(
     const Point& global_point) const {
   for (auto iterator = windows_.rbegin(); iterator != windows_.rend();
        ++iterator) {
-    auto* window = FindKnownWindow(*iterator);
+    auto window = *iterator;
+    if (!window->IsCreated()) continue;
     if (!IsMouseVisibleWindow(window)) continue;
-    if (window->IsScreenPointInWindow(global_point)) return window;
+    if (window->IsScreenPointInClient(global_point)) return window;
   }
   return nullptr;
-}
-
-MockWindow* MockUiApplication::FindClientWindowAt(
-    const Point& global_point) const {
-  auto* window = FindTopmostWindowAt(global_point);
-  if (window == nullptr || !window->IsScreenPointInClient(global_point)) {
-    return nullptr;
-  }
-  return window;
 }
 
 MockWindow* MockUiApplication::GetMouseTargetWindow() const {
@@ -498,31 +502,21 @@ MockWindow* MockUiApplication::GetMouseTargetWindow() const {
 }
 
 void MockUiApplication::RegisterWindow(MockWindow* window) {
-  if (window == nullptr) return;
-  if (!std::ranges::contains(window_instances_, window)) {
-    window_instances_.push_back(window);
-  }
+  assert(!std::ranges::contains(windows_, window));
+  windows_.push_back(window);
 }
 
 void MockUiApplication::UnregisterWindow(MockWindow* window) {
-  ClearFocusForWindow(window);
-  ClearMouseStateForWindow(window);
-  std::erase(window_instances_, window);
-  std::erase(windows_, static_cast<INativeWindow*>(window));
+  CleanupDestroyedWindow(window);
+  std::erase(windows_, window);
 }
 
-void MockUiApplication::RemoveCreatedWindow(MockWindow* window) {
+void MockUiApplication::CleanupDestroyedWindow(MockWindow* window) {
   ClearFocusForWindow(window);
   ClearMouseStateForWindow(window);
-  std::erase(windows_, static_cast<INativeWindow*>(window));
-}
-
-MockWindow* MockUiApplication::FindKnownWindow(INativeWindow* window) const {
-  auto iterator =
-      std::ranges::find_if(window_instances_, [window](MockWindow* instance) {
-        return static_cast<INativeWindow*>(instance) == window;
-      });
-  return iterator == window_instances_.end() ? nullptr : *iterator;
+  if (IsQuitOnAllWindowClosed() && GetCreatedWindows().empty()) {
+    RequestQuit(0);
+  }
 }
 
 void MockUiApplication::UpdateHoveredWindow(MockWindow* window) {
@@ -554,13 +548,6 @@ bool MockUiApplication::ReleaseMouse(MockWindow* window) {
   return true;
 }
 
-void MockUiApplication::ClearFocusForWindow(MockWindow* window) {
-  if (window == nullptr) return;
-  if (focused_window_ != window) return;
-  focused_window_ = nullptr;
-  window->RaiseFocus(FocusChangeType::Lose);
-}
-
 bool MockUiApplication::SetWindowVisibility(MockWindow* window,
                                             WindowVisibilityType visibility) {
   if (window == nullptr || !window->IsCreated()) return false;
@@ -570,6 +557,13 @@ bool MockUiApplication::SetWindowVisibility(MockWindow* window,
     ClearFocusForWindow(window);
   }
   return window->RaiseVisibilityChange(visibility);
+}
+
+void MockUiApplication::ClearFocusForWindow(MockWindow* window) {
+  if (window == nullptr) return;
+  if (focused_window_ != window) return;
+  focused_window_ = nullptr;
+  window->RaiseFocus(FocusChangeType::Lose);
 }
 
 void MockUiApplication::ClearMouseStateForWindow(MockWindow* window) {
@@ -640,12 +634,7 @@ std::string MockUiApplication::BuildEventLoopDiagnostic(
     stream << ", window_details=[";
     for (std::size_t index = 0; index < windows_.size(); ++index) {
       if (index != 0) stream << "; ";
-      auto* window = FindKnownWindow(windows_[index]);
-      if (window == nullptr) {
-        stream << "non_mock_window=" << windows_[index];
-      } else {
-        stream << "{" << window->GetDiagnostic() << "}";
-      }
+      stream << "{" << windows_[index]->GetDiagnostic() << "}";
     }
     stream << "]";
   }

@@ -294,7 +294,7 @@ TEST_CASE("Mock windows start hidden and uncreated",
   REQUIRE(window->GetInputMethodContext() ==
           static_cast<MockInputMethodContext*>(
               window->GetMockInputMethodContext()));
-  REQUIRE(app.GetAllWindow().empty());
+  REQUIRE(app.GetCreatedWindows().empty());
   REQUIRE_FALSE(window->HasPendingRepaint());
 
   window->RequestRepaint();
@@ -310,7 +310,7 @@ TEST_CASE("Mock window show creates before visibility change",
   auto create_revoker = window->CreateEvent()->AddSpyOnlyHandler([&] {
     REQUIRE(window->IsCreated());
     REQUIRE(window->GetVisibility() == WindowVisibilityType::Hide);
-    REQUIRE(app.GetAllWindow() == std::vector<INativeWindow*>{window.get()});
+    REQUIRE(app.GetCreatedWindows() == std::vector<MockWindow*>{window.get()});
     events.push_back("create");
   });
   auto visibility_revoker = window->VisibilityChangeEvent()->AddHandler(
@@ -325,7 +325,7 @@ TEST_CASE("Mock window show creates before visibility change",
   REQUIRE(events == std::vector<std::string>{"create", "show"});
   REQUIRE(window->IsCreated());
   REQUIRE(window->GetVisibility() == WindowVisibilityType::Show);
-  REQUIRE(app.GetAllWindow() == std::vector<INativeWindow*>{window.get()});
+  REQUIRE(app.GetCreatedWindows() == std::vector<MockWindow*>{window.get()});
 
   window->SetVisibility(WindowVisibilityType::Show);
   REQUIRE(events == std::vector<std::string>{"create", "show"});
@@ -347,12 +347,12 @@ TEST_CASE("Mock window hide and minimize keep native state created",
   window->SetVisibility(WindowVisibilityType::Hide);
   REQUIRE(window->IsCreated());
   REQUIRE(window->GetVisibility() == WindowVisibilityType::Hide);
-  REQUIRE(app.GetAllWindow() == std::vector<INativeWindow*>{window.get()});
+  REQUIRE(app.GetCreatedWindows() == std::vector<MockWindow*>{window.get()});
 
   window->SetVisibility(WindowVisibilityType::Minimize);
   REQUIRE(window->IsCreated());
   REQUIRE(window->GetVisibility() == WindowVisibilityType::Minimize);
-  REQUIRE(app.GetAllWindow() == std::vector<INativeWindow*>{window.get()});
+  REQUIRE(app.GetCreatedWindows() == std::vector<MockWindow*>{window.get()});
 
   REQUIRE(visibility_events ==
           std::vector<WindowVisibilityType>{WindowVisibilityType::Hide,
@@ -376,12 +376,12 @@ TEST_CASE(
   window->SetVisibility(WindowVisibilityType::Minimize);
   REQUIRE_FALSE(window->IsCreated());
   REQUIRE(window->GetVisibility() == WindowVisibilityType::Minimize);
-  REQUIRE(app.GetAllWindow().empty());
+  REQUIRE(app.GetCreatedWindows().empty());
 
   window->SetVisibility(WindowVisibilityType::Hide);
   REQUIRE_FALSE(window->IsCreated());
   REQUIRE(window->GetVisibility() == WindowVisibilityType::Hide);
-  REQUIRE(app.GetAllWindow().empty());
+  REQUIRE(app.GetCreatedWindows().empty());
 
   window->SetVisibility(WindowVisibilityType::Show);
   REQUIRE(window->IsCreated());
@@ -578,20 +578,20 @@ TEST_CASE("Mock window close destroys once and unregisters",
 
   auto first_destroy_revoker = first->DestroyEvent()->AddSpyOnlyHandler([&] {
     REQUIRE(first->IsCreated());
-    REQUIRE(app.GetAllWindow().size() == 2);
+    REQUIRE(app.GetCreatedWindows().size() == 2);
     events.push_back("first-destroy");
     first->Close();
   });
   auto second_destroy_revoker = second->DestroyEvent()->AddSpyOnlyHandler([&] {
     REQUIRE(second->IsCreated());
-    REQUIRE(app.GetAllWindow() == std::vector<INativeWindow*>{second.get()});
+    REQUIRE(app.GetCreatedWindows() == std::vector<MockWindow*>{second.get()});
     events.push_back("second-destroy");
   });
 
   first->SetVisibility(WindowVisibilityType::Show);
   second->SetVisibility(WindowVisibilityType::Show);
-  REQUIRE(app.GetAllWindow() ==
-          std::vector<INativeWindow*>{first.get(), second.get()});
+  REQUIRE(app.GetCreatedWindows() ==
+          std::vector<MockWindow*>{first.get(), second.get()});
 
   REQUIRE(first->RequestFocus());
   REQUIRE(first->CaptureMouse());
@@ -602,17 +602,17 @@ TEST_CASE("Mock window close destroys once and unregisters",
   REQUIRE_FALSE(first->HasFocus());
   REQUIRE_FALSE(first->HasMouseCapture());
   REQUIRE(first->GetVisibility() == WindowVisibilityType::Hide);
-  REQUIRE(app.GetAllWindow() == std::vector<INativeWindow*>{second.get()});
+  REQUIRE(app.GetCreatedWindows() == std::vector<MockWindow*>{second.get()});
   REQUIRE_FALSE(app.HasQuitRequest());
 
   first->Close();
   REQUIRE(events == std::vector<std::string>{"first-destroy"});
-  REQUIRE(app.GetAllWindow() == std::vector<INativeWindow*>{second.get()});
+  REQUIRE(app.GetCreatedWindows() == std::vector<MockWindow*>{second.get()});
 
   second->Close();
   REQUIRE(events ==
           std::vector<std::string>{"first-destroy", "second-destroy"});
-  REQUIRE(app.GetAllWindow().empty());
+  REQUIRE(app.GetCreatedWindows().empty());
   REQUIRE(app.HasQuitRequest());
   REQUIRE(app.GetRequestedQuitCode() == 0);
 }
@@ -669,14 +669,14 @@ TEST_CASE("Mock window state round-trips without native APIs",
   child->SetToForeground();
   REQUIRE(child->IsCreated());
   REQUIRE(child->GetVisibility() == WindowVisibilityType::Show);
-  REQUIRE(app.GetAllWindow() == std::vector<INativeWindow*>{child.get()});
+  REQUIRE(app.GetCreatedWindows() == std::vector<MockWindow*>{child.get()});
 
   child->Close();
-  REQUIRE(app.GetAllWindow().empty());
+  REQUIRE(app.GetCreatedWindows().empty());
   child->SetToForeground();
   REQUIRE(child->IsCreated());
   REQUIRE(child->GetVisibility() == WindowVisibilityType::Show);
-  REQUIRE(app.GetAllWindow() == std::vector<INativeWindow*>{child.get()});
+  REQUIRE(app.GetCreatedWindows() == std::vector<MockWindow*>{child.get()});
 }
 
 TEST_CASE("Mock quit-on-all-windows-closed flag controls last-close quit",
@@ -688,7 +688,7 @@ TEST_CASE("Mock quit-on-all-windows-closed flag controls last-close quit",
   window->SetVisibility(WindowVisibilityType::Show);
   window->Close();
 
-  REQUIRE(app.GetAllWindow().empty());
+  REQUIRE(app.GetCreatedWindows().empty());
   REQUIRE_FALSE(app.HasQuitRequest());
 }
 
