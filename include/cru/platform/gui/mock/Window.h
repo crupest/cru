@@ -77,8 +77,8 @@ class CRU_PLATFORM_GUI_MOCK_API MockWindow : public MockResource,
   Thickness GetEffectiveBorderSize() const;
   Point ClientToScreen(const Point& point) const;
   Point ScreenToClient(const Point& point) const;
-  bool IsScreenPointInWindow(const Point& point) const;
-  bool IsScreenPointInClient(const Point& point) const;
+  bool IsScreenPointInWindow(const Point& point);
+  bool IsScreenPointInClient(const Point& point);
 
   bool CaptureMouse() override;
   bool ReleaseMouse() override;
@@ -151,8 +151,6 @@ class CRU_PLATFORM_GUI_MOCK_API MockWindow : public MockResource,
   bool RaiseKeyDown(KeyCode key, KeyModifier modifier = KeyModifiers::None);
   bool RaiseKeyUp(KeyCode key, KeyModifier modifier = KeyModifiers::None);
   bool RaiseTextInput(std::string text);
-  void RefreshWindowRectFromClientRect();
-  void RefreshClientRectFromWindowRect();
   void RecreateBackingImageIfPossible();
   void EnsureBackingImageForPainting(std::string_view operation);
   void EnsurePaintedForSnapshot(std::string_view operation);
@@ -164,8 +162,7 @@ class CRU_PLATFORM_GUI_MOCK_API MockWindow : public MockResource,
   WindowStyleFlag style_flag_;
   std::string title_;
   WindowVisibilityType visibility_ = WindowVisibilityType::Hide;
-  Rect client_rect_;
-  Rect window_rect_;
+  Rect client_rect_{};
   Thickness border_size_ = kDefaultBorderSize;
   std::shared_ptr<MockCursor> cursor_;
   bool created_ = false;

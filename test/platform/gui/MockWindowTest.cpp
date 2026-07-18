@@ -1,9 +1,11 @@
+#include "cru/platform/gui/Window.h"
 #include "cru/platform/gui/mock/UiApplication.h"
 #include "cru/platform/gui/mock/Window.h"
 
 #include <catch2/catch_test_macros.hpp>
 
 #include <cru/base/Base.h>
+#include <cru/base/StringUtil.h>
 #include <cru/base/io/MemoryStream.h>
 #include <cru/platform/graphics/Brush.h>
 #include <cru/platform/graphics/Factory.h>
@@ -286,8 +288,11 @@ TEST_CASE("Mock windows start hidden and uncreated",
   REQUIRE(window->GetParent() == nullptr);
   REQUIRE(window->GetStyleFlag() == cru::platform::gui::WindowStyleFlag{});
   REQUIRE(window->GetTitle().empty());
+  auto border_size = window->GetEffectiveBorderSize();
   REQUIRE(window->GetClientRect() == Rect{});
-  REQUIRE(window->GetWindowRect() == Rect{});
+  REQUIRE(window->GetWindowRect() == Rect{-border_size.left, -border_size.top,
+                                          border_size.GetHorizontalTotal(),
+                                          border_size.GetVerticalTotal()});
   REQUIRE(window->GetClientSize() == Size{});
   REQUIRE(window->GetMousePosition() == Point{});
   REQUIRE(window->GetCursor() == nullptr);

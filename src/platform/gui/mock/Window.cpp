@@ -1,5 +1,6 @@
 #include "cru/platform/gui/mock/Window.h"
 
+#include "cru/platform/gui/Window.h"
 #include "cru/platform/gui/mock/UiApplication.h"
 
 #include <cru/base/Base.h>
@@ -18,20 +19,6 @@ namespace cru::platform::gui::mock {
 namespace {
 int BitmapDimension(float value) {
   return std::max(0, static_cast<int>(std::ceil(value)));
-}
-
-Thickness NonNegativeBorder(Thickness border) {
-  border.left = std::max(0.f, border.left);
-  border.top = std::max(0.f, border.top);
-  border.right = std::max(0.f, border.right);
-  border.bottom = std::max(0.f, border.bottom);
-  return border;
-}
-
-Rect ShrinkByBorder(const Rect& rect, const Thickness& border) {
-  return {rect.left + border.left, rect.top + border.top,
-          std::max(0.f, rect.width - border.GetHorizontalTotal()),
-          std::max(0.f, rect.height - border.GetVerticalTotal())};
 }
 
 cru::Exception MissingGraphicsFactoryException(const MockWindow* window,
@@ -116,10 +103,7 @@ void MockWindow::SetParent(INativeWindow* parent) {
 
 WindowStyleFlag MockWindow::GetStyleFlag() { return style_flag_; }
 
-void MockWindow::SetStyleFlag(WindowStyleFlag flag) {
-  style_flag_ = flag;
-  RefreshWindowRectFromClientRect();
-}
+void MockWindow::SetStyleFlag(WindowStyleFlag flag) { style_flag_ = flag; }
 
 std::string MockWindow::GetTitle() { return title_; }
 
@@ -160,7 +144,6 @@ Size MockWindow::GetClientSize() { return client_rect_.GetSize(); }
 void MockWindow::SetClientSize(const Size& size) {
   const auto old_size = GetClientSize();
   client_rect_.SetSize(size.AtLeast0());
-  RefreshWindowRectFromClientRect();
   RaiseResizeIfCreatedAndSizeChanged(old_size);
 }
 
@@ -168,19 +151,25 @@ Rect MockWindow::GetClientRect() { return client_rect_; }
 
 void MockWindow::SetClientRect(const Rect& rect) {
   const auto old_size = GetClientSize();
-  client_rect_ = rect;
+  client_rect_.SetLeftTop(rect.GetLeftTop());
   client_rect_.SetSize(rect.GetSize().AtLeast0());
-  RefreshWindowRectFromClientRect();
   RaiseResizeIfCreatedAndSizeChanged(old_size);
 }
 
-Rect MockWindow::GetWindowRect() { return window_rect_; }
+Rect MockWindow::GetWindowRect() {
+  return style_flag_.Has(WindowStyleFlags::NoCaptionAndBorder)
+             ? client_rect_
+             : client_rect_.Expand(border_size_);
+}
 
 void MockWindow::SetWindowRect(const Rect& rect) {
   const auto old_size = GetClientSize();
-  window_rect_ = rect;
-  window_rect_.SetSize(rect.GetSize().AtLeast0());
-  RefreshClientRectFromWindowRect();
+  if (style_flag_.Has(WindowStyleFlags::NoCaptionAndBorder)) {
+    SetClientRect(rect);
+    return;
+  }
+  client_rect_ = rect.Shrink(border_size_);
+  client_rect_.SetSize(client_rect_.GetSize().AtLeast0());
   RaiseResizeIfCreatedAndSizeChanged(old_size);
 }
 
@@ -203,8 +192,7 @@ bool MockWindow::IsMouseInside() const {
 }
 
 void MockWindow::SetBorderSize(const Thickness& border_size) {
-  border_size_ = NonNegativeBorder(border_size);
-  RefreshWindowRectFromClientRect();
+  border_size_ = border_size.AtLeast0();
 }
 
 Thickness MockWindow::GetEffectiveBorderSize() const {
@@ -220,12 +208,12 @@ Point MockWindow::ScreenToClient(const Point& point) const {
   return point - client_rect_.GetLeftTop();
 }
 
-bool MockWindow::IsScreenPointInWindow(const Point& point) const {
-  return window_rect_.IsPointInside(point);
+bool MockWindow::IsScreenPointInWindow(const Point& point) {
+  return GetWindowRect().IsPointInside(point);
 }
 
-bool MockWindow::IsScreenPointInClient(const Point& point) const {
-  return client_rect_.IsPointInside(point);
+bool MockWindow::IsScreenPointInClient(const Point& point) {
+  return GetClientRect().IsPointInside(point);
 }
 
 bool MockWindow::CaptureMouse() { return application_->CaptureMouse(this); }
@@ -307,7 +295,6 @@ bool MockWindow::RaiseResize(const Size& client_size) {
   if (old_size == new_size) return false;
 
   client_rect_.SetSize(new_size);
-  RefreshWindowRectFromClientRect();
   RecreateBackingImageIfPossible();
   ResizeEvent_.Raise(new_size);
   return true;
@@ -475,8 +462,6 @@ std::string MockWindow::GetDiagnostic() const {
          << ", paint_count=" << paint_count_ << ", client_rect=("
          << client_rect_.left << ", " << client_rect_.top << ", "
          << client_rect_.width << ", " << client_rect_.height << ")"
-         << ", window_rect=(" << window_rect_.left << ", " << window_rect_.top
-         << ", " << window_rect_.width << ", " << window_rect_.height << ")"
          << ", border_size=(" << border_size_.left << ", " << border_size_.top
          << ", " << border_size_.right << ", " << border_size_.bottom << ")"
          << ", mouse_position=(" << mouse_position.x << ", " << mouse_position.y
@@ -510,14 +495,6 @@ void MockWindow::RaiseResizeIfCreatedAndSizeChanged(const Size& old_size) {
     RecreateBackingImageIfPossible();
     ResizeEvent_.Raise(new_size);
   }
-}
-
-void MockWindow::RefreshWindowRectFromClientRect() {
-  window_rect_ = client_rect_.Expand(GetEffectiveBorderSize());
-}
-
-void MockWindow::RefreshClientRectFromWindowRect() {
-  client_rect_ = ShrinkByBorder(window_rect_, GetEffectiveBorderSize());
 }
 
 void MockWindow::RecreateBackingImageIfPossible() {

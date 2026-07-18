@@ -9,7 +9,7 @@
 #include <cru/platform/graphics/Painter.h>
 
 namespace cru::platform::gui {
-class ICursor;
+struct ICursor;
 class IInputMethodContext;
 
 CRU_DEFINE_BITMASK(WindowStyleFlag) {
