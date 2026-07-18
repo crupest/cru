@@ -112,11 +112,22 @@ struct Thickness final {
     return {GetHorizontalTotal(), GetVerticalTotal()};
   }
 
-  void SetLeftRight(const float value) { left = right = value; }
+  constexpr Thickness AtLeast0() const {
+    return Thickness{
+        std::max(0.f, left),
+        std::max(0.f, top),
+        std::max(0.f, right),
+        std::max(0.f, bottom),
+    };
+  }
 
-  void SetTopBottom(const float value) { top = bottom = value; }
+  constexpr void SetLeftRight(const float value) { left = right = value; }
 
-  void SetAll(const float value) { left = top = right = bottom = value; }
+  constexpr void SetTopBottom(const float value) { top = bottom = value; }
+
+  constexpr void SetAll(const float value) {
+    left = top = right = bottom = value;
+  }
 
   constexpr bool operator==(const Thickness& other) const = default;
 
@@ -201,6 +212,11 @@ struct Rect final {
     return {left + width / 2.0f, top + height / 2.0f};
   }
 
+  constexpr void SetLeftTop(const Point& lefttop) {
+    left = lefttop.x;
+    top = lefttop.y;
+  }
+
   constexpr void SetSize(const Size& size) {
     width = size.width;
     height = size.height;
@@ -218,8 +234,7 @@ struct Rect final {
             height + thickness.GetVerticalTotal()};
   }
 
-  constexpr Rect Shrink(const Thickness& thickness,
-                        bool normalize = false) const {
+  constexpr Rect Shrink(const Thickness& thickness) const {
     return {left + thickness.left, top + thickness.top,
             width - thickness.GetHorizontalTotal(),
             height - thickness.GetVerticalTotal()};
@@ -318,15 +333,3 @@ struct Ellipse final {
 
 using TextRange = Range;
 }  // namespace cru::platform
-
-template <>
-struct std::formatter<cru::platform::Point, char>
-    : cru::string::ImplementFormatterByToString<cru::platform::Point> {};
-
-template <>
-struct std::formatter<cru::platform::Size, char>
-    : cru::string::ImplementFormatterByToString<cru::platform::Size> {};
-
-template <>
-struct std::formatter<cru::platform::Rect, char>
-    : cru::string::ImplementFormatterByToString<cru::platform::Rect> {};

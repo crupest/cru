@@ -8,10 +8,12 @@
 #include <algorithm>
 #include <charconv>
 #include <cmath>
+#include <concepts>
 #include <cstdint>
 #include <cstdlib>
 #include <format>
 #include <memory>
+#include <ostream>
 #include <string>
 #include <string_view>
 #include <system_error>
@@ -526,11 +528,18 @@ std::vector<T> ParseToNumberList(std::string_view str,
 }
 
 template <typename T>
-struct ImplementFormatterByToString {
+concept HasToString = std::is_class_v<T> && requires(const T& value) {
+  { value.ToString() } -> std::convertible_to<std::string_view>;
+};
+}  // namespace cru::string
+
+namespace std {
+template <cru::string::HasToString T>
+struct formatter<T, char> {
   template <class ParseContext>
-  constexpr ParseContext::iterator parse(ParseContext& ctx) const {
+  constexpr typename ParseContext::iterator parse(ParseContext& ctx) const {
     auto iter = ctx.begin();
-    if (*iter != '}') {
+    if (iter != ctx.end() && *iter != '}') {
       throw std::format_error(
           "ImplementFormatterByToString does not accept format args.");
     }
@@ -538,10 +547,20 @@ struct ImplementFormatterByToString {
   }
 
   template <class FmtContext>
-  FmtContext::iterator format(const T& object, FmtContext& ctx) const {
-    return std::ranges::copy(object.ToString(), ctx.out()).out;
+  typename FmtContext::iterator format(const T& object, FmtContext& ctx) const {
+    auto string = object.ToString();
+    return std::ranges::copy(std::string_view(string), ctx.out()).out;
   }
 };
+
+template <cru::string::HasToString T>
+std::ostream& operator<<(std::ostream& os, const T& value) {
+  os << value.ToString();
+  return os;
+}
+}  // namespace std
+
+namespace cru::string {
 
 class CRU_BASE_API StringBreakIterator {
  public:

@@ -2,10 +2,29 @@
 
 #include <catch2/catch_test_macros.hpp>
 
+#include <format>
+#include <sstream>
 #include <string_view>
 
 using cru::Index;
 using namespace cru::string;
+
+namespace {
+class ToStringTestClass {
+ public:
+  std::string ToString() const { return "to-string"; }
+};
+}  // namespace
+
+TEST_CASE("StringUtil ToString formatter", "[string]") {
+  ToStringTestClass value;
+
+  REQUIRE(std::format("{}", value) == "to-string");
+
+  std::ostringstream stream;
+  stream << value;
+  REQUIRE(stream.str() == "to-string");
+}
 
 TEST_CASE("StringUtil Utf8ByteType", "[string]") {
   REQUIRE(IsUtf8LeadingByte(0b00100000));

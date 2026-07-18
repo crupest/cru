@@ -250,10 +250,6 @@ struct std::hash<cru::platform::Color> {
   }
 };
 
-template <>
-struct std::formatter<cru::platform::Color, char>
-    : cru::string::ImplementFormatterByToString<cru::platform::Color> {};
-
 namespace cru::platform {
 std::optional<Color> GetPredefinedColorByName(std::string_view name);
 

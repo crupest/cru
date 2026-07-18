@@ -131,11 +131,6 @@ class MeasureLength final {
 };
 }  // namespace cru::ui::render
 
-template <>
-struct std::formatter<cru::ui::render::MeasureLength, char>
-    : cru::string::ImplementFormatterByToString<
-          cru::ui::render::MeasureLength> {};
-
 namespace cru::ui::render {
 struct MeasureSize {
   MeasureLength width;
@@ -206,11 +201,6 @@ struct MeasureSize {
   constexpr bool operator==(const MeasureSize& other) const = default;
 };
 }  // namespace cru::ui::render
-
-template <>
-struct std::formatter<cru::ui::render::MeasureSize, char>
-    : cru::string::ImplementFormatterByToString<cru::ui::render::MeasureSize> {
-};
 
 namespace cru::ui::render {
 struct MeasureRequirement {
@@ -287,8 +277,3 @@ struct MeasureRequirement {
   constexpr bool operator==(const MeasureRequirement& other) const = default;
 };
 }  // namespace cru::ui::render
-
-template <>
-struct std::formatter<cru::ui::render::MeasureRequirement, char>
-    : cru::string::ImplementFormatterByToString<
-          cru::ui::render::MeasureRequirement> {};
