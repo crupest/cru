@@ -137,6 +137,11 @@ class CRU_BASE_API Exception : public std::exception {
   std::shared_ptr<std::exception> inner_;
 };
 
+#define CheckArgumentNonNull(arg)                  \
+  if (arg == nullptr) {                            \
+    throw Exception("Argument '" #arg "' is null."); \
+  }  // namespace cru
+
 /**
  * @brief Check if the argument value is no less than the specified minimum
  * @param value The argument value to check.

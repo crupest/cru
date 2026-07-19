@@ -7,7 +7,6 @@ target_compile_definitions(CruPlatformBase PRIVATE CRU_PLATFORM_EXPORT_API)
 
 add_subdirectory(graphics)
 add_subdirectory(gui)
-add_subdirectory(gui/mock)
 
 if (WIN32)
 	add_subdirectory(graphics/direct2d)
