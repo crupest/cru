@@ -15,7 +15,18 @@ struct Guard {
   explicit Guard(ExitFunc&& f) : on_exit(std::move(f)) {}
 
   CRU_DELETE_COPY(Guard)
-  CRU_DEFAULT_MOVE(Guard)
+
+  Guard(Guard&& other) { on_exit.swap(other.on_exit); }
+  Guard& operator=(Guard&& other) {
+    if (this != &other) {
+      on_exit = std::move(other.on_exit);
+      // According to std, moved function is in a valid but unspecified state,
+      // so it's possible it's not erased to null. Thus, we explicitly set it to
+      // null.
+      other.on_exit = {};
+    }
+    return *this;
+  }
 
   ~Guard() {
     if (on_exit) {
