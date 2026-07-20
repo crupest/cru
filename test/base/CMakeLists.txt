@@ -1,4 +1,5 @@
 add_executable(CruBaseTest
+	BaseTest.cpp
 	EventTest.cpp
 	GuardTest.cpp
 	PropertyTreeTest.cpp

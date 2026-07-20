@@ -27,12 +27,12 @@ class LayoutRenderObject : public RenderObject {
   Index GetChildCount() { return static_cast<Index>(children_.size()); }
 
   RenderObject* GetChildAt(Index position) {
-    CheckArgumentRange(position, 0, GetChildCount(), "position");
+    CheckArgumentRange(position, 0, GetChildCount() - 1);
     return children_[position].render_object;
   }
 
   void AddChild(RenderObject* render_object, Index position) {
-    CheckArgumentRange(position, 0, GetChildCount(), "position", true);
+    CheckArgumentRange(position, 0, GetChildCount());
     auto iter = children_.insert(children_.begin() + position,
                                  ChildData{render_object, ChildLayoutData()});
     render_object->SetParent(this);
@@ -61,7 +61,7 @@ class LayoutRenderObject : public RenderObject {
   }
 
   void RemoveChild(Index position) {
-    CheckArgumentRange(position, 0, GetChildCount(), "position");
+    CheckArgumentRange(position, 0, GetChildCount() - 1);
     auto render_object = children_[position].render_object;
     if (render_object) {
       render_object->SetParent(nullptr);
@@ -82,12 +82,12 @@ class LayoutRenderObject : public RenderObject {
   }
 
   const ChildLayoutData& GetChildLayoutDataAt(Index position) {
-    CheckArgumentRange(position, 0, GetChildCount(), "position");
+    CheckArgumentRange(position, 0, GetChildCount() - 1);
     return children_[position].layout_data;
   }
 
   void SetChildLayoutDataAt(Index position, ChildLayoutData data) {
-    CheckArgumentRange(position, 0, GetChildCount(), "position");
+    CheckArgumentRange(position, 0, GetChildCount() - 1);
     children_[position].layout_data = std::move(data);
     InvalidateLayout();
   }

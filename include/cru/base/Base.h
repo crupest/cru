@@ -137,44 +137,47 @@ class CRU_BASE_API Exception : public std::exception {
   std::shared_ptr<std::exception> inner_;
 };
 
-#define CheckArgumentNonNull(arg)                  \
-  if (arg == nullptr) {                            \
-    throw Exception("Argument '" #arg "' is null."); \
+#define CheckArgumentNonNull(arg)                          \
+  if (arg == nullptr) {                                    \
+    throw Exception("Argument '" #arg "' can't be null."); \
   }  // namespace cru
 
 /**
  * @brief Check if the argument value is no less than the specified minimum
- * @param value The argument value to check.
+ * @param arg The argument value to check.
  * @param min The minimum value (inclusive).
- * @param arg_name The name of the argument, used for error message.
  * @throws Exception if the argument value is less than the specified minimum.
  */
-void CRU_BASE_API CheckArgumentNoLessThan(Index value, Index min,
-                                          std::string_view arg_name);
+#define CheckArgumentNoLessThan(arg, min)                                \
+  if ((arg) < (min)) {                                                   \
+    throw Exception("Argument '" #arg "' can't be less than " #min "."); \
+  }
+
 /**
  * @brief Check if the argument value is no greater than the specified maximum
- * @param value The argument value to check.
+ * @param arg The argument value to check.
  * @param max The maximum value (inclusive).
- * @param arg_name The name of the argument, used for error message.
  * @throws Exception if the argument value is greater than the specified
  * maximum.
  */
-void CRU_BASE_API CheckArgumentNoGreaterThan(Index value, Index max,
-                                             std::string_view arg_name);
+#define CheckArgumentNoGreaterThan(arg, max)                                \
+  if ((arg) > (max)) {                                                      \
+    throw Exception("Argument '" #arg "' can't be greater than " #max "."); \
+  }
 
 /**
  * @brief Check if the argument value is within the specified range.
- * @param value The argument value to check.
- * @param min The minimum value.
- * @param max The maximum value.
- * @param arg_name The name of the argument, used for error message.
- * @param max_inclusive Whether the maximum value is inclusive. Default is false
- * (exclusive).
+ * @param arg The argument value to check.
+ * @param min The minimum value (inclusive).
+ * @param max The maximum value (inclusive).
  * @throws Exception if the argument value is out of the specified range.
  */
-void CRU_BASE_API CheckArgumentRange(Index value, Index min, Index max,
-                                     std::string_view arg_name,
-                                     bool max_inclusive = false);
+
+#define CheckArgumentRange(arg, min, max)                                  \
+  if ((arg) < (min) || (arg) > (max)) {                                    \
+    throw Exception("Argument '" #arg "' is out of range [" #min ", " #max \
+                    "].");                                                 \
+  }
 
 class CRU_BASE_API NotImplementedException : public Exception {
  public:
