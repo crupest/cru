@@ -4,7 +4,9 @@
 #include "../StringUtil.h"
 #include "../xml/XmlNode.h"
 
+#include <format>
 #include <optional>
+#include <ranges>
 #include <string>
 #include <string_view>
 
@@ -264,6 +266,54 @@ class NumberDataType : public DataTypeBase<T> {
 
  private:
   cru::string::ParseToNumberFlag parse_flag_;
+};
+
+template <typename T>
+  requires(std::is_arithmetic_v<T>)
+class NumberListDataType : public DataTypeBase<std::vector<T>> {
+ public:
+  explicit NumberListDataType()
+      : DataTypeBase<std::vector<T>>("NumberList", {true, true, false, false}),
+        number_data_type_(
+            cru::string::ParseToNumberFlags::AllowLeadingSpaces |
+            cru::string::ParseToNumberFlags::AllowTrailingSpaces) {}
+
+ protected:
+  DataConvertResult<std::vector<T>> DoConvertFromString(
+      std::string_view value) override {
+    auto strs = cru::string::SplitBySpace(value);
+    bool success = true;
+    std::vector<T> numbers;
+    std::vector<std::string> errors;
+    for (int i = 0; i < strs.size(); i++) {
+      auto convert_result = number_data_type_.ConvertFromString(strs[i]);
+      if (!convert_result.IsSuccess()) {
+        success = false;
+      } else {
+        numbers.push_back(convert_result.GetValue());
+      }
+      for (const auto& error : convert_result.GetErrors()) {
+        errors.push_back(std::format("In substring {}, {}", i + 1, error));
+      }
+    }
+    std::optional<std::vector<T>> result_value;
+    if (success) {
+      result_value = std::move(numbers);
+    }
+    return DataConvertResult<std::vector<T>>(std::move(result_value),
+                                             std::move(errors));
+  }
+
+  DataConvertResult<std::string> DoConvertToString(
+      const std::vector<T>& value) override {
+    return DataConvertResult<std::string>::Success(
+        cru::string::Join(" ", value | std::views::transform([](T number) {
+                                 return std::to_string(number);
+                               })));
+  }
+
+ private:
+  NumberDataType<T> number_data_type_;
 };
 
 class CRU_BASE_API StringDataType : public DataTypeBase<std::string> {

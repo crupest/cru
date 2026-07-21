@@ -400,6 +400,8 @@ std::vector<std::string> CRU_BASE_API Split(std::string_view str,
                                             std::string_view sep,
                                             SplitOption options = {});
 
+std::vector<std::string> CRU_BASE_API SplitBySpace(std::string_view str);
+
 namespace details {
 template <typename T>
 std::enable_if_t<std::is_integral_v<T>, std::from_chars_result> from_chars(

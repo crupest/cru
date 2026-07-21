@@ -7,6 +7,7 @@
 using cru::Exception;
 using cru::datamodel::DataConvertResult;
 using cru::datamodel::NumberDataType;
+using cru::datamodel::NumberListDataType;
 using cru::datamodel::StringDataType;
 using cru::string::ParseToNumberFlags;
 using cru::xml::XmlElementNode;
@@ -79,7 +80,43 @@ TEST_CASE("NumberDataType strict trailing junk handling", "[datamodel]") {
   REQUIRE(failed.HasErrors());
 }
 
-TEST_CASE("NumberDataType xml conversion through string fallback", "[datamodel]") {
+TEST_CASE("NumberListDataType string conversion", "[datamodel]") {
+  NumberListDataType<int> type;
+
+  REQUIRE(type.GetName() == "NumberList");
+  REQUIRE(type.SupportConvertFromString());
+  REQUIRE(type.SupportConvertToString());
+  REQUIRE(type.SupportConvertFromXml());
+  REQUIRE(!type.SupportConvertToXml());
+
+  auto parsed = type.ConvertFromString(
+      " 1\t2\n\xC2\xA0"
+      "3\xE3\x80\x80"
+      "4 ");
+  REQUIRE(parsed.IsSuccess());
+  REQUIRE(!parsed.HasErrors());
+  REQUIRE(parsed.GetValue() == std::vector<int>{1, 2, 3, 4});
+
+  auto serialized = type.ConvertToString(std::vector<int>{-1, 0, 42});
+  REQUIRE(serialized.IsSuccess());
+  REQUIRE(serialized.GetValue() == "-1 0 42");
+
+  REQUIRE_THROWS_AS(type.ConvertToXml(std::vector<int>{1}), Exception);
+}
+
+TEST_CASE("NumberListDataType reports invalid substrings", "[datamodel]") {
+  NumberListDataType<int> type;
+
+  auto failed = type.ConvertFromString("1 2x 3");
+  REQUIRE(!failed.IsSuccess());
+  REQUIRE(failed.HasErrors());
+  REQUIRE(failed.GetErrors().size() == 1);
+  REQUIRE(failed.GetErrors()[0].starts_with("In substring 2, "));
+  REQUIRE_THROWS_AS(failed.GetValue(), Exception);
+}
+
+TEST_CASE("NumberDataType xml conversion through string fallback",
+          "[datamodel]") {
   NumberDataType<int> type;
 
   XmlElementNode from_text("Number");

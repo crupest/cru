@@ -100,6 +100,35 @@ std::vector<std::string> Split(std::string_view str, std::string_view sep,
   return result;
 }
 
+std::vector<std::string> SplitBySpace(std::string_view str) {
+  std::vector<std::vector<CodePoint>> code_points_list{{}};
+  for (auto c : Utf8CodePointIterator(str.data(), str.size())) {
+    if (!u_isspace(c)) {
+      code_points_list.back().push_back(c);
+    } else {
+      if (!code_points_list.back().empty()) {
+        code_points_list.push_back({});
+      }
+    }
+  }
+
+  if (code_points_list.back().empty()) {
+    code_points_list.pop_back();
+  }
+
+  std::vector<std::string> result;
+  for (const auto& code_points : code_points_list) {
+    result.push_back({});
+    auto& str = result.back();
+    for (auto code_point : code_points) {
+      Utf8EncodeCodePointAppend(code_point,
+                                [&str](Utf8CodeUnit c) { str.push_back(c); });
+    }
+  }
+
+  return result;
+}
+
 using details::ExtractBits;
 
 CodePoint Utf8NextCodePoint(const Utf8CodeUnit* ptr, Index size, Index current,
