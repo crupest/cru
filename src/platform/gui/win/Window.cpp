@@ -95,7 +95,7 @@ void WinNativeWindow::SetTitle(std::string title) {
   title_ = title;
 
   if (hwnd_) {
-    auto utf16_text = string::ToUtf16WString(title);
+    auto utf16_text = cru::string::ToUtf16WString(title);
     ::SetWindowTextW(hwnd_, utf16_text.c_str());
   }
 }
@@ -496,7 +496,7 @@ void WinNativeWindow::RecreateWindow() {
   SetCursor(application_->GetCursorManager()->GetSystemCursor(
       cru::platform::gui::SystemCursorType::Arrow));
 
-  auto utf16_title = string::ToUtf16WString(title_);
+  auto utf16_title = cru::string::ToUtf16WString(title_);
   ::SetWindowTextW(hwnd_, utf16_title.c_str());
 
   if (client_rect_inited_ == ClientRectInitedKind::Rect) {

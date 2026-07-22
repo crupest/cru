@@ -10,7 +10,7 @@ StdioLogWriter::~StdioLogWriter() {}
 
 void StdioLogWriter::Write(const LogInfo& log_info, std::string log_str) {
 #ifdef _WIN32
-  auto s = string::ToUtf16WString(log_str);
+  auto s = cru::string::ToUtf16WString(log_str);
   if (log_info.level == log::LogLevel::Error) {
     std::wcerr << s << std::endl;
   } else {

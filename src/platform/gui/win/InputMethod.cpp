@@ -122,7 +122,7 @@ CompositionText GetCompositionInfo(HIMC imm_context) {
   // convert them into underlines and selection range respectively.
 
   auto utf16_text = GetString(imm_context);
-  auto text = string::ToUtf8String(utf16_text);
+  auto text = cru::string::ToUtf8String(utf16_text);
 
   int length = static_cast<int>(utf16_text.length());
   // Find out the range selected by the user.
@@ -132,14 +132,16 @@ CompositionText GetCompositionInfo(HIMC imm_context) {
 
   auto clauses = GetCompositionClauses(imm_context, target_start, target_end);
   for (auto& clause : clauses) {
-    clause.start = string::Utf8IndexCodePointToCodeUnit(
-        text, string::Utf16IndexCodeUnitToCodePoint(utf16_text, clause.start));
-    clause.end = string::Utf8IndexCodePointToCodeUnit(
-        text, string::Utf16IndexCodeUnitToCodePoint(utf16_text, clause.end));
+    clause.start = cru::string::Utf8IndexCodePointToCodeUnit(
+        text,
+        cru::string::Utf16IndexCodeUnitToCodePoint(utf16_text, clause.start));
+    clause.end = cru::string::Utf8IndexCodePointToCodeUnit(
+        text,
+        cru::string::Utf16IndexCodeUnitToCodePoint(utf16_text, clause.end));
   }
 
-  int cursor = string::Utf8IndexCodePointToCodeUnit(
-      text, string::Utf16IndexCodeUnitToCodePoint(
+  int cursor = cru::string::Utf8IndexCodePointToCodeUnit(
+      text, cru::string::Utf16IndexCodeUnitToCodePoint(
                 utf16_text, ::ImmGetCompositionString(imm_context,
                                                       GCS_CURSORPOS, NULL, 0)));
 
@@ -274,7 +276,7 @@ void WinInputMethodContext::OnWindowNativeMessage(
 std::string WinInputMethodContext::GetResultString() {
   auto himc = GetHIMC();
   auto result = win::GetResultString(himc.Get());
-  return string::ToUtf8String(result);
+  return cru::string::ToUtf8String(result);
 }
 
 AutoHIMC WinInputMethodContext::GetHIMC() {

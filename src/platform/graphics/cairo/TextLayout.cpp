@@ -1,8 +1,8 @@
 #include "cru/platform/graphics/cairo/TextLayout.h"
 #include "cru/platform/GraphicsBase.h"
 #include "cru/platform/graphics/Base.h"
-#include "cru/platform/graphics/cairo/GraphicsFactory.h"
 #include "cru/platform/graphics/cairo/Font.h"
+#include "cru/platform/graphics/cairo/GraphicsFactory.h"
 
 #include <pango/pangocairo.h>
 
@@ -165,7 +165,8 @@ TextHitTestResult PangoTextLayout::HitTest(const Point& point) {
 
   if (result.trailing) {
     Index position_with_trailing;
-    string::Utf8NextCodePoint(text_, result.position, &position_with_trailing);
+    cru::string::Utf8NextCodePoint(text_, result.position,
+                                   &position_with_trailing);
     result.position_with_trailing = position_with_trailing;
   } else {
     result.position_with_trailing = result.position;

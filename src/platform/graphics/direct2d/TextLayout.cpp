@@ -18,7 +18,7 @@ DWriteTextLayout::DWriteTextLayout(DirectGraphicsFactory* factory,
 
   height_of_one_line_ = MeasureHeightOfOneLine();
 
-  utf16_text_ = string::ToUtf16WString(text_);
+  utf16_text_ = cru::string::ToUtf16WString(text_);
   RecreateTextLayout();
 }
 
@@ -28,7 +28,7 @@ std::string DWriteTextLayout::GetText() { return text_; }
 
 void DWriteTextLayout::SetText(std::string new_text) {
   text_ = std::move(new_text);
-  utf16_text_ = string::ToUtf16WString(text_);
+  utf16_text_ = cru::string::ToUtf16WString(text_);
   RecreateTextLayout();
 }
 
@@ -64,9 +64,9 @@ Index DWriteTextLayout::GetLineIndexFromCharIndex(Index char_index) {
     return GetLineCount() - 1;
   }
 
-  auto utf16_char_index = string::Utf16IndexCodePointToCodeUnit(
+  auto utf16_char_index = cru::string::Utf16IndexCodePointToCodeUnit(
       utf16_text_.data(),
-      string::Utf8IndexCodeUnitToCodePoint(text_, char_index));
+      cru::string::Utf8IndexCodeUnitToCodePoint(text_, char_index));
 
   Index line_index = 0, line_end = 0;
   for (const auto& metrics : line_metrics_cache_) {
@@ -113,9 +113,9 @@ std::vector<Rect> DWriteTextLayout::TextRangeRect(
   const auto text_range =
       text_range_arg
           .TransformSides([&](Index index) {
-            return string::Utf16IndexCodePointToCodeUnit(
+            return cru::string::Utf16IndexCodePointToCodeUnit(
                 utf16_text_,
-                string::Utf8IndexCodeUnitToCodePoint(text_, index));
+                cru::string::Utf8IndexCodeUnitToCodePoint(text_, index));
           })
           .Normalize();
 
@@ -152,8 +152,8 @@ Rect DWriteTextLayout::TextSinglePoint(Index position, bool trailing) {
     return GetEmptyTextBounds();
   }
 
-  position = string::Utf16IndexCodePointToCodeUnit(
-      utf16_text_, string::Utf8IndexCodeUnitToCodePoint(text_, position));
+  position = cru::string::Utf16IndexCodePointToCodeUnit(
+      utf16_text_, cru::string::Utf8IndexCodeUnitToCodePoint(text_, position));
 
   DWRITE_HIT_TEST_METRICS metrics;
   FLOAT left;
@@ -173,15 +173,15 @@ TextHitTestResult DWriteTextLayout::HitTest(const Point& point) {
                                           &metrics));
 
   TextHitTestResult result;
-  result.position = string::Utf8IndexCodePointToCodeUnit(
-      text_,
-      string::Utf16IndexCodeUnitToCodePoint(utf16_text_, metrics.textPosition));
+  result.position = cru::string::Utf8IndexCodePointToCodeUnit(
+      text_, cru::string::Utf16IndexCodeUnitToCodePoint(utf16_text_,
+                                                        metrics.textPosition));
   result.trailing = trailing != 0;
 
   if (result.trailing) {
     Index position_with_trailing;
-    string::Utf8NextCodePoint(text_.data(), text_.size(), result.position,
-                              &position_with_trailing);
+    cru::string::Utf8NextCodePoint(text_.data(), text_.size(), result.position,
+                                   &position_with_trailing);
     result.position_with_trailing = position_with_trailing;
   } else {
     result.position_with_trailing = result.position;
