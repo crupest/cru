@@ -396,10 +396,31 @@ std::string Join(std::string_view sep, const R& range) {
   return result;
 }
 
+/**
+ * @brief Splits a string using another string as the separator, and may
+ * optionally trim entries or drop empty ones from the result.
+ * @param str The string to split.
+ * @param sep The separator string, treated as a whole rather than as a set of
+ * individual separator characters.
+ * @param options Controls whether entries are trimmed or empty entries are
+ * dropped.
+ */
 std::vector<std::string> CRU_BASE_API Split(std::string_view str,
                                             std::string_view sep,
                                             SplitOption options = {});
 
+/**
+ * @brief Splits a string by space characters, dropping any empty entries from
+ * the result.
+ * @param str The string to split.
+ * @return A list of strings after splitting. Each returned string is guaranteed
+ * to neither start nor end with space characters.
+ *
+ * @remark This function differs from calling cru::string::Split() with a space
+ * in two ways. First, it recognizes all kinds of Unicode space characters as
+ * separators. Second, it always drops empty strings and does not accept an
+ * options argument.
+ */
 std::vector<std::string> CRU_BASE_API SplitBySpace(std::string_view str);
 
 namespace details {
