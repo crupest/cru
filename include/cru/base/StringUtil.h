@@ -424,12 +424,15 @@ std::vector<std::string> CRU_BASE_API Split(std::string_view str,
 std::vector<std::string> CRU_BASE_API SplitBySpace(std::string_view str);
 
 namespace details {
+// Import std::from_chars to this namespace.
 template <typename T>
 std::enable_if_t<std::is_integral_v<T>, std::from_chars_result> from_chars(
     const char* first, const char* last, T& value, int base = 10) {
   return std::from_chars(first, last, value, base);
 }
 
+// Implement from_chars for float types, which macOS doesn't implement, with
+// `strto*` functions.
 template <typename T, T (*StrToFunc)(const char* str, char** str_end),
           bool (*IsOverflow)(T value)>
 std::enable_if_t<std::is_floating_point_v<T>, std::from_chars_result>
