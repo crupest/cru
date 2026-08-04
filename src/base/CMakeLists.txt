@@ -1,5 +1,6 @@
 add_library(CruBase
 	Base.cpp
+	Json.cpp
 	PropertyTree.cpp
 	StringUtil.cpp
 	SubProcess.cpp
