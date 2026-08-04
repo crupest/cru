@@ -23,7 +23,28 @@ std::string ToString(JsonValueType type) {
   }
 }
 
+JsonValue::JsonValue() : parent_(nullptr) {}
+
 JsonValue::~JsonValue() { DestroyChildren(); }
+
+JsonValueType JsonValue::GetType() const {
+  switch (value_.index()) {
+    case 0:
+      return JsonValueType::Null;
+    case 1:
+      return JsonValueType::Boolean;
+    case 2:
+      return JsonValueType::Number;
+    case 3:
+      return JsonValueType::String;
+    case 4:
+      return JsonValueType::Array;
+    case 5:
+      return JsonValueType::Object;
+    default:
+      std::unreachable();
+  }
+}
 
 std::nullptr_t JsonValue::GetNull() const {
   CheckTypeForGet(JsonValueType::Null);
@@ -57,28 +78,46 @@ const JsonValue::ObjectStorage& JsonValue::GetObject() const {
 
 void JsonValue::SetNull() {
   DestroyChildren();
-  type_ = JsonValueType::Null;
   value_ = nullptr;
 }
 
+void JsonValue::SetBoolean(bool value) {
+  DestroyChildren();
+  value_ = value;
+}
+
+void JsonValue::SetNumber(double value) {
+  DestroyChildren();
+  value_ = value;
+}
+
+void JsonValue::SetString(std::string value) {
+  DestroyChildren();
+  value_ = std::move(value);
+}
+
 void JsonValue::CheckTypeForGet(JsonValueType type) const {
-  if (type != type_) {
+  if (type != GetType()) {
     throw Exception(std::format("Json value is not of type {}, but {}.",
-                                ToString(type), ToString(type_)));
+                                ToString(type), ToString(GetType())));
   }
 }
 
 void JsonValue::DestroyChildren() {
-  if (type_ == JsonValueType::Array) {
-    for (const auto& value : std::get<ArrayStorage>(value_)) {
-      delete value;
-    }
-  } else if (type_ == JsonValueType::Object) {
-    for (const auto& kv : std::get<ObjectStorage>(value_)) {
-      delete kv.second;
-    }
-  }
-  type_ = JsonValueType::Null;
+  std::visit(
+      [](auto&& arg) {
+        using T = std::decay_t<decltype(arg)>;
+        if constexpr (std::is_same_v<T, ArrayStorage>) {
+          for (const auto& value : arg) {
+            delete value;
+          }
+        } else if constexpr (std::is_same_v<T, ObjectStorage>) {
+          for (const auto& kv : arg) {
+            delete kv.second;
+          }
+        }
+      },
+      value_);
   value_ = nullptr;
 }
 
