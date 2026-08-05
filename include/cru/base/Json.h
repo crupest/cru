@@ -24,11 +24,8 @@ class JsonArrayValue;
 class JsonObjectValue;
 
 class CRU_BASE_API JsonValue : public Object {
- protected:
-  explicit JsonValue(JsonValueType type);
-
  public:
-  JsonValueType GetType() const;
+  virtual JsonValueType GetType() const = 0;
 
   bool IsNull() const { return GetType() == JsonValueType::Null; }
   bool IsBoolean() const { return GetType() == JsonValueType::Boolean; }
@@ -54,17 +51,15 @@ class CRU_BASE_API JsonValue : public Object {
 
  private:
   void CheckType(JsonValueType type) const;
-
- private:
-  JsonValueType type_;
 };
 
 template <JsonValueType type, typename T>
 class JsonScalarValue : public JsonValue {
  public:
-  JsonScalarValue() : JsonValue(type), value_() {}
-  explicit JsonScalarValue(T value)
-      : JsonValue(type), value_(std::move(value)) {}
+  JsonScalarValue() : value_() {}
+  explicit JsonScalarValue(T value) : value_(std::move(value)) {}
+
+  JsonValueType GetType() const override { return type; }
 
   T GetValue() const { return value_; }
   void SetValue(T value) { value_ = std::move(value); }
@@ -95,8 +90,9 @@ extern CRU_BASE_API template class JsonScalarValue<JsonValueType::String,
  */
 class CRU_BASE_API JsonArrayValue : public JsonValue {
  public:
-  JsonArrayValue();
   ~JsonArrayValue();
+
+  JsonValueType GetType() const override;
 
   Index GetSize() const;
   JsonValue* GetValueAt(Index index);
@@ -118,7 +114,7 @@ class CRU_BASE_API JsonArrayValue : public JsonValue {
    */
   JsonValue* RemoveAt(Index index);
 
-  JsonArrayValue* Clone() const;
+  JsonArrayValue* Clone() const override;
 
  private:
   std::vector<JsonValue*> children_;

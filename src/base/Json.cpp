@@ -25,10 +25,6 @@ std::string ToString(JsonValueType type) {
   }
 }
 
-JsonValue::JsonValue(JsonValueType type) : type_(type) {}
-
-JsonValueType JsonValue::GetType() const { return type_; }
-
 JsonNullValue* JsonValue::AsNull() {
   CheckType(JsonValueType::Null);
   return static_cast<JsonNullValue*>(this);
@@ -101,13 +97,13 @@ template class JsonScalarValue<JsonValueType::Boolean, bool>;
 template class JsonScalarValue<JsonValueType::Number, double>;
 template class JsonScalarValue<JsonValueType::String, std::string>;
 
-JsonArrayValue::JsonArrayValue() : JsonValue(JsonValueType::Array) {}
-
 JsonArrayValue::~JsonArrayValue() {
   for (auto child : children_) {
     delete child;
   }
 }
+
+JsonValueType JsonArrayValue::GetType() const { return JsonValueType::Array; }
 
 Index JsonArrayValue::GetSize() const {
   return static_cast<Index>(children_.size());
