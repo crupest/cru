@@ -1,9 +1,9 @@
 #include "cru/base/Json.h"
+#include "cru/base/Base.h"
 
 #include <format>
 #include <ranges>
 #include <utility>
-#include "cru/base/Base.h"
 
 namespace cru::json {
 std::string ToString(JsonValueType type) {
@@ -155,4 +155,90 @@ JsonArrayValue* JsonArrayValue::Clone() const {
   return new_value;
 }
 
+JsonObjectValue::~JsonObjectValue() {
+  for (const auto& [k, v] : children_) {
+    delete v;
+  }
+}
+
+JsonValueType JsonObjectValue::GetType() const { return JsonValueType::Object; }
+
+Index JsonObjectValue::GetSize() const {
+  return static_cast<Index>(children_.size());
+}
+
+JsonValue*& JsonObjectValue::GetValue(std::string_view key) {
+  for (auto& [k, v] : children_) {
+    if (k == key) {
+      return v;
+    }
+  }
+  throw Exception(std::format("Object doesn't have key '{}'.", key));
+}
+
+const JsonValue* const& JsonObjectValue::GetValue(std::string_view key) const {
+  for (const auto& [k, v] : children_) {
+    if (k == key) {
+      return static_cast<const JsonValue* const&>(v);
+    }
+  }
+  throw Exception(std::format("Object doesn't have key '{}'.", key));
+}
+
+JsonValue* JsonObjectValue::GetOptionalValue(std::string_view key) {
+  for (const auto& [k, v] : children_) {
+    if (k == key) {
+      return v;
+    }
+  }
+  return nullptr;
+}
+
+const JsonValue* JsonObjectValue::GetOptionalValue(std::string_view key) const {
+  for (const auto& [k, v] : children_) {
+    if (k == key) {
+      return static_cast<const JsonValue*>(v);
+    }
+  }
+  return nullptr;
+}
+
+bool JsonObjectValue::ContainsKey(std::string_view key) const {
+  return GetOptionalValue(key) != nullptr;
+}
+
+JsonValue*& JsonObjectValue::operator[](std::string_view key) {
+  for (auto& [k, v] : children_) {
+    if (k == key) {
+      return v;
+    }
+  }
+  return children_.emplace_back(key, new JsonNullValue()).second;
+}
+
+bool JsonObjectValue::TryAdd(std::string key, JsonValue* value) {
+  if (ContainsKey(key)) return false;
+
+  children_.emplace_back(std::move(key), value);
+  return true;
+}
+
+JsonValue* JsonObjectValue::TryRemove(std::string_view key) {
+  for (auto iter = children_.begin(); iter != children_.end(); ++iter) {
+    if (iter->first == key) {
+      auto value = iter->second;
+      children_.erase(iter);
+      return value;
+    }
+  }
+  return nullptr;
+}
+
+JsonObjectValue* JsonObjectValue::Clone() const {
+  auto new_value = new JsonObjectValue();
+  for (const auto& [k, v] : children_) {
+    new_value->TryAdd(k, v->Clone());
+  }
+  return new_value;
+}
 }  // namespace cru::json

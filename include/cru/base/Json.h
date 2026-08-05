@@ -4,6 +4,7 @@
 
 #include <cstddef>
 #include <string>
+#include <string_view>
 #include <utility>
 #include <vector>
 
@@ -122,12 +123,27 @@ class CRU_BASE_API JsonArrayValue : public JsonValue {
 
 class CRU_BASE_API JsonObjectValue : public JsonValue {
  public:
-  JsonObjectValue();
+  ~JsonObjectValue();
 
-  JsonObjectValue* Clone() const;
+  JsonValueType GetType() const override;
+
+  Index GetSize() const;
+  JsonValue*& GetValue(std::string_view key);
+  const JsonValue* const& GetValue(std::string_view key) const;
+  JsonValue* GetOptionalValue(std::string_view key);
+  const JsonValue* GetOptionalValue(std::string_view key) const;
+  bool ContainsKey(std::string_view key) const;
+  JsonValue*& operator[](std::string_view key);
+
+  bool TryAdd(std::string key, JsonValue* value);
+  JsonValue* TryRemove(std::string_view key);
+
+  JsonObjectValue* Clone() const override;
 
  private:
   std::vector<std::pair<std::string, JsonValue*>> children_;
 };
+
+// TODO: Unit tests.
 
 }  // namespace cru::json
