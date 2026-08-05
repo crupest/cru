@@ -1,6 +1,8 @@
 #include "cru/base/Json.h"
 
+#include <concepts>
 #include <format>
+#include <ranges>
 #include <utility>
 
 namespace cru::json {
@@ -46,34 +48,63 @@ JsonValueType JsonValue::GetType() const {
   }
 }
 
-std::nullptr_t JsonValue::GetNull() const {
+std::nullptr_t& JsonValue::AsNull() {
   CheckTypeForGet(JsonValueType::Null);
-  return nullptr;
+  return std::get<std::nullptr_t>(value_);
 }
 
-bool JsonValue::GetBoolean() const {
+const std::nullptr_t& JsonValue::AsNull() const {
+  CheckTypeForGet(JsonValueType::Null);
+  return std::get<std::nullptr_t>(value_);
+}
+
+bool& JsonValue::AsBoolean() {
   CheckTypeForGet(JsonValueType::Boolean);
   return std::get<bool>(value_);
 }
 
-double JsonValue::GetNumber() const {
+const bool& JsonValue::AsBoolean() const {
+  CheckTypeForGet(JsonValueType::Boolean);
+  return std::get<bool>(value_);
+}
+
+double& JsonValue::AsNumber() {
   CheckTypeForGet(JsonValueType::Number);
   return std::get<double>(value_);
 }
 
-const std::string& JsonValue::GetString() const {
+const double& JsonValue::AsNumber() const {
+  CheckTypeForGet(JsonValueType::Number);
+  return std::get<double>(value_);
+}
+
+std::string& JsonValue::AsString() {
   CheckTypeForGet(JsonValueType::String);
   return std::get<std::string>(value_);
 }
 
-const JsonValue::ArrayStorage& JsonValue::GetArray() const {
-  CheckTypeForGet(JsonValueType::Array);
-  return std::get<ArrayStorage>(value_);
+const std::string& JsonValue::AsString() const {
+  CheckTypeForGet(JsonValueType::String);
+  return std::get<std::string>(value_);
 }
 
-const JsonValue::ObjectStorage& JsonValue::GetObject() const {
-  CheckTypeForGet(JsonValueType::Object);
-  return std::get<ObjectStorage>(value_);
+auto JsonValue::AsArray() {
+  CheckTypeForGet(JsonValueType::Array);
+  auto result = std::views::all(std::get<ArrayStorage>(value_));
+  static_assert(
+      std::same_as<std::ranges::range_value_t<decltype(result)>, JsonValue*>);
+  return result;
+}
+
+auto JsonValue::AsArray() const {
+  CheckTypeForGet(JsonValueType::Array);
+  auto result = std::get<ArrayStorage>(value_) |
+                std::views::transform([](JsonValue* child) {
+                  return static_cast<const JsonValue*>(child);
+                });
+  static_assert(std::same_as<std::ranges::range_value_t<decltype(result)>,
+                             const JsonValue*>);
+  return result;
 }
 
 void JsonValue::SetNull() {

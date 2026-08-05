@@ -2,6 +2,7 @@
 
 #include "Base.h"
 
+#include <concepts>
 #include <cstddef>
 #include <format>
 #include <ranges>
@@ -19,7 +20,7 @@ CRU_BASE_API std::string ToString(JsonValueType type);
 class CRU_BASE_API JsonValue : public Object {
  public:
   using ArrayStorage = std::vector<JsonValue*>;
-  using ObjectStorage = std::vector<std::pair<std::string, JsonValue*>>;
+  using ObjectStorage = std::vector<std::pair<const std::string, JsonValue*>>;
 
   JsonValue();
   ~JsonValue() override;
@@ -33,12 +34,17 @@ class CRU_BASE_API JsonValue : public Object {
   bool IsArray() const { return GetType() == JsonValueType::Array; }
   bool IsObject() const { return GetType() == JsonValueType::Object; }
 
-  std::nullptr_t GetNull() const;
-  bool GetBoolean() const;
-  double GetNumber() const;
-  const std::string& GetString() const;
-  const ArrayStorage& GetArray() const;
-  const ObjectStorage& GetObject() const;
+  std::nullptr_t& AsNull();
+  const std::nullptr_t& AsNull() const;
+  bool& AsBoolean();
+  const bool& AsBoolean() const;
+  double& AsNumber();
+  const double& AsNumber() const;
+  std::string& AsString();
+  const std::string& AsString() const;
+  auto AsArray();
+  auto AsArray() const;
+  // TODO: AsObject
 
   void SetNull();
   void SetBoolean(bool value);
@@ -46,7 +52,7 @@ class CRU_BASE_API JsonValue : public Object {
   void SetString(std::string value);
 
   template <typename... T>
-    requires std::is_constructible_v<ArrayStorage, T...>
+    requires std::constructible_from<ArrayStorage, T...>
   void SetArray(T&&... args) {
     DestroyChildren();
     ArrayStorage value(std::forward<T>(args)...);
@@ -64,7 +70,7 @@ class CRU_BASE_API JsonValue : public Object {
 
   // TODO: need to handle duplicate key.
   template <typename... T>
-    requires std::is_constructible_v<ObjectStorage, T...>
+    requires std::constructible_from<ObjectStorage, T...>
   void SetObject(T&&... args) {
     DestroyChildren();
     ObjectStorage value(std::forward<T>(args)...);
