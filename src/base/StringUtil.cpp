@@ -422,7 +422,7 @@ void StringBreakIterator::SetText(std::string str) {
 }
 
 void StringBreakIterator::SetCurrentPosition(Index position) {
-  CheckArgumentRange(position, 0, str_.size());
+  CheckArgumentRange(position, 0, str_.size() + 1);
   utf8_position_ = position;
   utf16_position_ = Utf16IndexCodePointToCodeUnit(
       icu_str_.getBuffer(), icu_str_.length(),

@@ -54,21 +54,21 @@ TEST_CASE("CheckArgumentNoGreaterThan validates maximum value", "[base]") {
       [&] { CheckArgumentNoGreaterThan(argument, max); }, "argument");
 }
 
-TEST_CASE("CheckArgumentRange validates inclusive range", "[base]") {
+TEST_CASE("CheckArgumentRange validates range", "[base]") {
   Index argument = 2;
   Index min = 2;
   Index max = 5;
 
   REQUIRE_NOTHROW([&] { CheckArgumentRange(argument, min, max); }());
 
-  argument = 5;
+  argument = 4;
   REQUIRE_NOTHROW([&] { CheckArgumentRange(argument, min, max); }());
 
   argument = 1;
   RequireThrowsWithArgumentName([&] { CheckArgumentRange(argument, min, max); },
                                 "argument");
 
-  argument = 6;
+  argument = 5;
   RequireThrowsWithArgumentName([&] { CheckArgumentRange(argument, min, max); },
                                 "argument");
 }

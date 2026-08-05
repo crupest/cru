@@ -2,13 +2,9 @@
 
 #include "Base.h"
 
-#include <concepts>
 #include <cstddef>
-#include <format>
-#include <ranges>
 #include <string>
 #include <utility>
-#include <variant>
 #include <vector>
 
 namespace cru::json {
@@ -17,14 +13,21 @@ enum class JsonValueType { Null, Boolean, Number, String, Array, Object };
 
 CRU_BASE_API std::string ToString(JsonValueType type);
 
+template <JsonValueType type, typename T>
+class JsonScalarValue;
+
+using JsonNullValue = JsonScalarValue<JsonValueType::Null, std::nullptr_t>;
+using JsonBooleanValue = JsonScalarValue<JsonValueType::Boolean, bool>;
+using JsonNumberValue = JsonScalarValue<JsonValueType::Number, double>;
+using JsonStringValue = JsonScalarValue<JsonValueType::String, std::string>;
+class JsonArrayValue;
+class JsonObjectValue;
+
 class CRU_BASE_API JsonValue : public Object {
+ protected:
+  explicit JsonValue(JsonValueType type);
+
  public:
-  using ArrayStorage = std::vector<JsonValue*>;
-  using ObjectStorage = std::vector<std::pair<const std::string, JsonValue*>>;
-
-  JsonValue();
-  ~JsonValue() override;
-
   JsonValueType GetType() const;
 
   bool IsNull() const { return GetType() == JsonValueType::Null; }
@@ -34,66 +37,101 @@ class CRU_BASE_API JsonValue : public Object {
   bool IsArray() const { return GetType() == JsonValueType::Array; }
   bool IsObject() const { return GetType() == JsonValueType::Object; }
 
-  std::nullptr_t& AsNull();
-  const std::nullptr_t& AsNull() const;
-  bool& AsBoolean();
-  const bool& AsBoolean() const;
-  double& AsNumber();
-  const double& AsNumber() const;
-  std::string& AsString();
-  const std::string& AsString() const;
-  auto AsArray();
-  auto AsArray() const;
-  // TODO: AsObject
+  JsonNullValue* AsNull();
+  const JsonNullValue* AsNull() const;
+  JsonBooleanValue* AsBoolean();
+  const JsonBooleanValue* AsBoolean() const;
+  JsonNumberValue* AsNumber();
+  const JsonNumberValue* AsNumber() const;
+  JsonStringValue* AsString();
+  const JsonStringValue* AsString() const;
+  JsonArrayValue* AsArray();
+  const JsonArrayValue* AsArray() const;
+  JsonObjectValue* AsObject();
+  const JsonObjectValue* AsObject() const;
 
-  void SetNull();
-  void SetBoolean(bool value);
-  void SetNumber(double value);
-  void SetString(std::string value);
-
-  template <typename... T>
-    requires std::constructible_from<ArrayStorage, T...>
-  void SetArray(T&&... args) {
-    DestroyChildren();
-    ArrayStorage value(std::forward<T>(args)...);
-    for (auto [index, child] : std::views::enumerate(value)) {
-      if (child->parent_) {
-        throw Exception(
-            std::format("Child at index {} already has a parent.", index));
-      }
-    }
-    for (auto child : value) {
-      child->parent_ = this;
-    }
-    value_ = std::move(value);
-  }
-
-  // TODO: need to handle duplicate key.
-  template <typename... T>
-    requires std::constructible_from<ObjectStorage, T...>
-  void SetObject(T&&... args) {
-    DestroyChildren();
-    ObjectStorage value(std::forward<T>(args)...);
-    for (const auto& [key, child] : value) {
-      if (child->parent_) {
-        throw Exception(
-            std::format("Child of key {} already has a parent.", key));
-      }
-    }
-    for (const auto& [key, child] : value) {
-      child->parent_ = this;
-    }
-    value_ = std::move(value);
-  }
+  virtual JsonValue* Clone() const = 0;
 
  private:
-  void CheckTypeForGet(JsonValueType type) const;
-  void DestroyChildren();
+  void CheckType(JsonValueType type) const;
 
  private:
-  JsonValue* parent_;
-  std::variant<std::nullptr_t, bool, double, std::string, ArrayStorage,
-               ObjectStorage>
-      value_;
+  JsonValueType type_;
 };
+
+template <JsonValueType type, typename T>
+class JsonScalarValue : public JsonValue {
+ public:
+  JsonScalarValue() : JsonValue(type), value_() {}
+  explicit JsonScalarValue(T value)
+      : JsonValue(type), value_(std::move(value)) {}
+
+  T GetValue() const { return value_; }
+  void SetValue(T value) { value_ = std::move(value); }
+
+  JsonScalarValue* Clone() const override {
+    return new JsonScalarValue(value_);
+  }
+
+ private:
+  T value_;
+};
+
+extern CRU_BASE_API template class JsonScalarValue<JsonValueType::Null,
+                                                   std::nullptr_t>;
+extern CRU_BASE_API template class JsonScalarValue<JsonValueType::Boolean,
+                                                   bool>;
+extern CRU_BASE_API template class JsonScalarValue<JsonValueType::Number,
+                                                   double>;
+extern CRU_BASE_API template class JsonScalarValue<JsonValueType::String,
+                                                   std::string>;
+
+/**
+ * @brief A JSON array value.
+ *
+ * Owns its elements and deletes them in its destructor.
+ *
+ * To iterate over the elements, use JsonArrayValue::Values().
+ */
+class CRU_BASE_API JsonArrayValue : public JsonValue {
+ public:
+  JsonArrayValue();
+  ~JsonArrayValue();
+
+  Index GetSize() const;
+  JsonValue* GetValueAt(Index index);
+  const JsonValue* GetValueAt(Index index) const;
+  JsonValue*& operator[](Index index);
+  const JsonValue* const& operator[](Index index) const;
+  auto Values();
+  auto Values() const;
+
+  void AddValue(JsonValue* value);
+  void AddValueAt(Index index, JsonValue* value);
+
+  /**
+   * @brief Removes an element from the array and releases its ownership.
+   * @param index The index of the element to remove. Must be a valid index.
+   * @return The removed element.
+   *
+   * After removal, ownership of the element is transferred to the caller.
+   */
+  JsonValue* RemoveAt(Index index);
+
+  JsonArrayValue* Clone() const;
+
+ private:
+  std::vector<JsonValue*> children_;
+};
+
+class CRU_BASE_API JsonObjectValue : public JsonValue {
+ public:
+  JsonObjectValue();
+
+  JsonObjectValue* Clone() const;
+
+ private:
+  std::vector<std::pair<std::string, JsonValue*>> children_;
+};
+
 }  // namespace cru::json

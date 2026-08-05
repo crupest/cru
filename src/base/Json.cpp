@@ -1,9 +1,9 @@
 #include "cru/base/Json.h"
 
-#include <concepts>
 #include <format>
 #include <ranges>
 #include <utility>
+#include "cru/base/Base.h"
 
 namespace cru::json {
 std::string ToString(JsonValueType type) {
@@ -25,131 +25,138 @@ std::string ToString(JsonValueType type) {
   }
 }
 
-JsonValue::JsonValue() : parent_(nullptr) {}
+JsonValue::JsonValue(JsonValueType type) : type_(type) {}
 
-JsonValue::~JsonValue() { DestroyChildren(); }
+JsonValueType JsonValue::GetType() const { return type_; }
 
-JsonValueType JsonValue::GetType() const {
-  switch (value_.index()) {
-    case 0:
-      return JsonValueType::Null;
-    case 1:
-      return JsonValueType::Boolean;
-    case 2:
-      return JsonValueType::Number;
-    case 3:
-      return JsonValueType::String;
-    case 4:
-      return JsonValueType::Array;
-    case 5:
-      return JsonValueType::Object;
-    default:
-      std::unreachable();
-  }
+JsonNullValue* JsonValue::AsNull() {
+  CheckType(JsonValueType::Null);
+  return static_cast<JsonNullValue*>(this);
 }
 
-std::nullptr_t& JsonValue::AsNull() {
-  CheckTypeForGet(JsonValueType::Null);
-  return std::get<std::nullptr_t>(value_);
+const JsonNullValue* JsonValue::AsNull() const {
+  CheckType(JsonValueType::Null);
+  return static_cast<const JsonNullValue*>(this);
 }
 
-const std::nullptr_t& JsonValue::AsNull() const {
-  CheckTypeForGet(JsonValueType::Null);
-  return std::get<std::nullptr_t>(value_);
+JsonBooleanValue* JsonValue::AsBoolean() {
+  CheckType(JsonValueType::Boolean);
+  return static_cast<JsonBooleanValue*>(this);
 }
 
-bool& JsonValue::AsBoolean() {
-  CheckTypeForGet(JsonValueType::Boolean);
-  return std::get<bool>(value_);
+const JsonBooleanValue* JsonValue::AsBoolean() const {
+  CheckType(JsonValueType::Boolean);
+  return static_cast<const JsonBooleanValue*>(this);
 }
 
-const bool& JsonValue::AsBoolean() const {
-  CheckTypeForGet(JsonValueType::Boolean);
-  return std::get<bool>(value_);
+JsonNumberValue* JsonValue::AsNumber() {
+  CheckType(JsonValueType::Number);
+  return static_cast<JsonNumberValue*>(this);
 }
 
-double& JsonValue::AsNumber() {
-  CheckTypeForGet(JsonValueType::Number);
-  return std::get<double>(value_);
+const JsonNumberValue* JsonValue::AsNumber() const {
+  CheckType(JsonValueType::Number);
+  return static_cast<const JsonNumberValue*>(this);
 }
 
-const double& JsonValue::AsNumber() const {
-  CheckTypeForGet(JsonValueType::Number);
-  return std::get<double>(value_);
+JsonStringValue* JsonValue::AsString() {
+  CheckType(JsonValueType::String);
+  return static_cast<JsonStringValue*>(this);
 }
 
-std::string& JsonValue::AsString() {
-  CheckTypeForGet(JsonValueType::String);
-  return std::get<std::string>(value_);
+const JsonStringValue* JsonValue::AsString() const {
+  CheckType(JsonValueType::String);
+  return static_cast<const JsonStringValue*>(this);
 }
 
-const std::string& JsonValue::AsString() const {
-  CheckTypeForGet(JsonValueType::String);
-  return std::get<std::string>(value_);
+JsonArrayValue* JsonValue::AsArray() {
+  CheckType(JsonValueType::Array);
+  return static_cast<JsonArrayValue*>(this);
 }
 
-auto JsonValue::AsArray() {
-  CheckTypeForGet(JsonValueType::Array);
-  auto result = std::views::all(std::get<ArrayStorage>(value_));
-  static_assert(
-      std::same_as<std::ranges::range_value_t<decltype(result)>, JsonValue*>);
-  return result;
+const JsonArrayValue* JsonValue::AsArray() const {
+  CheckType(JsonValueType::Array);
+  return static_cast<const JsonArrayValue*>(this);
 }
 
-auto JsonValue::AsArray() const {
-  CheckTypeForGet(JsonValueType::Array);
-  auto result = std::get<ArrayStorage>(value_) |
-                std::views::transform([](JsonValue* child) {
-                  return static_cast<const JsonValue*>(child);
-                });
-  static_assert(std::same_as<std::ranges::range_value_t<decltype(result)>,
-                             const JsonValue*>);
-  return result;
+JsonObjectValue* JsonValue::AsObject() {
+  CheckType(JsonValueType::Object);
+  return static_cast<JsonObjectValue*>(this);
 }
 
-void JsonValue::SetNull() {
-  DestroyChildren();
-  value_ = nullptr;
+const JsonObjectValue* JsonValue::AsObject() const {
+  CheckType(JsonValueType::Object);
+  return static_cast<const JsonObjectValue*>(this);
 }
 
-void JsonValue::SetBoolean(bool value) {
-  DestroyChildren();
-  value_ = value;
-}
-
-void JsonValue::SetNumber(double value) {
-  DestroyChildren();
-  value_ = value;
-}
-
-void JsonValue::SetString(std::string value) {
-  DestroyChildren();
-  value_ = std::move(value);
-}
-
-void JsonValue::CheckTypeForGet(JsonValueType type) const {
+void JsonValue::CheckType(JsonValueType type) const {
   if (type != GetType()) {
     throw Exception(std::format("Json value is not of type {}, but {}.",
                                 ToString(type), ToString(GetType())));
   }
 }
 
-void JsonValue::DestroyChildren() {
-  std::visit(
-      [](auto&& arg) {
-        using T = std::decay_t<decltype(arg)>;
-        if constexpr (std::is_same_v<T, ArrayStorage>) {
-          for (const auto& value : arg) {
-            delete value;
-          }
-        } else if constexpr (std::is_same_v<T, ObjectStorage>) {
-          for (const auto& kv : arg) {
-            delete kv.second;
-          }
-        }
-      },
-      value_);
-  value_ = nullptr;
+template class JsonScalarValue<JsonValueType::Null, std::nullptr_t>;
+template class JsonScalarValue<JsonValueType::Boolean, bool>;
+template class JsonScalarValue<JsonValueType::Number, double>;
+template class JsonScalarValue<JsonValueType::String, std::string>;
+
+JsonArrayValue::JsonArrayValue() : JsonValue(JsonValueType::Array) {}
+
+JsonArrayValue::~JsonArrayValue() {
+  for (auto child : children_) {
+    delete child;
+  }
+}
+
+Index JsonArrayValue::GetSize() const {
+  return static_cast<Index>(children_.size());
+}
+
+JsonValue* JsonArrayValue::GetValueAt(Index index) { return operator[](index); }
+
+const JsonValue* JsonArrayValue::GetValueAt(Index index) const {
+  return operator[](index);
+}
+
+JsonValue*& JsonArrayValue::operator[](Index index) {
+  CheckArgumentRange(index, 0, GetSize());
+  return children_[index];
+}
+
+const JsonValue* const& JsonArrayValue::operator[](Index index) const {
+  CheckArgumentRange(index, 0, GetSize());
+  return static_cast<const JsonValue* const&>(children_[index]);
+}
+
+auto JsonArrayValue::Values() { return std::views::all(children_); }
+
+auto JsonArrayValue::Values() const {
+  return std::views::transform(children_, [](JsonValue* child) {
+    return static_cast<const JsonValue*>(child);
+  });
+}
+
+void JsonArrayValue::AddValue(JsonValue* value) { children_.push_back(value); }
+
+void JsonArrayValue::AddValueAt(Index index, JsonValue* value) {
+  CheckArgumentRange(index, 0, GetSize() + 1);
+  children_.insert(children_.begin() + index, value);
+}
+
+JsonValue* JsonArrayValue::RemoveAt(Index index) {
+  CheckArgumentRange(index, 0, GetSize());
+  auto value = children_[index];
+  children_.erase(children_.begin() + index);
+  return value;
+}
+
+JsonArrayValue* JsonArrayValue::Clone() const {
+  auto new_value = new JsonArrayValue();
+  for (auto child : children_) {
+    new_value->AddValue(child->Clone());
+  }
+  return new_value;
 }
 
 }  // namespace cru::json

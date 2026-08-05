@@ -169,14 +169,14 @@ class CRU_BASE_API Exception : public std::exception {
  * @brief Check if the argument value is within the specified range.
  * @param arg The argument value to check.
  * @param min The minimum value (inclusive).
- * @param max The maximum value (inclusive).
+ * @param max The maximum value (exclusive).
  * @throws Exception if the argument value is out of the specified range.
  */
 
 #define CheckArgumentRange(arg, min, max)                                  \
-  if ((arg) < (min) || (arg) > (max)) {                                    \
+  if ((arg) < (min) || (arg) >= (max)) {                                   \
     throw Exception("Argument '" #arg "' is out of range [" #min ", " #max \
-                    "].");                                                 \
+                    ").");                                                 \
   }
 
 class CRU_BASE_API NotImplementedException : public Exception {
