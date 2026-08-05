@@ -10,6 +10,12 @@
 namespace cru {
 enum class DictionaryInsertResult { None, Inserted, Overwritten };
 
+/**
+ * @brief Same as std::map, but does not allow duplicate keys and uses a linked
+ * list internally, which means searching complexity is O(n). Most std::map's
+ * methods are implemented with the same behavior, and additional methods are
+ * added to it.
+ */
 template <typename Key, typename T, typename KeyEqual = std::equal_to<Key>,
           typename Allocator = std::allocator<std::pair<const Key, T>>>
 class Dictionary {
@@ -35,22 +41,22 @@ class Dictionary {
   CRU_DEFAULT_COPY(Dictionary)
   CRU_DEFAULT_MOVE(Dictionary)
 
-  constexpr auto begin() { return entries_.begin(); }
-  constexpr auto begin() const { return entries_.begin(); }
-  constexpr auto cbegin() const { return entries_.cbegin(); }
-  constexpr auto end() { return entries_.end(); }
-  constexpr auto end() const { return entries_.end(); }
-  constexpr auto cend() const { return entries_.cend(); }
-  constexpr auto rbegin() { return entries_.rbegin(); }
-  constexpr auto rbegin() const { return entries_.rbegin(); }
-  constexpr auto crbegin() const { return entries_.crbegin(); }
-  constexpr auto rend() { return entries_.rend(); }
-  constexpr auto rend() const { return entries_.rend(); }
-  constexpr auto crend() const { return entries_.crend(); }
+  constexpr auto begin() noexcept { return entries_.begin(); }
+  constexpr auto begin() const noexcept { return entries_.begin(); }
+  constexpr auto cbegin() const noexcept { return entries_.cbegin(); }
+  constexpr auto end() noexcept { return entries_.end(); }
+  constexpr auto end() const noexcept { return entries_.end(); }
+  constexpr auto cend() const noexcept { return entries_.cend(); }
+  constexpr auto rbegin() noexcept { return entries_.rbegin(); }
+  constexpr auto rbegin() const noexcept { return entries_.rbegin(); }
+  constexpr auto crbegin() const noexcept { return entries_.crbegin(); }
+  constexpr auto rend() noexcept { return entries_.rend(); }
+  constexpr auto rend() const noexcept { return entries_.rend(); }
+  constexpr auto crend() const noexcept { return entries_.crend(); }
 
-  constexpr auto empty() const { return entries_.empty(); }
-  constexpr auto size() const { return entries_.size(); }
-  constexpr auto max_size() const { return entries_.max_size(); }
+  constexpr auto empty() const noexcept { return entries_.empty(); }
+  constexpr auto size() const noexcept { return entries_.size(); }
+  constexpr auto max_size() const noexcept { return entries_.max_size(); }
 
   template <typename K>
   iterator find(const K& key) {
@@ -61,6 +67,11 @@ class Dictionary {
       }
     }
     return end;
+  }
+
+  template <class K>
+  bool contains(const K& key) const {
+    return find(key) != cend();
   }
 
   template <typename K>
@@ -100,6 +111,40 @@ class Dictionary {
       return entries_.back().second;
     }
     return iter->second;
+  }
+
+  void clear() noexcept { return entries_.clear(); }
+
+  template <typename P>
+  std::pair<iterator, bool> insert(P&& value) {
+    auto iter = find(value.first);
+    if (iter != end()) {
+      return {iter, false};
+    } else {
+      iter = entries_.emplace(end(), std::forward<P>(value));
+      return {iter, true};
+    }
+  }
+
+  template <typename... Args>
+  std::pair<iterator, bool> emplace(Args&&... args) {
+    value_type value(std::forward<Args>(args)...);
+    return insert(std::move(value));
+  }
+
+  iterator erase(iterator pos) { return entries_.erase(pos); }
+  iterator erase(const_iterator pos) { return entries_.erase(pos); }
+  iterator erase(const_iterator first, const_iterator last) {
+    return entries_.erase(first, last);
+  }
+  template <typename K>
+  size_type erase(const K& key) {
+    auto iter = find(key);
+    if (iter == end()) {
+      return 0;
+    }
+    entries_.erase(iter);
+    return 1;
   }
 
   template <typename... Args>
