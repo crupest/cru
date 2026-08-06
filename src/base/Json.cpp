@@ -84,6 +84,25 @@ const JsonObjectValue* JsonValue::AsObject() const {
   CheckType(JsonValueType::Object);
   return static_cast<const JsonObjectValue*>(this);
 }
+JsonNullValue* JsonValue::CreateNull(std::nullptr_t value) {
+  return new JsonNullValue(value);
+}
+
+JsonBooleanValue* JsonValue::CreateBoolean(bool value) {
+  return new JsonBooleanValue(value);
+}
+
+JsonNumberValue* JsonValue::CreateNumber(double value) {
+  return new JsonNumberValue(value);
+}
+
+JsonStringValue* JsonValue::CreateString(std::string value) {
+  return new JsonStringValue(std::move(value));
+}
+
+JsonArrayValue* JsonValue::CreateArray() { return new JsonArrayValue(); }
+
+JsonObjectValue* JsonValue::CreateObject() { return new JsonObjectValue(); }
 
 void JsonValue::CheckType(JsonValueType type) const {
   if (type != GetType()) {
@@ -213,7 +232,7 @@ JsonValue*& JsonObjectValue::operator[](std::string_view key) {
       return v;
     }
   }
-  return children_.emplace_back(key, new JsonNullValue()).second;
+  return children_.emplace_back(key, CreateNull()).second;
 }
 
 bool JsonObjectValue::TryAdd(std::string key, JsonValue* value) {

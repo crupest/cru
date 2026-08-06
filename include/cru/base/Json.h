@@ -50,16 +50,25 @@ class CRU_BASE_API JsonValue : public Object {
 
   virtual JsonValue* Clone() const = 0;
 
+  static JsonNullValue* CreateNull(std::nullptr_t value = nullptr);
+  static JsonBooleanValue* CreateBoolean(bool value = false);
+  static JsonNumberValue* CreateNumber(double value = 0.0);
+  static JsonStringValue* CreateString(std::string value = "");
+  static JsonArrayValue* CreateArray();
+  static JsonObjectValue* CreateObject();
+
  private:
   void CheckType(JsonValueType type) const;
 };
 
 template <JsonValueType type, typename T>
 class JsonScalarValue : public JsonValue {
- public:
-  JsonScalarValue() : value_() {}
+  friend JsonValue;
+
+ private:
   explicit JsonScalarValue(T value) : value_(std::move(value)) {}
 
+ public:
   JsonValueType GetType() const override { return type; }
 
   T GetValue() const { return value_; }
@@ -90,6 +99,11 @@ extern CRU_BASE_API template class JsonScalarValue<JsonValueType::String,
  * To iterate over the elements, use JsonArrayValue::Values().
  */
 class CRU_BASE_API JsonArrayValue : public JsonValue {
+  friend JsonValue;
+
+ private:
+  JsonArrayValue() = default;
+
  public:
   ~JsonArrayValue();
 
@@ -122,6 +136,11 @@ class CRU_BASE_API JsonArrayValue : public JsonValue {
 };
 
 class CRU_BASE_API JsonObjectValue : public JsonValue {
+  friend JsonValue;
+
+ private:
+  JsonObjectValue() = default;
+
  public:
   ~JsonObjectValue();
 
