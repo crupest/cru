@@ -3,6 +3,7 @@
 #include "Base.h"
 
 #include <cstddef>
+#include <ranges>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -114,8 +115,12 @@ class CRU_BASE_API JsonArrayValue : public JsonValue {
   const JsonValue* GetValueAt(Index index) const;
   JsonValue*& operator[](Index index);
   const JsonValue* const& operator[](Index index) const;
-  auto Values();
-  auto Values() const;
+  auto Values() { return std::views::all(children_); }
+  auto Values() const {
+    return std::views::transform(children_, [](JsonValue* child) {
+      return static_cast<const JsonValue*>(child);
+    });
+  }
 
   void AddValue(JsonValue* value);
   void AddValueAt(Index index, JsonValue* value);

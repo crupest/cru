@@ -2,7 +2,6 @@
 #include "cru/base/Base.h"
 
 #include <format>
-#include <ranges>
 #include <utility>
 
 namespace cru::json {
@@ -142,14 +141,6 @@ JsonValue*& JsonArrayValue::operator[](Index index) {
 const JsonValue* const& JsonArrayValue::operator[](Index index) const {
   CheckArgumentRange(index, 0, GetSize());
   return static_cast<const JsonValue* const&>(children_[index]);
-}
-
-auto JsonArrayValue::Values() { return std::views::all(children_); }
-
-auto JsonArrayValue::Values() const {
-  return std::views::transform(children_, [](JsonValue* child) {
-    return static_cast<const JsonValue*>(child);
-  });
 }
 
 void JsonArrayValue::AddValue(JsonValue* value) { children_.push_back(value); }

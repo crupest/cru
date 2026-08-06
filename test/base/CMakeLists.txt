@@ -2,6 +2,7 @@ add_executable(CruBaseTest
 	BaseTest.cpp
 	EventTest.cpp
 	GuardTest.cpp
+	JsonTest.cpp
 	PropertyTreeTest.cpp
 	SelfResolvableTest.cpp
 	StringUtilTest.cpp
