@@ -139,6 +139,96 @@ TEST_CASE("JsonArrayValue stores, inserts, iterates, and removes children",
       "out of range");
 }
 
+TEST_CASE("JsonArrayValue mutable Values view can replace children", "[json]") {
+  JsonArrayPtr array(JsonValue::CreateArray());
+  array->AddValue(JsonValue::CreateNumber(1.0));
+  array->AddValue(JsonValue::CreateString("before"));
+
+  auto values = array->Values();
+  auto value = values.begin();
+
+  delete *value;
+  *value = JsonValue::CreateBoolean(true);
+  REQUIRE(array->GetValueAt(0)->AsBoolean()->GetValue());
+
+  ++value;
+  delete *value;
+  *value = JsonValue::CreateString("after");
+  REQUIRE(array->GetValueAt(1)->AsString()->GetValue() == "after");
+}
+
+TEST_CASE("JsonObjectValue iteration views expose keys values and items",
+          "[json]") {
+  JsonObjectPtr object(JsonValue::CreateObject());
+  REQUIRE(object->TryAdd("enabled", JsonValue::CreateBoolean(true)));
+  REQUIRE(object->TryAdd("count", JsonValue::CreateNumber(3.0)));
+
+  std::vector<std::string> keys;
+  for (const std::string& key : object->Keys()) {
+    keys.push_back(key);
+  }
+  REQUIRE(keys == std::vector<std::string>{"enabled", "count"});
+
+  std::vector<JsonValueType> value_types;
+  for (JsonValue* value : object->Values()) {
+    value_types.push_back(value->GetType());
+  }
+  REQUIRE(value_types == std::vector<JsonValueType>{JsonValueType::Boolean,
+                                                    JsonValueType::Number});
+
+  std::vector<std::string> item_keys;
+  std::vector<JsonValueType> item_value_types;
+  for (auto [key, value] : object->Items()) {
+    item_keys.push_back(key);
+    item_value_types.push_back(value->GetType());
+  }
+  REQUIRE(item_keys == keys);
+  REQUIRE(item_value_types == value_types);
+
+  const JsonObjectValue& const_object = *object;
+  std::vector<std::string> const_keys;
+  for (const std::string& key : const_object.Keys()) {
+    const_keys.push_back(key);
+  }
+  REQUIRE(const_keys == keys);
+
+  std::vector<JsonValueType> const_value_types;
+  for (const JsonValue* value : const_object.Values()) {
+    const_value_types.push_back(value->GetType());
+  }
+  REQUIRE(const_value_types == value_types);
+
+  std::vector<std::string> const_item_keys;
+  std::vector<JsonValueType> const_item_value_types;
+  for (auto [key, value] : const_object.Items()) {
+    const_item_keys.push_back(key);
+    const_item_value_types.push_back(value->GetType());
+  }
+  REQUIRE(const_item_keys == keys);
+  REQUIRE(const_item_value_types == value_types);
+}
+
+TEST_CASE("JsonObjectValue mutable iteration views can replace children",
+          "[json]") {
+  JsonObjectPtr object(JsonValue::CreateObject());
+  REQUIRE(object->TryAdd("enabled", JsonValue::CreateBoolean(true)));
+  REQUIRE(object->TryAdd("count", JsonValue::CreateNumber(3.0)));
+
+  auto values = object->Values();
+  auto value = values.begin();
+  delete *value;
+  *value = JsonValue::CreateBoolean(false);
+  REQUIRE_FALSE(object->GetValue("enabled")->AsBoolean()->GetValue());
+
+  for (auto [key, item_value] : object->Items()) {
+    if (key == "count") {
+      delete item_value;
+      item_value = JsonValue::CreateString("changed");
+    }
+  }
+  REQUIRE(object->GetValue("count")->AsString()->GetValue() == "changed");
+}
+
 TEST_CASE("JsonArrayValue clone deep copies children", "[json]") {
   JsonArrayPtr original(JsonValue::CreateArray());
   original->AddValue(JsonValue::CreateString("alpha"));

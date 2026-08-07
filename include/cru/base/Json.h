@@ -117,9 +117,10 @@ class CRU_BASE_API JsonArrayValue : public JsonValue {
   const JsonValue* const& operator[](Index index) const;
   auto Values() { return std::views::all(children_); }
   auto Values() const {
-    return std::views::transform(children_, [](JsonValue* child) {
-      return static_cast<const JsonValue*>(child);
-    });
+    return std::views::transform(
+        children_, [](JsonValue* const& child) -> const JsonValue* const& {
+          return child;
+        });
   }
 
   void AddValue(JsonValue* value);
@@ -158,6 +159,43 @@ class CRU_BASE_API JsonObjectValue : public JsonValue {
   const JsonValue* GetOptionalValue(std::string_view key) const;
   bool ContainsKey(std::string_view key) const;
   JsonValue*& operator[](std::string_view key);
+
+  auto Keys() const {
+    return std::views::transform(
+        children_,
+        [](const std::pair<std::string, JsonValue*>& item)
+            -> const std::string& { return item.first; });
+  }
+
+  auto Values() {
+    return std::views::transform(
+        children_, [](std::pair<std::string, JsonValue*>& item) -> JsonValue*& {
+          return item.second;
+        });
+  }
+
+  auto Values() const {
+    return std::views::transform(
+        children_,
+        [](const std::pair<std::string, JsonValue*>& item)
+            -> const JsonValue* const& { return item.second; });
+  }
+
+  auto Items() {
+    return std::views::transform(
+        children_,
+        [](std::pair<std::string, JsonValue*>& item)
+            -> std::pair<const std::string&, JsonValue*&> { return item; });
+  }
+
+  auto Items() const {
+    return std::views::transform(
+        children_,
+        [](const std::pair<std::string, JsonValue*>& item)
+            -> std::pair<const std::string&, const JsonValue* const&> {
+          return item;
+        });
+  }
 
   bool TryAdd(std::string key, JsonValue* value);
   JsonValue* TryRemove(std::string_view key);
