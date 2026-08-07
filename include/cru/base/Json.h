@@ -3,10 +3,13 @@
 #include "Base.h"
 
 #include <cstddef>
+#include <optional>
 #include <ranges>
 #include <string>
 #include <string_view>
+#include <type_traits>
 #include <utility>
+#include <variant>
 #include <vector>
 
 namespace cru::json {
@@ -15,19 +18,49 @@ enum class JsonValueType { Null, Boolean, Number, String, Array, Object };
 
 CRU_BASE_API std::string ToString(JsonValueType type);
 
-template <JsonValueType type, typename T>
-class JsonScalarValue;
+/**
+ * @brief A JSON value with value semantics.
+ *
+ * JsonValue stores null, boolean, number, string, array, and object values in a
+ * private variant. Arrays and objects are internal storage details; use the
+ * public Get, Set, Insert, Remove, operator[], and iterator APIs to access
+ * them.
+ *
+ * Copying a JsonValue deep-copies array and object contents. Moving a JsonValue
+ * transfers the value and resets the moved-from value to JSON null.
+ */
+class CRU_BASE_API JsonValue {
+ private:
+  using ArrayStorage = std::vector<JsonValue>;
+  using ObjectItem = std::pair<std::string, JsonValue>;
+  using ObjectStorage = std::vector<ObjectItem>;
 
-using JsonNullValue = JsonScalarValue<JsonValueType::Null, std::nullptr_t>;
-using JsonBooleanValue = JsonScalarValue<JsonValueType::Boolean, bool>;
-using JsonNumberValue = JsonScalarValue<JsonValueType::Number, double>;
-using JsonStringValue = JsonScalarValue<JsonValueType::String, std::string>;
-class JsonArrayValue;
-class JsonObjectValue;
+  using Storage = std::variant<std::nullptr_t, bool, double, std::string,
+                               ArrayStorage, ObjectStorage>;
 
-class CRU_BASE_API JsonValue : public Object {
  public:
-  virtual JsonValueType GetType() const = 0;
+  JsonValue();
+  JsonValue(std::nullptr_t value);
+  JsonValue(bool value);
+  JsonValue(double value);
+  JsonValue(std::string value);
+  JsonValue(const char* value);
+
+  template <typename T>
+    requires(std::is_arithmetic_v<std::remove_cvref_t<T>> &&
+             !std::is_same_v<std::remove_cvref_t<T>, bool>)
+  JsonValue(T value) : JsonValue(static_cast<double>(value)) {}
+
+  JsonValue(const JsonValue& other) = default;
+  JsonValue& operator=(const JsonValue& other) = default;
+  JsonValue(JsonValue&& other) noexcept;
+  JsonValue& operator=(JsonValue&& other) noexcept;
+  ~JsonValue() = default;
+
+  static JsonValue Array();
+  static JsonValue Object();
+
+  JsonValueType GetType() const;
 
   bool IsNull() const { return GetType() == JsonValueType::Null; }
   bool IsBoolean() const { return GetType() == JsonValueType::Boolean; }
@@ -36,251 +69,294 @@ class CRU_BASE_API JsonValue : public Object {
   bool IsArray() const { return GetType() == JsonValueType::Array; }
   bool IsObject() const { return GetType() == JsonValueType::Object; }
 
-  JsonNullValue* AsNull();
-  const JsonNullValue* AsNull() const;
-  JsonBooleanValue* AsBoolean();
-  const JsonBooleanValue* AsBoolean() const;
-  JsonNumberValue* AsNumber();
-  const JsonNumberValue* AsNumber() const;
-  JsonStringValue* AsString();
-  const JsonStringValue* AsString() const;
-  JsonArrayValue* AsArray();
-  const JsonArrayValue* AsArray() const;
-  JsonObjectValue* AsObject();
-  const JsonObjectValue* AsObject() const;
-
-  virtual JsonValue* Clone() const = 0;
-
-  static JsonNullValue* CreateNull(std::nullptr_t value = nullptr);
-  static JsonBooleanValue* CreateBoolean(bool value = false);
-  static JsonNumberValue* CreateNumber(double value = 0.0);
-  static JsonStringValue* CreateString(std::string value = "");
-  static JsonArrayValue* CreateArray();
-  static JsonObjectValue* CreateObject();
-
- private:
-  void CheckType(JsonValueType type) const;
-};
-
-template <JsonValueType type, typename T>
-class JsonScalarValue : public JsonValue {
-  friend JsonValue;
-
- private:
-  explicit JsonScalarValue(T value) : value_(std::move(value)) {}
-
- public:
-  JsonValueType GetType() const override { return type; }
-
-  T GetValue() const { return value_; }
-  void SetValue(T value) { value_ = std::move(value); }
-
-  JsonScalarValue* Clone() const override {
-    return new JsonScalarValue(value_);
-  }
-
- private:
-  T value_;
-};
-
-extern CRU_BASE_API template class JsonScalarValue<JsonValueType::Null,
-                                                   std::nullptr_t>;
-extern CRU_BASE_API template class JsonScalarValue<JsonValueType::Boolean,
-                                                   bool>;
-extern CRU_BASE_API template class JsonScalarValue<JsonValueType::Number,
-                                                   double>;
-extern CRU_BASE_API template class JsonScalarValue<JsonValueType::String,
-                                                   std::string>;
-
-/**
- * @brief A JSON array value.
- *
- * Owns its elements and deletes them in its destructor.
- *
- * Use JsonArrayValue::Values() to iterate over the elements.
- *
- * @remark Be careful when using APIs that assign element pointers directly,
- * such as operator[] or a non-const Values() iterator. Save and delete, or
- * otherwise take ownership of, the old pointer before assigning a new one;
- * otherwise, the old value may leak. Do not assign nullptr. Prefer Add(),
- * AddAt(), SetAt(), and RemoveAt() when possible.
- */
-class CRU_BASE_API JsonArrayValue : public JsonValue {
-  friend JsonValue;
-
- private:
-  JsonArrayValue() = default;
-
- public:
-  ~JsonArrayValue();
-
-  JsonValueType GetType() const override;
-
-  Index GetSize() const;
   /**
-   * @brief Gets the element at an index.
-   * @param index The index of the element to get. Must be valid.
-   * @return A reference to the stored element pointer.
-   *
-   * The non-const overload returns a writable reference, matching operator[].
+   * @brief Gets nullptr if value is null.
+   * @throws cru::Exception if the value is not null.
    */
-  JsonValue*& GetAt(Index index);
-  const JsonValue* const& GetAt(Index index) const;
-  JsonValue*& operator[](Index index);
-  const JsonValue* const& operator[](Index index) const;
-  auto Values() { return std::views::all(children_); }
-  auto Values() const {
-    return std::views::transform(
-        children_, [](JsonValue* const& child) -> const JsonValue* const& {
-          return child;
-        });
+  std::nullptr_t& GetNull();
+
+  /**
+   * @brief Gets nullptr if value is null.
+   * @throws cru::Exception if the value is not null.
+   */
+  const std::nullptr_t& GetNull() const;
+
+  /**
+   * @brief Gets bool if value is boolean type.
+   * @throws cru::Exception if the value is not boolean type.
+   */
+  bool& GetBoolean();
+
+  /**
+   * @brief Gets bool if value is boolean type.
+   * @throws cru::Exception if the value is not boolean type.
+   */
+  const bool& GetBoolean() const;
+
+  /**
+   * @brief Gets double if value is number type.
+   * @throws cru::Exception if the value is not number type.
+   */
+  double& GetNumber();
+
+  /**
+   * @brief Gets double if value is number type.
+   * @throws cru::Exception if the value is not number type.
+   */
+  const double& GetNumber() const;
+
+  /**
+   * @brief Gets string if value is string type.
+   * @throws cru::Exception if the value is not string type.
+   */
+  std::string& GetString();
+
+  /**
+   * @brief Gets string if value is string type.
+   * @throws cru::Exception if the value is not string type.
+   */
+  const std::string& GetString() const;
+
+  /**
+   * @brief Sets this value to null.
+   *
+   * Scalar Set overloads replace the whole current value and may change the
+   * JSON type. They do not throw only because the previous type was different.
+   */
+  void Set(std::nullptr_t value);
+
+  /**
+   * @brief Sets this value to a boolean, replacing the previous value.
+   */
+  void Set(bool value);
+
+  /**
+   * @brief Sets this value to a number, replacing the previous value.
+   */
+  void Set(double value);
+
+  template <typename T>
+    requires(std::is_arithmetic_v<std::remove_cvref_t<T>> &&
+             !std::is_same_v<std::remove_cvref_t<T>, bool>)
+  void Set(T value) {
+    Set(static_cast<double>(value));
   }
 
   /**
-   * @brief Appends an element to the array.
-   * @param value The element to append. Ownership is transferred to the array.
+   * @brief Sets this value to a string, replacing the previous value.
    */
-  void Add(JsonValue* value);
+  void Set(std::string value);
 
   /**
-   * @brief Inserts an element at an index.
-   * @param index The index where the element should be inserted. It may be
-   * equal to GetSize() to append.
-   * @param value The element to insert. Ownership is transferred to the array.
+   * @brief Sets this value to a string, replacing the previous value.
+   * @throws cru::Exception if value is nullptr. Use Set(nullptr) for JSON null.
    */
-  void AddAt(Index index, JsonValue* value);
+  void Set(const char* value);
 
   /**
-   * @brief Replaces the element at an index.
-   * @param index The index of the element to replace. Must be valid.
-   * @param value The new element. Ownership is transferred to the array.
-   *
-   * The previous element at the index is deleted before the new element is
-   * stored.
+   * @brief Sets this value to an empty array, replacing the previous value.
    */
-  void SetAt(Index index, JsonValue* value);
+  void SetArray();
 
   /**
-   * @brief Removes an element from the array and releases its ownership.
-   * @param index The index of the element to remove. Must be a valid index.
-   * @return The removed element.
-   *
-   * After removal, ownership of the element is transferred to the caller.
+   * @brief Sets this value to an empty object, replacing the previous value.
    */
-  JsonValue* RemoveAt(Index index);
+  void SetObject();
 
-  JsonArrayValue* Clone() const override;
+  /**
+   * @brief Scalar assignment equivalent to Set(nullptr).
+   */
+  JsonValue& operator=(std::nullptr_t value);
 
- private:
-  std::vector<JsonValue*> children_;
-};
+  /**
+   * @brief Scalar assignment equivalent to Set(bool).
+   */
+  JsonValue& operator=(bool value);
 
-/**
- * @brief A JSON object value.
- *
- * Owns its child values and deletes them in its destructor.
- *
- * Items are stored in insertion order.
- *
- * Use JsonObjectValue::Keys(), JsonObjectValue::Values(), and
- * JsonObjectValue::Items() to iterate over keys, values, and key-value pairs.
- *
- * @remark Be careful when using APIs that assign child-value pointers directly,
- * such as operator[] or a non-const Values() or Items() iterator. Save and
- * delete, or otherwise take ownership of, the old pointer before assigning a
- * new one; otherwise, the old value may leak. Do not assign nullptr. Prefer
- * TryAdd(), Set(), and TryRemove() when possible.
- */
-class CRU_BASE_API JsonObjectValue : public JsonValue {
-  friend JsonValue;
+  /**
+   * @brief Scalar assignment equivalent to Set(double).
+   */
+  JsonValue& operator=(double value);
 
- private:
-  JsonObjectValue() = default;
+  template <typename T>
+    requires(std::is_arithmetic_v<std::remove_cvref_t<T>> &&
+             !std::is_same_v<std::remove_cvref_t<T>, bool>)
+  JsonValue& operator=(T value) {
+    Set(value);
+    return *this;
+  }
 
- public:
-  ~JsonObjectValue();
+  /**
+   * @brief Scalar assignment equivalent to Set(std::string).
+   */
+  JsonValue& operator=(std::string value);
 
-  JsonValueType GetType() const override;
+  /**
+   * @brief Scalar assignment equivalent to Set(const char*).
+   */
+  JsonValue& operator=(const char* value);
 
+  /**
+   * @brief Gets the size of an array or object.
+   * @throws cru::Exception if this value is not an array or object.
+   */
   Index GetSize() const;
-  JsonValue*& GetValue(std::string_view key);
-  const JsonValue* const& GetValue(std::string_view key) const;
-  JsonValue* GetOptionalValue(std::string_view key);
-  const JsonValue* GetOptionalValue(std::string_view key) const;
-  bool ContainsKey(std::string_view key) const;
-  JsonValue*& operator[](std::string_view key);
 
+  /**
+   * @brief Gets an array element.
+   * @throws cru::Exception if this value is not an array or index is invalid.
+   */
+  JsonValue& Get(Index index);
+  const JsonValue& Get(Index index) const;
+
+  /**
+   * @brief Gets an object property.
+   * @throws cru::Exception if this value is not an object or key is absent.
+   */
+  JsonValue& Get(std::string_view key);
+  const JsonValue& Get(std::string_view key) const;
+
+  /**
+   * @brief Gets an array element, equivalent to Get(index).
+   * @throws cru::Exception if this value is not an array or index is invalid.
+   */
+  JsonValue& operator[](Index index);
+  const JsonValue& operator[](Index index) const;
+
+  /**
+   * @brief Gets or creates an object property.
+   *
+   * The non-const overload requires object type. If key exists, it returns the
+   * existing value. If key is absent, it appends a null value for key and
+   * returns it.
+   *
+   * The const overload is equivalent to Get(key), and throws when key is
+   * absent.
+   *
+   * @throws cru::Exception if this value is not an object.
+   */
+  JsonValue& operator[](std::string_view key);
+  const JsonValue& operator[](std::string_view key) const;
+
+  /**
+   * @brief Replaces an existing array element.
+   * @return Always true when the operation succeeds.
+   * @throws cru::Exception if this value is not an array or index is invalid.
+   */
+  bool Set(Index index, JsonValue value);
+
+  /**
+   * @brief Sets an object property.
+   *
+   * If key exists, the old value is replaced. If key is absent, a new property
+   * is appended in insertion order.
+   *
+   * @return true if an old key existed and was replaced; false if a new key was
+   * added.
+   * @throws cru::Exception if this value is not an object.
+   */
+  bool Set(std::string_view key, JsonValue value);
+
+  /**
+   * @brief Inserts an array element before index.
+   *
+   * index may be equal to GetSize() to append.
+   *
+   * @return Always true when the operation succeeds.
+   * @throws cru::Exception if this value is not an array or index is invalid.
+   */
+  bool Insert(Index index, JsonValue value);
+
+  /**
+   * @brief Inserts an object property if key is absent.
+   *
+   * If key exists, the object is left unchanged.
+   *
+   * @return true if an old key already existed; false if a new key was
+   * inserted.
+   * @throws cru::Exception if this value is not an object.
+   */
+  bool Insert(std::string key, JsonValue value);
+
+  /**
+   * @brief Removes an array element.
+   *
+   * If index is valid, the removed value is moved into the returned optional.
+   * If index is invalid, no value is removed and std::nullopt is returned.
+   *
+   * @throws cru::Exception if this value is not an array.
+   */
+  std::optional<JsonValue> Remove(Index index);
+
+  /**
+   * @brief Removes an object property.
+   *
+   * If key exists, the removed value is moved into the returned optional. If
+   * key is absent, no value is removed and std::nullopt is returned.
+   *
+   * @throws cru::Exception if this value is not an object.
+   */
+  std::optional<JsonValue> Remove(std::string_view key);
+
+  /**
+   * @brief Returns whether an object contains key.
+   * @throws cru::Exception if this value is not an object.
+   */
+  bool Contains(std::string_view key) const;
+
+  /**
+   * @brief Gets an object property pointer, or nullptr when key is absent.
+   * @throws cru::Exception if this value is not an object.
+   */
+  JsonValue* TryGet(std::string_view key);
+  const JsonValue* TryGet(std::string_view key) const;
+
+  /**
+   * @brief Iterates over array values.
+   * @throws cru::Exception if this value is not an array.
+   */
+  auto Values() { return std::views::all(RequireArray()); }
+  auto Values() const { return std::views::all(RequireArray()); }
+
+  /**
+   * @brief Iterates over object keys.
+   * @throws cru::Exception if this value is not an object.
+   */
   auto Keys() const {
     return std::views::transform(
-        children_,
-        [](const std::pair<std::string, JsonValue*>& item)
-            -> const std::string& { return item.first; });
-  }
-
-  auto Values() {
-    return std::views::transform(
-        children_, [](std::pair<std::string, JsonValue*>& item) -> JsonValue*& {
-          return item.second;
+        RequireObject(), [](const ObjectItem& item) -> const std::string& {
+          return item.first;
         });
   }
 
-  auto Values() const {
-    return std::views::transform(
-        children_,
-        [](const std::pair<std::string, JsonValue*>& item)
-            -> const JsonValue* const& { return item.second; });
-  }
-
+  /**
+   * @brief Iterates over object key/value pairs.
+   * @throws cru::Exception if this value is not an object.
+   */
   auto Items() {
     return std::views::transform(
-        children_,
-        [](std::pair<std::string, JsonValue*>& item)
-            -> std::pair<const std::string&, JsonValue*&> { return item; });
+        RequireObject(),
+        [](ObjectItem& item) -> std::pair<const std::string&, JsonValue&> {
+          return {item.first, item.second};
+        });
   }
 
   auto Items() const {
     return std::views::transform(
-        children_,
-        [](const std::pair<std::string, JsonValue*>& item)
-            -> std::pair<const std::string&, const JsonValue* const&> {
-          return item;
+        RequireObject(),
+        [](const ObjectItem& item)
+            -> std::pair<const std::string&, const JsonValue&> {
+          return {item.first, item.second};
         });
   }
 
-  /**
-   * @brief Inserts a value for a new key.
-   * @param key The key to insert.
-   * @param value The value to insert. Ownership is transferred only when the
-   * insertion succeeds.
-   * @return true if the value is inserted; false if the key already exists.
-   *
-   * If the key already exists, the value is not inserted, the existing value is
-   * not replaced, and the object is left unchanged.
-   */
-  bool TryAdd(std::string key, JsonValue* value);
-
-  /**
-   * @brief Removes the value for a key and releases ownership of it.
-   * @param key The key of the value to remove. The key may be absent.
-   * @return The removed value, or nullptr if the key does not exist.
-   *
-   * When a value is removed, ownership is transferred to the caller.
-   */
-  JsonValue* TryRemove(std::string_view key);
-
-  /**
-   * @brief Sets the value for a key.
-   * @param key The key whose value should be set. The key may be absent.
-   * @param value The new value. Ownership is transferred to the object.
-   *
-   * If the key already exists, the old value is deleted and replaced. If the
-   * key is absent, a new item is appended in insertion order.
-   */
-  void Set(std::string_view key, JsonValue* value);
-
-  JsonObjectValue* Clone() const override;
-
  private:
-  std::vector<std::pair<std::string, JsonValue*>> children_;
+  void CheckType(JsonValueType type) const;
+  ArrayStorage& RequireArray();
+  const ArrayStorage& RequireArray() const;
+  ObjectStorage& RequireObject();
+  const ObjectStorage& RequireObject() const;
+
+  Storage storage_ = nullptr;
 };
 }  // namespace cru::json

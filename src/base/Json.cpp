@@ -1,6 +1,8 @@
 #include "cru/base/Json.h"
+
 #include "cru/base/Base.h"
 
+#include <algorithm>
 #include <format>
 #include <utility>
 
@@ -24,84 +26,272 @@ std::string ToString(JsonValueType type) {
   }
 }
 
-JsonNullValue* JsonValue::AsNull() {
+namespace {
+template <typename R>
+auto FindObjectItem(R& range, std::string_view key) {
+  return std::ranges::find_if(range,
+                              [&key](auto& item) { return item.first == key; });
+}
+}  // namespace
+
+JsonValue::JsonValue() : storage_(nullptr) {}
+
+JsonValue::JsonValue(std::nullptr_t value) : storage_(value) {}
+
+JsonValue::JsonValue(bool value) : storage_(value) {}
+
+JsonValue::JsonValue(double value) : storage_(value) {}
+
+JsonValue::JsonValue(std::string value) : storage_(std::move(value)) {}
+
+JsonValue::JsonValue(const char* value) { Set(value); }
+
+JsonValue::JsonValue(JsonValue&& other) noexcept
+    : storage_(std::move(other.storage_)) {
+  other.storage_ = nullptr;
+}
+
+JsonValue& JsonValue::operator=(JsonValue&& other) noexcept {
+  if (this != &other) {
+    storage_ = std::move(other.storage_);
+    other.storage_ = nullptr;
+  }
+  return *this;
+}
+
+JsonValue JsonValue::Array() {
+  JsonValue value;
+  value.SetArray();
+  return value;
+}
+
+JsonValue JsonValue::Object() {
+  JsonValue value;
+  value.SetObject();
+  return value;
+}
+
+JsonValueType JsonValue::GetType() const {
+  switch (storage_.index()) {
+    case 0:
+      return JsonValueType::Null;
+    case 1:
+      return JsonValueType::Boolean;
+    case 2:
+      return JsonValueType::Number;
+    case 3:
+      return JsonValueType::String;
+    case 4:
+      return JsonValueType::Array;
+    case 5:
+      return JsonValueType::Object;
+    default:
+      std::unreachable();
+  }
+}
+std::nullptr_t& JsonValue::GetNull() {
   CheckType(JsonValueType::Null);
-  return static_cast<JsonNullValue*>(this);
+  return std::get<std::nullptr_t>(storage_);
 }
-
-const JsonNullValue* JsonValue::AsNull() const {
+const std::nullptr_t& JsonValue::GetNull() const {
   CheckType(JsonValueType::Null);
-  return static_cast<const JsonNullValue*>(this);
+  return std::get<std::nullptr_t>(storage_);
 }
-
-JsonBooleanValue* JsonValue::AsBoolean() {
+bool& JsonValue::GetBoolean() {
   CheckType(JsonValueType::Boolean);
-  return static_cast<JsonBooleanValue*>(this);
+  return std::get<bool>(storage_);
 }
-
-const JsonBooleanValue* JsonValue::AsBoolean() const {
+const bool& JsonValue::GetBoolean() const {
   CheckType(JsonValueType::Boolean);
-  return static_cast<const JsonBooleanValue*>(this);
+  return std::get<bool>(storage_);
 }
-
-JsonNumberValue* JsonValue::AsNumber() {
+double& JsonValue::GetNumber() {
   CheckType(JsonValueType::Number);
-  return static_cast<JsonNumberValue*>(this);
+  return std::get<double>(storage_);
 }
-
-const JsonNumberValue* JsonValue::AsNumber() const {
+const double& JsonValue::GetNumber() const {
   CheckType(JsonValueType::Number);
-  return static_cast<const JsonNumberValue*>(this);
+  return std::get<double>(storage_);
 }
-
-JsonStringValue* JsonValue::AsString() {
+std::string& JsonValue::GetString() {
   CheckType(JsonValueType::String);
-  return static_cast<JsonStringValue*>(this);
+  return std::get<std::string>(storage_);
 }
-
-const JsonStringValue* JsonValue::AsString() const {
+const std::string& JsonValue::GetString() const {
   CheckType(JsonValueType::String);
-  return static_cast<const JsonStringValue*>(this);
+  return std::get<std::string>(storage_);
 }
 
-JsonArrayValue* JsonValue::AsArray() {
-  CheckType(JsonValueType::Array);
-  return static_cast<JsonArrayValue*>(this);
+void JsonValue::Set(std::nullptr_t value) { storage_ = value; }
+
+void JsonValue::Set(bool value) { storage_ = value; }
+
+void JsonValue::Set(double value) { storage_ = value; }
+
+void JsonValue::Set(std::string value) { storage_ = std::move(value); }
+
+void JsonValue::Set(const char* value) {
+  CheckArgumentNonNull(value);
+  Set(std::string(value));
 }
 
-const JsonArrayValue* JsonValue::AsArray() const {
-  CheckType(JsonValueType::Array);
-  return static_cast<const JsonArrayValue*>(this);
+void JsonValue::SetArray() { storage_ = ArrayStorage{}; }
+
+void JsonValue::SetObject() { storage_ = ObjectStorage{}; }
+
+JsonValue& JsonValue::operator=(std::nullptr_t value) {
+  Set(value);
+  return *this;
 }
 
-JsonObjectValue* JsonValue::AsObject() {
-  CheckType(JsonValueType::Object);
-  return static_cast<JsonObjectValue*>(this);
+JsonValue& JsonValue::operator=(bool value) {
+  Set(value);
+  return *this;
 }
 
-const JsonObjectValue* JsonValue::AsObject() const {
-  CheckType(JsonValueType::Object);
-  return static_cast<const JsonObjectValue*>(this);
-}
-JsonNullValue* JsonValue::CreateNull(std::nullptr_t value) {
-  return new JsonNullValue(value);
+JsonValue& JsonValue::operator=(double value) {
+  Set(value);
+  return *this;
 }
 
-JsonBooleanValue* JsonValue::CreateBoolean(bool value) {
-  return new JsonBooleanValue(value);
+JsonValue& JsonValue::operator=(std::string value) {
+  Set(std::move(value));
+  return *this;
 }
 
-JsonNumberValue* JsonValue::CreateNumber(double value) {
-  return new JsonNumberValue(value);
+JsonValue& JsonValue::operator=(const char* value) {
+  Set(value);
+  return *this;
 }
 
-JsonStringValue* JsonValue::CreateString(std::string value) {
-  return new JsonStringValue(std::move(value));
+Index JsonValue::GetSize() const {
+  if (IsArray()) {
+    return static_cast<Index>(std::get<ArrayStorage>(storage_).size());
+  }
+  if (IsObject()) {
+    return static_cast<Index>(std::get<ObjectStorage>(storage_).size());
+  }
+  throw Exception(std::format("Json value is not an array or object, but {}.",
+                              ToString(GetType())));
 }
 
-JsonArrayValue* JsonValue::CreateArray() { return new JsonArrayValue(); }
+JsonValue& JsonValue::Get(Index index) { return operator[](index); }
 
-JsonObjectValue* JsonValue::CreateObject() { return new JsonObjectValue(); }
+const JsonValue& JsonValue::Get(Index index) const { return operator[](index); }
+
+JsonValue& JsonValue::Get(std::string_view key) {
+  auto& values = RequireObject();
+  auto iter = FindObjectItem(values, key);
+  if (iter == values.end()) {
+    throw Exception(std::format("Object doesn't have key '{}'.", key));
+  }
+  return iter->second;
+}
+
+const JsonValue& JsonValue::Get(std::string_view key) const {
+  auto& values = RequireObject();
+  auto iter = FindObjectItem(values, key);
+  if (iter == values.end()) {
+    throw Exception(std::format("Object doesn't have key '{}'.", key));
+  }
+  return iter->second;
+}
+
+JsonValue& JsonValue::operator[](Index index) {
+  auto& values = RequireArray();
+  CheckArgumentRange(index, 0, static_cast<Index>(values.size()));
+  return values[index];
+}
+
+const JsonValue& JsonValue::operator[](Index index) const {
+  const auto& values = RequireArray();
+  CheckArgumentRange(index, 0, static_cast<Index>(values.size()));
+  return values[index];
+}
+
+JsonValue& JsonValue::operator[](std::string_view key) {
+  auto& values = RequireObject();
+  auto iter = FindObjectItem(values, key);
+  if (iter == values.end()) {
+    return values.emplace_back(key, nullptr).second;
+  }
+  return iter->second;
+}
+
+const JsonValue& JsonValue::operator[](std::string_view key) const {
+  return Get(key);
+}
+
+bool JsonValue::Set(Index index, JsonValue value) {
+  auto& values = RequireArray();
+  CheckArgumentRange(index, 0, static_cast<Index>(values.size()));
+  values[index] = std::move(value);
+  return true;
+}
+
+bool JsonValue::Set(std::string_view key, JsonValue value) {
+  auto& values = RequireObject();
+  auto iter = FindObjectItem(values, key);
+  if (iter == values.end()) {
+    values.emplace_back(key, std::move(value));
+    return false;
+  }
+  iter->second = std::move(value);
+  return true;
+}
+
+bool JsonValue::Insert(Index index, JsonValue value) {
+  auto& values = RequireArray();
+  CheckArgumentRange(index, 0, static_cast<Index>(values.size()) + 1);
+  values.insert(values.begin() + index, std::move(value));
+  return true;
+}
+
+bool JsonValue::Insert(std::string key, JsonValue value) {
+  auto& values = RequireObject();
+  if (FindObjectItem(values, key) != values.end()) {
+    return true;
+  }
+  values.emplace_back(std::move(key), std::move(value));
+  return false;
+}
+
+std::optional<JsonValue> JsonValue::Remove(Index index) {
+  auto& values = RequireArray();
+  if (index < 0 || index >= static_cast<Index>(values.size())) {
+    return std::nullopt;
+  }
+  std::optional<JsonValue> value = std::move(values[index]);
+  values.erase(values.begin() + index);
+  return value;
+}
+
+std::optional<JsonValue> JsonValue::Remove(std::string_view key) {
+  auto& values = RequireObject();
+  auto iter = FindObjectItem(values, key);
+  if (iter == values.end()) {
+    return std::nullopt;
+  }
+  std::optional<JsonValue> value = std::move(iter->second);
+  values.erase(iter);
+  return value;
+}
+
+bool JsonValue::Contains(std::string_view key) const {
+  return TryGet(key) != nullptr;
+}
+
+JsonValue* JsonValue::TryGet(std::string_view key) {
+  auto& values = RequireObject();
+  auto iter = FindObjectItem(values, key);
+  return iter == values.end() ? nullptr : &iter->second;
+}
+
+const JsonValue* JsonValue::TryGet(std::string_view key) const {
+  const auto& values = RequireObject();
+  auto iter = FindObjectItem(values, key);
+  return iter == values.end() ? nullptr : &iter->second;
+}
 
 void JsonValue::CheckType(JsonValueType type) const {
   if (type != GetType()) {
@@ -110,162 +300,24 @@ void JsonValue::CheckType(JsonValueType type) const {
   }
 }
 
-template class JsonScalarValue<JsonValueType::Null, std::nullptr_t>;
-template class JsonScalarValue<JsonValueType::Boolean, bool>;
-template class JsonScalarValue<JsonValueType::Number, double>;
-template class JsonScalarValue<JsonValueType::String, std::string>;
-
-JsonArrayValue::~JsonArrayValue() {
-  for (auto child : children_) {
-    delete child;
-  }
+JsonValue::ArrayStorage& JsonValue::RequireArray() {
+  CheckType(JsonValueType::Array);
+  return std::get<ArrayStorage>(storage_);
 }
 
-JsonValueType JsonArrayValue::GetType() const { return JsonValueType::Array; }
-
-Index JsonArrayValue::GetSize() const {
-  return static_cast<Index>(children_.size());
+const JsonValue::ArrayStorage& JsonValue::RequireArray() const {
+  CheckType(JsonValueType::Array);
+  return std::get<ArrayStorage>(storage_);
 }
 
-JsonValue*& JsonArrayValue::GetAt(Index index) { return operator[](index); }
-
-const JsonValue* const& JsonArrayValue::GetAt(Index index) const {
-  return operator[](index);
+JsonValue::ObjectStorage& JsonValue::RequireObject() {
+  CheckType(JsonValueType::Object);
+  return std::get<ObjectStorage>(storage_);
 }
 
-JsonValue*& JsonArrayValue::operator[](Index index) {
-  CheckArgumentRange(index, 0, GetSize());
-  return children_[index];
+const JsonValue::ObjectStorage& JsonValue::RequireObject() const {
+  CheckType(JsonValueType::Object);
+  return std::get<ObjectStorage>(storage_);
 }
 
-const JsonValue* const& JsonArrayValue::operator[](Index index) const {
-  CheckArgumentRange(index, 0, GetSize());
-  return static_cast<const JsonValue* const&>(children_[index]);
-}
-
-void JsonArrayValue::Add(JsonValue* value) { children_.push_back(value); }
-
-void JsonArrayValue::AddAt(Index index, JsonValue* value) {
-  CheckArgumentRange(index, 0, GetSize() + 1);
-  children_.insert(children_.begin() + index, value);
-}
-
-void JsonArrayValue::SetAt(Index index, JsonValue* value) {
-  CheckArgumentRange(index, 0, GetSize());
-  delete children_[index];
-  children_[index] = value;
-}
-
-JsonValue* JsonArrayValue::RemoveAt(Index index) {
-  CheckArgumentRange(index, 0, GetSize());
-  auto value = children_[index];
-  children_.erase(children_.begin() + index);
-  return value;
-}
-
-JsonArrayValue* JsonArrayValue::Clone() const {
-  auto new_value = new JsonArrayValue();
-  for (auto child : children_) {
-    new_value->Add(child->Clone());
-  }
-  return new_value;
-}
-
-JsonObjectValue::~JsonObjectValue() {
-  for (const auto& [k, v] : children_) {
-    delete v;
-  }
-}
-
-JsonValueType JsonObjectValue::GetType() const { return JsonValueType::Object; }
-
-Index JsonObjectValue::GetSize() const {
-  return static_cast<Index>(children_.size());
-}
-
-JsonValue*& JsonObjectValue::GetValue(std::string_view key) {
-  for (auto& [k, v] : children_) {
-    if (k == key) {
-      return v;
-    }
-  }
-  throw Exception(std::format("Object doesn't have key '{}'.", key));
-}
-
-const JsonValue* const& JsonObjectValue::GetValue(std::string_view key) const {
-  for (const auto& [k, v] : children_) {
-    if (k == key) {
-      return static_cast<const JsonValue* const&>(v);
-    }
-  }
-  throw Exception(std::format("Object doesn't have key '{}'.", key));
-}
-
-JsonValue* JsonObjectValue::GetOptionalValue(std::string_view key) {
-  for (const auto& [k, v] : children_) {
-    if (k == key) {
-      return v;
-    }
-  }
-  return nullptr;
-}
-
-const JsonValue* JsonObjectValue::GetOptionalValue(std::string_view key) const {
-  for (const auto& [k, v] : children_) {
-    if (k == key) {
-      return static_cast<const JsonValue*>(v);
-    }
-  }
-  return nullptr;
-}
-
-bool JsonObjectValue::ContainsKey(std::string_view key) const {
-  return GetOptionalValue(key) != nullptr;
-}
-
-JsonValue*& JsonObjectValue::operator[](std::string_view key) {
-  for (auto& [k, v] : children_) {
-    if (k == key) {
-      return v;
-    }
-  }
-  return children_.emplace_back(key, CreateNull()).second;
-}
-
-bool JsonObjectValue::TryAdd(std::string key, JsonValue* value) {
-  if (ContainsKey(key)) return false;
-
-  children_.emplace_back(std::move(key), value);
-  return true;
-}
-
-JsonValue* JsonObjectValue::TryRemove(std::string_view key) {
-  for (auto iter = children_.begin(); iter != children_.end(); ++iter) {
-    if (iter->first == key) {
-      auto value = iter->second;
-      children_.erase(iter);
-      return value;
-    }
-  }
-  return nullptr;
-}
-
-void JsonObjectValue::Set(std::string_view key, JsonValue* value) {
-  for (auto& [k, v] : children_) {
-    if (k == key) {
-      delete v;
-      v = value;
-      return;
-    }
-  }
-  children_.emplace_back(key, value);
-}
-
-JsonObjectValue* JsonObjectValue::Clone() const {
-  auto new_value = new JsonObjectValue();
-  for (const auto& [k, v] : children_) {
-    new_value->TryAdd(k, v->Clone());
-  }
-  return new_value;
-}
 }  // namespace cru::json
