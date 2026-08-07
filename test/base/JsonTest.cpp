@@ -98,18 +98,18 @@ TEST_CASE("JsonArrayValue stores, inserts, iterates, and removes children",
   REQUIRE(array->IsArray());
   REQUIRE(array->GetSize() == 0);
 
-  array->AddValue(JsonValue::CreateNumber(1.0));
-  array->AddValue(JsonValue::CreateString("third"));
-  array->AddValueAt(1, JsonValue::CreateBoolean(true));
+  array->Add(JsonValue::CreateNumber(1.0));
+  array->Add(JsonValue::CreateString("third"));
+  array->AddAt(1, JsonValue::CreateBoolean(true));
 
   REQUIRE(array->GetSize() == 3);
-  REQUIRE(array->GetValueAt(0)->AsNumber()->GetValue() == Catch::Approx(1.0));
+  REQUIRE(array->GetAt(0)->AsNumber()->GetValue() == Catch::Approx(1.0));
   REQUIRE((*array)[1]->AsBoolean()->GetValue());
   REQUIRE((*array)[2]->AsString()->GetValue() == "third");
 
   delete (*array)[1];
   (*array)[1] = JsonValue::CreateBoolean(false);
-  REQUIRE_FALSE(array->GetValueAt(1)->AsBoolean()->GetValue());
+  REQUIRE_FALSE(array->GetAt(1)->AsBoolean()->GetValue());
 
   std::vector<JsonValueType> mutable_types;
   for (JsonValue* value : array->Values()) {
@@ -125,36 +125,54 @@ TEST_CASE("JsonArrayValue stores, inserts, iterates, and removes children",
     const_types.push_back(value->GetType());
   }
   REQUIRE(const_types == mutable_types);
-  REQUIRE(const_array.GetValueAt(2)->AsString()->GetValue() == "third");
+  REQUIRE(const_array.GetAt(2)->AsString()->GetValue() == "third");
 
   JsonValuePtr removed(array->RemoveAt(1));
   REQUIRE(removed->AsBoolean()->GetValue() == false);
   REQUIRE(array->GetSize() == 2);
-  REQUIRE(array->GetValueAt(1)->AsString()->GetValue() == "third");
+  REQUIRE(array->GetAt(1)->AsString()->GetValue() == "third");
 
-  RequireThrowsContaining([&] { array->GetValueAt(array->GetSize()); },
+  RequireThrowsContaining([&] { array->GetAt(array->GetSize()); },
                           "out of range");
-  RequireThrowsContaining(
-      [&] { array->AddValueAt(array->GetSize() + 1, nullptr); },
-      "out of range");
+  RequireThrowsContaining([&] { array->AddAt(array->GetSize() + 1, nullptr); },
+                          "out of range");
+}
+
+TEST_CASE("JsonArrayValue SetAt replaces an existing child", "[json]") {
+  JsonArrayPtr array(JsonValue::CreateArray());
+  array->Add(JsonValue::CreateNumber(1.0));
+  array->Add(JsonValue::CreateString("before"));
+
+  array->SetAt(1, JsonValue::CreateBoolean(true));
+
+  REQUIRE(array->GetSize() == 2);
+  REQUIRE(array->GetAt(0)->AsNumber()->GetValue() == Catch::Approx(1.0));
+  REQUIRE(array->GetAt(1)->AsBoolean()->GetValue());
+
+  JsonValuePtr old_first(array->GetAt(0));
+  array->GetAt(0) = JsonValue::CreateString("through-reference");
+  REQUIRE(array->GetAt(0)->AsString()->GetValue() == "through-reference");
+
+  RequireThrowsContaining([&] { array->SetAt(array->GetSize(), nullptr); },
+                          "out of range");
 }
 
 TEST_CASE("JsonArrayValue mutable Values view can replace children", "[json]") {
   JsonArrayPtr array(JsonValue::CreateArray());
-  array->AddValue(JsonValue::CreateNumber(1.0));
-  array->AddValue(JsonValue::CreateString("before"));
+  array->Add(JsonValue::CreateNumber(1.0));
+  array->Add(JsonValue::CreateString("before"));
 
   auto values = array->Values();
   auto value = values.begin();
 
   delete *value;
   *value = JsonValue::CreateBoolean(true);
-  REQUIRE(array->GetValueAt(0)->AsBoolean()->GetValue());
+  REQUIRE(array->GetAt(0)->AsBoolean()->GetValue());
 
   ++value;
   delete *value;
   *value = JsonValue::CreateString("after");
-  REQUIRE(array->GetValueAt(1)->AsString()->GetValue() == "after");
+  REQUIRE(array->GetAt(1)->AsString()->GetValue() == "after");
 }
 
 TEST_CASE("JsonObjectValue iteration views expose keys values and items",
@@ -231,19 +249,19 @@ TEST_CASE("JsonObjectValue mutable iteration views can replace children",
 
 TEST_CASE("JsonArrayValue clone deep copies children", "[json]") {
   JsonArrayPtr original(JsonValue::CreateArray());
-  original->AddValue(JsonValue::CreateString("alpha"));
-  original->AddValue(JsonValue::CreateNumber(2.0));
+  original->Add(JsonValue::CreateString("alpha"));
+  original->Add(JsonValue::CreateNumber(2.0));
 
   JsonArrayPtr clone(original->Clone());
   REQUIRE(clone.get() != original.get());
   REQUIRE(clone->GetSize() == original->GetSize());
-  REQUIRE(clone->GetValueAt(0) != original->GetValueAt(0));
-  REQUIRE(clone->GetValueAt(0)->AsString()->GetValue() == "alpha");
-  REQUIRE(clone->GetValueAt(1)->AsNumber()->GetValue() == Catch::Approx(2.0));
+  REQUIRE(clone->GetAt(0) != original->GetAt(0));
+  REQUIRE(clone->GetAt(0)->AsString()->GetValue() == "alpha");
+  REQUIRE(clone->GetAt(1)->AsNumber()->GetValue() == Catch::Approx(2.0));
 
-  original->GetValueAt(0)->AsString()->SetValue("changed");
-  REQUIRE(original->GetValueAt(0)->AsString()->GetValue() == "changed");
-  REQUIRE(clone->GetValueAt(0)->AsString()->GetValue() == "alpha");
+  original->GetAt(0)->AsString()->SetValue("changed");
+  REQUIRE(original->GetAt(0)->AsString()->GetValue() == "changed");
+  REQUIRE(clone->GetAt(0)->AsString()->GetValue() == "alpha");
 }
 
 TEST_CASE("JsonObjectValue manages keyed children", "[json]") {
@@ -288,11 +306,32 @@ TEST_CASE("JsonObjectValue manages keyed children", "[json]") {
   RequireThrowsContaining([&] { const_object.GetValue("missing"); }, "missing");
 }
 
+TEST_CASE("JsonObjectValue Set replaces existing values and appends new keys",
+          "[json]") {
+  JsonObjectPtr object(JsonValue::CreateObject());
+  REQUIRE(object->TryAdd("enabled", JsonValue::CreateBoolean(true)));
+  REQUIRE(object->TryAdd("count", JsonValue::CreateNumber(3.0)));
+
+  object->Set("enabled", JsonValue::CreateBoolean(false));
+  REQUIRE(object->GetSize() == 2);
+  REQUIRE_FALSE(object->GetValue("enabled")->AsBoolean()->GetValue());
+
+  object->Set("name", JsonValue::CreateString("created"));
+  REQUIRE(object->GetSize() == 3);
+  REQUIRE(object->GetValue("name")->AsString()->GetValue() == "created");
+
+  std::vector<std::string> keys;
+  for (const std::string& key : object->Keys()) {
+    keys.push_back(key);
+  }
+  REQUIRE(keys == std::vector<std::string>{"enabled", "count", "name"});
+}
+
 TEST_CASE("JsonObjectValue clone deep copies children", "[json]") {
   JsonObjectPtr original(JsonValue::CreateObject());
   original->TryAdd("name", JsonValue::CreateString("alpha"));
   auto nested = JsonValue::CreateArray();
-  nested->AddValue(JsonValue::CreateBoolean(true));
+  nested->Add(JsonValue::CreateBoolean(true));
   original->TryAdd("items", nested);
 
   JsonObjectPtr clone(original->Clone());
@@ -301,22 +340,16 @@ TEST_CASE("JsonObjectValue clone deep copies children", "[json]") {
   REQUIRE(clone->GetValue("name") != original->GetValue("name"));
   REQUIRE(clone->GetValue("name")->AsString()->GetValue() == "alpha");
   REQUIRE(clone->GetValue("items") != original->GetValue("items"));
-  REQUIRE(clone->GetValue("items")->AsArray()->GetValueAt(0) !=
-          original->GetValue("items")->AsArray()->GetValueAt(0));
-  REQUIRE(clone->GetValue("items")
-              ->AsArray()
-              ->GetValueAt(0)
-              ->AsBoolean()
-              ->GetValue());
+  REQUIRE(clone->GetValue("items")->AsArray()->GetAt(0) !=
+          original->GetValue("items")->AsArray()->GetAt(0));
+  REQUIRE(
+      clone->GetValue("items")->AsArray()->GetAt(0)->AsBoolean()->GetValue());
 
   original->GetValue("name")->AsString()->SetValue("changed");
-  original->GetValue("items")->AsArray()->GetValueAt(0)->AsBoolean()->SetValue(
+  original->GetValue("items")->AsArray()->GetAt(0)->AsBoolean()->SetValue(
       false);
 
   REQUIRE(clone->GetValue("name")->AsString()->GetValue() == "alpha");
-  REQUIRE(clone->GetValue("items")
-              ->AsArray()
-              ->GetValueAt(0)
-              ->AsBoolean()
-              ->GetValue());
+  REQUIRE(
+      clone->GetValue("items")->AsArray()->GetAt(0)->AsBoolean()->GetValue());
 }

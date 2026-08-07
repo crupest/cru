@@ -127,9 +127,9 @@ Index JsonArrayValue::GetSize() const {
   return static_cast<Index>(children_.size());
 }
 
-JsonValue* JsonArrayValue::GetValueAt(Index index) { return operator[](index); }
+JsonValue*& JsonArrayValue::GetAt(Index index) { return operator[](index); }
 
-const JsonValue* JsonArrayValue::GetValueAt(Index index) const {
+const JsonValue* const& JsonArrayValue::GetAt(Index index) const {
   return operator[](index);
 }
 
@@ -143,11 +143,17 @@ const JsonValue* const& JsonArrayValue::operator[](Index index) const {
   return static_cast<const JsonValue* const&>(children_[index]);
 }
 
-void JsonArrayValue::AddValue(JsonValue* value) { children_.push_back(value); }
+void JsonArrayValue::Add(JsonValue* value) { children_.push_back(value); }
 
-void JsonArrayValue::AddValueAt(Index index, JsonValue* value) {
+void JsonArrayValue::AddAt(Index index, JsonValue* value) {
   CheckArgumentRange(index, 0, GetSize() + 1);
   children_.insert(children_.begin() + index, value);
+}
+
+void JsonArrayValue::SetAt(Index index, JsonValue* value) {
+  CheckArgumentRange(index, 0, GetSize());
+  delete children_[index];
+  children_[index] = value;
 }
 
 JsonValue* JsonArrayValue::RemoveAt(Index index) {
@@ -160,7 +166,7 @@ JsonValue* JsonArrayValue::RemoveAt(Index index) {
 JsonArrayValue* JsonArrayValue::Clone() const {
   auto new_value = new JsonArrayValue();
   for (auto child : children_) {
-    new_value->AddValue(child->Clone());
+    new_value->Add(child->Clone());
   }
   return new_value;
 }
@@ -242,6 +248,17 @@ JsonValue* JsonObjectValue::TryRemove(std::string_view key) {
     }
   }
   return nullptr;
+}
+
+void JsonObjectValue::Set(std::string_view key, JsonValue* value) {
+  for (auto& [k, v] : children_) {
+    if (k == key) {
+      delete v;
+      v = value;
+      return;
+    }
+  }
+  children_.emplace_back(key, value);
 }
 
 JsonObjectValue* JsonObjectValue::Clone() const {

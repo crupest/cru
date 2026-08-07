@@ -97,7 +97,13 @@ extern CRU_BASE_API template class JsonScalarValue<JsonValueType::String,
  *
  * Owns its elements and deletes them in its destructor.
  *
- * To iterate over the elements, use JsonArrayValue::Values().
+ * Use JsonArrayValue::Values() to iterate over the elements.
+ *
+ * @remark Be careful when using APIs that assign element pointers directly,
+ * such as operator[] or a non-const Values() iterator. Save and delete, or
+ * otherwise take ownership of, the old pointer before assigning a new one;
+ * otherwise, the old value may leak. Do not assign nullptr. Prefer Add(),
+ * AddAt(), SetAt(), and RemoveAt() when possible.
  */
 class CRU_BASE_API JsonArrayValue : public JsonValue {
   friend JsonValue;
@@ -111,8 +117,15 @@ class CRU_BASE_API JsonArrayValue : public JsonValue {
   JsonValueType GetType() const override;
 
   Index GetSize() const;
-  JsonValue* GetValueAt(Index index);
-  const JsonValue* GetValueAt(Index index) const;
+  /**
+   * @brief Gets the element at an index.
+   * @param index The index of the element to get. Must be valid.
+   * @return A reference to the stored element pointer.
+   *
+   * The non-const overload returns a writable reference, matching operator[].
+   */
+  JsonValue*& GetAt(Index index);
+  const JsonValue* const& GetAt(Index index) const;
   JsonValue*& operator[](Index index);
   const JsonValue* const& operator[](Index index) const;
   auto Values() { return std::views::all(children_); }
@@ -123,8 +136,29 @@ class CRU_BASE_API JsonArrayValue : public JsonValue {
         });
   }
 
-  void AddValue(JsonValue* value);
-  void AddValueAt(Index index, JsonValue* value);
+  /**
+   * @brief Appends an element to the array.
+   * @param value The element to append. Ownership is transferred to the array.
+   */
+  void Add(JsonValue* value);
+
+  /**
+   * @brief Inserts an element at an index.
+   * @param index The index where the element should be inserted. It may be
+   * equal to GetSize() to append.
+   * @param value The element to insert. Ownership is transferred to the array.
+   */
+  void AddAt(Index index, JsonValue* value);
+
+  /**
+   * @brief Replaces the element at an index.
+   * @param index The index of the element to replace. Must be valid.
+   * @param value The new element. Ownership is transferred to the array.
+   *
+   * The previous element at the index is deleted before the new element is
+   * stored.
+   */
+  void SetAt(Index index, JsonValue* value);
 
   /**
    * @brief Removes an element from the array and releases its ownership.
@@ -150,6 +184,12 @@ class CRU_BASE_API JsonArrayValue : public JsonValue {
  *
  * Use JsonObjectValue::Keys(), JsonObjectValue::Values(), and
  * JsonObjectValue::Items() to iterate over keys, values, and key-value pairs.
+ *
+ * @remark Be careful when using APIs that assign child-value pointers directly,
+ * such as operator[] or a non-const Values() or Items() iterator. Save and
+ * delete, or otherwise take ownership of, the old pointer before assigning a
+ * new one; otherwise, the old value may leak. Do not assign nullptr. Prefer
+ * TryAdd(), Set(), and TryRemove() when possible.
  */
 class CRU_BASE_API JsonObjectValue : public JsonValue {
   friend JsonValue;
@@ -210,9 +250,9 @@ class CRU_BASE_API JsonObjectValue : public JsonValue {
   /**
    * @brief Inserts a value for a new key.
    * @param key The key to insert.
-   * @param value The value to insert. Ownership is transferred only if insertion
-   * succeeds.
-   * @return true if insertion succeeds; false if the key already exists.
+   * @param value The value to insert. Ownership is transferred only when the
+   * insertion succeeds.
+   * @return true if the value is inserted; false if the key already exists.
    *
    * If the key already exists, the value is not inserted, the existing value is
    * not replaced, and the object is left unchanged.
@@ -224,9 +264,19 @@ class CRU_BASE_API JsonObjectValue : public JsonValue {
    * @param key The key of the value to remove. The key may be absent.
    * @return The removed value, or nullptr if the key does not exist.
    *
-   * If a value is removed, ownership is transferred to the caller.
+   * When a value is removed, ownership is transferred to the caller.
    */
   JsonValue* TryRemove(std::string_view key);
+
+  /**
+   * @brief Sets the value for a key.
+   * @param key The key whose value should be set. The key may be absent.
+   * @param value The new value. Ownership is transferred to the object.
+   *
+   * If the key already exists, the old value is deleted and replaced. If the
+   * key is absent, a new item is appended in insertion order.
+   */
+  void Set(std::string_view key, JsonValue* value);
 
   JsonObjectValue* Clone() const override;
 
