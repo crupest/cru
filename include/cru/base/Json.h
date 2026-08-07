@@ -141,6 +141,16 @@ class CRU_BASE_API JsonArrayValue : public JsonValue {
   std::vector<JsonValue*> children_;
 };
 
+/**
+ * @brief A JSON object value.
+ *
+ * Owns its child values and deletes them in its destructor.
+ *
+ * Items are stored in insertion order.
+ *
+ * Use JsonObjectValue::Keys(), JsonObjectValue::Values(), and
+ * JsonObjectValue::Items() to iterate over keys, values, and key-value pairs.
+ */
 class CRU_BASE_API JsonObjectValue : public JsonValue {
   friend JsonValue;
 
@@ -197,7 +207,25 @@ class CRU_BASE_API JsonObjectValue : public JsonValue {
         });
   }
 
+  /**
+   * @brief Inserts a value for a new key.
+   * @param key The key to insert.
+   * @param value The value to insert. Ownership is transferred only if insertion
+   * succeeds.
+   * @return true if insertion succeeds; false if the key already exists.
+   *
+   * If the key already exists, the value is not inserted, the existing value is
+   * not replaced, and the object is left unchanged.
+   */
   bool TryAdd(std::string key, JsonValue* value);
+
+  /**
+   * @brief Removes the value for a key and releases ownership of it.
+   * @param key The key of the value to remove. The key may be absent.
+   * @return The removed value, or nullptr if the key does not exist.
+   *
+   * If a value is removed, ownership is transferred to the caller.
+   */
   JsonValue* TryRemove(std::string_view key);
 
   JsonObjectValue* Clone() const override;
@@ -205,7 +233,4 @@ class CRU_BASE_API JsonObjectValue : public JsonValue {
  private:
   std::vector<std::pair<std::string, JsonValue*>> children_;
 };
-
-// TODO: Unit tests.
-
 }  // namespace cru::json
