@@ -1,9 +1,11 @@
 #pragma once
 
 #include "Base.h"
+#include "cru/base/StringUtil.h"
 
 #include <concepts>
 #include <cstddef>
+#include <format>
 #include <iterator>
 #include <optional>
 #include <ranges>
@@ -432,5 +434,33 @@ class CRU_BASE_API JsonValue {
   const ObjectStorage& RequireObject() const;
 
   Storage storage_ = nullptr;
+};
+
+class JsonParser {
+ public:
+  explicit JsonParser(std::string source)
+      : source_(std::move(source)), position_(0) {}
+
+  JsonValue Parse();
+
+ private:
+  void Error(std::string_view message) const;
+
+  bool IsEnd() const;
+  static bool IsJsonSpace(char c);
+  void ReadAllSpace();
+  char PeekNext();
+  char ReadNext();
+
+  std::nullptr_t ParseNull();
+  double ParseNumber();
+
+ private:
+  std::string source_;
+
+  /**
+   * @brief Always points to the next character to be parsed.
+   */
+  Index position_;
 };
 }  // namespace cru::json

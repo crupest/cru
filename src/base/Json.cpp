@@ -332,4 +332,60 @@ const JsonValue::ObjectStorage& JsonValue::RequireObject() const {
   return std::get<ObjectStorage>(storage_);
 }
 
+void JsonParser::Error(std::string_view message) const {
+  throw Exception(std::format("JsonParser::Parse failed. {}", message));
+}
+
+bool JsonParser::IsEnd() const { return position_ >= source_.size(); }
+
+bool JsonParser::IsJsonSpace(char c) {
+  return c == ' ' || c == '\t' || c == '\n';
+}
+
+void JsonParser::ReadAllSpace() {
+  while (position_ < source_.size() && IsJsonSpace(source_[position_])) {
+    position_++;
+  }
+}
+
+char JsonParser::PeekNext() {
+  if (IsEnd()) {
+    Error("Unexpected end of string.");
+  }
+  return source_[position_];
+}
+
+char JsonParser::ReadNext() {
+  if (IsEnd()) {
+    Error("Unexpected end of string.");
+  }
+  return source_[position_++];
+}
+
+std::nullptr_t JsonParser::ParseNull() {
+  if (IsEnd() || ReadNext() != 'n') {
+    Error("Invalid null value.");
+  }
+  if (IsEnd() || ReadNext() != 'u') {
+    Error("Invalid null value.");
+  }
+  if (IsEnd() || ReadNext() != 'l') {
+    Error("Invalid null value.");
+  }
+  if (IsEnd() || ReadNext() != 'l') {
+    Error("Invalid null value.");
+  }
+  return nullptr;
+}
+
+double JsonParser::ParseNumber() {
+  auto result = cru::string::ParseToNumber<double>(
+      std::string_view(source_).substr(position_),
+      cru::string::ParseToNumberFlags::AllowTrailingJunk);
+  if (!result.valid) {
+    Error(std::format("Invalid number: {}", result.message));
+  }
+  position_ += result.processed_char_count;
+  return result.value;
+}
 }  // namespace cru::json
