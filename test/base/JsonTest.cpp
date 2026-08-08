@@ -3,6 +3,7 @@
 #include <catch2/catch_approx.hpp>
 #include <catch2/catch_test_macros.hpp>
 
+#include <iterator>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -119,7 +120,7 @@ TEST_CASE("Json arrays support Get operator Set Insert and Remove", "[json]") {
   REQUIRE_FALSE(array.Get(1).GetBoolean());
 
   std::vector<JsonValueType> mutable_types;
-  for (JsonValue& value : array.Values()) {
+  for (JsonValue& value : array) {
     mutable_types.push_back(value.GetType());
   }
   REQUIRE(mutable_types == std::vector<JsonValueType>{JsonValueType::Number,
@@ -128,7 +129,7 @@ TEST_CASE("Json arrays support Get operator Set Insert and Remove", "[json]") {
 
   const JsonValue& const_array = array;
   std::vector<JsonValueType> const_types;
-  for (const JsonValue& value : const_array.Values()) {
+  for (const JsonValue& value : const_array) {
     const_types.push_back(value.GetType());
   }
   REQUIRE(const_types == mutable_types);
@@ -147,20 +148,97 @@ TEST_CASE("Json arrays support Get operator Set Insert and Remove", "[json]") {
   RequireThrowsContaining([&] { JsonValue().Get(0); }, "Array");
 }
 
-TEST_CASE("Json array Values view can mutate children", "[json]") {
+TEST_CASE("JsonValue direct iteration can mutate scalar and child values",
+          "[json]") {
+  static_assert(std::random_access_iterator<JsonValue::iterator>);
+  static_assert(std::random_access_iterator<JsonValue::const_iterator>);
+
+  JsonValue scalar("before");
+  auto scalar_value = scalar.begin();
+  REQUIRE(scalar_value != scalar.end());
+  REQUIRE(scalar_value == scalar.begin());
+  REQUIRE(scalar.end() - scalar.begin() == 1);
+  REQUIRE(scalar.begin()[0].GetString() == "before");
+  REQUIRE(&*(scalar.begin() + 0) == &scalar);
+  REQUIRE(0 + scalar.begin() == scalar.begin());
+  REQUIRE(scalar.end() - 1 == scalar.begin());
+
+  *scalar_value = "after";
+  REQUIRE(scalar.GetString() == "after");
+  ++scalar_value;
+  REQUIRE(scalar_value == scalar.end());
+
+  std::vector<JsonValueType> scalar_types;
+  for (JsonValue& value : scalar) {
+    scalar_types.push_back(value.GetType());
+    value = "range-for";
+  }
+  REQUIRE(scalar_types == std::vector<JsonValueType>{JsonValueType::String});
+  REQUIRE(scalar.GetString() == "range-for");
+
+  const JsonValue& const_scalar = scalar;
+  auto const_scalar_value = const_scalar.begin();
+  JsonValue::const_iterator converted_scalar_value = scalar.begin();
+  REQUIRE(converted_scalar_value == const_scalar_value);
+  REQUIRE(const_scalar_value != const_scalar.end());
+  REQUIRE(&*const_scalar_value == &const_scalar);
+  ++const_scalar_value;
+  REQUIRE(const_scalar_value == const_scalar.end());
+
+  std::vector<JsonValueType> const_scalar_types;
+  for (const JsonValue& value : const_scalar) {
+    const_scalar_types.push_back(value.GetType());
+  }
+  REQUIRE(const_scalar_types == scalar_types);
+
   JsonValue array = JsonValue::Array();
   REQUIRE(array.Insert(0, JsonValue(1.0)));
   REQUIRE(array.Insert(1, JsonValue("before")));
 
-  auto values = array.Values();
-  auto value = values.begin();
+  auto array_value = array.begin();
+  REQUIRE(array.end() - array.begin() == 2);
+  REQUIRE(array_value[0].GetNumber() == Catch::Approx(1.0));
+  REQUIRE(array_value[1].GetString() == "before");
+  REQUIRE((array.begin() + 1)->GetString() == "before");
+  REQUIRE(array.begin() < array.end());
+  REQUIRE(array.end() > array.begin());
+  REQUIRE(array.begin() <= array.begin());
+  REQUIRE(array.end() >= array.begin());
 
-  *value = true;
+  *array_value = true;
   REQUIRE(array.Get(0).GetBoolean());
 
-  ++value;
-  *value = "after";
+  ++array_value;
+  REQUIRE(array_value == array.end() - 1);
+  auto last_array_value = array.end();
+  --last_array_value;
+  REQUIRE(last_array_value == array_value);
+  *array_value = "after";
   REQUIRE(array.Get(1).GetString() == "after");
+
+  JsonValue object = JsonValue::Object();
+  REQUIRE_FALSE(object.Insert("enabled", JsonValue(true)));
+  REQUIRE_FALSE(object.Insert("count", JsonValue(3.0)));
+  REQUIRE(object.end() - object.begin() == 2);
+  REQUIRE(object.begin()[0].GetBoolean());
+  REQUIRE(object.begin()[1].GetNumber() == Catch::Approx(3.0));
+
+  auto object_value = object.begin();
+  object_value += 1;
+  REQUIRE(object_value->GetNumber() == Catch::Approx(3.0));
+  object_value -= 1;
+  REQUIRE(object_value->GetBoolean());
+
+  for (JsonValue& value : object) {
+    if (value.IsBoolean()) {
+      value = false;
+    } else if (value.IsNumber()) {
+      value = "changed";
+    }
+  }
+
+  REQUIRE_FALSE(object.Get("enabled").GetBoolean());
+  REQUIRE(object.Get("count").GetString() == "changed");
 }
 
 TEST_CASE("Json objects support Get operator Set Insert and Remove", "[json]") {
@@ -227,8 +305,9 @@ TEST_CASE("Json object iteration views expose keys values and items",
     item_value_types.push_back(value.GetType());
   }
   REQUIRE(item_keys == keys);
-  REQUIRE(item_value_types == std::vector<JsonValueType>{JsonValueType::Boolean,
-                                                         JsonValueType::Number});
+  REQUIRE(item_value_types ==
+          std::vector<JsonValueType>{JsonValueType::Boolean,
+                                     JsonValueType::Number});
 
   const JsonValue& const_object = object;
   std::vector<std::string> const_keys;

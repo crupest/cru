@@ -36,14 +36,6 @@ auto FindObjectItem(R& range, std::string_view key) {
 
 JsonValue::JsonValue() : storage_(nullptr) {}
 
-JsonValue::JsonValue(std::nullptr_t value) : storage_(value) {}
-
-JsonValue::JsonValue(bool value) : storage_(value) {}
-
-JsonValue::JsonValue(double value) : storage_(value) {}
-
-JsonValue::JsonValue(std::string value) : storage_(std::move(value)) {}
-
 JsonValue::JsonValue(const char* value) { Set(value); }
 
 JsonValue::JsonValue(JsonValue&& other) noexcept
@@ -89,46 +81,46 @@ JsonValueType JsonValue::GetType() const {
       std::unreachable();
   }
 }
+
 std::nullptr_t& JsonValue::GetNull() {
   CheckType(JsonValueType::Null);
   return std::get<std::nullptr_t>(storage_);
 }
+
 const std::nullptr_t& JsonValue::GetNull() const {
   CheckType(JsonValueType::Null);
   return std::get<std::nullptr_t>(storage_);
 }
+
 bool& JsonValue::GetBoolean() {
   CheckType(JsonValueType::Boolean);
   return std::get<bool>(storage_);
 }
+
 const bool& JsonValue::GetBoolean() const {
   CheckType(JsonValueType::Boolean);
   return std::get<bool>(storage_);
 }
+
 double& JsonValue::GetNumber() {
   CheckType(JsonValueType::Number);
   return std::get<double>(storage_);
 }
+
 const double& JsonValue::GetNumber() const {
   CheckType(JsonValueType::Number);
   return std::get<double>(storage_);
 }
+
 std::string& JsonValue::GetString() {
   CheckType(JsonValueType::String);
   return std::get<std::string>(storage_);
 }
+
 const std::string& JsonValue::GetString() const {
   CheckType(JsonValueType::String);
   return std::get<std::string>(storage_);
 }
-
-void JsonValue::Set(std::nullptr_t value) { storage_ = value; }
-
-void JsonValue::Set(bool value) { storage_ = value; }
-
-void JsonValue::Set(double value) { storage_ = value; }
-
-void JsonValue::Set(std::string value) { storage_ = std::move(value); }
 
 void JsonValue::Set(const char* value) {
   CheckArgumentNonNull(value);
@@ -138,31 +130,6 @@ void JsonValue::Set(const char* value) {
 void JsonValue::SetArray() { storage_ = ArrayStorage{}; }
 
 void JsonValue::SetObject() { storage_ = ObjectStorage{}; }
-
-JsonValue& JsonValue::operator=(std::nullptr_t value) {
-  Set(value);
-  return *this;
-}
-
-JsonValue& JsonValue::operator=(bool value) {
-  Set(value);
-  return *this;
-}
-
-JsonValue& JsonValue::operator=(double value) {
-  Set(value);
-  return *this;
-}
-
-JsonValue& JsonValue::operator=(std::string value) {
-  Set(std::move(value));
-  return *this;
-}
-
-JsonValue& JsonValue::operator=(const char* value) {
-  Set(value);
-  return *this;
-}
 
 Index JsonValue::GetSize() const {
   if (IsArray()) {
@@ -293,11 +260,56 @@ const JsonValue* JsonValue::TryGet(std::string_view key) const {
   return iter == values.end() ? nullptr : &iter->second;
 }
 
+JsonValue::iterator JsonValue::begin() { return iterator(this, 0); }
+
+JsonValue::iterator JsonValue::end() {
+  return iterator(this, GetIterationSize());
+}
+
+JsonValue::const_iterator JsonValue::begin() const {
+  return const_iterator(this, 0);
+}
+
+JsonValue::const_iterator JsonValue::end() const {
+  return const_iterator(this, GetIterationSize());
+}
+
+JsonValue::const_iterator JsonValue::cbegin() const { return begin(); }
+
+JsonValue::const_iterator JsonValue::cend() const { return end(); }
+
 void JsonValue::CheckType(JsonValueType type) const {
   if (type != GetType()) {
     throw Exception(std::format("Json value is not of type {}, but {}.",
                                 ToString(type), ToString(GetType())));
   }
+}
+
+JsonValue& JsonValue::GetIteratedValue(Index index) {
+  if (IsArray()) {
+    return std::get<ArrayStorage>(storage_)[index];
+  }
+  if (IsObject()) {
+    return std::get<ObjectStorage>(storage_)[index].second;
+  }
+  return *this;
+}
+
+const JsonValue& JsonValue::GetIteratedValue(Index index) const {
+  if (IsArray()) {
+    return std::get<ArrayStorage>(storage_)[index];
+  }
+  if (IsObject()) {
+    return std::get<ObjectStorage>(storage_)[index].second;
+  }
+  return *this;
+}
+
+Index JsonValue::GetIterationSize() const {
+  if (IsArray() || IsObject()) {
+    return GetSize();
+  }
+  return 1;
 }
 
 JsonValue::ArrayStorage& JsonValue::RequireArray() {
