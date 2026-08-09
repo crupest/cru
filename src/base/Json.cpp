@@ -1,6 +1,7 @@
 #include "cru/base/Json.h"
 
 #include "cru/base/Base.h"
+#include "cru/base/StringUtil.h"
 
 #include <algorithm>
 #include <format>

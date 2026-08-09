@@ -1,11 +1,9 @@
 #pragma once
 
 #include "Base.h"
-#include "cru/base/StringUtil.h"
 
 #include <concepts>
 #include <cstddef>
-#include <format>
 #include <iterator>
 #include <optional>
 #include <ranges>
