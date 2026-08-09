@@ -365,6 +365,8 @@ class CRU_BASE_API JsonValue {
 
   std::optional<JsonValue> Remove(std::string_view key);
 
+  void PushBack(JsonValue value);
+
   /**
    * @brief Checks whether an object contains key.
    * @throws cru::Exception if this value is not an object.
@@ -436,24 +438,37 @@ class CRU_BASE_API JsonValue {
   Storage storage_ = nullptr;
 };
 
-class JsonParser {
+class CRU_BASE_API JsonParser {
  public:
-  explicit JsonParser(std::string source)
-      : source_(std::move(source)), position_(0) {}
+  explicit JsonParser(std::string source);
 
   JsonValue Parse();
 
  private:
-  void Error(std::string_view message) const;
+  [[noreturn]] void Error(std::string_view message) const;
 
   bool IsEnd() const;
   static bool IsJsonSpace(char c);
   void ReadAllSpace();
   char PeekNext();
   char ReadNext();
+  void ReadExpected(std::string_view expected);
 
   std::nullptr_t ParseNull();
+  bool ParseBoolean();
   double ParseNumber();
+  std::string ParseString();
+  JsonValue ParseArray();
+  JsonValue ParseObject();
+
+  /**
+   * @brief Parses a JSON value.
+   * @return The parsed value.
+   * @throws cru::Exception if the JSON is invalid.
+   *
+   * Caller should call ReadAllSpace() before calling this function.
+   */
+  JsonValue ParseValue();
 
  private:
   std::string source_;
@@ -463,4 +478,6 @@ class JsonParser {
    */
   Index position_;
 };
+
+CRU_BASE_API JsonValue ParseJson(std::string source);
 }  // namespace cru::json

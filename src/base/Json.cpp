@@ -244,6 +244,11 @@ std::optional<JsonValue> JsonValue::Remove(std::string_view key) {
   return value;
 }
 
+void JsonValue::PushBack(JsonValue value) {
+  auto& values = RequireArray();
+  values.push_back(std::move(value));
+}
+
 bool JsonValue::Contains(std::string_view key) const {
   return TryGet(key) != nullptr;
 }
@@ -332,7 +337,21 @@ const JsonValue::ObjectStorage& JsonValue::RequireObject() const {
   return std::get<ObjectStorage>(storage_);
 }
 
-void JsonParser::Error(std::string_view message) const {
+JsonParser::JsonParser(std::string source)
+    : source_(std::move(source)), position_(0) {}
+
+JsonValue JsonParser::Parse() {
+  position_ = 0;
+  ReadAllSpace();
+  auto value = ParseValue();
+  ReadAllSpace();
+  if (!IsEnd()) {
+    Error("Unexpected characters after JSON value.");
+  }
+  return value;
+}
+
+[[noreturn]] void JsonParser::Error(std::string_view message) const {
   throw Exception(std::format("JsonParser::Parse failed. {}", message));
 }
 
@@ -362,30 +381,172 @@ char JsonParser::ReadNext() {
   return source_[position_++];
 }
 
+void JsonParser::ReadExpected(std::string_view expected) {
+  for (char c : expected) {
+    if (IsEnd() || ReadNext() != c) {
+      Error(std::format("Expected '{}'.", expected));
+    }
+  }
+}
+
 std::nullptr_t JsonParser::ParseNull() {
-  if (IsEnd() || ReadNext() != 'n') {
-    Error("Invalid null value.");
-  }
-  if (IsEnd() || ReadNext() != 'u') {
-    Error("Invalid null value.");
-  }
-  if (IsEnd() || ReadNext() != 'l') {
-    Error("Invalid null value.");
-  }
-  if (IsEnd() || ReadNext() != 'l') {
-    Error("Invalid null value.");
-  }
+  ReadExpected("null");
   return nullptr;
 }
 
+bool JsonParser::ParseBoolean() {
+  if (PeekNext() == 't') {
+    ReadExpected("true");
+    return true;
+  }
+  if (PeekNext() == 'f') {
+    ReadExpected("false");
+    return false;
+  }
+  Error("Invalid boolean value.");
+}
+
+constexpr std::string_view kNumberChars = "0123456789.+-eE";
+
 double JsonParser::ParseNumber() {
+  // This is in case `2,3` is parsed as a number 2 and then a number 3, rather
+  // than a number 23.
+  // TODO: We still rely on locale to parse float correctly, so in the future we
+  // should use a better parser.
+  auto old_position = position_;
+  while (!IsEnd() && kNumberChars.find(PeekNext()) != std::string_view::npos) {
+    ReadNext();
+  }
+  auto length = position_ - old_position;
+  position_ = old_position;
+
   auto result = cru::string::ParseToNumber<double>(
-      std::string_view(source_).substr(position_),
+      std::string_view(source_).substr(position_, length),
       cru::string::ParseToNumberFlags::AllowTrailingJunk);
   if (!result.valid) {
     Error(std::format("Invalid number: {}", result.message));
   }
   position_ += result.processed_char_count;
   return result.value;
+}
+
+std::string JsonParser::ParseString() {
+  ReadExpected("\"");
+  bool escape = false;
+  std::string result;
+  while (true) {
+    char c = ReadNext();
+    if (c == '"') {
+      if (escape) {
+        result += c;
+        escape = false;
+        continue;
+      }
+      break;
+    } else if (c == '\\') {
+      if (escape) {
+        result += c;
+        escape = false;
+        continue;
+      }
+      escape = true;
+      continue;
+    } else if (c == 'n' && escape) {
+      result += '\n';
+      escape = false;
+    } else if (c == 'r' && escape) {
+      result += '\r';
+      escape = false;
+    } else if (c == 't' && escape) {
+      result += '\t';
+      escape = false;
+    } else if (c == 'b' && escape) {
+      result += '\b';
+      escape = false;
+    } else {
+      if (escape) {
+        Error(std::format("Invalid escape sequence: \\{}", c));
+      }
+      result += c;
+    }
+  }
+  return result;
+}
+
+JsonValue JsonParser::ParseArray() {
+  ReadExpected("[");
+  JsonValue array = JsonValue::Array();
+  while (true) {
+    ReadAllSpace();
+    if (PeekNext() == ']') {
+      ReadNext();
+      break;
+    }
+    if (array.GetSize() > 0) {
+      ReadExpected(",");
+    }
+    ReadAllSpace();
+    array.PushBack(ParseValue());
+  }
+  return array;
+}
+
+JsonValue JsonParser::ParseObject() {
+  ReadExpected("{");
+  JsonValue object = JsonValue::Object();
+  while (true) {
+    ReadAllSpace();
+    if (PeekNext() == '}') {
+      ReadNext();
+      break;
+    }
+    if (object.GetSize() > 0) {
+      ReadExpected(",");
+    }
+    ReadAllSpace();
+    std::string key = ParseString();
+    ReadAllSpace();
+    ReadExpected(":");
+    ReadAllSpace();
+    object[key] = ParseValue();
+  }
+  return object;
+}
+
+JsonValue JsonParser::ParseValue() {
+  switch (PeekNext()) {
+    case 'n':
+      return ParseNull();
+    case 't':
+    case 'f':
+      return ParseBoolean();
+    case '-':
+    case '+':
+    case '.':
+    case '0':
+    case '1':
+    case '2':
+    case '3':
+    case '4':
+    case '5':
+    case '6':
+    case '7':
+    case '8':
+    case '9':
+      return ParseNumber();
+    case '"':
+      return ParseString();
+    case '[':
+      return ParseArray();
+    case '{':
+      return ParseObject();
+    default:
+      Error("Invalid JSON value.");
+  }
+}
+
+JsonValue ParseJson(std::string source) {
+  JsonParser parser(std::move(source));
+  return parser.Parse();
 }
 }  // namespace cru::json

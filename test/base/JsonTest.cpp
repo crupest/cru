@@ -379,3 +379,86 @@ TEST_CASE("JsonValue move resets source to null", "[json]") {
   REQUIRE(assigned.Get(0).GetString() == "moved");
   REQUIRE(moved.IsNull());
 }
+
+TEST_CASE("JsonParser parses scalar values", "[json]") {
+  REQUIRE(ParseJson("null").IsNull());
+
+  JsonValue true_value = ParseJson("true");
+  REQUIRE(true_value.IsBoolean());
+  REQUIRE(true_value.GetBoolean());
+
+  JsonValue false_value = ParseJson("  \n\tfalse\t\n  ");
+  REQUIRE(false_value.IsBoolean());
+  REQUIRE_FALSE(false_value.GetBoolean());
+
+  JsonValue integer_value = ParseJson("42");
+  REQUIRE(integer_value.IsNumber());
+  REQUIRE(integer_value.GetNumber() == Catch::Approx(42.0));
+
+  JsonValue decimal_value = ParseJson("-12.5");
+  REQUIRE(decimal_value.IsNumber());
+  REQUIRE(decimal_value.GetNumber() == Catch::Approx(-12.5));
+
+  JsonValue exponent_value = ParseJson("6.25e+2");
+  REQUIRE(exponent_value.IsNumber());
+  REQUIRE(exponent_value.GetNumber() == Catch::Approx(625.0));
+}
+
+TEST_CASE("JsonParser parses string escapes", "[json]") {
+  JsonValue value =
+      ParseJson(R"("quote\" slash\\ newline\n return\r tab\t back\b")");
+
+  REQUIRE(value.IsString());
+  REQUIRE(value.GetString() ==
+          std::string("quote\" slash\\ newline\n return\r tab\t back\b"));
+}
+
+TEST_CASE("JsonParser parses arrays and nested objects", "[json]") {
+  JsonValue numeric_array = ParseJson("[1,2]");
+  REQUIRE(numeric_array.IsArray());
+  REQUIRE(numeric_array.GetSize() == 2);
+  REQUIRE(numeric_array.Get(0).GetNumber() == Catch::Approx(1.0));
+  REQUIRE(numeric_array.Get(1).GetNumber() == Catch::Approx(2.0));
+
+  JsonValue value = ParseJson(
+      R"({
+        "name": "widget",
+        "enabled": true,
+        "count": 3,
+        "items": [null, false, {"nested": "value"}]
+      })");
+
+  REQUIRE(value.IsObject());
+  REQUIRE(value.GetSize() == 4);
+  REQUIRE(value.Get("name").GetString() == "widget");
+  REQUIRE(value.Get("enabled").GetBoolean());
+  REQUIRE(value.Get("count").GetNumber() == Catch::Approx(3.0));
+
+  const JsonValue& items = value.Get("items");
+  REQUIRE(items.IsArray());
+  REQUIRE(items.GetSize() == 3);
+  REQUIRE(items.Get(0).IsNull());
+  REQUIRE_FALSE(items.Get(1).GetBoolean());
+  REQUIRE(items.Get(2).Get("nested").GetString() == "value");
+}
+
+TEST_CASE("JsonParser can parse the same source repeatedly", "[json]") {
+  JsonParser parser(R"({"value": 7})");
+
+  JsonValue first = parser.Parse();
+  JsonValue second = parser.Parse();
+
+  REQUIRE(first.Get("value").GetNumber() == Catch::Approx(7.0));
+  REQUIRE(second.Get("value").GetNumber() == Catch::Approx(7.0));
+}
+
+TEST_CASE("JsonParser rejects invalid JSON", "[json]") {
+  RequireThrowsContaining([] { ParseJson(""); }, "Unexpected end");
+  RequireThrowsContaining([] { ParseJson("true false"); },
+                          "Unexpected characters");
+  RequireThrowsContaining([] { ParseJson("[1 2]"); }, "Expected ','");
+  RequireThrowsContaining([] { ParseJson(R"({"a" 1})"); }, "Expected ':'");
+  RequireThrowsContaining([] { ParseJson(R"("bad\q")"); },
+                          "Invalid escape sequence");
+  RequireThrowsContaining([] { ParseJson("[1,]"); }, "Invalid JSON value");
+}
