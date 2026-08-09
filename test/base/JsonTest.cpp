@@ -452,6 +452,35 @@ TEST_CASE("JsonParser can parse the same source repeatedly", "[json]") {
   REQUIRE(second.Get("value").GetNumber() == Catch::Approx(7.0));
 }
 
+TEST_CASE("JsonParser allows trailing junk and reports its start", "[json]") {
+  std::string object_source = R"(  {"items":[1]}tail)";
+  JsonParser parser(object_source);
+  Index trailing_junk_start = 0;
+
+  JsonValue object = parser.ParseAllowTrailingJunk(&trailing_junk_start);
+
+  REQUIRE(object.Get("items").Get(0).GetNumber() == Catch::Approx(1.0));
+  REQUIRE(trailing_junk_start == object_source.find("tail"));
+
+  std::string spaced_source = "false \n";
+  trailing_junk_start = spaced_source.size();
+  JsonValue boolean =
+      ParseJsonAllowTrailingJunk(spaced_source, &trailing_junk_start);
+
+  REQUIRE_FALSE(boolean.GetBoolean());
+  REQUIRE(trailing_junk_start == 5);
+  REQUIRE(spaced_source[trailing_junk_start] == ' ');
+
+  std::string complete_source = "null";
+  trailing_junk_start = 99;
+  REQUIRE(ParseJsonAllowTrailingJunk(complete_source, &trailing_junk_start)
+              .IsNull());
+  REQUIRE(trailing_junk_start == complete_source.size());
+
+  REQUIRE(ParseJsonAllowTrailingJunk("12 junk").GetNumber() ==
+          Catch::Approx(12.0));
+}
+
 TEST_CASE("JsonParser rejects invalid JSON", "[json]") {
   RequireThrowsContaining([] { ParseJson(""); }, "Unexpected end");
   RequireThrowsContaining([] { ParseJson("true false"); },
@@ -461,4 +490,15 @@ TEST_CASE("JsonParser rejects invalid JSON", "[json]") {
   RequireThrowsContaining([] { ParseJson(R"("bad\q")"); },
                           "Invalid escape sequence");
   RequireThrowsContaining([] { ParseJson("[1,]"); }, "Invalid JSON value");
+}
+
+TEST_CASE("JsonParser allowing trailing junk still rejects invalid prefix",
+          "[json]") {
+  RequireThrowsContaining([] { ParseJsonAllowTrailingJunk(""); },
+                          "Unexpected end");
+  RequireThrowsContaining([] { ParseJsonAllowTrailingJunk("[1 2] ignored"); },
+                          "Expected ','");
+  RequireThrowsContaining(
+      [] { ParseJsonAllowTrailingJunk(R"({"value": "bad\q"} ignored)"); },
+      "Invalid escape sequence");
 }

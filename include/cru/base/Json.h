@@ -442,6 +442,17 @@ class CRU_BASE_API JsonParser {
 
   JsonValue Parse();
 
+  /**
+   * @brief Parses a JSON value, allowing trailing junk.
+   * @param trailing_junk_start If not null, will be set to the start of any
+   * trailing junk.
+   * @return The parsed value.
+   * @throws cru::Exception if the JSON is invalid.
+   *
+   * Even spaces after the value are considered trailing junk.
+   */
+  JsonValue ParseAllowTrailingJunk(Index* trailing_junk_start = nullptr);
+
  private:
   [[noreturn]] void Error(std::string_view message) const;
 
@@ -478,4 +489,6 @@ class CRU_BASE_API JsonParser {
 };
 
 CRU_BASE_API JsonValue ParseJson(std::string source);
+CRU_BASE_API JsonValue ParseJsonAllowTrailingJunk(
+    std::string source, Index* trailing_junk_start = nullptr);
 }  // namespace cru::json

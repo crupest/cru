@@ -352,6 +352,16 @@ JsonValue JsonParser::Parse() {
   return value;
 }
 
+JsonValue JsonParser::ParseAllowTrailingJunk(Index* trailing_junk_start) {
+  position_ = 0;
+  ReadAllSpace();
+  auto value = ParseValue();
+  if (trailing_junk_start) {
+    *trailing_junk_start = position_;
+  }
+  return value;
+}
+
 [[noreturn]] void JsonParser::Error(std::string_view message) const {
   throw Exception(std::format("JsonParser::Parse failed. {}", message));
 }
@@ -549,5 +559,11 @@ JsonValue JsonParser::ParseValue() {
 JsonValue ParseJson(std::string source) {
   JsonParser parser(std::move(source));
   return parser.Parse();
+}
+
+JsonValue ParseJsonAllowTrailingJunk(std::string source,
+                                     Index* trailing_junk_start) {
+  JsonParser parser(std::move(source));
+  return parser.ParseAllowTrailingJunk(trailing_junk_start);
 }
 }  // namespace cru::json
