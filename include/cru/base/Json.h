@@ -447,6 +447,11 @@ class CRU_BASE_API JsonValue {
   Storage storage_ = nullptr;
 };
 
+class CRU_BASE_API JsonParsingException : public Exception {
+ public:
+  using Exception::Exception;
+};
+
 class CRU_BASE_API JsonParser {
  public:
   explicit JsonParser(std::string_view source);

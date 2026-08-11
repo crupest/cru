@@ -391,7 +391,8 @@ JsonValue JsonParser::ParseAllowTrailingJunk(Index* trailing_junk_start) {
 }
 
 [[noreturn]] void JsonParser::Error(std::string_view message) const {
-  throw Exception(std::format("JsonParser::Parse failed. {}", message));
+  throw JsonParsingException(
+      std::format("JsonParser::Parse failed. {}", message));
 }
 
 bool JsonParser::IsEnd() const { return position_ >= source_.size(); }
