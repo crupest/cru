@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../Base.h"
-#include "../Json.h"
+#include "Base.h"
+#include "Json.h"
 
 #include <string>
 #include <string_view>
@@ -68,5 +68,22 @@ class CRU_BASE_API TomlDocument {
 
  private:
   storage_type sections_;
+};
+
+// A very simple and tolerant TOML parser.
+class CRU_BASE_API TomlParsingException : public Exception {
+ public:
+  using Exception::Exception;
+};
+
+class CRU_BASE_API TomlParser : public Object {
+ public:
+  explicit TomlParser(std::string input);
+
+ public:
+  TomlDocument Parse();
+
+ private:
+  std::string input_;
 };
 }  // namespace cru::toml

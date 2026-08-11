@@ -8,13 +8,12 @@ add_executable(CruBaseTest
 	StringUtilTest.cpp
 	SubProcessTest.cpp
 	TimerTest.cpp
+	TomlTest.cpp
 	datamodel/DataTypeTest.cpp
 	datamodel/DataValidatorTest.cpp
 	io/AutoReadStreamTest.cpp
 	io/BufferStreamTest.cpp
 	io/MemoryStreamTest.cpp
-	toml/DocumentTest.cpp
-	toml/ParserTest.cpp
 	xml/ParserTest.cpp
 )
 target_link_libraries(CruBaseTest PRIVATE CruBase CruTestBase)

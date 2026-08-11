@@ -4,6 +4,7 @@ add_library(CruBase
 	PropertyTree.cpp
 	StringUtil.cpp
 	SubProcess.cpp
+	Toml.cpp
 	datamodel/DataType.cpp
 	datamodel/DataTypeRegistry.cpp
 	io/AutoReadStream.cpp
@@ -15,8 +16,6 @@ add_library(CruBase
 	io/MemoryStream.cpp
 	log/Logger.cpp
 	log/StdioLogWriter.cpp
-	toml/TomlDocument.cpp
-	toml/TomlParser.cpp
 	xml/XmlNode.cpp
 	xml/XmlParser.cpp
 )
