@@ -445,7 +445,7 @@ class CRU_BASE_API JsonValue {
 
 class CRU_BASE_API JsonParser {
  public:
-  explicit JsonParser(std::string source);
+  explicit JsonParser(std::string_view source);
 
   JsonValue Parse();
 
@@ -487,7 +487,7 @@ class CRU_BASE_API JsonParser {
   JsonValue ParseValue();
 
  private:
-  std::string source_;
+  std::string_view source_;
 
   /**
    * @brief Always points to the next character to be parsed.
@@ -495,7 +495,7 @@ class CRU_BASE_API JsonParser {
   Index position_;
 };
 
-CRU_BASE_API JsonValue ParseJson(std::string source);
+CRU_BASE_API JsonValue ParseJson(std::string_view source);
 CRU_BASE_API JsonValue ParseJsonAllowTrailingJunk(
-    std::string source, Index* trailing_junk_start = nullptr);
+    std::string_view source, Index* trailing_junk_start = nullptr);
 }  // namespace cru::json

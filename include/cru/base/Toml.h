@@ -70,20 +70,36 @@ class CRU_BASE_API TomlDocument {
   storage_type sections_;
 };
 
-// A very simple and tolerant TOML parser.
 class CRU_BASE_API TomlParsingException : public Exception {
  public:
   using Exception::Exception;
 };
 
+// TODO: `abc = def ghi` should not be allowed. Bare string should not contain
+// spaces.
 class CRU_BASE_API TomlParser : public Object {
  public:
-  explicit TomlParser(std::string input);
+  explicit TomlParser(std::string_view source);
 
- public:
   TomlDocument Parse();
 
  private:
-  std::string input_;
+  [[noreturn]] void Error(std::string_view message) const;
+
+  bool IsEnd() const;
+  static bool IsJsonSpace(char c);
+  void ReadAllSpace();
+  char PeekNext();
+  char ReadNext();
+  void ReadExpected(std::string_view expected);
+  std::string_view ReadUntil(char delimiter, bool consume_delimiter = false,
+                             bool allow_eof = false);
+
+ private:
+  std::string_view source_;
+  Index position_;
+  Index line_ = 1;
 };
+
+CRU_BASE_API TomlDocument ParseToml(std::string_view source);
 }  // namespace cru::toml

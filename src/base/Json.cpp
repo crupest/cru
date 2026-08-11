@@ -362,7 +362,7 @@ const JsonValue::ObjectStorage& JsonValue::RequireObject() const {
   return std::get<ObjectStorage>(storage_);
 }
 
-JsonParser::JsonParser(std::string source)
+JsonParser::JsonParser(std::string_view source)
     : source_(std::move(source)), position_(0) {}
 
 JsonValue JsonParser::Parse() {
@@ -456,7 +456,7 @@ double JsonParser::ParseNumber() {
   position_ = old_position;
 
   auto result = cru::string::ParseToNumber<double>(
-      std::string_view(source_).substr(position_, length),
+      source_.substr(position_, length),
       cru::string::ParseToNumberFlags::AllowTrailingJunk);
   if (!result.valid) {
     Error(std::format("Invalid number: {}", result.message));
@@ -580,12 +580,12 @@ JsonValue JsonParser::ParseValue() {
   }
 }
 
-JsonValue ParseJson(std::string source) {
+JsonValue ParseJson(std::string_view source) {
   JsonParser parser(std::move(source));
   return parser.Parse();
 }
 
-JsonValue ParseJsonAllowTrailingJunk(std::string source,
+JsonValue ParseJsonAllowTrailingJunk(std::string_view source,
                                      Index* trailing_junk_start) {
   JsonParser parser(std::move(source));
   return parser.ParseAllowTrailingJunk(trailing_junk_start);

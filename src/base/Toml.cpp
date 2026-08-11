@@ -1,5 +1,6 @@
 #include "cru/base/Toml.h"
 
+#include "cru/base/Json.h"
 #include "cru/base/StringUtil.h"
 
 #include <algorithm>
@@ -99,35 +100,131 @@ bool TomlDocument::DeleteSection(std::string_view name) {
   return false;
 }
 
-TomlParser::TomlParser(std::string input) : input_(std::move(input)) {}
+TomlParser::TomlParser(std::string_view source)
+    : source_(std::move(source)), position_(0), line_(1) {}
 
 TomlDocument TomlParser::Parse() {
+  position_ = 0;
+  line_ = 1;
+
   TomlDocument document;
 
-  std::vector<std::string> lines =
-      cru::string::Split(input_, "\n", cru::string::SplitOptions::RemoveSpace);
+  TomlSection* current_section = &document.GetSectionOrCreate("");
 
-  std::string current_section_name;
+  while (!IsEnd()) {
+    ReadAllSpace();
+    if (IsEnd()) {
+      break;
+    }
 
-  for (auto& line : lines) {
-    line = cru::string::Trim(line);
-    if (line.starts_with("[") && line.ends_with("]")) {
-      current_section_name = line.substr(1, line.size() - 2);
-    } else if (line.starts_with("#")) {
-      // Ignore comments.
+    if (PeekNext() == '[') {
+      ReadNext();
+      auto section_name_view = ReadUntil(']', true);
+      auto current_line = line_;
+      ReadAllSpace();
+      if (!IsEnd() && line_ == current_line) {
+        Error("Expected newline after section header.");
+      }
+      current_section = &document.GetSectionOrCreate(section_name_view);
+    } else if (PeekNext() == '#') {
+      // Skip comment
+      ReadUntil('\n', true, true);
     } else {
-      auto equal_index = line.find('=');
-
-      if (equal_index == std::string::npos) {
-        throw TomlParsingException("Invalid TOML line: " + line);
+      auto current_line = line_;
+      auto key = cru::string::TrimEnd(ReadUntil('=', true));
+      if (IsEnd() || line_ != current_line) {
+        Error("Expected '=' after key at the same line.");
+      }
+      ReadAllSpace();
+      json::JsonValue value;
+      if (IsEnd() || line_ != current_line) {
+        value = "";
+      } else {
+        try {
+          Index trailing_junk_start = 0;
+          value = json::ParseJsonAllowTrailingJunk(source_.substr(position_),
+                                                   &trailing_junk_start);
+          position_ += trailing_junk_start;
+        } catch (const Exception& e) {
+          value =
+              cru::string::TrimEnd(std::string(ReadUntil('\n', false, true)));
+        }
+        current_line = line_;
+        ReadAllSpace();
+        if (!IsEnd() && line_ == current_line) {
+          Error("Expected newline after value.");
+        }
       }
 
-      auto key = cru::string::Trim(line.substr(0, equal_index));
-      auto value = cru::string::Trim(line.substr(equal_index + 1));
-
-      document.GetSectionOrCreate(current_section_name).SetValue(key, value);
+      current_section->SetValue(key, std::move(value));
     }
   }
+
   return document;
+}
+
+[[noreturn]] void TomlParser::Error(std::string_view message) const {
+  throw TomlParsingException(
+      std::format("TomlParser::Parse failed. {}", message));
+}
+
+bool TomlParser::IsEnd() const { return position_ >= source_.size(); }
+
+bool TomlParser::IsJsonSpace(char c) {
+  return c == ' ' || c == '\t' || c == '\n';
+}
+
+void TomlParser::ReadAllSpace() {
+  while (!IsEnd() && IsJsonSpace(source_[position_])) {
+    ReadNext();
+  }
+}
+
+char TomlParser::PeekNext() {
+  if (IsEnd()) {
+    Error("Unexpected end of string.");
+  }
+  return source_[position_];
+}
+
+char TomlParser::ReadNext() {
+  if (IsEnd()) {
+    Error("Unexpected end of string.");
+  }
+  if (source_[position_] == '\n') {
+    line_++;
+  }
+  return source_[position_++];
+}
+
+void TomlParser::ReadExpected(std::string_view expected) {
+  for (char c : expected) {
+    if (IsEnd() || ReadNext() != c) {
+      Error(std::format("Expected '{}'.", expected));
+    }
+  }
+}
+
+std::string_view TomlParser::ReadUntil(char delimiter, bool consume_delimiter,
+                                       bool allow_eof) {
+  auto old_position = position_;
+  while (!IsEnd() && PeekNext() != delimiter) {
+    ReadNext();
+  }
+  if (IsEnd() && !allow_eof) {
+    Error(std::format("Unexpected end of string while reading until '{}'.",
+                      delimiter));
+  }
+  std::string_view result =
+      source_.substr(old_position, position_ - old_position);
+  if (consume_delimiter && !IsEnd()) {
+    ReadNext();
+  }
+  return result;
+}
+
+TomlDocument ParseToml(std::string_view source) {
+  TomlParser parser(source);
+  return parser.Parse();
 }
 }  // namespace cru::toml
