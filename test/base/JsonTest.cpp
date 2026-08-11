@@ -68,6 +68,29 @@ TEST_CASE("Json scalar values expose type and value", "[json]") {
   REQUIRE(string_value.GetString() == "world");
 }
 
+TEST_CASE("Json string values can be copied from string_view", "[json]") {
+  std::string source = "alpha suffix";
+  std::string_view view(source.data(), 5);
+
+  JsonValue constructed(view);
+  source.replace(0, 5, "omega");
+
+  REQUIRE(constructed.IsString());
+  REQUIRE(constructed.GetString() == "alpha");
+
+  source = "beta suffix";
+  JsonValue set_value(false);
+  set_value.Set(std::string_view(source.data(), 4));
+  source.replace(0, 4, "zeta");
+
+  REQUIRE(set_value.IsString());
+  REQUIRE(set_value.GetString() == "beta");
+
+  JsonValue empty_view{std::string_view()};
+  REQUIRE(empty_view.IsString());
+  REQUIRE(empty_view.GetString().empty());
+}
+
 TEST_CASE("Json scalar Set and assignment change types", "[json]") {
   JsonValue value = JsonValue::Object();
   REQUIRE(value.IsObject());

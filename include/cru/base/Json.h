@@ -181,6 +181,8 @@ class CRU_BASE_API JsonValue {
    */
   JsonValue(const char* value);
 
+  JsonValue(std::string_view value);
+
   JsonValue(const JsonValue& other) = default;
 
   JsonValue& operator=(const JsonValue& other) = default;
@@ -276,6 +278,8 @@ class CRU_BASE_API JsonValue {
    * @throws cru::Exception if value is nullptr. Use Set(nullptr) for JSON null.
    */
   void Set(const char* value);
+
+  void Set(std::string_view value);
 
   void SetArray();
 

@@ -39,6 +39,8 @@ JsonValue::JsonValue() : storage_(nullptr) {}
 
 JsonValue::JsonValue(const char* value) { Set(value); }
 
+JsonValue::JsonValue(std::string_view value) { Set(value); }
+
 JsonValue::JsonValue(JsonValue&& other) noexcept
     : storage_(std::move(other.storage_)) {
   other.storage_ = nullptr;
@@ -151,6 +153,8 @@ void JsonValue::Set(const char* value) {
   CheckArgumentNonNull(value);
   Set(std::string(value));
 }
+
+void JsonValue::Set(std::string_view value) { Set(std::string(value)); }
 
 void JsonValue::SetArray() { storage_ = ArrayStorage{}; }
 

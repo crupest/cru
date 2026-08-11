@@ -146,8 +146,7 @@ TomlDocument TomlParser::Parse() {
                                                    &trailing_junk_start);
           position_ += trailing_junk_start;
         } catch (const Exception& e) {
-          value =
-              cru::string::TrimEnd(std::string(ReadUntil('\n', false, true)));
+          value = cru::string::TrimEnd(ReadUntil('\n', false, true));
         }
         current_line = line_;
         ReadAllSpace();
