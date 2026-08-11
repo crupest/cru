@@ -1,51 +1,99 @@
 #include "cru/base/toml/TomlDocument.h"
 
+#include <algorithm>
+
 namespace cru::toml {
-std::optional<std::string> TomlSection::GetValue(const std::string& key) const {
-  auto it = values_.find(key);
+
+namespace {
+template <typename T>
+auto FindIteratorByKey(T& values, std::string_view key) {
+  return std::ranges::find_if(
+      values, [key](const auto& pair) { return pair.first == key; });
+}
+}  // namespace
+
+bool TomlSection::HasKey(std::string_view key) const {
+  return FindIteratorByKey(values_, key) != values_.end();
+}
+
+json::JsonValue& TomlSection::GetValue(std::string_view key) {
+  auto it = FindIteratorByKey(values_, key);
   if (it == values_.end()) {
-    return std::nullopt;
+    throw Exception("Key not found: " + std::string(key));
   }
   return it->second;
 }
 
-void TomlSection::SetValue(const std::string& key, std::string value) {
-  values_[key] = std::move(value);
-}
-
-void TomlSection::DeleteValue(const std::string& key) { values_.erase(key); }
-
-TomlSection* TomlDocument::GetSection(const std::string& name) {
-  auto it = sections_.find(name);
-  if (it == sections_.end()) {
-    return nullptr;
+const json::JsonValue& TomlSection::GetValue(std::string_view key) const {
+  auto it = FindIteratorByKey(values_, key);
+  if (it == values_.end()) {
+    throw Exception("Key not found: " + std::string(key));
   }
-  return &it->second;
+  return it->second;
 }
 
-const TomlSection* TomlDocument::GetSection(const std::string& name) const {
-  auto it = sections_.find(name);
-  if (it == sections_.end()) {
-    return nullptr;
+void TomlSection::SetValue(std::string_view key, json::JsonValue value) {
+  auto it = FindIteratorByKey(values_, key);
+  if (it == values_.end()) {
+    values_.emplace_back(key, std::move(value));
+  } else {
+    it->second = std::move(value);
   }
-  return &it->second;
 }
 
-TomlSection* TomlDocument::GetSectionOrCreate(const std::string& name) {
-  auto it = sections_.find(name);
-  if (it == sections_.end()) {
-    sections_[name] = TomlSection();
-    return &sections_[name];
+bool TomlSection::DeleteValue(std::string_view key) {
+  auto it = FindIteratorByKey(values_, key);
+  if (it != values_.end()) {
+    values_.erase(it);
+    return true;
   }
-  return &it->second;
+  return false;
 }
 
-void TomlDocument::SetSection(const std::string& name, TomlSection section) {
-  sections_[name] = std::move(section);
+bool TomlDocument::HasSection(std::string_view name) const {
+  return FindIteratorByKey(sections_, name) != sections_.end();
 }
 
-void TomlDocument::DeleteSection(const std::string& name) {
-  sections_.erase(name);
+TomlSection& TomlDocument::GetSection(std::string_view name) {
+  auto it = FindIteratorByKey(sections_, name);
+  if (it == sections_.end()) {
+    throw Exception("Section not found: " + std::string(name));
+  }
+  return it->second;
 }
 
+const TomlSection& TomlDocument::GetSection(std::string_view name) const {
+  auto it = FindIteratorByKey(sections_, name);
+  if (it == sections_.end()) {
+    throw Exception("Section not found: " + std::string(name));
+  }
+  return it->second;
+}
+
+TomlSection& TomlDocument::GetSectionOrCreate(std::string_view name) {
+  auto it = FindIteratorByKey(sections_, name);
+  if (it == sections_.end()) {
+    sections_.emplace_back(name, TomlSection());
+    return sections_.back().second;
+  }
+  return it->second;
+}
+
+void TomlDocument::SetSection(std::string_view name, TomlSection section) {
+  auto it = FindIteratorByKey(sections_, name);
+  if (it == sections_.end()) {
+    sections_.emplace_back(name, std::move(section));
+  } else {
+    it->second = std::move(section);
+  }
+}
+
+bool TomlDocument::DeleteSection(std::string_view name) {
+  auto it = FindIteratorByKey(sections_, name);
+  if (it != sections_.end()) {
+    sections_.erase(it);
+    return true;
+  }
+  return false;
+}
 }  // namespace cru::toml

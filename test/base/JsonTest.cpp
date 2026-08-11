@@ -92,6 +92,32 @@ TEST_CASE("Json scalar Set and assignment change types", "[json]") {
   REQUIRE(value.IsNull());
 }
 
+TEST_CASE("JsonValue equality only compares scalar values", "[json]") {
+  REQUIRE(JsonValue() == JsonValue(nullptr));
+  REQUIRE(JsonValue(true) == JsonValue(true));
+  REQUIRE_FALSE(JsonValue(true) == JsonValue(false));
+  REQUIRE(JsonValue(12.5) == JsonValue(12.5));
+  REQUIRE_FALSE(JsonValue(12.5) == JsonValue(12.0));
+  REQUIRE(JsonValue("hello") == JsonValue(std::string("hello")));
+  REQUIRE_FALSE(JsonValue("hello") == JsonValue("world"));
+  REQUIRE_FALSE(JsonValue(true) == JsonValue(1.0));
+  REQUIRE_FALSE(JsonValue("1") == JsonValue(1.0));
+
+  JsonValue array = JsonValue::Array();
+  REQUIRE(array.Insert(0, JsonValue(1.0)));
+  JsonValue same_array = JsonValue::Array();
+  REQUIRE(same_array.Insert(0, JsonValue(1.0)));
+  REQUIRE_FALSE(array == same_array);
+  REQUIRE_FALSE(array == array);
+
+  JsonValue object = JsonValue::Object();
+  REQUIRE_FALSE(object.Insert("value", JsonValue(1.0)));
+  JsonValue same_object = JsonValue::Object();
+  REQUIRE_FALSE(same_object.Insert("value", JsonValue(1.0)));
+  REQUIRE_FALSE(object == same_object);
+  REQUIRE_FALSE(object == object);
+}
+
 TEST_CASE("Json scalar Get validates types", "[json]") {
   JsonValue value(true);
 

@@ -52,6 +52,30 @@ JsonValue& JsonValue::operator=(JsonValue&& other) noexcept {
   return *this;
 }
 
+bool JsonValue::operator==(const JsonValue& other) const {
+  const JsonValueType type = GetType();
+  if (type != other.GetType()) {
+    return false;
+  }
+
+  switch (type) {
+    case JsonValueType::Null:
+      return true;
+    case JsonValueType::Boolean:
+      return std::get<bool>(storage_) == std::get<bool>(other.storage_);
+    case JsonValueType::Number:
+      return std::get<double>(storage_) == std::get<double>(other.storage_);
+    case JsonValueType::String:
+      return std::get<std::string>(storage_) ==
+             std::get<std::string>(other.storage_);
+    case JsonValueType::Array:
+    case JsonValueType::Object:
+      return false;
+    default:
+      std::unreachable();
+  }
+}
+
 JsonValue JsonValue::Array() {
   JsonValue value;
   value.SetArray();

@@ -143,7 +143,7 @@ class CRU_BASE_API JsonValue {
     }
 
     friend bool operator==(const Iterator& lhs, const Iterator& rhs) {
-      return lhs.owner_ == rhs.owner_ && lhs.index_ == rhs.index_;
+      return operator<=>(lhs, rhs) == 0;
     }
 
     friend auto operator<=>(const Iterator& lhs, const Iterator& rhs) {
@@ -196,6 +196,13 @@ class CRU_BASE_API JsonValue {
   JsonValue& operator=(JsonValue&& other) noexcept;
 
   ~JsonValue() = default;
+
+  /**
+   * @brief Compares scalar values by type and value.
+   *
+   * Arrays and objects are never equal, even when their contents match.
+   */
+  bool operator==(const JsonValue& other) const;
 
   static JsonValue Array();
 

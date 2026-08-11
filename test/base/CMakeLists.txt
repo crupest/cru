@@ -13,6 +13,7 @@ add_executable(CruBaseTest
 	io/AutoReadStreamTest.cpp
 	io/BufferStreamTest.cpp
 	io/MemoryStreamTest.cpp
+	toml/DocumentTest.cpp
 	toml/ParserTest.cpp
 	xml/ParserTest.cpp
 )

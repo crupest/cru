@@ -5,19 +5,9 @@
 namespace cru::toml {
 TomlParser::TomlParser(std::string input) : input_(std::move(input)) {}
 
-TomlParser::~TomlParser() = default;
-
 TomlDocument TomlParser::Parse() {
-  if (cache_) {
-    return *cache_;
-  }
+  TomlDocument document;
 
-  cache_ = TomlDocument();
-  DoParse(*cache_);
-  return *cache_;
-}
-
-void TomlParser::DoParse(TomlDocument& document) {
   std::vector<std::string> lines =
       cru::string::Split(input_, "\n", cru::string::SplitOptions::RemoveSpace);
 
@@ -39,8 +29,9 @@ void TomlParser::DoParse(TomlDocument& document) {
       auto key = cru::string::Trim(line.substr(0, equal_index));
       auto value = cru::string::Trim(line.substr(equal_index + 1));
 
-      document.GetSectionOrCreate(current_section_name)->SetValue(key, value);
+      document.GetSectionOrCreate(current_section_name).SetValue(key, value);
     }
   }
+  return document;
 }
 }  // namespace cru::toml
