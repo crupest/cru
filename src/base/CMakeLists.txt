@@ -5,6 +5,7 @@ add_library(CruBase
 	StringUtil.cpp
 	SubProcess.cpp
 	Toml.cpp
+	Xml.cpp
 	datamodel/DataType.cpp
 	datamodel/DataTypeRegistry.cpp
 	io/AutoReadStream.cpp
@@ -16,8 +17,6 @@ add_library(CruBase
 	io/MemoryStream.cpp
 	log/Logger.cpp
 	log/StdioLogWriter.cpp
-	xml/XmlNode.cpp
-	xml/XmlParser.cpp
 )
 target_compile_definitions(CruBase PRIVATE CRU_BASE_EXPORT_API)
 target_include_directories(CruBase PUBLIC ${CRU_INCLUDE_DIR})

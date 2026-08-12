@@ -2,7 +2,7 @@
 
 #include "../Base.h"
 #include "../StringUtil.h"
-#include "../xml/XmlNode.h"
+#include "../Xml.h"
 
 #include <format>
 #include <optional>

@@ -1,5 +1,4 @@
-#include "cru/base/xml/XmlNode.h"
-#include "cru/base/xml/XmlParser.h"
+#include "cru/base/Xml.h"
 
 #include <catch2/catch_test_macros.hpp>
 

@@ -1,9 +1,8 @@
 #include "cru/ui/ThemeResourceDictionary.h"
 #include "cru/base/StringUtil.h"
+#include "cru/base/Xml.h"
 #include "cru/base/io/CFileStream.h"
 #include "cru/base/log/Logger.h"
-#include "cru/base/xml/XmlNode.h"
-#include "cru/base/xml/XmlParser.h"
 
 namespace cru::ui {
 

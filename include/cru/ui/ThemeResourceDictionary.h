@@ -3,7 +3,7 @@
 #include "datamodel/Base.h"
 
 #include <cru/base/Base.h>
-#include <cru/base/xml/XmlNode.h>
+#include <cru/base/Xml.h>
 
 #include <any>
 #include <filesystem>

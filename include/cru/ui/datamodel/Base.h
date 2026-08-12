@@ -3,10 +3,10 @@
 #include "../Base.h"
 
 #include <cru/base/ClonePtr.h>
+#include <cru/base/Xml.h>
 #include <cru/base/datamodel/DataType.h>
 #include <cru/base/datamodel/DataTypeRegistry.h>
 #include <cru/base/datamodel/DataValidator.h>
-#include <cru/base/xml/XmlNode.h>
 
 #include <memory>
 
