@@ -9,35 +9,22 @@ class CRU_BASE_API XmlParsingException : public Exception {
   using Exception::Exception;
 };
 
-class CRU_BASE_API XmlParser {
+class CRU_BASE_API XmlParser : public Object {
  public:
-  explicit XmlParser(std::string xml);
-
-  CRU_DELETE_COPY(XmlParser)
-  CRU_DELETE_MOVE(XmlParser)
-
-  ~XmlParser();
+  explicit XmlParser(std::string_view source);
 
   XmlElementNode* Parse();
 
  private:
-  XmlElementNode* DoParse();
-
-  char16_t Read1();
-  std::string ReadWithoutAdvance(int count = 1);
-  void ReadSpacesAndDiscard();
-  std::string ReadSpaces();
-  std::string ReadIdenitifier();
-  std::string ReadAttributeString();
+  bool IsEnd();
+  char Read1();
+  std::string_view Peek(int count = 1);
+  std::string_view ReadSpaces();
+  std::string_view ReadIdentifier();
+  std::string_view ReadAttributeString();
 
  private:
-  std::string xml_;
-
-  XmlElementNode* cache_ = nullptr;
-
-  // Consider the while file enclosed by a single tag called $root.
-  XmlElementNode* pseudo_root_node_ = new XmlElementNode("$root");
-  XmlElementNode* current_ = pseudo_root_node_;
-  int current_position_ = 0;
+  std::string_view source_;
+  int current_position_;
 };
 }  // namespace cru::xml

@@ -1,71 +1,57 @@
 #include "cru/base/xml/XmlParser.h"
+#include <memory>
 #include "cru/base/StringUtil.h"
 #include "cru/base/xml/XmlNode.h"
 
 namespace cru::xml {
-XmlParser::XmlParser(std::string xml) : xml_(std::move(xml)) {}
+XmlParser::XmlParser(std::string_view source) : source_(std::move(source)) {}
 
-XmlParser::~XmlParser() { delete pseudo_root_node_; }
+bool XmlParser::IsEnd() { return current_position_ >= source_.size(); }
 
-XmlElementNode* XmlParser::Parse() {
-  if (!cache_) {
-    cache_ = DoParse();
-  }
-  return static_cast<XmlElementNode*>(cache_->Clone());
-}
-
-char16_t XmlParser::Read1() {
-  if (current_position_ >= xml_.size()) {
+char XmlParser::Read1() {
+  if (IsEnd()) {
     throw XmlParsingException("Unexpected end of xml");
   }
-  return xml_[current_position_++];
+  return source_[current_position_++];
 }
 
-std::string XmlParser::ReadWithoutAdvance(int count) {
-  if (current_position_ + count > xml_.size()) {
-    count = xml_.size() - current_position_;
+std::string_view XmlParser::Peek(int count) {
+  if (current_position_ + count > source_.size()) {
+    count = source_.size() - current_position_;
   }
-  return xml_.substr(current_position_, count);
+  return source_.substr(current_position_, count);
 }
 
-void XmlParser::ReadSpacesAndDiscard() {
-  while (current_position_ < xml_.size() &&
-         (xml_[current_position_] == ' ' || xml_[current_position_] == '\t' ||
-          xml_[current_position_] == '\n' || xml_[current_position_] == '\r')) {
+std::string_view XmlParser::ReadSpaces() {
+  auto old_position = current_position_;
+  while (!IsEnd() && (source_[current_position_] == ' ' ||
+                      source_[current_position_] == '\t' ||
+                      source_[current_position_] == '\n' ||
+                      source_[current_position_] == '\r')) {
     ++current_position_;
   }
+  return source_.substr(old_position, current_position_ - old_position);
 }
 
-std::string XmlParser::ReadSpaces() {
-  std::string spaces;
-  while (current_position_ < xml_.size() &&
-         (xml_[current_position_] == ' ' || xml_[current_position_] == '\t' ||
-          xml_[current_position_] == '\n' || xml_[current_position_] == '\r')) {
-    spaces += xml_[current_position_];
+std::string_view XmlParser::ReadIdentifier() {
+  auto old_position = current_position_;
+  while (
+      current_position_ < source_.size() &&
+      (source_[current_position_] >= 'a' && source_[current_position_] <= 'z' ||
+       source_[current_position_] >= 'A' && source_[current_position_] <= 'Z' ||
+       source_[current_position_] >= '0' && source_[current_position_] <= '9' ||
+       source_[current_position_] == '_')) {
     ++current_position_;
   }
-  return spaces;
+  return source_.substr(old_position, current_position_ - old_position);
 }
 
-std::string XmlParser::ReadIdenitifier() {
-  std::string identifier;
-  while (current_position_ < xml_.size() &&
-         (xml_[current_position_] >= 'a' && xml_[current_position_] <= 'z' ||
-          xml_[current_position_] >= 'A' && xml_[current_position_] <= 'Z' ||
-          xml_[current_position_] >= '0' && xml_[current_position_] <= '9' ||
-          xml_[current_position_] == '_')) {
-    identifier += xml_[current_position_];
-    ++current_position_;
-  }
-  return identifier;
-}
-
-std::string XmlParser::ReadAttributeString() {
+std::string_view XmlParser::ReadAttributeString() {
   if (Read1() != '"') {
     throw XmlParsingException("Expected \".");
   }
 
-  std::string string;
+  auto old_position = current_position_;
 
   while (true) {
     char16_t c = Read1();
@@ -73,48 +59,53 @@ std::string XmlParser::ReadAttributeString() {
     if (c == '"') {
       break;
     }
-
-    string += c;
   }
 
-  return string;
+  return source_.substr(old_position, current_position_ - old_position - 1);
 }
 
-XmlElementNode* XmlParser::DoParse() {
-  while (current_position_ < xml_.size()) {
-    ReadSpacesAndDiscard();
+XmlElementNode* XmlParser::Parse() {
+  current_position_ = 0;
 
-    if (current_position_ == xml_.size()) {
+  // Consider the while file enclosed by a single tag called $root.
+  std::unique_ptr<XmlElementNode> pseudo_root_node_(
+      new XmlElementNode("$root"));
+  XmlElementNode* current_ = pseudo_root_node_.get();
+
+  while (current_position_ < source_.size()) {
+    ReadSpaces();
+
+    if (current_position_ == source_.size()) {
       break;
     }
 
-    if (ReadWithoutAdvance() == "<") {
+    if (Peek() == "<") {
       current_position_ += 1;
 
-      if (ReadWithoutAdvance() == "/") {
+      if (Peek() == "/") {
         current_position_ += 1;
 
-        ReadSpacesAndDiscard();
+        ReadSpaces();
 
-        std::string tag = ReadIdenitifier();
+        auto tag = ReadIdentifier();
 
         if (tag != current_->GetTag()) {
           throw XmlParsingException("Tag mismatch.");
         }
 
-        ReadSpacesAndDiscard();
+        ReadSpaces();
 
         if (Read1() != '>') {
           throw XmlParsingException("Expected >.");
         }
 
         current_ = current_->GetParent();
-      } else if (ReadWithoutAdvance(3) == "!--") {
+      } else if (Peek(3) == "!--") {
         current_position_ += 3;
 
         std::string text;
         while (true) {
-          auto str = ReadWithoutAdvance(3);
+          auto str = Peek(3);
           if (str == "-->") break;
           if (str.empty()) throw XmlParsingException("Unexpected end of xml");
           text += Read1();
@@ -123,17 +114,17 @@ XmlElementNode* XmlParser::DoParse() {
         current_position_ += 3;
         current_->AddChild(new XmlCommentNode(cru::string::Trim(text)));
       } else {
-        ReadSpacesAndDiscard();
+        ReadSpaces();
 
-        std::string tag = ReadIdenitifier();
+        auto tag = ReadIdentifier();
 
-        XmlElementNode* node = new XmlElementNode(tag);
+        XmlElementNode* node = new XmlElementNode(std::string(tag));
 
         bool is_self_closing = false;
 
         while (true) {
-          ReadSpacesAndDiscard();
-          auto c = ReadWithoutAdvance();
+          ReadSpaces();
+          auto c = Peek();
           if (c == ">") {
             current_position_ += 1;
             break;
@@ -147,19 +138,20 @@ XmlElementNode* XmlParser::DoParse() {
             is_self_closing = true;
             break;
           } else {
-            std::string attribute_name = ReadIdenitifier();
+            auto attribute_name = ReadIdentifier();
 
-            ReadSpacesAndDiscard();
+            ReadSpaces();
 
             if (Read1() != '=') {
               throw XmlParsingException("Expected '='");
             }
 
-            ReadSpacesAndDiscard();
+            ReadSpaces();
 
-            std::string attribute_value = ReadAttributeString();
+            auto attribute_value = ReadAttributeString();
 
-            node->AddAttribute(attribute_name, attribute_value);
+            node->AddAttribute(std::string(attribute_name),
+                               std::string(attribute_value));
           }
         }
 
@@ -173,7 +165,7 @@ XmlElementNode* XmlParser::DoParse() {
     } else {
       std::string text;
 
-      while (ReadWithoutAdvance() != "<") {
+      while (Peek() != "<") {
         char16_t c = Read1();
 
         text += c;
@@ -184,7 +176,7 @@ XmlElementNode* XmlParser::DoParse() {
     }
   }
 
-  if (current_ != pseudo_root_node_) {
+  if (current_ != pseudo_root_node_.get()) {
     throw XmlParsingException("Unexpected end of xml");
   }
 
@@ -192,6 +184,10 @@ XmlElementNode* XmlParser::DoParse() {
     throw XmlParsingException("Expected 1 node as root.");
   }
 
-  return static_cast<XmlElementNode*>(pseudo_root_node_->GetChildren()[0]);
+  if (!pseudo_root_node_->GetChildAt(0)->IsElementNode()) {
+    throw XmlParsingException("Root node must be an element.");
+  }
+
+  return pseudo_root_node_->RemoveChildAt(0)->AsElement();
 }
 }  // namespace cru::xml

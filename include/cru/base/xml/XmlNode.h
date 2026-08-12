@@ -80,7 +80,7 @@ class CRU_BASE_API XmlElementNode : public XmlNode {
   void SetAttributes(std::unordered_map<std::string, std::string> attributes) {
     attributes_ = std::move(attributes);
   }
-  const std::vector<XmlNode*> GetChildren() const { return children_; }
+  const std::vector<XmlNode*>& GetChildren() const { return children_; }
 
   Index GetChildCount() const { return children_.size(); }
   std::string GetAttributeValue(const std::string& key) const {
@@ -116,6 +116,8 @@ class CRU_BASE_API XmlElementNode : public XmlNode {
 
   Index GetChildElementCount() const;
   XmlElementNode* GetFirstChildElement() const;
+
+  XmlNode* RemoveChildAt(Index index);
 
   XmlNode* Clone() const override;
 

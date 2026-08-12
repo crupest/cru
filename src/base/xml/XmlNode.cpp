@@ -59,6 +59,13 @@ XmlElementNode* XmlElementNode::GetFirstChildElement() const {
   return nullptr;
 }
 
+XmlNode* XmlElementNode::RemoveChildAt(Index index) {
+  auto child = children_[index];
+  children_.erase(children_.begin() + index);
+  child->parent_ = nullptr;
+  return child;
+}
+
 XmlNode* XmlElementNode::Clone() const {
   XmlElementNode* node = new XmlElementNode(tag_, attributes_);
 

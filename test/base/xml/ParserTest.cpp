@@ -69,11 +69,12 @@ TEST_CASE("CruXmlParserTest Whitespace", "[xml]") {
 }
 
 TEST_CASE("CruXmlParserTest Comment", "[xml]") {
-  XmlParser parser("<!-- comment -->");
-  auto n = parser.Parse();
-  REQUIRE(n->IsCommentNode());
-  REQUIRE(n->AsComment()->GetText() == "comment");
-  delete n;
+  REQUIRE_THROWS_AS(([] {
+                      XmlParser parser("<!-- comment -->");
+                      auto n = parser.Parse();
+                      delete n;
+                    })(),
+                    XmlParsingException);
 }
 
 TEST_CASE("CruXmlParserTest Complex", "[xml]") {
