@@ -1,5 +1,6 @@
 add_executable(CruBaseTest
 	BaseTest.cpp
+	DictionaryTest.cpp
 	EventTest.cpp
 	GuardTest.cpp
 	JsonTest.cpp
