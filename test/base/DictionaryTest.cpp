@@ -60,11 +60,24 @@ static_assert(std::same_as<StringIntDictionary::iterator,
                            StringIntDictionary::StorageType::iterator>);
 static_assert(std::same_as<StringIntDictionary::const_iterator,
                            StringIntDictionary::StorageType::const_iterator>);
+static_assert(std::same_as<StringIntDictionary::reverse_iterator,
+                           StringIntDictionary::StorageType::reverse_iterator>);
+static_assert(
+    std::same_as<StringIntDictionary::const_reverse_iterator,
+                 StringIntDictionary::StorageType::const_reverse_iterator>);
 static_assert(std::bidirectional_iterator<StringIntDictionary::iterator>);
 static_assert(std::bidirectional_iterator<StringIntDictionary::const_iterator>);
+static_assert(
+    std::bidirectional_iterator<StringIntDictionary::reverse_iterator>);
+static_assert(
+    std::bidirectional_iterator<StringIntDictionary::const_reverse_iterator>);
 static_assert(!std::random_access_iterator<StringIntDictionary::iterator>);
 static_assert(
     !std::random_access_iterator<StringIntDictionary::const_iterator>);
+static_assert(
+    !std::random_access_iterator<StringIntDictionary::reverse_iterator>);
+static_assert(
+    !std::random_access_iterator<StringIntDictionary::const_reverse_iterator>);
 static_assert(
     std::same_as<decltype(std::declval<StringIntDictionary&>().begin()),
                  StringIntDictionary::iterator>);
@@ -74,6 +87,24 @@ static_assert(
 static_assert(
     std::same_as<decltype(std::declval<StringIntDictionary&>().cbegin()),
                  StringIntDictionary::const_iterator>);
+static_assert(
+    std::same_as<decltype(std::declval<StringIntDictionary&>().rbegin()),
+                 StringIntDictionary::reverse_iterator>);
+static_assert(
+    std::same_as<decltype(std::declval<StringIntDictionary&>().rend()),
+                 StringIntDictionary::reverse_iterator>);
+static_assert(
+    std::same_as<decltype(std::declval<const StringIntDictionary&>().rbegin()),
+                 StringIntDictionary::const_reverse_iterator>);
+static_assert(
+    std::same_as<decltype(std::declval<const StringIntDictionary&>().rend()),
+                 StringIntDictionary::const_reverse_iterator>);
+static_assert(
+    std::same_as<decltype(std::declval<StringIntDictionary&>().crbegin()),
+                 StringIntDictionary::const_reverse_iterator>);
+static_assert(
+    std::same_as<decltype(std::declval<StringIntDictionary&>().crend()),
+                 StringIntDictionary::const_reverse_iterator>);
 }  // namespace
 
 TEST_CASE("Dictionary exposes list-like container metadata", "[dictionary]") {
@@ -132,6 +163,40 @@ TEST_CASE("Dictionary inserts unique keys and preserves iteration order",
   REQUIRE(const_dictionary.begin()->first == "alpha");
   REQUIRE(std::distance(const_dictionary.cbegin(), const_dictionary.cend()) ==
           3);
+}
+
+TEST_CASE("Dictionary iterates in reverse insertion order", "[dictionary]") {
+  StringIntDictionary dictionary;
+  dictionary.insert("alpha", 1);
+  dictionary.insert("beta", 2);
+  dictionary.insert("gamma", 3);
+
+  REQUIRE(dictionary.rbegin()->first == "gamma");
+  REQUIRE(std::distance(dictionary.rbegin(), dictionary.rend()) == 3);
+  dictionary.rbegin()->second = 30;
+  REQUIRE(dictionary.at("gamma") == 30);
+
+  std::vector<std::string> reverse_keys;
+  for (auto it = dictionary.rbegin(); it != dictionary.rend(); ++it) {
+    reverse_keys.push_back(it->first);
+  }
+  REQUIRE(reverse_keys == std::vector<std::string>{"gamma", "beta", "alpha"});
+
+  const auto& const_dictionary = dictionary;
+  std::vector<std::string> const_reverse_keys;
+  for (auto it = const_dictionary.rbegin(); it != const_dictionary.rend();
+       ++it) {
+    const_reverse_keys.push_back(it->first);
+  }
+  REQUIRE(const_reverse_keys ==
+          std::vector<std::string>{"gamma", "beta", "alpha"});
+
+  std::vector<std::string> explicit_const_reverse_keys;
+  for (auto it = dictionary.crbegin(); it != dictionary.crend(); ++it) {
+    explicit_const_reverse_keys.push_back(it->first);
+  }
+  REQUIRE(explicit_const_reverse_keys ==
+          std::vector<std::string>{"gamma", "beta", "alpha"});
 }
 
 TEST_CASE("Dictionary supports lookup mutation and default insertion",

@@ -24,6 +24,8 @@ class Dictionary {
   using const_pointer = StorageType::const_pointer;
   using iterator = StorageType::iterator;
   using const_iterator = StorageType::const_iterator;
+  using reverse_iterator = StorageType::reverse_iterator;
+  using const_reverse_iterator = StorageType::const_reverse_iterator;
 
   auto begin() { return storage_.begin(); }
   auto end() { return storage_.end(); }
@@ -31,6 +33,12 @@ class Dictionary {
   auto end() const { return storage_.end(); }
   auto cbegin() const { return storage_.cbegin(); }
   auto cend() const { return storage_.cend(); }
+  auto rbegin() { return storage_.rbegin(); }
+  auto rend() { return storage_.rend(); }
+  auto rbegin() const { return storage_.rbegin(); }
+  auto rend() const { return storage_.rend(); }
+  auto crbegin() const { return storage_.crbegin(); }
+  auto crend() const { return storage_.crend(); }
 
   auto empty() const noexcept { return storage_.empty(); }
   auto size() const noexcept { return storage_.size(); }
