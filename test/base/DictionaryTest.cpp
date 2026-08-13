@@ -139,7 +139,7 @@ TEST_CASE("Dictionary inserts unique keys and preserves iteration order",
   REQUIRE(duplicate_alpha->second == 1);
   REQUIRE(dictionary.size() == 1);
 
-  auto [beta, inserted_beta] = dictionary.insert("beta", 2);
+  auto [beta, inserted_beta] = dictionary.emplace("beta", 2);
   REQUIRE(inserted_beta);
   REQUIRE(beta->first == "beta");
   REQUIRE(beta->second == 2);
@@ -167,9 +167,9 @@ TEST_CASE("Dictionary inserts unique keys and preserves iteration order",
 
 TEST_CASE("Dictionary iterates in reverse insertion order", "[dictionary]") {
   StringIntDictionary dictionary;
-  dictionary.insert("alpha", 1);
-  dictionary.insert("beta", 2);
-  dictionary.insert("gamma", 3);
+  dictionary.emplace("alpha", 1);
+  dictionary.emplace("beta", 2);
+  dictionary.emplace("gamma", 3);
 
   REQUIRE(dictionary.rbegin()->first == "gamma");
   REQUIRE(std::distance(dictionary.rbegin(), dictionary.rend()) == 3);
@@ -202,8 +202,8 @@ TEST_CASE("Dictionary iterates in reverse insertion order", "[dictionary]") {
 TEST_CASE("Dictionary supports lookup mutation and default insertion",
           "[dictionary]") {
   StringIntDictionary dictionary;
-  dictionary.insert("alpha", 1);
-  dictionary.insert("beta", 2);
+  dictionary.emplace("alpha", 1);
+  dictionary.emplace("beta", 2);
 
   REQUIRE(dictionary.contains("alpha"));
   REQUIRE_FALSE(dictionary.contains("missing"));
@@ -243,8 +243,8 @@ TEST_CASE("Dictionary supports lookup mutation and default insertion",
 TEST_CASE("Dictionary insert_or_assign updates values without reordering",
           "[dictionary]") {
   StringIntDictionary dictionary;
-  dictionary.insert("alpha", 1);
-  dictionary.insert("gamma", 3);
+  dictionary.emplace("alpha", 1);
+  dictionary.emplace("gamma", 3);
 
   auto [beta, inserted_beta] = dictionary.insert_or_assign("beta", 2);
   REQUIRE(inserted_beta);
@@ -281,11 +281,11 @@ TEST_CASE("Dictionary insert_or_assign updates values without reordering",
 TEST_CASE("Dictionary erases by key iterator range and predicate",
           "[dictionary]") {
   StringIntDictionary dictionary;
-  dictionary.insert("alpha", 1);
-  dictionary.insert("beta", 2);
-  dictionary.insert("gamma", 3);
-  dictionary.insert("delta", 4);
-  dictionary.insert("epsilon", 5);
+  dictionary.emplace("alpha", 1);
+  dictionary.emplace("beta", 2);
+  dictionary.emplace("gamma", 3);
+  dictionary.emplace("delta", 4);
+  dictionary.emplace("epsilon", 5);
 
   auto gamma = dictionary.find("gamma");
   REQUIRE(gamma != dictionary.end());
@@ -306,8 +306,8 @@ TEST_CASE("Dictionary erases by key iterator range and predicate",
   REQUIRE(after_range == dictionary.end());
   REQUIRE(Keys(dictionary) == std::vector<std::string>{"gamma"});
 
-  dictionary.insert("delta", 4);
-  dictionary.insert("epsilon", 5);
+  dictionary.emplace("delta", 4);
+  dictionary.emplace("epsilon", 5);
   auto erased_count = erase_if(
       dictionary, [](const auto& item) { return item.second % 2 != 0; });
   REQUIRE(erased_count == 2);
@@ -317,27 +317,27 @@ TEST_CASE("Dictionary erases by key iterator range and predicate",
 TEST_CASE("Dictionary compares and swaps stored ordered pairs",
           "[dictionary]") {
   StringIntDictionary left;
-  left.insert("alpha", 1);
-  left.insert("beta", 2);
+  left.emplace("alpha", 1);
+  left.emplace("beta", 2);
 
   StringIntDictionary same;
-  same.insert("alpha", 1);
-  same.insert("beta", 2);
+  same.emplace("alpha", 1);
+  same.emplace("beta", 2);
 
   StringIntDictionary different_value;
-  different_value.insert("alpha", 1);
-  different_value.insert("beta", 20);
+  different_value.emplace("alpha", 1);
+  different_value.emplace("beta", 20);
 
   StringIntDictionary different_order;
-  different_order.insert("beta", 2);
-  different_order.insert("alpha", 1);
+  different_order.emplace("beta", 2);
+  different_order.emplace("alpha", 1);
 
   REQUIRE(left == same);
   REQUIRE_FALSE(left == different_value);
   REQUIRE_FALSE(left == different_order);
 
   StringIntDictionary right;
-  right.insert("gamma", 3);
+  right.emplace("gamma", 3);
 
   left.swap(right);
   REQUIRE(Keys(left) == std::vector<std::string>{"gamma"});

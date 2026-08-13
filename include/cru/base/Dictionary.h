@@ -66,11 +66,6 @@ class Dictionary {
     }
   }
 
-  template <typename... Args>
-  std::pair<iterator, bool> insert(Args&&... args) {
-    return emplace(std::forward<Args>(args)...);
-  }
-
   template <class K, class M>
   std::pair<iterator, bool> insert_or_assign(K&& k, M&& obj) {
     auto it = std::ranges::find_if(
