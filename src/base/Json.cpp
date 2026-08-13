@@ -230,10 +230,10 @@ bool JsonValue::Set(std::string_view key, JsonValue value) {
   auto iter = FindObjectItem(values, key);
   if (iter == values.end()) {
     values.emplace_back(key, std::move(value));
-    return false;
+    return true;
   }
   iter->second = std::move(value);
-  return true;
+  return false;
 }
 
 bool JsonValue::Insert(Index index, JsonValue value) {
@@ -246,10 +246,10 @@ bool JsonValue::Insert(Index index, JsonValue value) {
 bool JsonValue::Insert(std::string key, JsonValue value) {
   auto& values = RequireObject();
   if (FindObjectItem(values, key) != values.end()) {
-    return true;
+    return false;
   }
   values.emplace_back(std::move(key), std::move(value));
-  return false;
+  return true;
 }
 
 std::optional<JsonValue> JsonValue::Remove(Index index) {

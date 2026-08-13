@@ -344,7 +344,7 @@ class CRU_BASE_API JsonValue {
 
   /**
    * @brief Sets an object property.
-   * @return true if replaced; false if appended.
+   * @return true if inserted; false if replaced.
    * @throws cru::Exception if this value is not an object.
    */
   bool Set(std::string_view key, JsonValue value);
@@ -360,7 +360,7 @@ class CRU_BASE_API JsonValue {
 
   /**
    * @brief Inserts an object property if key is absent.
-   * @return true if key already existed; false if inserted.
+   * @return true if inserted; false if key already existed.
    * @throws cru::Exception if this value is not an object.
    */
   bool Insert(std::string key, JsonValue value);

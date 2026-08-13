@@ -134,9 +134,9 @@ TEST_CASE("JsonValue equality only compares scalar values", "[json]") {
   REQUIRE_FALSE(array == array);
 
   JsonValue object = JsonValue::Object();
-  REQUIRE_FALSE(object.Insert("value", JsonValue(1.0)));
+  REQUIRE(object.Insert("value", JsonValue(1.0)));
   JsonValue same_object = JsonValue::Object();
-  REQUIRE_FALSE(same_object.Insert("value", JsonValue(1.0)));
+  REQUIRE(same_object.Insert("value", JsonValue(1.0)));
   REQUIRE_FALSE(object == same_object);
   REQUIRE_FALSE(object == object);
 }
@@ -266,8 +266,8 @@ TEST_CASE("JsonValue direct iteration can mutate scalar and child values",
   REQUIRE(array.Get(1).GetString() == "after");
 
   JsonValue object = JsonValue::Object();
-  REQUIRE_FALSE(object.Insert("enabled", JsonValue(true)));
-  REQUIRE_FALSE(object.Insert("count", JsonValue(3.0)));
+  REQUIRE(object.Insert("enabled", JsonValue(true)));
+  REQUIRE(object.Insert("count", JsonValue(3.0)));
   REQUIRE(object.end() - object.begin() == 2);
   REQUIRE(object.begin()[0].GetBoolean());
   REQUIRE(object.begin()[1].GetNumber() == Catch::Approx(3.0));
@@ -298,14 +298,14 @@ TEST_CASE("Json objects support Get operator Set Insert and Remove", "[json]") {
   REQUIRE_FALSE(object.Contains("enabled"));
   REQUIRE(object.TryGet("enabled") == nullptr);
 
-  REQUIRE_FALSE(object.Insert("enabled", JsonValue(true)));
-  REQUIRE_FALSE(object.Insert("count", JsonValue(3.0)));
+  REQUIRE(object.Insert("enabled", JsonValue(true)));
+  REQUIRE(object.Insert("count", JsonValue(3.0)));
   REQUIRE(object.GetSize() == 2);
   REQUIRE(object.Contains("enabled"));
   REQUIRE(object.Get("enabled").GetBoolean());
   REQUIRE(object.TryGet("count")->GetNumber() == Catch::Approx(3.0));
 
-  REQUIRE(object.Insert("enabled", JsonValue(nullptr)));
+  REQUIRE_FALSE(object.Insert("enabled", JsonValue(nullptr)));
   REQUIRE(object.Get("enabled").GetBoolean());
   REQUIRE(object.GetSize() == 2);
 
@@ -319,9 +319,9 @@ TEST_CASE("Json objects support Get operator Set Insert and Remove", "[json]") {
   REQUIRE(const_object["created"].GetString() == "now");
   REQUIRE(const_object.TryGet("missing") == nullptr);
 
-  REQUIRE(object.Set("enabled", JsonValue(false)));
+  REQUIRE_FALSE(object.Set("enabled", JsonValue(false)));
   REQUIRE_FALSE(object.Get("enabled").GetBoolean());
-  REQUIRE_FALSE(object.Set("name", JsonValue("created")));
+  REQUIRE(object.Set("name", JsonValue("created")));
   REQUIRE(object.Get("name").GetString() == "created");
 
   std::optional<JsonValue> removed = object.Remove("count");
@@ -338,8 +338,8 @@ TEST_CASE("Json objects support Get operator Set Insert and Remove", "[json]") {
 TEST_CASE("Json object iteration views expose keys values and items",
           "[json]") {
   JsonValue object = JsonValue::Object();
-  REQUIRE_FALSE(object.Insert("enabled", JsonValue(true)));
-  REQUIRE_FALSE(object.Insert("count", JsonValue(3.0)));
+  REQUIRE(object.Insert("enabled", JsonValue(true)));
+  REQUIRE(object.Insert("count", JsonValue(3.0)));
 
   std::vector<std::string> keys;
   for (const std::string& key : object.Keys()) {
@@ -377,8 +377,8 @@ TEST_CASE("Json object iteration views expose keys values and items",
 
 TEST_CASE("Json object mutable Items view can replace children", "[json]") {
   JsonValue object = JsonValue::Object();
-  REQUIRE_FALSE(object.Insert("enabled", JsonValue(true)));
-  REQUIRE_FALSE(object.Insert("count", JsonValue(3.0)));
+  REQUIRE(object.Insert("enabled", JsonValue(true)));
+  REQUIRE(object.Insert("count", JsonValue(3.0)));
 
   for (auto [key, value] : object.Items()) {
     if (key == "enabled") {
@@ -394,10 +394,10 @@ TEST_CASE("Json object mutable Items view can replace children", "[json]") {
 
 TEST_CASE("JsonValue copy deep copies arrays and objects", "[json]") {
   JsonValue original = JsonValue::Object();
-  REQUIRE_FALSE(original.Insert("name", JsonValue("alpha")));
+  REQUIRE(original.Insert("name", JsonValue("alpha")));
   JsonValue nested = JsonValue::Array();
   REQUIRE(nested.Insert(0, JsonValue(true)));
-  REQUIRE_FALSE(original.Insert("items", std::move(nested)));
+  REQUIRE(original.Insert("items", std::move(nested)));
 
   JsonValue clone = original;
   REQUIRE(clone.GetSize() == original.GetSize());
