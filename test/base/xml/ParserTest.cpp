@@ -17,8 +17,8 @@ TEST_CASE("CruXmlParserTest SimpleWithAttribute", "[xml]") {
   XmlParser parser("<root a1=\"v1\" a2=\"v2\"></root>");
   auto n = parser.Parse();
   REQUIRE(n->GetTag() == "root");
-  REQUIRE(n->GetAttributeValue("a1") == "v1");
-  REQUIRE(n->GetAttributeValue("a2") == "v2");
+  REQUIRE(n->GetAttributes().at("a1") == "v1");
+  REQUIRE(n->GetAttributes().at("a2") == "v2");
   REQUIRE(n->GetChildCount() == 0);
   delete n;
 }
@@ -27,8 +27,8 @@ TEST_CASE("CruXmlParserTest SimpleSelfClosing", "[xml]") {
   XmlParser parser("<root a1=\"v1\" a2=\"v2\"/>");
   auto n = parser.Parse();
   REQUIRE(n->GetTag() == "root");
-  REQUIRE(n->GetAttributeValue("a1") == "v1");
-  REQUIRE(n->GetAttributeValue("a2") == "v2");
+  REQUIRE(n->GetAttributes().at("a1") == "v1");
+  REQUIRE(n->GetAttributes().at("a2") == "v2");
   REQUIRE(n->GetChildCount() == 0);
   delete n;
 }
@@ -95,18 +95,18 @@ TEST_CASE("CruXmlParserTest Complex", "[xml]") {
 </root>
   )");
   auto n = parser.Parse();
-  REQUIRE(n->GetAttributeValue("a1") == "v1");
+  REQUIRE(n->GetAttributes().at("a1") == "v1");
   REQUIRE(n->GetChildCount() == 3);
   REQUIRE(n->GetChildAt(0)->AsElement()->GetTag() == "c1");
   REQUIRE(n->GetChildAt(0)->AsElement()->GetChildCount() == 1);
   auto c2 = n->GetChildAt(1)->AsElement();
   REQUIRE(c2->GetTag() == "c2");
-  REQUIRE(c2->GetAttributeValue("a2") == "v2");
-  REQUIRE(c2->GetAttributeValue("a3") == "v3");
+  REQUIRE(c2->GetAttributes().at("a2") == "v2");
+  REQUIRE(c2->GetAttributes().at("a3") == "v3");
   REQUIRE(c2->GetChildAt(0)->AsText()->GetText() == "t1");
   auto d2 = c2->GetChildAt(1)->AsElement();
   REQUIRE(d2->GetTag() == "d2");
-  REQUIRE(d2->GetAttributeValue("a4") == "v4");
+  REQUIRE(d2->GetAttributes().at("a4") == "v4");
   REQUIRE(c2->GetChildAt(2)->AsText()->GetText() == "text test");
   REQUIRE(c2->GetChildAt(3)->AsElement()->GetTag() == "d3");
   REQUIRE(c2->GetChildAt(4)->AsText()->GetText() == "t2");

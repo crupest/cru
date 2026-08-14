@@ -32,6 +32,6 @@ FontDataType::DoConvertFromXml(xml::XmlElementNode* node) {
   return DataConvertResult<std::shared_ptr<platform::graphics::IFont>>::Success(
       platform::gui::IUiApplication::GetInstance()
           ->GetGraphicsFactory()
-          ->CreateFont(font_family, font_size));
+          ->CreateFont(std::string(font_family), font_size));
 }
 }  // namespace cru::ui::datamodel

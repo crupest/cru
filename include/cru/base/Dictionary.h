@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <cstddef>
+#include <initializer_list>
 #include <iterator>
 #include <memory>
 #include <ranges>
@@ -134,6 +135,13 @@ class Dictionary {
   using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
   Dictionary() = default;
+
+  Dictionary(std::initializer_list<value_type> init) {
+    storage_.reserve(init.size());
+    for (const auto& value : init) {
+      storage_.emplace_back(new value_type(value));
+    }
+  }
 
   Dictionary(const Dictionary& other) {
     storage_.reserve(other.size());

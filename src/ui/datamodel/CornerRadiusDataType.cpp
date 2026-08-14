@@ -2,8 +2,7 @@
 
 namespace cru::ui::datamodel {
 CornerRadiusDataType::CornerRadiusDataType()
-    : DataTypeBase<CornerRadius>("CornerRadius",
-                                   {false, false, true, false}) {}
+    : DataTypeBase<CornerRadius>("CornerRadius", {false, false, true, false}) {}
 
 bool CornerRadiusDataType::DoXmlIsOfThisType(xml::XmlElementNode* node) {
   return node->HasTag("CornerRadius");
@@ -22,8 +21,7 @@ DataConvertResult<CornerRadius> CornerRadiusDataType::DoConvertFromXml(
   auto apply_point_attribute = [point_data_type, &node](
                                    std::string_view key,
                                    auto&& apply) -> DataConvertResult<bool> {
-    auto attr =
-        node->GetOptionalAttributeValueCaseInsensitive(std::string(key));
+    auto attr = node->GetOptionalAttributeValue(std::string(key));
     if (!attr) {
       return DataConvertResult<bool>::Success(false);
     }

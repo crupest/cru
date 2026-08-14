@@ -22,7 +22,7 @@ DataConvertResult<ClonePtr<Styler>> ConvertStylerResult(
 
 #define CRU_DEFINE_STYLER_DATA_TYPE_BASE(styler_name)              \
   styler_name##StylerDataType::styler_name##StylerDataType()       \
-      : ClonePtrDataTypeBase<styler_name##Styler>(                   \
+      : ClonePtrDataTypeBase<styler_name##Styler>(                 \
             #styler_name "Styler", {false, false, true, false}) {} \
                                                                    \
   bool styler_name##StylerDataType::DoXmlIsOfThisType(             \
@@ -226,8 +226,7 @@ MarginStylerDataType::DoConvertFromXml(xml::XmlElementNode* node) {
   Thickness thickness;
   std::vector<std::string> errors;
 
-  auto value_attribute =
-      node->GetOptionalAttributeValueCaseInsensitive("value");
+  auto value_attribute = node->GetOptionalAttributeValue("value");
   if (value_attribute) {
     auto converted = thickness_data_type->ConvertFromString(*value_attribute);
     if (!converted.IsSuccess()) {
@@ -261,8 +260,7 @@ PaddingStylerDataType::DoConvertFromXml(xml::XmlElementNode* node) {
   Thickness thickness;
   std::vector<std::string> errors;
 
-  auto value_attribute =
-      node->GetOptionalAttributeValueCaseInsensitive("value");
+  auto value_attribute = node->GetOptionalAttributeValue("value");
   if (value_attribute) {
     auto converted = thickness_data_type->ConvertFromString(*value_attribute);
     if (!converted.IsSuccess()) {
@@ -297,8 +295,7 @@ PreferredSizeStylerDataType::DoConvertFromXml(xml::XmlElementNode* node) {
   render::MeasureSize size;
   std::vector<std::string> errors;
 
-  auto width_attribute =
-      node->GetOptionalAttributeValueCaseInsensitive("width");
+  auto width_attribute = node->GetOptionalAttributeValue("width");
   if (width_attribute) {
     auto converted =
         measure_length_data_type->ConvertFromString(*width_attribute);
@@ -311,8 +308,7 @@ PreferredSizeStylerDataType::DoConvertFromXml(xml::XmlElementNode* node) {
     errors.insert(errors.end(), e.begin(), e.end());
   }
 
-  auto height_attribute =
-      node->GetOptionalAttributeValueCaseInsensitive("height");
+  auto height_attribute = node->GetOptionalAttributeValue("height");
   if (height_attribute) {
     auto converted =
         measure_length_data_type->ConvertFromString(*height_attribute);

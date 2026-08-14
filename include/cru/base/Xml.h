@@ -1,7 +1,9 @@
 #pragma once
 
 #include "Base.h"
-#include "StringUtil.h"
+#include "Dictionary.h"
+
+#include <string_view>
 
 namespace cru::xml {
 class XmlElementNode;
@@ -41,7 +43,6 @@ class CRU_BASE_API XmlNode : public Object {
 
 class CRU_BASE_API XmlTextNode : public XmlNode {
  public:
-  XmlTextNode() : XmlNode(Type::Text) {}
   explicit XmlTextNode(std::string text)
       : XmlNode(Type::Text), text_(std::move(text)) {}
 
@@ -57,79 +58,42 @@ class CRU_BASE_API XmlTextNode : public XmlNode {
 
 class CRU_BASE_API XmlElementNode : public XmlNode {
  public:
-  XmlElementNode() : XmlNode(Type::Element) {}
-  explicit XmlElementNode(
-      std::string tag,
-      std::unordered_map<std::string, std::string> attributes = {})
-      : XmlNode(Type::Element),
-        tag_(std::move(tag)),
-        attributes_(std::move(attributes)) {}
+  using AttrDict = Dictionary<std::string, std::string>;
+
+  explicit XmlElementNode(std::string tag,
+                          Dictionary<std::string, std::string> attributes = {});
 
   ~XmlElementNode() override;
 
  public:
   std::string GetTag() const { return tag_; }
-  bool HasTag(std::string_view tag, bool case_sensitive = false) {
-    return case_sensitive ? tag_ == tag
-                          : cru::string::CaseInsensitiveEqual(tag_, tag);
-  }
-  void SetTag(std::string tag) { tag_ = std::move(tag); }
-  const std::unordered_map<std::string, std::string>& GetAttributes() const {
-    return attributes_;
-  }
-  void SetAttributes(std::unordered_map<std::string, std::string> attributes) {
-    attributes_ = std::move(attributes);
-  }
+  bool HasTag(std::string_view tag, bool case_sensitive = false);
+  void SetTag(std::string tag);
   const std::vector<XmlNode*>& GetChildren() const { return children_; }
-
   Index GetChildCount() const { return children_.size(); }
-  std::string GetAttributeValue(const std::string& key) const {
-    return attributes_.at(key);
-  }
-  std::string GetAttributeValueCaseInsensitive(const std::string& key) const {
-    return *GetOptionalAttributeValueCaseInsensitive(key);
-  }
-  std::optional<std::string> GetOptionalAttributeValue(
-      const std::string& key) const {
-    auto it = attributes_.find(key);
-    if (it == attributes_.end()) {
-      return std::nullopt;
-    }
-
-    return it->second;
-  }
-  std::optional<std::string> GetOptionalAttributeValueCaseInsensitive(
-      const std::string& key) const {
-    for (auto it = attributes_.begin(); it != attributes_.end(); ++it) {
-      if (cru::string::CaseInsensitiveEqual(it->first, key)) {
-        return it->second;
-      }
-    }
-
-    return std::nullopt;
-  }
-
   XmlNode* GetChildAt(Index index) const { return children_[index]; }
-
-  void AddAttribute(std::string key, std::string value);
-  void AddChild(XmlNode* child);
-
   Index GetChildElementCount() const;
   XmlElementNode* GetFirstChildElement() const;
 
+  void AddChild(XmlNode* child);
   XmlNode* RemoveChildAt(Index index);
+
+  AttrDict& GetAttributes() { return attributes_; }
+  const AttrDict& GetAttributes() const { return attributes_; }
+
+  std::optional<std::string_view> GetOptionalAttributeValue(
+      std::string_view key, bool case_sensitive = false) const;
 
   XmlNode* Clone() const override;
 
  private:
   std::string tag_;
-  std::unordered_map<std::string, std::string> attributes_;
+  AttrDict attributes_;
   std::vector<XmlNode*> children_;
 };
 
 class CRU_BASE_API XmlCommentNode : public XmlNode {
  public:
-  XmlCommentNode() : XmlNode(Type::Comment) {}
   explicit XmlCommentNode(std::string text)
       : XmlNode(Type::Comment), text_(std::move(text)) {}
 

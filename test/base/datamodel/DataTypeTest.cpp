@@ -1,7 +1,6 @@
 #include "cru/base/datamodel/DataType.h"
 
 #include <catch2/catch_test_macros.hpp>
-#include <unordered_map>
 #include <vector>
 
 using cru::Exception;
@@ -139,8 +138,7 @@ TEST_CASE("NumberDataType xml conversion through string fallback",
   REQUIRE(!nested_failed.IsSuccess());
   REQUIRE(nested_failed.HasErrors());
 
-  XmlElementNode attr_and_text(
-      "Number", std::unordered_map<std::string, std::string>{{"value", "33"}});
+  XmlElementNode attr_and_text("Number", {{"value", "33"}});
   attr_and_text.AddChild(new XmlTextNode("44"));
 
   auto attr_and_text_result = type.ConvertFromXml(&attr_and_text);
@@ -148,8 +146,7 @@ TEST_CASE("NumberDataType xml conversion through string fallback",
   REQUIRE(attr_and_text_result.GetValue() == 33);
   REQUIRE(attr_and_text_result.HasErrors());
 
-  XmlElementNode attr_only(
-      "Number", std::unordered_map<std::string, std::string>{{"value", "99"}});
+  XmlElementNode attr_only("Number", {{"value", "99"}});
   auto attr_only_result = type.ConvertFromXml(&attr_only);
   REQUIRE(attr_only_result.IsSuccess());
   REQUIRE(attr_only_result.GetValue() == 99);

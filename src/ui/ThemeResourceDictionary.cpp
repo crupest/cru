@@ -32,7 +32,7 @@ void ThemeResourceDictionary::UpdateResourceMap(xml::XmlElementNode* xml_root) {
     if (child->IsElementNode()) {
       auto c = child->AsElement();
       if (cru::string::CaseInsensitiveEqual(c->GetTag(), "Resource")) {
-        auto key_attr = c->GetOptionalAttributeValueCaseInsensitive("key");
+        auto key_attr = c->GetOptionalAttributeValue("key");
         if (!key_attr) {
           throw Exception("'key' attribute is required for resource.");
         }

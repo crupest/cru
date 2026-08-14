@@ -73,7 +73,7 @@ BorderStyleDataType::DoConvertFromXml(xml::XmlElementNode* node) {
       }
 
       auto brush = converted.GetValue();
-      auto name = element->GetOptionalAttributeValueCaseInsensitive("name");
+      auto name = element->GetOptionalAttributeValue("name");
       if (name) {
         if (CaseInsensitiveEqual(*name, "foreground")) {
           result.foreground_brush = std::move(brush);

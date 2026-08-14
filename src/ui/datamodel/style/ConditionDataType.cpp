@@ -2,6 +2,8 @@
 
 #include "cru/base/StringUtil.h"
 
+#include <format>
+
 namespace cru::ui::datamodel::style {
 namespace {
 template <typename TDerived>
@@ -145,7 +147,7 @@ DataConvertResult<ClonePtr<OrCondition>> OrConditionDataType::DoConvertFromXml(
 DataConvertResult<ClonePtr<ClickStateCondition>>
 ClickStateConditionDataType::DoConvertFromXml(xml::XmlElementNode* node) {
   auto state = helper::ClickState::None;
-  auto value_attr = node->GetOptionalAttributeValueCaseInsensitive("value");
+  auto value_attr = node->GetOptionalAttributeValue("value");
   if (value_attr) {
     if (cru::string::CaseInsensitiveEqual(*value_attr, "none")) {
       state = helper::ClickState::None;
@@ -158,7 +160,7 @@ ClickStateConditionDataType::DoConvertFromXml(xml::XmlElementNode* node) {
       state = helper::ClickState::PressInactive;
     } else {
       return DataConvertResult<ClonePtr<ClickStateCondition>>::Failure(
-          "Unknown click state: " + *value_attr);
+          std::format("Unknown click state: {}", *value_attr));
     }
   }
 
@@ -168,7 +170,7 @@ ClickStateConditionDataType::DoConvertFromXml(xml::XmlElementNode* node) {
 
 DataConvertResult<ClonePtr<CheckedCondition>>
 CheckedConditionDataType::DoConvertFromXml(xml::XmlElementNode* node) {
-  auto value = node->GetOptionalAttributeValueCaseInsensitive("value");
+  auto value = node->GetOptionalAttributeValue("value");
   if (!value) {
     return DataConvertResult<ClonePtr<CheckedCondition>>::Failure(
         "Missing value for CheckedCondition.");
@@ -184,12 +186,12 @@ CheckedConditionDataType::DoConvertFromXml(xml::XmlElementNode* node) {
   }
 
   return DataConvertResult<ClonePtr<CheckedCondition>>::Failure(
-      "Invalid value for CheckedCondition: " + *value);
+      std::format("Invalid value for CheckedCondition: {}", *value));
 }
 
 DataConvertResult<ClonePtr<FocusCondition>>
 FocusConditionDataType::DoConvertFromXml(xml::XmlElementNode* node) {
-  auto value = node->GetOptionalAttributeValueCaseInsensitive("value");
+  auto value = node->GetOptionalAttributeValue("value");
   if (!value) {
     return DataConvertResult<ClonePtr<FocusCondition>>::Failure(
         "Missing value for FocusCondition.");
@@ -205,12 +207,12 @@ FocusConditionDataType::DoConvertFromXml(xml::XmlElementNode* node) {
   }
 
   return DataConvertResult<ClonePtr<FocusCondition>>::Failure(
-      "Invalid value for FocusCondition: " + *value);
+      std::format("Invalid value for FocusCondition: ", *value));
 }
 
 DataConvertResult<ClonePtr<HoverCondition>>
 HoverConditionDataType::DoConvertFromXml(xml::XmlElementNode* node) {
-  auto value = node->GetOptionalAttributeValueCaseInsensitive("value");
+  auto value = node->GetOptionalAttributeValue("value");
   if (!value) {
     return DataConvertResult<ClonePtr<HoverCondition>>::Failure(
         "Missing value for HoverCondition.");
@@ -226,6 +228,6 @@ HoverConditionDataType::DoConvertFromXml(xml::XmlElementNode* node) {
   }
 
   return DataConvertResult<ClonePtr<HoverCondition>>::Failure(
-      "Invalid value for HoverCondition: " + *value);
+      std::format("Invalid value for HoverCondition: {}", *value));
 }
 }  // namespace cru::ui::datamodel::style

@@ -3,6 +3,7 @@
 #include <catch2/catch_test_macros.hpp>
 
 #include <concepts>
+#include <initializer_list>
 #include <iterator>
 #include <memory>
 #include <ranges>
@@ -56,6 +57,9 @@ static_assert(std::same_as<StringIntDictionary::mapped_type, int>);
 static_assert(std::same_as<StringIntDictionary::value_type,
                            std::pair<const std::string, int>>);
 static_assert(std::is_const_v<StringIntDictionary::value_type::first_type>);
+static_assert(std::is_constructible_v<
+              StringIntDictionary,
+              std::initializer_list<StringIntDictionary::value_type>>);
 static_assert(std::bidirectional_iterator<StringIntDictionary::iterator>);
 static_assert(std::bidirectional_iterator<StringIntDictionary::const_iterator>);
 static_assert(
@@ -126,6 +130,41 @@ TEST_CASE("Dictionary exposes vector-like container metadata", "[dictionary]") {
   dictionary.emplace("alpha", 1);
   dictionary.clear();
   REQUIRE(dictionary.empty());
+}
+
+TEST_CASE("Dictionary initializer-list constructor copies ordered entries",
+          "[dictionary]") {
+  std::initializer_list<StringIntDictionary::value_type> init = {
+      {"alpha", 1}, {"beta", 2}, {"gamma", 3}};
+
+  StringIntDictionary dictionary(init);
+
+  REQUIRE(dictionary.size() == 3);
+  REQUIRE(dictionary.ssize() == 3);
+  REQUIRE(Keys(dictionary) ==
+          std::vector<std::string>{"alpha", "beta", "gamma"});
+  REQUIRE(ViewKeys(dictionary) ==
+          std::vector<std::string>{"alpha", "beta", "gamma"});
+  REQUIRE(Values(dictionary) == std::vector<int>{1, 2, 3});
+
+  REQUIRE(dictionary.begin()[1].first == "beta");
+  REQUIRE(dictionary.begin()[1].second == 2);
+  REQUIRE(dictionary.contains("gamma"));
+  REQUIRE(dictionary.at("alpha") == 1);
+
+  REQUIRE(&dictionary.begin()->first != &init.begin()->first);
+  REQUIRE(&dictionary.begin()->second != &init.begin()->second);
+
+  dictionary.at("alpha") = 10;
+  REQUIRE(dictionary.at("alpha") == 10);
+  REQUIRE(init.begin()->second == 1);
+
+  const auto& const_dictionary = dictionary;
+  REQUIRE(const_dictionary.begin()->first == "alpha");
+  REQUIRE(Values(const_dictionary) == std::vector<int>{10, 2, 3});
+
+  StringIntDictionary empty({});
+  REQUIRE(empty.empty());
 }
 
 TEST_CASE("Dictionary inserts unique keys and preserves iteration order",

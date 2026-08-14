@@ -1,6 +1,7 @@
 #include "cru/base/Xml.h"
 #include "cru/base/StringUtil.h"
 
+#include <cassert>
 #include <memory>
 
 namespace cru::xml {
@@ -28,26 +29,28 @@ const XmlCommentNode* XmlNode::AsComment() const {
   return IsCommentNode() ? static_cast<const XmlCommentNode*>(this) : nullptr;
 }
 
+XmlElementNode::XmlElementNode(std::string tag,
+                               Dictionary<std::string, std::string> attributes)
+    : XmlNode(Type::Element),
+      tag_(std::move(tag)),
+      attributes_(std::move(attributes)) {}
+
 XmlElementNode::~XmlElementNode() {
   for (auto child : children_) {
     delete child;
   }
 }
 
-void XmlElementNode::AddAttribute(std::string key, std::string value) {
-  attributes_[std::move(key)] = std::move(value);
+bool XmlElementNode::HasTag(std::string_view tag, bool case_sensitive) {
+  return case_sensitive ? tag_ == tag
+                        : cru::string::CaseInsensitiveEqual(tag_, tag);
 }
 
-void XmlElementNode::AddChild(XmlNode* child) {
-  Expects(child->GetParent() == nullptr);
-  children_.push_back(child);
-  child->parent_ = this;
-}
+void XmlElementNode::SetTag(std::string tag) { tag_ = std::move(tag); }
 
 Index XmlElementNode::GetChildElementCount() const {
-  return std::count_if(
-      children_.cbegin(), children_.cend(),
-      [](xml::XmlNode* node) { return node->IsElementNode(); });
+  return std::ranges::count_if(
+      children_, [](xml::XmlNode* node) { return node->IsElementNode(); });
 }
 
 XmlElementNode* XmlElementNode::GetFirstChildElement() const {
@@ -64,6 +67,22 @@ XmlNode* XmlElementNode::RemoveChildAt(Index index) {
   children_.erase(children_.begin() + index);
   child->parent_ = nullptr;
   return child;
+}
+
+void XmlElementNode::AddChild(XmlNode* child) {
+  assert(child->GetParent() == nullptr);
+  children_.push_back(child);
+  child->parent_ = this;
+}
+
+std::optional<std::string_view> XmlElementNode::GetOptionalAttributeValue(
+    std::string_view key, bool case_sensitive) const {
+  for (const auto& [k, v] : attributes_) {
+    if (case_sensitive ? k == key : cru::string::CaseInsensitiveEqual(k, key)) {
+      return v;
+    }
+  }
+  return std::nullopt;
 }
 
 XmlNode* XmlElementNode::Clone() const {
@@ -228,8 +247,7 @@ XmlElementNode* XmlParser::Parse() {
 
             auto attribute_value = ReadAttributeString();
 
-            node->AddAttribute(std::string(attribute_name),
-                               std::string(attribute_value));
+            node->GetAttributes().emplace(attribute_name, attribute_value);
           }
         }
 

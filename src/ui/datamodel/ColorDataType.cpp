@@ -32,8 +32,7 @@ DataConvertResult<Color> ColorDataType::DoConvertFromXml(
 
   auto value = converted.GetValue();
 
-  auto alpha_value_attr =
-      node->GetOptionalAttributeValueCaseInsensitive("alpha");
+  auto alpha_value_attr = node->GetOptionalAttributeValue("alpha");
   if (alpha_value_attr) {
     auto alpha_result = cru::string::ParseToNumber<double>(*alpha_value_attr);
     // NOTE: Legacy mapper ignored ParseToNumber validity and used raw .value.
