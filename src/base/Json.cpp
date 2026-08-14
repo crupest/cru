@@ -209,7 +209,7 @@ JsonValue& JsonValue::operator[](std::string_view key) {
   auto& values = RequireObject();
   auto iter = FindObjectItem(values, key);
   if (iter == values.end()) {
-    return values.emplace_back(key, nullptr).second;
+    return values.emplace(std::string(key), nullptr).first->second;
   }
   return iter->second;
 }
@@ -227,13 +227,7 @@ bool JsonValue::Set(Index index, JsonValue value) {
 
 bool JsonValue::Set(std::string_view key, JsonValue value) {
   auto& values = RequireObject();
-  auto iter = FindObjectItem(values, key);
-  if (iter == values.end()) {
-    values.emplace_back(key, std::move(value));
-    return true;
-  }
-  iter->second = std::move(value);
-  return false;
+  return values.insert_or_assign(std::string(key), std::move(value)).second;
 }
 
 bool JsonValue::Insert(Index index, JsonValue value) {
@@ -245,11 +239,7 @@ bool JsonValue::Insert(Index index, JsonValue value) {
 
 bool JsonValue::Insert(std::string key, JsonValue value) {
   auto& values = RequireObject();
-  if (FindObjectItem(values, key) != values.end()) {
-    return false;
-  }
-  values.emplace_back(std::move(key), std::move(value));
-  return true;
+  return values.emplace(std::move(key), std::move(value)).second;
 }
 
 std::optional<JsonValue> JsonValue::Remove(Index index) {
@@ -294,18 +284,27 @@ const JsonValue* JsonValue::TryGet(std::string_view key) const {
   return iter == values.end() ? nullptr : &iter->second;
 }
 
-JsonValue::iterator JsonValue::begin() { return iterator(this, 0); }
+#define CRUPEST_JSON_VALUE_GET_OBJECT_ITERATOR(begin_or_end)     \
+  (IsObject() ? std::get<ObjectStorage>(storage_).begin_or_end() \
+              : ObjectStorage::iterator{})
+
+JsonValue::iterator JsonValue::begin() {
+  return iterator(this, 0, CRUPEST_JSON_VALUE_GET_OBJECT_ITERATOR(begin));
+  ;
+}
 
 JsonValue::iterator JsonValue::end() {
-  return iterator(this, GetIterationSize());
+  return iterator(this, GetIterationSize(),
+                  CRUPEST_JSON_VALUE_GET_OBJECT_ITERATOR(end));
 }
 
 JsonValue::const_iterator JsonValue::begin() const {
-  return const_iterator(this, 0);
+  return const_iterator(this, 0, CRUPEST_JSON_VALUE_GET_OBJECT_ITERATOR(begin));
 }
 
 JsonValue::const_iterator JsonValue::end() const {
-  return const_iterator(this, GetIterationSize());
+  return const_iterator(this, GetIterationSize(),
+                        CRUPEST_JSON_VALUE_GET_OBJECT_ITERATOR(end));
 }
 
 JsonValue::const_iterator JsonValue::cbegin() const { return begin(); }
@@ -317,26 +316,6 @@ void JsonValue::CheckType(JsonValueType type) const {
     throw Exception(std::format("Json value is not of type {}, but {}.",
                                 ToString(type), ToString(GetType())));
   }
-}
-
-JsonValue& JsonValue::GetIteratedValue(Index index) {
-  if (IsArray()) {
-    return std::get<ArrayStorage>(storage_)[index];
-  }
-  if (IsObject()) {
-    return std::get<ObjectStorage>(storage_)[index].second;
-  }
-  return *this;
-}
-
-const JsonValue& JsonValue::GetIteratedValue(Index index) const {
-  if (IsArray()) {
-    return std::get<ArrayStorage>(storage_)[index];
-  }
-  if (IsObject()) {
-    return std::get<ObjectStorage>(storage_)[index].second;
-  }
-  return *this;
 }
 
 Index JsonValue::GetIterationSize() const {

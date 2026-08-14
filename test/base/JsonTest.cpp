@@ -271,6 +271,8 @@ TEST_CASE("JsonValue direct iteration can mutate scalar and child values",
   REQUIRE(object.end() - object.begin() == 2);
   REQUIRE(object.begin()[0].GetBoolean());
   REQUIRE(object.begin()[1].GetNumber() == Catch::Approx(3.0));
+  REQUIRE((object.begin() + 1)->GetNumber() == Catch::Approx(3.0));
+  REQUIRE(1 + object.begin() == object.end() - 1);
 
   auto object_value = object.begin();
   object_value += 1;

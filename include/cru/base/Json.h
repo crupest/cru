@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Base.h"
+#include "cru/base/Dictionary.h"
 
 #include <concepts>
 #include <cstddef>
@@ -56,8 +57,8 @@ concept JsonNumberValueCompatibleType =
 class CRU_BASE_API JsonValue {
  private:
   using ArrayStorage = std::vector<JsonValue>;
-  using ObjectItem = std::pair<std::string, JsonValue>;
-  using ObjectStorage = std::vector<ObjectItem>;
+  using ObjectStorage = Dictionary<std::string, JsonValue>;
+  using ObjectItem = ObjectStorage::value_type;
 
   using Storage = std::variant<std::nullptr_t, bool, double, std::string,
                                ArrayStorage, ObjectStorage>;
@@ -81,9 +82,18 @@ class CRU_BASE_API JsonValue {
     template <bool OtherIsConst>
       requires(IsConst && !OtherIsConst)
     Iterator(const Iterator<OtherIsConst>& other)
-        : owner_(other.owner_), index_(other.index_) {}
+        : owner_(other.owner_),
+          index_(other.index_),
+          object_iter_(other.object_iter_) {}
 
-    reference operator*() const { return owner_->GetIteratedValue(index_); }
+    reference operator*() const {
+      if (owner_->IsObject()) {
+        return object_iter_->second;
+      } else if (owner_->IsArray()) {
+        return std::get<ArrayStorage>(owner_->storage_)[index_];
+      }
+      return *owner_;
+    }
 
     pointer operator->() const { return &**this; }
 
@@ -91,10 +101,7 @@ class CRU_BASE_API JsonValue {
       return *(*this + offset);
     }
 
-    Iterator& operator++() {
-      ++index_;
-      return *this;
-    }
+    Iterator& operator++() { return *this += 1; }
 
     Iterator operator++(int) {
       Iterator copy(*this);
@@ -102,10 +109,7 @@ class CRU_BASE_API JsonValue {
       return copy;
     }
 
-    Iterator& operator--() {
-      --index_;
-      return *this;
-    }
+    Iterator& operator--() { return *this -= 1; }
 
     Iterator operator--(int) {
       Iterator copy(*this);
@@ -114,11 +118,17 @@ class CRU_BASE_API JsonValue {
     }
 
     Iterator& operator+=(difference_type offset) {
+      if (owner_ != nullptr && owner_->IsObject()) {
+        std::advance(object_iter_, offset);
+      }
       index_ += offset;
       return *this;
     }
 
     Iterator& operator-=(difference_type offset) {
+      if (owner_ != nullptr && owner_->IsObject()) {
+        std::advance(object_iter_, -offset);
+      }
       index_ -= offset;
       return *this;
     }
@@ -152,15 +162,20 @@ class CRU_BASE_API JsonValue {
 
    private:
     using Owner = std::conditional_t<IsConst, const JsonValue, JsonValue>;
+    using ObjectIterator =
+        std::conditional_t<IsConst, ObjectStorage::const_iterator,
+                           ObjectStorage::iterator>;
 
     friend class JsonValue;
     template <bool>
     friend class Iterator;
 
-    Iterator(Owner* owner, Index index) : owner_(owner), index_(index) {}
+    Iterator(Owner* owner, Index index, ObjectIterator object_iter)
+        : owner_(owner), index_(index), object_iter_(object_iter) {}
 
     Owner* owner_ = nullptr;
     Index index_ = 0;
+    ObjectIterator object_iter_;
   };
 
   using iterator = Iterator<false>;
@@ -436,8 +451,6 @@ class CRU_BASE_API JsonValue {
 
  private:
   void CheckType(JsonValueType type) const;
-  JsonValue& GetIteratedValue(Index index);
-  const JsonValue& GetIteratedValue(Index index) const;
   Index GetIterationSize() const;
   ArrayStorage& RequireArray();
   const ArrayStorage& RequireArray() const;
