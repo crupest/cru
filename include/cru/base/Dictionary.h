@@ -6,6 +6,7 @@
 #include <cstddef>
 #include <iterator>
 #include <memory>
+#include <ranges>
 #include <stdexcept>
 #include <type_traits>
 #include <utility>
@@ -284,6 +285,21 @@ class Dictionary {
   template <typename K>
   bool contains(const K& key) const {
     return count(key) > 0;
+  }
+
+  auto Keys() const {
+    return std::views::transform(
+        storage_, [](const ValuePtr& ptr) -> const Key& { return ptr->first; });
+  }
+
+  auto Values() {
+    return std::views::transform(
+        storage_, [](const ValuePtr& ptr) -> T& { return ptr->second; });
+  }
+
+  auto Values() const {
+    return std::views::transform(
+        storage_, [](const ValuePtr& ptr) -> const T& { return ptr->second; });
   }
 
   bool operator==(const Dictionary& other) const {

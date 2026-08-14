@@ -5,6 +5,7 @@
 #include <concepts>
 #include <iterator>
 #include <memory>
+#include <ranges>
 #include <stdexcept>
 #include <string>
 #include <string_view>
@@ -32,6 +33,22 @@ std::vector<std::string> Keys(const StringIntDictionary& dictionary) {
     keys.push_back(item.first);
   }
   return keys;
+}
+
+std::vector<std::string> ViewKeys(const StringIntDictionary& dictionary) {
+  std::vector<std::string> keys;
+  for (const std::string& key : dictionary.Keys()) {
+    keys.push_back(key);
+  }
+  return keys;
+}
+
+std::vector<int> Values(const StringIntDictionary& dictionary) {
+  std::vector<int> values;
+  for (int value : dictionary.Values()) {
+    values.push_back(value);
+  }
+  return values;
 }
 
 static_assert(std::same_as<StringIntDictionary::key_type, std::string>);
@@ -78,6 +95,23 @@ static_assert(
 static_assert(
     std::same_as<decltype(std::declval<StringIntDictionary&>().crend()),
                  StringIntDictionary::const_reverse_iterator>);
+static_assert(std::ranges::range<
+              decltype(std::declval<const StringIntDictionary&>().Keys())>);
+static_assert(std::same_as<
+              std::ranges::range_reference_t<
+                  decltype(std::declval<const StringIntDictionary&>().Keys())>,
+              const std::string&>);
+static_assert(std::ranges::range<
+              decltype(std::declval<StringIntDictionary&>().Values())>);
+static_assert(
+    std::same_as<std::ranges::range_reference_t<
+                     decltype(std::declval<StringIntDictionary&>().Values())>,
+                 int&>);
+static_assert(
+    std::same_as<
+        std::ranges::range_reference_t<
+            decltype(std::declval<const StringIntDictionary&>().Values())>,
+        const int&>);
 }  // namespace
 
 TEST_CASE("Dictionary exposes vector-like container metadata", "[dictionary]") {
@@ -249,6 +283,107 @@ TEST_CASE("Dictionary insert_or_assign updates values without reordering",
       move_only_dictionary.emplace("second", std::make_unique<int>(3));
   REQUIRE(inserted_second);
   REQUIRE(*second->second == 3);
+}
+
+TEST_CASE("Dictionary copy constructor and assignment deep copy entries",
+          "[dictionary]") {
+  StringIntDictionary original;
+  original.emplace("alpha", 1);
+  original.emplace("beta", 2);
+
+  StringIntDictionary constructed(original);
+  REQUIRE(Keys(constructed) == std::vector<std::string>{"alpha", "beta"});
+  REQUIRE(Values(constructed) == std::vector<int>{1, 2});
+
+  auto original_alpha = original.find("alpha");
+  auto constructed_alpha = constructed.find("alpha");
+  REQUIRE(original_alpha != original.end());
+  REQUIRE(constructed_alpha != constructed.end());
+  REQUIRE(&constructed_alpha->second != &original_alpha->second);
+
+  constructed.at("alpha") = 10;
+  REQUIRE(original.at("alpha") == 1);
+  REQUIRE(constructed.at("alpha") == 10);
+
+  StringIntDictionary assigned;
+  assigned.emplace("stale", 99);
+  assigned = original;
+  REQUIRE(Keys(assigned) == std::vector<std::string>{"alpha", "beta"});
+  REQUIRE(Values(assigned) == std::vector<int>{1, 2});
+  REQUIRE_FALSE(assigned.contains("stale"));
+
+  auto original_beta = original.find("beta");
+  auto assigned_beta = assigned.find("beta");
+  REQUIRE(original_beta != original.end());
+  REQUIRE(assigned_beta != assigned.end());
+  REQUIRE(&assigned_beta->second != &original_beta->second);
+
+  assigned.at("beta") = 20;
+  REQUIRE(original.at("beta") == 2);
+  REQUIRE(assigned.at("beta") == 20);
+
+  assigned = assigned;
+  REQUIRE(Keys(assigned) == std::vector<std::string>{"alpha", "beta"});
+  REQUIRE(Values(assigned) == std::vector<int>{1, 20});
+}
+
+TEST_CASE("Dictionary move constructor and assignment transfer entries",
+          "[dictionary]") {
+  using MoveOnlyDictionary = cru::Dictionary<std::string, std::unique_ptr<int>>;
+
+  MoveOnlyDictionary source;
+  source.emplace("alpha", std::make_unique<int>(1));
+  source.emplace("beta", std::make_unique<int>(2));
+  int* alpha_value = source.find("alpha")->second.get();
+
+  MoveOnlyDictionary constructed(std::move(source));
+  REQUIRE(constructed.size() == 2);
+  REQUIRE(constructed.find("alpha") != constructed.end());
+  REQUIRE(constructed.find("beta") != constructed.end());
+  REQUIRE(constructed.find("alpha")->second.get() == alpha_value);
+  REQUIRE(*constructed.find("alpha")->second == 1);
+  REQUIRE(*constructed.find("beta")->second == 2);
+
+  MoveOnlyDictionary assigned;
+  assigned.emplace("stale", std::make_unique<int>(99));
+  assigned = std::move(constructed);
+  REQUIRE(assigned.size() == 2);
+  REQUIRE(assigned.find("stale") == assigned.end());
+  REQUIRE(assigned.find("alpha") != assigned.end());
+  REQUIRE(assigned.find("beta") != assigned.end());
+  REQUIRE(assigned.find("alpha")->second.get() == alpha_value);
+  REQUIRE(*assigned.find("alpha")->second == 1);
+  REQUIRE(*assigned.find("beta")->second == 2);
+}
+
+TEST_CASE("Dictionary Keys and Values views expose ordered references",
+          "[dictionary]") {
+  StringIntDictionary dictionary;
+  dictionary.emplace("alpha", 1);
+  dictionary.emplace("beta", 2);
+  dictionary.emplace("gamma", 3);
+
+  REQUIRE(ViewKeys(dictionary) ==
+          std::vector<std::string>{"alpha", "beta", "gamma"});
+  REQUIRE(Values(dictionary) == std::vector<int>{1, 2, 3});
+
+  auto keys = dictionary.Keys();
+  auto values = dictionary.Values();
+  REQUIRE(&*keys.begin() == &dictionary.begin()->first);
+  REQUIRE(&*values.begin() == &dictionary.begin()->second);
+
+  for (int& value : dictionary.Values()) {
+    value *= 10;
+  }
+  REQUIRE(Values(dictionary) == std::vector<int>{10, 20, 30});
+  REQUIRE(dictionary.at("beta") == 20);
+
+  const StringIntDictionary& const_dictionary = dictionary;
+  auto const_values = const_dictionary.Values();
+  REQUIRE(ViewKeys(const_dictionary) ==
+          std::vector<std::string>{"alpha", "beta", "gamma"});
+  REQUIRE(Values(const_dictionary) == std::vector<int>{10, 20, 30});
+  REQUIRE(&*const_values.begin() == &const_dictionary.begin()->second);
 }
 
 TEST_CASE("Dictionary erases by key iterator range and predicate",
