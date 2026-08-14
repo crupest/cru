@@ -4,7 +4,6 @@
 
 #include <concepts>
 #include <iterator>
-#include <list>
 #include <memory>
 #include <stdexcept>
 #include <string>
@@ -35,49 +34,23 @@ std::vector<std::string> Keys(const StringIntDictionary& dictionary) {
   return keys;
 }
 
-static_assert(std::same_as<StringIntDictionary::StorageType,
-                           std::list<std::pair<const std::string, int>>>);
 static_assert(std::same_as<StringIntDictionary::key_type, std::string>);
 static_assert(std::same_as<StringIntDictionary::mapped_type, int>);
 static_assert(std::same_as<StringIntDictionary::value_type,
-                           StringIntDictionary::StorageType::value_type>);
+                           std::pair<const std::string, int>>);
 static_assert(std::is_const_v<StringIntDictionary::value_type::first_type>);
-static_assert(std::same_as<StringIntDictionary::size_type,
-                           StringIntDictionary::StorageType::size_type>);
-static_assert(std::same_as<StringIntDictionary::difference_type,
-                           StringIntDictionary::StorageType::difference_type>);
-static_assert(std::same_as<StringIntDictionary::allocator_type,
-                           StringIntDictionary::StorageType::allocator_type>);
-static_assert(std::same_as<StringIntDictionary::reference,
-                           StringIntDictionary::StorageType::reference>);
-static_assert(std::same_as<StringIntDictionary::const_reference,
-                           StringIntDictionary::StorageType::const_reference>);
-static_assert(std::same_as<StringIntDictionary::pointer,
-                           StringIntDictionary::StorageType::pointer>);
-static_assert(std::same_as<StringIntDictionary::const_pointer,
-                           StringIntDictionary::StorageType::const_pointer>);
-static_assert(std::same_as<StringIntDictionary::iterator,
-                           StringIntDictionary::StorageType::iterator>);
-static_assert(std::same_as<StringIntDictionary::const_iterator,
-                           StringIntDictionary::StorageType::const_iterator>);
-static_assert(std::same_as<StringIntDictionary::reverse_iterator,
-                           StringIntDictionary::StorageType::reverse_iterator>);
-static_assert(
-    std::same_as<StringIntDictionary::const_reverse_iterator,
-                 StringIntDictionary::StorageType::const_reverse_iterator>);
 static_assert(std::bidirectional_iterator<StringIntDictionary::iterator>);
 static_assert(std::bidirectional_iterator<StringIntDictionary::const_iterator>);
 static_assert(
     std::bidirectional_iterator<StringIntDictionary::reverse_iterator>);
 static_assert(
     std::bidirectional_iterator<StringIntDictionary::const_reverse_iterator>);
-static_assert(!std::random_access_iterator<StringIntDictionary::iterator>);
+static_assert(std::random_access_iterator<StringIntDictionary::iterator>);
+static_assert(std::random_access_iterator<StringIntDictionary::const_iterator>);
 static_assert(
-    !std::random_access_iterator<StringIntDictionary::const_iterator>);
+    std::random_access_iterator<StringIntDictionary::reverse_iterator>);
 static_assert(
-    !std::random_access_iterator<StringIntDictionary::reverse_iterator>);
-static_assert(
-    !std::random_access_iterator<StringIntDictionary::const_reverse_iterator>);
+    std::random_access_iterator<StringIntDictionary::const_reverse_iterator>);
 static_assert(
     std::same_as<decltype(std::declval<StringIntDictionary&>().begin()),
                  StringIntDictionary::iterator>);
@@ -107,7 +80,7 @@ static_assert(
                  StringIntDictionary::const_reverse_iterator>);
 }  // namespace
 
-TEST_CASE("Dictionary exposes list-like container metadata", "[dictionary]") {
+TEST_CASE("Dictionary exposes vector-like container metadata", "[dictionary]") {
   StringIntDictionary dictionary;
 
   REQUIRE(dictionary.empty());
@@ -289,10 +262,15 @@ TEST_CASE("Dictionary erases by key iterator range and predicate",
 
   auto gamma = dictionary.find("gamma");
   REQUIRE(gamma != dictionary.end());
+  const std::string* gamma_key = &gamma->first;
+  int* gamma_value = &gamma->second;
 
   REQUIRE(dictionary.erase("missing") == 0);
   REQUIRE(dictionary.erase("beta") == 1);
-  REQUIRE(gamma->first == "gamma");
+  REQUIRE(*gamma_key == "gamma");
+  REQUIRE(*gamma_value == 3);
+  gamma = dictionary.find("gamma");
+  REQUIRE(gamma != dictionary.end());
   REQUIRE(gamma->second == 3);
   REQUIRE(Keys(dictionary) ==
           std::vector<std::string>{"alpha", "gamma", "delta", "epsilon"});

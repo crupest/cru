@@ -284,27 +284,21 @@ const JsonValue* JsonValue::TryGet(std::string_view key) const {
   return iter == values.end() ? nullptr : &iter->second;
 }
 
-#define CRUPEST_JSON_VALUE_GET_OBJECT_ITERATOR(begin_or_end)     \
-  (IsObject() ? std::get<ObjectStorage>(storage_).begin_or_end() \
-              : ObjectStorage::iterator{})
-
 JsonValue::iterator JsonValue::begin() {
-  return iterator(this, 0, CRUPEST_JSON_VALUE_GET_OBJECT_ITERATOR(begin));
+  return iterator(this, 0);
   ;
 }
 
 JsonValue::iterator JsonValue::end() {
-  return iterator(this, GetIterationSize(),
-                  CRUPEST_JSON_VALUE_GET_OBJECT_ITERATOR(end));
+  return iterator(this, GetIterationSize());
 }
 
 JsonValue::const_iterator JsonValue::begin() const {
-  return const_iterator(this, 0, CRUPEST_JSON_VALUE_GET_OBJECT_ITERATOR(begin));
+  return const_iterator(this, 0);
 }
 
 JsonValue::const_iterator JsonValue::end() const {
-  return const_iterator(this, GetIterationSize(),
-                        CRUPEST_JSON_VALUE_GET_OBJECT_ITERATOR(end));
+  return const_iterator(this, GetIterationSize());
 }
 
 JsonValue::const_iterator JsonValue::cbegin() const { return begin(); }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Base.h"
+#include "Dictionary.h"
 #include "Json.h"
 
 #include <string>
@@ -11,16 +12,16 @@
 namespace cru::toml {
 class CRU_BASE_API TomlSection {
  public:
-  using value_type = std::pair<std::string, json::JsonValue>;
-  using storage_type = std::vector<value_type>;
-  using size_type = typename storage_type::size_type;
-  using difference_type = typename storage_type::difference_type;
-  using reference = typename storage_type::reference;
-  using const_reference = typename storage_type::const_reference;
-  using pointer = typename storage_type::pointer;
-  using const_pointer = typename storage_type::const_pointer;
-  using iterator = typename storage_type::iterator;
-  using const_iterator = typename storage_type::const_iterator;
+  using StorageType = Dictionary<std::string, json::JsonValue>;
+  using value_type = typename StorageType::value_type;
+  using size_type = typename StorageType::size_type;
+  using difference_type = typename StorageType::difference_type;
+  using reference = typename StorageType::reference;
+  using const_reference = typename StorageType::const_reference;
+  using pointer = typename StorageType::pointer;
+  using const_pointer = typename StorageType::const_pointer;
+  using iterator = typename StorageType::iterator;
+  using const_iterator = typename StorageType::const_iterator;
 
   bool HasKey(std::string_view key) const;
   json::JsonValue& GetValue(std::string_view key);
@@ -36,21 +37,21 @@ class CRU_BASE_API TomlSection {
   const_iterator cend() const { return values_.cend(); }
 
  private:
-  storage_type values_;
+  StorageType values_;
 };
 
 class CRU_BASE_API TomlDocument {
  public:
-  using value_type = std::pair<std::string, TomlSection>;
-  using storage_type = std::vector<value_type>;
-  using size_type = typename storage_type::size_type;
-  using difference_type = typename storage_type::difference_type;
-  using reference = typename storage_type::reference;
-  using const_reference = typename storage_type::const_reference;
-  using pointer = typename storage_type::pointer;
-  using const_pointer = typename storage_type::const_pointer;
-  using iterator = typename storage_type::iterator;
-  using const_iterator = typename storage_type::const_iterator;
+  using StorageType = Dictionary<std::string, TomlSection>;
+  using value_type = typename StorageType::value_type;
+  using size_type = typename StorageType::size_type;
+  using difference_type = typename StorageType::difference_type;
+  using reference = typename StorageType::reference;
+  using const_reference = typename StorageType::const_reference;
+  using pointer = typename StorageType::pointer;
+  using const_pointer = typename StorageType::const_pointer;
+  using iterator = typename StorageType::iterator;
+  using const_iterator = typename StorageType::const_iterator;
 
   bool HasSection(std::string_view name) const;
   TomlSection& GetSection(std::string_view name);
@@ -67,7 +68,7 @@ class CRU_BASE_API TomlDocument {
   const_iterator cend() const { return sections_.cend(); }
 
  private:
-  storage_type sections_;
+  StorageType sections_;
 };
 
 class CRU_BASE_API TomlParsingException : public Exception {

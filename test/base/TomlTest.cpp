@@ -4,6 +4,7 @@
 
 #include <concepts>
 #include <iterator>
+#include <stdexcept>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -24,28 +25,23 @@ void RequireTomlThrowsContaining(Action action, std::string_view text) {
 }
 
 static_assert(std::same_as<TomlSection::value_type,
-                           std::pair<std::string, cru::json::JsonValue>>);
-static_assert(
-    std::same_as<TomlSection::storage_type,
-                 std::vector<std::pair<std::string, cru::json::JsonValue>>>);
+                           std::pair<const std::string, cru::json::JsonValue>>);
 static_assert(std::same_as<TomlSection::size_type,
-                           typename TomlSection::storage_type::size_type>);
-static_assert(
-    std::same_as<TomlSection::difference_type,
-                 typename TomlSection::storage_type::difference_type>);
+                           typename TomlSection::StorageType::size_type>);
+static_assert(std::same_as<TomlSection::difference_type,
+                           typename TomlSection::StorageType::difference_type>);
 static_assert(std::same_as<TomlSection::reference,
-                           typename TomlSection::storage_type::reference>);
-static_assert(
-    std::same_as<TomlSection::const_reference,
-                 typename TomlSection::storage_type::const_reference>);
+                           typename TomlSection::StorageType::reference>);
+static_assert(std::same_as<TomlSection::const_reference,
+                           typename TomlSection::StorageType::const_reference>);
 static_assert(std::same_as<TomlSection::pointer,
-                           typename TomlSection::storage_type::pointer>);
+                           typename TomlSection::StorageType::pointer>);
 static_assert(std::same_as<TomlSection::const_pointer,
-                           typename TomlSection::storage_type::const_pointer>);
+                           typename TomlSection::StorageType::const_pointer>);
 static_assert(std::same_as<TomlSection::iterator,
-                           typename TomlSection::storage_type::iterator>);
+                           typename TomlSection::StorageType::iterator>);
 static_assert(std::same_as<TomlSection::const_iterator,
-                           typename TomlSection::storage_type::const_iterator>);
+                           typename TomlSection::StorageType::const_iterator>);
 static_assert(std::random_access_iterator<TomlSection::iterator>);
 static_assert(std::random_access_iterator<TomlSection::const_iterator>);
 static_assert(std::same_as<decltype(std::declval<TomlSection&>().begin()),
@@ -56,28 +52,25 @@ static_assert(std::same_as<decltype(std::declval<TomlSection&>().cbegin()),
                            TomlSection::const_iterator>);
 
 static_assert(std::same_as<TomlDocument::value_type,
-                           std::pair<std::string, TomlSection>>);
-static_assert(std::same_as<TomlDocument::storage_type,
-                           std::vector<std::pair<std::string, TomlSection>>>);
+                           std::pair<const std::string, TomlSection>>);
 static_assert(std::same_as<TomlDocument::size_type,
-                           typename TomlDocument::storage_type::size_type>);
+                           typename TomlDocument::StorageType::size_type>);
 static_assert(
     std::same_as<TomlDocument::difference_type,
-                 typename TomlDocument::storage_type::difference_type>);
+                 typename TomlDocument::StorageType::difference_type>);
 static_assert(std::same_as<TomlDocument::reference,
-                           typename TomlDocument::storage_type::reference>);
+                           typename TomlDocument::StorageType::reference>);
 static_assert(
     std::same_as<TomlDocument::const_reference,
-                 typename TomlDocument::storage_type::const_reference>);
+                 typename TomlDocument::StorageType::const_reference>);
 static_assert(std::same_as<TomlDocument::pointer,
-                           typename TomlDocument::storage_type::pointer>);
+                           typename TomlDocument::StorageType::pointer>);
 static_assert(std::same_as<TomlDocument::const_pointer,
-                           typename TomlDocument::storage_type::const_pointer>);
+                           typename TomlDocument::StorageType::const_pointer>);
 static_assert(std::same_as<TomlDocument::iterator,
-                           typename TomlDocument::storage_type::iterator>);
-static_assert(
-    std::same_as<TomlDocument::const_iterator,
-                 typename TomlDocument::storage_type::const_iterator>);
+                           typename TomlDocument::StorageType::iterator>);
+static_assert(std::same_as<TomlDocument::const_iterator,
+                           typename TomlDocument::StorageType::const_iterator>);
 static_assert(std::random_access_iterator<TomlDocument::iterator>);
 static_assert(std::random_access_iterator<TomlDocument::const_iterator>);
 static_assert(std::same_as<decltype(std::declval<TomlDocument&>().begin()),
@@ -145,7 +138,7 @@ TEST_CASE(
   TomlDocument document;
   REQUIRE(document.begin() == document.end());
   REQUIRE_FALSE(document.HasSection("root"));
-  REQUIRE_THROWS_AS(document.GetSection("root"), cru::Exception);
+  REQUIRE_THROWS_AS(document.GetSection("root"), std::out_of_range);
 
   TomlSection root;
   root.SetValue("title", cru::json::JsonValue("demo"));
@@ -180,7 +173,7 @@ TEST_CASE(
   REQUIRE(const_document.GetSection("owner").GetValue("name") == "Ada");
   REQUIRE(const_document.cend() - const_document.cbegin() == 2);
   REQUIRE(const_document.HasSection("owner"));
-  REQUIRE_THROWS_AS(const_document.GetSection("missing"), cru::Exception);
+  REQUIRE_THROWS_AS(const_document.GetSection("missing"), std::out_of_range);
 
   TomlSection replacement;
   replacement.SetValue("name", cru::json::JsonValue("Grace"));
@@ -190,7 +183,7 @@ TEST_CASE(
   REQUIRE_FALSE(document.DeleteSection("missing"));
   REQUIRE(document.DeleteSection("root"));
   REQUIRE_FALSE(document.HasSection("root"));
-  REQUIRE_THROWS_AS(document.GetSection("root"), cru::Exception);
+  REQUIRE_THROWS_AS(document.GetSection("root"), std::out_of_range);
   REQUIRE(document.begin()->first == "owner");
 }
 
