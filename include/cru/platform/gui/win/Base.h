@@ -14,6 +14,8 @@
 #endif
 
 namespace cru::platform::gui::win {
+using platform::win::CheckHResult;
+using platform::win::CheckWinReturn;
 using platform::win::HResultError;
 using platform::win::Win32Error;
 

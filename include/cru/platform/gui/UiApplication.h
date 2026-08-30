@@ -119,12 +119,12 @@ struct CRU_PLATFORM_GUI_API IUiApplication : public virtual IPlatformResource {
   virtual IMenu* GetApplicationMenu();
 
   /**
-   * \todo Implement on Windows/X11.
+   * \todo Implement on X11.
    */
   virtual std::optional<std::string> ShowSaveDialog(SaveDialogOptions options);
 
   /**
-   * \todo Implement on Windows/X11.
+   * \todo Implement on X11.
    */
   virtual std::optional<std::vector<std::string>> ShowOpenDialog(
       OpenDialogOptions options);

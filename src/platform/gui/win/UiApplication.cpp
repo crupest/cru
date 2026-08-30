@@ -1,14 +1,20 @@
 #include "cru/platform/gui/win/UiApplication.h"
 
+#include "cru/base/StringUtil.h"
 #include "cru/platform/graphics/direct2d/Factory.h"
+#include "cru/platform/gui/SaveOpenDialogOptions.h"
 #include "cru/platform/gui/UiApplication.h"
 #include "cru/platform/gui/win/Base.h"
 #include "cru/platform/gui/win/Clipboard.h"
 #include "cru/platform/gui/win/Cursor.h"
 #include "cru/platform/gui/win/Window.h"
 
+#include <shobjidl.h>
+#include <shobjidl_core.h>
+#include <wrl/client.h>
 #include <algorithm>
 #include <chrono>
+#include <format>
 
 namespace cru::platform::gui::win {
 namespace {
@@ -133,6 +139,123 @@ ICursorManager* WinUiApplication::GetCursorManager() {
 }
 
 IClipboard* WinUiApplication::GetClipboard() { return clipboard_.get(); }
+
+namespace {
+void DialogSetupCommon(IFileDialog* dialog, const SaveDialogOptions& options) {
+  if (!options.title.empty()) {
+    auto title = string::ToUtf16WString(options.title);
+    dialog->SetTitle(title.c_str());
+  }
+
+  if (!options.prompt.empty()) {
+    auto prompt = string::ToUtf16WString(options.prompt);
+    dialog->SetOkButtonLabel(prompt.c_str());
+  }
+
+  std::vector<COMDLG_FILTERSPEC> filters;
+  std::vector<std::wstring> filter_display;
+  std::vector<std::wstring> filter_pattern;
+
+  // 添加用户定义的类型
+  for (const auto& ext : options.allowed_file_types) {
+    if (ext.empty()) continue;
+    COMDLG_FILTERSPEC spec;
+    auto w_ext = cru::string::ToUtf16WString(ext);
+    filter_display.push_back(std::format(L"{} Files (*.{})", w_ext, w_ext));
+    filter_pattern.push_back(L"*." + w_ext);
+    spec.pszName = filter_display.back().c_str();
+    spec.pszSpec = filter_pattern.back().c_str();
+    filters.push_back(spec);
+  }
+
+  // 如果允许所有文件类型，追加 "*.*"
+  if (options.allow_all_file_types) {
+    COMDLG_FILTERSPEC allSpec;
+    allSpec.pszName = L"All Files (*.*)";
+    allSpec.pszSpec = L"*.*";
+    filters.push_back(allSpec);
+  }
+
+  if (!filters.empty()) {
+    dialog->SetFileTypes((UINT)filters.size(), filters.data());
+  }
+}
+}  // namespace
+
+std::optional<std::string> WinUiApplication::ShowSaveDialog(
+    SaveDialogOptions options) {
+  Microsoft::WRL::ComPtr<IFileSaveDialog> dialog = nullptr;
+  CheckHResult(CoCreateInstance(CLSID_FileSaveDialog, NULL, CLSCTX_ALL,
+                                IID_IFileSaveDialog, (void**)&dialog));
+
+  DialogSetupCommon(dialog.Get(), options);
+
+  auto hr = dialog->Show(NULL);
+  if (hr == HRESULT_FROM_WIN32(ERROR_CANCELLED)) {
+    return std::nullopt;
+  } else {
+    CheckHResult(hr);
+  }
+
+  std::string result;
+
+  Microsoft::WRL::ComPtr<IShellItem> r = nullptr;
+  CheckHResult(dialog->GetResult(&r));
+  PWSTR path = nullptr;
+  r->GetDisplayName(SIGDN_FILESYSPATH, &path);
+  if (path) {
+    result = cru::string::ToUtf8String(std::wstring_view(path));
+    CoTaskMemFree(path);
+  }
+
+  return result;
+}
+
+std::optional<std::vector<std::string>> WinUiApplication::ShowOpenDialog(
+    OpenDialogOptions options) {
+  Microsoft::WRL::ComPtr<IFileOpenDialog> dialog = nullptr;
+  CheckHResult(CoCreateInstance(CLSID_FileOpenDialog, NULL, CLSCTX_ALL,
+                                IID_IFileOpenDialog, (void**)&dialog));
+
+  DialogSetupCommon(dialog.Get(), options);
+
+  FILEOPENDIALOGOPTIONS fos = 0;
+  if (options.allow_multiple_selection) {
+    fos |= FOS_ALLOWMULTISELECT;
+  }
+  if (options.can_choose_directories) {
+    fos |= FOS_PICKFOLDERS;
+  }
+  dialog->SetOptions(fos);
+
+  auto hr = dialog->Show(NULL);
+  if (hr == HRESULT_FROM_WIN32(ERROR_CANCELLED)) {
+    return std::nullopt;
+  } else {
+    CheckHResult(hr);
+  }
+
+  std::vector<std::string> results;
+
+  Microsoft::WRL::ComPtr<IShellItemArray> r = nullptr;
+  CheckHResult(dialog->GetResults(&r));
+  DWORD count = 0;
+  r->GetCount(&count);
+  for (DWORD i = 0; i < count; i++) {
+    Microsoft::WRL::ComPtr<IShellItem> item = nullptr;
+    r->GetItemAt(i, &item);
+    if (item) {
+      PWSTR path = nullptr;
+      item->GetDisplayName(SIGDN_FILESYSPATH, &path);
+      if (path) {
+        results.push_back(cru::string::ToUtf8String(std::wstring_view(path)));
+        CoTaskMemFree(path);
+      }
+    }
+  }
+
+  return results;
+}
 
 std::vector<WinNativeWindow*> WinUiApplication::GetAllWinWindow() {
   return windows_;

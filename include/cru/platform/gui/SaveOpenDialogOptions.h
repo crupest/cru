@@ -1,13 +1,20 @@
 #pragma once
 #include "Base.h"
 
+#include <concepts>
 #include <string>
 #include <vector>
 
 namespace cru::platform::gui {
 struct CRU_PLATFORM_GUI_API SaveDialogOptions {
   std::string title;
+  /**
+   * Used as the text label of ok button on Windows.
+   */
   std::string prompt;
+  /**
+   * Not used on Windows. Better not use this.
+   */
   std::string message;
   std::vector<std::string> allowed_file_types;
   bool allow_all_file_types = false;
@@ -15,55 +22,65 @@ struct CRU_PLATFORM_GUI_API SaveDialogOptions {
 
 struct CRU_PLATFORM_GUI_API OpenDialogOptions : SaveDialogOptions {
   bool can_choose_files = true;
+  /**
+   * On Windows, if this is true, only directories can be chosen even if
+   * can_choose_files is true.
+   */
   bool can_choose_directories = false;
-  bool allow_mulitple_selection = false;
+  bool allow_multiple_selection = false;
 };
 
-template <typename T>
-struct CRU_PLATFORM_GUI_API SaveDialogOptionsBuilderTemplate {
+template <typename Self, typename T>
+struct SaveDialogOptionsBuilderTemplate {
   T options;
 
-  SaveDialogOptionsBuilderTemplate& SetTitle(std::string title) {
+  Self& SetTitle(std::string title) {
     options.title = std::move(title);
-    return *this;
+    return GetSelf();
   }
 
-  SaveDialogOptionsBuilderTemplate& SetPrompt(std::string prompt) {
+  Self& SetPrompt(std::string prompt) {
     options.prompt = std::move(prompt);
-    return *this;
+    return GetSelf();
   }
 
-  SaveDialogOptionsBuilderTemplate& SetMessage(std::string message) {
+  Self& SetMessage(std::string message) {
     options.message = std::move(message);
-    return *this;
+    return GetSelf();
   }
 
-  SaveDialogOptionsBuilderTemplate& SetAllowedFileTypes(
-      std::vector<std::string> allowed_file_types) {
+  Self& SetAllowedFileTypes(std::vector<std::string> allowed_file_types) {
     options.allowed_file_types = std::move(allowed_file_types);
-    return *this;
+    return GetSelf();
   }
 
-  SaveDialogOptionsBuilderTemplate& AddAllowedFileType(
-      std::string allowed_file_type) {
+  Self& AddAllowedFileType(std::string allowed_file_type) {
     options.allowed_file_types.push_back(allowed_file_type);
-    return *this;
+    return GetSelf();
   }
 
-  SaveDialogOptionsBuilderTemplate& SetAllowAllFileTypes(
-      bool allow_all_file_types) {
+  Self& SetAllowAllFileTypes(bool allow_all_file_types) {
     options.allow_all_file_types = allow_all_file_types;
-    return *this;
+    return GetSelf();
   }
 
   T Build() { return options; }
+
+ private:
+  Self& GetSelf()
+    requires(std::derived_from<Self, SaveDialogOptionsBuilderTemplate>)
+  {
+    return *static_cast<Self*>(this);
+  }
 };
 
-using SaveDialogOptionsBuilder =
-    SaveDialogOptionsBuilderTemplate<SaveDialogOptions>;
+struct CRU_PLATFORM_GUI_API SaveDialogOptionsBuilder
+    : public SaveDialogOptionsBuilderTemplate<SaveDialogOptionsBuilder,
+                                              SaveDialogOptions> {};
 
 struct CRU_PLATFORM_GUI_API OpenDialogOptionsBuilder
-    : SaveDialogOptionsBuilderTemplate<OpenDialogOptions> {
+    : SaveDialogOptionsBuilderTemplate<OpenDialogOptionsBuilder,
+                                       OpenDialogOptions> {
   OpenDialogOptionsBuilder& SetCanChooseFiles(bool can_choose_files) {
     options.can_choose_files = can_choose_files;
     return *this;
@@ -76,8 +93,8 @@ struct CRU_PLATFORM_GUI_API OpenDialogOptionsBuilder
   }
 
   OpenDialogOptionsBuilder& SetAllowMultipleSelection(
-      bool allow_mulitple_selection) {
-    options.allow_mulitple_selection = allow_mulitple_selection;
+      bool allow_multiple_selection) {
+    options.allow_multiple_selection = allow_multiple_selection;
     return *this;
   }
 };

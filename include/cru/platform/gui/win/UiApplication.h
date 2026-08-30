@@ -60,6 +60,11 @@ class CRU_WIN_GUI_API WinUiApplication : public WinNativeResource,
 
   IClipboard* GetClipboard() override;
 
+  std::optional<std::string> ShowSaveDialog(SaveDialogOptions options) override;
+
+  std::optional<std::vector<std::string>> ShowOpenDialog(
+      OpenDialogOptions options) override;
+
   HINSTANCE GetInstanceHandle() const { return instance_handle_; }
   std::vector<WinNativeWindow*> GetAllWinWindow();
   WinNativeWindow* FromHWND(HWND hwnd);
@@ -71,6 +76,7 @@ class CRU_WIN_GUI_API WinUiApplication : public WinNativeResource,
 
  private:
   HINSTANCE instance_handle_;
+  cru::platform::win::ComAutoInit com_init_;
 
   bool is_quit_on_all_window_closed_ = true;
 
