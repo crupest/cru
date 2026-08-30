@@ -5,8 +5,6 @@ namespace cru::platform::win {
 BridgeComStream::BridgeComStream(io::Stream* stream)
     : stream_(stream), ref_count_(1) {}
 
-BridgeComStream::~BridgeComStream() {}
-
 ULONG BridgeComStream::AddRef() { return ++ref_count_; }
 
 ULONG BridgeComStream::Release() {

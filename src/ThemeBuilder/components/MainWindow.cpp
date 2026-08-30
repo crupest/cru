@@ -28,8 +28,6 @@ MainWindow::MainWindow() {
   main_layout_.SetChildLayoutDataAt(1, {0, 1});
 }
 
-MainWindow::~MainWindow() {}
-
 void MainWindow::Show() {
   window_.GetNativeWindow()->SetVisibility(WindowVisibilityType::Show);
   window_.GetNativeWindow()->SetToForeground();

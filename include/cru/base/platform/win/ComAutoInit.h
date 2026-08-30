@@ -7,13 +7,9 @@
 #include "Base.h"
 
 namespace cru::platform::win {
-class CRU_BASE_API ComAutoInit {
+class CRU_BASE_API ComAutoInit : public Object {
  public:
   ComAutoInit();
-
-  CRU_DELETE_COPY(ComAutoInit)
-  CRU_DELETE_MOVE(ComAutoInit)
-
   ~ComAutoInit();
 };
 }  // namespace cru::platform::win

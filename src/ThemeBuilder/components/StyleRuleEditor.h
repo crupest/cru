@@ -1,7 +1,6 @@
 #pragma once
 #include "conditions/ConditionEditor.h"
 #include "cru/ui/components/Component.h"
-#include "cru/ui/controls/Button.h"
 #include "cru/ui/controls/Control.h"
 #include "cru/ui/controls/FlexLayout.h"
 #include "cru/ui/controls/IconButton.h"
@@ -13,11 +12,6 @@ namespace cru::theme_builder::components {
 class StyleRuleEditor : public ui::components::Component {
  public:
   StyleRuleEditor();
-
-  CRU_DELETE_COPY(StyleRuleEditor)
-  CRU_DELETE_MOVE(StyleRuleEditor)
-
-  ~StyleRuleEditor() override;
 
  public:
   ui::controls::Control* GetRootControl() override { return &container_; }

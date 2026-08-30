@@ -35,8 +35,6 @@ StyleRuleSetEditor::StyleRuleSetEditor() {
   });
 }
 
-StyleRuleSetEditor::~StyleRuleSetEditor() {}
-
 void StyleRuleSetEditor::BindStyleRuleSet(
     std::shared_ptr<ui::style::StyleRuleSet> rule_set) {
   Expects(style_rule_set_ == nullptr && rule_set);

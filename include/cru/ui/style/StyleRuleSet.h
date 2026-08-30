@@ -68,15 +68,10 @@ class CRU_UI_API StyleRuleSet : public Object, public model::IListChangeNotify {
   std::vector<StyleRule> rules_;
 };
 
-class CRU_UI_API StyleRuleSetBind {
+class CRU_UI_API StyleRuleSetBind : public Object {
  public:
   StyleRuleSetBind(controls::Control* control,
                    std::shared_ptr<StyleRuleSet> ruleset);
-
-  CRU_DELETE_COPY(StyleRuleSetBind)
-  CRU_DELETE_MOVE(StyleRuleSetBind)
-
-  ~StyleRuleSetBind() = default;
 
  private:
   void UpdateRuleSetChainCache();

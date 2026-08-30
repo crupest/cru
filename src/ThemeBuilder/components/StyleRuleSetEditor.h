@@ -2,9 +2,9 @@
 #include "StyleRuleEditor.h"
 #include "cru/platform/gui/DeleteLater.h"
 #include "cru/ui/components/Component.h"
-#include "cru/ui/controls/IconButton.h"
 #include "cru/ui/controls/Control.h"
 #include "cru/ui/controls/FlexLayout.h"
+#include "cru/ui/controls/IconButton.h"
 #include "cru/ui/controls/ScrollView.h"
 #include "cru/ui/model/IListChangeNotify.h"
 #include "cru/ui/style/StyleRuleSet.h"
@@ -13,11 +13,6 @@ namespace cru::theme_builder::components {
 class StyleRuleSetEditor : public ui::components::Component {
  public:
   StyleRuleSetEditor();
-
-  CRU_DELETE_COPY(StyleRuleSetEditor)
-  CRU_DELETE_MOVE(StyleRuleSetEditor)
-
-  ~StyleRuleSetEditor() override;
 
  public:
   ui::controls::Control* GetRootControl() override { return &scroll_view_; }
@@ -36,7 +31,8 @@ class StyleRuleSetEditor : public ui::components::Component {
   ui::controls::ScrollView scroll_view_;
   ui::controls::FlexLayout container_;
   ui::controls::FlexLayout rules_layout_;
-  std::vector<platform::gui::DeleteLaterPtr<StyleRuleEditor>> style_rule_editors_;
+  std::vector<platform::gui::DeleteLaterPtr<StyleRuleEditor>>
+      style_rule_editors_;
   ui::controls::IconButton add_button_;
 
   bool suppress_next_set_ = false;

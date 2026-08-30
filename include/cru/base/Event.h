@@ -15,9 +15,6 @@ class EventHandlerRevoker;
 class EventBase : public Object, public SelfResolvable<EventBase> {
   friend EventHandlerRevoker;
 
- public:
-  CRU_DELETE_COPY(EventBase)
-
  protected:
   EventBase() = default;
   using EventHandlerToken = int;

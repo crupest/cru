@@ -1,18 +1,13 @@
 #pragma once
-#include "cru/base/platform/win/Base.h"
 #include "cru/base/io/Stream.h"
+#include "cru/base/platform/win/Base.h"
 
 #include <objidlbase.h>
 
 namespace cru::platform::win {
-class BridgeComStream : public IStream {
+class BridgeComStream : public Object, public IStream {
  public:
   explicit BridgeComStream(io::Stream* stream);
-
-  CRU_DELETE_COPY(BridgeComStream)
-  CRU_DELETE_MOVE(BridgeComStream)
-
-  ~BridgeComStream();
 
  public:
   ULONG AddRef() override;
