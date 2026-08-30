@@ -4,6 +4,8 @@
 #include <unicode/uchar.h>
 #include <unicode/unistr.h>
 
+#include <algorithm>
+#include <ranges>
 #include <string_view>
 #include <utility>
 
@@ -36,21 +38,21 @@ static Index FindLastNonSpace(std::string_view str) {
   return 0;
 }
 
-std::string TrimBegin(std::string_view str) {
+std::string_view TrimBegin(std::string_view str) {
   auto first = FindFirstNonSpace(str);
-  return std::string(str.data() + first, str.size() - first);
+  return str.substr(first);
 }
 
-std::string TrimEnd(std::string_view str) {
+std::string_view TrimEnd(std::string_view str) {
   auto last = FindLastNonSpace(str);
-  return std::string(str.data(), last);
+  return str.substr(0, last);
 }
 
-std::string Trim(std::string_view str) {
+std::string_view Trim(std::string_view str) {
   auto first = FindFirstNonSpace(str);
   auto last = FindLastNonSpace(str);
   if (first >= last) return {};
-  return std::string(str.data() + first, last - first);
+  return str.substr(first, last - first);
 }
 
 bool IsSpace(std::string_view str) {
@@ -60,15 +62,15 @@ bool IsSpace(std::string_view str) {
   return true;
 }
 
-std::vector<std::string> Split(std::string_view str, std::string_view sep,
-                               SplitOption options) {
+std::vector<std::string_view> Split(std::string_view str, std::string_view sep,
+                                    SplitOption options) {
   using size_type = std::string_view::size_type;
 
   if (sep.empty()) throw std::invalid_argument("Sep can't be empty.");
   if (str.empty()) return {};
 
   size_type current_pos = 0;
-  std::vector<std::string> result;
+  std::vector<std::string_view> result;
 
   while (current_pos != std::string_view::npos) {
     if (current_pos == str.size()) {
@@ -84,7 +86,7 @@ std::vector<std::string> Split(std::string_view str, std::string_view sep,
                                            : next_pos - current_pos);
     if (!(options.Has(SplitOptions::RemoveEmpty) && sub.empty() ||
           options.Has(SplitOptions::RemoveSpace) && IsSpace(sub))) {
-      std::string trimmed_sub(sub);
+      auto trimmed_sub(sub);
       if (options.Has(SplitOptions::TrimBegin)) {
         trimmed_sub = TrimBegin(trimmed_sub);
       }
@@ -100,33 +102,33 @@ std::vector<std::string> Split(std::string_view str, std::string_view sep,
   return result;
 }
 
-std::vector<std::string> SplitBySpace(std::string_view str) {
-  std::vector<std::vector<CodePoint>> code_points_list{{}};
-  for (auto c : Utf8CodePointIterator(str.data(), str.size())) {
-    if (!u_isspace(c)) {
-      code_points_list.back().push_back(c);
-    } else {
-      if (!code_points_list.back().empty()) {
-        code_points_list.push_back({});
+std::vector<std::string_view> SplitBySpace(std::string_view str) {
+  bool start_new_segment = true;
+  // first is start, second is end
+  std::vector<std::pair<Index, Index>> segment_list;
+  for (Utf8CodePointIterator iter(str.data(), str.size()); iter != iter.end();
+       ++iter) {
+    if (!u_isspace(*iter)) {
+      if (start_new_segment) {
+        segment_list.push_back({iter.GetPosition(), iter.GetPosition()});
+        start_new_segment = false;
       }
+    } else {
+      if (!start_new_segment) {
+        segment_list.back().second = iter.GetPosition();
+      }
+      start_new_segment = true;
     }
   }
 
-  if (code_points_list.back().empty()) {
-    code_points_list.pop_back();
+  if (!segment_list.empty() && !start_new_segment) {
+    segment_list.back().second = str.size();
   }
 
-  std::vector<std::string> result;
-  for (const auto& code_points : code_points_list) {
-    result.push_back({});
-    auto& str = result.back();
-    for (auto code_point : code_points) {
-      Utf8EncodeCodePointAppend(code_point,
-                                [&str](Utf8CodeUnit c) { str.push_back(c); });
-    }
-  }
-
-  return result;
+  return segment_list | std::views::transform([&str](const auto& range) {
+           return str.substr(range.first, range.second - range.first);
+         }) |
+         std::ranges::to<std::vector>();
 }
 
 using details::ExtractBits;
@@ -387,7 +389,7 @@ std::string ToUtf8String(std::wstring_view str) {
 
 #endif
 
-StringBreakIterator::StringBreakIterator(std::string str)
+StringBreakIterator::StringBreakIterator(std::string_view str)
     : utf8_position_(0), utf16_position_(0) {
   UErrorCode error_code = U_ZERO_ERROR;
   character_break_iterator_.reset(icu::BreakIterator::createCharacterInstance(
@@ -411,7 +413,7 @@ StringBreakIterator::StringBreakIterator(std::string str)
   SetText(std::move(str));
 }
 
-void StringBreakIterator::SetText(std::string str) {
+void StringBreakIterator::SetText(std::string_view str) {
   str_ = std::move(str);
   icu_str_ = icu::UnicodeString::fromUTF8(str_);
   utf8_position_ = 0;

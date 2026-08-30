@@ -256,7 +256,7 @@ class NumberDataType : public DataTypeBase<T> {
     if (result.valid) {
       return DataConvertResult<T>::Success(result.value);
     } else {
-      return DataConvertResult<T>::Failure(result.message);
+      return DataConvertResult<T>::Failure(std::string(result.message));
     }
   }
 

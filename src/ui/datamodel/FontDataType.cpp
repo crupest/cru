@@ -24,7 +24,7 @@ FontDataType::DoConvertFromXml(xml::XmlElementNode* node) {
     auto parse_result = cru::string::ParseToNumber<float>(*font_size_attr);
     if (!parse_result.valid) {
       return DataConvertResult<std::shared_ptr<platform::graphics::IFont>>::
-          Failure("Invalid font size: " + parse_result.message);
+          Failure(std::format("Invalid font size: {}", parse_result.message));
     }
     font_size = parse_result.value;
   }

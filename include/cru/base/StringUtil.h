@@ -6,6 +6,7 @@
 #include <unicode/uchar.h>
 
 #include <algorithm>
+#include <cassert>
 #include <charconv>
 #include <cmath>
 #include <concepts>
@@ -259,21 +260,18 @@ class CodePointIterator {
  public:
   bool operator==(const CodePointIterator& other) const {
     // You should compare iterator that iterate on the same string.
-    Expects(this->ptr_ == other.ptr_ && this->size_ == other.size_);
+    assert(this->ptr_ == other.ptr_ && this->size_ == other.size_);
     return this->position_ == other.position_;
-  }
-  bool operator!=(const CodePointIterator& other) const {
-    return !this->operator==(other);
   }
 
   CodePointIterator& operator++() {
-    Expects(!IsPastEnd());
+    assert(!IsPastEnd());
     Forward();
     return *this;
   }
 
   CodePointIterator operator++(int) {
-    Expects(!IsPastEnd());
+    assert(!IsPastEnd());
     CodePointIterator old = *this;
     Forward();
     return old;
@@ -366,9 +364,9 @@ std::string CRU_BASE_API ToUtf8String(std::wstring_view str);
 
 bool CRU_BASE_API CaseInsensitiveEqual(std::string_view left,
                                        std::string_view right);
-std::string CRU_BASE_API TrimBegin(std::string_view str);
-std::string CRU_BASE_API TrimEnd(std::string_view str);
-std::string CRU_BASE_API Trim(std::string_view str);
+std::string_view CRU_BASE_API TrimBegin(std::string_view str);
+std::string_view CRU_BASE_API TrimEnd(std::string_view str);
+std::string_view CRU_BASE_API Trim(std::string_view str);
 bool CRU_BASE_API IsSpace(std::string_view str);
 
 CRU_DEFINE_BITMASK(SplitOption) {
@@ -405,9 +403,9 @@ std::string Join(std::string_view sep, const R& range) {
  * @param options Controls whether entries are trimmed or empty entries are
  * dropped.
  */
-std::vector<std::string> CRU_BASE_API Split(std::string_view str,
-                                            std::string_view sep,
-                                            SplitOption options = {});
+std::vector<std::string_view> CRU_BASE_API Split(std::string_view str,
+                                                 std::string_view sep,
+                                                 SplitOption options = {});
 
 /**
  * @brief Splits a string by space characters, dropping any empty entries from
@@ -421,7 +419,7 @@ std::vector<std::string> CRU_BASE_API Split(std::string_view str,
  * separators. Second, it always drops empty strings and does not accept an
  * options argument.
  */
-std::vector<std::string> CRU_BASE_API SplitBySpace(std::string_view str);
+std::vector<std::string_view> CRU_BASE_API SplitBySpace(std::string_view str);
 
 namespace details {
 // Import std::from_chars to this namespace.
@@ -486,7 +484,7 @@ struct ParseToNumberResult {
   bool valid;
   T value;
   Index processed_char_count;
-  std::string message;
+  std::string_view message;
 };
 
 template <typename T>
@@ -590,14 +588,14 @@ namespace cru::string {
 
 class CRU_BASE_API StringBreakIterator {
  public:
-  explicit StringBreakIterator(std::string str = {});
+  explicit StringBreakIterator(std::string_view str = {});
 
-  std::string GetText() const { return str_; }
+  std::string_view GetText() const { return str_; }
 
   /**
    * Set the text to iterate. This will reset the current position to 0.
    */
-  void SetText(std::string str);
+  void SetText(std::string_view str);
 
   Index GetCurrentPosition() const { return utf8_position_; }
 
@@ -618,7 +616,7 @@ class CRU_BASE_API StringBreakIterator {
   void SetCurrentPositionByUtf16(Index position);
 
  private:
-  std::string str_;
+  std::string_view str_;
   icu::UnicodeString icu_str_;
   Index utf8_position_;
   Index utf16_position_;

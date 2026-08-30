@@ -186,10 +186,11 @@ TEST_CASE("StringUtil Utf16IndexCodePointToCodeUnit", "[string]") {
 }
 
 TEST_CASE("StringUtil Split", "[string]") {
-  REQUIRE(Split("abc", "b") == std::vector<std::string>{"a", "c"});
-  REQUIRE(Split("abcd", "bc") == std::vector<std::string>{"a", "d"});
-  REQUIRE(Split("abcdbcd", "bc") == std::vector<std::string>{"a", "d", "d"});
-  REQUIRE(Split("aaa", "a") == std::vector<std::string>{"", "", "", ""});
+  REQUIRE(Split("abc", "b") == std::vector<std::string_view>{"a", "c"});
+  REQUIRE(Split("abcd", "bc") == std::vector<std::string_view>{"a", "d"});
+  REQUIRE(Split("abcdbcd", "bc") ==
+          std::vector<std::string_view>{"a", "d", "d"});
+  REQUIRE(Split("aaa", "a") == std::vector<std::string_view>{"", "", "", ""});
 }
 
 TEST_CASE("StringUtil SplitBySpace", "[string]") {
@@ -198,8 +199,8 @@ TEST_CASE("StringUtil SplitBySpace", "[string]") {
   REQUIRE(SplitBySpace("  alpha\tbeta\n\xC2\xA0"
                        "gamma\xE3\x80\x80"
                        "delta  ") ==
-          std::vector<std::string>{"alpha", "beta", "gamma", "delta"});
-  REQUIRE(SplitBySpace("你  好") == std::vector<std::string>{"你", "好"});
+          std::vector<std::string_view>{"alpha", "beta", "gamma", "delta"});
+  REQUIRE(SplitBySpace("你  好") == std::vector<std::string_view>{"你", "好"});
 }
 
 TEST_CASE("StringUtil TrimBegin", "[string]") {

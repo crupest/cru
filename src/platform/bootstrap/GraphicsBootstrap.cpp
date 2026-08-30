@@ -1,5 +1,6 @@
 #include "cru/platform/bootstrap/GraphicsBootstrap.h"
 
+#include <ranges>
 #include <string>
 #include <unordered_map>
 #include "cru/base/StringUtil.h"
@@ -93,9 +94,12 @@ CreateGraphicsFactory() {
   std::vector<std::string> platforms;
   if (env_platform && !cru::string::Trim(env_platform).empty()) {
     platforms =
-        cru::string::Split(env_platform, ";",
+        cru::string::Split(std::string_view(env_platform), ";",
                            cru::string::SplitOptions::RemoveEmptyAndSpace |
-                               cru::string::SplitOptions::Trim);
+                               cru::string::SplitOptions::Trim) |
+        std::views::transform(
+            [](const auto& str) { return std::string(str); }) |
+        std::ranges::to<std::vector>();
   } else {
     platforms = GetAvailableGraphicsPlatforms();
   }

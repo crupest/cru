@@ -209,7 +209,8 @@ XmlElementNode* XmlParser::Parse() {
         }
 
         current_position_ += 3;
-        current_->AddChild(new XmlCommentNode(cru::string::Trim(text)));
+        current_->AddChild(
+            new XmlCommentNode(std::string(cru::string::Trim(text))));
       } else {
         ReadSpaces();
 
@@ -268,7 +269,8 @@ XmlElementNode* XmlParser::Parse() {
       }
 
       if (!text.empty())
-        current_->AddChild(new XmlTextNode(cru::string::TrimEnd(text)));
+        current_->AddChild(
+            new XmlTextNode(std::string(cru::string::TrimEnd(text))));
     }
   }
 

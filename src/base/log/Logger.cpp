@@ -80,8 +80,8 @@ void ILogger::InstallDefaultWriters(ILogger* logger) {
 void ILogger::LoadDebugTagFromEnv(const char* env_var, std::string sep) {
   auto env = std::getenv(env_var);
   if (env != nullptr) {
-    for (auto tag : cru::string::Split(std::string(env), sep)) {
-      AddDebugTag(std::move(tag));
+    for (auto tag : cru::string::Split(std::string_view(env), sep)) {
+      AddDebugTag(std::string(tag));
     }
   }
 }
