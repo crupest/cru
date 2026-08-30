@@ -5,6 +5,7 @@ add_library(CruUi
 	components/Menu.cpp
 	components/PopupButton.cpp
 	components/Select.cpp
+	components/TextButton.cpp
 	controls/Button.cpp
 	controls/CheckBox.cpp
 	controls/Container.cpp
