@@ -23,6 +23,8 @@ class LayoutRenderObject : public RenderObject {
  protected:
   LayoutRenderObject(std::string name) : RenderObject(std::move(name)) {}
 
+  ~LayoutRenderObject() { ClearChildren(); }
+
  public:
   Index GetChildCount() { return static_cast<Index>(children_.size()); }
 
@@ -36,23 +38,8 @@ class LayoutRenderObject : public RenderObject {
     auto iter = children_.insert(children_.begin() + position,
                                  ChildData{render_object, ChildLayoutData()});
     render_object->SetParent(this);
-    iter->event_guard.Add(
-        render_object->DestroyEvent()->AddSpyOnlyHandler([this, render_object] {
-          auto this_control = this->GetAttachedControl();
-          auto child_control = render_object->GetAttachedControl();
-          if (this_control->RemoveChild(child_control)) return;
-
-          auto iter = std::ranges::find_if(
-              children_, [render_object](const ChildData& data) {
-                return data.render_object == render_object;
-              });
-          if (iter != children_.cend()) {
-            iter->render_object = nullptr;
-            // This relies on Event to correctly handle the handler deletion
-            // delaying.
-            this->RemoveChild(iter - children_.cbegin());
-          }
-        }));
+    iter->event_guard.Add(render_object->DestroyEvent()->AddSpyOnlyHandler(
+        [this, render_object] { RemoveChild(render_object); }));
     InvalidateLayout();
   }
 
@@ -68,6 +55,18 @@ class LayoutRenderObject : public RenderObject {
     }
     children_.erase(children_.begin() + position);
     InvalidateLayout();
+  }
+
+  bool RemoveChild(RenderObject* render_object) {
+    auto iter =
+        std::ranges::find_if(children_, [render_object](const ChildData& data) {
+          return data.render_object == render_object;
+        });
+    if (iter != children_.cend()) {
+      this->RemoveChild(iter - children_.cbegin());
+      return true;
+    }
+    return false;
   }
 
   void ClearChildren() {

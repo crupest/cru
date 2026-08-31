@@ -9,6 +9,7 @@
 #include <filesystem>
 #include <format>
 #include <typeindex>
+#include <variant>
 
 namespace cru::ui {
 class CRU_UI_API ThemeResourceKeyNotExistException : public Exception {
@@ -31,7 +32,6 @@ class CRU_UI_API ThemeResourceDictionary : public Object {
 
   explicit ThemeResourceDictionary(xml::XmlElementNode* xml_root,
                                    bool clone = true);
-  ~ThemeResourceDictionary() override;
 
  public:
   template <typename T>
@@ -41,8 +41,18 @@ class CRU_UI_API ThemeResourceDictionary : public Object {
       throw ThemeResourceKeyNotExistException(
           std::format("Theme resource key {} not exist.", key));
     }
+    auto& resource_entry = find_result->second;
 
-    auto& cache = find_result->second.cache;
+    if (std::holds_alternative<std::string>(resource_entry.value)) {
+      if constexpr (std::is_same_v<T, std::string>) {
+        return std::get<std::string>(resource_entry.value);
+      } else {
+        throw Exception(
+            "Resource is pure text and cannot convert to non std::string.");
+      }
+    }
+
+    auto& cache = resource_entry.cache;
     auto cache_find_result = cache.find(typeid(T));
     if (cache_find_result != cache.cend()) {
       return std::any_cast<T>(cache_find_result->second);
@@ -54,8 +64,8 @@ class CRU_UI_API ThemeResourceDictionary : public Object {
           "No data type registered for theme resource key {}.", key));
     }
 
-    auto convert_result =
-        data_type->ConvertFromXml(find_result->second.xml_node);
+    auto convert_result = data_type->ConvertFromXml(
+        std::get<xml::XmlElementNode*>(resource_entry.value));
     if (!convert_result.IsSuccess()) {
       std::string errors;
       for (const auto& error : convert_result.GetErrors()) {
@@ -72,19 +82,20 @@ class CRU_UI_API ThemeResourceDictionary : public Object {
 
     auto resource = convert_result.GetValue();
     cache[typeid(T)] = resource;
+
     return resource;
   }
 
  private:
-  void UpdateResourceMap(xml::XmlElementNode* root_xml);
-
- private:
   struct ResourceEntry {
     std::string name;
-    xml::XmlElementNode* xml_node;
+    std::variant<xml::XmlElementNode*, std::string> value;
     std::unordered_map<std::type_index, std::any> cache;
   };
 
+  void UpdateResourceMap(xml::XmlElementNode* root_xml);
+
+ private:
   std::unique_ptr<xml::XmlElementNode> xml_root_;
   std::unordered_map<std::string, ResourceEntry> resource_map_;
 };

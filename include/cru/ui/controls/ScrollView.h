@@ -81,8 +81,6 @@ class CRU_UI_API ScrollView
 
   ScrollView();
 
-  render::RenderObject* GetRenderObject() override;
-
  protected:
   render::ScrollRenderObject* GetContainerRenderObject() override;
 };

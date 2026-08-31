@@ -4,6 +4,7 @@
 #include "cru/platform/gui/Cursor.h"
 #include "cru/platform/gui/UiApplication.h"
 #include "cru/ui/controls/ControlHost.h"
+#include "cru/ui/render/RenderObject.h"
 #include "cru/ui/style/StyleRuleSet.h"
 
 #include <algorithm>
@@ -14,8 +15,11 @@ using platform::gui::ICursor;
 using platform::gui::IUiApplication;
 using platform::gui::SystemCursorType;
 
-Control::Control(std::string name)
-    : name_(std::move(name)), host_(nullptr), parent_(nullptr) {
+Control::Control(std::string name, render::RenderObject* root_render_object)
+    : name_(std::move(name)),
+      host_(nullptr),
+      parent_(nullptr),
+      root_render_object_(root_render_object) {
   style_rule_set_ = std::make_shared<style::StyleRuleSet>();
   style_rule_set_bind_ =
       std::make_unique<style::StyleRuleSetBind>(this, style_rule_set_);

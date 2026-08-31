@@ -5,7 +5,8 @@ namespace cru::ui::controls {
 template <typename TRenderObject>
 class LayoutControl : public Control {
  protected:
-  LayoutControl(std::string name) : Control(std::move(name)) {
+  LayoutControl(std::string name)
+      : Control(std::move(name), &container_render_object_) {
     container_render_object_.SetAttachedControl(this);
   }
 
@@ -13,10 +14,6 @@ class LayoutControl : public Control {
   using Control::AddChild;
   using Control::InsertChildAt;
   using Control::RemoveChildAt;
-
-  render::RenderObject* GetRenderObject() override {
-    return &container_render_object_;
-  }
 
   TRenderObject* GetContainerRenderObject() {
     return &container_render_object_;
@@ -28,7 +25,7 @@ class LayoutControl : public Control {
   }
 
   void SetChildLayoutDataAt(Index position,
-                          typename TRenderObject::ChildLayoutData data) {
+                            typename TRenderObject::ChildLayoutData data) {
     container_render_object_.SetChildLayoutDataAt(position, data);
   }
 
@@ -46,8 +43,8 @@ class LayoutControl : public Control {
     container_render_object_.AddChild(control->GetRenderObject(), index);
   }
 
-  void OnChildRemoved([[maybe_unused]] Control* control, Index index) override {
-    container_render_object_.RemoveChild(index);
+  void OnChildRemoved(Control* control, Index index) override {
+    container_render_object_.RemoveChild(control->GetRenderObject());
   }
 
  private:

@@ -16,10 +16,6 @@ class CRU_UI_API CheckBox : public Control,
 
   CheckBox();
 
-  render::RenderObject* GetRenderObject() override {
-    return &container_render_object_;
-  }
-
   bool IsChecked() override { return checked_; }
   void SetChecked(bool checked) override;
   void Toggle() { SetChecked(!checked_); }

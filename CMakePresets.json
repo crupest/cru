@@ -86,6 +86,12 @@
         "dylib"
       ],
       "configuration": "RelWithDebInfo"
+    },
+    {
+      "name": "asan",
+      "displayName": "Build (Debug, Address Sanitizer)",
+      "description": "Build with Ninja (Debug, Address Sanitizer)",
+      "configurePreset": "asan"
     }
   ],
   "testPresets": [

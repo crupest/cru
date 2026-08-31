@@ -40,18 +40,18 @@ class SingleChildControl
       public SingleChildControlMixin<SingleChildControl<TRenderObject>,
                                      TRenderObject> {
  protected:
-  SingleChildControl(std::string name) : Control(std::move(name)) {
+  SingleChildControl(std::string name)
+      : Control(std::move(name), &container_render_object_) {
     container_render_object_.SetAttachedControl(this);
-  }
-
- public:
-  render::RenderObject* GetRenderObject() override {
-    return &container_render_object_;
   }
 
  protected:
   TRenderObject* GetContainerRenderObject() override {
     return &container_render_object_;
+  }
+
+  void OnChildRemoved(Control* control, Index index) override {
+    container_render_object_.SetChild(nullptr);
   }
 
  private:

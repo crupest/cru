@@ -24,8 +24,6 @@ class CRU_UI_API TextBox : public Control,
 
   TextBox();
 
-  render::RenderObject* GetRenderObject() override;
-
   render::TextRenderObject* GetTextRenderObject() override;
   render::ScrollRenderObject* GetScrollRenderObject() override;
 

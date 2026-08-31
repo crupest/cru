@@ -5,7 +5,8 @@
 #include "cru/ui/ThemeManager.h"
 
 namespace cru::ui::controls {
-IconButton::IconButton() : Control(kControlName), click_detector_(this) {
+IconButton::IconButton()
+    : Control(kControlName, &container_render_object_), click_detector_(this) {
   container_render_object_.SetChild(&geometry_render_object_);
   container_render_object_.SetAttachedControl(this);
   geometry_render_object_.SetAttachedControl(this);

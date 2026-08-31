@@ -27,8 +27,6 @@ class CRU_UI_API TextBlock : public Control,
  public:
   TextBlock();
 
-  render::RenderObject* GetRenderObject() override;
-
   std::string GetText();
   void SetText(std::string text);
 

@@ -300,10 +300,9 @@ void ScrollControlMixin::OnMouseLeave(Control* self,
   BeginAutoCollapseTimer(self, scroll_bar, state);
 }
 
-ScrollView::ScrollView() : Control(kControlName), ScrollControlMixin(this) {}
-
-render::RenderObject* ScrollView::GetRenderObject() {
-  return GetScrollRootRenderObject();
+ScrollView::ScrollView()
+    : Control(kControlName, nullptr), ScrollControlMixin(this) {
+  root_render_object_ = GetScrollRenderObject();
 }
 
 render::ScrollRenderObject* ScrollView::GetContainerRenderObject() {

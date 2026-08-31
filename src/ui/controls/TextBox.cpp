@@ -12,9 +12,10 @@ using render::ScrollRenderObject;
 using render::TextRenderObject;
 
 TextBox::TextBox()
-    : Control(kControlName),
+    : Control(kControlName, nullptr),
       ScrollControlMixin(this),
       border_render_object_(new BorderRenderObject()) {
+  root_render_object_ = border_render_object_.get();
   auto theme_manager = ThemeManager::GetInstance();
 
   text_render_object_ = std::make_unique<TextRenderObject>(
@@ -40,10 +41,6 @@ TextBox::TextBox()
 
   GetStyleRuleSet()->SetParent(
       theme_manager->GetResourceStyleRuleSet("textbox.style"));
-}
-
-render::RenderObject* TextBox::GetRenderObject() {
-  return border_render_object_.get();
 }
 
 bool TextBox::GetMultiLine() { return service_->IsMultiLine(); }

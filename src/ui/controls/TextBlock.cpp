@@ -7,7 +7,7 @@
 #include <memory>
 
 namespace cru::ui::controls {
-TextBlock::TextBlock() : Control(kControlName) {
+TextBlock::TextBlock() : Control(kControlName, nullptr) {
   auto theme_manager = ThemeManager::GetInstance();
   text_render_object_ = std::make_unique<render::TextRenderObject>(
       theme_manager->GetResourceBrush("text.brush"),
@@ -16,14 +16,11 @@ TextBlock::TextBlock() : Control(kControlName) {
       theme_manager->GetResourceBrush("text.caret.brush"));
 
   text_render_object_->SetAttachedControl(this);
+  root_render_object_ = text_render_object_.get();
 
   service_ = std::make_unique<TextHostControlService>(this);
   service_->SetEnabled(false);
   service_->SetEditable(false);
-}
-
-render::RenderObject* TextBlock::GetRenderObject() {
-  return text_render_object_.get();
 }
 
 std::string TextBlock::GetText() { return service_->GetText(); }

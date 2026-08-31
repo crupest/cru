@@ -80,8 +80,6 @@ struct IDataType : virtual IDataTypeBase {
 template <typename T>
 class DataTypeBase : public Object, public virtual IDataType<T> {
  public:
-  ~DataTypeBase() override = 0;
-
   std::string GetName() { return name_; }
 
   bool SupportConvertFromString() final { return DoSupportConvertFromString(); }
@@ -114,10 +112,9 @@ class DataTypeBase : public Object, public virtual IDataType<T> {
     if (!SupportConvertFromXml()) {
       throw Exception("Convert from xml is not supported.");
     }
-    auto native_able = DoSupportConvertFromXml();
-    if (!native_able && IsAutoConvertFromXmlByString() &&
+    if (!DoSupportConvertFromXml() && IsAutoConvertFromXmlByString() &&
         SupportConvertFromString()) {
-      return DoXmlIsOfThisTypeByName(node);
+      return node->HasTag(GetName());
     }
     return DoXmlIsOfThisType(node);
   }
@@ -129,8 +126,7 @@ class DataTypeBase : public Object, public virtual IDataType<T> {
     if (!XmlIsOfThisType(node)) {
       throw Exception("Xml node is not of this type.");
     }
-    auto native_able = DoSupportConvertFromXml();
-    if (!native_able && IsAutoConvertFromXmlByString() &&
+    if (!DoSupportConvertFromXml() && IsAutoConvertFromXmlByString() &&
         SupportConvertFromString()) {
       return DoConvertFromXmlByString(node);
     }
@@ -144,24 +140,20 @@ class DataTypeBase : public Object, public virtual IDataType<T> {
     return DoConvertToXml(value);
   }
 
- private:
-  bool DoXmlIsOfThisTypeByName(cru::xml::XmlElementNode* node) {
-    return node->HasTag(GetName());
-  }
-
  protected:
   DataConvertResult<T> DoConvertFromXmlByString(
       cru::xml::XmlElementNode* node) {
-    auto value_attr = node->GetOptionalAttributeValue("value");
     std::string content;
     for (auto child : node->GetChildren()) {
-      if (child->GetType() == cru::xml::XmlNode::Type::Element) {
+      if (child->IsElementNode()) {
         return DataConvertResult<T>::Failure(
             "Element node has child element nodes.");
-      } else if (child->GetType() == cru::xml::XmlNode::Type::Text) {
+      } else if (child->IsTextNode()) {
         content += child->AsText()->GetText();
       }
     }
+
+    auto value_attr = node->GetOptionalAttributeValue("value");
     if (value_attr) {
       auto result = DoConvertFromString(*value_attr);
       if (!content.empty()) {
@@ -170,10 +162,6 @@ class DataTypeBase : public Object, public virtual IDataType<T> {
             "attribute will be used.");
       }
       return result;
-    }
-
-    if (!content.empty()) {
-      return DoConvertFromString(content);
     }
 
     return DoConvertFromString(content);
@@ -234,9 +222,6 @@ class DataTypeBase : public Object, public virtual IDataType<T> {
   std::string name_;
   bool auto_convert_from_xml_by_string_;
 };
-
-template <typename T>
-DataTypeBase<T>::~DataTypeBase() = default;
 
 template <typename T>
   requires(std::is_arithmetic_v<T>)

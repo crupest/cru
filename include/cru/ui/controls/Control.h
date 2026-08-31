@@ -31,14 +31,14 @@ class CRU_UI_API Control : public Object,
                            public cru::platform::gui::DeleteLaterImpl<Control>,
                            public SelfResolvable<Control> {
   friend class ControlHost;
-  template<typename TSelf, typename TRenderObject>
+  template <typename TSelf, typename TRenderObject>
   friend class SingleChildControlMixin;
 
  private:
   constexpr static auto kLogTag = "cru::ui::controls::Control";
 
  protected:
-  explicit Control(std::string name);
+  Control(std::string name, render::RenderObject* root_render_object);
 
  public:
   ~Control() override;
@@ -83,7 +83,8 @@ class CRU_UI_API Control : public Object,
   void AddChild(Control* control);
 
  public:
-  virtual render::RenderObject* GetRenderObject() = 0;
+  render::RenderObject* GetRenderObject() { return root_render_object_; }
+
   Point GetRenderObjectOffset(render::RenderObject* render_object);
 
   virtual render::MeasureSize GetSuggestSize() {
@@ -195,5 +196,9 @@ class CRU_UI_API Control : public Object,
 
   std::shared_ptr<style::StyleRuleSet> style_rule_set_;
   std::unique_ptr<style::StyleRuleSetBind> style_rule_set_bind_;
+
+ protected:
+  // Maybe dangling.
+  render::RenderObject* root_render_object_;
 };
 }  // namespace cru::ui::controls

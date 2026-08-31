@@ -58,8 +58,6 @@ class CRU_UI_API TreeView : public Control {
 
   TreeView();
 
-  render::TreeRenderObject* GetRenderObject() override { return &render_object_; }
-
   TreeViewItem* GetRootItem() { return &root_item_; }
 
  protected:

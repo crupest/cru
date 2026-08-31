@@ -4,6 +4,8 @@
 #include "cru/base/io/CFileStream.h"
 #include "cru/base/log/Logger.h"
 
+#include <cassert>
+
 namespace cru::ui {
 
 std::unique_ptr<ThemeResourceDictionary> ThemeResourceDictionary::FromFile(
@@ -16,39 +18,61 @@ std::unique_ptr<ThemeResourceDictionary> ThemeResourceDictionary::FromFile(
 
 ThemeResourceDictionary::ThemeResourceDictionary(xml::XmlElementNode* xml_root,
                                                  bool clone) {
-  Expects(xml_root);
+  assert(xml_root);
   xml_root_.reset(clone ? xml_root->Clone()->AsElement() : xml_root);
   UpdateResourceMap(xml_root_.get());
 }
-
-ThemeResourceDictionary::~ThemeResourceDictionary() = default;
 
 void ThemeResourceDictionary::UpdateResourceMap(xml::XmlElementNode* xml_root) {
   if (!cru::string::CaseInsensitiveEqual(xml_root->GetTag(), "Theme")) {
     throw Exception("Root tag of theme must be 'Theme'.");
   }
 
-  for (auto child : xml_root->GetChildren()) {
-    if (child->IsElementNode()) {
-      auto c = child->AsElement();
-      if (cru::string::CaseInsensitiveEqual(c->GetTag(), "Resource")) {
-        auto key_attr = c->GetOptionalAttributeValue("key");
+  for (auto resource_node : xml_root->GetChildren()) {
+    if (resource_node->IsElementNode()) {
+      auto resource_element = resource_node->AsElement();
+      if (cru::string::CaseInsensitiveEqual(resource_element->GetTag(),
+                                            "Resource")) {
+        ResourceEntry entry;
+
+        auto key_attr = resource_element->GetOptionalAttributeValue("key");
         if (!key_attr) {
           throw Exception("'key' attribute is required for resource.");
         }
-        if (c->GetChildElementCount() != 1) {
-          throw Exception("Resource must have only one child element.");
+        entry.name = *key_attr;
+
+        xml::XmlElementNode* resource_child_element = nullptr;
+        std::string resource_text;
+
+        const auto error_message =
+            "Resource must have only one child element or text/comment "
+            "only nodes.";
+
+        for (const auto& resource_child : resource_element->GetChildren()) {
+          if (resource_child_element && !resource_child->IsCommentNode()) {
+            throw Exception(error_message);
+          }
+
+          if (resource_child->IsElementNode()) {
+            if (!resource_text.empty()) {
+              throw Exception(error_message);
+            }
+            resource_child_element = resource_child->AsElement();
+          } else if (resource_child->IsTextNode()) {
+            resource_text += resource_child->AsText()->GetText();
+          }
         }
 
-        ResourceEntry entry;
-
-        entry.name = *key_attr;
-        entry.xml_node = c->GetFirstChildElement();
+        if (resource_child_element) {
+          entry.value = resource_child_element;
+        } else {
+          entry.value = resource_text;
+        }
 
         resource_map_[entry.name] = std::move(entry);
       } else {
         CruLogDebug(kLogTag, "Ignore unknown element {} of theme.",
-                    c->GetTag());
+                    resource_element->GetTag());
       }
     } else {
       CruLogDebug(kLogTag, "Ignore text or comment node of theme.");
