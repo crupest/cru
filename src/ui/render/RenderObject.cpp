@@ -1,6 +1,7 @@
 #include "cru/ui/render/RenderObject.h"
 
 #include "cru/base/Base.h"
+#include "cru/base/TreeObject.h"
 #include "cru/platform/GraphicsBase.h"
 #include "cru/ui/controls/Control.h"
 #include "cru/ui/controls/ControlHost.h"
@@ -24,19 +25,7 @@ RenderObject::RenderObject(std::string name)
       parent_(nullptr),
       layout_valid_(false) {}
 
-RenderObject::~RenderObject() { DestroyEvent_.Raise(this); }
-
-void RenderObject::SetParent(RenderObject* new_parent) {
-#ifdef CRU_DEBUG
-  // In case there is a cycle.
-  auto parent = new_parent;
-  while (parent) {
-    assert(parent != this);
-    parent = parent->GetParent();
-  }
-#endif
-  parent_ = new_parent;
-}
+RenderObject::~RenderObject() { DetachFromTree(); }
 
 void RenderObject::SetAttachedControl(controls::Control* new_control) {
   auto old_control = control_;
@@ -219,5 +208,15 @@ std::string RenderObject::GetDebugPathInTree() {
   }
 
   return result;
+}
+
+void RenderObject::OnChildInserted(RenderObject* control, Index index) {
+  TreeObjectMixin::OnChildInserted(control, index);
+  InvalidateLayout();
+}
+
+void RenderObject::OnChildRemoved(RenderObject* control, Index index) {
+  TreeObjectMixin::OnChildRemoved(control, index);
+  InvalidateLayout();
 }
 }  // namespace cru::ui::render

@@ -50,8 +50,7 @@ Point CoerceScroll(const Point& scroll_offset, const Size& content_size,
 }
 }  // namespace
 
-ScrollRenderObject::ScrollRenderObject()
-    : SingleChildRenderObject(kRenderObjectName) {}
+ScrollRenderObject::ScrollRenderObject() : RenderObject(kRenderObjectName) {}
 
 RenderObject* ScrollRenderObject::HitTest(const Point& point) {
   if (auto child = GetChild()) {

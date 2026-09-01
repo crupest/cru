@@ -1,5 +1,6 @@
 #include "cru/ui/controls/Control.h"
 #include "cru/base/Base.h"
+#include "cru/base/TreeObject.h"
 #include "cru/base/log/Logger.h"
 #include "cru/platform/gui/Cursor.h"
 #include "cru/platform/gui/UiApplication.h"
@@ -7,7 +8,6 @@
 #include "cru/ui/render/RenderObject.h"
 #include "cru/ui/style/StyleRuleSet.h"
 
-#include <algorithm>
 #include <format>
 
 namespace cru::ui::controls {
@@ -18,7 +18,6 @@ using platform::gui::SystemCursorType;
 Control::Control(std::string name, render::RenderObject* root_render_object)
     : name_(std::move(name)),
       host_(nullptr),
-      parent_(nullptr),
       root_render_object_(root_render_object) {
   style_rule_set_ = std::make_shared<style::StyleRuleSet>();
   style_rule_set_bind_ =
@@ -43,59 +42,6 @@ std::string Control::GetDebugId() {
 
 ControlHost* Control::GetControlHost() { return host_; }
 
-Control* Control::GetParent() { return parent_; }
-
-bool Control::HasAncestor(Control* control) {
-  auto parent = this;
-  while (parent) {
-    if (parent == control) return true;
-    parent = parent->GetParent();
-  }
-  return false;
-}
-
-const std::vector<Control*>& Control::GetChildren() { return children_; }
-
-Index Control::IndexOfChild(Control* control) {
-  const auto& children = GetChildren();
-  auto iter = std::ranges::find(children, control);
-  if (iter == children.cend()) {
-    return -1;
-  }
-  return iter - children.begin();
-}
-
-bool Control::HasChild(Control* control) {
-  return std::ranges::find(children_, control) != children_.cend();
-}
-
-bool Control::RemoveChild(Control* child) {
-  auto iter = std::ranges::find(children_, child);
-  if (iter != children_.cend()) {
-    RemoveChildAt(iter - children_.cbegin());
-    return true;
-  }
-  return false;
-}
-
-void Control::RemoveAllChild() {
-  while (!GetChildren().empty()) {
-    RemoveChildAt(GetChildren().size() - 1);
-  }
-}
-
-bool Control::RemoveFromParent() {
-  if (parent_) {
-    return parent_->RemoveChild(this);
-  }
-  return false;
-}
-
-void Control::DetachFromTree() {
-  RemoveFromParent();
-  RemoveAllChild();
-}
-
 controls::Control* Control::HitTest(const Point& point) {
   const auto render_object = GetRenderObject()->HitTest(point);
   if (render_object) {
@@ -104,71 +50,6 @@ controls::Control* Control::HitTest(const Point& point) {
     return control;
   }
   return nullptr;
-}
-
-void Control::InsertChildAt(Control* control, Index index) {
-  if (index < 0 || index > children_.size()) {
-    throw Exception("Child control index out of range.");
-  }
-
-  if (control->parent_) {
-    throw Exception("Control already has a parent.");
-  }
-
-  children_.insert(children_.cbegin() + index, control);
-  control->parent_ = this;
-  control->TraverseDescendents(
-      [this](Control* control) { control->host_ = host_; }, true);
-  if (host_) {
-    host_->NotifyControlParentChange(control, nullptr, this);
-  }
-  control->OnParentChanged(nullptr, this);
-  OnChildInserted(control, index);
-
-  if (host_) {
-    control->TraverseDescendents(
-        [this](Control* control) {
-          control->ControlHostChangeEvent_.Raise({nullptr, host_});
-        },
-        true);
-  }
-
-  if (host_) {
-    host_->ScheduleRelayout();
-  }
-}
-
-void Control::RemoveChildAt(Index index) {
-  if (index < 0 || index >= children_.size()) {
-    throw Exception("Child control index out of range.");
-  }
-
-  auto control = children_[index];
-  children_.erase(children_.cbegin() + index);
-  control->parent_ = nullptr;
-  control->TraverseDescendents(
-      [this](Control* control) { control->host_ = nullptr; }, true);
-  if (host_) {
-    host_->NotifyControlParentChange(control, this, nullptr);
-  }
-  control->OnParentChanged(this, nullptr);
-  OnChildRemoved(control, index);
-
-  if (host_) {
-    control->TraverseDescendents(
-        [this](Control* control) {
-          control->ControlHostChangeEvent_.Raise({host_, nullptr});
-        },
-        true);
-  }
-
-  if (host_) {
-    host_->ScheduleRelayout();
-  }
-}
-
-void Control::AddChild(Control* control) {
-  InsertChildAt(control, GetChildren().size());
 }
 
 Point Control::GetRenderObjectOffset(render::RenderObject* render_object) {
@@ -240,7 +121,40 @@ std::shared_ptr<style::StyleRuleSet> Control::GetStyleRuleSet() {
   return style_rule_set_;
 }
 
-void Control::OnParentChanged(Control* old_parent, Control* new_parent) {}
-void Control::OnChildInserted(Control* control, Index index) {}
-void Control::OnChildRemoved(Control* control, Index index) {}
+void Control::OnChildInserted(Control* control, Index index) {
+  assert(control->host_ == nullptr);
+  if (host_) {
+    control->TraverseDescendents(
+        [this](Control* control) { control->host_ = this->host_; }, true);
+
+    host_->NotifyControlParentChange(control, nullptr, this);
+
+    control->TraverseDescendents(
+        [this](Control* control) {
+          control->ControlHostChangeEvent_.Raise({nullptr, this->host_});
+        },
+        true);
+  }
+
+  TreeObjectMixin::OnChildInserted(control, index);
+}
+
+void Control::OnChildRemoved(Control* control, Index index) {
+  assert(control->host_ == host_);
+
+  if (host_) {
+    control->TraverseDescendents(
+        [](Control* control) { control->host_ = nullptr; }, true);
+
+    host_->NotifyControlParentChange(control, this, nullptr);
+
+    control->TraverseDescendents(
+        [this](Control* control) {
+          control->ControlHostChangeEvent_.Raise({this->host_, nullptr});
+        },
+        true);
+  }
+
+  TreeObjectMixin::OnChildRemoved(control, index);
+}
 }  // namespace cru::ui::controls

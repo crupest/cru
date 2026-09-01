@@ -18,7 +18,6 @@ add_library(CruUi
 	controls/TextBlock.cpp
 	controls/TextBox.cpp
 	controls/TextHostControlService.cpp
-	controls/TreeView.cpp
 	controls/Window.cpp
 	datamodel/Base.cpp
 	datamodel/BorderStyleDataType.cpp
@@ -48,10 +47,8 @@ add_library(CruUi
 	render/LayoutHelper.cpp
 	render/RenderObject.cpp
 	render/ScrollRenderObject.cpp
-	render/SingleChildRenderObject.cpp
 	render/StackLayoutRenderObject.cpp
 	render/TextRenderObject.cpp
-	render/TreeRenderObject.cpp
 	style/Condition.cpp
 	style/Styler.cpp
 	style/StyleRule.cpp

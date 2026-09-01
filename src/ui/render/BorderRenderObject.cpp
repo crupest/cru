@@ -10,8 +10,7 @@
 #include <algorithm>
 
 namespace cru::ui::render {
-BorderRenderObject::BorderRenderObject()
-    : SingleChildRenderObject(kRenderObjectName) {
+BorderRenderObject::BorderRenderObject() : RenderObject(kRenderObjectName) {
   RecreateGeometry();
 }
 

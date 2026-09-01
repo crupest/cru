@@ -40,11 +40,13 @@ class LayoutControl : public Control {
 
  protected:
   void OnChildInserted(Control* control, Index index) override {
-    container_render_object_.AddChild(control->GetRenderObject(), index);
+    container_render_object_.InsertChildAt(control->GetRenderObject(), index);
+    Control::OnChildInserted(control, index);
   }
 
   void OnChildRemoved(Control* control, Index index) override {
     container_render_object_.RemoveChild(control->GetRenderObject());
+    Control::OnChildRemoved(control, index);
   }
 
  private:

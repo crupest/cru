@@ -1,7 +1,7 @@
 #include "cru/ui/controls/Container.h"
-#include "cru/ui/render/BorderRenderObject.h"
 
 namespace cru::ui::controls {
-Container::Container()
-    : SingleChildControl<render::BorderRenderObject>(kControlName) {}
+Container::Container() : Control(kControlName, &border_render_object_) {
+  border_render_object_.SetAttachedControl(this);
+}
 }  // namespace cru::ui::controls

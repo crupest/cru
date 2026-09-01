@@ -13,7 +13,6 @@ using render::TextRenderObject;
 
 TextBox::TextBox()
     : Control(kControlName, nullptr),
-      ScrollControlMixin(this),
       border_render_object_(new BorderRenderObject()) {
   root_render_object_ = border_render_object_.get();
   auto theme_manager = ThemeManager::GetInstance();

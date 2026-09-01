@@ -1,11 +1,12 @@
 #pragma once
-#include "SingleChildRenderObject.h"
 
 #include "../style/ApplyBorderStyleInfo.h"
-#include "cru/ui/render/RenderObject.h"
+#include "RenderObject.h"
 
 namespace cru::ui::render {
-class CRU_UI_API BorderRenderObject : public SingleChildRenderObject {
+class CRU_UI_API BorderRenderObject
+    : public RenderObject,
+      public RenderObject::SingleChildMixin<BorderRenderObject> {
  private:
   constexpr static auto kLogTag = "cru::ui::render::BorderRenderObject";
 

@@ -3,6 +3,7 @@
 #include "MeasureRequirement.h"
 
 #include <cru/base/Event.h>
+#include <cru/base/TreeObject.h>
 #include <cru/platform/graphics/Painter.h>
 
 #include <string>
@@ -54,7 +55,8 @@ struct CRU_UI_API RenderObjectDrawContext {
  * ```
  *
  */
-class CRU_UI_API RenderObject : public Object {
+class CRU_UI_API RenderObject : public Object,
+                                public TreeObjectMixin<RenderObject> {
  private:
   constexpr static auto kLogTag = "cru::ui::render::RenderObject";
 
@@ -64,9 +66,6 @@ class CRU_UI_API RenderObject : public Object {
 
   controls::Control* GetAttachedControl() { return control_; }
   void SetAttachedControl(controls::Control* new_control);
-
-  RenderObject* GetParent() { return parent_; }
-  void SetParent(RenderObject* new_parent);
 
   template <typename F>
   void WalkUp(const F& f, bool include_this = true) {
@@ -159,8 +158,6 @@ class CRU_UI_API RenderObject : public Object {
   std::string GetName();
   std::string GetDebugPathInTree();
 
-  CRU_DEFINE_EVENT(Destroy, RenderObject*)
-
  protected:
   /**
    * Implementation should adjust the requirement for content (like decreasing
@@ -192,6 +189,10 @@ class CRU_UI_API RenderObject : public Object {
                                         controls::Control* new_control) {}
 
   virtual void OnResize(const Size& new_size) {}
+
+ protected:
+  void OnChildInserted(RenderObject* control, Index index) override;
+  void OnChildRemoved(RenderObject* control, Index index) override;
 
  private:
   std::string name_;

@@ -41,7 +41,7 @@ ui::style::StyleRule StyleRuleEditor::GetValue() const {
 
 void StyleRuleEditor::SetValue(const ui::style::StyleRule& style_rule,
                                bool trigger_change) {
-  body_layout_.RemoveAllChild();
+  body_layout_.RemoveAllChildren();
   condition_editor_ =
       components::conditions::CreateConditionEditor(style_rule.GetCondition());
   styler_editor_ =

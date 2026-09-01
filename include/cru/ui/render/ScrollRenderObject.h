@@ -1,7 +1,6 @@
 #pragma once
 #include "../Base.h"
 #include "RenderObject.h"
-#include "SingleChildRenderObject.h"
 
 #include <cru/platform/graphics/Base.h>
 #include <cru/platform/graphics/Brush.h>
@@ -103,7 +102,9 @@ struct ScrollState {
 // Layout logic:
 // If child is smaller than content area, layout at lefttop.
 // Or layout by scroll state.
-class CRU_UI_API ScrollRenderObject : public SingleChildRenderObject {
+class CRU_UI_API ScrollRenderObject
+    : public RenderObject,
+      public RenderObject::SingleChildMixin<ScrollRenderObject> {
  public:
   static constexpr auto kRenderObjectName = "ScrollRenderObject";
 

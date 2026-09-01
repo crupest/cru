@@ -58,7 +58,7 @@ Component* Menu::RemoveItemAt(Index index) {
 }
 
 void Menu::ClearItems() {
-  container_.RemoveAllChild();
+  container_.RemoveAllChildren();
 
   for (auto item : items_) {
     item->DeleteIfDeleteByParent();

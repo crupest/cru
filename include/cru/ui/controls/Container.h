@@ -1,43 +1,54 @@
 #pragma once
 #include "../render/BorderRenderObject.h"
+#include "Control.h"
 #include "IBorderControl.h"
-#include "SingleChildControl.h"
 
 namespace cru::ui::controls {
-class CRU_UI_API Container
-    : public SingleChildControl<render::BorderRenderObject>,
-      public virtual IBorderControl {
+class CRU_UI_API Container : public Control,
+                             public Control::SingleChildMixin<Container>,
+                             public virtual IBorderControl {
   static constexpr auto kControlName = "Container";
 
  public:
   Container();
 
  public:
-  bool IsBorderEnabled() {
-    return GetContainerRenderObject()->IsBorderEnabled();
-  }
+  bool IsBorderEnabled() { return border_render_object_.IsBorderEnabled(); }
   void SetBorderEnabled(bool enabled) {
-    GetContainerRenderObject()->SetBorderEnabled(enabled);
+    border_render_object_.SetBorderEnabled(enabled);
   }
 
   std::shared_ptr<platform::graphics::IBrush> GetForegroundBrush() {
-    return GetContainerRenderObject()->GetForegroundBrush();
+    return border_render_object_.GetForegroundBrush();
   }
   void SetForegroundBrush(
       const std::shared_ptr<platform::graphics::IBrush>& brush) {
-    GetContainerRenderObject()->SetForegroundBrush(brush);
+    border_render_object_.SetForegroundBrush(brush);
   }
 
   std::shared_ptr<platform::graphics::IBrush> GetBackgroundBrush() {
-    return GetContainerRenderObject()->GetBackgroundBrush();
+    return border_render_object_.GetBackgroundBrush();
   }
   void SetBackgroundBrush(
       const std::shared_ptr<platform::graphics::IBrush>& brush) {
-    GetContainerRenderObject()->SetBackgroundBrush(brush);
+    border_render_object_.SetBackgroundBrush(brush);
   }
 
   void ApplyBorderStyle(const style::ApplyBorderStyleInfo& style) override {
-    GetContainerRenderObject()->ApplyBorderStyle(style);
+    border_render_object_.ApplyBorderStyle(style);
   }
+
+ private:
+  void OnChildChanged(Control* old_child, Control* new_child) override {
+    if (old_child) {
+      border_render_object_.SetChild(nullptr);
+    }
+    if (new_child) {
+      border_render_object_.SetChild(new_child->GetRenderObject());
+    }
+  }
+
+ private:
+  render::BorderRenderObject border_render_object_;
 };
 }  // namespace cru::ui::controls

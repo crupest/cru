@@ -1,12 +1,13 @@
 #pragma once
 #include "../helper/ClickDetector.h"
 #include "../render/BorderRenderObject.h"
+#include "Control.h"
 #include "IBorderControl.h"
 #include "IClickableControl.h"
-#include "SingleChildControl.h"
 
 namespace cru::ui::controls {
-class CRU_UI_API Button : public SingleChildControl<render::BorderRenderObject>,
+class CRU_UI_API Button : public Control,
+                          public Control::SingleChildMixin<Button>,
                           public virtual IClickableControl,
                           public virtual IBorderControl {
  public:
@@ -35,6 +36,17 @@ class CRU_UI_API Button : public SingleChildControl<render::BorderRenderObject>,
   void ApplyBorderStyle(const style::ApplyBorderStyleInfo& style) override;
 
  private:
+  void OnChildChanged(Control* old_child, Control* new_child) override {
+    if (old_child) {
+      border_render_object_.SetChild(nullptr);
+    }
+    if (new_child) {
+      border_render_object_.SetChild(new_child->GetRenderObject());
+    }
+  }
+
+ private:
   helper::ClickDetector click_detector_;
+  render::BorderRenderObject border_render_object_;
 };
 }  // namespace cru::ui::controls

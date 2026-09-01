@@ -14,7 +14,7 @@
 
 namespace cru::ui::controls {
 class CRU_UI_API TextBox : public Control,
-                           public ScrollControlMixin,
+                           public ScrollControlMixin<TextBox>,
                            public virtual IBorderControl,
                            public virtual ITextHostControl,
                            public virtual IContentBrushControl,

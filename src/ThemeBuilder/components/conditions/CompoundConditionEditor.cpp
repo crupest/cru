@@ -89,7 +89,7 @@ CompoundConditionEditor::GetChildren() {
 
 void CompoundConditionEditor::SetChildren(
     std::vector<ClonePtr<ui::style::Condition>> children, bool trigger_change) {
-  children_container_.RemoveAllChild();
+  children_container_.RemoveAllChildren();
   children_.clear();
   for (const auto& condition : children) {
     auto editor = CreateConditionEditor(condition.get());

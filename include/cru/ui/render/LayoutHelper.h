@@ -1,5 +1,5 @@
 #pragma once
-#include "MeasureRequirement.h"
+#include "../Base.h"
 
 namespace cru::ui::render {
 float CRU_UI_API CalculateAnchorByAlignment(Alignment alignment,
