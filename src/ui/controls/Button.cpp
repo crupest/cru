@@ -15,4 +15,14 @@ Button::Button()
 void Button::ApplyBorderStyle(const style::ApplyBorderStyleInfo& style) {
   border_render_object_.ApplyBorderStyle(style);
 }
+
+void Button::OnChildChanged(Control* old_child, Control* new_child) {
+  if (old_child) {
+    border_render_object_.SetChild(nullptr);
+  }
+  if (new_child) {
+    border_render_object_.SetChild(new_child->GetRenderObject());
+  }
+}
+
 }  // namespace cru::ui::controls

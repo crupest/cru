@@ -39,14 +39,7 @@ class CRU_UI_API Container : public Control,
   }
 
  private:
-  void OnChildChanged(Control* old_child, Control* new_child) override {
-    if (old_child) {
-      border_render_object_.SetChild(nullptr);
-    }
-    if (new_child) {
-      border_render_object_.SetChild(new_child->GetRenderObject());
-    }
-  }
+  void OnChildChanged(Control* old_child, Control* new_child) override;
 
  private:
   render::BorderRenderObject border_render_object_;
