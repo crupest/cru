@@ -7,7 +7,7 @@ enum class FlexDirection {
   Horizontal,
   HorizontalReverse,
   Vertical,
-  VertivalReverse
+  VerticalReverse
 };
 
 using FlexMainAlignment = Alignment;
