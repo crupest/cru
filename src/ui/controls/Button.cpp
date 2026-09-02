@@ -3,13 +3,16 @@
 #include "cru/ui/helper/ClickDetector.h"
 
 namespace cru::ui::controls {
-Button::Button()
-    : Control(kControlName, &border_render_object_), click_detector_(this) {
+Button::Button() : Control(kControlName), click_detector_(this) {
   border_render_object_.SetAttachedControl(this);
   border_render_object_.SetBorderEnabled(true);
   auto default_button_style =
       ThemeManager::GetInstance()->GetResourceStyleRuleSet("button.style");
   GetStyleRuleSet()->SetParent(std::move(default_button_style));
+}
+
+render::RenderObject* Button::GetRenderObject() {
+  return &border_render_object_;
 }
 
 void Button::ApplyBorderStyle(const style::ApplyBorderStyleInfo& style) {

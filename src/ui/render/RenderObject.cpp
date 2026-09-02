@@ -25,7 +25,7 @@ RenderObject::RenderObject(std::string name)
       parent_(nullptr),
       layout_valid_(false) {}
 
-RenderObject::~RenderObject() { DetachFromTree(); }
+RenderObject::~RenderObject() { DestroyTreeObject(); }
 
 void RenderObject::SetAttachedControl(controls::Control* new_control) {
   auto old_control = control_;

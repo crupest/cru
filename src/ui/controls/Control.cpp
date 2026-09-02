@@ -15,10 +15,7 @@ using platform::gui::ICursor;
 using platform::gui::IUiApplication;
 using platform::gui::SystemCursorType;
 
-Control::Control(std::string name, render::RenderObject* root_render_object)
-    : name_(std::move(name)),
-      host_(nullptr),
-      root_render_object_(root_render_object) {
+Control::Control(std::string name) : name_(std::move(name)), host_(nullptr) {
   style_rule_set_ = std::make_shared<style::StyleRuleSet>();
   style_rule_set_bind_ =
       std::make_unique<style::StyleRuleSetBind>(this, style_rule_set_);
@@ -31,7 +28,7 @@ Control::~Control() {
         "Better use delete later to delete control during event handling.");
   }
 
-  DetachFromTree();
+  DestroyTreeObject();
 }
 
 std::string Control::GetName() { return name_; }

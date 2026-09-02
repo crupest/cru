@@ -5,9 +5,7 @@
 
 namespace cru::ui::controls {
 CheckBox::CheckBox()
-    : Control(kControlName, &container_render_object_),
-      checked_(false),
-      click_detector_(this) {
+    : Control(kControlName), checked_(false), click_detector_(this) {
   container_render_object_.SetAttachedControl(this);
 
   container_render_object_.SetBorderEnabled(true);
@@ -17,6 +15,10 @@ CheckBox::CheckBox()
 
   click_detector_.ClickEvent()->AddHandler(
       [this](const helper::ClickEventArgs&) { Toggle(); });
+}
+
+render::RenderObject* CheckBox::GetRenderObject() {
+  return &container_render_object_;
 }
 
 void CheckBox::SetChecked(bool checked) {

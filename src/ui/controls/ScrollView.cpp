@@ -2,8 +2,10 @@
 
 namespace cru::ui::controls {
 
-ScrollView::ScrollView() : Control(kControlName, nullptr) {
-  root_render_object_ = GetScrollRenderObject();
+ScrollView::ScrollView() : Control(kControlName) {}
+
+render::RenderObject* ScrollView::GetRenderObject() {
+  return GetScrollRootRenderObject();
 }
 
 void ScrollView::OnChildChanged(Control* old_child, Control* new_child) {

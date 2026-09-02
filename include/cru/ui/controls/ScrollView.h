@@ -355,6 +355,8 @@ class CRU_UI_API ScrollView : public Control,
 
   ScrollView();
 
+  render::RenderObject* GetRenderObject() override;
+
  protected:
   void OnChildChanged(Control* old_child, Control* new_child) override;
 };

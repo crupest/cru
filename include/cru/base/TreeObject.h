@@ -10,7 +10,7 @@ template <typename Self, typename TreeObject>
 class SingleChildTreeObjectMixin;
 
 /**
- * Derived class should call DetachFromTree() in its destructor.
+ * Derived class should call DestroyTreeObject() in its destructor.
  */
 template <typename Self>
 class TreeObjectMixin {
@@ -23,6 +23,13 @@ class TreeObjectMixin {
   friend class SingleChildTreeObjectMixin;
 
  public:
+  ~TreeObjectMixin() {
+    // Derived class should call DestroyTreeObject() in its destructor.
+    assert(under_destroying_ && parent_ == nullptr && children_.empty());
+  }
+
+  bool IsUnderTreeObjectDestroying() { return under_destroying_; }
+
   Self* GetParent() { return parent_; }
   bool HasAncestor(Self* object) {
     auto parent = AsSelf();
@@ -111,6 +118,11 @@ class TreeObjectMixin {
 
   void AddChild(Self* child) { InsertChildAt(child, GetChildCount()); }
 
+  void DestroyTreeObject() {
+    under_destroying_ = true;
+    DetachFromTree();
+  }
+
   /**
    * Override should call base class's OnParentChanged.
    */
@@ -134,6 +146,7 @@ class TreeObjectMixin {
   }
 
  private:
+  bool under_destroying_ = false;
   Self* parent_ = nullptr;
   std::vector<Self*> children_;
 };

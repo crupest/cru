@@ -12,6 +12,8 @@ class CRU_UI_API Container : public Control,
  public:
   Container();
 
+  render::RenderObject* GetRenderObject() override;
+
  public:
   bool IsBorderEnabled() { return border_render_object_.IsBorderEnabled(); }
   void SetBorderEnabled(bool enabled) {

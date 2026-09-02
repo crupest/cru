@@ -5,8 +5,7 @@
 #include "cru/ui/ThemeManager.h"
 
 namespace cru::ui::controls {
-IconButton::IconButton()
-    : Control(kControlName, &container_render_object_), click_detector_(this) {
+IconButton::IconButton() : Control(kControlName), click_detector_(this) {
   container_render_object_.SetChild(&geometry_render_object_);
   container_render_object_.SetAttachedControl(this);
   geometry_render_object_.SetAttachedControl(this);
@@ -21,6 +20,10 @@ IconButton::IconButton(std::string_view icon_svg_path_data_string,
                        const Rect& view_port)
     : IconButton() {
   SetIconWithSvgPathDataString(icon_svg_path_data_string, view_port);
+}
+
+render::RenderObject* IconButton::GetRenderObject() {
+  return &container_render_object_;
 }
 
 void IconButton::SetIconFillColor(const Color& color) {

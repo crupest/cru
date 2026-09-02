@@ -16,6 +16,8 @@ class CRU_UI_API Button : public Control,
  public:
   Button();
 
+  render::RenderObject* GetRenderObject() override;
+
  public:
   helper::ClickState GetClickState() override {
     return click_detector_.GetState();

@@ -22,6 +22,8 @@ class CRU_UI_API IconButton : public Control,
   IconButton();
   IconButton(std::string_view icon_svg_path_data_string, const Rect& view_port);
 
+  render::RenderObject* GetRenderObject() override;
+
  public:
   helper::ClickState GetClickState() override {
     return click_detector_.GetState();
