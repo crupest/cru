@@ -15,8 +15,6 @@ class GeometryRenderObject : public RenderObject {
   GeometryRenderObject();
 
  public:
-  RenderObject* HitTest(const Point& point) override;
-
   std::shared_ptr<platform::graphics::IGeometry> GetGeometry();
   void SetGeometry(std::shared_ptr<platform::graphics::IGeometry> geometry,
                    std::optional<Rect> view_port = std::nullopt);

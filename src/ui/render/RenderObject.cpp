@@ -20,10 +20,7 @@ void RenderObjectDrawContext::DrawChild(RenderObject* render_object) {
 }
 
 RenderObject::RenderObject(std::string name)
-    : name_(std::move(name)),
-      control_(nullptr),
-      parent_(nullptr),
-      layout_valid_(false) {}
+    : name_(std::move(name)), control_(nullptr), layout_valid_(false) {}
 
 RenderObject::~RenderObject() { DestroyTreeObject(); }
 
@@ -168,6 +165,23 @@ void RenderObject::Draw(RenderObjectDrawContext& context) {
     return;
   }
   OnDraw(context);
+}
+RenderObject* RenderObject::HitTest(const Point& point) {
+  for (auto iter = GetChildren().rbegin(), end = GetChildren().rend();
+       iter != end; ++iter) {
+    auto child = *iter;
+    const auto result =
+        child->HitTest(point - child->GetOffset());  // Add offset here.
+    if (result != nullptr) {
+      return result;
+    }
+  }
+
+  return IsPointInside(point) ? this : nullptr;
+}
+
+bool RenderObject::IsPointInside(const Point& point) {
+  return GetPaddingRect().IsPointInside(point);
 }
 
 controls::ControlHost* RenderObject::GetControlHost() {

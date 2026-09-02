@@ -43,7 +43,7 @@ class CRU_UI_API BorderRenderObject
 
   void ApplyBorderStyle(const style::ApplyBorderStyleInfo& style);
 
-  RenderObject* HitTest(const Point& point) override;
+  bool IsPointInside(const Point& point) override;
 
   Thickness GetTotalSpaceThickness() override;
   Thickness GetInnerSpaceThickness() override;

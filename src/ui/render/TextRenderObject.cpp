@@ -168,11 +168,6 @@ void TextRenderObject::SetMeasureIncludingTrailingSpace(bool including) {
   InvalidateLayout();
 }
 
-RenderObject* TextRenderObject::HitTest(const Point& point) {
-  const auto padding_rect = GetPaddingRect();
-  return padding_rect.IsPointInside(point) ? this : nullptr;
-}
-
 Size TextRenderObject::OnMeasureContent(const MeasureRequirement& requirement) {
   float measure_width = requirement.suggest.width.GetLengthOr(
       requirement.max.width.GetLengthOrMaxFloat());

@@ -52,17 +52,6 @@ Point CoerceScroll(const Point& scroll_offset, const Size& content_size,
 
 ScrollRenderObject::ScrollRenderObject() : RenderObject(kRenderObjectName) {}
 
-RenderObject* ScrollRenderObject::HitTest(const Point& point) {
-  if (auto child = GetChild()) {
-    const auto offset = child->GetOffset();
-    const auto r = child->HitTest(point - offset);
-    if (r != nullptr) return r;
-  }
-
-  const auto rect = GetPaddingRect();
-  return rect.IsPointInside(point) ? this : nullptr;
-}  // namespace cru::ui::render
-
 Point ScrollRenderObject::GetScrollOffset() {
   if (auto child = GetChild()) {
     return CoerceScroll(scroll_offset_, GetContentRect().GetSize(),
@@ -259,17 +248,12 @@ ScrollBarRenderObject::ScrollBarRenderObject(std::string name,
   arrow_geometry_ = CreateScrollBarArrowGeometry();
 }
 
-RenderObject* ScrollBarRenderObject::HitTest(const Point& point) {
-  if (!IsEnabled()) {
-    return nullptr;
-  }
-
-  auto size = GetSize();
-  if (size.width <= 0 || size.height <= 0) return nullptr;
+bool ScrollBarRenderObject::IsPointInside(const Point& point) {
+  if (!IsEnabled()) return false;
   if (IsExpanded()) {
-    return Rect({0, 0}, size).IsPointInside(point) ? this : nullptr;
+    return GetPaddingRect().IsPointInside(point);
   } else {
-    return GetCollapsedThumbRect()->IsPointInside(point) ? this : nullptr;
+    return GetCollapsedThumbRect()->IsPointInside(point);
   }
 }
 

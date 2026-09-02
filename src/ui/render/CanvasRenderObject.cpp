@@ -4,11 +4,6 @@
 namespace cru::ui::render {
 CanvasRenderObject::CanvasRenderObject() : RenderObject(kRenderObjectName) {}
 
-RenderObject* CanvasRenderObject::HitTest(const Point& point) {
-  const auto padding_rect = GetPaddingRect();
-  return padding_rect.IsPointInside(point) ? this : nullptr;
-}
-
 Size CanvasRenderObject::OnMeasureContent(
     const MeasureRequirement& requirement) {
   return requirement.Coerce(requirement.suggest.GetSizeOr({100, 100}));

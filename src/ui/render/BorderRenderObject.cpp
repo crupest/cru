@@ -63,18 +63,11 @@ void BorderRenderObject::SetBackgroundBrush(
   InvalidatePaint();
 }
 
-RenderObject* BorderRenderObject::HitTest(const Point& point) {
-  if (auto child = GetChild()) {
-    const auto result = child->HitTest(point - child->GetOffset());
-    if (result != nullptr) {
-      return result;
-    }
-  }
-
+bool BorderRenderObject::IsPointInside(const Point& point) {
   if (is_border_enabled_) {
-    return border_outer_geometry_->FillContains(point) ? this : nullptr;
+    return border_outer_geometry_->FillContains(point);
   } else {
-    return GetPaddingRect().IsPointInside(point) ? this : nullptr;
+    return GetPaddingRect().IsPointInside(point);
   }
 }
 

@@ -86,8 +86,6 @@ class CRU_UI_API TextRenderObject : public RenderObject {
   }
   void SetMeasureIncludingTrailingSpace(bool including);
 
-  RenderObject* HitTest(const Point& point) override;
-
  protected:
   // See remarks of this class.
   Size OnMeasureContent(const MeasureRequirement& requirement) override;

@@ -60,10 +60,6 @@ void GeometryRenderObject::SetStrokeWidth(float width) {
   InvalidatePaint();
 }
 
-RenderObject* GeometryRenderObject::HitTest(const Point& point) {
-  return GetPaddingRect().IsPointInside(point) ? this : nullptr;
-}
-
 Size GeometryRenderObject::OnMeasureContent(
     const MeasureRequirement& requirement) {
   Size result = GetViewPort().GetSize();

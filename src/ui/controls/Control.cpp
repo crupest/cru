@@ -40,13 +40,17 @@ std::string Control::GetDebugId() {
 ControlHost* Control::GetControlHost() { return host_; }
 
 controls::Control* Control::HitTest(const Point& point) {
-  const auto render_object = GetRenderObject()->HitTest(point);
-  if (render_object) {
-    const auto control = render_object->GetAttachedControl();
-    assert(control);
-    return control;
+  for (auto iter = GetChildren().rbegin(), end = GetChildren().rend();
+       iter != end; ++iter) {
+    const auto child = *iter;
+    const auto result =
+        child->HitTest(point - child->GetRenderObject()->GetOffset());
+    if (result != nullptr) {
+      return result;
+    }
   }
-  return nullptr;
+
+  return GetRenderObject()->IsPointInside(point) ? this : nullptr;
 }
 
 Point Control::GetRenderObjectOffset(render::RenderObject* render_object) {

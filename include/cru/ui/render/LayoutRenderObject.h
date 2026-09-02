@@ -36,19 +36,6 @@ class LayoutRenderObject : public RenderObject {
     }
   }
 
-  RenderObject* HitTest(const Point& point) override {
-    const auto child_count = GetChildCount();
-    for (auto i = child_count - 1; i >= 0; --i) {
-      const auto child = GetChildAt(i);
-      const auto result = child->HitTest(point - child->GetOffset());
-      if (result != nullptr) {
-        return result;
-      }
-    }
-
-    return GetPaddingRect().IsPointInside(point) ? this : nullptr;
-  }
-
  protected:
   void OnDraw(RenderObjectDrawContext& context) override {
     auto painter = context.painter;

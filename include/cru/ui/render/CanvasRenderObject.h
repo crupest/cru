@@ -30,9 +30,6 @@ class CRU_UI_API CanvasRenderObject : public RenderObject {
 
   CanvasRenderObject();
 
- public:
-  RenderObject* HitTest(const Point& point) override;
-
   CRU_DEFINE_EVENT(Paint, const CanvasPaintEventArgs&)
 
  protected:

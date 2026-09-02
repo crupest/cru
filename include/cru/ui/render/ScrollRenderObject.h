@@ -110,8 +110,6 @@ class CRU_UI_API ScrollRenderObject
 
   ScrollRenderObject();
 
-  RenderObject* HitTest(const Point& point) override;
-
   // Return the coerced scroll offset.
   Point GetScrollOffset();
   float GetScrollOffset(Direction direction) {
@@ -192,7 +190,7 @@ class CRU_UI_API ScrollBarRenderObject : public RenderObject {
   ScrollBarRenderObject(std::string name, Direction direction);
 
  public:
-  RenderObject* HitTest(const Point& point) override;
+  bool IsPointInside(const Point& point) override;
 
  protected:
   void OnDraw(RenderObjectDrawContext& context) override;

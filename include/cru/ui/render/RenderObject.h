@@ -147,7 +147,11 @@ class CRU_UI_API RenderObject : public Object,
 
   // Param point must be relative the lefttop of render object including
   // margin. Add offset before pass point to children.
-  virtual RenderObject* HitTest(const Point& point) = 0;
+  RenderObject* HitTest(const Point& point);
+
+  // Param point must be relative the lefttop of render object including
+  // margin. Add offset before pass point to children.
+  virtual bool IsPointInside(const Point& point);
 
  public:
   controls::ControlHost* GetControlHost();
@@ -197,7 +201,6 @@ class CRU_UI_API RenderObject : public Object,
  private:
   std::string name_;
   controls::Control* control_;
-  RenderObject* parent_;
 
   Point offset_;
   Size size_;
