@@ -7,6 +7,7 @@
 #include <cru/base/TreeObject.h>
 
 #include <chrono>
+#include <concepts>
 
 namespace cru::ui::controls {
 using render::kScrollBarAreaKindList;
@@ -330,7 +331,11 @@ class ScrollControlMixin {
   }
 
  private:
-  TSelf* AsSelf() { return static_cast<TSelf*>(this); }
+  TSelf* AsSelf()
+    requires(std::derived_from<TSelf, Control>)
+  {
+    return static_cast<TSelf*>(this);
+  }
 
  private:
   render::StackLayoutRenderObject stack_layout_render_object_;

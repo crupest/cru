@@ -23,9 +23,8 @@ struct ControlHostChangeEventArgs {
 };
 
 /**
- *  \remarks If you want to write a new control. You should override following
+ * If you want to write a new control. You should at least override following
  * methods:
- *  - GetControlType()
  *  - GetRenderObject()
  */
 class CRU_UI_API Control : public Object,
@@ -50,11 +49,8 @@ class CRU_UI_API Control : public Object,
 
   virtual render::RenderObject* GetRenderObject() = 0;
 
-  controls::Control* HitTest(const Point& point);
-
+  //*************** region: layout ***************
  public:
-  Point GetRenderObjectOffset(render::RenderObject* render_object);
-
   virtual render::MeasureSize GetSuggestSize() {
     return GetRenderObject()->GetSuggestSize();
   }
@@ -71,6 +67,15 @@ class CRU_UI_API Control : public Object,
   virtual void SetPadding(const Thickness& padding) {
     GetRenderObject()->SetPadding(padding);
   }
+
+  controls::Control* HitTest(const Point& point);
+
+  /**
+   * @brief Gets the offset of a render object relative to this control.
+   *
+   * The render object must be a descendent of this control's render object.
+   */
+  Point GetRenderObjectOffset(render::RenderObject* render_object);
 
   //*************** region: focus ***************
  public:
@@ -100,6 +105,7 @@ class CRU_UI_API Control : public Object,
   // null to unset
   void SetCursor(std::shared_ptr<platform::gui::ICursor> cursor);
 
+  //*************** region: style ***************
  public:
   std::shared_ptr<style::StyleRuleSet> GetStyleRuleSet();
 
