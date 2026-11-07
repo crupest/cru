@@ -12,7 +12,27 @@ class CRU_BASE_API DataTypeRegistry : public Object {
   DataTypeRegistry();
   ~DataTypeRegistry();
 
-  const std::vector<IDataTypeBase*>& GetAllDataTypes() { return data_type_list_; }
+  const std::vector<IDataTypeBase*>& GetAllDataTypes() {
+    return data_type_list_;
+  }
+
+  IDataTypeBase* GetDataType(std::string_view name) {
+    for (auto* data_type : data_type_list_) {
+      if (data_type->GetName() == name) {
+        return data_type;
+      }
+    }
+    return nullptr;
+  }
+
+  IDataTypeBase* GetDataType(const std::type_info& type_info) {
+    for (auto* data_type : data_type_list_) {
+      if (data_type->GetTypeInfo() == type_info) {
+        return data_type;
+      }
+    }
+    return nullptr;
+  }
 
   template <typename T, typename DT = DataTypeBase<T>>
   DT* GetDataType()
@@ -25,6 +45,13 @@ class CRU_BASE_API DataTypeRegistry : public Object {
       }
     }
     return nullptr;
+  }
+
+  IDataTypeBase* GetDataTypeOfValue(const std::any& value) {
+    if (!value.has_value()) {
+      return nullptr;
+    }
+    return GetDataType(value.type());
   }
 
   template <typename T>

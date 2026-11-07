@@ -1,12 +1,19 @@
 #include "cru/base/datamodel/DataType.h"
+#include "cru/base/datamodel/DataTypeRegistry.h"
 
 #include <catch2/catch_test_macros.hpp>
+#include <string>
+#include <utility>
 #include <vector>
 
 using cru::Exception;
 using cru::datamodel::DataConvertResult;
+using cru::datamodel::DataTypeBase;
+using cru::datamodel::DataTypeRegistry;
+using cru::datamodel::KeyValueObject;
 using cru::datamodel::NumberDataType;
 using cru::datamodel::NumberListDataType;
+using cru::datamodel::ObjectDataType;
 using cru::datamodel::StringDataType;
 using cru::string::ParseToNumberFlags;
 using cru::xml::XmlElementNode;
@@ -46,10 +53,6 @@ TEST_CASE("NumberDataType string conversion", "[datamodel]") {
   NumberDataType<int> type;
 
   REQUIRE(type.GetName() == "Number");
-  REQUIRE(type.SupportConvertFromString());
-  REQUIRE(type.SupportConvertToString());
-  REQUIRE(type.SupportConvertFromXml());
-  REQUIRE(!type.SupportConvertToXml());
 
   auto parsed = type.ConvertFromString(" 10 trailing");
   REQUIRE(parsed.IsSuccess());
@@ -63,7 +66,7 @@ TEST_CASE("NumberDataType string conversion", "[datamodel]") {
   REQUIRE(serialized.IsSuccess());
   REQUIRE(serialized.GetValue() == "-25");
 
-  REQUIRE_THROWS_AS(type.ConvertToXml(1), Exception);
+  REQUIRE(type.ConvertToXml(1).IsNotSupported());
 }
 
 TEST_CASE("NumberDataType strict trailing junk handling", "[datamodel]") {
@@ -83,10 +86,6 @@ TEST_CASE("NumberListDataType string conversion", "[datamodel]") {
   NumberListDataType<int> type;
 
   REQUIRE(type.GetName() == "NumberList");
-  REQUIRE(type.SupportConvertFromString());
-  REQUIRE(type.SupportConvertToString());
-  REQUIRE(type.SupportConvertFromXml());
-  REQUIRE(!type.SupportConvertToXml());
 
   auto parsed = type.ConvertFromString(
       " 1\t2\n\xC2\xA0"
@@ -100,7 +99,7 @@ TEST_CASE("NumberListDataType string conversion", "[datamodel]") {
   REQUIRE(serialized.IsSuccess());
   REQUIRE(serialized.GetValue() == "-1 0 42");
 
-  REQUIRE_THROWS_AS(type.ConvertToXml(std::vector<int>{1}), Exception);
+  REQUIRE(type.ConvertToXml(std::vector<int>{1}).IsNotSupported());
 }
 
 TEST_CASE("NumberListDataType reports invalid substrings", "[datamodel]") {
@@ -129,7 +128,9 @@ TEST_CASE("NumberDataType xml conversion through string fallback",
   XmlElementNode wrong_tag("String");
   wrong_tag.AddChild(new XmlTextNode("77"));
   REQUIRE(!type.XmlIsOfThisType(&wrong_tag));
-  REQUIRE_THROWS_AS(type.ConvertFromXml(&wrong_tag), Exception);
+  auto wrong_tag_result = type.ConvertFromXml(&wrong_tag);
+  REQUIRE(!wrong_tag_result.IsSuccess());
+  REQUIRE(wrong_tag_result.HasErrors());
 
   XmlElementNode nested_element("Number");
   nested_element.AddChild(new XmlElementNode("child"));
@@ -157,10 +158,6 @@ TEST_CASE("StringDataType conversion", "[datamodel]") {
   StringDataType type;
 
   REQUIRE(type.GetName() == "String");
-  REQUIRE(type.SupportConvertFromString());
-  REQUIRE(type.SupportConvertToString());
-  REQUIRE(type.SupportConvertFromXml());
-  REQUIRE(!type.SupportConvertToXml());
 
   auto parsed = type.ConvertFromString("hello");
   REQUIRE(parsed.IsSuccess());
@@ -177,5 +174,328 @@ TEST_CASE("StringDataType conversion", "[datamodel]") {
   REQUIRE(from_xml.IsSuccess());
   REQUIRE(from_xml.GetValue() == "from-xml");
 
-  REQUIRE_THROWS_AS(type.ConvertToXml(std::string("x")), Exception);
+  REQUIRE(type.ConvertToXml(std::string("x")).IsNotSupported());
+}
+
+namespace {
+
+// DataTypeRegistry takes ownership of every data type registered into it, so
+// the registry must outlive the ObjectDataType that reads from it.
+class ObjectDataTypeTestFixture {
+ public:
+  ObjectDataTypeTestFixture() : object_data_type_(&registry_) {
+    registry_.RegisterDataType(new StringDataType());
+    registry_.RegisterDataType(new NumberDataType<int>());
+    registry_.RegisterDataType(new NumberDataType<double>());
+  }
+
+  DataConvertResult<std::string> ConvertToString(const KeyValueObject& value) {
+    return object_data_type_.ConvertToString(value);
+  }
+
+ private:
+  DataTypeRegistry registry_;
+  ObjectDataType object_data_type_;
+};
+
+// A value type whose data type intentionally fails to convert to string.
+struct UnconvertibleValue {};
+
+class UnconvertibleDataType : public DataTypeBase<UnconvertibleValue> {
+ public:
+  UnconvertibleDataType() : DataTypeBase<UnconvertibleValue>("Unconvertible") {}
+
+ protected:
+  DataConvertResult<std::string> DoConvertToString(
+      const UnconvertibleValue&) override {
+    return DataConvertResult<std::string>::Failure("value cannot be converted");
+  }
+};
+
+// A value type whose data type succeeds but attaches a warning.
+struct WarnedValue {};
+
+class WarningDataType : public DataTypeBase<WarnedValue> {
+ public:
+  WarningDataType() : DataTypeBase<WarnedValue>("Warning") {}
+
+ protected:
+  DataConvertResult<std::string> DoConvertToString(
+      const WarnedValue&) override {
+    return DataConvertResult<std::string>::SuccessWithError(
+        "OK", "non-fatal warning");
+  }
+};
+
+}  // namespace
+
+TEST_CASE("ObjectDataType metadata", "[datamodel][ObjectDataType]") {
+  DataTypeRegistry registry;
+  ObjectDataType type(&registry);
+
+  REQUIRE(type.GetName() == "Object");
+  REQUIRE(type.GetTypeInfo() == typeid(KeyValueObject));
+}
+
+TEST_CASE("ObjectDataType converts an empty object",
+          "[datamodel][ObjectDataType]") {
+  ObjectDataTypeTestFixture fixture;
+
+  auto result = fixture.ConvertToString(KeyValueObject{});
+
+  REQUIRE(result.IsSuccess());
+  REQUIRE(!result.HasErrors());
+  REQUIRE(result.GetValue() == "{  }");
+}
+
+TEST_CASE("ObjectDataType converts flat properties in insertion order",
+          "[datamodel][ObjectDataType]") {
+  ObjectDataTypeTestFixture fixture;
+
+  KeyValueObject object;
+  object.SetProperty("name", std::string("Alice"));
+  object.SetProperty("age", 42);
+  object.SetProperty("ratio", 0.5);
+
+  auto result = fixture.ConvertToString(object);
+
+  REQUIRE(result.IsSuccess());
+  REQUIRE(!result.HasErrors());
+  REQUIRE(result.GetValue() == "{ name : Alice, age : 42, ratio : 0.500000 }");
+}
+
+TEST_CASE("ObjectDataType converts nested objects as inline objects",
+          "[datamodel][ObjectDataType]") {
+  ObjectDataTypeTestFixture fixture;
+
+  SECTION("single nesting level") {
+    KeyValueObject position;
+    position.SetProperty("x", 1);
+    position.SetProperty("y", 2);
+
+    KeyValueObject outer;
+    outer.SetProperty("position", std::move(position));
+
+    auto result = fixture.ConvertToString(outer);
+
+    REQUIRE(result.IsSuccess());
+    REQUIRE(!result.HasErrors());
+    REQUIRE(result.GetValue() == "{ position : { x : 1, y : 2 } }");
+  }
+
+  SECTION("multiple nesting levels") {
+    KeyValueObject inner;
+    inner.SetProperty("value", 3);
+
+    KeyValueObject middle;
+    middle.SetProperty("inner", std::move(inner));
+
+    KeyValueObject outer;
+    outer.SetProperty("middle", std::move(middle));
+
+    auto result = fixture.ConvertToString(outer);
+
+    REQUIRE(result.IsSuccess());
+    REQUIRE(!result.HasErrors());
+    REQUIRE(result.GetValue() == "{ middle : { inner : { value : 3 } } }");
+  }
+
+  SECTION("empty nested object") {
+    KeyValueObject object;
+    object.SetProperty("child", KeyValueObject{});
+
+    auto result = fixture.ConvertToString(object);
+
+    REQUIRE(result.IsSuccess());
+    REQUIRE(!result.HasErrors());
+    REQUIRE(result.GetValue() == "{ child : {  } }");
+  }
+}
+
+TEST_CASE("ObjectDataType marks values it cannot convert",
+          "[datamodel][ObjectDataType]") {
+  ObjectDataTypeTestFixture fixture;
+
+  SECTION("unknown value type") {
+    KeyValueObject object;
+    // std::vector<int> has no registered data type in this fixture.
+    object.SetProperty("unknown", std::vector<int>{1, 2, 3});
+
+    auto result = fixture.ConvertToString(object);
+
+    REQUIRE(result.IsSuccess());
+    REQUIRE(!result.HasErrors());
+    REQUIRE(result.GetValue() == "{ unknown : UNKNOWN-TYPE }");
+  }
+
+  SECTION("valueless std::any") {
+    KeyValueObject object;
+    object["empty"];  // Default-constructs a valueless std::any.
+
+    auto result = fixture.ConvertToString(object);
+
+    REQUIRE(result.IsSuccess());
+    REQUIRE(!result.HasErrors());
+    REQUIRE(result.GetValue() == "{ empty : EMPTY-ANY }");
+  }
+}
+
+TEST_CASE("ObjectDataType reports failing property conversions",
+          "[datamodel][ObjectDataType]") {
+  // The registry owns the data type instance.
+  DataTypeRegistry registry;
+  registry.RegisterDataType(new UnconvertibleDataType());
+  ObjectDataType type(&registry);
+
+  SECTION("top level property") {
+    KeyValueObject object;
+    object.SetProperty("bad", UnconvertibleValue{});
+
+    auto result = type.ConvertToString(object);
+
+    // A placeholder value is still produced; the failure is reported
+    // through the error list.
+    REQUIRE(result.IsSuccess());
+    REQUIRE(result.HasErrors());
+    REQUIRE(result.GetValue() == "{ bad : CONVERSION-ERROR }");
+    REQUIRE(result.GetErrors() ==
+            std::vector<std::string>{"In property bad, value cannot be "
+                                     "converted"});
+  }
+
+  SECTION("nested property reports dotted path") {
+    KeyValueObject inner;
+    inner.SetProperty("bad", UnconvertibleValue{});
+
+    KeyValueObject outer;
+    outer.SetProperty("child", std::move(inner));
+
+    auto result = type.ConvertToString(outer);
+
+    REQUIRE(result.IsSuccess());
+    REQUIRE(result.HasErrors());
+    REQUIRE(result.GetValue() == "{ child : { bad : CONVERSION-ERROR } }");
+    REQUIRE(result.GetErrors() ==
+            std::vector<std::string>{"In property child.bad, value cannot be "
+                                     "converted"});
+  }
+
+  SECTION("sibling properties do not leak path segments") {
+    KeyValueObject object;
+    object.SetProperty("first", UnconvertibleValue{});
+    object.SetProperty("second", UnconvertibleValue{});
+
+    auto result = type.ConvertToString(object);
+
+    REQUIRE(result.IsSuccess());
+    REQUIRE(result.GetErrors() ==
+            std::vector<std::string>{
+                "In property first, value cannot be converted",
+                "In property second, value cannot be converted"});
+  }
+}
+
+TEST_CASE("ObjectDataType keeps non-fatal conversion warnings",
+          "[datamodel][ObjectDataType]") {
+  DataTypeRegistry registry;
+  registry.RegisterDataType(new WarningDataType());
+  ObjectDataType type(&registry);
+
+  KeyValueObject object;
+  object.SetProperty("warned", WarnedValue{});
+
+  auto result = type.ConvertToString(object);
+
+  REQUIRE(result.IsSuccess());
+  REQUIRE(result.HasErrors());
+  REQUIRE(result.GetValue() == "{ warned : OK }");
+  REQUIRE(result.GetErrors() ==
+          std::vector<std::string>{"In property warned, non-fatal warning"});
+}
+
+TEST_CASE("ObjectDataType reports nested object paths in error info",
+          "[datamodel][ObjectDataType]") {
+  DataTypeRegistry registry;
+  registry.RegisterDataType(new StringDataType());
+  registry.RegisterDataType(new UnconvertibleDataType());
+  registry.RegisterDataType(new WarningDataType());
+  ObjectDataType type(&registry);
+
+  SECTION("deeply nested property") {
+    KeyValueObject leaf;
+    leaf.SetProperty("bad", UnconvertibleValue{});
+
+    KeyValueObject middle;
+    middle.SetProperty("b", std::move(leaf));
+
+    KeyValueObject outer;
+    outer.SetProperty("a", std::move(middle));
+
+    auto result = type.ConvertToString(outer);
+
+    REQUIRE(result.IsSuccess());
+    REQUIRE(result.GetValue() == "{ a : { b : { bad : CONVERSION-ERROR } } }");
+    REQUIRE(result.GetErrors() ==
+            std::vector<std::string>{
+                "In property a.b.bad, value cannot be converted"});
+  }
+
+  SECTION("sibling nested objects keep separate paths") {
+    KeyValueObject first;
+    first.SetProperty("bad", UnconvertibleValue{});
+
+    KeyValueObject second;
+    second.SetProperty("bad", UnconvertibleValue{});
+
+    KeyValueObject outer;
+    outer.SetProperty("first", std::move(first));
+    outer.SetProperty("second", std::move(second));
+
+    auto result = type.ConvertToString(outer);
+
+    REQUIRE(result.IsSuccess());
+    REQUIRE(result.GetErrors() ==
+            std::vector<std::string>{
+                "In property first.bad, value cannot be converted",
+                "In property second.bad, value cannot be converted"});
+  }
+
+  SECTION("multiple errors in one nested object") {
+    KeyValueObject child;
+    child.SetProperty("name", std::string("child"));
+    child.SetProperty("bad1", UnconvertibleValue{});
+    child.SetProperty("bad2", UnconvertibleValue{});
+
+    KeyValueObject outer;
+    outer.SetProperty("child", std::move(child));
+    outer.SetProperty("bad3", UnconvertibleValue{});
+
+    auto result = type.ConvertToString(outer);
+
+    REQUIRE(result.IsSuccess());
+    REQUIRE(result.GetValue() ==
+            "{ child : { name : child, bad1 : CONVERSION-ERROR, bad2 : "
+            "CONVERSION-ERROR }, bad3 : CONVERSION-ERROR }");
+    REQUIRE(result.GetErrors() ==
+            std::vector<std::string>{
+                "In property child.bad1, value cannot be converted",
+                "In property child.bad2, value cannot be converted",
+                "In property bad3, value cannot be converted"});
+  }
+
+  SECTION("warning inside nested object reports nested path") {
+    KeyValueObject inner;
+    inner.SetProperty("warned", WarnedValue{});
+
+    KeyValueObject outer;
+    outer.SetProperty("inner", std::move(inner));
+
+    auto result = type.ConvertToString(outer);
+
+    REQUIRE(result.IsSuccess());
+    REQUIRE(result.GetValue() == "{ inner : { warned : OK } }");
+    REQUIRE(result.GetErrors() ==
+            std::vector<std::string>{
+                "In property inner.warned, non-fatal warning"});
+  }
 }

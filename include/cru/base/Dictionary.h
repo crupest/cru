@@ -3,6 +3,7 @@
 #include "Base.h"
 
 #include <algorithm>
+#include <concepts>
 #include <cstddef>
 #include <initializer_list>
 #include <iterator>
@@ -28,6 +29,19 @@ class Dictionary {
   using const_pointer = const value_type*;
 
  private:
+  // Dictionary accepts heterogeneous key types for every key-taking operation.
+  // Only one direction is checked because the members always evaluate
+  // `key == candidate`, never the reverse. This is a trait rather than a
+  // concept because a concept can only be declared at namespace scope.
+  // clang-format off
+  // (clang-format mis-parses a requires-expression used as a template argument)
+  template <typename K>
+  struct KeyComparable
+      : std::bool_constant<requires(const Key& key, const K& candidate) {
+          { key == candidate } -> std::convertible_to<bool>;
+        }> {};
+  // clang-format on
+
   using Storage = std::vector<std::unique_ptr<value_type>>;
   using ValuePtr = std::unique_ptr<value_type>;
 
@@ -186,13 +200,13 @@ class Dictionary {
   auto clear() noexcept { return storage_.clear(); }
 
   template <typename P>
-    requires(std::is_constructible_v<value_type, P &&>)
   std::pair<iterator, bool> insert(P&& value) {
     return emplace(std::forward<P>(value));
   }
 
   template <typename... Args>
   std::pair<iterator, bool> emplace(Args&&... args) {
+    static_assert(std::is_constructible_v<value_type, Args&&...>);
     ValuePtr new_value(new value_type(std::forward<Args>(args)...));
     auto it = std::ranges::find_if(storage_, [&new_value](const auto& pair) {
       return pair->first == new_value->first;
@@ -207,6 +221,10 @@ class Dictionary {
 
   template <class K, class M>
   std::pair<iterator, bool> insert_or_assign(K&& k, M&& obj) {
+    static_assert(KeyComparable<K>::value);
+    static_assert(std::is_constructible_v<Key, K&&>);
+    static_assert(std::is_constructible_v<T, M&&> &&
+                  std::is_assignable_v<T&, M&&>);
     auto it = std::ranges::find_if(
         storage_, [&k](const auto& pair) { return pair->first == k; });
     if (it != storage_.end()) {
@@ -226,6 +244,7 @@ class Dictionary {
   }
   template <typename K>
   size_type erase(K&& key) {
+    static_assert(KeyComparable<K>::value);
     auto it = std::ranges::find_if(
         storage_, [&key](const auto& pair) { return pair->first == key; });
     if (it != storage_.end()) {
@@ -239,6 +258,7 @@ class Dictionary {
 
   template <typename K>
   T& at(const K& key) {
+    static_assert(KeyComparable<K>::value);
     auto it = std::ranges::find_if(
         storage_, [&key](const auto& pair) { return pair->first == key; });
     if (it != storage_.end()) {
@@ -249,6 +269,7 @@ class Dictionary {
 
   template <typename K>
   const T& at(const K& key) const {
+    static_assert(KeyComparable<K>::value);
     auto it = std::ranges::find_if(
         storage_, [&key](const auto& pair) { return pair->first == key; });
     if (it != storage_.end()) {
@@ -259,6 +280,9 @@ class Dictionary {
 
   template <typename K>
   T& operator[](K&& key) {
+    static_assert(KeyComparable<K>::value);
+    static_assert(std::is_constructible_v<Key, K&&>);
+    static_assert(std::is_default_constructible_v<T>);
     auto it = std::ranges::find_if(
         storage_, [&key](const auto& pair) { return pair->first == key; });
     if (it != storage_.end()) {
@@ -271,6 +295,7 @@ class Dictionary {
 
   template <class K>
   iterator find(const K& x) {
+    static_assert(KeyComparable<K>::value);
     auto it = std::ranges::find_if(
         storage_, [&x](const auto& pair) { return pair->first == x; });
     return iterator(it);
@@ -278,6 +303,7 @@ class Dictionary {
 
   template <class K>
   const_iterator find(const K& x) const {
+    static_assert(KeyComparable<K>::value);
     auto it = std::ranges::find_if(
         storage_, [&x](const auto& pair) { return pair->first == x; });
     return const_iterator(it);
@@ -285,6 +311,7 @@ class Dictionary {
 
   template <typename K>
   size_type count(const K& key) const {
+    static_assert(KeyComparable<K>::value);
     auto it = std::ranges::find_if(
         storage_, [&key](const auto& pair) { return pair->first == key; });
     return it != storage_.end() ? 1 : 0;

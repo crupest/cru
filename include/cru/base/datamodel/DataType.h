@@ -1,19 +1,228 @@
 #pragma once
 
 #include "../Base.h"
+#include "../Dictionary.h"
 #include "../StringUtil.h"
 #include "../Xml.h"
 
+#include <algorithm>
+#include <any>
+#include <concepts>
 #include <format>
+#include <initializer_list>
 #include <optional>
 #include <ranges>
 #include <string>
 #include <string_view>
+#include <type_traits>
+#include <typeindex>
+#include <typeinfo>
+#include <utility>
 
 namespace cru::datamodel {
+class CRU_BASE_API KeyValueObject {
+ private:
+  using Storage = Dictionary<std::string, std::any>;
+
+ public:
+  using key_type = Storage::key_type;
+  using mapped_type = Storage::mapped_type;
+  using value_type = Storage::value_type;
+  using size_type = Storage::size_type;
+  using difference_type = Storage::difference_type;
+  using reference = Storage::reference;
+  using const_reference = Storage::const_reference;
+  using pointer = Storage::pointer;
+  using const_pointer = Storage::const_pointer;
+  using iterator = Storage::iterator;
+  using const_iterator = Storage::const_iterator;
+  using reverse_iterator = Storage::reverse_iterator;
+  using const_reverse_iterator = Storage::const_reverse_iterator;
+
+  KeyValueObject() = default;
+  KeyValueObject(std::initializer_list<value_type> init) : dictionary_(init) {}
+  CRU_DEFAULT_COPY(KeyValueObject)
+  CRU_DEFAULT_MOVE(KeyValueObject)
+  ~KeyValueObject() = default;
+
+  auto begin() { return dictionary_.begin(); }
+  auto end() { return dictionary_.end(); }
+  auto begin() const { return dictionary_.begin(); }
+  auto end() const { return dictionary_.end(); }
+  auto cbegin() const { return dictionary_.cbegin(); }
+  auto cend() const { return dictionary_.cend(); }
+  auto rbegin() { return dictionary_.rbegin(); }
+  auto rend() { return dictionary_.rend(); }
+  auto rbegin() const { return dictionary_.rbegin(); }
+  auto rend() const { return dictionary_.rend(); }
+  auto crbegin() const { return dictionary_.crbegin(); }
+  auto crend() const { return dictionary_.crend(); }
+
+  auto empty() const noexcept { return dictionary_.empty(); }
+  auto size() const noexcept { return dictionary_.size(); }
+  Index ssize() const noexcept { return dictionary_.ssize(); }
+  auto max_size() const noexcept { return dictionary_.max_size(); }
+
+  auto clear() noexcept { return dictionary_.clear(); }
+
+  template <typename P>
+  std::pair<iterator, bool> insert(P&& value) {
+    return dictionary_.insert(std::forward<P>(value));
+  }
+
+  template <typename... Args>
+  std::pair<iterator, bool> emplace(Args&&... args) {
+    return dictionary_.emplace(std::forward<Args>(args)...);
+  }
+
+  template <typename K, typename M>
+  std::pair<iterator, bool> insert_or_assign(K&& key, M&& obj) {
+    return dictionary_.insert_or_assign(std::forward<K>(key),
+                                        std::forward<M>(obj));
+  }
+
+  auto erase(const_iterator pos) { return dictionary_.erase(pos); }
+  auto erase(iterator pos) { return dictionary_.erase(pos); }
+  auto erase(const_iterator first, const_iterator last) {
+    return dictionary_.erase(first, last);
+  }
+
+  template <typename K>
+  size_type erase(K&& key) {
+    return dictionary_.erase(std::forward<K>(key));
+  }
+
+  void swap(KeyValueObject& other) { dictionary_.swap(other.dictionary_); }
+
+  friend void swap(KeyValueObject& lhs, KeyValueObject& rhs) { lhs.swap(rhs); }
+
+  template <typename K>
+  mapped_type& at(const K& key) {
+    return dictionary_.at(key);
+  }
+
+  template <typename K>
+  const mapped_type& at(const K& key) const {
+    return dictionary_.at(key);
+  }
+
+  template <typename K>
+  mapped_type& operator[](K&& key) {
+    return dictionary_[std::forward<K>(key)];
+  }
+
+  template <typename K>
+  iterator find(const K& key) {
+    return dictionary_.find(key);
+  }
+
+  template <typename K>
+  const_iterator find(const K& key) const {
+    return dictionary_.find(key);
+  }
+
+  template <typename K>
+  size_type count(const K& key) const {
+    return dictionary_.count(key);
+  }
+
+  template <typename K>
+  bool contains(const K& key) const {
+    return dictionary_.contains(key);
+  }
+
+  auto Keys() const { return dictionary_.Keys(); }
+  auto Values() { return dictionary_.Values(); }
+  auto Values() const { return dictionary_.Values(); }
+
+  template <typename K>
+  bool HasProperty(const K& key) const {
+    return dictionary_.contains(key);
+  }
+
+  template <typename K>
+  bool PropertyIsTrue(const K& key) const {
+    auto it = dictionary_.find(key);
+    if (it == dictionary_.end()) {
+      return false;
+    }
+    try {
+      return std::any_cast<bool>(it->second);
+    } catch (const std::bad_any_cast&) {
+      return false;
+    }
+  }
+
+  template <typename T, typename K>
+  T& GetProperty(const K& key) {
+    auto& value = dictionary_.at(key);
+    if (!value.has_value()) {
+      throw Exception(std::format("Property {} has no value.", key));
+    }
+    return std::any_cast<T&>(value);
+  }
+
+  template <typename T, typename K>
+  const T& GetProperty(const K& key) const {
+    const auto& value = dictionary_.at(key);
+    if (!value.has_value()) {
+      throw Exception(std::format("Property {} has no value.", key));
+    }
+    return std::any_cast<const T&>(value);
+  }
+
+  template <typename T, typename K>
+  bool AddProperty(K&& key, T&& value) {
+    return dictionary_
+        .emplace(std::forward<K>(key), std::make_any<T>(std::forward<T>(value)))
+        .second;
+  }
+
+  template <typename T, typename K>
+  bool SetProperty(K&& key, T&& value) {
+    return dictionary_
+        .insert_or_assign(std::forward<K>(key),
+                          std::make_any<T>(std::forward<T>(value)))
+        .second;
+  }
+
+  template <typename T, typename K, typename... Args>
+  bool EmplaceProperty(K&& key, Args&&... args) {
+    return dictionary_
+        .emplace(std::forward<K>(key),
+                 std::make_any<T>(std::forward<Args>(args)...))
+        .second;
+  }
+
+  template <typename K>
+  bool RemoveProperty(const K& key) {
+    static_assert(
+        !(std::same_as<K, iterator> || std::same_as<K, const_iterator>),
+        "RemoveProperty does not accept iterator.");
+    return dictionary_.erase(key);
+  }
+
+ private:
+  Storage dictionary_;
+};
+
+template <class Pred>
+typename KeyValueObject::size_type erase_if(KeyValueObject& object, Pred pred) {
+  auto old_size = object.size();
+  for (auto iter = object.begin(); iter != object.end();) {
+    if (pred(*iter))
+      iter = object.erase(iter);
+    else
+      ++iter;
+  }
+  return old_size - object.size();
+}
+
 template <typename T>
 class DataConvertResult {
  public:
+  static constexpr auto NotSupportedKey = "NotSupported";
+
   DataConvertResult() = default;
   DataConvertResult(std::optional<T> value, std::vector<std::string> errors)
       : value_(std::move(value)), errors_(std::move(errors)) {}
@@ -39,6 +248,12 @@ class DataConvertResult {
     return DataConvertResult<T>(std::nullopt, std::move(errors));
   }
 
+  static DataConvertResult<T> NotSupported(std::string error) {
+    DataConvertResult<T> result(std::nullopt, {std::move(error)});
+    result.GetMetadata().SetProperty(NotSupportedKey, true);
+    return result;
+  }
+
   bool IsSuccess() const { return value_.has_value(); }
   bool HasErrors() const { return !errors_.empty(); }
   T GetValue() const {
@@ -54,89 +269,90 @@ class DataConvertResult {
   void AddError(std::string error) { errors_.push_back(std::move(error)); }
   void RemoveError(std::string_view error) { std::erase(errors_, error); }
 
+  KeyValueObject& GetMetadata() { return metadata_; }
+  const KeyValueObject& GetMetadata() const { return metadata_; }
+
+  bool IsNotSupported() const {
+    return GetMetadata().PropertyIsTrue(NotSupportedKey);
+  }
+
  private:
   std::optional<T> value_;
   std::vector<std::string> errors_;
+  KeyValueObject metadata_;
 };
 
 struct IDataTypeBase : virtual Interface {
-  virtual bool SupportConvertFromString() = 0;
-  virtual bool SupportConvertToString() = 0;
-  virtual bool SupportConvertFromXml() = 0;
-  virtual bool SupportConvertToXml() = 0;
+  virtual std::string GetName() = 0;
+  virtual const std::type_info& GetTypeInfo() = 0;
+  std::type_index GetTypeIndex() { return std::type_index(GetTypeInfo()); }
+  virtual DataConvertResult<std::string> ConvertToString(
+      const std::any& value) = 0;
+  virtual DataConvertResult<cru::xml::XmlElementNode*> ConvertToXml(
+      const std::any& value) = 0;
   virtual bool XmlIsOfThisType(cru::xml::XmlElementNode* node) = 0;
 };
 
 template <typename T>
 struct IDataType : virtual IDataTypeBase {
+ private:
+  static const T& GetValueFromAny(const std::any& value) {
+    if (!value.has_value()) {
+      throw Exception("std::any value is empty.");
+    }
+    try {
+      return std::any_cast<const T&>(value);
+    } catch (const std::bad_any_cast&) {
+      throw Exception("std::any value is not of the expected type.");
+    }
+  }
+
+ public:
+  const std::type_info& GetTypeInfo() override { return typeid(T); }
+
   virtual DataConvertResult<T> ConvertFromString(std::string_view value) = 0;
   virtual DataConvertResult<std::string> ConvertToString(T value) = 0;
+  DataConvertResult<std::string> ConvertToString(const std::any& value) final {
+    return ConvertToString(GetValueFromAny(value));
+  }
   virtual DataConvertResult<T> ConvertFromXml(
       cru::xml::XmlElementNode* node) = 0;
   virtual DataConvertResult<cru::xml::XmlElementNode*> ConvertToXml(
       T value) = 0;
+  DataConvertResult<cru::xml::XmlElementNode*> ConvertToXml(
+      const std::any& value) final {
+    return ConvertToXml(GetValueFromAny(value));
+  }
 };
 
 template <typename T>
 class DataTypeBase : public Object, public virtual IDataType<T> {
  public:
-  std::string GetName() { return name_; }
+  std::string GetName() override { return name_; }
 
-  bool SupportConvertFromString() final { return DoSupportConvertFromString(); }
-  bool SupportConvertToString() final { return DoSupportConvertToString(); }
   DataConvertResult<T> ConvertFromString(std::string_view value) final {
-    if (!SupportConvertFromString()) {
-      throw Exception("Convert from string is not supported.");
-    }
     return DoConvertFromString(value);
   }
   DataConvertResult<std::string> ConvertToString(T value) final {
-    if (!SupportConvertToString()) {
-      throw Exception("Convert to string is not supported.");
-    }
     return DoConvertToString(value);
   }
 
-  bool SupportConvertFromXml() final {
-    auto native_able = DoSupportConvertFromXml();
-    if (!native_able && IsAutoConvertFromXmlByString() &&
-        SupportConvertFromString()) {
-      return true;
-    }
-    return native_able;
-  }
-
-  bool SupportConvertToXml() final { return DoSupportConvertToXml(); }
-
   bool XmlIsOfThisType(cru::xml::XmlElementNode* node) final {
-    if (!SupportConvertFromXml()) {
-      throw Exception("Convert from xml is not supported.");
-    }
-    if (!DoSupportConvertFromXml() && IsAutoConvertFromXmlByString() &&
-        SupportConvertFromString()) {
-      return node->HasTag(GetName());
-    }
     return DoXmlIsOfThisType(node);
   }
 
   DataConvertResult<T> ConvertFromXml(cru::xml::XmlElementNode* node) final {
-    if (!SupportConvertFromXml()) {
-      throw Exception("Convert from xml is not supported.");
-    }
     if (!XmlIsOfThisType(node)) {
-      throw Exception("Xml node is not of this type.");
+      return DataConvertResult<T>::Failure("Xml node is not of this type.");
     }
-    if (!DoSupportConvertFromXml() && IsAutoConvertFromXmlByString() &&
-        SupportConvertFromString()) {
+    auto result = DoConvertFromXml(node);
+    if (result.IsNotSupported() && IsAutoConvertFromXmlByString()) {
       return DoConvertFromXmlByString(node);
     }
-    return DoConvertFromXml(node);
+    return result;
   }
 
   DataConvertResult<cru::xml::XmlElementNode*> ConvertToXml(T value) final {
-    if (!SupportConvertToXml()) {
-      throw Exception("Convert to xml is not supported.");
-    }
     return DoConvertToXml(value);
   }
 
@@ -168,45 +384,36 @@ class DataTypeBase : public Object, public virtual IDataType<T> {
   }
 
  protected:
-  struct Supports {
-    bool from_string;
-    bool to_string;
-    bool from_xml;
-    bool to_xml;
-  };
+  DataTypeBase(std::string name)
+      : name_(std::move(name)), auto_convert_from_xml_by_string_(true) {}
 
-  DataTypeBase(std::string name,
-               const Supports& supports = {true, true, false, false})
-      : supports_(supports),
-        name_(std::move(name)),
-        auto_convert_from_xml_by_string_(true) {}
-
-  virtual bool DoSupportConvertFromString() { return supports_.from_string; }
-  virtual bool DoSupportConvertToString() { return supports_.to_string; }
   virtual DataConvertResult<T> DoConvertFromString(std::string_view value) {
     CRU_UNUSED(value)
-    NotImplemented();
-  }
-  virtual DataConvertResult<std::string> DoConvertToString(const T& value) {
-    CRU_UNUSED(value)
-    NotImplemented();
+    return DataConvertResult<T>::NotSupported(
+        "Convert from string is not supported.");
   }
 
-  virtual bool DoSupportConvertFromXml() { return supports_.from_xml; }
-  virtual bool DoSupportConvertToXml() { return supports_.to_xml; }
-  virtual bool DoXmlIsOfThisType(cru::xml::XmlElementNode* node) {
-    CRU_UNUSED(node)
-    NotImplemented();
+  virtual DataConvertResult<std::string> DoConvertToString(const T& value) {
+    CRU_UNUSED(value)
+    return DataConvertResult<std::string>::NotSupported(
+        "Convert to string is not supported.");
   }
+
+  virtual bool DoXmlIsOfThisType(cru::xml::XmlElementNode* node) {
+    return node->HasTag(GetName());
+  }
+
   virtual DataConvertResult<T> DoConvertFromXml(
       cru::xml::XmlElementNode* node) {
-    CRU_UNUSED(node)
-    NotImplemented();
+    return DataConvertResult<T>::NotSupported(
+        "Convert from xml is not supported.");
   }
+
   virtual DataConvertResult<cru::xml::XmlElementNode*> DoConvertToXml(
       const T& value) {
     CRU_UNUSED(value)
-    NotImplemented();
+    return DataConvertResult<cru::xml::XmlElementNode*>::NotSupported(
+        "Convert to xml is not supported.");
   }
 
   bool IsAutoConvertFromXmlByString() const {
@@ -215,8 +422,6 @@ class DataTypeBase : public Object, public virtual IDataType<T> {
   void SetAutoConvertFromXmlByString(bool enable) {
     auto_convert_from_xml_by_string_ = enable;
   }
-
-  Supports supports_;
 
  private:
   std::string name_;
@@ -232,8 +437,7 @@ class NumberDataType : public DataTypeBase<T> {
           cru::string::ParseToNumberFlags::AllowLeadingSpaces |
           cru::string::ParseToNumberFlags::AllowTrailingSpaces |
           cru::string::ParseToNumberFlags::AllowTrailingJunk)
-      : DataTypeBase<T>("Number", {true, true, false, false}),
-        parse_flag_(parse_flags) {}
+      : DataTypeBase<T>("Number"), parse_flag_(parse_flags) {}
 
  protected:
   DataConvertResult<T> DoConvertFromString(std::string_view value) override {
@@ -258,7 +462,7 @@ template <typename T>
 class NumberListDataType : public DataTypeBase<std::vector<T>> {
  public:
   explicit NumberListDataType()
-      : DataTypeBase<std::vector<T>>("NumberList", {true, true, false, false}),
+      : DataTypeBase<std::vector<T>>("NumberList"),
         number_data_type_(
             cru::string::ParseToNumberFlags::AllowLeadingSpaces |
             cru::string::ParseToNumberFlags::AllowTrailingSpaces) {}
@@ -312,4 +516,30 @@ class CRU_BASE_API StringDataType : public DataTypeBase<std::string> {
   DataConvertResult<std::string> DoConvertToString(
       const std::string& value) override;
 };
+
+class DataTypeRegistry;
+
+class CRU_BASE_API ObjectDataType : public DataTypeBase<KeyValueObject> {
+ public:
+  explicit ObjectDataType(DataTypeRegistry* registry);
+
+ protected:
+  DataConvertResult<std::string> DoConvertToString(
+      const KeyValueObject& value) override {
+    DataConvertResult<std::string> result;
+    std::string result_value;
+    std::string path;
+    ConvertToStringImpl(value, result, result_value, path);
+    result.SetValue(std::move(result_value));
+    return result;
+  }
+
+  void ConvertToStringImpl(const KeyValueObject& value,
+                           DataConvertResult<std::string>& result,
+                           std::string& result_value, std::string& path);
+
+ private:
+  DataTypeRegistry* registry_;
+};
+
 }  // namespace cru::datamodel

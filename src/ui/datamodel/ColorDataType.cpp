@@ -3,8 +3,7 @@
 #include "cru/base/StringUtil.h"
 
 namespace cru::ui::datamodel {
-ColorDataType::ColorDataType()
-    : DataTypeBase<Color>("Color", {true, false, true, false}) {}
+ColorDataType::ColorDataType() : DataTypeBase<Color>("Color") {}
 
 bool ColorDataType::DoXmlIsOfThisType(xml::XmlElementNode* node) {
   return node->HasTag("Color");

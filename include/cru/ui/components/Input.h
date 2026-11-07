@@ -14,6 +14,7 @@
 
 #include <optional>
 #include <string>
+#include <string_view>
 #include <vector>
 
 namespace cru::ui::components {
@@ -125,11 +126,12 @@ class Input : public Component {
       throw Exception("Data type is not set.");
     }
 
-    if (!data_type_->SupportConvertToString()) {
+    auto convert_result = data_type_->ConvertToString(*value);
+    if (convert_result.IsNotSupported()) {
       throw Exception("Data type does not support converting to string.");
     }
 
-    last_state_.text = data_type_->ConvertToString(*value).GetValue();
+    last_state_.text = convert_result.GetValue();
     last_state_.value = value;
     last_state_.valid = true;
     last_state_.errors.clear();
@@ -140,10 +142,6 @@ class Input : public Component {
   datamodel::IDataType<T>* GetDataType() { return data_type_; }
 
   void SetDataType(datamodel::IDataType<T>* data_type) {
-    if (!data_type->SupportConvertFromString()) {
-      throw Exception("Data type does not support converting from string.");
-    }
-
     data_type_ = data_type;
     UpdateState();
   }

@@ -7,8 +7,7 @@ namespace cru::ui::datamodel::style {
 using namespace ui::style;
 
 StyleRuleDataType::StyleRuleDataType()
-    : SharedPtrDataTypeBase<ui::style::StyleRule>("StyleRule",
-                                                {false, false, true, false}) {}
+    : SharedPtrDataTypeBase<ui::style::StyleRule>("StyleRule") {}
 
 bool StyleRuleDataType::DoXmlIsOfThisType(xml::XmlElementNode* node) {
   return node->HasTag("StyleRule");

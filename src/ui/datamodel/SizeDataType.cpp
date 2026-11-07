@@ -3,8 +3,7 @@
 #include "cru/base/StringUtil.h"
 
 namespace cru::ui::datamodel {
-SizeDataType::SizeDataType()
-    : DataTypeBase<Size>("Size", {true, false, false, false}) {}
+SizeDataType::SizeDataType() : DataTypeBase<Size>("Size") {}
 
 DataConvertResult<Size> SizeDataType::DoConvertFromString(
     std::string_view value) {

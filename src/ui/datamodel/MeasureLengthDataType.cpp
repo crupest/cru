@@ -4,8 +4,7 @@
 
 namespace cru::ui::datamodel {
 MeasureLengthDataType::MeasureLengthDataType()
-    : DataTypeBase<render::MeasureLength>("MeasureLength",
-                                            {true, false, false, false}) {}
+    : DataTypeBase<render::MeasureLength>("MeasureLength") {}
 
 DataConvertResult<render::MeasureLength>
 MeasureLengthDataType::DoConvertFromString(std::string_view value) {

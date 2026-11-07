@@ -4,8 +4,7 @@
 
 namespace cru::ui::datamodel {
 BrushDataType::BrushDataType()
-    : SharedPtrDataTypeBase<platform::graphics::IBrush>(
-          "Brush", {false, false, true, false}) {}
+    : SharedPtrDataTypeBase<platform::graphics::IBrush>("Brush") {}
 
 bool BrushDataType::DoXmlIsOfThisType(xml::XmlElementNode* node) {
   auto* color_data_type = GetUiDataTypeRegistry()->GetDataType<Color>();

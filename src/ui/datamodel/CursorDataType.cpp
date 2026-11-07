@@ -8,8 +8,7 @@ using cru::platform::gui::ICursor;
 using cru::platform::gui::SystemCursorType;
 
 CursorDataType::CursorDataType()
-    : SharedPtrDataTypeBase<platform::gui::ICursor>(
-          "Cursor", {true, false, false, false}) {}
+    : SharedPtrDataTypeBase<platform::gui::ICursor>("Cursor") {}
 
 DataConvertResult<std::shared_ptr<ICursor>> CursorDataType::DoConvertFromString(
     std::string_view value) {

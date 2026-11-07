@@ -6,8 +6,7 @@ namespace cru::ui::datamodel {
 using cru::string::CaseInsensitiveEqual;
 
 BorderStyleDataType::BorderStyleDataType()
-    : DataTypeBase<ui::style::ApplyBorderStyleInfo>(
-          "BorderStyle", {false, false, true, false}) {}
+    : DataTypeBase<ui::style::ApplyBorderStyleInfo>("BorderStyle") {}
 
 bool BorderStyleDataType::DoXmlIsOfThisType(xml::XmlElementNode* node) {
   return node->HasTag("BorderStyle");

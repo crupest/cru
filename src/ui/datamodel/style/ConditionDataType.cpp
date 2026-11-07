@@ -26,8 +26,8 @@ DataConvertResult<ClonePtr<Condition>> ConvertConditionResult(
 
 #define CRU_DEFINE_CONDITION_DATA_TYPE_BASE(condition_name)              \
   condition_name##ConditionDataType::condition_name##ConditionDataType() \
-      : ClonePtrDataTypeBase<condition_name##Condition>(                 \
-            #condition_name "Condition", {false, false, true, false}) {} \
+      : ClonePtrDataTypeBase<condition_name##Condition>(#condition_name  \
+                                                        "Condition") {}  \
                                                                          \
   bool condition_name##ConditionDataType::DoXmlIsOfThisType(             \
       xml::XmlElementNode* node) {                                       \

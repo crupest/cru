@@ -2,8 +2,7 @@
 
 namespace cru::ui::datamodel::style {
 StyleRuleSetDataType::StyleRuleSetDataType()
-    : SharedPtrDataTypeBase<ui::style::StyleRuleSet>(
-          "StyleRuleSet", {false, false, true, false}) {}
+    : SharedPtrDataTypeBase<ui::style::StyleRuleSet>("StyleRuleSet") {}
 
 bool StyleRuleSetDataType::DoXmlIsOfThisType(xml::XmlElementNode* node) {
   return node->HasTag("StyleRuleSet");

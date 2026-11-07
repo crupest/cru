@@ -3,8 +3,7 @@
 #include "cru/base/StringUtil.h"
 
 namespace cru::ui::datamodel {
-ThicknessDataType::ThicknessDataType()
-    : DataTypeBase<Thickness>("Thickness", {true, false, false, false}) {}
+ThicknessDataType::ThicknessDataType() : DataTypeBase<Thickness>("Thickness") {}
 
 DataConvertResult<Thickness> ThicknessDataType::DoConvertFromString(
     std::string_view value) {

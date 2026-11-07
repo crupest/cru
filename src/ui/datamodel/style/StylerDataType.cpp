@@ -20,25 +20,24 @@ DataConvertResult<ClonePtr<Styler>> ConvertStylerResult(
 }
 }  // namespace
 
-#define CRU_DEFINE_STYLER_DATA_TYPE_BASE(styler_name)              \
-  styler_name##StylerDataType::styler_name##StylerDataType()       \
-      : ClonePtrDataTypeBase<styler_name##Styler>(                 \
-            #styler_name "Styler", {false, false, true, false}) {} \
-                                                                   \
-  bool styler_name##StylerDataType::DoXmlIsOfThisType(             \
-      xml::XmlElementNode* node) {                                 \
-    return node->HasTag(#styler_name "Styler");                    \
-  }                                                                \
-                                                                   \
-  bool styler_name##StylerDataType::XmlElementIsOfThisType(        \
-      xml::XmlElementNode* node) {                                 \
-    return DoXmlIsOfThisType(node);                                \
-  }                                                                \
-                                                                   \
-  DataConvertResult<ClonePtr<Styler>>                              \
-  styler_name##StylerDataType::ConvertStylerFromXml(               \
-      xml::XmlElementNode* node) {                                 \
-    return ConvertStylerResult(ConvertFromXml(node));              \
+#define CRU_DEFINE_STYLER_DATA_TYPE_BASE(styler_name)                       \
+  styler_name##StylerDataType::styler_name##StylerDataType()                \
+      : ClonePtrDataTypeBase<styler_name##Styler>(#styler_name "Styler") {} \
+                                                                            \
+  bool styler_name##StylerDataType::DoXmlIsOfThisType(                      \
+      xml::XmlElementNode* node) {                                          \
+    return node->HasTag(#styler_name "Styler");                             \
+  }                                                                         \
+                                                                            \
+  bool styler_name##StylerDataType::XmlElementIsOfThisType(                 \
+      xml::XmlElementNode* node) {                                          \
+    return DoXmlIsOfThisType(node);                                         \
+  }                                                                         \
+                                                                            \
+  DataConvertResult<ClonePtr<Styler>>                                       \
+  styler_name##StylerDataType::ConvertStylerFromXml(                        \
+      xml::XmlElementNode* node) {                                          \
+    return ConvertStylerResult(ConvertFromXml(node));                       \
   }
 
 CRU_DEFINE_STYLER_DATA_TYPE_BASE(Border)

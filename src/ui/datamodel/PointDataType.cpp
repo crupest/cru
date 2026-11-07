@@ -3,8 +3,7 @@
 #include "cru/base/StringUtil.h"
 
 namespace cru::ui::datamodel {
-PointDataType::PointDataType()
-    : DataTypeBase<Point>("Point", {true, false, false, false}) {}
+PointDataType::PointDataType() : DataTypeBase<Point>("Point") {}
 
 DataConvertResult<Point> PointDataType::DoConvertFromString(
     std::string_view value) {

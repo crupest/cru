@@ -5,8 +5,7 @@
 
 namespace cru::ui::datamodel {
 FontDataType::FontDataType()
-    : SharedPtrDataTypeBase<platform::graphics::IFont>(
-          "Font", {false, false, true, false}) {}
+    : SharedPtrDataTypeBase<platform::graphics::IFont>("Font") {}
 
 bool FontDataType::DoXmlIsOfThisType(xml::XmlElementNode* node) {
   return node->HasTag("Font");

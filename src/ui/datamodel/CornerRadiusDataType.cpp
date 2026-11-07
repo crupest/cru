@@ -2,7 +2,7 @@
 
 namespace cru::ui::datamodel {
 CornerRadiusDataType::CornerRadiusDataType()
-    : DataTypeBase<CornerRadius>("CornerRadius", {false, false, true, false}) {}
+    : DataTypeBase<CornerRadius>("CornerRadius") {}
 
 bool CornerRadiusDataType::DoXmlIsOfThisType(xml::XmlElementNode* node) {
   return node->HasTag("CornerRadius");
