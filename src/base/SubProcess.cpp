@@ -9,9 +9,98 @@
 #endif
 
 namespace cru {
+enum QuoteState { None, SingleQuote, DoubleQuote };
+
+std::vector<std::string> ParseCommandLineArguments(
+    std::string_view command_line) {
+  std::vector<std::string> args;
+  QuoteState quote_state = QuoteState::None;
+  bool escape_next = false;
+  // Whether the current argument has started, i.e., an opening quote or a
+  // character has been seen. This allows empty arguments such as "" or ''.
+  bool argument_started = false;
+  std::string current_arg;
+
+  for (size_t i = 0; i < command_line.size(); ++i) {
+    char c = command_line[i];
+
+    if (c == ' ') {
+      if (escape_next) {
+        current_arg += ' ';
+        argument_started = true;
+        escape_next = false;
+      } else if (quote_state == QuoteState::None) {
+        if (argument_started) {
+          args.push_back(std::move(current_arg));
+          current_arg.clear();
+          argument_started = false;
+        }
+      } else {
+        current_arg += c;
+      }
+    } else if (c == '"') {
+      if (escape_next) {
+        current_arg += '"';
+        argument_started = true;
+        escape_next = false;
+      } else if (quote_state == QuoteState::None) {
+        quote_state = QuoteState::DoubleQuote;
+        argument_started = true;
+      } else if (quote_state == QuoteState::DoubleQuote) {
+        quote_state = QuoteState::None;
+      } else {
+        current_arg += c;
+      }
+    } else if (c == '\'') {
+      if (escape_next) {
+        current_arg += '\'';
+        argument_started = true;
+        escape_next = false;
+      } else if (quote_state == QuoteState::None) {
+        quote_state = QuoteState::SingleQuote;
+        argument_started = true;
+      } else if (quote_state == QuoteState::SingleQuote) {
+        quote_state = QuoteState::None;
+      } else {
+        current_arg += c;
+      }
+    } else if (c == '\\') {
+      if (quote_state == QuoteState::SingleQuote) {
+        current_arg += '\\';
+      } else if (escape_next) {
+        current_arg += '\\';
+        argument_started = true;
+        escape_next = false;
+      } else {
+        escape_next = true;
+      }
+    } else {
+      if (escape_next) {
+        throw Exception("Invalid escape sequence in command line.");
+      }
+      current_arg += c;
+      argument_started = true;
+    }
+  }
+
+  if (escape_next) {
+    throw Exception(
+        "Unexpected end of command line: escape character at the end.");
+  }
+  if (quote_state != QuoteState::None) {
+    throw Exception("Unexpected end of command line: unmatched quote.");
+  }
+  if (argument_started) {
+    args.push_back(std::move(current_arg));
+    current_arg.clear();
+  }
+
+  return args;
+}
+
 PlatformSubProcess::PlatformSubProcess(
     SubProcessStartInfo start_info,
-    std::shared_ptr<IPlatformSubProcessImpl> impl)
+    std::unique_ptr<IPlatformSubProcessImpl> impl)
     : state_(new State(std::move(start_info), std::move(impl))),
       lock_(state_->mutex, std::defer_lock) {}
 
@@ -142,6 +231,18 @@ SubProcess SubProcess::Create(
   return SubProcess(std::move(start_info));
 }
 
+SubProcess SubProcess::CreateFromCommandLine(
+    std::string_view command_line,
+    std::unordered_map<std::string, std::string> environments) {
+  auto args = ParseCommandLineArguments(command_line);
+  if (args.empty()) {
+    throw Exception("Command line is empty.");
+  }
+  std::string program = std::move(args.front());
+  args.erase(args.begin());
+  return Create(std::move(program), std::move(args), std::move(environments));
+}
+
 SubProcessExitResult SubProcess::Call(
     std::string program, std::vector<std::string> arguments,
     std::unordered_map<std::string, std::string> environments) {
@@ -151,15 +252,23 @@ SubProcessExitResult SubProcess::Call(
   return process.GetExitResult();
 }
 
+SubProcessExitResult SubProcess::CallFromCommandLine(
+    std::string_view command_line,
+    std::unordered_map<std::string, std::string> environments) {
+  auto process = CreateFromCommandLine(command_line, std::move(environments));
+  process.Wait();
+  return process.GetExitResult();
+}
+
 SubProcess::SubProcess(SubProcessStartInfo start_info) {
 #if defined(_WIN32)
   platform_process_.reset(new PlatformSubProcess(
       std::move(start_info),
-      std::make_shared<platform::win::Win32SubProcessImpl>()));
+      std::make_unique<platform::win::Win32SubProcessImpl>()));
 #elif defined(__APPLE__) || defined(__unix)
   platform_process_.reset(new PlatformSubProcess(
       std::move(start_info),
-      std::make_shared<platform::unix::PosixSpawnSubProcessImpl>()));
+      std::make_unique<platform::unix::PosixSpawnSubProcessImpl>()));
 #else
   NotImplemented();
 #endif

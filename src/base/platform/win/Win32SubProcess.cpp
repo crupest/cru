@@ -40,6 +40,58 @@ std::map<std::string, std::string> GetEnvironmentVariables() {
   return envs;
 }
 
+std::wstring EscapeArgument(const std::wstring& arg) {
+  if (arg.empty()) return L"\"\"";
+
+  // Only arguments containing spaces, tabs, or double quotes need to be quoted.
+  bool needsQuotes = false;
+  for (auto c : arg) {
+    if (c == L' ' || c == L'\t' || c == L'"') {
+      needsQuotes = true;
+      break;
+    }
+  }
+  if (!needsQuotes) return arg;
+
+  std::wstring escaped;
+  escaped.reserve(arg.size() * 2);
+  size_t backslash_count = 0;
+
+  for (auto c : arg) {
+    if (c == L'\\') {
+      backslash_count++;
+    } else if (c == L'"') {
+      // Double the backslashes before a quote and escape the quote itself
+      escaped.append(backslash_count * 2, L'\\');
+      escaped.push_back(L'\\');
+      escaped.push_back(L'"');
+      backslash_count = 0;
+    } else {
+      // Restore the backslashes before a non-quote character.
+      escaped.append(backslash_count, L'\\');
+      escaped.push_back(c);
+      backslash_count = 0;
+    }
+  }
+
+  // Backslashes at the end of the argument need to be doubled if the argument
+  // is quoted.
+  if (backslash_count > 0) {
+    escaped.append(backslash_count * 2, L'\\');
+  }
+
+  return L"\"" + escaped + L"\"";
+}
+
+std::wstring BuildCommandLine(const std::vector<std::wstring>& args) {
+  std::wstring commandLine;
+  for (size_t i = 0; i < args.size(); ++i) {
+    if (i > 0) commandLine += L' ';
+    commandLine += EscapeArgument(args[i]);
+  }
+  return commandLine;
+}
+
 void Win32SubProcessImpl::PlatformCreateProcess(
     const SubProcessStartInfo& start_info) {
   auto check_error = [](int error, std::string message) {
@@ -50,9 +102,11 @@ void Win32SubProcessImpl::PlatformCreateProcess(
   };
 
   auto app = ToUtf16WString(start_info.program);
-  // TODO: Space and quoting problem.
-  auto command_line =
-      app + L" " + ToUtf16WString(cru::string::Join(" ", start_info.arguments));
+  std::vector<std::wstring> w_command_line = {app};
+  for (const auto& arg : start_info.arguments) {
+    w_command_line.push_back(ToUtf16WString(arg));
+  }
+  auto command_line = BuildCommandLine(w_command_line);
 
   auto environments = start_info.environments;
 
@@ -88,8 +142,8 @@ void Win32SubProcessImpl::PlatformCreateProcess(
 
   CheckWinReturn(::CreateProcessW(app.c_str(), command_line.data(), nullptr,
                                   nullptr, TRUE, CREATE_UNICODE_ENVIRONMENT,
-                                  static_cast<LPVOID>(env_block.data()), nullptr,
-                                  &startup_info, &process_));
+                                  static_cast<LPVOID>(env_block.data()),
+                                  nullptr, &startup_info, &process_));
 
   stdin_stream_ = std::make_unique<Win32HandleStream>(std::move(my_stdin.write),
                                                       false, false, true);

@@ -10,6 +10,28 @@
 #include <vector>
 
 namespace cru {
+/**
+ * @brief Parse a command line string into a list of arguments.
+ *
+ * The parsing rules are very simple:
+ * 1. Arguments are separated by space(s). Space can only be ' ', not any other
+ * characters.
+ * 2. Arguments containing space(s) should be quoted with double quotes (") or
+ * single quotes ('). An empty quoted argument, i.e., "" or '', is a valid
+ * argument which is an empty string.
+ * 3. Double quoted arguments can contain single quotes, and single quoted
+ * arguments can contain double quotes.
+ * 4. The only escaping is backslash itself, space, single quote and double
+ * quote, aka, only "\\", "\ ", "\'", and "\"". Escaping other characters is an
+ * error. And the escaping does not happen in single quoted arguments, which
+ * means single quoted arguments are pure literal.
+ * 5. Unpaired quotes are an error.
+ * 6. Quoted and unquoted parts of the same argument are concatenated, e.g.,
+ * a"b c" is the single argument "ab c".
+ */
+CRU_BASE_API std::vector<std::string> ParseCommandLineArguments(
+    std::string_view command_line);
+
 enum class SubProcessStatus {
   /**
    * @brief The process has not been created and started.
@@ -150,7 +172,7 @@ class PlatformSubProcess : public Object {
  private:
   struct State {
     explicit State(SubProcessStartInfo start_info,
-                   std::shared_ptr<IPlatformSubProcessImpl> impl)
+                   std::unique_ptr<IPlatformSubProcessImpl> impl)
         : start_info(std::move(start_info)), impl(std::move(impl)) {}
 
     std::mutex mutex;
@@ -159,12 +181,12 @@ class PlatformSubProcess : public Object {
     SubProcessExitResult exit_result;
     SubProcessStatus status = SubProcessStatus::Prepare;
     bool killed = false;
-    std::shared_ptr<IPlatformSubProcessImpl> impl;
+    std::unique_ptr<IPlatformSubProcessImpl> impl;
   };
 
  public:
   PlatformSubProcess(SubProcessStartInfo start_info,
-                     std::shared_ptr<IPlatformSubProcessImpl> impl);
+                     std::unique_ptr<IPlatformSubProcessImpl> impl);
 
   ~PlatformSubProcess() override;
 
@@ -231,8 +253,16 @@ class CRU_BASE_API SubProcess {
       std::string program, std::vector<std::string> arguments = {},
       std::unordered_map<std::string, std::string> environments = {});
 
+  static SubProcess CreateFromCommandLine(
+      std::string_view command_line,
+      std::unordered_map<std::string, std::string> environments = {});
+
   static SubProcessExitResult Call(
       std::string program, std::vector<std::string> arguments = {},
+      std::unordered_map<std::string, std::string> environments = {});
+
+  static SubProcessExitResult CallFromCommandLine(
+      std::string_view command_line,
       std::unordered_map<std::string, std::string> environments = {});
 
  public:
