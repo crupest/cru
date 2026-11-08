@@ -30,8 +30,8 @@ std::string ToString(JsonValueType type) {
 namespace {
 template <typename R>
 auto FindObjectItem(R& range, std::string_view key) {
-  return std::ranges::find_if(range,
-                              [&key](auto& item) { return item.first == key; });
+  return std::ranges::find_if(
+      range, [&key](const auto& item) { return item.first == key; });
 }
 }  // namespace
 

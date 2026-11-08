@@ -7,7 +7,6 @@
 #include <cstddef>
 #include <initializer_list>
 #include <iterator>
-#include <memory>
 #include <ranges>
 #include <stdexcept>
 #include <type_traits>
@@ -15,18 +14,33 @@
 #include <vector>
 
 namespace cru {
+/**
+ * @brief Insertion-ordered associative container.
+ *
+ * The value and iterator model mirrors std::flat_map:
+ *
+ * - value_type is std::pair<Key, T>; the key is not const.
+ * - reference and const_reference are proxy pairs
+ *   (std::pair<const Key&, T&>) returned by value, so `*it` is a prvalue.
+ *   Iterate with `auto&&`, structured bindings, or `const auto&`;
+ *   `for (auto& item : dictionary)` does not compile.
+ * - Iterators meet the Cpp17InputIterator requirements and model
+ *   random_access_iterator. `--`, `+`, `[]` and ranges algorithms work, while
+ *   std::sort and std::reverse are rejected. Prefer std::ranges::prev/next over
+ *   std::prev/std::next with a negative offset.
+ * - Elements are stored contiguously. Any insertion invalidates iterators,
+ *   references and pointers to elements; erasing shifts later elements.
+ */
 template <typename Key, typename T>
 class Dictionary {
  public:
   using key_type = Key;
   using mapped_type = T;
-  using value_type = std::pair<const Key, T>;
+  using value_type = std::pair<Key, T>;
   using size_type = std::size_t;
   using difference_type = Index;
-  using reference = value_type&;
-  using const_reference = const value_type&;
-  using pointer = value_type*;
-  using const_pointer = const value_type*;
+  using reference = std::pair<const key_type&, mapped_type&>;
+  using const_reference = std::pair<const key_type&, const mapped_type&>;
 
  private:
   // Dictionary accepts heterogeneous key types for every key-taking operation.
@@ -42,8 +56,7 @@ class Dictionary {
         }> {};
   // clang-format on
 
-  using Storage = std::vector<std::unique_ptr<value_type>>;
-  using ValuePtr = std::unique_ptr<value_type>;
+  using Storage = std::vector<value_type>;
 
  public:
   template <bool IsConst>
@@ -53,27 +66,40 @@ class Dictionary {
         std::conditional_t<IsConst, typename Storage::const_iterator,
                            typename Storage::iterator>;
 
+    class PointerProxy;
+
    public:
-    using iterator_category = std::random_access_iterator_tag;
+    using iterator_category = std::input_iterator_tag;
     using iterator_concept = std::random_access_iterator_tag;
     using value_type = typename Dictionary::value_type;
     using difference_type = typename Dictionary::difference_type;
     using reference =
         std::conditional_t<IsConst, typename Dictionary::const_reference,
                            typename Dictionary::reference>;
-    using pointer =
-        std::conditional_t<IsConst, typename Dictionary::const_pointer,
-                           typename Dictionary::pointer>;
+    using pointer = PointerProxy;
 
+   private:
+    class PointerProxy {
+     public:
+      PointerProxy(const reference& ref) : ref_(ref) {}
+      const reference* operator->() const { return &ref_; }
+
+     private:
+      reference ref_;
+    };
+
+   public:
     Iterator() = default;
 
     template <bool OtherIsConst>
       requires(IsConst && !OtherIsConst)
     Iterator(const Iterator<OtherIsConst>& other) : base_(other.base_) {}
 
-    reference operator*() const { return **base_; }
+    reference operator*() const {
+      return reference(base_->first, base_->second);
+    }
 
-    pointer operator->() const { return base_->get(); }
+    PointerProxy operator->() const { return PointerProxy(**this); }
 
     reference operator[](difference_type offset) const {
       return *(*this + offset);
@@ -150,34 +176,7 @@ class Dictionary {
 
   Dictionary() = default;
 
-  Dictionary(std::initializer_list<value_type> init) {
-    storage_.reserve(init.size());
-    for (const auto& value : init) {
-      storage_.emplace_back(new value_type(value));
-    }
-  }
-
-  Dictionary(const Dictionary& other) {
-    storage_.reserve(other.size());
-    for (const auto& value : other) {
-      storage_.emplace_back(new value_type(value));
-    }
-  }
-  Dictionary(Dictionary&& other) = default;
-
-  Dictionary& operator=(const Dictionary& other) {
-    if (this != &other) {
-      storage_.clear();
-      storage_.reserve(other.size());
-      for (const auto& value : other) {
-        storage_.emplace_back(new value_type(value));
-      }
-    }
-    return *this;
-  }
-
-  Dictionary& operator=(Dictionary&& other) = default;
-  ~Dictionary() = default;
+  Dictionary(std::initializer_list<value_type> init) : storage_(init) {}
 
   auto begin() { return iterator(storage_.begin()); }
   auto end() { return iterator(storage_.end()); }
@@ -207,9 +206,9 @@ class Dictionary {
   template <typename... Args>
   std::pair<iterator, bool> emplace(Args&&... args) {
     static_assert(std::is_constructible_v<value_type, Args&&...>);
-    ValuePtr new_value(new value_type(std::forward<Args>(args)...));
+    value_type new_value(std::forward<Args>(args)...);
     auto it = std::ranges::find_if(storage_, [&new_value](const auto& pair) {
-      return pair->first == new_value->first;
+      return pair.first == new_value.first;
     });
     if (it != storage_.end()) {
       return {iterator(it), false};
@@ -226,13 +225,12 @@ class Dictionary {
     static_assert(std::is_constructible_v<T, M&&> &&
                   std::is_assignable_v<T&, M&&>);
     auto it = std::ranges::find_if(
-        storage_, [&k](const auto& pair) { return pair->first == k; });
+        storage_, [&k](const auto& pair) { return pair.first == k; });
     if (it != storage_.end()) {
-      (*it)->second = std::forward<M>(obj);
+      it->second = std::forward<M>(obj);
       return {iterator(it), false};
     } else {
-      storage_.emplace_back(
-          new value_type(std::forward<K>(k), std::forward<M>(obj)));
+      storage_.emplace_back(std::forward<K>(k), std::forward<M>(obj));
       return {std::prev(end()), true};
     }
   }
@@ -246,7 +244,7 @@ class Dictionary {
   size_type erase(K&& key) {
     static_assert(KeyComparable<K>::value);
     auto it = std::ranges::find_if(
-        storage_, [&key](const auto& pair) { return pair->first == key; });
+        storage_, [&key](const auto& pair) { return pair.first == key; });
     if (it != storage_.end()) {
       storage_.erase(it);
       return 1;
@@ -260,9 +258,9 @@ class Dictionary {
   T& at(const K& key) {
     static_assert(KeyComparable<K>::value);
     auto it = std::ranges::find_if(
-        storage_, [&key](const auto& pair) { return pair->first == key; });
+        storage_, [&key](const auto& pair) { return pair.first == key; });
     if (it != storage_.end()) {
-      return (*it)->second;
+      return it->second;
     }
     throw std::out_of_range("Key not found in Dictionary");
   }
@@ -271,9 +269,9 @@ class Dictionary {
   const T& at(const K& key) const {
     static_assert(KeyComparable<K>::value);
     auto it = std::ranges::find_if(
-        storage_, [&key](const auto& pair) { return pair->first == key; });
+        storage_, [&key](const auto& pair) { return pair.first == key; });
     if (it != storage_.end()) {
-      return (*it)->second;
+      return it->second;
     }
     throw std::out_of_range("Key not found in Dictionary");
   }
@@ -284,12 +282,12 @@ class Dictionary {
     static_assert(std::is_constructible_v<Key, K&&>);
     static_assert(std::is_default_constructible_v<T>);
     auto it = std::ranges::find_if(
-        storage_, [&key](const auto& pair) { return pair->first == key; });
+        storage_, [&key](const auto& pair) { return pair.first == key; });
     if (it != storage_.end()) {
-      return (*it)->second;
+      return it->second;
     } else {
-      storage_.emplace_back(new value_type(std::forward<K>(key), T{}));
-      return storage_.back()->second;
+      storage_.emplace_back(std::forward<K>(key), T{});
+      return storage_.back().second;
     }
   }
 
@@ -297,7 +295,7 @@ class Dictionary {
   iterator find(const K& x) {
     static_assert(KeyComparable<K>::value);
     auto it = std::ranges::find_if(
-        storage_, [&x](const auto& pair) { return pair->first == x; });
+        storage_, [&x](const auto& pair) { return pair.first == x; });
     return iterator(it);
   }
 
@@ -305,7 +303,7 @@ class Dictionary {
   const_iterator find(const K& x) const {
     static_assert(KeyComparable<K>::value);
     auto it = std::ranges::find_if(
-        storage_, [&x](const auto& pair) { return pair->first == x; });
+        storage_, [&x](const auto& pair) { return pair.first == x; });
     return const_iterator(it);
   }
 
@@ -313,7 +311,7 @@ class Dictionary {
   size_type count(const K& key) const {
     static_assert(KeyComparable<K>::value);
     auto it = std::ranges::find_if(
-        storage_, [&key](const auto& pair) { return pair->first == key; });
+        storage_, [&key](const auto& pair) { return pair.first == key; });
     return it != storage_.end() ? 1 : 0;
   }
 
@@ -324,17 +322,17 @@ class Dictionary {
 
   auto Keys() const {
     return std::views::transform(
-        storage_, [](const ValuePtr& ptr) -> const Key& { return ptr->first; });
+        storage_, [](const auto& pair) -> const Key& { return pair.first; });
   }
 
   auto Values() {
-    return std::views::transform(
-        storage_, [](const ValuePtr& ptr) -> T& { return ptr->second; });
+    return std::views::transform(storage_,
+                                 [](auto& pair) -> T& { return pair.second; });
   }
 
   auto Values() const {
     return std::views::transform(
-        storage_, [](const ValuePtr& ptr) -> const T& { return ptr->second; });
+        storage_, [](const auto& pair) -> const T& { return pair.second; });
   }
 
   bool operator==(const Dictionary& other) const {
@@ -350,7 +348,7 @@ class Dictionary {
   }
 
  private:
-  std::vector<std::unique_ptr<value_type>> storage_;
+  Storage storage_;
 };
 
 template <typename Key, typename T>

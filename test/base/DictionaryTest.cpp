@@ -54,9 +54,8 @@ std::vector<int> Values(const StringIntDictionary& dictionary) {
 
 static_assert(std::same_as<StringIntDictionary::key_type, std::string>);
 static_assert(std::same_as<StringIntDictionary::mapped_type, int>);
-static_assert(std::same_as<StringIntDictionary::value_type,
-                           std::pair<const std::string, int>>);
-static_assert(std::is_const_v<StringIntDictionary::value_type::first_type>);
+static_assert(
+    std::same_as<StringIntDictionary::value_type, std::pair<std::string, int>>);
 static_assert(std::is_constructible_v<
               StringIntDictionary,
               std::initializer_list<StringIntDictionary::value_type>>);
@@ -198,7 +197,7 @@ TEST_CASE("Dictionary inserts unique keys and preserves iteration order",
   REQUIRE(Keys(dictionary) ==
           std::vector<std::string>{"alpha", "beta", "gamma"});
 
-  for (auto& item : dictionary) {
+  for (auto&& item : dictionary) {
     if (item.first == "beta") {
       item.second = 20;
     }
@@ -436,13 +435,8 @@ TEST_CASE("Dictionary erases by key iterator range and predicate",
 
   auto gamma = dictionary.find("gamma");
   REQUIRE(gamma != dictionary.end());
-  const std::string* gamma_key = &gamma->first;
-  int* gamma_value = &gamma->second;
-
   REQUIRE(dictionary.erase("missing") == 0);
   REQUIRE(dictionary.erase("beta") == 1);
-  REQUIRE(*gamma_key == "gamma");
-  REQUIRE(*gamma_value == 3);
   gamma = dictionary.find("gamma");
   REQUIRE(gamma != dictionary.end());
   REQUIRE(gamma->second == 3);

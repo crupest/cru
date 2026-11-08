@@ -42,31 +42,6 @@
   classname() = default;                              \
   ~classname() = default;
 
-#define CRU_DEFINE_COMPARE_OPERATORS(classname)                           \
-  inline bool operator==(const classname& left, const classname& right) { \
-    return left.Compare(right) == 0;                                      \
-  }                                                                       \
-                                                                          \
-  inline bool operator!=(const classname& left, const classname& right) { \
-    return left.Compare(right) != 0;                                      \
-  }                                                                       \
-                                                                          \
-  inline bool operator<(const classname& left, const classname& right) {  \
-    return left.Compare(right) < 0;                                       \
-  }                                                                       \
-                                                                          \
-  inline bool operator<=(const classname& left, const classname& right) { \
-    return left.Compare(right) <= 0;                                      \
-  }                                                                       \
-                                                                          \
-  inline bool operator>(const classname& left, const classname& right) {  \
-    return left.Compare(right) > 0;                                       \
-  }                                                                       \
-                                                                          \
-  inline bool operator>=(const classname& left, const classname& right) { \
-    return left.Compare(right) >= 0;                                      \
-  }
-
 namespace cru {
 class CRU_BASE_API Object {
  public:

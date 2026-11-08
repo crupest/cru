@@ -4,6 +4,8 @@
 #include "cru/base/StringUtil.h"
 
 namespace cru::toml {
+Index TomlSection::GetValueCount() const { return values_.ssize(); }
+
 bool TomlSection::HasKey(std::string_view key) const {
   return values_.contains(key);
 }
@@ -23,6 +25,8 @@ void TomlSection::SetValue(std::string_view key, json::JsonValue value) {
 bool TomlSection::DeleteValue(std::string_view key) {
   return values_.erase(key) != 0;
 }
+
+Index TomlDocument::GetSectionCount() const { return sections_.ssize(); }
 
 bool TomlDocument::HasSection(std::string_view name) const {
   return sections_.contains(name);
@@ -57,7 +61,7 @@ TomlDocument TomlParser::Parse() {
 
   TomlDocument document;
 
-  TomlSection* current_section = &document.GetSectionOrCreate("");
+  std::string_view current_section = "";
 
   while (!IsEnd()) {
     ReadAllSpace();
@@ -67,13 +71,12 @@ TomlDocument TomlParser::Parse() {
 
     if (PeekNext() == '[') {
       ReadNext();
-      auto section_name_view = ReadUntil(']', true);
+      current_section = ReadUntil(']', true);
       auto current_line = line_;
       ReadAllSpace();
       if (!IsEnd() && line_ == current_line) {
         Error("Expected newline after section header.");
       }
-      current_section = &document.GetSectionOrCreate(section_name_view);
     } else if (PeekNext() == '#') {
       // Skip comment
       ReadUntil('\n', true, true);
@@ -103,7 +106,8 @@ TomlDocument TomlParser::Parse() {
         }
       }
 
-      current_section->SetValue(key, std::move(value));
+      document.GetSectionOrCreate(current_section)
+          .SetValue(key, std::move(value));
     }
   }
 

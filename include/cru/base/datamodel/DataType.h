@@ -32,8 +32,6 @@ class CRU_BASE_API KeyValueObject {
   using difference_type = Storage::difference_type;
   using reference = Storage::reference;
   using const_reference = Storage::const_reference;
-  using pointer = Storage::pointer;
-  using const_pointer = Storage::const_pointer;
   using iterator = Storage::iterator;
   using const_iterator = Storage::const_iterator;
   using reverse_iterator = Storage::reverse_iterator;

@@ -58,8 +58,6 @@ class CRU_BASE_API JsonValue {
  private:
   using ArrayStorage = std::vector<JsonValue>;
   using ObjectStorage = Dictionary<std::string, JsonValue>;
-  using ObjectItem = ObjectStorage::value_type;
-
   using Storage = std::variant<std::nullptr_t, bool, double, std::string,
                                ArrayStorage, ObjectStorage>;
 
@@ -407,37 +405,19 @@ class CRU_BASE_API JsonValue {
    * @brief Iterates over object property names.
    * @throws cru::Exception if this value is not an object.
    */
-  auto Keys() const {
-    return std::views::transform(
-        RequireObject(), [](const ObjectItem& item) -> const std::string& {
-          return item.first;
-        });
-  }
+  auto Keys() const { return RequireObject().Keys(); }
 
   /**
    * @brief Iterates over object properties.
    * @throws cru::Exception if this value is not an object.
    */
-  auto Items() {
-    return std::views::transform(
-        RequireObject(),
-        [](ObjectItem& item) -> std::pair<const std::string&, JsonValue&> {
-          return {item.first, item.second};
-        });
-  }
+  auto Items() { return std::views::all(RequireObject()); }
 
   /**
    * @brief Iterates over object properties.
    * @throws cru::Exception if this value is not an object.
    */
-  auto Items() const {
-    return std::views::transform(
-        RequireObject(),
-        [](const ObjectItem& item)
-            -> std::pair<const std::string&, const JsonValue&> {
-          return {item.first, item.second};
-        });
-  }
+  auto Items() const { return std::views::all(RequireObject()); }
 
  private:
   void CheckType(JsonValueType type) const;

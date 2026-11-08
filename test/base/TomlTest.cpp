@@ -25,7 +25,7 @@ void RequireTomlThrowsContaining(Action action, std::string_view text) {
 }
 
 static_assert(std::same_as<TomlSection::value_type,
-                           std::pair<const std::string, cru::json::JsonValue>>);
+                           std::pair<std::string, cru::json::JsonValue>>);
 static_assert(std::same_as<TomlSection::size_type,
                            typename TomlSection::StorageType::size_type>);
 static_assert(std::same_as<TomlSection::difference_type,
@@ -34,10 +34,6 @@ static_assert(std::same_as<TomlSection::reference,
                            typename TomlSection::StorageType::reference>);
 static_assert(std::same_as<TomlSection::const_reference,
                            typename TomlSection::StorageType::const_reference>);
-static_assert(std::same_as<TomlSection::pointer,
-                           typename TomlSection::StorageType::pointer>);
-static_assert(std::same_as<TomlSection::const_pointer,
-                           typename TomlSection::StorageType::const_pointer>);
 static_assert(std::same_as<TomlSection::iterator,
                            typename TomlSection::StorageType::iterator>);
 static_assert(std::same_as<TomlSection::const_iterator,
@@ -52,7 +48,7 @@ static_assert(std::same_as<decltype(std::declval<TomlSection&>().cbegin()),
                            TomlSection::const_iterator>);
 
 static_assert(std::same_as<TomlDocument::value_type,
-                           std::pair<const std::string, TomlSection>>);
+                           std::pair<std::string, TomlSection>>);
 static_assert(std::same_as<TomlDocument::size_type,
                            typename TomlDocument::StorageType::size_type>);
 static_assert(
@@ -63,10 +59,6 @@ static_assert(std::same_as<TomlDocument::reference,
 static_assert(
     std::same_as<TomlDocument::const_reference,
                  typename TomlDocument::StorageType::const_reference>);
-static_assert(std::same_as<TomlDocument::pointer,
-                           typename TomlDocument::StorageType::pointer>);
-static_assert(std::same_as<TomlDocument::const_pointer,
-                           typename TomlDocument::StorageType::const_pointer>);
 static_assert(std::same_as<TomlDocument::iterator,
                            typename TomlDocument::StorageType::iterator>);
 static_assert(std::same_as<TomlDocument::const_iterator,
@@ -86,15 +78,18 @@ TEST_CASE("TomlSection supports value lookup mutation deletion and iteration",
           "[toml]") {
   TomlSection section;
   REQUIRE(section.begin() == section.end());
+  REQUIRE(section.GetValueCount() == 0);
   REQUIRE_FALSE(section.HasKey("title"));
 
   section.SetValue("title", cru::json::JsonValue("demo"));
   section.SetValue("enabled", cru::json::JsonValue(true));
+  REQUIRE(section.GetValueCount() == 2);
   REQUIRE(section.HasKey("title"));
   REQUIRE(section.GetValue("title") == "demo");
   REQUIRE(section.GetValue("enabled") == true);
 
   section.SetValue("title", cru::json::JsonValue("changed"));
+  REQUIRE(section.GetValueCount() == 2);
   REQUIRE(section.GetValue("title") == "changed");
 
   TomlSection::iterator title = section.begin();
@@ -111,7 +106,7 @@ TEST_CASE("TomlSection supports value lookup mutation deletion and iteration",
   REQUIRE(const_section.cend() - const_section.cbegin() == 2);
 
   std::vector<std::string> value_names;
-  for (TomlSection::value_type& value : section) {
+  for (auto&& value : section) {
     value_names.push_back(value.first);
     if (value.first == "enabled") {
       value.second = false;
@@ -121,13 +116,14 @@ TEST_CASE("TomlSection supports value lookup mutation deletion and iteration",
   REQUIRE(section.GetValue("enabled") == false);
 
   std::vector<std::string> const_value_names;
-  for (const TomlSection::value_type& value : const_section) {
+  for (auto&& value : const_section) {
     const_value_names.push_back(value.first);
   }
   REQUIRE(const_value_names == value_names);
 
   REQUIRE_FALSE(section.DeleteValue("missing"));
   REQUIRE(section.DeleteValue("title"));
+  REQUIRE(section.GetValueCount() == 1);
   REQUIRE_FALSE(section.HasKey("title"));
   REQUIRE(section.begin()->first == "enabled");
 }
@@ -137,22 +133,25 @@ TEST_CASE(
     "[toml]") {
   TomlDocument document;
   REQUIRE(document.begin() == document.end());
+  REQUIRE(document.GetSectionCount() == 0);
   REQUIRE_FALSE(document.HasSection("root"));
   REQUIRE_THROWS_AS(document.GetSection("root"), std::out_of_range);
 
   TomlSection root;
   root.SetValue("title", cru::json::JsonValue("demo"));
   document.SetSection("root", std::move(root));
+  REQUIRE(document.GetSectionCount() == 1);
 
   TomlSection& root_section = document.GetSection("root");
   REQUIRE(root_section.GetValue("title") == "demo");
 
   TomlSection& owner = document.GetSectionOrCreate("owner");
   owner.SetValue("name", cru::json::JsonValue("Ada"));
+  REQUIRE(document.GetSectionCount() == 2);
   REQUIRE(&document.GetSectionOrCreate("owner") == &owner);
 
   std::vector<std::string> section_names;
-  for (TomlDocument::value_type& section : document) {
+  for (auto&& section : document) {
     section_names.push_back(section.first);
     if (section.first == "owner") {
       section.second.SetValue("active", cru::json::JsonValue(true));
@@ -163,7 +162,7 @@ TEST_CASE(
 
   const TomlDocument& const_document = document;
   std::vector<std::string> const_section_names;
-  for (const TomlDocument::value_type& section : const_document) {
+  for (auto&& section : const_document) {
     const_section_names.push_back(section.first);
   }
   REQUIRE(const_section_names == section_names);
@@ -182,6 +181,7 @@ TEST_CASE(
 
   REQUIRE_FALSE(document.DeleteSection("missing"));
   REQUIRE(document.DeleteSection("root"));
+  REQUIRE(document.GetSectionCount() == 1);
   REQUIRE_FALSE(document.HasSection("root"));
   REQUIRE_THROWS_AS(document.GetSection("root"), std::out_of_range);
   REQUIRE(document.begin()->first == "owner");
@@ -214,12 +214,12 @@ a6 = v6
 
 TEST_CASE("TomlParser parses empty and whitespace-only sources", "[toml]") {
   TomlDocument empty = ParseToml("");
-  REQUIRE(empty.HasSection(""));
-  REQUIRE(empty.GetSection("").begin() == empty.GetSection("").end());
+  REQUIRE(empty.GetSectionCount() == 0);
+  REQUIRE_FALSE(empty.HasSection(""));
 
   TomlDocument whitespace = ParseToml(" \t\n\n\t ");
-  REQUIRE(whitespace.HasSection(""));
-  REQUIRE(whitespace.GetSection("").begin() == whitespace.GetSection("").end());
+  REQUIRE(whitespace.GetSectionCount() == 0);
+  REQUIRE_FALSE(whitespace.HasSection(""));
 }
 
 TEST_CASE("TomlParser parses JSON values empty values and fallback strings",
@@ -374,12 +374,13 @@ TEST_CASE("TomlParser handles comments sections and repeated parses",
 
   REQUIRE(first.GetSection("").GetValue("root") == 1.0);
   REQUIRE(first.GetSection("owner").GetValue("name") == "Ada");
-  REQUIRE(first.HasSection("empty"));
-  REQUIRE(first.GetSection("empty").begin() == first.GetSection("empty").end());
+  REQUIRE(first.GetSectionCount() == 2);
+  REQUIRE_FALSE(first.HasSection("empty"));
 
   REQUIRE(second.GetSection("").GetValue("root") == 1.0);
   REQUIRE(second.GetSection("owner").GetValue("name") == "Ada");
-  REQUIRE(second.HasSection("empty"));
+  REQUIRE(second.GetSectionCount() == 2);
+  REQUIRE_FALSE(second.HasSection("empty"));
 }
 
 TEST_CASE("TomlParser rejects malformed section headers", "[toml]") {
@@ -403,8 +404,8 @@ TEST_CASE("TomlParser rejects malformed key value lines", "[toml]") {
 TEST_CASE("TomlParser accepts EOF-terminated comments and fallback strings",
           "[toml]") {
   TomlDocument comment = ParseToml("# comment without newline");
-  REQUIRE(comment.HasSection(""));
-  REQUIRE(comment.GetSection("").begin() == comment.GetSection("").end());
+  REQUIRE(comment.GetSectionCount() == 0);
+  REQUIRE_FALSE(comment.HasSection(""));
 
   TomlDocument fallback = ParseToml("value = bare");
   REQUIRE(fallback.GetSection("").GetValue("value") == "bare");

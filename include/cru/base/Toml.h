@@ -16,11 +16,10 @@ class CRU_BASE_API TomlSection {
   using difference_type = typename StorageType::difference_type;
   using reference = typename StorageType::reference;
   using const_reference = typename StorageType::const_reference;
-  using pointer = typename StorageType::pointer;
-  using const_pointer = typename StorageType::const_pointer;
   using iterator = typename StorageType::iterator;
   using const_iterator = typename StorageType::const_iterator;
 
+  Index GetValueCount() const;
   bool HasKey(std::string_view key) const;
   json::JsonValue& GetValue(std::string_view key);
   const json::JsonValue& GetValue(std::string_view key) const;
@@ -46,11 +45,10 @@ class CRU_BASE_API TomlDocument {
   using difference_type = typename StorageType::difference_type;
   using reference = typename StorageType::reference;
   using const_reference = typename StorageType::const_reference;
-  using pointer = typename StorageType::pointer;
-  using const_pointer = typename StorageType::const_pointer;
   using iterator = typename StorageType::iterator;
   using const_iterator = typename StorageType::const_iterator;
 
+  Index GetSectionCount() const;
   bool HasSection(std::string_view name) const;
   TomlSection& GetSection(std::string_view name);
   const TomlSection& GetSection(std::string_view name) const;
