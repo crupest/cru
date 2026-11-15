@@ -39,9 +39,6 @@ class CRU_BASE_API KeyValueObject {
 
   KeyValueObject() = default;
   KeyValueObject(std::initializer_list<value_type> init) : dictionary_(init) {}
-  CRU_DEFAULT_COPY(KeyValueObject)
-  CRU_DEFAULT_MOVE(KeyValueObject)
-  ~KeyValueObject() = default;
 
   auto begin() { return dictionary_.begin(); }
   auto end() { return dictionary_.end(); }
