@@ -320,4 +320,14 @@ void SubProcess::CheckValid() const {
   }
 }
 
+SubProcessExitResult operator""_run_cmd(const char* command_line,
+                                        size_t length) {
+  return SubProcess::CallFromCommandLine(
+      std::string_view(command_line, length));
+}
+
+SubProcess operator""_new_cmd(const char* command_line, size_t length) {
+  return SubProcess::CreateFromCommandLine(
+      std::string_view(command_line, length));
+}
 }  // namespace cru

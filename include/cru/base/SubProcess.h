@@ -295,4 +295,10 @@ class CRU_BASE_API SubProcess {
  private:
   std::unique_ptr<PlatformSubProcess> platform_process_;
 };
+
+CRU_BASE_API SubProcessExitResult operator""_run_cmd(const char* command_line,
+                                                     size_t length);
+
+CRU_BASE_API SubProcess operator""_new_cmd(const char* command_line,
+                                           size_t length);
 }  // namespace cru

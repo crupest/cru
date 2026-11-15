@@ -6,8 +6,11 @@
 #include <string_view>
 #include <vector>
 
+using cru::operator""_new_cmd;
+using cru::operator""_run_cmd;
 using cru::ParseCommandLineArguments;
 using cru::SubProcess;
+using cru::SubProcessStatus;
 
 namespace {
 
@@ -299,5 +302,61 @@ TEST_CASE("ParseCommandLineArguments", "[subprocess]") {
     // An escaped backslash does not escape the closing quote.
     REQUIRE(ParseCommandLineArguments(R"("a\\")") ==
             std::vector<std::string>{R"(a\)"});
+  }
+}
+
+TEST_CASE("SubProcess command line literal operators", "[subprocess]") {
+  SECTION("_run_cmd runs the command line and reports its exit result.") {
+    auto result = "'" CRU_TEST_HELPER_ECHO_LOCATION "' abc"_run_cmd;
+    REQUIRE(result.IsSuccess());
+  }
+
+  SECTION("_run_cmd takes the literal text as a command line.") {
+    // The literal operator is a raw one, so the characters between the quotes
+    // are C++ escapes rather than command line escapes.
+    REQUIRE(
+        ("'" CRU_TEST_HELPER_ECHO_LOCATION R"(' "a b")"_run_cmd).IsSuccess());
+    REQUIRE(
+        ("'" CRU_TEST_HELPER_ECHO_LOCATION R"(' a\ b)"_run_cmd).IsSuccess());
+    // This reaches the command line parser as an invalid escape sequence.
+    REQUIRE_THROWS_AS(("'" CRU_TEST_HELPER_ECHO_LOCATION R"(' a\nb)"_run_cmd),
+                      cru::Exception);
+  }
+
+  SECTION("_run_cmd throws for a command line that cannot be parsed.") {
+    REQUIRE_THROWS_AS(""_run_cmd, cru::Exception);
+    REQUIRE_THROWS_AS("   "_run_cmd, cru::Exception);
+    REQUIRE_THROWS_AS(R"("abc)"_run_cmd, cru::Exception);
+    REQUIRE_THROWS_AS(R"(abc\)"_run_cmd, cru::Exception);
+  }
+
+  SECTION("_new_cmd creates a process running the command line.") {
+    SubProcess process =
+        "'" CRU_TEST_HELPER_ECHO_LOCATION R"(' "a b" c)"_new_cmd;
+    REQUIRE(process.IsValid());
+    process.Wait();
+    REQUIRE(process.GetExitResult().IsSuccess());
+    REQUIRE(NormalizeLineEndings(
+                process.GetStdoutStream()->ReadToEndAsUtf8String()) ==
+            "a b\nc\n");
+  }
+
+  SECTION("_new_cmd returns a process that is not waited yet.") {
+    SubProcess process = "'" CRU_TEST_HELPER_TEE_LOCATION "'"_new_cmd;
+    REQUIRE(process.IsValid());
+    // The helper blocks reading its stdin, so it is still running here.
+    REQUIRE(process.GetStatus() == SubProcessStatus::Running);
+    constexpr std::string_view kText = "abc";
+    process.GetStdinStream()->Write(kText.data(), kText.size());
+    process.GetStdinStream()->Close();
+    process.Wait();
+    REQUIRE(process.GetExitResult().IsSuccess());
+    REQUIRE(process.GetStdoutStream()->ReadToEndAsUtf8String() == kText);
+  }
+
+  SECTION("_new_cmd throws for a command line that cannot be parsed.") {
+    REQUIRE_THROWS_AS(""_new_cmd, cru::Exception);
+    REQUIRE_THROWS_AS("   "_new_cmd, cru::Exception);
+    REQUIRE_THROWS_AS(R"('abc)"_new_cmd, cru::Exception);
   }
 }
