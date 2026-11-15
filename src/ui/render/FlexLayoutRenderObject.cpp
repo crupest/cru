@@ -4,6 +4,7 @@
 #include "cru/ui/render/LayoutHelper.h"
 
 #include <algorithm>
+#include <cassert>
 #include <type_traits>
 
 namespace cru::ui::render {
@@ -90,7 +91,7 @@ Size FlexLayoutMeasureContentImpl(
     const std::vector<RenderObject*>& children,
     const std::vector<FlexChildLayoutData>& layout_data,
     Alignment item_cross_align, std::string kLogTag) {
-  Expects(children.size() == layout_data.size());
+  assert(children.size() == layout_data.size());
 
   direction_tag_t direction_tag;
 

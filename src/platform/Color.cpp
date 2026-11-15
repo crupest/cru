@@ -1,5 +1,6 @@
 #include "cru/platform/Color.h"
 
+#include <cassert>
 #include <cmath>
 #include <cstdint>
 #include <optional>
@@ -282,9 +283,9 @@ HslColor::HslColor(const Color& color) {
 }
 
 HslColor::operator Color() const {
-  Expects(h >= 0.f && h <= 360.f);
-  Expects(s >= 0.f && s <= 1.f);
-  Expects(l >= 0.f && l <= 1.f);
+  assert(h >= 0.f && h <= 360.f);
+  assert(s >= 0.f && s <= 1.f);
+  assert(l >= 0.f && l <= 1.f);
 
   float c = (1 - std::abs(2 * l - 1)) * s;
   float x = c * (1 - std::abs(std::fmod(h / 60.f, 2.f) - 1));

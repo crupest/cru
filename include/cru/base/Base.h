@@ -1,5 +1,4 @@
 #pragma once
-#include <cassert>
 #include <cstddef>
 #include <exception>
 #include <functional>
@@ -66,17 +65,6 @@ NotImplemented(std::string_view additional_message);
     std::optional<std::string_view> additional_message = std::nullopt);
 
 using Index = std::ptrdiff_t;
-
-inline void Expects(bool condition) { assert(condition); }
-inline void Ensures(bool condition) { assert(condition); }
-template <typename T>
-inline void Expects(const std::shared_ptr<T>& ptr) {
-  assert(ptr != nullptr);
-}
-template <typename T>
-inline void Ensures(const std::shared_ptr<T>& ptr) {
-  assert(ptr != nullptr);
-}
 
 // https://www.boost.org/doc/libs/1_54_0/doc/html/hash/reference.html#boost.hash_combine
 template <class T>

@@ -2,6 +2,7 @@
 #include "cru/parse/Symbol.h"
 
 #include <algorithm>
+#include <cassert>
 #include <format>
 #include <iterator>
 #include <unordered_map>
@@ -40,8 +41,8 @@ Nonterminal* Grammar::CreateNonterminal(std::string name) {
 
 Production* Grammar::CreateProduction(std::string name, Nonterminal* left,
                                       std::vector<Symbol*> right) {
-  Expects(left->GetGrammar() == this);
-  Expects(std::all_of(right.cbegin(), right.cend(), [this](Symbol* symbol) {
+  assert(left->GetGrammar() == this);
+  assert(std::all_of(right.cbegin(), right.cend(), [this](Symbol* symbol) {
     return symbol->GetGrammar() == this;
   }));
 

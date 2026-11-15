@@ -1,6 +1,8 @@
 #include "cru/platform/graphics/quartz/Image.h"
 #include "cru/platform/graphics/quartz/Painter.h"
 
+#include <cassert>
+
 namespace cru::platform::graphics::quartz {
 QuartzImage::QuartzImage(IGraphicsFactory* graphics_factory,
                          IImageFactory* image_factory, CGImageRef image,
@@ -10,7 +12,7 @@ QuartzImage::QuartzImage(IGraphicsFactory* graphics_factory,
       image_(image),
       auto_release_(auto_release),
       buffer_(buffer) {
-  Expects(image);
+  assert(image);
 }
 
 QuartzImage::~QuartzImage() {

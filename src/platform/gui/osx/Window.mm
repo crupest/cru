@@ -180,7 +180,7 @@ CGLayerRef OsxWindowPrivate::CreateLayer(const CGSize& size) {
   if (s.height == 0) s.height = 1;
 
   auto draw_layer = CGLayerCreateWithContext(nullptr, s, nullptr);
-  Ensures(draw_layer);
+  assert(draw_layer);
 
   return draw_layer;
 }
@@ -618,7 +618,7 @@ const std::unordered_set<KeyCode> input_context_handle_codes_when_has_text{
 
   auto input_context = dynamic_cast<cru::platform::gui::osx::OsxInputMethodContext*>(
       _p->GetWindow()->GetInputMethodContext());
-  Ensures(input_context);
+  assert(input_context);
 
   auto c = cru::platform::gui::osx::KeyCodeFromOsxToCru(event.keyCode);
 

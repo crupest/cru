@@ -5,6 +5,8 @@
 #include "cru/platform/graphics/quartz/Image.h"
 #include "cru/platform/graphics/quartz/TextLayout.h"
 
+#include <cassert>
+
 namespace cru::platform::graphics::quartz {
 QuartzCGContextPainter::QuartzCGContextPainter(
     IGraphicsFactory* graphics_factory, CGContextRef cg_context,
@@ -15,7 +17,7 @@ QuartzCGContextPainter::QuartzCGContextPainter(
       auto_release_(auto_release),
       size_(size),
       on_end_draw_(std::move(on_end_draw)) {
-  Expects(cg_context);
+  assert(cg_context);
 
   CGContextConcatCTM(cg_context_,
                      CGAffineTransformInvert(CGContextGetCTM(cg_context_)));

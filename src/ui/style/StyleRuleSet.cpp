@@ -3,6 +3,7 @@
 #include "cru/ui/controls/Control.h"
 #include "cru/ui/model/IListChangeNotify.h"
 
+#include <cassert>
 #include <unordered_set>
 
 namespace cru::ui::style {
@@ -38,7 +39,7 @@ void StyleRuleSet::SetParent(std::shared_ptr<StyleRuleSet> parent) {
 }
 
 void StyleRuleSet::AddStyleRule(StyleRule rule, Index index) {
-  Expects(index >= 0 && index <= GetSize());
+  CheckArgumentRange(index, 0, GetSize() + 1);
 
   rules_.insert(rules_.cbegin() + index, std::move(rule));
 
@@ -46,8 +47,9 @@ void StyleRuleSet::AddStyleRule(StyleRule rule, Index index) {
 }
 
 void StyleRuleSet::RemoveStyleRule(Index index, Index count) {
-  Expects(index >= 0);
-  Expects(count >= 0 && index + count <= GetSize());
+  if (index == 0 && count == 0) return;
+  CheckArgumentRange(index, 0, GetSize());
+  CheckArgumentRange(count, 0, GetSize() - index + 1);
 
   rules_.erase(rules_.cbegin() + index, rules_.cbegin() + index + count);
 
@@ -55,7 +57,7 @@ void StyleRuleSet::RemoveStyleRule(Index index, Index count) {
 }
 
 void StyleRuleSet::SetStyleRule(Index index, StyleRule rule) {
-  Expects(index >= 0 && index < GetSize());
+  CheckArgumentRange(index, 0, GetSize());
   rules_[index] = std::move(rule);
   RaiseChangeEvent(model::ListChange::ItemSet(index));
 }
@@ -72,8 +74,8 @@ void StyleRuleSet::Set(const StyleRuleSet& other, bool set_parent) {
 StyleRuleSetBind::StyleRuleSetBind(controls::Control* control,
                                    std::shared_ptr<StyleRuleSet> ruleset)
     : control_(control), ruleset_(std::move(ruleset)) {
-  Expects(control);
-  Expects(ruleset_);
+  assert(control);
+  assert(ruleset_);
 
   ruleset_->ChangeEvent()->AddSpyOnlyHandler([this] {
     UpdateRuleSetChainCache();

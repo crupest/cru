@@ -2,6 +2,8 @@
 
 #include "cru/base/platform/osx/Base.h"
 
+#include <cassert>
+
 namespace cru::platform::graphics::quartz {
 OsxCTFont::OsxCTFont(IGraphicsFactory* graphics_factory,
                      const std::string& name, float size)
@@ -12,7 +14,7 @@ OsxCTFont::OsxCTFont(IGraphicsFactory* graphics_factory,
   } else {
     ct_font_ = CTFontCreateWithName(ToCFString(name).Get(), size, nullptr);
   }
-  Ensures(ct_font_);
+  assert(ct_font_);
 }
 
 OsxCTFont::~OsxCTFont() { CFRelease(ct_font_); }

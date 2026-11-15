@@ -1,6 +1,8 @@
 #include "cru/platform/graphics/direct2d/WindowRenderTarget.h"
 #include "cru/platform/graphics/direct2d/Factory.h"
 
+#include <cassert>
+
 namespace cru::platform::graphics::direct2d {
 D2DWindowRenderTarget::D2DWindowRenderTarget(DirectGraphicsFactory* factory,
                                              HWND hwnd)
@@ -54,7 +56,7 @@ void D2DWindowRenderTarget::Present() {
 }
 
 void D2DWindowRenderTarget::CreateTargetBitmap() {
-  Expects(target_bitmap_ == nullptr);  // target bitmap must not exist.
+  assert(target_bitmap_ == nullptr);  // target bitmap must not exist.
 
   // Direct2D needs the dxgi version of the backbuffer surface pointer.
   Microsoft::WRL::ComPtr<IDXGISurface> dxgi_back_buffer;

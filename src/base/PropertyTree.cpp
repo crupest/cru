@@ -1,5 +1,7 @@
 #include "cru/base/PropertyTree.h"
 
+#include <cassert>
+
 namespace cru {
 std::string PropertySubTreeRef::CombineKey(std::string_view left,
                                            std::string_view right) {
@@ -8,7 +10,7 @@ std::string PropertySubTreeRef::CombineKey(std::string_view left,
 
 PropertySubTreeRef::PropertySubTreeRef(PropertyTree* tree, std::string path)
     : tree_(tree), path_(std::move(path)) {
-  Expects(tree);
+  assert(tree);
 }
 
 PropertySubTreeRef PropertySubTreeRef::GetParent() const {

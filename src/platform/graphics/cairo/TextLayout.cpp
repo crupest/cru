@@ -6,6 +6,8 @@
 
 #include <pango/pangocairo.h>
 
+#include <cassert>
+
 namespace cru::platform::graphics::cairo {
 namespace {
 Rect ConvertFromPango(const Rect& rect) {
@@ -21,7 +23,7 @@ Rect ConvertFromPango(const Rect& rect) {
 PangoTextLayout::PangoTextLayout(CairoGraphicsFactory* factory,
                                  std::shared_ptr<IFont> font)
     : CairoResource(factory) {
-  Expects(font);
+  assert(font);
   font_ = CheckPlatform<PangoFont>(font, GetPlatformId());
   pango_layout_ = pango_cairo_create_layout(factory->GetDefaultCairo());
   pango_layout_set_font_description(pango_layout_,
@@ -40,7 +42,7 @@ void PangoTextLayout::SetText(std::string new_text) {
 std::shared_ptr<IFont> PangoTextLayout::GetFont() { return font_; }
 
 void PangoTextLayout::SetFont(std::shared_ptr<IFont> font) {
-  Expects(font);
+  assert(font);
   font_ = CheckPlatform<PangoFont>(font, GetPlatformId());
   pango_layout_set_font_description(pango_layout_,
                                     font_->GetPangoFontDescription());

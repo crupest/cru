@@ -2,11 +2,13 @@
 
 #include "cru/platform/graphics/direct2d/Factory.h"
 
+#include <cassert>
+
 namespace cru::platform::graphics::direct2d {
 
 DirectGraphicsResource::DirectGraphicsResource(DirectGraphicsFactory* factory)
     : factory_(factory) {
-  Expects(factory);
+  assert(factory);
 }
 
 std::string DirectGraphicsResource::GetPlatformId() const {

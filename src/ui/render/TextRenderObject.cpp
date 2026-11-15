@@ -5,6 +5,7 @@
 #include "cru/platform/gui/UiApplication.h"
 #include "cru/ui/render/RenderObject.h"
 
+#include <cassert>
 #include <limits>
 
 namespace cru::ui::render {
@@ -14,10 +15,10 @@ TextRenderObject::TextRenderObject(
     std::shared_ptr<platform::graphics::IBrush> selection_brush,
     std::shared_ptr<platform::graphics::IBrush> caret_brush)
     : RenderObject(kRenderObjectName) {
-  Expects(brush);
-  Expects(font);
-  Expects(selection_brush);
-  Expects(caret_brush);
+  assert(brush);
+  assert(font);
+  assert(selection_brush);
+  assert(caret_brush);
 
   brush.swap(brush_);
   font.swap(font_);
@@ -38,7 +39,7 @@ void TextRenderObject::SetText(std::string new_text) {
 
 void TextRenderObject::SetBrush(
     std::shared_ptr<platform::graphics::IBrush> new_brush) {
-  Expects(new_brush);
+  assert(new_brush);
   new_brush.swap(brush_);
   InvalidatePaint();
 }
@@ -49,7 +50,7 @@ std::shared_ptr<platform::graphics::IFont> TextRenderObject::GetFont() {
 
 void TextRenderObject::SetFont(
     std::shared_ptr<platform::graphics::IFont> font) {
-  Expects(font);
+  assert(font);
   text_layout_->SetFont(std::move(font));
   InvalidateLayout();
 }
@@ -91,7 +92,7 @@ void TextRenderObject::SetSelectionRange(std::optional<TextRange> new_range) {
 
 void TextRenderObject::SetSelectionBrush(
     std::shared_ptr<platform::graphics::IBrush> new_brush) {
-  Expects(new_brush);
+  assert(new_brush);
   new_brush.swap(selection_brush_);
   if (selection_range_ && selection_range_->count) {
     InvalidatePaint();
@@ -116,7 +117,7 @@ void TextRenderObject::SetCaretPosition(Index position) {
 
 void TextRenderObject::GetCaretBrush(
     std::shared_ptr<platform::graphics::IBrush> brush) {
-  Expects(brush);
+  assert(brush);
   brush.swap(caret_brush_);
   if (draw_caret_) {
     InvalidatePaint();
@@ -124,7 +125,7 @@ void TextRenderObject::GetCaretBrush(
 }
 
 void TextRenderObject::SetCaretWidth(const float width) {
-  Expects(width >= 0.0f);
+  assert(width >= 0.0f);
 
   caret_width_ = width;
   if (draw_caret_) {

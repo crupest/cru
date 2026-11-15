@@ -4,6 +4,7 @@
 #include "cru/ui/controls/Control.h"
 #include "cru/ui/controls/ControlHost.h"
 
+#include <cassert>
 #include <cmath>
 
 namespace cru::ui::helper {
@@ -17,7 +18,7 @@ Point ClickEventArgs::GetDownPointOfScreen() const {
 }
 
 ClickDetector::ClickDetector(controls::Control* control) {
-  Expects(control);
+  assert(control);
   control_ = control;
 
   event_revoker_guards_.push_back(
@@ -126,7 +127,7 @@ void ClickDetector::SetTriggerButton(MouseButton trigger_button) {
 }
 
 void ClickDetector::SetMultipleClickPositionOffsetThreshold(Point threshold) {
-  Expects(threshold.x >= 0.f && threshold.y >= 0.f);
+  assert(threshold.x >= 0.f && threshold.y >= 0.f);
 
   if (threshold == multiple_click_position_offset_threshold_) {
     return;
@@ -138,7 +139,7 @@ void ClickDetector::SetMultipleClickPositionOffsetThreshold(Point threshold) {
 
 void ClickDetector::SetMultipleClickDurationThreshold(
     std::chrono::milliseconds duration_threshold) {
-  Expects(duration_threshold >= std::chrono::milliseconds::zero());
+  assert(duration_threshold >= std::chrono::milliseconds::zero());
 
   if (duration_threshold == multiple_click_duration_threshold_) {
     return;

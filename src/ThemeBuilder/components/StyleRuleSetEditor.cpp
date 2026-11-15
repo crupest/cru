@@ -7,6 +7,8 @@
 #include "cru/ui/style/Condition.h"
 #include "cru/ui/style/Styler.h"
 
+#include <cassert>
+
 namespace cru::theme_builder::components {
 using namespace cru::ui::controls;
 StyleRuleSetEditor::StyleRuleSetEditor() {
@@ -37,7 +39,7 @@ StyleRuleSetEditor::StyleRuleSetEditor() {
 
 void StyleRuleSetEditor::BindStyleRuleSet(
     std::shared_ptr<ui::style::StyleRuleSet> rule_set) {
-  Expects(style_rule_set_ == nullptr && rule_set);
+  assert(style_rule_set_ == nullptr && rule_set);
   style_rule_set_ = std::move(rule_set);
   UpdateView(style_rule_set_.get());
   style_rule_set_->ListChangeEvent()->AddHandler(

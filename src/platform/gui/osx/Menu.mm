@@ -6,6 +6,8 @@
 
 #import <AppKit/NSApplication.h>
 
+#include <cassert>
+
 namespace cru::platform::gui::osx {
 namespace {
 std::unique_ptr<OsxMenu> application_menu = nullptr;
@@ -22,7 +24,7 @@ OsxMenuItemPrivate::OsxMenuItemPrivate(OsxMenuItem* d) {
 OsxMenuItemPrivate::~OsxMenuItemPrivate() { delete sub_menu_; }
 
 void OsxMenuItemPrivate::AttachToNative(NSMenuItem* native_menu_item, bool check_submenu) {
-  Expects(sub_menu_);
+  assert(sub_menu_);
 
   menu_item_ = native_menu_item;
   [native_menu_item setTarget:handler_];
@@ -126,7 +128,7 @@ IMenuItem* OsxMenu::CreateItemAt(int index) {
   if (index > p_->items_.size()) index = p_->items_.size();
 
   if (p_->parent_item_ && p_->items_.empty()) {
-    Expects(p_->menu_ == nullptr);
+    assert(p_->menu_ == nullptr);
     p_->menu_ = [[NSMenu alloc] init];
     [p_->menu_ setAutoenablesItems:NO];
     [p_->parent_item_->p_->GetNative() setSubmenu:p_->menu_];
@@ -155,7 +157,7 @@ void OsxMenu::RemoveItemAt(int index) {
   delete item;
 
   if (p_->items_.empty() && p_->parent_item_) {
-    Expects(p_->menu_ != nullptr);
+    assert(p_->menu_ != nullptr);
     [p_->parent_item_->p_->GetNative() setSubmenu:nullptr];
     p_->menu_ = nullptr;
   }

@@ -1,4 +1,5 @@
 #include "cru/ui/components/Menu.h"
+#include "cru/base/Base.h"
 #include "cru/platform/gui/Window.h"
 #include "cru/ui/ThemeManager.h"
 #include "cru/ui/controls/Button.h"
@@ -40,14 +41,14 @@ Menu::~Menu() {
 }
 
 void Menu::AddItemAt(Component* item, Index index) {
-  Expects(index >= 0 && index <= GetItemCount());
+  CheckArgumentRange(index, 0, GetItemCount() + 1);
 
   items_.insert(items_.cbegin() + index, item);
   container_.InsertChildAt(item->GetRootControl(), index);
 }
 
 Component* Menu::RemoveItemAt(Index index) {
-  Expects(index >= 0 && index < GetItemCount());
+  CheckArgumentRange(index, 0, GetItemCount());
 
   Component* item = items_[index];
 

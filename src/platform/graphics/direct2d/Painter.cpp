@@ -6,12 +6,14 @@
 #include "cru/platform/graphics/direct2d/Image.h"
 #include "cru/platform/graphics/direct2d/TextLayout.h"
 
+#include <cassert>
+
 namespace cru::platform::graphics::direct2d {
 D2DDeviceContextPainter::D2DDeviceContextPainter(
     DirectGraphicsFactory* graphics_factory,
     ID2D1DeviceContext1* device_context, bool release)
     : DirectGraphicsResource(graphics_factory) {
-  Expects(device_context);
+  assert(device_context);
   device_context_ = device_context;
   release_ = release;
   device_context->BeginDraw();
@@ -158,7 +160,7 @@ void D2DDeviceContextPainter::PushState() {
 }
 
 void D2DDeviceContextPainter::PopState() {
-  Expects(!drawing_state_stack_.empty());
+  assert(!drawing_state_stack_.empty());
   auto drawing_state = drawing_state_stack_.back();
   drawing_state_stack_.pop_back();
   device_context_->RestoreDrawingState(drawing_state.Get());

@@ -8,6 +8,8 @@
 #include <wincodec.h>
 #include <wrl/client.h>
 
+#include <cassert>
+
 namespace cru::platform::graphics::direct2d {
 WinImageFactory::WinImageFactory(DirectGraphicsFactory* graphics_factory)
     : DirectGraphicsResource(graphics_factory) {
@@ -81,8 +83,8 @@ void WinImageFactory::EncodeToStream(IImage* image, io::Stream* stream,
   FLOAT dpi_x, dpi_y;
   d2d_bitmap->GetDpi(&dpi_x, &dpi_y);
   auto pixel_format = d2d_bitmap->GetPixelFormat();
-  Ensures(pixel_format.format == DXGI_FORMAT_B8G8R8A8_UNORM);
-  Ensures(pixel_format.alphaMode == D2D1_ALPHA_MODE_PREMULTIPLIED);
+  assert(pixel_format.format == DXGI_FORMAT_B8G8R8A8_UNORM);
+  assert(pixel_format.alphaMode == D2D1_ALPHA_MODE_PREMULTIPLIED);
 
   Microsoft::WRL::ComPtr<ID2D1Bitmap1> cpu_bitmap;
   CheckHResult(GetDirectFactory()->GetDefaultD2D1DeviceContext()->CreateBitmap(
@@ -110,12 +112,12 @@ void WinImageFactory::EncodeToStream(IImage* image, io::Stream* stream,
       ConvertImageFormatToGUID(format), nullptr, &wic_bitmap_encoder));
 
   CheckHResult(wic_bitmap_encoder->Initialize(com_stream.Get(),
-                                               WICBitmapEncoderNoCache));
+                                              WICBitmapEncoderNoCache));
 
   Microsoft::WRL::ComPtr<IWICBitmapFrameEncode> wic_bitmap_frame_encode;
   Microsoft::WRL::ComPtr<IPropertyBag2> property_bag;
   CheckHResult(wic_bitmap_encoder->CreateNewFrame(&wic_bitmap_frame_encode,
-                                                   &property_bag));
+                                                  &property_bag));
 
   if (format == ImageFormat::Jpeg) {
     PROPBAG2 option = {0};

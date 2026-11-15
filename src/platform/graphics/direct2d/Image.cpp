@@ -2,12 +2,14 @@
 #include "cru/platform/graphics/direct2d/Factory.h"
 #include "cru/platform/graphics/direct2d/Painter.h"
 
+#include <cassert>
+
 namespace cru::platform::graphics::direct2d {
 Direct2DImage::Direct2DImage(DirectGraphicsFactory* graphics_factory,
                              Microsoft::WRL::ComPtr<ID2D1Bitmap1> d2d_bitmap)
     : DirectGraphicsResource(graphics_factory),
       d2d_bitmap_(std::move(d2d_bitmap)) {
-  Expects(d2d_bitmap_);
+  assert(d2d_bitmap_);
 }
 
 Direct2DImage::~Direct2DImage() {}

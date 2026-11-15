@@ -3,11 +3,12 @@
 #include "cru/base/log/Logger.h"
 #include "cru/platform/gui/win/Window.h"
 
+#include <cassert>
 #include <vector>
 
 namespace cru::platform::gui::win {
 AutoHIMC::AutoHIMC(HWND hwnd) : hwnd_(hwnd) {
-  Expects(hwnd);
+  assert(hwnd);
   handle_ = ::ImmGetContext(hwnd);
 }
 

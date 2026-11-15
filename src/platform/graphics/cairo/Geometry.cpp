@@ -5,6 +5,7 @@
 
 #include <cairo/cairo.h>
 
+#include <cassert>
 #include <numbers>
 #include <utility>
 
@@ -17,7 +18,7 @@ CairoGeometry::CairoGeometry(CairoGraphicsFactory* factory,
       transform_(transform),
       fill_rule_(fill_rule),
       auto_destroy_(auto_destroy) {
-  Expects(cairo_path);
+  assert(cairo_path);
 }
 
 CairoGeometry::~CairoGeometry() {

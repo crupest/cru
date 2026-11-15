@@ -1,6 +1,7 @@
 #include "cru/platform/graphics/cairo/Image.h"
 #include "cru/platform/graphics/cairo/Painter.h"
 
+#include <cassert>
 #include <memory>
 
 namespace cru::platform::graphics::cairo {
@@ -14,7 +15,7 @@ CairoImage::CairoImage(CairoGraphicsFactory* factory, int width, int height)
 CairoImage::CairoImage(CairoGraphicsFactory* factory,
                        cairo_surface_t* cairo_image_surface, bool auto_release)
     : CairoResource(factory) {
-  Expects(cairo_surface_get_type(cairo_image_surface) ==
+  assert(cairo_surface_get_type(cairo_image_surface) ==
           CAIRO_SURFACE_TYPE_IMAGE);
   cairo_surface_ = cairo_image_surface;
   auto_release_ = auto_release;

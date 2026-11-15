@@ -6,6 +6,8 @@
 #include "cru/ui/style/ApplyBorderStyleInfo.h"
 #include "cru/ui/style/Styler.h"
 
+#include <cassert>
+
 namespace cru::theme_builder::components::stylers {
 BorderStylerEditor::BorderStylerEditor() {
   SetLabel("Border Styler");
@@ -57,7 +59,7 @@ ClonePtr<ui::style::BorderStyler> BorderStylerEditor::GetValue() {
 
 void BorderStylerEditor::SetValue(ui::style::BorderStyler* styler,
                                   bool trigger_change) {
-  Expects(styler);
+  assert(styler);
 
   auto border_style = styler->GetBorderStyle();
   corner_radius_editor_.SetValue(border_style.border_radius, false);
