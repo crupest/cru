@@ -57,13 +57,6 @@ struct CRU_BASE_API Interface {
   virtual ~Interface() = default;
 };
 
-[[noreturn]] void CRU_BASE_API NotImplemented();
-[[noreturn]] void CRU_BASE_API
-NotImplemented(std::string_view additional_message);
-[[noreturn]] void CRU_BASE_API PlatformNotImplemented(
-    std::string_view platform, std::string_view operation,
-    std::optional<std::string_view> additional_message = std::nullopt);
-
 using Index = std::ptrdiff_t;
 
 // https://www.boost.org/doc/libs/1_54_0/doc/html/hash/reference.html#boost.hash_combine
@@ -146,6 +139,13 @@ class CRU_BASE_API NotImplementedException : public Exception {
  public:
   using Exception::Exception;  // inherit constructors
 };
+
+[[noreturn]] void CRU_BASE_API NotImplemented();
+[[noreturn]] void CRU_BASE_API
+NotImplemented(std::string_view additional_message);
+[[noreturn]] void CRU_BASE_API PlatformNotImplemented(
+    std::string_view platform, std::string_view operation,
+    std::optional<std::string_view> additional_message = std::nullopt);
 
 class CRU_BASE_API PlatformException : public Exception {
  public:

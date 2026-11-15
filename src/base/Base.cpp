@@ -6,23 +6,6 @@
 #include <string_view>
 
 namespace cru {
-void NotImplemented() { throw NotImplementedException(); }
-void NotImplemented(std::string_view additional_message) {
-  throw NotImplementedException(std::string(additional_message));
-}
-
-void PlatformNotImplemented(
-    std::string_view platform, std::string_view operation,
-    std::optional<std::string_view> additional_message) {
-  auto message = std::format("{} is not implemented or supported on {}.",
-                             operation, platform);
-  if (additional_message) {
-    message += ' ';
-    message += *additional_message;
-  }
-  throw NotImplementedException(message);
-}
-
 Exception::Exception(std::string message, std::shared_ptr<std::exception> inner)
     : message_(std::move(message)), inner_(std::move(inner)) {}
 
@@ -39,6 +22,23 @@ void Exception::AppendMessage(std::string_view additional_message) {
 void Exception::AppendMessage(
     std::optional<std::string_view> additional_message) {
   if (additional_message) AppendMessage(*additional_message);
+}
+
+void NotImplemented() { throw NotImplementedException(); }
+void NotImplemented(std::string_view additional_message) {
+  throw NotImplementedException(std::string(additional_message));
+}
+
+void PlatformNotImplemented(
+    std::string_view platform, std::string_view operation,
+    std::optional<std::string_view> additional_message) {
+  auto message = std::format("{} is not implemented or supported on {}.",
+                             operation, platform);
+  if (additional_message) {
+    message += ' ';
+    message += *additional_message;
+  }
+  throw NotImplementedException(message);
 }
 
 ErrnoException::ErrnoException() : ErrnoException("") {}
