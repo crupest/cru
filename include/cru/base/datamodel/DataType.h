@@ -303,6 +303,8 @@ struct IDataType : virtual IDataTypeBase {
   }
 
  public:
+  using Type = T;
+
   const std::type_info& GetTypeInfo() override { return typeid(T); }
 
   virtual DataConvertResult<T> ConvertFromString(std::string_view value) = 0;
@@ -379,7 +381,7 @@ class DataTypeBase : public Object, public virtual IDataType<T> {
   }
 
  protected:
-  DataTypeBase(std::string name)
+  explicit DataTypeBase(std::string name)
       : name_(std::move(name)), auto_convert_from_xml_by_string_(true) {}
 
   virtual DataConvertResult<T> DoConvertFromString(std::string_view value) {
@@ -423,16 +425,33 @@ class DataTypeBase : public Object, public virtual IDataType<T> {
   bool auto_convert_from_xml_by_string_;
 };
 
+/**
+ * @brief Arithmetic types which represent real numbers. `bool`, `wchar_t`,
+ * `char8_t`, `char16_t` and `char32_t` are excluded because
+ * cru::string::ParseToNumber, which is backed by std::from_chars, has no
+ * overload for them.
+ */
 template <typename T>
-  requires(std::is_arithmetic_v<T>)
+concept RealArithmetic =
+    std::is_arithmetic_v<T> && !std::same_as<T, bool> &&
+    !std::same_as<T, wchar_t> && !std::same_as<T, char8_t> &&
+    !std::same_as<T, char16_t> && !std::same_as<T, char32_t>;
+
+template <typename T>
+  requires RealArithmetic<T>
 class NumberDataType : public DataTypeBase<T> {
  public:
+  static constexpr auto kDefaultParseFlags =
+      cru::string::ParseToNumberFlags::AllowLeadingSpaces |
+      cru::string::ParseToNumberFlags::AllowTrailingSpaces |
+      cru::string::ParseToNumberFlags::AllowTrailingJunk;
+
   explicit NumberDataType(
-      cru::string::ParseToNumberFlag parse_flags =
-          cru::string::ParseToNumberFlags::AllowLeadingSpaces |
-          cru::string::ParseToNumberFlags::AllowTrailingSpaces |
-          cru::string::ParseToNumberFlags::AllowTrailingJunk)
-      : DataTypeBase<T>("Number"), parse_flag_(parse_flags) {}
+      std::string name,
+      cru::string::ParseToNumberFlag parse_flags = kDefaultParseFlags)
+      : DataTypeBase<T>(std::move(name)), parse_flag_(parse_flags) {}
+
+  ~NumberDataType() override = 0;
 
  protected:
   DataConvertResult<T> DoConvertFromString(std::string_view value) override {
@@ -453,21 +472,64 @@ class NumberDataType : public DataTypeBase<T> {
 };
 
 template <typename T>
-  requires(std::is_arithmetic_v<T>)
-class NumberListDataType : public DataTypeBase<std::vector<T>> {
+  requires RealArithmetic<T>
+NumberDataType<T>::~NumberDataType() = default;
+
+#define CRU_DEFINE_NUMBER_DATA_TYPE(name, type)                          \
+  class name##DataType : public NumberDataType<type> {                   \
+   public:                                                               \
+    static constexpr auto kName = #name;                                 \
+    explicit name##DataType(                                             \
+        std::string name = kName,                                        \
+        cru::string::ParseToNumberFlag parse_flags = kDefaultParseFlags) \
+        : NumberDataType<type>(std::move(name), parse_flags) {}          \
+    explicit name##DataType(cru::string::ParseToNumberFlag parse_flags)  \
+        : NumberDataType<type>(kName, parse_flags) {}                    \
+  };
+
+CRU_DEFINE_NUMBER_DATA_TYPE(Char, char)
+CRU_DEFINE_NUMBER_DATA_TYPE(SignedChar, signed char)
+CRU_DEFINE_NUMBER_DATA_TYPE(UnsignedChar, unsigned char)
+CRU_DEFINE_NUMBER_DATA_TYPE(Short, short)
+CRU_DEFINE_NUMBER_DATA_TYPE(UnsignedShort, unsigned short)
+CRU_DEFINE_NUMBER_DATA_TYPE(Int, int)
+CRU_DEFINE_NUMBER_DATA_TYPE(UnsignedInt, unsigned int)
+CRU_DEFINE_NUMBER_DATA_TYPE(Long, long)
+CRU_DEFINE_NUMBER_DATA_TYPE(UnsignedLong, unsigned long)
+CRU_DEFINE_NUMBER_DATA_TYPE(LongLong, long long)
+CRU_DEFINE_NUMBER_DATA_TYPE(UnsignedLongLong, unsigned long long)
+CRU_DEFINE_NUMBER_DATA_TYPE(Float, float)
+CRU_DEFINE_NUMBER_DATA_TYPE(Double, double)
+CRU_DEFINE_NUMBER_DATA_TYPE(LongDouble, long double)
+
+#undef CRU_DEFINE_NUMBER_DATA_TYPE
+
+template <typename TNumberDataType>
+  requires(std::derived_from<TNumberDataType,
+                             NumberDataType<typename TNumberDataType::Type>>)
+class NumberListDataType
+    : public DataTypeBase<std::vector<typename TNumberDataType::Type>> {
+ private:
+  using T_ = std::vector<typename TNumberDataType::Type>;
+  static constexpr auto kElementParseFlags =
+      cru::string::ParseToNumberFlags::AllowLeadingSpaces |
+      cru::string::ParseToNumberFlags::AllowTrailingSpaces;
+
  public:
-  explicit NumberListDataType()
-      : DataTypeBase<std::vector<T>>("NumberList"),
-        number_data_type_(
-            cru::string::ParseToNumberFlags::AllowLeadingSpaces |
-            cru::string::ParseToNumberFlags::AllowTrailingSpaces) {}
+  using NumberType = typename TNumberDataType::Type;
+
+  NumberListDataType()
+      : NumberListDataType(TNumberDataType::kName + std::string("List")) {}
+  explicit NumberListDataType(std::string name)
+      : DataTypeBase<T_>(std::move(name)),
+        number_data_type_(kElementParseFlags) {}
 
  protected:
-  DataConvertResult<std::vector<T>> DoConvertFromString(
+  DataConvertResult<std::vector<NumberType>> DoConvertFromString(
       std::string_view value) override {
     auto strs = cru::string::SplitBySpace(value);
     bool success = true;
-    std::vector<T> numbers;
+    T_ numbers;
     std::vector<std::string> errors;
     for (int i = 0; i < strs.size(); i++) {
       auto convert_result = number_data_type_.ConvertFromString(strs[i]);
@@ -480,25 +542,39 @@ class NumberListDataType : public DataTypeBase<std::vector<T>> {
         errors.push_back(std::format("In substring {}, {}", i + 1, error));
       }
     }
-    std::optional<std::vector<T>> result_value;
+    std::optional<T_> result_value;
     if (success) {
       result_value = std::move(numbers);
     }
-    return DataConvertResult<std::vector<T>>(std::move(result_value),
-                                             std::move(errors));
+    return DataConvertResult<T_>(std::move(result_value), std::move(errors));
   }
 
-  DataConvertResult<std::string> DoConvertToString(
-      const std::vector<T>& value) override {
-    return DataConvertResult<std::string>::Success(
-        cru::string::Join(" ", value | std::views::transform([](T number) {
-                                 return std::to_string(number);
-                               })));
+  DataConvertResult<std::string> DoConvertToString(const T_& value) override {
+    return DataConvertResult<std::string>::Success(cru::string::Join(
+        " ", value | std::views::transform([](NumberType number) {
+               return std::to_string(number);
+             })));
   }
 
  private:
-  NumberDataType<T> number_data_type_;
+  TNumberDataType number_data_type_;
 };
+
+using CharListDataType = NumberListDataType<CharDataType>;
+using SignedCharListDataType = NumberListDataType<SignedCharDataType>;
+using UnsignedCharListDataType = NumberListDataType<UnsignedCharDataType>;
+using ShortListDataType = NumberListDataType<ShortDataType>;
+using UnsignedShortListDataType = NumberListDataType<UnsignedShortDataType>;
+using IntListDataType = NumberListDataType<IntDataType>;
+using UnsignedIntListDataType = NumberListDataType<UnsignedIntDataType>;
+using LongListDataType = NumberListDataType<LongDataType>;
+using UnsignedLongListDataType = NumberListDataType<UnsignedLongDataType>;
+using LongLongListDataType = NumberListDataType<LongLongDataType>;
+using UnsignedLongLongListDataType =
+    NumberListDataType<UnsignedLongLongDataType>;
+using FloatListDataType = NumberListDataType<FloatDataType>;
+using DoubleListDataType = NumberListDataType<DoubleDataType>;
+using LongDoubleListDataType = NumberListDataType<LongDoubleDataType>;
 
 class CRU_BASE_API StringDataType : public DataTypeBase<std::string> {
  public:

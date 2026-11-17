@@ -11,14 +11,7 @@
 #include <memory>
 
 namespace cru::ui::datamodel {
-using cru::datamodel::DataConvertResult;
-using cru::datamodel::DataTypeBase;
-using cru::datamodel::DataTypeRegistry;
-using cru::datamodel::IDataType;
-using cru::datamodel::IDataValidator;
-using cru::datamodel::NumberDataType;
-using cru::datamodel::NumberRangeDataValidator;
-using cru::datamodel::StringDataType;
+using namespace cru::datamodel;
 
 template <typename T>
 using SharedPtrDataTypeBase = DataTypeBase<std::shared_ptr<T>>;
@@ -26,5 +19,5 @@ using SharedPtrDataTypeBase = DataTypeBase<std::shared_ptr<T>>;
 template <typename T>
 using ClonePtrDataTypeBase = DataTypeBase<ClonePtr<T>>;
 
-CRU_UI_API cru::datamodel::DataTypeRegistry* GetUiDataTypeRegistry();
+CRU_UI_API DataTypeRegistry* GetUiDataTypeRegistry();
 }  // namespace cru::ui::datamodel

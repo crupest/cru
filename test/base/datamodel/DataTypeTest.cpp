@@ -10,9 +10,10 @@ using cru::Exception;
 using cru::datamodel::DataConvertResult;
 using cru::datamodel::DataTypeBase;
 using cru::datamodel::DataTypeRegistry;
+using cru::datamodel::DoubleDataType;
+using cru::datamodel::IntDataType;
+using cru::datamodel::IntListDataType;
 using cru::datamodel::KeyValueObject;
-using cru::datamodel::NumberDataType;
-using cru::datamodel::NumberListDataType;
 using cru::datamodel::ObjectDataType;
 using cru::datamodel::StringDataType;
 using cru::string::ParseToNumberFlags;
@@ -49,10 +50,10 @@ TEST_CASE("DataConvertResult basic behaviors", "[datamodel]") {
           std::vector<std::string>{"w1", "w2"});
 }
 
-TEST_CASE("NumberDataType string conversion", "[datamodel]") {
-  NumberDataType<int> type;
+TEST_CASE("IntDataType string conversion", "[datamodel]") {
+  IntDataType type;
 
-  REQUIRE(type.GetName() == "Number");
+  REQUIRE(type.GetName() == "Int");
 
   auto parsed = type.ConvertFromString(" 10 trailing");
   REQUIRE(parsed.IsSuccess());
@@ -69,9 +70,9 @@ TEST_CASE("NumberDataType string conversion", "[datamodel]") {
   REQUIRE(type.ConvertToXml(1).IsNotSupported());
 }
 
-TEST_CASE("NumberDataType strict trailing junk handling", "[datamodel]") {
-  NumberDataType<int> strict_type(ParseToNumberFlags::AllowLeadingSpaces |
-                                  ParseToNumberFlags::AllowTrailingSpaces);
+TEST_CASE("IntDataType strict trailing junk handling", "[datamodel]") {
+  IntDataType strict_type(ParseToNumberFlags::AllowLeadingSpaces |
+                          ParseToNumberFlags::AllowTrailingSpaces);
 
   auto parsed = strict_type.ConvertFromString(" 55 ");
   REQUIRE(parsed.IsSuccess());
@@ -82,10 +83,10 @@ TEST_CASE("NumberDataType strict trailing junk handling", "[datamodel]") {
   REQUIRE(failed.HasErrors());
 }
 
-TEST_CASE("NumberListDataType string conversion", "[datamodel]") {
-  NumberListDataType<int> type;
+TEST_CASE("IntListDataType string conversion", "[datamodel]") {
+  IntListDataType type;
 
-  REQUIRE(type.GetName() == "NumberList");
+  REQUIRE(type.GetName() == "IntList");
 
   auto parsed = type.ConvertFromString(
       " 1\t2\n\xC2\xA0"
@@ -102,8 +103,8 @@ TEST_CASE("NumberListDataType string conversion", "[datamodel]") {
   REQUIRE(type.ConvertToXml(std::vector<int>{1}).IsNotSupported());
 }
 
-TEST_CASE("NumberListDataType reports invalid substrings", "[datamodel]") {
-  NumberListDataType<int> type;
+TEST_CASE("IntListDataType reports invalid substrings", "[datamodel]") {
+  IntListDataType type;
 
   auto failed = type.ConvertFromString("1 2x 3");
   REQUIRE(!failed.IsSuccess());
@@ -113,11 +114,10 @@ TEST_CASE("NumberListDataType reports invalid substrings", "[datamodel]") {
   REQUIRE_THROWS_AS(failed.GetValue(), Exception);
 }
 
-TEST_CASE("NumberDataType xml conversion through string fallback",
-          "[datamodel]") {
-  NumberDataType<int> type;
+TEST_CASE("IntDataType xml conversion through string fallback", "[datamodel]") {
+  IntDataType type;
 
-  XmlElementNode from_text("Number");
+  XmlElementNode from_text("Int");
   from_text.AddChild(new XmlTextNode("77"));
   REQUIRE(type.XmlIsOfThisType(&from_text));
 
@@ -132,14 +132,14 @@ TEST_CASE("NumberDataType xml conversion through string fallback",
   REQUIRE(!wrong_tag_result.IsSuccess());
   REQUIRE(wrong_tag_result.HasErrors());
 
-  XmlElementNode nested_element("Number");
+  XmlElementNode nested_element("Int");
   nested_element.AddChild(new XmlElementNode("child"));
 
   auto nested_failed = type.ConvertFromXml(&nested_element);
   REQUIRE(!nested_failed.IsSuccess());
   REQUIRE(nested_failed.HasErrors());
 
-  XmlElementNode attr_and_text("Number", {{"value", "33"}});
+  XmlElementNode attr_and_text("Int", {{"value", "33"}});
   attr_and_text.AddChild(new XmlTextNode("44"));
 
   auto attr_and_text_result = type.ConvertFromXml(&attr_and_text);
@@ -147,7 +147,7 @@ TEST_CASE("NumberDataType xml conversion through string fallback",
   REQUIRE(attr_and_text_result.GetValue() == 33);
   REQUIRE(attr_and_text_result.HasErrors());
 
-  XmlElementNode attr_only("Number", {{"value", "99"}});
+  XmlElementNode attr_only("Int", {{"value", "99"}});
   auto attr_only_result = type.ConvertFromXml(&attr_only);
   REQUIRE(attr_only_result.IsSuccess());
   REQUIRE(attr_only_result.GetValue() == 99);
@@ -185,8 +185,8 @@ class ObjectDataTypeTestFixture {
  public:
   ObjectDataTypeTestFixture() : object_data_type_(&registry_) {
     registry_.RegisterDataType(new StringDataType());
-    registry_.RegisterDataType(new NumberDataType<int>());
-    registry_.RegisterDataType(new NumberDataType<double>());
+    registry_.RegisterDataType(new IntDataType());
+    registry_.RegisterDataType(new DoubleDataType());
   }
 
   DataConvertResult<std::string> ConvertToString(const KeyValueObject& value) {

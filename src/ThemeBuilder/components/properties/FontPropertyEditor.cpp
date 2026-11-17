@@ -11,7 +11,7 @@ using namespace cru::ui::components;
 
 FontPropertyEditor::FontPropertyEditor() {
   font_size_input_ =
-      Input<float>::Create("Font Size", new datamodel::NumberDataType<float>(),
+      Input<float>::Create("Font Size", new datamodel::FloatDataType(),
                            new datamodel::NumberRangeDataValidator<float>(
                                0.0f, true, std::nullopt, false));
 

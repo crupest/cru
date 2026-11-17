@@ -17,8 +17,8 @@
 
 namespace cru::ui::datamodel {
 
-static cru::datamodel::DataTypeRegistry* CreateUiDataTypeRegistry() {
-  auto registry = new cru::datamodel::DataTypeRegistry();
+static std::unique_ptr<DataTypeRegistry> CreateUiDataTypeRegistry() {
+  auto registry = DataTypeRegistry::CreateDefaultRegistry();
 
   using namespace style;
 
@@ -28,7 +28,6 @@ static cru::datamodel::DataTypeRegistry* CreateUiDataTypeRegistry() {
   registry->RegisterDataType(new MeasureLengthDataType());
   registry->RegisterDataType(new PointDataType());
   registry->RegisterDataType(new SizeDataType());
-  registry->RegisterDataType(new StringDataType());
   registry->RegisterDataType(new ThicknessDataType());
   registry->RegisterDataType(new BorderStyleDataType());
   registry->RegisterDataType(new ColorDataType());
@@ -52,9 +51,8 @@ static cru::datamodel::DataTypeRegistry* CreateUiDataTypeRegistry() {
   return registry;
 }
 
-cru::datamodel::DataTypeRegistry* GetUiDataTypeRegistry() {
-  static cru::datamodel::DataTypeRegistry* registry =
-      CreateUiDataTypeRegistry();
-  return registry;
+DataTypeRegistry* GetUiDataTypeRegistry() {
+  static auto registry = CreateUiDataTypeRegistry();
+  return registry.get();
 }
 }  // namespace cru::ui::datamodel

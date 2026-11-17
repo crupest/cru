@@ -4,11 +4,14 @@
 #include "../ClonePtr.h"
 #include "DataType.h"
 
+#include <memory>
 #include <vector>
 
 namespace cru::datamodel {
 class CRU_BASE_API DataTypeRegistry : public Object {
  public:
+  static std::unique_ptr<DataTypeRegistry> CreateDefaultRegistry();
+
   DataTypeRegistry();
   ~DataTypeRegistry();
 
