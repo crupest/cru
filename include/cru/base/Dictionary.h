@@ -214,7 +214,7 @@ class Dictionary {
       return {iterator(it), false};
     } else {
       storage_.push_back(std::move(new_value));
-      return {std::prev(end()), true};
+      return {--end(), true};
     }
   }
 
@@ -231,7 +231,7 @@ class Dictionary {
       return {iterator(it), false};
     } else {
       storage_.emplace_back(std::forward<K>(k), std::forward<M>(obj));
-      return {std::prev(end()), true};
+      return {--end(), true};
     }
   }
 
