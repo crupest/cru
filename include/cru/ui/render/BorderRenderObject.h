@@ -3,6 +3,8 @@
 #include "../style/ApplyBorderStyleInfo.h"
 #include "RenderObject.h"
 
+#include <cru/platform/graphics/Geometry.h>
+
 namespace cru::ui::render {
 class CRU_UI_API BorderRenderObject
     : public RenderObject,
