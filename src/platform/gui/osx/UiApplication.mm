@@ -232,7 +232,7 @@ std::optional<std::vector<std::string>> OsxUiApplication::ShowOpenDialog(
 
   [panel setCanChooseFiles:options.can_choose_files];
   [panel setCanChooseDirectories:options.can_choose_directories];
-  [panel setAllowsMultipleSelection:options.allow_mulitple_selection];
+  [panel setAllowsMultipleSelection:options.allow_multiple_selection];
 
   auto model_result = [panel runModal];
   if (model_result == NSModalResponseOK) {
