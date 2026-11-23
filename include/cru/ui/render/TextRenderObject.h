@@ -1,6 +1,10 @@
 #pragma once
 #include "RenderObject.h"
 
+#include <cru/platform/graphics/Brush.h>
+#include <cru/platform/graphics/Font.h>
+#include <cru/platform/graphics/TextLayout.h>
+
 #include <memory>
 #include <string>
 

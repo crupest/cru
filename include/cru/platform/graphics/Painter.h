@@ -1,8 +1,13 @@
 #pragma once
-#include <type_traits>
 #include "Base.h"
 
+#include <type_traits>
+
 namespace cru::platform::graphics {
+struct IBrush;
+struct IGeometry;
+struct ITextLayout;
+struct IImage;
 
 /**
  * \brief Painter is a object to paint on something like window, bitmap and etc.

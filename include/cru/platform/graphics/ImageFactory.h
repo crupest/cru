@@ -1,5 +1,6 @@
 #pragma once
 #include "Base.h"
+#include "Image.h"
 
 #include <cru/base/io/Stream.h>
 

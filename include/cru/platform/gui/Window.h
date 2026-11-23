@@ -10,7 +10,7 @@
 
 namespace cru::platform::gui {
 struct ICursor;
-class IInputMethodContext;
+struct IInputMethodContext;
 
 CRU_DEFINE_BITMASK(WindowStyleFlag) {
   static constexpr WindowStyleFlag NoCaptionAndBorder =

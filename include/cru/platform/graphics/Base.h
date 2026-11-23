@@ -17,15 +17,6 @@
 namespace cru::platform::graphics {
 // forward declarations
 struct IGraphicsFactory;
-struct IBrush;
-struct ISolidColorBrush;
-struct IFont;
-struct IGeometry;
-struct IGeometryBuilder;
-struct IImage;
-struct IImageFactory;
-struct IPainter;
-struct ITextLayout;
 
 struct TextHitTestResult {
   Index position;

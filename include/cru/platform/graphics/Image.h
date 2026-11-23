@@ -1,5 +1,6 @@
 #pragma once
 #include "Base.h"
+#include "Painter.h"
 
 namespace cru::platform::graphics {
 struct CRU_PLATFORM_GRAPHICS_API IImage : public virtual IGraphicsResource {

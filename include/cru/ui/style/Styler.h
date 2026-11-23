@@ -1,10 +1,12 @@
 #pragma once
 #include "../Base.h"
 #include "ApplyBorderStyleInfo.h"
-#include "cru/base/ClonePtr.h"
-#include "cru/platform/graphics/Brush.h"
-#include "cru/platform/gui/Cursor.h"
-#include "cru/ui/render/MeasureRequirement.h"
+
+#include <cru/base/ClonePtr.h>
+#include <cru/platform/graphics/Brush.h>
+#include <cru/platform/graphics/Font.h>
+#include <cru/platform/gui/Cursor.h>
+#include <cru/ui/render/MeasureRequirement.h>
 
 #include <memory>
 #include <vector>
