@@ -3,6 +3,8 @@
 #include "Painter.h"
 
 namespace cru::platform::graphics {
+struct IImageFactory;
+
 struct CRU_PLATFORM_GRAPHICS_API IImage : public virtual IGraphicsResource {
   virtual float GetWidth() = 0;
   virtual float GetHeight() = 0;
