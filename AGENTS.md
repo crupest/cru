@@ -37,6 +37,9 @@ cmake --build --preset debug   # (inherits asan configure)
 
 # On Windows: source the VC env script first
 . scripts/Use-VC.ps1; Use-VC
+
+# On Windows: install vcpkg dependencies (uses VCPKG_DEFAULT_BINARY_CACHE when set)
+./scripts/Install-VcpkgDeps.ps1
 ```
 
 ## Architecture

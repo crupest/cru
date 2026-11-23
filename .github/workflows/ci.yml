@@ -14,8 +14,16 @@ on:
 
 jobs:
   macos-build:
-    name: macOS Build
+    name: macOS Build (${{ matrix.linkage }})
     runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - linkage: Static Linking
+            preset: ci-default
+          - linkage: Dynamic Linking
+            preset: ci-dylib
 
     steps:
       - uses: actions/checkout@v7
@@ -26,16 +34,12 @@ jobs:
         run: |
           brew install icu4c cairo pango sdl3
 
-      - name: Build And Test (Static Linking)
+      - name: Build And Test (${{ matrix.linkage }})
         run: |
-          cmake --workflow --preset ci-default
+          cmake --workflow --preset ${{ matrix.preset }}
 
-      - name: Build And Test (Dynamic Linking)
-        run: |
-          cmake --workflow --preset ci-dylib
-
-  windows-build:
-    name: Windows Build
+  windows-deps:
+    name: Windows Dependencies
     runs-on: windows-latest
     env:
       VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}\.cache\vcpkg\archives
@@ -45,6 +49,7 @@ jobs:
         with:
           submodules: true
 
+      # Warms the binary cache so the build jobs never compile ports themselves.
       - name: Cache vcpkg
         uses: actions/cache@v6
         with:
@@ -53,27 +58,57 @@ jobs:
           restore-keys: vcpkg-${{ runner.os }}-
 
       - name: Install Libraries
-        working-directory: ./vcpkg
-        run: |
-          New-Item -ItemType Directory -Force -Path "$env:VCPKG_DEFAULT_BINARY_CACHE"
-          .\bootstrap-vcpkg.bat
-          .\vcpkg install pkgconf icu libpng sdl3 cairo pango 
+        run: ./scripts/Install-VcpkgDeps.ps1
 
-      - name: Build And Test (Static Linking)
+  windows-build:
+    name: Windows Build (${{ matrix.linkage }})
+    runs-on: windows-latest
+    needs: windows-deps
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - linkage: Static Linking
+            preset: ci-default
+          - linkage: Dynamic Linking
+            preset: ci-dylib
+    env:
+      VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}\.cache\vcpkg\archives
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: true
+
+      # Restores the cache warmed by windows-deps, so installing is a no-op
+      # extraction of prebuilt ports instead of a rebuild in each job.
+      - name: Cache vcpkg
+        uses: actions/cache@v6
+        with:
+          path: ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
+          key: vcpkg-${{ runner.os }}-${{ github.run_id }}
+          restore-keys: vcpkg-${{ runner.os }}-
+
+      - name: Install Libraries
+        run: ./scripts/Install-VcpkgDeps.ps1
+
+      - name: Build And Test (${{ matrix.linkage }})
         run: |
           . scripts/Use-VC.ps1
           Use-VC
-          cmake --workflow --preset ci-default
-
-      - name: Build And Test (Dynamic Linking)
-        run: |
-          . scripts/Use-VC.ps1
-          Use-VC
-          cmake --workflow --preset ci-dylib
+          cmake --workflow --preset ${{ matrix.preset }}
 
   linux-build:
-    name: Linux Build
-    runs-on: ubuntu-26.04
+    name: Linux Build (${{ matrix.linkage }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - linkage: Static Linking
+            preset: ci-default
+          - linkage: Dynamic Linking
+            preset: ci-dylib
 
     steps:
       - uses: actions/checkout@v7
@@ -87,10 +122,6 @@ jobs:
             libxcb1-dev libxcb-cursor-dev libxkbcommon-dev libxcb-imdkit-dev libxkbcommon-x11-dev \
             libsdl3-dev
 
-      - name: Build And Test (Static Linking)
+      - name: Build And Test (${{ matrix.linkage }})
         run: |
-          cmake --workflow --preset ci-default
-
-      - name: Build And Test (Dynamic Linking)
-        run: |
-          cmake --workflow --preset ci-dylib
+          cmake --workflow --preset ${{ matrix.preset }}
